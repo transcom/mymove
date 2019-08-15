@@ -14,7 +14,6 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-	beeline "github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
@@ -45,8 +44,6 @@ func (aq *AwardQueue) findAllUnassignedShipments() (models.Shipments, error) {
 // a TSP.
 // TODO: refactor this method to ensure the transaction is wrapping what it needs to
 func (aq *AwardQueue) attemptShipmentOffer(ctx context.Context, shipment models.Shipment) (*models.ShipmentOffer, error) {
-	ctx, span := beeline.StartSpan(ctx, "attemptShipmentOffer")
-	defer span.Send()
 
 	// Validate that the shipment has all required data. Do this before touching
 	// the shipment, even for logging.
@@ -153,8 +150,6 @@ func (aq *AwardQueue) attemptShipmentOffer(ctx context.Context, shipment models.
 // assignShipments searches for all shipments that haven't been offered
 // yet to a TSP, and attempts to generate offers for each of them.
 func (aq *AwardQueue) assignShipments(ctx context.Context) {
-	ctx, span := beeline.StartSpan(ctx, "assignShipments")
-	defer span.Send()
 	aq.logger.Info("TSP Award Queue running.")
 
 	shipments, err := aq.findAllUnassignedShipments()
@@ -199,8 +194,6 @@ func getTSPsPerBand(count int) []int {
 // assignPerformanceBands loops through each unique TransportationServiceProviderPerformances group
 // and assigns any unbanded TransportationServiceProviderPerformances to a band.
 func (aq *AwardQueue) assignPerformanceBands(ctx context.Context) error {
-	ctx, span := beeline.StartSpan(ctx, "assignPerformanceBands")
-	defer span.Send()
 	perfGroups, err := models.FetchUnbandedTSPPerformanceGroups(aq.db)
 	if err != nil {
 		return err
@@ -221,8 +214,6 @@ func (aq *AwardQueue) assignPerformanceBands(ctx context.Context) error {
 // This assumes that all TransportationServiceProviderPerformances have been properly created and
 // have a valid BestValueScore.
 func (aq *AwardQueue) assignPerformanceBandsForTSPPerformanceGroup(ctx context.Context, perfGroup models.TSPPerformanceGroup) error {
-	ctx, span := beeline.StartSpan(ctx, "assignPerformanceBandsForTSPPerformanceGroup")
-	defer span.Send()
 	aq.logger.TraceInfo(ctx, "Assigning performance bands",
 		zap.String("traffic_distribution_list_id", perfGroup.TrafficDistributionListID.String()),
 		zap.String("performance_period_start", perfGroup.PerformancePeriodStart.String()),
@@ -267,8 +258,6 @@ func (aq *AwardQueue) ShipmentWithinBlackoutDates(tspID uuid.UUID, shipment mode
 
 // Run will execute the award queue algorithm.
 func (aq *AwardQueue) Run(ctx context.Context) error {
-	ctx, span := beeline.StartSpan(ctx, "awardqueue")
-	defer span.Send()
 
 	originalDB := aq.db
 	defer func() { aq.db = originalDB }()
@@ -297,9 +286,6 @@ func (aq *AwardQueue) Run(ctx context.Context) error {
 
 // waitForLock MUST be called within a transaction!
 func waitForLock(ctx context.Context, db *pop.Connection, id int) error {
-	_, span := beeline.StartSpan(ctx, "waitForLock")
-	defer span.Send()
-	span.AddField("wait_lock_id", awardQueueLockID)
 
 	// obtain transaction-level advisory-lock
 	return db.RawQuery("SELECT pg_advisory_xact_lock($1)", id).Exec()
