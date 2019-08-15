@@ -13,8 +13,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/testdatagen"
 
-	"github.com/honeycombio/beeline-go/trace"
-
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -285,8 +283,7 @@ func (suite *AuthSuite) TestAuthorizeDisableUser() {
 		false,
 	}
 	rr := httptest.NewRecorder()
-	span := trace.Span{}
-	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
+	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize disabled user")
 }
@@ -321,8 +318,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 		false,
 	}
 	rr := httptest.NewRecorder()
-	span := trace.Span{}
-	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
+	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(ctx), "")
 
 	// Office app, so should only have office ID information
 	suite.Equal(officeUserID, session.OfficeUserID)
@@ -357,8 +353,7 @@ func (suite *AuthSuite) TestAuthorizeDisableOfficeUser() {
 		false,
 	}
 	rr := httptest.NewRecorder()
-	span := trace.Span{}
-	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
+	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize disabled office user")
 }
@@ -393,8 +388,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleTSP() {
 		false,
 	}
 	rr := httptest.NewRecorder()
-	span := trace.Span{}
-	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
+	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(ctx), "")
 
 	// TSP app, so should only have TSP ID information
 	suite.Equal(tspUserID, session.TspUserID)
@@ -429,8 +423,7 @@ func (suite *AuthSuite) TestAuthorizeDisableTspUser() {
 		false,
 	}
 	rr := httptest.NewRecorder()
-	span := trace.Span{}
-	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
+	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize disabled tsp user")
 }
@@ -475,8 +468,7 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 		false,
 	}
 	rr := httptest.NewRecorder()
-	span := trace.Span{}
-	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
+	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(ctx), "")
 
 	rr2 := httptest.NewRecorder()
 	h.ServeHTTP(rr2, req.WithContext(ctx))
@@ -531,8 +523,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 		false,
 	}
 	rr := httptest.NewRecorder()
-	span := trace.Span{}
-	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
+	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(ctx), "")
 
 	// admin app, so should only have admin ID information
 	suite.Equal(adminUserID, session.AdminUserID)
@@ -570,8 +561,7 @@ func (suite *AuthSuite) TestAuthorizeDisableAdmin() {
 		false,
 	}
 	rr := httptest.NewRecorder()
-	span := trace.Span{}
-	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
+	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize disabled admin user")
 }
@@ -610,9 +600,8 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeDisabled() {
 		false,
 	}
 	rr := httptest.NewRecorder()
-	span := trace.Span{}
 
-	authorizeUnknownUser(user, h, &session, rr, &span, req.WithContext(ctx), "")
+	authorizeUnknownUser(user, h, &session, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "Office user is disabled")
 }
@@ -646,9 +635,8 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
 		false,
 	}
 	rr := httptest.NewRecorder()
-	span := trace.Span{}
 
-	authorizeUnknownUser(user, h, &session, rr, &span, req.WithContext(ctx), "")
+	authorizeUnknownUser(user, h, &session, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusUnauthorized, rr.Code, "Office user not found")
 }
@@ -683,9 +671,8 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 		false,
 	}
 	rr := httptest.NewRecorder()
-	span := trace.Span{}
 
-	authorizeUnknownUser(user, h, &session, rr, &span, req.WithContext(ctx), "")
+	authorizeUnknownUser(user, h, &session, rr, req.WithContext(ctx), "")
 
 	// Office app, so should only have office ID information
 	suite.Equal(officeUser.ID, session.OfficeUserID)
@@ -727,9 +714,8 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserTSPDisabled() {
 		false,
 	}
 	rr := httptest.NewRecorder()
-	span := trace.Span{}
 
-	authorizeUnknownUser(user, h, &session, rr, &span, req.WithContext(ctx), "")
+	authorizeUnknownUser(user, h, &session, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "TSP user is disabled")
 }
@@ -763,9 +749,8 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserTSPNotFound() {
 		false,
 	}
 	rr := httptest.NewRecorder()
-	span := trace.Span{}
 
-	authorizeUnknownUser(user, h, &session, rr, &span, req.WithContext(ctx), "")
+	authorizeUnknownUser(user, h, &session, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusUnauthorized, rr.Code, "TSP user not found")
 }
@@ -800,9 +785,8 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserTSPLogsIn() {
 		false,
 	}
 	rr := httptest.NewRecorder()
-	span := trace.Span{}
 
-	authorizeUnknownUser(user, h, &session, rr, &span, req.WithContext(ctx), "")
+	authorizeUnknownUser(user, h, &session, rr, req.WithContext(ctx), "")
 
 	// Office app, so should only have office ID information
 	suite.Equal(tspUser.ID, session.TspUserID)
@@ -844,9 +828,8 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDisabled() {
 		false,
 	}
 	rr := httptest.NewRecorder()
-	span := trace.Span{}
 
-	authorizeUnknownUser(user, h, &session, rr, &span, req.WithContext(ctx), "")
+	authorizeUnknownUser(user, h, &session, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "Admin user is disabled")
 }
@@ -880,9 +863,8 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminNotFound() {
 		false,
 	}
 	rr := httptest.NewRecorder()
-	span := trace.Span{}
 
-	authorizeUnknownUser(user, h, &session, rr, &span, req.WithContext(ctx), "")
+	authorizeUnknownUser(user, h, &session, rr, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusUnauthorized, rr.Code, "Admin user not found")
 }
@@ -917,9 +899,8 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 		false,
 	}
 	rr := httptest.NewRecorder()
-	span := trace.Span{}
 
-	authorizeUnknownUser(user, h, &session, rr, &span, req.WithContext(ctx), "")
+	authorizeUnknownUser(user, h, &session, rr, req.WithContext(ctx), "")
 
 	// Office app, so should only have office ID information
 	suite.Equal(adminUser.ID, session.AdminUserID)
