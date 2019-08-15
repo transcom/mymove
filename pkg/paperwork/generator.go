@@ -299,13 +299,6 @@ func (g *Generator) MergePDFFiles(paths []string) (afero.File, error) {
 	if err = g.pdfLib.Merge(files, mergedFile); err != nil {
 		return mergedFile, err
 	}
-	for _, f := range files {
-		err = f.Close()
-		if err != nil {
-			return mergedFile, err
-		}
-	}
-
 	// Reload the file from memstore
 	mergedFile, err = g.fs.Open(mergedFile.Name())
 	if err != nil {

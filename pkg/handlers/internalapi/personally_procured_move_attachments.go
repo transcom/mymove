@@ -1,8 +1,6 @@
 package internalapi
 
 import (
-	"runtime/debug"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -81,7 +79,6 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-	debug.FreeOSMemory()
 
 	url, err := loader.PresignedURL(pdfUpload)
 	if err != nil {
