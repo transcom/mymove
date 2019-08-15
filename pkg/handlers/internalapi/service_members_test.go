@@ -127,21 +127,20 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 
 	// When: a new ServiceMember is posted
 	newServiceMemberPayload := internalmessages.CreateServiceMemberPayload{
-		UserID:                 strfmt.UUID(user.ID.String()),
-		Edipi:                  swag.String("random string bla"),
-		FirstName:              swag.String("random string bla"),
-		MiddleName:             swag.String("random string bla"),
-		LastName:               swag.String("random string bla"),
-		Suffix:                 swag.String("random string bla"),
-		Telephone:              swag.String("random string bla"),
-		SecondaryTelephone:     swag.String("random string bla"),
-		PersonalEmail:          swag.String("wml@example.com"),
-		PhoneIsPreferred:       swag.Bool(false),
-		TextMessageIsPreferred: swag.Bool(false),
-		EmailIsPreferred:       swag.Bool(true),
-		ResidentialAddress:     fakeAddressPayload(),
-		BackupMailingAddress:   fakeAddressPayload(),
-		SocialSecurityNumber:   (*strfmt.SSN)(swag.String("123-45-6789")),
+		UserID:               strfmt.UUID(user.ID.String()),
+		Edipi:                swag.String("random string bla"),
+		FirstName:            swag.String("random string bla"),
+		MiddleName:           swag.String("random string bla"),
+		LastName:             swag.String("random string bla"),
+		Suffix:               swag.String("random string bla"),
+		Telephone:            swag.String("random string bla"),
+		SecondaryTelephone:   swag.String("random string bla"),
+		PersonalEmail:        swag.String("wml@example.com"),
+		PhoneIsPreferred:     swag.Bool(false),
+		EmailIsPreferred:     swag.Bool(true),
+		ResidentialAddress:   fakeAddressPayload(),
+		BackupMailingAddress: fakeAddressPayload(),
+		SocialSecurityNumber: (*strfmt.SSN)(swag.String("123-45-6789")),
 	}
 
 	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
@@ -236,22 +235,21 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	resAddress := fakeAddressPayload()
 	backupAddress := fakeAddressPayload()
 	patchPayload := internalmessages.PatchServiceMemberPayload{
-		Edipi:                  &newEdipi,
-		BackupMailingAddress:   backupAddress,
-		ResidentialAddress:     resAddress,
-		Affiliation:            &affiliation,
-		EmailIsPreferred:       swag.Bool(true),
-		FirstName:              swag.String("Firstname"),
-		LastName:               swag.String("Lastname"),
-		MiddleName:             swag.String("Middlename"),
-		PersonalEmail:          swag.String("name@domain.com"),
-		PhoneIsPreferred:       swag.Bool(true),
-		Rank:                   &rank,
-		TextMessageIsPreferred: swag.Bool(true),
-		SecondaryTelephone:     swag.String("555555555"),
-		SocialSecurityNumber:   ssn,
-		Suffix:                 swag.String("Sr."),
-		Telephone:              swag.String("555555555"),
+		Edipi:                &newEdipi,
+		BackupMailingAddress: backupAddress,
+		ResidentialAddress:   resAddress,
+		Affiliation:          &affiliation,
+		EmailIsPreferred:     swag.Bool(true),
+		FirstName:            swag.String("Firstname"),
+		LastName:             swag.String("Lastname"),
+		MiddleName:           swag.String("Middlename"),
+		PersonalEmail:        swag.String("name@domain.com"),
+		PhoneIsPreferred:     swag.Bool(true),
+		Rank:                 &rank,
+		SecondaryTelephone:   swag.String("555555555"),
+		SocialSecurityNumber: ssn,
+		Suffix:               swag.String("Sr."),
+		Telephone:            swag.String("555555555"),
 	}
 
 	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
@@ -274,7 +272,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	suite.Assertions.Equal(*serviceMemberPayload.Edipi, newEdipi)
 	suite.Assertions.Equal(*serviceMemberPayload.Affiliation, affiliation)
 	suite.Assertions.Equal(*serviceMemberPayload.HasSocialSecurityNumber, true)
-	suite.Assertions.Equal(*serviceMemberPayload.TextMessageIsPreferred, true)
 	suite.Assertions.Equal(*serviceMemberPayload.ResidentialAddress.StreetAddress1, *resAddress.StreetAddress1)
 	suite.Assertions.Equal(*serviceMemberPayload.BackupMailingAddress.StreetAddress1, *backupAddress.StreetAddress1)
 

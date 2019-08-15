@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190814223800_add_john_gedeon.sql")

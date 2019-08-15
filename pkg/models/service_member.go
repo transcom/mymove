@@ -50,7 +50,6 @@ type ServiceMember struct {
 	SecondaryTelephone     *string                   `json:"secondary_telephone" db:"secondary_telephone"`
 	PersonalEmail          *string                   `json:"personal_email" db:"personal_email"`
 	PhoneIsPreferred       *bool                     `json:"phone_is_preferred" db:"phone_is_preferred"`
-	TextMessageIsPreferred *bool                     `json:"text_message_is_preferred" db:"text_message_is_preferred"`
 	EmailIsPreferred       *bool                     `json:"email_is_preferred" db:"email_is_preferred"`
 	ResidentialAddressID   *uuid.UUID                `json:"residential_address_id" db:"residential_address_id"`
 	ResidentialAddress     *Address                  `belongs_to:"address"`
@@ -105,7 +104,7 @@ func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session 
 		"ResidentialAddress",
 		"SocialSecurityNumber").Find(&serviceMember, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return ServiceMember{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
@@ -156,7 +155,7 @@ func FetchServiceMember(db *pop.Connection, id uuid.UUID) (ServiceMember, error)
 	var serviceMember ServiceMember
 	err := db.Q().Find(&serviceMember, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return ServiceMember{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
@@ -328,7 +327,7 @@ func (s *ServiceMember) IsProfileComplete() bool {
 	if s.PersonalEmail == nil {
 		return false
 	}
-	if s.PhoneIsPreferred == nil && s.TextMessageIsPreferred == nil && s.EmailIsPreferred == nil {
+	if s.PhoneIsPreferred == nil && s.EmailIsPreferred == nil {
 		return false
 	}
 	if s.ResidentialAddressID == nil {
@@ -363,7 +362,7 @@ func (s ServiceMember) FetchLatestOrder(ctx context.Context, db *pop.Connection)
 		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications").First(&order)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound
 		}
 		return Order{}, err

@@ -83,7 +83,7 @@ function PPMShipmentSummary(props) {
           <tbody>
             <tr>
               <td> Estimated Weight: </td>
-              <td> {ppm && ppm.weight_estimate.toLocaleString()} lbs</td>
+              <td> {ppm.weight_estimate && ppm.weight_estimate.toLocaleString()} lbs</td>
             </tr>
             <tr>
               <td> Estimated PPM Incentive: </td>

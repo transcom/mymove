@@ -88,15 +88,6 @@ describe('completing the ppm flow', function() {
         .should('have.attr', 'href')
         .and('include', '/downloads/ppm_info_sheet.pdf');
     });
-
-    cy.get('.usa-width-three-fourths').within(() => {
-      cy.contains('Next Step: Wait for approval');
-      cy
-        .contains('Go to weight scales')
-        .children('a')
-        .should('have.attr', 'href', 'https://move.mil/resources/locator-maps');
-      cy.contains('Advance Requested: $1,333.91');
-    });
   });
 });
 
@@ -252,6 +243,7 @@ describe('allows a SM to request a payment', function() {
     serviceMemberUploadsExpenses(false);
     serviceMemberReviewsDocuments();
     serviceMemberEditsPaymentRequest();
+    serviceMemberAddsWeightTicketSetWithMissingDocuments();
   });
 
   it('service member can save a weight ticket for later', () => {
@@ -366,52 +358,6 @@ describe('allows a SM to request a payment', function() {
       .contains('Skip')
       .click();
   });
-
-  //TODO: remove when done with the new flow to request payment
-  it('service member submits request for payment', function() {
-    cy.removeFetch();
-    cy.server();
-    cy.route('POST', '**/internal/uploads').as('postUploadDocument');
-    const stub = cy.stub();
-    cy.on('window:alert', stub);
-
-    cy.logout();
-    //profile@comple.te
-    cy.signInAsUserPostRequest(milmoveAppName, '8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
-    cy.setFeatureFlag('ppmPaymentRequest=false', '/');
-    cy.contains('Fort Gordon (from Yuma AFB)');
-    cy.contains('Request Payment').click();
-
-    cy.location().should(loc => {
-      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/request-payment/);
-    });
-
-    cy.get('input[type="checkbox"]').should('not.be.checked');
-
-    cy
-      .contains('Legal Agreement / Privacy Act')
-      .click()
-      .then(() => {
-        expect(stub.getCall(0)).to.be.calledWithMatch('LEGAL AGREEMENT / PRIVACY ACT');
-      });
-    cy.get('input[type="checkbox"]').should('not.be.checked');
-    cy.get('select[name="move_document_type"]').select('WEIGHT_TICKET');
-    cy.get('input[name="title"]').type('WEIGHT_TICKET');
-    cy.upload_file('.filepond--root', 'top-secret.png');
-    cy.wait('@postUploadDocument');
-    cy
-      .get('button')
-      .contains('Save')
-      .click();
-    cy.get('input[id="agree-checkbox"]').check({ force: true });
-    cy
-      .get('button')
-      .contains('Submit Payment')
-      .click();
-    cy.location().should(loc => {
-      expect(loc.pathname).to.match(/^\/$/);
-    });
-  });
 });
 
 function serviceMemberReviewsDocuments() {
@@ -441,6 +387,7 @@ function serviceMemberReviewsDocuments() {
     .click();
   cy.wait('@signedCertifications');
   cy.wait('@requestPayment');
+  cy.contains("We're reviewing your payment request for $");
 }
 function serviceMemberEditsPaymentRequest() {
   cy
@@ -458,6 +405,77 @@ function serviceMemberEditsPaymentRequest() {
     .click();
   serviceMemberSubmitsWeightTicket('CAR', false);
   serviceMemberReviewsDocuments();
+}
+function serviceMemberAddsWeightTicketSetWithMissingDocuments() {
+  cy
+    .get('.usa-button-secondary')
+    .contains('Edit Payment Request')
+    .should('exist')
+    .click();
+  cy
+    .get('[data-cy=weight-ticket-link]')
+    .should('exist')
+    .click();
+
+  cy.get('select[name="vehicle_options"]').select('CAR');
+
+  cy.get('input[name="vehicle_nickname"]').type('Nickname');
+
+  cy.get('input[name="empty_weight"]').type('1000');
+  cy.get('input[name="missingEmptyWeightTicket"]').check({ force: true });
+
+  cy.get('input[name="full_weight"]').type('5000');
+  cy.get('input[name="missingFullWeightTicket"]').check({ force: true });
+
+  cy
+    .get('input[name="weight_ticket_date"]')
+    .type('6/2/2018{enter}')
+    .blur();
+  cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('not.be.checked');
+  cy.get('input[name="additional_weight_ticket"][value="No"]').should('be.checked');
+
+  cy
+    .get('button')
+    .contains('Save & Continue')
+    .click();
+  cy
+    .wait('@postWeightTicket')
+    .its('status')
+    .should('eq', 200);
+
+  cy
+    .get('.review-customer-agreement a')
+    .contains('Legal Agreement')
+    .click();
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/ppm-customer-agreement/);
+  });
+  cy
+    .get('.usa-button-secondary')
+    .contains('Back')
+    .click();
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
+  });
+  cy.get('.missing-label').contains('Your estimated payment is unknown');
+
+  cy.get('input[id="agree-checkbox"]').check({ force: true });
+
+  cy
+    .get('button')
+    .contains('Submit Request')
+    .should('be.enabled')
+    .click();
+  cy.wait('@signedCertifications');
+  cy.wait('@requestPayment');
+
+  cy.get('.usa-alert-warning').contains('Payment request is missing info');
+  cy
+    .get('.usa-alert-warning')
+    .contains('You will need to contact your local PPPO office to resolve your missing weight ticket.');
+
+  cy.get('.title').contains('Next step: Contact the PPPO office');
+  cy.get('.missing-label').contains('Unknown');
 }
 function serviceMemberViewsExpensesLandingPage() {
   cy.location().should(loc => {
