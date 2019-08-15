@@ -4,13 +4,11 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
-	"reflect"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
-	beeline "github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/assets"
@@ -142,14 +140,12 @@ type SubmitMoveHandler struct {
 
 // Handle ... submit a move for approval
 func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) middleware.Responder {
-	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
-	defer span.Send()
+	ctx := params.HTTPRequest.Context()
 
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
-	span.AddField("move_id", moveID)
 
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
@@ -158,7 +154,6 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 
 	submitDate := time.Time(*params.SubmitMoveForApprovalPayload.PpmSubmitDate)
 	err = move.Submit(submitDate)
-	span.AddField("move-status", string(move.Status))
 	if err != nil {
 		h.HoneyZapLogger().TraceError(ctx, "Failed to change move status to submit",
 			zap.String("move_id", moveID.String()),
