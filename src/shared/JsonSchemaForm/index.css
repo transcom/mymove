@@ -48,3 +48,23 @@ h2.sm-heading-2 {
 .dollar-input input {
   padding: 1rem 1.3em;
 }
+
+.usa-input-error {
+  padding-top: 1.8rem;
+  padding-bottom: 1.8rem;
+}
+
+.usa-input-error-message {
+  position: absolute;
+  max-width: 460px;
+}
+
+.usa-input-error-long-message {
+  padding-bottom: 4rem;
+}
+
+@media only screen and (max-width: 419px) {
+  .usa-input-error-long-message {
+    padding-bottom: 6rem;
+  }
+}

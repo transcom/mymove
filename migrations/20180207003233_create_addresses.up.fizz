@@ -5,4 +5,5 @@ create_table("addresses") {
 	t.Column("city", "string", {})
 	t.Column("state", "string", {})
 	t.Column("zip", "string", {})
+	t.Timestamps()
 }

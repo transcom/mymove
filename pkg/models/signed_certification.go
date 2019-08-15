@@ -86,7 +86,7 @@ func FetchSignedCertificationsPPMPayment(db *pop.Connection, session *auth.Sessi
 	err := db.Where("move_id = $1", id.String()).Where("certification_type = $2", SignedCertificationTypePPMPAYMENT).First(&signedCertification)
 
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			msg := fmt.Sprintf("signed_certification: with move_id: %s and certification_type: %s not found", id.String(), SignedCertificationTypePPMPAYMENT)
 			return nil, errors.Wrap(ErrFetchNotFound, msg)
 		}
@@ -108,7 +108,7 @@ func FetchSignedCertifications(db *pop.Connection, session *auth.Session, id uui
 	err := db.Where("move_id = $1", id.String()).All(&signedCertification)
 
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			msg := fmt.Sprintf("signed_certification: with move_id: %s not found", id.String())
 			return nil, errors.Wrap(ErrFetchNotFound, msg)
 		}

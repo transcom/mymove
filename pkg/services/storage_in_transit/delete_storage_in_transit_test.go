@@ -45,6 +45,6 @@ func (suite *StorageInTransitServiceSuite) TestDeleteStorageInTransit() {
 	actualStorageInTransit, err := deleter.DeleteStorageInTransit(shipment.ID, sit.ID, &session)
 	suite.NoError(err)
 	storageInTransitCompare(suite, sit, *actualStorageInTransit)
-	deletedStorageInTransit, err := models.FetchStorageInTransitByID(suite.DB(), sit.ID)
+	deletedStorageInTransit, _ := models.FetchStorageInTransitByID(suite.DB(), sit.ID)
 	suite.Nil(deletedStorageInTransit)
 }

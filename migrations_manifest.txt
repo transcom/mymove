@@ -337,3 +337,7 @@
 20190726151515_grant_all_ecs_user.up.fizz
 20190730194820_pp3_2019_tspp_data.up.fizz
 20190731163048_remove_is_superuser.up.fizz
+20190805161006_disable_truss_user.up.fizz
+20190807134704_admin_user_fname_lname_required.up.fizz
+20190812151703_add_product_admin_users.up.fizz
+20190814223800_add_john_gedeon.up.fizz

@@ -232,6 +232,10 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 
 	tariff400ngItemID := uuid.Must(uuid.FromString(params.Payload.Tariff400ngItemID.String()))
 	tariff400ngItem, err := models.FetchTariff400ngItem(h.DB(), tariff400ngItemID)
+	if err != nil {
+		logger.Error("Error fetching tariff400ng item from id", zap.Error(err))
+		return handlers.ResponseForError(logger, err)
+	}
 	// 35A has special functionality to update ActualAmountCents if it is not invoiced and Status is approved
 	canUpdate35A := tariff400ngItem.Code == "35A" && shipmentLineItem.EstimateAmountCents != nil && shipmentLineItem.InvoiceID == nil
 

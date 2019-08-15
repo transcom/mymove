@@ -3,4 +3,5 @@ create_table("traffic_distribution_lists") {
 	t.Column("source_rate_area", "string", {})
 	t.Column("destination_region", "string", {})
 	t.Column("code_of_service", "string", {})
+	t.Timestamps()
 }

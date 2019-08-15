@@ -40,6 +40,13 @@ export function fetchActive(foos) {
   return find(foos, i => includes(['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED'], get(i, 'status'))) || null;
 }
 
+export function fetchActivePPM(foos) {
+  return (
+    find(foos, i => includes(['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], get(i, 'status'))) ||
+    null
+  );
+}
+
 export function fetchActiveShipment(shipments) {
   return (
     find(shipments, i =>
