@@ -1,6 +1,9 @@
 #! /usr/bin/env bash
 
 echo "Removing generated code..."
-make clean >> /dev/null
+rm -f .server_generate.stamp
+rm -rf ./pkg/gen/
+rm -f .mocks_generate.stamp
+find ./pkg -type d -name "mocks" -delete
 echo "Done!"
 
