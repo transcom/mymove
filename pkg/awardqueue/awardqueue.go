@@ -30,8 +30,7 @@ const mps = 0
 
 // AwardQueue encapsulates the TSP award queue process
 type AwardQueue struct {
-	db *pop.Connection
-	//logger *hnyzap.Logger
+	db     *pop.Connection
 	logger Logger
 }
 
