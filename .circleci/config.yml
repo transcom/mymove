@@ -176,8 +176,8 @@ commands:
             bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
             docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
-            docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH}
-            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH}
+            docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//#}
+            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//#}
   e2e_tests:
     steps:
       - run:
