@@ -105,9 +105,31 @@ func (m *MovingExpenseDocument) DaysInStorage() (int, error) {
 		return 0, fmt.Errorf("storage end date before storage start date")
 	}
 	// don't include the first day
-	daysInStorage := int(m.StorageEndDate.Sub(*m.StorageStartDate).Hours()/24) - 1
+	daysInStorage := int(m.StorageEndDate.Sub(*m.StorageStartDate).Hours() / 24)
 	if daysInStorage < 0 {
 		return 0, nil
 	}
 	return daysInStorage, nil
+}
+
+//FilterSITExpenses filter MovingExpenseDocuments to only storage expenses
+func FilterSITExpenses(movingExpenseDocuments MovingExpenseDocuments) MovingExpenseDocuments {
+	var sitExpenses []MovingExpenseDocument
+	for _, doc := range movingExpenseDocuments {
+		if doc.MovingExpenseType == MovingExpenseTypeSTORAGE {
+			sitExpenses = append(sitExpenses, doc)
+		}
+	}
+	return sitExpenses
+}
+
+//FilterMovingExpenseDocuments filter MoveDocuments to only moving expense documents
+func FilterMovingExpenseDocuments(moveDocuments MoveDocuments) MovingExpenseDocuments {
+	var movingExpenses []MovingExpenseDocument
+	for _, moveDocument := range moveDocuments {
+		if moveDocument.MovingExpenseDocument != nil {
+			movingExpenses = append(movingExpenses, *moveDocument.MovingExpenseDocument)
+		}
+	}
+	return movingExpenses
 }

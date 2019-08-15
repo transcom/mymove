@@ -46,7 +46,7 @@ func FetchDocument(ctx context.Context, db *pop.Connection, session *auth.Sessio
 	var document Document
 	err := db.Q().Where("documents.deleted_at is null").Eager().Find(&document, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Document{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.

@@ -68,7 +68,7 @@ func FetchUpload(ctx context.Context, db *pop.Connection, session *auth.Session,
 	var upload Upload
 	err := db.Q().Where("uploads.deleted_at is null").Eager().Find(&upload, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Upload{}, errors.Wrap(ErrFetchNotFound, "error fetching upload")
 		}
 		// Otherwise, it's an unexpected err so we return that.

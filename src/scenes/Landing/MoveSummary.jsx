@@ -149,12 +149,12 @@ export const SubmittedPpmMoveSummary = props => {
               <div className="step">
                 <div className="title">Next Step: Wait for approval &amp; get ready</div>
                 <div className="next-step">
-                  You'll be notified when your move is approved (up to 3 days). To get ready to move:
+                  You'll be notified when your move is approved (up to 5 days). To get ready to move:
                   <ul>
                     <li>
                       Go to{' '}
                       <a href="https://move.mil/resources/locator-maps" target="_blank" rel="noopener noreferrer">
-                        weight scales
+                        certified weight scales
                       </a>{' '}
                       to get empty &amp; full weight tickets.
                     </li>
@@ -311,7 +311,13 @@ export const SubmittedHhgMoveSummary = props => {
 };
 
 //TODO remove redundant ApprovedMoveSummary component w/ ppmPaymentRequest flag
-const NewApprovedMoveSummaryComponent = ({ ppm, move, weightTicketSets, isMissingWeightTicketDocuments }) => {
+const NewApprovedMoveSummaryComponent = ({
+  ppm,
+  move,
+  weightTicketSets,
+  isMissingWeightTicketDocuments,
+  incentiveEstimate,
+}) => {
   const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
   const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
   const ppmPaymentRequestIntroRoute = `moves/${move.id}/ppm-payment-request-intro`;
@@ -356,8 +362,8 @@ const NewApprovedMoveSummaryComponent = ({ ppm, move, weightTicketSets, isMissin
                     <div className="step">
                       <div className="title">Next step: Wait for your payment paperwork</div>
                       <div>
-                        We're reviewing your payment request for ${formatCents(ppm.incentive_estimate_min)}. We'll let
-                        you know when you can submit your payment paperwork to Finance.
+                        We're reviewing your payment request for ${formatCents(incentiveEstimate)}. We'll let you know
+                        when you can submit your payment paperwork to Finance.
                       </div>
                       <Link to={ppmPaymentRequestReviewRoute} className="usa-button usa-button-secondary">
                         Edit Payment Request
@@ -405,6 +411,7 @@ const NewApprovedMoveSummaryComponent = ({ ppm, move, weightTicketSets, isMissin
 
 const mapStateToNewApprovedMoveSummaryProps = (state, { move }) => ({
   weightTicketSets: selectPPMCloseoutDocumentsForMove(state, move.id, ['WEIGHT_TICKET_SET']),
+  incentiveEstimate: get(state, 'ppm.incentive_estimate_min'),
 });
 
 const NewApprovedMoveSummary = connect(mapStateToNewApprovedMoveSummaryProps)(NewApprovedMoveSummaryComponent);
@@ -501,7 +508,7 @@ const NewPPMMoveDetailsPanel = ({ advance, ppm, isMissingWeightTicketDocuments }
   return (
     <div className="titled_block">
       <div className="title">Details</div>
-      <div>Weight (est.): {ppm.weight_estimate} lbs</div>
+      <div>Weight (est.): {ppm.currentPpm.weight_estimate} lbs</div>
       <div className="title" style={{ paddingTop: '0.5em' }}>
         Payment request
       </div>
@@ -577,7 +584,7 @@ const HhgMoveDetails = props => {
 const FindWeightScales = () => (
   <span>
     <a href="https://www.move.mil/resources/locator-maps" target="_blank" rel="noopener noreferrer">
-      Find Weight Scales
+      Find Certified Weight Scales
     </a>
   </span>
 );

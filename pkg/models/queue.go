@@ -109,6 +109,32 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			WHERE moves.show is true
 			and ppm.status in ('APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED')
 		`
+	} else if lifecycleState == "ppm_payment_requested" {
+		query = `
+			SELECT moves.ID,
+				COALESCE(sm.edipi, '*missing*') as edipi,
+				COALESCE(sm.rank, '*missing*') as rank,
+				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
+				moves.locator as locator,
+				ord.orders_type as orders_type,
+				COALESCE(ppm.actual_move_date, ppm.original_move_date) as move_date,
+				moves.created_at as created_at,
+				ppm.updated_at as last_modified_date,
+				moves.status as status,
+				ppm.status as ppm_status,
+				shipment.gbl_number as gbl_number,
+				origin_duty_station.name as origin_duty_station_name,
+				destination_duty_station.name as destination_duty_station_name
+			FROM moves
+			JOIN orders as ord ON moves.orders_id = ord.id
+			JOIN service_members AS sm ON ord.service_member_id = sm.id
+			JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
+			JOIN duty_stations as origin_duty_station ON sm.duty_station_id = origin_duty_station.id
+			JOIN duty_stations as destination_duty_station ON ord.new_duty_station_id = destination_duty_station.id
+			LEFT JOIN shipments AS shipment ON moves.id = shipment.move_id
+			WHERE moves.show is true
+			and ppm.status = 'PAYMENT_REQUESTED'
+		`
 	} else if lifecycleState == "hhg_active" {
 		// Move date is the Actual Pickup Date.
 		query = `

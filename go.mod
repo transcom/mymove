@@ -44,7 +44,6 @@ require (
 	github.com/gopherjs/gopherjs v0.0.0-20190430165422-3e4dfb77656c // indirect
 	github.com/gorilla/csrf v1.6.0
 	github.com/hashicorp/go-multierror v1.0.0
-	github.com/hhrutter/pdfcpu v0.2.1
 	github.com/honeycombio/beeline-go v0.4.4
 	github.com/honeycombio/libhoney-go v1.11.1 // indirect
 	github.com/imdario/mergo v0.3.7
@@ -59,6 +58,7 @@ require (
 	github.com/mattn/go-shellwords v1.0.5 // indirect
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/namsral/flag v1.7.4-pre.0.20170814194028-67f268f20922
+	github.com/pdfcpu/pdfcpu v0.2.3
 	github.com/pkg/errors v0.8.1
 	github.com/rickar/cal v1.0.1
 	github.com/rogpeppe/go-internal v1.3.0

@@ -17,4 +17,5 @@ create_table("storage_in_transits") {
 	t.Column("warehouse_email", "text", {"null": true})
 	t.ForeignKey("shipment_id", {"shipments": ["id"]}, {})
 	t.ForeignKey("warehouse_address_id", {"addresses": ["id"]}, {})
+	t.Timestamps()
 }

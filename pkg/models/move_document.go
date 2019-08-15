@@ -23,6 +23,8 @@ const (
 	MoveDocumentStatusOK MoveDocumentStatus = "OK"
 	// MoveDocumentStatusHASISSUE captures enum value "HAS_ISSUE"
 	MoveDocumentStatusHASISSUE MoveDocumentStatus = "HAS_ISSUE"
+	// MoveDocumentStatusEXCLUDEFROMCALCULATION captures enum value "EXCLUDE_FROM_CALCULATION"
+	MoveDocumentStatusEXCLUDEFROMCALCULATION MoveDocumentStatus = "EXCLUDE_FROM_CALCULATION"
 )
 
 // MoveDocumentType represents types of different move documents
@@ -151,6 +153,8 @@ func (m *MoveDocument) AttemptTransition(targetStatus MoveDocumentStatus) error 
 		return m.Approve()
 	case MoveDocumentStatusHASISSUE:
 		return m.Reject()
+	case MoveDocumentStatusEXCLUDEFROMCALCULATION:
+		return m.Exclude()
 	}
 
 	return errors.Wrap(ErrInvalidTransition, string(targetStatus))
@@ -176,6 +180,16 @@ func (m *MoveDocument) Reject() error {
 	return nil
 }
 
+// Exclude marks the Document as HAS_ISSUE
+func (m *MoveDocument) Exclude() error {
+	if m.Status == MoveDocumentStatusEXCLUDEFROMCALCULATION {
+		return errors.Wrap(ErrInvalidTransition, "Exclude")
+	}
+
+	m.Status = MoveDocumentStatusEXCLUDEFROMCALCULATION
+	return nil
+}
+
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
 // This method is not required and may be deleted.
 func (m *MoveDocument) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
@@ -198,7 +212,7 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	var moveDoc MoveDocument
 	err := db.Q().Where("deleted_at is null").Eager("Document.Uploads", "Move", "PersonallyProcuredMove", "Shipment").Find(&moveDoc, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return nil, ErrFetchNotFound
 		}
 		return nil, err
@@ -211,7 +225,7 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	if movingDocumentErr = q.Eager().First(movingExpenseDocument); movingDocumentErr == nil {
 		moveDoc.MovingExpenseDocument = movingExpenseDocument
 	}
-	if movingDocumentErr != nil && errors.Cause(movingDocumentErr).Error() != recordNotFoundErrorString {
+	if movingDocumentErr != nil && errors.Cause(movingDocumentErr).Error() != RecordNotFoundErrorString {
 		return nil, err
 	}
 
@@ -220,7 +234,7 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	if weightTicketSetDocumentErr = q.Eager().First(weightTicketSetDocument); weightTicketSetDocumentErr == nil {
 		moveDoc.WeightTicketSetDocument = weightTicketSetDocument
 	}
-	if weightTicketSetDocumentErr != nil && errors.Cause(weightTicketSetDocumentErr).Error() != recordNotFoundErrorString {
+	if weightTicketSetDocumentErr != nil && errors.Cause(weightTicketSetDocumentErr).Error() != RecordNotFoundErrorString {
 		return nil, err
 	}
 
@@ -252,7 +266,7 @@ func FetchMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UU
 	}
 	err := query.All(&moveDocuments)
 	if err != nil {
-		if errors.Cause(err).Error() != recordNotFoundErrorString {
+		if errors.Cause(err).Error() != RecordNotFoundErrorString {
 			return nil, err
 		}
 	}
@@ -262,7 +276,7 @@ func FetchMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UU
 		moveDoc.MovingExpenseDocument = nil
 		err = db.Where("move_document_id = $1", moveDoc.ID.String()).Eager().First(&movingExpenseDocument)
 		if err != nil {
-			if errors.Cause(err).Error() != recordNotFoundErrorString {
+			if errors.Cause(err).Error() != RecordNotFoundErrorString {
 				return nil, err
 			}
 		} else {
@@ -275,7 +289,7 @@ func FetchMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UU
 		moveDoc.WeightTicketSetDocument = nil
 		err = db.Where("move_document_id = $1", moveDoc.ID.String()).Eager().First(&weightTicketSet)
 		if err != nil {
-			if errors.Cause(err).Error() != recordNotFoundErrorString {
+			if errors.Cause(err).Error() != RecordNotFoundErrorString {
 				return nil, err
 			}
 		} else {
@@ -316,7 +330,7 @@ func FetchMoveDocumentsByTypeForShipment(db *pop.Connection, session *auth.Sessi
 	var moveDocuments MoveDocuments
 	err := db.Where("deleted_at is null").Where("move_document_type = $1", string(moveDocumentType)).Where("shipment_id = $2", shipmentID.String()).All(&moveDocuments)
 	if err != nil {
-		if errors.Cause(err).Error() != recordNotFoundErrorString {
+		if errors.Cause(err).Error() != RecordNotFoundErrorString {
 			return nil, err
 		}
 	}
