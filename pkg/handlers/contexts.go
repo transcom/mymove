@@ -4,17 +4,13 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/logging"
-	"github.com/transcom/mymove/pkg/logging/hnyzap"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
@@ -30,7 +26,6 @@ type HandlerContext interface {
 	SessionFromContext(ctx context.Context) *auth.Session
 	LoggerFromContext(ctx context.Context) Logger
 	LoggerFromRequest(r *http.Request) Logger
-	HoneyZapLogger() *hnyzap.Logger
 	FileStorer() storage.FileStorer
 	SetFileStorer(storer storage.FileStorer)
 	NotificationSender() notifications.NotificationSender
@@ -58,8 +53,6 @@ type HandlerContext interface {
 	SetICNSequencer(sequencer sequence.Sequencer)
 	DPSAuthParams() dpsauth.Params
 	SetDPSAuthParams(params dpsauth.Params)
-	RespondAndTraceError(ctx context.Context, err error, msg string, fields ...zap.Field) middleware.Responder
-	RespondAndTraceVErrors(ctx context.Context, verrs *validate.Errors, err error, msg string, fields ...zap.Field) middleware.Responder
 }
 
 // FeatureFlag struct for feature flags
@@ -125,26 +118,6 @@ func (hctx *handlerContext) LoggerFromContext(ctx context.Context) Logger {
 // DB returns a POP db connection for the context
 func (hctx *handlerContext) DB() *pop.Connection {
 	return hctx.db
-}
-
-// HoneyZapLogger returns the logger capable of writing to Honeycomb to use in this context
-func (hctx *handlerContext) HoneyZapLogger() *hnyzap.Logger {
-	if zapLogger, ok := hctx.logger.(*zap.Logger); ok {
-		return &hnyzap.Logger{Logger: zapLogger}
-	}
-	return nil
-}
-
-// RespondAndTraceError uses Honeycomb to trace errors and then passes response to the standard ResponseForError
-func (hctx *handlerContext) RespondAndTraceError(ctx context.Context, err error, msg string, fields ...zap.Field) middleware.Responder {
-	hctx.HoneyZapLogger().TraceError(ctx, msg, fields...)
-	return ResponseForError(hctx.LoggerFromContext(ctx), err)
-}
-
-// RespondAndTraceVErrors uses Honeycomb to trace errors and then passes response to the standard ResponseForVErrors
-func (hctx *handlerContext) RespondAndTraceVErrors(ctx context.Context, verrs *validate.Errors, err error, msg string, fields ...zap.Field) middleware.Responder {
-	hctx.HoneyZapLogger().TraceError(ctx, msg, fields...)
-	return ResponseForVErrors(hctx.LoggerFromContext(ctx), verrs, err)
 }
 
 // FileStorer returns the storage to use in the current context
