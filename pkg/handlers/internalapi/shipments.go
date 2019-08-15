@@ -1,7 +1,6 @@
 package internalapi
 
 import (
-	"reflect"
 	"time"
 
 	"github.com/facebookgo/clock"
@@ -9,8 +8,6 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
-
-	"github.com/honeycombio/beeline-go"
 
 	"github.com/transcom/mymove/pkg/auth"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
@@ -426,9 +423,6 @@ type ApproveHHGHandler struct {
 func (h ApproveHHGHandler) Handle(params shipmentop.ApproveHHGParams) middleware.Responder {
 
 	ctx := params.HTTPRequest.Context()
-
-	ctx, span := beeline.StartSpan(ctx, reflect.TypeOf(h).Name())
-	defer span.Send()
 
 	session, logger := h.SessionAndLoggerFromContext(ctx)
 	if !session.IsOfficeUser() {
