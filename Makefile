@@ -60,6 +60,12 @@ ensure_pre_commit: .git/hooks/pre-commit ## Ensure pre-commit is installed
 	pre-commit install
 	pre-commit install-hooks
 
+# This target ensures that the post-checkout hook is installed
+.PHONY: ensure_post_checkout
+ensure_post_checkout: .git/hooks/post-checkout ## Ensure post-checkout git hook is installed
+.git/hooks/post-checkout: scripts/install-post-checkout-hook
+	scripts/install-post-checkout-hook
+
 .PHONY: prereqs
 prereqs: .prereqs.stamp ## Check that pre-requirements are installed
 .prereqs.stamp: scripts/prereqs
@@ -99,7 +105,7 @@ endif
 	touch .check_bash_version.stamp
 
 .PHONY: deps
-deps: prereqs check_hosts check_go_version check_gopath check_bash_version ensure_pre_commit client_deps server_deps ## Run all checks and install all depdendencies
+deps: prereqs check_hosts check_go_version check_gopath check_bash_version ensure_pre_commit ensure_post_checkout client_deps server_deps ## Run all checks and install all depdendencies
 
 .PHONY: test
 test: client_test server_test e2e_test ## Run all tests
