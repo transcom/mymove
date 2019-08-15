@@ -2,7 +2,6 @@ package utilities
 
 import (
 	"errors"
-	"fmt"
 	"reflect"
 	"time"
 
@@ -15,7 +14,7 @@ import (
 const deletedAt = "DeletedAt"
 const modelsPkgPath = "github.com/transcom/mymove/pkg/models"
 
-// SoftDestroy deletes a record and all foreign key associations from the database
+// SoftDestroy soft deletes a record and all foreign key associations from the database
 func SoftDestroy(c *pop.Connection, model interface{}) error {
 	verrs := validate.NewErrors()
 	var err error
@@ -42,7 +41,7 @@ func SoftDestroy(c *pop.Connection, model interface{}) error {
 				return errors.New("can not soft delete this model")
 			}
 		} else {
-			return errors.New("this model does not have deleted_at property")
+			return errors.New("this model does not have deleted_at field")
 		}
 
 		associations := GetForeignKeyAssociations(c, model)
@@ -63,7 +62,6 @@ func SoftDestroy(c *pop.Connection, model interface{}) error {
 
 // IsModel verifies if the given interface is a model
 func IsModel(model interface{}) bool {
-	fmt.Println(reflect.TypeOf(model))
 	pkgPath := reflect.TypeOf(model).Elem().PkgPath()
 	return pkgPath == modelsPkgPath
 }
@@ -86,8 +84,8 @@ func GetForeignKeyAssociations(c *pop.Connection, model interface{}) []interface
 				hasOneTag := modelType.Field(pos).Tag.Get("has_one")
 				hasManyTag := modelType.Field(pos).Tag.Get("has_many")
 
-				if hasOneTag != "" {
-					foreignKeyAssociations = append(foreignKeyAssociations, GetHasOneForeignKeyAssociation(association))
+				if hasOneTag != "" && GetHasOneForeignKeyAssociation(association) != nil {
+					foreignKeyAssociations = append(foreignKeyAssociations, association)
 				}
 
 				if hasManyTag != "" {

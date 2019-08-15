@@ -104,8 +104,12 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasOneAssocia
 		TrailerOwnershipMissing:  false,
 	}
 	suite.MustSave(&weightTicketSetDocument)
+
 	err := SoftDestroy(suite.DB(), &moveDoc)
+
 	suite.NoError(err)
+	suite.NotNil(moveDoc.DeletedAt)
+	suite.NotNil(moveDoc.WeightTicketSetDocument.DeletedAt)
 
 }
 func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasManyAssociations() {
@@ -138,6 +142,11 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasManyAssoci
 	}
 	suite.MustSave(&upload)
 	suite.MustSave(&upload2)
+
 	err := SoftDestroy(suite.DB(), &document)
+
 	suite.NoError(err)
+	suite.NotNil(document.DeletedAt)
+	suite.NotNil(document.Uploads[0].DeletedAt)
+	suite.NotNil(document.Uploads[1].DeletedAt)
 }
