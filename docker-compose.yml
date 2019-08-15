@@ -56,6 +56,7 @@ services:
        - DPS_AUTH_COOKIE_SECRET_KEY
        - DPS_COOKIE_EXPIRES_IN_MINUTES
        - ENVIRONMENT=test
+       - FEATURE_FLAG_ACCESS_CODE=false
        - HERE_MAPS_APP_CODE
        - HERE_MAPS_APP_ID
        - HERE_MAPS_GEOCODE_ENDPOINT
@@ -79,4 +80,4 @@ services:
        - MOVE_MIL_DOD_TLS_KEY
        - NO_TLS_ENABLED=1
        - NO_TLS_PORT=5000
-       - STORAGE_BACKEND=memory
+       - STORAGE_BACKEND=local

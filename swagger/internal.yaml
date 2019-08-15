@@ -4459,6 +4459,7 @@ paths:
           enum:
             - new
             - ppm
+            - ppm_payment_requested
             - hhg_active
             - hhg_delivered
             - all

@@ -498,7 +498,7 @@ function serviceMemberViewsUpdatedHomePage() {
     // PPM information and details
     cy.contains('Next Step: Wait for approval');
     cy
-      .contains('Go to weight scales')
+      .contains('Go to certified weight scales')
       .children('a')
       .should('have.attr', 'href', 'https://move.mil/resources/locator-maps');
     cy.contains('Weight (est.): 150');
