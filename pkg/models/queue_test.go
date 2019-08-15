@@ -98,6 +98,7 @@ func (suite *ModelSuite) TestShowPPMPaymentRequestsQueue() {
 	moves, err := GetMoveQueueItems(suite.DB(), "ppm_payment_requested")
 	suite.NoError(err)
 	suite.Len(moves, 1)
+	suite.EqualValues(models.PPMStatusPAYMENTREQUESTED, *moves[0].PpmStatus)
 }
 
 func (suite *ModelSuite) TestShowPPMQueueStatusDraftSubmittedCanceled() {
