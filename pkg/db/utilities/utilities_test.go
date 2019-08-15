@@ -69,8 +69,8 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithoutDeletedAtWithAssociatio
 	suite.Error(err)
 }
 
-func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithAssociations() {
-	// model with deleted_at with associations
+func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasOneAssociations() {
+	// model with deleted_at with "has one" associations
 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			Status: models.PPMStatusPAYMENTREQUESTED,
@@ -107,4 +107,37 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithAssociations(
 	err := SoftDestroy(suite.DB(), &moveDoc)
 	suite.NoError(err)
 
+}
+func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasManyAssociations() {
+	// model with deleted_at with "has many" associations
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+
+	document := testdatagen.MakeDocument(suite.DB(), testdatagen.Assertions{
+		Document: models.Document{
+			ServiceMemberID: serviceMember.ID,
+			ServiceMember:   serviceMember,
+		},
+	})
+	suite.MustSave(&document)
+
+	upload := models.Upload{
+		DocumentID:  &document.ID,
+		UploaderID:  document.ServiceMember.UserID,
+		Filename:    "test.pdf",
+		Bytes:       1048576,
+		ContentType: "application/pdf",
+		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
+	}
+	upload2 := models.Upload{
+		DocumentID:  &document.ID,
+		UploaderID:  document.ServiceMember.UserID,
+		Filename:    "test2.pdf",
+		Bytes:       1048576,
+		ContentType: "application/pdf",
+		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
+	}
+	suite.MustSave(&upload)
+	suite.MustSave(&upload2)
+	err := SoftDestroy(suite.DB(), &document)
+	suite.NoError(err)
 }

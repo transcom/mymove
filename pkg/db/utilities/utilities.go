@@ -36,9 +36,6 @@ func SoftDestroy(c *pop.Connection, model interface{}) error {
 				verrs, err = db.ValidateAndSave(model)
 
 				if err != nil || verrs.HasAny() {
-					fmt.Println(modelValue.Type())
-					fmt.Println(err)
-					fmt.Println(verrs)
 					return errors.New("error updating model")
 				}
 			} else {
@@ -66,6 +63,7 @@ func SoftDestroy(c *pop.Connection, model interface{}) error {
 
 // IsModel verifies if the given interface is a model
 func IsModel(model interface{}) bool {
+	fmt.Println(reflect.TypeOf(model))
 	pkgPath := reflect.TypeOf(model).Elem().PkgPath()
 	return pkgPath == modelsPkgPath
 }
@@ -81,13 +79,6 @@ func GetForeignKeyAssociations(c *pop.Connection, model interface{}) []interface
 	for pos := 0; pos < modelValue.NumField(); pos++ {
 		fieldValue := modelValue.Field(pos)
 
-		// check if association is not nil and if they have an assigned ID
-		// why is this working when passed through the SoftDestroy method but not here?
-		// specifically reflect.ValueOf(association).Elem()
-		// it gets angry about it here but not when passed through that method
-		// is association being transformed somehow???
-		// may be same issue when getting the address of the model within function instead of passing it along
-
 		if fieldValue.CanInterface() {
 			association := fieldValue.Interface()
 
@@ -96,22 +87,41 @@ func GetForeignKeyAssociations(c *pop.Connection, model interface{}) []interface
 				hasManyTag := modelType.Field(pos).Tag.Get("has_many")
 
 				if hasOneTag != "" {
-					associationValue := reflect.ValueOf(association).Elem()
-					associationIDField := associationValue.FieldByName("ID")
-					if associationIDField.CanInterface() && associationIDField.Interface() != uuid.Nil {
-						foreignKeyAssociations = append(foreignKeyAssociations, fieldValue.Interface())
-					}
+					foreignKeyAssociations = append(foreignKeyAssociations, GetHasOneForeignKeyAssociation(association))
 				}
 
 				if hasManyTag != "" {
-					association := fieldValue.Interface()
-					fmt.Println(association)
-					// for object in objects
-					foreignKeyAssociations = append(foreignKeyAssociations, fieldValue.Interface())
+					foreignKeyAssociations = append(foreignKeyAssociations, GetHasManyForeignKeyAssociations(association)...)
 				}
 			}
 		}
 	}
-	fmt.Println(foreignKeyAssociations)
 	return foreignKeyAssociations
+}
+
+// GetHasOneForeignKeyAssociation fetches the "has_one" foreign key association if not an empty model
+func GetHasOneForeignKeyAssociation(model interface{}) interface{} {
+	modelValue := reflect.ValueOf(model).Elem()
+	idField := modelValue.FieldByName("ID")
+
+	if idField.CanInterface() && idField.Interface() != uuid.Nil {
+		return model
+	}
+	return nil
+}
+
+// GetHasManyForeignKeyAssociations fetches the "has_many" foreing key association if not an empty model
+func GetHasManyForeignKeyAssociations(model interface{}) []interface{} {
+	var hasManyForeignKeyAssociations []interface{}
+	associations := reflect.ValueOf(model)
+	for pos := 0; pos < associations.Len(); pos++ {
+		association := associations.Index(pos)
+		idField := association.FieldByName("ID")
+
+		if idField.CanInterface() && idField.Interface() != uuid.Nil {
+			associationPtr := association.Addr().Interface()
+			hasManyForeignKeyAssociations = append(hasManyForeignKeyAssociations, associationPtr)
+		}
+	}
+	return hasManyForeignKeyAssociations
 }
