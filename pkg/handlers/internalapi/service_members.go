@@ -2,14 +2,12 @@ package internalapi
 
 import (
 	"context"
-	"reflect"
 
 	"github.com/transcom/mymove/pkg/cli"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
@@ -80,9 +78,6 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 
 	ctx := params.HTTPRequest.Context()
 
-	ctx, span := beeline.StartSpan(ctx, reflect.TypeOf(h).Name())
-	defer span.Send()
-
 	residentialAddress := addressModelFromPayload(params.CreateServiceMemberPayload.ResidentialAddress)
 	backupMailingAddress := addressModelFromPayload(params.CreateServiceMemberPayload.BackupMailingAddress)
 
@@ -146,8 +141,6 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	// Update session info
 	session.ServiceMemberID = newServiceMember.ID
 
-	span.AddField("service_member_id", newServiceMember.ID.String())
-
 	if newServiceMember.FirstName != nil {
 		session.FirstName = *(newServiceMember.FirstName)
 	}
@@ -173,14 +166,9 @@ func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMembe
 
 	ctx := params.HTTPRequest.Context()
 
-	ctx, span := beeline.StartSpan(ctx, reflect.TypeOf(h).Name())
-	defer span.Send()
-
 	session := h.SessionFromContext(ctx)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-
-	span.AddField("service_member_id", serviceMemberID.String())
 
 	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
 	if err != nil {
@@ -201,14 +189,9 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 
 	ctx := params.HTTPRequest.Context()
 
-	ctx, span := beeline.StartSpan(ctx, reflect.TypeOf(h).Name())
-	defer span.Send()
-
 	session := h.SessionFromContext(ctx)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-
-	span.AddField("service_member_id", serviceMemberID.String())
 
 	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
 	if err != nil {
@@ -228,9 +211,6 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 }
 
 func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(ctx context.Context, serviceMember *models.ServiceMember, payload *internalmessages.PatchServiceMemberPayload) (*validate.Errors, error) {
-
-	ctx, span := beeline.StartSpan(ctx, "patchServiceMemberWithPayload")
-	defer span.Send()
 
 	if payload.Edipi != nil {
 		serviceMember.Edipi = payload.Edipi
@@ -318,9 +298,6 @@ type ShowServiceMemberOrdersHandler struct {
 func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServiceMemberOrdersParams) middleware.Responder {
 
 	ctx := params.HTTPRequest.Context()
-
-	ctx, span := beeline.StartSpan(ctx, reflect.TypeOf(h).Name())
-	defer span.Send()
 
 	session, logger := h.SessionAndLoggerFromContext(ctx)
 
