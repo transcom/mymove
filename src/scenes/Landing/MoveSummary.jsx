@@ -149,12 +149,12 @@ export const SubmittedPpmMoveSummary = props => {
               <div className="step">
                 <div className="title">Next Step: Wait for approval &amp; get ready</div>
                 <div className="next-step">
-                  You'll be notified when your move is approved (up to 3 days). To get ready to move:
+                  You'll be notified when your move is approved (up to 5 days). To get ready to move:
                   <ul>
                     <li>
                       Go to{' '}
                       <a href="https://move.mil/resources/locator-maps" target="_blank" rel="noopener noreferrer">
-                        weight scales
+                        certified weight scales
                       </a>{' '}
                       to get empty &amp; full weight tickets.
                     </li>
@@ -584,7 +584,7 @@ const HhgMoveDetails = props => {
 const FindWeightScales = () => (
   <span>
     <a href="https://www.move.mil/resources/locator-maps" target="_blank" rel="noopener noreferrer">
-      Find Weight Scales
+      Find Certified Weight Scales
     </a>
   </span>
 );
