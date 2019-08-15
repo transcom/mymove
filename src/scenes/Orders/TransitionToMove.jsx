@@ -5,6 +5,7 @@ import { get } from 'lodash';
 import { updateMove } from 'shared/Entities/modules/moves';
 import ordersComplete from 'shared/images/orders-complete-gray-icon.png';
 import moveIcon from 'shared/images/move-icon.png';
+import { getCurrentMove, getCurrentMoveID } from '../../shared/UI/ducks';
 
 export class TransitionToMove extends Component {
   componentDidMount() {
@@ -32,9 +33,9 @@ export class TransitionToMove extends Component {
 }
 
 function mapStateToProps(state) {
-  const move = get(state, 'moves.currentMove');
+  const move = getCurrentMove(state);
   const props = {
-    moveId: get(move, 'id'),
+    moveId: getCurrentMoveID(state),
     selectedMoveType: get(move, 'selected_move_type'),
   };
   return props;
