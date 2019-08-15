@@ -23,7 +23,7 @@ import { RetrieveMovesForOffice } from './api';
 
 import './office.scss';
 
-class Queues extends Component {
+export class Queues extends Component {
   render() {
     return (
       <div className="usa-grid grid-wide queue-columns">
@@ -34,6 +34,35 @@ class Queues extends Component {
           <QueueTable queueType={this.props.match.params.queueType} retrieveMoves={RetrieveMovesForOffice} />
         </div>
       </div>
+    );
+  }
+}
+
+export class RenderWithHeader extends Component {
+  render() {
+    const Tag = detectIE11() ? 'div' : 'main';
+    const Component = this.props.component;
+    return (
+      <>
+        <QueueHeader />
+        <Tag role="main" className="site__content">
+          <Component {...this.props} />
+        </Tag>
+      </>
+    );
+  }
+}
+
+export class RenderWithoutHeader extends Component {
+  render() {
+    const Tag = detectIE11() ? 'div' : 'main';
+    const Component = this.props.component;
+    return (
+      <>
+        <Tag role="main" className="site__content">
+          <Component {...this.props} />
+        </Tag>
+      </>
     );
   }
 }
@@ -54,29 +83,6 @@ export class OfficeWrapper extends Component {
       error,
       info,
     });
-  }
-
-  renderWithHeader(ComponentName, props) {
-    const Tag = detectIE11() ? 'div' : 'main';
-    return (
-      <>
-        <QueueHeader />
-        <Tag role="main" className="site__content">
-          <ComponentName {...props} />
-        </Tag>
-      </>
-    );
-  }
-
-  renderWithoutHeader(ComponentName, props) {
-    const Tag = detectIE11() ? 'div' : 'main';
-    return (
-      <>
-        <Tag role="main" className="site__content">
-          <ComponentName {...props} />
-        </Tag>
-      </>
-    );
   }
 
   render() {
@@ -115,19 +121,25 @@ export class OfficeWrapper extends Component {
                 />
                 <PrivateRoute
                   path="/queues/:queueType/moves/:moveId"
-                  render={props => this.renderWithHeader(MoveInfo, props)}
+                  component={props => <RenderWithHeader component={MoveInfo} {...props} />}
                 />
-                <PrivateRoute path="/queues/:queueType" render={props => this.renderWithHeader(Queues, props)} />
+                <PrivateRoute
+                  path="/queues/:queueType"
+                  component={props => <RenderWithHeader component={Queues} {...props} />}
+                />
                 <PrivateRoute
                   path="/moves/:moveId/orders"
-                  render={props => this.renderWithoutHeader(OrdersInfo, props)}
+                  component={props => <RenderWithoutHeader component={OrdersInfo} {...props} />}
                 />
                 <PrivateRoute
                   path="/moves/:moveId/documents/:moveDocumentId?"
-                  render={props => this.renderWithoutHeader(DocumentViewer, props)}
+                  component={props => <RenderWithoutHeader component={DocumentViewer} {...props} />}
                 />
                 {!isProduction && (
-                  <PrivateRoute path="/playground" render={props => this.renderWithHeader(ScratchPad, props)} />
+                  <PrivateRoute
+                    path="/playground"
+                    component={props => <RenderWithHeader component={ScratchPad} {...props} />}
+                  />
                 )}
               </Switch>
             )}
