@@ -1,1 +1,0 @@
-ALTER TABLE service_members DROP COLUMN text_message_is_preferred;
