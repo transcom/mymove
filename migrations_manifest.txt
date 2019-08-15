@@ -342,3 +342,4 @@
 20190807163505_modify-moves-bad-zip3-and-delete.up.sql
 20190812151703_add_product_admin_users.up.fizz
 20190814223800_add_john_gedeon.up.fizz
+20190815172746_disable_mikena.up.fizz
