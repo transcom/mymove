@@ -15,7 +15,10 @@ import faPlus from '@fortawesome/fontawesome-free-solid/faPlus';
 import truck from 'shared/icon/truck-gray.svg';
 import { selectReimbursement } from 'shared/Entities/modules/ppms';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
-
+import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
+import { calcNetWeight } from 'scenes/Moves/Ppm/utility';
+import { getPpmWeightEstimate } from 'scenes/Moves/Ppm/ducks';
 import ppmCar from './images/ppm-car.svg';
 import { ShipmentStatusTimeline, ProfileStatusTimeline } from './StatusTimeline';
 import PPMStatusTimeline from './PPMStatusTimeline';
@@ -146,12 +149,12 @@ export const SubmittedPpmMoveSummary = props => {
               <div className="step">
                 <div className="title">Next Step: Wait for approval &amp; get ready</div>
                 <div className="next-step">
-                  You'll be notified when your move is approved (up to 3 days). To get ready to move:
+                  You'll be notified when your move is approved (up to 5 days). To get ready to move:
                   <ul>
                     <li>
                       Go to{' '}
                       <a href="https://move.mil/resources/locator-maps" target="_blank" rel="noopener noreferrer">
-                        weight scales
+                        certified weight scales
                       </a>{' '}
                       to get empty &amp; full weight tickets.
                     </li>
@@ -308,9 +311,14 @@ export const SubmittedHhgMoveSummary = props => {
 };
 
 //TODO remove redundant ApprovedMoveSummary component w/ ppmPaymentRequest flag
-const NewApprovedMoveSummaryComponent = ({ ppm, move, weightTicketSets }) => {
+const NewApprovedMoveSummaryComponent = ({
+  ppm,
+  move,
+  weightTicketSets,
+  isMissingWeightTicketDocuments,
+  incentiveEstimate,
+}) => {
   const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
-  const paymentReviewed = ppm.status === 'COMPLETED';
   const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
   const ppmPaymentRequestIntroRoute = `moves/${move.id}/ppm-payment-request-intro`;
   const ppmPaymentRequestReviewRoute = `moves/${move.id}/ppm-payment-review`;
@@ -339,20 +347,29 @@ const NewApprovedMoveSummaryComponent = ({ ppm, move, weightTicketSets }) => {
                     </a>
                   </div>
                 )}
-                {paymentReviewed ? (
-                  // Copy will be added later.
-                  <></>
-                ) : paymentRequested ? (
-                  <div className="step">
-                    <div className="title">Next step: Wait for your payment paperwork</div>
-                    <div>
-                      We're reviewing your payment request. We'll let you know when you can submit your payment
-                      paperwork to Finance.
+                {paymentRequested ? (
+                  isMissingWeightTicketDocuments ? (
+                    <div className="step">
+                      <div className="title">Next step: Contact the PPPO office</div>
+                      <div>
+                        You will need to go into the PPPO office in order to take care of your missing weight ticket.
+                      </div>
+                      <Link to={ppmPaymentRequestReviewRoute} className="usa-button usa-button-secondary">
+                        Edit Payment Request
+                      </Link>
                     </div>
-                    <Link to={ppmPaymentRequestReviewRoute} className="usa-button usa-button-secondary">
-                      Edit Payment Request
-                    </Link>
-                  </div>
+                  ) : (
+                    <div className="step">
+                      <div className="title">Next step: Wait for your payment paperwork</div>
+                      <div>
+                        We're reviewing your payment request for ${formatCents(incentiveEstimate)}. We'll let you know
+                        when you can submit your payment paperwork to Finance.
+                      </div>
+                      <Link to={ppmPaymentRequestReviewRoute} className="usa-button usa-button-secondary">
+                        Edit Payment Request
+                      </Link>
+                    </div>
+                  )
                 ) : (
                   <div className="step">
                     {weightTicketSets.length ? (
@@ -394,6 +411,7 @@ const NewApprovedMoveSummaryComponent = ({ ppm, move, weightTicketSets }) => {
 
 const mapStateToNewApprovedMoveSummaryProps = (state, { move }) => ({
   weightTicketSets: selectPPMCloseoutDocumentsForMove(state, move.id, ['WEIGHT_TICKET_SET']),
+  incentiveEstimate: get(state, 'ppm.incentive_estimate_min'),
 });
 
 const NewApprovedMoveSummary = connect(mapStateToNewApprovedMoveSummaryProps)(NewApprovedMoveSummaryComponent);
@@ -477,8 +495,7 @@ export const ApprovedMoveSummary = props => {
 };
 
 //TODO remove redundant PPMMoveDetailsPanel component w/ ppmPaymentRequest flag
-const NewPPMMoveDetailsPanel = props => {
-  const { advance, ppm } = props;
+const NewPPMMoveDetailsPanel = ({ advance, ppm, isMissingWeightTicketDocuments }) => {
   const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
     ? `(up to ${ppm.estimated_storage_reimbursement})`
     : '';
@@ -491,15 +508,30 @@ const NewPPMMoveDetailsPanel = props => {
   return (
     <div className="titled_block">
       <div className="title">Details</div>
-      <div>Weight (est.): {ppm.weight_estimate} lbs</div>
+      <div>Weight (est.): {ppm.currentPpm.weight_estimate} lbs</div>
       <div className="title" style={{ paddingTop: '0.5em' }}>
         Payment request
       </div>
       <div>Estimated payment: </div>
-      <div>{formatCentsRange(ppm.incentive_estimate_min, ppm.incentive_estimate_max)}</div>
-      <div style={{ fontSize: '0.90em', color: '#767676' }}>
-        <em>Actual payment may vary, subject to Finance review.</em>
-      </div>
+      {isMissingWeightTicketDocuments ? (
+        <>
+          <div className="missing-label">
+            Unknown
+            <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
+          </div>
+          <div style={{ fontSize: '0.90em', color: '#767676' }}>
+            <em>Estimated payment will be given after resolving missing weight tickets.</em>
+          </div>
+        </>
+      ) : (
+        <>
+          <div>${formatCents(ppm.incentive_estimate_min)}</div>
+          <div style={{ fontSize: '0.90em', color: '#767676' }}>
+            <em>Actual payment may vary, subject to Finance review.</em>
+          </div>
+        </>
+      )}
+
       {ppm.has_sit && <div>{hasSitString}</div>}
       {ppm.has_requested_advance && <div>{advanceString}</div>}
     </div>
@@ -517,8 +549,11 @@ const PPMMoveDetailsPanel = props => {
   return (
     <div className="titled_block">
       <div className="title">Details</div>
-      <div>Weight (est.): {ppm.weight_estimate} lbs</div>
-      <div>Incentive (est.): {formatCentsRange(ppm.incentive_estimate_min, ppm.incentive_estimate_max)}</div>
+      <div>Weight (est.): {ppm.currentPpm.weight_estimate} lbs</div>
+      <div>
+        Incentive (est.):{' '}
+        {formatCentsRange(ppm.currentPpm.incentive_estimate_min, ppm.currentPpm.incentive_estimate_max)}
+      </div>
       {ppm.has_sit && <div>{hasSitString}</div>}
       {ppm.has_requested_advance && <div>{advanceString}</div>}
     </div>
@@ -526,9 +561,11 @@ const PPMMoveDetailsPanel = props => {
 };
 
 const mapStateToPPMMoveDetailsProps = (state, ownProps) => {
-  const { ppm } = ownProps;
   const advance = selectReimbursement(state, ownProps.ppm.advance);
-  return { ppm, advance };
+  const isMissingWeightTicketDocuments = selectPPMCloseoutDocumentsForMove(state, ownProps.ppm.move_id, [
+    'WEIGHT_TICKET_SET',
+  ]).some(doc => doc.empty_weight_ticket_missing || doc.full_weight_ticket_missing);
+  return { ppm: get(state, 'ppm', {}), advance, isMissingWeightTicketDocuments };
 };
 
 // TODO remove redundant function when remove ppmPaymentRequest flag
@@ -547,7 +584,7 @@ const HhgMoveDetails = props => {
 const FindWeightScales = () => (
   <span>
     <a href="https://www.move.mil/resources/locator-maps" target="_blank" rel="noopener noreferrer">
-      Find Weight Scales
+      Find Certified Weight Scales
     </a>
   </span>
 );
@@ -624,117 +661,158 @@ const getHHGStatus = (moveStatus, shipment) => {
     : 'DRAFT';
 };
 
-export const MoveSummary = props => {
-  const {
-    context,
-    profile,
-    move,
-    orders,
-    ppm,
-    shipment,
-    editMove,
-    entitlement,
-    resumeMove,
-    reviewProfile,
-    requestPaymentSuccess,
-    addPPMShipment,
-  } = props;
-  const moveStatus = get(move, 'status', 'DRAFT');
-  const moveId = get(move, 'id');
-  const selectedMoveType = get(move, 'selected_move_type');
-  const showHHG = selectedMoveType === 'HHG' || selectedMoveType === 'HHG_PPM';
-  const showPPM = selectedMoveType === 'PPM' || selectedMoveType === 'HHG_PPM';
-  const hhgStatus = getHHGStatus(moveStatus, shipment);
-  const HHGComponent = hhgSummaryStatusComponents[hhgStatus]; // eslint-disable-line security/detect-object-injection
-  const PPMComponent = genPpmSummaryStatusComponents(context)[getPPMStatus(moveStatus, ppm, selectedMoveType)];
-  const showAddShipmentLink =
-    selectedMoveType === 'HHG' &&
-    includes(['SUBMITTED', 'ACCEPTED', 'AWARDED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED'], move.status);
-  const showTsp =
-    move.selected_move_type !== 'PPM' && includes(['ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED'], hhgStatus);
-  return (
-    <div className="move-summary">
-      {move.status === 'CANCELED' && (
-        <Alert type="info" heading="Your move was canceled">
-          Your move from {get(profile, 'current_station.name')} to {get(orders, 'new_duty_station.name')} with the move
-          locator ID {get(move, 'locator')} was canceled.
-        </Alert>
-      )}
-
-      <div className="whole_box">
-        {move.status !== 'CANCELED' && (
-          <div>
-            <MoveInfoHeader
-              orders={orders}
-              profile={profile}
-              move={move}
-              entitlement={entitlement}
-              requestPaymentSuccess={requestPaymentSuccess}
-            />
-            <br />
-          </div>
+export class MoveSummaryComponent extends React.Component {
+  componentDidMount() {
+    this.props.getMoveDocumentsForMove(this.props.move.id).then(({ obj: documents }) => {
+      const weightTicketNetWeight = calcNetWeight(documents);
+      const netWeight =
+        weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
+      this.props.getPpmWeightEstimate(
+        this.props.ppm.actual_move_date || this.props.ppm.original_move_date,
+        this.props.ppm.pickup_postal_code,
+        this.props.originDutyStationZip,
+        this.props.ppm.destination_postal_code,
+        netWeight,
+      );
+    });
+  }
+  render() {
+    const {
+      context,
+      profile,
+      move,
+      orders,
+      ppm,
+      shipment,
+      editMove,
+      entitlement,
+      resumeMove,
+      reviewProfile,
+      requestPaymentSuccess,
+      addPPMShipment,
+      isMissingWeightTicketDocuments,
+    } = this.props;
+    const moveStatus = get(move, 'status', 'DRAFT');
+    const moveId = get(move, 'id');
+    const selectedMoveType = get(move, 'selected_move_type');
+    const showHHG = selectedMoveType === 'HHG' || selectedMoveType === 'HHG_PPM';
+    const showPPM = selectedMoveType === 'PPM' || selectedMoveType === 'HHG_PPM';
+    const hhgStatus = getHHGStatus(moveStatus, shipment);
+    const HHGComponent = hhgSummaryStatusComponents[hhgStatus]; // eslint-disable-line security/detect-object-injection
+    const PPMComponent = genPpmSummaryStatusComponents(context)[getPPMStatus(moveStatus, ppm, selectedMoveType)];
+    const showAddShipmentLink =
+      selectedMoveType === 'HHG' &&
+      includes(['SUBMITTED', 'ACCEPTED', 'AWARDED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED'], move.status);
+    const showTsp =
+      move.selected_move_type !== 'PPM' && includes(['ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED'], hhgStatus);
+    return (
+      <div className="move-summary">
+        {move.status === 'CANCELED' && (
+          <Alert type="info" heading="Your move was canceled">
+            Your move from {get(profile, 'current_station.name')} to {get(orders, 'new_duty_station.name')} with the
+            move locator ID {get(move, 'locator')} was canceled.
+          </Alert>
         )}
-        <div className="usa-width-three-fourths">
-          {(showHHG || (!showHHG && !showPPM)) && (
-            <HHGComponent
-              className="status-component"
-              ppm={ppm}
-              shipment={shipment}
-              orders={orders}
-              profile={profile}
-              move={move}
-              entitlement={entitlement}
-              resumeMove={resumeMove}
-              reviewProfile={reviewProfile}
-              requestPaymentSuccess={requestPaymentSuccess}
-              addPPMShipment={addPPMShipment}
-            />
-          )}
-          {showPPM && (
-            <PPMComponent
-              context={context}
-              className="status-component"
-              ppm={ppm}
-              shipment={shipment}
-              orders={orders}
-              profile={profile}
-              move={move}
-              entitlement={entitlement}
-              resumeMove={resumeMove}
-              reviewProfile={reviewProfile}
-              requestPaymentSuccess={requestPaymentSuccess}
-            />
-          )}
-        </div>
 
-        <div className="sidebar usa-width-one-fourth">
-          <div>
-            <button
-              className="usa-button-secondary"
-              onClick={() => editMove(move)}
-              disabled={includes(['DRAFT', 'CANCELED'], move.status)}
-            >
-              Edit Move
-            </button>
+        <div className="whole_box">
+          {move.status !== 'CANCELED' && (
+            <div>
+              <MoveInfoHeader
+                orders={orders}
+                profile={profile}
+                move={move}
+                entitlement={entitlement}
+                requestPaymentSuccess={requestPaymentSuccess}
+              />
+              <br />
+            </div>
+          )}
+          {isMissingWeightTicketDocuments &&
+            ppm.status === 'PAYMENT_REQUESTED' && (
+              <Alert type="warning" heading="Payment request is missing info">
+                You will need to contact your local PPPO office to resolve your missing weight ticket.
+              </Alert>
+            )}
+          <div className="usa-width-three-fourths">
+            {(showHHG || (!showHHG && !showPPM)) && (
+              <HHGComponent
+                className="status-component"
+                ppm={ppm}
+                shipment={shipment}
+                orders={orders}
+                profile={profile}
+                move={move}
+                entitlement={entitlement}
+                resumeMove={resumeMove}
+                reviewProfile={reviewProfile}
+                requestPaymentSuccess={requestPaymentSuccess}
+                addPPMShipment={addPPMShipment}
+              />
+            )}
+            {showPPM && (
+              <PPMComponent
+                context={context}
+                className="status-component"
+                ppm={ppm}
+                shipment={shipment}
+                orders={orders}
+                profile={profile}
+                move={move}
+                entitlement={entitlement}
+                resumeMove={resumeMove}
+                reviewProfile={reviewProfile}
+                requestPaymentSuccess={requestPaymentSuccess}
+                isMissingWeightTicketDocuments={isMissingWeightTicketDocuments}
+              />
+            )}
           </div>
-          <div>
-            {showAddShipmentLink && (
-              <button className="link" onClick={() => addPPMShipment(moveId)}>
-                <FontAwesomeIcon icon={faPlus} />
-                <span> Add PPM (DITY) Move</span>
+
+          <div className="sidebar usa-width-one-fourth">
+            <div>
+              <button
+                className="usa-button-secondary"
+                onClick={() => editMove(move)}
+                disabled={includes(['DRAFT', 'CANCELED'], move.status)}
+              >
+                Edit Move
               </button>
-            )}
-          </div>
-          <div className="contact_block">
-            <div className="title">Contacts</div>
-            <TransportationOfficeContactInfo dutyStation={profile.current_station} isOrigin={true} />
-            {hhgStatus !== 'CANCELED' && (
-              <TransportationOfficeContactInfo dutyStation={get(orders, 'new_duty_station')} />
-            )}
-            {showTsp && <TransportationServiceProviderContactInfo shipmentId={shipment.id} />}
+            </div>
+            <div>
+              {showAddShipmentLink && (
+                <button className="link" onClick={() => addPPMShipment(moveId)}>
+                  <FontAwesomeIcon icon={faPlus} />
+                  <span> Add PPM (DITY) Move</span>
+                </button>
+              )}
+            </div>
+            <div className="contact_block">
+              <div className="title">Contacts</div>
+              <TransportationOfficeContactInfo dutyStation={profile.current_station} isOrigin={true} />
+              {hhgStatus !== 'CANCELED' && (
+                <TransportationOfficeContactInfo dutyStation={get(orders, 'new_duty_station')} />
+              )}
+              {showTsp && <TransportationServiceProviderContactInfo shipmentId={shipment.id} />}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
+}
+
+function mapStateToProps(state, ownProps) {
+  const isMissingWeightTicketDocuments = selectPPMCloseoutDocumentsForMove(state, ownProps.move.id, [
+    'WEIGHT_TICKET_SET',
+  ]).some(doc => doc.empty_weight_ticket_missing || doc.full_weight_ticket_missing);
+
+  return {
+    isMissingWeightTicketDocuments,
+    originDutyStationZip: get(state, 'serviceMember.currentServiceMember.current_station.address.postal_code'),
+  };
+}
+
+const mapDispatchToProps = {
+  getMoveDocumentsForMove,
+  getPpmWeightEstimate,
 };
+export const MoveSummary = connect(mapStateToProps, mapDispatchToProps)(MoveSummaryComponent);

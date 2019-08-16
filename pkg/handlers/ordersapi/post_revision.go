@@ -2,12 +2,10 @@ package ordersapi
 
 import (
 	"fmt"
-	"reflect"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate"
-	beeline "github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth/authentication"
@@ -29,9 +27,6 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 	ctx := params.HTTPRequest.Context()
 
 	logger := h.LoggerFromContext(ctx)
-
-	ctx, span := beeline.StartSpan(ctx, reflect.TypeOf(h).Name())
-	defer span.Send()
 
 	clientCert := authentication.ClientCertFromRequestContext(params.HTTPRequest)
 	if clientCert == nil {

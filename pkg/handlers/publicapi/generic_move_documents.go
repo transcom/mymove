@@ -1,12 +1,9 @@
 package publicapi
 
 import (
-	"reflect"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
-	beeline "github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/apimessages"
@@ -71,8 +68,7 @@ type CreateGenericMoveDocumentHandler struct {
 // Handle is the handler
 func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericMoveDocumentParams) middleware.Responder {
 
-	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
-	defer span.Send()
+	ctx := params.HTTPRequest.Context()
 
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 

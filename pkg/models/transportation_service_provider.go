@@ -51,7 +51,7 @@ func FetchTransportationServiceProvider(db *pop.Connection, id uuid.UUID) (*Tran
 	err := db.Find(&transportationServiceProvider, id)
 
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return nil, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.

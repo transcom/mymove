@@ -176,8 +176,8 @@ commands:
             bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
             docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
-            docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH}
-            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH}
+            docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//#}
+            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//#}
   e2e_tests:
     steps:
       - run:
@@ -451,9 +451,11 @@ jobs:
       - run:
           name: upload code coverage to codecov
           command: |
-            curl -L --retry 5 --retry-connrefused https://codecov.io/bash --output /home/circleci/codecov
+            curl -L --retry 5 --retry-connrefused https://codecov.io/bash --output /home/circleci/codecov || exit 0
             chmod +x /home/circleci/codecov
             /home/circleci/codecov -F go -f coverage.out
+      - store_artifacts:
+          path: ~/transcom/mymove/coverage.out
 
   # `client_test` runs the client side Javascript tests
   client_test:
@@ -734,7 +736,7 @@ jobs:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
       - run:
           name: Add ~/go/bin to path for golint
-          command: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+          command: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: make go_deps_update
       - run:
           name: Display changes

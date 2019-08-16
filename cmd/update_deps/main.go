@@ -18,6 +18,11 @@ const (
 	cmdTimeout time.Duration = 30 * time.Second
 )
 
+// Exclude updates to these dependencies (map is path -> reason)
+var excludes = map[string]string{
+	"gopkg.in/urfave/cli.v1": "Need upstream fix to gin: https://github.com/codegangsta/gin/pull/155",
+}
+
 // Use a custom branch for the following dependencies
 var customBranches = map[string]string{}
 
@@ -26,9 +31,6 @@ var customBranches = map[string]string{}
 // to either the latest released patch (using go get -u=patch) or the latest commit
 // on the master branch based on if we're currently using a tagged version or a
 // commit.
-//
-// There is a special case for pdfcpu, where we need to pull in the latest commit on a
-// non-master branch.
 func main() {
 	content, readErr := ioutil.ReadFile("go.mod")
 	if readErr != nil {
@@ -42,6 +44,11 @@ func main() {
 
 	for _, req := range file.Require {
 		fmt.Printf("%s", req.Mod.Path)
+
+		if reason, ok := excludes[req.Mod.Path]; ok {
+			fmt.Printf(" - [%s]\n", reason)
+			continue
+		}
 
 		ctx, cancel := context.WithTimeout(context.Background(), cmdTimeout)
 		args := updateArgs(req)
@@ -72,8 +79,7 @@ func updateArgs(req *modfile.Require) []string {
 	}
 
 	branch := "master"
-	customBranch, ok := customBranches[req.Mod.Path]
-	if ok {
+	if customBranch, ok := customBranches[req.Mod.Path]; ok {
 		branch = customBranch
 	}
 

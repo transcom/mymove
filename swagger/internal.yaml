@@ -967,10 +967,12 @@ definitions:
       - AWAITING_REVIEW
       - OK
       - HAS_ISSUE
+      - EXCLUDE_FROM_CALCULATION
     x-display-value:
       AWAITING_REVIEW: Awaiting review
       OK: OK
       HAS_ISSUE: Has issue
+      EXCLUDE_FROM_CALCULATION: Exclude from calculation
   CreateWeightTicketDocumentsPayload:
     type: object
     properties:
@@ -1102,10 +1104,6 @@ definitions:
         type: boolean
         x-nullable: true
         title: Telephone
-      text_message_is_preferred:
-        type: boolean
-        x-nullable: true
-        title: Text Message - Coming Soon!
       email_is_preferred:
         type: boolean
         x-nullable: true
@@ -1212,10 +1210,6 @@ definitions:
         type: boolean
         x-nullable: true
         title: Phone
-      text_message_is_preferred:
-        type: boolean
-        x-nullable: true
-        title: Text Message - Coming Soon!
       email_is_preferred:
         type: boolean
         x-nullable: true
@@ -1302,10 +1296,6 @@ definitions:
         type: boolean
         x-nullable: true
         title: Phone
-      text_message_is_preferred:
-        type: boolean
-        x-nullable: true
-        title: Text Message - Coming Soon!
       email_is_preferred:
         type: boolean
         x-nullable: true
@@ -4469,6 +4459,7 @@ paths:
           enum:
             - new
             - ppm
+            - ppm_payment_requested
             - hhg_active
             - hhg_delivered
             - all

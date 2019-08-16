@@ -9,7 +9,6 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -61,13 +60,10 @@ func (u *Upload) BeforeCreate(tx *pop.Connection) error {
 // FetchUpload returns an Upload if the user has access to that upload
 func FetchUpload(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (Upload, error) {
 
-	ctx, span := beeline.StartSpan(ctx, "FetchServiceMemberForUser")
-	defer span.Send()
-
 	var upload Upload
 	err := db.Q().Eager().Find(&upload, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Upload{}, errors.Wrap(ErrFetchNotFound, "error fetching upload")
 		}
 		// Otherwise, it's an unexpected err so we return that.

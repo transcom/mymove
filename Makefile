@@ -309,8 +309,9 @@ server_build_linux: server_generate_linux ## Build the server (linux)
 	GOOS=linux GOARCH=amd64 go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
 # This command is for running the server by itself, it will serve the compiled frontend on its own
+# Note: Don't double wrap with aws-vault because the pkg/cli/vault.go will handle it
 server_run_standalone: server_build client_build db_dev_run
-	DEBUG_LOGGING=true $(AWS_VAULT) ./bin/milmove serve
+	DEBUG_LOGGING=true ./bin/milmove serve
 
 # This command will rebuild the swagger go code and rerun server on any changes
 server_run:

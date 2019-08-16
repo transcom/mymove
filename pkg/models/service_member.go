@@ -9,7 +9,6 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -50,7 +49,6 @@ type ServiceMember struct {
 	SecondaryTelephone     *string                   `json:"secondary_telephone" db:"secondary_telephone"`
 	PersonalEmail          *string                   `json:"personal_email" db:"personal_email"`
 	PhoneIsPreferred       *bool                     `json:"phone_is_preferred" db:"phone_is_preferred"`
-	TextMessageIsPreferred *bool                     `json:"text_message_is_preferred" db:"text_message_is_preferred"`
 	EmailIsPreferred       *bool                     `json:"email_is_preferred" db:"email_is_preferred"`
 	ResidentialAddressID   *uuid.UUID                `json:"residential_address_id" db:"residential_address_id"`
 	ResidentialAddress     *Address                  `belongs_to:"address"`
@@ -92,9 +90,6 @@ func (s *ServiceMember) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 // This method is thereby a useful way of performing access control checks.
 func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (ServiceMember, error) {
 
-	_, span := beeline.StartSpan(ctx, "FetchServiceMemberForUser")
-	defer span.Send()
-
 	var serviceMember ServiceMember
 	err := db.Q().Eager("User",
 		"BackupMailingAddress",
@@ -105,7 +100,7 @@ func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session 
 		"ResidentialAddress",
 		"SocialSecurityNumber").Find(&serviceMember, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return ServiceMember{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
@@ -156,7 +151,7 @@ func FetchServiceMember(db *pop.Connection, id uuid.UUID) (ServiceMember, error)
 	var serviceMember ServiceMember
 	err := db.Q().Find(&serviceMember, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return ServiceMember{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
@@ -168,9 +163,6 @@ func FetchServiceMember(db *pop.Connection, id uuid.UUID) (ServiceMember, error)
 
 // SaveServiceMember takes a serviceMember with Address structs and coordinates saving it all in a transaction
 func SaveServiceMember(ctx context.Context, dbConnection *pop.Connection, serviceMember *ServiceMember) (*validate.Errors, error) {
-
-	_, span := beeline.StartSpan(ctx, "SaveServiceMember")
-	defer span.Send()
 
 	responseVErrors := validate.NewErrors()
 	var responseError error
@@ -328,7 +320,7 @@ func (s *ServiceMember) IsProfileComplete() bool {
 	if s.PersonalEmail == nil {
 		return false
 	}
-	if s.PhoneIsPreferred == nil && s.TextMessageIsPreferred == nil && s.EmailIsPreferred == nil {
+	if s.PhoneIsPreferred == nil && s.EmailIsPreferred == nil {
 		return false
 	}
 	if s.ResidentialAddressID == nil {
@@ -352,8 +344,6 @@ func (s *ServiceMember) IsProfileComplete() bool {
 
 // FetchLatestOrder gets the latest order for a service member
 func (s ServiceMember) FetchLatestOrder(ctx context.Context, db *pop.Connection) (Order, error) {
-	_, span := beeline.StartSpan(ctx, "FetchLatestOrder")
-	defer span.Send()
 
 	var order Order
 	query := db.Where("service_member_id = $1", s.ID).Order("created_at desc")
@@ -363,7 +353,7 @@ func (s ServiceMember) FetchLatestOrder(ctx context.Context, db *pop.Connection)
 		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications").First(&order)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound
 		}
 		return Order{}, err

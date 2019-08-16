@@ -200,7 +200,7 @@ function serviceMemberVerifiesContactInfoWasEdited() {
     expect(text).to.include('Best Contact Phone: 213-111-1111');
     expect(text).to.include('Alt. Phone: 222-222-2222');
     expect(text).to.include('Personal Email: hhgforppm@awarded.com');
-    expect(text).to.include('Preferred Contact Method: Phone, Text, Email');
+    expect(text).to.include('Preferred Contact Method: Phone, Email');
     expect(text).to.include('Current Mailing Address: 321 Any Street');
     expect(text).to.include('Los Angeles, CO 91206');
 
@@ -497,7 +497,7 @@ function serviceMemberViewsUpdatedHomePage() {
     // PPM information and details
     cy.contains('Next Step: Wait for approval');
     cy
-      .contains('Go to weight scales')
+      .contains('Go to certified weight scales')
       .children('a')
       .should('have.attr', 'href', 'https://move.mil/resources/locator-maps');
     cy.contains('Weight (est.): 150');
