@@ -50,9 +50,10 @@ describe('completing the ppm flow', function() {
 
     cy.get('.incentive').contains('$');
 
-    cy.get('input[type="radio"]').check('yes', { force: true });
-    cy.get('input[name="requested_amount"]').type('1,333.91');
-    cy.get('select[name="method_of_receipt"]').select('MilPay');
+    // TODO add back when add back advances
+    // cy.get('input[type="radio"]').check('yes', { force: true });
+    // cy.get('input[name="requested_amount"]').type('1,333.91');
+    // cy.get('select[name="method_of_receipt"]').select('MilPay');
     cy.nextPage();
 
     cy.location().should(loc => {
@@ -60,8 +61,9 @@ describe('completing the ppm flow', function() {
     });
     cy.get('.wizard-header').should('not.exist');
 
-    // //todo: should probably have test suite for review and edit screens
-    cy.contains('$1,333.91'); // Verify that the advance matches what was input
+    // todo: should probably have test suite for review and edit screens
+    // TODO add back when add back advances
+    // cy.contains('$1,333.91'); // Verify that the advance matches what was input
     cy.contains('Storage: Not requested'); // Verify SIT on the ppm review page since it's optional on HHG_PPM
 
     cy.nextPage();

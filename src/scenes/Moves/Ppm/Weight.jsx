@@ -55,6 +55,7 @@ const validateAdvanceForm = (values, form) => {
 };
 
 const requestAdvanceFormName = 'request_advance';
+// eslint-disable-next-line no-unused-vars
 class RequestAdvanceForm extends Component {
   state = { showInfo: false };
 
@@ -230,11 +231,16 @@ export class PpmWeight extends Component {
       hasEstimateInProgress,
       error,
       hasEstimateError,
+      // eslint-disable-next-line no-unused-vars
       ppmAdvanceSchema,
+      // eslint-disable-next-line no-unused-vars
       advanceFormValues,
       selectedWeightInfo,
       isHHGPPMComboMove,
     } = this.props;
+    // TODO at the moment advances are not supported so defaulting hasRequestedAdvance to false
+    // TODO also add back assertion in cyrpess tests ppm.js around line 53, and 63.
+    // eslint-disable-next-line no-unused-vars
     const hasRequestedAdvance = get(advanceFormValues, 'has_requested_advance', false);
     let advanceInitialValues = null;
     if (currentPpm) {
@@ -330,14 +336,16 @@ export class PpmWeight extends Component {
                 </tbody>
               </table>
 
-              {!isHHGPPMComboMove && (
-                <RequestAdvanceForm
-                  ppmAdvanceSchema={ppmAdvanceSchema}
-                  hasRequestedAdvance={hasRequestedAdvance}
-                  maxAdvance={maxAdvance}
-                  initialValues={advanceInitialValues}
-                />
-              )}
+              {/*TODO at the moment advances are not supported so not displaying advance related components*/}
+              {/*TODO but expect this to be coming shortly so leaving this in for now*/}
+              {/*{!isHHGPPMComboMove && (*/}
+              {/*  <RequestAdvanceForm*/}
+              {/*    ppmAdvanceSchema={ppmAdvanceSchema}*/}
+              {/*    hasRequestedAdvance={hasRequestedAdvance}*/}
+              {/*    maxAdvance={maxAdvance}*/}
+              {/*    initialValues={advanceInitialValues}*/}
+              {/*  />*/}
+              {/*)}*/}
 
               <div className="info">
                 <h3> How is my PPM Incentive calculated?</h3>
