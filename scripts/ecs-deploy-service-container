@@ -25,7 +25,7 @@ readonly environment=$4
 readonly launch_type="${5:-EC2}"
 
 readonly RESERVATION_CPU=512
-readonly RESERVATION_MEM=1024
+readonly RESERVATION_MEM=2048
 
 if [[ $launch_type != EC2 && $launch_type != FARGATE ]]; then
     echo "Error: launch_type must be EC2 or FARGATE"
