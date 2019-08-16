@@ -14,7 +14,9 @@ import { fetchAccessCode } from 'shared/Entities/modules/accessCodes';
 // note that it does not work if the route is not inside a Switch
 class ValidatedPrivateRouteContainer extends React.Component {
   componentDidMount() {
-    this.props.fetchAccessCode();
+    if (this.props.requiresAccessCode) {
+      this.props.fetchAccessCode();
+    }
   }
 
   render() {
