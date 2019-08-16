@@ -82,10 +82,12 @@ exit_code=$(aws ecs describe-tasks --tasks "$task_arn" --cluster "$cluster" --qu
 
 if [[ $exit_code = "0" ]]; then
     echo "Task $task_arn finished."
+    aws cloudwatch put-metric-data --metric-name MigrationCount --namespace "${environment}" --value 1 --timestamp "$(date +\"%Y-%m-%dT%H:%M:%SZ\")"
     exit 0
 fi
 
 # announce task run failure
+aws cloudwatch put-metric-data --metric-name MigrationFail --namespace "${environment}" --value 1 --timestamp "$(date +\"%Y-%m-%dT%H:%M:%SZ\")"
 echo "Task $task_arn failed!"
 echo
 echo "If the log stream does not exist check the task description above for 'tasks[].stoppedReason'"

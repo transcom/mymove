@@ -32,6 +32,9 @@ echo "* Waiting for service \"app\" and \"app-client-tls\" to stabilize (this ta
 time aws ecs wait services-stable --cluster "$cluster" --services app app-client-tls
 readonly exit_code=$?
 
+echo "* Marking successful deploy in cloudwatch"
+aws cloudwatch put-metric-data --metric-name DeployCount --namespace "${environment}" --value 1 --timestamp "$(date +\"%Y-%m-%dT%H:%M:%SZ\")"
+
 echo
 echo "****************************"
 echo "Last 5 events for service \"app\":"

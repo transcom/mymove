@@ -103,6 +103,8 @@ check_arn "$green_task_def_arn"
 
 if update_service "$green_task_def_arn"; then
     echo "Success."
+    # Mark as success
+    aws cloudwatch put-metric-data --metric-name DeployCount --namespace "${environment}" --value 1 --timestamp "$(date +\"%Y-%m-%dT%H:%M:%SZ\")"
     exit 0
 fi
 echo "Service failed to stabilize!"
@@ -115,6 +117,8 @@ echo
 echo "* Rolling back to $blue_task_def_arn"
 if update_service "$blue_task_def_arn"; then
     echo "Rollback complete."
+    # Mark as rollback
+    aws cloudwatch put-metric-data --metric-name DeployRollback --namespace "${environment}" --value 1 --timestamp "$(date +\"%Y-%m-%dT%H:%M:%SZ\")"
     exit 1
 fi
 echo "Rollback failed!"
