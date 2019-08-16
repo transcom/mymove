@@ -225,6 +225,42 @@ var contentTypeToImageType = map[string]string{
 	"image/png":  "PNG",
 }
 
+func MaybeRotateImage(file afero.File, g *Generator, contentType string) (imgFile afero.File, width float64, height float64, err error) {
+	// Figure out if the image should be rotated by calculating height and width of image.
+	pic, _, decodeErr := image.Decode(file)
+	if decodeErr != nil {
+		return nil, 0.0, 0.0, errors.Wrapf(decodeErr, "file %s was not decodable", file.Name())
+	}
+	rect := pic.Bounds()
+	w := float64(rect.Max.X - rect.Min.X)
+	h := float64(rect.Max.Y - rect.Min.Y)
+
+	// If the image is landscape, then turn it to portrait orientation
+	if w > h {
+		newFile, newTemplateFileErr := g.newTempFile()
+		if newTemplateFileErr != nil {
+			return nil, 0.0, 0.0, errors.Wrap(newTemplateFileErr, "Creating temp file for image rotation")
+		}
+
+		// Rotate and save new file
+		newPic := imaging.Rotate90(pic)
+		if contentType == "image/png" {
+			png.Encode(newFile, newPic)
+		} else {
+			jpeg.Encode(newFile, newPic, nil)
+		}
+
+		// The original width is now the height and vice versa.
+		w, h = h, w
+
+		// Use newFile instead of oldFile
+		file = newFile
+		file.Close()
+		return newFile, w, h, nil
+	}
+	return file, w, h, nil
+}
+
 // PDFFromImages returns the path to tempfile PDF containing all images included
 // in urls.
 //
@@ -258,7 +294,10 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 	var opt gofpdf.ImageOptions
 	for _, img := range images {
 		pdf.AddPage()
-		file, _ := g.fs.Open(img.Path)
+		file, openErr := g.fs.Open(img.Path)
+		if openErr != nil {
+			return "", errors.Wrap(openErr, "Opening image file")
+		}
 		defer file.Close()
 
 		if img.ContentType == "image/png" {
@@ -281,40 +320,13 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 			}
 		}
 
-		// Figure out if the image should be rotated by calculating height and width of image.
-		pic, _, decodeErr := image.Decode(file)
-		if decodeErr != nil {
-			return "", errors.Wrapf(decodeErr, "file %s was not decodable", file.Name())
+		file, w, h, rotateErr := MaybeRotateImage(file, g, img.ContentType)
+		if rotateErr != nil {
+			return "", errors.Wrapf(rotateErr, "Rotating image if in landscape orientation")
 		}
-		rect := pic.Bounds()
-		w := rect.Max.X - rect.Min.X
-		h := rect.Max.Y - rect.Min.Y
 
 		widthInPdf := bodyWidth
 		heightInPdf := 0.0
-
-		// If the image is landscape, then turn it to portrait orientation
-		if w > h {
-			newFile, newTemplateFileErr := g.newTempFile()
-			if newTemplateFileErr != nil {
-				return "", errors.Wrap(newTemplateFileErr, "Creating temp file for image rotation")
-			}
-			defer newFile.Close()
-
-			// Rotate and save new file
-			newPic := imaging.Rotate90(pic)
-			if img.ContentType == "image/png" {
-				png.Encode(newFile, newPic)
-			} else {
-				jpeg.Encode(newFile, newPic, nil)
-			}
-
-			// The original width is now the height and vice versa.
-			w, h = h, w
-
-			// Use newFile instead of oldFile
-			file = newFile
-		}
 
 		// Scale using the imageOptions below
 		// BodyWidth should be set to 0 when the image height the proportion of the page
@@ -325,6 +337,12 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 		if float64(w/h) < wToHRatio {
 			widthInPdf = 0
 			heightInPdf = bodyHeight
+		}
+
+		// Rotation may have closed the file, so reopen the file before we use it.
+		file, err = g.fs.Open(file.Name())
+		if err != nil {
+			return "", err
 		}
 
 		// Seek to the beginning of the file so when we register the image, it doesn't start
@@ -343,8 +361,6 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 			return "", errors.Wrapf(err, "error closing file: %s", file.Name())
 		}
 	}
-
-	g.logger.Debug("ready to close the file", zap.Any("output file", outputFile))
 
 	if err = pdf.OutputAndClose(outputFile); err != nil {
 		return "", errors.Wrap(err, "could not write PDF to outputfile")
