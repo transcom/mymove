@@ -454,6 +454,8 @@ jobs:
             curl -L --retry 5 --retry-connrefused https://codecov.io/bash --output /home/circleci/codecov || exit 0
             chmod +x /home/circleci/codecov
             /home/circleci/codecov -F go -f coverage.out
+      - store_artifacts:
+          path: ~/transcom/mymove/coverage.out
 
   # `client_test` runs the client side Javascript tests
   client_test:
