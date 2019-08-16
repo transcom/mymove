@@ -7,11 +7,11 @@ function PrivacyPolicy() {
       <div className="usa-width-two-thirds statement-content">
         <h1>Privacy & Security Policy</h1>
         <p>
-          This system is covered by Systems of Record Notice FRTRANSCOM 01 DoD - Defense Transportation System (DTS)
+          1. This system is covered by Systems of Record Notice FRTRANSCOM 01 DoD - Defense Transportation System (DTS)
           Records dated(September 26, 2014, 79 FR 57893).
         </p>
         <p>
-          AUTHORITY: Public Law 100-562, Imported Vehicle Safety Compliance Act of 1988; 5 U.S.C. 5726, Storage
+          2. AUTHORITY: Public Law 100-562, Imported Vehicle Safety Compliance Act of 1988; 5 U.S.C. 5726, Storage
           Expenses, Household Goods and Personal Effects; 10 U.S.C. 113, Secretary of Defense; 10 U.S.C. 3013, Secretary
           of the Army; 10 U.S.C. 5013, Secretary of the Navy; 10 U.S.C. 8013, Secretary of the Air Force; 19 U.S.C.
           1498, Entry Under Regulations; 37 U.S.C. 406, Travel and Transportation Allowances, Dependents, Baggage and
