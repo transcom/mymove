@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { includes, get } from 'lodash';
+import { includes, get, isEmpty } from 'lodash';
 import qs from 'query-string';
 
 import { selectMove } from 'shared/Entities/modules/moves';
@@ -173,7 +173,8 @@ class DocumentViewer extends Component {
                 </div>
               </TabPanel>
 
-              {moveDocumentId &&
+              {!isEmpty(moveDocuments) &&
+                moveDocumentId &&
                 moveDocumentId !== 'new' && (
                   <TabPanel>
                     <DocumentDetailPanel

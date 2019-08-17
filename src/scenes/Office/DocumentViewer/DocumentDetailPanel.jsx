@@ -118,7 +118,7 @@ const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
     get(formValues.moveDocument, 'move_document_type') === 'EXPENSE' &&
     get(formValues.moveDocument, 'moving_expense_type') === 'STORAGE';
 
-  return typeof formValues.moveDocument === undefined ? (
+  return isEmpty(formValues.moveDocument) ? (
     <LoadingPlaceholder />
   ) : (
     <Fragment>
