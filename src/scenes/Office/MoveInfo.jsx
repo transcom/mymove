@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { capitalize, get, includes, some, isEmpty } from 'lodash';
+import { capitalize, get, includes } from 'lodash';
 
 import { NavTab, RoutedTabs } from 'react-router-tabs';
 import { Link, NavLink, Redirect, Switch } from 'react-router-dom';
@@ -67,7 +67,6 @@ import {
 } from 'shared/Entities/modules/moves';
 import { formatDate } from 'shared/formatters';
 import { getMoveDocumentsForMove, selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
-import SitStatusIcon from 'shared/StorageInTransit/SitStatusIcon';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -312,7 +311,6 @@ class MoveInfo extends Component {
       shipment,
       shipmentStatus,
       serviceMember,
-      storageInTransits,
       upload,
     } = this.props;
     const isPPM = move.selected_move_type === 'PPM';
@@ -330,8 +328,6 @@ class MoveInfo extends Component {
     const hhgDelivered = shipmentStatus === 'DELIVERED';
     const moveApproved = moveStatus === 'APPROVED';
     const hhgCantBeCanceled = includes(['IN_TRANSIT', 'DELIVERED'], shipmentStatus);
-
-    const hasRequestedSIT = !isEmpty(storageInTransits) && some(storageInTransits, sit => sit.status === 'REQUESTED');
 
     const moveDate = isPPM ? ppm.original_move_date : shipment && shipment.requested_pickup_date;
 
@@ -402,21 +398,6 @@ class MoveInfo extends Component {
                     PPM
                   </span>
                   {this.renderPPMTabStatus()}
-                </NavTab>
-              )}
-              {(isHHG || isHHGPPM) && (
-                <NavTab to="/hhg">
-                  <span className="title" data-cy="hhg-tab">
-                    HHG
-                  </span>
-                  <span className="status">
-                    {hasRequestedSIT ? (
-                      <SitStatusIcon isTspSite={false} />
-                    ) : (
-                      <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
-                    )}
-                    {hasRequestedSIT ? 'SIT requested' : capitalize(shipmentStatus)}
-                  </span>
                 </NavTab>
               )}
             </RoutedTabs>
