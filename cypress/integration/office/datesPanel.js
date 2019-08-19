@@ -24,8 +24,7 @@ function officeUserGoesToDatesPanel(locator) {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
-  cy
-    .get('.title')
+  cy.get('.title')
     .contains('HHG')
     .click();
 
@@ -33,8 +32,7 @@ function officeUserGoesToDatesPanel(locator) {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
   });
 
-  cy
-    .get('.editable-panel-header')
+  cy.get('.editable-panel-header')
     .contains('Dates')
     .siblings()
     .click();

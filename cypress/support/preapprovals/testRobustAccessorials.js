@@ -15,15 +15,13 @@ export function addLegacyRequest({ code, quantity1 }) {
 }
 
 export function clickAddARequest() {
-  cy
-    .get('.add-request')
+  cy.get('.add-request')
     .contains('Add a request')
     .click();
 }
 
 export function clickSaveAndClose() {
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save & Close')
     .click();
 }

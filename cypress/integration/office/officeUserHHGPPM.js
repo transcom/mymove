@@ -37,13 +37,11 @@ function officeUserApprovesShipment() {
   cy.get('.combo-button').click();
 
   // Approve HHG
-  cy
-    .get('.combo-button .dropdown')
+  cy.get('.combo-button .dropdown')
     .contains('Approve HHG')
     .click();
 
-  cy
-    .get('.combo-button .dropdown')
+  cy.get('.combo-button .dropdown')
     .contains('Approve HHG')
     .should('have.class', 'disabled');
 
@@ -63,8 +61,7 @@ function officeUserVisitsQueue(queue) {
 
 function officeUserVisitsPPMTab() {
   // navtab
-  cy
-    .get('a')
+  cy.get('a')
     .contains('PPM')
     .click();
 
@@ -75,8 +72,7 @@ function officeUserVisitsPPMTab() {
 
 function officeUserVisitsHHGTab() {
   // navtab
-  cy
-    .get('a')
+  cy.get('a')
     .contains('HHG')
     .click();
 
@@ -107,8 +103,7 @@ function officeUserSubmitsDocument() {
   cy.get('button.submit').should('be.disabled');
 
   cy.upload_file('.filepond--root', 'top-secret.png');
-  cy
-    .get('button.submit', { timeout: fileUploadTimeout })
+  cy.get('button.submit', { timeout: fileUploadTimeout })
     .should('not.be.disabled')
     .click();
 

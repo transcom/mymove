@@ -240,68 +240,67 @@ class WeightTicket extends Component {
               required
             />
             <SwaggerField fieldName="vehicle_nickname" swagger={schema} required />
-            {vehicleType &&
-              this.isCarTrailer && (
-                <>
-                  <div className="radio-group-wrapper normalize-margins">
-                    <p className="radio-group-header">
-                      Do you own this trailer, and does it meet all <Link to="/trailer-criteria">trailer criteria</Link>?
-                    </p>
-                    <RadioButton
-                      inputClassName="inline_radio"
-                      labelClassName="inline_radio"
-                      label="Yes"
-                      value="Yes"
-                      name="isValidTrailer"
-                      checked={isValidTrailer === 'Yes'}
-                      onChange={event => this.handleChange(event, 'isValidTrailer')}
-                    />
+            {vehicleType && this.isCarTrailer && (
+              <>
+                <div className="radio-group-wrapper normalize-margins">
+                  <p className="radio-group-header">
+                    Do you own this trailer, and does it meet all <Link to="/trailer-criteria">trailer criteria</Link>?
+                  </p>
+                  <RadioButton
+                    inputClassName="inline_radio"
+                    labelClassName="inline_radio"
+                    label="Yes"
+                    value="Yes"
+                    name="isValidTrailer"
+                    checked={isValidTrailer === 'Yes'}
+                    onChange={event => this.handleChange(event, 'isValidTrailer')}
+                  />
 
-                    <RadioButton
-                      inputClassName="inline_radio"
-                      labelClassName="inline_radio"
-                      label="No"
-                      value="No"
-                      name="isValidTrailer"
-                      checked={isValidTrailer === 'No'}
-                      onChange={event => this.handleChange(event, 'isValidTrailer')}
-                    />
-                  </div>
-                  {isValidTrailer === 'Yes' && (
-                    <>
-                      <p className="normalize-margins" style={{ marginTop: '1em' }}>
-                        Proof of ownership (ex. registration, bill of sale)
-                      </p>
-                      <p>{documentSizeLimitMsg}</p>
-                      <span data-cy="trailer-upload">
-                        <Uploader
-                          options={{ labelIdle: uploadTrailerProofOfOwnership }}
-                          onRef={ref => (this.uploaders.trailer.uploaderRef = ref)}
-                          onChange={this.onUploadChange('trailer')}
-                          onAddFile={this.onAddFile('trailer')}
-                        />
-                      </span>
-                      <Checkbox
-                        label="I don't have ownership documentation"
-                        name="missingDocumentation"
-                        checked={missingDocumentation}
-                        onChange={this.handleCheckboxChange}
-                        normalizeLabel
+                  <RadioButton
+                    inputClassName="inline_radio"
+                    labelClassName="inline_radio"
+                    label="No"
+                    value="No"
+                    name="isValidTrailer"
+                    checked={isValidTrailer === 'No'}
+                    onChange={event => this.handleChange(event, 'isValidTrailer')}
+                  />
+                </div>
+                {isValidTrailer === 'Yes' && (
+                  <>
+                    <p className="normalize-margins" style={{ marginTop: '1em' }}>
+                      Proof of ownership (ex. registration, bill of sale)
+                    </p>
+                    <p>{documentSizeLimitMsg}</p>
+                    <span data-cy="trailer-upload">
+                      <Uploader
+                        options={{ labelIdle: uploadTrailerProofOfOwnership }}
+                        onRef={ref => (this.uploaders.trailer.uploaderRef = ref)}
+                        onChange={this.onUploadChange('trailer')}
+                        onAddFile={this.onAddFile('trailer')}
                       />
-                      {missingDocumentation && (
-                        <div className="one-half" data-cy="trailer-warning">
-                          <Alert type="warning">
-                            If your state does not provide a registration or bill of sale for your trailer, you may
-                            write and upload a signed and dated statement certifying that you or your spouse own the
-                            trailer and meets the <Link to="/trailer-criteria">trailer criteria</Link>. Upload your
-                            statement using the proof of ownership field.
-                          </Alert>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </>
-              )}
+                    </span>
+                    <Checkbox
+                      label="I don't have ownership documentation"
+                      name="missingDocumentation"
+                      checked={missingDocumentation}
+                      onChange={this.handleCheckboxChange}
+                      normalizeLabel
+                    />
+                    {missingDocumentation && (
+                      <div className="one-half" data-cy="trailer-warning">
+                        <Alert type="warning">
+                          If your state does not provide a registration or bill of sale for your trailer, you may write
+                          and upload a signed and dated statement certifying that you or your spouse own the trailer and
+                          meets the <Link to="/trailer-criteria">trailer criteria</Link>. Upload your statement using
+                          the proof of ownership field.
+                        </Alert>
+                      </div>
+                    )}
+                  </>
+                )}
+              </>
+            )}
             {vehicleType && (
               <>
                 <div className="dashed-divider" />
@@ -490,4 +489,11 @@ const mapDispatchToProps = {
   createWeightTicketSetDocument,
 };
 
-export default withContext(withLastLocation(connect(mapStateToProps, mapDispatchToProps)(WeightTicket)));
+export default withContext(
+  withLastLocation(
+    connect(
+      mapStateToProps,
+      mapDispatchToProps,
+    )(WeightTicket),
+  ),
+);

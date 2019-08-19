@@ -41,8 +41,7 @@ function officeUserCreatesPreApprovalRequest() {
   });
 
   // Click on HHG tab
-  cy
-    .get('span')
+  cy.get('span')
     .contains('HHG')
     .click();
   cy.location().should(loc => {
@@ -74,8 +73,7 @@ function officeUserEditsPreApprovalRequest() {
   });
 
   // Click on HHG tab
-  cy
-    .get('span')
+  cy.get('span')
     .contains('HHG')
     .click();
   cy.location().should(loc => {
@@ -108,8 +106,7 @@ function officeUserApprovesPreApprovalRequest() {
   });
 
   // Click on HHG tab
-  cy
-    .get('span')
+  cy.get('span')
     .contains('HHG')
     .click();
   cy.location().should(loc => {
@@ -138,8 +135,7 @@ function officeUserDeletesPreApprovalRequest() {
   });
 
   // Click on HHG tab
-  cy
-    .get('span')
+  cy.get('span')
     .contains('HHG')
     .click();
   cy.location().should(loc => {
@@ -150,8 +146,7 @@ function officeUserDeletesPreApprovalRequest() {
   cy.get('span').contains('2,000');
 
   deletePreApprovalRequest();
-  cy
-    .get('.pre-approval-panel td')
+  cy.get('.pre-approval-panel td')
     .first()
     .should('not.contain', 'Bulky Article: Motorcycle/Rec vehicle');
 }
@@ -171,8 +166,7 @@ function officeUserCreates35APreApprovalRequest() {
   });
 
   // Click on HHG tab
-  cy
-    .get('span')
+  cy.get('span')
     .contains('HHG')
     .click();
   cy.location().should(loc => {
@@ -189,86 +183,72 @@ function officeUserCreates35APreApprovalRequest() {
   approvePreApprovalRequest();
 
   // Edit the request
-  cy
-    .get('[data-test=edit-request]')
+  cy.get('[data-test=edit-request]')
     .first()
     .click();
 
   cy.typeInInput({ name: 'actual_amount_cents', value: `235` });
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 
-  cy
-    .get('td[details-cy="35A-details"]')
-    .should(
-      'contain',
-      'description description 35A reason reason 35A Est. not to exceed: $250.00 Actual amount: $235.00',
-    );
+  cy.get('td[details-cy="35A-details"]').should(
+    'contain',
+    'description description 35A reason reason 35A Est. not to exceed: $250.00 Actual amount: $235.00',
+  );
 
   // Edit the request again
-  cy
-    .get('[data-test=edit-request]')
+  cy.get('[data-test=edit-request]')
     .first()
     .click();
 
   cy.typeInInput({ name: 'actual_amount_cents', value: `220` });
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 
-  cy
-    .get('td[details-cy="35A-details"]')
-    .should(
-      'contain',
-      'description description 35A reason reason 35A Est. not to exceed: $250.00 Actual amount: $220.00',
-    );
+  cy.get('td[details-cy="35A-details"]').should(
+    'contain',
+    'description description 35A reason reason 35A Est. not to exceed: $250.00 Actual amount: $220.00',
+  );
 
   // The edit should propagate to the Invoice panel
-  cy
-    .get('[data-cy=unbilled-table] tbody')
+  cy.get('[data-cy=unbilled-table] tbody')
     .contains('$220.00')
     .should('exist');
 
   // Unset the actual amount
-  cy
-    .get('[data-test=edit-request]')
+  cy.get('[data-test=edit-request]')
     .first()
     .click();
 
   cy.clearInput({ name: 'actual_amount_cents' });
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 
-  cy
-    .get('td[details-cy="35A-details"]')
-    .should('contain', 'description description 35A reason reason 35A Est. not to exceed: $250.00 Actual amount: --');
+  cy.get('td[details-cy="35A-details"]').should(
+    'contain',
+    'description description 35A reason reason 35A Est. not to exceed: $250.00 Actual amount: --',
+  );
 
   // The edit should propagate to the Invoice panel
-  cy
-    .get('[data-cy=unbilled-table] tbody')
+  cy.get('[data-cy=unbilled-table] tbody')
     .contains('Missing actual amount')
     .parent();
 }
