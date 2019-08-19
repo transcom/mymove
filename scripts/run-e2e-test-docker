@@ -47,7 +47,9 @@ if [[ -n "${CIRCLECI+x}" ]]; then
   # Can't mount folders in CircleCI so copy this data in
   # https://circleci.com/docs/2.0/building-docker-images/#mounting-folders
   echo "Copy in the local migration files"
-  docker cp ./local_migrations mymove_milmove_migrate_1:/mymove/local_migrations
+  docker cp ./local_migrations mymove_milmove_migrate_1:/mymove/
+
+  echo "Start everything up"
   docker-compose up -d --no-recreate
 
   # Following the logs should block any more actions until migrations are completed and the container exits
