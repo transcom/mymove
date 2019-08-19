@@ -23,39 +23,32 @@ func SoftDestroy(c *pop.Connection, model interface{}) error {
 		return errors.New("can only soft delete type model")
 	}
 
-	transactionError := c.Transaction(func(db *pop.Connection) error {
-		modelValue := reflect.ValueOf(model).Elem()
-		deletedAtField := modelValue.FieldByName(deletedAt)
+	modelValue := reflect.ValueOf(model).Elem()
+	deletedAtField := modelValue.FieldByName(deletedAt)
 
-		if deletedAtField.IsValid() {
-			if deletedAtField.CanSet() {
-				now := time.Now()
-				reflectTime := reflect.ValueOf(&now)
-				deletedAtField.Set(reflectTime)
-				verrs, err = db.ValidateAndSave(model)
+	if deletedAtField.IsValid() {
+		if deletedAtField.CanSet() {
+			now := time.Now()
+			reflectTime := reflect.ValueOf(&now)
+			deletedAtField.Set(reflectTime)
+			verrs, err = c.ValidateAndSave(model)
 
-				if err != nil || verrs.HasAny() {
-					return errors.New("error updating model")
-				}
-			} else {
-				return errors.New("can not soft delete this model")
+			if err != nil || verrs.HasAny() {
+				return errors.New("error updating model")
 			}
 		} else {
-			return errors.New("this model does not have deleted_at field")
+			return errors.New("can not soft delete this model")
 		}
+	} else {
+		return errors.New("this model does not have deleted_at field")
+	}
 
-		associations := GetForeignKeyAssociations(c, model)
-		for _, association := range associations {
-			err = SoftDestroy(c, association)
-			if err != nil {
-				return err
-			}
+	associations := GetForeignKeyAssociations(c, model)
+	for _, association := range associations {
+		err = SoftDestroy(c, association)
+		if err != nil {
+			return err
 		}
-		return nil
-	})
-
-	if transactionError != nil || verrs.HasAny() {
-		return transactionError
 	}
 	return nil
 }
@@ -112,6 +105,7 @@ func GetHasOneForeignKeyAssociation(model interface{}) interface{} {
 func GetHasManyForeignKeyAssociations(model interface{}) []interface{} {
 	var hasManyForeignKeyAssociations []interface{}
 	associations := reflect.ValueOf(model)
+
 	for pos := 0; pos < associations.Len(); pos++ {
 		association := associations.Index(pos)
 		idField := association.FieldByName("ID")

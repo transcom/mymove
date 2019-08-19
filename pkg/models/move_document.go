@@ -344,7 +344,7 @@ func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveExpens
 	responseVErrors := validate.NewErrors()
 
 	db.Transaction(func(db *pop.Connection) error {
-		transactionError := errors.New("Rollback The transaction")
+		transactionError := errors.New("Rollback the transaction")
 
 		if saveExpenseAction == MoveDocumentSaveActionSAVEEXPENSEMODEL {
 			// Save expense document
