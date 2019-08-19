@@ -262,7 +262,8 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 
 	queriedUpload := models.Upload{}
 	err := suite.DB().Find(&queriedUpload, upload.ID)
-	suite.NotNil(err)
+	suite.Nil(err)
+	suite.NotNil(queriedUpload.DeletedAt)
 }
 
 func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
@@ -302,5 +303,6 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 
 	queriedUpload := models.Upload{}
 	err := suite.DB().Find(&queriedUpload, upload1.ID)
-	suite.NotNil(err)
+	suite.Nil(err)
+	suite.NotNil(queriedUpload.DeletedAt)
 }
