@@ -8,13 +8,9 @@ import DocumentContent from './DocumentContent';
 
 export const DocumentUploadViewer = ({ moveDocument }) => {
   const uploadModels = get(moveDocument, 'document.uploads', []);
-  return (
-    <div className="document-contents">
-      {uploadModels.map(({ url, filename, content_type }) => (
-        <DocumentContent key={url} url={url} filename={filename} contentType={content_type} />
-      ))}
-    </div>
-  );
+  return uploadModels.map(({ url, filename, content_type }) => (
+    <DocumentContent key={url} url={url} filename={filename} contentType={content_type} />
+  ));
 };
 
 const { shape, string, number, arrayOf } = PropTypes;
@@ -52,4 +48,5 @@ function mapStateToProps(state, props) {
     moveDocument: selectMoveDocument(state, moveDocumentId),
   };
 }
+
 export default connect(mapStateToProps)(DocumentUploadViewer);

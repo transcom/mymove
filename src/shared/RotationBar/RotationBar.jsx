@@ -6,7 +6,6 @@ import styles from './RotationBar.module.scss';
 
 export class RotationBar extends Component {
   render() {
-    console.log(styles);
     return (
       <div className={styles['rotation-bar']}>
         <button onClick={this.props.onLeftButtonClick}>
