@@ -54,7 +54,10 @@ if [[ -n "${CIRCLECI+x}" ]]; then
       sleep 5
     fi
   done
-  sleep 10
+
+  echo "Current docker processes"
+  docker ps -a
+  sleep 60
 
   # Build a small tools dockerfile
   make bin_linux/generate-test-data
