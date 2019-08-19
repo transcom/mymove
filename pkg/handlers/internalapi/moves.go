@@ -189,7 +189,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 		return handlers.ResponseForError(logger, err)
 	}
 
-	page1Data, page2Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)
+	page1Data, page2Data, page3Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)
 
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
@@ -224,6 +224,22 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 
 	page2Reader := bytes.NewReader(page2Template)
 	err = formFiller.AppendPage(page2Reader, page2Layout.FieldsLayout, page2Data)
+	if err != nil {
+		logger.Error("Error appending page to PDF", zap.Error(err))
+		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
+	}
+
+	// page 3
+	page3Layout := paperwork.ShipmentSummaryPage3Layout
+	page3Template, err := assets.Asset(page3Layout.TemplateImagePath)
+
+	if err != nil {
+		logger.Error("Error reading template file", zap.String("asset", page3Layout.TemplateImagePath), zap.Error(err))
+		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
+	}
+
+	page3Reader := bytes.NewReader(page3Template)
+	err = formFiller.AppendPage(page3Reader, page3Layout.FieldsLayout, page3Data)
 	if err != nil {
 		logger.Error("Error appending page to PDF", zap.Error(err))
 		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()

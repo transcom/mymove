@@ -269,7 +269,142 @@ func (suite *ModelSuite) TestFetchMovingExpensesShipmentSummaryWorksheetNoPPM() 
 	suite.NoError(err)
 }
 
+<<<<<<< HEAD
+=======
+func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
+	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
+	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
+	wtgEntitlements := models.SSWMaxWeightEntitlement{
+		Entitlement:   15000,
+		ProGear:       2000,
+		SpouseProGear: 500,
+		TotalWeight:   17500,
+	}
+
+	serviceMemberID, _ := uuid.NewV4()
+	serviceBranch := models.AffiliationAIRFORCE
+	rank := models.ServiceMemberRankE9
+	serviceMember := models.ServiceMember{
+		ID:            serviceMemberID,
+		FirstName:     models.StringPointer("Marcus"),
+		MiddleName:    models.StringPointer("Joseph"),
+		LastName:      models.StringPointer("Jenkins"),
+		Suffix:        models.StringPointer("Jr."),
+		Telephone:     models.StringPointer("444-555-8888"),
+		PersonalEmail: models.StringPointer("michael+ppm-expansion_1@truss.works"),
+		Edipi:         models.StringPointer("1234567890"),
+		Affiliation:   &serviceBranch,
+		Rank:          &rank,
+		DutyStationID: &yuma.ID,
+	}
+
+	orderIssueDate := time.Date(2018, time.December, 21, 0, 0, 0, 0, time.UTC)
+	order := models.Order{
+		IssueDate:           orderIssueDate,
+		OrdersType:          internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		OrdersNumber:        models.StringPointer("012345"),
+		NewDutyStationID:    fortGordon.ID,
+		OrdersIssuingAgency: models.StringPointer(string(serviceBranch)),
+		TAC:                 models.StringPointer("NTA4"),
+		SAC:                 models.StringPointer("SAC"),
+		HasDependents:       true,
+		SpouseHasProGear:    true,
+	}
+	pickupDate := time.Date(2019, time.January, 11, 0, 0, 0, 0, time.UTC)
+	weight := unit.Pound(5000)
+	shipments := []models.Shipment{
+		{
+			ActualPickupDate: &pickupDate,
+			NetWeight:        &weight,
+			Status:           models.ShipmentStatusDELIVERED,
+		},
+	}
+	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
+	netWeight := unit.Pound(4000)
+	personallyProcuredMoves := []models.PersonallyProcuredMove{
+		{
+			OriginalMoveDate: &pickupDate,
+			Status:           models.PPMStatusPAYMENTREQUESTED,
+			NetWeight:        &netWeight,
+			Advance:          &advance,
+		},
+	}
+	ssd := models.ShipmentSummaryFormData{
+		ServiceMember:           serviceMember,
+		Order:                   order,
+		CurrentDutyStation:      yuma,
+		NewDutyStation:          fortGordon,
+		PPMRemainingEntitlement: 3000,
+		WeightAllotment:         wtgEntitlements,
+		Shipments:               shipments,
+		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
+		PersonallyProcuredMoves: personallyProcuredMoves,
+		Obligations: models.Obligations{
+			MaxObligation:    models.Obligation{Gcc: unit.Cents(600000), SIT: unit.Cents(53000)},
+			ActualObligation: models.Obligation{Gcc: unit.Cents(500000), SIT: unit.Cents(30000)},
+		},
+	}
+	sswPage1 := models.FormatValuesShipmentSummaryWorksheetFormPage1(ssd)
+
+	suite.Equal("01-Jan-2019", sswPage1.PreparationDate)
+
+	suite.Equal("Jenkins Jr., Marcus Joseph", sswPage1.ServiceMemberName)
+	suite.Equal("E-9", sswPage1.RankGrade)
+	suite.Equal("Air Force", sswPage1.ServiceBranch)
+	suite.Equal("90 days per each shipment", sswPage1.MaxSITStorageEntitlement)
+	suite.Equal("Yuma AFB, IA 50309", sswPage1.AuthorizedOrigin)
+	suite.Equal("Fort Gordon, GA 30813", sswPage1.AuthorizedDestination)
+	suite.Equal("No", sswPage1.POVAuthorized)
+	suite.Equal("444-555-8888", sswPage1.PreferredPhoneNumber)
+	suite.Equal("michael+ppm-expansion_1@truss.works", sswPage1.PreferredEmail)
+	suite.Equal("1234567890", sswPage1.DODId)
+
+	suite.Equal("Air Force", sswPage1.IssuingBranchOrAgency)
+	suite.Equal("21-Dec-2018", sswPage1.OrdersIssueDate)
+	suite.Equal("PCS/012345", sswPage1.OrdersTypeAndOrdersNumber)
+
+	suite.Equal("Fort Gordon, GA 30813", sswPage1.NewDutyAssignment)
+
+	suite.Equal("15,000", sswPage1.WeightAllotment)
+	suite.Equal("2,000", sswPage1.WeightAllotmentProgear)
+	suite.Equal("500", sswPage1.WeightAllotmentProgearSpouse)
+	suite.Equal("17,500", sswPage1.TotalWeightAllotment)
+
+	suite.Equal("01 - HHG (GBL)\n\n02 - PPM", sswPage1.ShipmentNumberAndTypes)
+	suite.Equal("11-Jan-2019\n\n11-Jan-2019", sswPage1.ShipmentPickUpDates)
+	suite.Equal("5,000 lbs - FINAL\n\n4,000 lbs - FINAL", sswPage1.ShipmentWeights)
+	suite.Equal("Delivered\n\nAt destination", sswPage1.ShipmentCurrentShipmentStatuses)
+
+	suite.Equal("17,500", sswPage1.TotalWeightAllotmentRepeat)
+	suite.Equal("$6,000.00", sswPage1.MaxObligationGCC100)
+	suite.Equal("$5,700.00", sswPage1.MaxObligationGCC95)
+	suite.Equal("$530.00", sswPage1.MaxObligationSIT)
+	suite.Equal("$3,600.00", sswPage1.MaxObligationGCCMaxAdvance)
+
+	suite.Equal("3,000", sswPage1.PPMRemainingEntitlement)
+	suite.Equal("$5,000.00", sswPage1.ActualObligationGCC100)
+	suite.Equal("$4,750.00", sswPage1.ActualObligationGCC95)
+	suite.Equal("$300.00", sswPage1.ActualObligationSIT)
+	suite.Equal("$10.00", sswPage1.ActualObligationAdvance)
+}
+
+>>>>>>> Add 3rd page and reorient files
 func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2() {
+	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
+	orderIssueDate := time.Date(2018, time.December, 21, 0, 0, 0, 0, time.UTC)
+	serviceBranch := models.AffiliationAIRFORCE
+
+	order := models.Order{
+		IssueDate:           orderIssueDate,
+		OrdersType:          internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		OrdersNumber:        models.StringPointer("012345"),
+		NewDutyStationID:    fortGordon.ID,
+		OrdersIssuingAgency: models.StringPointer(string(serviceBranch)),
+		TAC:                 models.StringPointer("NTA4"),
+		SAC:                 models.StringPointer("SAC"),
+		HasDependents:       true,
+		SpouseHasProGear:    true,
+	}
 	movingExpenses := models.MovingExpenseDocuments{
 		{
 			MovingExpenseType:    "TOLLS",
@@ -309,9 +444,14 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2() {
 	}
 
 	ssd := models.ShipmentSummaryFormData{
+		Order:                  order,
 		MovingExpenseDocuments: movingExpenses,
 	}
 	sswPage2, _ := models.FormatValuesShipmentSummaryWorksheetFormPage2(ssd)
+
+	suite.Equal("NTA4", sswPage2.TAC)
+	suite.Equal("SAC", sswPage2.SAC)
+
 	// fields w/ no expenses should format as $0.00
 	suite.Equal("$0.00", sswPage2.RentalEquipmentGTCCPaid)
 	suite.Equal("$0.00", sswPage2.PackingMaterialsGTCCPaid)
@@ -326,6 +466,26 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2() {
 	suite.Equal("$200.00", sswPage2.TotalMemberPaidRepeated)
 	suite.Equal("$100.00", sswPage2.TotalMemberPaidSIT)
 	suite.Equal("$1,200.00", sswPage2.TotalGTCCPaidSIT)
+}
+
+func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage3() {
+	signatureDate := time.Date(2019, time.January, 26, 14, 40, 0, 0, time.UTC)
+	sm := models.ServiceMember{
+		FirstName: models.StringPointer("John"),
+		LastName:  models.StringPointer("Smith"),
+	}
+	signature := models.SignedCertification{
+		Date: signatureDate,
+	}
+
+	ssd := models.ShipmentSummaryFormData{
+		ServiceMember:       sm,
+		SignedCertification: signature,
+	}
+
+	sswPage3 := models.FormatValuesShipmentSummaryWorksheetFormPage3(ssd)
+
+	suite.Equal("John Smith electronically signed on 26 Jan 2019 at 2:40pm", sswPage3.ServiceMemberSignature)
 }
 
 func (suite *ModelSuite) TestGroupExpenses() {

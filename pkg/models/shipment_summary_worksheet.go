@@ -20,13 +20,14 @@ import (
 )
 
 // FormatValuesShipmentSummaryWorksheet returns the formatted pages for the Shipment Summary Worksheet
-func FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData ShipmentSummaryFormData) (ShipmentSummaryWorksheetPage1Values, ShipmentSummaryWorksheetPage2Values, error) {
+func FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData ShipmentSummaryFormData) (ShipmentSummaryWorksheetPage1Values, ShipmentSummaryWorksheetPage2Values, ShipmentSummaryWorksheetPage3Values, error) {
 	page1 := FormatValuesShipmentSummaryWorksheetFormPage1(shipmentSummaryFormData)
 	page2, err := FormatValuesShipmentSummaryWorksheetFormPage2(shipmentSummaryFormData)
+	page3 := FormatValuesShipmentSummaryWorksheetFormPage3(shipmentSummaryFormData)
 	if err != nil {
-		return page1, page2, err
+		return page1, page2, page3, err
 	}
-	return page1, page2, nil
+	return page1, page2, page3, nil
 }
 
 // ShipmentSummaryWorksheetPage1Values is an object representing a Shipment Summary Worksheet
@@ -49,8 +50,6 @@ type ShipmentSummaryWorksheetPage1Values struct {
 	WeightAllotmentProgearSpouse    string
 	TotalWeightAllotment            string
 	POVAuthorized                   string
-	TAC                             string
-	SAC                             string
 	ShipmentNumberAndTypes          string
 	ShipmentPickUpDates             string
 	ShipmentWeights                 string
@@ -95,9 +94,10 @@ type FormattedSitExpenses struct {
 // ShipmentSummaryWorksheetPage2Values is an object representing a Shipment Summary Worksheet
 type ShipmentSummaryWorksheetPage2Values struct {
 	PreparationDate string
+	TAC             string
+	SAC             string
 	FormattedMovingExpenses
 	FormattedSitExpenses
-	ServiceMemberSignature string
 }
 
 //FormattedMovingExpenses is an object representing the service member's moving expenses formatted for the SSW
@@ -122,6 +122,11 @@ type FormattedMovingExpenses struct {
 	TotalGTCCPaid               string
 	TotalMemberPaidRepeated     string
 	TotalGTCCPaidRepeated       string
+}
+
+// ShipmentSummaryWorksheetPage3Values is an object representing a Shipment Summary Worksheet
+type ShipmentSummaryWorksheetPage3Values struct {
+	ServiceMemberSignature string
 }
 
 // ShipmentSummaryFormData is a container for the various objects required for the a Shipment Summary Worksheet
@@ -339,8 +344,6 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.IssuingBranchOrAgency = FormatServiceMemberAffiliation(sm.Affiliation)
 	page1.OrdersIssueDate = FormatDate(data.Order.IssueDate)
 	page1.OrdersTypeAndOrdersNumber = FormatOrdersTypeAndOrdersNumber(data.Order)
-	page1.TAC = derefStringTypes(data.Order.TAC)
-	page1.SAC = derefStringTypes(data.Order.SAC)
 
 	page1.AuthorizedOrigin = FormatLocation(data.CurrentDutyStation)
 	page1.AuthorizedDestination = FormatLocation(data.NewDutyStation)
@@ -429,6 +432,8 @@ func FormatRank(rank *ServiceMemberRank) string {
 func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData) (ShipmentSummaryWorksheetPage2Values, error) {
 	var err error
 	page2 := ShipmentSummaryWorksheetPage2Values{}
+	page2.TAC = derefStringTypes(data.Order.TAC)
+	page2.SAC = derefStringTypes(data.Order.SAC)
 	page2.PreparationDate = FormatDate(data.PreparationDate)
 	page2.FormattedMovingExpenses, err = FormatMovingExpenses(data.MovingExpenseDocuments)
 	if err != nil {
@@ -437,11 +442,17 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData)
 	page2.FormattedSitExpenses, err = FormatSitExpenses(data.MovingExpenseDocuments)
 	page2.TotalMemberPaidRepeated = page2.TotalMemberPaid
 	page2.TotalGTCCPaidRepeated = page2.TotalGTCCPaid
-	page2.ServiceMemberSignature = FormatSignature(data)
 	if err != nil {
 		return page2, err
 	}
 	return page2, nil
+}
+
+//FormatValuesShipmentSummaryWorksheetFormPage2 formats the data for page 2 of the Shipment Summary Worksheet
+func FormatValuesShipmentSummaryWorksheetFormPage3(data ShipmentSummaryFormData) ShipmentSummaryWorksheetPage3Values {
+	page3 := ShipmentSummaryWorksheetPage3Values{}
+	page3.ServiceMemberSignature = FormatSignature(data)
+	return page3
 }
 
 //FormatSignature formats a service member's signature for the Shipment Summary Worksheet
