@@ -1,1 +1,1 @@
-add_index("duty_stations", "name", {});
+add_index("duty_stations", "name", {})

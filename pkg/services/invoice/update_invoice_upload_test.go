@@ -95,8 +95,7 @@ func (suite *InvoiceServiceSuite) helperCreateUpload(storer *storage.FileStorer)
 }
 
 func (suite *InvoiceServiceSuite) helperShipment() models.Shipment {
-	var weight unit.Pound
-	weight = 2000
+	weight := unit.Pound(2000)
 	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
 			NetWeight: &weight,

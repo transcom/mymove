@@ -29,6 +29,6 @@ func (suite *StorageInTransitServiceSuite) TestFetchStorageInTransitByID() {
 		IDToken:         "fake token",
 		TspUserID:       user.ID,
 	}
-	actualSIT, err = fetcher.FetchStorageInTransitByID(sit.ID, shipment.ID, &session)
-	suite.Error(models.ErrFetchForbidden)
+	_, err = fetcher.FetchStorageInTransitByID(sit.ID, shipment.ID, &session)
+	suite.Error(err, models.ErrFetchForbidden)
 }

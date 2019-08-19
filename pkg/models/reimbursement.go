@@ -168,7 +168,7 @@ func FetchReimbursement(db *pop.Connection, session *auth.Session, id uuid.UUID)
 	var reimbursement Reimbursement
 	err := db.Q().Find(&reimbursement, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return nil, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.

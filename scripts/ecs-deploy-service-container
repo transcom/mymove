@@ -25,7 +25,7 @@ readonly environment=$4
 readonly launch_type="${5:-EC2}"
 
 readonly RESERVATION_CPU=512
-readonly RESERVATION_MEM=1024
+readonly RESERVATION_MEM=2048
 
 if [[ $launch_type != EC2 && $launch_type != FARGATE ]]; then
     echo "Error: launch_type must be EC2 or FARGATE"
@@ -36,7 +36,6 @@ readonly cluster=app-${environment}
 readonly rds=app-${environment}
 
 readonly task_family=${name}-${environment}
-readonly container_name=${name}-${environment}
 
 readonly zone_name="move.mil"
 
@@ -74,6 +73,15 @@ update_service() {
     return $exit_code
 }
 
+# Put a dimensionless metric into cloudwatch
+put_metric() {
+    local metric_name="$1"
+    local namespace="$2"
+    local timestamp
+    timestamp=$(date +"%Y-%m-%dT%H:%M:%SZ")
+    aws cloudwatch put-metric-data --metric-name "${metric_name}" --namespace "${namespace}" --value 1 --timestamp "${timestamp}"
+}
+
 # get current task definiton (for rollback)
 blue_task_def_arn=$(aws ecs describe-services --services "$name" --cluster "$cluster" --query 'services[0].taskDefinition' | jq -r .)
 
@@ -104,9 +112,11 @@ check_arn "$green_task_def_arn"
 
 if update_service "$green_task_def_arn"; then
     echo "Success."
+    put_metric DeployCount "${name}-${environment}"
     exit 0
 fi
 echo "Service failed to stabilize!"
+put_metric DeployFail "${name}-${environment}"
 
 echo
 echo "Showing logs from recently stopped tasks:"
@@ -116,7 +126,9 @@ echo
 echo "* Rolling back to $blue_task_def_arn"
 if update_service "$blue_task_def_arn"; then
     echo "Rollback complete."
+    put_metric RollbackCount "${name}-${environment}"
     exit 1
 fi
 echo "Rollback failed!"
+put_metric RollbackFail "${name}-${environment}"
 exit 1

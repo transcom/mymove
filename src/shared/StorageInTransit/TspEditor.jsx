@@ -17,6 +17,7 @@ import { updateStorageInTransit } from 'shared/Entities/modules/storageInTransit
 export class TspEditor extends Component {
   state = {
     closeOnSubmit: true,
+    storageInTransit: {},
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -42,6 +43,16 @@ export class TspEditor extends Component {
     });
   };
 
+  handleChange = e => {
+    this.setState({
+      storageInTransit: {
+        ...this.props.storageInTransit,
+        actual_start_date: e.actual_start_date,
+        out_date: e.out_date,
+      },
+    });
+  };
+
   render() {
     const isRequested = this.props.storageInTransit.status === 'REQUESTED';
 
@@ -54,8 +65,12 @@ export class TspEditor extends Component {
           ) : (
             <StorageInTransitTspEditForm
               minDate={this.props.storageInTransit.authorized_start_date}
+              maxDate={this.props.storageInTransit.out_date}
+              actualStartDate={this.state.storageInTransit.actual_start_date}
+              outDate={this.state.storageInTransit.out_date}
               onSubmit={this.onSubmit}
               initialValues={this.props.storageInTransit}
+              onChange={this.handleChange}
             />
           )}
           <div className="usa-grid-full">

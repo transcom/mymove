@@ -155,7 +155,7 @@ function mapStateToProps(state, ownProps) {
 function mapDispatchToProps(dispatch) {
   const update = (ordersId, orders, serviceMemberId, serviceMember) => {
     serviceMember.current_station_id = serviceMember.current_station.id;
-    dispatch(updateServiceMember(serviceMemberId, { serviceMember }));
+    dispatch(updateServiceMember(serviceMemberId, serviceMember));
 
     if (!orders.has_dependents) {
       orders.spouse_has_pro_gear = false;

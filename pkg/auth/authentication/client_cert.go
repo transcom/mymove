@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/gobuffalo/pop"
-	beeline "github.com/honeycombio/beeline-go"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -38,8 +37,6 @@ func ClientCertFromContext(ctx context.Context) *models.ClientCert {
 func ClientCertMiddleware(logger Logger, db *pop.Connection) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			ctx, span := beeline.StartSpan(r.Context(), "ClientCertMiddleware")
-			defer span.Send()
 
 			if r.TLS == nil || len(r.TLS.PeerCertificates) == 0 {
 				logger.Info("Unauthenticated")
@@ -59,10 +56,9 @@ func ClientCertMiddleware(logger Logger, db *pop.Connection) func(next http.Hand
 				return
 			}
 
-			ctx = SetClientCertInRequestContext(r, clientCert)
+			ctx := SetClientCertInRequestContext(r, clientCert)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
-			return
 		}
 		return http.HandlerFunc(mw)
 	}

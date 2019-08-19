@@ -1,5 +1,7 @@
 # Honeycomb Integration
 
+**NOTE:** Honeycomb was deprecated and removed from this project as it was never fully used for instrumentation.
+
 * Status: accepted
 * Deciders: @elliottdotgov, @hlieberman-gov, @ntwyman
 * Date: 2018-10-01

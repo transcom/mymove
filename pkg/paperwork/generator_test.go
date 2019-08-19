@@ -8,15 +8,13 @@ import (
 	"os"
 	"path"
 
-	"github.com/hhrutter/pdfcpu/pkg/pdfcpu/validate"
-
-	"github.com/transcom/mymove/pkg/uploader"
-
-	"github.com/hhrutter/pdfcpu/pkg/api"
+	"github.com/pdfcpu/pdfcpu/pkg/api"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/validate"
 	"github.com/spf13/afero"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *PaperworkSuite) sha256ForPath(path string, fs *afero.Afero) (string, error) {
@@ -103,7 +101,9 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 	file, err := afero.ReadAll(aferoFile)
 	suite.FatalNil(err)
 	tmpDir, err := ioutil.TempDir("", "images")
+	suite.FatalNil(err)
 	f, err := ioutil.TempFile(tmpDir, "")
+	suite.FatalNil(err)
 	err = ioutil.WriteFile(f.Name(), file, os.ModePerm)
 	suite.FatalNil(err)
 	err = api.ExtractImages(f, tmpDir, []string{"-2"}, generator.pdfConfig)
@@ -149,6 +149,27 @@ func (suite *PaperworkSuite) TestPDFFromImages16BitPNG() {
 		{Path: "testdata/16bitpng.png", ContentType: "image/png"},
 	}
 	_, err = suite.openLocalFile(images[0].Path, generator.fs)
+	suite.FatalNil(err)
+
+	generatedPath, err := generator.PDFFromImages(images)
+	suite.FatalNil(err, "failed to generate pdf")
+	suite.NotEmpty(generatedPath, "got an empty path to the generated file")
+}
+
+func (suite *PaperworkSuite) TestPDFFromImagesRotation() {
+	generator, err := NewGenerator(suite.DB(), suite.logger, suite.uploader)
+	suite.FatalNil(err)
+
+	images := []inputFile{
+		// The below image is best viewed in landscape, but will rotate in
+		// PDFFromImages. Since we can't analyze the final contents, we'll
+		// just ensure it doesn't error.
+		{Path: "testdata/example_landscape.png", ContentType: "image/png"},
+		{Path: "testdata/example_landscape.jpg", ContentType: "image/jpeg"},
+	}
+	_, err = suite.openLocalFile(images[0].Path, generator.fs)
+	suite.FatalNil(err)
+	_, err = suite.openLocalFile(images[1].Path, generator.fs)
 	suite.FatalNil(err)
 
 	generatedPath, err := generator.PDFFromImages(images)

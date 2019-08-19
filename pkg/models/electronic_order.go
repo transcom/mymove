@@ -9,7 +9,6 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
-	beeline "github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 )
 
@@ -86,8 +85,6 @@ func (e *ElectronicOrder) ValidateUpdate(tx *pop.Connection) (*validate.Errors, 
 
 // CreateElectronicOrder inserts an empty set of electronic Orders into the database
 func CreateElectronicOrder(ctx context.Context, dbConnection *pop.Connection, order *ElectronicOrder) (*validate.Errors, error) {
-	ctx, span := beeline.StartSpan(ctx, "CreateElectronicOrder")
-	defer span.Send()
 
 	responseVErrors := validate.NewErrors()
 	verrs, responseError := dbConnection.ValidateAndCreate(order)
@@ -100,8 +97,6 @@ func CreateElectronicOrder(ctx context.Context, dbConnection *pop.Connection, or
 
 // CreateElectronicOrderWithRevision inserts a new set of electronic Orders into the database with its first Revision
 func CreateElectronicOrderWithRevision(ctx context.Context, dbConnection *pop.Connection, order *ElectronicOrder, firstRevision *ElectronicOrdersRevision) (*validate.Errors, error) {
-	ctx, span := beeline.StartSpan(ctx, "CreateElectronicOrder")
-	defer span.Send()
 
 	responseVErrors := validate.NewErrors()
 	var responseError error
@@ -134,7 +129,7 @@ func FetchElectronicOrderByID(db *pop.Connection, id uuid.UUID) (*ElectronicOrde
 	var order ElectronicOrder
 	err := db.Q().Eager("Revisions").Find(&order, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return &order, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
@@ -148,7 +143,7 @@ func FetchElectronicOrderByIssuerAndOrdersNum(db *pop.Connection, issuer string,
 	var order ElectronicOrder
 	err := db.Q().Eager("Revisions").Where("orders_number = $1 AND issuer = $2", ordersNum, issuer).First(&order)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return &order, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
@@ -165,7 +160,7 @@ func FetchElectronicOrdersByEdipiAndIssuers(db *pop.Connection, edipi string, is
 		ordersPtrs[i] = &orders[i]
 	}
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return ordersPtrs, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.

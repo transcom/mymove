@@ -19,9 +19,29 @@ export default class QueueList extends Component {
             </NavLink>
           </li>
           <li>
-            <NavLink to="/queues/ppm" activeClassName="usa-current" data-cy="ppm-queue">
-              <span>PPM Shipments</span>
+            <NavLink
+              to="#ppmshipments"
+              activeClassName="usa-current"
+              isActive={isActive('ppm', 'ppm_payment_requested')}
+            >
+              <span>PPM shipments:</span>
             </NavLink>
+            <ul className="usa-sidenav-sub_list">
+              <li>
+                <NavLink to="/queues/ppm" activeClassName="usa-current" data-cy="ppm-queue">
+                  <span>All</span>
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to="/queues/ppm_payment_requested"
+                  activeClassName="usa-current"
+                  data-cy="ppm-payment-requests-queue"
+                >
+                  <span>Payment requests</span>
+                </NavLink>
+              </li>
+            </ul>
           </li>
           <li>
             <NavLink

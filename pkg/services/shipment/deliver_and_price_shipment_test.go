@@ -125,7 +125,7 @@ func (suite *ShipmentServiceSuite) TestDeliverAndPriceShipment() {
 		suite.Equal(models.StorageInTransitStatusINSIT, sit.Status)
 
 		// No items should be priced
-		fetchedLineItems, err := models.FetchLineItemsByShipmentID(suite.DB(), &shipment.ID)
+		fetchedLineItems, _ := models.FetchLineItemsByShipmentID(suite.DB(), &shipment.ID)
 		for _, item := range fetchedLineItems {
 			suite.Nil(item.AmountCents, item.Tariff400ngItem.Code)
 		}
@@ -185,7 +185,7 @@ func (suite *ShipmentServiceSuite) TestDeliverAndPriceShipment() {
 		suite.Equal(models.StorageInTransitStatusINSIT, sit.Status)
 
 		// No items should be priced
-		fetchedLineItems, err := models.FetchLineItemsByShipmentID(suite.DB(), &shipment.ID)
+		fetchedLineItems, _ := models.FetchLineItemsByShipmentID(suite.DB(), &shipment.ID)
 		for _, item := range fetchedLineItems {
 			suite.Nil(item.AmountCents, item.Tariff400ngItem.Code)
 		}

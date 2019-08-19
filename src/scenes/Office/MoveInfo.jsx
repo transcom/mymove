@@ -71,13 +71,11 @@ import SitStatusIcon from 'shared/StorageInTransit/SitStatusIcon';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
-import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
-import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
 import moment from 'moment';
 
 const BasicsTabContent = props => {
@@ -97,7 +95,7 @@ const PPMTabContent = props => {
       <PaymentsPanel title="Payments" moveId={props.moveId} />
       {props.ppmPaymentRequested && (
         <>
-          <ExpensesPanel title="Expenses" moveId={props.moveId} />
+          <ExpensesPanel title="Expenses" moveId={props.moveId} moveDocuments={props.moveDocuments} />
           <StoragePanel title="Storage" moveId={props.moveId} moveDocuments={props.moveDocuments} />
           <DatesAndLocationPanel title="Dates & Locations" moveId={props.moveId} />
           <NetWeightPanel
@@ -146,7 +144,13 @@ const ReferrerQueueLink = props => {
     case '/queues/ppm':
       return (
         <NavLink to="/queues/ppm" activeClassName="usa-current">
-          <span>PPM Queue</span>
+          <span>All PPMs Queue</span>
+        </NavLink>
+      );
+    case '/queues/ppm_payment_requested':
+      return (
+        <NavLink to="/queues/ppm_payment_requested" activeClassName="usa-current">
+          <span>Payment Requests PPMs Queue</span>
         </NavLink>
       );
     case '/queues/hhg_active':
@@ -330,6 +334,9 @@ class MoveInfo extends Component {
     const hasRequestedSIT = !isEmpty(storageInTransits) && some(storageInTransits, sit => sit.status === 'REQUESTED');
 
     const moveDate = isPPM ? ppm.original_move_date : shipment && shipment.requested_pickup_date;
+
+    const uploadDocumentUrl = `/moves/${this.props.moveId}/documents/new`;
+
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
     }
@@ -366,9 +373,6 @@ class MoveInfo extends Component {
                 {serviceMember.telephone}
                 {serviceMember.phone_is_preferred && (
                   <FontAwesomeIcon className="icon icon-grey" icon={faPhone} flip="horizontal" />
-                )}
-                {serviceMember.text_message_is_preferred && (
-                  <FontAwesomeIcon className="icon icon-grey" icon={faComments} />
                 )}
                 {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon icon-grey" icon={faEmail} />}
                 &nbsp;
@@ -509,15 +513,7 @@ class MoveInfo extends Component {
               </div>
             </div>
             <div className="documents">
-              <h2 className="extras usa-heading">
-                Documents
-                {!showDocumentViewer && <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />}
-                {showDocumentViewer && (
-                  <Link to={`/moves/${move.id}/documents`} target="_blank" aria-label="Documents">
-                    <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
-                  </Link>
-                )}
-              </h2>
+              <h2 className="extras usa-heading">Documents</h2>
               {!upload ? (
                 <p>No orders have been uploaded.</p>
               ) : (
@@ -540,7 +536,11 @@ class MoveInfo extends Component {
                 </div>
               )}
               {showDocumentViewer && (
-                <DocumentList detailUrlPrefix={`/moves/${this.props.moveId}/documents`} moveDocuments={moveDocuments} />
+                <DocumentList
+                  detailUrlPrefix={`/moves/${this.props.moveId}/documents`}
+                  moveDocuments={moveDocuments}
+                  uploadDocumentUrl={uploadDocumentUrl}
+                />
               )}
             </div>
           </div>

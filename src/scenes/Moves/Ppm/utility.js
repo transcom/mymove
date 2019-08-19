@@ -1,4 +1,5 @@
 import { formatCents } from 'shared/formatters';
+import { MOVE_DOC_TYPE } from 'shared/constants';
 
 export const getNextPage = (nextPage, lastPage, pageToRevisit) => {
   if (lastPage && lastPage.pathname.includes(pageToRevisit)) {
@@ -21,3 +22,11 @@ export const formatExpenseDocs = expenseDocs => {
     paymentMethod: expense.payment_method,
   }));
 };
+
+export const calcNetWeight = documents =>
+  documents.reduce((accum, { move_document_type, full_weight, empty_weight }) => {
+    if (move_document_type === MOVE_DOC_TYPE.WEIGHT_TICKET_SET) {
+      return accum + (full_weight - empty_weight);
+    }
+    return accum;
+  }, 0);

@@ -3,7 +3,8 @@ create_table("reimbursements") {
 	t.Column("requested_amount", "integer", {})
 	t.Column("method_of_receipt", "string", {})
 	t.Column("status", "string", {})
-	t.Column("requested_date", "date", { "null": true })
+	t.Column("requested_date", "date", {"null": true})
+	t.Timestamps()
 }
 add_column("personally_procured_moves", "has_requested_advance", "bool", {"default": false})
 change_column("personally_procured_moves", "has_requested_advance", "bool", {})

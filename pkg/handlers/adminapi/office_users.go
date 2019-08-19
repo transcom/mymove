@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
@@ -26,8 +27,8 @@ func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 // IndexOfficeUsersHandler returns a list of office users via GET /office_users
 type IndexOfficeUsersHandler struct {
 	handlers.HandlerContext
-	services.NewQueryFilter
 	services.OfficeUserListFetcher
+	services.NewQueryFilter
 }
 
 // Handle retrieves a list of office users
@@ -41,12 +42,37 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 		return handlers.ResponseForError(logger, err)
 	}
 
-	payload := make(adminmessages.OfficeUsers, len(officeUsers))
+	officeUsersCount := len(officeUsers)
+
+	payload := make(adminmessages.OfficeUsers, officeUsersCount)
 	for i, s := range officeUsers {
 		payload[i] = payloadForOfficeUserModel(s)
 	}
 
-	return officeuserop.NewIndexOfficeUsersOK().WithPayload(payload)
+	return officeuserop.NewIndexOfficeUsersOK().WithContentRange(fmt.Sprintf("office users 0-%d/%d", officeUsersCount, officeUsersCount)).WithPayload(payload)
+}
+
+type GetOfficeUserHandler struct {
+	handlers.HandlerContext
+	services.OfficeUserFetcher
+	services.NewQueryFilter
+}
+
+func (h GetOfficeUserHandler) Handle(params officeuserop.GetOfficeUserParams) middleware.Responder {
+	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	officeUserID := params.OfficeUserID
+
+	queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", officeUserID)}
+
+	officeUser, err := h.OfficeUserFetcher.FetchOfficeUser(queryFilters)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	payload := payloadForOfficeUserModel(officeUser)
+
+	return officeuserop.NewGetOfficeUserOK().WithPayload(payload)
 }
 
 type CreateOfficeUserHandler struct {
