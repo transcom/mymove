@@ -4,10 +4,6 @@ import { formatDate, formatDateTimeWithTZ } from 'shared/formatters';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
-import { formatDate4DigitYear } from 'shared/formatters';
-import moment from 'moment';
-import { selectEntitlements } from 'shared/entitlements';
-import { sitDaysUsed, sitTotalDaysUsed } from 'shared/StorageInTransit/calculator';
 
 // Abstracting react table column creation
 const CreateReactTableColumn = (header, accessor, options = {}) => ({
@@ -76,47 +72,6 @@ const origin = CreateReactTableColumn('Origin', 'origin_duty_station_name', {
 const destination = CreateReactTableColumn('Destination', 'destination_duty_station_name', {
   Cell: row => <span>{row.value}</span>,
 });
-
-const originGBLOC = CreateReactTableColumn('Origin GBLOC', 'origin_gbloc', {
-  Cell: row => <span>{row.value}</span>,
-});
-
-const destinationGBLOC = CreateReactTableColumn('Destination GBLOC', 'destination_gbloc', {
-  Cell: row => <span>{row.value}</span>,
-});
-
-const deliveredDate = CreateReactTableColumn('Delivered', 'delivered_date', {
-  Cell: row => <span>{formatDate(row.value)}</span>,
-});
-
-const invoiceApprovedDate = CreateReactTableColumn('Invoice Approved', 'invoice_approved_date', {
-  Cell: row => <span>{formatDate(row.value)}</span>,
-});
-
-const sitExpires = CreateReactTableColumn(
-  'SIT expires',
-  row => {
-    if (row.storage_in_transits && row.storage_in_transits.some(sit => sit.actual_start_date)) {
-      return formatDate4DigitYear(
-        moment.min(
-          row.storage_in_transits.filter(sit => sit.actual_start_date).map(sit => {
-            return moment(sit.actual_start_date).add(
-              selectEntitlements(row.weight_allotment).storage_in_transit +
-                sitDaysUsed(sit) -
-                sitTotalDaysUsed(row.storage_in_transits),
-              'days',
-            );
-          }),
-        ),
-      );
-    }
-    return null;
-  },
-  {
-    Cell: row => <span>{row.value}</span>,
-    id: 'sit_expires',
-  },
-);
 
 export const calculateNeedsAttention = row => {
   const attentions = [];
@@ -205,29 +160,5 @@ export const newColumns = [
 ];
 
 export const ppmColumns = [status, customerName, origin, destination, dodId, locator, moveDate, lastModifiedDate];
-
-export const hhgActiveColumns = [
-  needsAttentionClockIcon,
-  needsAttention,
-  customerName,
-  hhgStatus,
-  origin,
-  destination,
-  locator,
-  gbl,
-  pickupDate,
-  sitExpires,
-];
-
-export const hhgDeliveredColumns = [
-  needsAttention,
-  customerName,
-  originGBLOC,
-  destinationGBLOC,
-  locator,
-  gbl,
-  deliveredDate,
-  invoiceApprovedDate,
-];
 
 export const defaultColumns = [status, customerName, dodId, rank, locator, gbl, moveDate, lastModifiedDate];
