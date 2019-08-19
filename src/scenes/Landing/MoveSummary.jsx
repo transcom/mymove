@@ -559,12 +559,11 @@ export class MoveSummaryComponent extends React.Component {
               <br />
             </div>
           )}
-          {isMissingWeightTicketDocuments &&
-            ppm.status === 'PAYMENT_REQUESTED' && (
-              <Alert type="warning" heading="Payment request is missing info">
-                You will need to contact your local PPPO office to resolve your missing weight ticket.
-              </Alert>
-            )}
+          {isMissingWeightTicketDocuments && ppm.status === 'PAYMENT_REQUESTED' && (
+            <Alert type="warning" heading="Payment request is missing info">
+              You will need to contact your local PPPO office to resolve your missing weight ticket.
+            </Alert>
+          )}
           <div className="usa-width-three-fourths">
             <PPMComponent
               context={context}
@@ -618,4 +617,7 @@ const mapDispatchToProps = {
   getMoveDocumentsForMove,
   getPpmWeightEstimate,
 };
-export const MoveSummary = connect(mapStateToProps, mapDispatchToProps)(MoveSummaryComponent);
+export const MoveSummary = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(MoveSummaryComponent);

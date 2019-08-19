@@ -72,8 +72,9 @@ export const StatusBlock = props => {
     <div className={classes.join(' ')}>
       <div className="status_dot" />
       <div className="status_name">{props.name}</div>
-      {props.dates &&
-        props.dates.length > 0 && <div className="status_dates">{displayDateRange(props.dates, 'condensed')}</div>}
+      {props.dates && props.dates.length > 0 && (
+        <div className="status_dates">{displayDateRange(props.dates, 'condensed')}</div>
+      )}
     </div>
   );
 };
