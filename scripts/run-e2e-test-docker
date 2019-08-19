@@ -44,6 +44,8 @@ if [[ -n "${CIRCLECI+x}" ]]; then
   docker-compose up -d
   CONTAINER=mymove_milmove_1
 
+  docker-compose logs -f milmove_migrate
+
   # Need to wait not just for DB but also migrations to finish
   while true; do
     MIGRATE_EXIT=$(docker ps --filter="name=mymove_milmove_migrate_1" --filter="status=exited" -q)
@@ -56,8 +58,7 @@ if [[ -n "${CIRCLECI+x}" ]]; then
   done
 
   echo "Current docker processes"
-  docker ps -a
-  sleep 60
+  docker-compose ps -a
 
   # Build a small tools dockerfile
   make bin_linux/generate-test-data
