@@ -38,18 +38,14 @@ export function test105be() {
   cy.selectQueueItemMoveLocator('DATESP');
 
   add105({ code: '105B', itemSize: 30, crateSize: 25 });
-  cy
-    .get('td[details-cy="105B-details"]')
-    .should(
-      'contain',
-      'description description 105B Crate: 25" x 25" x 25" (9.04 cu ft) Item: 30" x 30" x 30" notes notes',
-    );
+  cy.get('td[details-cy="105B-details"]').should(
+    'contain',
+    'description description 105B Crate: 25" x 25" x 25" (9.04 cu ft) Item: 30" x 30" x 30" notes notes',
+  );
 
   add105({ code: '105E', itemSize: 40, crateSize: 50 });
-  cy
-    .get('td[details-cy="105E-details"]')
-    .should(
-      'contain',
-      'description description 105E Crate: 50" x 50" x 50" (72.33 cu ft) Item: 40" x 40" x 40" notes notes',
-    );
+  cy.get('td[details-cy="105E-details"]').should(
+    'contain',
+    'description description 105E Crate: 50" x 50" x 50" (72.33 cu ft) Item: 40" x 40" x 40" notes notes',
+  );
 }

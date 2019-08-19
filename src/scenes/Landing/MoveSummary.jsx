@@ -111,7 +111,8 @@ export const DraftMoveSummary = props => {
 export const PPMAlert = props => {
   return (
     <Alert type="success" heading={props.heading}>
-      Next, wait for approval. Once approved:<br />
+      Next, wait for approval. Once approved:
+      <br />
       <ul>
         <li>
           Get certified <strong>weight tickets</strong>, both empty &amp; full

@@ -237,4 +237,7 @@ function mapStateToProps(state) {
   return props;
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Progear);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Progear);

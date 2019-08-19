@@ -88,4 +88,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ submitForm: () => submit(ReleaseFromSitFormName), updateSitReleaseFromSit }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ReleaseFromSit);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(ReleaseFromSit);

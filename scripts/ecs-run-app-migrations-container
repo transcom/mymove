@@ -40,6 +40,15 @@ show_logs() {
     echo
 }
 
+# Put a dimensionless metric into cloudwatch
+put_metric() {
+    local metric_name="$1"
+    local namespace="$2"
+    local timestamp
+    timestamp=$(date +"%Y-%m-%dT%H:%M:%SZ")
+    aws cloudwatch put-metric-data --metric-name "${metric_name}" --namespace "${namespace}" --value 1 --timestamp "${timestamp}"
+}
+
 # get network configuration from the cluster we'll run on
 echo "Get the network configuration for ${cluster}"
 network_configuration=$(aws ecs describe-services --services app --cluster "$cluster" --query 'services[0].networkConfiguration')
@@ -82,10 +91,12 @@ exit_code=$(aws ecs describe-tasks --tasks "$task_arn" --cluster "$cluster" --qu
 
 if [[ $exit_code = "0" ]]; then
     echo "Task $task_arn finished."
+    put_metric MigrationCount "${container_name}"
     exit 0
 fi
 
 # announce task run failure
+put_metric MigrationFail "${container_name}"
 echo "Task $task_arn failed!"
 echo
 echo "If the log stream does not exist check the task description above for 'tasks[].stoppedReason'"
