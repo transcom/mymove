@@ -294,7 +294,7 @@ server_generate: .check_go_version.stamp .check_gopath.stamp .server_generate.st
 
 .PHONY: server_generate_linux
 server_generate_linux: .check_go_version.stamp .check_gopath.stamp pkg/assets/assets.go bin/swagger .server_generate_linux.stamp ## Generate golang server code from Swagger files (linux)
-.server_generate_linux.stamp: pkg/assets/assets.go bin/swagger $(shell find bin/swagger -type f -name *.yaml)
+.server_generate_linux.stamp: pkg/assets/assets.go bin/swagger $(shell find swagger -type f -name *.yaml)
 	scripts/gen-server
 	touch .server_generate_linux.stamp
 
