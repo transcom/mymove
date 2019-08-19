@@ -87,5 +87,7 @@ func FetchUpload(ctx context.Context, db *pop.Connection, session *auth.Session,
 
 // DeleteUpload deletes an upload from the database
 func DeleteUpload(db *pop.Connection, upload *Upload) error {
-	return utilities.SoftDestroy(db, upload)
+	return db.Transaction(func(db *pop.Connection) error {
+		return utilities.SoftDestroy(db, upload)
+	})
 }
