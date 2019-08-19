@@ -59,7 +59,7 @@ if [[ -n "${CIRCLECI+x}" ]]; then
   make bin_linux/generate-test-data
   docker build -f Dockerfile.tools --tag tools:latest .
   echo "Truncate the DB"
-  docker run \
+  $DOCKER_RUN \
     --link="database" \
     --net "${NETWORK}" \
     --rm \
@@ -67,7 +67,7 @@ if [[ -n "${CIRCLECI+x}" ]]; then
     tools:latest \
     postgres://postgres:mysecretpassword@database:5432/dev_db?sslmode=disable -c 'TRUNCATE users CASCADE;'
   echo "Generate Test Data"
-  docker run \
+  $DOCKER_RUN \
     -t \
     -e DB_NAME=dev_db \
     -e DB_HOST=database \
