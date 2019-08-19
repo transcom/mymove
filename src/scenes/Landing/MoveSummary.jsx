@@ -20,7 +20,7 @@ import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamati
 import { calcNetWeight } from 'scenes/Moves/Ppm/utility';
 import { getPpmWeightEstimate } from 'scenes/Moves/Ppm/ducks';
 import ppmCar from './images/ppm-car.svg';
-import { ShipmentStatusTimeline, ProfileStatusTimeline } from './StatusTimeline';
+import { ProfileStatusTimeline } from './StatusTimeline';
 import PPMStatusTimeline from './PPMStatusTimeline';
 
 import './MoveSummary.css';
@@ -258,7 +258,6 @@ export const SubmittedHhgMoveSummary = props => {
           </div>
 
           <div className="shipment_box_contents">
-            <ShipmentStatusTimeline shipment={shipment} />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 {showHhgLandingPageText(shipment)}
