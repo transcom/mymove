@@ -2,7 +2,6 @@ package models_test
 
 import (
 	"context"
-	"time"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
@@ -125,7 +124,6 @@ func (suite *ModelSuite) TestFetchDeletedUpload() {
 		ApplicationName: auth.MilApp,
 		ServiceMemberID: document.ServiceMember.ID,
 	}
-	deletedAt := time.Date(2019, 8, 7, 0, 0, 0, 0, time.UTC)
 	upload := models.Upload{
 		DocumentID:  &document.ID,
 		UploaderID:  document.ServiceMember.UserID,
@@ -133,7 +131,6 @@ func (suite *ModelSuite) TestFetchDeletedUpload() {
 		Bytes:       1048576,
 		ContentType: "application/pdf",
 		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
-		DeletedAt:   &deletedAt,
 	}
 
 	verrs, err := suite.DB().ValidateAndSave(&upload)
@@ -145,6 +142,7 @@ func (suite *ModelSuite) TestFetchDeletedUpload() {
 		t.Errorf("did not expect validation errors: %v", verrs)
 	}
 
+	models.DeleteUpload(suite.DB(), &upload)
 	up, _ := models.FetchUpload(ctx, suite.DB(), &session, upload.ID)
 
 	// fetches a nil upload
