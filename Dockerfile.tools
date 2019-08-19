@@ -3,6 +3,7 @@ FROM alpine:3.7
 RUN mkdir -p /scripts
 COPY scripts/apply-secure-migration.sh /scripts
 COPY bin_linux/generate-test-data /bin/generate-test-data
+COPY pkg/testdatagen/testdata/test.pdf /bin/pkg/testdatagen/testdata/test.pdf
 
 # Install tools needed in container
 RUN apk update
