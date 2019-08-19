@@ -6,8 +6,7 @@ export function add125({ code }) {
   cy.selectTariff400ngItem(code);
   cy.get('select[name="location"]').select('ORIGIN');
   cy.typeInTextarea({ name: 'reason', value: `reason reason ${code}` });
-  cy
-    .get('input[name="date"]')
+  cy.get('input[name="date"]')
     .last()
     .type('4/29/2019{enter}')
     .blur();
@@ -48,34 +47,26 @@ export function test125ABCD() {
   cy.selectQueueItemMoveLocator('DATESP');
 
   add125({ code: '125A' });
-  cy
-    .get('td[data-cy="125A-details"]')
-    .should(
-      'contain',
-      'reason reason 125A Date of service: 29-Apr-19 Time of service: 0400J street address 1 street address 2 city, CA 90210',
-    );
+  cy.get('td[data-cy="125A-details"]').should(
+    'contain',
+    'reason reason 125A Date of service: 29-Apr-19 Time of service: 0400J street address 1 street address 2 city, CA 90210',
+  );
 
   add125({ code: '125B' });
-  cy
-    .get('td[data-cy="125B-details"]')
-    .should(
-      'contain',
-      'reason reason 125B Date of service: 29-Apr-19 Time of service: 0400J street address 1 street address 2 city, CA 90210',
-    );
+  cy.get('td[data-cy="125B-details"]').should(
+    'contain',
+    'reason reason 125B Date of service: 29-Apr-19 Time of service: 0400J street address 1 street address 2 city, CA 90210',
+  );
 
   add125({ code: '125C' });
-  cy
-    .get('td[data-cy="125C-details"]')
-    .should(
-      'contain',
-      'reason reason 125C Date of service: 29-Apr-19 Time of service: 0400J street address 1 street address 2 city, CA 90210',
-    );
+  cy.get('td[data-cy="125C-details"]').should(
+    'contain',
+    'reason reason 125C Date of service: 29-Apr-19 Time of service: 0400J street address 1 street address 2 city, CA 90210',
+  );
 
   add125({ code: '125D' });
-  cy
-    .get('td[data-cy="125D-details"]')
-    .should(
-      'contain',
-      'reason reason 125D Date of service: 29-Apr-19 Time of service: 0400J street address 1 street address 2 city, CA 90210',
-    );
+  cy.get('td[data-cy="125D-details"]').should(
+    'contain',
+    'reason reason 125D Date of service: 29-Apr-19 Time of service: 0400J street address 1 street address 2 city, CA 90210',
+  );
 }

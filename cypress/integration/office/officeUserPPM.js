@@ -28,8 +28,7 @@ describe('office user finds the move', function() {
     officeUserApprovesMoveAndPPM(moveLocator);
 
     // Make sure the page hasn't exploded
-    cy
-      .get('.combo-button .btn__approve--green')
+    cy.get('.combo-button .btn__approve--green')
       .contains('Approved')
       .should('be.disabled');
   });
@@ -69,12 +68,10 @@ describe('office user finds the move', function() {
 
   it('download all attachments button is disabled when there are no attachments to download', function() {
     officeUserGoesToPPMPanel('FDXTIU');
-    cy
-      .get('a')
+    cy.get('a')
       .contains('Create payment paperwork')
       .click();
-    cy
-      .get('button')
+    cy.get('button')
       .contains('Download All Attachments (PDF)')
       .should('be.disabled');
   });
@@ -125,16 +122,14 @@ function officeUserVerifiesOrders(moveLocator) {
   cy.contains('GBL#').should('not.be.visible');
 
   // Click on Orders document link, check that link matches
-  cy
-    .get('.panel-field')
+  cy.get('.panel-field')
     .contains('Orders (')
     // .find('a')
     .should('have.attr', 'href')
     .and('match', /^\/moves\/[^/]+\/orders/);
 
   // Click on edit orders
-  cy
-    .get('.editable-panel-header')
+  cy.get('.editable-panel-header')
     .contains('Orders')
     .siblings()
     .click();
@@ -146,13 +141,11 @@ function officeUserVerifiesOrders(moveLocator) {
   cy.get('input[name="orders.orders_issuing_agency"]').type('ISSUING AGENCY');
   cy.get('input[name="orders.paragraph_number"]').type('FP-TP');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 
@@ -166,21 +159,18 @@ function officeUserVerifiesOrders(moveLocator) {
   cy.get('.combo-button button').should('be.disabled');
 
   // Click on edit orders
-  cy
-    .get('.editable-panel-header')
+  cy.get('.editable-panel-header')
     .contains('Accounting')
     .siblings()
     .click();
 
   cy.get('input[name="sac"]').type('SAC');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 
@@ -188,8 +178,7 @@ function officeUserVerifiesOrders(moveLocator) {
   cy.patientReload();
 
   cy.get('.combo-button').click();
-  cy
-    .get('.combo-button .dropdown')
+  cy.get('.combo-button .dropdown')
     .contains('Approve PPM')
     .should('have.class', 'disabled');
   cy.get('.combo-button').click();
@@ -215,8 +204,7 @@ function officeUserVerifiesAccounting() {
   });
 
   // Enter details in form and save
-  cy
-    .get('.editable-panel-header')
+  cy.get('.editable-panel-header')
     .contains('Accounting')
     .siblings()
     .click();
@@ -225,13 +213,11 @@ function officeUserVerifiesAccounting() {
   cy.get('select[name="department_indicator"]').select('AIR_FORCE');
   cy.get('input[name="sac"]').type('N002214CSW32Y9');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 
@@ -244,8 +230,7 @@ function officeUserVerifiesAccounting() {
   // Refresh browser and make sure changes persist
   cy.patientReload();
   cy.get('.combo-button').click();
-  cy
-    .get('.combo-button .dropdown')
+  cy.get('.combo-button .dropdown')
     .contains('Approve PPM')
     .should('have.class', 'disabled');
   cy.get('.combo-button').click();
@@ -271,18 +256,15 @@ function officeUserApprovesMoveAndPPM(moveLocator) {
   // Approve the move
   cy.get('.combo-button').click();
 
-  cy
-    .get('.combo-button .dropdown')
+  cy.get('.combo-button .dropdown')
     .contains('Approve PPM')
     .should('have.class', 'disabled');
 
-  cy
-    .get('.combo-button .dropdown')
+  cy.get('.combo-button .dropdown')
     .contains('Approve Basics')
     .click();
 
-  cy
-    .get('.combo-button .dropdown')
+  cy.get('.combo-button .dropdown')
     .contains('Approve PPM')
     .should('not.have.class', 'disabled');
 
@@ -311,8 +293,7 @@ function officeUserApprovesMoveAndPPM(moveLocator) {
   cy.get('.combo-button').click();
 
   // Approve PPM
-  cy
-    .get('.combo-button .dropdown')
+  cy.get('.combo-button .dropdown')
     .contains('Approve PPM')
     .click();
 
@@ -326,20 +307,17 @@ function officeUserVerifiesPPM() {
   // Approve advance
   cy.get('.payment-table').within(() => {
     // Verify the status icon
-    cy
-      .get('td svg:first')
+    cy.get('td svg:first')
       .should('have.attr', 'title')
       .and('eq', 'Awaiting Review');
     // Verify the approve checkmark
-    cy
-      .get('td svg:last')
+    cy.get('td svg:last')
       .should('have.attr', 'title')
       .and('eq', 'Approve');
 
     // Approve advance and verify icon change
     cy.get('td svg:last').click();
-    cy
-      .get('td svg:first')
+    cy.get('td svg:first')
       .should('have.attr', 'title')
       .and('eq', 'Approved');
   });
@@ -368,61 +346,51 @@ function officeUserGoesToPPMPanel(locator) {
 }
 
 function officeUserEditsDatesAndLocationsPanel(date) {
-  cy
-    .get('.editable-panel-header')
+  cy.get('.editable-panel-header')
     .contains('Dates & Locations')
     .siblings()
     .click();
 
-  cy
-    .get('input[name="actual_move_date"]')
+  cy.get('input[name="actual_move_date"]')
     .first()
     .clear()
     .type(date)
     .blur();
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 }
 
 function officeUserEditsEstimatesPanel(destinationPostalCode, pickupPostalCode, weightEstimate) {
-  cy
-    .get('.editable-panel-header')
+  cy.get('.editable-panel-header')
     .contains('Estimates')
     .siblings()
     .click();
 
   cy.get('.estimates').within(() => {
-    cy
-      .get('input[name="PPMEstimate.destination_postal_code"]')
+    cy.get('input[name="PPMEstimate.destination_postal_code"]')
       .clear()
       .type(destinationPostalCode);
 
-    cy
-      .get('input[name="PPMEstimate.pickup_postal_code"]')
+    cy.get('input[name="PPMEstimate.pickup_postal_code"]')
       .clear()
       .type(pickupPostalCode);
 
-    cy
-      .get('input[name="PPMEstimate.weight_estimate"]')
+    cy.get('input[name="PPMEstimate.weight_estimate"]')
       .clear()
       .type(weightEstimate);
   });
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 }
@@ -448,8 +416,7 @@ function officeUserGoesToStoragePanel(locator) {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/ppm/);
   });
 
-  cy
-    .get('.editable-panel-header')
+  cy.get('.editable-panel-header')
     .contains('Storage')
     .siblings()
     .click();

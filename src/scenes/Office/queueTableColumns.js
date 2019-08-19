@@ -99,14 +99,16 @@ const sitExpires = CreateReactTableColumn(
     if (row.storage_in_transits && row.storage_in_transits.some(sit => sit.actual_start_date)) {
       return formatDate4DigitYear(
         moment.min(
-          row.storage_in_transits.filter(sit => sit.actual_start_date).map(sit => {
-            return moment(sit.actual_start_date).add(
-              selectEntitlements(row.weight_allotment).storage_in_transit +
-                sitDaysUsed(sit) -
-                sitTotalDaysUsed(row.storage_in_transits),
-              'days',
-            );
-          }),
+          row.storage_in_transits
+            .filter(sit => sit.actual_start_date)
+            .map(sit => {
+              return moment(sit.actual_start_date).add(
+                selectEntitlements(row.weight_allotment).storage_in_transit +
+                  sitDaysUsed(sit) -
+                  sitTotalDaysUsed(row.storage_in_transits),
+                'days',
+              );
+            }),
         ),
       );
     }

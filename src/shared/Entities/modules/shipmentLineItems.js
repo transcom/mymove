@@ -108,8 +108,9 @@ const selectShipmentLineItems = (state, shipmentId) => {
   return filterByShipmentId(shipmentId, filteredItems);
 };
 
-export const selectSortedShipmentLineItems = createSelector([selectShipmentLineItems], items =>
-  flow([listLinehaulItemsBeforeAccessorials, orderItemsBy])(items),
+export const selectSortedShipmentLineItems = createSelector(
+  [selectShipmentLineItems],
+  items => flow([listLinehaulItemsBeforeAccessorials, orderItemsBy])(items),
 );
 
 export const selectSortedPreApprovalShipmentLineItems = createSelector(
@@ -133,25 +134,33 @@ const selectUnbilledShipmentLineItemsByShipmentId = (state, shipmentId) => {
   ])(getShipmentIds(state));
 };
 
-export const selectUnbilledShipmentLineItems = createSelector([selectUnbilledShipmentLineItemsByShipmentId], items =>
-  flow([listLinehaulItemsBeforeAccessorials, orderItemsBy])(items),
+export const selectUnbilledShipmentLineItems = createSelector(
+  [selectUnbilledShipmentLineItemsByShipmentId],
+  items => flow([listLinehaulItemsBeforeAccessorials, orderItemsBy])(items),
 );
 
-export const selectInvoiceShipmentLineItems = createSelector([selectInvoicesShipmentLineItemsByInvoiceId], items =>
-  flow([listLinehaulItemsBeforeAccessorials, orderItemsBy])(items),
+export const selectInvoiceShipmentLineItems = createSelector(
+  [selectInvoicesShipmentLineItemsByInvoiceId],
+  items => flow([listLinehaulItemsBeforeAccessorials, orderItemsBy])(items),
 );
 
-export const selectTotalFromUnbilledLineItems = createSelector([selectUnbilledShipmentLineItemsByShipmentId], items => {
-  return items.reduce((acm, item) => {
-    return acm + (item.amount_cents ? item.amount_cents : 0);
-  }, 0);
-});
+export const selectTotalFromUnbilledLineItems = createSelector(
+  [selectUnbilledShipmentLineItemsByShipmentId],
+  items => {
+    return items.reduce((acm, item) => {
+      return acm + (item.amount_cents ? item.amount_cents : 0);
+    }, 0);
+  },
+);
 
-export const selectTotalFromInvoicedLineItems = createSelector([selectInvoicesShipmentLineItemsByInvoiceId], items => {
-  return items.reduce((acm, item) => {
-    return acm + item.amount_cents;
-  }, 0);
-});
+export const selectTotalFromInvoicedLineItems = createSelector(
+  [selectInvoicesShipmentLineItemsByInvoiceId],
+  items => {
+    return items.reduce((acm, item) => {
+      return acm + item.amount_cents;
+    }, 0);
+  },
+);
 
 export const selectLocationFromTariff400ngItem = (state, selectedTariff400ngItem) => {
   if (!selectedTariff400ngItem) return [];

@@ -87,4 +87,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(DenySitRequest);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(DenySitRequest);

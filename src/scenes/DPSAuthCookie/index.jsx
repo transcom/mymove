@@ -67,4 +67,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ getCookieURL }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(reduxForm({ form: 'dpsAuthCookie' })(DPSAuthCookie));
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(reduxForm({ form: 'dpsAuthCookie' })(DPSAuthCookie));

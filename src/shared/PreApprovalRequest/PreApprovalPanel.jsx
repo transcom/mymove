@@ -101,4 +101,7 @@ function mapDispatchToProps(dispatch) {
     dispatch,
   );
 }
-export default connect(mapStateToProps, mapDispatchToProps)(PreApprovalPanel);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PreApprovalPanel);

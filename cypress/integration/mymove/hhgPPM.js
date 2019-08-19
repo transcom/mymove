@@ -37,8 +37,7 @@ describe('service member adds a ppm to an hhg', function() {
 });
 
 function serviceMemberGoesBackToHomepage() {
-  cy
-    .get('.back-to-home')
+  cy.get('.back-to-home')
     .contains('BACK TO HOME')
     .click();
 
@@ -51,8 +50,7 @@ function serviceMemberEditsHHGMoveDates() {
   cy.get('[data-cy="edit-move"]').click();
   // TODO: Currently does not support changing move dates for 2019. Add test to edit dates ewhen fixed
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 
@@ -143,8 +141,7 @@ function serviceMemberEditsPPMWeight() {
   cy.get('strong').contains('$3,460.33 - 3,824.57');
   cy.get('.subtext').contains('Originally $3,117.06 - 3,445.18');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 }
@@ -163,8 +160,7 @@ function serviceMemberEditsPPMDatesAndLocations() {
   cy.typeInInput({ name: 'pickup_postal_code', value: '91206' });
   cy.typeInInput({ name: 'destination_postal_code', value: '30813' });
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 }
@@ -179,8 +175,7 @@ function serviceMemberVerifiesBackupContactInfoWasEdited() {
 }
 
 function serviceMemberEditsBackupContactInfoSection() {
-  cy
-    .get('.review-content .edit-section-link')
+  cy.get('.review-content .edit-section-link')
     .eq(3)
     .click();
 
@@ -188,8 +183,7 @@ function serviceMemberEditsBackupContactInfoSection() {
   cy.typeInInput({ name: 'email', value: 'backup@example.com' });
   cy.typeInInput({ name: 'telephone', value: '323-111-1111' });
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 }
@@ -211,8 +205,7 @@ function serviceMemberVerifiesContactInfoWasEdited() {
 }
 
 function serviceMemberEditsContactInfoSection() {
-  cy
-    .get('.review-content .edit-section-link')
+  cy.get('.review-content .edit-section-link')
     .eq(2)
     .click();
 
@@ -232,8 +225,7 @@ function serviceMemberEditsContactInfoSection() {
   cy.get('select[name="backupAddress.state"]').select('CT');
   cy.typeInInput({ name: 'backupAddress.postal_code', value: '91206' });
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 }
@@ -251,8 +243,7 @@ function serviceMemberVerifiesOrderWasEdited() {
 }
 
 function serviceMemberEditsOrdersSection() {
-  cy
-    .get('.review-content .edit-section-link')
+  cy.get('.review-content .edit-section-link')
     .eq(1)
     .click();
 
@@ -261,8 +252,7 @@ function serviceMemberEditsOrdersSection() {
   cy.typeInInput({ name: 'report_by_date', value: '9/1/2018' });
   cy.get('input[type="radio"]').check('no', { force: true }); // checks yes for both radios on form
   cy.selectDutyStation('NAS Fort Worth', 'new_duty_station');
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 }
@@ -279,8 +269,7 @@ function serviceMemberVerifiesProfileWasEdited() {
 }
 
 function serviceMemberEditsProfileSection() {
-  cy
-    .get('.review-content .edit-section-link')
+  cy.get('.review-content .edit-section-link')
     .first()
     .click();
 
@@ -290,20 +279,17 @@ function serviceMemberEditsProfileSection() {
   cy.typeInInput({ name: 'suffix', value: 'Sr' });
   cy.get('select[name="affiliation"]').select('Air Force');
   cy.get('select[name="rank"]').select('E-9');
-  cy
-    .get('input[name="edipi"]')
+  cy.get('input[name="edipi"]')
     .clear()
     .type('9876543210');
   cy.selectDutyStation('NAS Fort Worth', 'current_station');
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 }
 
 function serviceMemberClicksEditMove() {
-  cy
-    .get('.usa-button-secondary')
+  cy.get('.usa-button-secondary')
     .contains('Edit Move')
     .click();
 }
@@ -313,8 +299,7 @@ function serviceMemberSignsIn(uuid) {
 }
 
 function serviceMemberAddsPPMToHHG() {
-  cy
-    .get('.sidebar > div > button')
+  cy.get('.sidebar > div > button')
     .contains('Add PPM (DITY) Move')
     .click();
 
@@ -323,15 +308,13 @@ function serviceMemberAddsPPMToHHG() {
   });
 
   // does not have a back button on first flow page
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Back')
     .should('not.be.visible');
 }
 
 function serviceMemberCancelsAddPPMToHHG() {
-  cy
-    .get('.usa-button-secondary')
+  cy.get('.usa-button-secondary')
     .contains('Cancel')
     .click();
 
@@ -341,8 +324,7 @@ function serviceMemberCancelsAddPPMToHHG() {
 }
 
 function serviceMemberContinuesPPMSetup() {
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Continue Move Setup')
     .click();
 }
@@ -354,13 +336,11 @@ function serviceMemberFillsInDatesAndLocations() {
 
   cy.get('.wizard-header').should('contain', 'Move Setup');
   cy.get('.wizard-header .progress-timeline .current').should('contain', 'Move Setup');
-  cy
-    .get('.wizard-header .progress-timeline .step')
+  cy.get('.wizard-header .progress-timeline .step')
     .last()
     .should('contain', 'Review');
 
-  cy
-    .get('input[name="original_move_date"]')
+  cy.get('input[name="original_move_date"]')
     .should('have.value', '5/20/2018')
     .clear()
     .first()
@@ -381,8 +361,7 @@ function serviceMemberSelectsWeightRange() {
 
   cy.get('.wizard-header').should('contain', 'Move Setup');
   cy.get('.wizard-header .progress-timeline .current').should('contain', 'Move Setup');
-  cy
-    .get('.wizard-header .progress-timeline .step')
+  cy.get('.wizard-header .progress-timeline .step')
     .last()
     .should('contain', 'Review');
 
@@ -403,8 +382,7 @@ function serviceMemberCanCustomizeWeight() {
 
   cy.get('.wizard-header').should('contain', 'Move Setup');
   cy.get('.wizard-header .progress-timeline .current').should('contain', 'Move Setup');
-  cy
-    .get('.wizard-header .progress-timeline .step')
+  cy.get('.wizard-header .progress-timeline .step')
     .last()
     .should('contain', 'Review');
 
@@ -426,8 +404,7 @@ function serviceMemberCanReviewMoveSummary() {
 
   cy.get('.wizard-header .wizard-left').should('not.contain', 'Move Setup');
   cy.get('.wizard-header .wizard-left').should('contain', 'Review');
-  cy
-    .get('.wizard-header .progress-timeline .step')
+  cy.get('.wizard-header .progress-timeline .step')
     .first()
     .should('contain', 'Move Setup');
   cy.get('.wizard-header .progress-timeline .current').should('contain', 'Review');
@@ -454,19 +431,16 @@ function serviceMemberCanSignAgreement() {
   });
 
   cy.get('.wizard-header').should('contain', 'Review');
-  cy
-    .get('.wizard-header .progress-timeline .step')
+  cy.get('.wizard-header .progress-timeline .step')
     .first()
     .should('contain', 'Move Setup');
   cy.get('.wizard-header .progress-timeline .current').should('contain', 'Review');
 
-  cy
-    .get('body')
-    .should($div =>
-      expect($div.text()).to.include(
-        'Before officially booking your move, please carefully read and then sign the following.',
-      ),
-    );
+  cy.get('body').should($div =>
+    expect($div.text()).to.include(
+      'Before officially booking your move, please carefully read and then sign the following.',
+    ),
+  );
 
   cy.get('input[name="signature"]').type('Jane Doe');
   cy.nextPage();
@@ -480,8 +454,7 @@ function serviceMemberViewsUpdatedHomePage() {
   cy.get('.usa-alert-success').within(() => {
     cy.contains('Your PPM shipment is submitted');
     cy.contains('Next, wait for approval. Once approved:');
-    cy
-      .get('a')
+    cy.get('a')
       .contains('PPM info sheet')
       .should('have.attr', 'href')
       .and('include', '/downloads/ppm_info_sheet.pdf');
@@ -496,8 +469,7 @@ function serviceMemberViewsUpdatedHomePage() {
   cy.get('.usa-width-three-fourths').within(() => {
     // PPM information and details
     cy.contains('Next Step: Wait for approval');
-    cy
-      .contains('Go to certified weight scales')
+    cy.contains('Go to certified weight scales')
       .children('a')
       .should('have.attr', 'href', 'https://move.mil/resources/locator-maps');
     cy.contains('Weight (est.): 150');

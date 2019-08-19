@@ -16,28 +16,25 @@ describe('orders entry', function() {
 
     cy.get('select[name="orders_type"]').select('Permanent Change Of Station');
 
-    cy
-      .get('input[name="issue_date"]')
+    cy.get('input[name="issue_date"]')
       .first()
       .click();
 
-    cy
-      .get('input[name="issue_date"]')
+    cy.get('input[name="issue_date"]')
       .first()
       .type('6/2/2018{enter}')
       .blur();
 
-    cy
-      .get('input[name="report_by_date"]')
+    cy.get('input[name="report_by_date"]')
       .last()
       .type('8/9/2018{enter}')
       .blur();
 
     // Choosing same current and destination duty station should block you from progressing and give an error
     cy.selectDutyStation('Yuma AFB', 'new_duty_station');
-    cy
-      .get('.usa-input-error-message')
-      .contains('You entered the same duty station for your origin and destination. Please change one of them.');
+    cy.get('.usa-input-error-message').contains(
+      'You entered the same duty station for your origin and destination. Please change one of them.',
+    );
     cy.get('button.next').should('be.disabled');
 
     cy.selectDutyStation('NAS Fort Worth', 'new_duty_station');
