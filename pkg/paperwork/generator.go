@@ -225,7 +225,7 @@ var contentTypeToImageType = map[string]string{
 	"image/png":  "PNG",
 }
 
-func MaybeRotateImage(file afero.File, g *Generator, contentType string) (imgFile afero.File, width float64, height float64, err error) {
+func ReduceUnusedSpace(file afero.File, g *Generator, contentType string) (imgFile afero.File, width float64, height float64, err error) {
 	// Figure out if the image should be rotated by calculating height and width of image.
 	pic, _, decodeErr := image.Decode(file)
 	if decodeErr != nil {
@@ -245,9 +245,15 @@ func MaybeRotateImage(file afero.File, g *Generator, contentType string) (imgFil
 		// Rotate and save new file
 		newPic := imaging.Rotate90(pic)
 		if contentType == "image/png" {
-			png.Encode(newFile, newPic)
+			err := png.Encode(newFile, newPic)
+			if err != nil {
+				return nil, 0.0, 0.0, errors.Wrap(err, "Encountered an error rotating and encoding the png")
+			}
 		} else {
-			jpeg.Encode(newFile, newPic, nil)
+			err := jpeg.Encode(newFile, newPic, nil)
+			if err != nil {
+				return nil, 0.0, 0.0, errors.Wrap(err, "Encountered an error rotating and encoding the jpg")
+			}
 		}
 
 		// The original width is now the height and vice versa.
@@ -320,7 +326,7 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 			}
 		}
 
-		file, w, h, rotateErr := MaybeRotateImage(file, g, img.ContentType)
+		optimizedFile, w, h, rotateErr := ReduceUnusedSpace(file, g, img.ContentType)
 		if rotateErr != nil {
 			return "", errors.Wrapf(rotateErr, "Rotating image if in landscape orientation")
 		}
@@ -340,25 +346,25 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 		}
 
 		// Rotation may have closed the file, so reopen the file before we use it.
-		file, err = g.fs.Open(file.Name())
+		optimizedFile, err = g.fs.Open(optimizedFile.Name())
 		if err != nil {
 			return "", err
 		}
 
 		// Seek to the beginning of the file so when we register the image, it doesn't start
 		// at the end of the file.
-		_, fileSeekErr := file.Seek(0, io.SeekStart)
+		_, fileSeekErr := optimizedFile.Seek(0, io.SeekStart)
 		if fileSeekErr != nil {
 			return "", errors.Wrapf(fileSeekErr, "file.Seek offset: 0 whence: %d", io.SeekStart)
 		}
 		// Need to register the image using an afero reader, else it uses default filesystem
-		pdf.RegisterImageReader(img.Path, contentTypeToImageType[img.ContentType], file)
+		pdf.RegisterImageReader(img.Path, contentTypeToImageType[img.ContentType], optimizedFile)
 		opt.ImageType = contentTypeToImageType[img.ContentType]
 
 		pdf.ImageOptions(img.Path, horizontalMargin, topMargin, widthInPdf, heightInPdf, false, opt, 0, "")
 		fileCloseErr := file.Close()
 		if fileCloseErr != nil {
-			return "", errors.Wrapf(err, "error closing file: %s", file.Name())
+			return "", errors.Wrapf(err, "error closing file: %s", optimizedFile.Name())
 		}
 	}
 
