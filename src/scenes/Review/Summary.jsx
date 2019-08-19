@@ -107,13 +107,12 @@ export class Summary extends Component {
         {showPPMShipmentSummary && (
           <PPMShipmentSummary ppm={currentPpm} movePath={rootAddressWithMoveId} isHHGPPMComboMove={isHHGPPMComboMove} />
         )}
-        {moveIsApproved &&
-          !isHHGPPMComboMove && (
-            <div className="approved-edit-warning">
-              *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}
-              {stationPhone ? ` at ${stationPhone}` : ''}.
-            </div>
-          )}
+        {moveIsApproved && !isHHGPPMComboMove && (
+          <div className="approved-edit-warning">
+            *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}
+            {stationPhone ? ` at ${stationPhone}` : ''}.
+          </div>
+        )}
       </Fragment>
     );
   }
@@ -166,4 +165,9 @@ function mapDispatchToProps(dispatch, ownProps) {
     },
   };
 }
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Summary));
+export default withRouter(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(Summary),
+);

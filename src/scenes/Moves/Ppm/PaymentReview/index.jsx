@@ -185,4 +185,7 @@ const mapDispatchToProps = {
   getPpmWeightEstimate,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(PaymentReview);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PaymentReview);

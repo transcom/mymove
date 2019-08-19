@@ -84,4 +84,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AccountingPanel);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(AccountingPanel);

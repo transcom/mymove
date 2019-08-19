@@ -99,4 +99,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ submitForm: () => submit(PlaceInSitFormName), updateSitPlaceIntoSit }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(PlaceInSit);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PlaceInSit);

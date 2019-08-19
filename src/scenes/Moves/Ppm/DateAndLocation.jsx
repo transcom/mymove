@@ -298,11 +298,11 @@ function mapStateToProps(state) {
   props.initialValues = props.currentPpm
     ? props.currentPpm
     : defaultPickupZip
-      ? {
-          pickup_postal_code: defaultPickupZip,
-          origin_duty_station_zip: originDutyStationZip,
-        }
-      : null;
+    ? {
+        pickup_postal_code: defaultPickupZip,
+        origin_duty_station_zip: originDutyStationZip,
+      }
+    : null;
 
   if (props.isHHGPPMComboMove) {
     props.defaultValues = {
@@ -321,4 +321,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ createOrUpdatePpm, getPpmSitEstimate, setInitialFormValues }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(DateAndLocation);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(DateAndLocation);

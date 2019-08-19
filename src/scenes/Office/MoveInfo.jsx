@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { capitalize, get, includes, some, isEmpty } from 'lodash';
+import { capitalize, get, includes } from 'lodash';
 
 import { NavTab, RoutedTabs } from 'react-router-tabs';
 import { Link, NavLink, Redirect, Switch } from 'react-router-dom';
@@ -67,7 +67,6 @@ import {
 } from 'shared/Entities/modules/moves';
 import { formatDate } from 'shared/formatters';
 import { getMoveDocumentsForMove, selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
-import SitStatusIcon from 'shared/StorageInTransit/SitStatusIcon';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -206,25 +205,10 @@ class MoveInfo extends Component {
   }
 
   get allAreApproved() {
-    const {
-      move: { selected_move_type },
-      moveStatus,
-      ppm,
-      shipmentStatus,
-    } = this.props;
-    const isPPM = selected_move_type === 'PPM';
-    const isHHG = selected_move_type === 'HHG';
+    const { moveStatus, ppm } = this.props;
     const moveApproved = moveStatus === 'APPROVED';
     const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
-    const hhgApproved = includes(['APPROVED', 'IN_TRANSIT', 'DELIVERED'], shipmentStatus);
-
-    if (isPPM) {
-      return moveApproved && ppmApproved;
-    } else if (isHHG) {
-      return moveApproved && hhgApproved;
-    }
-    // hhg_ppm move
-    return moveApproved && ppmApproved && hhgApproved;
+    return moveApproved && ppmApproved;
   }
   getAllShipmentInfo = shipmentId => {
     this.props.getTspForShipment(shipmentId);
@@ -300,12 +284,9 @@ class MoveInfo extends Component {
       shipment,
       shipmentStatus,
       serviceMember,
-      storageInTransits,
       upload,
     } = this.props;
     const isPPM = move.selected_move_type === 'PPM';
-    const isHHG = move.selected_move_type === 'HHG';
-    const isHHGPPM = move.selected_move_type === 'HHG_PPM';
     const showDocumentViewer = this.props.context.flags.documentViewer;
     const moveInfoComboButton = this.props.context.flags.moveInfoComboButton;
     const ordersComplete = Boolean(
@@ -313,13 +294,9 @@ class MoveInfo extends Component {
     );
     const ppmPaymentRequested = includes(['PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
-    const hhgApproved = includes(['APPROVED', 'IN_TRANSIT', 'DELIVERED'], shipmentStatus);
-    const hhgAccepted = shipmentStatus === 'ACCEPTED';
     const hhgDelivered = shipmentStatus === 'DELIVERED';
     const moveApproved = moveStatus === 'APPROVED';
     const hhgCantBeCanceled = includes(['IN_TRANSIT', 'DELIVERED'], shipmentStatus);
-
-    const hasRequestedSIT = !isEmpty(storageInTransits) && some(storageInTransits, sit => sit.status === 'REQUESTED');
 
     const moveDate = isPPM ? ppm.original_move_date : shipment && shipment.requested_pickup_date;
 
@@ -384,27 +361,12 @@ class MoveInfo extends Component {
                   {capitalize(this.props.moveStatus)}
                 </span>
               </NavTab>
-              {(isPPM || isHHGPPM) && (
+              {isPPM && (
                 <NavTab to="/ppm">
                   <span className="title" data-cy="ppm-tab">
                     PPM
                   </span>
                   {this.renderPPMTabStatus()}
-                </NavTab>
-              )}
-              {(isHHG || isHHGPPM) && (
-                <NavTab to="/hhg">
-                  <span className="title" data-cy="hhg-tab">
-                    HHG
-                  </span>
-                  <span className="status">
-                    {hasRequestedSIT ? (
-                      <SitStatusIcon isTspSite={false} />
-                    ) : (
-                      <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
-                    )}
-                    {hasRequestedSIT ? 'SIT requested' : capitalize(shipmentStatus)}
-                  </span>
                 </NavTab>
               )}
             </RoutedTabs>
@@ -473,18 +435,11 @@ class MoveInfo extends Component {
                           disabled={moveApproved || !ordersComplete}
                           onClick={this.approveBasics}
                         />
-                        {(isPPM || isHHGPPM) && (
+                        {isPPM && (
                           <DropDownItem
                             disabled={ppmApproved || !moveApproved || !ordersComplete}
                             onClick={this.approvePPM}
                             value="Approve PPM"
-                          />
-                        )}
-                        {(isHHG || isHHGPPM) && (
-                          <DropDownItem
-                            value="Approve HHG"
-                            onClick={this.approveShipment}
-                            disabled={!hhgAccepted || hhgApproved || !moveApproved || !ordersComplete}
                           />
                         )}
                       </DropDown>

@@ -125,8 +125,7 @@ Cypress.Commands.add('waitForReactTableLoad', () => {
 Cypress.Commands.add('selectQueueItemMoveLocator', moveLocator => {
   cy.waitForReactTableLoad();
 
-  cy
-    .get('div')
+  cy.get('div')
     .contains(moveLocator)
     .dblclick();
 
@@ -153,48 +152,46 @@ Cypress.Commands.add(
 
     // request use to log in
     let sendRequest = (sendRequestUserType, maskedCSRFToken) => {
-      cy
-        .request({
-          url: '/devlocal-auth/login',
-          method: 'POST',
-          headers: {
-            'X-CSRF-TOKEN': maskedCSRFToken,
-          },
-          body: {
-            id: userId,
-            userType: sendRequestUserType,
-          },
-          form: true,
-          failOnStatusCode: false,
-        })
-        .then(resp => {
-          cy.visit('/');
-          // Default status code to check is 200
-          expect(resp.status).to.eq(expectedStatusCode);
-          // check response body if needed
-          if (expectedRespBody) {
-            expect(resp.body).to.eq(expectedRespBody);
-          }
+      cy.request({
+        url: '/devlocal-auth/login',
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': maskedCSRFToken,
+        },
+        body: {
+          id: userId,
+          userType: sendRequestUserType,
+        },
+        form: true,
+        failOnStatusCode: false,
+      }).then(resp => {
+        cy.visit('/');
+        // Default status code to check is 200
+        expect(resp.status).to.eq(expectedStatusCode);
+        // check response body if needed
+        if (expectedRespBody) {
+          expect(resp.body).to.eq(expectedRespBody);
+        }
 
-          // Login should provide named session tokens
-          if (checkSessionToken) {
-            // Check that two CSRF cookies and one session cookie exists
-            cy.getCookies().should('have.length', 3);
-            if (sendRequestUserType === milmoveAppName) {
-              cy.getCookie('mil_session_token').should('exist');
-              cy.getCookie('office_session_token').should('not.exist');
-              cy.getCookie('tsp_session_token').should('not.exist');
-            } else if (sendRequestUserType === officeAppName) {
-              cy.getCookie('mil_session_token').should('not.exist');
-              cy.getCookie('office_session_token').should('exist');
-              cy.getCookie('tsp_session_token').should('not.exist');
-            } else if (sendRequestUserType === tspAppName) {
-              cy.getCookie('mil_session_token').should('not.exist');
-              cy.getCookie('office_session_token').should('not.exist');
-              cy.getCookie('tsp_session_token').should('exist');
-            }
+        // Login should provide named session tokens
+        if (checkSessionToken) {
+          // Check that two CSRF cookies and one session cookie exists
+          cy.getCookies().should('have.length', 3);
+          if (sendRequestUserType === milmoveAppName) {
+            cy.getCookie('mil_session_token').should('exist');
+            cy.getCookie('office_session_token').should('not.exist');
+            cy.getCookie('tsp_session_token').should('not.exist');
+          } else if (sendRequestUserType === officeAppName) {
+            cy.getCookie('mil_session_token').should('not.exist');
+            cy.getCookie('office_session_token').should('exist');
+            cy.getCookie('tsp_session_token').should('not.exist');
+          } else if (sendRequestUserType === tspAppName) {
+            cy.getCookie('mil_session_token').should('not.exist');
+            cy.getCookie('office_session_token').should('not.exist');
+            cy.getCookie('tsp_session_token').should('exist');
           }
-        });
+        }
+      });
     };
 
     // make sure we log out first before sign in
@@ -229,15 +226,13 @@ Cypress.Commands.add('logout', () => {
   cy.patientVisit('/');
 
   cy.getCookie('masked_gorilla_csrf').then(cookie => {
-    cy
-      .request({
-        url: '/auth/logout',
-        method: 'POST',
-        headers: { 'x-csrf-token': cookie.value },
-      })
-      .then(resp => {
-        expect(resp.status).to.equal(200);
-      });
+    cy.request({
+      url: '/auth/logout',
+      method: 'POST',
+      headers: { 'x-csrf-token': cookie.value },
+    }).then(resp => {
+      expect(resp.status).to.equal(200);
+    });
 
     // In case of login redirect we once more go to the homepage
     cy.patientVisit('/');
@@ -256,8 +251,7 @@ Cypress.Commands.add('setBaseUrlAndClearAllCookies', userType => {
 });
 
 Cypress.Commands.add('nextPage', () => {
-  cy
-    .get('button.next')
+  cy.get('button.next')
     .should('be.enabled')
     .click();
 });
@@ -304,37 +298,32 @@ function genericSelect(inputData, fieldName, classSelector) {
   if (fieldName) {
     classSelector = `${classSelector}.${fieldName}`;
   }
-  cy
-    .get(`${classSelector} input[type="text"]`)
+  cy.get(`${classSelector} input[type="text"]`)
     .first()
     .type(`{selectall}{backspace}${inputData}`, { force: true, delay: 75 });
 
   // Click on the first presented option
-  cy
-    .get(classSelector)
+  cy.get(classSelector)
     .find('div[class*="option"]')
     .click();
 }
 
 Cypress.Commands.add('typeInInput', ({ name, value }) => {
-  cy
-    .get(`input[name="${name}"]`)
+  cy.get(`input[name="${name}"]`)
     .clear()
     .type(value)
     .blur();
 });
 
 Cypress.Commands.add('clearInput', ({ name }) => {
-  cy
-    .get(`input[name="${name}"]`)
+  cy.get(`input[name="${name}"]`)
     .clear()
     .blur();
 });
 
 // function typeInTextArea({ name, value }) {
 Cypress.Commands.add('typeInTextarea', ({ name, value }) => {
-  cy
-    .get(`textarea[name="${name}"]`)
+  cy.get(`textarea[name="${name}"]`)
     .clear()
     .type(value)
     .blur();

@@ -132,4 +132,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(PPMEstimatesPanel);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PPMEstimatesPanel);

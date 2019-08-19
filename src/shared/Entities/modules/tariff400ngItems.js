@@ -14,13 +14,16 @@ export function getAllTariff400ngItems(requires_pre_approval, label = getTariff4
 export const selectTariff400ngItems = state =>
   denormalize(keys(state.entities.tariff400ngItems), tariff400ngItems, state.entities);
 
-export const selectSortedTariff400ngItems = createSelector([selectTariff400ngItems], items =>
-  // Sorts by the numeric part of code, e.g. "256A" -> 256
-  sortBy(items, item => parseInt(item.code.match(/[0-9]+/g))),
+export const selectSortedTariff400ngItems = createSelector(
+  [selectTariff400ngItems],
+  items =>
+    // Sorts by the numeric part of code, e.g. "256A" -> 256
+    sortBy(items, item => parseInt(item.code.match(/[0-9]+/g))),
 );
 
-export const selectSortedPreApprovalTariff400ngItems = createSelector([selectSortedTariff400ngItems], items =>
-  filter(items, item => item.requires_pre_approval),
+export const selectSortedPreApprovalTariff400ngItems = createSelector(
+  [selectSortedTariff400ngItems],
+  items => filter(items, item => item.requires_pre_approval),
 );
 
 export const selectTariff400ngItem = (state, id) => denormalize([id], tariff400ngItems, state.entities)[0];
