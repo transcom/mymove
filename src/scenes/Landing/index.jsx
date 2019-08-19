@@ -118,12 +118,11 @@ export class Landing extends Component {
         {loggedInUserSuccess && (
           <Fragment>
             <div>
-              {moveSubmitSuccess &&
-                !ppm && (
-                  <Alert type="success" heading="Success">
-                    You've submitted your move
-                  </Alert>
-                )}
+              {moveSubmitSuccess && !ppm && (
+                <Alert type="success" heading="Success">
+                  You've submitted your move
+                </Alert>
+              )}
               {isHHGPPMComboMove && hasSubmitSuccess && <PPMAlert heading="Your PPM shipment is submitted" />}
               {ppm && moveSubmitSuccess && <PPMAlert heading="Congrats - your move is submitted!" />}
               {loggedInUserError && (
@@ -138,26 +137,24 @@ export class Landing extends Component {
               )}
             </div>
 
-            {isLoggedIn &&
-              !isEmpty(serviceMember) &&
-              isProfileComplete && (
-                <MoveSummary
-                  context={context}
-                  entitlement={entitlement}
-                  profile={serviceMember}
-                  orders={orders}
-                  move={move}
-                  ppm={ppm}
-                  shipment={currentShipment}
-                  editMove={this.editMove}
-                  resumeMove={this.resumeMove}
-                  reviewProfile={this.reviewProfile}
-                  requestPaymentSuccess={requestPaymentSuccess}
-                  moveSubmitSuccess={moveSubmitSuccess}
-                  updateMove={updateMove}
-                  addPPMShipment={this.addPPMShipment}
-                />
-              )}
+            {isLoggedIn && !isEmpty(serviceMember) && isProfileComplete && (
+              <MoveSummary
+                context={context}
+                entitlement={entitlement}
+                profile={serviceMember}
+                orders={orders}
+                move={move}
+                ppm={ppm}
+                shipment={currentShipment}
+                editMove={this.editMove}
+                resumeMove={this.resumeMove}
+                reviewProfile={this.reviewProfile}
+                requestPaymentSuccess={requestPaymentSuccess}
+                moveSubmitSuccess={moveSubmitSuccess}
+                updateMove={updateMove}
+                addPPMShipment={this.addPPMShipment}
+              />
+            )}
           </Fragment>
         )}
       </div>
@@ -201,4 +198,11 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ push, createServiceMember, updateMove }, dispatch);
 }
 
-export default withContext(withLastLocation(connect(mapStateToProps, mapDispatchToProps)(Landing)));
+export default withContext(
+  withLastLocation(
+    connect(
+      mapStateToProps,
+      mapDispatchToProps,
+    )(Landing),
+  ),
+);

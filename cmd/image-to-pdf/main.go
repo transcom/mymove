@@ -8,6 +8,8 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/paperwork"
+	"github.com/transcom/mymove/pkg/storage"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 type stringSlice []string
@@ -32,8 +34,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
-
-	generator, err := paperwork.NewGenerator(nil, logger, nil)
+	storer := storage.NewMemory(storage.NewMemoryParams("", "", logger))
+	uploader := uploader.NewUploader(nil, logger, storer)
+	generator, err := paperwork.NewGenerator(nil, logger, uploader)
 	if err != nil {
 		log.Fatal(err.Error())
 	}

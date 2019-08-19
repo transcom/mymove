@@ -22,8 +22,7 @@ function tspUserViewsCustomerInfo() {
   });
 
   // Expect Customer Info to be loaded
-  cy
-    .get('.customer-info')
+  cy.get('.customer-info')
     .contains('Customer Info')
     .get('.extras.content')
     .should($div => {

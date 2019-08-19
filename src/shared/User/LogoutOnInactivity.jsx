@@ -43,22 +43,21 @@ export class LogoutOnInactivity extends React.Component {
     const props = this.props;
     return (
       <React.Fragment>
-        {isProduction &&
-          props.isLoggedIn && (
-            <IdleTimer
-              ref="idleTimer"
-              element={document}
-              activeAction={this.onActive}
-              idleAction={this.onIdle}
-              timeout={this.props.idleTimeout}
-            >
-              {this.state.isIdle && (
-                <Alert type="warning" heading="Inactive user">
-                  You have been inactive and will be logged out shortly.
-                </Alert>
-              )}
-            </IdleTimer>
-          )}
+        {isProduction && props.isLoggedIn && (
+          <IdleTimer
+            ref="idleTimer"
+            element={document}
+            activeAction={this.onActive}
+            idleAction={this.onIdle}
+            timeout={this.props.idleTimeout}
+          >
+            {this.state.isIdle && (
+              <Alert type="warning" heading="Inactive user">
+                You have been inactive and will be logged out shortly.
+              </Alert>
+            )}
+          </IdleTimer>
+        )}
 
         {this.state.showLoggedOutAlert && (
           <Alert type="error" heading="Logged out">

@@ -123,4 +123,7 @@ function mapDispatchToProps(dispatch) {
   return { update };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(BackupInfoPanel);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(BackupInfoPanel);

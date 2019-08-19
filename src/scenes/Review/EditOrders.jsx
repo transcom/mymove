@@ -216,4 +216,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditOrders);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(EditOrders);

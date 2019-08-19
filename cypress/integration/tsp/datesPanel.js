@@ -24,8 +24,7 @@ function tspUserGoesToDatesPanel(locator) {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  cy
-    .get('.editable-panel-header')
+  cy.get('.editable-panel-header')
     .contains('Dates')
     .siblings()
     .click();

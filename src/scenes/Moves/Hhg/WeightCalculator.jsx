@@ -85,7 +85,8 @@ class WeightCalculator extends Component {
         <div className="weight-calculator-contents">
           <div className="usa-input">
             <label className="usa-input-label" htmlFor="rooms">
-              How many furnished rooms in your current home?<br />
+              How many furnished rooms in your current home?
+              <br />
               <span className="weight-calculator-help">
                 Include bedrooms, living, dining and family rooms, offices and a garage or offsite storage if you store
                 a lot there.
