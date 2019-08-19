@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/db/utilities"
 )
 
 // MoveDocumentStatus represents the status of a move document record's lifecycle
@@ -356,7 +357,7 @@ func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveExpens
 		} else if saveExpenseAction == MoveDocumentSaveActionDELETEEXPENSEMODEL {
 			// destroy expense document
 			expenseDocument := moveDocument.MovingExpenseDocument
-			if err := db.Destroy(expenseDocument); err != nil {
+			if err := utilities.SoftDestroy(db, expenseDocument); err != nil {
 				responseError = errors.Wrap(err, "Error Deleting Moving Expense Document")
 				return transactionError
 			}
@@ -374,7 +375,7 @@ func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveExpens
 		} else if saveWeightTicketSetAction == MoveDocumentSaveActionDELETEWEIGHTTICKETSETMODEL {
 			// destroy weight ticket set document
 			weightTicketSetDocument := moveDocument.WeightTicketSetDocument
-			if err := db.Destroy(weightTicketSetDocument); err != nil {
+			if err := utilities.SoftDestroy(db, weightTicketSetDocument); err != nil {
 				responseError = errors.Wrap(err, "Error Deleting Moving Expense Document")
 				return transactionError
 			}
