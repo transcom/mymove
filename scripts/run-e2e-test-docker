@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-set -eu -o pipefail
+set -eux -o pipefail
 
 # Setting REACT_APP_NODE_ENV to develompent enables the "Local Sign In" button
 export REACT_APP_NODE_ENV=development
@@ -46,9 +46,11 @@ if [[ -n "${CIRCLECI+x}" ]]; then
 
   # Can't mount folders in CircleCI so copy this data in
   # https://circleci.com/docs/2.0/building-docker-images/#mounting-folders
+  echo "Copy in the local migration files"
   docker cp ./local_migrations mymove_milmove_migrate_1:/mymove/local_migrations
 
   # Following the logs should block any more actions until migrations are completed and the container exits
+  echo "Follow the migration logs"
   docker-compose logs -f milmove_migrate
 
   # Need to wait not just for DB but also migrations to finish
@@ -63,7 +65,7 @@ if [[ -n "${CIRCLECI+x}" ]]; then
   done
 
   echo "Current docker processes"
-  docker-compose ps -a
+  docker ps -a
 
   # Build a small tools dockerfile
   make bin_linux/generate-test-data
