@@ -54,9 +54,11 @@ if [[ -n "${CIRCLECI+x}" ]]; then
       sleep 5
     fi
   done
+  sleep 10
 
   # Build a small tools dockerfile
   make bin_linux/generate-test-data
+  echo "Build tools docker container"
   docker build -f Dockerfile.tools --tag tools:latest .
   echo "Truncate the DB"
   $DOCKER_RUN \
