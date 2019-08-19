@@ -1,10 +1,11 @@
-package utilities
+package utilities_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -30,7 +31,7 @@ func TestUtilitiesSuite(t *testing.T) {
 func (suite *UtilitiesSuite) TestSoftDestroy_NotModel() {
 	accessCodeFetcher := &mocks.AccessCodeFetcher{}
 
-	err := SoftDestroy(suite.DB(), &accessCodeFetcher)
+	err := utilities.SoftDestroy(suite.DB(), &accessCodeFetcher)
 
 	suite.Error(err)
 }
@@ -39,7 +40,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithoutDeletedAtWithoutAssocia
 	//model without deleted_at with no associations
 	user := testdatagen.MakeDefaultUser(suite.DB())
 
-	err := SoftDestroy(suite.DB(), &user)
+	err := utilities.SoftDestroy(suite.DB(), &user)
 
 	suite.Error(err)
 }
@@ -56,7 +57,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithoutAssociatio
 
 	suite.MustSave(&expenseDocumentModel)
 
-	err := SoftDestroy(suite.DB(), &expenseDocumentModel)
+	err := utilities.SoftDestroy(suite.DB(), &expenseDocumentModel)
 	suite.NoError(err)
 }
 
@@ -65,7 +66,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithoutDeletedAtWithAssociatio
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 	suite.MustSave(&serviceMember)
 
-	err := SoftDestroy(suite.DB(), &serviceMember)
+	err := utilities.SoftDestroy(suite.DB(), &serviceMember)
 	suite.Error(err)
 }
 
@@ -105,13 +106,13 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasOneAssocia
 	}
 	suite.MustSave(&weightTicketSetDocument)
 
-	err := SoftDestroy(suite.DB(), &moveDoc)
+	err := utilities.SoftDestroy(suite.DB(), &moveDoc)
 
 	suite.NoError(err)
 	suite.NotNil(moveDoc.DeletedAt)
 	suite.NotNil(moveDoc.WeightTicketSetDocument.DeletedAt)
-
 }
+
 func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasManyAssociations() {
 	// model with deleted_at with "has many" associations
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
@@ -143,7 +144,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasManyAssoci
 	suite.MustSave(&upload)
 	suite.MustSave(&upload2)
 
-	err := SoftDestroy(suite.DB(), &document)
+	err := utilities.SoftDestroy(suite.DB(), &document)
 
 	suite.NoError(err)
 	suite.NotNil(document.DeletedAt)

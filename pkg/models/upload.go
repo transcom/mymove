@@ -13,6 +13,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/db/utilities"
 )
 
 // An Upload represents an uploaded file, such as an image or PDF.
@@ -90,5 +91,5 @@ func FetchUpload(ctx context.Context, db *pop.Connection, session *auth.Session,
 
 // DeleteUpload deletes an upload from the database
 func DeleteUpload(db *pop.Connection, upload *Upload) error {
-	return db.Destroy(upload)
+	return utilities.SoftDestroy(db, upload)
 }
