@@ -62,7 +62,7 @@ function PPMShipmentSummary(props) {
             {!isHHGPPMComboMove && (
               <tr>
                 <td> Storage: </td>
-                <td>{sitDisplay}</td>
+                <td data-cy="sit-display">{sitDisplay}</td>
               </tr>
             )}
           </tbody>
