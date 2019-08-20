@@ -7,7 +7,6 @@ import { withLastLocation } from 'react-router-last-location';
 import { withContext } from 'shared/AppContext';
 
 import { MoveSummary, PPMAlert } from './MoveSummary';
-import { isHHGPPMComboMove } from 'scenes/Moves/Ppm/ducks';
 import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { getCurrentShipment } from 'shared/UI/ducks';
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
@@ -100,8 +99,6 @@ export class Landing extends Component {
       isProfileComplete,
       createdServiceMemberError,
       moveSubmitSuccess,
-      hasSubmitSuccess,
-      isHHGPPMComboMove,
       entitlement,
       serviceMember,
       orders,
@@ -123,7 +120,6 @@ export class Landing extends Component {
                   You've submitted your move
                 </Alert>
               )}
-              {isHHGPPMComboMove && hasSubmitSuccess && <PPMAlert heading="Your PPM shipment is submitted" />}
               {ppm && moveSubmitSuccess && <PPMAlert heading="Congrats - your move is submitted!" />}
               {loggedInUserError && (
                 <Alert type="error" heading="An error occurred">
@@ -170,7 +166,6 @@ const mapStateToProps = state => {
     selectedMoveType: selectedMoveType(state),
     isLoggedIn: user.isLoggedIn,
     isProfileComplete: isProfileComplete(state),
-    isHHGPPMComboMove: isHHGPPMComboMove(state),
     serviceMember: state.serviceMember.currentServiceMember || {},
     backupContacts: state.serviceMember.currentBackupContacts || [],
     orders: state.orders.currentOrders || {},
@@ -187,7 +182,6 @@ const mapStateToProps = state => {
     createdServiceMemberError: state.serviceMember.error,
     createdServiceMember: state.serviceMember.currentServiceMember,
     moveSubmitSuccess: state.signedCertification.moveSubmitSuccess,
-    hasSubmitSuccess: state.signedCertification.hasSubmitSuccess,
     entitlement: loadEntitlementsFromState(state),
     requestPaymentSuccess: state.ppm.requestPaymentSuccess,
   };

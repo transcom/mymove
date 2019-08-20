@@ -48,7 +48,6 @@ export class Summary extends Component {
       moveIsApproved,
       serviceMember,
       entitlement,
-      isHHGPPMComboMove,
       match,
     } = this.props;
 
@@ -63,10 +62,9 @@ export class Summary extends Component {
 
     const showPPMShipmentSummary =
       (isReviewPage && currentPpm) || (!isReviewPage && currentPpm && currentPpm.status !== 'DRAFT');
-    const showHHGShipmentSummary =
-      (!isEmpty(currentShipment) && !isHHGPPMComboMove) || (currentShipment && isHHGPPMComboMove && !isReviewPage);
+    const showHHGShipmentSummary = !isEmpty(currentShipment);
 
-    const showProfileAndOrders = (isReviewPage && !isHHGPPMComboMove) || !isReviewPage;
+    const showProfileAndOrders = isReviewPage || !isReviewPage;
     return (
       <Fragment>
         {get(this.props.reviewState.error, 'statusCode', false) === 409 && (
@@ -104,10 +102,8 @@ export class Summary extends Component {
           <HHGShipmentSummary shipment={currentShipment} movePath={rootAddressWithMoveId} entitlements={entitlement} />
         )}
 
-        {showPPMShipmentSummary && (
-          <PPMShipmentSummary ppm={currentPpm} movePath={rootAddressWithMoveId} isHHGPPMComboMove={isHHGPPMComboMove} />
-        )}
-        {moveIsApproved && !isHHGPPMComboMove && (
+        {showPPMShipmentSummary && <PPMShipmentSummary ppm={currentPpm} movePath={rootAddressWithMoveId} />}
+        {moveIsApproved && (
           <div className="approved-edit-warning">
             *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}
             {stationPhone ? ` at ${stationPhone}` : ''}.
@@ -129,7 +125,6 @@ Summary.propTypes = {
   moveIsApproved: PropTypes.bool,
   lastMoveIsCanceled: PropTypes.bool,
   error: PropTypes.object,
-  isHHGPPMComboMove: PropTypes.bool,
 };
 
 function mapStateToProps(state, ownProps) {
@@ -147,7 +142,6 @@ function mapStateToProps(state, ownProps) {
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     reviewState: state.review,
     entitlement: loadEntitlementsFromState(state),
-    isHHGPPMComboMove: get(state, 'moves.currentMove.selected_move_type') === 'HHG_PPM',
   };
 }
 function mapDispatchToProps(dispatch, ownProps) {

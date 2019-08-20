@@ -164,10 +164,6 @@ export function getSelectedWeightInfo(state) {
   return weightInfo[size]; // eslint-disable-line security/detect-object-injection
 }
 
-export function isHHGPPMComboMove(state) {
-  return get(state, 'moves.currentMove.selected_move_type') === 'HHG_PPM';
-}
-
 const estimatedRemainingWeight = (sum, weight) => {
   if (sum >= weight) {
     return sum - weight;
@@ -179,7 +175,7 @@ const estimatedRemainingWeight = (sum, weight) => {
 export function getEstimatedRemainingWeight(state) {
   const entitlements = loadEntitlementsFromState(state);
 
-  if (!isHHGPPMComboMove(state) || isNull(entitlements)) {
+  if (isNull(entitlements)) {
     return null;
   }
 
@@ -199,7 +195,7 @@ export function getEstimatedRemainingWeight(state) {
 export function getActualRemainingWeight(state) {
   const entitlements = loadEntitlementsFromState(state);
 
-  if (!isHHGPPMComboMove(state) || isNull(entitlements)) {
+  if (isNull(entitlements)) {
     return null;
   }
 
