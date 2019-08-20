@@ -79,8 +79,8 @@ export class NonPDFImage extends Component {
         <div style={{ marginBottom: '2em' }}>
           <RotationBar onLeftButtonClick={this.rotateLeft} onRightButtonClick={this.rotateRight} />
         </div>
-        <div className="non-pdf-img-container">
-          <img className={`non-pdf-img rotate-${this.state.rotation}`} src={this.props.src} alt="document upload" />
+        <div>
+          <img className={styles[`rotate-${this.state.rotation}`]} src={this.props.src} alt="document upload" />
         </div>
       </div>
     );
@@ -88,7 +88,6 @@ export class NonPDFImage extends Component {
 }
 
 NonPDFImage.propTypes = {
-  onClick: PropTypes.func,
   src: PropTypes.any,
 };
 
