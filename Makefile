@@ -305,7 +305,7 @@ server_build: server_deps server_generate bin/milmove ## Build the server
 server_build_linux: server_generate_linux ## Build the server (linux)
 	# These don't need to go in bin_linux/ because local devs don't use them
 	# Additionally it would not work with the default Dockerfile
-	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
+	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/chamber github.com/segmentio/chamber
 	GOOS=linux GOARCH=amd64 go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
 # This command is for running the server by itself, it will serve the compiled frontend on its own
