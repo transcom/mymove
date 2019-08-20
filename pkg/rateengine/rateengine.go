@@ -35,7 +35,6 @@ type CostComputation struct {
 	SITDiscount unit.DiscountRate
 	Weight      unit.Pound
 	ShipmentID  uuid.UUID
-	Miles       int
 }
 
 // Scale scales a cost computation by a multiplicative factor
@@ -154,7 +153,6 @@ func (re *RateEngine) computePPM(
 		LHDiscount:                 lhDiscount,
 		SITDiscount:                sitDiscount,
 		Weight:                     weight,
-		Miles:                      distanceMiles,
 	}
 
 	// Finally, scale by prorate factor

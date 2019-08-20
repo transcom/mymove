@@ -63,7 +63,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 		return models.Obligations{}, errors.New("error calculating PPM actual obligations")
 	}
 
-	mileageWon := unit.Miles(actualCost.Miles)
+	mileageWon := unit.Miles(actualCost.Mileage)
 
 	maxCost, err := sswPpmComputer.ComputeLowestCostPPMMove(
 		ssfd.WeightAllotment.TotalWeight,
