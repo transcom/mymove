@@ -29,30 +29,6 @@ describe('when getting the routes for the current workflow', () => {
         ]);
       });
     });
-    describe('given a HHG PPM move', () => {
-      const props = { selectedMoveType: 'HHG_PPM' };
-      const pages = getPagesInFlow(props);
-      it('getPagesInFlow returns profile review, the order and move pages', () => {
-        expect(pages).toEqual([
-          '/service-member/:serviceMemberId/create',
-          '/service-member/:serviceMemberId/name',
-          '/service-member/:serviceMemberId/contact-info',
-          '/service-member/:serviceMemberId/duty-station',
-          '/service-member/:serviceMemberId/residence-address',
-          '/service-member/:serviceMemberId/backup-mailing-address',
-          '/service-member/:serviceMemberId/backup-contacts',
-          '/service-member/:serviceMemberId/transition',
-          '/orders/',
-          '/orders/upload',
-          '/orders/transition',
-          '/moves/:moveId/hhg-ppm-start',
-          '/moves/:moveId/hhg-ppm-size',
-          '/moves/:moveId/hhg-ppm-weight',
-          '/moves/:moveId/review',
-          '/moves/:moveId/hhg-ppm-agreement',
-        ]);
-      });
-    });
     describe('given a canceled PPM', () => {
       const props = { lastMoveIsCanceled: true, selectedMoveType: 'PPM' };
       const pages = getPagesInFlow(props);
@@ -65,33 +41,6 @@ describe('when getting the routes for the current workflow', () => {
           '/moves/:moveId/ppm-start',
           '/moves/:moveId/ppm-size',
           '/moves/:moveId/ppm-incentive',
-          '/moves/:moveId/review',
-          '/moves/:moveId/agreement',
-        ]);
-      });
-    });
-    describe('given a complete service member with an HHG', () => {
-      const props = {
-        selectedMoveType: 'HHG',
-      };
-      const pages = getPagesInFlow(props);
-      it('getPagesInFlow returns service member, order and move pages', () => {
-        expect(pages).toEqual([
-          '/service-member/:serviceMemberId/create',
-          '/service-member/:serviceMemberId/name',
-          '/service-member/:serviceMemberId/contact-info',
-          '/service-member/:serviceMemberId/duty-station',
-          '/service-member/:serviceMemberId/residence-address',
-          '/service-member/:serviceMemberId/backup-mailing-address',
-          '/service-member/:serviceMemberId/backup-contacts',
-          '/service-member/:serviceMemberId/transition',
-          '/orders/',
-          '/orders/upload',
-          '/orders/transition',
-          '/moves/:moveId/hhg-start',
-          '/moves/:moveId/hhg-locations',
-          '/moves/:moveId/hhg-weight',
-          '/moves/:moveId/hhg-progear',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
         ]);
@@ -143,33 +92,6 @@ describe('when getting the routes for the current workflow', () => {
           '/moves/:moveId/ppm-start',
           '/moves/:moveId/ppm-size',
           '/moves/:moveId/ppm-incentive',
-          '/moves/:moveId/review',
-          '/moves/:moveId/agreement',
-        ]);
-      });
-    });
-    describe('given a complete service member with an HHG', () => {
-      const props = {
-        selectedMoveType: 'HHG',
-      };
-      const pages = getPagesInFlow(props);
-      it('getPagesInFlow returns service member, order and HHG-specific move pages', () => {
-        expect(pages).toEqual([
-          '/service-member/:serviceMemberId/create',
-          '/service-member/:serviceMemberId/name',
-          '/service-member/:serviceMemberId/contact-info',
-          '/service-member/:serviceMemberId/duty-station',
-          '/service-member/:serviceMemberId/residence-address',
-          '/service-member/:serviceMemberId/backup-mailing-address',
-          '/service-member/:serviceMemberId/backup-contacts',
-          '/service-member/:serviceMemberId/transition',
-          '/orders/',
-          '/orders/upload',
-          '/orders/transition',
-          '/moves/:moveId/hhg-start',
-          '/moves/:moveId/hhg-locations',
-          '/moves/:moveId/hhg-weight',
-          '/moves/:moveId/hhg-progear',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
         ]);
@@ -527,34 +449,6 @@ describe('when getting the next incomplete page', () => {
           },
         });
         expect(result).toEqual('/moves/bar/review');
-      });
-    });
-    describe('when HHG move type selection is complete', () => {
-      it('returns the next page', () => {
-        const result = getNextIncompletePage({
-          selectedMoveType: 'HHG',
-          serviceMember: {
-            ...serviceMember,
-            is_profile_complete: true,
-          },
-          orders: {
-            orders_type: 'foo',
-            issue_date: '2019-01-01',
-            report_by_date: '2019-02-01',
-            new_duty_station: { id: 'something' },
-            uploaded_orders: {
-              uploads: [{}],
-            },
-          },
-          move: {
-            id: 'bar',
-            selected_move_type: 'HHG',
-          },
-          hhg: {
-            id: 'baz',
-          },
-        });
-        expect(result).toEqual('/moves/bar/hhg-start');
       });
     });
   });

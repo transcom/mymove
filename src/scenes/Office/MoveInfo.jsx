@@ -21,14 +21,8 @@ import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
 import StoragePanel from './Ppm/StoragePanel';
 import ExpensesPanel from './Ppm/ExpensesPanel';
 import NetWeightPanel from './Ppm/NetWeightPanel';
-import Dates from 'shared/ShipmentDates';
-import RoutingPanel from './Hhg/RoutingPanel';
-import ServiceAgentsContainer from './Hhg/ServiceAgentsContainer';
-import Weights from 'shared/ShipmentWeights';
 import { withContext } from 'shared/AppContext';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
-import StorageInTransitPanel from 'shared/StorageInTransit/StorageInTransitPanel.jsx';
-import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
 import ComboButton from 'shared/ComboButton';
 import ToolTip from 'shared/ToolTip';
 import { DropDown, DropDownItem } from 'shared/ComboButton/dropdown';
@@ -104,31 +98,6 @@ const PPMTabContent = props => {
       )}
 
       <PPMEstimatesPanel title="Estimates" moveId={props.moveId} />
-    </div>
-  );
-};
-
-const HHGTabContent = props => {
-  let shipmentStatus = '';
-  let shipmentId = '';
-  const { canApprovePaymentInvoice, moveId, serviceAgents, shipment, updatePublicShipment, showSitPanel } = props;
-  if (shipment) {
-    shipmentStatus = shipment.status;
-    shipmentId = shipment.id;
-  }
-  return (
-    <div className="office-tab">
-      <RoutingPanel title="Routing" moveId={moveId} />
-      <Dates title="Dates" shipment={shipment} update={updatePublicShipment} />
-      <Weights title="Weights & Items" shipment={shipment} update={updatePublicShipment} />
-      <ServiceAgentsContainer
-        title="TSP & Servicing Agents"
-        shipment={shipment}
-        serviceAgents={serviceAgents}
-        transportationServiceProviderId={shipment.transportation_service_provider_id}
-      />
-      {showSitPanel && <StorageInTransitPanel shipmentId={shipmentId} moveId={moveId} />}
-      <InvoicePanel shipmentId={shipment.id} shipmentStatus={shipmentStatus} canApprove={canApprovePaymentInvoice} />
     </div>
   );
 };
@@ -288,7 +257,6 @@ class MoveInfo extends Component {
     );
     const ppmPaymentRequested = includes(['PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
-    const hhgDelivered = shipmentStatus === 'DELIVERED';
     const moveApproved = moveStatus === 'APPROVED';
     const hhgCantBeCanceled = includes(['IN_TRANSIT', 'DELIVERED'], shipmentStatus);
 
@@ -387,19 +355,6 @@ class MoveInfo extends Component {
                     ppmPaymentRequested={ppmPaymentRequested}
                     moveDocuments={moveDocuments}
                   />
-                </PrivateRoute>
-                <PrivateRoute path={`${this.props.match.path}/hhg`}>
-                  {this.props.shipment && (
-                    <HHGTabContent
-                      canApprovePaymentInvoice={hhgDelivered}
-                      moveId={this.props.moveId}
-                      serviceAgents={this.props.serviceAgents}
-                      shipment={this.props.shipment}
-                      shipmentStatus={this.props.shipmentStatus}
-                      updatePublicShipment={this.props.updatePublicShipment}
-                      showSitPanel={this.props.context.flags.sitPanel}
-                    />
-                  )}
                 </PrivateRoute>
               </Switch>
             </div>
