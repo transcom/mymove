@@ -1,12 +1,13 @@
 package models
 
 import (
+	"strings"
+	"time"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
-	"strings"
-	"time"
 )
 
 // TspUser is someone who works for a Transportation Service Provider
@@ -23,6 +24,7 @@ type TspUser struct {
 	TransportationServiceProvider   TransportationServiceProvider `belongs_to:"transportation_service_provider"`
 	CreatedAt                       time.Time                     `json:"created_at" db:"created_at"`
 	UpdatedAt                       time.Time                     `json:"updated_at" db:"updated_at"`
+	Disabled                        bool                          `json:"disabled" db:"disabled"`
 }
 
 // TspUsers is not required by pop and may be deleted
@@ -66,7 +68,7 @@ func FetchTspUserByID(tx *pop.Connection, id uuid.UUID) (*TspUser, error) {
 // FetchTspUserByEmail looks for an tsp user with a specific email
 func FetchTspUserByEmail(tx *pop.Connection, email string) (*TspUser, error) {
 	var users TspUsers
-	err := tx.Where("email = $1", strings.ToLower(email)).All(&users)
+	err := tx.Where("LOWER(email) = $1", strings.ToLower(email)).All(&users)
 	if err != nil {
 		return nil, err
 	}

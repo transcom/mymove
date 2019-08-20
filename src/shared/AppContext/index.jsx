@@ -13,6 +13,10 @@ export const defaultTspContext = {
   siteName: 'tsp.move.mil',
   showLoginWarning: false,
 };
+export const defaultAdminContext = {
+  siteName: 'admin.move.mil',
+  showLoginWarning: false,
+};
 export const AppContext = React.createContext(defaultMyMoveContext);
 
 export function withContext(Component) {

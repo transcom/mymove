@@ -1,16 +1,16 @@
 import { createStore, applyMiddleware } from 'redux';
-import { appReducer, tspAppReducer } from 'appReducer';
-import createHistory from 'history/createBrowserHistory';
+import { appReducer, adminAppReducer } from 'appReducer';
+import { createBrowserHistory } from 'history';
 import { routerMiddleware } from 'react-router-redux';
 import thunk from 'redux-thunk';
 
 import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction';
 
-import { isDevelopment, isTspSite } from 'shared/constants';
+import { isDevelopment, isAdminSite } from 'shared/constants';
 import logger from './reduxLogger';
 import * as schema from 'shared/Entities/schema';
 
-export const history = createHistory();
+export const history = createBrowserHistory();
 
 const middlewares = [thunk.withExtraArgument({ schema }), routerMiddleware(history)];
 
@@ -20,8 +20,14 @@ if (isDevelopment && !window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
 
 const composeEnhancers = composeWithDevTools({});
 
-export const store = composeEnhancers(applyMiddleware(...middlewares))(createStore)(
-  isTspSite ? tspAppReducer : appReducer,
-);
+function appSelector() {
+  if (isAdminSite) {
+    return adminAppReducer;
+  } else {
+    return appReducer;
+  }
+}
+
+export const store = composeEnhancers(applyMiddleware(...middlewares))(createStore)(appSelector());
 
 export default store;

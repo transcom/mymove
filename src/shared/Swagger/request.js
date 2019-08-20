@@ -33,7 +33,7 @@ const toCamelCase = str => str[0].toLowerCase() + str.slice(1);
 function successfulReturnType(routeDefinition, status) {
   // eslint-disable-next-line security/detect-object-injection
   const response = routeDefinition.responses[status];
-  const [, , schemaKey] = response.schema['$$ref'].split('/');
+  const schemaKey = response.schema['$$ref'].split('/').pop();
   if (!response) {
     console.error(`No response found for operation ${routeDefinition.operationId} with status ${status}`);
     return;
@@ -129,7 +129,6 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
           throw new Error(`Could not find a schema for ${schemaKey}`);
         }
         action.entities = normalizePayload(response.body, payloadSchema).entities;
-
         dispatch(action);
         return action;
       })
@@ -155,4 +154,10 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
 
 function normalizePayload(body, schema) {
   return normalize(body, schema);
+}
+
+export function resetRequests() {
+  return {
+    type: '@@swagger/RESET',
+  };
 }

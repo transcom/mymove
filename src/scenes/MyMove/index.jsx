@@ -2,18 +2,15 @@ import React, { Component } from 'react';
 import { get } from 'lodash';
 import { LastLocationProvider } from 'react-router-last-location';
 
-import PrivateRoute from 'shared/User/PrivateRoute';
+import ValidatedPrivateRoute from 'shared/User/ValidatedPrivateRoute';
 import { Route, Switch } from 'react-router-dom';
 import { ConnectedRouter, push, goBack } from 'react-router-redux';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import Alert from 'shared/Alert';
-import Authorization from 'shared/User/Authorization';
-import Feedback from 'scenes/Feedback';
 import StyleGuide from 'scenes/StyleGuide';
 import Landing from 'scenes/Landing';
-import SubmittedFeedback from 'scenes/SubmittedFeedback';
 import Edit from 'scenes/Review/Edit';
 import EditProfile from 'scenes/Review/EditProfile';
 import EditBackupContact from 'scenes/Review/EditBackupContact';
@@ -23,6 +20,12 @@ import EditDateAndLocation from 'scenes/Review/EditDateAndLocation';
 import EditWeight from 'scenes/Review/EditWeight';
 import EditHHGDates from 'scenes/Review/EditShipment';
 import Header from 'shared/Header/MyMove';
+import PPMPaymentRequestIntro from 'scenes/Moves/Ppm/PPMPaymentRequestIntro';
+import WeightTicket from 'scenes/Moves/Ppm/WeightTicket';
+import ExpensesLanding from 'scenes/Moves/Ppm/ExpensesLanding';
+import ExpensesUpload from 'scenes/Moves/Ppm/ExpensesUpload';
+import AllowableExpenses from 'scenes/Moves/Ppm/AllowableExpenses';
+import WeightTicketExamples from 'scenes/Moves/Ppm/WeightTicketExamples';
 import PaymentRequest from 'scenes/Moves/Ppm/PaymentRequest';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
@@ -31,17 +34,21 @@ import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement'
 import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
 import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
-import { loadLoggedInUser } from 'shared/User/ducks';
+import { getCurrentUserInfo } from 'shared/Data/users';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
-import FailWhale from 'shared/FailWhale';
-import { no_op } from 'shared/utils';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { detectIE11, no_op } from 'shared/utils';
 import DPSAuthCookie from 'scenes/DPSAuthCookie';
+import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
+import PaymentReview from 'scenes/Moves/Ppm/PaymentReview/index';
+import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegalese';
 
 export class AppWrapper extends Component {
   state = { hasError: false };
+
   componentDidMount() {
-    this.props.loadLoggedInUser();
     this.props.loadInternalSchema();
+    this.props.getCurrentUserInfo();
   }
 
   componentDidCatch(error, info) {
@@ -60,12 +67,14 @@ export class AppWrapper extends Component {
 
   render() {
     const props = this.props;
+    const Tag = detectIE11() ? 'div' : 'main';
+
     return (
       <ConnectedRouter history={history}>
         <LastLocationProvider>
           <div className="my-move site">
             <Header />
-            <main className="site__content my-move-container">
+            <Tag role="main" className="site__content my-move-container">
               <div className="usa-grid">
                 <LogoutOnInactivity />
                 {props.swaggerError && (
@@ -74,36 +83,58 @@ export class AppWrapper extends Component {
                   </Alert>
                 )}
               </div>
-              {this.state.hasError && <FailWhale />}
-              {!this.state.hasError &&
-                !props.swaggerError && (
-                  <Switch>
-                    <Route exact path="/" component={Landing} />
-                    <Route exact path="/sm_style_guide" component={StyleGuide} />
-                    <Route path="/submitted" component={SubmittedFeedback} />
-                    <Route path="/feedback" component={Feedback} />
-                    <Route path="/privacy-and-security-policy" component={PrivacyPolicyStatement} />
-                    <Route path="/accessibility" component={AccessibilityStatement} />
-                    {getWorkflowRoutes(props)}
-                    <PrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
-                    <PrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
-                    <PrivateRoute exact path="/moves/review/edit-backup-contact" component={EditBackupContact} />
-                    <PrivateRoute exact path="/moves/review/edit-contact-info" component={EditContactInfo} />
+              {this.state.hasError && <SomethingWentWrong />}
+              {!this.state.hasError && !props.swaggerError && (
+                <Switch>
+                  <Route exact path="/" component={Landing} />
+                  <Route exact path="/sm_style_guide" component={StyleGuide} />
+                  <Route path="/privacy-and-security-policy" component={PrivacyPolicyStatement} />
+                  <Route path="/accessibility" component={AccessibilityStatement} />
+                  {getWorkflowRoutes(props)}
+                  <ValidatedPrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
+                  <ValidatedPrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
+                  <ValidatedPrivateRoute exact path="/moves/review/edit-backup-contact" component={EditBackupContact} />
+                  <ValidatedPrivateRoute exact path="/moves/review/edit-contact-info" component={EditContactInfo} />
 
-                    <PrivateRoute path="/moves/:moveId/review/edit-orders" component={EditOrders} />
-                    <PrivateRoute path="/moves/:moveId/review/edit-date-and-location" component={EditDateAndLocation} />
-                    <PrivateRoute path="/moves/:moveId/review/edit-weight" component={EditWeight} />
+                  <ValidatedPrivateRoute path="/moves/:moveId/review/edit-orders" component={EditOrders} />
+                  <ValidatedPrivateRoute
+                    path="/moves/:moveId/review/edit-date-and-location"
+                    component={EditDateAndLocation}
+                  />
+                  <ValidatedPrivateRoute path="/moves/:moveId/review/edit-weight" component={EditWeight} />
 
-                    <PrivateRoute path="/shipments/:shipmentId/review/edit-hhg-dates" component={EditHHGDates} />
-                    {/* <PrivateRoute path="/moves/:moveId/review/edit-hhg-locations" component={EditHHGLocations} /> */}
-                    {/* <PrivateRoute path="/moves/:moveId/review/edit-hhg-weights" component={EditHHGWeights} /> */}
+                  <ValidatedPrivateRoute path="/shipments/:shipmentId/review/edit-hhg-dates" component={EditHHGDates} />
+                  {/* <ValidatedPrivateRoute path="/moves/:moveId/review/edit-hhg-locations" component={EditHHGLocations} /> */}
+                  {/* <ValidatedPrivateRoute path="/moves/:moveId/review/edit-hhg-weights" component={EditHHGWeights} /> */}
 
-                    <PrivateRoute path="/moves/:moveId/request-payment" component={PaymentRequest} />
-                    <PrivateRoute path="/dps_cookie" component={Authorization(DPSAuthCookie, 'dps')} />
-                    <Route component={this.noMatch} />
-                  </Switch>
-                )}
-            </main>
+                  <ValidatedPrivateRoute path="/moves/:moveId/request-payment" component={PaymentRequest} />
+                  <ValidatedPrivateRoute exact path="/weight-ticket-examples" component={WeightTicketExamples} />
+                  <ValidatedPrivateRoute exact path="/trailer-criteria" component={TrailerCriteria} />
+                  <ValidatedPrivateRoute exact path="/allowable-expenses" component={AllowableExpenses} />
+                  <ValidatedPrivateRoute
+                    path="/moves/:moveId/ppm-payment-request-intro"
+                    component={PPMPaymentRequestIntro}
+                  />
+                  <ValidatedPrivateRoute path="/moves/:moveId/ppm-weight-ticket" component={WeightTicket} />
+                  <ValidatedPrivateRoute path="/moves/:moveId/ppm-expenses-intro" component={ExpensesLanding} />
+                  <ValidatedPrivateRoute path="/moves/:moveId/ppm-expenses" component={ExpensesUpload} />
+                  <ValidatedPrivateRoute path="/moves/:moveId/ppm-payment-review" component={PaymentReview} />
+                  <ValidatedPrivateRoute exact path="/ppm-customer-agreement" component={CustomerAgreementLegalese} />
+                  <ValidatedPrivateRoute path="/dps_cookie" component={DPSAuthCookie} />
+                  <Route exact path="/forbidden">
+                    <div className="usa-grid">
+                      <h2>You are forbidden to use this endpoint</h2>
+                    </div>
+                  </Route>
+                  <Route exact path="/server_error">
+                    <div className="usa-grid">
+                      <h2>We are experiencing an internal server error</h2>
+                    </div>
+                  </Route>
+                  <Route component={this.noMatch} />
+                </Switch>
+              )}
+            </Tag>
             <Footer />
           </div>
         </LastLocationProvider>
@@ -113,20 +144,23 @@ export class AppWrapper extends Component {
 }
 AppWrapper.defaultProps = {
   loadInternalSchema: no_op,
-  loadLoggedInUser: no_op,
+  getCurrentUserInfo: no_op,
 };
 
 const mapStateToProps = state => {
   return {
-    swaggerError: state.swaggerInternal.hasErrored,
     currentServiceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
-    selectedMoveType: selectedMoveType(state),
-    moveId: get(state, 'moves.currentMove.id'),
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     latestMove: get(state, 'moves.latestMove'),
+    moveId: get(state, 'moves.currentMove.id'),
+    selectedMoveType: selectedMoveType(state),
+    swaggerError: state.swaggerInternal.hasErrored,
   };
 };
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ goBack, push, loadInternalSchema, loadLoggedInUser }, dispatch);
+  bindActionCreators({ goBack, push, loadInternalSchema, getCurrentUserInfo }, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(AppWrapper);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(AppWrapper);

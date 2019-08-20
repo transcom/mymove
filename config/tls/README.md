@@ -26,11 +26,11 @@ The `devlocal` CA is trusted by the system in development and test environments.
 ### Creating new certificates and signing them using the `devlocal` CA
 
 To get a new certificate signed by the `devlocal` CA, the easiest way is to use
-the `bin/generate-devlocal-cert.sh` script. Here's an example of running that script
+the `scritps/generate-devlocal-cert` script. Here's an example of running that script
 to get a key pair named `partner.cer` and `partner.key` with the subject `/C=US/ST=DC/L=Washington/O=Partner/OU=Application/CN=partner.mil`.
 
 ```text
-$ bin/generate-devlocal-cert.sh -o Partner -u Application -n partner.mil -f partner
+$ scripts/generate-devlocal-cert -o Partner -u Application -n partner.mil -f partner
 Generating a 2048 bit RSA private key
 .............................+++
 ........................+++
@@ -45,7 +45,7 @@ SHA256 digest: 21d45ee839ef3416b361d25acc3aa6437cde87e04bfd98619cdc3ec8d47faee7
 ## Adding certificates to the database
 
 Client Certificates are known to the system by their `SHA-256` digest hashes.
-`bin/generate-devlocal-cert.sh` provides that (and the certificate's subject)
+`scripts/generate-devlocal-cert` provides that (and the certificate's subject)
 in its output, but if you need to do it to an existing certificate, run:
 
 ```text

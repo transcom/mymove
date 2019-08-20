@@ -1,0 +1,24 @@
+#! /usr/bin/env bash
+#
+#   Show all used packges in our codebase.
+#
+set -eo pipefail
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly DIR
+
+usage() {
+    echo "$0 [outfile]"
+    exit 1
+}
+[[ -z $2  ]] || usage
+set -u
+
+readonly outfile=$1
+
+RESULTS=$("$DIR/dump-function-calls" | jq -cr ".caller.package.path,.callee.package.path" | sed -e 's/github[.]com\/transcom\/mymove\/vendor\///g' | sed -e 's/vendor\/golang_org/golang.org/g' | sort | uniq)
+
+if [[ -z $1 ]]; then
+  echo -e "$RESULTS"
+else
+  echo -e "$RESULTS" > "$outfile"
+fi

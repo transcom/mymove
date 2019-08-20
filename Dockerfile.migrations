@@ -1,24 +1,15 @@
 FROM alpine:3.7
 
-COPY bin/soda /bin/soda
+COPY bin/rds-combined-ca-bundle.pem /bin/rds-combined-ca-bundle.pem
 COPY bin/chamber /bin/chamber
-COPY bin/apply-secure-migration.sh /bin
+COPY bin/milmove /bin/milmove
 
 COPY migrations /migrate/migrations
-COPY config/database.yml /migrate
-
-RUN mkdir /migrate/secure
-
-ENV GO_ENV=container
+COPY migrations_manifest.txt /migrate/migrations_manifest.txt
 
 # Install tools needed in container
-RUN apk update
-RUN apk add postgresql-client python3 ca-certificates bash
-RUN pip3 install awscli
+RUN apk update && apk add ca-certificates --no-cache
 
-WORKDIR /bin
-ENTRYPOINT ["soda"]
-CMD ["migrate", \
-     "-c", "/migrate/database.yml", \
-     "-p", "/migrate/migrations", \
-     "up"]
+WORKDIR /
+
+ENTRYPOINT ["/bin/milmove", "migrate", "-p", "file:///migrate/migrations", "-m", "/migrate/migrations_manifest.txt"]

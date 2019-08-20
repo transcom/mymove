@@ -1,0 +1,27 @@
+#! /usr/bin/env bash
+# Remove the database backup.
+
+set -eu -o pipefail
+
+function list() {
+  echo "Available backups are:"
+  # shellcheck disable=SC2012
+  ls -lctohT tmp/db | awk '{printf "%20s %6s %5s %2s %s\n", $9, $4, $5, $6, $7, $8}'
+  echo
+}
+
+readonly name=${1:-}
+if [[ -z "$name" ]]; then
+  echo "usage: $0 <name of backup to cleanup>"
+  list
+  exit 1
+fi
+
+readonly path="tmp/db/$name"
+if [[ ! -f "$path" ]]; then
+  echo "No backup found with name '$name'."
+  list
+  exit 1
+fi
+
+rm -f "tmp/db/$name"

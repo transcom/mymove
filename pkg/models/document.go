@@ -8,8 +8,8 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
+
 	"github.com/transcom/mymove/pkg/auth"
 )
 
@@ -38,13 +38,10 @@ func (d *Document) Validate(tx *pop.Connection) (*validate.Errors, error) {
 // FetchDocument returns a document if the user has access to that document
 func FetchDocument(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (Document, error) {
 
-	ctx, span := beeline.StartSpan(ctx, "FetchDocument")
-	defer span.Send()
-
 	var document Document
 	err := db.Q().Eager().Find(&document, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Document{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.

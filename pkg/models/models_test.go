@@ -7,6 +7,7 @@ import (
 
 	"github.com/gobuffalo/validate"
 	"github.com/stretchr/testify/suite"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
@@ -58,11 +59,11 @@ func (suite *ModelSuite) noValidationErrors(verrs *validate.Errors, err error) b
 		}
 	}
 
-	return !suite.NoError(err) && noVerr
+	return suite.NoError(err) && noVerr
 }
 
 func TestModelSuite(t *testing.T) {
-	hs := &ModelSuite{PopTestSuite: testingsuite.NewPopTestSuite()}
+	hs := &ModelSuite{PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage())}
 	suite.Run(t, hs)
 }
 

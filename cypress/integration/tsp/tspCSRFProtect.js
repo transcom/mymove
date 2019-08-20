@@ -15,15 +15,15 @@ describe('testing CSRF protection', function() {
   });
 
   it('tests dev login with masked token only', function() {
-    cy.signInAsUserPostRequest(tspAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, false, true);
+    cy.signInAsUserPostRequest(tspAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, false, true, false);
   });
 
   it('tests dev login with unmasked token only', function() {
-    cy.signInAsUserPostRequest(tspAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, true, false);
+    cy.signInAsUserPostRequest(tspAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, true, false, false);
   });
 
   it('tests dev login without unmasked and masked token', function() {
-    cy.signInAsUserPostRequest(tspAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, false, false);
+    cy.signInAsUserPostRequest(tspAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, false, false, false);
   });
 });
 
@@ -32,25 +32,21 @@ describe('testing CSRF protection updating shipment info', function() {
     cy.signIntoTSP();
 
     // update info
-    cy
-      .get('div[class="rt-tr -odd"]')
+    cy.get('div[class="rt-tr -odd"]')
       .first()
       .dblclick();
 
     // save info
-    cy
-      .get('a[class="editable-panel-edit"]')
+    cy.get('a[class="editable-panel-edit"]')
       .first()
       .click();
 
-    cy
-      .get('textarea[name="dates.pm_survey_notes"]')
+    cy.get('textarea[name="dates.pm_survey_notes"]')
       .clear()
       .type('CSRF Test')
       .blur();
 
-    cy
-      .get('button[class="usa-button editable-panel-save"]')
+    cy.get('button[class="usa-button editable-panel-save"]')
       .should('be.enabled')
       .click();
 
@@ -63,19 +59,16 @@ describe('testing CSRF protection updating shipment info', function() {
     cy.signIntoTSP();
 
     // update info
-    cy
-      .get('div[class="rt-tr -odd"]')
+    cy.get('div[class="rt-tr -odd"]')
       .first()
       .dblclick();
 
     // save info
-    cy
-      .get('a[class="editable-panel-edit"]')
+    cy.get('a[class="editable-panel-edit"]')
       .first()
       .click();
 
-    cy
-      .get('textarea[name="dates.pm_survey_notes"]')
+    cy.get('textarea[name="dates.pm_survey_notes"]')
       .clear()
       .type('CSRF failed!')
       .blur();
@@ -84,16 +77,14 @@ describe('testing CSRF protection updating shipment info', function() {
     cy.clearCookie('masked_gorilla_csrf');
     cy.getCookie('masked_gorilla_csrf').should('not.exist');
 
-    cy
-      .get('button[class="usa-button editable-panel-save"]')
+    cy.get('button[class="usa-button editable-panel-save"]')
       .should('be.enabled')
       .click();
 
     cy.patientReload();
 
     // No error pops up so we check the value
-    cy
-      .get('div[class="panel-field pm_survey_notes notes"]')
+    cy.get('div[class="panel-field pm_survey_notes notes"]')
       .should('exist')
       .should('not.contain', 'CSRF failed!');
   });

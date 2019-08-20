@@ -9,6 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/pkg/errors"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/unit"
@@ -40,8 +41,12 @@ type PersonallyProcuredMove struct {
 	CreatedAt                     time.Time                    `json:"created_at" db:"created_at"`
 	UpdatedAt                     time.Time                    `json:"updated_at" db:"updated_at"`
 	Size                          *internalmessages.TShirtSize `json:"size" db:"size"`
-	WeightEstimate                *int64                       `json:"weight_estimate" db:"weight_estimate"`
-	PlannedMoveDate               *time.Time                   `json:"planned_move_date" db:"planned_move_date"`
+	WeightEstimate                *unit.Pound                  `json:"weight_estimate" db:"weight_estimate"`
+	OriginalMoveDate              *time.Time                   `json:"original_move_date" db:"original_move_date"`
+	ActualMoveDate                *time.Time                   `json:"actual_move_date" db:"actual_move_date"`
+	SubmitDate                    *time.Time                   `json:"submit_date" db:"submit_date"`
+	ApproveDate                   *time.Time                   `json:"approve_date" db:"approve_date"`
+	NetWeight                     *unit.Pound                  `json:"net_weight" db:"net_weight"`
 	PickupPostalCode              *string                      `json:"pickup_postal_code" db:"pickup_postal_code"`
 	HasAdditionalPostalCode       *bool                        `json:"has_additional_postal_code" db:"has_additional_postal_code"`
 	AdditionalPickupPostalCode    *string                      `json:"additional_pickup_postal_code" db:"additional_pickup_postal_code"`
@@ -60,6 +65,7 @@ type PersonallyProcuredMove struct {
 	Advance                       *Reimbursement               `belongs_to:"reimbursements"`
 	AdvanceWorksheet              Document                     `belongs_to:"documents"`
 	AdvanceWorksheetID            *uuid.UUID                   `json:"advance_worksheet_id" db:"advance_worksheet_id"`
+	TotalSITCost                  *unit.Cents                  `json:"total_sit_cost" db:"total_sit_cost"`
 }
 
 // PersonallyProcuredMoves is a list of PPMs
@@ -89,28 +95,38 @@ func (p *PersonallyProcuredMove) ValidateUpdate(tx *pop.Connection) (*validate.E
 // Avoid calling PersonallyProcuredMove.Status = ... ever. Use these methods to change the state.
 
 // Submit marks the PPM request for review
-func (p *PersonallyProcuredMove) Submit() error {
+func (p *PersonallyProcuredMove) Submit(submitDate time.Time) error {
 	if p.Status != PPMStatusDRAFT {
-		return errors.Wrap(ErrInvalidTransition, "Submit")
+		return errors.Wrap(ErrInvalidTransition, "Submit - status change")
+	}
+
+	if p.SubmitDate != nil {
+		return errors.Wrap(ErrInvalidTransition, "Submit - submit date change")
 	}
 
 	p.Status = PPMStatusSUBMITTED
+	p.SubmitDate = &submitDate
 	return nil
 }
 
 // Approve approves the PPM to go forward.
-func (p *PersonallyProcuredMove) Approve() error {
+func (p *PersonallyProcuredMove) Approve(approveDate time.Time) error {
 	if !(p.Status == PPMStatusSUBMITTED || p.Status == PPMStatusDRAFT) {
-		return errors.Wrap(ErrInvalidTransition, "Approve")
+		return errors.Wrap(ErrInvalidTransition, "Approve - status change")
+	}
+
+	if p.ApproveDate != nil {
+		return errors.Wrap(ErrInvalidTransition, "Approve - approve date change")
 	}
 
 	p.Status = PPMStatusAPPROVED
+	p.ApproveDate = &approveDate
 	return nil
 }
 
 // RequestPayment requests payment for the PPM
 func (p *PersonallyProcuredMove) RequestPayment() error {
-	if p.Status != PPMStatusAPPROVED {
+	if p.Status != PPMStatusPAYMENTREQUESTED && p.Status != PPMStatusAPPROVED {
 		return errors.Wrap(ErrInvalidTransition, "RequestPayment")
 	}
 
@@ -168,16 +184,16 @@ func (p *PersonallyProcuredMove) FetchMoveDocumentsForTypes(db *pop.Connection, 
 // FetchPersonallyProcuredMove Fetches and Validates a PPM model
 func FetchPersonallyProcuredMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*PersonallyProcuredMove, error) {
 	var ppm PersonallyProcuredMove
-	err := db.Q().Eager("Move.Orders.ServiceMember", "Advance").Find(&ppm, id)
+	err := db.Q().Eager("Move.Orders.ServiceMember.DutyStation.Address", "Advance").Find(&ppm, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return nil, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
 		return nil, err
 	}
 	// TODO: Handle case where more than one user is authorized to modify ppm
-	if session.IsMyApp() && ppm.Move.Orders.ServiceMember.ID != session.ServiceMemberID {
+	if session.IsMilApp() && ppm.Move.Orders.ServiceMember.ID != session.ServiceMemberID {
 		return nil, ErrFetchForbidden
 	}
 
@@ -244,22 +260,4 @@ func SavePersonallyProcuredMove(db *pop.Connection, ppm *PersonallyProcuredMove)
 	})
 
 	return responseVErrors, responseError
-}
-
-// createNewPPM adds a new Personally Procured Move record into the DB.
-func createNewPPM(db *pop.Connection, moveID uuid.UUID) (*PersonallyProcuredMove, *validate.Errors, error) {
-	ppm := PersonallyProcuredMove{
-		MoveID: moveID,
-		Status: PPMStatusDRAFT,
-	}
-	verrs, err := db.ValidateAndCreate(&ppm)
-	if verrs.HasAny() {
-		return nil, verrs, nil
-	}
-	if err != nil {
-		return nil, verrs, err
-	}
-
-	return &ppm, verrs, nil
-
 }

@@ -2,13 +2,15 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
-	"github.com/namsral/flag" // This flag package accepts ENV vars as well as cmd line flags
-	"github.com/transcom/mymove/pkg/models"
 	"io/ioutil"
 	"log"
 	"strings"
+
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
+	"github.com/namsral/flag" // This flag package accepts ENV vars as well as cmd line flags
+
+	"github.com/transcom/mymove/pkg/models"
 )
 
 /* load-office-data is a tool to load Transportation Office data into a local data base.

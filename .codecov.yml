@@ -1,0 +1,34 @@
+codecov:
+  notify:
+    require_ci_to_pass: yes
+
+coverage:
+  precision: 1
+  round: up
+  range: "50...70"
+
+  status:
+    project:
+      default: false     # disable the default status that measures entire project
+      go:                # declare a new status context "go"
+        threshold: 1%
+        paths: "pkg/"    # only include coverage in "pkg/" folder
+    patch:
+      default: false     # disable the default status that measures patch
+      go:                # declare a new status context "go"
+        threshold: 1%
+        paths: "pkg/"    # only include coverage in "pkg/" folder
+    changes: no
+
+parsers:
+  gcov:
+    branch_detection:
+      conditional: yes
+      loop: yes
+      method: no
+      macro: no
+
+comment:
+  layout: "header, diff, files"
+  behavior: default
+  require_changes: yes   # only post a comment if the coverage changes on a PR

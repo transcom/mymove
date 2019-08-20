@@ -4,14 +4,18 @@ import { moveDocuments } from '../schema';
 import { denormalize } from 'normalizr';
 
 export const getShipmentDocumentsLabel = 'Shipments.getAllShipmentDocuments';
+export const createShipmentDocumentLabel = 'MoveDocs.createShipmentDocuments';
+export const generateGBLLabel = 'Shipments.generateGBL';
 
-export function getAllShipmentDocuments(label, shipmentId) {
+export function getAllShipmentDocuments(shipmentId, label = getShipmentDocumentsLabel) {
   return swaggerRequest(getPublicClient, 'move_docs.indexMoveDocuments', { shipmentId }, { label });
 }
 
-export const createShipmentDocumentLabel = 'MoveDocs.createShipmentDocuments';
-
-export function createShipmentDocument(label, shipmentId, createGenericMoveDocumentPayload) {
+export function createShipmentDocument(
+  shipmentId,
+  createGenericMoveDocumentPayload,
+  label = createShipmentDocumentLabel,
+) {
   return swaggerRequest(
     getPublicClient,
     'move_docs.createGenericMoveDocument',
@@ -20,7 +24,7 @@ export function createShipmentDocument(label, shipmentId, createGenericMoveDocum
   );
 }
 
-export function generateGBL(label, shipmentId) {
+export function generateGBL(shipmentId, label = generateGBLLabel) {
   return swaggerRequest(getPublicClient, 'shipments.createGovBillOfLading', { shipmentId }, { label });
 }
 

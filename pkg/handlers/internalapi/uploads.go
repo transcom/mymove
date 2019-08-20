@@ -2,16 +2,13 @@ package internalapi
 
 import (
 	"io"
-	"reflect"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -39,58 +36,60 @@ type CreateUploadHandler struct {
 // Handle creates a new Upload from a request payload
 func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
 
-	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
-	defer span.Send()
+	ctx := params.HTTPRequest.Context()
+
+	session, logger := h.SessionAndLoggerFromContext(ctx)
 
 	file, ok := params.File.(*runtime.File)
 	if !ok {
-		h.Logger().Error("This should always be a runtime.File, something has changed in go-swagger.")
+		logger.Error("This should always be a runtime.File, something has changed in go-swagger.")
 		return uploadop.NewCreateUploadInternalServerError()
 	}
 
-	h.Logger().Info("File name and size: ", zap.String("name", file.Header.Filename), zap.Int64("size", file.Header.Size))
-
-	// User should always be populated by middleware
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	logger.Info(
+		"File name and size",
+		zap.String("name", file.Header.Filename),
+		zap.Int64("size", file.Header.Size),
+	)
 
 	var docID *uuid.UUID
 	if params.DocumentID != nil {
 		documentID, err := uuid.FromString(params.DocumentID.String())
 		if err != nil {
-			h.Logger().Info("Badly formed UUID for document", zap.String("document_id", params.DocumentID.String()), zap.Error(err))
+			logger.Info("Badly formed UUID for document", zap.String("document_id", params.DocumentID.String()), zap.Error(err))
 			return uploadop.NewCreateUploadBadRequest()
 		}
 
 		// Fetch document to ensure user has access to it
 		document, docErr := models.FetchDocument(ctx, h.DB(), session, documentID)
 		if docErr != nil {
-			return handlers.ResponseForError(h.Logger(), docErr)
+			return handlers.ResponseForError(logger, docErr)
 		}
 		docID = &document.ID
 	}
 
-	// Read the incoming data into a new afero.File for consumption
-	aFile, err := h.FileStorer().FileSystem().Create(file.Header.Filename)
+	// Read the incoming data into a temporary afero.File for consumption
+	aFile, err := h.FileStorer().TempFileSystem().Create(file.Header.Filename)
 	if err != nil {
-		h.Logger().Error("Error opening afero file.", zap.Error(err))
+		logger.Error("Error opening afero file.", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
 	}
 
 	_, err = io.Copy(aFile, file.Data)
 	if err != nil {
-		h.Logger().Error("Error copying incoming data into afero file.", zap.Error(err))
+		logger.Error("Error copying incoming data into afero file.", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
 	}
 
-	uploader := uploaderpkg.NewUploader(h.DB(), h.Logger(), h.FileStorer())
-	newUpload, verrs, err := uploader.CreateUpload(docID, session.UserID, aFile)
+	uploader := uploaderpkg.NewUploader(h.DB(), logger, h.FileStorer())
+	newUpload, verrs, err := uploader.CreateUploadForDocument(docID, session.UserID, aFile, uploaderpkg.AllowedTypesServiceMember)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	url, err := uploader.PresignedURL(newUpload)
 	if err != nil {
-		h.Logger().Error("failed to get presigned url", zap.Error(err))
+		logger.Error("failed to get presigned url", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
 	}
 	uploadPayload := payloadForUploadModel(*newUpload, url)
@@ -105,20 +104,19 @@ type DeleteUploadHandler struct {
 // Handle deletes an upload
 func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middleware.Responder {
 
-	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
-	defer span.Send()
+	ctx := params.HTTPRequest.Context()
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	uploadID, _ := uuid.FromString(params.UploadID.String())
 	upload, err := models.FetchUpload(ctx, h.DB(), session, uploadID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
-	uploader := uploaderpkg.NewUploader(h.DB(), h.Logger(), h.FileStorer())
+	uploader := uploaderpkg.NewUploader(h.DB(), logger, h.FileStorer())
 	if err = uploader.DeleteUpload(&upload); err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	return uploadop.NewDeleteUploadNoContent()
@@ -132,22 +130,21 @@ type DeleteUploadsHandler struct {
 // Handle deletes uploads
 func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middleware.Responder {
 
-	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
-	defer span.Send()
+	ctx := params.HTTPRequest.Context()
 
 	// User should always be populated by middleware
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	uploader := uploaderpkg.NewUploader(h.DB(), h.Logger(), h.FileStorer())
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	uploader := uploaderpkg.NewUploader(h.DB(), logger, h.FileStorer())
 
 	for _, uploadID := range params.UploadIds {
 		uuid, _ := uuid.FromString(uploadID.String())
 		upload, err := models.FetchUpload(ctx, h.DB(), session, uuid)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return handlers.ResponseForError(logger, err)
 		}
 
 		if err = uploader.DeleteUpload(&upload); err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return handlers.ResponseForError(logger, err)
 		}
 	}
 

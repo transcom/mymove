@@ -23,6 +23,42 @@ const simpleSchema = {
       format: 'uuid',
       example: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
     },
+    item_dimensions: {
+      type: 'object',
+      format: 'dimensions',
+      properties: {
+        length: {
+          type: 'integer',
+          format: 'dimension',
+        },
+        width: {
+          type: 'integer',
+          format: 'dimension',
+        },
+        height: {
+          type: 'integer',
+          format: 'dimension',
+        },
+      },
+    },
+    crate_dimensions: {
+      type: 'object',
+      format: 'dimensions',
+      properties: {
+        length: {
+          type: 'integer',
+          format: 'dimension',
+        },
+        width: {
+          type: 'integer',
+          format: 'dimension',
+        },
+        height: {
+          type: 'integer',
+          format: 'dimension',
+        },
+      },
+    },
     quantity_1: {
       type: 'integer',
       format: 'basequantity',
@@ -82,6 +118,19 @@ const tariff400ng_items = [
     item: 'Long Haul',
   },
 ];
+
+const simple105TariffItem = {
+  code: '105B',
+};
+
+const simple35ATariffItem = {
+  code: '35A',
+};
+
+const simpleNon105TariffItem = {
+  code: '28A',
+};
+
 const filteredLocations = ['ORIGIN', 'DESTINATION'];
 const submit = jest.fn();
 const mockStore = configureStore();
@@ -89,9 +138,11 @@ let store;
 let wrapper;
 
 describe('PreApprovalForm tests', () => {
+  beforeEach(() => {
+    store = mockStore({});
+  });
   describe('When a PreApprovalForm is loaded', () => {
     beforeEach(() => {
-      store = mockStore({});
       //mount appears to be necessary to get inner components to load (i.e. tests fail with shallow)
       wrapper = mount(
         <Provider store={store}>
@@ -99,7 +150,7 @@ describe('PreApprovalForm tests', () => {
             ship_line_item_schema={simpleSchema}
             tariff400ngItems={tariff400ng_items}
             onSubmit={submit}
-            tariff400ngItem={true}
+            tariff400ngItem={simpleNon105TariffItem}
           />
         </Provider>,
       );
@@ -120,7 +171,7 @@ describe('PreApprovalForm tests', () => {
             tariff400ngItems={tariff400ng_items}
             onSubmit={submit}
             filteredLocations={filteredLocations}
-            tariff400ngItem={true}
+            tariff400ngItem={simpleNon105TariffItem}
           />
         </Provider>,
       );
@@ -138,13 +189,54 @@ describe('PreApprovalForm tests', () => {
             tariff400ngItems={tariff400ng_items}
             onSubmit={submit}
             filteredLocations={['ORIGIN']}
-            tariff400ngItem={true}
+            tariff400ngItem={simpleNon105TariffItem}
           />
         </Provider>,
       );
     });
     it('shows text', () => {
       expect(wrapper.find('.location-select div').text()).toEqual('Origin');
+    });
+  });
+  describe('When code 105B/105E is chosen', () => {
+    beforeEach(() => {
+      wrapper = mount(
+        <Provider store={store}>
+          <PreApprovalForm
+            ship_line_item_schema={simpleSchema}
+            tariff400ngItems={tariff400ng_items}
+            onSubmit={submit}
+            filteredLocations={['ORIGIN']}
+            tariff400ng_item_code="105B"
+            tariff400ngItem={simple105TariffItem}
+            initialValues={{ crate_dimensions: true }}
+          />
+        </Provider>,
+      );
+    });
+    it('renders dimensions forms without crashing', () => {
+      expect(wrapper.find('.dimensions-form').length).toBe(2);
+    });
+  });
+  describe('When an APPROVED code 35A request is edited', () => {
+    beforeEach(() => {
+      wrapper = mount(
+        <Provider store={store}>
+          <PreApprovalForm
+            status="APPROVED"
+            ship_line_item_schema={simpleSchema}
+            tariff400ngItems={tariff400ng_items}
+            onSubmit={submit}
+            filteredLocations={['ORIGIN']}
+            tariff400ng_item_code="35A"
+            tariff400ngItem={simple35ATariffItem}
+            initialValues={{ code: '35A' }}
+          />
+        </Provider>,
+      );
+    });
+    it('only the Actual Amount field is editable', () => {
+      expect(wrapper.find('input').length).toBe(1);
     });
   });
 });

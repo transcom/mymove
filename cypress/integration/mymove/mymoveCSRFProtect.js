@@ -16,15 +16,15 @@ describe('testing CSRF protection for dev login', function() {
   });
 
   it('tests dev login with masked token only', function() {
-    cy.signInAsUserPostRequest(milmoveAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, false, true);
+    cy.signInAsUserPostRequest(milmoveAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, false, true, false);
   });
 
   it('tests dev login with unmasked token only', function() {
-    cy.signInAsUserPostRequest(milmoveAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, true, false);
+    cy.signInAsUserPostRequest(milmoveAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, true, false, false);
   });
 
   it('tests dev login without unmasked and masked token', function() {
-    cy.signInAsUserPostRequest(milmoveAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, false, false);
+    cy.signInAsUserPostRequest(milmoveAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, false, false, false);
   });
 });
 
@@ -37,8 +37,11 @@ describe('testing CSRF protection updating user profile', function() {
     cy.visit('/moves/review/edit-profile');
 
     // update info
-    cy
-      .get('input[name="middle_name"]')
+    cy.get('select[name=affiliation]')
+      .should('exist')
+      .should('have.value', 'ARMY');
+
+    cy.get('input[name="middle_name"]')
       .clear()
       .type('CSRF Test')
       .blur();
@@ -53,8 +56,7 @@ describe('testing CSRF protection updating user profile', function() {
     // reload page
     cy.visit('/moves/review/edit-profile');
 
-    cy
-      .get('input[name="middle_name"]')
+    cy.get('input[name="middle_name"]')
       .should('exist')
       .should('have.value', 'CSRF Test');
   });
@@ -65,8 +67,7 @@ describe('testing CSRF protection updating user profile', function() {
     cy.visit('/moves/review/edit-profile');
 
     // update info
-    cy
-      .get('input[name="middle_name"]')
+    cy.get('input[name="middle_name"]')
       .clear()
       .type('CSRF failed!')
       .blur();
@@ -82,8 +83,7 @@ describe('testing CSRF protection updating user profile', function() {
     // reload page
     cy.visit('/moves/review/edit-profile');
 
-    cy
-      .get('input[name="middle_name"]')
+    cy.get('input[name="middle_name"]')
       .should('exist')
       .should('not.have.value', 'CSRF failed!');
   });

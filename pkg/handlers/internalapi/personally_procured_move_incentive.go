@@ -6,7 +6,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 
-	"github.com/transcom/mymove/pkg/auth"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -21,34 +20,35 @@ type ShowPPMIncentiveHandler struct {
 
 // Handle calculates a PPM reimbursement range.
 func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
-
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	if !session.IsOfficeUser() {
 		return ppmop.NewShowPPMIncentiveForbidden()
 	}
-	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
 
-	lhDiscount, _, err := PPMDiscountFetch(h.DB(),
-		h.Logger(),
-		params.OriginZip,
-		params.DestinationZip,
-		time.Time(params.PlannedMoveDate),
-	)
+	engine := rateengine.NewRateEngine(h.DB(), logger)
+
+	distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistance(params.OriginZip, params.DestinationZip)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
-	cost, err := engine.ComputePPM(unit.Pound(params.Weight),
-		params.OriginZip,
-		params.DestinationZip,
-		time.Time(params.PlannedMoveDate),
-		0, // We don't want any SIT charges
-		lhDiscount,
-		0.0,
-	)
-
+	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistance(params.OriginDutyStationZip, params.DestinationZip)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
+	}
+
+	cost, err := engine.ComputeLowestCostPPMMove(
+		unit.Pound(params.Weight),
+		params.OriginZip,
+		params.OriginDutyStationZip,
+		params.DestinationZip,
+		distanceMilesFromOriginPickupZip,
+		distanceMilesFromOriginDutyStationZip,
+		time.Time(params.OriginalMoveDate),
+		0, // We don't want any SIT charges
+	)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
 	}
 
 	gcc := cost.GCC

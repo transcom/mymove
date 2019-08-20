@@ -1,16 +1,23 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import { withContext } from 'shared/AppContext';
 
-import { formatFromBaseQuantity, formatCents } from 'shared/formatters';
+import { formatCents } from 'shared/formatters';
+import { displayBaseQuantityUnits } from 'shared/lineItems';
 
-import './InvoicePanel.css';
+import styles from './LineItemTable.module.scss';
+import common from 'shared/styles/common.module.scss';
 
 class LineItemTable extends PureComponent {
   render() {
+    const showItem35Missing = item => {
+      return item.tariff400ng_item.code === '35A' && item.estimate_amount_cents && !item.actual_amount_cents;
+    };
+
     return (
       <div>
         {this.props.title}
-        <table cellSpacing={0}>
+        <table cellSpacing={0} className={styles['invoice-panel__table']}>
           <tbody>
             <tr data-cy="table--header">
               <th>Code</th>
@@ -23,10 +30,18 @@ class LineItemTable extends PureComponent {
               return (
                 <tr key={item.id} data-cy="table--item">
                   <td>{item.tariff400ng_item.code}</td>
-                  <td>{item.tariff400ng_item.item}</td>
+                  <td>
+                    {item.tariff400ng_item.item}
+                    {showItem35Missing(item) && (
+                      <span>
+                        <br />
+                        <span className={common.warning}>Missing actual amount</span>
+                      </span>
+                    )}
+                  </td>
                   <td>{item.location[0]}</td>
-                  <td>{formatFromBaseQuantity(item.quantity_1)}</td>
-                  <td>${formatCents(item.amount_cents)}</td>
+                  <td>{displayBaseQuantityUnits(item)}</td>
+                  <td>${formatCents(item.amount_cents ? item.amount_cents : 0)}</td>
                 </tr>
               );
             })}
@@ -50,4 +65,4 @@ LineItemTable.propTypes = {
   totalAmount: PropTypes.number,
 };
 
-export default LineItemTable;
+export default withContext(LineItemTable);

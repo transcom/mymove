@@ -1,7 +1,10 @@
 package models_test
 
 import (
+	"strings"
+
 	"github.com/gofrs/uuid"
+
 	. "github.com/transcom/mymove/pkg/models"
 )
 
@@ -62,9 +65,37 @@ func (suite *ModelSuite) TestFetchOfficeUserByEmail() {
 	suite.MustSave(&newUser)
 
 	user, err = FetchOfficeUserByEmail(suite.DB(), email)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.NotNil(user)
 	suite.Equal(newUser.ID, user.ID)
+}
+
+func (suite *ModelSuite) TestFetchOfficeUserByEmailCaseSensitivity() {
+	fakeUUID, _ := uuid.FromString("f390a584-3974-47b9-9ab2-05383304d696")
+	userEmail := "Chris@government.gov"
+
+	chris := User{
+		LoginGovUUID:  fakeUUID,
+		LoginGovEmail: userEmail,
+	}
+	suite.MustSave(&chris)
+	office := CreateTestShippingOffice(suite)
+
+	officeUser := OfficeUser{
+		LastName:               "Tester",
+		FirstName:              "Chris",
+		Email:                  userEmail,
+		Telephone:              "(908) 555-1313",
+		UserID:                 &chris.ID,
+		User:                   chris,
+		TransportationOfficeID: office.ID,
+	}
+	suite.MustSave(&officeUser)
+
+	user, err := FetchOfficeUserByEmail(suite.DB(), strings.ToLower(userEmail))
+	suite.NoError(err)
+	suite.NotNil(user)
+	suite.Equal(user.Email, userEmail)
 }
 
 func (suite *ModelSuite) TestFetchOfficeUserByID() {
@@ -84,7 +115,7 @@ func (suite *ModelSuite) TestFetchOfficeUserByID() {
 	suite.MustSave(&newUser)
 
 	user, err = FetchOfficeUserByID(suite.DB(), newUser.ID)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.NotNil(user)
 	suite.Equal(newUser.ID, user.ID)
 }

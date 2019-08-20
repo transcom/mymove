@@ -4,26 +4,35 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"io"
+	"io/ioutil"
+	"os"
 	"path"
 
+	"github.com/pdfcpu/pdfcpu/pkg/api"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/validate"
 	"github.com/spf13/afero"
-	"github.com/trussworks/pdfcpu/pkg/api"
-	"github.com/trussworks/pdfcpu/pkg/pdfcpu"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *PaperworkSuite) sha256ForPath(path string, fs *afero.Afero) (string, error) {
-	file, err := fs.Open(path)
+	var file afero.File
+	var err error
+	if fs != nil {
+		file, err = fs.Open(path)
+	} else {
+		file, err = os.Open(path)
+	}
 	if err != nil {
-		suite.Nil(err)
+		suite.NoError(err)
 	}
 	defer file.Close()
 
 	hash := sha256.New()
 	if _, err := io.Copy(hash, file); err != nil {
-		suite.Nil(err)
+		suite.NoError(err)
 	}
 
 	byteArray := hash.Sum(nil)
@@ -39,20 +48,22 @@ func (suite *PaperworkSuite) setupOrdersDocument() (*Generator, models.Order) {
 	suite.FatalNil(err)
 
 	file, err := suite.openLocalFile("testdata/orders1.jpg", generator.fs)
-
 	suite.FatalNil(err)
-	_, _, err = suite.uploader.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
+
+	_, _, err = suite.uploader.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesAny)
 	suite.FatalNil(err)
 
 	file, err = suite.openLocalFile("testdata/orders1.pdf", generator.fs)
 	suite.FatalNil(err)
-	_, _, err = suite.uploader.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
+
+	_, _, err = suite.uploader.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesAny)
 	suite.FatalNil(err)
 
 	file, err = suite.openLocalFile("testdata/orders2.jpg", generator.fs)
-	suite.Nil(err)
-	_, _, err = suite.uploader.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
-	suite.Nil(err)
+	suite.FatalNil(err)
+
+	_, _, err = suite.uploader.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesAny)
+	suite.FatalNil(err)
 
 	err = suite.DB().Load(&document, "Uploads")
 	suite.FatalNil(err)
@@ -66,8 +77,8 @@ func (suite *PaperworkSuite) setupOrdersDocument() (*Generator, models.Order) {
 }
 
 func (suite *PaperworkSuite) TestPDFFromImages() {
-	generator, err := NewGenerator(suite.DB(), suite.logger, suite.uploader)
-	suite.FatalNil(err)
+	generator, newGeneratorErr := NewGenerator(suite.DB(), suite.logger, suite.uploader)
+	suite.FatalNil(newGeneratorErr)
 
 	images := []inputFile{
 		{Path: "testdata/orders1.jpg", ContentType: "image/jpeg"},
@@ -80,25 +91,40 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 
 	generatedPath, err := generator.PDFFromImages(images)
 	suite.FatalNil(err, "failed to generate pdf")
+	aferoFile, err := generator.fs.Open(generatedPath)
+	suite.FatalNil(err, "afero failed to open pdf")
+
 	suite.NotEmpty(generatedPath, "got an empty path to the generated file")
+	suite.FatalNil(err)
 
 	// verify that the images are in the pdf by extracting them and checking their checksums
-	tmpdir, err := afero.TempDir(generator.fs, "", "extracted_images")
-	suite.FatalNil(err, "could not create temp dir")
-
-	api.ExtractImages(generatedPath, tmpdir, []string{"-2"}, generator.pdfConfig)
+	file, err := afero.ReadAll(aferoFile)
+	suite.FatalNil(err)
+	tmpDir, err := ioutil.TempDir("", "images")
+	suite.FatalNil(err)
+	f, err := ioutil.TempFile(tmpDir, "")
+	suite.FatalNil(err)
+	err = ioutil.WriteFile(f.Name(), file, os.ModePerm)
+	suite.FatalNil(err)
+	err = api.ExtractImages(f, tmpDir, []string{"-2"}, generator.pdfConfig)
+	suite.FatalNil(err)
+	err = os.Remove(f.Name())
+	suite.FatalNil(err)
 
 	checksums := make([]string, 2)
-	files, err := afero.ReadDir(generator.fs, tmpdir)
+	files, err := ioutil.ReadDir(tmpDir)
+	for _, f := range files {
+		fmt.Println(f.Name())
+	}
 	suite.FatalNil(err)
 
 	suite.Equal(2, len(files), "did not find 2 images")
 
 	for _, file := range files {
-		checksum, err := suite.sha256ForPath(path.Join(tmpdir, file.Name()), generator.fs)
-		suite.FatalNil(err, "error calculating hash")
-		if err != nil {
-			suite.FailNow(err.Error())
+		checksum, sha256ForPathErr := suite.sha256ForPath(path.Join(tmpDir, file.Name()), nil)
+		suite.FatalNil(sha256ForPathErr, "error calculating hash")
+		if sha256ForPathErr != nil {
+			suite.FailNow(sha256ForPathErr.Error())
 		}
 		checksums = append(checksums, checksum)
 	}
@@ -130,6 +156,27 @@ func (suite *PaperworkSuite) TestPDFFromImages16BitPNG() {
 	suite.NotEmpty(generatedPath, "got an empty path to the generated file")
 }
 
+func (suite *PaperworkSuite) TestPDFFromImagesRotation() {
+	generator, err := NewGenerator(suite.DB(), suite.logger, suite.uploader)
+	suite.FatalNil(err)
+
+	images := []inputFile{
+		// The below image is best viewed in landscape, but will rotate in
+		// PDFFromImages. Since we can't analyze the final contents, we'll
+		// just ensure it doesn't error.
+		{Path: "testdata/example_landscape.png", ContentType: "image/png"},
+		{Path: "testdata/example_landscape.jpg", ContentType: "image/jpeg"},
+	}
+	_, err = suite.openLocalFile(images[0].Path, generator.fs)
+	suite.FatalNil(err)
+	_, err = suite.openLocalFile(images[1].Path, generator.fs)
+	suite.FatalNil(err)
+
+	generatedPath, err := generator.PDFFromImages(images)
+	suite.FatalNil(err, "failed to generate pdf")
+	suite.NotEmpty(generatedPath, "got an empty path to the generated file")
+}
+
 func (suite *PaperworkSuite) TestGenerateUploadsPDF() {
 	generator, order := suite.setupOrdersDocument()
 
@@ -142,15 +189,46 @@ func (suite *PaperworkSuite) TestGenerateUploadsPDF() {
 func (suite *PaperworkSuite) TestCreateMergedPDF() {
 	generator, order := suite.setupOrdersDocument()
 
-	file, err := generator.CreateMergedPDFUpload(order.UploadedOrders.Uploads)
+	uploads := order.UploadedOrders.Uploads
+	file, err := generator.CreateMergedPDFUpload(uploads)
 	suite.FatalNil(err)
 
 	// Read merged file and verify page count
-	ctx, err := api.Read(file.Name(), generator.pdfConfig)
+	ctx, err := api.ReadContext(file, generator.pdfConfig)
 	suite.FatalNil(err)
 
-	err = pdfcpu.ValidateXRefTable(ctx.XRefTable)
+	err = validate.XRefTable(ctx.XRefTable)
 	suite.FatalNil(err)
 
 	suite.Equal(3, ctx.PageCount)
+}
+
+func (suite *PaperworkSuite) TestCleanup() {
+	generator, order := suite.setupOrdersDocument()
+
+	uploads := order.UploadedOrders.Uploads
+	_, err := generator.CreateMergedPDFUpload(uploads)
+	suite.FatalNil(err)
+
+	generator.Cleanup()
+
+	fs := suite.uploader.Storer.FileSystem()
+	exists, existsErr := fs.DirExists(generator.workDir)
+	suite.Nil(existsErr)
+
+	if exists {
+		suite.Failf("expected %s to not be a directory, but it was", generator.workDir)
+
+		var paths []string
+		walkErr := fs.Walk(generator.workDir, func(path string, info os.FileInfo, err error) error {
+			if path != generator.workDir { // Walk starts off with the directory passed to it
+				paths = append(paths, path)
+			}
+			return nil
+		})
+		suite.Nil(walkErr)
+		if len(paths) > 0 {
+			suite.Failf("did not clean up", "expected %s to be empty, but it contained %v", generator.workDir, paths)
+		}
+	}
 }

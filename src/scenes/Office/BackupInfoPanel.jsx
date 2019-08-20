@@ -1,15 +1,15 @@
 import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues, FormSection } from 'redux-form';
 
-import { updateBackupInfo } from './ducks';
+import { updateServiceMember, updateBackupContact } from 'shared/Entities/modules/serviceMembers';
 
 import { AddressElementDisplay, AddressElementEdit } from 'shared/Address';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelField, editablePanelify } from 'shared/EditablePanel';
+import { selectBackupContactForServiceMember } from 'shared/Entities/modules/serviceMembers';
 
 const BackupInfoDisplay = props => {
   const backupAddress = props.backupMailingAddress;
@@ -47,10 +47,6 @@ const BackupInfoEdit = props => {
     swagger: props.backupContactSchema,
     values: props.backupContact,
   };
-  let backupMailingAddressProps = {
-    swagger: props.addressSchema,
-    values: props.backupMailingAddress,
-  };
   return (
     <React.Fragment>
       <div className="editable-panel-column">
@@ -67,9 +63,11 @@ const BackupInfoEdit = props => {
       </div>
 
       <div className="editable-panel-column">
-        <FormSection name="backupMailingAddress">
-          <AddressElementEdit addressProps={backupMailingAddressProps} title="Backup mailing address" />
-        </FormSection>
+        <AddressElementEdit
+          fieldName="backupMailingAddress"
+          schema={props.addressSchema}
+          title="Backup mailing address"
+        />
       </div>
     </React.Fragment>
   );
@@ -85,9 +83,9 @@ BackupInfoPanel = reduxForm({
   keepDirtyOnReinitialize: true,
 })(BackupInfoPanel);
 
-function mapStateToProps(state) {
-  let serviceMember = get(state, 'office.officeServiceMember', {});
-  let backupContact = get(state, 'office.officeBackupContacts.0', {}); // there can be only one
+function mapStateToProps(state, ownProps) {
+  let serviceMember = ownProps.serviceMember;
+  let backupContact = selectBackupContactForServiceMember(state, serviceMember.id);
 
   return {
     // reduxForm
@@ -113,17 +111,19 @@ function mapStateToProps(state) {
     },
 
     hasError: false,
-    errorMessage: state.office.error,
   };
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      update: updateBackupInfo,
-    },
-    dispatch,
-  );
+  const update = (serviceMemberId, serviceMemberPayload, backupContactId, backupContact) => {
+    dispatch(updateServiceMember(serviceMemberId, serviceMemberPayload));
+    dispatch(updateBackupContact(backupContactId, backupContact));
+  };
+
+  return { update };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(BackupInfoPanel);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(BackupInfoPanel);

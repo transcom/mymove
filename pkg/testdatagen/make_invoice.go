@@ -3,7 +3,6 @@ package testdatagen
 import (
 	"fmt"
 	"math/rand"
-	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
@@ -25,9 +24,9 @@ func MakeInvoice(db *pop.Connection, assertions Assertions) models.Invoice {
 
 	invoiceNumber := assertions.Invoice.InvoiceNumber
 	if invoiceNumber == "" {
-		scac := "ABCD"
+		scac := "ABBV"
 		year := shipment.CreatedAt.UTC().Year()
-		invoiceNumber = fmt.Sprintf("%s%d%04d", scac, year%100, 1+rand.Intn(9999))
+		invoiceNumber = fmt.Sprintf("%s%02d%04d", scac, year%100, 1+rand.Intn(9999))
 	}
 
 	// filled in dummy data
@@ -36,11 +35,11 @@ func MakeInvoice(db *pop.Connection, assertions Assertions) models.Invoice {
 		ApproverID:    approver.ID,
 		Approver:      approver,
 		InvoiceNumber: invoiceNumber,
-		InvoicedDate:  time.Now(),
+		InvoicedDate:  NextValidMoveDate,
 		ShipmentID:    shipment.ID,
 		Shipment:      shipment,
-		CreatedAt:     time.Now(),
-		UpdatedAt:     time.Now(),
+		CreatedAt:     NextValidMoveDate,
+		UpdatedAt:     NextValidMoveDate,
 	}
 
 	// Overwrite values with those from assertions

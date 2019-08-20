@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Redirect, Switch } from 'react-router-dom';
+import { Redirect, Switch, Route } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
 import { history } from 'shared/store';
 import { connect } from 'react-redux';
@@ -11,15 +11,17 @@ import QueueTable from './QueueTable';
 import MoveInfo from './MoveInfo';
 import OrdersInfo from './OrdersInfo';
 import DocumentViewer from './DocumentViewer';
-import { loadLoggedInUser } from 'shared/User/ducks';
+import { getCurrentUserInfo } from 'shared/Data/users';
 import { loadInternalSchema, loadPublicSchema } from 'shared/Swagger/ducks';
-import { no_op } from 'shared/utils';
+import { detectIE11, no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import ScratchPad from 'shared/ScratchPad';
 import { isProduction } from 'shared/constants';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { RetrieveMovesForOffice } from './api';
 
-import './office.css';
+import './office.scss';
 
 class Queues extends Component {
   render() {
@@ -29,40 +31,63 @@ class Queues extends Component {
           <QueueList />
         </div>
         <div className="queue-list-column">
-          <div className="queue-table-scrollable">
-            <QueueTable queueType={this.props.match.params.queueType} />
-          </div>
+          <QueueTable queueType={this.props.match.params.queueType} retrieveMoves={RetrieveMovesForOffice} />
         </div>
       </div>
     );
   }
 }
 
-class OfficeWrapper extends Component {
+export class OfficeWrapper extends Component {
+  state = { hasError: false };
+
   componentDidMount() {
     document.title = 'Transcom PPP: Office';
     this.props.loadInternalSchema();
     this.props.loadPublicSchema();
+    this.props.getCurrentUserInfo();
+  }
+
+  componentDidCatch(error, info) {
+    this.setState({
+      hasError: true,
+    });
   }
 
   render() {
+    const Tag = detectIE11() ? 'div' : 'main';
     return (
       <ConnectedRouter history={history}>
         <div className="Office site">
           <QueueHeader />
-          <main className="site__content">
+          <Tag role="main" className="site__content">
             <div>
               <LogoutOnInactivity />
-              <Switch>
-                <Redirect from="/" to="/queues/new" exact />
-                <PrivateRoute path="/queues/:queueType/moves/:moveId" component={MoveInfo} />
-                <PrivateRoute path="/queues/:queueType" component={Queues} />
-                <PrivateRoute path="/moves/:moveId/orders" component={OrdersInfo} />
-                <PrivateRoute path="/moves/:moveId/documents/:moveDocumentId?" component={DocumentViewer} />
-                {!isProduction && <PrivateRoute path="/playground" component={ScratchPad} />}
-              </Switch>
+              {this.state.hasError && <SomethingWentWrong />}
+              {!this.state.hasError && (
+                <Switch>
+                  <Route
+                    exact
+                    path="/"
+                    component={({ location }) => (
+                      <Redirect
+                        from="/"
+                        to={{
+                          ...location,
+                          pathname: '/queues/new',
+                        }}
+                      />
+                    )}
+                  />
+                  <PrivateRoute path="/queues/:queueType/moves/:moveId" component={MoveInfo} />
+                  <PrivateRoute path="/queues/:queueType" component={Queues} />
+                  <PrivateRoute path="/moves/:moveId/orders" component={OrdersInfo} />
+                  <PrivateRoute path="/moves/:moveId/documents/:moveDocumentId?" component={DocumentViewer} />
+                  {!isProduction && <PrivateRoute path="/playground" component={ScratchPad} />}
+                </Switch>
+              )}
             </div>
-          </main>
+          </Tag>
         </div>
       </ConnectedRouter>
     );
@@ -72,7 +97,6 @@ class OfficeWrapper extends Component {
 OfficeWrapper.defaultProps = {
   loadInternalSchema: no_op,
   loadPublicSchema: no_op,
-  loadLoggedInUser: no_op,
 };
 
 const mapStateToProps = state => ({
@@ -80,6 +104,9 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ loadInternalSchema, loadPublicSchema, loadLoggedInUser }, dispatch);
+  bindActionCreators({ loadInternalSchema, loadPublicSchema, getCurrentUserInfo }, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(OfficeWrapper);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(OfficeWrapper);

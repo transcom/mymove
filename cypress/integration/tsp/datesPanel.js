@@ -1,4 +1,4 @@
-import { userEntersDates, userEntersAndRemovesDates } from '../../support/datesPanel';
+import { userEntersDates } from '../../support/datesPanel';
 
 /* global cy */
 describe('TSP User Completes Dates Panel', function() {
@@ -9,10 +9,6 @@ describe('TSP User Completes Dates Panel', function() {
     tspUserGoesToDatesPanel('DATESP');
     userEntersDates();
   });
-  it('tsp user completes dates panel and zeroes it out', function() {
-    tspUserGoesToDatesPanel('DATESZ');
-    userEntersAndRemovesDates();
-  });
 });
 
 function tspUserGoesToDatesPanel(locator) {
@@ -22,17 +18,13 @@ function tspUserGoesToDatesPanel(locator) {
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
-    .contains(locator)
-    .dblclick();
+  cy.selectQueueItemMoveLocator(locator);
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  cy
-    .get('.editable-panel-header')
+  cy.get('.editable-panel-header')
     .contains('Dates')
     .siblings()
     .click();

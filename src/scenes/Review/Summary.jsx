@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react';
-import { forEach, get } from 'lodash';
+import { forEach, get, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { getShipment, selectShipment } from 'shared/Entities/modules/shipments';
-import { getMove, selectMove } from 'shared/Entities/modules/moves';
+import { loadMove, selectMove } from 'shared/Entities/modules/moves';
 import { getCurrentShipmentID } from 'shared/UI/ducks';
 
 import { getPPM } from 'scenes/Moves/Ppm/ducks.js';
@@ -64,7 +64,7 @@ export class Summary extends Component {
     const showPPMShipmentSummary =
       (isReviewPage && currentPpm) || (!isReviewPage && currentPpm && currentPpm.status !== 'DRAFT');
     const showHHGShipmentSummary =
-      (currentShipment && !isHHGPPMComboMove) || (currentShipment && isHHGPPMComboMove && !isReviewPage);
+      (!isEmpty(currentShipment) && !isHHGPPMComboMove) || (currentShipment && isHHGPPMComboMove && !isReviewPage);
 
     const showProfileAndOrders = (isReviewPage && !isHHGPPMComboMove) || !isReviewPage;
     return (
@@ -107,13 +107,12 @@ export class Summary extends Component {
         {showPPMShipmentSummary && (
           <PPMShipmentSummary ppm={currentPpm} movePath={rootAddressWithMoveId} isHHGPPMComboMove={isHHGPPMComboMove} />
         )}
-        {moveIsApproved &&
-          !isHHGPPMComboMove && (
-            <div className="approved-edit-warning">
-              *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}
-              {stationPhone ? ` at ${stationPhone}` : ''}.
-            </div>
-          )}
+        {moveIsApproved && !isHHGPPMComboMove && (
+          <div className="approved-edit-warning">
+            *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}
+            {stationPhone ? ` at ${stationPhone}` : ''}.
+          </div>
+        )}
       </Fragment>
     );
   }
@@ -155,9 +154,9 @@ function mapDispatchToProps(dispatch, ownProps) {
   return {
     onDidMount: function() {
       const moveID = ownProps.match.params.moveId;
-      dispatch(getMove('Summary.getMove', moveID)).then(function(action) {
+      dispatch(loadMove(moveID, 'Summary.getMove')).then(function(action) {
         forEach(action.entities.shipments, function(shipment) {
-          dispatch(getShipment('Summary.getShipment', shipment.id));
+          dispatch(getShipment(shipment.id));
         });
       });
     },
@@ -166,4 +165,9 @@ function mapDispatchToProps(dispatch, ownProps) {
     },
   };
 }
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Summary));
+export default withRouter(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(Summary),
+);

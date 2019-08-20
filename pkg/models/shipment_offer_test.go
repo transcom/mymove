@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/dates"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -13,9 +14,9 @@ func (suite *ModelSuite) Test_ShipmentOfferValidations() {
 	sa := &ShipmentOffer{}
 
 	var expErrors = map[string][]string{
-		"shipment_id":                                    []string{"ShipmentID can not be blank."},
-		"transportation_service_provider_id":             []string{"TransportationServiceProviderID can not be blank."},
-		"transportation_service_provider_performance_id": []string{"TransportationServiceProviderPerformanceID can not be blank."},
+		"shipment_id":                                    {"ShipmentID can not be blank."},
+		"transportation_service_provider_id":             {"TransportationServiceProviderID can not be blank."},
+		"transportation_service_provider_performance_id": {"TransportationServiceProviderPerformanceID can not be blank."},
 	}
 
 	suite.verifyValidationErrors(sa, expErrors)
@@ -24,11 +25,12 @@ func (suite *ModelSuite) Test_ShipmentOfferValidations() {
 // Test_CreateShipmentOffer tests that a shipment is created when expected
 func (suite *ModelSuite) Test_CreateShipmentOffer() {
 	t := suite.T()
-	pickupDate := time.Now()
-	deliveryDate := time.Now().AddDate(0, 0, 1)
+	calendar := dates.NewUSCalendar()
+	pickupDate := dates.NextWorkday(*calendar, time.Date(testdatagen.TestYear, time.January, 28, 0, 0, 0, 0, time.UTC))
+	deliveryDate := dates.NextWorkday(*calendar, pickupDate)
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
 	tsp := testdatagen.MakeDefaultTSP(suite.DB())
-	tspp := testdatagen.MakeDefaultTSPPerformance(suite.DB())
+	tspp, _ := testdatagen.MakeDefaultTSPPerformance(suite.DB())
 
 	sourceGBLOC := "KKFA"
 	destinationGBLOC := "HAFC"
@@ -62,7 +64,7 @@ func (suite *ModelSuite) TestShipmentOfferStateMachine() {
 	suite.Nil(shipmentOffer.RejectionReason)
 
 	err := shipmentOffer.Accept()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.True(*shipmentOffer.Accepted)
 	suite.Nil(shipmentOffer.RejectionReason)
 
@@ -72,7 +74,7 @@ func (suite *ModelSuite) TestShipmentOfferStateMachine() {
 	suite.Nil(shipmentOffer.RejectionReason)
 
 	err = shipmentOffer.Reject("DO NOT WANT")
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.False(*shipmentOffer.Accepted)
 	suite.Equal("DO NOT WANT", *shipmentOffer.RejectionReason)
 }
@@ -81,14 +83,14 @@ func (suite *ModelSuite) TestAccepted() {
 	// Trying a nil slice of shipment offers.
 	var shipmentOffers ShipmentOffers
 	shipmentOffers, err := shipmentOffers.Accepted()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Nil(shipmentOffers)
 
 	// Make a default shipment offer (which shouldn't be accepted).
 	unacceptedOffer := testdatagen.MakeDefaultShipmentOffer(suite.DB())
 	shipmentOffers = ShipmentOffers{unacceptedOffer}
 	shipmentOffers, err = shipmentOffers.Accepted()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Nil(shipmentOffers)
 
 	// Add an accepted shipment to our slice.

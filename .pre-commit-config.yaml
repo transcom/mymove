@@ -1,14 +1,15 @@
+#documentation - docs/how-to/run-pre-commit-hooks.md
 repos:
   - repo: local
     hooks:
       - id: go-version
         name: go version
-        entry: bin/check_go_version
+        entry: scripts/check-go-version
         language: script
         types: [go]
 
   - repo: git://github.com/pre-commit/pre-commit-hooks
-    rev: v2.0.0
+    rev: v2.2.3
     hooks:
       - id: check-json
       - id: check-merge-conflict
@@ -20,18 +21,27 @@ repos:
             config/tls/devlocal-.+\.key$|
             pkg/server/testdata/localhost.key$|
             pkg/server/testdata/officelocal.key$|
+            pkg/auth/authentication/auth_test.go$|
+            pkg/cli/auth.go$|
           )$
       - id: trailing-whitespace
         exclude: public/swagger-ui/*
 
+  - repo: git://github.com/golangci/golangci-lint
+    rev: v1.17.1
+    hooks:
+      - id: golangci-lint
+        entry: bash -c 'exec golangci-lint run -j=${GOLANGCI_LINT_CONCURRENCY:-1}' # custom bash so we can override concurrency for faster dev runs
+
+
   - repo: git://github.com/igorshubovych/markdownlint-cli
-    rev: v0.13.0
+    rev: v0.17.0
     hooks:
       - id: markdownlint
         entry: markdownlint --ignore .github/*.md
 
   - repo: git://github.com/detailyang/pre-commit-shell
-    rev: 1.0.4
+    rev: 1.0.5
     hooks:
       - id: shell-lint
 
@@ -54,54 +64,35 @@ repos:
   - repo: local
     hooks:
       - id: swagger
-        name: API Swagger
-        entry: bin/swagger validate swagger/api.yaml
+        name: Swagger
+        entry: bin/swagger validate
         language: script
-
-  - repo: local
-    hooks:
-      - id: swagger
-        name: Internal Swagger
-        entry: bin/swagger validate swagger/internal.yaml
-        language: script
-
-  - repo: local
-    hooks:
-      - id: swagger
-        name: Orders Swagger
-        entry: bin/swagger validate swagger/orders.yaml
-        language: script
+        files: swagger/*
+        types: [yaml]
 
   # Ensure markdown files have updated table of contents
   - repo: local
     hooks:
       - id: markdown-toc
         name: markdown-toc
-        entry: bin/generate-md-toc.sh
+        entry: scripts/generate-md-toc
         language: script
         files: \.md$
 
-  - repo: git://github.com/dnephin/pre-commit-golang
-    rev: v0.3.2
-    hooks:
-      - id: go-fmt
-      - id: go-vet
-      - id: go-lint
-
   - repo: local
     hooks:
-      - id: gosec
-        name: gosec scanner
-        entry: bin/gosec -exclude=G104 -fmt text -quiet ./...
+      - id: gomod
+        name: gomod
+        entry: scripts/pre-commit-go-mod
         language: script
-        description: Inspects source code for security problems by scanning the Go AST.
-        files: \.go$
+        files: go.mod
+        pass_filenames: false
 
   - repo: local
     hooks:
       - id: mdspell
         name: mdspell
-        entry: bin/pre-commit-spellcheck
+        entry: scripts/pre-commit-spellcheck
         language: script
         files: \.md$
         exclude: >
@@ -115,12 +106,39 @@ repos:
     hooks:
       - id: gen-docs
         name: regenerate docs index
-        entry: bin/gen-docs-index
+        entry: scripts/gen-docs-index
         language: script
+        files: \.md$
+        pass_filenames: false
 
   - repo: local
     hooks:
-      - id: dep-version
-        name: dep version
-        entry: bin/check_dep_version
-        language: script
+    - id: circleci-validate
+      name: circleci validate
+      entry: scripts/pre-commit-circleci-validate
+      language: script
+      files: '[.]circleci/config.yml$'
+      pass_filenames: false
+
+  - repo: local
+    hooks:
+    - id: codecov-validate
+      name: codecov validate
+      entry: scripts/pre-commit-codecov-validate
+      language: script
+      files: .codecov.yml
+      pass_filenames: false
+
+  - repo: https://github.com/pryorda/dockerfilelint-precommit-hooks
+    rev: v0.1.0
+    hooks:
+    - id: dockerfilelint
+      stages: [commit]
+
+  - repo: local
+    hooks:
+    - id: migrations-manifest
+      name: migrations manifest
+      entry: scripts/update-migrations-manifest
+      language: script
+      pass_filenames: false

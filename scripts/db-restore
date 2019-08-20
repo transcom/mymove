@@ -1,0 +1,31 @@
+#! /usr/bin/env bash
+# Restore the contents of the development database from an earlier backup.
+
+set -eu -o pipefail
+
+readonly db=${DB_NAME:-db_dev}
+readonly port=${DB_PORT:-5432}
+export PGPASSWORD="mysecretpassword"
+
+function list() {
+  echo "Available backups are:"
+  # shellcheck disable=SC2012
+  ls -lctohT tmp/db | awk '{printf "%20s %6s %5s %2s %s\n", $9, $4, $5, $6, $7, $8}'
+  echo
+}
+
+readonly name=${1:-}
+if [[ -z "$name" ]]; then
+  echo "usage: $0 <name of backup to restore>"
+  list
+  exit 1
+fi
+
+readonly path="tmp/db/$name"
+if [[ ! -f "$path" ]]; then
+  echo "No backup found with name '$name'."
+  list
+  exit 1
+fi
+
+psql -h localhost -U postgres -p "$port" -q -d "$db" < "$path" > /dev/null

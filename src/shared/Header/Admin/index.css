@@ -1,0 +1,11 @@
+.adminHeaderOne {
+  margin: 1%;
+}
+
+.adminHeaderTwo {
+  float: right;
+}
+
+header.header {
+  border-bottom: 3px solid black;
+}

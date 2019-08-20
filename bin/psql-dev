@@ -1,5 +1,0 @@
-#!/bin/bash
-
-export DB_NAME=dev_db
-# shellcheck source=bin/psql
-. "$(dirname "$0")"/psql

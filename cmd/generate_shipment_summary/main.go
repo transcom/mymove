@@ -4,14 +4,27 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
+	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/route"
+
+	"github.com/transcom/mymove/pkg/auth"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
 )
+
+// hereRequestTimeout is how long to wait on HERE request before timing out (15 seconds).
+const hereRequestTimeout = time.Duration(15) * time.Second
 
 func noErr(err error) {
 	if err != nil {
@@ -52,7 +65,28 @@ func main() {
 		formFiller.Debug()
 	}
 
-	page1Data, page2Data, err := models.FetchShipmentSummaryWorksheetFormValues(db, parsedID)
+	logger, err := logging.Config(*env, true)
+	if err != nil {
+		log.Fatalf("Failed to initialize Zap logging due to %v", err)
+	}
+	geocodeEndpoint := os.Getenv("HERE_MAPS_GEOCODE_ENDPOINT")
+	routingEndpoint := os.Getenv("HERE_MAPS_ROUTING_ENDPOINT")
+	testAppID := os.Getenv("HERE_MAPS_APP_ID")
+	testAppCode := os.Getenv("HERE_MAPS_APP_CODE")
+	hereClient := &http.Client{Timeout: hereRequestTimeout}
+	planner := route.NewHEREPlanner(logger, hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
+	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(db, logger))
+
+	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(db, &auth.Session{}, parsedID)
+	if err != nil {
+		log.Fatalf("%s", errors.Wrap(err, "Error fetching shipment summary worksheet data "))
+	}
+	ssfd.Obligations, err = ppmComputer.ComputeObligations(ssfd, planner)
+	if err != nil {
+		log.Fatalf("%s", errors.Wrap(err, "Error calculating obligations "))
+	}
+
+	page1Data, page2Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)
 	noErr(err)
 
 	// page 1

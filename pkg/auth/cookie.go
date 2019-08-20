@@ -1,18 +1,48 @@
 package auth
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/csrf"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/logging"
 )
 
-// UserSessionCookieName is the key at which we're storing our token cookie
+// ApplicationServername is a collection of all the servernames for the application
+type ApplicationServername struct {
+	MilServername    string
+	OfficeServername string
+	TspServername    string
+	AdminServername  string
+	OrdersServername string
+	DpsServername    string
+	SddcServername   string
+}
+
+type errInvalidHostname struct {
+	Hostname  string
+	MilApp    string
+	OfficeApp string
+	TspApp    string
+	AdminApp  string
+}
+
+func (e *errInvalidHostname) Error() string {
+	return fmt.Sprintf("invalid hostname %s, must be one of %s, %s, %s, or %s", e.Hostname, e.MilApp, e.OfficeApp, e.TspApp, e.AdminApp)
+}
+
+// UserSessionCookieName is the key suffix at which we're storing our token cookie
 const UserSessionCookieName = "session_token"
+
+// GorillaCSRFToken is the name of the base CSRF token
+const GorillaCSRFToken = "_gorilla_csrf" // #nosec G101
 
 // MaskedGorillaCSRFToken is the masked CSRF token used to send back in the 'X-CSRF-Token' request header
 const MaskedGorillaCSRFToken = "masked_gorilla_csrf"
@@ -29,6 +59,27 @@ var likeForeverInSeconds = 99999999
 // GetExpiryTimeFromMinutes returns 'min' minutes from now
 func GetExpiryTimeFromMinutes(min int64) time.Time {
 	return time.Now().Add(time.Minute * time.Duration(min))
+}
+
+// GetCookie returns a cookie from a request
+func GetCookie(name string, r *http.Request) (*http.Cookie, error) {
+	for _, cookie := range r.Cookies() {
+		if cookie.Name == name {
+			return cookie, nil
+		}
+	}
+	return nil, errors.Errorf("Unable to find cookie: %s", name)
+}
+
+// DeleteCookie sends a delete request for the named cookie
+func DeleteCookie(w http.ResponseWriter, name string) {
+	c := http.Cookie{
+		Name:   name,
+		Value:  "blank",
+		MaxAge: -1,
+		Path:   "/",
+	}
+	http.SetCookie(w, &c)
 }
 
 // SessionClaims wraps StandardClaims with some Session info
@@ -58,16 +109,18 @@ func signTokenStringWithUserInfo(expiry time.Time, session *Session, secret stri
 	return ss, err
 }
 
-func sessionClaimsFromRequest(logger *zap.Logger, secret string, r *http.Request) (claims *SessionClaims, ok bool) {
-	cookie, err := r.Cookie(UserSessionCookieName)
+func sessionClaimsFromRequest(logger Logger, secret string, appName Application, r *http.Request) (claims *SessionClaims, ok bool) {
+	// Name the cookie with the app name
+	cookieName := fmt.Sprintf("%s_%s", string(appName), UserSessionCookieName)
+	cookie, err := r.Cookie(cookieName)
 	if err != nil {
 		// No cookie set on client
 		return
 	}
 
 	token, err := jwt.ParseWithClaims(cookie.Value, &SessionClaims{}, func(token *jwt.Token) (interface{}, error) {
-		rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(secret))
-		return &rsaKey.PublicKey, err
+		rsaKey, parseRSAPrivateKeyFromPEMErr := jwt.ParseRSAPrivateKeyFromPEM([]byte(secret))
+		return &rsaKey.PublicKey, parseRSAPrivateKeyFromPEMErr
 	})
 
 	if err != nil || token == nil || !token.Valid {
@@ -85,33 +138,34 @@ func sessionClaimsFromRequest(logger *zap.Logger, secret string, r *http.Request
 }
 
 // WriteMaskedCSRFCookie update the masked_gorilla_csrf cookie value
-func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, noSessionTimeout bool, logger *zap.Logger) {
-
-	expiry := GetExpiryTimeFromMinutes(SessionExpiryInMinutes)
-	maxAge := sessionExpiryInSeconds
-	// Never expire token if in development
-	if noSessionTimeout {
-		expiry = likeForever
-		maxAge = likeForeverInSeconds
-	}
-
-	// New cookie
+func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, logger Logger, useSecureCookie bool) {
+	// Match expiration settings of the _gorilla_csrf cookie (a session cookie); don't set Expires or MaxAge.
 	cookie := http.Cookie{
-		Name:    MaskedGorillaCSRFToken,
-		Value:   csrfToken,
-		Path:    "/",
-		Expires: expiry,
-		MaxAge:  maxAge,
+		Name:     MaskedGorillaCSRFToken,
+		Value:    csrfToken,
+		Path:     "/",
+		HttpOnly: false,                // must be false to be read by client for use in POST/PUT/PATCH/DELETE requests
+		SameSite: http.SameSiteLaxMode, // Using 'lax' mode for now since 'strict' is causing issues with Firefox/Safari
+		Secure:   useSecureCookie,
 	}
 
 	http.SetCookie(w, &cookie)
 }
 
+// DeleteCSRFCookies deletes the base and masked CSRF cookies
+func DeleteCSRFCookies(w http.ResponseWriter) {
+	DeleteCookie(w, MaskedGorillaCSRFToken)
+	DeleteCookie(w, GorillaCSRFToken)
+}
+
 // MaskedCSRFMiddleware handles setting the CSRF Token cookie
-func MaskedCSRFMiddleware(logger *zap.Logger, noSessionTimeout bool) func(next http.Handler) http.Handler {
+func MaskedCSRFMiddleware(logger Logger, useSecureCookie bool) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			WriteMaskedCSRFCookie(w, csrf.Token(r), noSessionTimeout, logger)
+			// Write a masked CSRF cookie (creates a new one with each request).  Per the gorilla/csrf docs:
+			// "This library generates unique-per-request (masked) tokens as a mitigation against the BREACH attack."
+			// https://github.com/gorilla/csrf#design-notes
+			WriteMaskedCSRFCookie(w, csrf.Token(r), logger, useSecureCookie)
 			next.ServeHTTP(w, r)
 		}
 		return http.HandlerFunc(mw)
@@ -119,15 +173,18 @@ func MaskedCSRFMiddleware(logger *zap.Logger, noSessionTimeout bool) func(next h
 }
 
 // WriteSessionCookie update the cookie for the session
-func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, noSessionTimeout bool, logger *zap.Logger) {
-
+func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, noSessionTimeout bool, logger Logger, useSecureCookie bool) {
 	// Delete the cookie
+	cookieName := fmt.Sprintf("%s_%s", string(session.ApplicationName), UserSessionCookieName)
 	cookie := http.Cookie{
-		Name:    UserSessionCookieName,
-		Value:   "blank",
-		Path:    "/",
-		Expires: time.Unix(0, 0),
-		MaxAge:  -1,
+		Name:     cookieName,
+		Value:    "blank",
+		Path:     "/",
+		Expires:  time.Unix(0, 0),
+		MaxAge:   -1,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode, // Using 'lax' mode now since 'strict' breaks the use of the login.gov redirect
+		Secure:   useSecureCookie,
 	}
 
 	// unless we have a valid session
@@ -157,23 +214,73 @@ func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, 
 	w.Header().Set("Set-Cookie", cookie.String())
 }
 
+// ApplicationName returns the application name given the hostname
+func ApplicationName(hostname string, appnames ApplicationServername) (Application, error) {
+	var appName Application
+	if strings.EqualFold(hostname, appnames.MilServername) {
+		return MilApp, nil
+	} else if strings.EqualFold(hostname, appnames.OfficeServername) {
+		return OfficeApp, nil
+	} else if strings.EqualFold(hostname, appnames.TspServername) {
+		return TspApp, nil
+	} else if strings.EqualFold(hostname, appnames.AdminServername) {
+		return AdminApp, nil
+	}
+	return appName, errors.Wrap(
+		&errInvalidHostname{
+			Hostname:  hostname,
+			MilApp:    appnames.MilServername,
+			OfficeApp: appnames.OfficeServername,
+			TspApp:    appnames.TspServername,
+			AdminApp:  appnames.AdminServername,
+		}, fmt.Sprintf("%s is invalid", hostname))
+}
+
 // SessionCookieMiddleware handle serializing and de-serializing the session between the user_session cookie and the request context
-func SessionCookieMiddleware(logger *zap.Logger, secret string, noSessionTimeout bool) func(next http.Handler) http.Handler {
+func SessionCookieMiddleware(serverLogger Logger, secret string, noSessionTimeout bool, appnames ApplicationServername, useSecureCookie bool) func(next http.Handler) http.Handler {
+	serverLogger.Info("Creating session",
+		zap.String("milServername", appnames.MilServername),
+		zap.String("officeServername", appnames.OfficeServername),
+		zap.String("tspServername", appnames.TspServername),
+		zap.String("adminServername", appnames.AdminServername))
 	return func(next http.Handler) http.Handler {
-		mw := func(w http.ResponseWriter, r *http.Request) {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+			ctx := r.Context()
+
+			var logger Logger
+			if requestLogger, ok := logging.FromContext(ctx).(Logger); ok {
+				logger = requestLogger
+			} else {
+				logger = serverLogger
+			}
+
+			// Set up the new session object
 			session := Session{}
-			claims, ok := sessionClaimsFromRequest(logger, secret, r)
+
+			// Split the hostname from the port
+			hostname := strings.Split(r.Host, ":")[0]
+			appName, err := ApplicationName(hostname, appnames)
+			if err != nil {
+				logger.Error("Bad Hostname", zap.Error(err))
+				http.Error(w, http.StatusText(400), http.StatusBadRequest)
+				return
+			}
+			claims, ok := sessionClaimsFromRequest(logger, secret, appName, r)
 			if ok {
 				session = claims.SessionValue
 			}
 
-			// And put the session info into the request context
-			ctx := SetSessionInRequestContext(r, &session)
-			// And update the cookie. May get over-ridden later
-			WriteSessionCookie(w, &session, secret, noSessionTimeout, logger)
-			next.ServeHTTP(w, r.WithContext(ctx))
+			// Set more information on the session
+			session.ApplicationName = appName
+			session.Hostname = strings.ToLower(hostname)
 
-		}
-		return http.HandlerFunc(mw)
+			// And update the cookie. May get over-ridden later
+			WriteSessionCookie(w, &session, secret, noSessionTimeout, logger, useSecureCookie)
+
+			// And put the session info into the request context
+			next.ServeHTTP(w, r.WithContext(SetSessionInContext(ctx, &session)))
+
+		})
 	}
 }

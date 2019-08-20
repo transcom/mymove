@@ -1,9 +1,13 @@
 package models_test
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/dates"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -15,6 +19,8 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 	var weightEstimate unit.Pound = -3
 	var progearWeightEstimate unit.Pound = -12
 	var spouseProgearWeightEstimate unit.Pound = -9
+	calendar := dates.NewUSCalendar()
+	weekendDate := dates.NextNonWorkday(*calendar, time.Date(testdatagen.TestYear, time.January, 25, 0, 0, 0, 0, time.UTC))
 
 	shipment := &Shipment{
 		EstimatedPackDays:           &packDays,
@@ -22,26 +28,60 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 		WeightEstimate:              &weightEstimate,
 		ProgearWeightEstimate:       &progearWeightEstimate,
 		SpouseProgearWeightEstimate: &spouseProgearWeightEstimate,
+		RequestedPickupDate:         &weekendDate,
+		OriginalDeliveryDate:        &weekendDate,
+		OriginalPackDate:            &weekendDate,
+		PmSurveyPlannedPackDate:     &weekendDate,
+		PmSurveyPlannedPickupDate:   &weekendDate,
+		PmSurveyPlannedDeliveryDate: &weekendDate,
+		ActualPackDate:              &weekendDate,
+		ActualPickupDate:            &weekendDate,
+		ActualDeliveryDate:          &weekendDate,
 	}
 
+	stringDate := weekendDate.Format("2006-01-02 15:04:05 -0700 UTC")
 	expErrors := map[string][]string{
-		"move_id":                        []string{"move_id can not be blank."},
-		"status":                         []string{"status can not be blank."},
-		"estimated_pack_days":            []string{"-2 is less than or equal to zero."},
-		"estimated_transit_days":         []string{"0 is less than or equal to zero."},
-		"weight_estimate":                []string{"-3 is less than zero."},
-		"progear_weight_estimate":        []string{"-12 is less than zero."},
-		"spouse_progear_weight_estimate": []string{"-9 is less than zero."},
+		"move_id":                         {"move_id can not be blank."},
+		"status":                          {"status can not be blank."},
+		"estimated_pack_days":             {"-2 is less than or equal to zero."},
+		"estimated_transit_days":          {"0 is less than or equal to zero."},
+		"weight_estimate":                 {"-3 is less than zero."},
+		"progear_weight_estimate":         {"-12 is less than zero."},
+		"spouse_progear_weight_estimate":  {"-9 is less than zero."},
+		"requested_pickup_date":           {fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"original_delivery_date":          {fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"original_pack_date":              {fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"pm_survey_planned_pack_date":     {fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"pm_survey_planned_pickup_date":   {fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"pm_survey_planned_delivery_date": {fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"actual_pack_date":                {fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"actual_pickup_date":              {fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"actual_delivery_date":            {fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
 	}
 
 	suite.verifyValidationErrors(shipment, expErrors)
 }
 
+func (suite *ModelSuite) Test_ShipmentValidationsSubmittedMove() {
+	shipment := &Shipment{
+		Status: ShipmentStatusSUBMITTED,
+	}
+
+	verrs, err := shipment.Validate(suite.DB())
+	suite.NoError(err)
+
+	pickupAddressErrors := verrs.Get("pickup_address_id")
+	suite.Equal(1, len(pickupAddressErrors), "expected one error on pickup_address_id, but there were %d: %v", len(pickupAddressErrors), pickupAddressErrors)
+
+	suite.Equal(pickupAddressErrors[0], "pickup_address_id can not be blank.", "expected pickup_address_id to be required, but it was not")
+}
+
 // Test_FetchUnofferedShipments tests that a shipment is returned when we fetch shipments with offers.
 func (suite *ModelSuite) Test_FetchUnofferedShipments() {
 	t := suite.T()
-	pickupDate := time.Now()
-	deliveryDate := time.Now().AddDate(0, 0, 1)
+	calendar := dates.NewUSCalendar()
+	pickupDate := dates.NextWorkday(*calendar, time.Date(testdatagen.TestYear, time.January, 28, 0, 0, 0, 0, time.UTC))
+	deliveryDate := dates.NextWorkday(*calendar, pickupDate)
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
 	market := "dHHG"
 	sourceGBLOC := "KKFA"
@@ -71,7 +111,7 @@ func (suite *ModelSuite) Test_FetchUnofferedShipments() {
 			Status:                  ShipmentStatusSUBMITTED,
 		},
 	})
-	tspp := testdatagen.MakeDefaultTSPPerformance(suite.DB())
+	tspp, _ := testdatagen.MakeDefaultTSPPerformance(suite.DB())
 	CreateShipmentOffer(suite.DB(), shipment.ID, tspp.TransportationServiceProviderID, tspp.ID, false)
 	shipments, err := FetchUnofferedShipments(suite.DB())
 
@@ -89,49 +129,60 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 	suite.Equal(ShipmentStatusDRAFT, shipment.Status, "expected Draft")
 
 	// Can submit shipment
-	err := shipment.Submit()
-	suite.Nil(err)
+	err := shipment.Submit(time.Now())
+	suite.NoError(err)
 	suite.Equal(ShipmentStatusSUBMITTED, shipment.Status, "expected Submitted")
 
 	// Can award shipment
 	err = shipment.Award()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(ShipmentStatusAWARDED, shipment.Status, "expected Awarded")
 
 	// Can accept shipment
 	err = shipment.Accept()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(ShipmentStatusACCEPTED, shipment.Status, "expected Accepted")
 
 	// Can approve shipment (HHG)
-	err = shipment.Approve()
-	suite.Nil(err)
+	err = shipment.Approve(time.Now())
+	suite.NoError(err)
 	suite.Equal(ShipmentStatusAPPROVED, shipment.Status, "expected Approved")
 
 	shipDate := time.Now()
 
 	// Can pack shipment
 	err = shipment.Pack(shipDate)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(ShipmentStatusAPPROVED, shipment.Status, "expected Approved")
 	suite.Equal(*shipment.ActualPackDate, shipDate, "expected Actual Pack Date to be set")
 
 	// Can transport shipment
 	err = shipment.Transport(shipDate)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(ShipmentStatusINTRANSIT, shipment.Status, "expected In Transit")
 	suite.Equal(*shipment.ActualPickupDate, shipDate, "expected Actual Pickup Date to be set")
 
-	// Can deliver shipment
+	//Can deliver shipment
+	authorizedStartDate := shipment.ActualPickupDate
+	actualStartDate := authorizedStartDate.Add(testdatagen.OneDay)
+	sit := testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
+		StorageInTransit: StorageInTransit{
+			ShipmentID:          shipment.ID,
+			EstimatedStartDate:  *authorizedStartDate,
+			AuthorizedStartDate: authorizedStartDate,
+			ActualStartDate:     &actualStartDate,
+			Status:              StorageInTransitStatusINSIT,
+		},
+	})
+
+	shipment.StorageInTransits = StorageInTransits{sit}
+
 	err = shipment.Deliver(shipDate)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(ShipmentStatusDELIVERED, shipment.Status, "expected Delivered")
 	suite.Equal(*shipment.ActualDeliveryDate, shipDate, "expected Actual Delivery Date to be set")
-
-	// Can complete shipment
-	err = shipment.Complete()
-	suite.Nil(err)
-	suite.Equal(ShipmentStatusCOMPLETED, shipment.Status, "expected Completed")
+	suite.Equal(StorageInTransitStatusDELIVERED, shipment.StorageInTransits[0].Status)
+	suite.Equal(shipment.ActualDeliveryDate, shipment.StorageInTransits[0].OutDate)
 }
 
 func (suite *ModelSuite) TestSetBookDateWhenSubmitted() {
@@ -143,8 +194,8 @@ func (suite *ModelSuite) TestSetBookDateWhenSubmitted() {
 	suite.Nil(shipment.BookDate)
 
 	// Can submit shipment
-	err := shipment.Submit()
-	suite.Nil(err)
+	err := shipment.Submit(time.Now())
+	suite.NoError(err)
 	suite.NotNil(shipment.BookDate)
 }
 
@@ -154,7 +205,7 @@ func (suite *ModelSuite) TestAcceptShipmentForTSP() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []ShipmentStatus{ShipmentStatusAWARDED}
-	tspUsers, shipments, shipmentOffers, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, shipmentOffers, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, SelectedMoveTypeHHG)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]
@@ -171,6 +222,59 @@ func (suite *ModelSuite) TestAcceptShipmentForTSP() {
 	suite.Equal(ShipmentStatusACCEPTED, newShipment.Status, "expected Accepted")
 	suite.True(*newShipmentOffer.Accepted)
 	suite.Nil(newShipmentOffer.RejectionReason)
+	suite.NotEqual(shipment.Move.Orders.NewDutyStation.Address.ID, newShipment.DestinationAddressOnAcceptance.ID)
+	suite.Equal(shipment.Move.Orders.NewDutyStation.Address.City, newShipment.DestinationAddressOnAcceptance.City)
+}
+
+func createAndAcceptShipmentWithDeliveryAddress(suite *ModelSuite, hasDeliveryAddress bool) (Shipment, Shipment, error) {
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []ShipmentStatus{ShipmentStatusAWARDED}
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, SelectedMoveTypeHHG)
+	suite.NoError(err)
+
+	tspUser := tspUsers[0]
+	shipment := shipments[0]
+	unitedStates := "United States"
+
+	addressAssertions := testdatagen.Assertions{
+		Address: Address{
+			StreetAddress1: "Fort Gordon",
+			City:           "Augusta",
+			State:          "GA",
+			PostalCode:     "30813",
+			Country:        &unitedStates,
+		},
+	}
+
+	deliveryAddress := testdatagen.MakeAddress3(suite.DB(), addressAssertions)
+	shipment.HasDeliveryAddress = hasDeliveryAddress
+	shipment.DeliveryAddress = &deliveryAddress
+	shipment.DeliveryAddressID = &deliveryAddress.ID
+	suite.DB().ValidateAndSave(&shipment)
+
+	newShipment, _, _, err := AcceptShipmentForTSP(suite.DB(), tspUser.TransportationServiceProviderID, shipment.ID)
+
+	return shipment, *newShipment, err
+}
+
+// TestAcceptShipmentForTSPWithDeliveryAddress tests that delivery address is used for a shipment when TSP accepts
+// a offer and delivery address is available instead of duty station
+func (suite *ModelSuite) TestAcceptShipmentForTSPWithDeliveryAddress() {
+	hasDeliveryAddress := true
+	shipment, newShipment, err := createAndAcceptShipmentWithDeliveryAddress(suite, hasDeliveryAddress)
+	suite.NoError(err)
+	suite.Equal(shipment.DeliveryAddress.City, newShipment.DestinationAddressOnAcceptance.City)
+}
+
+// TestAcceptShipmentForTSPWithDeliveryAddress tests that delivery address is used for a shipment when TSP accepts
+// a offer and delivery address is available instead of duty station
+func (suite *ModelSuite) TestAcceptShipmentForTSPWithDeliveryAddressHasDeliveryAddressFalse() {
+	hasDeliveryAddress := false
+	shipment, newShipment, err := createAndAcceptShipmentWithDeliveryAddress(suite, hasDeliveryAddress)
+	suite.NoError(err)
+	suite.Equal(shipment.Move.Orders.NewDutyStation.Address.City, newShipment.DestinationAddressOnAcceptance.City)
 }
 
 // TestCurrentTransportationServiceProviderID tests that a shipment returns the proper current tsp id
@@ -192,7 +296,7 @@ func (suite *ModelSuite) TestCurrentTransportationServiceProviderID() {
 	// Since it doesn't re-fetch the shipment, if the offers have changed
 	// We need to re-fetch the shipment to reload the offers
 	reloadShipment, err := FetchShipmentByTSP(suite.DB(), tsp.ID, shipment.ID)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(tsp.ID, reloadShipment.CurrentTransportationServiceProviderID(), "expected ids to be equal")
 }
 
@@ -222,29 +326,430 @@ func (suite *ModelSuite) TestShipmentAssignGBLNumber() {
 	}
 }
 
-// TestShipmentAssignGBLNumber tests that a GBL number is created correctly
+// TestCreateShipmentLineItem tests that a shipment line item is created correctly
 func (suite *ModelSuite) TestCreateShipmentLineItem() {
 	acc := testdatagen.MakeDefaultTariff400ngItem(suite.DB())
 	shipment := testdatagen.MakeDefaultShipment(suite.DB())
 
-	q1 := int64(5)
+	q1 := unit.BaseQuantityFromInt(5)
 	notes := "It's a giant moose head named Fred he seemed rather pleasant"
+	baseParams := BaseShipmentLineItemParams{
+		Tariff400ngItemID: acc.ID,
+		Quantity1:         &q1,
+		Location:          "ORIGIN",
+		Notes:             &notes,
+	}
+	additionalParams := AdditionalShipmentLineItemParams{}
 	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(suite.DB(),
-		acc.ID,
-		&q1,
-		nil,
-		"O",
-		&notes)
+		baseParams, additionalParams)
 
 	if suite.noValidationErrors(verrs, err) {
-		suite.Equal(5, shipmentLineItem.Quantity1.ToUnitInt())
+		suite.Equal(unit.BaseQuantityFromInt(5), shipmentLineItem.Quantity1)
 		suite.Equal(acc.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
 	}
 }
 
-// TestSaveShipmentAndLineItems tests that a shipment and line items can be saved
-func (suite *ModelSuite) TestSaveShipmentAndLineItems() {
+// TestCreateShipmentLineItemCode105BAndE tests that 105B/E line items are created correctly
+func (suite *ModelSuite) TestCreateShipmentLineItemCode105BAndE() {
+	acc105B := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: Tariff400ngItem{
+			Code: "105B",
+		},
+	})
+
+	acc105E := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: Tariff400ngItem{
+			Code: "105E",
+		},
+	})
 	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+
+	notes := "It's a giant moose head named Fred he seemed rather pleasant"
+	baseParams := BaseShipmentLineItemParams{
+		Tariff400ngItemID:   acc105B.ID,
+		Tariff400ngItemCode: acc105B.Code,
+		Location:            "ORIGIN",
+		Notes:               &notes,
+	}
+	additionalParams := AdditionalShipmentLineItemParams{
+		ItemDimensions: &AdditionalLineItemDimensions{
+			Length: 10000,
+			Width:  10000,
+			Height: 10000,
+		},
+		CrateDimensions: &AdditionalLineItemDimensions{
+			Length: 10000,
+			Width:  10000,
+			Height: 10000,
+		},
+	}
+	// Create 105B preapproval
+	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams)
+
+	// 10x10x10 cubic inches is roughly 0.5787 cubic feet.
+	if suite.noValidationErrors(verrs, err) {
+		suite.Equal(unit.BaseQuantity(5787), shipmentLineItem.Quantity1)
+		suite.Equal(acc105B.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
+		suite.NotZero(shipmentLineItem.ItemDimensions.ID)
+		suite.NotZero(shipmentLineItem.CrateDimensions.ID)
+	}
+
+	//Create 105E preapproval
+	baseParams.Tariff400ngItemID = acc105E.ID
+	baseParams.Tariff400ngItemCode = acc105E.Code
+	shipmentLineItem, verrs, err = shipment.CreateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams)
+
+	if suite.noValidationErrors(verrs, err) {
+		suite.Equal(unit.BaseQuantity(5787), shipmentLineItem.Quantity1)
+		suite.Equal(acc105E.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
+		suite.NotZero(shipmentLineItem.ItemDimensions.ID)
+		suite.NotZero(shipmentLineItem.CrateDimensions.ID)
+	}
+
+	//Create 105E preapproval with base quantity
+	baseParams.Tariff400ngItemID = acc105E.ID
+	baseParams.Tariff400ngItemCode = acc105E.Code
+	var q1 unit.BaseQuantity = 1000
+	baseParams.Quantity1 = &q1
+	additionalParams = AdditionalShipmentLineItemParams{}
+	shipmentLineItem, verrs, err = shipment.CreateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams)
+
+	if suite.noValidationErrors(verrs, err) {
+		suite.Equal(unit.BaseQuantity(1000), shipmentLineItem.Quantity1)
+		suite.Equal(acc105E.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
+		suite.Zero(shipmentLineItem.ItemDimensionsID)
+		suite.Zero(shipmentLineItem.CrateDimensionsID)
+	}
+}
+
+// TestCreateShipmentLineItemCode35A tests that 35A line items are created correctly
+func (suite *ModelSuite) TestCreateShipmentLineItemCode35A() {
+	acc35A := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: Tariff400ngItem{
+			Code: "35A",
+		},
+	})
+
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+
+	desc := "This is a description"
+	reas := "This is the reason"
+	estAmt := unit.Cents(1234)
+	actAmt := unit.Cents(1000)
+	baseParams := BaseShipmentLineItemParams{
+		Tariff400ngItemID:   acc35A.ID,
+		Tariff400ngItemCode: acc35A.Code,
+		Location:            "ORIGIN",
+	}
+	additionalParams := AdditionalShipmentLineItemParams{
+		Description:         &desc,
+		Reason:              &reas,
+		EstimateAmountCents: &estAmt,
+		ActualAmountCents:   &actAmt,
+	}
+
+	// Create 35A preapproval
+	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams)
+
+	if suite.noValidationErrors(verrs, err) {
+		suite.Equal(acc35A.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
+		suite.Equal(desc, *shipmentLineItem.Description)
+		suite.Equal(reas, *shipmentLineItem.Reason)
+		suite.Equal(estAmt, *shipmentLineItem.EstimateAmountCents)
+		suite.Equal(actAmt, *shipmentLineItem.ActualAmountCents)
+		suite.Equal(unit.BaseQuantity(100000), shipmentLineItem.Quantity1)
+	}
+}
+
+// TestUpdateShipmentLineItem tests that line items are updated correctly
+func (suite *ModelSuite) TestUpdateShipmentLineItem() {
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+	notes := "It's a giant moose head named Fred he seemed rather pleasant"
+	description := "This is a description."
+	acc4A := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: Tariff400ngItem{
+			Code: "4A",
+		},
+	})
+	lineItem := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
+		ShipmentLineItem: ShipmentLineItem{
+			Tariff400ngItem:   acc4A,
+			Tariff400ngItemID: acc4A.ID,
+			Quantity1:         unit.BaseQuantityFromInt(1234),
+			Location:          "ORIGIN",
+			Notes:             notes,
+			Description:       &description,
+		},
+	})
+
+	updateNotes := "Updated notes"
+	baseParams := BaseShipmentLineItemParams{
+		Quantity1:           &lineItem.Quantity1,
+		Tariff400ngItemID:   lineItem.Tariff400ngItemID,
+		Tariff400ngItemCode: lineItem.Tariff400ngItem.Code,
+		Location:            string(lineItem.Location),
+		Notes:               &updateNotes,
+	}
+	additionalParams := AdditionalShipmentLineItemParams{Description: lineItem.Description}
+
+	// Create 105B preapproval
+	verrs, err := shipment.UpdateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams, &lineItem)
+
+	if suite.noValidationErrors(verrs, err) {
+		suite.Equal(unit.BaseQuantityFromInt(1234), lineItem.Quantity1)
+		suite.Equal(*baseParams.Notes, lineItem.Notes)
+	}
+}
+
+// TestUpdateShipmentLineItemCode105BAndE tests that 105B/E line items are updated correctly
+func (suite *ModelSuite) TestUpdateShipmentLineItemCode105BAndE() {
+	acc105B := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: Tariff400ngItem{
+			Code: "105B",
+		},
+	})
+
+	acc105E := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: Tariff400ngItem{
+			Code: "105E",
+		},
+	})
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+	notes := "It's a giant moose head named Fred he seemed rather pleasant"
+	description := "This is a description."
+	item := testdatagen.MakeDefaultShipmentLineItemDimensions(suite.DB())
+	crate := testdatagen.MakeDefaultShipmentLineItemDimensions(suite.DB())
+	lineItem := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
+		ShipmentLineItem: ShipmentLineItem{
+			Tariff400ngItemID: acc105B.ID,
+			Location:          "ORIGIN",
+			Notes:             notes,
+			Description:       &description,
+			ItemDimensionsID:  &item.ID,
+			ItemDimensions:    item,
+			CrateDimensionsID: &crate.ID,
+			CrateDimensions:   crate,
+		},
+	})
+
+	updateNotes := "Updated notes"
+	baseParams := BaseShipmentLineItemParams{
+		Tariff400ngItemID:   lineItem.Tariff400ngItemID,
+		Tariff400ngItemCode: lineItem.Tariff400ngItem.Code,
+		Location:            string(lineItem.Location),
+		Notes:               &updateNotes,
+	}
+	additionalParams := AdditionalShipmentLineItemParams{
+		ItemDimensions: &AdditionalLineItemDimensions{
+			Length: unit.ThousandthInches(20000),
+			Width:  unit.ThousandthInches(20000),
+			Height: unit.ThousandthInches(20000),
+		},
+		CrateDimensions: &AdditionalLineItemDimensions{
+			Length: unit.ThousandthInches(20000),
+			Width:  unit.ThousandthInches(20000),
+			Height: unit.ThousandthInches(20000),
+		},
+		Description: lineItem.Description,
+	}
+
+	// Create 105B preapproval
+	verrs, err := shipment.UpdateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams, &lineItem)
+
+	if suite.noValidationErrors(verrs, err) {
+		suite.Equal(unit.BaseQuantity(46296), lineItem.Quantity1)
+		suite.Equal(acc105B.ID.String(), lineItem.Tariff400ngItem.ID.String())
+		suite.Equal(*baseParams.Notes, lineItem.Notes)
+		suite.Equal(*additionalParams.Description, *lineItem.Description)
+
+		suite.NotZero(lineItem.ItemDimensions.ID)
+		suite.Equal(additionalParams.ItemDimensions.Length, lineItem.ItemDimensions.Length)
+		suite.Equal(additionalParams.ItemDimensions.Width, lineItem.ItemDimensions.Width)
+		suite.Equal(additionalParams.ItemDimensions.Height, lineItem.ItemDimensions.Height)
+
+		suite.NotZero(lineItem.CrateDimensions.ID)
+		suite.Equal(additionalParams.CrateDimensions.Height, lineItem.CrateDimensions.Height)
+		suite.Equal(additionalParams.CrateDimensions.Width, lineItem.CrateDimensions.Width)
+		suite.Equal(additionalParams.CrateDimensions.Height, lineItem.CrateDimensions.Height)
+	}
+
+	//Update to 105E preapproval
+	baseParams.Tariff400ngItemID = acc105E.ID
+	baseParams.Tariff400ngItemCode = acc105E.Code
+	verrs, err = shipment.UpdateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams, &lineItem)
+
+	if suite.noValidationErrors(verrs, err) {
+		suite.Equal(unit.BaseQuantity(46296), lineItem.Quantity1)
+		suite.Equal(acc105E.ID.String(), lineItem.Tariff400ngItem.ID.String())
+		suite.NotZero(lineItem.ItemDimensions.ID)
+		suite.Equal(additionalParams.ItemDimensions.Length, lineItem.ItemDimensions.Length)
+		suite.Equal(additionalParams.ItemDimensions.Width, lineItem.ItemDimensions.Width)
+		suite.Equal(additionalParams.ItemDimensions.Height, lineItem.ItemDimensions.Height)
+		suite.NotZero(lineItem.CrateDimensions.ID)
+		suite.Equal(additionalParams.CrateDimensions.Height, lineItem.CrateDimensions.Height)
+		suite.Equal(additionalParams.CrateDimensions.Width, lineItem.CrateDimensions.Width)
+		suite.Equal(additionalParams.CrateDimensions.Height, lineItem.CrateDimensions.Height)
+	}
+}
+
+// TestUpdateShipmentLineItemCode35A tests that 35A line items are updated correctly
+func (suite *ModelSuite) TestUpdateShipmentLineItemCode35A() {
+	acc35A := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: Tariff400ngItem{
+			Code: "35A",
+		},
+	})
+
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+
+	desc := "This is a description"
+	reas := "This is the reason"
+	notes := "Notes"
+	loc := ShipmentLineItemLocationORIGIN
+	estAmt := unit.Cents(1000)
+	actAmt := unit.Cents(1000)
+	lineItem := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
+		ShipmentLineItem: ShipmentLineItem{
+			Tariff400ngItemID:   acc35A.ID,
+			Location:            loc,
+			Notes:               notes,
+			Description:         &desc,
+			Reason:              &reas,
+			EstimateAmountCents: &estAmt,
+			ActualAmountCents:   &actAmt,
+		},
+	})
+
+	// Update values
+	baseParams := BaseShipmentLineItemParams{
+		Tariff400ngItemID:   acc35A.ID,
+		Tariff400ngItemCode: acc35A.Code,
+		Location:            "ORIGIN",
+	}
+	desc = "updated description"
+	reas = "updated reason"
+	estAmt = unit.Cents(2000)
+	actAmt = unit.Cents(1500)
+	additionalParams := AdditionalShipmentLineItemParams{
+		Description:         &desc,
+		Reason:              &reas,
+		EstimateAmountCents: &estAmt,
+		ActualAmountCents:   &actAmt,
+	}
+
+	verrs, err := shipment.UpdateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams, &lineItem)
+	if suite.noValidationErrors(verrs, err) {
+		suite.Equal(unit.BaseQuantity(150000), lineItem.Quantity1)
+		suite.Equal(acc35A.ID.String(), lineItem.Tariff400ngItem.ID.String())
+		suite.Equal(desc, *lineItem.Description)
+		suite.Equal(reas, *lineItem.Reason)
+		suite.Equal(estAmt, *lineItem.EstimateAmountCents)
+		suite.Equal(actAmt, *lineItem.ActualAmountCents)
+	}
+}
+
+// TestUpdateShipmentLineItemCode35AActualAmountCents tests that 35A line items are updated correctly
+func (suite *ModelSuite) TestUpdateShipmentLineItemCode35AActualAmountCents() {
+	acc35A := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: Tariff400ngItem{
+			Code: "35A",
+		},
+	})
+
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+
+	desc := "This is a description"
+	reas := "This is the reason"
+	notes := "Notes"
+	loc := ShipmentLineItemLocationORIGIN
+	estAmt := unit.Cents(1000)
+	lineItem := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
+		ShipmentLineItem: ShipmentLineItem{
+			Tariff400ngItemID:   acc35A.ID,
+			Status:              ShipmentLineItemStatusAPPROVED,
+			Location:            loc,
+			Notes:               notes,
+			Description:         &desc,
+			Reason:              &reas,
+			EstimateAmountCents: &estAmt,
+		},
+	})
+
+	// Update values
+	baseParams := BaseShipmentLineItemParams{
+		Tariff400ngItemID:   acc35A.ID,
+		Tariff400ngItemCode: acc35A.Code,
+	}
+	updateDesc := "updated description"
+	updateReas := "updated reason"
+	updateEstAmt := unit.Cents(2000)
+	actAmt := unit.Cents(2000)
+	additionalParams := AdditionalShipmentLineItemParams{
+		EstimateAmountCents: &updateEstAmt,
+		ActualAmountCents:   &actAmt,
+	}
+
+	verrs, err := shipment.UpdateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams, &lineItem)
+	if suite.noValidationErrors(verrs, err) {
+		suite.NotEqual(updateDesc, *lineItem.Description)
+		suite.NotEqual(updateReas, *lineItem.Reason)
+		suite.NotEqual(updateEstAmt, *lineItem.EstimateAmountCents)
+		suite.Equal(actAmt, *lineItem.ActualAmountCents)
+	}
+}
+
+// TestCreateShipmentLineItemCode105BAndEMissingDimensions tests that missing dimensions for 105B/E throws error
+func (suite *ModelSuite) TestCreateShipmentLineItemCode105BAndEMissingDimensions() {
+	acc105B := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: Tariff400ngItem{
+			Code: "105B",
+		},
+	})
+
+	acc105E := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: Tariff400ngItem{
+			Code: "105E",
+		},
+	})
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+
+	notes := "It's a giant moose head named Fred he seemed rather pleasant"
+	baseParams := BaseShipmentLineItemParams{
+		Tariff400ngItemID:   acc105B.ID,
+		Tariff400ngItemCode: acc105B.Code,
+		Location:            "ORIGIN",
+		Notes:               &notes,
+	}
+	additionalParams := AdditionalShipmentLineItemParams{}
+	// Try create 105B preapproval
+	_, _, err := shipment.CreateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams)
+
+	suite.Error(err)
+
+	// Try create 105E preapproval
+	baseParams.Tariff400ngItemID = acc105E.ID
+	baseParams.Tariff400ngItemCode = acc105E.Code
+	_, _, err = shipment.CreateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams)
+
+	suite.Error(err)
+}
+
+// TestSaveShipmentAndPricingInfo tests that a shipment and line items can be saved
+func (suite *ModelSuite) TestSaveShipmentAndPricingInfo() {
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+
+	distance := testdatagen.MakeDefaultDistanceCalculation(suite.DB())
 
 	var lineItems []ShipmentLineItem
 	codes := []string{"LHS", "135A", "135B", "105A", "105C"}
@@ -258,21 +763,24 @@ func (suite *ModelSuite) TestSaveShipmentAndLineItems() {
 			ShipmentID:        shipment.ID,
 			Tariff400ngItemID: item.ID,
 			Tariff400ngItem:   item,
+			Location:          ShipmentLineItemLocationDESTINATION,
+			Status:            ShipmentLineItemStatusAPPROVED,
 		}
 		lineItems = append(lineItems, lineItem)
 	}
 
-	verrs, err := shipment.SaveShipmentAndLineItems(suite.DB(), lineItems, []ShipmentLineItem{})
-
+	verrs, err := shipment.SaveShipmentAndPricingInfo(suite.DB(), lineItems, []ShipmentLineItem{}, distance)
 	suite.NoError(err)
-	suite.False(verrs.HasAny())
+	suite.NoVerrs(verrs)
 }
 
-// TestSaveShipmentAndLineItemsDisallowDuplicates tests that duplicate baseline charges with the same
+// TestSaveShipmentAndPricingInfoDisallowDuplicates tests that duplicate baseline charges with the same
 // tariff 400ng codes cannot be saved.
-func (suite *ModelSuite) TestSaveShipmentAndLineItemsDisallowBaselineDuplicates() {
+func (suite *ModelSuite) TestSaveShipmentAndPricingInfoDisallowBaselineDuplicates() {
 	shipment := testdatagen.MakeDefaultShipment(suite.DB())
 	var lineItems []ShipmentLineItem
+
+	distance := testdatagen.MakeDefaultDistanceCalculation(suite.DB())
 
 	item := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
 		Tariff400ngItem: Tariff400ngItem{
@@ -293,17 +801,19 @@ func (suite *ModelSuite) TestSaveShipmentAndLineItemsDisallowBaselineDuplicates(
 		Tariff400ngItem:   item,
 	}
 	lineItems = append(lineItems, lineItem)
-	verrs, err := shipment.SaveShipmentAndLineItems(suite.DB(), lineItems, []ShipmentLineItem{})
+	verrs, err := shipment.SaveShipmentAndPricingInfo(suite.DB(), lineItems, []ShipmentLineItem{}, distance)
 
 	suite.Error(err)
-	suite.False(verrs.HasAny())
+	suite.NoVerrs(verrs)
 }
 
-// TestSaveShipmentAndLineItemsDisallowDuplicates tests that duplicate baseline charges with the same
+// TestSaveShipmentAndPricingInfoDisallowDuplicates tests that duplicate baseline charges with the same
 // tariff 400ng codes cannot be saved.
-func (suite *ModelSuite) TestSaveShipmentAndLineItemsAllowOtherDuplicates() {
+func (suite *ModelSuite) TestSaveShipmentAndPricingInfoAllowOtherDuplicates() {
 	shipment := testdatagen.MakeDefaultShipment(suite.DB())
 	var lineItems []ShipmentLineItem
+
+	distance := testdatagen.MakeDefaultDistanceCalculation(suite.DB())
 
 	item := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
 		Tariff400ngItem: Tariff400ngItem{
@@ -323,12 +833,14 @@ func (suite *ModelSuite) TestSaveShipmentAndLineItemsAllowOtherDuplicates() {
 		ShipmentID:        shipment.ID,
 		Tariff400ngItemID: item.ID,
 		Tariff400ngItem:   item,
+		Location:          ShipmentLineItemLocationDESTINATION,
+		Status:            ShipmentLineItemStatusAPPROVED,
 	}
 	lineItems = append(lineItems, lineItem)
-	verrs, err := shipment.SaveShipmentAndLineItems(suite.DB(), []ShipmentLineItem{}, lineItems)
+	verrs, err := shipment.SaveShipmentAndPricingInfo(suite.DB(), []ShipmentLineItem{}, lineItems, distance)
 
 	suite.NoError(err)
-	suite.False(verrs.HasAny())
+	suite.NoVerrs(verrs)
 }
 
 // TestSaveShipment tests that a shipment can be saved
@@ -340,7 +852,7 @@ func (suite *ModelSuite) TestSaveShipment() {
 	verrs, err := SaveShipment(suite.DB(), &shipment)
 
 	suite.NoError(err)
-	suite.False(verrs.HasAny())
+	suite.NoVerrs(verrs)
 }
 
 // TestAcceptedShipmentOffer test that we can retrieve a valid accepted shipment offer
@@ -350,7 +862,7 @@ func (suite *ModelSuite) TestAcceptedShipmentOffer() {
 
 	// Shipment does not have an accepted shipment offer
 	noAcceptedShipmentOffer, err := shipment.AcceptedShipmentOffer()
-	suite.Nil(err) // Shipment.Status does not require an accepted ShipmentOffer
+	suite.NoError(err) // Shipment.Status does not require an accepted ShipmentOffer
 	suite.Nil(noAcceptedShipmentOffer)
 
 	shipmentOffer := testdatagen.MakeDefaultShipmentOffer(suite.DB())
@@ -358,24 +870,24 @@ func (suite *ModelSuite) TestAcceptedShipmentOffer() {
 	suite.Len(shipment.ShipmentOffers, 1)
 
 	// Can submit shipment
-	err = shipment.Submit()
-	suite.Nil(err)
+	err = shipment.Submit(time.Now())
+	suite.NoError(err)
 	suite.Equal(ShipmentStatusSUBMITTED, shipment.Status, "expected Submitted")
 
 	// Can award shipment
 	err = shipment.Award()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(ShipmentStatusAWARDED, shipment.Status, "expected Awarded")
 
 	// ShipmentOffer has not been accepted yet
 	// Shipment does not have an accepted shipment offer
 	noAcceptedShipmentOffer, err = shipment.AcceptedShipmentOffer()
-	suite.Nil(err) // Shipment.Status does not require an accepted ShipmentOffer
+	suite.NoError(err) // Shipment.Status does not require an accepted ShipmentOffer
 	suite.Nil(noAcceptedShipmentOffer)
 
 	// Can accept shipment
 	err = shipment.Accept()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(ShipmentStatusACCEPTED, shipment.Status, "expected Accepted")
 
 	// ShipmentOffer has not been accepted yet
@@ -386,22 +898,22 @@ func (suite *ModelSuite) TestAcceptedShipmentOffer() {
 
 	// Accept ShipmentOffer for the TSP
 	err = shipment.ShipmentOffers[0].Accept()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.True(*shipment.ShipmentOffers[0].Accepted)
 	suite.Nil(shipment.ShipmentOffers[0].RejectionReason)
 
 	// Get accepted shipment offer from shipment
 	acceptedShipmentOffer, err := shipment.AcceptedShipmentOffer()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.NotNil(acceptedShipmentOffer)
 
 	// Test results of TSP for an accepted shipment offer
 	// accepted shipment offer can't have empty or nil values for certain data
 	scac, err := acceptedShipmentOffer.SCAC()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.NotEmpty(scac)
 	supplierID, err := acceptedShipmentOffer.SupplierID()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.NotNil(supplierID)
 	suite.NotEmpty(*supplierID)
 
@@ -409,4 +921,87 @@ func (suite *ModelSuite) TestAcceptedShipmentOffer() {
 	suite.NotEmpty(acceptedShipmentOffer.TransportationServiceProviderPerformance.TransportationServiceProvider.ID.String())
 	suite.Equal(acceptedShipmentOffer.TransportationServiceProviderPerformance.TransportationServiceProvider.ID,
 		shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.TransportationServiceProvider.ID)
+}
+
+// We're asserting that if for any reason
+// a shipment gets into the remove "COMPLETED" state
+// it does not fail being queried
+func (suite *ModelSuite) TestFetchShipment() {
+	shipment := testdatagen.MakeShipment(
+		suite.DB(),
+		testdatagen.Assertions{Shipment: Shipment{Status: "COMPLETED"}},
+	)
+	session := &auth.Session{
+		ApplicationName: auth.OfficeApp,
+	}
+
+	actualShipment, err := FetchShipment(suite.DB(), session, shipment.ID)
+
+	suite.NoError(err, "Did not fail fetching completed shipment")
+	suite.Equal("COMPLETED", string(actualShipment.Status))
+}
+
+func (suite *ModelSuite) TestDeleteStorageInTransitLineItems() {
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []ShipmentStatus{ShipmentStatusINTRANSIT}
+	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, SelectedMoveTypeHHG)
+	suite.FatalNoError(err)
+
+	shipment := shipments[0]
+
+	// And an unpriced, approved pre-approval
+	testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{
+		ShipmentLineItem: ShipmentLineItem{
+			Shipment:   shipment,
+			ShipmentID: shipment.ID,
+			Status:     ShipmentLineItemStatusAPPROVED,
+		},
+		Tariff400ngItem: Tariff400ngItem{
+			RequiresPreApproval: true,
+		},
+	})
+
+	// Create line item for each SIT Item Code
+	sit210Items := []string{"210A", "210B", "210C"}
+	for _, code := range sit210Items {
+		item := testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{
+			ShipmentLineItem: ShipmentLineItem{
+				Shipment:   shipment,
+				ShipmentID: shipment.ID,
+				Status:     ShipmentLineItemStatusAPPROVED,
+			},
+			Tariff400ngItem: Tariff400ngItem{
+				Code:                code,
+				RequiresPreApproval: false,
+			},
+		})
+		item.InvoiceID = nil
+		item.Invoice = Invoice{}
+		suite.MustSave(&item)
+	}
+
+	fetchedLineItems, err := FetchLineItemsByShipmentID(suite.DB(), &shipment.ID)
+	suite.FatalNoError(err)
+	suite.Equal(4, len(fetchedLineItems), "Expected number of line items before delete")
+
+	// Make sure line items are on the shipment
+	shipment.ShipmentLineItems = fetchedLineItems
+	suite.MustSave(&shipment)
+
+	// Delete Storage In Transit Line Items
+	err = shipment.DeleteStorageInTransitLineItems(suite.DB())
+	suite.Nil(err)
+
+	// Update line items on shipment
+	fetchedLineItems, err = FetchLineItemsByShipmentID(suite.DB(), &shipment.ID)
+	suite.FatalNoError(err)
+	suite.Equal(1, len(fetchedLineItems), "Expected number of line items after delete")
+
+	for _, item := range fetchedLineItems {
+		if FindStorageInTransitShipmentLineItem(item.Tariff400ngItem.Code) == true {
+			suite.Fail("210 item should not be present after delete", item.Tariff400ngItem.Code)
+		}
+	}
 }

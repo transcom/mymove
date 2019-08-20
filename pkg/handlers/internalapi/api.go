@@ -5,9 +5,12 @@ import (
 	"log"
 	"net/http"
 
+	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
+
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/runtime"
 	"github.com/pkg/errors"
+
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -24,10 +27,8 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{context}
 
-	internalAPI.IssuesCreateIssueHandler = CreateIssueHandler{context}
-	internalAPI.IssuesIndexIssuesHandler = IndexIssuesHandler{context}
-
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{context}
+	internalAPI.CertificationIndexSignedCertificationHandler = IndexSignedCertificationsHandler{context}
 
 	internalAPI.PpmCreatePersonallyProcuredMoveHandler = CreatePersonallyProcuredMoveHandler{context}
 	internalAPI.PpmIndexPersonallyProcuredMovesHandler = IndexPersonallyProcuredMovesHandler{context}
@@ -54,10 +55,14 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.MovesShowMoveDatesSummaryHandler = ShowMoveDatesSummaryHandler{context}
 
 	internalAPI.MoveDocsCreateGenericMoveDocumentHandler = CreateGenericMoveDocumentHandler{context}
-	internalAPI.MoveDocsUpdateMoveDocumentHandler = UpdateMoveDocumentHandler{context}
+	internalAPI.MoveDocsUpdateMoveDocumentHandler = UpdateMoveDocumentHandler{context,
+		movedocument.NewMoveDocumentUpdater(context.DB()),
+	}
 	internalAPI.MoveDocsIndexMoveDocumentsHandler = IndexMoveDocumentsHandler{context}
 
 	internalAPI.MoveDocsCreateMovingExpenseDocumentHandler = CreateMovingExpenseDocumentHandler{context}
+
+	internalAPI.MoveDocsCreateWeightTicketDocumentHandler = CreateWeightTicketSetDocumentHandler{context}
 
 	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler{context}
 	internalAPI.ServiceMembersPatchServiceMemberHandler = PatchServiceMemberHandler{context}
@@ -81,7 +86,6 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.ShipmentsPatchShipmentHandler = PatchShipmentHandler{context}
 	internalAPI.ShipmentsGetShipmentHandler = GetShipmentHandler{context}
 	internalAPI.ShipmentsApproveHHGHandler = ApproveHHGHandler{context}
-	internalAPI.ShipmentsCompleteHHGHandler = CompleteHHGHandler{context}
 	internalAPI.ShipmentsCreateAndSendHHGInvoiceHandler = ShipmentInvoiceHandler{context}
 
 	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler{context}
@@ -89,9 +93,8 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.OfficeApproveReimbursementHandler = ApproveReimbursementHandler{context}
 	internalAPI.OfficeCancelMoveHandler = CancelMoveHandler{context}
 
+	internalAPI.EntitlementsIndexEntitlementsHandler = IndexEntitlementsHandler{context}
 	internalAPI.EntitlementsValidateEntitlementHandler = ValidateEntitlementHandler{context}
-
-	internalAPI.GexSendGexRequestHandler = SendGexRequestHandler{context}
 
 	internalAPI.CalendarShowAvailableMoveDatesHandler = ShowAvailableMoveDatesHandler{context}
 

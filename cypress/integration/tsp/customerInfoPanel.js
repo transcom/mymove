@@ -22,10 +22,7 @@ function tspUserOpensAShipment(shipment) {
   });
 
   // Find a shipment and open it
-  cy
-    .get('div')
-    .contains(shipment)
-    .dblclick();
+  cy.selectQueueItemMoveLocator(shipment);
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -46,8 +43,7 @@ function tspUserViewsCustomerContactInfo() {
   cy.get('.customer-info').contains('555-555-5555');
 
   // Check for email
-  cy
-    .get('a')
+  cy.get('a')
     .contains('hhg@award.ed')
     .and('have.attr', 'href')
     .and('match', /mailto:hhg@award.ed/);
@@ -64,8 +60,7 @@ function tspUserViewsBackupContactInfo() {
   cy.get('.customer-info').contains('555-555-5555');
 
   // Check for email
-  cy
-    .get('a')
+  cy.get('a')
     .contains('email@example.com')
     .and('have.attr', 'href')
     .and('match', /mailto:email@example.com/);

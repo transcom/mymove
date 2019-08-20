@@ -3,12 +3,11 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 
-import { loadEntitlements } from './ducks';
+import { calculateEntitlementsForShipment } from 'shared/Entities/modules/shipments';
 import { formatWeight } from 'shared/formatters';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
-import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 
 function renderEntitlements(entitlements) {
@@ -47,11 +46,6 @@ export const CustomerInfo = ({ serviceMember, backupContact, entitlements }) => 
             {serviceMember.phone_is_preferred && (
               <span>
                 <FontAwesomeIcon className="icon icon-grey" icon={faPhone} flip="horizontal" /> <span>Phone</span>
-              </span>
-            )}
-            {serviceMember.text_message_is_preferred && (
-              <span>
-                <FontAwesomeIcon className="icon icon-grey" icon={faComments} /> <span>Text</span>
               </span>
             )}
             {serviceMember.email_is_preferred && (
@@ -119,12 +113,11 @@ CustomerInfo.propTypes = {
     first_name: string.isRequired,
     personal_email: string.isRequired,
     phone_is_preferred: bool,
-    text_message_is_preferred: bool,
     email_is_preferred: bool,
   }).isRequired,
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, ownProps) => {
   const defaultServiceMember = {
     backupContacts: [],
     id: '',
@@ -152,13 +145,13 @@ const mapStateToProps = state => {
     email: '',
     phone: '',
   };
-  const serviceMember = get(state, 'tsp.shipment.service_member', defaultServiceMember);
-  const backupContact = get(state, 'tsp.shipment.service_member.backup_contacts[0]', defaultBackupContact);
+  const serviceMember = ownProps.shipment.service_member || defaultServiceMember;
+  const backupContact = ownProps.shipment.service_member.backup_contacts[0] || defaultBackupContact;
 
   return {
     serviceMember,
     backupContact,
-    entitlements: loadEntitlements(state),
+    entitlements: calculateEntitlementsForShipment(state, ownProps.shipment.id),
   };
 };
 

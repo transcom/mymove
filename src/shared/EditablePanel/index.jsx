@@ -144,6 +144,7 @@ export class EditablePanel extends Component {
       {
         'is-editable': this.props.isEditable,
       },
+      this.props.title.toLowerCase(),
       this.props.className,
     );
 
@@ -151,12 +152,11 @@ export class EditablePanel extends Component {
       <div className={classes}>
         <div className="editable-panel-header">
           <div className="title">{this.props.title}</div>
-          {!this.props.isEditable &&
-            this.props.editEnabled && (
-              <a className="editable-panel-edit" onClick={this.handleEditClick}>
-                Edit
-              </a>
-            )}
+          {!this.props.isEditable && this.props.editEnabled && (
+            <a className="editable-panel-edit" onClick={this.handleEditClick}>
+              Edit
+            </a>
+          )}
         </div>
         <div className="editable-panel-content">
           {this.props.children}
@@ -200,7 +200,7 @@ export function editablePanelify(DisplayComponent, EditComponent, editEnabled = 
         <React.Fragment>
           {this.props.hasError && (
             <Alert type="error" heading="An error occurred">
-              There was an error: <em>{this.props.errorMessage}</em>.
+              <em>{this.props.errorMessage}</em>
             </Alert>
           )}
           <EditablePanel

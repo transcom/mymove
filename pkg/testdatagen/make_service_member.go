@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gobuffalo/pop"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -61,7 +62,7 @@ func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 	Army := models.AffiliationARMY
 	E1 := models.ServiceMemberRankE1
 
-	station := FetchOrMakeDefaultDutyStation(db)
+	station := FetchOrMakeDefaultCurrentDutyStation(db)
 	emailPreferred := true
 	// Combine extended SM defaults with assertions
 	smDefaults := models.ServiceMember{

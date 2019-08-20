@@ -1,0 +1,31 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+VERSION="5.0"
+
+# Script helps ensure that /etc/shells has all the correct entries in it
+
+function check_shell () {
+  shell=$1
+  shell_line=$(grep "$shell" /etc/shells || true)
+  if [ -z "${shell_line}" ]; then
+    # shellcheck disable=SC1117
+    echo -e "\033[0;33mPlease add ${shell} to your /etc/shells file using the command:\033[0m 'echo \"${shell}\" | sudo tee -a /etc/shells'"
+    # shellcheck disable=SC1117
+    echo -e "\033[0;33mOptionally update your user's shell with the command:\033[0m 'sudo chsh -s /usr/local/bin/bash'"
+    exit 1
+  fi
+}
+
+check_shell /usr/local/bin/bash
+
+# Knocks off everything after the last decimal
+SHORT_VERSION=${BASH_VERSION%.*}
+if [[ $SHORT_VERSION = *$VERSION* ]]; then
+  echo "$BASH_VERSION installed"
+else
+  echo "$VERSION.x is required to run this project! Found $BASH_VERSION"
+  echo "Run 'brew install bash', add '/usr/local/bin/bash' to your /etc/shells file, and restart your terminal"
+  exit 1
+fi

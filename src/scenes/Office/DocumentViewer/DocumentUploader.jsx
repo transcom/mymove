@@ -7,12 +7,14 @@ import { getFormValues, reduxForm } from 'redux-form';
 import PropTypes from 'prop-types';
 
 import Alert from 'shared/Alert';
+import { selectPPMForMove } from 'shared/Entities/modules/ppms';
 import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import { createMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import Uploader from 'shared/Uploader';
 import ExpenseDocumentForm from './ExpenseDocumentForm';
 import { convertDollarsToCents } from 'shared/utils';
+import { documentSizeLimitMsg } from 'shared/constants';
 
 import './DocumentUploader.css';
 
@@ -49,6 +51,7 @@ export class DocumentUploader extends Component {
     });
     if (get(formValues, 'move_document_type', false) === 'EXPENSE') {
       formValues.requested_amount_cents = convertDollarsToCents(formValues.requested_amount_cents);
+      const receiptMissing = false;
       this.props
         .createMovingExpenseDocument(
           moveId,
@@ -60,6 +63,7 @@ export class DocumentUploader extends Component {
           formValues.requested_amount_cents,
           formValues.payment_method,
           formValues.notes,
+          receiptMissing,
         )
         .then(() => {
           reset();
@@ -140,6 +144,7 @@ export class DocumentUploader extends Component {
             <div>
               <h4>Attach PDF or image</h4>
               <p>Upload a PDF or take a picture of each page and upload the images.</p>
+              <p>{documentSizeLimitMsg}</p>
             </div>
             <Uploader onRef={ref => (this.uploader = ref)} onChange={this.onChange} onAddFile={this.onAddFile} />
             <div className="hint">(Each page must be clear and legible)</div>
@@ -177,8 +182,7 @@ function mapStateToProps(state, props) {
     formValues: getFormValues(moveDocumentFormName)(state),
     genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
-    moveDocumentCreateError: state.office.moveDocumentCreateError,
-    currentPpm: get(state.office, 'officePPMs.0') || get(state, 'ppm.currentPpm'),
+    currentPpm: selectPPMForMove(state, props.moveId) || get(state, 'ppm.currentPpm'),
   };
   return newProps;
 }
@@ -194,4 +198,8 @@ function mapDispatchToProps(dispatch) {
     dispatch,
   );
 }
-export default connect(mapStateToProps, mapDispatchToProps)(DocumentUploader);
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(DocumentUploader);

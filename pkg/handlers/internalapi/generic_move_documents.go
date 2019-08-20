@@ -3,10 +3,7 @@ package internalapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
-	"reflect"
 
-	"github.com/transcom/mymove/pkg/auth"
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -42,17 +39,16 @@ type CreateGenericMoveDocumentHandler struct {
 // Handle is the handler
 func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericMoveDocumentParams) middleware.Responder {
 
-	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
-	defer span.Send()
+	ctx := params.HTTPRequest.Context()
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	payload := params.CreateGenericMoveDocumentPayload
@@ -66,9 +62,9 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 	uploads := models.Uploads{}
 	for _, id := range uploadIds {
 		converted := uuid.Must(uuid.FromString(id.String()))
-		upload, err := models.FetchUpload(ctx, h.DB(), session, converted)
-		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+		upload, fetchUploadErr := models.FetchUpload(ctx, h.DB(), session, converted)
+		if fetchUploadErr != nil {
+			return handlers.ResponseForError(logger, fetchUploadErr)
 		}
 		uploads = append(uploads, upload)
 	}
@@ -78,9 +74,9 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		id := uuid.Must(uuid.FromString(payload.PersonallyProcuredMoveID.String()))
 
 		// Enforce that the ppm's move_id matches our move
-		ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, id)
-		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+		ppm, fetchPPMErr := models.FetchPersonallyProcuredMove(h.DB(), session, id)
+		if fetchPPMErr != nil {
+			return handlers.ResponseForError(logger, fetchPPMErr)
 		}
 		if ppm.MoveID != moveID {
 			return movedocop.NewCreateGenericMoveDocumentBadRequest()
@@ -98,12 +94,12 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		*move.SelectedMoveType)
 
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	newPayload, err := payloadForGenericMoveDocumentModel(h.FileStorer(), *newMoveDocument)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	return movedocop.NewCreateGenericMoveDocumentOK().WithPayload(newPayload)
 }

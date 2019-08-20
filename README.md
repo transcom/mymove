@@ -10,26 +10,37 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
 
 ## Table of Contents
 
-<!-- Table of Contents auto-generated with `bin/generate-md-toc.sh` -->
+<!-- Table of Contents auto-generated with `scripts/generate-md-toc` -->
 
 <!-- toc -->
 
-* [Supported clients](#supported-clients)
-* [Client Network Dependencies](#client-network-dependencies)
-* [Development](#development)
-  * [Git](#git)
-  * [Project location](#project-location)
-  * [Project Layout](#project-layout)
-  * [Setup: Initial Setup](#setup-initial-setup)
+* [Supported Browsers](#supported-browsers)
+* [Application Setup](#application-setup)
+  * [Setup: Developer Setup](#setup-developer-setup)
+  * [Setup: Git](#setup-git)
+  * [Setup: Golang](#setup-golang)
+  * [Setup: Project Checkout](#setup-project-checkout)
+  * [Setup: Project Layout](#setup-project-layout)
+  * [Setup: Editor Config](#setup-editor-config)
+  * [Setup: Makefile](#setup-makefile)
+  * [Setup: Quick Initial Setup](#setup-quick-initial-setup)
   * [Setup: Prerequisites](#setup-prerequisites)
+  * [Setup: Direnv](#setup-direnv)
+    * [Helpful variables for `.envrc.local`](#helpful-variables-for-envrclocal)
+  * [Setup: Pre-Commit](#setup-pre-commit)
+  * [Setup: Hosts](#setup-hosts)
+  * [Setup: Dependencies](#setup-dependencies)
+  * [Setup: Build Tools](#setup-build-tools)
   * [Setup: Database](#setup-database)
   * [Setup: Server](#setup-server)
   * [Setup: MilMoveLocal Client](#setup-milmovelocal-client)
   * [Setup: OfficeLocal client](#setup-officelocal-client)
   * [Setup: TSPLocal client](#setup-tsplocal-client)
+  * [Setup: AdminLocal client](#setup-adminlocal-client)
   * [Setup: DPS user](#setup-dps-user)
   * [Setup: Orders Gateway](#setup-orders-gateway)
-  * [Setup: S3](#setup-s3)
+  * [Setup: AWS Services (Optional)](#setup-aws-services-optional)
+* [Development](#development)
   * [TSP Award Queue](#tsp-award-queue)
   * [Test Data Generator](#test-data-generator)
   * [API / Swagger](#api--swagger)
@@ -43,33 +54,47 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Documentation](#documentation)
   * [Spellcheck](#spellcheck)
     * [Tips for staying sane](#tips-for-staying-sane)
+  * [GoLand](#goland)
   * [Troubleshooting](#troubleshooting)
     * [Postgres Issues](#postgres-issues)
     * [Development Machine Timezone Issues](#development-machine-timezone-issues)
+    * [Linters & Pre-commit Hooks](#linters--pre-commit-hooks)
 
-Regenerate with "bin/generate-md-toc.sh"
+Regenerate with "scripts/generate-md-toc"
 
 <!-- tocstop -->
 
-## Supported clients
+## Supported Browsers
 
-As of 3/6/2018, DDS has confirmed that support for IE is limited to IE 11 and Edge or newer versions. Currently, the intention is to encourage using Chrome and Firefox instead, with specific versions TBD. Research is incomplete on mobile browsers, but we are assuming support for iOS and Android.
+As of 3/6/2018, DDS has confirmed that support for IE is limited to IE 11 and Edge or newer versions. Currently, the intention is to encourage using Chrome and Firefox instead, with specific versions TBD. Research is incomplete on mobile browsers, but we are assuming support for iOS and Android. For more information please read [ADR0016 Browser Support](./docs/adr/0016-Browser-Support.md).
 
-## Client Network Dependencies
+## Application Setup
 
-The client application (i.e. website) makes outbound requests to the following domains in its normal operation. If you have a firewall in place, it will need to be configured to allow outbound access to them for the application to operate.
+### Setup: Developer Setup
 
-* S3 for document downloads; exact domains TBD.
-* Honeycomb for server-side debugging and observability. Currently being tested in staging and experimental environments.
+There are a number of things you'll need at a minimum to be able to check out, develop and run this project.
 
-## Development
+* Install [Homebrew](https://brew.sh)
+  * Use the following command `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
+* We always use the latest version of Go unless there's a known conflict (which will be announced by the team).
+  * Install it with Homebrew: `brew install go`
+  * Pin it, so that you don't accidentally upgrade before we upgrade the project: `brew pin go`
+  * When we upgrade the project's go version, unpin, upgrade, and then re-pin: `brew unpin go; brew upgrade go; brew pin go`
+  * **Note**: If you have previously modified your PATH to point to a specific version of go, make sure to remove that. This would be either in your `.bash_profile` or `.bashrc`, and might look something like `PATH=$PATH:/usr/local/opt/go@1.12/bin`.
+* Ensure you are using the latest version of bash for this project:
+  * Install it with Homebrew: `brew install bash`
+  * Update list of shells that users can choose from: `[[ $(cat /etc/shells | grep /usr/local/bin/bash) ]] || echo "/usr/local/bin/bash" | sudo tee -a /etc/shells`
+  * If you are using bash as your shell (and not zsh, fish, etc) and want to use the latest shell as well then change it (optional): `chsh -s /usr/local/bin/bash`
+  * Ensure that `/usr/local/bin` comes before `/bin` on your `$PATH` by running `echo $PATH`. Modify your path by editing `~/.bashrc` or `~/.bash_profile` and changing the `PATH`.  Then source your profile with `source ~/.bashrc` or `~/.bash_profile` to ensure that your terminal has it.
 
-### Git
+### Setup: Git
 
 Use your work email when making commits to our repositories. The simplest path to correctness is setting global config:
 
-    git config --global user.email "trussel@truss.works"
-    git config --global user.name "Trusty Trussel"
+  ```bash
+  git config --global user.email "trussel@truss.works"
+  git config --global user.name "Trusty Trussel"
+  ```
 
 If you drop the `--global` flag these settings will only apply to the current repo. If you ever re-clone that repo or clone another repo, you will need to remember to set the local config again. You won't. Use the global config. :-)
 
@@ -77,51 +102,97 @@ For web-based Git operations, GitHub will use your primary email unless you choo
 
 Note that with 2-factor-authentication enabled, in order to push local code to GitHub through HTTPS, you need to [create a personal access token](https://gist.github.com/ateucher/4634038875263d10fb4817e5ad3d332f) and use that as your password.
 
-### Project location
+### Setup: Golang
 
 All of Go's tooling expects Go code to be checked out in a specific location. Please read about [Go workspaces](https://golang.org/doc/code.html#Workspaces) for a full explanation. If you just want to get started, then decide where you want all your go code to live and configure the GOPATH environment variable accordingly. For example, if you want your go code to live at `~/code/go`, you should add the following like to your `.bash_profile`:
 
-```bash
-export GOPATH=~/code/go
-```
+  ```bash
+  export GOPATH=~/code/go
+  ```
 
-A few of our custom tools expect the `GOPATH` environment variable to be defined.  If you'd like to use the default location, then add the following to your `.bash_profile` or hardcode the default value.  This line will set the GOPATH environment variable to the value of `go env GOPATH` if it is not already set.
+Golang expect the `GOPATH` environment variable to be defined.  If you'd like to use the default location, then add the following to your `.bash_profile` or hardcode the default value.  This line will set the GOPATH environment variable to the value of `go env GOPATH` if it is not already set.
 
-```bash
-export GOPATH=${GOPATH:-$(go env GOPATH)}
-```
+  ```bash
+  export GOPATH=${GOPATH:-$(go env GOPATH)}
+  ```
 
-_Regardless of where your go code is located_, you need to add `$GOPATH/bin` to your `PATH` so that executables installed with the go tooling can be found. Add the following to your `.bash_profile`:
+**Regardless of where your go code is located**, you need to add `$GOPATH/bin` to your `PATH` so that executables installed with the go tooling can be found. Add the following to your `.bash_profile`:
 
-```bash
-export PATH=$(go env GOPATH)/bin:$PATH
-```
+  ```bash
+  export PATH=$(go env GOPATH)/bin:$PATH
+  ```
 
-Once that's done, you have go installed, and you've re-sourced your profile, you can checkout this repository by running `go get github.com/transcom/mymove/cmd/webserver` (This will emit an error "can't load package:" or multiple errors with "Cannot find package" but will have cloned the source correctly). You will then find the code at `$GOPATH/src/github.com/transcom/mymove`
+Finally to have these changes applied to your shell you must `source` your profile:
 
-If you have already checked out the code somewhere else, you can just move it to be in the above location and everything will work correctly.
+  ```bash
+  source ~/.bash_profile
+  ```
 
-### Project Layout
+You can confirm that the values exist with:
+
+  ```bash
+  env | grep GOPATH
+  # Verify the GOPATH is correct
+  env | grep PATH
+  # Verify the PATH includes your GOPATH bin directory
+  ```
+
+### Setup: Project Checkout
+
+You can checkout this repository by running `git clone git@github.com:transcom/mymove.git`. Please check out the code in a directory like `~/Projects/mymove` and NOT in your `$GOPATH`. As an example:
+
+  ```bash
+  mkdir -p ~/Projects
+  git clone git@github.com:transcom/mymove.git
+  cd mymove
+  ```
+
+You will then find the code at `~/Projects/mymove`. You can check the code out anywhere EXCEPT inside your `$GOPATH`. So this is customization that is up to you.
+
+### Setup: Project Layout
 
 All of our code is intermingled in the top level directory of mymove. Here is an explanation of what some of these directories contain:
 
-`bin`: A location for tools helpful for developing this project \
-`build`: The build output directory for the client. This is what the development server serves \
-`cmd`: The location of main packages for any go binaries we build \
-`config`: Config files can be dropped here \
-`docs`: A location for docs for the project. This is where ADRs are \
-`migrations`: Database migrations live here \
-`node_modules`: Cached dependencies for the client \
-`pkg`: The location of all of our go libraries, most of our go code lives here \
-`public`: The client's static resources \
-`src`: The react source code for the client \
-`vendor`: Cached dependencies for the server
+* `.circleci`: Directory for CircleCI CI/CD configuration
+* `bin`: A location for tools compiled from the `cmd` directory
+* `build`: The build output directory for the client. This is what the development server serves
+* `cmd`: The location of main packages for any go binaries we build
+* `config`: Config files for the database and AWS ECS. Also certificates.
+* `cypress`: The integration test files for the [Cypress tool](https://www.cypress.io/)
+* `docs`: A location for docs for the project. This is where ADRs are
+* `internal`: Generated code for duty station loader
+* `local_migrations`: Database migrations used locally in place of secure migrations
+* `migrations`: Database migrations
+* `node_modules`: Cached javascript dependencies for the client
+* `pkg`: The location of all of our go code for the server and various tools
+* `public`: The client's static resources
+* `scripts`: A location for tools helpful for developing this project
+* `src`: The react source code for the client
+* `swagger`: The swagger definition files for each of our APIs
 
-### Setup: Initial Setup
+### Setup: Editor Config
 
-The following commands will get mymove running on your machine for the first time. Please read below for explanations of each of the commands.
+[EditorConfig](http://editorconfig.org/) allows us to manage editor configuration (like indent sizes,) with a [file](https://github.com/transcom/ppp/blob/master/.editorconfig) in the repo. Install the appropriate plugin in your editor to take advantage of that if you wish.
 
-1. `./bin/prereqs`
+### Setup: Makefile
+
+The primary way to interact with the project is via the `Makefile`. The `Makefile` contains a number of handy
+targets (you can think of these as commands) that make interacting with the project easier. Each target manages
+its own dependencies so that you don't have to. This is how you'll do common tasks like build the project, run
+the server and client, and manage the database.
+
+The fastest way to get familiar with the `Makefile` is to use the command `make help`. You can also type `make`
+and it will default to calling `make help` target on your behalf.  The `Makefile` is important to this project
+so take the time to understand what it does.
+
+### Setup: Quick Initial Setup
+
+The following commands will get mymove running on your machine for the first time. This is an abbreviated list that should get you started. Please read below for explanations of each of the commands.
+
+1. `make prereqs`
+1. `direnv allow`
+1. `make ensure_pre_commit`
+1. `make deps`
 1. `make db_dev_run`
 1. `make db_dev_migrate`
 1. `make server_run`
@@ -130,15 +201,71 @@ The following commands will get mymove running on your machine for the first tim
 
 ### Setup: Prerequisites
 
-* Install Go version 1.11.4 with Homebrew. Make sure you do not have other installations.
-  * `brew install go@1.11.4`
-  * If a later Go version exists, Brew will warn you that "go@1.11.4 is keg-only, which means it was not symlinked". If that happens, add the following to your bash config: `export PATH="/usr/local/opt/go@1.11.4/bin:$PATH"`. This line needs to appear in the file before your Go paths are declared.
-* Run `bin/prereqs` and install everything it tells you to. _Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work correctly!_
-* For managing local environment variables, we're using [direnv](https://direnv.net/). You need to [configure your shell to use it](https://direnv.net/). For bash, add the command `eval "$(direnv hook bash)"` to whichever file loads upon opening bash (likely `~./bash_profile`, though instructions say `~/.bashrc`).
-* Run `direnv allow` to load up the `.envrc` file. Add a `.envrc.local` file with any values it asks you to define.
-* Run `make deps`.
-* [EditorConfig](http://editorconfig.org/) allows us to manage editor configuration (like indent sizes,) with a [file](https://github.com/transcom/ppp/blob/master/.editorconfig) in the repo. Install the appropriate plugin in your editor to take advantage of that.
-* Run `pre-commit install` to install a pre-commit hook into `./git/hooks/pre-commit`.  This is different than `brew install pre-commit` and must be done so that the hook will check files you are about to commit to the repository.  Also, using this hook is much faster than attempting to create your own with `pre-commit run -a`.
+Run `make prereqs` and install everything it tells you to. Most of the prerequisites need you to use `brew install <package>`.
+
+**NOTE:** Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work correctly!
+
+### Setup: Direnv
+
+For managing local environment variables, we're using [direnv](https://direnv.net/). You need to [configure your shell to use it](https://direnv.net/). For bash, add the command `eval "$(direnv hook bash)"` to whichever file loads upon opening bash (likely `~./bash_profile`, though instructions say `~/.bashrc`).
+
+Run `direnv allow` to load up the `.envrc` file. It should complain that you have missing variables which you will rectify in one of the following ways.
+
+You can add a `.envrc.local` file. One way to do this is using chamber.  You must have the infra-com repo already cloned and must add the path to it in your .envrc.local (`PPP_INFRA_PATH='~/yourlocalpath/ppp-infra'`) Then run `chamber env app-devlocal >> .envrc.local`. If you don't have access to chamber you can also `touch .envrc.local` and add any values that the output from direnv asks you to define. Instructions are in the error messages.
+
+If you wish to not maintain a `.envrc.local` you can alternatively run `cp .envrc.chamber.template .envrc.chamber` to enable getting secret values from `chamber`. **Note** that this method does not work for users of the `fish` shell unless you replace `direnv allow` with `direnv export fish | source`.
+
+#### Helpful variables for `.envrc.local`
+
+* `export GOLANGCI_LINT_CONCURRENCY=8` - variable to increase concurrency of golangci-lint; defaults to 6 on dev machines and to 1 in CircleCI.
+* `export GOLAND=1` - variable to enable go code debugging in goland
+
+### Setup: Pre-Commit
+
+Run `pre-commit install` to install a pre-commit hook into `./git/hooks/pre-commit`.  This is different than `brew install pre-commit` and must be done so that the hook will check files you are about to commit to the repository.  Next install the pre-commit hook libraries with `pre-commit install-hooks`.
+
+Before running `pre-commit run -a` you will need to install Javascript dependencies and generate some golang code from Swagger files. An easier way to handle this is by running `make pre_commit_tests` or `make server generate client_deps && pre-commit run -a`. But it's early to do this so you can feel free to skip running the pre-commit checks at this time.
+
+### Setup: Hosts
+
+You need to modify your `/etc/hosts` file. This is a tricky file to modify and you will need to use `sudo` to edit it.
+Here are the steps:
+
+  ```bash
+  echo "127.0.0.1 milmovelocal" | sudo tee -a /etc/hosts
+  echo "127.0.0.1 officelocal" | sudo tee -a /etc/hosts
+  echo "127.0.0.1 tsplocal" | sudo tee -a /etc/hosts
+  echo "127.0.0.1 orderslocal" | sudo tee -a /etc/hosts
+  echo "127.0.0.1 adminlocal" | sudo tee -a /etc/hosts
+  ```
+
+Check that the file looks correct with `cat /etc/hosts`:
+
+  ```text
+  ##
+  # Host Database
+  #
+  # localhost is used to configure the loopback interface
+  # when the system is booting.  Do not change this entry.
+  ##
+  255.255.255.255 broadcasthost
+  ::1             localhost
+  127.0.0.1   localhost
+  127.0.0.1   milmovelocal
+  127.0.0.1   officelocal
+  127.0.0.1   tsplocal
+  127.0.0.1   orderslocal
+  127.0.0.1   adminlocal
+  ```
+
+### Setup: Dependencies
+
+Run `make deps`. This will check your system for any setup issues. Then it will ensure that you have installed pre-commit
+and go on to install the client (javascript) and server (golang) dependencies for you.
+
+### Setup: Build Tools
+
+Run `make build_tools` to get all the server and tool dependencies built. These will be needed in future steps to not only generate test data but also to interact with the database and more.
 
 ### Setup: Database
 
@@ -148,8 +275,8 @@ You will need to setup a local database before you can begin working on the loca
 
 1. `make db_dev_migrate`:  Runs all existing database migrations, which does things like creating table structures, etc. You will run this command again anytime you add new migrations to the app (see below for more)
 
-You can validate that your dev database is running by running `bin/psql-dev`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
-You can validate that your test database is running by running `bin/psql-test`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
+You can validate that your dev database is running by running `psql-dev`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
+You can validate that your test database is running by running `psql-test`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
 
 If you are stuck on this step you may need to see the section on Troubleshooting.
 
@@ -159,14 +286,16 @@ If you are stuck on this step you may need to see the section on Troubleshooting
 
 In rare cases, you may want to run the server standalone, in which case you can run `make server_run_standalone`. This will build both the client and the server and this invocation can be relied upon to be serving the client JS on its own rather than relying on webpack doing so as when you run `make client_run`. You can run this without running `make client_run` and the whole app should work.
 
-Dependencies are managed by [dep](https://github.com/golang/dep). New dependencies are automatically detected in import statements. To add a new dependency to the project, import it in a source file and then run `dep ensure`
+Dependencies are managed by [go modules](https://github.com/golang/go/wiki/Modules). New dependencies are automatically detected in import statements and added to `go.mod` when you run `go build` or `go run`. You can also manually edit `go.mod` as needed.
+
+If you need to add a Go-based tool dependency that is otherwise not imported by our code, import it in `pkg/tools/tools.go`.
+
+After importing _any_ go dependency it's a good practice to run `go mod tidy`, which prunes unused dependencies and calculates dependency requirements for all possible system architectures.
 
 ### Setup: MilMoveLocal Client
 
-1. add the following line to /etc/hosts
-    `127.0.0.1 milmovelocal`
 1. `make client_build` (if setting up for first time)
-1. `make client_run`
+2. `make client_run`
 
 The above will start the webpack dev server, serving the front-end on port 3000. If paired with `make server_run` then the whole app will work, the webpack dev server proxies all API calls through to the server.
 
@@ -176,61 +305,51 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 
 ### Setup: OfficeLocal client
 
-1. add the following line to /etc/hosts
-    `127.0.0.1 officelocal`
-2. Ensure that you have a test account which can log into the office site...
-    * `make build_tools` to build the tools
-    * run `bin/make-office-user -email <email>` to set up an office user associated with that email address
-3. `make office_client_run`
-4. Login with the email used above to access the office
+1. Ensure that you have a test account which can log into the office site...
+    * run `generate-test-data --named-scenario e2e_basic` to load test data
+    * Log into "Local Sign In" and either select a pre-made user or use the button to create a new user
+2. `make office_client_run`
+3. Login with the email used above to access the office
 
 ### Setup: TSPLocal client
 
-1. add the following line to /etc/hosts
-    `127.0.0.1 tsplocal`
-2. Ensure that you have a test account which can log into the TSP site...
-    * `make build_tools` to build the tools
-    * run `./bin/generate-test-data -scenario=7` to load test data
-    * run `bin/make-tsp-user -email <email>` to set up a TSP user associated with that email address
-3. `make tsp_client_run`
-4. Login with the email used above to access the TSP
+1. Ensure that you have a test account which can log into the TSP site...
+    * run `generate-test-data --named-scenario e2e_basic` to load test data
+    * Log into "Local Sign In" and either select a pre-made user or use the button to create a new user
+2. `make tsp_client_run`
+3. Login with the email used above to access the TSP
+
+### Setup: AdminLocal client
+
+1. `make admin_client_run`
 
 ### Setup: DPS user
 
 1. Ensure that you have a login.gov test account
-    * `make build_tools` to build the tools
-    * run `bin/make-dps-user -email <email>` to set up a DPS user associated with that email address
+2. run `make-dps-user -email <email>` to set up a DPS user associated with that email address
 
 ### Setup: Orders Gateway
 
-1. add the following line to /etc/hosts
-    `127.0.0.1 orderslocal`
+Nothing to do.
 
-### Setup: S3
+### Setup: AWS Services (Optional)
 
-If you want to develop against the live S3 service, you will need to configure the following values in your `.envrc`:
-
-```text
-AWS_S3_BUCKET_NAME
-AWS_S3_KEY_NAMESPACE
-AWS_REGION
-AWS_PROFILE
-PPP_INFRA_PATH
-```
+If you want to develop against AWS services you will need an AWS user account with `engineering` privileges. Then you will need to configure the `PPP_INFRA_PATH` in your `.envrc.local`.
 
 AWS credentials are managed via `aws-vault`. See the [the instructions in transcom-ppp](https://github.com/transcom/ppp-infra/blob/master/transcom-ppp/README.md#setup) to set things up.
 
+## Development
+
 ### TSP Award Queue
 
-This background job is built as a separate binary which can be built using
-`make build_tools` and run using `make tsp_run`.
+This background job is built as a separate binary which can be built using `make tsp_run`.
 
 ### Test Data Generator
 
 When creating new features, it is helpful to have sample data for the feature to interact with. The TSP Award Queue is an example of that--it matches shipments to TSPs, and it's hard to tell if it's working without some shipments and TSPs in the database!
 
-* `make build_tools` will build the fake data generator binary
-* `bin/generate-test-data -named-scenario="e2e_basic"` will populate the database with a handful of users in various stages of progress along the flow. The emails are named accordingly (see [`e2ebasic.go`](https://github.com/transcom/mymove/blob/master/pkg/testdatagen/scenario/e2ebasic.go)). Alternatively, run `make db_populate_e2e` to reset your db and populate it with e2e user flow cases.
+* `make bin/generate-test-data` will build the fake data generator binary
+* `bin/generate-test-data -named-scenario="e2e_basic"` will populate the database with a handful of users in various stages of progress along the flow. The emails are named accordingly (see [`e2ebasic.go`](https://github.com/transcom/mymove/blob/master/pkg/testdatagen/scenario/e2ebasic.go)). Alternatively, run `make db_dev_e2e_populate` to reset your db and populate it with e2e user flow cases.
 * `bin/generate-test-data` will run binary and create a preconfigured set of test data. To determine the data scenario you'd like to use, check out scenarios in the `testdatagen` package. Each scenario contains a description of what data will be created when the scenario is run. Pass the scenario in as a flag to the generate-test-data function. A sample command: `./bin/generate-test-data -scenario=2`.
 
 There is also a package (`/pkg/testdatagen`) that can be imported to create arbitrary test data. This could be used in tests, so as not to duplicate functionality.
@@ -253,6 +372,8 @@ In addition, internal services, i.e. endpoints only intended for use by the Reac
 
 The Orders Gateway's API is defined in the file `swagger/orders.yaml` and served at `/orders/v0/orders.yaml`.
 
+The Admin API is defined in the file `swagger/admin.yaml` and served at `/admin/v1/swagger.yaml`.
+
 You can view the API's documentation (powered by Swagger UI) at <http://localhost:3000/api/v1/docs> when a local server is running.
 
 ### Testing
@@ -260,11 +381,9 @@ You can view the API's documentation (powered by Swagger UI) at <http://localhos
 There are a few handy targets in the Makefile to help you run tests:
 
 * `make client_test`: Run front-end testing suites.
-* `make server_test`: Run back-end testing suites.
-* `make e2e_test`: Run e2e testing suite. To run locally, add an environment variable called SAUCE_ACCESS_KEY, which you can find in team DP3 Engineering Vault of 1Password under Sauce Labs or by logging in to Sauce itself. In 1Password, the access key is labeled SAUCE_ACCESS_KEY. This will run against our staging environment. If you want to point to another instance, add an environment variable called E2E_BASE with the base url for the instance. Note that to test a development instance, you must run `make server_run_standalone` and set up a tunnel (via ngrok or localtunnel).
+* `make server_test`: Run back-end testing suites. [Additional info for running go tests](https://github.com/transcom/mymove/blob/master/docs/how-to/run-go-tests.md)
+* `make e2e_test`: Run e2e testing suite.
 * `make test`: Run e2e, client- and server-side testing suites.
-
-To run an individual test: `go test ./pkg/rateengine/ -testify.m Test_Scenario1`
 
 ### Logging
 
@@ -291,6 +410,7 @@ There are a few handy targets in the Makefile to help you interact with the dev 
 * `make db_dev_create`: Waits to connect to the DB and will create a DB if one doesn't already exist (run usually as part of `db_dev_run`).
 * `make db_dev_reset`: Destroys your database container. Useful if you want to start from scratch.
 * `make db_dev_migrate`: Applies database migrations against your running database container.
+* `make db_dev_migrate_standalone`: Applies database migrations against your running database container but will not check for server dependencies first.
 * `make db_dev_e2e_populate`: Populate data with data used to run e2e tests
 
 #### Test DB Commands
@@ -301,7 +421,11 @@ The Dev Commands are used to talk to the dev DB.  If you were working with the t
 * `make db_test_create`
 * `make db_test_reset`
 * `make db_test_migrate`
+* `make db_test_migrate_standalone`
 * `make db_test_e2e_populate`
+* `make db_test_e2e_backup`
+* `make db_test_e2e_restore`
+* `make db_test_e2e_cleanup`
 
 The test DB commands all talk to the DB over localhost.  But in a docker-only environment (like CircleCI) you may not be able to use those commands, which is why `*_docker` versions exist for all of them:
 
@@ -309,7 +433,6 @@ The test DB commands all talk to the DB over localhost.  But in a docker-only en
 * `make db_test_create_docker`
 * `make db_test_reset_docker`
 * `make db_test_migrate_docker`
-* `make db_test_e2e_populate_docker`
 
 #### Migrations
 
@@ -323,9 +446,9 @@ Running migrations on Staging / Production:
 
 Migrations are run automatically by CircleCI as part of the standard deploy process.
 
-1. CircleCI builds and registers a container that includes the `soda` binary, along with migrations files.
+1. CircleCI builds and registers a container.
 1. CircleCI deploys this container to ECS and runs it as a one-off 'task'.
-1. Migrations run inside the container against the environment's database.
+1. The container downloads and execute migrations against the environment's database.
 1. If migrations fail, CircleCI fails the deploy.
 1. If migrations pass, CircleCI continues with the deploy.
 
@@ -343,8 +466,12 @@ In development, we use [direnv](https://direnv.net/) to setup environment variab
     # or
 
     # Specify that an environment variable must be defined in .envrc.local
-    require NEW_ENV_VAR "Look for info on this value in Google Drive"
+    require NEW_ENV_VAR "Look for info on this value in chamber and Google Drive"
     ```
+
+Required variables should be placed in google docs and linked in `.envrc`. The value should also be placed in `chamber`
+with `chamber write app-devlocal <key> <value>`. For long blocks of text like certificates you can write them with
+`echo "$LONG_VALUE" | chamber write app-devlocal <key> -`.
 
 For per-tier environment variables (that are not secret), simply add the variables to the relevant `config/env/[experimental|staging|prod].env` file with the format `NAME=VALUE` on each line.  Then add the relevant section to `config/app.container-definition.json`.  The deploy process uses Go's [template package](https://golang.org/pkg/text/template/) for rendering the container definition.  For example,
 
@@ -384,10 +511,14 @@ This will let you walk through the caught spelling errors one-by-one and choose 
 
 * If you want to use a bare hyperlink, wrap it in angle braces: `<http://example.com>`
 
+### GoLand
+
+* GoLand supports [attaching the debugger to a running process](https://blog.jetbrains.com/go/2019/02/06/debugging-with-goland-getting-started/#debugging-a-running-application-on-the-local-machine), however this requires that the server has been built with specific flags. If you wish to use this feature in development add the following line `export GOLAND=1` to your `.envrc.local`. Once the server starts follow the steps outlined in the article above and you should now be able to set breakpoints using the GoLand debugger.
+
 ### Troubleshooting
 
 * Random problems may arise if you have old Docker containers running. Run `docker ps` and if you see containers unrelated to our app, consider stopping them.
-* If you happen to have installed pre-commit in a virtual environment not with brew, running bin/prereqs will not alert you. You may run into issues when running `make deps`. To install pre-commit: `brew install pre-commit`.
+* If you happen to have installed pre-commit in a virtual environment not with brew, running `make prereqs` will not alert you. You may run into issues when running `make deps`. To install pre-commit: `brew install pre-commit`.
 * If you're having trouble accessing the API docs or the server is otherwise misbehaving, try stopping the server, running `make client_build`, and then running `make client_run` and `make server_run`.
 
 #### Postgres Issues
@@ -418,3 +549,7 @@ export TZ="UTC"
 ```
 
 Doing so will set the timezone environment variable to UTC utilizing the same localized context as your other `.envrc.local` settings.
+
+#### Linters & Pre-commit Hooks
+
+We use a number of linters for formatting, security and error checking. Please see this [how-to document](./docs/how-to/run-pre-commit-hooks.md) for a list of linters and troubleshooting tips.

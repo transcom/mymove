@@ -69,9 +69,8 @@ function Footer() {
             <address>
               <h3 className="usa-footer-contact-heading">Contact Us</h3>
               <p>
-                <a href="tel:(833) 645-6683">(833) 645-6683</a>
+                <a href="https://move.mil/customer-service">Customer service</a>
               </p>
-              <a href="mailto:transcom.scott.tcj5j4.mbx.ppcf@mail.mil">email us</a>
             </address>
           </div>
         </div>

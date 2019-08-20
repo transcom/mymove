@@ -62,7 +62,7 @@ func (suite *ModelSuite) Test_FetchBackupContact() {
 	session := &auth.Session{
 		UserID:          serviceMember1.UserID,
 		ServiceMemberID: serviceMember1.ID,
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 	}
 	shouldSucceed, err := models.FetchBackupContact(suite.DB(), session, backupContact.ID)
 	if err != nil || backupContact.ID != shouldSucceed.ID {

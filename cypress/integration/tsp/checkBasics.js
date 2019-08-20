@@ -15,18 +15,14 @@ function tspUserViewsCustomerInfo() {
   });
 
   // Find a shipment and open it
-  cy
-    .get('div')
-    .contains('BACON4')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('BACON4');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
   // Expect Customer Info to be loaded
-  cy
-    .get('.customer-info')
+  cy.get('.customer-info')
     .contains('Customer Info')
     .get('.extras.content')
     .should($div => {

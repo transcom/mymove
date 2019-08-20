@@ -1,11 +1,13 @@
 package internalapi
 
 import (
+	"github.com/go-openapi/strfmt"
+
+	"github.com/transcom/mymove/pkg/services"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 
-	"github.com/pkg/errors"
-	"github.com/transcom/mymove/pkg/auth"
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -38,6 +40,26 @@ func payloadForMoveDocument(storer storage.FileStorer, moveDoc models.MoveDocume
 		payload.PaymentMethod = moveDoc.MovingExpenseDocument.PaymentMethod
 	}
 
+	if moveDoc.MovingExpenseDocument != nil && moveDoc.MovingExpenseDocument.MovingExpenseType == models.MovingExpenseTypeSTORAGE {
+		if moveDoc.MovingExpenseDocument.StorageStartDate != nil {
+			payload.StorageStartDate = handlers.FmtDate(*moveDoc.MovingExpenseDocument.StorageStartDate)
+		}
+		if moveDoc.MovingExpenseDocument.StorageEndDate != nil {
+			payload.StorageEndDate = handlers.FmtDate(*moveDoc.MovingExpenseDocument.StorageEndDate)
+		}
+	}
+
+	if moveDoc.WeightTicketSetDocument != nil {
+		if moveDoc.WeightTicketSetDocument.EmptyWeight != nil {
+			payload.EmptyWeight = handlers.FmtInt64(int64(*moveDoc.WeightTicketSetDocument.EmptyWeight))
+		}
+		if moveDoc.WeightTicketSetDocument.FullWeight != nil {
+			payload.FullWeight = handlers.FmtInt64(int64(*moveDoc.WeightTicketSetDocument.FullWeight))
+		}
+		payload.VehicleNickname = moveDoc.WeightTicketSetDocument.VehicleNickname
+		payload.VehicleOptions = moveDoc.WeightTicketSetDocument.VehicleOptions
+	}
+
 	return &payload, nil
 }
 
@@ -60,6 +82,50 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 	if docExtractor.RequestedAmountCents != nil {
 		requestedAmt = *docExtractor.RequestedAmountCents
 	}
+	var emptyWeight *int64
+	if docExtractor.EmptyWeight != nil {
+		emptyWeight = handlers.FmtInt64(int64(*docExtractor.EmptyWeight))
+	}
+	var emptyWeightTicketMissing *bool
+	if docExtractor.EmptyWeightTicketMissing != nil {
+		emptyWeightTicketMissing = docExtractor.EmptyWeightTicketMissing
+	}
+	var fullWeight *int64
+	if docExtractor.FullWeight != nil {
+		fullWeight = handlers.FmtInt64(int64(*docExtractor.FullWeight))
+	}
+	var fullWeightTicketMissing *bool
+	if docExtractor.FullWeightTicketMissing != nil {
+		fullWeightTicketMissing = docExtractor.FullWeightTicketMissing
+	}
+	var vehicleNickname string
+	if docExtractor.VehicleNickname != nil {
+		vehicleNickname = *docExtractor.VehicleNickname
+	}
+	var vehicleOptions string
+	if docExtractor.VehicleOptions != nil {
+		vehicleOptions = *docExtractor.VehicleOptions
+	}
+	var weightTicketDate *strfmt.Date
+	if docExtractor.WeightTicketDate != nil {
+		weightTicketDate = handlers.FmtDate(*docExtractor.WeightTicketDate)
+	}
+	var trailerOwnershipMissing *bool
+	if docExtractor.TrailerOwnershipMissing != nil {
+		trailerOwnershipMissing = docExtractor.TrailerOwnershipMissing
+	}
+	var receiptMissing *bool
+	if docExtractor.ReceiptMissing != nil {
+		receiptMissing = docExtractor.ReceiptMissing
+	}
+	var storageStartDate *strfmt.Date
+	if docExtractor.StorageStartDate != nil {
+		storageStartDate = handlers.FmtDate(*docExtractor.StorageStartDate)
+	}
+	var storageEndDate *strfmt.Date
+	if docExtractor.StorageEndDate != nil {
+		storageEndDate = handlers.FmtDate(*docExtractor.StorageEndDate)
+	}
 
 	payload := internalmessages.MoveDocumentPayload{
 		ID:                       handlers.FmtUUID(docExtractor.ID),
@@ -73,6 +139,17 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 		MovingExpenseType:        expenseType,
 		RequestedAmountCents:     int64(requestedAmt),
 		PaymentMethod:            paymentMethod,
+		ReceiptMissing:           receiptMissing,
+		VehicleOptions:           vehicleOptions,
+		VehicleNickname:          vehicleNickname,
+		EmptyWeight:              emptyWeight,
+		EmptyWeightTicketMissing: emptyWeightTicketMissing,
+		FullWeight:               fullWeight,
+		FullWeightTicketMissing:  fullWeightTicketMissing,
+		WeightTicketDate:         weightTicketDate,
+		TrailerOwnershipMissing:  trailerOwnershipMissing,
+		StorageStartDate:         storageStartDate,
+		StorageEndDate:           storageEndDate,
 	}
 
 	return &payload, nil
@@ -86,26 +163,26 @@ type IndexMoveDocumentsHandler struct {
 // Handle handles the request
 func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsParams) middleware.Responder {
 	// #nosec User should always be populated by middleware
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	moveDocs, err := move.FetchAllMoveDocumentsForMove(h.DB())
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	moveDocumentsPayload := make(internalmessages.MoveDocuments, len(moveDocs))
 	for i, doc := range moveDocs {
 		moveDocumentPayload, err := payloadForMoveDocumentExtractor(h.FileStorer(), doc)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return handlers.ResponseForError(logger, err)
 		}
 		moveDocumentsPayload[i] = moveDocumentPayload
 	}
@@ -117,96 +194,22 @@ func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsPar
 // UpdateMoveDocumentHandler updates a move document via PUT /moves/{moveId}/documents/{moveDocumentId}
 type UpdateMoveDocumentHandler struct {
 	handlers.HandlerContext
+	moveDocumentUpdater services.MoveDocumentUpdater
 }
 
 // Handle ... updates a move document from a request payload
 func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	moveDocID, _ := uuid.FromString(params.MoveDocumentID.String())
 
-	// Fetch move document from move id
-	moveDoc, err := models.FetchMoveDocument(h.DB(), session, moveDocID)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	payload := params.UpdateMoveDocument
-	if payload.PersonallyProcuredMoveID != nil {
-		ppmID := uuid.Must(uuid.FromString(payload.PersonallyProcuredMoveID.String()))
-		moveDoc.PersonallyProcuredMoveID = &ppmID
-	}
-	newType := models.MoveDocumentType(payload.MoveDocumentType)
-	moveDoc.Title = *payload.Title
-	moveDoc.Notes = payload.Notes
-	moveDoc.MoveDocumentType = newType
-
-	newStatus := models.MoveDocumentStatus(payload.Status)
-
-	// If this is a shipment summary and it has been approved, we process the ppm.
-	if newStatus != moveDoc.Status {
-		err = moveDoc.AttemptTransition(newStatus)
-		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
-		}
-
-		if newStatus == models.MoveDocumentStatusOK && moveDoc.MoveDocumentType == models.MoveDocumentTypeSHIPMENTSUMMARY {
-			if moveDoc.PersonallyProcuredMoveID == nil {
-				return handlers.ResponseForError(h.Logger(), errors.New("No PPM loaded for Approved Move Doc"))
-			}
-
-			ppm := &moveDoc.PersonallyProcuredMove
-			// If the status has already been completed
-			// (because the document has been toggled between OK and HAS_ISSUE and back)
-			// then don't complete it again.
-			if ppm.Status != models.PPMStatusCOMPLETED {
-				err := ppm.Complete()
-				if err != nil {
-					return handlers.ResponseForError(h.Logger(), err)
-				}
-			}
-		}
-	}
-
-	var saveAction models.MoveDocumentSaveAction
-
-	// If we are an expense type, we need to either delete, create, or update a MovingExpenseType
-	// depending on which type of document already exists
-	if models.IsExpenseModelDocumentType(newType) {
-		// We should have a MovingExpenseDocument model
-		requestedAmt := unit.Cents(payload.RequestedAmountCents)
-		paymentMethod := payload.PaymentMethod
-		if moveDoc.MovingExpenseDocument == nil {
-			// But we don't have one, so create it to be saved later
-			moveDoc.MovingExpenseDocument = &models.MovingExpenseDocument{
-				MoveDocumentID:       moveDoc.ID,
-				MoveDocument:         *moveDoc,
-				MovingExpenseType:    models.MovingExpenseType(payload.MovingExpenseType),
-				RequestedAmountCents: requestedAmt,
-				PaymentMethod:        paymentMethod,
-			}
-		} else {
-			// We have one already, so update the fields
-			moveDoc.MovingExpenseDocument.MovingExpenseType = models.MovingExpenseType(payload.MovingExpenseType)
-			moveDoc.MovingExpenseDocument.RequestedAmountCents = requestedAmt
-			moveDoc.MovingExpenseDocument.PaymentMethod = paymentMethod
-		}
-		saveAction = models.MoveDocumentSaveActionSAVEEXPENSEMODEL
-	} else {
-		if moveDoc.MovingExpenseDocument != nil {
-			// We just care if a MovingExpenseType exists, as it needs to be deleted
-			saveAction = models.MoveDocumentSaveActionDELETEEXPENSEMODEL
-		}
-	}
-
-	verrs, err := models.SaveMoveDocument(h.DB(), moveDoc, saveAction)
+	moveDoc, verrs, err := h.moveDocumentUpdater.Update(params.UpdateMoveDocument, moveDocID, session)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
-
 	moveDocPayload, err := payloadForMoveDocument(h.FileStorer(), *moveDoc)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	return movedocop.NewUpdateMoveDocumentOK().WithPayload(moveDocPayload)
 }

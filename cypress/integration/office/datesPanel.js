@@ -1,4 +1,4 @@
-import { userEntersDates, userEntersAndRemovesDates } from '../../support/datesPanel';
+import { userEntersDates } from '../../support/datesPanel';
 
 /* global cy */
 describe('office user interacts with dates panel', function() {
@@ -9,10 +9,6 @@ describe('office user interacts with dates panel', function() {
     officeUserGoesToDatesPanel('ODATES');
     userEntersDates();
   });
-  it('office user completes dates panel and zeroes it out', function() {
-    officeUserGoesToDatesPanel('ODATE0');
-    userEntersAndRemovesDates();
-  });
 });
 
 function officeUserGoesToDatesPanel(locator) {
@@ -22,17 +18,13 @@ function officeUserGoesToDatesPanel(locator) {
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
-    .contains(locator)
-    .dblclick();
+  cy.selectQueueItemMoveLocator(locator);
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
-  cy
-    .get('.title')
+  cy.get('.title')
     .contains('HHG')
     .click();
 
@@ -40,8 +32,7 @@ function officeUserGoesToDatesPanel(locator) {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
   });
 
-  cy
-    .get('.editable-panel-header')
+  cy.get('.editable-panel-header')
     .contains('Dates')
     .siblings()
     .click();

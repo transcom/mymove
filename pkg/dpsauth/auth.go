@@ -4,7 +4,11 @@ import (
 	"net/http"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/cli"
 )
 
 // SetCookiePath is the path for this resource
@@ -19,7 +23,7 @@ type Claims struct {
 
 // SetCookieHandler handles setting the DPS auth cookie and redirecting to DPS
 type SetCookieHandler struct {
-	logger        *zap.Logger
+	logger        Logger
 	secretKey     string
 	cookieDomain  string
 	cookieSecret  []byte
@@ -27,7 +31,7 @@ type SetCookieHandler struct {
 }
 
 // NewSetCookieHandler creates a new SetCookieHandler
-func NewSetCookieHandler(logger *zap.Logger, secretKey string, cookieDomain string, cookieSecret []byte, cookieExpires int) SetCookieHandler {
+func NewSetCookieHandler(logger Logger, secretKey string, cookieDomain string, cookieSecret []byte, cookieExpires int) SetCookieHandler {
 	return SetCookieHandler{
 		logger:        logger,
 		secretKey:     secretKey,
@@ -66,4 +70,19 @@ func (h SetCookieHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &roleCookie)
 
 	http.Redirect(w, r, claims.DPSRedirectURL, http.StatusSeeOther)
+}
+
+// InitDPSAuthParams initializes the DPS Auth Params
+func InitDPSAuthParams(v *viper.Viper, appnames auth.ApplicationServername) Params {
+	return Params{
+		SDDCProtocol:   v.GetString(cli.HTTPSDDCProtocolFlag),
+		SDDCHostname:   appnames.SddcServername,
+		SDDCPort:       v.GetInt(cli.HTTPSDDCPortFlag),
+		SecretKey:      v.GetString(cli.DPSAuthSecretKeyFlag),
+		DPSRedirectURL: v.GetString(cli.DPSRedirectURLFlag),
+		CookieName:     v.GetString(cli.DPSCookieNameFlag),
+		CookieDomain:   v.GetString(cli.DPSCookieDomainFlag),
+		CookieSecret:   []byte(v.GetString(cli.DPSAuthCookieSecretKeyFlag)),
+		CookieExpires:  v.GetInt(cli.DPSCookieExpiresInMinutesFlag),
+	}
 }

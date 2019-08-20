@@ -3,6 +3,7 @@ package models_test
 import (
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -31,7 +32,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 	serviceMember2 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	dutyStation := testdatagen.FetchOrMakeDefaultDutyStation(suite.DB())
+	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -74,7 +75,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 
 	// User is authorized to fetch order
 	session := &auth.Session{
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 		UserID:          serviceMember1.UserID,
 		ServiceMemberID: serviceMember1.ID,
 	}
@@ -107,7 +108,7 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	dutyStation := testdatagen.FetchOrMakeDefaultDutyStation(suite.DB())
+	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -153,7 +154,7 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 func (suite *ModelSuite) TestOrderStateMachine() {
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	dutyStation := testdatagen.FetchOrMakeDefaultDutyStation(suite.DB())
+	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -186,19 +187,19 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 
 	// Submit Orders
 	err := order.Submit()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(OrderStatusSUBMITTED, order.Status, "expected Submitted")
 
 	// Can cancel orders
 	err = order.Cancel()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(OrderStatusCANCELED, order.Status, "expected Canceled")
 }
 
 func (suite *ModelSuite) TestCanceledMoveCancelsOrder() {
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	dutyStation := testdatagen.FetchOrMakeDefaultDutyStation(suite.DB())
+	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -230,18 +231,22 @@ func (suite *ModelSuite) TestCanceledMoveCancelsOrder() {
 	suite.MustSave(&orders)
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
-	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
-	suite.Nil(err)
+	moveOptions := MoveOptions{
+		SelectedType: &selectedMoveType,
+		Show:         swag.Bool(true),
+	}
+	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
+	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 	suite.MustSave(move)
 
-	err = move.Submit()
-	suite.Nil(err)
+	err = move.Submit(time.Now())
+	suite.NoError(err)
 
 	reason := "Mistaken identity"
 	err = move.Cancel(reason)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
 	suite.Equal(OrderStatusCANCELED, move.Orders.Status, "expected Canceled")
 

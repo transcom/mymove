@@ -9,8 +9,14 @@ export const upload = new schema.Entity('uploads');
 export const uploads = new schema.Array(upload);
 
 // PPMs
-export const personallyProcuredMove = new schema.Entity('personallyProcuredMove');
+export const reimbursement = new schema.Entity('reimbursements');
+export const personallyProcuredMove = new schema.Entity('personallyProcuredMoves');
+personallyProcuredMove.define({
+  advance: reimbursement,
+});
+
 export const personallyProcuredMoves = new schema.Array(personallyProcuredMove);
+export const indexPersonallyProcuredMove = personallyProcuredMoves;
 
 // Addresses
 export const address = new schema.Entity('addresses');
@@ -18,14 +24,12 @@ export const addresses = new schema.Array(address);
 
 // Shipments
 export const shipment = new schema.Entity('shipments');
-shipment.define({
-  pickup_address: address,
-  secondary_pickup_address: address,
-  delivery_address: address,
-  partial_sit_delivery_address: address,
-});
 
 export const shipments = new schema.Array(shipment);
+
+export const serviceAgent = new schema.Entity('serviceAgents');
+
+export const serviceAgents = new schema.Array(serviceAgent);
 
 // Moves
 export const move = new schema.Entity('moves', {
@@ -33,21 +37,27 @@ export const move = new schema.Entity('moves', {
   shipments: shipments,
 });
 export const moves = new schema.Array(move);
-personallyProcuredMove.define({
-  move: move,
-});
 
 // Orders
-export const order = new schema.Entity('orders', {
+export const orders = new schema.Entity('orders');
+orders.define({
   moves: moves,
 });
+export const ordersArray = new schema.Array(orders);
 
-export const orders = new schema.Array(order);
+// ServiceMemberBackupContacts
+export const backupContact = new schema.Entity('backupContacts');
+
+export const backupContacts = new schema.Array(backupContact);
+
+export const indexServiceMemberBackupContacts = new schema.Array(backupContact);
+
+export const serviceMemberBackupContact = backupContact;
 
 // Service Member
 export const serviceMember = new schema.Entity('serviceMembers', {
+  backup_contacts: backupContacts,
   user: user,
-  orders: orders,
 });
 
 // Documents
@@ -55,7 +65,7 @@ export const documentModel = new schema.Entity('documents', {
   uploads: uploads,
   service_member: serviceMember,
 });
-order.define({
+orders.define({
   uploaded_orders: documentModel,
 });
 
@@ -79,9 +89,13 @@ export const tariff400ngItems = new schema.Array(tariff400ngItem);
 export const invoice = new schema.Entity('invoices');
 export const invoices = new schema.Array(invoice);
 
+// Signed Certificate
+export const signedCertification = new schema.Entity('signedCertifications');
+
+export const signedCertifications = new schema.Array(signedCertification);
+
 // ShipmentLineItem
 export const shipmentLineItem = new schema.Entity('shipmentLineItems', {
-  tariff400ng_item: tariff400ngItem,
   invoice: invoice,
 });
 export const shipmentLineItems = new schema.Array(shipmentLineItem);
@@ -94,3 +108,11 @@ export const moveDatesSummary = new schema.Entity('moveDatesSummaries');
 
 // TransportationServiceProviders
 export const transportationServiceProvider = new schema.Entity('transportationServiceProviders');
+
+// StorageInTransits
+export const storageInTransit = new schema.Entity('storageInTransits');
+
+export const storageInTransits = new schema.Array(storageInTransit);
+
+// AccessCodes
+export const accessCode = new schema.Entity('accessCodes');

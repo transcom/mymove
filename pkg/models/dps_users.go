@@ -17,6 +17,7 @@ type DpsUser struct {
 	CreatedAt     time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at" db:"updated_at"`
 	LoginGovEmail string    `json:"login_gov_email" db:"login_gov_email"`
+	Disabled      bool      `json:"disabled" db:"disabled"`
 }
 
 // String is not required by pop and may be deleted
@@ -61,4 +62,24 @@ func IsDPSUser(db *pop.Connection, email string) (bool, error) {
 		return false, err
 	}
 	return count > 0, nil
+}
+
+// FetchDPSUserByEmail looks for an DPS user with a specific email
+func FetchDPSUserByEmail(tx *pop.Connection, email string) (*DpsUser, error) {
+	var users DpsUsers
+	err := tx.Where("LOWER(login_gov_email) = $1", strings.ToLower(email)).All(&users)
+	if err != nil {
+		return nil, err
+	}
+	if len(users) == 0 {
+		return nil, ErrFetchNotFound
+	}
+	return &users[0], nil
+}
+
+// FetchDPSUserByID fetches an DPS user by ID
+func FetchDPSUserByID(tx *pop.Connection, id uuid.UUID) (*DpsUser, error) {
+	var user DpsUser
+	err := tx.Find(&user, id)
+	return &user, err
 }

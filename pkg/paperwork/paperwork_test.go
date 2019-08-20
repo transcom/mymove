@@ -18,7 +18,7 @@ import (
 
 type PaperworkSuite struct {
 	testingsuite.PopTestSuite
-	logger       *zap.Logger
+	logger       Logger
 	uploader     *uploader.Uploader
 	filesToClose []afero.File
 }
@@ -65,7 +65,7 @@ func TestPaperworkSuite(t *testing.T) {
 	}
 	storer := storageTest.NewFakeS3Storage(true)
 
-	popSuite := testingsuite.NewPopTestSuite()
+	popSuite := testingsuite.NewPopTestSuite(testingsuite.CurrentPackage())
 	hs := &PaperworkSuite{
 		PopTestSuite: popSuite,
 		logger:       logger,

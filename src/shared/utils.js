@@ -1,5 +1,5 @@
 import React from 'react';
-import { get, includes, find, mapValues } from 'lodash';
+import { get, includes, find, mapValues, capitalize } from 'lodash';
 import moment from 'moment';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
@@ -40,12 +40,19 @@ export function fetchActive(foos) {
   return find(foos, i => includes(['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED'], get(i, 'status'))) || null;
 }
 
+export function fetchActivePPM(foos) {
+  return (
+    find(foos, i => includes(['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], get(i, 'status'))) ||
+    null
+  );
+}
+
 export function fetchActiveShipment(shipments) {
   return (
     find(shipments, i =>
       includes(
         // For now, this include all statuses, but this may be re-evaluated in the future.
-        ['DRAFT', 'SUBMITTED', 'AWARDED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'],
+        ['DRAFT', 'SUBMITTED', 'AWARDED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED'],
         get(i, 'status'),
       ),
     ) || null
@@ -78,7 +85,13 @@ export function formatPayload(payload, def) {
   });
 }
 
-export const convertDollarsToCents = dollars => Math.round(parseFloat(String(dollars).replace(',', '')) * 100);
+export const convertDollarsToCents = dollars => {
+  if (!dollars && dollars !== 0) {
+    return;
+  }
+
+  return Math.round(parseFloat(String(dollars).replace(',', '')) * 100);
+};
 
 export function renderStatusIcon(status) {
   if (!status) {
@@ -90,10 +103,39 @@ export function renderStatusIcon(status) {
   if (status === 'OK') {
     return <FontAwesomeIcon className="icon approval-ready" icon={faCheck} />;
   }
-  if (status === 'APPROVED' || status === 'INVOICED') {
+  if (status === 'APPROVED' || status === 'INVOICED' || status === 'CONDITIONALLY_APPROVED') {
     return <FontAwesomeIcon className="icon approved" icon={faCheck} />;
   }
   if (status === 'HAS_ISSUE') {
     return <FontAwesomeIcon className="icon approval-problem" icon={faExclamationCircle} />;
   }
+}
+
+export function snakeCaseToCapitals(str) {
+  return str
+    .split('_')
+    .map(word => capitalize(word))
+    .join(' ');
+}
+
+export function humanReadableError(errors) {
+  return Object.entries(errors)
+    .map(error => `${snakeCaseToCapitals(error[0])} ${error[1]}`)
+    .join('/n');
+}
+
+export function detectIE11() {
+  let sAgent = window.navigator.userAgent;
+  let Idx = sAgent.indexOf('Trident');
+  if (Idx > -1) {
+    return true;
+  }
+  return false;
+}
+
+export function detectFirefox() {
+  if (typeof InstallTrigger !== 'undefined') {
+    return true;
+  }
+  return false;
 }

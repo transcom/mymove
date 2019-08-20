@@ -6,6 +6,5 @@
 # owners will be requested for a review.
 # Add language specific code owners if it becomes relevant
 
-# ADRs are architectural decisions that, at least for now, should all be run by Nick
-# with Jen Leech as a backup.
-/docs/adr/* @ntwyman @jen2000
+# ADRs are architectural decisions records that should all be approved by ARBOC
+/docs/adr/* @ntwyman @chrisrcoles @jim @lynzt @mikena-truss @sarboc

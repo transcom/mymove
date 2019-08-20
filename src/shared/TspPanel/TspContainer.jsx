@@ -4,7 +4,7 @@ import { getFormValues } from 'redux-form';
 import { bindActionCreators } from 'redux';
 
 import TspServiceAgents from './TspServiceAgents';
-import { handleServiceAgents } from 'scenes/TransportationServiceProvider/ducks';
+import { updateServiceAgentsForShipment } from 'shared/Entities/modules/serviceAgents';
 
 import { getPublicSwaggerDefinition } from 'shared/Swagger/selectors';
 import { selectTspById } from 'shared/Entities/modules/transportationServiceProviders';
@@ -54,10 +54,13 @@ function mapStateToProps(state, props) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      update: handleServiceAgents,
+      update: updateServiceAgentsForShipment,
     },
     dispatch,
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(TspServiceAgents);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(TspServiceAgents);

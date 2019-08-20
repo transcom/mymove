@@ -4,6 +4,15 @@
   width: 100%;
   empty-cells: hide;
   margin-bottom: 18px;
+  font-size: 0.8em;
+}
+
+.basic-panel form {
+  padding: 0 0 1rem 0;
+}
+
+.basic-panel .cancel-link {
+  cursor: pointer;
 }
 
 .basic-panel-title {
@@ -15,12 +24,11 @@
   width: 100%;
 }
 
-
 .basic-panel-content {
   padding-left: 1.7rem;
   padding-right: 1.7rem;
   border: solid #f1f1f1;
-  border-width: 0 .1rem .1rem .1rem;
+  border-width: 0 0.1rem 0.1rem 0.1rem;
   padding-top: 8px;
   padding-bottom: 9px;
   background: white;

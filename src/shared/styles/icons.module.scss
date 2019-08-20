@@ -1,0 +1,13 @@
+@import 'shared/styles/colors.scss';
+
+.status-attention {
+  color: $color-gold;
+}
+
+.status-default-color {
+  color: $color-icon-gray;
+}
+
+.status-icon {
+  margin: 0 0.3em 0 0.3em;
+}

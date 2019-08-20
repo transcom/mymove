@@ -12,7 +12,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -21,22 +20,22 @@ import (
 // BaseHandlerTestSuite abstracts the common methods needed for handler tests
 type BaseHandlerTestSuite struct {
 	testingsuite.PopTestSuite
-	logger             *zap.Logger
+	logger             Logger
 	filesToClose       []*runtime.File
 	notificationSender notifications.NotificationSender
 }
 
 // NewBaseHandlerTestSuite returns a new BaseHandlerTestSuite
-func NewBaseHandlerTestSuite(logger *zap.Logger, sender notifications.NotificationSender) BaseHandlerTestSuite {
+func NewBaseHandlerTestSuite(logger Logger, sender notifications.NotificationSender, packageName testingsuite.PackageName) BaseHandlerTestSuite {
 	return BaseHandlerTestSuite{
-		PopTestSuite:       testingsuite.NewPopTestSuite(),
+		PopTestSuite:       testingsuite.NewPopTestSuite(packageName),
 		logger:             logger,
 		notificationSender: sender,
 	}
 }
 
 // TestLogger returns the logger to use in the suite
-func (suite *BaseHandlerTestSuite) TestLogger() *zap.Logger {
+func (suite *BaseHandlerTestSuite) TestLogger() Logger {
 	return suite.logger
 }
 
@@ -79,6 +78,15 @@ func (suite *BaseHandlerTestSuite) CheckErrorResponse(resp middleware.Responder,
 	}
 }
 
+// CheckNotErrorResponse verifies there is no error response
+func (suite *BaseHandlerTestSuite) CheckNotErrorResponse(resp middleware.Responder) {
+	errResponse, ok := resp.(*ErrResponse)
+	if ok {
+		suite.NoError(errResponse.Err)
+		suite.FailNowf("Received error response", "Code: %v", errResponse.Code)
+	}
+}
+
 // CheckResponseBadRequest looks at BadRequest errors
 func (suite *BaseHandlerTestSuite) CheckResponseBadRequest(resp middleware.Responder) {
 	suite.CheckErrorResponse(resp, http.StatusBadRequest, "BadRequest")
@@ -112,18 +120,12 @@ func (suite *BaseHandlerTestSuite) CheckResponseTeapot(resp middleware.Responder
 // AuthenticateRequest Request authenticated with a service member
 func (suite *BaseHandlerTestSuite) AuthenticateRequest(req *http.Request, serviceMember models.ServiceMember) *http.Request {
 	session := auth.Session{
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 		UserID:          serviceMember.UserID,
 		IDToken:         "fake token",
 		ServiceMemberID: serviceMember.ID,
 		Email:           serviceMember.User.LoginGovEmail,
 	}
-	features, err := authentication.GetAllowedFeatures(suite.DB(), session)
-	if err != nil {
-		suite.logger.Fatal("Error determining features user has access to", zap.Error(err))
-	}
-	session.Features = features
-
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	return req.WithContext(ctx)
 }
@@ -131,7 +133,7 @@ func (suite *BaseHandlerTestSuite) AuthenticateRequest(req *http.Request, servic
 // AuthenticateUserRequest only authenticated with a bare user - have no idea if they are a service member yet
 func (suite *BaseHandlerTestSuite) AuthenticateUserRequest(req *http.Request, user models.User) *http.Request {
 	session := auth.Session{
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 		UserID:          user.ID,
 		IDToken:         "fake token",
 	}
@@ -158,6 +160,29 @@ func (suite *BaseHandlerTestSuite) AuthenticateTspRequest(req *http.Request, use
 		UserID:          *user.UserID,
 		IDToken:         "fake token",
 		TspUserID:       user.ID,
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	return req.WithContext(ctx)
+}
+
+// AuthenticateDpsRequest authenticates DPS users
+func (suite *BaseHandlerTestSuite) AuthenticateDpsRequest(req *http.Request, serviceMember models.ServiceMember, dpsUser models.DpsUser) *http.Request {
+	session := auth.Session{
+		ApplicationName: auth.MilApp,
+		UserID:          serviceMember.UserID,
+		IDToken:         "fake token",
+		DpsUserID:       dpsUser.ID,
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	return req.WithContext(ctx)
+}
+
+// AuthenticateAdminRequest authenticates DPS users
+func (suite *BaseHandlerTestSuite) AuthenticateAdminRequest(req *http.Request, user models.User) *http.Request {
+	session := auth.Session{
+		ApplicationName: auth.AdminApp,
+		UserID:          user.ID,
+		IDToken:         "fake token",
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	return req.WithContext(ctx)

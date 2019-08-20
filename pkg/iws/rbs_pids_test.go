@@ -46,7 +46,7 @@ func (suite *iwsSuite) TestParsePidsResponse() {
 	</record>`
 
 	reason, edipi, person, personnel, err := parsePidsResponse([]byte(data))
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(MatchReasonCodeFull, reason)
 	suite.Equal(uint64(9995006001), edipi)
 	suite.NotNil(person)
@@ -73,7 +73,7 @@ func (suite *iwsSuite) TestParsePidsResponseError() {
 func (suite *iwsSuite) TestBuildPidsUrl() {
 	urlString, err := buildPidsURL("example.com", "1234", "000000000", "Last", "First")
 	suite.NotEmpty(urlString)
-	suite.Nil(err)
+	suite.NoError(err)
 	parsedURL, parseErr := url.Parse(urlString)
 	suite.Nil(parseErr)
 	suite.Equal("https", parsedURL.Scheme)
@@ -84,7 +84,7 @@ func (suite *iwsSuite) TestBuildPidsUrl() {
 func (suite *iwsSuite) TestBuildPidsUrlLongNames() {
 	urlString, err := buildPidsURL("example.com", "1234", "000000000", "abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba", "abcdefghijklmnopqrstuvwxyz")
 	suite.NotEmpty(urlString)
-	suite.Nil(err)
+	suite.NoError(err)
 	parsedURL, parseErr := url.Parse(urlString)
 	suite.Nil(parseErr)
 	suite.Equal("https", parsedURL.Scheme)
@@ -95,7 +95,7 @@ func (suite *iwsSuite) TestBuildPidsUrlLongNames() {
 func (suite *iwsSuite) TestBuildPidsUrlNoFirstName() {
 	urlString, err := buildPidsURL("example.com", "1234", "000000000", "Last", "")
 	suite.NotEmpty(urlString)
-	suite.Nil(err)
+	suite.NoError(err)
 	parsedURL, parseErr := url.Parse(urlString)
 	suite.Nil(parseErr)
 	suite.Equal("https", parsedURL.Scheme)

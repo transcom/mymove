@@ -40,6 +40,16 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: john_bob@example.com
+        readOnly: true
+      first_name:
+        type: string
+        example: John
+        readOnly: true
       service_member:
         $ref: '#/definitions/ServiceMemberPayload'
         x-nullable: true
@@ -70,7 +80,6 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       name:
         type: string
-        format: string
         example: Fort Bragg North Station
       address:
         $ref: '#/definitions/Address'
@@ -100,7 +109,6 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       name:
         type: string
-        format: string
         example: Fort Bragg North Station
       address:
         $ref: '#/definitions/Address'
@@ -113,7 +121,6 @@ definitions:
           example: 212-555-5555
       gbloc:
         type: string
-        format: string
         pattern: '^[A-Z]{4}$'
         example: JENQ
       latitude:
@@ -145,7 +152,7 @@ definitions:
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
-      planned_move_date:
+      original_move_date:
         type: string
         example: '2018-04-26'
         format: date
@@ -192,8 +199,13 @@ definitions:
         x-nullable: true
       weight_estimate:
         type: integer
-        minimum: 1
+        minimum: 0
         title: Weight Estimate
+        x-nullable: true
+      net_weight:
+        type: integer
+        minimum: 1
+        title: Net Weight
         x-nullable: true
       has_requested_advance:
         type: boolean
@@ -207,11 +219,17 @@ definitions:
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
-      planned_move_date:
+      original_move_date:
         type: string
         format: date
         example: '2018-04-26'
         title: When do you plan to move?
+        x-nullable: true
+      actual_move_date:
+        type: string
+        example: '2018-04-26'
+        format: date
+        title: When did you actually move?
         x-nullable: true
       pickup_postal_code:
         type: string
@@ -248,14 +266,24 @@ definitions:
         minimum: 0
         maximum: 90
         x-nullable: true
+      total_sit_cost:
+        type: integer
+        title: How much does your storage cost?
+        minimum: 0
+        x-nullable: true
       estimated_storage_reimbursement:
         type: string
         title: Estimated Storage Reimbursement
         x-nullable: true
       weight_estimate:
         type: integer
-        minimum: 1
+        minimum: 0
         title: Weight Estimate
+        x-nullable: true
+      net_weight:
+        type: integer
+        minimum: 1
+        title: Net Weight
         x-nullable: true
       has_requested_advance:
         type: boolean
@@ -270,11 +298,17 @@ definitions:
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
-      planned_move_date:
+      original_move_date:
         type: string
         example: '2018-04-26'
         format: date
         title: When do you plan to move?
+        x-nullable: true
+      actual_move_date:
+        type: string
+        example: '2018-04-26'
+        format: date
+        title: When did you actually move?
         x-nullable: true
       pickup_postal_code:
         type: string
@@ -311,10 +345,20 @@ definitions:
         minimum: 0
         maximum: 90
         x-nullable: true
-      weight_estimate:
+      total_sit_cost:
         type: integer
         minimum: 1
+        title: How much does your storage cost?
+        x-nullable: true
+      weight_estimate:
+        type: integer
+        minimum: 0
         title: Weight Estimate
+        x-nullable: true
+      net_weight:
+        type: integer
+        minimum: 1
+        title: Net Weight
         x-nullable: true
       has_requested_advance:
         type: boolean
@@ -337,11 +381,29 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       size:
         $ref: '#/definitions/TShirtSize'
-      planned_move_date:
+      original_move_date:
         type: string
         format: date
         title: When do you plan to move?
         example: '2018-04-26'
+        x-nullable: true
+      actual_move_date:
+        type: string
+        example: '2018-04-26'
+        format: date
+        title: When did you actually move?
+        x-nullable: true
+      submit_date:
+        type: string
+        format: date-time
+        title: When was the ppm move submitted?
+        example: '2019-03-26T13:19:56-04:00'
+        x-nullable: true
+      approve_date:
+        type: string
+        format: date-time
+        title: When was the ppm move approved?
+        example: '2019-03-26T13:19:56-04:00'
         x-nullable: true
       pickup_postal_code:
         type: string
@@ -384,8 +446,14 @@ definitions:
         x-nullable: true
       weight_estimate:
         type: integer
-        minimum: 1
+        minimum: 0
         title: Weight Estimate
+        x-nullable: true
+        x-formatting: weight
+      net_weight:
+        type: integer
+        minimum: 1
+        title: Net Weight
         x-nullable: true
         x-formatting: weight
       mileage:
@@ -395,6 +463,11 @@ definitions:
       planned_sit_max:
         type: integer
         title: Maximum SIT reimbursement for the planned SIT duration
+        x-nullable: true
+      total_sit_cost:
+        type: integer
+        format: cents
+        title: Total cost for the planned SIT duration
         x-nullable: true
       sit_max:
         type: integer
@@ -428,6 +501,26 @@ definitions:
       - id
       - created_at
       - updated_at
+  SubmitMoveForApprovalPayload:
+    type: object
+    properties:
+      ppm_submit_date:
+        type: string
+        format: date-time
+        title: When was the ppm move submitted?
+        example: '2019-03-26T13:19:56-04:00'
+    required:
+      - ppm_submit_date
+  SubmitPersonallyProcuredMovePayload:
+    type: object
+    properties:
+      submit_date:
+        type: string
+        format: date-time
+        title: When was the ppm move submitted?
+        example: '2019-03-26T13:19:56-04:00'
+    required:
+      - submit_date
   PPMSitEstimate:
     type: object
     properties:
@@ -492,10 +585,30 @@ definitions:
         type: integer
       GTCC:
         type: integer
+  ApprovePersonallyProcuredMovePayload:
+    type: object
+    properties:
+      approve_date:
+        type: string
+        format: date-time
+        title: When was the ppm move approved?
+        example: '2019-03-26T13:19:56-04:00'
+    required:
+      - approve_date
   IndexPersonallyProcuredMovePayload:
     type: array
     items:
       $ref: '#/definitions/PersonallyProcuredMovePayload'
+  ApproveShipmentPayload:
+    type: object
+    properties:
+      approve_date:
+        type: string
+        format: date-time
+        title: When was the shipment approved?
+        example: '2019-03-26T13:19:56-04:00'
+    required:
+      - approve_date
   MovePayload:
     type: object
     properties:
@@ -507,6 +620,11 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       locator:
         type: string
         example: '12432'
@@ -576,6 +694,29 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/MoveDocumentPayload'
+  DistanceCalculation:
+    type: object
+    properties:
+      origin_address:
+        $ref: '#/definitions/Address'
+      destination_address:
+        $ref: '#/definitions/Address'
+      distance_miles:
+        type: integer
+        title: Distance
+        description: unit is miles
+  VehicleOptions:
+    type: string
+    x-nullable: true
+    title: What type of vehicle are these weight tickets for?
+    enum: &VehicleOptions
+      - CAR
+      - CAR_TRAILER
+      - BOX_TRUCK
+    x-display-value:
+      CAR: Car
+      CAR_TRAILER: Car + Trailer
+      BOX_TRUCK: Box truck
   MoveDocumentPayload:
     type: object
     properties:
@@ -624,6 +765,63 @@ definitions:
         x-display-value:
           OTHER: Other account
           GTCC: GTCC
+      receipt_missing:
+        title: missing expense receipt
+        type: boolean
+        x-nullable: true
+      vehicle_options:
+        title: What type of vehicle are these weight tickets for?
+        type: string
+        enum: *VehicleOptions
+        x-display-value:
+          CAR: Car
+          CAR_TRAILER: Car + Trailer
+          BOX_TRUCK: Box truck
+      vehicle_nickname:
+        type: string
+        title: Vehicle nickname (ex. "My car")
+      empty_weight:
+        title: Empty Weight
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-formatting: weight
+      empty_weight_ticket_missing:
+        title: missing empty weight ticket
+        type: boolean
+        x-nullable: true
+      full_weight:
+        title: Full Weight
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-formatting: weight
+      full_weight_ticket_missing:
+        title: missing full weight ticket
+        type: boolean
+        x-nullable: true
+      weight_ticket_date:
+        title: Weight ticket date
+        type: string
+        example: '2018-04-26'
+        format: date
+        x-nullable: true
+      trailer_ownership_missing:
+        title: missing trailer ownership documentation
+        type: boolean
+        x-nullable: true
+      storage_start_date:
+        type: string
+        format: date
+        title: Start date of storage for storage expenses
+        example: '2018-04-26'
+        x-nullable: true
+      storage_end_date:
+        type: string
+        format: date
+        title: End date of storage for storage expenses
+        example: '2018-04-26'
+        x-nullable: true
     required:
       - id
       - move_id
@@ -669,12 +867,14 @@ definitions:
       - STORAGE_EXPENSE
       - SHIPMENT_SUMMARY
       - EXPENSE
+      - WEIGHT_TICKET_SET
     x-display-value:
       OTHER: Other document type
       WEIGHT_TICKET: Weight ticket
       STORAGE_EXPENSE: Storage expense receipt
       SHIPMENT_SUMMARY: Shipment summary
       EXPENSE: Expense
+      WEIGHT_TICKET_SET: Weight ticket set
   CreateMovingExpenseDocumentPayload:
     type: object
     properties:
@@ -711,13 +911,27 @@ definitions:
         x-display-value:
           OTHER: Other payment method
           GTCC: GTCC
+      receipt_missing:
+        title: missing expense receipt
+        type: boolean
       notes:
         type: string
         example: This document is good to go!
         x-nullable: true
         title: Notes
+      storage_start_date:
+        type: string
+        format: date
+        title: Start date of storage for storage expenses
+        example: '2018-04-26'
+        x-nullable: true
+      storage_end_date:
+        type: string
+        format: date
+        title: End date of storage for storage expenses
+        example: '2018-04-26'
+        x-nullable: true
     required:
-      - upload_ids
       - title
       - move_document_type
       - moving_expense_type
@@ -728,22 +942,24 @@ definitions:
     title: Moving Expense Type
     enum:
       - CONTRACTED_EXPENSE
-      - RENTAL_EQUIPMENT
-      - PACKING_MATERIALS
-      - WEIGHING_FEES
       - GAS
-      - TOLLS
       - OIL
       - OTHER
+      - PACKING_MATERIALS
+      - RENTAL_EQUIPMENT
+      - STORAGE
+      - TOLLS
+      - WEIGHING_FEES
     x-display-value:
-      CONTRACTED_EXPENSE: Contracted Expense
-      RENTAL_EQUIPMENT: Rental Equipment
-      PACKING_MATERIALS: Packing Materials
-      WEIGHING_FEES: Weighing Fees
+      CONTRACTED_EXPENSE: Contracted expense
       GAS: Gas
-      TOLLS: Tolls
       OIL: Oil
       OTHER: Other
+      PACKING_MATERIALS: Packing materials
+      STORAGE: Storage
+      RENTAL_EQUIPMENT: Rental equipment
+      TOLLS: Tolls
+      WEIGHING_FEES: Weighing fees
   MoveDocumentStatus:
     type: string
     title: Document Status
@@ -751,10 +967,66 @@ definitions:
       - AWAITING_REVIEW
       - OK
       - HAS_ISSUE
+      - EXCLUDE_FROM_CALCULATION
     x-display-value:
       AWAITING_REVIEW: Awaiting review
       OK: OK
       HAS_ISSUE: Has issue
+      EXCLUDE_FROM_CALCULATION: Exclude from calculation
+  CreateWeightTicketDocumentsPayload:
+    type: object
+    properties:
+      personally_procured_move_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      upload_ids:
+        type: array
+        items:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      vehicle_options:
+        title: What type of vehicle are these weight tickets for?
+        type: string
+        enum: *VehicleOptions
+        x-display-value:
+          CAR: Car
+          CAR_TRAILER: Car + Trailer
+          BOX_TRUCK: Box truck
+      vehicle_nickname:
+        type: string
+        title: Vehicle nickname (ex. "My car")
+      empty_weight_ticket_missing:
+        title: missing empty weight ticket
+        type: boolean
+      empty_weight:
+        title: empty weight ticket recorded weight
+        type: integer
+        minimum: 0
+      full_weight_ticket_missing:
+        title: missing full weight ticket
+        type: boolean
+      full_weight:
+        title: full weight ticket recorded weight
+        type: integer
+        minimum: 0
+      weight_ticket_date:
+        title: Full Weight Ticket Date
+        type: string
+        example: '2018-04-26'
+        format: date
+        x-nullable: true
+      trailer_ownership_missing:
+        title: missing trailer ownership documentation
+        type: boolean
+    required:
+      - personally_procured_move_id
+      - vehicle_options
+      - vehicle_nickname
+      - full_weight_ticket_missing
+      - empty_weight_ticket_missing
+      - trailer_ownership_missing
   ServiceMemberPayload:
     type: object
     properties:
@@ -770,7 +1042,9 @@ definitions:
         type: string
         format: edipi
         example: '5789345789'
-        pattern: '^[0-9]{10}$'
+        pattern: '^\d{10}$'
+        minLength: 10
+        maxLength: 10
         x-nullable: true
         title: DoD ID number
       orders:
@@ -830,10 +1104,6 @@ definitions:
         type: boolean
         x-nullable: true
         title: Telephone
-      text_message_is_preferred:
-        type: boolean
-        x-nullable: true
-        title: Text Message - Coming Soon!
       email_is_preferred:
         type: boolean
         x-nullable: true
@@ -855,6 +1125,12 @@ definitions:
       updated_at:
         type: string
         format: date-time
+      requires_access_code:
+        type: boolean
+        x-nullable: false
+        title: Requires Access Code
+      weight_allotment:
+        $ref: '#/definitions/WeightAllotment'
     required:
       - id
       - user_id
@@ -862,6 +1138,7 @@ definitions:
       - has_social_security_number
       - created_at
       - updated_at
+      - requires_access_code
   CreateServiceMemberPayload:
     type: object
     properties:
@@ -872,7 +1149,9 @@ definitions:
       edipi:
         type: string
         format: edipi
-        pattern: '^[0-9]{10}$'
+        pattern: '^\d{10}$'
+        minLength: 10
+        maxLength: 10
         example: '5789345789'
         x-nullable: true
         title: 'DoD ID number'
@@ -931,10 +1210,6 @@ definitions:
         type: boolean
         x-nullable: true
         title: Phone
-      text_message_is_preferred:
-        type: boolean
-        x-nullable: true
-        title: Text Message - Coming Soon!
       email_is_preferred:
         type: boolean
         x-nullable: true
@@ -960,7 +1235,9 @@ definitions:
       edipi:
         type: string
         format: edipi
-        pattern: '^[0-9]{10}$'
+        pattern: '^\d{10}$'
+        minLength: 10
+        maxLength: 10
         example: '5789345789'
         x-nullable: true
         title: DoD ID number
@@ -1019,10 +1296,6 @@ definitions:
         type: boolean
         x-nullable: true
         title: Phone
-      text_message_is_preferred:
-        type: boolean
-        x-nullable: true
-        title: Text Message - Coming Soon!
       email_is_preferred:
         type: boolean
         x-nullable: true
@@ -1078,11 +1351,13 @@ definitions:
       - IN_PROCESS
       - SUBMITTED
       - SUBMISSION_FAILURE
+      - UPDATE_FAILURE
     x-display-value:
       DRAFT: Draft
       IN_PROCESS: In Process
       SUBMITTED: Submitted
       SUBMISSION_FAILURE: Submission Failure
+      UPDATE_FAILURE: Update Failure
   ServiceMemberBackupContactPayload:
     type: object
     properties:
@@ -1090,6 +1365,11 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       name:
         type: string
         example: Susan Smith
@@ -1208,15 +1488,30 @@ definitions:
         format: date-time
       date:
         type: string
-        format: date
+        format: date-time
         title: Date
       signature:
         type: string
         title: Signature
       certification_text:
         type: string
+      move_id:
+        type: string
+        format: uuid
+      personally_procured_move_id:
+        type: string
+        format: uuid
+        x-nullable: true
+      shipment_id:
+        type: string
+        format: uuid
+        x-nullable: true
+      certification_type:
+        $ref: '#/definitions/SignedCertificationType'
+        x-nullable: true
     required:
       - id
+      - move_id
       - created_at
       - updated_at
       - date
@@ -1227,17 +1522,39 @@ definitions:
     properties:
       date:
         type: string
-        format: date
+        format: date-time
         title: Date
       signature:
         type: string
         title: Signature
       certification_text:
         type: string
+      personally_procured_move_id:
+        type: string
+        format: uuid
+        x-nullable: true
+      shipment_id:
+        type: string
+        format: uuid
+        x-nullable: true
+      certification_type:
+        $ref: '#/definitions/SignedCertificationType'
+        x-nullable: true
     required:
       - date
       - signature
       - certification_text
+  SignedCertifications:
+    type: array
+    items:
+      $ref: '#/definitions/SignedCertificationPayload'
+  SignedCertificationType:
+    type: string
+    enum:
+      - PPM
+      - PPM_PAYMENT
+      - HHG
+    x-nullable: true
   DocumentPayload:
     type: object
     properties:
@@ -1277,7 +1594,6 @@ definitions:
         example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
       filename:
         type: string
-        format: string
         example: filename.pdf
       content_type:
         type: string
@@ -1299,85 +1615,6 @@ definitions:
       - bytes
       - created_at
       - updated_at
-  CreateIssuePayload:
-    type: object
-    properties:
-      description:
-        type: string
-        example: This is a test issue
-        format: textarea
-        minLength: 1
-        maxLength: 1024
-        title: Description
-      reporter_name:
-        type: string
-        example: Jane Doe
-        x-nullable: true
-        title: Reporter Name
-      due_date:
-        type: string
-        format: date
-        example: 2019-03-15
-        x-nullable: true
-        title: Due Date
-    required:
-      - description
-  IndexIssuesPayload:
-    type: array
-    items:
-      $ref: '#/definitions/IssuePayload'
-  IssuePayload:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      description:
-        type: string
-        example: This is a test issue
-        minLength: 1
-        maxLength: 1024
-      reporter_name:
-        type: string
-        example: Jane Doe
-        x-nullable: true
-      due_date:
-        type: string
-        format: date
-        example: 2019-03-15
-        x-nullable: true
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
-    required:
-      - id
-      - description
-      - created_at
-      - updated_at
-  SendGexRequestPayload:
-    type: object
-    properties:
-      transaction_name:
-        type: string
-        title: Transaction Name
-        example: 858-1.edi
-      transaction_body:
-        type: string
-        title: Transaction Body
-        format: textarea
-    required:
-      - transaction_name
-      - transaction_body
-  GexResponsePayload:
-    type: object
-    properties:
-      gex_response:
-        type: string
-        title: The HTTP response body received from GEX
   DPSAuthCookieURLPayload:
     type: object
     properties:
@@ -1406,19 +1643,25 @@ definitions:
       - E_7
       - E_8
       - E_9
-      - O_1_W_1_ACADEMY_GRADUATE
-      - O_2_W_2
-      - O_3_W_3
-      - O_4_W_4
-      - O_5_W_5
+      - O_1_ACADEMY_GRADUATE
+      - O_2
+      - O_3
+      - O_4
+      - O_5
       - O_6
       - O_7
       - O_8
       - O_9
       - O_10
+      - W_1
+      - W_2
+      - W_3
+      - W_4
+      - W_5
       - AVIATION_CADET
       - CIVILIAN_EMPLOYEE
-      - ACADEMY_CADET_MIDSHIPMAN
+      - ACADEMY_CADET
+      - MIDSHIPMAN
     x-display-value:
       E_1: E-1
       E_2: E-2
@@ -1429,19 +1672,25 @@ definitions:
       E_7: E-7
       E_8: E-8
       E_9: E-9
-      O_1_W_1_ACADEMY_GRADUATE: O-1/W-1/Service Academy Graduate
-      O_2_W_2: O-2/W-2
-      O_3_W_3: O-3/W-3
-      O_4_W_4: O-4/W-4
-      O_5_W_5: O-5/W-5
+      O_1_ACADEMY_GRADUATE: O-1/Service Academy Graduate
+      O_2: O-2
+      O_3: O-3
+      O_4: O-4
+      O_5: O-5
       O_6: O-6
       O_7: O-7
       O_8: O-8
       O_9: O-9
       O_10: O-10
+      W_1: W-1
+      W_2: W-2
+      W_3: W-3
+      W_4: W-4
+      W_5: W-5
       AVIATION_CADET: Aviation Cadet
       CIVILIAN_EMPLOYEE: Civilian Employee
-      ACADEMY_CADET_MIDSHIPMAN: Service Academy Cadet/Midshipman
+      ACADEMY_CADET: Service Academy Cadet
+      MIDSHIPMAN: Midshipman
   DeptIndicator:
     type: string
     x-nullable: true
@@ -1449,9 +1698,33 @@ definitions:
     enum:
       - AIR_FORCE
       - MARINES
+      - ARMY
     x-display-value:
       AIR_FORCE: 57 - United States Air Force
       MARINES: 17 - United States Marines
+      ARMY: 21 - United States Army
+  TrafficDistributionList:
+    type: object
+    properties:
+      source_rate_area:
+        type: string
+        example: US34
+      destination_region:
+        type: string
+        example: '5'
+      code_of_service:
+        type: string
+        example: D
+        enum:
+          - D
+          - '2'
+        x-display-value:
+          D: D
+          '2': '2'
+    required:
+      - source_rate_area
+      - destination_region
+      - code_of_service
   Shipment:
     type: object
     properties:
@@ -1460,6 +1733,23 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
+      status:
+        $ref: '#/definitions/ShipmentStatus'
+        readOnly: true
+      source_gbloc:
+        $ref: '#/definitions/GBLOC'
+        title: Channel
+      destination_gbloc:
+        $ref: '#/definitions/GBLOC'
+      market:
+        $ref: '#/definitions/ShipmentMarket'
+        readOnly: true
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
       move_id:
         type: string
         format: uuid
@@ -1470,26 +1760,14 @@ definitions:
         format: uuid
         example: d56a4180-65aa-42ec-a945-5fd21dec0538
         x-nullable: true
+      traffic_distribution_list:
+        $ref: '#/definitions/TrafficDistributionList'
         readOnly: true
       service_member_id:
         type: string
         format: uuid
         example: d56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
-      source_gbloc:
-        $ref: '#/definitions/GBLOC'
-        title: Channel
-      destination_gbloc:
-        $ref: '#/definitions/GBLOC'
-      market:
-        $ref: '#/definitions/ShipmentMarket'
-      code_of_service:
-        type: string
-        x-nullable: true
-        title: Code of service
-        readOnly: true
-      status:
-        $ref: '#/definitions/ShipmentStatus'
       book_date:
         type: string
         format: date
@@ -1531,6 +1809,12 @@ definitions:
         example: '2018-04-26'
         readOnly: true
         x-nullable: true
+      approve_date:
+        type: string
+        format: date-time
+        title: When was the ppm move approved?
+        example: '2019-03-26T13:19:56-04:00'
+        x-nullable: true
       estimated_pack_days:
         type: integer
         minimum: 0
@@ -1571,67 +1855,35 @@ definitions:
               type: string
               format: date
         x-nullable: true
-      pickup_address_id:
-        type: string
-        format: uuid
-        example: f56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
       pickup_address:
         $ref: '#/definitions/Address'
         title: Pickup Address
-      secondary_pickup_address_id:
-        type: string
-        format: uuid
-        example: f56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
+      has_secondary_pickup_address:
+        type: boolean
+        default: false
+        title: 'Do you have stuff at another pickup location?'
       secondary_pickup_address:
         $ref: '#/definitions/Address'
         title: Secondary Pickup Address
         x-nullable: true
-      delivery_address_id:
-        type: string
-        format: uuid
-        example: f56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
-      delivery_address:
-        $ref: '#/definitions/Address'
-        title: Delivery Address
-        x-nullable: true
-      partial_sit_delivery_address_id:
-        type: string
-        format: uuid
-        example: f56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
-      partial_sit_delivery_address:
-        $ref: '#/definitions/Address'
-        title: Partial SIT Delivery Address
-        x-nullable: true
-      has_secondary_pickup_address:
-        type: boolean
-        default: false
-        title: 'Do you have household goods at any other pickup location?'
       has_delivery_address:
         type: boolean
         default: false
         title: 'Do you know your home address at your destination yet?'
+      delivery_address:
+        $ref: '#/definitions/Address'
+        title: Delivery Address
+        x-nullable: true
+      shipping_distance:
+        $ref: '#/definitions/DistanceCalculation'
       has_partial_sit_delivery_address:
         type: boolean
         default: false
-        title: 'Do you know the delivery address at destination yet?'
-      gross_weight:
-        type: integer
-        minimum: 0
-        example: 10000
-        title: Gross Weight
+        title: 'Do you want to deliver some of your household goods to an additional destination (such as a self-storage unit)?'
+      partial_sit_delivery_address:
+        $ref: '#/definitions/Address'
+        title: Partial SIT Delivery Address
         x-nullable: true
-        x-formatting: weight
-      tare_weight:
-        type: integer
-        minimum: 0
-        example: 10000
-        title: Tare Weight
-        x-nullable: true
-        x-formatting: weight
       weight_estimate:
         type: integer
         minimum: 0
@@ -1651,6 +1903,28 @@ definitions:
         minimum: 0
         example: 200
         title: Spouse's Pro-Gear
+        x-nullable: true
+        x-formatting: weight
+      net_weight:
+        type: integer
+        description: Actual net weight of the shipment in lbs
+        minimum: 0
+        example: 10000
+        x-nullable: true
+        x-formatting: weight
+        title: Net
+      gross_weight:
+        type: integer
+        minimum: 0
+        example: 10000
+        title: Gross Weight
+        x-nullable: true
+        x-formatting: weight
+      tare_weight:
+        type: integer
+        minimum: 0
+        example: 10000
+        title: Tare Weight
         x-nullable: true
         x-formatting: weight
       pm_survey_completed_at:
@@ -1680,18 +1954,6 @@ definitions:
         format: date
         example: '2018-04-26'
         title: 'Planned delivery date'
-        x-nullable: true
-      pm_survey_earliest_delivery_date:
-        type: string
-        format: date
-        example: '2018-04-26'
-        title: 'Earliest delivery date'
-        x-nullable: true
-      pm_survey_latest_delivery_date:
-        type: string
-        format: date
-        example: '2018-04-26'
-        title: 'Latest delivery date'
         x-nullable: true
       pm_survey_weight_estimate:
         type: integer
@@ -1731,87 +1993,11 @@ definitions:
           IN_PERSON: In person
           PHONE: Phone
           VIDEO: Video
-      service_agents:
-        type: array
-        items:
-          $ref: '#/definitions/ServiceAgent'
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
-  ServiceAgentRole:
-    type: string
-    title: Service Agent Role
-    enum:
-      - ORIGIN
-      - DESTINATION
-    x-display-value:
-      ORIGIN: Origin
-      DESTINATION: Destination
-  ServiceAgent:
-    type: object
-    properties:
-      id:
+      transportation_service_provider_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
-      shipment_id:
-        type: string
-        format: uuid
-        readOnly: true
-      role:
-        $ref: '#/definitions/ServiceAgentRole'
-      company:
-        type: string
-        example: ACME Movers
-        title: Company
-      email:
-        type: string
-        format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        description: Email used to contact shipping agent
-        example: jenny_acme@example.com
-        x-nullable: true
-        title: Email
-      phone_number:
-        type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 303-867-5309
-        x-nullable: true
-        title: Phone Number
-      fax_number:
-        type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 303-867-5310
-        x-nullable: true
-        title: Fax Number
-      email_is_preferred:
-        type: boolean
-        x-nullable: true
-        title: Email Is Preferred
-      phone_is_preferred:
-        type: boolean
-        x-nullable: true
-        title: Phone Is Preferred
-      notes:
-        type: string
-        x-nullable: true
-        example: This service agent is available at all hours
-        title: Notes
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
-    required:
-      - role
-      - company
   Address:
     type: object
     properties:
@@ -1822,12 +2008,12 @@ definitions:
       street_address_1:
         type: string
         example: 123 Main Ave
-        title: Address Line 1
+        title: Street address 1
       street_address_2:
         type: string
         example: Apartment 9000
         x-nullable: true
-        title: Address Line 2
+        title: Street address 2
       street_address_3:
         type: string
         example: Montmârtre
@@ -1843,39 +2029,39 @@ definitions:
         x-display-value:
           AL: AL
           AK: AK
-          AZ: AZ
           AR: AR
+          AZ: AZ
           CA: CA
           CO: CO
           CT: CT
-          DE: DE
           DC: DC
+          DE: DE
           FL: FL
           GA: GA
           HI: HI
+          IA: IA
           ID: ID
           IL: IL
           IN: IN
-          IA: IA
           KS: KS
           KY: KY
           LA: LA
-          ME: ME
-          MD: MD
           MA: MA
+          MD: MD
+          ME: ME
           MI: MI
           MN: MN
-          MS: MS
           MO: MO
+          MS: MS
           MT: MT
+          NC: NC
+          ND: ND
           NE: NE
-          NV: NV
           NH: NH
           NJ: NJ
           NM: NM
+          NV: NV
           NY: NY
-          NC: NC
-          ND: ND
           OH: OH
           OK: OK
           OR: OR
@@ -1886,48 +2072,48 @@ definitions:
           TN: TN
           TX: TX
           UT: UT
-          VT: VT
           VA: VA
+          VT: VT
           WA: WA
-          WV: WV
           WI: WI
+          WV: WV
           WY: WY
         enum:
           - AL
           - AK
-          - AZ
           - AR
+          - AZ
           - CA
           - CO
           - CT
-          - DE
           - DC
+          - DE
           - FL
           - GA
           - HI
+          - IA
           - ID
           - IL
           - IN
-          - IA
           - KS
           - KY
           - LA
-          - ME
-          - MD
           - MA
+          - MD
+          - ME
           - MI
           - MN
-          - MS
           - MO
+          - MS
           - MT
+          - NC
+          - ND
           - NE
-          - NV
           - NH
           - NJ
           - NM
+          - NV
           - NY
-          - NC
-          - ND
           - OH
           - OK
           - OR
@@ -1938,16 +2124,16 @@ definitions:
           - TN
           - TX
           - UT
-          - VT
           - VA
+          - VT
           - WA
-          - WV
           - WI
+          - WV
           - WY
       postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
       country:
@@ -2032,13 +2218,11 @@ definitions:
       - DRAFT
       - SUBMITTED
       - APPROVED
-      - COMPLETED
       - CANCELED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
       APPROVED: Approved
-      COMPLETED: Completed
       CANCELED: Canceled
   ShipmentStatus:
     type: string
@@ -2051,7 +2235,6 @@ definitions:
       - APPROVED
       - IN_TRANSIT
       - DELIVERED
-      - COMPLETED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
@@ -2060,7 +2243,6 @@ definitions:
       APPROVED: Approved
       IN_TRANSIT: In Transit
       DELIVERED: Delivered
-      COMPLETED: Completed
   PPMStatus:
     type: string
     title: PPM status
@@ -2096,22 +2278,8 @@ definitions:
     title: Orders type
     enum:
       - PERMANENT_CHANGE_OF_STATION
-      - SEPARATION
-      - RETIREMENT
-      - LOCAL_MOVE
-      - TEMPORARY_DUTY
-      - DEPENDENT_TRAVEL
-      - BLUEBARK
-      - VARIOUS
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
-      SEPARATION: Separation
-      RETIREMENT: Retirement
-      LOCAL_MOVE: Local Move
-      TEMPORARY_DUTY: Temporary Duty
-      DEPENDENT_TRAVEL: Dependent Travel
-      BLUEBARK: Bluebark
-      VARIOUS: Various
   OrdersTypeDetail:
     type: string
     title: Orders type detail
@@ -2291,6 +2459,105 @@ definitions:
         type: object
         additionalProperties:
           type: string
+  StorageInTransit:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      location:
+        type: string
+        title: SIT Location
+        enum:
+          - ORIGIN
+          - DESTINATION
+        x-display-value:
+          ORIGIN: Origin
+          DESTINATION: Destination
+      estimated_start_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        title: Estimated start date
+      authorized_start_date:
+        type: string
+        format: date
+        x-nullable: true
+        example: '2018-04-26'
+        title: Authorized Start Date
+      actual_start_date:
+        type: string
+        format: date
+        x-nullable: true
+        example: '2018-04-26'
+        title: Actual Start Date
+      out_date:
+        type: string
+        format: date
+        x-nullable: true
+        example: '2018-04-26'
+        title: Out Date
+      notes:
+        type: string
+        example: Good to go!
+        format: textarea
+        x-nullable: true
+        title: Note
+      authorization_notes:
+        type: string
+        example: Good to go!
+        format: textarea
+        x-nullable: true
+        title: Authorization Notes
+      warehouse_id:
+        type: string
+        example: '000383'
+        title: Warehouse ID number
+      warehouse_name:
+        type: string
+        example: ABC Warehouse, Inc.
+        title: Warehouse Name
+      warehouse_phone:
+        type: string
+        format: telephone
+        pattern: '^$|^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+        title: Phone
+      warehouse_email:
+        type: string
+        format: x-email
+        pattern: '^$|^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: john_bob@example.com
+        x-nullable: true
+        title: Email
+      shipment_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        title: Shipment ID
+      sit_number:
+        type: string
+        x-nullable: true
+        example: 123456
+        title: SIT Number
+      status:
+        type: string
+        example: REQUESTED
+        title: Status
+      warehouse_address:
+        $ref: '#/definitions/Address'
+    required:
+      - location
+      - warehouse_address
+      - warehouse_id
+      - warehouse_name
+      - estimated_start_date
+  StorageInTransits:
+    type: array
+    items:
+      $ref: '#/definitions/StorageInTransit'
   MoveQueueItem:
     type: object
     properties:
@@ -2304,12 +2571,19 @@ definitions:
       ppm_status:
         type: string
         example: PAYMENT_REQUESTED
+        x-nullable: true
       hhg_status:
         type: string
         example: ACCEPTED
+        x-nullable: true
       locator:
         type: string
         example: '12432'
+      gbl_number:
+        type: string
+        example: 'LNK12345'
+        title: GBL Number
+        x-nullable: true
       customer_name:
         type: string
         example: Thedog, Nino
@@ -2317,7 +2591,9 @@ definitions:
       edipi:
         type: string
         format: edipi
-        pattern: '^[0-9]{10}$'
+        pattern: '^\d{10}$'
+        minLength: 10
+        maxLength: 10
         example: '5789345789'
         title: 'DoD ID #'
       rank:
@@ -2334,34 +2610,71 @@ definitions:
         type: string
         format: date
         example: 2018-04-25
-      customer_deadline:
+        x-nullable: true
+      submitted_date:
         type: string
-        format: date
-        example: 2018-07-20
+        format: date-time
+        example: 2018-04-25
+        x-nullable: true
       last_modified_date:
         type: string
         format: date-time
         example: 2017-07-21T17:32:28Z
-      last_modified_name:
-        type: string
-        example: Bollinger, Sam
       created_at:
         type: string
         format: date-time
+      origin_duty_station_name:
+        type: string
+        example: Dover AFB
+        title: Origin
+        x-nullable: true
+      destination_duty_station_name:
+        type: string
+        example: Dover AFB
+        title: Destination
+        x-nullable: true
+      storage_in_transits:
+        $ref: '#/definitions/StorageInTransits'
+      has_unapproved_shipment_line_items:
+        type: boolean
+        title: Are there any unapproved shipment line items?
+        x-nullable: true
+      pm_survey_conducted_date:
+        type: string
+        format: date-time
+        example: 2017-07-21T17:32:28Z
+        x-nullable: true
+      origin_gbloc:
+        type: string
+        example: LKNQ
+        title: Origin GBLOC
+        x-nullable: true
+      destination_gbloc:
+        type: string
+        example: LKNQ
+        title: Destination GBLOC
+        x-nullable: true
+      delivered_date:
+        type: string
+        format: date-time
+        example: 2017-07-21T17:32:28Z
+        x-nullable: true
+      invoice_approved_date:
+        type: string
+        format: date-time
+        example: 2017-07-21T17:32:28Z
+        x-nullable: true
+      weight_allotment:
+        $ref: '#/definitions/WeightAllotment'
     required:
       - id
       - status
-      - ppm_status
-      - hhg_status
       - locator
       - customer_name
       - edipi
       - rank
       - orders_type
-      - move_date
-      - customer_deadline
       - last_modified_date
-      - last_modified_name
       - created_at
   MoveDatesSummary:
     type: object
@@ -2432,6 +2745,37 @@ definitions:
     required:
       - start_date
       - available
+  WeightAllotment:
+    type: object
+    properties:
+      total_weight_self:
+        type: integer
+        example: 18000
+      total_weight_self_plus_dependents:
+        type: integer
+        example: 18000
+      pro_gear_weight:
+        type: integer
+        example: 2000
+      pro_gear_weight_spouse:
+        type: integer
+        example: 500
+    required:
+      - total_weight_self
+      - total_weight_self_plus_dependents
+      - pro_gear_weight
+      - pro_gear_weight_spouse
+  IndexEntitlements:
+    type: object
+    additionalProperties:
+      $ref: '#/definitions/WeightAllotment'
+  ClaimAccessCode:
+    type: object
+    properties:
+      claim_access_code:
+        type: string
+        x-nullable: false
+        title: MilMove access code
 paths:
   /estimates/ppm:
     get:
@@ -2442,12 +2786,18 @@ paths:
         - ppm
       parameters:
         - in: query
-          name: planned_move_date
+          name: original_move_date
           type: string
           format: date
           required: true
         - in: query
           name: origin_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: origin_duty_station_zip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
@@ -2473,6 +2823,10 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
+        404:
+          description: ppm discount not found for provided postal codes and original move date
+        422:
+          description: cannot process request with given information
         500:
           description: internal server error
   /estimates/ppm_sit:
@@ -2484,7 +2838,7 @@ paths:
         - ppm
       parameters:
         - in: query
-          name: planned_move_date
+          name: original_move_date
           type: string
           format: date
           required: true
@@ -2521,43 +2875,6 @@ paths:
           description: user is not authorized
         500:
           description: internal server error
-  /issues:
-    post:
-      summary: Create a new issue
-      description: Issues represent problems or suggestions for the app, this creates a new one.
-      operationId: createIssue
-      tags:
-        - issues
-      parameters:
-        - in: body
-          name: createIssuePayload
-          required: true
-          schema:
-            $ref: '#/definitions/CreateIssuePayload'
-      responses:
-        201:
-          description: created issue
-          schema:
-            $ref: '#/definitions/IssuePayload'
-        400:
-          description: invalid request
-    get:
-      summary: List all issues
-      description: List all issues
-      operationId: indexIssues
-      tags:
-        - issues
-      responses:
-        200:
-          description: list of issues
-          schema:
-            $ref: '#/definitions/IndexIssuesPayload'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
   /users/logged_in:
     get:
       summary: Returns the user info for the currently logged in user
@@ -2748,12 +3065,41 @@ paths:
       responses:
         201:
           description: created instance of signed_certification
+          schema:
+            $ref: '#/definitions/SignedCertificationPayload'
         400:
           description: invalid request
         401:
           description: request requires user authentication
         403:
           description: user is not authorized to sign for this move
+        404:
+          description: move not found
+        500:
+          description: internal server error
+    get:
+      summary: gets the signed certifications for the given move ID
+      description: returns a list of all signed_certifications associated with the move ID
+      operationId: indexSignedCertification
+      tags:
+        - certification
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        200:
+          description: returns a list of signed certifications
+          schema:
+            $ref: '#/definitions/SignedCertifications'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
         404:
           description: move not found
         500:
@@ -2890,7 +3236,9 @@ paths:
         403:
           description: user is not authorized
         404:
-          description: ppm is not found
+          description: ppm is not found or ppm discount not found for provided postal codes and original move date
+        422:
+          description: cannot process request with given information
         500:
           description: internal server error
     get:
@@ -2937,6 +3285,11 @@ paths:
           format: uuid
           required: true
           description: UUID of the PPM being submitted
+        - name: submitPersonallyProcuredMovePayload
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/SubmitPersonallyProcuredMovePayload'
       responses:
         200:
           description: updated instance of personally_procured_move
@@ -3120,6 +3473,11 @@ paths:
           format: uuid
           required: true
           description: UUID of the shipment
+        - name: approveShipmentPayload
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ApproveShipmentPayload'
       responses:
         200:
           description: returns updated (approved) shipment object
@@ -3133,37 +3491,6 @@ paths:
           description: not authorized to approve this shipment
         409:
           description: the shipment is not in a state to be approved
-          schema:
-            $ref: '#/definitions/Shipment'
-        500:
-          description: server error
-  /shipments/{shipmentId}/complete:
-    post:
-      summary: Completes a delivered shipment
-      description: Completes a shipment delivered by a TSP. The status of the Shipment will be updated to COMPLETED.
-      operationId: completeHHG
-      tags:
-        - shipments
-      parameters:
-        - name: shipmentId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the shipment
-      responses:
-        200:
-          description: returns updated (completed) shipment object
-          schema:
-            $ref: '#/definitions/Shipment'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to complete this shipment
-        409:
-          description: the shipment is not in a state to be completed
           schema:
             $ref: '#/definitions/Shipment'
         500:
@@ -3424,6 +3751,11 @@ paths:
           format: uuid
           required: true
           description: UUID of the move
+        - name: submitMoveForApprovalPayload
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/SubmitMoveForApprovalPayload'
       responses:
         200:
           description: returns updated (submitted) move object
@@ -3524,10 +3856,20 @@ paths:
           format: uuid
           required: true
           description: UUID of the move
+        - in: query
+          name: preparationDate
+          type: string
+          format: date
+          required: true
+          description: The preparationDate of PDF
       produces:
         - application/pdf
       responses:
         200:
+          headers:
+            Content-Disposition:
+              type: string
+              description: File name to download
           description: Pre-filled worksheet PDF
           schema:
             format: binary
@@ -3595,6 +3937,11 @@ paths:
           format: uuid
           required: true
           description: UUID of the PPM being updated
+        - name: approvePersonallyProcuredMovePayload
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ApprovePersonallyProcuredMovePayload'
       responses:
         200:
           description: updated instance of personally_procured_move
@@ -3617,12 +3964,18 @@ paths:
         - ppm
       parameters:
         - in: query
-          name: planned_move_date
+          name: original_move_date
           type: string
           format: date
           required: true
         - in: query
           name: origin_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: origin_duty_station_zip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
@@ -4046,7 +4399,6 @@ paths:
         - in: query
           name: search
           type: string
-          format: string
           required: true
           description: Search string for duty stations
       responses:
@@ -4106,11 +4458,10 @@ paths:
           type: string
           enum:
             - new
-            - troubleshooting
             - ppm
-            - hhg_accepted
+            - ppm_payment_requested
+            - hhg_active
             - hhg_delivered
-            - hhg_completed
             - all
           required: true
           description: Queue type to show
@@ -4127,6 +4478,20 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized to access this queue
+        404:
+          description: move queue item is not found
+  /entitlements:
+    get:
+      summary: List weight weights allotted by entitlement
+      description: List weight weights allotted by entitlement
+      operationId: indexEntitlements
+      tags:
+        - entitlements
+      responses:
+        200:
+          description: List of weights allotted entitlement
+          schema:
+            $ref: '#/definitions/IndexEntitlements'
   /entitlements/{moveId}:
     get:
       summary: Validates that the stored weight estimate is below the allotted entitlement range for a service member
@@ -4148,28 +4513,6 @@ paths:
           description: personally procured move not found
         409:
           description: Requested weight estimate is above allotted entitlement
-  /gex/send_request:
-    post:
-      summary: Sends a request to GEX
-      description: Sends a request to GEX
-      operationId: sendGexRequest
-      tags:
-        - gex
-      parameters:
-        - in: body
-          name: sendGexRequestPayload
-          required: true
-          schema:
-            $ref: '#/definitions/SendGexRequestPayload'
-      responses:
-        200:
-          description: sent request
-          schema:
-            $ref: '#/definitions/GexResponsePayload'
-        400:
-          description: invalid request
-        500:
-          description: internal server error
   /calendar/available_move_dates:
     get:
       summary: Returns available dates for the move calendar
@@ -4197,7 +4540,6 @@ paths:
           description: user is not authorized
         500:
           description: internal server error
-
   /dps_auth/cookie_url:
     post:
       summary: Returns the URL to redirect to that begins DPS auth
@@ -4227,3 +4569,35 @@ paths:
           description: user is not authorized
         500:
           description: internal server error
+  /moves/{moveId}/weight_ticket:
+    post:
+      summary: Creates a weight ticket document
+      description: Created a weight ticket document with the given information
+      operationId: createWeightTicketDocument
+      tags:
+        - move_docs
+      parameters:
+        - name: moveId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+        - in: body
+          name: createWeightTicketDocument
+          required: true
+          schema:
+            $ref: '#/definitions/CreateWeightTicketDocumentsPayload'
+      responses:
+        200:
+          description: returns new weight ticket document object
+          schema:
+            $ref: '#/definitions/MoveDocumentPayload'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to modify this move
+        500:
+          description: server error

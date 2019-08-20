@@ -2,10 +2,16 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import ReactTable from 'react-table';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
 import 'react-table/react-table.css';
-import { RetrieveMovesForOffice } from './api.js';
 import Alert from 'shared/Alert';
+import { formatTimeAgo } from 'shared/formatters';
+import { setUserIsLoggedIn } from 'shared/Data/users';
+import { newColumns, ppmColumns, hhgActiveColumns, defaultColumns, hhgDeliveredColumns } from './queueTableColumns';
+
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
 
 class QueueTable extends Component {
   constructor() {
@@ -14,6 +20,14 @@ class QueueTable extends Component {
       data: [],
       pages: null,
       loading: true,
+      refreshing: false, // only true when the user clicks the refresh button
+      lastLoadedAt: new Date(),
+      lastLoadedAtText: formatTimeAgo(new Date()),
+      interval: setInterval(() => {
+        this.setState({
+          lastLoadedAtText: formatTimeAgo(this.state.lastLoadedAt),
+        });
+      }, 5000),
     };
     this.fetchData = this.fetchData.bind(this);
   }
@@ -26,6 +40,16 @@ class QueueTable extends Component {
     if (this.props.queueType !== prevProps.queueType) {
       this.fetchData();
     }
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.state.interval);
+  }
+
+  openMove(rowInfo) {
+    this.props.history.push(`new/moves/${rowInfo.original.id}`, {
+      referrerPathname: this.props.history.location.pathname,
+    });
   }
 
   static defaultProps = {
@@ -46,7 +70,7 @@ class QueueTable extends Component {
 
     // Catch any errors here and render an empty queue
     try {
-      const body = await RetrieveMovesForOffice(this.props.queueType);
+      const body = await this.props.retrieveMoves(this.props.queueType);
 
       // Only update the queue list if the request that is returning
       // is for the same queue as the most recent request.
@@ -55,6 +79,8 @@ class QueueTable extends Component {
           data: body,
           pages: 1,
           loading: false,
+          refreshing: false,
+          lastLoadedAt: new Date(),
         });
       }
     } catch (e) {
@@ -62,23 +88,79 @@ class QueueTable extends Component {
         data: [],
         pages: 1,
         loading: false,
+        refreshing: false,
+        lastLoadedAt: new Date(),
       });
+      // redirect to home page if unauthorized
+      if (e.status === 401) {
+        this.props.setUserIsLoggedIn(false);
+      }
     }
+  }
+
+  refresh() {
+    clearInterval(this.state.interval);
+
+    this.setState({
+      refreshing: true,
+      lastLoadedAt: new Date(),
+      interval: setInterval(() => {
+        this.setState({
+          lastLoadedAtText: formatTimeAgo(this.state.lastLoadedAt),
+        });
+      }, 5000),
+    });
+
+    this.fetchData();
   }
 
   render() {
     const titles = {
-      new: 'New Moves',
+      new: 'New Moves/Shipments',
       troubleshooting: 'Troubleshooting',
-      ppm: 'PPMs',
-      hhg_accepted: 'Accepted HHGs',
+      ppm: 'All PPMs',
+      ppm_payment_requested: 'Payment Requests PPMs',
+      hhg_active: 'Active HHGs',
       hhg_delivered: 'Delivered HHGs',
-      hhg_completed: 'Completed HHGs',
       all: 'All Moves',
     };
 
+    const showColumns = queueType => {
+      switch (queueType) {
+        case 'new':
+          return newColumns;
+        case 'ppm':
+        case 'ppm_payment_requested':
+          return ppmColumns;
+        case 'hhg_active':
+          return hhgActiveColumns;
+        case 'hhg_delivered':
+          return hhgDeliveredColumns;
+        default:
+          return defaultColumns;
+      }
+    };
+
+    const defaultSort = queueType => {
+      if (['hhg_active', 'hhg_delivered', 'new'].includes(queueType)) {
+        return [{ id: 'clockIcon', asc: true }, { id: 'move_date', asc: true }];
+      }
+      return [{ id: 'move_date', asc: true }];
+    };
+
     this.state.data.forEach(row => {
-      if (row.ppm_status === 'PAYMENT_REQUESTED') {
+      if (this.props.queueType === 'new' && row.ppm_status && row.hhg_status) {
+        row.shipments = 'HHG, PPM';
+      } else if (row.ppm_status && !row.hhg_status) {
+        row.shipments = 'PPM';
+      } else {
+        row.shipments = 'HHG';
+      }
+
+      if (
+        (this.props.queueType === 'ppm' || this.props.queueType === 'ppm_payment_requested') &&
+        row.ppm_status !== null
+      ) {
         row.synthetic_status = row.ppm_status;
       } else {
         row.synthetic_status = row.status;
@@ -87,60 +169,40 @@ class QueueTable extends Component {
 
     return (
       <div>
-        {this.props.flashMessage ? (
+        {this.props.showFlashMessage ? (
           <Alert type="success" heading="Success">
-            Move #{this.props.moveLocator} for {this.props.lastName}, {this.props.firstName} has been canceled <br />
-            An email confirmation has been sent to the customer.
+            {this.props.flashMessageLines.join('\n')}
             <br />
           </Alert>
         ) : null}
-        <h1>Queue: {titles[this.props.queueType]}</h1>
+        <h1 className="queue-heading">{titles[this.props.queueType]}</h1>
         <div className="queue-table">
+          <span className="staleness-indicator" data-cy="staleness-indicator">
+            Last updated {formatTimeAgo(this.state.lastLoadedAt)}
+          </span>
+          <span className={'refresh' + (this.state.refreshing ? ' focused' : '')} title="Refresh" aria-label="Refresh">
+            <FontAwesomeIcon
+              data-cy="refreshQueue"
+              className="link-blue"
+              icon={faSyncAlt}
+              onClick={this.refresh.bind(this)}
+              color="blue"
+              size="lg"
+              spin={!this.state.refreshing && this.state.loading}
+            />
+          </span>
           <ReactTable
-            columns={[
-              {
-                Header: 'Status',
-                accessor: 'synthetic_status',
-              },
-              {
-                Header: 'Locator #',
-                accessor: 'locator',
-              },
-              {
-                Header: 'Customer name',
-                accessor: 'customer_name',
-              },
-              {
-                Header: 'DOD ID',
-                accessor: 'edipi',
-              },
-              {
-                Header: 'Rank',
-                accessor: 'rank',
-              },
-              {
-                Header: 'Move type',
-                accessor: 'orders_type',
-              },
-              {
-                Header: 'Move date',
-                accessor: 'move_date',
-              },
-              {
-                Header: 'Created',
-                accessor: 'created_at',
-              },
-              {
-                Header: 'Last modified',
-                accessor: 'last_modified_date',
-              },
-            ]}
+            columns={showColumns(this.props.queueType)}
             data={this.state.data}
             loading={this.state.loading} // Display the loading overlay when we need it
+            defaultSorted={defaultSort(this.props.queueType)}
             pageSize={this.state.data.length}
             className="-striped -highlight"
+            showPagination={false}
             getTrProps={(state, rowInfo) => ({
-              onDoubleClick: e => this.props.history.push(`new/moves/${rowInfo.original.id}`),
+              'data-cy': 'queueTableRow',
+              onDoubleClick: () => this.openMove(rowInfo),
+              onClick: () => this.openMove(rowInfo),
             })}
           />
         </div>
@@ -149,11 +211,20 @@ class QueueTable extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  flashMessage: get(state, 'office.flashMessage', false),
-  moveLocator: get(state, 'office.officeMove.locator', 'Unloaded'),
-  firstName: get(state, 'office.officeServiceMember.first_name', 'Unloaded'),
-  lastName: get(state, 'office.officeServiceMember.last_name', 'Unloaded'),
-});
+const mapStateToProps = state => {
+  return {
+    showFlashMessage: get(state, 'flashMessages.display', false),
+    flashMessageLines: get(state, 'flashMessages.messageLines', false),
+  };
+};
 
-export default withRouter(connect(mapStateToProps)(QueueTable));
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({ setUserIsLoggedIn }, dispatch);
+}
+
+export default withRouter(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(QueueTable),
+);

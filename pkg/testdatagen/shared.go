@@ -21,25 +21,34 @@ import (
 
 // Assertions defines assertions about what the data contains
 type Assertions struct {
+	AccessCode                               models.AccessCode
 	Address                                  models.Address
+	AdminUser                                models.AdminUser
 	BackupContact                            models.BackupContact
 	BlackoutDate                             models.BlackoutDate
+	DistanceCalculation                      models.DistanceCalculation
 	Document                                 models.Document
 	DutyStation                              models.DutyStation
+	ElectronicOrder                          models.ElectronicOrder
+	ElectronicOrdersRevision                 models.ElectronicOrdersRevision
 	FuelEIADieselPrice                       models.FuelEIADieselPrice
 	Invoice                                  models.Invoice
 	Move                                     models.Move
 	MoveDocument                             models.MoveDocument
 	MovingExpenseDocument                    models.MovingExpenseDocument
+	WeightTicketSetDocument                  models.WeightTicketSetDocument
 	OfficeUser                               models.OfficeUser
 	Order                                    models.Order
 	PersonallyProcuredMove                   models.PersonallyProcuredMove
 	Reimbursement                            models.Reimbursement
+	SignedCertification                      models.SignedCertification
 	ServiceAgent                             models.ServiceAgent
 	ServiceMember                            models.ServiceMember
 	Shipment                                 models.Shipment
 	ShipmentLineItem                         models.ShipmentLineItem
+	ShipmentLineItemDimensions               models.ShipmentLineItemDimensions
 	ShipmentOffer                            models.ShipmentOffer
+	StorageInTransit                         models.StorageInTransit
 	Tariff400ngServiceArea                   models.Tariff400ngServiceArea
 	Tariff400ngItem                          models.Tariff400ngItem
 	Tariff400ngItemRate                      models.Tariff400ngItemRate

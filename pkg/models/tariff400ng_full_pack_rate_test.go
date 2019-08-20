@@ -29,7 +29,7 @@ func (suite *ModelSuite) Test_EffectiveDateValidation() {
 	}
 
 	expErrors = map[string][]string{
-		"effective_date_upper": []string{"EffectiveDateUpper must be after EffectiveDateLower."},
+		"effective_date_upper": {"EffectiveDateUpper must be after EffectiveDateLower."},
 	}
 	suite.verifyValidationErrors(&invalidPackRate, expErrors)
 }
@@ -49,7 +49,7 @@ func (suite *ModelSuite) Test_WeightValidation() {
 	}
 
 	expErrors = map[string][]string{
-		"weight_lbs_lower": []string{"200 is not less than 100."},
+		"weight_lbs_lower": {"200 is not less than 100."},
 	}
 	suite.verifyValidationErrors(&invalidPackRate, expErrors)
 }
@@ -71,7 +71,7 @@ func (suite *ModelSuite) Test_RateValidation() {
 	}
 
 	expErrors = map[string][]string{
-		"rate_cents": []string{"-1 is not greater than -1."},
+		"rate_cents": {"-1 is not greater than -1."},
 	}
 	suite.verifyValidationErrors(&invalidPackRate, expErrors)
 }
@@ -99,12 +99,12 @@ func (suite *ModelSuite) Test_FetchFullPackRateCents() {
 	if err != nil {
 		t.Fatalf("Unable to query full pack rate: %v", err)
 	}
-	if rate != rate {
+	if rate != rateExpected {
 		t.Errorf("Incorrect full pack rate received. Got: %d. Expected: %d.", rate, rateExpected)
 	}
 
 	// Test inclusivity of effective_date_lower
-	rate, err = FetchTariff400ngFullPackRateCents(suite.DB(), weight, schedule, testdatagen.PeakRateCycleStart)
+	_, err = FetchTariff400ngFullPackRateCents(suite.DB(), weight, schedule, testdatagen.PeakRateCycleStart)
 	if err != nil {
 		t.Errorf("EffectiveDateUpper is incorrectly exlusive: %s", err)
 	}
@@ -116,7 +116,7 @@ func (suite *ModelSuite) Test_FetchFullPackRateCents() {
 	}
 
 	// Test inclusivity of weight_lbs_lower
-	rate, err = FetchTariff400ngFullPackRateCents(suite.DB(), weightLower, schedule, testdatagen.DateInsidePeakRateCycle)
+	_, err = FetchTariff400ngFullPackRateCents(suite.DB(), weightLower, schedule, testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Errorf("WeightLbsLower is incorrectly exclusive: %s", err)
 	}

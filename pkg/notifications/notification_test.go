@@ -2,6 +2,7 @@ package notifications
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -14,7 +15,7 @@ import (
 
 type NotificationSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
+	logger Logger
 }
 
 type testNotification struct {
@@ -34,6 +35,7 @@ func (suite *NotificationSuite) TestMoveApproved() {
 	notification := MoveApproved{
 		db:     suite.DB(),
 		logger: suite.logger,
+		host:   "milmovelocal",
 		moveID: move.ID,
 		session: &auth.Session{
 			UserID:          approver.ID,
@@ -54,6 +56,7 @@ func (suite *NotificationSuite) TestMoveApproved() {
 	suite.NotEmpty(email.subject)
 	suite.NotEmpty(email.htmlBody)
 	suite.NotEmpty(email.textBody)
+	suite.True(strings.Contains(email.textBody, notification.host))
 }
 
 func (suite *NotificationSuite) TestMoveSubmitted() {
@@ -67,7 +70,7 @@ func (suite *NotificationSuite) TestMoveSubmitted() {
 		moveID: move.ID,
 		session: &auth.Session{
 			ServiceMemberID: move.Orders.ServiceMember.ID,
-			ApplicationName: auth.MyApp,
+			ApplicationName: auth.MilApp,
 		},
 	}
 
@@ -86,7 +89,7 @@ func (suite *NotificationSuite) TestMoveSubmitted() {
 	suite.NotEmpty(email.textBody)
 }
 
-func (suite *NotificationSuite) GetTestEmailContent() emailContent {
+func (suite *NotificationSuite) getTestEmailContent() emailContent {
 	return emailContent{
 		recipientEmail: "lucky@winner.com",
 		subject:        "This is a Test",
@@ -99,7 +102,7 @@ func TestNotificationSuite(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 
 	s := &NotificationSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 	}
 	suite.Run(t, s)

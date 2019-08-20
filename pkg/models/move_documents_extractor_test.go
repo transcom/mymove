@@ -23,9 +23,10 @@ func (suite *ModelSuite) TestFetchAllMoveDocumentsForMove() {
 
 	testdatagen.MakeMoveDocument(suite.DB(), assertions)
 	testdatagen.MakeMovingExpenseDocument(suite.DB(), assertions)
+	testdatagen.MakeWeightTicketSetDocument(suite.DB(), assertions)
 
 	docs, err := move.FetchAllMoveDocumentsForMove(suite.DB())
 	if suite.NoError(err) {
-		suite.Len(docs, 2)
+		suite.Len(docs, 3)
 	}
 }

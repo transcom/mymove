@@ -1,14 +1,15 @@
-FROM gcr.io/distroless/base
+FROM gcr.io/distroless/base:latest
 
-COPY bin/webserver /bin/mymove-server
+COPY bin/rds-combined-ca-bundle.pem /bin/rds-combined-ca-bundle.pem
 COPY bin/chamber /bin/chamber
+COPY bin/milmove /bin/milmove
 
 COPY config /config
 COPY swagger/* /swagger/
 COPY build /build
 
-ENTRYPOINT ["/bin/mymove-server"]
+ENTRYPOINT ["/bin/milmove"]
 
-CMD ["--debug-logging"]
+CMD ["serve", "--debug-logging"]
 
 EXPOSE 8080

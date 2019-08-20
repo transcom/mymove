@@ -5,27 +5,12 @@ import MockRouter from 'react-mock-router';
 
 import MoveInfo from './MoveInfo';
 import store from 'shared/store';
+import { mount } from 'enzyme/build';
+import { ReferrerQueueLink } from './MoveInfo';
 
 const dummyFunc = () => {};
-const moveIsLoading = false;
-const ordersAreLoading = false;
-const serviceMemberIsLoading = false;
-const backupContactsAreLoading = false;
-const moveHasLoadError = null;
-const moveHasLoadSuccess = false;
-const ordersHaveLoadError = null;
-const ordersHaveLoadSuccess = false;
-const serviceMemberHasLoadError = null;
-const serviceMemberHasLoadSuccess = false;
-const backupContactsHaveLoadError = null;
-const backupContactsHaveLoadSuccess = false;
-const PPMsHaveLoadError = null;
-const PPMsHaveLoadSuccess = false;
 const loadDependenciesHasError = null;
 const loadDependenciesHasSuccess = false;
-const moveIsCanceling = false;
-const moveHasCancelError = null;
-const moveHasCancelSuccess = false;
 const location = {
   pathname: '',
 };
@@ -44,32 +29,41 @@ describe('Loads MoveInfo', () => {
       <Provider store={store}>
         <MockRouter push={push}>
           <MoveInfo
-            moveIsLoading={moveIsLoading}
-            moveHasLoadError={moveHasLoadError}
-            moveHasLoadSuccess={moveHasLoadSuccess}
-            serviceMemberIsLoading={serviceMemberIsLoading}
-            serviceMemberHasLoadError={serviceMemberHasLoadError}
-            serviceMemberHasLoadSuccess={serviceMemberHasLoadSuccess}
-            ordersAreLoading={ordersAreLoading}
-            ordersHaveLoadError={ordersHaveLoadError}
-            ordersHaveLoadSuccess={ordersHaveLoadSuccess}
-            backupContactsAreLoading={backupContactsAreLoading}
-            backupContactsHaveLoadError={backupContactsHaveLoadError}
-            backupContactsHaveLoadSuccess={backupContactsHaveLoadSuccess}
-            PPMsHaveLoadError={PPMsHaveLoadError}
-            PPMsHaveLoadSuccess={PPMsHaveLoadSuccess}
             loadDependenciesHasError={loadDependenciesHasError}
             loadDependenciesHasSuccess={loadDependenciesHasSuccess}
             location={location}
             match={match}
             loadMoveDependencies={dummyFunc}
-            moveIsCanceling={moveIsCanceling}
-            moveHasCancelError={moveHasCancelError}
-            moveHasCancelSuccess={moveHasCancelSuccess}
           />
         </MockRouter>
       </Provider>,
       div,
     );
+  });
+});
+
+let wrapper;
+describe('ShipmentInfo tests', () => {
+  describe('Shows correct queue to return to', () => {
+    it('when a referrer is set in history', () => {
+      wrapper = mount(
+        <Provider store={store}>
+          <MockRouter push={jest.fn()}>
+            <ReferrerQueueLink history={{ location: { state: { referrerPathname: '/queues/hhg_active' } } }} />
+          </MockRouter>
+        </Provider>,
+      );
+      expect(wrapper.text()).toEqual('Active HHG Queue');
+    });
+    it('when no referrer is set', () => {
+      wrapper = mount(
+        <Provider store={store}>
+          <MockRouter push={jest.fn()}>
+            <ReferrerQueueLink history={{ location: {} }} />
+          </MockRouter>
+        </Provider>,
+      );
+      expect(wrapper.text()).toEqual('New Moves/Shipments Queue');
+    });
   });
 });

@@ -1,10 +1,12 @@
 package main
 
 import (
+	"log"
+
 	"github.com/gobuffalo/pop"
 	"github.com/namsral/flag"
+
 	"github.com/transcom/mymove/pkg/models"
-	"log"
 )
 
 func mustSave(db *pop.Connection, model interface{}) {

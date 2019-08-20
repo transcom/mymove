@@ -8,13 +8,17 @@ import { AddressElementDisplay, AddressElementEdit } from 'shared/Address';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
 
-import { updateServiceMember } from './ducks';
+import {
+  updateServiceMember,
+  loadServiceMemberLabel,
+  updateServiceMemberLabel,
+} from 'shared/Entities/modules/serviceMembers';
 import { PanelSwaggerField, PanelField, SwaggerValue, editablePanelify } from 'shared/EditablePanel';
 import { stringifyName } from 'shared/utils/serviceMember';
+import { getRequestStatus } from 'shared/Swagger/selectors';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
-import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 
 const CustomerInfoDisplay = props => {
@@ -46,12 +50,6 @@ const CustomerInfoDisplay = props => {
               phone
             </span>
           )}
-          {values.text_message_is_preferred && (
-            <span>
-              <FontAwesomeIcon icon={faComments} />
-              text
-            </span>
-          )}
           {values.email_is_preferred && (
             <span>
               <FontAwesomeIcon icon={faEmail} />
@@ -67,10 +65,6 @@ const CustomerInfoDisplay = props => {
 
 const CustomerInfoEdit = props => {
   const schema = props.serviceMemberSchema;
-  let addressProps = {
-    swagger: props.addressSchema,
-    values: props.initialValues.address,
-  };
 
   return (
     <React.Fragment>
@@ -104,16 +98,13 @@ const CustomerInfoEdit = props => {
                 <p>Preferred contact method</p>
               </legend>
               <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
-              <SwaggerField fieldName="text_message_is_preferred" swagger={schema} />
               <SwaggerField fieldName="email_is_preferred" swagger={schema} />
             </fieldset>
           </FormSection>
         </div>
 
         <div className="editable-panel-column">
-          <FormSection name="address">
-            <AddressElementEdit addressProps={addressProps} title="Current Residence Address" />
-          </FormSection>
+          <AddressElementEdit fieldName="address" schema={props.addressSchema} title="Current Residence Address" />
         </div>
       </div>
     </React.Fragment>
@@ -130,8 +121,23 @@ CustomerInfoPanel = reduxForm({
   keepDirtyOnReinitialize: true,
 })(CustomerInfoPanel);
 
-function mapStateToProps(state) {
-  let customerInfo = get(state, 'office.officeServiceMember', {});
+function mapStateToProps(state, ownProps) {
+  const customerInfo = ownProps.serviceMember;
+  const loadServiceMemberStatus = getRequestStatus(state, loadServiceMemberLabel);
+  const updateServiceMemberStatus = getRequestStatus(state, updateServiceMemberLabel);
+  let hasError = false;
+  let errorMessage = '';
+
+  if (loadServiceMemberStatus.error) {
+    hasError = true;
+    errorMessage = get(loadServiceMemberStatus, 'error.response.message', '');
+  }
+
+  if (updateServiceMemberStatus.error) {
+    hasError = true;
+    errorMessage = get(updateServiceMemberStatus, 'error.response.message', '');
+  }
+
   return {
     // reduxForm
     initialValues: {
@@ -143,10 +149,10 @@ function mapStateToProps(state) {
 
     // CustomerInfoEdit
     serviceMemberSchema: get(state, 'swaggerInternal.spec.definitions.ServiceMemberPayload'),
-    serviceMember: state.office.officeServiceMember,
+    serviceMember: ownProps.serviceMember,
 
-    hasError: state.office.serviceMemberHasLoadError || state.office.serviceMemberHasUpdateError,
-    errorMessage: state.office.error,
+    hasError,
+    errorMessage,
     isUpdating: false,
 
     // editablePanelify
@@ -154,7 +160,7 @@ function mapStateToProps(state) {
       let values = getFormValues(formName)(state);
       let serviceMember = values.serviceMember;
       serviceMember.residential_address = values.address;
-      return [state.office.officeServiceMember.id, serviceMember];
+      return [ownProps.serviceMember.id, serviceMember];
     },
   };
 }
@@ -168,4 +174,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CustomerInfoPanel);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(CustomerInfoPanel);

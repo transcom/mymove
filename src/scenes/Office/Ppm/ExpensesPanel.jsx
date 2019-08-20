@@ -1,9 +1,12 @@
-import { get } from 'lodash';
+import { filter, get } from 'lodash';
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { formatCents } from 'shared/formatters';
+import { selectPPMForMove } from 'shared/Entities/modules/ppms';
 import { getTabularExpenses, getPpmExpenseSummary } from 'scenes/Office/Ppm/ducks';
 import { connect } from 'react-redux';
+
+import Alert from 'shared/Alert';
 
 const dollar = cents => (cents ? '$' + formatCents(cents) : null);
 
@@ -15,12 +18,20 @@ class ExpensesPanel extends Component {
     if (this.props.ppmId && this.props.ppmId !== prevProps.ppmId) this.props.getPpmExpenseSummary(this.props.ppmId);
   }
   render() {
-    const { schemaMovingExpenseType, expenseData } = this.props;
+    const { schemaMovingExpenseType, expenseData, expenseDocuments } = this.props;
+    const awaitingStorageExpenses = filter(expenseDocuments, function(expense) {
+      return expense.status !== 'OK' && expense.move_document_type !== 'STORAGE';
+    });
 
     const tabularData = getTabularExpenses(expenseData, schemaMovingExpenseType);
     return (
       <div className="calculator-panel expense-panel">
         <div className="calculator-panel-title">Expenses</div>
+        {awaitingStorageExpenses.length > 0 && (
+          <div className="awaiting-expenses-warning">
+            <Alert type="warning">There are more expense receipts awaiting review</Alert>
+          </div>
+        )}
         <div>
           <table cellSpacing={0}>
             <tbody>
@@ -66,11 +77,12 @@ class ExpensesPanel extends Component {
     );
   }
 }
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
   return {
-    ppmId: get(state.office, 'officePPMs[0].id'),
+    ppmId: selectPPMForMove(state, ownProps.moveId).id,
     schemaMovingExpenseType: get(state, 'swaggerInternal.spec.definitions.MovingExpenseType', {}),
     expenseData: get(state, 'ppmIncentive.summary'),
+    expenseDocuments: filter(ownProps.moveDocuments, ['move_document_type', 'EXPENSE']),
   };
 }
 
@@ -82,4 +94,7 @@ const mapDispatchToProps = dispatch =>
     dispatch,
   );
 
-export default connect(mapStateToProps, mapDispatchToProps)(ExpensesPanel);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(ExpensesPanel);

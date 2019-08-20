@@ -11,17 +11,11 @@ describe('TSP User Views Shipment', function() {
   it('tsp user views shipments in accepted shipments queue', function() {
     tspUserViewsAcceptedShipments();
   });
-  it('tsp user views shipments in approved shipments queue', function() {
-    tspUserViewsApprovedShipments();
-  });
   it('tsp user views shipments in in_transit shipments queue', function() {
     tspUserViewsInTransitShipments();
   });
   it('tsp user views shipments in delivered shipments queue', function() {
     tspUserViewsDeliveredShipments();
-  });
-  it('tsp user views shipments in completed shipments queue', function() {
-    tspUserViewsCompletedShipments();
   });
 });
 
@@ -35,8 +29,7 @@ function tspUserViewsNewShipments() {
   cy.get('h1').contains('Queue: New Shipments');
 
   // Find shipment and check properties in row
-  cy
-    .get('div')
+  cy.get('div')
     .contains('div', 'BACON1')
     .parentsUntil('div.rt-tr-group')
     .contains('div', 'Awarded')
@@ -52,10 +45,7 @@ function tspUserViewsNewShipments() {
     .contains('div', '15-May-18');
 
   // Find and open shipment
-  cy
-    .get('div')
-    .contains('BACON1')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('BACON1');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -72,11 +62,11 @@ function tspUserViewsInTransitShipments() {
   // Find title
   cy.get('h1').contains('Queue: In Transit Shipments');
 
+  // Not delivered yet
+  cy.get('.delivered_on').should('be.empty');
+
   // Find in transit (generated in e2ebasic.go) and open it
-  cy
-    .get('div')
-    .contains('NINOPK')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('NINOPK');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -97,12 +87,10 @@ function tspUserViewsDeliveredShipments() {
 
   // Find title
   cy.get('h1').contains('Queue: Delivered Shipments');
+  cy.get('.delivered_on').contains(/\d{2}-\w{3}-\d{2}/);
 
   // Find delivered shipment (generated in e2ebasic.go) and open it
-  cy
-    .get('div')
-    .contains('SCHNOO')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('SCHNOO');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -116,8 +104,7 @@ function tspUserViewsDeliveredShipments() {
 
 function tspUserViewsAcceptedShipments() {
   // Open accepted shipments queue
-  cy
-    .get('div')
+  cy.get('div')
     .contains('Accepted Shipments')
     .click();
 
@@ -129,69 +116,10 @@ function tspUserViewsAcceptedShipments() {
   cy.get('h1').contains('Queue: Accepted Shipments');
 
   // Find shipment
-  cy
-    .get('div')
-    .contains('BACON3')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('BACON3');
 
   // Status
   tspUserVerifiesShipmentStatus('Shipment accepted');
 
   cy.get('a').contains('Accepted Shipments Queue');
-}
-
-function tspUserViewsApprovedShipments() {
-  // Open approved shipments queue
-  cy
-    .get('div')
-    .contains('Approved Shipments')
-    .click();
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/approved/);
-  });
-
-  // Find title
-  cy.get('h1').contains('Queue: Approved Shipments');
-
-  // Find shipment
-  cy
-    .get('div')
-    .contains('BACON1')
-    .should('not.exist');
-  cy
-    .get('div')
-    .contains('APPRVD')
-    .dblclick();
-
-  // Status
-  tspUserVerifiesShipmentStatus('Awaiting pre-move survey');
-
-  cy.get('a').contains('Approved Shipments Queue');
-}
-
-function tspUserViewsCompletedShipments() {
-  // Open completed shipments queue
-  cy
-    .get('div')
-    .contains('Completed Shipments')
-    .click();
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/completed/);
-  });
-
-  // Find title
-  cy.get('h1').contains('Queue: Completed Shipments');
-
-  // Find shipment
-  cy
-    .get('div')
-    .contains('NOCHKA')
-    .dblclick();
-
-  // Status
-  tspUserVerifiesShipmentStatus('Delivered');
-
-  cy.get('a').contains('Completed Shipments Queue');
 }

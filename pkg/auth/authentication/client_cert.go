@@ -7,34 +7,36 @@ import (
 	"net/http"
 
 	"github.com/gobuffalo/pop"
-	beeline "github.com/honeycombio/beeline-go"
+
 	"github.com/transcom/mymove/pkg/models"
-	"go.uber.org/zap"
 )
 
 type authClientCertKey string
 
 const clientCertContextKey authClientCertKey = "clientCert"
 
-// SetClientCertInRequestContext modifies the request's Context() to add the client certificate data
+// SetClientCertInRequestContext returns a copy of the request's Context() with the client certificate data
 func SetClientCertInRequestContext(r *http.Request, clientCert *models.ClientCert) context.Context {
 	return context.WithValue(r.Context(), clientCertContextKey, clientCert)
 }
 
 // ClientCertFromRequestContext gets the reference to the ClientCert stored in the request.Context()
 func ClientCertFromRequestContext(r *http.Request) *models.ClientCert {
-	if clientCert, ok := r.Context().Value(clientCertContextKey).(*models.ClientCert); ok {
+	return ClientCertFromContext(r.Context())
+}
+
+// ClientCertFromContext gets the reference to the ClientCert stored in the request.Context()
+func ClientCertFromContext(ctx context.Context) *models.ClientCert {
+	if clientCert, ok := ctx.Value(clientCertContextKey).(*models.ClientCert); ok {
 		return clientCert
 	}
 	return nil
 }
 
 // ClientCertMiddleware enforces that the incoming request includes a known client certificate, and stores the fetched permissions in the session
-func ClientCertMiddleware(logger *zap.Logger, db *pop.Connection) func(next http.Handler) http.Handler {
+func ClientCertMiddleware(logger Logger, db *pop.Connection) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			ctx, span := beeline.StartSpan(r.Context(), "ClientCertMiddleware")
-			defer span.Send()
 
 			if r.TLS == nil || len(r.TLS.PeerCertificates) == 0 {
 				logger.Info("Unauthenticated")
@@ -54,10 +56,9 @@ func ClientCertMiddleware(logger *zap.Logger, db *pop.Connection) func(next http
 				return
 			}
 
-			ctx = SetClientCertInRequestContext(r, clientCert)
+			ctx := SetClientCertInRequestContext(r, clientCert)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
-			return
 		}
 		return http.HandlerFunc(mw)
 	}

@@ -18,6 +18,12 @@ var ErrUserUnauthorized = errors.New("USER_UNAUTHORIZED")
 // ErrFetchForbidden means that the record exists but that the user does not have access to it
 var ErrFetchForbidden = errors.New("FETCH_FORBIDDEN")
 
+// ErrWriteForbidden means that user is not permitted to write the record
+var ErrWriteForbidden = errors.New("WRITE_FORBIDDEN")
+
+// ErrWriteConflict means that the record creation or update cannot be completed due to a conflict with other records
+var ErrWriteConflict = errors.New("WRITE_CONFLICT")
+
 // ErrDestroyForbidden means that a model cannot be destroyed in its current state
 var ErrDestroyForbidden = errors.New("DESTROY_FORBIDDEN")
 
@@ -30,9 +36,9 @@ var ErrInvalidPatchGate = errors.New("INVALID_PATCH_GATE")
 // ErrInvalidTransition is an error representing an invalid state transition.
 var ErrInvalidTransition = errors.New("INVALID_TRANSITION")
 
-// recordNotFoundErrorString is the error string returned when no matching rows exist in the database
+// RecordNotFoundErrorString is the error string returned when no matching rows exist in the database
 // This is ugly, but the best we can do with go's Postgresql adapter
-const recordNotFoundErrorString = "sql: no rows in result set"
+const RecordNotFoundErrorString = "sql: no rows in result set"
 
 // uniqueConstraintViolationErrorPrefix This is the error we get back from dbConnection.Create()
 const uniqueConstraintViolationErrorPrefix = "pq: duplicate key value violates unique constraint"

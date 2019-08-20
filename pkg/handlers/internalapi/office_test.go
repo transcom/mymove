@@ -2,8 +2,10 @@ package internalapi
 
 import (
 	"net/http/httptest"
+	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 
 	officeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -20,6 +22,7 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 			OrdersNumber:        handlers.FmtString("1234"),
 			OrdersTypeDetail:    &hhgPermitted,
 			TAC:                 handlers.FmtString("1234"),
+			SAC:                 handlers.FmtString("sac"),
 			DepartmentIndicator: handlers.FmtString("17 - United States Marines"),
 		},
 	}
@@ -28,8 +31,8 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	// Move is submitted and saved
-	err := move.Submit()
-	suite.Nil(err)
+	err := move.Submit(time.Now())
+	suite.NoError(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
 	suite.MustSave(&move)
 
@@ -60,8 +63,8 @@ func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	// Move is submitted and saved
-	err := move.Submit()
-	suite.Nil(err)
+	err := move.Submit(time.Now())
+	suite.NoError(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
 	suite.MustSave(&move)
 
@@ -108,20 +111,24 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 
 	selectedMoveType := models.SelectedMoveTypePPM
-	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
-	suite.Nil(err)
+	moveOptions := models.MoveOptions{
+		SelectedType: &selectedMoveType,
+		Show:         swag.Bool(true),
+	}
+	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
+	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	suite.Nil(err)
+	suite.NoError(err)
 
 	// Move is submitted
-	err = move.Submit()
-	suite.Nil(err)
+	err = move.Submit(time.Now())
+	suite.NoError(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
 
 	// And: Orders are submitted and saved on move
 	err = orders.Submit()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(models.OrderStatusSUBMITTED, orders.Status, "expected Submitted")
 	suite.MustSave(&orders)
 	move.Orders = orders
@@ -197,10 +204,15 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/personally_procured_moves/some_id/approve", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
+	approveDate := strfmt.DateTime(time.Now())
 
+	newApprovePersonallyProcuredMovePayload := internalmessages.ApprovePersonallyProcuredMovePayload{
+		ApproveDate: &approveDate,
+	}
 	params := officeop.ApprovePPMParams{
-		HTTPRequest:              req,
-		PersonallyProcuredMoveID: strfmt.UUID(ppm.ID.String()),
+		HTTPRequest:                          req,
+		PersonallyProcuredMoveID:             strfmt.UUID(ppm.ID.String()),
+		ApprovePersonallyProcuredMovePayload: &newApprovePersonallyProcuredMovePayload,
 	}
 
 	// And: a ppm is approved
@@ -225,10 +237,15 @@ func (suite *HandlerSuite) TestApprovePPMHandlerForbidden() {
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/personally_procured_moves/some_id/approve", nil)
 	req = suite.AuthenticateRequest(req, user)
+	approveDate := strfmt.DateTime(time.Now())
 
+	newApprovePersonallyProcuredMovePayload := internalmessages.ApprovePersonallyProcuredMovePayload{
+		ApproveDate: &approveDate,
+	}
 	params := officeop.ApprovePPMParams{
-		HTTPRequest:              req,
-		PersonallyProcuredMoveID: strfmt.UUID(ppm.ID.String()),
+		HTTPRequest:                          req,
+		PersonallyProcuredMoveID:             strfmt.UUID(ppm.ID.String()),
+		ApprovePersonallyProcuredMovePayload: &newApprovePersonallyProcuredMovePayload,
 	}
 
 	// And: a ppm is approved

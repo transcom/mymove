@@ -4,14 +4,20 @@ import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
 import { withLastLocation } from 'react-router-last-location';
+import { withContext } from 'shared/AppContext';
 
-import { MoveSummary } from './MoveSummary';
+import { MoveSummary, PPMAlert } from './MoveSummary';
 import { isHHGPPMComboMove } from 'scenes/Moves/Ppm/ducks';
 import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { getCurrentShipment } from 'shared/UI/ducks';
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { loadLoggedInUser } from 'shared/User/ducks';
+import {
+  selectCurrentUser,
+  selectGetCurrentUserIsLoading,
+  selectGetCurrentUserIsSuccess,
+  selectGetCurrentUserIsError,
+} from 'shared/Data/users';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
 import Alert from 'shared/Alert';
 import SignIn from 'shared/User/SignIn';
@@ -19,6 +25,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
 import { updateMove } from 'scenes/Moves/ducks';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
+import { selectShipment } from 'shared/Entities/modules/shipments';
 
 export class Landing extends Component {
   componentDidMount() {
@@ -33,7 +40,6 @@ export class Landing extends Component {
       createServiceMember,
       isProfileComplete,
     } = this.props;
-
     if (loggedInUserSuccess) {
       if (!createdServiceMemberIsLoading && isEmpty(serviceMember) && !createdServiceMemberError) {
         // Once the logged in user loads, if the service member doesn't
@@ -86,15 +92,16 @@ export class Landing extends Component {
   };
   render() {
     const {
+      context,
       isLoggedIn,
       loggedInUserIsLoading,
       loggedInUserSuccess,
       loggedInUserError,
-      hasSubmitSuccess,
       isProfileComplete,
-      isHHGPPMComboMove,
       createdServiceMemberError,
       moveSubmitSuccess,
+      hasSubmitSuccess,
+      isHHGPPMComboMove,
       entitlement,
       serviceMember,
       orders,
@@ -107,21 +114,17 @@ export class Landing extends Component {
     return (
       <div className="usa-grid">
         {loggedInUserIsLoading && <LoadingPlaceholder />}
-        {!isLoggedIn && <SignIn />}
+        {!isLoggedIn && !loggedInUserIsLoading && <SignIn location={this.props.location} />}
         {loggedInUserSuccess && (
           <Fragment>
             <div>
-              {moveSubmitSuccess && (
+              {moveSubmitSuccess && !ppm && (
                 <Alert type="success" heading="Success">
                   You've submitted your move
                 </Alert>
               )}
-              {isHHGPPMComboMove &&
-                hasSubmitSuccess && (
-                  <Alert type="success" heading="You've added a PPM shipment">
-                    Next, your shipment is awaiting approval and this can take up to 3 business days
-                  </Alert>
-                )}
+              {isHHGPPMComboMove && hasSubmitSuccess && <PPMAlert heading="Your PPM shipment is submitted" />}
+              {ppm && moveSubmitSuccess && <PPMAlert heading="Congrats - your move is submitted!" />}
               {loggedInUserError && (
                 <Alert type="error" heading="An error occurred">
                   There was an error loading your user information.
@@ -134,24 +137,24 @@ export class Landing extends Component {
               )}
             </div>
 
-            {isLoggedIn &&
-              !isEmpty(serviceMember) &&
-              isProfileComplete && (
-                <MoveSummary
-                  entitlement={entitlement}
-                  profile={serviceMember}
-                  orders={orders}
-                  move={move}
-                  ppm={ppm}
-                  shipment={currentShipment}
-                  editMove={this.editMove}
-                  resumeMove={this.resumeMove}
-                  reviewProfile={this.reviewProfile}
-                  requestPaymentSuccess={requestPaymentSuccess}
-                  updateMove={updateMove}
-                  addPPMShipment={this.addPPMShipment}
-                />
-              )}
+            {isLoggedIn && !isEmpty(serviceMember) && isProfileComplete && (
+              <MoveSummary
+                context={context}
+                entitlement={entitlement}
+                profile={serviceMember}
+                orders={orders}
+                move={move}
+                ppm={ppm}
+                shipment={currentShipment}
+                editMove={this.editMove}
+                resumeMove={this.resumeMove}
+                reviewProfile={this.reviewProfile}
+                requestPaymentSuccess={requestPaymentSuccess}
+                moveSubmitSuccess={moveSubmitSuccess}
+                updateMove={updateMove}
+                addPPMShipment={this.addPPMShipment}
+              />
+            )}
           </Fragment>
         )}
       </div>
@@ -160,23 +163,25 @@ export class Landing extends Component {
 }
 
 const mapStateToProps = state => {
-  const shipment = getCurrentShipment(state);
+  const shipmentId = getCurrentShipment(state);
+  const user = selectCurrentUser(state);
   const props = {
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     selectedMoveType: selectedMoveType(state),
-    isLoggedIn: state.user.isLoggedIn,
+    isLoggedIn: user.isLoggedIn,
     isProfileComplete: isProfileComplete(state),
     isHHGPPMComboMove: isHHGPPMComboMove(state),
     serviceMember: state.serviceMember.currentServiceMember || {},
     backupContacts: state.serviceMember.currentBackupContacts || [],
     orders: state.orders.currentOrders || {},
     move: state.moves.currentMove || state.moves.latestMove || {},
+    hhg: selectShipment(state, shipmentId),
     ppm: getPPM(state),
-    currentShipment: shipment || {},
-    loggedInUser: state.loggedInUser.loggedInUser,
-    loggedInUserIsLoading: state.loggedInUser.isLoading,
-    loggedInUserError: state.loggedInUser.error,
-    loggedInUserSuccess: state.loggedInUser.hasSucceeded,
+    currentShipment: shipmentId || {},
+    loggedInUser: user,
+    loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
+    loggedInUserError: selectGetCurrentUserIsError(state),
+    loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
     createdServiceMemberIsLoading: state.serviceMember.isLoading,
     createdServiceMemberSuccess: state.serviceMember.hasSubmitSuccess,
     createdServiceMemberError: state.serviceMember.error,
@@ -190,7 +195,14 @@ const mapStateToProps = state => {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ push, createServiceMember, loadLoggedInUser, updateMove }, dispatch);
+  return bindActionCreators({ push, createServiceMember, updateMove }, dispatch);
 }
 
-export default withLastLocation(connect(mapStateToProps, mapDispatchToProps)(Landing));
+export default withContext(
+  withLastLocation(
+    connect(
+      mapStateToProps,
+      mapDispatchToProps,
+    )(Landing),
+  ),
+);

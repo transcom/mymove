@@ -25,14 +25,13 @@ export class PreApprovalTable extends PureComponent {
           <table cellSpacing={0}>
             <tbody>
               <tr>
-                <th>Code</th>
-                <th>Item</th>
-                <th>Loc</th>
-                <th>Base quantity</th>
-                <th>Notes</th>
-                <th>Submitted</th>
-                <th>Status</th>
-                <th>&nbsp;</th>
+                <th style={{ width: '5%' }}>Code</th>
+                <th style={{ width: '26%' }}>Item</th>
+                <th style={{ width: '5%' }}>Loc</th>
+                <th style={{ width: '30%' }}>Details</th>
+                <th style={{ width: '12%' }}>Submitted</th>
+                <th style={{ width: '12%' }}>Status</th>
+                <th style={{ width: '12%' }}>&nbsp;</th>
               </tr>
               {shipmentLineItems.map(row => {
                 let requestIsActionable =

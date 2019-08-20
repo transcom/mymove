@@ -1,0 +1,2 @@
+-- Local test migration.
+-- File needed to mimic prod migrations-- no additional data needed locally

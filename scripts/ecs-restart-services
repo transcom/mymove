@@ -1,0 +1,61 @@
+#! /usr/bin/env bash
+#
+#   Restarted the ECS services associated with the given environment.
+#
+set -euo pipefail
+
+usage() {
+    echo "${0##*/} <environment>"
+    exit 1
+}
+[[ -z $1 ]] && usage
+
+# Display command being run
+echo "$0 $*"
+
+readonly environment="$1"
+# Cluster is always named `app-*` even for app-client-tls
+readonly cluster="app-${environment}"
+
+# Validate the environments
+if [[ "${environment}" != "experimental" ]] && [[ "${environment}" != "staging" ]] && [[ "${environment}" != "prod" ]] ; then
+  echo "<environment> must be one of experimental, staging, or prod"
+  exit 1
+fi
+
+# Put a dimensionless metric into cloudwatch
+put_metric() {
+    local metric_name="$1"
+    local namespace="$2"
+    local timestamp
+    timestamp=$(date +"%Y-%m-%dT%H:%M:%SZ")
+    aws cloudwatch put-metric-data --metric-name "${metric_name}" --namespace "${namespace}" --value 1 --timestamp "${timestamp}"
+}
+
+echo "* Restarting service \"app\" for cluster \"${cluster}\""
+aws ecs update-service --cluster "$cluster" --service app --force-new-deployment > /dev/null
+
+echo "* Restarting service \"app-client-tls\" for cluster \"${cluster}\""
+aws ecs update-service --cluster "$cluster" --service app-client-tls --force-new-deployment > /dev/null
+
+echo "* Waiting for service \"app\" and \"app-client-tls\" to stabilize (this takes a while)"
+time aws ecs wait services-stable --cluster "$cluster" --services app app-client-tls
+readonly exit_code=$?
+
+echo "* Marking successful deploy in cloudwatch"
+put_metric DeployCount "app-${environment}"
+put_metric DeployCount "app-client-tls-${environment}"
+
+echo
+echo "****************************"
+echo "Last 5 events for service \"app\":"
+aws ecs describe-services --cluster "$cluster" --service app --query 'services[].events[:5]'
+echo
+
+echo
+echo "****************************"
+echo "Last 5 events for service \"app-client-tls\":"
+aws ecs describe-services --cluster "$cluster" --service app-client-tls --query 'services[].events[:5]'
+echo
+
+exit $exit_code

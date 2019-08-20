@@ -1,11 +1,13 @@
 package internalapi
 
 import (
-	"github.com/go-openapi/strfmt"
-	calendarop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/calendar"
-	"github.com/transcom/mymove/pkg/handlers"
 	"net/http/httptest"
 	"time"
+
+	"github.com/go-openapi/strfmt"
+
+	calendarop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/calendar"
+	"github.com/transcom/mymove/pkg/handlers"
 )
 
 func (suite *HandlerSuite) TestShowAvailableMoveDatesHandler() {

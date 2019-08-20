@@ -20,10 +20,7 @@ function tspUserViewsHHGHeaderInfo() {
   });
 
   // Find a shipment and open it
-  cy
-    .get('div')
-    .contains('HHGPPM')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('HHGPPM');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -39,8 +36,7 @@ function tspUserViewsHHGHeaderInfo() {
   tspUserVerifiesShipmentStatus('Shipment awarded');
 
   // Check the info bar
-  cy
-    .get('ul')
+  cy.get('ul')
     .contains('li', 'GBL# LKNQ7123456')
     .parentsUntil('div')
     .contains('li', 'Locator# HHGPPM')
@@ -59,10 +55,7 @@ function tspUserViewsHHGPPMHeaderInfo() {
   });
 
   // Find a shipment and open it
-  cy
-    .get('div')
-    .contains('HHGPPM')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('HHGPPM');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -78,8 +71,7 @@ function tspUserViewsHHGPPMHeaderInfo() {
   tspUserVerifiesShipmentStatus('Shipment awarded');
 
   // Check the info bar
-  cy
-    .get('ul')
+  cy.get('ul')
     .contains('li', 'GBL# LKNQ7123456')
     .parentsUntil('div')
     .contains('li', 'Locator# HHGPPM')

@@ -17,6 +17,7 @@ import { updateOrders, deleteUploads, addUploads } from 'scenes/Orders/ducks';
 import { moveIsApproved, isPpm } from 'scenes/Moves/ducks';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
+import { documentSizeLimitMsg } from 'shared/constants';
 
 import './Review.css';
 import profileImage from './images/profile.png';
@@ -63,7 +64,14 @@ let EditOrdersForm = props => {
       <p>Uploads:</p>
       {Boolean(visibleUploads.length) && <UploadsTable uploads={visibleUploads} onDelete={onDelete} />}
       {Boolean(get(initialValues, 'uploaded_orders')) && (
-        <Uploader document={initialValues.uploaded_orders} onChange={onUpload} labelIdle={uploaderLabelIdle} />
+        <div>
+          <p>{documentSizeLimitMsg}</p>
+          <Uploader
+            document={initialValues.uploaded_orders}
+            onChange={onUpload}
+            options={{ labelIdle: uploaderLabelIdle }}
+          />
+        </div>
       )}
       <SaveCancelButtons valid={valid} submitting={submitting} />
     </form>
@@ -208,4 +216,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditOrders);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(EditOrders);

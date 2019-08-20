@@ -67,14 +67,14 @@ func FetchBackupContact(db *pop.Connection, session *auth.Session, id uuid.UUID)
 	var contact BackupContact
 	err := db.Q().Eager().Find(&contact, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return BackupContact{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
 		return BackupContact{}, err
 	}
 	// TODO: Handle case where more than one user is authorized to modify contact
-	if session.IsMyApp() && contact.ServiceMember.ID != session.ServiceMemberID {
+	if session.IsMilApp() && contact.ServiceMember.ID != session.ServiceMemberID {
 		return BackupContact{}, ErrFetchForbidden
 	}
 	return contact, nil

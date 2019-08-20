@@ -48,7 +48,7 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 
 	// Make sure the context contains the auth values
 	session := &auth.Session{
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 		UserID:          user.ID,
 		IDToken:         "fake token",
 	}

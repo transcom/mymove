@@ -1,8 +1,11 @@
 package models_test
 
 import (
+	"testing"
+
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/auth"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -93,7 +96,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 
 	alice := testdatagen.MakeDefaultUser(suite.DB())
 	identity, err = FetchUserIdentity(suite.DB(), alice.LoginGovUUID.String())
-	suite.Nil(err, "loading sally's identity")
+	suite.Nil(err, "loading alice's identity")
 	suite.NotNil(identity)
 	suite.Equal(alice.ID, identity.ID)
 	suite.Equal(alice.LoginGovEmail, identity.Email)
@@ -130,4 +133,121 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Nil(identity.ServiceMemberID)
 	suite.Nil(identity.OfficeUserID)
 	suite.Equal(danielle.ID, *identity.TspUserID)
+
+	systemAdmin := testdatagen.MakeDefaultAdminUser(suite.DB())
+	identity, err = FetchUserIdentity(suite.DB(), systemAdmin.User.LoginGovUUID.String())
+	suite.Nil(err, "loading systemAdmin's identity")
+	suite.NotNil(identity)
+	suite.Equal(*systemAdmin.UserID, identity.ID)
+	suite.Equal(systemAdmin.User.LoginGovEmail, identity.Email)
+	suite.Nil(identity.ServiceMemberID)
+	suite.Nil(identity.OfficeUserID)
+	suite.Nil(identity.TspUserID)
+}
+
+func (suite *ModelSuite) TestFetchAppUserIdentities() {
+
+	suite.T().Run("default user no profile", func(t *testing.T) {
+		testdatagen.MakeDefaultUser(suite.DB())
+		identities, err := FetchAppUserIdentities(suite.DB(), auth.MilApp, 5)
+		suite.NoError(err)
+		suite.Empty(identities)
+	})
+
+	suite.T().Run("service member", func(t *testing.T) {
+
+		// Regular service member
+		testdatagen.MakeDefaultServiceMember(suite.DB())
+		identities, err := FetchAppUserIdentities(suite.DB(), auth.MilApp, 5)
+		suite.NoError(err)
+		suite.NotEmpty(identities)
+		suite.Equal(1, len(identities))
+
+		if len(identities) > 1 {
+			suite.NotNil(identities[0].ServiceMemberID)
+			suite.Nil(identities[0].OfficeUserID)
+			suite.Nil(identities[0].TspUserID)
+		}
+
+		// Service member is super user
+		testdatagen.MakeServiceMember(suite.DB(), testdatagen.Assertions{
+			User: User{},
+		})
+		identities, err = FetchAppUserIdentities(suite.DB(), auth.MilApp, 5)
+		suite.NoError(err)
+		suite.NotEmpty(identities)
+		suite.Equal(2, len(identities))
+
+		if len(identities) == 2 {
+			suite.NotNil(identities[1].ServiceMemberID)
+			suite.Nil(identities[1].OfficeUserID)
+			suite.Nil(identities[1].TspUserID)
+		}
+	})
+
+	// In the following tests you won't see extra users returned. Eeach query is
+	// limited by the app it expects to be run in.
+
+	suite.T().Run("office user", func(t *testing.T) {
+		testdatagen.MakeDefaultOfficeUser(suite.DB())
+		identities, err := FetchAppUserIdentities(suite.DB(), auth.OfficeApp, 5)
+		suite.NoError(err)
+		suite.NotEmpty(identities)
+		suite.Equal(1, len(identities))
+
+		if len(identities) > 1 {
+			suite.Nil(identities[0].ServiceMemberID)
+			suite.NotNil(identities[0].OfficeUserID)
+			suite.Nil(identities[0].TspUserID)
+		}
+	})
+
+	suite.T().Run("tsp user", func(t *testing.T) {
+		testdatagen.MakeDefaultTspUser(suite.DB())
+		identities, err := FetchAppUserIdentities(suite.DB(), auth.TspApp, 5)
+		suite.NoError(err)
+		suite.NotEmpty(identities)
+		suite.Equal(1, len(identities))
+
+		if len(identities) > 1 {
+			suite.Nil(identities[0].ServiceMemberID)
+			suite.Nil(identities[0].OfficeUserID)
+			suite.NotNil(identities[0].TspUserID)
+		}
+	})
+
+	suite.T().Run("admin user", func(t *testing.T) {
+		testdatagen.MakeDefaultAdminUser(suite.DB())
+		identities, err := FetchAppUserIdentities(suite.DB(), auth.AdminApp, 5)
+		suite.Nil(err)
+		suite.NotEmpty(identities)
+		suite.Equal(1, len(identities))
+
+		if len(identities) > 1 {
+			suite.Nil(identities[0].ServiceMemberID)
+			suite.Nil(identities[0].OfficeUserID)
+			suite.Nil(identities[0].TspUserID)
+			suite.NotNil(identities[0].AdminUserID)
+		}
+	})
+}
+
+func (suite *ModelSuite) TestGetUser() {
+
+	alice := testdatagen.MakeDefaultUser(suite.DB())
+
+	user1, err := GetUserFromEmail(suite.DB(), alice.LoginGovEmail)
+	suite.Nil(err, "loading alice's user")
+	suite.NotNil(user1)
+	if err == nil && user1 != nil {
+		suite.Equal(alice.ID, user1.ID)
+		suite.Equal(alice.LoginGovEmail, user1.LoginGovEmail)
+	}
+
+	user2, err := GetUser(suite.DB(), alice.ID)
+	suite.Nil(err, "loading alice's user")
+	suite.NotNil(user2)
+	if err == nil && user2 != nil {
+		suite.Equal(alice.ID, user2.ID)
+	}
 }

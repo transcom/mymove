@@ -8,7 +8,7 @@ import (
 )
 
 // HostnameDetectorMiddleware only allows the given hostname through
-func HostnameDetectorMiddleware(logger *zap.Logger, hostname string) func(next http.Handler) http.Handler {
+func HostnameDetectorMiddleware(logger Logger, hostname string) func(next http.Handler) http.Handler {
 	logger.Info("Creating hostname detector", zap.String("hostname", hostname))
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
@@ -19,7 +19,6 @@ func HostnameDetectorMiddleware(logger *zap.Logger, hostname string) func(next h
 				return
 			}
 			next.ServeHTTP(w, r)
-			return
 		}
 		return http.HandlerFunc(mw)
 	}

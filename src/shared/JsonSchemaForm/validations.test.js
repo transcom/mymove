@@ -252,7 +252,7 @@ describe('SchemaField tests', () => {
   });
 
   describe('zip field', () => {
-    const ssnField = {
+    const zipField = {
       type: 'string',
       format: 'zip',
       pattern: /^(\d{5}([-]\d{4})?)$/, // eslint-disable-line
@@ -270,7 +270,63 @@ describe('SchemaField tests', () => {
       ['615-22-33233', '61522-3323', null],
     ];
 
-    testField(ssnField, stringTests);
+    testField(zipField, stringTests);
+  });
+
+  describe('base quantity field', () => {
+    const baseQuantityField = {
+      type: 'integer',
+      format: 'basequantity',
+      example: 120000,
+    };
+
+    const baseQuantityTests = [
+      ['1.0000', '1.0000', null],
+      ['121.9548', '121.9548', null],
+      ['12.12345', '12.1234', null],
+      ['12.12', '12.12', null],
+      ['12.abcd', '12.', null],
+      ['1.1..1', '1.11', null],
+    ];
+
+    testField(baseQuantityField, baseQuantityTests);
+  });
+
+  describe('dimensions field', () => {
+    const dimensionsField = {
+      type: 'integer',
+      format: 'dimension',
+      example: 1200,
+    };
+
+    const dimensionTests = [
+      ['1.00', '1.00', null],
+      ['121.95', '121.95', null],
+      ['12.12345', '12.12', null],
+      ['12.1', '12.1', null],
+      ['12.abcd', '12.', null],
+      ['1..1.1', '1.11', null],
+    ];
+
+    testField(dimensionsField, dimensionTests);
+  });
+
+  describe('DoD ID # field', () => {
+    const dodIDField = {
+      type: 'string',
+      format: 'edipi',
+      example: '5789345789',
+      pattern: '^[0-9]{10}$',
+    };
+
+    const expectedError = 'Must be a valid DoD ID # (10 digits long)';
+    const dodIDTests = [
+      ['1234567890', '1234567890', null],
+      ['asdf1234', '1234', expectedError],
+      ['123456789', '123456789', expectedError],
+    ];
+
+    testField(dodIDField, dodIDTests);
   });
 });
 

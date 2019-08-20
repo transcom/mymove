@@ -26,17 +26,27 @@ function formatDate(date, format = 'L', locale = 'en') {
     .format(defaultDateFormat);
 }
 
+const getDayPickerProps = disabledDays => {
+  return {
+    modifiers: {
+      disabled: disabledDays,
+    },
+  };
+};
+
 export default function SingleDatePicker(props) {
-  const { value = null, onChange, disabled, name } = props;
+  const { value = null, onChange, onBlur, disabled, name, disabledDays } = props;
   const formatted = parseDate(value);
   return (
     <DayPickerInput
       onDayChange={onChange}
+      onDayPickerHide={onBlur}
       placeholder=""
       parseDate={parseDate}
       formatDate={formatDate}
       value={formatted}
-      inputProps={{ disabled, name }}
+      dayPickerProps={getDayPickerProps(disabledDays)}
+      inputProps={{ disabled, name, onChange, autoComplete: 'off' }}
     />
   );
 }

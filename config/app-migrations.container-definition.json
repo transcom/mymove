@@ -1,34 +1,40 @@
 {
   "name": "app-migrations-{{ .environment }}",
   "image": "{{ .image }}",
+  "portMappings": [],
   "essential": true,
   "entryPoint": [
     "/bin/chamber",
+    "-r",
+    "{{ .CHAMBER_RETRIES }}",
     "exec",
     "app-{{ .environment }}",
     "--",
-    "/bin/soda"
-  ],
-  "command": [
+    "/bin/milmove",
     "migrate",
-    "-c",
-    "/migrate/database.yml",
-    "-p",
-    "/migrate/migrations",
-    "up"
+    "--logging-env",
+    "production",
+    "--db-env",
+    "container",
+    "--db-iam",
+    "--db-iam-role",
+    "arn:aws:iam::923914045601:role/ecs-rds-role-app-{{ .environment }}",
+    "--db-region",
+    "us-west-2"
   ],
+  "command": [],
   "environment": [
     {
       "name": "ENVIRONMENT",
       "value": "{{ .environment }}"
     },
     {
-      "name": "SECURE_MIGRATION_SOURCE",
-      "value": "s3"
+      "name": "MIGRATION_PATH",
+      "value": "s3://transcom-ppp-app-{{ .environment }}-us-west-2/secure-migrations;file:///migrate/migrations"
     },
     {
-      "name": "SECURE_MIGRATION_DIR",
-      "value": "/migrate/secure/"
+      "name": "MIGRATION_MANIFEST",
+      "value": "/migrate/migrations_manifest.txt"
     },
     {
       "name": "DB_HOST",
@@ -40,11 +46,19 @@
     },
     {
       "name": "DB_USER",
-      "value": "master"
+      "value": "ecs_user"
     },
     {
       "name": "DB_NAME",
       "value": "app"
+    },
+    {
+      "name": "DB_SSL_MODE",
+      "value": "{{ .DB_SSL_MODE }}"
+    },
+    {
+      "name": "DB_SSL_ROOT_CERT",
+      "value": "{{ .DB_SSL_ROOT_CERT }}"
     },
     {
       "name": "CHAMBER_KMS_KEY_ALIAS",
@@ -68,7 +82,6 @@
     }
   },
   "mountPoints": [],
-  "portMappings": [],
   "volumesFrom": [],
   "readonlyRootFilesystem": true
 }

@@ -1,6 +1,30 @@
 {
   "name": "app-{{ .environment }}",
   "image": "{{ .image }}",
+  "essential": true,
+  "entryPoint": [
+    "/bin/chamber",
+    "-r",
+    "{{ .CHAMBER_RETRIES }}",
+    "exec",
+    "app-{{ .environment }}",
+    "--",
+    "/bin/milmove",
+    "serve",
+    "--db-env",
+    "container",
+    "--logging-env",
+    "production",
+    "--debug-logging",
+    "--log-task-metadata",
+    "--tls-enabled",
+    "--db-iam",
+    "--db-iam-role",
+    "arn:aws:iam::923914045601:role/ecs-rds-role-app-{{ .environment }}",
+    "--db-region",
+    "us-west-2"
+  ],
+  "command": [],
   "portMappings": [
     {
       "containerPort": 8443,
@@ -8,22 +32,10 @@
       "protocol": "tcp"
     }
   ],
-  "essential": true,
-  "entryPoint": [
-    "/bin/chamber",
-    "exec",
-    "app-{{ .environment }}",
-    "--",
-    "/bin/mymove-server"
-  ],
-  "command": [
-    "--env",
-    "container",
-    "--debug-logging"
-  ],
+  "command": [],
   "environment": [
     {
-      "name": "SERVICE_NAME",
+      "name": "HONEYCOMB_SERVICE_NAME",
       "value": "app"
     },
     {
@@ -40,11 +52,23 @@
     },
     {
       "name": "DB_USER",
-      "value": "master"
+      "value": "ecs_user"
     },
     {
       "name": "DB_NAME",
       "value": "app"
+    },
+    {
+      "name": "DB_SSL_MODE",
+      "value": "{{ .DB_SSL_MODE }}"
+    },
+    {
+      "name": "DB_SSL_ROOT_CERT",
+      "value": "{{ .DB_SSL_ROOT_CERT }}"
+    },
+    {
+      "name": "DEVLOCAL_AUTH",
+      "value": "{{ .DEVLOCAL_AUTH }}"
     },
     {
       "name": "CHAMBER_KMS_KEY_ALIAS",
@@ -65,6 +89,10 @@
     {
       "name": "HTTP_TSP_SERVER_NAME",
       "value": "tsp.{{ .domain }}"
+    },
+    {
+      "name": "HTTP_ADMIN_SERVER_NAME",
+      "value": "admin.{{ .domain }}"
     },
     {
       "name": "HTTP_ORDERS_SERVER_NAME",
@@ -157,6 +185,18 @@
     {
       "name": "GEX_URL",
       "value": "https://gexweba.daas.dla.mil/msg_data/submit/"
+    },
+    {
+      "name": "GEX_SEND_PROD_INVOICE",
+      "value": "{{ .GEX_SEND_PROD_INVOICE }}"
+    },
+    {
+      "name": "SERVE_SWAGGER_UI",
+      "value": "{{ .SERVE_SWAGGER_UI }}"
+    },
+    {
+      "name": "FEATURE_FLAG_ACCESS_CODE",
+      "value": "{{ .FEATURE_FLAG_ACCESS_CODE }}"
     }
   ],
   "logConfiguration": {

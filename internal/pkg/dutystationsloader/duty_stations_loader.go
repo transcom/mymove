@@ -16,6 +16,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/tealeg/xlsx"
+
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -61,12 +62,6 @@ type TransportationOfficeWrapper struct {
 type StationOfficePair struct {
 	models.DutyStation
 	models.TransportationOffice
-}
-
-// column pairs a column name with its INSERT query-stringified value
-type column struct {
-	name  string
-	value string
 }
 
 // Gotta have a stringPointer function. Returns nil if empty string

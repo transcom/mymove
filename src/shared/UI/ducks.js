@@ -1,7 +1,7 @@
 import { get } from 'lodash';
 
 import { fetchActive, fetchActiveShipment } from 'shared/utils';
-import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
+import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { selectShipment } from 'shared/Entities/modules/shipments';
 
 const initialState = {

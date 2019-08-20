@@ -5,11 +5,15 @@ import (
 	"context"
 
 	"github.com/aws/aws-sdk-go/aws"
+	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/aws/aws-sdk-go/service/ses/sesiface"
 	"github.com/go-gomail/gomail"
 	"github.com/pkg/errors"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/cli"
 )
 
 type notification interface {
@@ -33,11 +37,11 @@ type NotificationSender interface {
 type NotificationSendingContext struct {
 	svc    sesiface.SESAPI
 	domain string
-	logger *zap.Logger
+	logger Logger
 }
 
 // NewNotificationSender returns a new NotificationSendingContext
-func NewNotificationSender(svc sesiface.SESAPI, domain string, logger *zap.Logger) NotificationSendingContext {
+func NewNotificationSender(svc sesiface.SESAPI, domain string, logger Logger) NotificationSendingContext {
 	return NotificationSendingContext{
 		svc:    svc,
 		domain: domain,
@@ -55,7 +59,27 @@ func (n NotificationSendingContext) SendNotification(ctx context.Context, notifi
 	return sendEmails(emails, n.svc, n.domain, n.logger)
 }
 
-func sendEmails(emails []emailContent, svc sesiface.SESAPI, domain string, logger *zap.Logger) error {
+// InitEmail initializes the email backend
+func InitEmail(v *viper.Viper, sess *awssession.Session, logger Logger) NotificationSender {
+	if v.GetString(cli.EmailBackendFlag) == "ses" {
+		// Setup Amazon SES (email) service
+		// TODO: This might be able to be combined with the AWS Session that we're using for S3 down
+		// below.
+		awsSESRegion := v.GetString(cli.AWSSESRegionFlag)
+		awsSESDomain := v.GetString(cli.AWSSESDomainFlag)
+		logger.Info("Using ses email backend",
+			zap.String("region", awsSESRegion),
+			zap.String("domain", awsSESDomain))
+		sesService := ses.New(sess)
+		return NewNotificationSender(sesService, awsSESDomain, logger)
+	}
+
+	domain := "milmovelocal"
+	logger.Info("Using local email backend", zap.String("domain", domain))
+	return NewStubNotificationSender(domain, logger)
+}
+
+func sendEmails(emails []emailContent, svc sesiface.SESAPI, domain string, logger Logger) error {
 	for _, email := range emails {
 		rawMessage, err := formatRawEmailMessage(email, domain)
 		if err != nil {

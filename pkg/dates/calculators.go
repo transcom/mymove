@@ -42,12 +42,8 @@ func CreatePastMoveDates(startDate time.Time, numDays int, includeWeekendsAndHol
 func CreateValidDatesBetweenTwoDates(startDate time.Time, endDate time.Time, includeWeekendsAndHolidays bool, allowEarlierOrSameEndDate bool, calendar *cal.Calendar) ([]time.Time, error) {
 	var dates []time.Time
 
-	if !calendar.IsWorkday(endDate) && !includeWeekendsAndHolidays {
-		return dates, errors.New("End date cannot be a weekend or holiday")
-	}
-
 	if startDate.After(endDate) || startDate == endDate {
-		if allowEarlierOrSameEndDate == true {
+		if allowEarlierOrSameEndDate {
 			return dates, nil
 		}
 		return dates, errors.New("End date cannot be before or equal to start date")
@@ -67,9 +63,5 @@ func CreateValidDatesBetweenTwoDates(startDate time.Time, endDate time.Time, inc
 // NextValidMoveDate returns next subsequent non-holiday weekday
 // This is mostly used for testing purposes
 func NextValidMoveDate(d time.Time, calendar *cal.Calendar) time.Time {
-	// Add days until we get a non-holiday weekday
-	for !calendar.IsWorkday(d) {
-		d = d.AddDate(0, 0, 1)
-	}
-	return d
+	return NextWorkday(*calendar, d)
 }

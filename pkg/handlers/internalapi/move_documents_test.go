@@ -1,7 +1,15 @@
 package internalapi
 
 import (
+	"net/http"
 	"net/http/httptest"
+
+	"github.com/gobuffalo/validate"
+
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/services/mocks"
+
+	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
@@ -127,58 +135,133 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 	suite.CheckResponseNotFound(badMoveResponse)
 }
 
-func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
-	// When: there is a move and move document
-	move := testdatagen.MakeDefaultMove(suite.DB())
+func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerNoMissingFields() {
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	move := ppm.Move
 	sm := move.Orders.ServiceMember
 
-	moveDocument := testdatagen.MakeMoveDocument(suite.DB(), testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
-			MoveID: move.ID,
-			Move:   move,
-		},
-		Document: models.Document{
-			ServiceMemberID: sm.ID,
-			ServiceMember:   sm,
-		},
-	})
+	moveDoc := testdatagen.MakeMoveDocument(suite.DB(),
+		testdatagen.Assertions{
+			MoveDocument: models.MoveDocument{
+				MoveID:                   move.ID,
+				Move:                     move,
+				PersonallyProcuredMoveID: &ppm.ID,
+				MoveDocumentType:         models.MoveDocumentTypeWEIGHTTICKETSET,
+			},
+		})
+	emptyWeight := unit.Pound(1000)
+	fullWeight := unit.Pound(2500)
+	weightTicketSetDocument := models.WeightTicketSetDocument{
+		MoveDocumentID:           moveDoc.ID,
+		MoveDocument:             moveDoc,
+		EmptyWeight:              &emptyWeight,
+		EmptyWeightTicketMissing: false,
+		FullWeight:               &fullWeight,
+		FullWeightTicketMissing:  false,
+		VehicleNickname:          "My Car",
+		VehicleOptions:           "CAR",
+		WeightTicketDate:         &testdatagen.NextValidMoveDate,
+		TrailerOwnershipMissing:  false,
+	}
+	verrs, err := suite.DB().ValidateAndCreate(&weightTicketSetDocument)
+	suite.NoError(err)
+	suite.False(verrs.HasAny())
+
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
 
-	// And: the title and status are updated
-	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
-		ID:               handlers.FmtUUID(moveDocument.ID),
-		MoveID:           handlers.FmtUUID(move.ID),
-		Title:            handlers.FmtString("super_awesome.pdf"),
-		Notes:            handlers.FmtString("This document is super awesome."),
-		Status:           internalmessages.MoveDocumentStatusOK,
-		MoveDocumentType: internalmessages.MoveDocumentTypeOTHER,
+	indexMoveDocParams := movedocop.IndexMoveDocumentsParams{
+		HTTPRequest: request,
+		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 
-	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
-		HTTPRequest:        request,
-		UpdateMoveDocument: &updateMoveDocPayload,
-		MoveDocumentID:     strfmt.UUID(moveDocument.ID.String()),
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	context.SetFileStorer(fakeS3)
+	handler := IndexMoveDocumentsHandler{context}
+	response := handler.Handle(indexMoveDocParams)
+
+	// assert we got back the 201 response
+	indexResponse := response.(*movedocop.IndexMoveDocumentsOK)
+	indexPayload := indexResponse.Payload
+	suite.NotNil(indexPayload)
+	for _, moveDoc := range indexPayload {
+		suite.Require().Equal(*moveDoc.ID, strfmt.UUID(weightTicketSetDocument.MoveDocument.ID.String()), "expected move ids to match")
+		suite.Require().Equal(*moveDoc.PersonallyProcuredMoveID, strfmt.UUID(ppm.ID.String()), "expected ppm ids to match")
+		suite.Require().Equal(*moveDoc.EmptyWeight, int64(*weightTicketSetDocument.EmptyWeight), "expected empty weight to match")
+		suite.Require().Equal(*moveDoc.EmptyWeightTicketMissing, weightTicketSetDocument.EmptyWeightTicketMissing, "expected empty weight ticket missing to match")
+		suite.Require().Equal(*moveDoc.FullWeight, int64(*weightTicketSetDocument.FullWeight), "expected empty weight to match")
+		suite.Require().Equal(*moveDoc.FullWeightTicketMissing, weightTicketSetDocument.FullWeightTicketMissing, "expected full weight ticket missing to match")
+		suite.Require().Equal(moveDoc.WeightTicketDate.String(), strfmt.Date(*weightTicketSetDocument.WeightTicketDate).String(), "expected weight ticket date to match")
+		suite.Require().Equal(*moveDoc.TrailerOwnershipMissing, weightTicketSetDocument.TrailerOwnershipMissing, "expected trailer ownership missing to match")
+		suite.Require().Equal(moveDoc.VehicleOptions, weightTicketSetDocument.VehicleOptions, "expected vehicle options to match")
+		suite.Require().Equal(moveDoc.VehicleNickname, weightTicketSetDocument.VehicleNickname, "expected vehicle nickname to match")
 	}
-
-	handler := UpdateMoveDocumentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	response := handler.Handle(updateMoveDocParams)
-
-	// Then: we expect to get back a 200 response
-	suite.IsNotErrResponse(response)
-	updateResponse := response.(*movedocop.UpdateMoveDocumentOK)
-	updatePayload := updateResponse.Payload
-	suite.NotNil(updatePayload)
-
-	suite.Require().Equal(*updatePayload.ID, strfmt.UUID(moveDocument.ID.String()), "expected move doc ids to match")
-
-	// And: the new data to be there
-	suite.Require().Equal(*updatePayload.Title, "super_awesome.pdf")
-	suite.Require().Equal(*updatePayload.Notes, "This document is super awesome.")
 }
 
-func (suite *HandlerSuite) TestApproveMoveDocumentHandler() {
-	// When: there is a move and move document
+func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerMissingFields() {
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	move := ppm.Move
+	sm := move.Orders.ServiceMember
+
+	moveDoc := testdatagen.MakeMoveDocument(suite.DB(),
+		testdatagen.Assertions{
+			MoveDocument: models.MoveDocument{
+				MoveID:                   move.ID,
+				Move:                     move,
+				PersonallyProcuredMoveID: &ppm.ID,
+				MoveDocumentType:         models.MoveDocumentTypeWEIGHTTICKETSET,
+			},
+		})
+	weightTicketSetDocument := models.WeightTicketSetDocument{
+		MoveDocumentID:           moveDoc.ID,
+		MoveDocument:             moveDoc,
+		EmptyWeight:              nil,
+		EmptyWeightTicketMissing: true,
+		FullWeight:               nil,
+		FullWeightTicketMissing:  true,
+		VehicleNickname:          "My Car",
+		VehicleOptions:           "CAR",
+		WeightTicketDate:         nil,
+		TrailerOwnershipMissing:  false,
+	}
+	verrs, err := suite.DB().ValidateAndCreate(&weightTicketSetDocument)
+	suite.NoError(err)
+	suite.False(verrs.HasAny())
+
+	request := httptest.NewRequest("POST", "/fake/path", nil)
+	request = suite.AuthenticateRequest(request, sm)
+
+	indexMoveDocParams := movedocop.IndexMoveDocumentsParams{
+		HTTPRequest: request,
+		MoveID:      strfmt.UUID(move.ID.String()),
+	}
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	context.SetFileStorer(fakeS3)
+	handler := IndexMoveDocumentsHandler{context}
+	response := handler.Handle(indexMoveDocParams)
+
+	// assert we got back the 201 response
+	indexResponse := response.(*movedocop.IndexMoveDocumentsOK)
+	indexPayload := indexResponse.Payload
+	suite.NotNil(indexPayload)
+	for _, moveDoc := range indexPayload {
+		suite.Require().Equal(*moveDoc.ID, strfmt.UUID(weightTicketSetDocument.MoveDocument.ID.String()), "expected move ids to match")
+		suite.Require().Equal(*moveDoc.PersonallyProcuredMoveID, strfmt.UUID(ppm.ID.String()), "expected ppm ids to match")
+		suite.Require().Nil(moveDoc.EmptyWeight)
+		suite.Require().Equal(*moveDoc.EmptyWeightTicketMissing, weightTicketSetDocument.EmptyWeightTicketMissing, "expected empty weight ticket missing to match")
+		suite.Require().Nil(moveDoc.FullWeight)
+		suite.Require().Equal(*moveDoc.FullWeightTicketMissing, weightTicketSetDocument.FullWeightTicketMissing, "expected full weight ticket missing to match")
+		suite.Require().Nil(moveDoc.WeightTicketDate)
+		suite.Require().Equal(*moveDoc.TrailerOwnershipMissing, weightTicketSetDocument.TrailerOwnershipMissing, "expected trailer ownership missing to match")
+		suite.Require().Equal(moveDoc.VehicleOptions, weightTicketSetDocument.VehicleOptions, "expected vehicle options to match")
+		suite.Require().Equal(moveDoc.VehicleNickname, weightTicketSetDocument.VehicleNickname, "expected vehicle nickname to match")
+	}
+}
+
+func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			Status: models.PPMStatusPAYMENTREQUESTED,
@@ -202,8 +285,7 @@ func (suite *HandlerSuite) TestApproveMoveDocumentHandler() {
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
 
-	// And: the title and status are updated
-	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
+	updateMoveDocPayload := &internalmessages.MoveDocumentPayload{
 		ID:               handlers.FmtUUID(moveDocument.ID),
 		MoveID:           handlers.FmtUUID(move.ID),
 		Title:            handlers.FmtString(moveDocument.Title),
@@ -214,29 +296,45 @@ func (suite *HandlerSuite) TestApproveMoveDocumentHandler() {
 
 	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
 		HTTPRequest:        request,
-		UpdateMoveDocument: &updateMoveDocPayload,
+		UpdateMoveDocument: updateMoveDocPayload,
 		MoveDocumentID:     strfmt.UUID(moveDocument.ID.String()),
 	}
 
-	handler := UpdateMoveDocumentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	moveDocumentUpdateHandler := &mocks.MoveDocumentUpdater{}
+
+	handler := UpdateMoveDocumentHandler{
+		handlers.NewHandlerContext(suite.DB(),
+			suite.TestLogger()),
+		moveDocumentUpdateHandler,
+	}
+
+	// happy path
+	returnedMoveDocument := models.MoveDocument{ID: moveDocument.ID}
+	moveDocumentUpdateHandler.On("Update",
+		updateMoveDocPayload,
+		moveDocument.ID,
+		auth.SessionFromRequestContext(updateMoveDocParams.HTTPRequest),
+	).Return(&returnedMoveDocument, validate.NewErrors(), nil).Once()
+
 	response := handler.Handle(updateMoveDocParams)
 
-	// Then: we expect to get back a 200 response
-	suite.IsNotErrResponse(response)
-	updateResponse := response.(*movedocop.UpdateMoveDocumentOK)
-	updatePayload := updateResponse.Payload
-	suite.NotNil(updatePayload)
+	suite.Assertions.IsType(&movedocop.UpdateMoveDocumentOK{}, response)
+	responsePayload := response.(*movedocop.UpdateMoveDocumentOK).Payload
+	suite.Equal(moveDocument.ID.String(), responsePayload.ID.String())
 
-	suite.Require().Equal(*updatePayload.ID, strfmt.UUID(moveDocument.ID.String()), "expected move doc ids to match")
+	// error scenario
+	expectedError := models.ErrFetchForbidden
+	returnedMoveDocument = models.MoveDocument{ID: moveDocument.ID}
+	moveDocumentUpdateHandler.On("Update",
+		updateMoveDocPayload,
+		moveDocument.ID,
+		auth.SessionFromRequestContext(updateMoveDocParams.HTTPRequest),
+	).Return(&returnedMoveDocument, validate.NewErrors(), expectedError).Once()
 
-	// And: the new data to be there
-	suite.Require().Equal(updatePayload.Status, internalmessages.MoveDocumentStatusOK)
-
-	var ppms models.PersonallyProcuredMoves
-	q := suite.DB().Where("move_id = ?", move.ID)
-	q.All(&ppms)
-	suite.Require().Equal(len(ppms), 1, "Should have a PPM!")
-	reloadedPPM := ppms[0]
-	suite.Require().Equal(string(models.PPMStatusCOMPLETED), string(reloadedPPM.Status))
-
+	response = handler.Handle(updateMoveDocParams)
+	expectedResponse := &handlers.ErrResponse{
+		Code: http.StatusForbidden,
+		Err:  expectedError,
+	}
+	suite.Equal(expectedResponse, response)
 }

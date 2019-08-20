@@ -1,0 +1,1 @@
+drop_column("personally_procured_moves", "planned_move_date")

@@ -24,6 +24,10 @@ const (
 	InvoiceStatusSUBMITTED InvoiceStatus = "SUBMITTED"
 	// InvoiceStatusSUBMISSIONFAILURE captures enum value "SUBMISSION_FAILURE"
 	InvoiceStatusSUBMISSIONFAILURE InvoiceStatus = "SUBMISSION_FAILURE"
+	// InvoiceStatusUPDATEFAILURE captures enum value "UPDATE_FAILURE"
+	// This status indicates that the invoice was successfully submitted, but the updating of the invoice
+	// and associated shipment line items failed.
+	InvoiceStatusUPDATEFAILURE InvoiceStatus = "UPDATE_FAILURE"
 )
 
 // Invoice is a collection of line item charges to be sent for payment
@@ -67,7 +71,7 @@ func FetchInvoice(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Inv
 	var invoice Invoice
 	err := db.Eager().Find(&invoice, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return nil, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.

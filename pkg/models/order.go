@@ -16,7 +16,7 @@ import (
 // UploadedOrdersDocumentName is the name of an uploaded orders document
 const UploadedOrdersDocumentName = "uploaded_orders"
 
-// OrderStatus represents the status of an order record's lifecycle
+// OrderStatus represents the state of an order record in the UX manual orders flow
 type OrderStatus string
 
 const (
@@ -158,19 +158,20 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	var order Order
 	err := db.Q().Eager("ServiceMember.User",
 		"NewDutyStation.Address",
+		"NewDutyStation.TransportationOffice",
 		"UploadedOrders.Uploads",
 		"Moves.PersonallyProcuredMoves",
 		"Moves.Shipments.TrafficDistributionList",
 		"Moves.SignedCertifications").Find(&order, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
 		return Order{}, err
 	}
 	// TODO: Handle case where more than one user is authorized to modify orders
-	if session.IsMyApp() && order.ServiceMember.ID != session.ServiceMemberID {
+	if session.IsMilApp() && order.ServiceMember.ID != session.ServiceMemberID {
 		return Order{}, ErrFetchForbidden
 	}
 	return order, nil
@@ -182,7 +183,7 @@ func FetchOrder(db *pop.Connection, id uuid.UUID) (Order, error) {
 	var order Order
 	err := db.Q().Find(&order, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
@@ -197,7 +198,7 @@ func FetchOrderForPDFConversion(db *pop.Connection, id uuid.UUID) (Order, error)
 	var order Order
 	err := db.Q().Eager("UploadedOrders.Uploads").Find(&order, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
@@ -207,8 +208,9 @@ func FetchOrderForPDFConversion(db *pop.Connection, id uuid.UUID) (Order, error)
 }
 
 // CreateNewMove creates a move associated with these Orders
-func (o *Order) CreateNewMove(db *pop.Connection, moveType *SelectedMoveType) (*Move, *validate.Errors, error) {
-	return createNewMove(db, *o, moveType)
+func (o *Order) CreateNewMove(db *pop.Connection, moveOptions MoveOptions) (*Move, *validate.Errors, error) {
+	return createNewMove(db, *o, moveOptions)
+	//return createNewMove(db, *o, moveType, swag.Bool(moveShow))
 }
 
 // IsComplete checks if orders have all fields necessary to approve a move
@@ -224,6 +226,9 @@ func (o *Order) IsComplete() bool {
 		return false
 	}
 	if o.TAC == nil {
+		return false
+	}
+	if o.SAC == nil {
 		return false
 	}
 	return true

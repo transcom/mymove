@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"github.com/go-openapi/swag"
-
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -11,9 +9,9 @@ func (suite *ModelSuite) Test_TrafficDistributionList() {
 	tdl := &TrafficDistributionList{}
 
 	expErrors := map[string][]string{
-		"source_rate_area":   []string{"SourceRateArea can not be blank.", "SourceRateArea does not match the expected format."},
-		"destination_region": []string{"DestinationRegion can not be blank.", "DestinationRegion does not match the expected format."},
-		"code_of_service":    []string{"CodeOfService can not be blank."},
+		"source_rate_area":   {"SourceRateArea can not be blank.", "SourceRateArea does not match the expected format."},
+		"destination_region": {"DestinationRegion can not be blank.", "DestinationRegion does not match the expected format."},
+		"code_of_service":    {"CodeOfService can not be blank."},
 	}
 
 	suite.verifyValidationErrors(tdl, expErrors)
@@ -50,7 +48,13 @@ func (suite *ModelSuite) Test_FetchOrCreateTDL() {
 		},
 	})
 	foundTSP := testdatagen.MakeDefaultTSP(suite.DB())
-	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), foundTSP, foundTDL, swag.Int(1), float64(mps+1), 0, .2, .3)
+	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   foundTSP,
+			TransportationServiceProviderID: foundTSP.ID,
+			TrafficDistributionListID:       foundTDL.ID,
+		},
+	})
 
 	fetchedTDL, err := FetchOrCreateTDL(suite.DB(), "US28", "4", "2")
 	if err != nil {

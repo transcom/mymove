@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-const prefix = "mymove-"
+const prefix = "milmove-"
 
 // LoginGovIDToCookie takes the Login.gov UUID of the current user and returns the cookie.
 func LoginGovIDToCookie(userID string, cookieSecret []byte, cookieExpires int) (*http.Cookie, error) {

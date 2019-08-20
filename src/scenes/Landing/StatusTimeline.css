@@ -27,7 +27,6 @@
   z-index: 10;
 }
 
-.status_block.status_completed,
 .status_block.status_current .status_name {
   font-weight: bold;
 }
@@ -79,6 +78,8 @@
 
 .shipment_box_contents .status_name {
   margin: 1rem 0 0.2rem 0;
+  max-width: 100px;
+  text-align: center;
 }
 
 .status_timeline .legend {

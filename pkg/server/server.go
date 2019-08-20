@@ -4,13 +4,12 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"log"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
 
 const (
@@ -22,172 +21,108 @@ const (
 // certificate verification, but is missing a CA certificate
 var ErrMissingCACert = errors.New("missing required CA certificate")
 
-// ErrUnparseableCACert represents an error cause by a misconfigured CA certificate
-// that was unable to be parsed.
-var ErrUnparseableCACert = errors.New("unable to parse CA certificate")
-
-type serverFunc func(server *http.Server) error
-
-// Server represents an http or https listening server. HTTPS listeners support
-// requiring client authentication with a provided CA.
-type Server struct {
-	CaCertPool     *x509.CertPool
-	ClientAuthType tls.ClientAuthType
-	HTTPHandler    http.Handler
-	ListenAddress  string
-	Logger         *zap.Logger
-	Port           int
-	TLSCerts       []tls.Certificate
+var cipherSuites = []uint16{
+	tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+	tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+	tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
+	tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
+	tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+	tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
 }
 
-// addr generates an address:port string to be used in defining an http.Server
-func addr(listenAddress string, port int) string {
-	return fmt.Sprintf("%s:%d", listenAddress, port)
+var curvePreferences = []tls.CurveID{
+	tls.CurveP256,
+	tls.X25519,
 }
 
-// stdLogError creates a *log.logger based off an existing zap.Logger instance.
-// Some libraries call log.logger directly, which isn't structured as JSON. This method
-// Will reformat log calls as zap.Error logs.
-func stdLogError(logger *zap.Logger) (*log.Logger, error) {
-	standardLog, err := zap.NewStdLogAt(logger, zapcore.ErrorLevel)
+// CreateNamedServerInput contains the input for the CreateServer function.
+type CreateNamedServerInput struct {
+	Name         string
+	Host         string
+	Port         int
+	Logger       Logger
+	HTTPHandler  http.Handler
+	ClientAuth   tls.ClientAuthType
+	Certificates []tls.Certificate
+	ClientCAs    *x509.CertPool // CaCertPool
+}
+
+// NamedServer wraps *http.Server to override the definition of ListenAndServeTLS, but bypasses some restrictions.
+type NamedServer struct {
+	*http.Server
+	Name string
+}
+
+// Port returns the port the server binds to.  Returns -1 if any error.
+func (s *NamedServer) Port() int {
+	if !strings.Contains(s.Addr, ":") {
+		return -1
+	}
+	port, err := strconv.Atoi(strings.SplitN(s.Addr, ":", 2)[1])
 	if err != nil {
-		return nil, err
-
+		return -1
 	}
-	return standardLog, nil
+	return port
 }
 
-// serverConfig generates a *http.Server with a structured error logger.
-func (s Server) serverConfig(tlsConfig *tls.Config) (*http.Server, error) {
-	// By detault http.Server will use the standard logging library which isn't
-	// structured JSON. This will pass zap.Logger with log level error
-	standardLog, err := stdLogError(s.Logger)
+// ListenAndServeTLS is similar to (*http.Server).ListenAndServeTLS, but bypasses some restrictions.
+func (s *NamedServer) ListenAndServeTLS() error {
+	listener, err := tls.Listen("tcp", s.Addr, s.TLSConfig)
 	if err != nil {
-		s.Logger.Error("failed to create an error logger", zap.Error(err))
-		return nil, errors.Wrap(err, "Faile")
+		return err
 	}
-
-	serverConfig := &http.Server{
-		Addr:           addr(s.ListenAddress, s.Port),
-		ErrorLog:       standardLog,
-		Handler:        s.HTTPHandler,
-		IdleTimeout:    idleTimeout,
-		MaxHeaderBytes: maxHeaderSize,
-		TLSConfig:      tlsConfig,
-	}
-	return serverConfig, err
+	defer listener.Close()
+	return s.Serve(listener)
 }
 
-// tlsConfig generates a new *tls.Config based on Mozilla's recommendations and returns an error, if any.
-func (s Server) tlsConfig() (*tls.Config, error) {
+// CreateNamedServer returns a no-tls, tls, or mutual-tls Server based on the input given and an error, if any.
+func CreateNamedServer(input *CreateNamedServerInput) (*NamedServer, error) {
 
-	// Load client Certificate Authority (CA) if we are requiring client
-	// cert authentication.
-	if s.ClientAuthType == tls.VerifyClientCertIfGiven ||
-		s.ClientAuthType == tls.RequireAndVerifyClientCert {
-		if s.CaCertPool == nil || len(s.CaCertPool.Subjects()) == 0 {
-			return nil, ErrMissingCACert
-		}
-	}
+	address := fmt.Sprintf("%s:%d", input.Host, input.Port)
 
-	// Follow Mozilla's "modern" server side TLS recommendations
-	// https://wiki.mozilla.org/Security/Server_Side_TLS#Modern_compatibility
-	// https://statics.tls.security.mozilla.org/server-side-tls-conf-4.0.json
-	// This configuration is compatible with Firefox 27, Chrome 30, IE 11 on
-	// Windows 7, Edge, Opera 17, Safari 9, Android 5.0, and Java 8
-	tlsConfig := &tls.Config{
-		CipherSuites: []uint16{
-			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
-			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-			tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
-			tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
-			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-		},
-		Certificates: s.TLSCerts,
-		ClientAuth:   s.ClientAuthType,
-		ClientCAs:    s.CaCertPool,
-		CurvePreferences: []tls.CurveID{
-			tls.CurveP256,
-			tls.X25519,
-		},
-		MinVersion:               tls.VersionTLS12,
-		NextProtos:               []string{"h2"},
-		PreferServerCipherSuites: true,
-	}
-
-	// Map certificates with the CommonName / DNSNames to support
-	// Server Name Indication (SNI). In other words this will tell
-	// the TLS listener to sever the appropriate certificate matching
-	// the requested hostname.
-	tlsConfig.BuildNameToCertificate()
-
-	return tlsConfig, nil
-}
-
-// ListenAndServeTLS returns a TLS Listener function for serving HTTPS requests
-func (s Server) ListenAndServeTLS() error {
-	var serverFunc serverFunc
-	var server *http.Server
 	var tlsConfig *tls.Config
-	var err error
+	if len(input.Certificates) > 0 {
 
-	tlsConfig, err = s.tlsConfig()
-	if err != nil {
-		s.Logger.Error("failed to generate a TLS config", zap.Error(err))
-		return err
-	}
-
-	server, err = s.serverConfig(tlsConfig)
-	if err != nil {
-		s.Logger.Error("failed to generate a TLS server config", zap.Error(err))
-		return err
-	}
-
-	s.Logger.Info("start https listener",
-		zap.Duration("idle-timeout", server.IdleTimeout),
-		zap.Any("listen-address", s.ListenAddress),
-		zap.Int("max-header-bytes", server.MaxHeaderBytes),
-		zap.Int("port", s.Port),
-	)
-
-	serverFunc = func(httpServer *http.Server) error {
-		tlsListener, err := tls.Listen("tcp",
-			server.Addr,
-			tlsConfig)
-		if err != nil {
-			return err
+		if input.ClientAuth == tls.VerifyClientCertIfGiven || input.ClientAuth == tls.RequireAndVerifyClientCert {
+			if input.ClientCAs == nil || len(input.ClientCAs.Subjects()) == 0 {
+				return nil, ErrMissingCACert
+			}
 		}
-		defer tlsListener.Close()
-		return server.Serve(tlsListener)
+
+		// Follow Mozilla's "modern" server side TLS recommendations
+		// https://wiki.mozilla.org/Security/Server_Side_TLS#Modern_compatibility
+		// https://statics.tls.security.mozilla.org/server-side-tls-conf-4.0.json
+		// This configuration is compatible with Firefox 27, Chrome 30, IE 11 on
+		// Windows 7, Edge, Opera 17, Safari 9, Android 5.0, and Java 8
+		tlsConfig = &tls.Config{
+			CipherSuites:             cipherSuites,
+			Certificates:             input.Certificates,
+			ClientAuth:               input.ClientAuth,
+			ClientCAs:                input.ClientCAs,
+			CurvePreferences:         curvePreferences,
+			MinVersion:               tls.VersionTLS12,
+			NextProtos:               []string{"h2"},
+			PreferServerCipherSuites: true,
+		}
+
+		// Map certificates with the CommonName / DNSNames to support
+		// Server Name Indication (SNI). In other words this will tell
+		// the TLS listener to sever the appropriate certificate matching
+		// the requested hostname.
+		tlsConfig.BuildNameToCertificate()
 	}
 
-	return serverFunc(server)
-}
-
-// ListenAndServe returns an HTTP ListenAndServe function for serving HTTP requests
-func (s Server) ListenAndServe() error {
-	var serverFunc serverFunc
-	var server *http.Server
-	var tlsConfig *tls.Config
-	var err error
-
-	server, err = s.serverConfig(tlsConfig)
-	if err != nil {
-		s.Logger.Error("failed to generate a server config", zap.Error(err))
-		return err
+	srv := &NamedServer{
+		Name: input.Name,
+		Server: &http.Server{
+			Addr:           address,
+			ErrorLog:       newStandardLogger(input.Logger),
+			Handler:        input.HTTPHandler,
+			IdleTimeout:    idleTimeout,
+			MaxHeaderBytes: maxHeaderSize,
+			TLSConfig:      tlsConfig,
+		},
 	}
+	return srv, nil
 
-	s.Logger.Info("start http listener",
-		zap.Duration("idle-timeout", server.IdleTimeout),
-		zap.Any("listen-address", s.ListenAddress),
-		zap.Int("max-header-bytes", server.MaxHeaderBytes),
-		zap.Int("port", s.Port),
-	)
-
-	serverFunc = func(httpServer *http.Server) error {
-		return httpServer.ListenAndServe()
-	}
-
-	return serverFunc(server)
 }

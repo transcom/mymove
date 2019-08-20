@@ -1,0 +1,1 @@
+add_column("personally_procured_moves", "total_sit_cost", "int", {"null": true})

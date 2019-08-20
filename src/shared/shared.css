@@ -16,7 +16,7 @@
 }
 
 .approval-waiting {
-  color: #fdb81e;
+  color: #cd3504;
 }
 
 .approval-blocked {
@@ -24,5 +24,10 @@
 }
 
 .approval-problem {
-  color: #e31c3d;
+  color: #cd3504;
+}
+
+.shipment-line-item-warning {
+  color: #cd3504;
+  font-style: italic;
 }

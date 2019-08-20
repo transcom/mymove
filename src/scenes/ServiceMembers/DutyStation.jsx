@@ -53,12 +53,18 @@ export class DutyStation extends Component {
   };
 
   render() {
-    const { pages, pageKey, error, existingStation } = this.props;
+    const { pages, pageKey, error, existingStation, newDutyStation, currentStation } = this.props;
 
     let initialValues = null;
-    if (existingStation) {
+    if (existingStation.name) {
       initialValues = { current_station: existingStation };
     }
+
+    const newDutyStationErrorMsg =
+      newDutyStation.name && newDutyStation.name === currentStation.name
+        ? 'You entered the same duty station for your origin and destination. Please change one of them.'
+        : '';
+
     return (
       <DutyStationWizardForm
         handleSubmit={this.handleSubmit}
@@ -68,7 +74,12 @@ export class DutyStation extends Component {
         serverError={error}
       >
         <h1 className="sm-heading">Current Duty Station</h1>
-        <Field name="current_station" component={DutyStationSearchBox} />
+        <Field
+          name="current_station"
+          title="What is your current duty station?"
+          component={DutyStationSearchBox}
+          errorMsg={newDutyStationErrorMsg}
+        />
       </DutyStationWizardForm>
     );
   }
@@ -82,15 +93,17 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ updateServiceMember }, dispatch);
 }
 function mapStateToProps(state) {
-  const currentServiceMember = state.serviceMember.currentServiceMember;
-  const dutyStation =
-    currentServiceMember && currentServiceMember.current_station ? currentServiceMember.current_station : null;
-  const props = {
+  const formValues = getFormValues(dutyStationFormName)(state);
+  return {
     values: getFormValues(dutyStationFormName)(state),
-    existingStation: dutyStation,
+    existingStation: get(state, 'serviceMember.currentServiceMember.current_station', {}),
     ...state.serviceMember,
+    currentStation: get(formValues, 'current_station', {}),
+    newDutyStation: get(state, 'orders.currentOrders.new_duty_station', {}),
   };
-  return props;
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(DutyStation);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(DutyStation);

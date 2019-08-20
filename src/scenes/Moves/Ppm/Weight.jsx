@@ -130,39 +130,58 @@ export class PpmWeight extends Component {
     this.state = {
       pendingPpmWeight: null,
     };
+
+    this.onWeightSelected = this.onWeightSelected.bind(this);
+  }
+
+  getWeightClassMedian() {
+    const { selectedWeightInfo } = this.props;
+    return selectedWeightInfo.min + (selectedWeightInfo.max - selectedWeightInfo.min) / 2;
   }
 
   componentDidMount() {
     const { currentPpm } = this.props;
     if (currentPpm) {
-      this.setState({
-        pendingPpmWeight: currentPpm.weight_estimate,
-      });
-      this.updateIncentive();
+      this.setState(
+        {
+          pendingPpmWeight:
+            currentPpm.weight_estimate && currentPpm.weight_estimate !== 0
+              ? currentPpm.weight_estimate
+              : this.getWeightClassMedian(),
+        },
+        this.updateIncentive,
+      );
     }
   }
   componentDidUpdate(prevProps, prevState) {
     const { currentPpm, hasLoadSuccess } = this.props;
     if (!prevProps.hasLoadSuccess && hasLoadSuccess && currentPpm) {
-      this.setState({
-        pendingPpmWeight: currentPpm.weight_estimate,
-      });
-      this.updateIncentive();
+      this.setState(
+        {
+          pendingPpmWeight:
+            currentPpm.weight_estimate && currentPpm.weight_estimate !== 0
+              ? currentPpm.weight_estimate
+              : this.getWeightClassMedian(),
+        },
+        this.updateIncentive,
+      );
     }
   }
   // this method is used to set the incentive on page load
   // it runs even if the incentive has been set before since data changes on previous pages could
   // affect it
   updateIncentive() {
-    const { currentWeight, currentPpm } = this.props;
+    const { currentWeight, currentPpm, originDutyStationZip } = this.props;
     const weight_estimate = get(this.props, 'currentPpm.weight_estimate');
-    if (![this.state.pendingPpmWeight, weight_estimate].includes(currentWeight)) {
-      this.onWeightSelecting(currentWeight);
+    if (![this.state.pendingPpmWeight, weight_estimate].includes(currentWeight) || !currentWeight) {
+      const newWeight = currentWeight && currentWeight !== 0 ? currentWeight : this.state.pendingPpmWeight;
+      this.onWeightSelecting(newWeight);
       this.props.getPpmWeightEstimate(
-        currentPpm.planned_move_date,
+        currentPpm.original_move_date,
         currentPpm.pickup_postal_code,
+        originDutyStationZip,
         currentPpm.destination_postal_code,
-        currentWeight,
+        newWeight,
       );
     }
   }
@@ -172,7 +191,7 @@ export class PpmWeight extends Component {
     const ppmBody = {
       weight_estimate: this.state.pendingPpmWeight,
     };
-    if (advanceFormValues.has_requested_advance) {
+    if (advanceFormValues && advanceFormValues.has_requested_advance) {
       ppmBody.has_requested_advance = true;
       const requestedAmount = convertDollarsToCents(advanceFormValues.requested_amount);
       ppmBody.advance = {
@@ -189,15 +208,16 @@ export class PpmWeight extends Component {
       pendingPpmWeight: value,
     });
   };
-  onWeightSelected = value => {
-    const { currentPpm } = this.props;
+  onWeightSelected() {
+    const { currentPpm, originDutyStationZip } = this.props;
     this.props.getPpmWeightEstimate(
-      currentPpm.planned_move_date,
+      currentPpm.original_move_date,
       currentPpm.pickup_postal_code,
+      originDutyStationZip,
       currentPpm.destination_postal_code,
       this.state.pendingPpmWeight,
     );
-  };
+  }
   render() {
     const {
       currentPpm,
@@ -354,6 +374,7 @@ PpmWeight.propTypes = {
 };
 function mapStateToProps(state) {
   const schema = get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {});
+  const originDutyStationZip = state.serviceMember.currentServiceMember.current_station.address.postal_code;
   // In scheduling, PPM advances cannot go to GTCC so we filter out that method of payment.
   let ppmAdvanceSchema = {};
   if (has(schema, 'properties')) {
@@ -373,6 +394,7 @@ function mapStateToProps(state) {
     ppmAdvanceSchema: ppmAdvanceSchema,
     advanceFormValues: getFormValues(requestAdvanceFormName)(state),
     isHHGPPMComboMove: get(state, 'moves.currentMove.selected_move_type') === 'HHG_PPM',
+    originDutyStationZip: originDutyStationZip,
   };
 
   return props;
@@ -388,4 +410,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(PpmWeight);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PpmWeight);

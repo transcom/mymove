@@ -9,8 +9,8 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
+
 	"github.com/transcom/mymove/pkg/auth"
 )
 
@@ -38,7 +38,7 @@ func (u *Upload) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.UUIDIsPresent{Field: u.UploaderID, Name: "UploaderID"},
 		&validators.StringIsPresent{Field: u.Filename, Name: "Filename"},
 		&Int64IsPresent{Field: u.Bytes, Name: "Bytes"},
-		NewAllowedFileTypeValidator(u.ContentType, "ContentType"),
+		&validators.StringIsPresent{Field: u.ContentType, Name: "ContentType"},
 		&validators.StringIsPresent{Field: u.Checksum, Name: "Checksum"},
 	), nil
 }
@@ -60,13 +60,10 @@ func (u *Upload) BeforeCreate(tx *pop.Connection) error {
 // FetchUpload returns an Upload if the user has access to that upload
 func FetchUpload(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (Upload, error) {
 
-	ctx, span := beeline.StartSpan(ctx, "FetchServiceMemberForUser")
-	defer span.Send()
-
 	var upload Upload
 	err := db.Q().Eager().Find(&upload, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Upload{}, errors.Wrap(ErrFetchNotFound, "error fetching upload")
 		}
 		// Otherwise, it's an unexpected err so we return that.

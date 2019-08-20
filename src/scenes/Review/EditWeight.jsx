@@ -102,16 +102,13 @@ let EditWeightForm = props => {
             <span> lbs</span>
           </div>
           <div>
-            {!advanceError &&
-              initialValues &&
-              initialValues.incentive_estimate_min &&
-              dirty && (
-                <div className="usa-alert usa-alert-warning">
-                  <div className="usa-alert-body">
-                    <p className="usa-alert-text">This update will change your incentive.</p>
-                  </div>
+            {!advanceError && initialValues && initialValues.incentive_estimate_min && dirty && (
+              <div className="usa-alert usa-alert-warning">
+                <div className="usa-alert-body">
+                  <p className="usa-alert-text">This update will change your incentive.</p>
                 </div>
-              )}
+              </div>
+            )}
             {advanceError && (
               <p className="advance-error">Weight is too low and will require paying back the advance.</p>
             )}
@@ -129,7 +126,7 @@ let EditWeightForm = props => {
               initialValues.incentive_estimate_min !== incentive_estimate_min && (
                 <p className="subtext">
                   Originally{' '}
-                  {formatCentsRange(initialValues.incentive_estimate_min, initialValues.incentive_estimate_min)}
+                  {formatCentsRange(initialValues.incentive_estimate_min, initialValues.incentive_estimate_max)}
                 </p>
               )}
           </div>
@@ -184,11 +181,12 @@ class EditWeight extends Component {
   debouncedGetPpmWeightEstimate = debounce(this.props.getPpmWeightEstimate, weightEstimateDebounce);
 
   onWeightChange = (e, newValue, oldValue, fieldName) => {
-    const { currentPpm, entitlement } = this.props;
+    const { currentPpm, entitlement, originDutyStationZip } = this.props;
     if (newValue > 0 && newValue <= entitlement.sum) {
       this.debouncedGetPpmWeightEstimate(
-        currentPpm.planned_move_date,
+        currentPpm.original_move_date,
         currentPpm.pickup_postal_code,
+        originDutyStationZip,
         currentPpm.destination_postal_code,
         newValue,
       );
@@ -266,6 +264,7 @@ function mapStateToProps(state) {
     hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
     entitlement: loadEntitlementsFromState(state),
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
+    originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
   };
 }
 
@@ -284,4 +283,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditWeight);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(EditWeight);

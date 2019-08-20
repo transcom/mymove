@@ -8,6 +8,8 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/gen/dpsapi/dpsoperations/dps"
@@ -15,7 +17,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/models"
-	"go.uber.org/zap"
 )
 
 // GetUserHandler returns user information given an encrypted token
@@ -33,9 +34,14 @@ var affiliationMap = map[models.ServiceMemberAffiliation]dpsmessages.Affiliation
 
 // Handle returns user information given an encrypted token
 func (h GetUserHandler) Handle(params dps.GetUserParams) middleware.Responder {
-	clientCert := authentication.ClientCertFromRequestContext(params.HTTPRequest)
+
+	ctx := params.HTTPRequest.Context()
+
+	logger := h.LoggerFromContext(ctx)
+
+	clientCert := authentication.ClientCertFromContext(ctx)
 	if clientCert == nil || !clientCert.AllowDpsAuthAPI {
-		h.Logger().Info("Client certificate is not authorized to access this API")
+		logger.Info("Client certificate is not authorized to access this API")
 		return dps.NewGetUserUnauthorized()
 	}
 
@@ -43,7 +49,7 @@ func (h GetUserHandler) Handle(params dps.GetUserParams) middleware.Responder {
 	token := params.Token
 	loginGovID, err := dpsauth.CookieToLoginGovID(token, dpsParams.CookieSecret)
 	if err != nil {
-		h.Logger().Error("Extracting user ID from token", zap.Error(err))
+		logger.Error("Extracting user ID from token", zap.Error(err))
 
 		switch err.(type) {
 		case *dpsauth.ErrInvalidCookie:
@@ -52,13 +58,13 @@ func (h GetUserHandler) Handle(params dps.GetUserParams) middleware.Responder {
 		return dps.NewGetUserInternalServerError()
 	}
 
-	payload, err := getPayload(h.DB(), loginGovID, h.IWSRealTimeBrokerService())
+	payload, err := getPayload(h.DB(), loginGovID, h.IWSPersonLookup())
 	if err != nil {
 		switch e := err.(type) {
 		case *errUserMissingData:
-			h.Logger().Error("Fetching user data from user ID", zap.Error(err), zap.String("user", e.userID.String()))
+			logger.Error("Fetching user data from user ID", zap.Error(err), zap.String("user", e.userID.String()))
 		default:
-			h.Logger().Error("Fetching user data from user ID", zap.Error(err))
+			logger.Error("Fetching user data from user ID", zap.Error(err))
 		}
 
 		return dps.NewGetUserInternalServerError()
@@ -67,7 +73,7 @@ func (h GetUserHandler) Handle(params dps.GetUserParams) middleware.Responder {
 	return dps.NewGetUserOK().WithPayload(payload)
 }
 
-func getPayload(db *pop.Connection, loginGovID string, rbs iws.RealTimeBrokerService) (*dpsmessages.AuthenticationUserPayload, error) {
+func getPayload(db *pop.Connection, loginGovID string, rbs iws.PersonLookup) (*dpsmessages.AuthenticationUserPayload, error) {
 	userIdentity, err := models.FetchUserIdentity(db, loginGovID)
 	if err != nil {
 		return nil, errors.Wrap(err, "Fetching user identity")
@@ -123,7 +129,7 @@ func getPayload(db *pop.Connection, loginGovID string, rbs iws.RealTimeBrokerSer
 	return &payload, nil
 }
 
-func getSSNFromIWS(edipi string, rbs iws.RealTimeBrokerService) (string, error) {
+func getSSNFromIWS(edipi string, rbs iws.PersonLookup) (string, error) {
 	edipiInt, err := strconv.ParseUint(edipi, 10, 64)
 	if err != nil {
 		return "", errors.Wrap(err, "Converting EDIPI from string to int")

@@ -23,7 +23,6 @@ module.exports = function(wallaby) {
 
     compilers: {
       '**/*.js?(x)': wallaby.compilers.babel({
-        babel: require('babel-core'),
         presets: ['react-app'],
       }),
     },

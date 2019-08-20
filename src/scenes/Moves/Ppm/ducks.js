@@ -1,8 +1,8 @@
-import { get, every, isNull, isNumber } from 'lodash';
+import { get, every, isNull, isNumber, isEmpty } from 'lodash';
 import { CreatePpm, UpdatePpm, GetPpm, GetPpmWeightEstimate, GetPpmSitEstimate, RequestPayment } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
-import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
-import { fetchActive } from 'shared/utils';
+import { GET_LOGGED_IN_USER } from 'shared/Data/users';
+import { fetchActive, fetchActivePPM } from 'shared/utils';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCents } from 'shared/formatters';
 import { selectShipment } from 'shared/Entities/modules/shipments';
@@ -27,11 +27,11 @@ export function setPendingPpmWeight(value) {
   return { type: SET_PENDING_PPM_WEIGHT, payload: value };
 }
 
-export function getPpmWeightEstimate(moveDate, originZip, destZip, weightEstimate) {
+export function getPpmWeightEstimate(moveDate, originZip, originDutyStationZip, destZip, weightEstimate) {
   const action = ReduxHelpers.generateAsyncActions('GET_PPM_ESTIMATE');
   return function(dispatch, getState) {
     dispatch(action.start());
-    return GetPpmWeightEstimate(moveDate, originZip, destZip, weightEstimate)
+    return GetPpmWeightEstimate(moveDate, originZip, originDutyStationZip, destZip, weightEstimate)
       .then(item => dispatch(action.success(item)))
       .catch(error => dispatch(action.error(error)));
   };
@@ -73,10 +73,11 @@ export function createOrUpdatePpm(moveId, ppm) {
   };
 }
 
-export function setInitialFormValues(plannedMoveDate, pickupPostalCode, destinationPostalCode) {
+export function setInitialFormValues(originalMoveDate, pickupPostalCode, originDutyStationZip, destinationPostalCode) {
   return function(dispatch) {
-    dispatch(change('ppp_date_and_location', 'planned_move_date', plannedMoveDate));
+    dispatch(change('ppp_date_and_location', 'original_move_date', originalMoveDate));
     dispatch(change('ppp_date_and_location', 'pickup_postal_code', pickupPostalCode));
+    dispatch(change('ppp_date_and_location', 'origin_duty_station_zip', originDutyStationZip));
     dispatch(change('ppp_date_and_location', 'destination_postal_code', destinationPostalCode));
   };
 }
@@ -125,7 +126,7 @@ export function submitExpenseDocs(state) {
 // Selectors
 export function getRawWeightInfo(state) {
   const entitlement = loadEntitlementsFromState(state);
-  if (isNull(entitlement)) {
+  if (isEmpty(entitlement)) {
     return null;
   }
 
@@ -223,12 +224,8 @@ export function getDestinationPostalCode(state) {
 export function getPPM(state) {
   const move = state.moves.currentMove || state.moves.latestMove || {};
   const moveId = move.id;
-  const ppmsFromEntities = state.entities.personallyProcuredMove;
-  if (moveId && ppmsFromEntities) {
-    return Object.values(state.entities.personallyProcuredMove).find(ppm => ppm.move_id === moveId);
-  } else {
-    return state.ppm.currentPpm;
-  }
+  const ppmFromEntities = Object.values(state.entities.personallyProcuredMoves).find(ppm => ppm.move_id === moveId);
+  return ppmFromEntities || state.ppm.currentPpm || {};
 }
 
 // Reducer
@@ -252,7 +249,7 @@ export function ppmReducer(state = initialState, action) {
       // Initialize state when we get the logged in user
       const activeOrders = fetchActive(get(action.payload, 'service_member.orders'));
       const activeMove = fetchActive(get(activeOrders, 'moves'));
-      const activePpm = fetchActive(get(activeMove, 'personally_procured_moves'));
+      const activePpm = fetchActivePPM(get(activeMove, 'personally_procured_moves'));
       return Object.assign({}, state, {
         currentPpm: activePpm,
         pendingPpmSize: get(activePpm, 'size', null),

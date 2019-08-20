@@ -1,61 +1,78 @@
 package authentication
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"reflect"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
+	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/pkg/errors"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 // UserAuthMiddleware enforces that the incoming request is tied to a user session
-func UserAuthMiddleware(logger *zap.Logger) func(next http.Handler) http.Handler {
+func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			ctx, span := beeline.StartSpan(r.Context(), "UserAuthMiddleware")
-			defer span.Send()
 
 			session := auth.SessionFromRequestContext(r)
 			// We must have a logged in session and a user
 			if session == nil || session.UserID == uuid.Nil {
-				logger.Error("unauthorized access")
+				logger.Error("unauthorized access, no session token or user id")
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
-			// TODO: Add support for BackupContacts
-			// And this must be the right type of user for the application
-			if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
+			// DO NOT CHECK MILMOVE SESSION BECAUSE NEW SERVICE MEMBERS WON'T HAVE AN ID RIGHT AWAY
+			// This must be the right type of user for the application
+			if session.IsOfficeApp() && !session.IsOfficeUser() {
 				logger.Error("unauthorized user for office.move.mil", zap.String("email", session.Email))
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
-			}
-			// This must be the right type of user for the application
-			if session.IsTspApp() && session.TspUserID == uuid.Nil {
+			} else if session.IsTspApp() && !session.IsTspUser() {
 				logger.Error("unauthorized user for tsp.move.mil", zap.String("email", session.Email))
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			} else if session.IsAdminApp() && !session.IsAdminUser() {
+				logger.Error("unauthorized user for admin.move.mil", zap.String("email", session.Email))
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
 
-			// Include session office, service member, tsp and user IDs to the beeline event
-			span.AddTraceField("auth.office_user_id", session.OfficeUserID)
-			span.AddTraceField("auth.service_member_id", session.ServiceMemberID)
-			span.AddTraceField("auth.tsp_user_id", session.TspUserID)
-			span.AddTraceField("auth.user_id", session.UserID)
-
-			next.ServeHTTP(w, r.WithContext(ctx))
-			return
+			next.ServeHTTP(w, r)
 		}
+		return http.HandlerFunc(mw)
+	}
+}
+
+func AdminAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			session := auth.SessionFromRequestContext(r)
+
+			if session == nil || !session.IsAdminUser() {
+				http.Error(w, http.StatusText(403), http.StatusForbidden)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		}
+
 		return http.HandlerFunc(mw)
 	}
 }
@@ -66,13 +83,13 @@ func (context Context) landingURL(session *auth.Session) string {
 
 // Context is the common handler type for auth handlers
 type Context struct {
-	logger           *zap.Logger
+	logger           Logger
 	loginGovProvider LoginGovProvider
 	callbackTemplate string
 }
 
 // NewAuthContext creates an Context
-func NewAuthContext(logger *zap.Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int) Context {
+func NewAuthContext(logger Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int) Context {
 	context := Context{
 		logger:           logger,
 		loginGovProvider: loginGovProvider,
@@ -86,14 +103,16 @@ type LogoutHandler struct {
 	Context
 	clientAuthSecretKey string
 	noSessionTimeout    bool
+	useSecureCookie     bool
 }
 
 // NewLogoutHandler creates a new LogoutHandler
-func NewLogoutHandler(ac Context, clientAuthSecretKey string, noSessionTimeout bool) LogoutHandler {
+func NewLogoutHandler(ac Context, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) LogoutHandler {
 	handler := LogoutHandler{
 		Context:             ac,
 		clientAuthSecretKey: clientAuthSecretKey,
 		noSessionTimeout:    noSessionTimeout,
+		useSecureCookie:     useSecureCookie,
 	}
 	return handler
 }
@@ -108,24 +127,41 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			// don't want to make a call to login.gov for a logout URL as it will
 			// fail for devlocal-auth'ed users.
 			if session.IDToken == "devlocal" {
-				logoutURL = "/"
+				logoutURL = redirectURL
 			} else {
 				logoutURL = h.loginGovProvider.LogoutURL(redirectURL, session.IDToken)
 			}
+			// This operation will delete all cookies from the session
 			session.IDToken = ""
 			session.UserID = uuid.Nil
-			auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger)
-			http.Redirect(w, r, logoutURL, http.StatusTemporaryRedirect)
+			auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
+			auth.DeleteCSRFCookies(w)
+			fmt.Fprint(w, logoutURL)
 		} else {
 			// Can't log out of login.gov without a token, redirect and let them re-auth
-			http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
+			fmt.Fprint(w, redirectURL)
 		}
 	}
 }
 
+// loginStateCookieName is the name given to the cookie storing the encrypted Login.gov state nonce.
+const loginStateCookieName = "lg_state"
+const loginStateCookieTTLInSecs = 1800 // 30 mins to transit through login.gov.
+
 // RedirectHandler handles redirection
 type RedirectHandler struct {
 	Context
+	UseSecureCookie bool
+}
+
+func shaAsString(nonce string) string {
+	s := sha256.Sum256([]byte(nonce))
+	return hex.EncodeToString(s[:])
+}
+
+// StateCookieName returns the login.gov state cookie name
+func StateCookieName(session *auth.Session) string {
+	return fmt.Sprintf("%s_%s", string(session.ApplicationName), loginStateCookieName)
 }
 
 // RedirectHandler constructs the Login.gov authentication URL and redirects to it
@@ -137,33 +173,51 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	authURL, err := h.loginGovProvider.AuthorizationURL(r)
+	loginData, err := h.loginGovProvider.AuthorizationURL(r)
 	if err != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 
-	http.Redirect(w, r, authURL, http.StatusTemporaryRedirect)
+	// Hash the state/Nonce value sent to login.gov and set the result as an HttpOnly cookie
+	// Check this when we return from login.gov
+	if session == nil {
+		h.logger.Error("Session is nil, so cannot get hostname for state Cookie")
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
+	stateCookie := http.Cookie{
+		Name:     StateCookieName(session),
+		Value:    shaAsString(loginData.Nonce),
+		Path:     "/",
+		Expires:  time.Now().Add(time.Duration(loginStateCookieTTLInSecs) * time.Second),
+		MaxAge:   loginStateCookieTTLInSecs,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+		Secure:   h.UseSecureCookie,
+	}
+	http.SetCookie(w, &stateCookie)
+	http.Redirect(w, r, loginData.RedirectURL, http.StatusTemporaryRedirect)
 }
 
 // CallbackHandler processes a callback from login.gov
 type CallbackHandler struct {
 	Context
-	db                     *pop.Connection
-	clientAuthSecretKey    string
-	noSessionTimeout       bool
-	loginGovMyClientID     string
-	loginGovOfficeClientID string
-	loginGovTspClientID    string
+	db                  *pop.Connection
+	clientAuthSecretKey string
+	noSessionTimeout    bool
+	useSecureCookie     bool
 }
 
 // NewCallbackHandler creates a new CallbackHandler
-func NewCallbackHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool) CallbackHandler {
+func NewCallbackHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) CallbackHandler {
 	handler := CallbackHandler{
 		Context:             ac,
 		db:                  db,
 		clientAuthSecretKey: clientAuthSecretKey,
 		noSessionTimeout:    noSessionTimeout,
+		useSecureCookie:     useSecureCookie,
 	}
 	return handler
 }
@@ -171,29 +225,67 @@ func NewCallbackHandler(ac Context, db *pop.Connection, clientAuthSecretKey stri
 // AuthorizationCallbackHandler handles the callback from the Login.gov authorization flow
 func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	_, span := beeline.StartSpan(r.Context(), reflect.TypeOf(h).Name())
-	defer span.Send()
-
 	session := auth.SessionFromRequestContext(r)
 	if session == nil {
 		h.logger.Error("Session missing")
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
-	lURL := h.landingURL(session)
+
+	rawLandingURL := h.landingURL(session)
+	landingURL, err := url.Parse(rawLandingURL)
+	if err != nil {
+		h.logger.Error("Error parsing landing URL")
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
 
 	if err := r.URL.Query().Get("error"); len(err) > 0 {
+		landingQuery := landingURL.Query()
 		switch err {
 		case "access_denied":
 			// The user has either cancelled or declined to authorize the client
-			http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
 		case "invalid_request":
 			h.logger.Error("INVALID_REQUEST error from login.gov")
-			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			landingQuery.Add("error", "INVALID_REQUEST")
 		default:
 			h.logger.Error("unknown error from login.gov")
-			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			landingQuery.Add("error", "UNKNOWN_ERROR")
 		}
+		landingURL.RawQuery = landingQuery.Encode()
+		http.Redirect(w, r, landingURL.String(), http.StatusPermanentRedirect)
+		return
+	}
+
+	// Check the state value sent back from login.gov with the value saved in the cookie
+	returnedState := r.URL.Query().Get("state")
+	stateCookie, err := r.Cookie(StateCookieName(session))
+	if err != nil {
+		h.logger.Error("Getting login.gov state cookie", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
+	hash := stateCookie.Value
+	// case where user has 2 tabs open with different cookies
+	if hash != shaAsString(returnedState) {
+		h.logger.Error("State returned from Login.gov does not match state value stored in cookie",
+			zap.String("state", returnedState),
+			zap.String("cookie", hash),
+			zap.String("hash", shaAsString(returnedState)))
+
+		// This operation will delete all cookies from the session
+		session.IDToken = ""
+		session.UserID = uuid.Nil
+		auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
+		// Delete lg_state cookie
+		auth.DeleteCookie(w, StateCookieName(session))
+
+		// set error query
+		landingQuery := landingURL.Query()
+		landingQuery.Add("error", "SIGNIN_ERROR")
+		landingURL.RawQuery = landingQuery.Encode()
+		http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -211,7 +303,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		provider.ClientKey,
 		h.loginGovProvider)
 	if err != nil {
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 		return
 	}
 
@@ -228,17 +320,49 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	userIdentity, err := models.FetchUserIdentity(h.db, openIDUser.UserID)
 	if err == nil { // Someone we know already
+		authorizeKnownUser(userIdentity, h, session, w, r, landingURL.String())
+		return
+	} else if err == models.ErrFetchNotFound { // Never heard of them so far
+		authorizeUnknownUser(openIDUser, h, session, w, r, landingURL.String())
+		return
+	} else {
+		h.logger.Error("Error loading Identity.", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+}
 
-		session.UserID = userIdentity.ID
-		span.AddField("session.user_id", session.UserID)
-		if userIdentity.ServiceMemberID != nil {
-			session.ServiceMemberID = *(userIdentity.ServiceMemberID)
-			span.AddField("session.service_member_id", session.ServiceMemberID)
+func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
+
+	if userIdentity.Disabled {
+		h.logger.Error("Disabled user requesting authentication",
+			zap.String("application_name", string(session.ApplicationName)),
+			zap.String("hostname", session.Hostname),
+			zap.String("user_id", session.UserID.String()),
+			zap.String("email", session.Email))
+		http.Error(w, http.StatusText(403), http.StatusForbidden)
+		return
+	}
+
+	session.UserID = userIdentity.ID
+
+	if userIdentity.ServiceMemberID != nil {
+		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
+	}
+
+	if userIdentity.DpsUserID != nil && (userIdentity.DpsDisabled != nil && !*userIdentity.DpsDisabled) {
+		session.DpsUserID = *(userIdentity.DpsUserID)
+	}
+
+	if session.IsOfficeApp() {
+		if userIdentity.OfficeDisabled != nil && *userIdentity.OfficeDisabled {
+			h.logger.Error("Office user is disabled", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
+			return
 		}
-
 		if userIdentity.OfficeUserID != nil {
 			session.OfficeUserID = *(userIdentity.OfficeUserID)
-		} else if session.IsOfficeApp() {
+		} else {
 			// In case they managed to login before the office_user record was created
 			officeUser, err := models.FetchOfficeUserByEmail(h.db, session.Email)
 			if err == models.ErrFetchNotFound {
@@ -251,7 +375,6 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			session.OfficeUserID = officeUser.ID
-			span.AddField("session.office_user_id", session.OfficeUserID)
 			officeUser.UserID = &userIdentity.ID
 			err = h.db.Save(officeUser)
 			if err != nil {
@@ -260,10 +383,17 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+	}
 
+	if session.IsTspApp() {
+		if userIdentity.TspDisabled != nil && *userIdentity.TspDisabled {
+			h.logger.Error("TSP user is disabled", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
+			return
+		}
 		if userIdentity.TspUserID != nil {
 			session.TspUserID = *(userIdentity.TspUserID)
-		} else if session.IsTspApp() {
+		} else {
 			// In case they managed to login before the tsp_user record was created
 			tspUser, err := models.FetchTspUserByEmail(h.db, session.Email)
 			if err == models.ErrFetchNotFound {
@@ -275,8 +405,8 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 				return
 			}
+
 			session.TspUserID = tspUser.ID
-			span.AddField("session.tsp_user_id", session.TspUserID)
 			tspUser.UserID = &userIdentity.ID
 			err = h.db.Save(tspUser)
 			if err != nil {
@@ -285,81 +415,157 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		session.FirstName = userIdentity.FirstName()
-		session.LastName = userIdentity.LastName()
-		session.Middle = userIdentity.Middle()
+	}
 
-	} else if err == models.ErrFetchNotFound { // Never heard of them so far
-
-		var officeUser *models.OfficeUser
-		if session.IsOfficeApp() { // Look to see if we have OfficeUser with this email address
-			officeUser, err = models.FetchOfficeUserByEmail(h.db, session.Email)
+	if session.IsAdminApp() {
+		if userIdentity.AdminUserDisabled != nil && *userIdentity.AdminUserDisabled {
+			h.logger.Error("Admin user is disabled", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
+			return
+		}
+		if userIdentity.AdminUserID != nil {
+			session.AdminUserID = *(userIdentity.AdminUserID)
+			session.AdminUserRole = userIdentity.AdminUserRole.String()
+		} else {
+			// In case they managed to login before the admin_user record was created
+			var adminUser models.AdminUser
+			queryBuilder := query.NewQueryBuilder(h.db)
+			filters := []services.QueryFilter{
+				query.NewQueryFilter("email", "=", strings.ToLower(userIdentity.Email)),
+			}
+			err := queryBuilder.FetchOne(&adminUser, filters)
 			if err == models.ErrFetchNotFound {
-				h.logger.Error("No Office user found", zap.String("email", session.Email))
-				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				h.logger.Error("Non-admin user authenticated at admin site", zap.String("email", session.Email))
+				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
 			} else if err != nil {
-				h.logger.Error("Checking for office user", zap.String("email", session.Email), zap.Error(err))
+				h.logger.Error("Checking for admin user", zap.String("email", session.Email), zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
+
+			session.AdminUserID = adminUser.ID
+			session.AdminUserRole = adminUser.Role.String()
+			adminUser.UserID = &userIdentity.ID
+			verrs, err := h.db.ValidateAndSave(&adminUser)
+			if err != nil {
+				h.logger.Error("Updating admin user", zap.String("email", session.Email), zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
+
+			if verrs != nil {
+				h.logger.Error("Admin user validation errors", zap.String("email", session.Email), zap.Error(verrs))
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 				return
 			}
 		}
+	}
+	session.FirstName = userIdentity.FirstName()
+	session.LastName = userIdentity.LastName()
+	session.Middle = userIdentity.Middle()
 
-		var tspUser *models.TspUser
-		if session.IsTspApp() { // Look to see if we have TspUser with this email address
-			tspUser, err = models.FetchTspUserByEmail(h.db, session.Email)
-			if err == models.ErrFetchNotFound {
-				h.logger.Error("No TSP user found", zap.String("email", session.Email))
-				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-				return
-			} else if err != nil {
-				h.logger.Error("Checking for TSP user", zap.String("email", session.Email), zap.Error(err))
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return
-			}
-		}
+	h.logger.Info("logged in", zap.Any("session", session))
 
-		user, err := models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
-		if err == nil { // Successfully created the user
-			session.UserID = user.ID
-			span.AddField("session.user_id", session.UserID)
-			if officeUser != nil {
-				session.OfficeUserID = officeUser.ID
-				span.AddField("session.office_user_id", session.OfficeUserID)
-				officeUser.UserID = &user.ID
-				err = h.db.Save(officeUser)
-			} else if tspUser != nil {
-				session.TspUserID = tspUser.ID
-				span.AddField("session.tsp_user_id", session.TspUserID)
-				tspUser.UserID = &user.ID
-				err = h.db.Save(tspUser)
-			}
-		}
-		if err != nil {
-			h.logger.Error("Error creating user", zap.Error(err))
+	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
+	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
+}
+
+func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
+	var officeUser *models.OfficeUser
+	var err error
+	if session.IsOfficeApp() { // Look to see if we have OfficeUser with this email address
+		officeUser, err = models.FetchOfficeUserByEmail(h.db, session.Email)
+		if err == models.ErrFetchNotFound {
+			h.logger.Error("No Office user found", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+			return
+		} else if err != nil {
+			h.logger.Error("Checking for office user", zap.String("email", session.Email), zap.Error(err))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
-	} else {
-		h.logger.Error("Error loading Identity.", zap.Error(err))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return
+		if officeUser.Disabled {
+			h.logger.Error("Office user is disabled", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
+			return
+		}
 	}
 
-	session.Features, err = GetAllowedFeatures(h.db, *session)
+	var tspUser *models.TspUser
+	if session.IsTspApp() { // Look to see if we have TspUser with this email address
+		tspUser, err = models.FetchTspUserByEmail(h.db, session.Email)
+		if err == models.ErrFetchNotFound {
+			h.logger.Error("No TSP user found", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+			return
+		} else if err != nil {
+			h.logger.Error("Checking for TSP user", zap.String("email", session.Email), zap.Error(err))
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
+		if tspUser.Disabled {
+			h.logger.Error("TSP user is disabled", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
+			return
+		}
+	}
+
+	var adminUser models.AdminUser
+	if session.IsAdminApp() {
+		queryBuilder := query.NewQueryBuilder(h.db)
+		filters := []services.QueryFilter{
+			query.NewQueryFilter("email", "=", session.Email),
+		}
+		err = queryBuilder.FetchOne(&adminUser, filters)
+
+		if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+			h.logger.Error("No admin user found", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+			return
+		} else if err != nil {
+			h.logger.Error("Checking for admin user", zap.String("email", session.Email), zap.Error(err))
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
+		if adminUser.Disabled {
+			h.logger.Error("Admin user is disabled", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
+			return
+		}
+	}
+
+	user, err := models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
+
+	if err == nil { // Successfully created the user
+		session.UserID = user.ID
+		if session.IsOfficeApp() && officeUser != nil {
+			session.OfficeUserID = officeUser.ID
+			officeUser.UserID = &user.ID
+			err = h.db.Save(officeUser)
+		} else if session.IsTspApp() && tspUser != nil {
+			session.TspUserID = tspUser.ID
+			tspUser.UserID = &user.ID
+			err = h.db.Save(tspUser)
+		} else if session.IsAdminApp() && adminUser.ID != uuid.Nil {
+			session.AdminUserID = adminUser.ID
+			adminUser.UserID = &user.ID
+			err = h.db.Save(&adminUser)
+		}
+	}
 	if err != nil {
-		h.logger.Error("Error setting roles", zap.Error(err))
+		h.logger.Error("Error creating user", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 
 	h.logger.Info("logged in", zap.Any("session", session))
 
-	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger)
-	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
+	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
+	http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
 }
 
-func fetchToken(logger *zap.Logger, code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
+func fetchToken(logger Logger, code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
 	tokenURL := loginGovProvider.TokenURL()
 	expiry := auth.GetExpiryTimeFromMinutes(auth.SessionExpiryInMinutes)
 	params, err := loginGovProvider.TokenParams(code, clientID, expiry)
@@ -402,16 +608,24 @@ func fetchToken(logger *zap.Logger, code string, clientID string, loginGovProvid
 	return &session, err
 }
 
-// GetAllowedFeatures returns a list of features the user has access to
-func GetAllowedFeatures(db *pop.Connection, session auth.Session) ([]auth.Feature, error) {
-	features := []auth.Feature{}
-	isDPSUser, err := models.IsDPSUser(db, session.Email)
-	if err != nil {
-		return features, err
-	}
+// InitAuth initializes the Login.gov provider
+func InitAuth(v *viper.Viper, logger Logger, appnames auth.ApplicationServername) (LoginGovProvider, error) {
+	loginGovCallbackProtocol := v.GetString(cli.LoginGovCallbackProtocolFlag)
+	loginGovCallbackPort := v.GetInt(cli.LoginGovCallbackPortFlag)
+	loginGovSecretKey := v.GetString(cli.LoginGovSecretKeyFlag)
+	loginGovHostname := v.GetString(cli.LoginGovHostnameFlag)
 
-	if isDPSUser {
-		features = append(features, auth.FeatureDPS)
-	}
-	return features, nil
+	loginGovProvider := NewLoginGovProvider(loginGovHostname, loginGovSecretKey, logger)
+	err := loginGovProvider.RegisterProvider(
+		appnames.MilServername,
+		v.GetString(cli.LoginGovMyClientIDFlag),
+		appnames.OfficeServername,
+		v.GetString(cli.LoginGovOfficeClientIDFlag),
+		appnames.TspServername,
+		v.GetString(cli.LoginGovTSPClientIDFlag),
+		appnames.AdminServername,
+		v.GetString(cli.LoginGovAdminClientIDFlag),
+		loginGovCallbackProtocol,
+		loginGovCallbackPort)
+	return loginGovProvider, err
 }

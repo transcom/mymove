@@ -5,11 +5,10 @@ import { Redirect } from 'react-router-dom';
 import { get } from 'lodash';
 import { NavLink, Link } from 'react-router-dom';
 import { reduxForm } from 'redux-form';
-import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 import { titleCase } from 'shared/constants.js';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-
+import { MOVE_DOC_TYPE } from 'shared/constants';
 import Alert from 'shared/Alert';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
 import { withContext } from 'shared/AppContext';
@@ -17,52 +16,54 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import {
   getAllShipmentDocuments,
   selectShipmentDocuments,
-  getShipmentDocumentsLabel,
   generateGBL,
+  generateGBLLabel,
 } from 'shared/Entities/modules/shipmentDocuments';
+import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
 import {
-  getAllTariff400ngItems,
-  selectTariff400ngItems,
-  getTariff400ngItemsLabel,
-} from 'shared/Entities/modules/tariff400ngItems';
-import {
-  getAllShipmentLineItems,
   selectSortedShipmentLineItems,
-  getShipmentLineItemsLabel,
+  fetchAndCalculateShipmentLineItems,
 } from 'shared/Entities/modules/shipmentLineItems';
-import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
-import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
+import { getAllInvoices } from 'shared/Entities/modules/invoices';
+import { getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
+import { selectStorageInTransits, getStorageInTransitsForShipment } from 'shared/Entities/modules/storageInTransits';
+import {
+  updatePublicShipment,
+  getPublicShipment,
+  selectShipment,
+  getPublicShipmentLabel,
+  acceptShipment,
+  acceptPublicShipmentLabel,
+  completePmSurvey,
+  transportShipment,
+  deliverShipment,
+  selectShipmentStatus,
+} from 'shared/Entities/modules/shipments';
+import {
+  getServiceAgentsForShipment,
+  selectServiceAgentsForShipment,
+  updateServiceAgentsForShipment,
+} from 'shared/Entities/modules/serviceAgents';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
-import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
-import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
-import {
-  loadShipmentDependencies,
-  completePmSurvey,
-  patchShipment,
-  acceptShipment,
-  transportShipment,
-  deliverShipment,
-  handleServiceAgents,
-} from './ducks';
 import TspContainer from 'shared/TspPanel/TspContainer';
 import Weights from 'shared/ShipmentWeights';
 import Dates from 'shared/ShipmentDates';
 import LocationsContainer from 'shared/LocationsPanel/LocationsContainer';
+import { getLastRequestIsSuccess, getLastRequestIsLoading, getLastError } from 'shared/Swagger/selectors';
+import { resetRequests } from 'shared/Swagger/request';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
+import StorageInTransitPanel from 'shared/StorageInTransit/StorageInTransitPanel.jsx';
 import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
 import PickupForm from './PickupForm';
 import PremoveSurveyForm from './PremoveSurveyForm';
 import ServiceAgentForm from './ServiceAgentForm';
-import { getLastRequestIsSuccess, getLastRequestIsLoading } from 'shared/Swagger/selectors';
 
-import './tsp.css';
-
-const generateGblLabel = 'Shipments.createGovBillOfLading';
+import './tsp.scss';
 
 const attachmentsErrorMessages = {
   400: 'An error occurred',
@@ -89,7 +90,7 @@ const DeliveryDateFormView = props => {
   const { schema, onCancel, handleSubmit, submitting, valid } = props;
 
   return (
-    <form className="infoPanel-wizard" onSubmit={handleSubmit}>
+    <form data-cy="tsp-enter-delivery-form" className="infoPanel-wizard" onSubmit={handleSubmit}>
       <div className="infoPanel-wizard-header">Enter Delivery</div>
       <SwaggerField fieldName="actual_delivery_date" swagger={schema} required />
       <p className="infoPanel-wizard-help">
@@ -101,12 +102,65 @@ const DeliveryDateFormView = props => {
         <a className="infoPanel-wizard-cancel" onClick={onCancel}>
           Cancel
         </a>
-        <button className="usa-button-primary" type="submit" disabled={submitting || !valid}>
+        <button
+          data-cy="tsp-enter-delivery-submit"
+          className="usa-button-primary"
+          type="submit"
+          disabled={submitting || !valid}
+        >
           Done
         </button>
       </div>
     </form>
   );
+};
+
+const ReferrerQueueLink = props => {
+  const pathname = props.history.location.state ? props.history.location.state.referrerPathname : '';
+  switch (pathname) {
+    case '/queues/new':
+      return (
+        <NavLink to="/queues/new" activeClassName="usa-current">
+          <span>New Shipments Queue</span>
+        </NavLink>
+      );
+    case '/queues/accepted':
+      return (
+        <NavLink to="/queues/accepted" activeClassName="usa-current">
+          <span>Accepted Shipments Queue</span>
+        </NavLink>
+      );
+    case '/queues/approved':
+      return (
+        <NavLink to="/queues/approved" activeClassName="usa-current">
+          <span>Approved Shipments Queue</span>
+        </NavLink>
+      );
+    case '/queues/in_transit':
+      return (
+        <NavLink to="/queues/in_transit" activeClassName="usa-current">
+          <span>In Transit Shipments Queue</span>
+        </NavLink>
+      );
+    case '/queues/delivered':
+      return (
+        <NavLink to="/queues/delivered" activeClassName="usa-current">
+          <span>Delivered Shipments Queue</span>
+        </NavLink>
+      );
+    case '/queues/all':
+      return (
+        <NavLink to="/queues/all" activeClassName="usa-current">
+          <span>All Shipments Queue</span>
+        </NavLink>
+      );
+    default:
+      return (
+        <NavLink to="/queues/new" activeClassName="usa-current">
+          <span>New Shipments Queue</span>
+        </NavLink>
+      );
+  }
 };
 
 const DeliveryDateForm = reduxForm({ form: 'deliver_shipment' })(DeliveryDateFormView);
@@ -118,7 +172,6 @@ const hasPreMoveSurvey = (shipment = {}) => shipment.pm_survey_completed_at;
 class ShipmentInfo extends Component {
   constructor(props) {
     super(props);
-
     this.assignTspServiceAgent = React.createRef();
   }
   state = {
@@ -127,19 +180,26 @@ class ShipmentInfo extends Component {
   };
 
   componentDidMount() {
+    const shipmentId = this.props.shipmentId;
     this.props
-      .loadShipmentDependencies(this.props.match.params.shipmentId)
+      .getPublicShipment(shipmentId)
       .then(() => {
-        const shipmentId = this.props.shipment.id;
-        this.props.getTspForShipment(getTspForShipmentLabel, shipmentId);
-        this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, shipmentId);
-        this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
-        this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, shipmentId);
-        this.props.getAllInvoices(getShipmentInvoicesLabel, shipmentId);
+        this.props.getServiceAgentsForShipment(shipmentId);
+        this.props.getTspForShipment(shipmentId);
+        this.props.getAllShipmentDocuments(shipmentId);
+        this.props.getAllTariff400ngItems(true);
+        this.props.fetchAndCalculateShipmentLineItems(shipmentId, this.props.shipmentStatus);
+        this.props.getAllInvoices(shipmentId);
+        if (this.props.context.flags.sitPanel) {
+          this.props.getStorageInTransitsForShipment(shipmentId);
+        }
       })
       .catch(err => {
         this.props.history.replace('/');
       });
+  }
+  componentWillUnmount() {
+    this.props.resetRequests();
   }
 
   acceptShipment = () => {
@@ -147,11 +207,11 @@ class ShipmentInfo extends Component {
   };
 
   generateGBL = () => {
-    return this.props.generateGBL(generateGblLabel, this.props.shipment.id);
+    return this.props.generateGBL(this.props.shipment.id);
   };
 
   enterPreMoveSurvey = values => {
-    this.props.patchShipment(this.props.shipment.id, values).then(() => {
+    this.props.updatePublicShipment(this.props.shipment.id, values).then(() => {
       if (this.props.shipment.pm_survey_completed_at === undefined) {
         this.props.completePmSurvey(this.props.shipment.id);
       }
@@ -165,14 +225,17 @@ class ShipmentInfo extends Component {
     if (values['origin_service_agent']) {
       values['origin_service_agent']['role'] = 'ORIGIN';
     }
-    this.props.handleServiceAgents(this.props.shipment.id, values);
+    this.props.updateServiceAgentsForShipment(this.props.shipment.id, values);
   };
 
   transportShipment = values => this.props.transportShipment(this.props.shipment.id, values);
 
   deliverShipment = values => {
     this.props.deliverShipment(this.props.shipment.id, values).then(() => {
-      this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.shipment.id);
+      this.props.fetchAndCalculateShipmentLineItems(this.props.shipment.id, this.props.shipment.status);
+      if (this.props.context.flags.sitPanel) {
+        this.props.getStorageInTransitsForShipment(this.props.shipment.id);
+      }
     });
   };
 
@@ -190,15 +253,14 @@ class ShipmentInfo extends Component {
     } = this.props;
     const { service_member: serviceMember = {}, move = {}, gbl_number: gbl } = shipment;
 
-    const shipmentId = this.props.match.params.shipmentId;
+    const shipmentId = this.props.shipmentId;
     const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
-    const showDocumentViewer = context.flags.documentViewer;
+    const showSitPanel = context.flags.sitPanel;
     const awarded = shipment.status === 'AWARDED';
     const accepted = shipment.status === 'ACCEPTED';
     const approved = shipment.status === 'APPROVED';
     const inTransit = shipment.status === 'IN_TRANSIT';
     const delivered = shipment.status === 'DELIVERED';
-    const completed = shipment.status === 'COMPLETED';
     const pmSurveyComplete = Boolean(shipment.pm_survey_completed_at);
     const canAssignServiceAgents = (approved || accepted) && !hasOriginServiceAgent(serviceAgents);
     const canEnterPreMoveSurvey =
@@ -219,7 +281,7 @@ class ShipmentInfo extends Component {
       statusText = 'Outbound';
     } else if (inTransit) {
       statusText = 'Inbound';
-    } else if (delivered || completed) {
+    } else if (delivered) {
       statusText = 'Delivered';
     }
 
@@ -230,6 +292,7 @@ class ShipmentInfo extends Component {
     if (!loadTspDependenciesHasSuccess) {
       return <LoadingPlaceholder />;
     }
+
     return (
       <div>
         <div className="usa-grid grid-wide">
@@ -242,49 +305,12 @@ class ShipmentInfo extends Component {
                 {serviceMember.last_name}, {serviceMember.first_name}
               </div>
             </div>
-            <div className="shipment-status">Status: {statusText}</div>
+            <div data-cy="shipment-status" className="shipment-status">
+              Status: {statusText}
+            </div>
           </div>
           <div className="usa-width-one-third nav-controls">
-            {awarded && (
-              <NavLink to="/queues/new" activeClassName="usa-current">
-                <span>New Shipments Queue</span>
-              </NavLink>
-            )}
-            {accepted && (
-              <NavLink to="/queues/accepted" activeClassName="usa-current">
-                <span>Accepted Shipments Queue</span>
-              </NavLink>
-            )}
-            {approved && (
-              <NavLink to="/queues/approved" activeClassName="usa-current">
-                <span>Approved Shipments Queue</span>
-              </NavLink>
-            )}
-            {inTransit && (
-              <NavLink to="/queues/in_transit" activeClassName="usa-current">
-                <span>In Transit Shipments Queue</span>
-              </NavLink>
-            )}
-            {delivered && (
-              <NavLink to="/queues/delivered" activeClassName="usa-current">
-                <span>Delivered Shipments Queue</span>
-              </NavLink>
-            )}
-            {completed && (
-              <NavLink to="/queues/completed" activeClassName="usa-current">
-                <span>Completed Shipments Queue</span>
-              </NavLink>
-            )}
-            {!awarded &&
-              !accepted &&
-              !approved &&
-              !inTransit &&
-              !delivered &&
-              !completed && (
-                <NavLink to="/queues/all" activeClassName="usa-current">
-                  <span>All Shipments Queue</span>
-                </NavLink>
-              )}
+            <ReferrerQueueLink history={this.props.history} />
           </div>
         </div>
         <div className="usa-grid grid-wide">
@@ -310,9 +336,6 @@ class ShipmentInfo extends Component {
                 {serviceMember.telephone}
                 {serviceMember.phone_is_preferred && (
                   <FontAwesomeIcon className="icon icon-grey" icon={faPhone} flip="horizontal" />
-                )}
-                {serviceMember.text_message_is_preferred && (
-                  <FontAwesomeIcon className="icon icon-grey" icon={faComments} />
                 )}
                 {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon icon-grey" icon={faEmail} />}
                 &nbsp;
@@ -351,16 +374,16 @@ class ShipmentInfo extends Component {
                   </span>
                 </Alert>
               )}
-              {pmSurveyComplete &&
-                !gblGenerated && (
-                  <div>
-                    <button onClick={this.generateGBL} disabled={!approved || generateGBLInProgress}>
-                      Generate the GBL
-                    </button>
-                  </div>
-                )}
+              {pmSurveyComplete && !gblGenerated && (
+                <div>
+                  <button onClick={this.generateGBL} disabled={!approved || generateGBLInProgress}>
+                    Generate the GBL
+                  </button>
+                </div>
+              )}
               {canEnterPreMoveSurvey && (
                 <FormButton
+                  shipmentId={shipmentId}
                   FormComponent={PremoveSurveyForm}
                   schema={this.props.shipmentSchema}
                   onSubmit={this.enterPreMoveSurvey}
@@ -369,6 +392,7 @@ class ShipmentInfo extends Component {
               )}
               {canAssignServiceAgents && (
                 <FormButton
+                  shipmentId={shipmentId}
                   serviceAgents={this.props.serviceAgents}
                   FormComponent={ServiceAgentForm}
                   schema={this.props.serviceAgentSchema}
@@ -383,10 +407,12 @@ class ShipmentInfo extends Component {
                   schema={this.props.deliverSchema}
                   onSubmit={this.deliverShipment}
                   buttonTitle="Enter Delivery"
+                  buttonDataCy="tsp-enter-delivery"
                 />
               )}
               {canEnterPackAndPickup && (
                 <FormButton
+                  shipmentId={shipmentId}
                   FormComponent={PickupForm}
                   schema={this.props.transportSchema}
                   onSubmit={this.transportShipment}
@@ -395,10 +421,15 @@ class ShipmentInfo extends Component {
               )}
               {this.props.loadTspDependenciesHasSuccess && (
                 <div className="office-tab">
-                  <Dates title="Dates" shipment={this.props.shipment} update={this.props.patchShipment} />
-                  <Weights title="Weights & Items" shipment={this.props.shipment} update={this.props.patchShipment} />
-                  <LocationsContainer update={this.props.patchShipment} />
+                  <Dates title="Dates" shipment={this.props.shipment} update={this.props.updatePublicShipment} />
+                  <Weights
+                    title="Weights & Items"
+                    shipment={this.props.shipment}
+                    update={this.props.updatePublicShipment}
+                  />
+                  <LocationsContainer shipment={this.props.shipment} update={this.props.updatePublicShipment} />
                   <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
+                  {showSitPanel && <StorageInTransitPanel shipmentId={this.props.shipmentId} />}
 
                   <TspContainer
                     title="TSP & Servicing Agents"
@@ -414,28 +445,15 @@ class ShipmentInfo extends Component {
             <div className="usa-width-one-third">
               <div className="customer-info">
                 <h2 className="extras usa-heading">Customer Info</h2>
-                <CustomerInfo />
+                <CustomerInfo shipment={this.props.shipment} />
               </div>
               <div className="documents">
-                <h2 className="extras usa-heading">
-                  Documents
-                  {!showDocumentViewer && <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />}
-                  {showDocumentViewer && (
-                    <Link to={newDocumentUrl} target="_blank">
-                      <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
-                    </Link>
-                  )}
-                </h2>
+                <h2 className="extras usa-heading">Documents</h2>
                 <DocumentList
                   detailUrlPrefix={`/shipments/${shipmentId}/documents`}
                   moveDocuments={shipmentDocuments}
+                  uploadDocumentUrl={newDocumentUrl}
                 />
-                <Link className="status upload-documents-link" to={newDocumentUrl} target="_blank">
-                  <span>
-                    <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} />
-                  </span>
-                  Upload new document
-                </Link>
               </div>
             </div>
           </div>
@@ -445,56 +463,70 @@ class ShipmentInfo extends Component {
   }
 }
 
-const mapStateToProps = state => {
-  const shipment = get(state, 'tsp.shipment', {});
+const mapStateToProps = (state, props) => {
+  const shipmentId = props.match.params.shipmentId;
+  const shipment = selectShipment(state, shipmentId);
   const shipmentDocuments = selectShipmentDocuments(state, shipment.id) || {};
-  const gbl = shipmentDocuments.find(element => element.move_document_type === 'GOV_BILL_OF_LADING');
+  const gbl = shipmentDocuments.find(element => element.move_document_type === MOVE_DOC_TYPE.GBL);
   const gblGenerated = !!gbl;
 
   return {
     swaggerError: state.swaggerPublic.hasErrored,
     shipment,
+    shipmentStatus: selectShipmentStatus(state, shipmentId),
     shipmentDocuments,
     gblGenerated,
+    storageInTransits: selectStorageInTransits(state, shipmentId),
     tariff400ngItems: selectTariff400ngItems(state),
     shipmentLineItems: selectSortedShipmentLineItems(state),
-    serviceAgents: get(state, 'tsp.serviceAgents', []),
+    serviceAgents: selectServiceAgentsForShipment(state, shipmentId),
     tsp: get(state, 'tsp'),
-    loadTspDependenciesHasSuccess: get(state, 'tsp.loadTspDependenciesHasSuccess'),
-    loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
-    acceptError: get(state, 'tsp.shipmentHasAcceptError'),
+    loadTspDependenciesHasSuccess: getLastRequestIsSuccess(state, getPublicShipmentLabel),
+    loadTspDependenciesHasError: getLastError(state, getPublicShipmentLabel),
+    acceptError: getLastError(state, acceptPublicShipmentLabel),
     generateGBLError: get(state, 'tsp.generateGBLError'),
-    generateGBLSuccess: getLastRequestIsSuccess(state, generateGblLabel),
-    generateGBLInProgress: getLastRequestIsLoading(state, generateGblLabel),
+    generateGBLInProgress: getLastRequestIsLoading(state, generateGBLLabel),
+    generateGBLSuccess: getLastRequestIsSuccess(state, generateGBLLabel),
     gblDocUrl: `/shipments/${shipment.id}/documents/${get(gbl, 'id')}`,
     error: get(state, 'tsp.error'),
     shipmentSchema: get(state, 'swaggerPublic.spec.definitions.Shipment', {}),
     serviceAgentSchema: get(state, 'swaggerPublic.spec.definitions.ServiceAgent', {}),
+    storageInTransitsSchema: get(state, 'swaggerPublic.spec.definitions.StorageInTransits', {}),
     transportSchema: get(state, 'swaggerPublic.spec.definitions.TransportPayload', {}),
     deliverSchema: get(state, 'swaggerPublic.spec.definitions.ActualDeliveryDate', {}),
+    shipmentId,
   };
 };
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      loadShipmentDependencies,
+      getPublicShipment,
+      getServiceAgentsForShipment,
       completePmSurvey,
-      patchShipment,
+      updatePublicShipment,
       acceptShipment,
       generateGBL,
-      handleServiceAgents,
+      updateServiceAgentsForShipment,
       transportShipment,
       deliverShipment,
       getAllShipmentDocuments,
       getAllTariff400ngItems,
-      getAllShipmentLineItems,
+      fetchAndCalculateShipmentLineItems,
       getAllInvoices,
       getTspForShipment,
+      resetRequests,
+      getStorageInTransitsForShipment,
+      selectStorageInTransits,
     },
     dispatch,
   );
 
-const connectedShipmentInfo = withContext(connect(mapStateToProps, mapDispatchToProps)(ShipmentInfo));
+const connectedShipmentInfo = withContext(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(ShipmentInfo),
+);
 
-export { DeliveryDateFormView, connectedShipmentInfo as default };
+export { DeliveryDateFormView, connectedShipmentInfo as default, ReferrerQueueLink };

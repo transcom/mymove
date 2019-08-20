@@ -3,12 +3,15 @@ package models
 import (
 	"time"
 
+	"strings"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"strings"
+
+	"github.com/transcom/mymove/pkg/auth"
 )
 
 // User is an entity with a registered uuid and email at login.gov
@@ -18,6 +21,7 @@ type User struct {
 	UpdatedAt     time.Time `json:"updated_at" db:"updated_at"`
 	LoginGovUUID  uuid.UUID `json:"login_gov_uuid" db:"login_gov_uuid"`
 	LoginGovEmail string    `json:"login_gov_email" db:"login_gov_email"`
+	Disabled      bool      `json:"disabled" db:"disabled"`
 }
 
 // Users is not required by pop and may be deleted
@@ -44,11 +48,24 @@ func (u *User) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
-// GetUser loads the associated User from the DB
+// GetUser loads the associated User from the DB using the user ID
 func GetUser(db *pop.Connection, userID uuid.UUID) (*User, error) {
 	var user User
-	err := db.Find(&user, userID)
-	return &user, err
+	err := db.Find(&user, userID.String())
+	if err != nil {
+		return nil, errors.Wrapf(err, "Unable to find user by id %s", userID.String())
+	}
+	return &user, nil
+}
+
+// GetUserFromEmail loads the associated User from the DB using the user email
+func GetUserFromEmail(db *pop.Connection, email string) (*User, error) {
+	users := []User{}
+	err := db.Where("login_gov_email = $1", email).All(&users)
+	if len(users) == 0 {
+		return nil, errors.Wrapf(err, "Unable to find user by email %s", email)
+	}
+	return &users[0], err
 }
 
 // CreateUser is called upon successful login.gov verification of a new user
@@ -60,6 +77,7 @@ func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, err
 	newUser := User{
 		LoginGovUUID:  lgu,
 		LoginGovEmail: strings.ToLower(email),
+		Disabled:      false,
 	}
 	verrs, err := db.ValidateAndCreate(&newUser)
 	if verrs.HasAny() {
@@ -74,6 +92,7 @@ func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, err
 // UserIdentity is summary of the information about a user from the database
 type UserIdentity struct {
 	ID                     uuid.UUID  `db:"id"`
+	Disabled               bool       `db:"disabled"`
 	Email                  string     `db:"email"`
 	ServiceMemberID        *uuid.UUID `db:"sm_id"`
 	ServiceMemberFirstName *string    `db:"sm_fname"`
@@ -83,33 +102,54 @@ type UserIdentity struct {
 	OfficeUserFirstName    *string    `db:"ou_fname"`
 	OfficeUserLastName     *string    `db:"ou_lname"`
 	OfficeUserMiddle       *string    `db:"ou_middle"`
+	OfficeDisabled         *bool      `db:"ou_disabled"`
 	TspUserID              *uuid.UUID `db:"tu_id"`
 	TspUserFirstName       *string    `db:"tu_fname"`
 	TspUserLastName        *string    `db:"tu_lname"`
 	TspUserMiddle          *string    `db:"tu_middle"`
+	TspDisabled            *bool      `db:"tu_disabled"`
+	AdminUserID            *uuid.UUID `db:"au_id"`
+	AdminUserRole          *AdminRole `db:"au_role"`
+	AdminUserFirstName     *string    `db:"au_fname"`
+	AdminUserLastName      *string    `db:"au_lname"`
+	AdminUserDisabled      *bool      `db:"au_disabled"`
+	DpsUserID              *uuid.UUID `db:"du_id"`
+	DpsDisabled            *bool      `db:"du_disabled"`
 }
 
 // FetchUserIdentity queries the database for information about the logged in user
 func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, error) {
 	var identities []UserIdentity
 	query := `SELECT users.id,
-				users.login_gov_email as email,
-				sm.id as sm_id,
-				sm.first_name as sm_fname,
-				sm.last_name as sm_lname,
-				sm.middle_name as sm_middle,
-				ou.id as ou_id,
-				ou.first_name as ou_fname,
-				ou.last_name as ou_lname,
-				ou.middle_initials as ou_middle,
-				tu.id as tu_id,
-				tu.first_name as tu_fname,
-				tu.last_name as tu_lname,
-				tu.middle_initials as tu_middle
+				users.login_gov_email AS email,
+				users.disabled AS disabled,
+				sm.id AS sm_id,
+				sm.first_name AS sm_fname,
+				sm.last_name AS sm_lname,
+				sm.middle_name AS sm_middle,
+				ou.id AS ou_id,
+				ou.first_name AS ou_fname,
+				ou.last_name AS ou_lname,
+				ou.middle_initials AS ou_middle,
+				ou.disabled AS ou_disabled,
+				tu.id AS tu_id,
+				tu.first_name AS tu_fname,
+				tu.last_name AS tu_lname,
+				tu.middle_initials AS tu_middle,
+				tu.disabled AS tu_disabled,
+				au.id AS au_id,
+				au.role AS au_role,
+				au.first_name AS au_fname,
+				au.last_name AS au_lname,
+				au.disabled AS au_disabled,
+				du.id AS du_id,
+				du.disabled AS du_disabled
 			FROM users
-			LEFT OUTER JOIN service_members as sm on sm.user_id = users.id
-			LEFT OUTER JOIN office_users as ou on ou.user_id = users.id
-			LEFT OUTER JOIN tsp_users as tu on tu.user_id = users.id
+			LEFT OUTER JOIN service_members AS sm on sm.user_id = users.id
+			LEFT OUTER JOIN office_users AS ou on ou.user_id = users.id
+			LEFT OUTER JOIN tsp_users AS tu on tu.user_id = users.id
+			LEFT OUTER JOIN admin_users AS au on au.user_id = users.id
+			LEFT OUTER JOIN dps_users AS du on du.login_gov_email = users.login_gov_email
 			WHERE users.login_gov_uuid  = $1`
 	err := db.RawQuery(query, loginGovID).All(&identities)
 	if err != nil {
@@ -120,17 +160,76 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 	return &identities[0], nil
 }
 
-// firstValue returns the first string value that is not nil
-func firstValue(one *string, two *string, three *string) (value string) {
+// FetchAppUserIdentities returns a limited set of user records based on application
+func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit int) ([]UserIdentity, error) {
+	var identities []UserIdentity
 
-	if one != nil {
-		value = *one
-	} else if two != nil {
-		value = *two
-	} else if three != nil {
-		value = *three
+	var query string
+	switch appname {
+	case auth.OfficeApp:
+		query = `SELECT
+		        users.id,
+				users.login_gov_email AS email,
+				users.disabled AS disabled,
+				ou.id AS ou_id,
+				ou.first_name AS ou_fname,
+				ou.last_name AS ou_lname,
+				ou.middle_initials AS ou_middle
+			FROM office_users as ou
+			JOIN users on ou.user_id = users.id
+			ORDER BY users.created_at LIMIT $1`
+	case auth.TspApp:
+		query = `SELECT users.id,
+				users.login_gov_email AS email,
+				users.disabled AS disabled,
+				tu.id AS tu_id,
+				tu.first_name AS tu_fname,
+				tu.last_name AS tu_lname,
+				tu.middle_initials AS tu_middle
+			FROM tsp_users as tu
+			JOIN users on tu.user_id = users.id
+			ORDER BY users.created_at LIMIT $1`
+	case auth.AdminApp:
+		query = `SELECT users.id,
+				users.login_gov_email AS email,
+				users.disabled AS disabled,
+				au.id AS au_id,
+				au.role AS au_role,
+				au.first_name AS au_fname,
+				au.last_name AS au_lname
+			FROM admin_users as au
+			JOIN users on au.user_id = users.id
+			ORDER BY users.created_at LIMIT $1`
+	default:
+		query = `SELECT users.id,
+				users.login_gov_email AS email,
+				users.disabled AS disabled,
+				sm.id AS sm_id,
+				sm.first_name AS sm_fname,
+				sm.last_name AS sm_lname,
+				sm.middle_name AS sm_middle,
+				du.id AS du_id
+			FROM service_members as sm
+			JOIN users on sm.user_id = users.id
+			LEFT OUTER JOIN dps_users AS du on du.login_gov_email = users.login_gov_email
+			ORDER BY users.created_at LIMIT $1`
 	}
-	return
+
+	err := db.RawQuery(query, limit).All(&identities)
+	if err != nil {
+		return nil, err
+	}
+	return identities, nil
+}
+
+// firstValue returns the first string value that is not nil
+func firstValue(vals ...*string) string {
+	for _, val := range vals {
+		if val != nil {
+			return *val
+		}
+	}
+	return ""
 }
 
 // FirstName gets the firstname of the user from either the ServiceMember or OfficeUser or TspUser identity

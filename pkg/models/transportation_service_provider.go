@@ -1,13 +1,14 @@
 package models
 
 import (
+	"time"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"go.uber.org/zap/zapcore"
-	"time"
 )
 
 // TransportationServiceProvider models moving companies used to move
@@ -26,22 +27,6 @@ type TransportationServiceProvider struct {
 	PocClaimsName            *string   `json:"poc_claims_name" db:"poc_claims_name"`
 	PocClaimsEmail           *string   `json:"poc_claims_email" db:"poc_claims_email"`
 	PocClaimsPhone           *string   `json:"poc_claims_phone" db:"poc_claims_phone"`
-}
-
-// TSPWithBVSAndOfferCount represents a list of TSPs along with their BVS
-// and offered shipment counts.
-type TSPWithBVSAndOfferCount struct {
-	ID                        uuid.UUID `json:"id" db:"id"`
-	TrafficDistributionListID uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
-	BestValueScore            int       `json:"best_value_score" db:"best_value_score"`
-	OfferCount                int       `json:"offer_count" db:"offer_count"`
-}
-
-// TSPWithBVSCount represents a list of TSPs along with their BVS counts.
-type TSPWithBVSCount struct {
-	ID                        uuid.UUID `json:"id" db:"id"`
-	TrafficDistributionListID uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
-	BestValueScore            int       `json:"best_value_score" db:"best_value_score"`
 }
 
 // TransportationServiceProviders is not required by pop and may be deleted
@@ -66,7 +51,7 @@ func FetchTransportationServiceProvider(db *pop.Connection, id uuid.UUID) (*Tran
 	err := db.Find(&transportationServiceProvider, id)
 
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return nil, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.

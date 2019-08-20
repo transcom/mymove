@@ -1,0 +1,2 @@
+update tariff400ng_items set allowed_location = 'ORIGIN' where code = 'LHS';
+update shipment_line_items set location = 'ORIGIN' where tariff400ng_item_id = (select id from tariff400ng_items where code = 'LHS');

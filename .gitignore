@@ -1,13 +1,17 @@
 *.swp
 
+# direnv
 .envrc.local
+.envrc.chamber
 
 # dependencies
 /vendor
 /node_modules
+/.vendor-new
 
 /pkg/gen
 /pkg/assets
+**/mocks
 
 # testing
 /coverage
@@ -18,38 +22,21 @@ __snapshots__
 /build
 
 # development
+/mnt
 /tmp
 
-# built binaries
-/bin/generate-1203-form
-/bin/generate-shipment-summary
-/bin/generate-test-data
-/bin/health_checker
-/bin/iws
-/bin/load-office-data
-/bin/load-user-gen
-/bin/make-dps-user
-/bin/make-office-user
-/bin/make-tsp-user
-/bin/paperwork
-/bin/rateengine
-/bin/tsp-award-queue
-/bin/webserver
-
-/bin/chamber
-/bin/soda
-/bin/golint
-/bin/swagger
-/bin/gin
-/bin/gosec
-
-# Special bin folder for e2e test binaries
+# All compiled binaries
+/bin/
 /bin_linux/
+
+# Ignore
+/docs/packages.txt
 
 # pdf artifacts
 /cmd/generate_1203_form/*.pdf
 
 #debugging
+/cmd/milmove/debug
 /cmd/webserver/debug
 
 # misc
@@ -72,12 +59,14 @@ yarn-error.log*
 *.sublime-*
 
 **/migrations/schema.sql
+**/local_migrations/schema.sql
 
 *.stamp
 
 public/swagger-ui/*
 !public/swagger-ui/api.html
 !public/swagger-ui/internal.html
+!public/swagger-ui/admin.html
 
 # Cypress integration tests
 cypress/videos

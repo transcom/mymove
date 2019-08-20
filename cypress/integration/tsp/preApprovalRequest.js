@@ -2,7 +2,11 @@ import {
   fillAndSavePreApprovalRequest,
   editPreApprovalRequest,
   deletePreApprovalRequest,
-} from '../../support/testCreatePreApprovalRequest';
+} from '../../support/preapprovals/testCreateRequest';
+import { test35A, test35ALegacy } from '../../support/preapprovals/test35a';
+import { test105be, test105beLegacy } from '../../support/preapprovals/test105be';
+import { test226A, test226ALegacy } from '../../support/preapprovals/test226a';
+import { test125ABCD, test125ABCDLegacy } from '../../support/preapprovals/test125abcd';
 
 /* global cy */
 describe('TSP user interacts with pre approval request panel', function() {
@@ -18,6 +22,30 @@ describe('TSP user interacts with pre approval request panel', function() {
   it('TSP user deletes pre approval request', function() {
     tspUserDeletesPreApprovalRequest();
   });
+  it('Add legacy 35A to verify it displays correctly', function() {
+    test35ALegacy();
+  });
+  it('TSP user creates 35A request', function() {
+    test35A();
+  });
+  it('Add legacy 105B/E to verify they display correctly', function() {
+    test105beLegacy();
+  });
+  it('TSP user creates 105B/E request', function() {
+    test105be();
+  });
+  it('Add legacy 226A to verify they display correctly', function() {
+    test226ALegacy();
+  });
+  it('TSP user creates 226A request', function() {
+    test226A();
+  });
+  it('Add legacy 125A/B/C/D to verify they display correctly', function() {
+    test125ABCDLegacy();
+  });
+  it('TSP user creates 125A/B/C/D request', function() {
+    test125ABCD();
+  });
 });
 
 function tspUserCreatesPreApprovalRequest() {
@@ -27,10 +55,7 @@ function tspUserCreatesPreApprovalRequest() {
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
-    .contains('DATESP')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('DATESP');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -41,7 +66,10 @@ function tspUserCreatesPreApprovalRequest() {
 
   fillAndSavePreApprovalRequest();
   // Verify data has been saved in the UI
-  cy.get('td').contains('Bulky Article: Motorcycle/Rec vehicle');
+  cy.get('tr[data-cy="130B"]').should(td => {
+    const text = td.text();
+    expect(text).to.include('Bulky Article: Motorcycle/Rec vehicle');
+  });
 }
 
 function tspUserEditsPreApprovalRequest() {
@@ -51,10 +79,7 @@ function tspUserEditsPreApprovalRequest() {
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
-    .contains('DATESP')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('DATESP');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -62,7 +87,10 @@ function tspUserEditsPreApprovalRequest() {
 
   editPreApprovalRequest();
   // Verify data has been saved in the UI
-  cy.get('td').contains('notes notes edited');
+  cy.get('tr[data-cy="130B"]').should(td => {
+    const text = td.text();
+    expect(text).to.include('edited');
+  });
 }
 
 function tspUserDeletesPreApprovalRequest() {
@@ -72,18 +100,14 @@ function tspUserDeletesPreApprovalRequest() {
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
-    .contains('DATESP')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('DATESP');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
   deletePreApprovalRequest();
-  cy
-    .get('.pre-approval-panel td')
+  cy.get('.pre-approval-panel td')
     .first()
     .should('not.contain', 'Bulky Article: Motorcycle/Rec vehicle');
 }

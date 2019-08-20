@@ -9,6 +9,7 @@ import { deleteUpload, addUploads } from './ducks';
 import Uploader from 'shared/Uploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
 import WizardPage from 'shared/WizardPage';
+import { documentSizeLimitMsg } from 'shared/constants';
 
 import './UploadOrders.css';
 
@@ -65,6 +66,7 @@ export class UploadOrders extends Component {
           <h1 className="sm-heading">Upload Your Orders</h1>
           <p>In order to schedule your move, we need to have a complete copy of your orders.</p>
           <p>You can upload a PDF, or you can take a picture of each page and upload the images.</p>
+          <p>{documentSizeLimitMsg}</p>
         </div>
         {Boolean(uploads.length) && (
           <Fragment>
@@ -74,7 +76,11 @@ export class UploadOrders extends Component {
         )}
         {currentOrders && (
           <div className="uploader-box">
-            <Uploader document={currentOrders.uploaded_orders} onChange={this.onChange} labelIdle={uploaderLabelIdle} />
+            <Uploader
+              document={currentOrders.uploaded_orders}
+              onChange={this.onChange}
+              options={{ labelIdle: uploaderLabelIdle }}
+            />
             <div className="hint">(Each page must be clear and legible)</div>
           </div>
         )}
@@ -115,4 +121,7 @@ function mapStateToProps(state) {
   };
   return props;
 }
-export default connect(mapStateToProps, mapDispatchToProps)(UploadOrders);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(UploadOrders);

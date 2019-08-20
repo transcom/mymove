@@ -1,20 +1,16 @@
 package publicapi
 
 import (
-	"reflect"
-
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
-
 	"github.com/go-openapi/swag"
-	"github.com/transcom/mymove/pkg/auth"
+	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	movedocop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/move_docs"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
-	"go.uber.org/zap"
 )
 
 func payloadForDocumentModel(storer storage.FileStorer, document models.Document) (*apimessages.DocumentPayload, error) {
@@ -72,30 +68,29 @@ type CreateGenericMoveDocumentHandler struct {
 // Handle is the handler
 func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericMoveDocumentParams) middleware.Responder {
 
-	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
-	defer span.Send()
+	ctx := params.HTTPRequest.Context()
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	// Verify that the TSP user is authorized to update move doc
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 	_, shipment, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
 	if err != nil {
 		if err.Error() == "USER_UNAUTHORIZED" {
-			h.Logger().Error("DB Query", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			logger.Error("DB Query", zap.Error(err))
+			return handlers.ResponseForError(logger, err)
 		}
 		if err.Error() == "FETCH_FORBIDDEN" {
-			h.Logger().Error("DB Query", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			logger.Error("DB Query", zap.Error(err))
+			return handlers.ResponseForError(logger, err)
 		}
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	// Fetch move
 	move, err := models.FetchMove(h.DB(), session, shipment.Move.ID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	payload := params.CreateGenericMoveDocumentPayload
@@ -109,9 +104,9 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 	uploads := models.Uploads{}
 	for _, id := range uploadIds {
 		converted := uuid.Must(uuid.FromString(id.String()))
-		upload, err := models.FetchUpload(ctx, h.DB(), session, converted)
-		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+		upload, fetchUploadErr := models.FetchUpload(ctx, h.DB(), session, converted)
+		if fetchUploadErr != nil {
+			return handlers.ResponseForError(logger, fetchUploadErr)
 		}
 		uploads = append(uploads, upload)
 	}
@@ -125,12 +120,12 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		*shipment.Move.SelectedMoveType)
 
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	newPayload, err := payloadForGenericMoveDocumentModel(h.FileStorer(), *newMoveDocument, shipmentID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	return movedocop.NewCreateGenericMoveDocumentOK().WithPayload(newPayload)
 }

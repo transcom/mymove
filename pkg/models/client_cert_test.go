@@ -20,7 +20,7 @@ func (suite *ModelSuite) Test_FetchClientCert() {
 	suite.MustSave(&certNew)
 
 	cert, err := models.FetchClientCert(suite.DB(), digest)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(cert.Sha256Digest, digest)
 	suite.Equal(cert.Subject, subject)
 }
@@ -40,4 +40,28 @@ func (suite *ModelSuite) Test_ClientCertValidations() {
 	}
 
 	suite.verifyValidationErrors(cert, expErrors)
+}
+
+func (suite *ModelSuite) Test_ClientCertGetAllowedOrdersIssuersReadNone() {
+	cert := models.ClientCert{}
+	suite.Empty(cert.GetAllowedOrdersIssuersRead())
+}
+
+func (suite *ModelSuite) Test_ClientCertGetAllowedOrdersIssuersReadAll() {
+	cert := models.ClientCert{
+		AllowAirForceOrdersRead:    true,
+		AllowArmyOrdersRead:        true,
+		AllowCoastGuardOrdersRead:  true,
+		AllowMarineCorpsOrdersRead: true,
+		AllowNavyOrdersRead:        true,
+	}
+	suite.ElementsMatch(
+		cert.GetAllowedOrdersIssuersRead(),
+		[]string{
+			string(models.IssuerAirForce),
+			string(models.IssuerArmy),
+			string(models.IssuerCoastGuard),
+			string(models.IssuerMarineCorps),
+			string(models.IssuerNavy),
+		})
 }

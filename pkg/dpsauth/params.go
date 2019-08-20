@@ -4,7 +4,7 @@ package dpsauth
 type Params struct {
 	SDDCProtocol   string
 	SDDCHostname   string
-	SDDCPort       string
+	SDDCPort       int
 	SecretKey      string
 	DPSRedirectURL string
 	CookieName     string

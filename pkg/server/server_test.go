@@ -10,12 +10,13 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
-	"github.com/transcom/mymove/pkg/testingsuite"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type serverSuite struct {
-	logger *zap.Logger
+	logger Logger
 	testingsuite.BaseTestSuite
 	httpHandler http.Handler
 }
@@ -51,21 +52,19 @@ func (suite *serverSuite) TestParseSingleTLSCert() {
 		suite.readFile("localhost.pem"),
 		suite.readFile("localhost.key"))
 
-	suite.Nil(err)
+	suite.NoError(err)
 
-	httpsServer := Server{
-		ClientAuthType: tls.NoClientCert,
-		ListenAddress:  "127.0.0.1",
-		HTTPHandler:    suite.httpHandler,
-		Logger:         suite.logger,
-		Port:           8443,
-		TLSCerts:       []tls.Certificate{keyPair},
-	}
-
-	tlsConfig, err := httpsServer.tlsConfig()
-	suite.Nil(err)
-	suite.Equal(len(tlsConfig.Certificates), 1)
-	suite.Contains(tlsConfig.NameToCertificate, "localhost")
+	httpsServer, err := CreateNamedServer(&CreateNamedServerInput{
+		Host:         "127.0.0.1",
+		Port:         8443,
+		ClientAuth:   tls.NoClientCert,
+		HTTPHandler:  suite.httpHandler,
+		Logger:       suite.logger,
+		Certificates: []tls.Certificate{keyPair},
+	})
+	suite.NoError(err)
+	suite.Equal(len(httpsServer.TLSConfig.Certificates), 1)
+	suite.Contains(httpsServer.TLSConfig.NameToCertificate, "localhost")
 }
 
 func (suite *serverSuite) TestParseBadTLSCert() {
@@ -83,30 +82,29 @@ func (suite *serverSuite) TestParseMultipleTLSCerts() {
 		suite.readFile("localhost.pem"),
 		suite.readFile("localhost.key"))
 
-	suite.Nil(err)
+	suite.NoError(err)
 
 	keyPairOffice, err := tls.X509KeyPair(
 		suite.readFile("officelocal.pem"),
 		suite.readFile("officelocal.key"))
 
-	suite.Nil(err)
+	suite.NoError(err)
 
-	httpsServer := Server{
-		ClientAuthType: tls.NoClientCert,
-		ListenAddress:  "127.0.0.1",
-		HTTPHandler:    suite.httpHandler,
-		Logger:         suite.logger,
-		Port:           8443,
-		TLSCerts: []tls.Certificate{
+	httpsServer, err := CreateNamedServer(&CreateNamedServerInput{
+		Host:        "127.0.0.1",
+		Port:        8443,
+		ClientAuth:  tls.NoClientCert,
+		HTTPHandler: suite.httpHandler,
+		Logger:      suite.logger,
+		Certificates: []tls.Certificate{
 			keyPairLocalhost,
-			keyPairOffice},
-	}
-
-	tlsConfig, err := httpsServer.tlsConfig()
-	suite.Nil(err)
-	suite.Equal(len(tlsConfig.Certificates), 2)
-	suite.Contains(tlsConfig.NameToCertificate, "localhost")
-	suite.Contains(tlsConfig.NameToCertificate, "officelocal")
+			keyPairOffice,
+		},
+	})
+	suite.NoError(err)
+	suite.Equal(len(httpsServer.TLSConfig.Certificates), 2)
+	suite.Contains(httpsServer.TLSConfig.NameToCertificate, "localhost")
+	suite.Contains(httpsServer.TLSConfig.NameToCertificate, "officelocal")
 }
 
 func (suite *serverSuite) TestTLSConfigWithClientAuth() {
@@ -115,24 +113,22 @@ func (suite *serverSuite) TestTLSConfigWithClientAuth() {
 		suite.readFile("localhost.pem"),
 		suite.readFile("localhost.key"))
 
-	suite.Nil(err)
+	suite.NoError(err)
 
 	caFile := suite.readFile("ca.pem")
 	caCertPool := x509.NewCertPool()
 	caCertPool.AppendCertsFromPEM(caFile)
 
-	httpsServer := Server{
-		ClientAuthType: tls.RequireAndVerifyClientCert,
-		CaCertPool:     caCertPool,
-		ListenAddress:  "127.0.0.1",
-		HTTPHandler:    suite.httpHandler,
-		Logger:         suite.logger,
-		Port:           8443,
-		TLSCerts:       []tls.Certificate{keyPair},
-	}
-
-	_, err = httpsServer.tlsConfig()
-	suite.Nil(err)
+	_, err = CreateNamedServer(&CreateNamedServerInput{
+		Host:         "127.0.0.1",
+		Port:         8443,
+		ClientAuth:   tls.RequireAndVerifyClientCert,
+		ClientCAs:    caCertPool,
+		HTTPHandler:  suite.httpHandler,
+		Logger:       suite.logger,
+		Certificates: []tls.Certificate{keyPair},
+	})
+	suite.NoError(err)
 }
 
 func (suite *serverSuite) TestTLSConfigWithMissingCA() {
@@ -141,18 +137,16 @@ func (suite *serverSuite) TestTLSConfigWithMissingCA() {
 		suite.readFile("localhost.pem"),
 		suite.readFile("localhost.key"))
 
-	suite.Nil(err)
+	suite.NoError(err)
 
-	httpsServer := Server{
-		ClientAuthType: tls.RequireAndVerifyClientCert,
-		ListenAddress:  "127.0.0.1",
-		HTTPHandler:    suite.httpHandler,
-		Logger:         suite.logger,
-		Port:           8443,
-		TLSCerts:       []tls.Certificate{keyPair},
-	}
-
-	_, err = httpsServer.tlsConfig()
+	_, err = CreateNamedServer(&CreateNamedServerInput{
+		Host:         "127.0.0.1",
+		Port:         8443,
+		ClientAuth:   tls.RequireAndVerifyClientCert,
+		HTTPHandler:  suite.httpHandler,
+		Logger:       suite.logger,
+		Certificates: []tls.Certificate{keyPair},
+	})
 	suite.Equal(ErrMissingCACert, err)
 }
 
@@ -162,40 +156,33 @@ func (suite *serverSuite) TestTLSConfigWithMisconfiguredCA() {
 		suite.readFile("localhost.pem"),
 		suite.readFile("localhost.key"))
 
-	suite.Nil(err)
+	suite.NoError(err)
 
 	caFile := suite.readFile("localhost-bad.pem")
 	caCertPool := x509.NewCertPool()
 	certOk := caCertPool.AppendCertsFromPEM(caFile)
 	suite.False(certOk)
 
-	httpsServer := Server{
-		ClientAuthType: tls.RequireAndVerifyClientCert,
-		CaCertPool:     caCertPool,
-		ListenAddress:  "127.0.0.1",
-		HTTPHandler:    suite.httpHandler,
-		Logger:         suite.logger,
-		Port:           8443,
-		TLSCerts:       []tls.Certificate{keyPair},
-	}
-
-	_, err = httpsServer.tlsConfig()
+	_, err = CreateNamedServer(&CreateNamedServerInput{
+		Host:         "127.0.0.1",
+		Port:         8443,
+		ClientAuth:   tls.RequireAndVerifyClientCert,
+		ClientCAs:    caCertPool,
+		HTTPHandler:  suite.httpHandler,
+		Logger:       suite.logger,
+		Certificates: []tls.Certificate{keyPair},
+	})
 	suite.Equal(ErrMissingCACert, err)
 }
 
 func (suite *serverSuite) TestHTTPServerConfig() {
-	var tlsConfig *tls.Config
-
-	httpServer := Server{
-		ListenAddress: "127.0.0.1",
-		HTTPHandler:   suite.httpHandler,
-		Logger:        suite.logger,
-		Port:          8080,
-	}
-
-	config, err := httpServer.serverConfig(tlsConfig)
-
-	suite.Nil(err)
-	suite.Equal(config.Addr, "127.0.0.1:8080")
-	suite.Equal(suite.httpHandler, config.Handler)
+	httpsServer, err := CreateNamedServer(&CreateNamedServerInput{
+		Host:        "127.0.0.1",
+		Port:        8080,
+		HTTPHandler: suite.httpHandler,
+		Logger:      suite.logger,
+	})
+	suite.NoError(err)
+	suite.Equal(httpsServer.Addr, "127.0.0.1:8080")
+	suite.Equal(suite.httpHandler, httpsServer.Handler)
 }

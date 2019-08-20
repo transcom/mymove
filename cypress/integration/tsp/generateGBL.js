@@ -28,17 +28,13 @@ function tspUserCannotGenerateGBL() {
     expect(loc.pathname).to.match(/^\/queues\/accepted/);
   });
 
-  cy
-    .get('div')
-    .contains('GBLDIS')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('GBLDIS');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains(gblButtonText)
     .should('be.disabled');
 }
@@ -53,29 +49,23 @@ function tspUserGeneratesGBL() {
   });
 
   // Find shipment
-  cy
-    .get('div')
-    .contains('GBLGBL')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('GBLGBL');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains(gblButtonText)
     .should('be.enabled');
 
   cy.get('.documents').should('not.contain', 'Government Bill Of Lading');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains(gblButtonText)
     .click();
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains(gblButtonText)
     .should('be.disabled');
 
@@ -85,17 +75,24 @@ function tspUserGeneratesGBL() {
 
   cy.get('.usa-alert-success').contains('Click the button to view, print, or download the GBL.');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('View GBL')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains(gblButtonText)
     .should('not.exist');
 
   cy.get('.documents').should('contain', 'Government Bill Of Lading');
+
+  cy.patientVisit('/queues/approved');
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/approved/);
+  });
+
+  cy.selectQueueItemMoveLocator('GBLGBL');
+
+  cy.get('.usa-alert-success').should('not.exist');
 }
 
 function tspUserViewsGBL() {
@@ -106,10 +103,7 @@ function tspUserViewsGBL() {
   });
 
   // Find shipment
-  cy
-    .get('div')
-    .contains('GBLGBL')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('GBLGBL');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -117,8 +111,7 @@ function tspUserViewsGBL() {
 
   cy.get('.documents').should($div => expect($div.text()).to.contain('Government Bill Of Lading'));
 
-  cy
-    .get('.documents')
+  cy.get('.documents')
     .get('a')
     .contains('Government Bill Of Lading')
     .click();

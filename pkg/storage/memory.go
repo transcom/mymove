@@ -11,7 +11,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
-	"go.uber.org/zap"
 )
 
 // Memory is a storage backend that uses an in memory filesystem. It is intended only
@@ -19,19 +18,20 @@ import (
 type Memory struct {
 	root    string
 	webRoot string
-	logger  *zap.Logger
+	logger  Logger
 	fs      *afero.Afero
+	tempFs  *afero.Afero
 }
 
 // MemoryParams contains parameter for instantiating a Memory storage backend
 type MemoryParams struct {
 	root    string
 	webRoot string
-	logger  *zap.Logger
+	logger  Logger
 }
 
 // NewMemoryParams returns default values for MemoryParams
-func NewMemoryParams(localStorageRoot string, localStorageWebRoot string, logger *zap.Logger) MemoryParams {
+func NewMemoryParams(localStorageRoot string, localStorageWebRoot string, logger Logger) MemoryParams {
 	absTmpPath, err := filepath.Abs(localStorageRoot)
 	if err != nil {
 		log.Fatalln(fmt.Errorf("could not get absolute path for %s", localStorageRoot))
@@ -49,12 +49,14 @@ func NewMemoryParams(localStorageRoot string, localStorageWebRoot string, logger
 // NewMemory creates a new Memory struct using the provided MemoryParams
 func NewMemory(params MemoryParams) *Memory {
 	var fs = afero.NewMemMapFs()
+	var tempFs = afero.NewMemMapFs()
 
 	return &Memory{
 		root:    params.root,
 		webRoot: params.webRoot,
 		logger:  params.logger,
 		fs:      &afero.Afero{Fs: fs},
+		tempFs:  &afero.Afero{Fs: tempFs},
 	}
 }
 
@@ -112,6 +114,11 @@ func (fs *Memory) Fetch(key string) (io.ReadCloser, error) {
 // FileSystem returns the underlying afero filesystem
 func (fs *Memory) FileSystem() *afero.Afero {
 	return fs.fs
+}
+
+// TempFileSystem returns the temporary afero filesystem
+func (fs *Memory) TempFileSystem() *afero.Afero {
+	return fs.tempFs
 }
 
 // NewMemoryHandler returns an Handler that adds a Content-Type header so that

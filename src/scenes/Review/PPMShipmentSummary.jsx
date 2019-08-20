@@ -1,22 +1,24 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
 
+import { selectReimbursement } from 'shared/Entities/modules/ppms';
 import ppmBlack from 'shared/icon/ppm-black.svg';
 import { formatCentsRange, formatCents } from 'shared/formatters';
 import { formatDateSM } from 'shared/formatters';
 
 import './Review.css';
 
-export default function PPMShipmentSummary(props) {
-  const { movePath, ppm, isHHGPPMComboMove } = props;
+function PPMShipmentSummary(props) {
+  const { advance, movePath, ppm, isHHGPPMComboMove } = props;
 
   const editDateAndLocationAddress = movePath + '/edit-date-and-location';
   const editWeightAddress = movePath + '/edit-weight';
 
   const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
-    ? `(spend up to ${formatCents(ppm.estimated_storage_reimbursement)} on private storage)`
+    ? `(spend up to ${ppm.estimated_storage_reimbursement} on private storage)`
     : '';
   const sitDisplay = get(ppm, 'has_sit', false)
     ? `${ppm.days_in_storage} days ${privateStorageString}`
@@ -41,7 +43,7 @@ export default function PPMShipmentSummary(props) {
           <tbody>
             <tr>
               <td> Move Date: </td>
-              <td>{formatDateSM(get(ppm, 'planned_move_date'))}</td>
+              <td>{formatDateSM(get(ppm, 'original_move_date'))}</td>
             </tr>
             <tr>
               <td> Pickup ZIP Code: </td>
@@ -60,7 +62,7 @@ export default function PPMShipmentSummary(props) {
             {!isHHGPPMComboMove && (
               <tr>
                 <td> Storage: </td>
-                <td>{sitDisplay}</td>
+                <td data-cy="sit-display">{sitDisplay}</td>
               </tr>
             )}
           </tbody>
@@ -81,7 +83,7 @@ export default function PPMShipmentSummary(props) {
           <tbody>
             <tr>
               <td> Estimated Weight: </td>
-              <td> {ppm && ppm.weight_estimate.toLocaleString()} lbs</td>
+              <td> {ppm.weight_estimate && ppm.weight_estimate.toLocaleString()} lbs</td>
             </tr>
             <tr>
               <td> Estimated PPM Incentive: </td>
@@ -90,7 +92,7 @@ export default function PPMShipmentSummary(props) {
             {ppm.has_requested_advance && (
               <tr>
                 <td> Advance: </td>
-                <td> ${formatCents(ppm.advance.requested_amount)}</td>
+                <td> ${formatCents(advance.requested_amount)}</td>
               </tr>
             )}
           </tbody>
@@ -104,3 +106,11 @@ PPMShipmentSummary.propTypes = {
   ppm: PropTypes.object.isRequired,
   movePath: PropTypes.string.isRequired,
 };
+
+function mapStateToProps(state, ownProps) {
+  const { ppm } = ownProps;
+  const advance = selectReimbursement(state, ppm.advance);
+  return { ...ownProps, advance };
+}
+
+export default connect(mapStateToProps)(PPMShipmentSummary);

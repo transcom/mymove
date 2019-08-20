@@ -4,7 +4,7 @@ import * as Cookies from 'js-cookie';
 let client = null;
 let publicClient = null;
 
-const requestInterceptor = req => {
+export const requestInterceptor = req => {
   if (!req.loadSpec) {
     const token = Cookies.get('masked_gorilla_csrf');
     if (token) {
@@ -49,6 +49,8 @@ export async function getPublicSpec() {
 // Used by pre-swaggerRequest code to verify responses
 export function checkResponse(response, errorMessage) {
   if (!response.ok) {
-    throw new Error(`${errorMessage}: ${response.url}: ${response.statusText}`);
+    let err = new Error(`${errorMessage}: ${response.url}: ${response.statusText}`);
+    err.status = response.status;
+    throw err;
   }
 }

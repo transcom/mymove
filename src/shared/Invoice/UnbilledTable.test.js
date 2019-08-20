@@ -1,5 +1,5 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { mount } from 'enzyme';
 import { UnbilledTable } from './UnbilledTable';
 import * as CONSTANTS from 'shared/constants.js';
 import { no_op } from 'shared/utils.js';
@@ -29,7 +29,7 @@ describe('UnbilledTable tests', () => {
 
   describe('When shipmentLineItems exist', () => {
     it('renders without crashing', () => {
-      wrapper = shallow(
+      wrapper = mount(
         <UnbilledTable
           lineItems={shipmentLineItems}
           lineItemsTotal={10}
@@ -39,13 +39,13 @@ describe('UnbilledTable tests', () => {
           createInvoiceStatus={null}
         />,
       );
-      expect(wrapper.find('div.invoice-panel-header-cont').length).toEqual(1);
+      expect(wrapper.find('div.invoice-panel__header-cont').length).toEqual(1);
       expect(wrapper.find('button').text()).toMatch('Approve Payment');
       expect(wrapper.find('LineItemTable').length).toEqual(1);
     });
 
     it('displays payment confirmation', () => {
-      wrapper = shallow(
+      wrapper = mount(
         <UnbilledTable
           lineItems={shipmentLineItems}
           lineItemsTotal={10}

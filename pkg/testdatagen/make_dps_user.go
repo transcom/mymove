@@ -2,6 +2,7 @@ package testdatagen
 
 import (
 	"github.com/gobuffalo/pop"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -16,6 +17,7 @@ func MakeDpsUser(db *pop.Connection, assertions Assertions) models.DpsUser {
 
 	user := models.DpsUser{
 		LoginGovEmail: email,
+		Disabled:      false,
 	}
 
 	mustCreate(db, &user)

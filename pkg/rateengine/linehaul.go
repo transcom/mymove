@@ -5,6 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -30,13 +31,14 @@ func (c *LinehaulCostComputation) Scale(factor float64) {
 	c.LinehaulChargeTotal = c.LinehaulChargeTotal.MultiplyFloat64(factor)
 }
 
-func (re *RateEngine) determineMileage(originZip5 string, destinationZip5 string) (mileage int, err error) {
-	mileage, err = re.planner.Zip5TransitDistance(originZip5, destinationZip5)
-	if err != nil {
-		re.logger.Error("Failed to get distance from planner - %v", zap.Error(err),
-			zap.String("origin_zip5", originZip5), zap.String("destination_zip5", destinationZip5))
-	}
-	return mileage, err
+// MarshalLogObject allows LinehaulCostComputation to be logged by Zap.
+func (c LinehaulCostComputation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	encoder.AddInt("BaseLinehaul", c.BaseLinehaul.Int())
+	encoder.AddInt("OriginLinehaulFactor", c.OriginLinehaulFactor.Int())
+	encoder.AddInt("DestinationLinehaulFactor", c.DestinationLinehaulFactor.Int())
+	encoder.AddInt("ShorthaulCharge", c.ShorthaulCharge.Int())
+
+	return nil
 }
 
 // Determine the Base Linehaul (BLH)
@@ -74,17 +76,14 @@ func (re *RateEngine) shorthaulCharge(mileage int, cwt unit.CWT, date time.Time)
 
 // Determine Linehaul Charge (LC) TOTAL
 // Formula: LC= [BLH + OLF + DLF + [SH]
-func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 string, destinationZip5 string, pickupDate time.Time) (cost LinehaulCostComputation, err error) {
+func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 string, destinationZip5 string, distanceMiles int, pickupDate time.Time) (cost LinehaulCostComputation, err error) {
 	cwt := weight.ToCWT()
 	originZip3 := Zip5ToZip3(originZip5)
 	destinationZip3 := Zip5ToZip3(destinationZip5)
-	mileage, err := re.determineMileage(originZip5, destinationZip5)
-	if err != nil {
-		return cost, errors.Wrap(err, "Failed to determine mileage")
-	}
-	cost.Mileage = mileage
 
-	cost.BaseLinehaul, err = re.baseLinehaul(mileage, weight, pickupDate)
+	cost.Mileage = distanceMiles
+
+	cost.BaseLinehaul, err = re.baseLinehaul(distanceMiles, weight, pickupDate)
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to determine base linehaul charge")
 	}
@@ -96,7 +95,7 @@ func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 st
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to determine destination linehaul factor")
 	}
-	cost.ShorthaulCharge, err = re.shorthaulCharge(mileage, cwt, pickupDate)
+	cost.ShorthaulCharge, err = re.shorthaulCharge(distanceMiles, cwt, pickupDate)
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to determine shorthaul charge")
 	}

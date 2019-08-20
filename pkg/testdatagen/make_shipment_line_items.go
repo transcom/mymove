@@ -2,9 +2,9 @@ package testdatagen
 
 import (
 	"log"
-	"time"
 
 	"github.com/gobuffalo/pop"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -20,8 +20,7 @@ func MakeShipmentLineItem(db *pop.Connection, assertions Assertions) models.Ship
 	if isZeroUUID(tariff400ngItem.ID) {
 		tariff400ngItem = MakeTariff400ngItem(db, assertions)
 	}
-	var rate unit.Millicents
-	rate = 2354000
+	rate := unit.Millicents(2354000)
 	//filled in dummy data
 	shipmentLineItem := models.ShipmentLineItem{
 		ShipmentID:        shipment.ID,
@@ -33,10 +32,10 @@ func MakeShipmentLineItem(db *pop.Connection, assertions Assertions) models.Ship
 		Quantity1:         unit.BaseQuantity(1670),
 		AppliedRate:       &rate,
 		Status:            models.ShipmentLineItemStatusSUBMITTED,
-		SubmittedDate:     time.Now(),
-		ApprovedDate:      time.Now(),
-		CreatedAt:         time.Now(),
-		UpdatedAt:         time.Now(),
+		SubmittedDate:     NextValidMoveDate,
+		ApprovedDate:      NextValidMoveDate,
+		CreatedAt:         NextValidMoveDate,
+		UpdatedAt:         NextValidMoveDate,
 	}
 
 	// Overwrite values with those from assertions
@@ -77,9 +76,7 @@ func MakeCompleteShipmentLineItem(db *pop.Connection, assertions Assertions) mod
 
 	// And lastly we need a valid rate for the item code
 	rateAssertions := assertions
-	rateAssertions.Tariff400ngItemRate = models.Tariff400ngItemRate{
-		Code: tariff400ngItem.Code,
-	}
+	rateAssertions.Tariff400ngItemRate.Code = tariff400ngItem.Code
 	MakeTariff400ngItemRate(db, rateAssertions)
 
 	return MakeShipmentLineItem(db, assertions)

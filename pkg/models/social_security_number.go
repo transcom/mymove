@@ -9,7 +9,6 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -46,8 +45,6 @@ var ssnFormatRegex = regexp.MustCompile(`^\d{3}-\d{2}-\d{4}$`)
 
 // SetEncryptedHash correctly sets the encrypted hash for the given SSN
 func (s *SocialSecurityNumber) SetEncryptedHash(ctx context.Context, unencryptedSSN string) (*validate.Errors, error) {
-	_, span := beeline.StartSpan(ctx, "SetEncryptedHash")
-	defer span.Send()
 
 	verrs := validate.NewErrors()
 	if !ssnFormatRegex.MatchString(unencryptedSSN) {
@@ -71,8 +68,6 @@ func (s *SocialSecurityNumber) SetEncryptedHash(ctx context.Context, unencrypted
 
 // BuildSocialSecurityNumber returns an *unsaved* SSN that has the ssn hash set based on the passed in raw ssn
 func BuildSocialSecurityNumber(ctx context.Context, unencryptedSSN string) (*SocialSecurityNumber, *validate.Errors, error) {
-	ctx, span := beeline.StartSpan(ctx, "BuildSocialSecurityNumber")
-	defer span.Send()
 	ssn := SocialSecurityNumber{}
 	verrs, err := ssn.SetEncryptedHash(ctx, unencryptedSSN)
 	if err != nil || verrs.HasAny() {

@@ -11,7 +11,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
-	"go.uber.org/zap"
 )
 
 // Filesystem is a storage backend that uses the local filesystem. It is intended only
@@ -19,19 +18,20 @@ import (
 type Filesystem struct {
 	root    string
 	webRoot string
-	logger  *zap.Logger
+	logger  Logger
 	fs      *afero.Afero
+	tempFs  *afero.Afero
 }
 
 // FilesystemParams contains parameter for instantiating a Filesystem storage backend
 type FilesystemParams struct {
 	root    string
 	webRoot string
-	logger  *zap.Logger
+	logger  Logger
 }
 
 // NewFilesystemParams returns FilesystemParams after checking path
-func NewFilesystemParams(localStorageRoot string, localStorageWebRoot string, logger *zap.Logger) FilesystemParams {
+func NewFilesystemParams(localStorageRoot string, localStorageWebRoot string, logger Logger) FilesystemParams {
 	absTmpPath, err := filepath.Abs(localStorageRoot)
 	if err != nil {
 		log.Fatalln(fmt.Errorf("could not get absolute path for %s", localStorageRoot))
@@ -49,12 +49,14 @@ func NewFilesystemParams(localStorageRoot string, localStorageWebRoot string, lo
 // NewFilesystem creates a new Filesystem struct using the provided FilesystemParams
 func NewFilesystem(params FilesystemParams) *Filesystem {
 	var fs = afero.NewOsFs()
+	var tempFs = afero.NewMemMapFs()
 
 	return &Filesystem{
 		root:    params.root,
 		webRoot: params.webRoot,
 		logger:  params.logger,
 		fs:      &afero.Afero{Fs: fs},
+		tempFs:  &afero.Afero{Fs: tempFs},
 	}
 }
 
@@ -112,6 +114,11 @@ func (fs *Filesystem) Fetch(key string) (io.ReadCloser, error) {
 // FileSystem returns the underlying afero filesystem
 func (fs *Filesystem) FileSystem() *afero.Afero {
 	return fs.fs
+}
+
+// TempFileSystem returns the temporary afero filesystem
+func (fs *Filesystem) TempFileSystem() *afero.Afero {
+	return fs.tempFs
 }
 
 // NewFilesystemHandler returns an Handler that adds a Content-Type header so that

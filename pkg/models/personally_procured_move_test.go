@@ -1,6 +1,8 @@
 package models_test
 
 import (
+	"github.com/go-openapi/swag"
+
 	"github.com/transcom/mymove/pkg/auth"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -24,18 +26,18 @@ func (suite *ModelSuite) TestPPMAdvance() {
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
 
 	ppm, verrs, err := move.CreatePPM(suite.DB(), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
 	advance.Request()
 	SavePersonallyProcuredMove(suite.DB(), ppm)
 	session := auth.Session{
 		UserID:          serviceMember.User.ID,
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 		ServiceMemberID: serviceMember.ID,
 	}
 	fetchedPPM, err := FetchPersonallyProcuredMove(suite.DB(), &session, ppm.ID)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(fetchedPPM.Advance.Status, ReimbursementStatusREQUESTED, "expected Requested")
 }
 
@@ -45,7 +47,7 @@ func (suite *ModelSuite) TestPPMAdvanceNoGTCC() {
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptGTCC)
 
 	_, verrs, err := move.CreatePPM(suite.DB(), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.True(verrs.HasAny())
 }
 
@@ -56,21 +58,25 @@ func (suite *ModelSuite) TestPPMStateMachine() {
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
-	suite.Nil(err)
+	moveOptions := MoveOptions{
+		SelectedType: &selectedMoveType,
+		Show:         swag.Bool(true),
+	}
+	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
+	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
 
 	ppm, verrs, err := move.CreatePPM(suite.DB(), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
 	ppm.Status = PPMStatusSUBMITTED // NEVER do this outside of a test.
 
 	// Can cancel ppm
 	err = ppm.Cancel()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(PPMStatusCANCELED, ppm.Status, "expected Canceled")
 }

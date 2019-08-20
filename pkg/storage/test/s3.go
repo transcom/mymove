@@ -14,6 +14,7 @@ import (
 type FakeS3Storage struct {
 	willSucceed bool
 	fs          *afero.Afero
+	tempFs      *afero.Afero
 }
 
 // Delete removes a file.
@@ -60,12 +61,19 @@ func (fake *FakeS3Storage) FileSystem() *afero.Afero {
 	return fake.fs
 }
 
+// TempFileSystem returns the underlying afero filesystem
+func (fake *FakeS3Storage) TempFileSystem() *afero.Afero {
+	return fake.tempFs
+}
+
 // NewFakeS3Storage creates a new FakeS3Storage for testing purposes.
 func NewFakeS3Storage(willSucceed bool) *FakeS3Storage {
 	var fs = afero.NewMemMapFs()
+	var tempFs = afero.NewMemMapFs()
 
 	return &FakeS3Storage{
 		willSucceed: willSucceed,
 		fs:          &afero.Afero{Fs: fs},
+		tempFs:      &afero.Afero{Fs: tempFs},
 	}
 }

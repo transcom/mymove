@@ -25,6 +25,21 @@ func BaseQuantityFromInt(i int) BaseQuantity {
 	return BaseQuantity(i * 10000)
 }
 
+// BaseQuantityFromFloat a BaseQuantity for a provided float32
+func BaseQuantityFromFloat(i float32) BaseQuantity {
+	return BaseQuantity(i * 10000)
+}
+
+// BaseQuantityFromThousandthInches creates a BaseQuantity for a provided ThousandthInches
+func BaseQuantityFromThousandthInches(ti ThousandthInches) BaseQuantity {
+	return BaseQuantity(ti * 10)
+}
+
+// BaseQuantityFromCents creates a BaseQuantity for a provided Cents
+func BaseQuantityFromCents(c Cents) BaseQuantity {
+	return BaseQuantity(c * 100)
+}
+
 // String returns the value of self as string
 func (bq BaseQuantity) String() string {
 	return strconv.Itoa(int(bq))
@@ -59,4 +74,13 @@ func (bq BaseQuantity) ToUnitInt() int {
 func (bq BaseQuantity) ToUnitFloat() float64 {
 	d := float64(bq) / 10000.0
 	return d
+}
+
+// IntToBaseQuantity returns a unit in BaseQuantity format
+func IntToBaseQuantity(quantity *int64) *BaseQuantity {
+	if quantity == nil {
+		return nil
+	}
+	formattedValue := BaseQuantity(int(*quantity))
+	return &formattedValue
 }

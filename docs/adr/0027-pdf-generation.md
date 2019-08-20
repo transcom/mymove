@@ -38,7 +38,7 @@ specialized tools might be required), we divided the problem into two parts:
 * [gotenberg](https://github.com/thecodingmachine/gotenberg)
 * [Unidoc](https://github.com/unidoc/unidoc)
 * [poppler](https://poppler.freedesktop.org/)
-* [pdfcpu](https://github.com/hhrutter/pdfcpu)
+* [pdfcpu](https://github.com/pdfcpu/pdfcpu)
 
 ## Decision Outcome
 
@@ -58,7 +58,7 @@ Chosen alternative: Draw the PDF form manually using [gofpdf](https://github.com
 
 ### Merging PDFs and Images
 
-Chosen alternative: [pdfcpu](https://github.com/hhrutter/pdfcpu)
+Chosen alternative: [pdfcpu](https://github.com/pdfcpu/pdfcpu)
 
 * `+` Written in Go and requires only other Go libraries as dependencies
 * `+` Was able to wrap images in PDFs using our test files

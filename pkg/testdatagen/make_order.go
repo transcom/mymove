@@ -21,7 +21,7 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	station := assertions.Order.NewDutyStation
 	// Note above
 	if isZeroUUID(assertions.Order.NewDutyStationID) {
-		station = FetchOrMakeDefaultDutyStation(db)
+		station = FetchOrMakeDefaultNewOrdersDutyStation(db)
 	}
 
 	document := assertions.Order.UploadedOrders
@@ -46,7 +46,6 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 
 	ordersNumber := "ORDER3"
 	TAC := "F8E1"
-	SAC := "SAC"
 	departmentIndicator := "AIR_FORCE"
 	hasDependents := assertions.Order.HasDependents || false
 	spouseHasProGear := assertions.Order.SpouseHasProGear || false
@@ -58,15 +57,14 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		NewDutyStationID:    station.ID,
 		UploadedOrders:      document,
 		UploadedOrdersID:    document.ID,
-		IssueDate:           time.Date(2018, time.March, 15, 0, 0, 0, 0, time.UTC),
-		ReportByDate:        time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC),
+		IssueDate:           time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
+		ReportByDate:        time.Date(TestYear, time.August, 1, 0, 0, 0, 0, time.UTC),
 		OrdersType:          internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
 		OrdersNumber:        &ordersNumber,
 		HasDependents:       hasDependents,
 		SpouseHasProGear:    spouseHasProGear,
 		Status:              models.OrderStatusDRAFT,
 		TAC:                 &TAC,
-		SAC:                 &SAC,
 		DepartmentIndicator: &departmentIndicator,
 	}
 

@@ -116,7 +116,6 @@ definitions:
         example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
       filename:
         type: string
-        format: string
         example: filename.pdf
       content_type:
         type: string
@@ -151,6 +150,17 @@ definitions:
       DESTINATION: Destination
       NEITHER: Neither
       EITHER: Either
+  DistanceCalculation:
+    type: object
+    properties:
+      origin_address:
+        $ref: '#/definitions/Address'
+      destination_address:
+        $ref: '#/definitions/Address'
+      distance_miles:
+        type: integer
+        title: Distance
+        description: unit is miles
   ShipmentLineItemLocation:
     type: string
     title: Location
@@ -169,10 +179,41 @@ definitions:
       - SUBMITTED
       - APPROVED
       - INVOICED
+      - CONDITIONALLY_APPROVED
     x-display-value:
       SUBMITTED: Submitted
       APPROVED: Approved
       INVOICED: Invoiced
+      CONDITIONALLY_APPROVED: Conditionally Approved
+  Dimensions:
+    type: object
+    format: dimensions
+    properties:
+      length:
+        type: integer
+        format: dimension
+        title: Length
+        description: Length recorded as base quantity unit, eg. baseQuantityInch
+        minimum: 0
+        example: 167000
+      width:
+        type: integer
+        format: dimension
+        title: Width
+        description: Width recorded as base quantity unit, eg. baseQuantityInch
+        minimum: 0
+        example: 167000
+      height:
+        type: integer
+        format: dimension
+        title: Height
+        description: Height recorded as base quantity unit, eg. baseQuantityInch
+        minimum: 0
+        example: 167000
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
   InvoiceStatus:
     type: string
     title: Status
@@ -181,11 +222,13 @@ definitions:
       - IN_PROCESS
       - SUBMITTED
       - SUBMISSION_FAILURE
+      - UPDATE_FAILURE
     x-display-value:
       DRAFT: Draft
       IN_PROCESS: In Process
       SUBMITTED: Submitted
       SUBMISSION_FAILURE: Submission Failure
+      UPDATE_FAILURE: Update Failure
   Tariff400ngItems:
     type: array
     items:
@@ -305,11 +348,29 @@ definitions:
         description: unit is millicents
       location:
         $ref: '#/definitions/ShipmentLineItemLocation'
+      description:
+        type: string
+        format: textarea
+        title: Description
+        example: Mounted deer head
+        x-nullable: true
+      reason:
+        type: string
+        format: textarea
+        title: Reason
+        example: Too large to be transported safely
+        x-nullable: true
+      crate_dimensions:
+        $ref: '#/definitions/Dimensions'
+        x-nullable: true
+      item_dimensions:
+        $ref: '#/definitions/Dimensions'
+        x-nullable: true
       notes:
         type: string
         format: textarea
         title: Notes
-        example: Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft
+        example: Needed for gun safe moving
       status:
         $ref: '#/definitions/ShipmentLineItemStatus'
       invoice_id:
@@ -317,12 +378,40 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         x-nullable: true
+      estimate_amount_cents:
+        type: integer
+        format: cents
+        minimum: 1
+        title: Estimate amount
+        description: Used for storing estimate cost of a service or charge.
+        x-nullable: true
+      actual_amount_cents:
+        type: integer
+        format: cents
+        minimum: 1
+        title: Actual amount
+        description: Used for storing actual cost of a service or charge.
+        x-nullable: true
       amount_cents:
         type: integer
         format: cents
         minimum: 1
         title: Amount
-        description: unit is cents
+        description: Unit is cents. Used for storing line haul charges.
+        x-nullable: true
+      date:
+        type: string
+        description: date of service or charge
+        format: date
+        example: '2018-10-21'
+        x-nullable: true
+      time:
+        type: string
+        description: Free form text. Generally used to input time of service or charge in military time.
+        example: '0400'
+        x-nullable: true
+      address:
+        $ref: '#/definitions/Address'
         x-nullable: true
       submitted_date:
         type: string
@@ -341,7 +430,6 @@ definitions:
         format: date-time
     required:
       - tariff400ng_item_id
-      - quantity_1
       - location
   Address:
     type: object
@@ -349,17 +437,17 @@ definitions:
       street_address_1:
         type: string
         example: 123 Main Ave
-        title: Address Line 1
+        title: Address line 1
       street_address_2:
         type: string
         example: Apartment 9000
         x-nullable: true
-        title: Address Line 2
+        title: Address line 2
       street_address_3:
         type: string
         example: Montmârtre
         x-nullable: true
-        title: Address Line 3
+        title: Address line 3
       city:
         type: string
         example: Anytown
@@ -367,12 +455,115 @@ definitions:
       state:
         title: State
         type: string
-        example: CA
+        x-display-value:
+          AL: AL
+          AK: AK
+          AR: AR
+          AZ: AZ
+          CA: CA
+          CO: CO
+          CT: CT
+          DC: DC
+          DE: DE
+          FL: FL
+          GA: GA
+          HI: HI
+          IA: IA
+          ID: ID
+          IL: IL
+          IN: IN
+          KS: KS
+          KY: KY
+          LA: LA
+          MA: MA
+          MD: MD
+          ME: ME
+          MI: MI
+          MN: MN
+          MO: MO
+          MS: MS
+          MT: MT
+          NC: NC
+          ND: ND
+          NE: NE
+          NH: NH
+          NJ: NJ
+          NM: NM
+          NV: NV
+          NY: NY
+          OH: OH
+          OK: OK
+          OR: OR
+          PA: PA
+          RI: RI
+          SC: SC
+          SD: SD
+          TN: TN
+          TX: TX
+          UT: UT
+          VA: VA
+          VT: VT
+          WA: WA
+          WI: WI
+          WV: WV
+          WY: WY
+        enum:
+          - AL
+          - AK
+          - AR
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VA
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
       postal_code:
         type: string
         description: zip code, international allowed
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP
         example: "'90210' or 'N15 3NL'"
       country:
         type: string
@@ -640,13 +831,11 @@ definitions:
       - DRAFT
       - SUBMITTED
       - APPROVED
-      - COMPLETED
       - CANCELED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
       APPROVED: Approved
-      COMPLETED: Completed
       CANCELED: Canceled
   MoveDocumentType:
     type: string
@@ -725,19 +914,25 @@ definitions:
       - E_7
       - E_8
       - E_9
-      - O_1_W_1_ACADEMY_GRADUATE
-      - O_2_W_2
-      - O_3_W_3
-      - O_4_W_4
-      - O_5_W_5
+      - O_1_ACADEMY_GRADUATE
+      - O_2
+      - O_3
+      - O_4
+      - O_5
       - O_6
       - O_7
       - O_8
       - O_9
       - O_10
+      - W_1
+      - W_2
+      - W_3
+      - W_4
+      - W_5
       - AVIATION_CADET
       - CIVILIAN_EMPLOYEE
-      - ACADEMY_CADET_MIDSHIPMAN
+      - ACADEMY_CADET
+      - MIDSHIPMAN
     x-display-value:
       E_1: E-1
       E_2: E-2
@@ -748,19 +943,25 @@ definitions:
       E_7: E-7
       E_8: E-8
       E_9: E-9
-      O_1_W_1_ACADEMY_GRADUATE: O-1/W-1/Service Academy Graduate
-      O_2_W_2: O-2/W-2
-      O_3_W_3: O-3/W-3
-      O_4_W_4: O-4/W-4
-      O_5_W_5: O-5/W-5
+      O_1_ACADEMY_GRADUATE: O-1/Service Academy Graduate
+      O_2: O-2
+      O_3: O-3
+      O_4: O-4
+      O_5: O-5
       O_6: O-6
       O_7: O-7
       O_8: O-8
       O_9: O-9
       O_10: O-10
+      W_1: W-1
+      W_2: W-2
+      W_3: W-3
+      W_4: W-4
+      W_5: W-5
       AVIATION_CADET: Aviation Cadet
       CIVILIAN_EMPLOYEE: Civilian Employee
-      ACADEMY_CADET_MIDSHIPMAN: Service Academy Cadet/Midshipman
+      ACADEMY_CADET: Service Academy Cadet
+      MIDSHIPMAN: Midshipman
   Affiliation:
     type: string
     x-nullable: true
@@ -786,7 +987,6 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       name:
         type: string
-        format: string
         example: Fort Bragg North Station
       address:
         $ref: '#/definitions/Address'
@@ -824,7 +1024,9 @@ definitions:
         type: string
         format: edipi
         example: '5789345789'
-        pattern: '^[0-9]{10}$'
+        pattern: '^\d{10}$'
+        minLength: 10
+        maxLength: 10
         x-nullable: true
         title: DoD ID number
       affiliation:
@@ -863,16 +1065,14 @@ definitions:
         type: boolean
         x-nullable: true
         title: Telephone
-      text_message_is_preferred:
-        type: boolean
-        x-nullable: true
-        title: Text Message - Coming Soon!
       email_is_preferred:
         type: boolean
         x-nullable: true
         title: Email
       backup_contacts:
         $ref: '#/definitions/IndexServiceMemberBackupContacts'
+      weight_allotment:
+        $ref: '#/definitions/WeightAllotment'
   IndexServiceMemberBackupContacts:
     type: array
     items:
@@ -884,6 +1084,11 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       name:
         type: string
         example: Susan Smith
@@ -913,6 +1118,7 @@ definitions:
         format: date-time
     required:
       - id
+      - service_member_id
       - created_at
       - updated_at
       - name
@@ -930,6 +1136,26 @@ definitions:
       NONE: Contact Only
       VIEW: View all move details
       EDIT: View and edit all move details
+  WeightAllotment:
+    type: object
+    properties:
+      total_weight_self:
+        type: integer
+        example: 18000
+      total_weight_self_plus_dependents:
+        type: integer
+        example: 18000
+      pro_gear_weight:
+        type: integer
+        example: 2000
+      pro_gear_weight_spouse:
+        type: integer
+        example: 500
+    required:
+      - total_weight_self
+      - total_weight_self_plus_dependents
+      - pro_gear_weight
+      - pro_gear_weight_spouse
   TrafficDistributionList:
     type: object
     properties:
@@ -980,11 +1206,26 @@ definitions:
       updated_at:
         type: string
         format: date-time
+      traffic_distribution_list_id:
+        type: string
+        format: uuid
+        example: d56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       traffic_distribution_list:
         $ref: '#/definitions/TrafficDistributionList'
         readOnly: true
+      service_member_id:
+        type: string
+        format: uuid
+        example: d56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       service_member:
         $ref: '#/definitions/ServiceMember'
+        readOnly: true
+      move_id:
+        type: string
+        format: uuid
+        example: d56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
       move:
         $ref: '#/definitions/Move'
@@ -1061,6 +1302,8 @@ definitions:
       delivery_address:
         $ref: '#/definitions/Address'
         x-nullable: true
+      shipping_distance:
+        $ref: '#/definitions/DistanceCalculation'
       has_partial_sit_delivery_address:
         type: boolean
         default: false
@@ -1253,9 +1496,9 @@ definitions:
         type: string
         format: date-time
     required:
-    - standard_carrier_alpha_code
-    - enrolled
-  IndexServiceAgents:
+      - standard_carrier_alpha_code
+      - enrolled
+  ServiceAgents:
     type: array
     items:
       $ref: '#/definitions/ServiceAgent'
@@ -1442,7 +1685,6 @@ definitions:
       - APPROVED
       - IN_TRANSIT
       - DELIVERED
-      - COMPLETED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
@@ -1451,7 +1693,6 @@ definitions:
       APPROVED: Approved
       IN_TRANSIT: In Transit
       DELIVERED: Delivered
-      COMPLETED: Completed
   TransportPayload:
     type: object
     properties:
@@ -1536,6 +1777,200 @@ definitions:
         type: object
         additionalProperties:
           type: string
+  StorageInTransit:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      location:
+        type: string
+        title: SIT Location
+        enum:
+          - ORIGIN
+          - DESTINATION
+        x-display-value:
+          ORIGIN: Origin
+          DESTINATION: Destination
+      estimated_start_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        title: Estimated start date
+      authorized_start_date:
+        type: string
+        format: date
+        x-nullable: true
+        example: '2018-04-26'
+        title: Authorized Start Date
+      actual_start_date:
+        type: string
+        format: date
+        x-nullable: true
+        example: '2018-04-26'
+        title: Actual Start Date
+      out_date:
+        type: string
+        format: date
+        x-nullable: true
+        example: '2018-04-26'
+        title: Out Date
+      notes:
+        type: string
+        example: Good to go!
+        format: textarea
+        x-nullable: true
+        title: Note
+      authorization_notes:
+        type: string
+        example: Good to go!
+        format: textarea
+        x-nullable: true
+        title: Authorization Notes
+      warehouse_id:
+        type: string
+        example: '000383'
+        title: Warehouse ID number
+      warehouse_name:
+        type: string
+        example: ABC Warehouse, Inc.
+        title: Warehouse Name
+      warehouse_phone:
+        type: string
+        format: telephone
+        pattern: '^$|^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+        title: Phone
+      warehouse_email:
+        type: string
+        format: x-email
+        pattern: '^$|^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: john_bob@example.com
+        x-nullable: true
+        title: Email
+      shipment_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        title: Shipment ID
+      sit_number:
+        type: string
+        x-nullable: true
+        example: 123456
+        title: SIT Number
+      status:
+        type: string
+        example: REQUESTED
+        title: Status
+      warehouse_address:
+        $ref: '#/definitions/Address'
+    required:
+      - location
+      - warehouse_address
+      - warehouse_id
+      - warehouse_name
+      - estimated_start_date
+  StorageInTransits:
+    type: array
+    items:
+      $ref: '#/definitions/StorageInTransit'
+  StorageInTransitApprovalPayload:
+    type: object
+    properties:
+      authorization_notes:
+        type: string
+        format: textarea
+        example: Good to go!
+        title: Authorization Notes
+        x-nullable: true
+      authorized_start_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        title: Authorized Start Date
+  StorageInTransitDenialPayload:
+    type: object
+    properties:
+      authorization_notes:
+        type: string
+        format: textarea
+        example: Good to go!
+        title: Authorization Notes
+  StorageInTransitInSitPayload:
+    type: object
+    properties:
+      actual_start_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        title: Actual Start date
+  StorageInTransitReleasePayload:
+    type: object
+    properties:
+      released_on:
+        type: string
+        format: date
+        example: '2018-04-26'
+        title: Released On Date
+  AccessCode:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      code:
+        type: string
+        example: CODE456
+      move_type:
+        type: string
+        title: Selected Move Type
+        enum:
+          - HHG
+          - PPM
+      created_at:
+        type: string
+        format: datetime
+        example: 2018-04-12T23:20:50.52Z
+        description: when the access code was created
+      claimed_at:
+        type: string
+        format: datetime
+        example: 2018-04-12T23:20:50.52Z
+        description: when the access code was claimed or used
+        x-nullable: true
+    required:
+      - id
+      - code
+      - move_type
+      - created_at
+  RateEnginePostalCodePayload:
+    type: object
+    properties:
+      valid:
+        type: boolean
+        example: false
+      postal_code:
+        type: string
+        description: zip code, international allowed
+        format: zip
+        title: ZIP
+        example: "'90210' or 'N15 3NL'"
+      postal_code_type:
+        type: string
+        enum:
+          - origin
+          - destination
+    required:
+      - valid
+      - postal_code
+      - postal_code_type
 paths:
   /tariff_400ng_items:
     get:
@@ -1927,18 +2362,6 @@ paths:
             - PICKUP_DATE_DESC
             - DELIVERY_DATE_ASC
             - DELIVERY_DATE_DESC
-        - name: limit
-          in: query
-          type: integer
-          description: maximum number of records to return
-          minimum: 1
-          default: 25
-        - name: offset
-          in: query
-          type: integer
-          description: offset into records to select from. Actual offset is this value multiplied by limit.
-          minimum: 1
-          default: 1
       responses:
         200:
           description: returns an array of Shipments
@@ -2034,7 +2457,7 @@ paths:
         200:
           description: returns an array of Service Agents
           schema:
-            $ref: '#/definitions/IndexServiceAgents'
+            $ref: '#/definitions/ServiceAgents'
         400:
           description: invalid request
         401:
@@ -2097,7 +2520,7 @@ paths:
           format: uuid
           required: true
           description: UUID of the service agent
-        - name: patchServiceAgentPayload
+        - name: serviceAgent
           in: body
           required: true
           schema:
@@ -2164,15 +2587,15 @@ paths:
           description: UUID of the shipment
       responses:
         200:
-          description: returns a Transporation Service Provider
+          description: returns a Transportation Service Provider
           schema:
             $ref: '#/definitions/TransportationServiceProvider'
-        400:
-          description: invalid request
         401:
           description: must be authenticated to use this endpoint
         403:
           description: not authorized to list these shipments
+        404:
+          description: transportation service provider does not exist for shipment
         422:
           description: cannot process request with given information
         500:
@@ -2183,14 +2606,14 @@ paths:
       description: Sets the pre-move survey as completed. Completion date will be recorded on shipment.
       operationId: completePmSurvey
       tags:
-      - shipments
+        - shipments
       parameters:
-      - name: shipmentId
-        in: path
-        type: string
-        format: uuid
-        required: true
-        description: UUID of the move
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
       responses:
         200:
           description: returns updated shipment object
@@ -2507,6 +2930,35 @@ paths:
           description: failed to meet data requirements for line items
         500:
           description: server error
+  /shipments/{shipmentId}/accessorials/recalculate:
+    post:
+      summary: Recalculates shipment line items for a shipment
+      description: Recalcuate shipment line items given a shipment ID
+      operationId: recalculateShipmentLineItems
+      tags:
+        - accessorials
+      parameters:
+        - in: path
+          name: shipmentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+      responses:
+        200:
+          description: A collection of recalculated shipment line items
+          schema:
+            $ref: '#/definitions/ShipmentLineItems'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authorization
+        403:
+          description: user unauthorized
+        404:
+          description: shipment id not found
+        500:
+          description: internal server error
   /shipments/accessorials/{shipmentLineItemId}:
     put:
       summary: Updates a shipment line item
@@ -2539,6 +2991,8 @@ paths:
           description: user is not authorized
         404:
           description: shipment line item not found
+        422:
+          description: shipment line item not in state to update
         500:
           description: internal server error
     delete:
@@ -2597,6 +3051,372 @@ paths:
           description: shipment line item not found
         500:
           description: internal server error
+  /shipments/{shipmentId}/storage_in_transits:
+    get:
+      summary: Gets storage in transit entries for shipment
+      description: Allows a user to retrieve a list of storage in transit entires for a shipment.
+      operationId: indexStorageInTransits
+      tags:
+        - storage_in_transits
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of shipment
+      responses:
+        200:
+          description: returns an array of storage in transit entires
+          schema:
+            $ref: '#/definitions/StorageInTransits'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this end point
+        403:
+          description: not authorized to list these storage in transit entries
+        422:
+          description: cannot process request with given information
+        500:
+          description: server error
+    post:
+      summary: Create a storage in transit entry
+      description: Creates a new storage in transit entry associated with a shipment
+      operationId: createStorageInTransit
+      tags:
+        - storage_in_transits
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+        - name: storageInTransit
+          in: body
+          required: true
+          description: Storage In Transit information
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+      responses:
+        201:
+          description: successfully created Storage In Transit
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this end point
+        403:
+          description: not authorized to add transit in storage entires to this shipment
+        500:
+          description: server error
+  /shipments/{shipmentId}/storage_in_transits/{storageInTransitId}:
+    get:
+      summary: Gets a particular Storage In Transit for a shipment
+      description: Allows a user to retrieve a specific Storage In Transit entry for a shipment
+      operationId: getStorageInTransit
+      tags:
+        - storage_in_transits
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+        - name: storageInTransitId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the Storage in Transit entry
+      responses:
+        200:
+          description: returns the details of a storage in transit entry
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to view the details of this storage in transit entry
+        404:
+          description: storage in transit UUID not found in system
+        500:
+          description: server error
+    patch:
+      summary: Updates an particular Storage In Transit entry
+      description: Allows changes to be made to a particular Storage In Transit entry
+      operationId: patchStorageInTransit
+      tags:
+        - storage_in_transits
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of shipment
+        - name: storageInTransitId
+          in: path
+          type: string
+          format: uuid
+          description: UUID of storage in transit
+          required: true
+        - name: storageInTransit
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+      responses:
+        200:
+          description: returns the details of the storage in transit entry
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to update the details of this service agent
+        404:
+          description: storage in transit UUID not found in system
+        500:
+          description: server error
+    delete:
+      summary: Deletes a particular Storage In Transit entry related to a shipment
+      operationId: deleteStorageInTransit
+      tags:
+        - storage_in_transits
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of shipment
+        - name: storageInTransitId
+          in: path
+          type: string
+          format: uuid
+          description: UUID of storage in transit
+          required: true
+      responses:
+        200:
+          description: the storage in transit entry was successfully deleted
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to access the associated storage in transit entry
+        404:
+          description: no service agent found with that UUID
+        500:
+          description: server error
+  /shipments/{shipmentId}/storage_in_transits/{storageInTransitId}/approve:
+    post:
+      summary: Approves a requested storage in transit
+      operationId: approveStorageInTransit
+      tags:
+        - storage_in_transits
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of shipment
+        - name: storageInTransitId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of storage in transit
+        - in: body
+          name: storageInTransitApprovalPayload
+          required: true
+          schema:
+            $ref: '#/definitions/StorageInTransitApprovalPayload'
+      responses:
+        200:
+          description: returns storage in transit that was approved
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to approve this storage in transit
+        409:
+          description: the storage in transit is not in an appropriate state to be approved
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+        500:
+          description: server error
+  /shipments/{shipmentId}/storage_in_transits/{storageInTransitId}/deny:
+    post:
+      summary: Denies a requested storage in transit
+      operationId: denyStorageInTransit
+      tags:
+        - storage_in_transits
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of shipment
+        - name: storageInTransitId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of storage in transit
+        - in: body
+          name: storageInTransitDenyPayload
+          required: true
+          schema:
+            $ref: '#/definitions/StorageInTransitDenialPayload'
+      responses:
+        200:
+          description: returns storage in transit that was denied
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to deny this storage in transit
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+        409:
+          description: the storage in transit is not in an appropriate state to be approved
+        500:
+          description: server error
+  /shipments/{shipmentId}/storage_in_transits/{storageInTransitId}/place_in_sit:
+    post:
+      summary: Places a storage in transit into 'IN_SIT'
+      operationId: inSitStorageInTransit
+      tags:
+        - storage_in_transits
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of shipment
+        - name: storageInTransitId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of storage in transit
+        - name: storageInTransitInSitPayload
+          in: body
+          schema:
+            $ref: '#/definitions/StorageInTransitInSitPayload'
+      responses:
+        200:
+          description: returns storage in transit that was put into in_sit
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to in_sit this storage in transit
+        409:
+          description: the storage in transit is not in an appropriate state to be put in_sit
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+        500:
+          description: server error
+  /shipments/{shipmentId}/storage_in_transits/{storageInTransitId}/release:
+    post:
+      summary: Releases a requested storage in transit
+      operationId: releaseStorageInTransit
+      tags:
+        - storage_in_transits
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of shipment
+        - name: storageInTransitId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of storage in transit
+        - name: storageInTransitOnReleasePayload
+          in: body
+          schema:
+            $ref: '#/definitions/StorageInTransitReleasePayload'
+      responses:
+        200:
+          description: returns storage in transit that was released
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to release this storage in transit
+        409:
+          description: the storage in transit is not in an appropriate state to be released
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+        500:
+          description: server error
+  /shipments/{shipmentId}/storage_in_transits/{storageInTransitId}/deliver:
+    post:
+      summary: Delivers a requested storage in transit
+      operationId: deliverStorageInTransit
+      tags:
+        - storage_in_transits
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of shipment
+        - name: storageInTransitId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of storage in transit
+      responses:
+        200:
+          description: returns storage in transit that was delivered
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to deliver this storage in transit
+        409:
+          description: the storage in transit is not in an appropriate state to be delivered
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+        500:
+          description: server error
   /tsps:
     get:
       summary: List all TSPs
@@ -2719,5 +3539,143 @@ paths:
           description: not authorized to get list of blackouts for this TSP
         404:
           description: TSP UUID not found in system
+        500:
+          description: server error
+  /access_codes:
+    get:
+      summary: Fetches an access code
+      description: Fetches the access code for a service member.
+      operationId: fetchAccessCode
+      tags:
+        - accesscode
+      responses:
+        200:
+          description: access code has been found in system
+          schema:
+            $ref: '#/definitions/AccessCode'
+        400:
+          description: invalid request
+        401:
+          description: not authorized to fetch access code
+        404:
+          description: access code not found in system
+        500:
+          description: server error
+  /access_codes/valid:
+    get:
+      summary: Validate if an access code has been unused and associated with the correct move type.
+      description: Verifies if access code is both unused and correctly associated with a move type.
+      operationId: validateAccessCode
+      tags:
+        - accesscode
+      parameters:
+        - in: query
+          name: code
+          type: string
+          description: the code the access code represents and verifies if in use
+          pattern: '^(HHG|PPM)-[A-Z0-9]{6}$'
+          x-nullable: false
+      responses:
+        200:
+          description: access code is invalid or valid
+          schema:
+            $ref: '#/definitions/AccessCode'
+        400:
+          description: invalid request
+        401:
+          description: not authorized to validate access code
+        404:
+          description: access code not found in system
+        500:
+          description: server error
+  /access_codes/invalid:
+    patch:
+      summary: Updates access code as invalid by associating it with the current service member.
+      description: Updates access code as invalid by associating it with the current service member.
+      operationId: claimAccessCode
+      tags:
+        - accesscode
+      parameters:
+        - in: body
+          name: accessCode
+          description: the code the access code represents and verifies if in use
+          required: true
+          schema:
+            type: object
+            required:
+              - code
+            properties:
+              code:
+                type: string
+      responses:
+        200:
+          description: access code is invalid or valid
+          schema:
+            $ref: '#/definitions/AccessCode'
+        400:
+          description: invalid request
+        401:
+          description: not authorized to validate access code
+        404:
+          description: access code not found in system
+        500:
+          description: server error
+  /rate_engine_postal_codes/{postal_code}:
+    get:
+      summary: Validate if a zipcode is valid for origin or destination location for a move.
+      description: Verifies if a zipcode is valid for origin or destination location for a move.
+      operationId: validatePostalCodeWithRateData
+      tags:
+        - postal_codes
+      parameters:
+        - in: path
+          name: postal_code
+          type: string
+          required: true
+          format: zip
+          pattern: '^(\d{5}?)$'
+        - in: query
+          name: postal_code_type
+          type: string
+          required: true
+          enum:
+            - origin
+            - destination
+      responses:
+        200:
+          description: postal_code is valid or invalid
+          schema:
+            $ref: '#/definitions/RateEnginePostalCodePayload'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: user is not authorized
+        500:
+          description: server error
+  /transportation_service_provider_performances/{transportationServiceProviderPerformanceId}:
+    get:
+      summary: Logs a Transportation Service Provider Performance
+      description: Logs a Transportation Service Provider Performance
+      operationId: logTransportationServiceProviderPerformance
+      tags:
+        - transportation_service_provider_performance
+      parameters:
+        - name: transportationServiceProviderPerformanceId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the Transportation Service Provider Performance
+      responses:
+        204:
+          description: the Transportation Service Provider Performance was logged
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to log the details of this Transportation Service Provider Performance
         500:
           description: server error

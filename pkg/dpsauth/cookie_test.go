@@ -7,13 +7,14 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
-	"github.com/transcom/mymove/pkg/testingsuite"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type dpsAuthSuite struct {
 	testingsuite.BaseTestSuite
-	logger *zap.Logger
+	logger Logger
 }
 
 func (suite *dpsAuthSuite) TestCookie() {

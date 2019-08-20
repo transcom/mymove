@@ -48,18 +48,14 @@ function officeUserOpensHhgPanelForMove(moveLocator) {
   });
 
   // Find move and open it
-  cy
-    .get('div')
-    .contains(moveLocator)
-    .dblclick();
+  cy.selectQueueItemMoveLocator(moveLocator);
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
   // Click on HHG tab
-  cy
-    .get('span')
+  cy.get('span')
     .contains('HHG')
     .click();
   cy.location().should(loc => {
@@ -74,31 +70,26 @@ function officeUserVerifiesServiceAgent() {
 
 function officeUserEditsServiceAgentPanel() {
   // Click on edit Service Agent
-  cy
-    .get('.editable-panel-header')
+  cy.get('.editable-panel-header')
     .contains('TSP & Servicing Agents')
     .siblings()
     .click();
 }
 
 function officeUserSeesBlankTspData() {
-  cy
-    .get('.editable-panel-3-column')
+  cy.get('.editable-panel-3-column')
     .contains('TSP')
     .parent()
     .within(() => {
-      cy
-        .get('.panel-field')
+      cy.get('.panel-field')
         .contains('Name')
         .parent()
         .should('not.contain', 'undefined');
-      cy
-        .get('.panel-field')
+      cy.get('.panel-field')
         .contains('Email')
         .parent()
         .should('not.contain', 'undefined');
-      cy
-        .get('.panel-field')
+      cy.get('.panel-field')
         .contains('Phone number')
         .parent()
         .should('not.contain', 'undefined');

@@ -11,13 +11,16 @@ import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Address from 'scenes/Moves/Hhg/Address';
 
-import { createOrUpdateShipment, getShipment } from 'shared/Entities/modules/shipments';
+import {
+  createOrUpdateShipment,
+  getShipment,
+  getShipmentLabel,
+  selectShipmentForMove,
+} from 'shared/Entities/modules/shipments';
 
 import './ShipmentWizard.css';
 
 const formName = 'locations_form';
-const getRequestLabel = 'Locations.getShipment';
-const createOrUpdateRequestLabel = 'Locations.createOrUpdateShipment';
 
 const LocationsWizardForm = reduxifyWizardForm(formName);
 
@@ -35,7 +38,7 @@ export class Locations extends Component {
   loadShipment() {
     const shipmentID = get(this.props, 'currentShipment.id');
     if (shipmentID) {
-      this.props.getShipment(getRequestLabel, shipmentID, this.props.currentShipment.move_id);
+      this.props.getShipment(shipmentID, this.props.currentShipment.move_id);
     }
   }
 
@@ -45,7 +48,7 @@ export class Locations extends Component {
     const currentShipmentId = get(this.props, 'currentShipment.id');
 
     return this.props
-      .createOrUpdateShipment(createOrUpdateRequestLabel, moveId, shipment, currentShipmentId)
+      .createOrUpdateShipment(moveId, shipment, currentShipmentId)
       .then(action => {
         return this.props.setCurrentShipmentID(Object.keys(action.entities.shipments)[0]);
       })
@@ -99,17 +102,21 @@ Locations.propTypes = {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ createOrUpdateShipment, setCurrentShipmentID, getShipment }, dispatch);
 }
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
   const shipment = getCurrentShipment(state);
+  const { pickup_address } = selectShipmentForMove(state, ownProps.match.params.moveId);
   const props = {
     schema: getInternalSwaggerDefinition(state, 'Shipment'),
     move: get(state, 'moves.currentMove', {}),
     formValues: getFormValues(formName)(state),
     currentShipment: shipment,
-    initialValues: shipment,
-    error: getLastError(state, getRequestLabel),
+    initialValues: { pickup_address },
+    error: getLastError(state, getShipmentLabel),
   };
   return props;
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Locations);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Locations);

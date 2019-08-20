@@ -33,7 +33,7 @@ func (suite *ModelSuite) Test_ServiceAreaEffectiveDateValidation() {
 	}
 
 	expErrors = map[string][]string{
-		"effective_date_upper": []string{"EffectiveDateUpper must be after EffectiveDateLower."},
+		"effective_date_upper": {"EffectiveDateUpper must be after EffectiveDateLower."},
 	}
 	suite.verifyValidationErrors(&invalidServiceArea, expErrors)
 }
@@ -59,7 +59,7 @@ func (suite *ModelSuite) Test_ServiceAreaServiceChargeValidation() {
 	}
 
 	expErrors = map[string][]string{
-		"service_charge_cents": []string{"-1 is not greater than -1."},
+		"service_charge_cents": {"-1 is not greater than -1."},
 	}
 	suite.verifyValidationErrors(&invalidServiceArea, expErrors)
 }
@@ -70,11 +70,11 @@ func (suite *ModelSuite) Test_ServiceAreaSITRatesValidation() {
 	}
 
 	expErrors := map[string][]string{
-		"service_area": []string{"ServiceArea can not be blank.",
+		"service_area": {"ServiceArea can not be blank.",
 			"ServiceArea does not match the expected format."},
-		"s_i_t185_b_rate_cents": []string{"SIT185BRateCents can not be blank."},
-		"s_i_t_p_d_schedule":    []string{"SITPDSchedule can not be blank."},
-		"s_i_t185_a_rate_cents": []string{"SIT185ARateCents can not be blank."},
+		"s_i_t185_b_rate_cents": {"SIT185BRateCents can not be blank."},
+		"s_i_t_p_d_schedule":    {"SITPDSchedule can not be blank."},
+		"s_i_t185_a_rate_cents": {"SIT185ARateCents can not be blank."},
 	}
 	suite.verifyValidationErrors(&invalidServiceArea, expErrors)
 }

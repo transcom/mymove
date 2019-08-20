@@ -7,13 +7,13 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
-	"github.com/transcom/mymove/pkg/auth"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/dps_auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"go.uber.org/zap"
 )
 
 type errUserMissing struct {
@@ -31,22 +31,23 @@ type DPSAuthGetCookieURLHandler struct {
 
 // Handle generates the URL to redirect to that begins the authentication process for DPS
 func (h DPSAuthGetCookieURLHandler) Handle(params dps_auth.GetCookieURLParams) middleware.Responder {
-	// Only DPS users can set the cookie name and redirect URL for testing purposes
-	if params.CookieName != nil || params.DpsRedirectURL != nil {
-		session := auth.SessionFromRequestContext(params.HTTPRequest)
-		if !session.CanAccessFeature(auth.FeatureDPS) {
-			return dps_auth.NewGetCookieURLForbidden()
-		}
+	// TODO: Currently, only whitelisted DPS users can access this endpoint because
+	//   1. The /dps_cookie page is ungated on the front-end. The restriction here will prevent
+	//      people from actually doing anything useful with that page.
+	//   2. This feature is in testing and isn't open to service members yet.
+	// However, when we're able to gate the /dps_cookie page on the front end and/or we're ready to
+	// launch this feature, all service members should be able to access this endpoint.
+	// Important: Only DPS users should ever be allowed to set parameters though (for testing).
+	// Service members should never be allowed to set params and only be allowed to use the default params.
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	if !session.IsDpsUser() {
+		return dps_auth.NewGetCookieURLForbidden()
 	}
 
 	dpsParams := h.DPSAuthParams()
-	portSuffix := ""
-	if dpsParams.SDDCPort != "" {
-		portSuffix = fmt.Sprintf(":%s", dpsParams.SDDCPort)
-	}
-	url, err := url.Parse(fmt.Sprintf("%s://%s%s%s", dpsParams.SDDCProtocol, dpsParams.SDDCHostname, portSuffix, dpsauth.SetCookiePath))
+	url, err := url.Parse(fmt.Sprintf("%s://%s:%d%s", dpsParams.SDDCProtocol, dpsParams.SDDCHostname, dpsParams.SDDCPort, dpsauth.SetCookiePath))
 	if err != nil {
-		h.Logger().Error("Parsing cookie URL", zap.Error(err))
+		logger.Error("Parsing cookie URL", zap.Error(err))
 		return dps_auth.NewGetCookieURLInternalServerError()
 	}
 
@@ -54,9 +55,9 @@ func (h DPSAuthGetCookieURLHandler) Handle(params dps_auth.GetCookieURLParams) m
 	if err != nil {
 		switch e := err.(type) {
 		case *errUserMissing:
-			h.Logger().Error("Generating token for cookie URL", zap.Error(err), zap.String("user", e.userID.String()))
+			logger.Error("Generating token for cookie URL", zap.Error(err), zap.String("user", e.userID.String()))
 		default:
-			h.Logger().Error("Generating token for cookie URL", zap.Error(err))
+			logger.Error("Generating token for cookie URL", zap.Error(err))
 		}
 
 		return dps_auth.NewGetCookieURLInternalServerError()
@@ -82,7 +83,7 @@ func (h DPSAuthGetCookieURLHandler) generateToken(params dps_auth.GetCookieURLPa
 		dpsRedirectURL = *params.DpsRedirectURL
 	}
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := h.SessionFromRequest(params.HTTPRequest)
 	user, err := models.GetUser(h.DB(), session.UserID)
 	if err != nil {
 		return "", &errUserMissing{userID: session.UserID}

@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 import { updateServiceMember } from './ducks';
+import { selectCurrentUser } from 'shared/Data/users';
 
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -16,16 +17,13 @@ const subsetOfFields = [
   'secondary_telephone',
   'personal_email',
   'phone_is_preferred',
-  'text_message_is_preferred',
   'email_is_preferred',
 ];
 
 const validateContactForm = values => {
   let errors = {};
 
-  let prefSelected = Boolean(
-    values.phone_is_preferred || values.text_message_is_preferred || values.email_is_preferred,
-  );
+  let prefSelected = Boolean(values.phone_is_preferred || values.email_is_preferred);
   if (!prefSelected) {
     const newError = {
       phone_is_preferred: 'Please select a preferred method of contact.',
@@ -69,7 +67,6 @@ export class ContactInfo extends Component {
         <fieldset key="contact_preferences">
           <legend htmlFor="contact_preferences">Preferred contact method(s) during your move:</legend>
           <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
-          <SwaggerField fieldName="text_message_is_preferred" swagger={schema} disabled={true} />
           <SwaggerField fieldName="email_is_preferred" swagger={schema} />
         </fieldset>
       </ContactWizardForm>
@@ -88,11 +85,15 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ updateServiceMember }, dispatch);
 }
 function mapStateToProps(state) {
+  const user = selectCurrentUser(state);
   return {
-    userEmail: state.user.email,
+    userEmail: user.email,
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
     values: getFormValues(formName)(state),
     ...state.serviceMember,
   };
 }
-export default connect(mapStateToProps, mapDispatchToProps)(ContactInfo);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(ContactInfo);

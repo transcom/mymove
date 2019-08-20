@@ -21,7 +21,7 @@ import (
 
 type UploaderSuite struct {
 	testingsuite.PopTestSuite
-	logger       *zap.Logger
+	logger       uploader.Logger
 	storer       storage.FileStorer
 	filesToClose []afero.File
 	fs           *afero.Afero
@@ -86,7 +86,7 @@ func TestUploaderSuite(t *testing.T) {
 	}
 
 	hs := &UploaderSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 		storer:       storageTest.NewFakeS3Storage(true),
 	}
@@ -100,7 +100,7 @@ func (suite *UploaderSuite) TestUploadFromLocalFile() {
 	up := uploader.NewUploader(suite.DB(), suite.logger, suite.storer)
 	file := suite.fixture("test.pdf")
 
-	upload, verrs, err := up.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
+	upload, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesPDF)
 	suite.Nil(err, "failed to create upload")
 	suite.False(verrs.HasAny(), "failed to validate upload", verrs)
 	suite.Equal(upload.ContentType, "application/pdf")
@@ -113,10 +113,22 @@ func (suite *UploaderSuite) TestUploadFromLocalFileZeroLength() {
 	up := uploader.NewUploader(suite.DB(), suite.logger, suite.storer)
 	file := suite.fixture("empty.pdf")
 
-	upload, verrs, err := up.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
+	upload, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesPDF)
 	suite.Equal(err, uploader.ErrZeroLengthFile)
 	suite.False(verrs.HasAny(), "failed to validate upload")
 	suite.Nil(upload, "returned an upload when erroring")
+}
+
+func (suite *UploaderSuite) TestTooLargeUploadFromLocalFile() {
+	document := testdatagen.MakeDefaultDocument(suite.DB())
+
+	up := uploader.NewUploader(suite.DB(), suite.logger, suite.storer)
+	file := suite.fixture("largejpeg.jpg")
+
+	upload, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesServiceMember)
+	suite.Nil(err)
+	suite.False(verrs.HasAny(), "failed to validate upload")
+	suite.NotNil(upload)
 }
 
 func (suite *UploaderSuite) helperNewTempFile() (afero.File, error) {
@@ -134,10 +146,10 @@ func (suite *UploaderSuite) TestCreateUploadNoDocument() {
 	up := uploader.NewUploader(suite.DB(), suite.logger, suite.storer)
 	file := suite.fixture("test.pdf")
 	fixtureFileInfo, err := file.Stat()
-	suite.Nil(err)
+	suite.NoError(err)
 
 	// Create file and upload
-	upload, verrs, err := up.CreateUploadNoDocument(userID, &file)
+	upload, verrs, err := up.CreateUpload(userID, &file, uploader.AllowedTypesPDF)
 	suite.Nil(err, "failed to create upload")
 	suite.Empty(verrs.Error(), "verrs returned error")
 	suite.NotNil(upload, "failed to create upload structure")
@@ -145,21 +157,22 @@ func (suite *UploaderSuite) TestCreateUploadNoDocument() {
 
 	// Download file and test size
 	download, err := up.Download(upload)
-	suite.Nil(err)
+	suite.NoError(err)
 	defer download.Close()
 
 	outputFile, err := suite.helperNewTempFile()
-	suite.Nil(err)
+	suite.NoError(err)
 	defer outputFile.Close()
 
 	written, err := io.Copy(outputFile, download)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.NotEqual(0, written)
 
 	info, err := outputFile.Stat()
 	suite.Equal(fixtureFileInfo.Size(), info.Size())
+	suite.NoError(err)
 
 	// Delete file previously uploaded
 	err = up.Storer.Delete(upload.StorageKey)
-	suite.Nil(err)
+	suite.NoError(err)
 }

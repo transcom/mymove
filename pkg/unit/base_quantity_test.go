@@ -5,8 +5,8 @@ import (
 )
 
 func TestStringConversion(t *testing.T) {
-	BaseQuantity := BaseQuantity(10000)
-	result := BaseQuantity.String()
+	baseQuantity := BaseQuantity(10000)
+	result := baseQuantity.String()
 
 	expected := "10000"
 	if result != expected {
@@ -15,8 +15,8 @@ func TestStringConversion(t *testing.T) {
 }
 
 func TestToUnitString(t *testing.T) {
-	BaseQuantity := BaseQuantity(19999999)
-	result := BaseQuantity.ToUnitFloatString()
+	baseQuantity := BaseQuantity(19999999)
+	result := baseQuantity.ToUnitFloatString()
 
 	expected := "1999.9999"
 	if result != expected {
@@ -25,8 +25,8 @@ func TestToUnitString(t *testing.T) {
 }
 
 func TestToUnitFloat64(t *testing.T) {
-	BaseQuantity := BaseQuantity(199999)
-	result := BaseQuantity.ToUnitFloat()
+	baseQuantity := BaseQuantity(199999)
+	result := baseQuantity.ToUnitFloat()
 
 	expected := float64(19.9999)
 	if result != expected {
@@ -35,8 +35,8 @@ func TestToUnitFloat64(t *testing.T) {
 }
 
 func TestToUnitInt(t *testing.T) {
-	BaseQuantity := BaseQuantity(19999)
-	result := BaseQuantity.ToUnitInt()
+	baseQuantity := BaseQuantity(19999)
+	result := baseQuantity.ToUnitInt()
 
 	expected := 1
 	if result != expected {
@@ -45,8 +45,8 @@ func TestToUnitInt(t *testing.T) {
 }
 
 func TestToUnitDollarString(t *testing.T) {
-	BaseQuantity := BaseQuantity(19999999)
-	result := BaseQuantity.ToUnitDollarString()
+	baseQuantity := BaseQuantity(19999999)
+	result := baseQuantity.ToUnitDollarString()
 
 	expected := "$1999.99"
 	if result != expected {

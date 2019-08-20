@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 import { Field } from 'redux-form';
-import validator from 'shared/JsonSchemaForm/validator';
+import { normalizeSSN } from 'shared/JsonSchemaForm/reduxFieldNormalizer';
 
 import { updateServiceMember } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
@@ -54,13 +54,12 @@ class SSNField extends Component {
         <label className={displayError ? 'usa-input-error-label' : 'usa-input-label'} htmlFor={name}>
           Social security number
         </label>
-        {touched &&
-          error && (
-            <span className="usa-input-error-message" id={name + '-error'} role="alert">
-              {error}
-            </span>
-          )}
         <input {...this.props.input} onFocus={this.localOnFocus} onBlur={this.localOnBlur} value={displayedValue} />
+        {touched && error && (
+          <span className="usa-input-error-message" id={name + '-error'} role="alert">
+            {error}
+          </span>
+        )}
       </div>
     );
   }
@@ -123,12 +122,7 @@ export class DodInfo extends Component {
         <p>Before we can schedule your move, we need to know a little more about you.</p>
         <SwaggerField fieldName="affiliation" swagger={schema} required />
         <SwaggerField fieldName="edipi" swagger={schema} required />
-        <Field
-          name="social_security_number"
-          component={SSNField}
-          ssnOnServer={ssnOnServer}
-          normalize={validator.normalizeSSN}
-        />
+        <Field name="social_security_number" component={SSNField} ssnOnServer={ssnOnServer} normalize={normalizeSSN} />
         <SwaggerField fieldName="rank" swagger={schema} required />
       </DodWizardForm>
     );
@@ -152,4 +146,7 @@ function mapStateToProps(state) {
   };
   return props;
 }
-export default connect(mapStateToProps, mapDispatchToProps)(DodInfo);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(DodInfo);

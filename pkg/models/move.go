@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
@@ -26,14 +27,16 @@ const (
 	MoveStatusSUBMITTED MoveStatus = "SUBMITTED"
 	// MoveStatusAPPROVED captures enum value "APPROVED"
 	MoveStatusAPPROVED MoveStatus = "APPROVED"
-	// MoveStatusCOMPLETED captures enum value "COMPLETED"
-	MoveStatusCOMPLETED MoveStatus = "COMPLETED"
 	// MoveStatusCANCELED captures enum value "CANCELED"
 	MoveStatusCANCELED MoveStatus = "CANCELED"
 )
 
 // SelectedMoveType represents the type of move being represented
 type SelectedMoveType string
+
+func (s SelectedMoveType) String() string {
+	return string(s)
+}
 
 // This lists available move types in the system
 // Combination move types like HHG+PPM should be added as an underscore separated list
@@ -74,6 +77,13 @@ type Move struct {
 	Status                  MoveStatus              `json:"status" db:"status"`
 	SignedCertifications    SignedCertifications    `has_many:"signed_certifications" order_by:"created_at desc"`
 	CancelReason            *string                 `json:"cancel_reason" db:"cancel_reason"`
+	Show                    *bool                   `json:"show" db:"show"`
+}
+
+// MoveOptions is used when creating new moves based on parameters
+type MoveOptions struct {
+	SelectedType *SelectedMoveType
+	Show         *bool
 }
 
 // Moves is not required by pop and may be deleted
@@ -104,7 +114,7 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 // Avoid calling Move.Status = ... ever. Use these methods to change the state.
 
 // Submit submits the Move
-func (m *Move) Submit() error {
+func (m *Move) Submit(submitDate time.Time) error {
 	if m.Status != MoveStatusDRAFT {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
@@ -113,7 +123,8 @@ func (m *Move) Submit() error {
 
 	// Update PPM status too
 	for i := range m.PersonallyProcuredMoves {
-		err := m.PersonallyProcuredMoves[i].Submit()
+		ppm := &m.PersonallyProcuredMoves[i]
+		err := ppm.Submit(submitDate)
 		if err != nil {
 			return err
 		}
@@ -121,7 +132,7 @@ func (m *Move) Submit() error {
 
 	// Update HHG (Shipment) status too
 	for i := range m.Shipments {
-		err := m.Shipments[i].Submit()
+		err := m.Shipments[i].Submit(submitDate)
 		if err != nil {
 			return err
 		}
@@ -148,20 +159,10 @@ func (m *Move) Approve() error {
 	return nil
 }
 
-// Complete Completes the Move
-func (m *Move) Complete() error {
-	if m.Status != MoveStatusAPPROVED {
-		return errors.Wrap(ErrInvalidTransition, "Complete")
-	}
-
-	m.Status = MoveStatusCOMPLETED
-	return nil
-}
-
 // Cancel cancels the Move and its associated PPMs
 func (m *Move) Cancel(reason string) error {
 	// We can cancel any move that isn't already complete.
-	if m.Status == MoveStatusCOMPLETED || m.Status == MoveStatusCANCELED {
+	if m.Status == MoveStatusCANCELED {
 		return errors.Wrap(ErrInvalidTransition, "Cancel")
 	}
 
@@ -201,7 +202,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		"Shipments.ServiceAgents").Find(&move, id)
 
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return nil, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
@@ -264,10 +265,10 @@ func (m Move) createMoveDocumentWithoutTransaction(
 		ServiceMemberID: m.Orders.ServiceMemberID,
 		Uploads:         uploads,
 	}
-	verrs, err := db.ValidateAndCreate(&newDoc)
-	if err != nil || verrs.HasAny() {
-		responseVErrors.Append(verrs)
-		responseError = errors.Wrap(err, "Error creating document for move document")
+	newDocVerrs, newDocErr := db.ValidateAndCreate(&newDoc)
+	if newDocErr != nil || newDocVerrs.HasAny() {
+		responseVErrors.Append(newDocVerrs)
+		responseError = errors.Wrap(newDocErr, "Error creating document for move document")
 		return nil, responseVErrors, responseError
 	}
 
@@ -283,7 +284,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 	}
 
 	var newMoveDocument *MoveDocument
-	if moveType == "HHG" {
+	if moveType == SelectedMoveTypeHHG {
 		newMoveDocument = &MoveDocument{
 			Move:             m,
 			MoveID:           m.ID,
@@ -309,7 +310,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 		}
 	}
 
-	verrs, err = db.ValidateAndCreate(newMoveDocument)
+	verrs, err := db.ValidateAndCreate(newMoveDocument)
 	if err != nil || verrs.HasAny() {
 		responseVErrors.Append(verrs)
 		responseError = errors.Wrap(err, "Error creating move document")
@@ -364,10 +365,9 @@ func (m Move) CreateMovingExpenseDocument(
 	moveDocumentType MoveDocumentType,
 	title string,
 	notes *string,
-	requestedAmountCents unit.Cents,
-	paymentMethod string,
-	movingExpenseType MovingExpenseType,
-	moveType SelectedMoveType) (*MovingExpenseDocument, *validate.Errors, error) {
+	expenseDocument MovingExpenseDocument,
+	moveType SelectedMoveType,
+) (*MovingExpenseDocument, *validate.Errors, error) {
 
 	var newMovingExpenseDocument *MovingExpenseDocument
 	var responseError error
@@ -393,9 +393,12 @@ func (m Move) CreateMovingExpenseDocument(
 		newMovingExpenseDocument = &MovingExpenseDocument{
 			MoveDocumentID:       newMoveDocument.ID,
 			MoveDocument:         *newMoveDocument,
-			MovingExpenseType:    movingExpenseType,
-			RequestedAmountCents: requestedAmountCents,
-			PaymentMethod:        paymentMethod,
+			MovingExpenseType:    expenseDocument.MovingExpenseType,
+			RequestedAmountCents: expenseDocument.RequestedAmountCents,
+			PaymentMethod:        expenseDocument.PaymentMethod,
+			ReceiptMissing:       expenseDocument.ReceiptMissing,
+			StorageStartDate:     expenseDocument.StorageStartDate,
+			StorageEndDate:       expenseDocument.StorageEndDate,
 		}
 		verrs, err := db.ValidateAndCreate(newMovingExpenseDocument)
 		if err != nil || verrs.HasAny() {
@@ -412,11 +415,56 @@ func (m Move) CreateMovingExpenseDocument(
 	return newMovingExpenseDocument, responseVErrors, responseError
 }
 
+// CreateWeightTicketSetDocument creates a moving weight ticket document associated to a move and move document
+func (m Move) CreateWeightTicketSetDocument(
+	db *pop.Connection,
+	uploads Uploads,
+	personallyProcuredMoveID *uuid.UUID,
+	weightTicketSetDocument *WeightTicketSetDocument,
+	moveType SelectedMoveType) (*WeightTicketSetDocument, *validate.Errors, error) {
+
+	var responseError error
+	responseVErrors := validate.NewErrors()
+
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
+
+		var newMoveDocument *MoveDocument
+		newMoveDocument, responseVErrors, responseError = m.createMoveDocumentWithoutTransaction(
+			db,
+			uploads,
+			personallyProcuredMoveID,
+			MoveDocumentTypeWEIGHTTICKETSET,
+			"weight_ticket_set",
+			&weightTicketSetDocument.VehicleNickname,
+			moveType)
+		if responseVErrors.HasAny() || responseError != nil {
+			return transactionError
+		}
+
+		weightTicketSetDocument.MoveDocument = *newMoveDocument
+		weightTicketSetDocument.MoveDocumentID = newMoveDocument.ID
+
+		verrs, err := db.ValidateAndCreate(weightTicketSetDocument)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating moving expense document")
+			weightTicketSetDocument = nil
+			return transactionError
+		}
+
+		return nil
+
+	})
+
+	return weightTicketSetDocument, responseVErrors, responseError
+}
+
 // CreatePPM creates a new PPM associated with this move
 func (m Move) CreatePPM(db *pop.Connection,
 	size *internalmessages.TShirtSize,
-	weightEstimate *int64,
-	plannedMoveDate *time.Time,
+	weightEstimate *unit.Pound,
+	originalMoveDate *time.Time,
 	pickupPostalCode *string,
 	hasAdditionalPostalCode *bool,
 	additionalPickupPostalCode *string,
@@ -432,7 +480,7 @@ func (m Move) CreatePPM(db *pop.Connection,
 		Move:                          m,
 		Size:                          size,
 		WeightEstimate:                weightEstimate,
-		PlannedMoveDate:               plannedMoveDate,
+		OriginalMoveDate:              originalMoveDate,
 		PickupPostalCode:              pickupPostalCode,
 		HasAdditionalPostalCode:       hasAdditionalPostalCode,
 		AdditionalPickupPostalCode:    additionalPickupPostalCode,
@@ -458,14 +506,20 @@ func (m Move) CreateSignedCertification(db *pop.Connection,
 	submittingUserID uuid.UUID,
 	certificationText string,
 	signature string,
-	date time.Time) (*SignedCertification, *validate.Errors, error) {
+	date time.Time,
+	ppmID *uuid.UUID,
+	shipmentID *uuid.UUID,
+	certificationType *SignedCertificationType) (*SignedCertification, *validate.Errors, error) {
 
 	newSignedCertification := SignedCertification{
-		MoveID:            m.ID,
-		SubmittingUserID:  submittingUserID,
-		CertificationText: certificationText,
-		Signature:         signature,
-		Date:              date,
+		MoveID:                   m.ID,
+		PersonallyProcuredMoveID: ppmID,
+		ShipmentID:               shipmentID,
+		CertificationType:        certificationType,
+		SubmittingUserID:         submittingUserID,
+		CertificationText:        certificationText,
+		Signature:                signature,
+		Date:                     date,
 	}
 
 	verrs, err := db.ValidateAndCreate(&newSignedCertification)
@@ -506,12 +560,18 @@ func GenerateLocator() string {
 // retry with a new record locator.
 func createNewMove(db *pop.Connection,
 	orders Order,
-	selectedType *SelectedMoveType) (*Move, *validate.Errors, error) {
+	moveOptions MoveOptions) (*Move, *validate.Errors, error) {
 
 	var stringSelectedType SelectedMoveType
-	if selectedType != nil {
-		stringSelectedType = SelectedMoveType(*selectedType)
+	if moveOptions.SelectedType != nil {
+		stringSelectedType = SelectedMoveType(*moveOptions.SelectedType)
 	}
+
+	show := swag.Bool(true)
+	if moveOptions.Show != nil {
+		show = moveOptions.Show
+	}
+
 	for i := 0; i < maxLocatorAttempts; i++ {
 		move := Move{
 			Orders:           orders,
@@ -519,6 +579,7 @@ func createNewMove(db *pop.Connection,
 			Locator:          GenerateLocator(),
 			SelectedMoveType: &stringSelectedType,
 			Status:           MoveStatusDRAFT,
+			Show:             show,
 		}
 		verrs, err := db.ValidateAndCreate(&move)
 		if verrs.HasAny() {

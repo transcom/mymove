@@ -54,73 +54,6 @@ const isDate = value => {
   }
 };
 
-const normalizePhone = (value, previousValue) => {
-  if (!value) {
-    return value;
-  }
-  const onlyNums = value.replace(/[^\d]/g, '');
-  let normalizedPhone = '';
-  for (let i = 0; i < 10; i++) {
-    if (i >= onlyNums.length) {
-      break;
-    }
-    if (i === 3 || i === 6) {
-      normalizedPhone += '-';
-    }
-    normalizedPhone += onlyNums[i]; // eslint-disable-line security/detect-object-injection
-  }
-  return normalizedPhone;
-};
-
-const normalizeSSN = (value, previousValue) => {
-  if (!value) {
-    return value;
-  }
-  const onlyNums = value.replace(/[^\d]/g, '');
-  let normalizedSSN = '';
-  for (let i = 0; i < 9; i++) {
-    if (i >= onlyNums.length) {
-      break;
-    }
-    if (i === 3 || i === 5) {
-      normalizedSSN += '-';
-    }
-    normalizedSSN += onlyNums[i]; // eslint-disable-line security/detect-object-injection
-  }
-  return normalizedSSN;
-};
-
-const normalizeZip = (value, previousValue) => {
-  if (!value) {
-    return value;
-  }
-  const onlyNums = value.replace(/[^\d]/g, '');
-  let normalizedZip = '';
-  for (let i = 0; i < 9; i++) {
-    if (i >= onlyNums.length) {
-      break;
-    }
-    if (i === 5) {
-      normalizedZip += '-';
-    }
-    normalizedZip += onlyNums[i]; // eslint-disable-line security/detect-object-injection
-  }
-  return normalizedZip;
-};
-
-const normalizeBaseQuantity = value => {
-  if (!value) {
-    return value;
-  }
-  var onlyNumsAndDots = value.replace(/[^\d.]/g, '');
-
-  if (onlyNumsAndDots.indexOf('.') >= 0) {
-    value =
-      onlyNumsAndDots.substr(0, onlyNumsAndDots.indexOf('.')) + onlyNumsAndDots.substr(onlyNumsAndDots.indexOf('.'), 5);
-  }
-  return value;
-};
-
 const patternMatches = memoize((pattern, message) => {
   const regex = RegExp(pattern);
   return value => {
@@ -128,6 +61,22 @@ const patternMatches = memoize((pattern, message) => {
       if (!regex.test(value)) {
         return message;
       }
+    }
+  };
+});
+
+const minDateValidation = memoize((minDate = null, message) => {
+  return value => {
+    if (minDate && moment(value).isBefore(moment(minDate))) {
+      return message;
+    }
+  };
+});
+
+const maxDateValidation = memoize((maxDate = null, message) => {
+  return value => {
+    if (maxDate && moment(value).isAfter(moment(maxDate))) {
+      return message;
     }
   };
 });
@@ -141,9 +90,7 @@ export default {
   isNumber,
   isInteger,
   isDate,
-  normalizePhone,
-  normalizeSSN,
-  normalizeZip,
+  minDateValidation,
+  maxDateValidation,
   patternMatches,
-  normalizeBaseQuantity,
 };

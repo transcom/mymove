@@ -6,6 +6,8 @@ import (
 	"math/rand"
 
 	"github.com/gobuffalo/pop"
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -18,7 +20,7 @@ const defaultPocGeneralPhone = "(555) 101-0101"
 const defaultPocClaimsName = "Art Vandelay"
 const defaultPocClaimsEmail = "vandelay.ind@example.com"
 const defaultPocClaimsPhone = "(555) 321-4321"
-const defaultPayeeCode = "1234"
+const defaultPayeeCode = "2708"
 
 // RandomSCAC generates a random 4 figure string from allowed alphanumeric bytes to represent the SCAC.
 func RandomSCAC() string {
@@ -39,17 +41,20 @@ func DefaultSupplierID(scac string) *string {
 func MakeTSP(db *pop.Connection, assertions Assertions) models.TransportationServiceProvider {
 
 	// Check to see if TSP has already been created
+	tspID := assertions.TransportationServiceProvider.ID
 	existingTsp := models.TransportationServiceProvider{}
-	if !isZeroUUID(assertions.TransportationServiceProvider.ID) {
+	if !isZeroUUID(tspID) {
 		if err := db.Find(&existingTsp, assertions.TransportationServiceProvider.ID); err == nil {
 			// Found existing TSP for this ID
 			return existingTsp
 		}
+	} else {
+		tspID = uuid.Must(uuid.NewV4())
 	}
 
 	scac := assertions.TransportationServiceProvider.StandardCarrierAlphaCode
 	if scac == "" {
-		scac = "ABCD" //RandomSCAC()
+		scac = "ABBV" //Valid SCAC for Syncada sandbox environment
 	}
 
 	supplierID := assertions.TransportationServiceProvider.SupplierID
@@ -93,6 +98,7 @@ func MakeTSP(db *pop.Connection, assertions Assertions) models.TransportationSer
 	}
 
 	tsp := models.TransportationServiceProvider{
+		ID:                       tspID,
 		StandardCarrierAlphaCode: scac,
 		SupplierID:               supplierID,
 		Enrolled:                 assertions.TransportationServiceProvider.Enrolled,
@@ -100,9 +106,9 @@ func MakeTSP(db *pop.Connection, assertions Assertions) models.TransportationSer
 		PocGeneralName:           pocGeneralName,
 		PocGeneralEmail:          pocGeneralEmail,
 		PocGeneralPhone:          pocGeneralPhone,
-		PocClaimsName:            pocGeneralName,
-		PocClaimsEmail:           pocGeneralEmail,
-		PocClaimsPhone:           pocGeneralPhone,
+		PocClaimsName:            pocClaimsName,
+		PocClaimsEmail:           pocClaimsEmail,
+		PocClaimsPhone:           pocClaimsPhone,
 	}
 
 	verrs, err := db.ValidateAndCreate(&tsp)

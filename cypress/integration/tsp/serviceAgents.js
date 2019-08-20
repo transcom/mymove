@@ -80,16 +80,13 @@ function tspUserSeesNoServiceAgent(role) {
 
 function tspUserViewsBlankServiceAgent() {
   // Verify data has been saved in the UI
-  cy
-    .get('div.company')
+  cy.get('div.company')
     .get('span')
     .contains('missing');
-  cy
-    .get('div.email')
+  cy.get('div.email')
     .get('span')
     .contains('missing');
-  cy
-    .get('div.phone_number')
+  cy.get('div.phone_number')
     .get('span')
     .contains('missing');
 }
@@ -101,18 +98,14 @@ function tspUserEntersServiceAgent() {
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
-    .contains('BACON2')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('BACON2');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
   // Click on edit Service Agent
-  cy
-    .get('.editable-panel-header')
+  cy.get('.editable-panel-header')
     .contains('TSP & Servicing Agents')
     .siblings()
     .click();
@@ -125,10 +118,7 @@ function tspUserAcceptsShipment() {
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
-    .contains('BACON2')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('BACON2');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -139,30 +129,23 @@ function tspUserAcceptsShipment() {
 
   cy.get('a').contains('New Shipments Queue');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Accept Shipment')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Accept Shipment')
     .click();
 
   // Status should be Accepted
   tspUserVerifiesShipmentStatus('Shipment accepted');
-
-  cy.get('a').contains('Accepted Shipments Queue');
 }
 
 function tspUserClicksAssignServiceAgent(locator) {
   cy.patientVisit('/queues/accepted');
 
   // Find shipment and open it
-  cy
-    .get('div')
-    .contains(locator)
-    .dblclick();
+  cy.selectQueueItemMoveLocator(locator);
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -171,13 +154,11 @@ function tspUserClicksAssignServiceAgent(locator) {
   // Status should be Accepted or Approved for "Assign servicing agents" button to exist
   tspUserVerifiesShipmentStatus('Shipment accepted');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Assign servicing agents')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Assign servicing agents')
     .click();
 
@@ -189,13 +170,11 @@ function tspUserVerifiesServiceAgentAssigned() {
 }
 
 function userSavesServiceAgentsWizard() {
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Done')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Done')
     .click();
 }
@@ -203,39 +182,32 @@ function userSavesServiceAgentsWizard() {
 function userVerifiesServiceAgentInfo(role) {
   const agent = getFixture(role);
   // Verify data has been saved in the UI
-  cy
-    .get('div.company')
+  cy.get('div.company')
     .get('span')
     .contains(agent.Company);
-  cy
-    .get('div.email')
+  cy.get('div.email')
     .get('span')
     .contains(agent.Email);
-  cy
-    .get('div.phone_number')
+  cy.get('div.phone_number')
     .get('span')
     .contains(agent.Phone);
 
   // Refresh browser and make sure changes persist
   cy.patientReload();
 
-  cy
-    .get('div.company')
+  cy.get('div.company')
     .get('span')
     .contains(agent.Company);
-  cy
-    .get('div.email')
+  cy.get('div.email')
     .get('span')
     .contains(agent.Email);
-  cy
-    .get('div.phone_number')
+  cy.get('div.phone_number')
     .get('span')
     .contains(agent.Phone);
 }
 
 function userAllowsDestinationAgentBeSelected() {
-  cy
-    .get('[type="radio"]')
+  cy.get('[type="radio"]')
     .first()
     .check({ force: true });
 }

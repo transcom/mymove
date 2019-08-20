@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
@@ -10,26 +11,25 @@ import (
 	"os"
 	"strings"
 
-	"bytes"
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/edi"
-	"github.com/transcom/mymove/pkg/edi/gex"
-	"github.com/transcom/mymove/pkg/edi/invoice"
+	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/server"
-	"github.com/transcom/mymove/pkg/service/invoice"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/invoice"
 )
 
-// Call this from command line with go run cmd/generate_shipment_edi/main.go -shipmentID <UUID> --approver <email>
+// Call this from command line with go run cmd/generate_shipment_edi/main.go --shipmentID <UUID> --approver <email>
 // Must use a shipment that is delivered, but not yet approved for payment (that does not already have a submitted invoice)
 func main() {
 	flag := pflag.CommandLine
@@ -65,52 +65,55 @@ func main() {
 	sendToGex := v.GetBool("gex")
 	transactionName := v.GetString("transaction-name")
 	if shipmentIDString == "" || approverEmail == "" {
-		log.Fatal("Usage: go run cmd/generate_shipment_edi/main.go --shipmentID <29cb984e-c70d-46f0-926d-cd89e07a6ec3> --approver <officeuser1@example.com> --gex false")
+		logger.Fatal("Usage: go run cmd/generate_shipment_edi/main.go --shipmentID <29cb984e-c70d-46f0-926d-cd89e07a6ec3> --approver <officeuser1@example.com> --gex false")
 	}
 
 	db, err := pop.Connect("development")
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err.Error())
 	}
 
 	shipmentID := uuid.Must(uuid.FromString(shipmentIDString))
 	shipment, err := invoice.FetchShipmentForInvoice{DB: db}.Call(shipmentID)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err.Error())
 	}
 
 	approver, err := models.FetchOfficeUserByEmail(db, approverEmail)
 	if err != nil {
-		log.Fatalf("Could not fetch office user with e-mail %s: %v", approverEmail, err)
+		logger.Fatal("Could not fetch office user with e-mail", zap.String("email", approverEmail), zap.Error(err))
 	}
 
 	var invoiceModel models.Invoice
 	verrs, err := invoice.CreateInvoice{DB: db, Clock: clock.New()}.Call(*approver, &invoiceModel, shipment)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err.Error())
 	}
 	if verrs.HasAny() {
-		log.Fatal(verrs)
+		logger.Fatal(verrs.Error())
 	}
 
-	certificates, rootCAs, err := initDODCertificates(v, logger)
-	if certificates == nil || rootCAs == nil || err != nil {
-		log.Fatal("Error in getting tls certs", err)
-	}
-	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
-	url := v.GetString("gex-url")
-	if len(url) == 0 {
-		log.Fatal("Not sending to GEX because no URL set. Set GEX_URL in your envrc.local.")
-	}
-	sendToGexHTTP := gex.SendToGexHTTP{
-		URL:                  url,
-		IsTrueGexURL:         true,
-		TLSConfig:            tlsConfig,
-		GEXBasicAuthUsername: v.GetString("gex-basic-auth-username"),
-		GEXBasicAuthPassword: v.GetString("gex-basic-auth-password"),
+	var sendToGexHTTP services.GexSender
+	if sendToGex {
+		certificates, rootCAs, initDODCertificatesErr := initDODCertificates(v, logger)
+		if certificates == nil || rootCAs == nil || initDODCertificatesErr != nil {
+			log.Fatal("Error in getting tls certs", initDODCertificatesErr)
+		}
+		tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
+		url := v.GetString("gex-url")
+		if len(url) == 0 {
+			log.Fatal("Not sending to GEX because no URL set. Set GEX_URL in your envrc.local.")
+		}
+		sendToGexHTTP = invoice.NewGexSenderHTTP(
+			url,
+			true,
+			tlsConfig,
+			v.GetString("gex-basic-auth-username"),
+			v.GetString("gex-basic-auth-password"),
+		)
 	}
 
-	resp, err := processInvoice(db, shipment, invoiceModel, &sendToGex, &transactionName, sendToGexHTTP)
+	resp, err := processInvoice(db, shipment, invoiceModel, sendToGex, &transactionName, sendToGexHTTP, logger)
 	if resp != nil {
 		fmt.Printf("status code: %v\n", resp.StatusCode)
 	}
@@ -119,55 +122,65 @@ func main() {
 	}
 }
 
-func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel models.Invoice, sendToGex *bool, transactionName *string, gexSender gex.SendToGexHTTP) (resp *http.Response, err error) {
+func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel models.Invoice, sendToGex bool, transactionName *string, gexSender services.GexSender, logger *zap.Logger) (resp *http.Response, err error) {
 	defer func() {
 		if err != nil || (resp != nil && resp.StatusCode != 200) {
 			// Update invoice record as failed
 			invoiceModel.Status = models.InvoiceStatusSUBMISSIONFAILURE
 			verrs, deferErr := db.ValidateAndSave(&invoiceModel)
 			if deferErr != nil {
-				log.Fatal(deferErr)
+				logger.Fatal(deferErr.Error())
 			}
 			if verrs.HasAny() {
-				log.Fatal(verrs)
+				logger.Fatal(verrs.Error())
 			}
 		} else {
 			// Update invoice record as submitted
 			shipmentLineItems := shipment.ShipmentLineItems
 			verrs, deferErr := invoice.UpdateInvoiceSubmitted{DB: db}.Call(&invoiceModel, shipmentLineItems)
 			if deferErr != nil {
-				log.Fatal(deferErr)
+				logger.Fatal(deferErr.Error())
 			}
 			if verrs.HasAny() {
-				log.Fatal(verrs)
+				logger.Fatal(verrs.Error())
 			}
 		}
 	}()
 
-	invoice858C, err := ediinvoice.Generate858C(shipment, invoiceModel, db, false, clock.New())
+	var icnSequencer sequence.Sequencer
+	if sendToGex {
+		icnSequencer, err = sequence.NewRandomSequencer(ediinvoice.ICNRandomMin, ediinvoice.ICNRandomMax)
+		if err != nil {
+			logger.Fatal("Could not create random sequencer for ICN", zap.Error(err))
+		}
+	} else {
+		icnSequencer = sequence.NewDatabaseSequencer(db, ediinvoice.ICNSequenceName)
+	}
+
+	invoice858C, err := ediinvoice.Generate858C(shipment, invoiceModel, db, false, icnSequencer, clock.New(), logger)
 	if err != nil {
 		return nil, err
 	}
 
-	if *sendToGex == true {
+	if sendToGex {
 		fmt.Println("Sending to GEX. . .")
-		invoice858CString, err := invoice858C.EDIString()
-		if err != nil {
-			return nil, err
+		invoice858CString, invoice858CErr := invoice858C.EDIString()
+		if invoice858CErr != nil {
+			return nil, invoice858CErr
 		}
-		resp, err := gexSender.Call(invoice858CString, *transactionName)
-		if resp == nil || err != nil {
-			log.Fatal("Gex Sender had no response", err)
+		resp, sendToGexErr := gexSender.SendToGex(invoice858CString, *transactionName)
+		if resp == nil || sendToGexErr != nil {
+			logger.Fatal("Gex Sender had no response", zap.Error(sendToGexErr))
 		}
 
-		fmt.Printf("status code: %v, error: %v", resp.StatusCode, err)
+		fmt.Printf("status code: %v, error: %v\n", resp.StatusCode, err)
 	}
 	ediWriter := edi.NewWriter(os.Stdout)
 	err = ediWriter.WriteAll(invoice858C.Segments())
 	return nil, err
 }
 
-//TODO: Infra will work to refactor and reduce duplication (also found in webserver/main.go)
+//TODO: Infra will work to refactor and reduce duplication (also found in cmd/milmove/main.go)
 func initDODCertificates(v *viper.Viper, logger *zap.Logger) ([]tls.Certificate, *x509.CertPool, error) {
 
 	tlsCert := v.GetString("move-mil-dod-tls-cert")

@@ -1,25 +1,23 @@
 import { connect } from 'react-redux';
-import { loadShipmentDependencies } from './ducks';
 import NewDocumentView from 'shared/DocumentViewer/NewDocumentView';
 import {
   getAllShipmentDocuments,
-  getShipmentDocumentsLabel,
-  createShipmentDocumentLabel,
   createShipmentDocument,
   selectShipmentDocuments,
 } from 'shared/Entities/modules/shipmentDocuments';
+import { selectShipment, getPublicShipment } from 'shared/Entities/modules/shipments';
 import { stringifyName } from 'shared/utils/serviceMember';
 import { get } from 'lodash';
 
 const mapStateToProps = (state, ownProps) => {
   const { shipmentId } = ownProps.match.params;
   const {
-    tsp,
     entities: { uploads = {} },
   } = state;
-  const serviceMember = get(tsp, 'serviceMember', {});
-  const { locator: moveLocator } = get(tsp, 'shipment.move', {});
-  const { edipi = '' } = get(tsp, 'serviceMember', {});
+  const shipment = selectShipment(state, shipmentId);
+  const serviceMember = shipment.service_member || {};
+  const { locator: moveLocator } = shipment.move || {};
+  const { edipi = '' } = serviceMember;
   const name = stringifyName(serviceMember);
 
   return {
@@ -37,12 +35,14 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   const { shipmentId } = ownProps.match.params;
   return {
     onDidMount: () => {
-      dispatch(loadShipmentDependencies(shipmentId));
-      dispatch(getAllShipmentDocuments(getShipmentDocumentsLabel, shipmentId));
+      dispatch(getPublicShipment(shipmentId));
+      dispatch(getAllShipmentDocuments(shipmentId));
     },
-    createShipmentDocument: (shipmentId, body) =>
-      dispatch(createShipmentDocument(createShipmentDocumentLabel, shipmentId, body)),
+    createShipmentDocument: (shipmentId, body) => dispatch(createShipmentDocument(shipmentId, body)),
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(NewDocumentView);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(NewDocumentView);

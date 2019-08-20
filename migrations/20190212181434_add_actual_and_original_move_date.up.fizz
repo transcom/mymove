@@ -1,0 +1,7 @@
+add_column("personally_procured_moves", "original_move_date", "date", {"null": true})
+add_column("personally_procured_moves", "actual_move_date", "date", {"null": true})
+
+sql("UPDATE personally_procured_moves
+SET original_move_date = planned_move_date
+WHERE original_move_date IS NULL
+	AND planned_move_date IS NOT NULL;")

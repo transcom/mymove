@@ -1,11 +1,12 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import {
-  MoveSummary,
+  MoveSummaryComponent as MoveSummary,
   CanceledMoveSummary,
   ApprovedMoveSummary,
   SubmittedPpmMoveSummary,
   SubmittedHhgMoveSummary,
+  DraftMoveSummary,
 } from './MoveSummary';
 import moment from 'moment';
 
@@ -16,6 +17,8 @@ describe('MoveSummary', () => {
   const entitlementObj = { sum: '10000' };
   const serviceMember = { current_station: { name: 'Ft Carson' } };
   const ordersObj = {};
+  const getMoveDocumentsForMove = jest.fn(() => ({ then: () => {} }));
+  const getPpmWeightEstimate = jest.fn();
   const getShallowRender = (
     entitlementObj,
     serviceMember,
@@ -27,7 +30,7 @@ describe('MoveSummary', () => {
     resumeMoveFn,
     addPPMShipmentFn,
   ) => {
-    const componentWrapper = shallow(
+    return shallow(
       <MoveSummary
         entitlement={entitlementObj}
         profile={serviceMember}
@@ -36,20 +39,54 @@ describe('MoveSummary', () => {
         ppm={ppmObj}
         shipment={hhgObj}
         editMove={editMoveFn}
+        moveSubmitSuccess={moveObj.moveSubmitSuccess}
         resumeMove={resumeMoveFn}
         addPPMShipment={addPPMShipmentFn}
+        getMoveDocumentsForMove={getMoveDocumentsForMove}
+        getPpmWeightEstimate={getPpmWeightEstimate}
       />,
     );
-    return shallow(componentWrapper.props().children());
   };
 
+  describe('when a ppm move is in a draft state', () => {
+    it('renders resume setup content', () => {
+      const moveObj = { selected_move_type: 'PPM', status: 'DRAFT' };
+      const futureFortNight = moment().add(14, 'day');
+      const ppmObj = {
+        original_move_date: futureFortNight,
+        weight_estimate: '10000',
+        estimated_incentive: '$24665.59 - 27261.97',
+        status: 'CANCELED',
+      };
+      const hhgObj = {};
+      const subComponent = getShallowRender(
+        entitlementObj,
+        serviceMember,
+        ordersObj,
+        moveObj,
+        ppmObj,
+        hhgObj,
+        editMoveFn,
+        resumeMoveFn,
+      );
+      expect(subComponent.find(DraftMoveSummary).length).toBe(1);
+      expect(
+        subComponent
+          .find(DraftMoveSummary)
+          .dive()
+          .find('.step')
+          .find('.title')
+          .html(),
+      ).toEqual('<div class="title">Next Step: Finish setting up your move</div>');
+    });
+  });
   // PPM
   describe('when a ppm move is in canceled state', () => {
     it('renders cancel content', () => {
       const moveObj = { selected_move_type: 'PPM', status: 'CANCELED' };
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {
-        planned_move_date: futureFortNight,
+        original_move_date: futureFortNight,
         weight_estimate: '10000',
         estimated_incentive: '$24665.59 - 27261.97',
         status: 'CANCELED',
@@ -80,7 +117,7 @@ describe('MoveSummary', () => {
       const moveObj = { selected_move_type: 'PPM', status: 'SUBMITTED' };
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {
-        planned_move_date: futureFortNight,
+        original_move_date: futureFortNight,
         weight_estimate: '10000',
         estimated_incentive: '$24665.59 - 27261.97',
       };
@@ -104,15 +141,16 @@ describe('MoveSummary', () => {
           .find('div.title')
           .first()
           .html(),
-      ).toEqual('<div class="title">Next Step: Wait for approval</div>');
+      ).toEqual('<div class="title">Next Step: Wait for approval &amp; get ready</div>');
     });
   });
+
   describe('when a move is in approved state but ppm is submitted state', () => {
     it('renders submitted rather than approved content', () => {
       const moveObj = { selected_move_type: 'PPM', status: 'APPROVED' };
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {
-        planned_move_date: futureFortNight,
+        original_move_date: futureFortNight,
         weight_estimate: '10000',
         estimated_incentive: '$24665.59 - 27261.97',
         status: 'SUBMITTED',
@@ -137,7 +175,7 @@ describe('MoveSummary', () => {
           .find('div.title')
           .first()
           .html(),
-      ).toEqual('<div class="title">Next Step: Wait for approval</div>');
+      ).toEqual('<div class="title">Next Step: Wait for approval &amp; get ready</div>');
     });
   });
   describe('when a move and ppm are in approved state', () => {
@@ -145,7 +183,7 @@ describe('MoveSummary', () => {
       const moveObj = { status: 'APPROVED' };
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {
-        planned_move_date: futureFortNight,
+        original_move_date: futureFortNight,
         weight_estimate: '10000',
         estimated_incentive: '$24665.59 - 27261.97',
         status: 'APPROVED',
@@ -177,7 +215,7 @@ describe('MoveSummary', () => {
       const moveObj = { status: 'APPROVED' };
       const pastFortNight = moment().subtract(14, 'day');
       const ppmObj = {
-        planned_move_date: pastFortNight,
+        original_move_date: pastFortNight,
         weight_estimate: '10000',
         estimated_incentive: '$24665.59 - 27261.97',
       };
@@ -241,7 +279,7 @@ describe('MoveSummary', () => {
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {};
       const hhgObj = {
-        planned_move_date: futureFortNight,
+        original_move_date: futureFortNight,
         weight_estimate: '10000',
         status: 'SUBMITTED',
       };
@@ -323,6 +361,7 @@ describe('MoveSummary', () => {
       ).toEqual('<div class="title">Next Step: Prepare for move</div>');
     });
   });
+
   describe('when an hhg is in accepted state', () => {
     it('renders submitted content', () => {
       const moveObj = { selected_move_type: 'HHG' };
@@ -406,32 +445,6 @@ describe('MoveSummary', () => {
       const moveObj = { selected_move_type: 'HHG' };
       const ppmObj = {};
       const hhgObj = { status: 'DELIVERED' };
-      const subComponent = getShallowRender(
-        entitlementObj,
-        serviceMember,
-        ordersObj,
-        moveObj,
-        ppmObj,
-        hhgObj,
-        editMoveFn,
-        resumeMoveFn,
-      ).find(SubmittedHhgMoveSummary);
-      expect(subComponent.find(SubmittedHhgMoveSummary).length).toBe(1);
-      expect(
-        subComponent
-          .dive()
-          .find('.step')
-          .find('div.title')
-          .first()
-          .html(),
-      ).toEqual('<div class="title">Next Step: Survey</div>');
-    });
-  });
-  describe('when an hhg is in completed state', () => {
-    it('renders submitted content', () => {
-      const moveObj = { selected_move_type: 'HHG' };
-      const ppmObj = {};
-      const hhgObj = { status: 'COMPLETED' };
       const subComponent = getShallowRender(
         entitlementObj,
         serviceMember,

@@ -10,9 +10,40 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
+const (
+	// TspTestHost
+	TspTestHost string = "tsp.example.com"
+	// OfficeTestHost
+	OfficeTestHost string = "office.example.com"
+	// MilTestHost
+	MilTestHost string = "mil.example.com"
+	// OrdersTestHost
+	OrdersTestHost string = "orders.example.com"
+	// DpsTestHost
+	DpsTestHost string = "dps.example.com"
+	// SddcTestHost
+	SddcTestHost string = "sddc.example.com"
+	// AdminTestHost
+	AdminTestHost string = "admin.example.com"
+)
+
+// ApplicationTestServername is a collection of the test servernames
+func ApplicationTestServername() ApplicationServername {
+	appnames := ApplicationServername{
+		MilServername:    MilTestHost,
+		OfficeServername: OfficeTestHost,
+		TspServername:    TspTestHost,
+		AdminServername:  AdminTestHost,
+		OrdersServername: OrdersTestHost,
+		DpsServername:    DpsTestHost,
+		SddcServername:   SddcTestHost,
+	}
+	return appnames
+}
+
 type authSuite struct {
 	testingsuite.BaseTestSuite
-	logger *zap.Logger
+	logger Logger
 }
 
 func TestAuthSuite(t *testing.T) {

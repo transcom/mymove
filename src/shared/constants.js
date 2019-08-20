@@ -11,14 +11,32 @@ export const ppmInfoPacket = '/downloads/ppm_info_sheet.pdf';
 export const hhgInfoPacket = '/downloads/hhg_info_sheet.pdf';
 
 export const hostname = window && window.location && window.location.hostname;
+export const isMilmoveSite = hostname.startsWith('my') || hostname.startsWith('mil') || '';
 export const isOfficeSite = hostname.startsWith('office') || '';
 export const isTspSite = hostname.startsWith('tsp') || '';
+export const isAdminSite = hostname.startsWith('admin') || '';
+export const isSystemAdminSite = isAdminSite; // once we start building program admin, we can flesh this out
 
 export const titleCase = str => {
   return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+export const MOVE_DOC_TYPE = {
+  WEIGHT_TICKET_SET: 'WEIGHT_TICKET_SET',
+  EXPENSE: 'EXPENSE',
+  GBL: 'GOV_BILL_OF_LADING',
+};
+
+export const MOVE_DOC_STATUS = {
+  OK: 'OK',
+  AWAITING_REVIEW: 'AWAITING_REVIEW',
+  HAS_ISSUE: 'HAS_ISSUE',
 };
 
 // These constants are used to track network requests using component state
 export const isError = 'REQUEST_ERROR';
 export const isLoading = 'REQUEST_LOADING';
 export const isSuccess = 'REQUEST_SUCCESS';
+
+// documentSizeLimitMsg is used in several files around document upload
+export const documentSizeLimitMsg = 'Please keep each file under 25MB.';

@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/lib/pq"
+
 	"github.com/transcom/mymove/pkg/route"
 
 	"github.com/go-openapi/runtime"
@@ -16,6 +18,12 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
+
+// SQLErrMessage represents string value to represent generic sql error to avoid leaking implementation details
+const SQLErrMessage string = "Unhandled SQL error encountered"
+
+// NilErrMessage indicates an uninstantiated error was passed
+const NilErrMessage string = "Nil error passed"
 
 // ValidationErrorsResponse is a middleware.Responder for a set of validation errors
 type ValidationErrorsResponse struct {
@@ -54,44 +62,66 @@ func (o *ErrResponse) WriteResponse(rw http.ResponseWriter, producer runtime.Pro
 }
 
 // ResponseForError logs an error and returns the expected error type
-func ResponseForError(logger *zap.Logger, err error) middleware.Responder {
+func ResponseForError(logger Logger, err error) middleware.Responder {
 	// AddCallerSkip(1) prevents log statements from listing this file and func as the caller
 	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
 
+	// Some code might pass an uninstantiated error for which we should throw a 500
+	// instead of throwing a nil pointer dereference.
+	if err == nil {
+		skipLogger.Error("unexpected error")
+		return newErrResponse(http.StatusInternalServerError, errors.New(NilErrMessage))
+	}
+
 	cause := errors.Cause(err)
-	switch cause.(type) {
-	case *route.UnsupportedPostalCode:
-		skipLogger.Debug("unsupported postal code", zap.Error(err))
-		return newErrResponse(http.StatusUnprocessableEntity, err)
+	switch e := cause.(type) {
+	case route.Error:
+		skipLogger.Info("Encountered error using route planner", zap.Error(e))
+		// Handle RouteError codes
+		switch e.Code() {
+		case route.UnsupportedPostalCode, route.UnroutableRoute:
+			return newErrResponse(http.StatusUnprocessableEntity, err)
+		default:
+			return newErrResponse(http.StatusInternalServerError, err)
+		}
+	case *pq.Error:
+		skipLogger.Info(SQLErrMessage, zap.Error(e))
+		return newErrResponse(http.StatusInternalServerError, errors.New(SQLErrMessage))
 	default:
 		return responseForBaseError(skipLogger, err)
 	}
 }
 
-func responseForBaseError(logger *zap.Logger, err error) middleware.Responder {
+func responseForBaseError(logger Logger, err error) middleware.Responder {
 	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
 
 	switch errors.Cause(err) {
 	case models.ErrFetchNotFound:
-		skipLogger.Debug("not found", zap.Error(err))
+		skipLogger.Info("not found", zap.Error(err))
 		return newErrResponse(http.StatusNotFound, err)
 	case models.ErrFetchForbidden:
-		skipLogger.Debug("forbidden", zap.Error(err))
+		skipLogger.Info("forbidden", zap.Error(err))
 		return newErrResponse(http.StatusForbidden, err)
+	case models.ErrWriteForbidden:
+		skipLogger.Info("forbidden", zap.Error(err))
+		return newErrResponse(http.StatusForbidden, err)
+	case models.ErrWriteConflict:
+		skipLogger.Info("conflict", zap.Error(err))
+		return newErrResponse(http.StatusConflict, err)
 	case models.ErrUserUnauthorized:
-		skipLogger.Debug("unauthorized", zap.Error(err))
+		skipLogger.Info("unauthorized", zap.Error(err))
 		return newErrResponse(http.StatusUnauthorized, err)
 	case uploaderpkg.ErrZeroLengthFile:
-		skipLogger.Debug("uploaded zero length file", zap.Error(err))
+		skipLogger.Info("uploaded zero length file", zap.Error(err))
 		return newErrResponse(http.StatusBadRequest, err)
 	case models.ErrInvalidPatchGate:
-		skipLogger.Debug("invalid patch gate", zap.Error(err))
+		skipLogger.Info("invalid patch gate", zap.Error(err))
 		return newErrResponse(http.StatusBadRequest, err)
 	case models.ErrInvalidTransition:
-		skipLogger.Debug("invalid transition", zap.Error(err))
+		skipLogger.Info("invalid transition", zap.Error(err))
 		return newErrResponse(http.StatusBadRequest, err)
 	case models.ErrDestroyForbidden:
-		skipLogger.Debug("invalid deletion", zap.Error(err))
+		skipLogger.Info("invalid deletion", zap.Error(err))
 		return newErrResponse(http.StatusBadRequest, err)
 	default:
 		skipLogger.Error("unexpected error", zap.Error(err))
@@ -100,7 +130,7 @@ func responseForBaseError(logger *zap.Logger, err error) middleware.Responder {
 }
 
 // ResponseForVErrors checks for validation errors
-func ResponseForVErrors(logger *zap.Logger, verrs *validate.Errors, err error) middleware.Responder {
+func ResponseForVErrors(logger Logger, verrs *validate.Errors, err error) middleware.Responder {
 	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
 	if verrs.HasAny() {
 		skipLogger.Error("Encountered validation error", zap.Any("Validation errors", verrs.String()))
@@ -114,7 +144,7 @@ func ResponseForVErrors(logger *zap.Logger, verrs *validate.Errors, err error) m
 }
 
 // ResponseForCustomErrors checks for custom errors and returns a custom response body message
-func ResponseForCustomErrors(logger *zap.Logger, err error, httpStatus int) middleware.Responder {
+func ResponseForCustomErrors(logger Logger, err error, httpStatus int) middleware.Responder {
 	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
 	skipLogger.Error("Encountered error", zap.Error(err))
 
@@ -122,7 +152,7 @@ func ResponseForCustomErrors(logger *zap.Logger, err error, httpStatus int) midd
 }
 
 // ResponseForConflictErrors checks for conflict errors
-func ResponseForConflictErrors(logger *zap.Logger, err error) middleware.Responder {
+func ResponseForConflictErrors(logger Logger, err error) middleware.Responder {
 	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
 	skipLogger.Error("Encountered conflict error", zap.Error(err))
 

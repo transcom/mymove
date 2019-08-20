@@ -3,11 +3,20 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
+import {
+  selectReimbursement,
+  approveReimbursement,
+  selectPPMForMove,
+  downloadPPMAttachments,
+  downloadPPMAttachmentsLabel,
+} from 'shared/Entities/modules/ppms';
+import { selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import { getLastError } from 'shared/Swagger/selectors';
 
-import { approveReimbursement, downloadPPMAttachments } from '../ducks';
 import { no_op } from 'shared/utils';
 import { formatCents, formatDate } from 'shared/formatters';
 import Alert from 'shared/Alert';
+import ToolTip from 'shared/ToolTip';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
@@ -16,6 +25,9 @@ import faPlusSquare from '@fortawesome/fontawesome-free-solid/faPlusSquare';
 import faMinusSquare from '@fortawesome/fontawesome-free-solid/faMinusSquare';
 
 import './PaymentsPanel.css';
+import { getSignedCertification } from 'shared/Entities/modules/signed_certifications';
+import { selectPaymentRequestCertificationForMove } from 'shared/Entities/modules/signed_certifications';
+import { selectShipmentForMove } from 'shared/Entities/modules/shipments';
 
 const attachmentsErrorMessages = {
   422: 'Encountered an error while trying to create attachments bundle: Document is in the wrong format',
@@ -23,11 +35,38 @@ const attachmentsErrorMessages = {
   500: 'An unexpected error has occurred',
 };
 
+export function sswIsDisabled(ppm, signedCertification, shipment, moveDocs) {
+  return missingSignature(signedCertification) || missingRequiredPPMInfo(ppm) || isComboAndNotDelivered(shipment);
+}
+
+function missingSignature(signedCertification) {
+  return isEmpty(signedCertification) || signedCertification.certification_type !== 'PPM_PAYMENT';
+}
+
+function missingRequiredPPMInfo(ppm) {
+  return isEmpty(ppm) || !ppm.actual_move_date || !ppm.net_weight;
+}
+
+function isComboAndNotDelivered(shipment) {
+  return !isEmpty(shipment) && shipment.status !== 'DELIVERED';
+}
+
+function getUserDate() {
+  return new Date().toISOString().split('T')[0];
+}
+
 class PaymentsTable extends Component {
   state = {
     showPaperwork: false,
     disableDownload: false,
   };
+
+  componentDidMount() {
+    const { moveId } = this.props;
+    if (moveId != null) {
+      this.props.getSignedCertification(moveId);
+    }
+  }
 
   approveReimbursement = () => {
     this.props.approveReimbursement(this.props.advance.id);
@@ -37,16 +76,25 @@ class PaymentsTable extends Component {
     this.setState({ showPaperwork: !this.state.showPaperwork });
   };
 
+  disableDownloadAll = () => {
+    return this.props.moveDocuments.length < 1;
+  };
+
   startDownload = docTypes => {
     this.setState({ disableDownload: true });
     this.props.downloadPPMAttachments(this.props.ppm.id, docTypes).then(response => {
-      if (response.payload) {
+      const {
+        response: {
+          obj: { url },
+        },
+      } = response;
+      if (url) {
         // Taken from https://mathiasbynens.github.io/rel-noopener/
         let win = window.open();
         // win can be null if a pop-up blocker is used
         if (win) {
           win.opener = null;
-          win.location = response.payload.url;
+          win.location = url;
         }
       }
       this.setState({ disableDownload: false });
@@ -54,14 +102,16 @@ class PaymentsTable extends Component {
   };
 
   documentUpload = () => {
-    const move = this.props.move;
-    this.props.push(`/moves/${move.id}/documents/new?move_document_type=SHIPMENT_SUMMARY`);
+    const { moveId } = this.props;
+    this.props.push(`/moves/${moveId}/documents/new?move_document_type=SHIPMENT_SUMMARY`);
   };
 
   downloadShipmentSummary = () => {
-    let moveID = get(this.props, 'move.id');
+    const { moveId } = this.props;
+    const userDate = getUserDate();
+
     // eslint-disable-next-line
-    window.open(`/internal/moves/${moveID}/shipment_summary_worksheet`);
+    window.open(`/internal/moves/${moveId}/shipment_summary_worksheet/?preparationDate=${userDate}`);
   };
 
   renderAdvanceAction = () => {
@@ -70,25 +120,27 @@ class PaymentsTable extends Component {
         return <div>{/* Further actions to come*/}</div>;
       } else {
         return (
-          <React.Fragment>
-            <div onClick={this.approveReimbursement}>
+          <div onClick={this.approveReimbursement}>
+            <ToolTip disabled={false} text="Approve" textStyle="tooltiptext-small">
               <FontAwesomeIcon aria-hidden className="icon approval-ready" icon={faCheck} title="Approve" />
-              <span className="tooltiptext">Approve</span>
-            </div>
-          </React.Fragment>
+            </ToolTip>
+          </div>
         );
       }
     } else {
       return (
-        <React.Fragment>
+        <ToolTip
+          disabled={false}
+          text={"Can't approve payment until shipment is approved"}
+          textStyle="tooltiptext-medium"
+        >
           <FontAwesomeIcon
             aria-hidden
             className="icon approval-blocked"
             icon={faCheck}
             title="Can't approve payment until shipment is approved."
           />
-          <span className="tooltiptext">Can't approve payment until shipment is approved.</span>
-        </React.Fragment>
+        </ToolTip>
       );
     }
   };
@@ -119,7 +171,7 @@ class PaymentsTable extends Component {
                   </th>
                 </tr>
                 <tr>
-                  <td className="payment-table-column-content">Advance </td>
+                  <td className="payment-table-column-content">Advance</td>
                   <td className="payment-table-column-content">
                     ${formatCents(get(advance, 'requested_amount')).toLocaleString()}
                   </td>
@@ -143,9 +195,7 @@ class PaymentsTable extends Component {
                       </div>
                     )}
                   </td>
-                  <td className="payment-table-column-content">
-                    <span className="tooltip">{this.renderAdvanceAction()}</span>
-                  </td>
+                  <td className="payment-table-column-content">{this.renderAdvanceAction()}</td>
                 </tr>
               </React.Fragment>
             ) : (
@@ -176,7 +226,9 @@ class PaymentsTable extends Component {
                     <p>Download Shipment Summary Worksheet</p>
                     <p>Download and complete the worksheet, which is a fill-in PDF form.</p>
                   </div>
-                  <button onClick={this.downloadShipmentSummary}>Download Worksheet (PDF)</button>
+                  <button disabled={this.props.disableSSW} onClick={this.downloadShipmentSummary}>
+                    Download Worksheet (PDF)
+                  </button>
                 </div>
 
                 <hr />
@@ -187,8 +239,10 @@ class PaymentsTable extends Component {
                     <p>Download bundle of PPM receipts and attach it to the completed Shipment Summary Worksheet.</p>
                   </div>
                   <button
-                    disabled={this.state.disableDownload}
-                    onClick={() => this.startDownload(['OTHER', 'WEIGHT_TICKET', 'STORAGE_EXPENSE', 'EXPENSE'])}
+                    disabled={this.state.disableDownload || this.disableDownloadAll()}
+                    onClick={() =>
+                      this.startDownload(['OTHER', 'WEIGHT_TICKET', 'WEIGHT_TICKET_SET', 'STORAGE_EXPENSE', 'EXPENSE'])
+                    }
                   >
                     Download All Attachments (PDF)
                   </button>
@@ -206,7 +260,9 @@ class PaymentsTable extends Component {
                   </div>
                   <button
                     disabled={this.state.disableDownload}
-                    onClick={() => this.startDownload(['OTHER', 'WEIGHT_TICKET', 'STORAGE_EXPENSE'])}
+                    onClick={() =>
+                      this.startDownload(['OTHER', 'WEIGHT_TICKET', 'WEIGHT_TICKET_SET', 'STORAGE_EXPENSE'])
+                    }
                   >
                     Download Orders and Weight Tickets (PDF)
                   </button>
@@ -233,18 +289,28 @@ class PaymentsTable extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  ppm: get(state, 'office.officePPMs[0]', {}),
-  move: get(state, 'office.officeMove', {}),
-  advance: get(state, 'office.officePPMs[0].advance', {}),
-  hasError: false,
-  errorMessage: state.office.error,
-  attachmentsError: get(state, 'office.downloadAttachmentsHasError'),
-});
+const mapStateToProps = (state, ownProps) => {
+  const { moveId } = ownProps;
+  const ppm = selectPPMForMove(state, moveId);
+  const shipment = selectShipmentForMove(state, moveId);
+  const advance = selectReimbursement(state, ppm.advance);
+  const signedCertifications = selectPaymentRequestCertificationForMove(state, moveId);
+  const moveDocuments = selectAllDocumentsForMove(state, moveId);
+  const disableSSW = sswIsDisabled(ppm, signedCertifications, shipment, moveDocuments);
+  return {
+    ppm,
+    disableSSW,
+    moveId,
+    advance,
+    attachmentsError: getLastError(state, `${downloadPPMAttachmentsLabel}-${moveId}`),
+    moveDocuments,
+  };
+};
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
+      getSignedCertification,
       approveReimbursement,
       update: no_op,
       downloadPPMAttachments,
@@ -253,4 +319,7 @@ const mapDispatchToProps = dispatch =>
     dispatch,
   );
 
-export default connect(mapStateToProps, mapDispatchToProps)(PaymentsTable);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PaymentsTable);

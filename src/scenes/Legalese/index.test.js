@@ -4,7 +4,6 @@ import { Provider } from 'react-redux';
 import SignedCertification from '.';
 import store from 'shared/store';
 
-const dummyFunc = () => {};
 const schema = {};
 const uiSchema = {};
 const match = { params: { moveId: 'someID' } };
@@ -23,7 +22,6 @@ it('renders without crashing', () => {
         schema={schema}
         uiSchema={uiSchema}
         confirmationText=""
-        createIssue={dummyFunc}
         match={match}
       />
     </Provider>,

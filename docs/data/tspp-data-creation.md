@@ -2,7 +2,7 @@
 
 This outlines the steps you need to do to join the two data sources we've traditionally gotten - CSVs or text files of best value scores tide to TDLs, exported one code of service at a time, and CSVs or text files of TSP discount rates, organized by the three pieces of data that make up a TDL (origin, destination, and code of service). If anything behaves in a surprising way, double check the schema detailed here against the organization of your input files. No step of this should alter zero rows, for instance.
 
-Before you begin this process, convert discount rate Excel files or txt files to CSVs, if needed.
+Before you begin this process, convert discount rate Excel files or txt files to CSVs, if needed. **Verify that values for SVY_SCORE, RATE_SCORE, and BVS are decimal values (should be formatted like `77.3456`).**
 
 > We will use the `\copy` `psql` command throughout this guide.
 >
@@ -175,6 +175,54 @@ AND
   tdl.code_of_service = tsd.cos;
 ```
 
+Check for null TDL IDs:
+
+```sql
+SELECT count(DISTINCT scac) FROM tdl_scores_and_discounts WHERE tdl_id IS NULL;
+```
+
+If count returns anything but 0, you'll need to add new TDL entries.
+Check for new entries on the
+[Domestic Channel Control List](https://move.mil/sites/default/files/2019-01/2019%20Domestic%20Channel%20Control%20List.pdf).
+They'll be highlighted in red.
+Create a new temp table for TDLs and add the new entries as follows:
+
+```sql
+CREATE TABLE temp_tdls AS SELECT * FROM traffic_distribution_lists;
+ALTER TABLE temp_tdls ADD COLUMN import boolean;
+INSERT INTO temp_tdls (id, source_rate_area, destination_region, code_of_service, created_at, updated_at, import)
+VALUES
+  (uuid_generate_v4(), 'US4965500', '1', '2', now(), now(), true),
+  (uuid_generate_v4(), 'US4965500', '1', 'D', now(), now(), true),
+  /* ... */
+  (uuid_generate_v4(), 'US4965500', '10', '2', now(), now(), true);
+```
+
+This will add the new entries to the temporary TDL table,
+forcing them to adhere to any table constraints
+and generating new UUIDs to be consistent across environments.
+
+We'll now create a new migration with that data (replace your migration filename):
+
+```bash
+./bin/soda generate sql add_new_tdls
+rm migrations/20190410152949_add_new_tdls.down.sql
+echo -e "INSERT INTO traffic_distribution_lists (id, source_rate_area, destination_region, code_of_service, created_at, updated_at) \nVALUES\n$(
+./scripts/psql-deployed-migrations "\copy (SELECT id, source_rate_area, destination_region, code_of_service FROM temp_tdls WHERE import = true) TO stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
+  | awk '{print "  ("$0", now(), now()),"}' \
+  | sed '$ s/.$//');" \
+  > migrations/20190410152949_add_new_tdls.up.sql
+```
+
+This will copy all rows from the table that were included in the new TDL import
+and create an insert statement for the data.
+You can also use `pg_dump` to generate this migration,
+however replacing the timestamps with `now()` allows the environments
+to have true `created_at` and `updated_at` timestamps.
+Not your locally inserted time.
+
+Once this migration is written, run it and rejoin the TDLs as above.
+
 Make room for TSP IDs:
 
 ```sql
@@ -193,6 +241,43 @@ FROM
 WHERE
   tsd.scac = tsp.standard_carrier_alpha_code;
 ```
+
+Similar to TDLs,
+there may be missing TSPs.
+Currently, we're not using any of this TSP data for production moves,
+but we have to satisfy the foreign key constraints for the TSPP data.
+
+Check for missing TSP IDs:
+
+```sql
+SELECT count(DISTINCT scac) FROM tdl_scores_and_discounts WHERE tsp_id IS NULL;
+```
+
+If this is not 0, add the TSPs:
+
+```sql
+CREATE TABLE temp_tsps AS SELECT * FROM transportation_service_providers;
+ALTER TABLE temp_tsps ADD COLUMN import boolean;
+INSERT INTO temp_tsps (standard_carrier_alpha_code, id, import)
+  SELECT DISTNCT ON (scac) scac AS standard_carrier_alpha_code, uuid_generate_v4() AS id, true AS import
+  FROM tdl_scores_and_discounts
+  WHERE tsp_id IS NULL;
+```
+
+Generate the migration (replacing your migration filename):
+
+```bash
+./bin/soda generate sql add_new_scacs
+rm migrations/20190409010258_add_new_scacs.down.sql
+
+echo -e "INSERT INTO transportation_service_providers (id, standard_carrier_alpha_code, created_at, updated_at, name) \nVALUES\n$(
+./scripts/psql-deployed-migrations "\copy (SELECT id, standard_carrier_alpha_code from temp_tsps) TO stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
+  | awk '{print "  ("$0", now(), now(), '\''),"}' \
+  | sed '$ s/.$//');" \
+  > migrations/20190409010258_add_new_scacs.up.sql
+```
+
+Run this migration and rejoin the TSP IDs as above.
 
 Now we're ready to combine the datasets together into one table. First, be sure to clear out the `transportation_service_provider_performances` table in case it already contains data:
 
@@ -314,7 +399,7 @@ FROM traffic_distribution_lists AS tdl
 LEFT JOIN transportation_service_provider_performances on tdl.id = transportation_service_provider_performances.traffic_distribution_list_id
 LEFT JOIN transportation_service_providers on transportation_service_provider_performances.transportation_service_provider_id = transportation_service_providers.id
 WHERE performance_period_start='2019-01-01' and performance_period_end='2019-05-14'
-  AND standard_carrier_alpha_code='ABCD'
+  AND standard_carrier_alpha_code='ABBV'
   AND destination_region='14' AND source_rate_area='US11'
   AND code_of_service='D';
 
@@ -335,7 +420,7 @@ The file will also need to be reduced. Currently, we are picking 2 TSPs per TDL.
 
 The following SQL can be used to do the above mentioned:
 
-* Truncate the table transportation_service_provider_performances:
+* Truncate the table `transportation_service_provider_performances`:
 
 ```sql
 TRUNCATE transportation_service_provider_performances CASCADE;
@@ -344,7 +429,7 @@ TRUNCATE transportation_service_provider_performances CASCADE;
 * Load the file created from the `pg_dump`:
 
 ```sh
-bin/psql < tspp_data_dump.pgsql
+scripts/psql-dev < tspp_data_dump.pgsql
 ```
 
 * Reduce the number of TSPs to two (2) TSPs per TDL:
@@ -361,6 +446,20 @@ WHERE id not in (
 ```
 
 * Scrub the data:
+
+First, define a `random_between` function ([source](http://www.postgresqltutorial.com/postgresql-random-range/)).
+
+```sql
+CREATE OR REPLACE FUNCTION random_between(low INT ,high INT)
+   RETURNS INT AS
+$$
+BEGIN
+   RETURN floor(random()* (high-low + 1) + low);
+END;
+$$ language 'plpgsql' STRICT;
+```
+
+Then, use that function to set random values for fields that contain secret values:
 
 ```sql
 UPDATE transportation_service_provider_performances

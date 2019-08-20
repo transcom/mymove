@@ -14,12 +14,12 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
+func (suite *HandlerSuite) testCreateGenericMoveHandler(moveType models.SelectedMoveType) *models.MoveDocument {
 	numTspUsers := 1
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusAWARDED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
 	suite.NoError(err)
 
 	shipment := shipments[0]
@@ -55,7 +55,8 @@ func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
 	context.SetFileStorer(fakeS3)
 	handler := CreateGenericMoveDocumentHandler{context}
 	response := handler.Handle(newMoveDocParams)
-	// assert we got back the 201 response
+
+	// Assert we got back the 201 response
 	suite.IsNotErrResponse(response)
 	createdResponse := response.(*movedocop.CreateGenericMoveDocumentOK)
 	createdPayload := createdResponse.Payload
@@ -76,15 +77,31 @@ func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
 			LoginGovEmail: "unauthorized@example.com",
 		},
 	})
-	// wrongUser := testdatagen.MakeDefaultServiceMember(suite.DB())
+
 	request = suite.AuthenticateTspRequest(request, wrongUser)
 	newMoveDocParams.HTTPRequest = request
 
 	badUserResponse := handler.Handle(newMoveDocParams)
 	suite.CheckResponseForbidden(badUserResponse)
 
-	// Now try a bad shipment
+	//Now try a bad shipment
 	newMoveDocParams.ShipmentID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 	badMoveResponse := handler.Handle(newMoveDocParams)
 	suite.CheckResponseForbidden(badMoveResponse)
+
+	var moveDocument models.MoveDocument
+	suite.Nil(suite.DB().Find(&moveDocument, createdPayload.ID), "could not load MoveDocument")
+	return &moveDocument
+}
+
+func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandlerHHG() {
+	moveDocument := suite.testCreateGenericMoveHandler(models.SelectedMoveTypeHHG)
+	suite.Nil(moveDocument.PersonallyProcuredMoveID, "moveDocument.PersonallyProcuredMoveID was not nil")
+	suite.NotNil(moveDocument.ShipmentID, "moveDocument.ShipmentID was nil")
+}
+
+func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandlerHHGPPM() {
+	moveDocument := suite.testCreateGenericMoveHandler(models.SelectedMoveTypeHHGPPM)
+	suite.Nil(moveDocument.PersonallyProcuredMoveID, "moveDocument.PersonallyProcuredMoveID was not nil")
+	suite.NotNil(moveDocument.ShipmentID, "moveDocument.ShipmentID was nil")
 }

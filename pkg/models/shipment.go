@@ -35,8 +35,33 @@ const (
 	ShipmentStatusINTRANSIT ShipmentStatus = "IN_TRANSIT"
 	// ShipmentStatusDELIVERED captures enum value "DELIVERED"
 	ShipmentStatusDELIVERED ShipmentStatus = "DELIVERED"
-	// ShipmentStatusCOMPLETED captures enum value "COMPLETED"
-	ShipmentStatusCOMPLETED ShipmentStatus = "COMPLETED"
+)
+
+var (
+	// ShipmentAssociationsDefault declares the default eager associations for a shipment
+	ShipmentAssociationsDefault = EagerAssociations{
+		"TrafficDistributionList",
+		"ServiceMember.BackupContacts",
+		"Move.Orders.NewDutyStation.Address",
+		"PickupAddress",
+		"SecondaryPickupAddress",
+		"DeliveryAddress",
+		"DestinationAddressOnAcceptance",
+		"PartialSITDeliveryAddress",
+		"ShipmentOffers.TransportationServiceProviderPerformance.TransportationServiceProvider",
+		"ShippingDistance.OriginAddress",
+		"ShippingDistance.DestinationAddress",
+		"StorageInTransits",
+	}
+)
+
+var (
+	// ShipmentListAssociationsDefault declares the default eager associations for shipments
+	ShipmentListAssociationsDefault = EagerAssociations{
+		"TrafficDistributionList",
+		"ServiceMember",
+		"Move",
+	}
 )
 
 // Shipment represents a single shipment within a Service Member's move.
@@ -60,6 +85,7 @@ type Shipment struct {
 	ShipmentOffers            ShipmentOffers           `has_many:"shipment_offers" order_by:"created_at desc"`
 	ServiceAgents             ServiceAgents            `has_many:"service_agents" order_by:"created_at desc"`
 	ShipmentLineItems         ShipmentLineItems        `has_many:"shipment_line_items" order_by:"created_at desc"`
+	StorageInTransits         StorageInTransits        `has_many:"storage_in_transits" order_by:"location desc, estimated_start_date"`
 
 	// dates
 	ActualPickupDate     *time.Time `json:"actual_pickup_date" db:"actual_pickup_date"`         // when shipment is scheduled to be picked up by the TSP
@@ -69,23 +95,27 @@ type Shipment struct {
 	RequestedPickupDate  *time.Time `json:"requested_pickup_date" db:"requested_pickup_date"`   // when shipment was originally scheduled to be picked up
 	OriginalDeliveryDate *time.Time `json:"original_delivery_date" db:"original_delivery_date"` // when shipment is to be delivered
 	OriginalPackDate     *time.Time `json:"original_pack_date" db:"original_pack_date"`         // when packing is to begin
+	ApproveDate          *time.Time `json:"approve_date" db:"approve_date"`                     // when shipment is approved by office user
+	SubmitDate           *time.Time `json:"submit_date" db:"submit_date"`                       // when shipment was submitted by SM
 
 	// calculated durations
 	EstimatedPackDays    *int64 `json:"estimated_pack_days" db:"estimated_pack_days"`       // how many days it will take to pack
 	EstimatedTransitDays *int64 `json:"estimated_transit_days" db:"estimated_transit_days"` // how many days it will take to get to destination
 
 	// addresses
-	PickupAddressID              *uuid.UUID `json:"pickup_address_id" db:"pickup_address_id"`
-	PickupAddress                *Address   `belongs_to:"address"`
-	HasSecondaryPickupAddress    bool       `json:"has_secondary_pickup_address" db:"has_secondary_pickup_address"`
-	SecondaryPickupAddressID     *uuid.UUID `json:"secondary_pickup_address_id" db:"secondary_pickup_address_id"`
-	SecondaryPickupAddress       *Address   `belongs_to:"address"`
-	HasDeliveryAddress           bool       `json:"has_delivery_address" db:"has_delivery_address"`
-	DeliveryAddressID            *uuid.UUID `json:"delivery_address_id" db:"delivery_address_id"`
-	DeliveryAddress              *Address   `belongs_to:"address"`
-	HasPartialSITDeliveryAddress bool       `json:"has_partial_sit_delivery_address" db:"has_partial_sit_delivery_address"`
-	PartialSITDeliveryAddressID  *uuid.UUID `json:"partial_sit_delivery_address_id" db:"partial_sit_delivery_address_id"`
-	PartialSITDeliveryAddress    *Address   `belongs_to:"address"`
+	PickupAddressID                  *uuid.UUID `json:"pickup_address_id" db:"pickup_address_id"`
+	PickupAddress                    *Address   `belongs_to:"address"`
+	HasSecondaryPickupAddress        bool       `json:"has_secondary_pickup_address" db:"has_secondary_pickup_address"`
+	SecondaryPickupAddressID         *uuid.UUID `json:"secondary_pickup_address_id" db:"secondary_pickup_address_id"`
+	SecondaryPickupAddress           *Address   `belongs_to:"address"`
+	HasDeliveryAddress               bool       `json:"has_delivery_address" db:"has_delivery_address"`
+	DeliveryAddressID                *uuid.UUID `json:"delivery_address_id" db:"delivery_address_id"`
+	DeliveryAddress                  *Address   `belongs_to:"address"`
+	HasPartialSITDeliveryAddress     bool       `json:"has_partial_sit_delivery_address" db:"has_partial_sit_delivery_address"`
+	PartialSITDeliveryAddressID      *uuid.UUID `json:"partial_sit_delivery_address_id" db:"partial_sit_delivery_address_id"`
+	PartialSITDeliveryAddress        *Address   `belongs_to:"address"`
+	DestinationAddressOnAcceptanceID *uuid.UUID `json:"destination_address_on_acceptance_id" db:"destination_address_on_acceptance_id"`
+	DestinationAddressOnAcceptance   *Address   `belongs_to:"address"`
 
 	// weights
 	WeightEstimate              *unit.Pound `json:"weight_estimate" db:"weight_estimate"`
@@ -94,6 +124,10 @@ type Shipment struct {
 	NetWeight                   *unit.Pound `json:"net_weight" db:"net_weight"`
 	GrossWeight                 *unit.Pound `json:"gross_weight" db:"gross_weight"`
 	TareWeight                  *unit.Pound `json:"tare_weight" db:"tare_weight"`
+
+	// distance
+	ShippingDistanceID *uuid.UUID          `json:"shipping_distance_id" db:"shipping_distance_id"`
+	ShippingDistance   DistanceCalculation `belongs_to:"distance_calculation"`
 
 	// pre-move survey
 	PmSurveyConductedDate               *time.Time  `json:"pm_survey_conducted_date" db:"pm_survey_conducted_date"`
@@ -113,7 +147,9 @@ type Shipments []Shipment
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.Validate(
+	calendar := dates.NewUSCalendar()
+
+	validations := []validate.Validator{
 		&validators.UUIDIsPresent{Field: s.MoveID, Name: "move_id"},
 		&validators.StringIsPresent{Field: string(s.Status), Name: "status"},
 		&OptionalInt64IsPositive{Field: s.EstimatedPackDays, Name: "estimated_pack_days"},
@@ -121,7 +157,52 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&OptionalPoundIsNonNegative{Field: s.WeightEstimate, Name: "weight_estimate"},
 		&OptionalPoundIsNonNegative{Field: s.ProgearWeightEstimate, Name: "progear_weight_estimate"},
 		&OptionalPoundIsNonNegative{Field: s.SpouseProgearWeightEstimate, Name: "spouse_progear_weight_estimate"},
-	), nil
+		&OptionalDateIsWorkday{
+			Field:    s.OriginalPackDate,
+			Name:     "original_pack_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.RequestedPickupDate,
+			Name:     "requested_pickup_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.OriginalDeliveryDate,
+			Name:     "original_delivery_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.PmSurveyPlannedPackDate,
+			Name:     "pm_survey_planned_pack_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.PmSurveyPlannedPickupDate,
+			Name:     "pm_survey_planned_pickup_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.PmSurveyPlannedDeliveryDate,
+			Name:     "pm_survey_planned_delivery_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.ActualPackDate,
+			Name:     "actual_pack_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.ActualPickupDate,
+			Name:     "actual_pickup_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.ActualDeliveryDate,
+			Name:     "actual_delivery_date",
+			Calendar: calendar},
+	}
+
+	if s.Status == ShipmentStatusSUBMITTED {
+		var pickupAddressID uuid.UUID
+		if s.PickupAddressID != nil {
+			pickupAddressID = *s.PickupAddressID
+		}
+		validations = append(validations, &validators.UUIDIsPresent{Field: pickupAddressID, Name: "pickup_address_id"})
+	}
+	return validate.Validate(validations...), nil
 }
 
 // CurrentTransportationServiceProviderID returns the id for the current TSP for a shipment
@@ -141,12 +222,13 @@ func (s *Shipment) CurrentTransportationServiceProviderID() uuid.UUID {
 // Avoid calling Shipment.Status = ... ever. Use these methods to change the state.
 
 // Submit marks the Shipment request for review
-func (s *Shipment) Submit() error {
+func (s *Shipment) Submit(hhgSubmitDate time.Time) error {
 	if s.Status != ShipmentStatusDRAFT {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
 	now := time.Now()
 	s.BookDate = &now
+	s.SubmitDate = &hhgSubmitDate
 	s.Status = ShipmentStatusSUBMITTED
 	return nil
 }
@@ -179,11 +261,16 @@ func (s *Shipment) Reject() error {
 }
 
 // Approve marks the Shipment request as Approved. Must be in an Accepted state.
-func (s *Shipment) Approve() error {
+func (s *Shipment) Approve(approveDate time.Time) error {
 	if s.Status != ShipmentStatusACCEPTED {
-		return errors.Wrap(ErrInvalidTransition, "Approve")
+		return errors.Wrap(ErrInvalidTransition, "Approve - status change")
+	}
+
+	if s.ApproveDate != nil {
+		return errors.Wrap(ErrInvalidTransition, "Approve - approve date change")
 	}
 	s.Status = ShipmentStatusAPPROVED
+	s.ApproveDate = &approveDate
 	return nil
 }
 
@@ -208,22 +295,32 @@ func (s *Shipment) Pack(actualPackDate time.Time) error {
 }
 
 // Deliver marks the Shipment request as Delivered. Must be IN TRANSIT state.
-func (s *Shipment) Deliver(actualDeliveryDate time.Time) error {
+func (s *Shipment) Deliver(actualDeliveryDate time.Time) (err error) {
+	// deliver Shipment
 	if s.Status != ShipmentStatusINTRANSIT {
-		return errors.Wrap(ErrInvalidTransition, "Deliver")
+		return errors.Wrap(ErrInvalidTransition, "Deliver of shipment")
 	}
 	s.Status = ShipmentStatusDELIVERED
 	s.ActualDeliveryDate = &actualDeliveryDate
-	return nil
-}
 
-// Complete marks the Shipment request as Completed. Must be in a Delivered state.
-func (s *Shipment) Complete() error {
-	if s.Status != ShipmentStatusDELIVERED {
-		return errors.Wrap(ErrInvalidTransition, "Completed")
+	var sits []StorageInTransit
+	// deliver SITs
+	for _, sit := range s.StorageInTransits {
+		// only deliver DESTINATION Sits that are IN_SIT
+		if sit.Status == StorageInTransitStatusINSIT &&
+			sit.Location == StorageInTransitLocationDESTINATION {
+			err = sit.Deliver(actualDeliveryDate)
+			if err != nil {
+				return err
+			}
+			sits = append(sits, sit)
+		} else {
+			sits = append(sits, sit)
+		}
 	}
-	s.Status = ShipmentStatusCOMPLETED
-	return nil
+	s.StorageInTransits = sits
+
+	return err
 }
 
 // BeforeSave will run before each create/update of a Shipment.
@@ -232,7 +329,7 @@ func (s *Shipment) BeforeSave(tx *pop.Connection) error {
 	// is created/updated.
 	trafficDistributionList, err := s.DetermineTrafficDistributionList(tx)
 	if err != nil {
-		return errors.Wrapf(err, "Could not determine TDL for shipment ID %s for move ID %s", s.ID, s.MoveID)
+		return errors.Wrapf(ErrFetchNotFound, "Could not determine TDL for shipment ID %s for move ID %s"+"\n Error from attempt: \n %s", s.ID, s.MoveID, err.Error())
 	}
 
 	if trafficDistributionList != nil {
@@ -318,40 +415,111 @@ func (s *Shipment) DetermineTrafficDistributionList(db *pop.Connection) (*Traffi
 }
 
 // CreateShipmentLineItem creates a new ShipmentLineItem tied to the Shipment
-func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, tariff400ngItemID uuid.UUID, q1, q2 *int64, location string, notes *string) (*ShipmentLineItem, *validate.Errors, error) {
+func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShipmentLineItemParams, additionalParams AdditionalShipmentLineItemParams) (*ShipmentLineItem, *validate.Errors, error) {
 	var quantity2 unit.BaseQuantity
-	if q2 != nil {
-		quantity2 = unit.BaseQuantity(*q2)
+	if baseParams.Quantity2 != nil {
+		quantity2 = *baseParams.Quantity2
 	}
 
 	var notesVal string
-	if notes != nil {
-		notesVal = *notes
+	if baseParams.Notes != nil {
+		notesVal = *baseParams.Notes
 	}
 
-	shipmentLineItem := ShipmentLineItem{
-		ShipmentID:        s.ID,
-		Tariff400ngItemID: tariff400ngItemID,
-		Quantity1:         unit.BaseQuantity(*q1),
-		Quantity2:         quantity2,
-		Location:          ShipmentLineItemLocation(location),
-		Notes:             notesVal,
-		SubmittedDate:     time.Now(),
-		Status:            ShipmentLineItemStatusSUBMITTED,
-	}
+	//We can do validation for specific item codes here
+	var responseError error
+	responseVErrors := validate.NewErrors()
+	shipmentLineItem := ShipmentLineItem{}
 
-	verrs, err := db.ValidateAndCreate(&shipmentLineItem)
-	if verrs.HasAny() || err != nil {
-		return &ShipmentLineItem{}, verrs, err
-	}
+	db.Transaction(func(connection *pop.Connection) error {
+		transactionError := errors.New("Rollback the transaction")
 
-	// Loads line item information
-	err = db.Load(&shipmentLineItem)
-	if err != nil {
-		return &ShipmentLineItem{}, validate.NewErrors(), err
-	}
+		// NOTE: upsertItemCodeDependency could mutate shipmentLineItem
+		verrs, err := upsertItemCodeDependency(connection, &baseParams, &additionalParams, &shipmentLineItem)
+		if verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error setting up item code dependency: "+baseParams.Tariff400ngItemCode)
+			return transactionError
+		}
 
-	return &shipmentLineItem, validate.NewErrors(), nil
+		// Non-specified item code
+		shipmentLineItem.ShipmentID = s.ID
+		shipmentLineItem.Tariff400ngItemID = baseParams.Tariff400ngItemID
+		shipmentLineItem.Quantity2 = quantity2
+		shipmentLineItem.Location = ShipmentLineItemLocation(baseParams.Location)
+		shipmentLineItem.Notes = notesVal
+		shipmentLineItem.SubmittedDate = time.Now()
+		shipmentLineItem.Status = ShipmentLineItemStatusSUBMITTED
+
+		verrs, err = connection.ValidateAndCreate(&shipmentLineItem)
+
+		if verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating shipment line item")
+			return transactionError
+		}
+
+		// Loads line item information
+		err = connection.Load(&shipmentLineItem)
+		if err != nil {
+			responseError = errors.Wrap(err, "Error loading shipment line item")
+			return transactionError
+		}
+
+		return nil
+	})
+
+	return &shipmentLineItem, responseVErrors, responseError
+}
+
+// UpdateShipmentLineItem updates a ShipmentLineItem tied to the Shipment
+func (s *Shipment) UpdateShipmentLineItem(db *pop.Connection, baseParams BaseShipmentLineItemParams, additionalParams AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+	var responseError error
+	responseVErrors := validate.NewErrors()
+
+	db.Transaction(func(connection *pop.Connection) error {
+		transactionError := errors.New("Rollback the transaction")
+
+		// NOTE: upsertItemCodeDependency could mutate shipmentLineItem
+		verrs, err := upsertItemCodeDependency(connection, &baseParams, &additionalParams, shipmentLineItem)
+		if verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error setting up item code dependency: "+baseParams.Tariff400ngItemCode)
+			return transactionError
+		}
+
+		// Don't update these properties if status is APPROVED
+		// This only applies to 35A since an user can still update
+		if shipmentLineItem.Status != ShipmentLineItemStatusAPPROVED {
+			// Non-specified item code
+			shipmentLineItem.Tariff400ngItemID = baseParams.Tariff400ngItemID
+			if baseParams.Quantity2 != nil {
+				shipmentLineItem.Quantity2 = *baseParams.Quantity2
+			}
+			shipmentLineItem.Location = ShipmentLineItemLocation(baseParams.Location)
+			if baseParams.Notes != nil {
+				shipmentLineItem.Notes = *baseParams.Notes
+			}
+		}
+
+		verrs, err = connection.ValidateAndUpdate(shipmentLineItem)
+		if verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error updating shipment line item")
+			return transactionError
+		}
+
+		// Loads line item information
+		err = connection.Load(shipmentLineItem)
+		if err != nil {
+			responseError = errors.Wrap(err, "Error loading shipment line item")
+			return transactionError
+		}
+
+		return nil
+	})
+
+	return responseVErrors, responseError
 }
 
 // AssignGBLNumber generates a new valid GBL number for the shipment
@@ -406,32 +574,16 @@ func FetchUnofferedShipments(db *pop.Connection) (Shipments, error) {
 	return shipments, err
 }
 
-// FetchShipmentForInvoice fetches all the shipment information for generating an invoice
-func FetchShipmentForInvoice(db *pop.Connection, shipmentID uuid.UUID) (Shipment, error) {
-	var shipment Shipment
-	err := db.Q().Eager(
-		"Move.Orders",
-		"PickupAddress",
-		"ServiceMember",
-	).Find(&shipment, shipmentID)
-	return shipment, err
-}
-
 // FetchShipmentsByTSP looks up all shipments belonging to a TSP ID
-func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, orderBy *string, limit *int64, offset *int64) ([]Shipment, error) {
+func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, orderBy *string) ([]Shipment, error) {
 
 	shipments := []Shipment{}
 
-	query := tx.Q().Eager(
-		"TrafficDistributionList",
-		"ServiceMember",
-		"Move",
-		"PickupAddress",
-		"SecondaryPickupAddress",
-		"DeliveryAddress",
-		"PartialSITDeliveryAddress").
+	query := tx.Q().Eager(ShipmentListAssociationsDefault...).
 		Where("shipment_offers.transportation_service_provider_id = $1", tspID).
-		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id")
+		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
+		InnerJoin("moves", "shipments.move_id=moves.id").
+		Where("moves.show is true")
 
 	if len(status) > 0 {
 		statusStrings := make([]interface{}, len(status))
@@ -461,25 +613,6 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 		}
 	}
 
-	// Manage limit and offset values
-	var limitVar = 25
-	if limit != nil && *limit > 0 {
-		limitVar = int(*limit)
-	}
-
-	var offsetVar = 1
-	if offset != nil && *offset > 1 {
-		offsetVar = int(*offset)
-	}
-
-	// Pop doesn't have a direct Offset() function and instead paginates. This means the offset isn't actually
-	// the DB offset.  It's first multiplied by the limit and then applied.  Examples:
-	//   - Paginate(0, 25) = LIMIT 25 OFFSET 0  (this is an odd case and is coded into Pop)
-	//   - Paginate(1, 25) = LIMIT 25 OFFSET 0
-	//   - Paginate(2, 25) = LIMIT 25 OFFSET 25
-	//   - Paginate(3, 25) = LIMIT 25 OFFSET 50
-	query.Paginate(offsetVar, limitVar)
-
 	err := query.All(&shipments)
 
 	return shipments, err
@@ -488,15 +621,10 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 // FetchShipment Fetches and Validates a Shipment model
 func FetchShipment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Shipment, error) {
 	var shipment Shipment
-	err := db.Eager(
-		"Move.Orders.NewDutyStation.Address",
-		"PickupAddress",
-		"SecondaryPickupAddress",
-		"DeliveryAddress",
-		"ShipmentOffers").Find(&shipment, id)
+	err := db.Eager(ShipmentAssociationsDefault...).Find(&shipment, id)
 
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return nil, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
@@ -507,7 +635,7 @@ func FetchShipment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Sh
 	if err != nil {
 		return nil, err
 	}
-	if session.IsMyApp() && move.Orders.ServiceMemberID != session.ServiceMemberID {
+	if session.IsMilApp() && move.Orders.ServiceMemberID != session.ServiceMemberID {
 		return nil, ErrFetchForbidden
 	}
 
@@ -518,17 +646,7 @@ func FetchShipment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Sh
 func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID) (*Shipment, error) {
 
 	shipments := []Shipment{}
-
-	err := tx.Eager(
-		"TrafficDistributionList",
-		"ServiceMember.BackupContacts",
-		"Move.Orders.NewDutyStation.Address",
-		"PickupAddress",
-		"SecondaryPickupAddress",
-		"DeliveryAddress",
-		"PartialSITDeliveryAddress",
-		"ShipmentOffers.TransportationServiceProviderPerformance",
-		"ShipmentOffers.TransportationServiceProviderPerformance.TransportationServiceProvider").
+	err := tx.Eager(ShipmentAssociationsDefault...).
 		Where("shipment_offers.transportation_service_provider_id = $1 and shipments.id = $2", tspID, shipmentID).
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
 		All(&shipments)
@@ -629,6 +747,22 @@ func AcceptShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.U
 		return shipment, nil, nil, err
 	}
 
+	// by default we should use the address of duty station when a TSP accepts shipment unless actual delivery
+	// shipment address is available at the time
+	destAddOnAcceptance := shipment.Move.Orders.NewDutyStation.Address
+	if shipment.HasDeliveryAddress && shipment.DeliveryAddress != nil {
+		destAddOnAcceptance = *shipment.DeliveryAddress
+	}
+
+	// setting id to nil to force a new Address in the db
+	destAddOnAcceptance.ID = uuid.Nil
+	shipment.DestinationAddressOnAcceptance = &destAddOnAcceptance
+
+	_, err = SaveDestinationAddress(db, shipment)
+	if err != nil {
+		return shipment, nil, nil, err
+	}
+
 	shipmentOffer, err := FetchShipmentOfferByTSP(db, tspID, shipmentID)
 	if err != nil {
 		return shipment, shipmentOffer, nil, err
@@ -646,6 +780,17 @@ func AcceptShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.U
 	}
 
 	return saveShipmentAndOffer(db, shipment, shipmentOffer)
+}
+
+// SaveDestinationAddress saves a DestinationAddressOnAcceptance
+func SaveDestinationAddress(db *pop.Connection, shipment *Shipment) (*validate.Errors, error) {
+	verrs, err := db.ValidateAndSave(shipment.DestinationAddressOnAcceptance)
+	if verrs.HasAny() || err != nil {
+		saveError := errors.Wrap(err, "Error saving shipment")
+		return verrs, saveError
+	}
+	shipment.DestinationAddressOnAcceptanceID = &shipment.DestinationAddressOnAcceptance.ID
+	return verrs, nil
 }
 
 // SaveShipmentAndAddresses saves a Shipment and its Addresses atomically.
@@ -704,15 +849,24 @@ func SaveShipmentAndAddresses(db *pop.Connection, shipment *Shipment) (*validate
 	return responseVErrors, responseError
 }
 
-// SaveShipmentAndLineItems saves a shipment and a slice of line items in a single transaction.
-func (s *Shipment) SaveShipmentAndLineItems(db *pop.Connection, baselineLineItems []ShipmentLineItem, generalLineItems []ShipmentLineItem) (*validate.Errors, error) {
+// SaveShipmentAndPricingInfo saves a shipment and a slice of line items in a single transaction.
+func (s *Shipment) SaveShipmentAndPricingInfo(db *pop.Connection, baselineLineItems []ShipmentLineItem, generalLineItems []ShipmentLineItem, distanceCalculation DistanceCalculation) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
-	db.Transaction(func(tx *pop.Connection) error {
+	saveAndPrice := func(tx *pop.Connection) error {
 		transactionError := errors.New("rollback")
 
-		verrs, err := tx.ValidateAndSave(s)
+		verrs, err := tx.ValidateAndSave(&distanceCalculation)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error saving distance calculation")
+			return transactionError
+		}
+		s.ShippingDistance = distanceCalculation
+		s.ShippingDistanceID = &distanceCalculation.ID
+
+		verrs, err = tx.ValidateAndSave(s)
 		if err != nil || verrs.HasAny() {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error saving shipment")
@@ -722,7 +876,7 @@ func (s *Shipment) SaveShipmentAndLineItems(db *pop.Connection, baselineLineItem
 			verrs, err = s.createUniqueShipmentLineItem(tx, lineItem)
 			if err != nil || verrs.HasAny() {
 				responseVErrors.Append(verrs)
-				responseError = errors.Wrapf(err, "Error saving shipment line item for shipment %s and item %s",
+				responseError = errors.Wrapf(err, "Error saving shipment unique line item for shipment %s and item %s",
 					lineItem.ShipmentID, lineItem.Tariff400ngItemID)
 				return transactionError
 			}
@@ -731,14 +885,19 @@ func (s *Shipment) SaveShipmentAndLineItems(db *pop.Connection, baselineLineItem
 			verrs, err = tx.ValidateAndSave(&lineItem)
 			if err != nil || verrs.HasAny() {
 				responseVErrors.Append(verrs)
-				responseError = errors.Wrapf(err, "Error saving shipment line item for shipment %s and item %s",
+				responseError = errors.Wrapf(err, "Error saving shipment general line item for shipment %s and item %s",
 					lineItem.ShipmentID, lineItem.Tariff400ngItemID)
 				return transactionError
 			}
 		}
-
 		return nil
-	})
+	}
+
+	if db.TX == nil {
+		responseError = db.Transaction(saveAndPrice)
+	} else {
+		responseError = saveAndPrice(db)
+	}
 
 	return responseVErrors, responseError
 }
@@ -778,8 +937,7 @@ func (s *Shipment) requireAnAcceptedTSP() bool {
 	if s.Status == ShipmentStatusACCEPTED ||
 		s.Status == ShipmentStatusAPPROVED ||
 		s.Status == ShipmentStatusINTRANSIT ||
-		s.Status == ShipmentStatusDELIVERED ||
-		s.Status == ShipmentStatusCOMPLETED {
+		s.Status == ShipmentStatusDELIVERED {
 		return true
 	}
 	return false
@@ -801,7 +959,7 @@ func (s *Shipment) AcceptedShipmentOffer() (*ShipmentOffer, error) {
 	}
 
 	// If the Shipment is in a state that requires a TSP then check for the Accepted TSP
-	if s.requireAnAcceptedTSP() == true {
+	if s.requireAnAcceptedTSP() {
 		if numAcceptedOffers == 0 || acceptedOffers == nil {
 			return nil, errors.New("No accepted shipment offer found")
 		}
@@ -817,4 +975,84 @@ func (s *Shipment) AcceptedShipmentOffer() (*ShipmentOffer, error) {
 	}
 
 	return &acceptedOffers[0], nil
+}
+
+// DeleteBaseShipmentLineItems removes all base shipment line items from a shipment
+// Will not delete a line that has an invoice. If there is an invoice present, that indicates
+// the bill has already been sent off for payment
+func (s *Shipment) DeleteBaseShipmentLineItems(db *pop.Connection) error {
+	transactionError := db.Transaction(func(tx *pop.Connection) error {
+		dbError := errors.New("rollback")
+
+		var updatedShipmentLines ShipmentLineItems
+		for _, item := range s.ShipmentLineItems {
+			if item.Tariff400ngItem.RequiresPreApproval {
+				updatedShipmentLines = append(updatedShipmentLines, item)
+				continue
+			}
+			// Do not delete a line item that has an Invoice ID
+			if item.InvoiceID != nil {
+				updatedShipmentLines = append(updatedShipmentLines, item)
+				continue
+			}
+			if FindBaseShipmentLineItem(item.Tariff400ngItem.Code) {
+				err := tx.Destroy(&item)
+				if err != nil {
+					dbError = errors.Wrap(dbError, fmt.Sprintf(" Error deleting base shipment line item for shipment ID: %s and shipment line item code: %s", s.ID, item.Tariff400ngItem.Code))
+					return errors.Wrap(err, dbError.Error())
+				}
+			} else {
+				updatedShipmentLines = append(updatedShipmentLines, item)
+			}
+		}
+
+		// Save and validate Shipment after deleting line items
+		s.ShipmentLineItems = updatedShipmentLines
+		verrs, saveShipmentErr := SaveShipment(db, s)
+		if verrs.HasAny() || saveShipmentErr != nil {
+			saveError := errors.Wrap(saveShipmentErr, "Error saving shipment for DeleteBaseShipmentLineItems")
+			return errors.Wrap(saveError, verrs.Error())
+		}
+		return nil
+	})
+
+	return transactionError
+}
+
+// DeleteStorageInTransitLineItems removes all storage in transit shipment line items from a shipment
+// Will not delete a line that has an invoice. If there is an invoice present, that indicates
+// the bill has already been sent off for payment
+func (s *Shipment) DeleteStorageInTransitLineItems(db *pop.Connection) error {
+	transactionError := db.Transaction(func(tx *pop.Connection) error {
+		dbError := errors.New("rollback")
+
+		var updatedShipmentLines ShipmentLineItems
+		for _, item := range s.ShipmentLineItems {
+			// Do not delete a line item that has an Invoice ID
+			if item.InvoiceID != nil {
+				updatedShipmentLines = append(updatedShipmentLines, item)
+				continue
+			}
+			if FindStorageInTransitShipmentLineItem(item.Tariff400ngItem.Code) {
+				err := tx.Destroy(&item)
+				if err != nil {
+					dbError = errors.Wrap(dbError, fmt.Sprintf(" Error deleting storage in transit shipment line item for shipment ID: %s and shipment line item code: %s", s.ID, item.Tariff400ngItem.Code))
+					return errors.Wrap(err, dbError.Error())
+				}
+			} else {
+				updatedShipmentLines = append(updatedShipmentLines, item)
+			}
+		}
+
+		// Save and validate Shipment after deleting line items
+		s.ShipmentLineItems = updatedShipmentLines
+		verrs, saveShipmentErr := SaveShipment(db, s)
+		if verrs.HasAny() || saveShipmentErr != nil {
+			saveError := errors.Wrap(saveShipmentErr, "Error saving shipment for DeleteStorageInTransitLineItems")
+			return errors.Wrap(saveError, verrs.Error())
+		}
+		return nil
+	})
+
+	return transactionError
 }

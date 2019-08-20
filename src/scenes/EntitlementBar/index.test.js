@@ -21,6 +21,7 @@ describe('EntitlementBar', () => {
         pro_gear_spouse: 500,
         sum: 7000,
         weight: 5000,
+        storage_in_transit: 90,
       }),
     ).toEqual(
       '<p>5,000 lbs. + 2,000 lbs. of pro-gear + 500 lbs. of spouse&#x27;s pro-gear = <strong>7,000 lbs.</strong></p>',
@@ -33,6 +34,7 @@ describe('EntitlementBar', () => {
         pro_gear_spouse: 0,
         sum: 7000,
         weight: 5000,
+        storage_in_transit: 90,
       }),
     ).toEqual('<p>5,000 lbs. + 2,000 lbs. of pro-gear = <strong>7,000 lbs.</strong></p>');
   });

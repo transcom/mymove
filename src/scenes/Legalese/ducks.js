@@ -7,6 +7,7 @@ import { move } from 'shared/Entities/schema';
 import { addEntities } from 'shared/Entities/actions';
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
+import moment from 'moment';
 
 const signAndSubmitForApprovalType = 'SIGN_AND_SUBMIT_FOR_APPROVAL';
 const signAndSubmitPpmForApprovalType = 'SIGN_AND_SUBMIT_PPM_FOR_APPROVAL';
@@ -29,8 +30,13 @@ const SIGN_AND_SUBMIT_FOR_APPROVAL = ReduxHelpers.generateAsyncActionTypes(signA
 const signAndSubmitForApprovalActions = ReduxHelpers.generateAsyncActions(signAndSubmitForApprovalType);
 const signAndSubmitPpmForApprovalActions = ReduxHelpers.generateAsyncActions(signAndSubmitPpmForApprovalType);
 
-export const signAndSubmitForApproval = (moveId, certificationText, signature, dateSigned) => {
+export function dateToTimestamp(dt) {
+  return moment(dt).format();
+}
+
+export const signAndSubmitForApproval = (moveId, certificationText, signature, dateSigned, _ppmId, submitDate) => {
   return async function(dispatch, getState) {
+    const dateTimeSigned = dateToTimestamp(dateSigned);
     dispatch(signAndSubmitForApprovalActions.start());
     try {
       await dispatch(
@@ -39,23 +45,32 @@ export const signAndSubmitForApproval = (moveId, certificationText, signature, d
           createSignedCertificationPayload: {
             certification_text: certificationText,
             signature,
-            date: dateSigned,
+            date: dateTimeSigned,
           },
         }),
       );
-      const response = await dispatch(SubmitForApproval(moveId));
+
+      const response = await dispatch(
+        SubmitForApproval(moveId, {
+          ppm_submit_date: submitDate,
+        }),
+      );
+
       const data = normalize(response.payload, move);
-      const filtered = pick(data.entities, ['shipments', 'moves']);
+      const filtered = pick(data.entities, ['shipments', 'moves', 'personallyProcuredMoves']);
       dispatch(addEntities(filtered));
       return dispatch(signAndSubmitForApprovalActions.success());
     } catch (error) {
-      return dispatch(signAndSubmitForApprovalActions.error(error));
+      await dispatch(signAndSubmitForApprovalActions.error(error));
+      throw error;
     }
   };
 };
 
-export const signAndSubmitPpm = (moveId, certificationText, signature, dateSigned, ppmId) => {
-  return async function(dispatch, getState) {
+// this function signature needs to match signAndSubmitForApproval
+export const signAndSubmitPpm = (moveId, certificationText, signature, dateSigned, ppmId, ppmSubmitDate) => {
+  return async function(dispatch) {
+    const dateTimeSigned = dateToTimestamp(dateSigned);
     dispatch(signAndSubmitPpmForApprovalActions.start());
     try {
       await dispatch(
@@ -64,11 +79,11 @@ export const signAndSubmitPpm = (moveId, certificationText, signature, dateSigne
           createSignedCertificationPayload: {
             certification_text: certificationText,
             signature,
-            date: dateSigned,
+            date: dateTimeSigned,
           },
         }),
       );
-      await dispatch(submitPpm(ppmId));
+      await dispatch(submitPpm(ppmId, ppmSubmitDate));
       return dispatch(signAndSubmitPpmForApprovalActions.success());
     } catch (error) {
       console.log(error);
@@ -77,11 +92,16 @@ export const signAndSubmitPpm = (moveId, certificationText, signature, dateSigne
   };
 };
 
-export function submitPpm(personallyProcuredMoveId) {
+export function submitPpm(personallyProcuredMoveId, personallyProcuredMoveSubmitDate) {
   return swaggerRequest(
     getClient,
     'ppm.submitPersonallyProcuredMove',
-    { personallyProcuredMoveId },
+    {
+      personallyProcuredMoveId,
+      submitPersonallyProcuredMovePayload: {
+        submit_date: personallyProcuredMoveSubmitDate,
+      },
+    },
     { label: 'submit_ppm' },
   );
 }

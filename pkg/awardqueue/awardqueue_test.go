@@ -7,17 +7,18 @@ import (
 	"testing"
 	"time"
 
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/testingsuite"
+	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/logging/hnyzap"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
@@ -29,8 +30,9 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	blackoutStartDate := testdatagen.DateInsidePeakRateCycle
 	blackoutEndDate := blackoutStartDate.Add(time.Hour * 24 * 2)
 
-	pickupDate := blackoutStartDate.Add(time.Hour)
-	deliveryDate := blackoutStartDate.Add(time.Hour * 24 * 60)
+	calendar := dates.NewUSCalendar()
+	pickupDate := dates.NextWorkday(*calendar, blackoutStartDate.Add(time.Hour))
+	deliveryDate := dates.NextWorkday(*calendar, blackoutStartDate.Add(time.Hour*24*60))
 	market := testdatagen.DefaultMarket
 	sourceGBLOC := testdatagen.DefaultSrcGBLOC
 
@@ -48,7 +50,14 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 
 	tdl := *shipment.TrafficDistributionList
 
-	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp,
+			TransportationServiceProviderID: tsp.ID,
+			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(1),
+		},
+	})
 
 	testdatagen.MakeBlackoutDate(suite.DB(), testdatagen.Assertions{
 		BlackoutDate: models.BlackoutDate{
@@ -82,11 +91,12 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 	market := testdatagen.DefaultMarket
 	sourceGBLOC := testdatagen.DefaultSrcGBLOC
 
+	calendar := dates.NewUSCalendar()
 	blackoutStartDate := testdatagen.DateInsidePeakRateCycle
-	blackoutEndDate := blackoutStartDate.AddDate(0, 1, 0)
+	blackoutEndDate := dates.NextWorkday(*calendar, blackoutStartDate.AddDate(0, 1, 0))
 
-	blackoutPickupDate := blackoutStartDate.AddDate(0, 0, 1)
-	blackoutDeliverDate := blackoutStartDate.AddDate(0, 0, 5)
+	blackoutPickupDate := dates.NextWorkday(*calendar, blackoutStartDate.AddDate(0, 0, 1))
+	blackoutDeliverDate := dates.NextWorkday(*calendar, blackoutStartDate.AddDate(0, 0, 5))
 
 	blackoutShipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
@@ -99,8 +109,8 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 		},
 	})
 
-	pickupDate := blackoutEndDate.AddDate(0, 0, 1)
-	deliveryDate := blackoutEndDate.AddDate(0, 0, 2)
+	pickupDate := dates.NextWorkday(*calendar, blackoutEndDate.AddDate(0, 0, 2))
+	deliveryDate := dates.NextWorkday(*calendar, blackoutEndDate.AddDate(0, 0, 3))
 
 	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
@@ -115,7 +125,14 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 
 	tdl := *blackoutShipment.TrafficDistributionList
 
-	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp,
+			TransportationServiceProviderID: tsp.ID,
+			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(1),
+		},
+	})
 
 	testdatagen.MakeBlackoutDate(suite.DB(), testdatagen.Assertions{
 		BlackoutDate: models.BlackoutDate{
@@ -176,14 +193,15 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	// Creates a TSP with a blackout date connected to both.
 	testTSP1 := testdatagen.MakeDefaultTSP(suite.DB())
 
+	calendar := dates.NewUSCalendar()
 	market := testdatagen.DefaultMarket
 	sourceGBLOC := testdatagen.DefaultSrcGBLOC
-	testStartDate := testdatagen.DateInsidePeakRateCycle
-	testEndDate := testStartDate.Add(time.Hour * 24 * 2)
+	testStartDate := dates.NextWorkday(*calendar, testdatagen.DateInsidePeakRateCycle)
+	testEndDate := dates.NextWorkday(*calendar, testStartDate.Add(time.Hour*24*2))
 
 	// Two pickup times to check with ShipmentWithinBlackoutDates
-	testPickupDateBetween := testStartDate.Add(time.Hour * 24)
-	testPickupDateAfter := testEndDate.Add(time.Hour * 24 * 5)
+	testPickupDateBetween := dates.NextWorkday(*calendar, testStartDate.Add(time.Hour*24))
+	testPickupDateAfter := dates.NextWorkday(*calendar, testEndDate.Add(time.Hour*24*5))
 
 	// Two shipments using these pickup dates to provide to ShipmentWithinBlackoutDates
 	testShipmentBetween := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
@@ -271,10 +289,11 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 	queue := NewAwardQueue(suite.DB(), suite.logger)
 
 	// Make a shipment
+	calendar := dates.NewUSCalendar()
 	market := testdatagen.DefaultMarket
 	sourceGBLOC := testdatagen.DefaultSrcGBLOC
-	pickupDate := testdatagen.DateInsidePeakRateCycle
-	deliveryDate := testdatagen.DateInsidePeakRateCycle
+	pickupDate := dates.NextWorkday(*calendar, testdatagen.DateInsidePeakRateCycle)
+	deliveryDate := pickupDate
 
 	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
@@ -291,8 +310,15 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 
 	// Make a TSP to handle it
 	tsp := testdatagen.MakeDefaultTSP(suite.DB())
-	tspp, err := testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
-	suite.Nil(err)
+	tspp, err := testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp,
+			TransportationServiceProviderID: tsp.ID,
+			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(1),
+		},
+	})
+	suite.NoError(err)
 
 	// Run the Award Queue
 	offer, err := queue.attemptShipmentOffer(context.Background(), shipment)
@@ -353,8 +379,16 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 			Enrolled:                 false,
 		},
 	})
-	_, err := testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
-	suite.Nil(err)
+	_, err := testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp,
+			TransportationServiceProviderID: tsp.ID,
+			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(1),
+		},
+	})
+
+	suite.NoError(err)
 
 	// Run the Award Queue
 	offer, err := queue.attemptShipmentOffer(context.Background(), shipment)
@@ -401,7 +435,14 @@ func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 	tsp := testdatagen.MakeDefaultTSP(suite.DB())
 
 	// ... and give this TSP a performance record
-	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
+	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp,
+			TransportationServiceProviderID: tsp.ID,
+			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(1),
+		},
+	})
 
 	// Run the Award Queue
 	queue.assignShipments(context.Background())
@@ -469,11 +510,46 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 	tsp5 := testdatagen.MakeDefaultTSP(suite.DB())
 
 	// TSPs should be orderd by offer_count first, then BVS.
-	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp1, tdl, swag.Int(1), mps+5, 0, .4, .4)
-	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp2, tdl, swag.Int(1), mps+4, 0, .3, .3)
-	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp3, tdl, swag.Int(2), mps+2, 0, .2, .2)
-	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp4, tdl, swag.Int(3), mps+3, 0, .1, .1)
-	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp5, tdl, swag.Int(4), mps+1, 0, .6, .6)
+	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp1,
+			TransportationServiceProviderID: tsp1.ID,
+			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(1),
+		},
+	})
+	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp2,
+			TransportationServiceProviderID: tsp2.ID,
+			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(1),
+		},
+	})
+	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp3,
+			TransportationServiceProviderID: tsp3.ID,
+			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(1),
+		},
+	})
+	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp4,
+			TransportationServiceProviderID: tsp4.ID,
+			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(1),
+		},
+	})
+	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp5,
+			TransportationServiceProviderID: tsp5.ID,
+			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(1),
+		},
+	})
 
 	// Run the Award Queue
 	queue.assignShipments(context.Background())
@@ -528,10 +604,20 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 	for i := 0; i < tspsToMake; i++ {
 		tsp := testdatagen.MakeDefaultTSP(suite.DB())
 		score := float64(mps + i + 1)
-
 		rate := unit.NewDiscountRateFromPercent(45.3)
+
 		var err error
-		lastTSPP, err = testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp, tdl, nil, score, 0, rate, rate)
+		lastTSPP, err = testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+			TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+				TransportationServiceProvider:   tsp,
+				TransportationServiceProviderID: tsp.ID,
+				TrafficDistributionListID:       tdl.ID,
+				BestValueScore:                  score,
+				LinehaulRate:                    rate,
+				SITRate:                         rate,
+			},
+		})
+
 		if err != nil {
 			t.Errorf("Failed to MakeTSPPerformance: %v", err)
 		}
@@ -560,6 +646,7 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 
 	for i, perf := range perfs {
 		band := expectedBands[i]
+
 		if perf.QualityBand == nil {
 			t.Errorf("No quality band assigned for Performance #%v, got nil", perf.ID)
 		} else if (*perf.QualityBand) != band {
@@ -702,7 +789,7 @@ func (suite *AwardQueueSuite) Test_validateShipmentForAward() {
 		Shipment: models.Shipment{},
 	})
 	err := validateShipmentForAward(shipment)
-	suite.Nil(err)
+	suite.NoError(err)
 
 	// A shipment with a nil TDL ID
 	shipment = testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
@@ -773,7 +860,7 @@ func equalSlice(a []int, b []int) bool {
 
 type AwardQueueSuite struct {
 	testingsuite.PopTestSuite
-	logger *hnyzap.Logger
+	logger Logger
 }
 
 func (suite *AwardQueueSuite) SetupTest() {
@@ -787,8 +874,8 @@ func TestAwardQueueSuite(t *testing.T) {
 	}
 
 	hs := &AwardQueueSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
-		logger:       &hnyzap.Logger{Logger: logger},
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		logger:       logger,
 	}
 	suite.Run(t, hs)
 }

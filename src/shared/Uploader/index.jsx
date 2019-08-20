@@ -14,11 +14,13 @@ import 'filepond/dist/filepond.min.css';
 import './index.css';
 
 import FilepondPluginFileValidateType from 'filepond-plugin-file-validate-type';
+import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
 import FilepondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation';
 import FilePondImagePreview from 'filepond-plugin-image-preview';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
 
 registerPlugin(FilepondPluginFileValidateType);
+registerPlugin(FilePondPluginFileValidateSize);
 registerPlugin(FilepondPluginImageExifOrientation);
 registerPlugin(FilePondImagePreview);
 
@@ -57,6 +59,14 @@ export class Uploader extends Component {
     }
   }
 
+  isEmpty() {
+    return this.state.files.length === 0;
+  }
+
+  getFiles() {
+    return this.state.files;
+  }
+
   isIdle() {
     // Returns a boolean: is FilePond done with all uploading?
     const existingFiles = this.pond._pond.getFiles();
@@ -73,21 +83,7 @@ export class Uploader extends Component {
     if (!this.pond) {
       return;
     }
-
-    const { labelIdle } = this.props;
-    this.pond._pond.setOptions({
-      allowMultiple: true,
-      server: {
-        url: '/',
-        process: this.processFile,
-        revert: this.revertFile,
-      },
-      iconUndo: this.pond._pond.iconRemove,
-      imagePreviewMaxHeight: 100,
-      labelIdle: labelIdle || 'Drag & drop or <span class="filepond--label-action">click to upload</span>',
-      labelTapToUndo: 'tap to delete',
-      acceptedFileTypes: ['image/*', 'application/pdf'],
-    });
+    this.setPondOptions();
 
     this.pond._pond.on('processfile', e => {
       if (this.props.onChange) {
@@ -142,6 +138,25 @@ export class Uploader extends Component {
       .catch(error);
   };
 
+  setPondOptions() {
+    const { options } = this.props;
+    const defaultOptions = {
+      allowMultiple: true,
+      server: {
+        url: '/',
+        process: this.processFile,
+        revert: this.revertFile,
+      },
+      iconUndo: this.pond._pond.iconRemove,
+      imagePreviewMaxHeight: 100,
+      labelIdle: 'Drag & drop or <span class="filepond--label-action">click to upload</span>',
+      labelTapToUndo: 'tap to delete',
+      acceptedFileTypes: ['image/jpeg', 'image/png', 'application/pdf'],
+      maxFileSize: '25MB',
+    };
+    this.pond._pond.setOptions({ ...defaultOptions, ...options });
+  }
+
   render() {
     return (
       <div>
@@ -166,4 +181,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({}, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Uploader);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Uploader);

@@ -50,7 +50,7 @@ let EditProfileForm = props => {
           <SwaggerField fieldName="affiliation" swagger={schema} required />
           <SwaggerField fieldName="rank" swagger={schema} required />
           <SwaggerField fieldName="edipi" swagger={schema} required />
-          <Field name="current_station" component={DutyStationSearchBox} />
+          <Field name="current_station" title="Current duty station" component={DutyStationSearchBox} />
         </Fragment>
       )}
       {moveIsApproved && (
@@ -164,4 +164,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditProfile);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(EditProfile);

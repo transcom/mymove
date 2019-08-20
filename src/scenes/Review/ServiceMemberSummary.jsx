@@ -19,7 +19,6 @@ function getFullContactPreferences(serviceMember) {
   if (!serviceMember) return;
   const prefs = {
     phone_is_preferred: 'Phone',
-    text_message_is_preferred: 'Text',
     email_is_preferred: 'Email',
   };
   const preferredMethods = [];
@@ -64,7 +63,7 @@ function ServiceMemberSummary(props) {
   const yesNoMap = { true: 'Yes', false: 'No' };
 
   return (
-    <div>
+    <div class="service-member-summary">
       <h3>Profile and Orders</h3>
       <div className="usa-grid-full review-content">
         <div className="usa-width-one-half review-section">
@@ -131,13 +130,12 @@ function ServiceMemberSummary(props) {
                     <td> Dependents?: </td>
                     <td> {orders && yesNoMap[get(orders, 'has_dependents').toString()]}</td>
                   </tr>
-                  {orders &&
-                    get(orders, 'spouse_has_pro_gear') && (
-                      <tr>
-                        <td> Spouse Pro Gear?: </td>
-                        <td>{orders && yesNoMap[get(orders, 'spouse_has_pro_gear').toString()]}</td>
-                      </tr>
-                    )}
+                  {orders && get(orders, 'spouse_has_pro_gear') && (
+                    <tr>
+                      <td> Spouse Pro Gear?: </td>
+                      <td>{orders && yesNoMap[get(orders, 'spouse_has_pro_gear').toString()]}</td>
+                    </tr>
+                  )}
                   <tr>
                     <td> Orders Uploaded: </td>
                     <td>{get(orders, 'uploaded_orders.uploads') && get(orders, 'uploaded_orders.uploads').length}</td>

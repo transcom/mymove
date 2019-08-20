@@ -13,29 +13,45 @@ executors:
   # `mymove_small` and `mymove_medium` use the `trussworks/circleci-docker-primary` docker image with a checkout of the mymove code
   mymove_small:
     resource_class: small
-    working_directory: ~/go/src/github.com/transcom/mymove
+    working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:b3a0c4f25f01672c6dc45d066972195deda7ea49
+      - image: trussworks/circleci-docker-primary:e5c10bf19185aa55354901106bad3ffd4c016265
   mymove_medium:
     resource_class: medium
-    working_directory: ~/go/src/github.com/transcom/mymove
+    working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:b3a0c4f25f01672c6dc45d066972195deda7ea49
+      - image: trussworks/circleci-docker-primary:e5c10bf19185aa55354901106bad3ffd4c016265
+  mymove_medium_plus:
+    resource_class: medium+
+    working_directory: ~/transcom/mymove
+    docker:
+      - image: trussworks/circleci-docker-primary:e5c10bf19185aa55354901106bad3ffd4c016265
   mymove_large:
     resource_class: large
-    working_directory: ~/go/src/github.com/transcom/mymove
+    working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:b3a0c4f25f01672c6dc45d066972195deda7ea49
+      - image: trussworks/circleci-docker-primary:e5c10bf19185aa55354901106bad3ffd4c016265
   # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
   mymove_and_postgres_medium:
     resource_class: medium
-    working_directory: ~/go/src/github.com/transcom/mymove
+    working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:4bf3060cd9f47be0adb819ded630aa1848055ffe
-      - image: postgres:10.5
+      - image: trussworks/circleci-docker-primary:e5c10bf19185aa55354901106bad3ffd4c016265
+      - image: postgres:10.9
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
+        command: "-c fsync=off -c full_page_writes=off -c max_connections=200"
+  mymove_and_postgres_large:
+    resource_class: large
+    working_directory: ~/transcom/mymove
+    docker:
+      - image: trussworks/circleci-docker-primary:e5c10bf19185aa55354901106bad3ffd4c016265
+      - image: postgres:10.9
+        environment:
+          - POSTGRES_PASSWORD: mysecretpassword
+          - POSTGRES_DB: test_db
+        command: "-c fsync=off -c full_page_writes=off -c max_connections=200"
 
 commands:
   announce_failure:
@@ -45,60 +61,104 @@ commands:
           name: Announce failure
           command: |
             [[ $CIRCLE_BRANCH = master ]] || exit 0
-            bin/circleci-announce-broken-branch
+            scripts/circleci-announce-broken-branch
           when: on_fail
-  halt_workflow_if_older_sha:
-    steps:
-      - run:
-          name: Halt workflow to prevent old master deploying to staging
-          command: bin/check-staging-app-sha $CIRCLE_SHA1
   deploy_migrations_steps:
     steps:
       - checkout
+      - attach_workspace:
+          at: bin
       - run:
           name: Snapshot database
-          command: bin/do-exclusively --job-name ${CIRCLE_JOB} bin/rds-snapshot-app-db $APP_ENVIRONMENT
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/rds-snapshot-app-db $APP_ENVIRONMENT
       - run:
           name: Run migrations
-          command: bin/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-run-app-migrations-container config/app-migrations.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-run-app-migrations-container config/app-migrations.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
+          no_output_timeout: 60m
+          environment:
+            CHAMBER_RETRIES: 20
+      - announce_failure
+  deploy_tasks_steps:
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}
+      - attach_workspace:
+          at: bin
+      - deploy:
+          name: Deploy task service
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command save-fuel-price-data --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2"
+          environment:
+            DB_PORT: 5432
+            DB_USER: ecs_user
+            DB_NAME: app
+            DB_SSL_MODE: verify-full
+            DB_SSL_ROOT_CERT: /bin/rds-combined-ca-bundle.pem
+          no_output_timeout: 20m
       - announce_failure
   deploy_app_steps:
     parameters:
+      compare_host:
+        type: string
       health_check_hosts:
         type: string
     steps:
       - checkout
+      - run:
+          name: Compare against deployed commit
+          command: |
+            [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1
       - restore_cache:
           keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
-      - setup_remote_docker
+            - go-mod-sources-v2-{{ checksum "go.sum" }}
+      - attach_workspace:
+          at: bin
+      - setup_remote_docker:
+          docker_layer_caching: true
       - deploy:
           name: Deploy app service
-          command: bin/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-service-container app config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
+          no_output_timeout: 20m
       - run:
           name: Health Check
-          command: go run cmd/health_checker/main.go --schemes http,https --hosts << parameters.health_check_hosts >> --tries 10 --backoff 3 --log-level info --timeout 15m
+          command: bin/health-checker --schemes http,https --hosts << parameters.health_check_hosts >> --tries 10 --backoff 3 --log-level info --timeout 15m
       - run:
           name: Check deployed commits
-          command: bin/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1"
+          command: scripts/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1"
       - announce_failure
   deploy_app_client_tls_steps:
     parameters:
+      compare_host:
+        type: string
       health_check_hosts:
         type: string
     steps:
       - checkout
+      - run:
+          name: Compare against deployed commit
+          command: |
+            [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1 ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA}
       - restore_cache:
           keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
-      - setup_remote_docker
+            - go-mod-sources-v2-{{ checksum "go.sum" }}
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - attach_workspace:
+          at: bin
       - deploy:
           name: Deploy app-client-tls service
-          command: bin/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-service-container app-client-tls config/app-client-tls.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-client-tls config/app-client-tls.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
+          no_output_timeout: 20m
       - run:
           name: Health Check
           command: |
-            go run cmd/health_checker/main.go --schemes https --hosts << parameters.health_check_hosts >> --key ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} --cert ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} --ca ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 15m
+            bin/health-checker --schemes https --hosts << parameters.health_check_hosts >> --key ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} --cert ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} --ca ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 15m
+      - run:
+          name: Check deployed commits
+          command: scripts/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1" ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA}
       - announce_failure
   build_tag_push:
     parameters:
@@ -116,69 +176,59 @@ commands:
             bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
             docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
+            docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//#}
+            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//#}
   e2e_tests:
-    parameters:
-      spec:
-        type: string
     steps:
       - run:
           name: make e2e_test_docker
           command: |
-            echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
-            echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
-            echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-https.key)' >> $BASH_ENV
-            echo 'export CLIENT_AUTH_SECRET_KEY=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-client_auth_secret.key)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.key)' >> $BASH_ENV
+            echo 'export CLIENT_AUTH_SECRET_KEY=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-client_auth_secret.key)' >> $BASH_ENV
             echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
             echo 'export LOGIN_GOV_HOSTNAME=$E2E_LOGIN_GOV_HOSTNAME' >> $BASH_ENV
             echo 'export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID' >> $BASH_ENV
             echo 'export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE' >> $BASH_ENV
-            echo 'export SPEC=<< parameters.spec>>' >> $BASH_ENV
+            echo "export SPEC=$(find cypress/integration -type f -name '*.js' | circleci tests split | tr '\n' ',' )" >> $BASH_ENV
             source $BASH_ENV
             make e2e_test_docker
           environment:
-            # Env vars needed by the `bin/apply-secure-migrations.sh` script
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
             DB_HOST: localhost
             DB_PORT: 5432
             DB_NAME: test_db
             # Env vars needed for the webserver to run inside docker
-            SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
-            SECURE_MIGRATION_SOURCE: local
+            MIGRATION_PATH: "/migrate/local_migrations;/migrate/migrations"
+            MIGRATION_MANIFEST: "/migrate/migrations_manifest.txt"
             LOGIN_GOV_CALLBACK_PROTOCOL: http
             LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
             LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
             LOGIN_GOV_TSP_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:tspmovemillocal
+            LOGIN_GOV_ADMIN_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:adminmovemillocal
             LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
             HERE_MAPS_GEOCODE_ENDPOINT: https://geocoder.cit.api.here.com/6.2/geocode.json
             HERE_MAPS_ROUTING_ENDPOINT: https://route.cit.api.here.com/routing/7.2/calculateroute.json
-            DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
+            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
 
 jobs:
-  # `pre_deps_golang` is used for cache dep soruces and the vendor directory for mymove.
+  # `pre_deps_golang` is used for caching Go module sources
   pre_deps_golang:
     executor: mymove_small
     steps:
       - checkout
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - go-mod-sources-v2-{{ checksum "go.sum" }}
       - run:
           name: Install dependencies
-          command: dep ensure -vendor-only
-      # `go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}` is used to caches sources for dep, the Go dependency manager.
+          command: for i in $(seq 1 5); do go get && s=0 && break || s=$? && sleep 5; done; (exit $s)
       - save_cache:
-          key: go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+          key: go-mod-sources-v2-{{ checksum "go.sum" }}
           paths:
-            - ~/go/pkg/dep/sources
-      # `mymove-vendor-{{ checksum "Gopkg.lock" }}` is used for caching the vendor directory for mymove.
-      - save_cache:
-          key: mymove-vendor-{{ checksum "Gopkg.lock" }}
-          paths:
-            - ~/go/src/github.com/transcom/mymove/vendor
+            - "/go/pkg/mod"
       - announce_failure
 
   # `pre_deps_yarn` is used to cache yarn sources and installed node modules.
@@ -188,58 +238,48 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
+            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
-            - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
+            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run:
           name: Install YARN dependencies
           command: yarn install
-      # `v1-cache-yarn-v2-{{ checksum "yarn.lock" }}` is used to cache yarn sources
+      # `v2-cache-yarn-v2-{{ checksum "yarn.lock" }}` is used to cache yarn sources
       - save_cache:
-          key: v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
+          key: v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn/v2
-      # `v1-mymove-node-modules-{{ checksum "yarn.lock" }}` is used to cache installed node modules
+      # `v2-mymove-node-modules-{{ checksum "yarn.lock" }}` is used to cache installed node modules
       - save_cache:
-          key: v1-mymove-node-modules-{{ checksum "yarn.lock" }}
+          key: v2-mymove-node-modules-{{ checksum "yarn.lock" }}
           paths:
-            - ~/go/src/github.com/transcom/mymove/node_modules
+            - ~/transcom/mymove/node_modules
       - announce_failure
 
   # `pre_test` runs pre-commit against all files.
   pre_test:
-    executor: mymove_medium
+    executor: mymove_medium_plus
     steps:
       - checkout
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+            - go-mod-sources-v2-{{ checksum "go.sum" }}
       - restore_cache:
           keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
-            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          keys:
-            - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
+            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
-      - run:
-          name: Install prettier
-          command: yarn add prettier@~1.12.0
-      - run:
-          name: Install markdown-spellcheck
-          command: yarn add markdown-spellcheck
-      - run:
-          name: Install markdown-toc
-          command: yarn add markdown-toc
-      - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
-      - run:
-          name: Run make server_generate
-          command: make server_generate
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run: echo 'export GOLANGCI_LINT_CONCURRENCY=1' >> $BASH_ENV
+      - run: make bin/callgraph
+      - run: make server_generate mocks_generate
+      # this is so we can avoid go mod downloading and resulting in an error on a false positive
+      - run: scripts/pre-commit-go-mod || exit 0
       - run:
           name: Run pre-commit tests
           command: pre-commit run --all-files
@@ -250,30 +290,44 @@ jobs:
             - ~/.cache/pre-commit
       - announce_failure
 
-  # `acceptance_tests` runs acceptance tests for the webserver against a local environment.
-  acceptance_tests:
+  # `acceptance_tests_local` runs acceptance tests for the webserver against a local environment.
+  acceptance_tests_local:
     executor: mymove_medium
     steps:
       - checkout
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - go-mod-sources-v2-{{ checksum "go.sum" }}
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
-          name: Run make server_generate
-          command: make server_generate
+          name: Run make server_generate mocks_generate
+          command: make server_generate mocks_generate
       - run:
           name: Run acceptance tests
-          command: make webserver_test
+          command: |
+            echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-https.key)' >> $BASH_ENV
+            echo 'export CLIENT_AUTH_SECRET_KEY=$(cat /home/circleci/transcom/mymove/config/tls/devlocal-client_auth_secret.key)' >> $BASH_ENV
+            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
+            echo 'export LOGIN_GOV_HOSTNAME=$E2E_LOGIN_GOV_HOSTNAME' >> $BASH_ENV
+            echo 'export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID' >> $BASH_ENV
+            echo 'export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE' >> $BASH_ENV
+            source $BASH_ENV
+            make webserver_test
           environment:
+            ENV: test
+            ENVIRONMENT: test
+            PWD: /home/circleci/transcom/mymove
             LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
-            DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
+            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
+            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
+            NO_TLS_ENABLED: true
       - announce_failure
 
-  # `integration_tests_mymove` runs integration tests using Cypress.  https://www.cypress.io/
-  integration_tests_mymove:
+  # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
+  integration_tests:
+    parallelism: 10
     executor: mymove_medium
     steps:
       - checkout
@@ -281,80 +335,14 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+            - go-mod-sources-v2-{{ checksum "go.sum" }}
       - restore_cache:
           keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
-            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          keys:
-            - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - e2e_tests:
-          spec: 'cypress/integration/mymove/**/*'
-      - store_artifacts:
-          path: cypress/videos
-          destination: videos
-      - store_artifacts:
-          path: cypress/screenshots
-          destination: screenshots
-      - store_test_results:
-          path: cypress/results
-      - announce_failure
-
-  # `integration_tests_office` runs integration tests using Cypress.  https://www.cypress.io/
-  integration_tests_office:
-    executor: mymove_medium
-    steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - restore_cache:
-          keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          keys:
-            - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - e2e_tests:
-          spec: 'cypress/integration/office/**/*'
-      - store_artifacts:
-          path: cypress/videos
-          destination: videos
-      - store_artifacts:
-          path: cypress/screenshots
-          destination: screenshots
-      - store_test_results:
-          path: cypress/results
-      - announce_failure
-
-  # `integration_tests_tsp` runs integration tests using Cypress.  https://www.cypress.io/
-  integration_tests_tsp:
-    executor: mymove_medium
-    steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - restore_cache:
-          keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          keys:
-            - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - e2e_tests:
-          spec: 'cypress/integration/tsp/**/*'
+            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - e2e_tests
       - store_artifacts:
           path: cypress/videos
           destination: videos
@@ -367,6 +355,48 @@ jobs:
 
   # `server_test` runs the server side Go tests
   server_test:
+    executor: mymove_and_postgres_large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}
+      - run:
+          # This is needed to use `psql` to test DB connectivity, until the app
+          # itself starts making database connections.
+          name: Install postgres client
+          command: |
+            # Debian stretch only supports 9.6 client, so add the Postgresql apt repository for 10.x
+            echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" | sudo tee -a /etc/apt/sources.list.d/pgdg.list
+            wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+            sudo apt-get -qq update
+            sudo apt-get -qq -y install postgresql-client-10
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run:
+          name: make server_test
+          command: |
+            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
+            source $BASH_ENV
+            make server_test
+          environment:
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
+            ENV: test
+            ENVIRONMENT: test
+            MIGRATION_PATH: "/home/circleci/transcom/mymove/local_migrations;/home/circleci/transcom/mymove/migrations"
+            MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
+
+      - announce_failure
+
+  # `server_test_coverage` runs code coverage and submits it to CodeClimate
+  server_test_coverage:
     executor: mymove_and_postgres_medium
     steps:
       - checkout
@@ -374,32 +404,51 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - go-mod-sources-v2-{{ checksum "go.sum" }}
       - run:
           # This is needed to use `psql` to test DB connectivity, until the app
           # itself starts making database connections.
           name: Install postgres client
           command: |
+            # Debian stretch only supports 9.6 client, so add the Postgresql apt repository for 10.x
+            echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" | sudo tee -a /etc/apt/sources.list.d/pgdg.list
+            wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
             sudo apt-get -qq update
-            # Debian stretch only supports 9.6 client
-            sudo apt-get -qq -y install postgresql-client-9.6
-      - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+            sudo apt-get -qq -y install postgresql-client-10
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
-          name: make server_test
-          command: make server_test
+          name: Setup Code Climate test-reporter
+          command: |
+            # download test reporter as a static binary
+            curl -L --retry 5 --retry-connrefused https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 --output /home/circleci/cc-test-reporter
+            chmod +x /home/circleci/cc-test-reporter
+            /home/circleci/cc-test-reporter before-build -d
+      - run:
+          name: make server_test_coverage_generate
+          command: |
+            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
+            source $BASH_ENV
+            make server_test_coverage_generate
           environment:
-            # Env vars needed by the `bin/apply-secure-migrations.sh` script
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
             DB_HOST: localhost
+            DB_PORT_TEST: 5433
             DB_PORT: 5432
             DB_NAME: test_db
-            SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
-            SECURE_MIGRATION_SOURCE: local
-      - announce_failure
+            EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
+            ENV: test
+            ENVIRONMENT: test
+            MIGRATION_PATH: "/home/circleci/transcom/mymove/local_migrations;/home/circleci/transcom/mymove/migrations"
+            MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
+      - run:
+          name: upload code coverage to codecov
+          command: |
+            curl -L --retry 5 --retry-connrefused https://codecov.io/bash --output /home/circleci/codecov || exit 0
+            chmod +x /home/circleci/codecov
+            /home/circleci/codecov -F go -f coverage.out
+      - store_artifacts:
+          path: ~/transcom/mymove/coverage.out
 
   # `client_test` runs the client side Javascript tests
   client_test:
@@ -410,10 +459,10 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
+            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
-            - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
+            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: make client_test
       - announce_failure
 
@@ -424,34 +473,38 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - go-mod-sources-v2-{{ checksum "go.sum" }}
       - run: make build_tools
+      - persist_to_workspace:
+          root: bin
+          paths:
+            - renderer # for rendering ECS task definition
+            - health-checker # for confirming deploy success.
+            - ecs-service-logs # for showing logs on failed deploy
+            - ecs-deploy-task-container # for deploying task container
+            - mockery # for generating mocks
       - announce_failure
 
   # `build_app` builds the application container and pushes to the container repository
   build_app:
-    executor: mymove_and_postgres_medium
+    executor: mymove_medium
     steps:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+            - go-mod-sources-v2-{{ checksum "go.sum" }}
       - restore_cache:
           keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
-            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          keys:
-            - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - run: make build_chamber
-      - run: make build
+            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - run: make bin/chamber
+      - run: make bin/rds-combined-ca-bundle.pem
+      - run: make client_build
+      - run: make server_build
       - build_tag_push:
           dockerfile: Dockerfile
           tag: ppp:web-dev
@@ -465,14 +518,60 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
-      - run: make build_chamber build_soda
+      - run: make bin/chamber
+      - run: make bin/rds-combined-ca-bundle.pem
+      - run: make server_build
       - build_tag_push:
           dockerfile: Dockerfile.migrations
           tag: ppp-migrations:dev
           repo: app-migrations
+      - announce_failure
+
+  # `build_tasks` builds the tasks containers and pushes them to the container repository
+  build_tasks:
+    executor: mymove_small
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}
+      - run: make bin/chamber
+      - run: make bin/rds-combined-ca-bundle.pem
+      - run: make tasks_build
+      - build_tag_push:
+          dockerfile: Dockerfile.tasks
+          tag: tasks:dev
+          repo: app-tasks
+      - announce_failure
+
+  # `acceptance_tests_experimental` runs acceptance tests for the webserver against the experimental environment.
+  acceptance_tests_experimental:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run:
+          name: Run make server_generate mocks_generate
+          command: make server_generate mocks_generate
+      - run:
+          name: Build Chamber
+          command: make bin/chamber
+      - run:
+          name: Run acceptance tests
+          command: make webserver_test
+          environment:
+            ENV: test
+            ENVIRONMENT: experimental
+            CHAMBER_RETRIES: 20
+            PWD: /home/circleci/transcom/mymove
+            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
+            TEST_ACC_ENV: experimental
+            NO_TLS_ENABLED: true
       - announce_failure
 
   # `deploy_experimental_migrations` deploys migrations to the experimental environment
@@ -483,6 +582,14 @@ jobs:
     steps:
       - deploy_migrations_steps
 
+  # `deploy_experimental_tasks` deploys scheduled tasks to the experimental environment
+  deploy_experimental_tasks:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'experimental'
+    steps:
+      - deploy_tasks_steps
+
   # `deploy_experimental_app` updates the server-TLS app service in the experimental environment
   deploy_experimental_app:
     executor: mymove_small
@@ -490,6 +597,7 @@ jobs:
       - APP_ENVIRONMENT: 'experimental'
     steps:
       - deploy_app_steps:
+          compare_host: "" # leave blank since we want experimental to be able to roll back
           health_check_hosts: my.experimental.move.mil,office.experimental.move.mil,tsp.experimental.move.mil
 
   # `deploy_experimental_app_client_tls` updates the mutual-TLS service in the experimental environment
@@ -499,13 +607,44 @@ jobs:
       - APP_ENVIRONMENT: 'experimental'
     steps:
       - deploy_app_client_tls_steps:
+          compare_host: "" # leave blank since we want experimental to be able to roll back
           health_check_hosts: gex.experimental.move.mil,dps.experimental.move.mil,orders.experimental.move.mil
 
   check_circle_against_staging_sha:
     executor: mymove_small
     steps:
       - checkout
-      - halt_workflow_if_older_sha
+      - run:
+          name: Halt workflow to prevent old master deploying to staging
+          command: scripts/compare-deployed-commit my.staging.move.mil $CIRCLE_SHA1
+
+  # `acceptance_tests_staging` runs acceptance tests for the webserver against the staging environment.
+  acceptance_tests_staging:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run:
+          name: Run make server_generate mocks_generate
+          command: make server_generate mocks_generate
+      - run:
+          name: Build Chamber
+          command: make bin/chamber
+      - run:
+          name: Run acceptance tests
+          command: make webserver_test
+          environment:
+            ENV: test
+            ENVIRONMENT: staging
+            CHAMBER_RETRIES: 20
+            PWD: /home/circleci/transcom/mymove
+            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
+            TEST_ACC_ENV: staging
+            NO_TLS_ENABLED: true
+      - announce_failure
 
   # `deploy_staging_migrations` deploys migrations to the staging environment
   deploy_staging_migrations:
@@ -515,6 +654,14 @@ jobs:
     steps:
       - deploy_migrations_steps
 
+  # `deploy_staging_tasks` deploys scheduled tasks to the staging environment
+  deploy_staging_tasks:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'staging'
+    steps:
+      - deploy_tasks_steps
+
   # `deploy_staging_app` updates the server-TLS app service in staging environment
   deploy_staging_app:
     executor: mymove_small
@@ -522,6 +669,7 @@ jobs:
       - APP_ENVIRONMENT: 'staging'
     steps:
       - deploy_app_steps:
+          compare_host: my.staging.move.mil
           health_check_hosts: my.staging.move.mil,office.staging.move.mil,tsp.staging.move.mil
 
   # `deploy_staging_app_client_tls` updates the mutual-TLS service in the staging environment
@@ -531,6 +679,7 @@ jobs:
       - APP_ENVIRONMENT: 'staging'
     steps:
       - deploy_app_client_tls_steps:
+          compare_host: gex.staging.move.mil
           health_check_hosts: gex.staging.move.mil,dps.staging.move.mil,orders.staging.move.mil
 
   # `deploy_prod_migrations` deploys migrations to the staging environment
@@ -541,6 +690,14 @@ jobs:
     steps:
       - deploy_migrations_steps
 
+  # `deploy_prod_tasks` deploys scheduled tasks to the prod environment
+  deploy_prod_tasks:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'prod'
+    steps:
+      - deploy_tasks_steps
+
   # `deploy_prod_app` updates the server-TLS app service in the prod environment
   deploy_prod_app:
     executor: mymove_small
@@ -548,6 +705,7 @@ jobs:
       - APP_ENVIRONMENT: 'prod'
     steps:
       - deploy_app_steps:
+          compare_host: my.move.mil
           health_check_hosts: my.move.mil,office.move.mil,tsp.move.mil
 
   # `deploy_prod_app_client_tls` updates the mutual-TLS service in the prod environment
@@ -557,25 +715,43 @@ jobs:
       - APP_ENVIRONMENT: 'prod'
     steps:
       - deploy_app_client_tls_steps:
+          compare_host: gex.move.mil
           health_check_hosts: gex.move.mil,dps.move.mil,orders.move.mil
 
-  # `update_dependencies` periodically updates pre-commit, yarn, and Go dependencies.
+  # `update_dependencies_go` periodically updates Go dependencies.
   # The changes are submitted as a pull request for review.
-  update_dependencies:
+  update_dependencies_go:
     executor: mymove_small
     steps:
       - checkout
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - go-mod-sources-v2-{{ checksum "go.sum" }}
       - run:
           name: Add ~/go/bin to path for golint
-          command: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
-      - run: pre-commit autoupdate
+          command: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: make go_deps_update
+      - run:
+          name: Display changes
+          command: |
+            git --no-pager status
+            git --no-pager diff --ignore-all-space --color
+      - run:
+          name: Push changes
+          command: scripts/circleci-push-dependency-updates
+
+  # `update_dependencies_js` periodically updates yarn dependencies.
+  # The changes are submitted as a pull request for review.
+  update_dependencies_js:
+    executor: mymove_small
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: make client_deps_update
       - run:
           name: Display changes
@@ -584,7 +760,23 @@ jobs:
             git --no-pager diff --ignore-all-space --color
       - run:
           name: Push changes
-          command: bin/circleci-push-dependency-updates
+          command: scripts/circleci-push-dependency-updates
+
+  # `update_dependencies_pre_commit` periodically updates pre-commit dependencies.
+  # The changes are submitted as a pull request for review.
+  update_dependencies_pre_commit:
+    executor: mymove_small
+    steps:
+      - checkout
+      - run: pre-commit autoupdate
+      - run:
+          name: Display changes
+          command: |
+            git --no-pager status
+            git --no-pager diff --ignore-all-space --color
+      - run:
+          name: Push changes
+          command: scripts/circleci-push-dependency-updates
 
 workflows:
   version: 2
@@ -600,36 +792,26 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
 
-      - acceptance_tests:
+      - acceptance_tests_local:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
 
-      - integration_tests_mymove:
+      - acceptance_tests_experimental:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
-            - acceptance_tests
-          # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #  branches:
-          #    ignore: placeholder_branch_name
 
-      - integration_tests_office:
+      - acceptance_tests_staging:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
-            - acceptance_tests
-          # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
 
-      - integration_tests_tsp:
+      - integration_tests:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
-            - acceptance_tests
+            - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
           # filters:
           #   branches:
@@ -638,15 +820,32 @@ workflows:
       - client_test:
           requires:
             - pre_deps_yarn
+          # if testing on experimental, you can disable these tests by using the commented block below.
+          # filters:
+          #   branches:
+          #     ignore: placeholder_branch_name
 
       - server_test:
           requires:
             - pre_deps_golang
+          # if testing on experimental, you can disable these tests by using the commented block below.
+          # filters:
+          #   branches:
+          #     ignore: placeholder_branch_name
+
+      - server_test_coverage:
+          requires:
+            - pre_deps_golang
+          # if testing on experimental, you can disable these tests by using the commented block below.
+          # filters:
+          #   branches:
+          #     ignore: placeholder_branch_name
 
       - build_app:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+            - acceptance_tests_local # don't bother building and pushing the application if it won't even start properly
 
       - build_tools:
           requires:
@@ -656,15 +855,28 @@ workflows:
           requires:
             - pre_deps_golang
 
+      - build_tasks:
+          requires:
+            - build_tools
+
       - deploy_experimental_migrations:
           requires:
             - pre_test
             - client_test
             - server_test
-            - acceptance_tests
+            - acceptance_tests_local
+            - acceptance_tests_experimental
             - build_app
-            # - build_tools # tools don't need to build to deploy to experimental
+            - build_tools
+            - build_tasks
             - build_migrations
+          filters:
+            branches:
+              only: placeholder_branch_name
+
+      - deploy_experimental_tasks:
+          requires:
+            - deploy_experimental_migrations
           filters:
             branches:
               only: placeholder_branch_name
@@ -691,10 +903,10 @@ workflows:
             - build_app
             - build_tools
             - build_migrations
-            - acceptance_tests
-            - integration_tests_mymove
-            - integration_tests_office
-            - integration_tests_tsp
+            - build_tasks
+            - acceptance_tests_local
+            - acceptance_tests_staging
+            - integration_tests
           filters:
             branches:
               only: master
@@ -702,6 +914,13 @@ workflows:
       - deploy_staging_migrations:
           requires:
             - check_circle_against_staging_sha
+          filters:
+            branches:
+              only: master
+
+      - deploy_staging_tasks:
+          requires:
+            - deploy_staging_migrations
           filters:
             branches:
               only: master
@@ -723,12 +942,20 @@ workflows:
       - approve_prod_deploy:
           type: approval
           requires:
+            - deploy_staging_tasks
             - deploy_staging_app
             - deploy_staging_app_client_tls
 
       - deploy_prod_migrations:
           requires:
             - approve_prod_deploy
+          filters:
+            branches:
+              only: master
+
+      - deploy_prod_tasks:
+          requires:
+            - deploy_prod_migrations
           filters:
             branches:
               only: master
@@ -747,7 +974,7 @@ workflows:
             branches:
               only: master
 
-  dependency_updater:
+  dependency_updater_go:
     triggers:
       - schedule:
           # Monday at 4am/7am PST/EST
@@ -756,7 +983,29 @@ workflows:
             branches:
               only: master
     jobs:
-      - update_dependencies
+      - update_dependencies_go
+
+  dependency_updater_js:
+    triggers:
+      - schedule:
+          # Monday at 4am/7am PST/EST
+          cron: '0 12 * * 1'
+          filters:
+            branches:
+              only: master
+    jobs:
+      - update_dependencies_js
+
+  dependency_updater_pre_commit:
+    triggers:
+      - schedule:
+          # Monday at 4am/7am PST/EST
+          cron: '0 12 * * 1'
+          filters:
+            branches:
+              only: master
+    jobs:
+      - update_dependencies_pre_commit
 
 experimental:
   notify:

@@ -1,35 +1,32 @@
 package ediinvoice_test
 
 import (
-	"flag"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
-	"github.com/go-openapi/swag"
-
 	"github.com/facebookgo/clock"
-
+	"github.com/go-openapi/swag"
+	"github.com/spf13/afero"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/edi"
-	"github.com/transcom/mymove/pkg/edi/invoice"
-	"github.com/transcom/mymove/pkg/edi/segment"
+	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
+	edisegment "github.com/transcom/mymove/pkg/edi/segment"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/service/invoice"
+	"github.com/transcom/mymove/pkg/services/invoice"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
 )
-
-// Flag to update the test EDI
-// Borrowed from https://about.sourcegraph.com/go/advanced-testing-in-go
-var update = flag.Bool("update", false, "update .golden files")
 
 func (suite *InvoiceSuite) TestGenerate858C() {
 	shipment := helperShipment(suite)
@@ -44,12 +41,12 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 
 	for _, testCase := range icnTestCases {
 		suite.T().Run(fmt.Sprintf("%v after %v", testCase.expected, testCase.initial), func(t *testing.T) {
-			err := sequence.SetVal(suite.DB(), ediinvoice.ICNSequenceName, testCase.initial)
+			err := suite.icnSequencer.SetVal(testCase.initial)
 			suite.NoError(err, "error setting sequence value")
 
 			invoiceModel := helperShipmentInvoice(suite, shipment)
 
-			generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), false, clock.NewMock())
+			generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), false, suite.icnSequencer, clock.NewMock(), suite.logger)
 
 			suite.NoError(err)
 			if suite.NoError(err) {
@@ -64,10 +61,41 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 	suite.T().Run("usageIndicator='T'", func(t *testing.T) {
 		invoiceModel := helperShipmentInvoice(suite, shipment)
 
-		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), false, clock.NewMock())
+		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), false, suite.icnSequencer, clock.NewMock(), suite.logger)
 
 		suite.NoError(err)
 		suite.Equal("T", generatedTransactions.ISA.UsageIndicator)
+	})
+
+	suite.T().Run("usageIndicator='P'", func(t *testing.T) {
+		invoiceModel := helperShipmentInvoice(suite, shipment)
+
+		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), true, suite.icnSequencer, clock.NewMock(), suite.logger)
+
+		suite.NoError(err)
+		suite.Equal("P", generatedTransactions.ISA.UsageIndicator)
+	})
+
+	handlerContext := handlers.NewHandlerContext(suite.DB(), suite.logger)
+	handlerContext.SetSendProductionInvoice(suite.Viper.GetBool("send-prod-invoice"))
+	sendProdInvoice := handlerContext.SendProductionInvoice()
+	var usageIndicator string
+	var expectedUsageIndicator string
+	if sendProdInvoice {
+		usageIndicator = "usageIndicator='P'"
+		expectedUsageIndicator = "P"
+	} else {
+		usageIndicator = "usageIndicator='T'"
+		expectedUsageIndicator = "T"
+	}
+
+	suite.T().Run(usageIndicator, func(t *testing.T) {
+		invoiceModel := helperShipmentInvoice(suite, shipment)
+
+		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), sendProdInvoice, suite.icnSequencer, clock.NewMock(), suite.logger)
+
+		suite.NoError(err)
+		suite.Equal(expectedUsageIndicator, generatedTransactions.ISA.UsageIndicator)
 	})
 
 	suite.T().Run("invoiceNumber is provided and found in EDI", func(t *testing.T) {
@@ -75,7 +103,7 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 		// in the EDI segments; we have other tests in the create invoice service that check the specific format.
 		invoiceModel := helperShipmentInvoice(suite, shipment)
 
-		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), false, clock.NewMock())
+		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), false, suite.icnSequencer, clock.NewMock(), suite.logger)
 		suite.NoError(err)
 
 		// Find the N9 segment we're interested in.
@@ -94,7 +122,7 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 
 func (suite *InvoiceSuite) TestEDIString() {
 	suite.T().Run("full EDI string is expected", func(t *testing.T) {
-		err := sequence.SetVal(suite.DB(), ediinvoice.ICNSequenceName, 1)
+		err := suite.icnSequencer.SetVal(1)
 		suite.NoError(err, "error setting sequence value")
 		shipment := helperShipment(suite)
 
@@ -112,15 +140,20 @@ func (suite *InvoiceSuite) TestEDIString() {
 
 		invoiceModel := helperShipmentInvoice(suite, shipment)
 
-		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), false, clock.NewMock())
+		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), false, suite.icnSequencer, clock.NewMock(), suite.logger)
 		suite.NoError(err, "Failed to generate 858C invoice")
 		actualEDIString, err := generatedTransactions.EDIString()
 		suite.NoError(err, "Failed to get invoice 858C as EDI string")
 
 		const expectedEDI = "expected_invoice.edi.golden"
 		suite.NoError(err, "generates error")
-		if *update {
-			goldenFile, err := os.Create(filepath.Join("testdata", expectedEDI))
+		// Flag to update the test EDI
+		// Borrowed from https://about.sourcegraph.com/go/advanced-testing-in-go
+		update := suite.Viper.GetBool("update")
+		if update {
+			// Write to a temporary file system
+			fs := afero.NewMemMapFs()
+			goldenFile, err := fs.Create(filepath.Join("testdata", expectedEDI))
 			defer goldenFile.Close()
 			suite.NoError(err, "Failed to open EDI file for update")
 			writer := edi.NewWriter(goldenFile)
@@ -132,8 +165,7 @@ func (suite *InvoiceSuite) TestEDIString() {
 }
 
 func helperShipment(suite *InvoiceSuite) models.Shipment {
-	var weight unit.Pound
-	weight = 2000
+	weight := unit.Pound(2000)
 	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
 			NetWeight: &weight,
@@ -154,7 +186,7 @@ func helperShipment(suite *InvoiceSuite) models.Shipment {
 		},
 	})
 
-	tspp := testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+	tspp, _ := testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
 		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
 			TransportationServiceProvider:   tsp,
 			TransportationServiceProviderID: tsp.ID,
@@ -203,13 +235,11 @@ func helperShipment(suite *InvoiceSuite) models.Shipment {
 		}
 
 		// default location created in testdatagen shipmentLineItem is DESTINATION
-		if code == "135A" || code == "105A" {
+		if code == "135A" || code == "105A" || code == "LHS" {
 			location = models.ShipmentLineItemLocationORIGIN
-		}
-		if code == "135B" {
+		} else if code == "135B" {
 			location = models.ShipmentLineItemLocationDESTINATION
-		}
-		if code == "LHS" || code == "46A" {
+		} else if code == "46A" {
 			location = models.ShipmentLineItemLocationNEITHER
 		}
 
@@ -258,7 +288,9 @@ func helperLoadExpectedEDI(suite *InvoiceSuite, name string) string {
 
 type InvoiceSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
+	logger       ediinvoice.Logger
+	Viper        *viper.Viper
+	icnSequencer sequence.Sequencer
 }
 
 func (suite *InvoiceSuite) SetupTest() {
@@ -269,18 +301,32 @@ func TestInvoiceSuite(t *testing.T) {
 	// Use a no-op logger during testing
 	logger := zap.NewNop()
 
+	flag := pflag.CommandLine
+	// Flag to update the test EDI
+	// Borrowed from https://about.sourcegraph.com/go/advanced-testing-in-go
+	flag.Bool("update", false, "update .golden files")
+	// Flag to toggle Invoice usage indicator from P>T (Production>Test)
+	flag.Bool("send-prod-invoice", false, "Send Production Invoice")
+
+	v := viper.New()
+	v.BindPFlags(flag)
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+
 	hs := &InvoiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
+		Viper:        v,
 	}
+
+	hs.icnSequencer = sequence.NewDatabaseSequencer(hs.DB(), ediinvoice.ICNSequenceName)
+
 	suite.Run(t, hs)
 }
 
 func (suite *InvoiceSuite) TestMakeEDISegments() {
 	shipment := helperShipment(suite)
-	var lineItems []models.ShipmentLineItem
-
-	lineItems = append(shipment.ShipmentLineItems)
+	lineItems := shipment.ShipmentLineItems
 
 	suite.T().Run("test EDI segments", func(t *testing.T) {
 		for _, lineItem := range lineItems {
@@ -290,20 +336,16 @@ func (suite *InvoiceSuite) TestMakeEDISegments() {
 
 			if lineItem.Location == models.ShipmentLineItemLocationORIGIN {
 				suite.Equal("303", hlSegment.HierarchicalIDNumber)
-			}
-
-			if lineItem.Location == models.ShipmentLineItemLocationDESTINATION {
+			} else if lineItem.Location == models.ShipmentLineItemLocationDESTINATION {
 				suite.Equal("304", hlSegment.HierarchicalIDNumber)
-			}
-
-			if lineItem.Location == models.ShipmentLineItemLocationNEITHER {
+			} else if lineItem.Location == models.ShipmentLineItemLocationNEITHER {
 				suite.Equal("303", hlSegment.HierarchicalIDNumber)
 			}
 
 			suite.Equal("SS", hlSegment.HierarchicalLevelCode)
 
 			// Test L0 Segment
-			l0Segment := ediinvoice.MakeL0Segment(lineItem, 20.0000)
+			l0Segment := ediinvoice.MakeL0Segment(lineItem, 20.0000, suite.logger)
 			suite.Equal(1, l0Segment.LadingLineItemNumber)
 
 			if l0Segment.BilledRatedAsQuantity != 0 {
