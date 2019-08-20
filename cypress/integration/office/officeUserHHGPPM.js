@@ -59,8 +59,7 @@ function officeUserSubmitsDocument() {
   cy.get('button.submit').should('be.disabled');
 
   cy.upload_file('.filepond--root', 'top-secret.png');
-  cy
-    .get('button.submit', { timeout: fileUploadTimeout })
+  cy.get('button.submit', { timeout: fileUploadTimeout })
     .should('not.be.disabled')
     .click();
 

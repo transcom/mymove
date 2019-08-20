@@ -56,7 +56,6 @@ import { getLastRequestIsSuccess, getLastRequestIsLoading, getLastError } from '
 import { resetRequests } from 'shared/Swagger/request';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
-import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 import StorageInTransitPanel from 'shared/StorageInTransit/StorageInTransitPanel.jsx';
 import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
 import PickupForm from './PickupForm';
@@ -374,13 +373,14 @@ class ShipmentInfo extends Component {
                   </span>
                 </Alert>
               )}
-              {pmSurveyComplete && !gblGenerated && (
-                <div>
-                  <button onClick={this.generateGBL} disabled={!approved || generateGBLInProgress}>
-                    Generate the GBL
-                  </button>
-                </div>
-              )}
+              {pmSurveyComplete &&
+                !gblGenerated && (
+                  <div>
+                    <button onClick={this.generateGBL} disabled={!approved || generateGBLInProgress}>
+                      Generate the GBL
+                    </button>
+                  </div>
+                )}
               {canEnterPreMoveSurvey && (
                 <FormButton
                   shipmentId={shipmentId}
@@ -428,7 +428,6 @@ class ShipmentInfo extends Component {
                     update={this.props.updatePublicShipment}
                   />
                   <LocationsContainer shipment={this.props.shipment} update={this.props.updatePublicShipment} />
-                  <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
                   {showSitPanel && <StorageInTransitPanel shipmentId={this.props.shipmentId} />}
 
                   <TspContainer
@@ -522,11 +521,6 @@ const mapDispatchToProps = dispatch =>
     dispatch,
   );
 
-const connectedShipmentInfo = withContext(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  )(ShipmentInfo),
-);
+const connectedShipmentInfo = withContext(connect(mapStateToProps, mapDispatchToProps)(ShipmentInfo));
 
 export { DeliveryDateFormView, connectedShipmentInfo as default, ReferrerQueueLink };

@@ -5,7 +5,6 @@ import {
   convertFromBaseQuantity,
   formatBaseQuantityAsDollars,
 } from 'shared/formatters';
-import { isRobustAccessorial } from 'shared/PreApprovalRequest/DetailsHelper';
 
 export const displayBaseQuantityUnits = (item, scale) => {
   if (!item) return;
@@ -23,11 +22,11 @@ export const displayBaseQuantityUnits = (item, scale) => {
     const weight = convertTruncateAddCommas(itemQuantity1, decimalPlaces);
     const milage = convertTruncateAddCommas(itemQuantity2, decimalPlaces);
     return `${weight} lbs, ${milage} mi`;
-  } else if (isVolume(itemCode) && isRobustAccessorial(item)) {
+  } else if (isVolume(itemCode)) {
     const decimalPlaces = 2;
     const volume = convertTruncateAddCommas(itemQuantity1, decimalPlaces);
     return `${volume} cu ft`;
-  } else if (isPrice(itemCode) && isRobustAccessorial(item)) {
+  } else if (isPrice(itemCode)) {
     const price = formatBaseQuantityAsDollars(itemQuantity1);
     return `$${price}`;
   } else if (isDistance(itemCode)) {
