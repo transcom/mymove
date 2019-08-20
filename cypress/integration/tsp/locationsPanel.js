@@ -72,12 +72,10 @@ function tspUserViewsLocation({ shipmentId, type, expectation }) {
   });
 
   // Expect Customer Info to be loaded
-  cy
-    .contains('Locations')
+  cy.contains('Locations')
     .parents('.editable-panel')
     .within(() => {
-      cy
-        .contains(type)
+      cy.contains(type)
         .parent('.editable-panel-column')
         .children('.panel-field')
         .children('.field-value')
@@ -133,147 +131,122 @@ function tspUserEntersLocations() {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  cy
-    .get('.editable-panel-header')
+  cy.get('.editable-panel-header')
     .contains('Locations')
     .siblings()
     .click();
 
   // Enter details in form and save locations
-  cy
-    .get('input[name="pickup_address.street_address_1"]')
+  cy.get('input[name="pickup_address.street_address_1"]')
     .first()
     .clear()
     .type(pickupAddress.street_1)
     .blur();
-  cy
-    .get('input[name="pickup_address.city"]')
+  cy.get('input[name="pickup_address.city"]')
     .first()
     .clear()
     .type(pickupAddress.city)
     .blur();
   cy.get('select[name="pickup_address.state"]').select(pickupAddress.state);
-  cy
-    .get('input[name="pickup_address.postal_code"]')
+  cy.get('input[name="pickup_address.postal_code"]')
     .first()
     .clear()
     .type('1002')
     .blur();
   // Shouldn't be able to save without 5 digit zip
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .should('be.disabled');
-  cy
-    .get('input[name="pickup_address.postal_code"]')
+  cy.get('input[name="pickup_address.postal_code"]')
     .first()
     .clear()
     .type(pickupAddress.postal_code)
     .blur();
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .should('be.enabled');
 
   // Set Secondary Pickup Address to required.
-  cy
-    .get('label[for="has_secondary_pickup_address"]')
+  cy.get('label[for="has_secondary_pickup_address"]')
     .siblings()
     .get('[type="radio"]')
     .first()
     .check({ force: true });
-  cy
-    .get('input[name="secondary_pickup_address.street_address_1"]')
+  cy.get('input[name="secondary_pickup_address.street_address_1"]')
     .first()
     .clear()
     .type(secondaryPickupAddress.street_1)
     .blur();
-  cy
-    .get('input[name="secondary_pickup_address.street_address_2"]')
+  cy.get('input[name="secondary_pickup_address.street_address_2"]')
     .first()
     .clear();
-  cy
-    .get('input[name="secondary_pickup_address.city"]')
+  cy.get('input[name="secondary_pickup_address.city"]')
     .first()
     .clear()
     .type(secondaryPickupAddress.city)
     .blur();
   cy.get('select[name="secondary_pickup_address.state"]').select(secondaryPickupAddress.state);
-  cy
-    .get('input[name="secondary_pickup_address.postal_code"]')
+  cy.get('input[name="secondary_pickup_address.postal_code"]')
     .first()
     .clear()
     .type('1002')
     .blur();
   // Shouldn't be able to save without 5 digit zip
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .should('be.disabled');
-  cy
-    .get('input[name="secondary_pickup_address.postal_code"]')
+  cy.get('input[name="secondary_pickup_address.postal_code"]')
     .first()
     .clear()
     .type(secondaryPickupAddress.postal_code)
     .blur();
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .should('be.enabled');
 
-  cy
-    .get('input[name="delivery_address.street_address_1"]')
+  cy.get('input[name="delivery_address.street_address_1"]')
     .first()
     .clear()
     .type(deliveryAddress.street_1)
     .blur();
-  cy
-    .get('input[name="delivery_address.city"]')
+  cy.get('input[name="delivery_address.city"]')
     .first()
     .clear()
     .type(deliveryAddress.city)
     .blur();
   cy.get('select[name="delivery_address.state"]').select(deliveryAddress.state);
-  cy
-    .get('input[name="delivery_address.postal_code"]')
+  cy.get('input[name="delivery_address.postal_code"]')
     .first()
     .clear()
     .type('1002')
     .blur();
   // Shouldn't be able to save without 5 digit zip
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .should('be.disabled');
-  cy
-    .get('input[name="delivery_address.postal_code"]')
+  cy.get('input[name="delivery_address.postal_code"]')
     .first()
     .clear()
     .type(deliveryAddress.postal_code)
     .blur();
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .should('be.enabled');
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 
   // Refresh browser and make sure changes persist
   cy.patientReload();
 
-  cy
-    .contains('Locations')
+  cy.contains('Locations')
     .parents('.editable-panel')
     .within(() => {
-      cy
-        .contains('Delivery')
+      cy.contains('Delivery')
         .parent('.editable-panel-column')
         .children('.panel-field')
         .children('.field-value')
@@ -284,12 +257,10 @@ function tspUserEntersLocations() {
         });
     });
 
-  cy
-    .contains('Locations')
+  cy.contains('Locations')
     .parents('.editable-panel')
     .within(() => {
-      cy
-        .contains('Pickup')
+      cy.contains('Pickup')
         .parent('.editable-panel-column')
         .children('.panel-field')
         .children('.field-value')
@@ -300,12 +271,10 @@ function tspUserEntersLocations() {
         });
     });
 
-  cy
-    .contains('Locations')
+  cy.contains('Locations')
     .parents('.editable-panel')
     .within(() => {
-      cy
-        .contains('Pickup')
+      cy.contains('Pickup')
         .parent('.editable-panel-column')
         .children('.panel-field')
         .children('.field-value')
@@ -317,41 +286,34 @@ function tspUserEntersLocations() {
           );
         });
     });
-  cy
-    .get('.editable-panel-header')
+  cy.get('.editable-panel-header')
     .contains('Locations')
     .siblings()
     .click();
 
   // Click every radio button, which means you'll end up with two 'No's selected
-  cy
-    .get('[type="radio"]')
+  cy.get('[type="radio"]')
     .eq(1)
     .check({ force: true });
-  cy
-    .get('[type="radio"]')
+  cy.get('[type="radio"]')
     .eq(3)
     .check({ force: true });
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 
   // Refresh browser and make sure changes persist
   cy.patientReload();
 
-  cy
-    .contains('Locations')
+  cy.contains('Locations')
     .parents('.editable-panel')
     .within(() => {
-      cy
-        .contains('Delivery')
+      cy.contains('Delivery')
         .parent('.editable-panel-column')
         .children('.panel-field')
         .children('.field-value')

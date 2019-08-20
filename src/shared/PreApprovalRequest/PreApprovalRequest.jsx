@@ -28,20 +28,18 @@ export function renderActionIcons(status, onEdit, onApproval, onDelete, shipment
     <Fragment>
       <div className="pre-approval-icon-container">
         <div className="pre-approval-icon">
-          {onApproval &&
-            status === 'SUBMITTED' && (
-              <span data-test="approve-request" onClick={() => onApproval(shipmentLineItemId)}>
-                <FontAwesomeIcon className="icon actionable" icon={faCheck} />
-              </span>
-            )}
+          {onApproval && status === 'SUBMITTED' && (
+            <span data-test="approve-request" onClick={() => onApproval(shipmentLineItemId)}>
+              <FontAwesomeIcon className="icon actionable" icon={faCheck} />
+            </span>
+          )}
         </div>
         <div className="pre-approval-icon">
-          {onEdit &&
-            isEditable && (
-              <span data-test="edit-request" onClick={onEdit}>
-                <FontAwesomeIcon className="icon actionable" icon={faPencil} />
-              </span>
-            )}
+          {onEdit && isEditable && (
+            <span data-test="edit-request" onClick={onEdit}>
+              <FontAwesomeIcon className="icon actionable" icon={faPencil} />
+            </span>
+          )}
         </div>
         <div className="pre-approval-icon">
           {onDelete && (

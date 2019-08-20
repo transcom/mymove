@@ -101,8 +101,7 @@ function officeUserApprovesOnlyBasicsHHG() {
   cy.get('.combo-button').click();
 
   // Approve basics
-  cy
-    .get('.combo-button .dropdown')
+  cy.get('.combo-button .dropdown')
     .contains('Approve Basics')
     .click();
 
@@ -121,8 +120,7 @@ function officeUserApprovesOnlyBasicsHHG() {
   cy.get('.combo-button').click();
 
   // Disabled because already approved and not delivered
-  cy
-    .get('.combo-button .dropdown')
+  cy.get('.combo-button .dropdown')
     .contains('Approve HHG')
     .should('have.class', 'disabled');
 
@@ -148,8 +146,7 @@ function officeUserApprovesHHG() {
   cy.get('.combo-button').click();
 
   // Approve basics
-  cy
-    .get('.combo-button .dropdown')
+  cy.get('.combo-button .dropdown')
     .contains('Approve Basics')
     .click();
 
@@ -168,8 +165,7 @@ function officeUserApprovesHHG() {
 
   // Approve HHG
 
-  cy
-    .get('.combo-button .dropdown')
+  cy.get('.combo-button .dropdown')
     .contains('Approve HHG')
     .click();
 

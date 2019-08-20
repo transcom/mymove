@@ -23,6 +23,7 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 
 	// #nosec UUID is pattern matched by swagger and will be ok
 	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
+	logger.Info("got ppm id: ", zap.Any("id", ppmID))
 
 	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
 	if err != nil {

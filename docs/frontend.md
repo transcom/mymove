@@ -74,6 +74,7 @@ Adhere to Airbnb's [JavaScript Style Guide](https://github.com/airbnb/javascript
   * Prefer trailing commas for cleaner PRs and error reduction (CLI: `--trailing-comma true` API: `trailingComma: true`)
   * A `.prettierrc` file is in the project for the above settings.
   * Make sure to [set up your editor](https://prettier.io/docs/en/editors.html) to format (and possibly autosave) with Prettier with the above configurations. You will need to install Prettier globally for this.
+  * We currently pin the prettier dependency to a specific version to avoid frequent formatting churn.
 
 ### Linting
 

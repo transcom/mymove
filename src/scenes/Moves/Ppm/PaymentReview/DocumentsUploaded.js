@@ -125,4 +125,7 @@ const mapDispatchToProps = {
   getMoveDocumentsForMove,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(DocumentsUploaded);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(DocumentsUploaded);

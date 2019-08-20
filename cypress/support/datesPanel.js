@@ -1,20 +1,17 @@
 /* global cy */
 
 export function userEntersDates() {
-  cy
-    .get('input[name="dates.pm_survey_conducted_date"]')
+  cy.get('input[name="dates.pm_survey_conducted_date"]')
     .first()
     .type('7/20/2018')
     .blur();
   cy.get('select[name="dates.pm_survey_method"]').select('PHONE');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 
@@ -24,30 +21,25 @@ export function userEntersDates() {
   cy.get('div.pm_survey_method').contains('Phone');
 
   // Pack Dates
-  cy
-    .get('.editable-panel-header')
+  cy.get('.editable-panel-header')
     .contains('Dates')
     .siblings()
     .click();
 
-  cy
-    .get('input[name="dates.pm_survey_planned_pack_date"]')
+  cy.get('input[name="dates.pm_survey_planned_pack_date"]')
     .first()
     .type('8/1/2018')
     .blur();
-  cy
-    .get('input[name="dates.actual_pack_date"]')
+  cy.get('input[name="dates.actual_pack_date"]')
     .first()
     .type('8/2/2018')
     .blur();
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 
@@ -58,30 +50,25 @@ export function userEntersDates() {
   cy.get('div.actual_pack_date').contains('02-Aug-18');
 
   // Pickup Dates
-  cy
-    .get('.editable-panel-header')
+  cy.get('.editable-panel-header')
     .contains('Dates')
     .siblings()
     .click();
 
-  cy
-    .get('input[name="dates.pm_survey_planned_pickup_date"]')
+  cy.get('input[name="dates.pm_survey_planned_pickup_date"]')
     .first()
     .type('8/2/2018')
     .blur();
-  cy
-    .get('input[name="dates.actual_pickup_date"]')
+  cy.get('input[name="dates.actual_pickup_date"]')
     .first()
     .type('8/3/2018')
     .blur();
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 
@@ -92,29 +79,24 @@ export function userEntersDates() {
   cy.get('div.actual_pickup_date').contains('03-Aug-18');
 
   // Delivery Dates
-  cy
-    .get('.editable-panel-header')
+  cy.get('.editable-panel-header')
     .contains('Dates')
     .siblings()
     .click();
 
-  cy
-    .get('input[name="dates.pm_survey_planned_delivery_date"]')
+  cy.get('input[name="dates.pm_survey_planned_delivery_date"]')
     .first()
     .type('10/9/2018')
     .blur();
-  cy
-    .get('input[name="dates.actual_delivery_date"]')
+  cy.get('input[name="dates.actual_delivery_date"]')
     .first()
     .type('10/10/2018');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 
@@ -126,26 +108,22 @@ export function userEntersDates() {
   cy.get('div.rdd').contains('09-Oct-18');
 
   // Notes
-  cy
-    .get('.editable-panel-header')
+  cy.get('.editable-panel-header')
     .contains('Dates')
     .siblings()
     .click();
 
-  cy
-    .get('textarea[name="dates.pm_survey_notes"]')
+  cy.get('textarea[name="dates.pm_survey_notes"]')
     .first()
     .clear()
     .type('Notes notes notes for dates')
     .blur();
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 

@@ -49,15 +49,6 @@ These scripts are primarily used for CircleCI workflows.
 | `ecs-run-app-migrations-container` | Creates and runs a migration task using the given container definition. |
 | `rds-snapshot-app-db` | Creates a snapshot of the app database for the given environment. |
 
-## Bug Triaging Scripts
-
-These scripts are used primarily for bug triaging in AWS.
-
-| Script Name | Description |
-| --- | --- |
-| `ecs-show-service-logs` |  Show logs from the containers running for the named service. |
-| `ecs-show-service-stopped-logs` |  Show logs from the most recently stopped app tasks. |
-
 ## Development Scripts
 
 These scripts are primarily used for developing the application and

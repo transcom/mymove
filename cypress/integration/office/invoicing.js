@@ -20,8 +20,7 @@ function checkNoUnbilledLineItems() {
   cy.patientVisit('/queues/new/moves/6eee3663-1973-40c5-b49e-e70e9325b895/hhg');
 
   // The invoice table should be empty.
-  cy
-    .get('[data-cy=invoice-panel] [data-cy=basic-panel-content]')
+  cy.get('[data-cy=invoice-panel] [data-cy=basic-panel-content]')
     .find('span.empty-content')
     .should('have.text', 'No line items');
 }
@@ -31,8 +30,7 @@ function checkExistUnbilledLineItems() {
   cy.patientVisit('/queues/new/moves/fb4105cf-f5a5-43be-845e-d59fdb34f31c/hhg');
 
   // The invoice table should display the unbilled line items.
-  cy
-    .get('[data-cy=invoice-panel] [data-cy=basic-panel-content] tbody')
+  cy.get('[data-cy=invoice-panel] [data-cy=basic-panel-content] tbody')
     .children()
     // For each line item, I should see item code, description, etc.
     .each((row, index, lst) => {
@@ -41,8 +39,7 @@ function checkExistUnbilledLineItems() {
         return;
       }
 
-      cy
-        .wrap(row)
+      cy.wrap(row)
         .children()
         .each(cell => {
           // Each cell should have a value present.
@@ -70,23 +67,19 @@ function checkConfirmationDialogue() {
   cy.patientVisit('/queues/new/moves/fb4105cf-f5a5-43be-845e-d59fdb34f31c/hhg');
 
   cy.get('[data-cy=invoice-panel]').within(() => {
-    cy
-      .get('button')
+    cy.get('button')
       .first()
       .click();
 
-    cy
-      .get('.usa-button-primary')
+    cy.get('.usa-button-primary')
       .first()
       .should('have.text', 'Approve');
 
-    cy
-      .get('.usa-button-secondary')
+    cy.get('.usa-button-secondary')
       .first()
       .should('have.text', 'Cancel');
 
-    cy
-      .get('.usa-button-secondary')
+    cy.get('.usa-button-secondary')
       .first()
       .click();
 
@@ -102,20 +95,17 @@ function checkApproveInvoice() {
   cy.get('[data-cy="unbilled-table"]').within(() => {
     // Count the number of unbilled line items and amount total (we'll use this later)
     cy.get('tr[data-cy="table--item"]').as('unbilledItems');
-    cy
-      .get('tr[data-cy="table--total"] td')
+    cy.get('tr[data-cy="table--total"] td')
       .last()
       .as('unbilledTotal');
 
     // Find/click approve button
-    cy
-      .get('button')
+    cy.get('button')
       .should('have.text', 'Approve Payment')
       .click();
 
     // Find/click second approve button
-    cy
-      .get('.usa-button-primary')
+    cy.get('.usa-button-primary')
       .should('have.text', 'Approve')
       .click();
 
@@ -138,8 +128,7 @@ function checkApproveInvoice() {
 
     // Confirm total of invoiced matches previous unbilled amount
     cy.get('@unbilledTotal').then($unbilledTotal => {
-      cy
-        .get('tr[data-cy="table--total"] td')
+      cy.get('tr[data-cy="table--total"] td')
         .last()
         .should('have.text', $unbilledTotal.text());
     });

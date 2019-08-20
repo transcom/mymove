@@ -6,16 +6,14 @@ describe('static file hosting', () => {
   });
 
   it('returns the correct content type', () => {
-    cy
-      .request('/downloads/direct_deposit_form.pdf')
+    cy.request('/downloads/direct_deposit_form.pdf')
       .its('headers')
       .its('content-type')
       .should('include', 'application/pdf');
   });
 
   it('returns the correct status', () => {
-    cy
-      .request('/downloads/direct_deposit_form.pdf')
+    cy.request('/downloads/direct_deposit_form.pdf')
       .its('status')
       .should('equal', 200);
   });
