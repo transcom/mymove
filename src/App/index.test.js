@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { mount } from 'enzyme';
-import * as constants from 'shared/constants.js';
 import App from '.';
+import { shallow } from 'enzyme';
+import * as constants from 'shared/constants.js';
 
 it('renders without crashing', () => {
   const div = document.createElement('div');
@@ -17,9 +17,12 @@ it('renders without crashing', () => {
   ReactDOM.unmountComponentAtNode(div);
 });
 
-it('renders text for TSP app', () => {
+it('renders the tsp app', () => {
   constants.isTspSite = true;
-  const wrapper = mount(<App />);
-
-  expect(wrapper.text()).toContain('TSP App');
+  const wrapper = shallow(<App />);
+  const h1 = wrapper.find('h1');
+  expect(h1.exists()).toBe(true);
+  expect(h1.text()).toEqual('TSP App');
 });
+
+//todo: add tests for routing
