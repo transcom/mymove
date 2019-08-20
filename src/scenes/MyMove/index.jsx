@@ -18,7 +18,6 @@ import EditContactInfo from 'scenes/Review/EditContactInfo';
 import EditOrders from 'scenes/Review/EditOrders';
 import EditDateAndLocation from 'scenes/Review/EditDateAndLocation';
 import EditWeight from 'scenes/Review/EditWeight';
-import EditHHGDates from 'scenes/Review/EditShipment';
 import Header from 'shared/Header/MyMove';
 import PPMPaymentRequestIntro from 'scenes/Moves/Ppm/PPMPaymentRequestIntro';
 import WeightTicket from 'scenes/Moves/Ppm/WeightTicket';
@@ -103,7 +102,6 @@ export class AppWrapper extends Component {
                   />
                   <ValidatedPrivateRoute path="/moves/:moveId/review/edit-weight" component={EditWeight} />
 
-                  <ValidatedPrivateRoute path="/shipments/:shipmentId/review/edit-hhg-dates" component={EditHHGDates} />
                   {/* <ValidatedPrivateRoute path="/moves/:moveId/review/edit-hhg-locations" component={EditHHGLocations} /> */}
                   {/* <ValidatedPrivateRoute path="/moves/:moveId/review/edit-hhg-weights" component={EditHHGWeights} /> */}
 

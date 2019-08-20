@@ -24,10 +24,6 @@ import UploadOrders from 'scenes/Orders/UploadOrders';
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
-import Progear from 'scenes/Moves/Hhg/Progear';
-import MoveDate from 'scenes/Moves/Hhg/MoveDate';
-import Locations from 'scenes/Moves/Hhg/Locations';
-import WeightEstimate from 'scenes/Moves/Hhg/WeightEstimate';
 import Review from 'scenes/Review/Review';
 import Agreement from 'scenes/Legalese';
 import PpmAgreement from 'scenes/Legalese/SubmitPpm';
@@ -68,7 +64,6 @@ const always = () => true;
 // Todo: update this when moves can be completed
 const myFirstRodeo = props => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = props => props.lastMoveIsCanceled;
-const hasHHG = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === 'HHG';
 const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === 'PPM';
 const hasHHGPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === 'HHG_PPM';
 const isCurrentMoveSubmitted = ({ move, ppm }) => {
@@ -164,34 +159,6 @@ const pages = {
         </WizardPage>
       );
     },
-  },
-  '/moves/:moveId/hhg-start': {
-    isInFlow: hasHHG,
-    isComplete: ({ sm, orders, move, hhg }) => {
-      return every([hhg.requested_pickup_date]);
-    },
-    render: (key, pages) => ({ match }) => <MoveDate pages={pages} pageKey={key} match={match} />,
-  },
-  '/moves/:moveId/hhg-locations': {
-    isInFlow: hasHHG,
-    isComplete: ({ sm, orders, move, hhg }) => {
-      return every([hhg.pickup_address]);
-    },
-    render: (key, pages) => ({ match }) => <Locations pages={pages} pageKey={key} match={match} />,
-  },
-  '/moves/:moveId/hhg-weight': {
-    isInFlow: hasHHG,
-    isComplete: ({ sm, orders, move, hhg }) => {
-      return every([hhg.weight_estimate]);
-    },
-    render: (key, pages) => ({ match }) => <WeightEstimate pages={pages} pageKey={key} match={match} />,
-  },
-  '/moves/:moveId/hhg-progear': {
-    isInFlow: hasHHG,
-    isComplete: ({ sm, orders, move, hhg }) => {
-      return every([hhg.pickup_address]);
-    },
-    render: (key, pages) => ({ match }) => <Progear pages={pages} pageKey={key} match={match} />,
   },
   '/moves/:moveId/hhg-ppm-start': {
     isInFlow: hasHHGPPM,
