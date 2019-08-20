@@ -159,7 +159,7 @@ type Obligations struct {
 type Obligation struct {
 	Gcc   unit.Cents
 	SIT   unit.Cents
-	Miles int
+	Miles unit.Miles
 }
 
 //GCC100 calculates the 100% GCC on shipment summary worksheet
@@ -385,7 +385,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.ActualObligationGCC95 = FormatDollars(actualObligations.GCC95())
 	page1.ActualObligationSIT = FormatDollars(actualObligations.FormatSIT())
 	page1.ActualObligationAdvance = formatActualObligationAdvance(data)
-	page1.MileageTotal = FormatMiles(actualObligations.Miles)
+	page1.MileageTotal = actualObligations.Miles.String()
 	return page1
 }
 
@@ -730,12 +730,6 @@ func FormatWeights(wtg unit.Pound) string {
 func FormatDollars(dollars float64) string {
 	p := message.NewPrinter(language.English)
 	return p.Sprintf("$%.2f", dollars)
-}
-
-// FormatMiles formats an int using 000s seperator
-func FormatMiles(miles int) string {
-	p := message.NewPrinter(language.English)
-	return p.Sprintf("%d", miles)
 }
 
 func derefStringTypes(st interface{}) string {

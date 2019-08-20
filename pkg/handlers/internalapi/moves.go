@@ -202,14 +202,14 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	page1Template, err := assets.Asset(page1Layout.TemplateImagePath)
 
 	if err != nil {
-		logger.Error("Error reading template file", zap.String("asset", page1Layout.TemplateImagePath), zap.Error(err))
+		logger.Error("Error reading page 1 template file", zap.String("asset", page1Layout.TemplateImagePath), zap.Error(err))
 		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
 	}
 
 	page1Reader := bytes.NewReader(page1Template)
 	err = formFiller.AppendPage(page1Reader, page1Layout.FieldsLayout, page1Data)
 	if err != nil {
-		logger.Error("Error appending page to PDF", zap.Error(err))
+		logger.Error("Error appending page 1 to PDF", zap.Error(err))
 		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
 	}
 
@@ -218,14 +218,14 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	page2Template, err := assets.Asset(page2Layout.TemplateImagePath)
 
 	if err != nil {
-		logger.Error("Error reading template file", zap.String("asset", page2Layout.TemplateImagePath), zap.Error(err))
+		logger.Error("Error reading page 2 template file", zap.String("asset", page2Layout.TemplateImagePath), zap.Error(err))
 		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
 	}
 
 	page2Reader := bytes.NewReader(page2Template)
 	err = formFiller.AppendPage(page2Reader, page2Layout.FieldsLayout, page2Data)
 	if err != nil {
-		logger.Error("Error appending page to PDF", zap.Error(err))
+		logger.Error("Error appending 2 page to PDF", zap.Error(err))
 		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
 	}
 
@@ -234,14 +234,14 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	page3Template, err := assets.Asset(page3Layout.TemplateImagePath)
 
 	if err != nil {
-		logger.Error("Error reading template file", zap.String("asset", page3Layout.TemplateImagePath), zap.Error(err))
+		logger.Error("Error reading page 3 template file", zap.String("asset", page3Layout.TemplateImagePath), zap.Error(err))
 		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
 	}
 
 	page3Reader := bytes.NewReader(page3Template)
 	err = formFiller.AppendPage(page3Reader, page3Layout.FieldsLayout, page3Data)
 	if err != nil {
-		logger.Error("Error appending page to PDF", zap.Error(err))
+		logger.Error("Error appending page 3 to PDF", zap.Error(err))
 		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
 	}
 

@@ -330,7 +330,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 		PersonallyProcuredMoves: personallyProcuredMoves,
 		Obligations: models.Obligations{
 			MaxObligation:    models.Obligation{Gcc: unit.Cents(600000), SIT: unit.Cents(53000)},
-			ActualObligation: models.Obligation{Gcc: unit.Cents(500000), SIT: unit.Cents(30000)},
+			ActualObligation: models.Obligation{Gcc: unit.Cents(500000), SIT: unit.Cents(30000), Miles: unit.Miles(4050)},
 		},
 	}
 	sswPage1 := models.FormatValuesShipmentSummaryWorksheetFormPage1(ssd)
@@ -473,7 +473,8 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage3() {
 
 	sswPage3 := models.FormatValuesShipmentSummaryWorksheetFormPage3(ssd)
 
-	suite.Equal("John Smith electronically signed on 26 Jan 2019 at 2:40pm", sswPage3.ServiceMemberSignature)
+	suite.Equal("John Smith electronically signed", sswPage3.ServiceMemberSignature)
+	suite.Equal("26 Jan 2019 at 2:40pm", sswPage3.SignatureDate)
 }
 
 func (suite *ModelSuite) TestGroupExpenses() {
