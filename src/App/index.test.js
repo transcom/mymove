@@ -1,5 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { mount } from 'enzyme';
+import * as constants from 'shared/constants.js';
 import App from '.';
 
 it('renders without crashing', () => {
@@ -15,4 +17,9 @@ it('renders without crashing', () => {
   ReactDOM.unmountComponentAtNode(div);
 });
 
-//todo: add tests for routing
+it('renders text for TSP app', () => {
+  constants.isTspSite = true;
+  const wrapper = mount(<App />);
+
+  expect(wrapper.text()).toContain('TSP App');
+});
