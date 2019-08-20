@@ -930,6 +930,7 @@ docker_compose_down: ## Destroy docker-compose containers
 	docker-compose down
 	# Instead of using `--rmi all` which might destroy postgres we just remove the AWS containers
 	docker rmi $(shell docker images --filter=reference='*amazonaws*/*:*' --format "{{.ID}}")
+	git checkout docker-compose.yml
 
 #
 # ----- END DOCKER COMPOSE TARGETS -----
