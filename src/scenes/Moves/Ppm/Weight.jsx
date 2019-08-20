@@ -14,9 +14,6 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { formatCents, formatCentsRange, formatNumber } from 'shared/formatters';
 import { convertDollarsToCents } from 'shared/utils';
 import { getPpmWeightEstimate, createOrUpdatePpm, getSelectedWeightInfo, getMaxAdvance } from './ducks';
-import WizardHeader from '../WizardHeader';
-import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
-import ppmBlack from 'shared/icon/ppm-black.svg';
 
 import 'react-rangeslider/lib/index.css';
 import './Weight.css';
@@ -40,7 +37,7 @@ const methodTitle = (
   </Fragment>
 );
 
-const validateAdvanceForm = (values, form) => {
+const validateAdvanceForm = values => {
   if (values.hasEstimateInProgress) {
     return { has_requested_advance: 'Estimate in progress.' };
   }
@@ -233,7 +230,6 @@ export class PpmWeight extends Component {
       ppmAdvanceSchema,
       advanceFormValues,
       selectedWeightInfo,
-      isHHGPPMComboMove,
     } = this.props;
     const hasRequestedAdvance = get(advanceFormValues, 'has_requested_advance', false);
     let advanceInitialValues = null;
@@ -256,18 +252,6 @@ export class PpmWeight extends Component {
 
     return (
       <div>
-        {isHHGPPMComboMove && (
-          <WizardHeader
-            icon={ppmBlack}
-            title="Move Setup"
-            right={
-              <ProgressTimeline>
-                <ProgressTimelineStep name="Move Setup" current />
-                <ProgressTimelineStep name="Review" />
-              </ProgressTimeline>
-            }
-          />
-        )}
         <WeightWizardForm
           handleSubmit={this.handleSubmit}
           pageList={pages}
@@ -317,28 +301,22 @@ export class PpmWeight extends Component {
               )}
               <table className="numeric-info">
                 <tbody>
-                  {!isHHGPPMComboMove && (
-                    <tr>
-                      <th>Your PPM Weight Estimate:</th>
-                      <td className="current-weight"> {formatNumber(this.state.pendingPpmWeight)} lbs.</td>
-                    </tr>
-                  )}
+                  <tr>
+                    <th>Your PPM Weight Estimate:</th>
+                    <td className="current-weight"> {formatNumber(this.state.pendingPpmWeight)} lbs.</td>
+                  </tr>
                   <tr>
                     <th>Your PPM Incentive:</th>
                     <td className="incentive">{formatCentsRange(incentive_estimate_min, incentive_estimate_max)}</td>
                   </tr>
                 </tbody>
               </table>
-
-              {!isHHGPPMComboMove && (
-                <RequestAdvanceForm
-                  ppmAdvanceSchema={ppmAdvanceSchema}
-                  hasRequestedAdvance={hasRequestedAdvance}
-                  maxAdvance={maxAdvance}
-                  initialValues={advanceInitialValues}
-                />
-              )}
-
+              <RequestAdvanceForm
+                ppmAdvanceSchema={ppmAdvanceSchema}
+                hasRequestedAdvance={hasRequestedAdvance}
+                maxAdvance={maxAdvance}
+                initialValues={advanceInitialValues}
+              />
               <div className="info">
                 <h3> How is my PPM Incentive calculated?</h3>
                 <p>
@@ -393,7 +371,6 @@ function mapStateToProps(state) {
     schema: schema,
     ppmAdvanceSchema: ppmAdvanceSchema,
     advanceFormValues: getFormValues(requestAdvanceFormName)(state),
-    isHHGPPMComboMove: get(state, 'moves.currentMove.selected_move_type') === 'HHG_PPM',
     originDutyStationZip: originDutyStationZip,
   };
 
