@@ -343,6 +343,4 @@
 20190812151703_add_product_admin_users.sql
 20190812184046_remove_column_text_message_is_preferred.up.fizz
 20190814223800_add_john_gedeon.sql
-20190814223800_add_john_gedeon.up.fizz
-20190815172746_disable_mikena.up.fizz
 20190815172746_disable_mikena.up.sql
