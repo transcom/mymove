@@ -1,40 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
-import { reduxForm, FormSection } from 'redux-form';
+import { reduxForm } from 'redux-form';
 import { selectShipment } from 'shared/Entities/modules/shipments';
-import { ServiceAgentEdit, OptionalServiceAgentEdit } from 'shared/TspPanel/ServiceAgentViews';
 
 let ServiceAgentForm = props => {
-  const { schema, onCancel, handleSubmit, submitting, valid } = props;
-  const originValues = get(props, 'formValues.ORIGIN');
-  const destinationValues = get(props, 'formValues.DESTINATION');
+  const { onCancel, handleSubmit, submitting, valid } = props;
 
   return (
     <form className="infoPanel-wizard" onSubmit={handleSubmit}>
       <div className="infoPanel-wizard-header">Assign servicing agents</div>
-      <FormSection name="origin_service_agent">
-        <ServiceAgentEdit
-          serviceAgentProps={{
-            swagger: schema,
-            values: originValues,
-          }}
-          saRole="Origin"
-          columnSize="editable-panel-column"
-        />
-      </FormSection>
-      <FormSection name="destination_service_agent">
-        <OptionalServiceAgentEdit
-          serviceAgentProps={{
-            swagger: schema,
-            values: destinationValues,
-          }}
-          saRole="Destination"
-          columnSize="editable-panel-column"
-        />
-      </FormSection>
-
       <div className="infoPanel-wizard-actions-container">
         <a className="infoPanel-wizard-cancel" onClick={onCancel}>
           Cancel

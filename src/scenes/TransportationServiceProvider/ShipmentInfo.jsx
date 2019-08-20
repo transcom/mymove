@@ -48,7 +48,6 @@ import {
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
-import TspContainer from 'shared/TspPanel/TspContainer';
 import Weights from 'shared/ShipmentWeights';
 import Dates from 'shared/ShipmentDates';
 import LocationsContainer from 'shared/LocationsPanel/LocationsContainer';
@@ -428,14 +427,6 @@ class ShipmentInfo extends Component {
                   />
                   <LocationsContainer shipment={this.props.shipment} update={this.props.updatePublicShipment} />
                   {showSitPanel && <StorageInTransitPanel shipmentId={this.props.shipmentId} />}
-
-                  <TspContainer
-                    title="TSP & Servicing Agents"
-                    shipment={this.props.shipment}
-                    serviceAgents={this.props.serviceAgents}
-                    transportationServiceProviderId={this.props.shipment.transportation_service_provider_id}
-                  />
-
                   <InvoicePanel shipmentId={this.props.match.params.shipmentId} shipmentStatus={shipment.status} />
                 </div>
               )}
