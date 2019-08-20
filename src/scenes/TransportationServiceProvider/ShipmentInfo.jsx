@@ -373,14 +373,13 @@ class ShipmentInfo extends Component {
                   </span>
                 </Alert>
               )}
-              {pmSurveyComplete &&
-                !gblGenerated && (
-                  <div>
-                    <button onClick={this.generateGBL} disabled={!approved || generateGBLInProgress}>
-                      Generate the GBL
-                    </button>
-                  </div>
-                )}
+              {pmSurveyComplete && !gblGenerated && (
+                <div>
+                  <button onClick={this.generateGBL} disabled={!approved || generateGBLInProgress}>
+                    Generate the GBL
+                  </button>
+                </div>
+              )}
               {canEnterPreMoveSurvey && (
                 <FormButton
                   shipmentId={shipmentId}
@@ -521,6 +520,11 @@ const mapDispatchToProps = dispatch =>
     dispatch,
   );
 
-const connectedShipmentInfo = withContext(connect(mapStateToProps, mapDispatchToProps)(ShipmentInfo));
+const connectedShipmentInfo = withContext(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(ShipmentInfo),
+);
 
 export { DeliveryDateFormView, connectedShipmentInfo as default, ReferrerQueueLink };
