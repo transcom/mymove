@@ -1,20 +1,10 @@
 FROM alpine:3.7
 
 COPY bin_linux/milmove /bin/milmove
-RUN mkdir -p /scripts
-COPY scripts/apply-secure-migration.sh /scripts
 
 COPY migrations /migrate/migrations
 COPY migrations_manifest.txt /migrate/migrations_manifest.txt
 
-COPY local_migrations /migrate/local
+WORKDIR /
 
-ENV GO_ENV=test
-
-# Install tools needed in container
-RUN apk update
-RUN apk add postgresql-client bash --no-cache
-
-WORKDIR /scripts
-ENTRYPOINT ["/bin/milmove"]
-CMD ["migrate", "-p", "/migrate/migrations", "-m", "/migrate/migrations_manifest.txt"]
+ENTRYPOINT ["/bin/milmove", "migrate", "-p", "file:///migrate/migrations", "-m", "/migrate/migrations_manifest.txt"]

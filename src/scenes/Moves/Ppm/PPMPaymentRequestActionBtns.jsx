@@ -41,18 +41,17 @@ class PPMPaymentRequestActionBtns extends Component {
     } = this.props;
     return (
       <div className="usa-width-one-whole">
-        {hasConfirmation &&
-          this.state.displayConfirmation && (
-            <div className="ppm-payment-request-footer">
-              <AlertWithConfirmation
-                hasConfirmation={hasConfirmation}
-                type="warning"
-                cancelActionHandler={this.cancelConfirmationHandler}
-                okActionHandler={this.confirmFinishLater}
-                message="Go back to the home screen without saving current screen."
-              />
-            </div>
-          )}
+        {hasConfirmation && this.state.displayConfirmation && (
+          <div className="ppm-payment-request-footer">
+            <AlertWithConfirmation
+              hasConfirmation={hasConfirmation}
+              type="warning"
+              cancelActionHandler={this.cancelConfirmationHandler}
+              okActionHandler={this.confirmFinishLater}
+              message="Go back to the home screen without saving current screen."
+            />
+          </div>
+        )}
 
         {!this.state.displayConfirmation && (
           <div className="ppm-payment-request-footer">

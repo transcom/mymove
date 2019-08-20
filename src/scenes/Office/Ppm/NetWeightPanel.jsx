@@ -17,12 +17,11 @@ const NetWeightDisplay = ({ ppmSchema, ppm, hasWeightTicketsPending, ppmPaymentR
   };
   return (
     <div className="editable-panel-column">
-      {ppmPaymentRequestedFlag &&
-        hasWeightTicketsPending && (
-          <div className="missing-info-alert">
-            <Alert type="warning">There are more weight tickets awaiting review.</Alert>
-          </div>
-        )}
+      {ppmPaymentRequestedFlag && hasWeightTicketsPending && (
+        <div className="missing-info-alert">
+          <Alert type="warning">There are more weight tickets awaiting review.</Alert>
+        </div>
+      )}
       <PanelSwaggerField title="Net Weight" fieldName="net_weight" required {...fieldProps} />
     </div>
   );
@@ -31,7 +30,8 @@ const NetWeightDisplay = ({ ppmSchema, ppm, hasWeightTicketsPending, ppmPaymentR
 const NetWeightEdit = ({ ppmSchema }) => {
   return (
     <div className="editable-panel-column net-weight">
-      <SwaggerField className="short-field" title="Net Weight" fieldName="net_weight" swagger={ppmSchema} required />lbs
+      <SwaggerField className="short-field" title="Net Weight" fieldName="net_weight" swagger={ppmSchema} required />
+      lbs
     </div>
   );
 };
@@ -77,4 +77,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(NetWeightPanel);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(NetWeightPanel);

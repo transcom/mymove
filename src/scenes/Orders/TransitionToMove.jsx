@@ -43,4 +43,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ updateMove }, dispatch);
 }
-export default connect(mapStateToProps, mapDispatchToProps)(TransitionToMove);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(TransitionToMove);

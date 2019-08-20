@@ -27,8 +27,9 @@ const selectInvoices = (state, shipmentId) => {
   });
 };
 
-export const selectSortedInvoices = createSelector([selectInvoices], items =>
-  orderBy(items, ['invoiced_date'], ['desc']),
+export const selectSortedInvoices = createSelector(
+  [selectInvoices],
+  items => orderBy(items, ['invoiced_date'], ['desc']),
 );
 
 export const selectInvoice = (state, id) => denormalize([id], InvoiceModel, state.entities)[0];
