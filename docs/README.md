@@ -40,6 +40,7 @@ If you are looking to understand choices made in this project, see the list of [
 * [Run Go Tests](how-to/run-go-tests.md#how-to-run-go-tests)
 * [Run JavaScript (Jest) Tests](how-to/run-js-tests.md#how-to-run-javascript-jest-tests)
 * [Run and troubleshoot pre-commit hooks](how-to/run-pre-commit-hooks.md#run-and-troubleshoot-pre-commit-hooks)
+* [What is storybook](how-to/run-storybook.md#what-is-storybook)
 * [Store Data in Redux](how-to/store-data-in-redux.md#how-to-store-data-in-redux)
 * [Store UI State in Redux](how-to/store-ui-state-in-redux.md#how-to-store-ui-state-in-redux)
 * [Troubleshoot GEX Connection](how-to/troubleshoot-gex-connection.md#how-to-troubleshoot-gex-connection)
