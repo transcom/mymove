@@ -47,7 +47,7 @@ const App = () => {
         </AppContext.Provider>
       </Provider>
     );
-  else if (isTspSite) return <h1 style={{ textAlign: 'center' }}>TSP App</h1>;
+  else if (isTspSite) return <h1>TSP App</h1>;
   else if (isSystemAdminSite)
     return (
       <AppContext.Provider value={adminContext}>
