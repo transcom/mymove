@@ -9,7 +9,6 @@ import { Link, NavLink, Redirect, Switch } from 'react-router-dom';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { getStorageInTransitsForShipment, selectStorageInTransits } from 'shared/Entities/modules/storageInTransits';
 import PrivateRoute from 'shared/User/PrivateRoute';
-import LocationsContainer from './Hhg/LocationsContainer';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import DocumentList from 'shared/DocumentViewer/DocumentList';
 import AccountingPanel from './AccountingPanel';
@@ -121,7 +120,6 @@ const HHGTabContent = props => {
     <div className="office-tab">
       <RoutingPanel title="Routing" moveId={moveId} />
       <Dates title="Dates" shipment={shipment} update={updatePublicShipment} />
-      <LocationsContainer update={updatePublicShipment} shipmentId={shipment.id} />
       <Weights title="Weights & Items" shipment={shipment} update={updatePublicShipment} />
       <ServiceAgentsContainer
         title="TSP & Servicing Agents"

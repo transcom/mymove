@@ -51,12 +51,10 @@ import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 import TspContainer from 'shared/TspPanel/TspContainer';
 import Weights from 'shared/ShipmentWeights';
 import Dates from 'shared/ShipmentDates';
-import LocationsContainer from 'shared/LocationsPanel/LocationsContainer';
 import { getLastRequestIsSuccess, getLastRequestIsLoading, getLastError } from 'shared/Swagger/selectors';
 import { resetRequests } from 'shared/Swagger/request';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
-import StorageInTransitPanel from 'shared/StorageInTransit/StorageInTransitPanel.jsx';
 import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
 import PickupForm from './PickupForm';
 import PremoveSurveyForm from './PremoveSurveyForm';
@@ -240,7 +238,6 @@ class ShipmentInfo extends Component {
 
   render() {
     const {
-      context,
       shipment,
       shipmentDocuments,
       generateGBLSuccess,
@@ -254,7 +251,6 @@ class ShipmentInfo extends Component {
 
     const shipmentId = this.props.shipmentId;
     const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
-    const showSitPanel = context.flags.sitPanel;
     const awarded = shipment.status === 'AWARDED';
     const accepted = shipment.status === 'ACCEPTED';
     const approved = shipment.status === 'APPROVED';
@@ -426,8 +422,6 @@ class ShipmentInfo extends Component {
                     shipment={this.props.shipment}
                     update={this.props.updatePublicShipment}
                   />
-                  <LocationsContainer shipment={this.props.shipment} update={this.props.updatePublicShipment} />
-                  {showSitPanel && <StorageInTransitPanel shipmentId={this.props.shipmentId} />}
 
                   <TspContainer
                     title="TSP & Servicing Agents"
