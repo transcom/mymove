@@ -28,7 +28,6 @@ import ServiceAgentsContainer from './Hhg/ServiceAgentsContainer';
 import Weights from 'shared/ShipmentWeights';
 import { withContext } from 'shared/AppContext';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
-import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 import StorageInTransitPanel from 'shared/StorageInTransit/StorageInTransitPanel.jsx';
 import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
 import ComboButton from 'shared/ComboButton';
@@ -130,7 +129,6 @@ const HHGTabContent = props => {
         serviceAgents={serviceAgents}
         transportationServiceProviderId={shipment.transportation_service_provider_id}
       />
-      <PreApprovalPanel shipmentId={shipment.id} />
       {showSitPanel && <StorageInTransitPanel shipmentId={shipmentId} moveId={moveId} />}
       <InvoicePanel shipmentId={shipment.id} shipmentStatus={shipmentStatus} canApprove={canApprovePaymentInvoice} />
     </div>
