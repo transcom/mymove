@@ -207,4 +207,9 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ setUserIsLoggedIn }, dispatch);
 }
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(QueueTable));
+export default withRouter(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(QueueTable),
+);
