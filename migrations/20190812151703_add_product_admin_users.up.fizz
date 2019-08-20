@@ -1,1 +1,0 @@
-exec("./apply-secure-migration.sh 20190812151703_add_product_admin_users.sql")
