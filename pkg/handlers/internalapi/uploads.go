@@ -45,6 +45,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		logger.Error("This should always be a runtime.File, something has changed in go-swagger.")
 		return uploadop.NewCreateUploadInternalServerError()
 	}
+	defer file.Close()
 
 	logger.Info(
 		"File name and size",
@@ -74,6 +75,8 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		logger.Error("Error opening afero file.", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
 	}
+	//TODO see if this helps
+	defer aFile.Close()
 
 	_, err = io.Copy(aFile, file.Data)
 	if err != nil {
