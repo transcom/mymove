@@ -86,7 +86,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 	}
 
 	maxObligation := models.Obligation{Gcc: maxCost.GCC, SIT: maxCost.SITMax}
-	actualObligation := models.Obligation{Gcc: actualCost.GCC, SIT: actualSIT}
+	actualObligation := models.Obligation{Gcc: actualCost.GCC, SIT: actualSIT, Miles: actualCost.Miles}
 	obligations := models.Obligations{MaxObligation: maxObligation, ActualObligation: actualObligation}
 	return obligations, nil
 }

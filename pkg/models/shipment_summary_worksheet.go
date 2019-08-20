@@ -69,6 +69,7 @@ type ShipmentSummaryWorksheetPage1Values struct {
 	ActualObligationGCC95           string
 	ActualObligationAdvance         string
 	ActualObligationSIT             string
+	MileageTotal                    string
 }
 
 //ShipmentSummaryWorkSheetShipments is and object representing shipment line items on Shipment Summary Worksheet
@@ -89,6 +90,7 @@ type ShipmentSummaryWorkSheetSIT struct {
 type FormattedSitExpenses struct {
 	TotalMemberPaidSIT string
 	TotalGTCCPaidSIT   string
+	TotalPaidSIT       string
 }
 
 // ShipmentSummaryWorksheetPage2Values is an object representing a Shipment Summary Worksheet
@@ -122,11 +124,14 @@ type FormattedMovingExpenses struct {
 	TotalGTCCPaid               string
 	TotalMemberPaidRepeated     string
 	TotalGTCCPaidRepeated       string
+	TotalPaidNonSIT             string
 }
 
 // ShipmentSummaryWorksheetPage3Values is an object representing a Shipment Summary Worksheet
 type ShipmentSummaryWorksheetPage3Values struct {
+	PreparationDate        string
 	ServiceMemberSignature string
+	SignatureDate          string
 }
 
 // ShipmentSummaryFormData is a container for the various objects required for the a Shipment Summary Worksheet
@@ -152,8 +157,9 @@ type Obligations struct {
 
 //Obligation an object representing the obligations section on the shipment summary worksheet
 type Obligation struct {
-	Gcc unit.Cents
-	SIT unit.Cents
+	Gcc   unit.Cents
+	SIT   unit.Cents
+	Miles int
 }
 
 //GCC100 calculates the 100% GCC on shipment summary worksheet
@@ -379,6 +385,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.ActualObligationGCC95 = FormatDollars(actualObligations.GCC95())
 	page1.ActualObligationSIT = FormatDollars(actualObligations.FormatSIT())
 	page1.ActualObligationAdvance = formatActualObligationAdvance(data)
+	page1.MileageTotal = FormatMiles(actualObligations.Miles)
 	return page1
 }
 
@@ -451,18 +458,25 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData)
 //FormatValuesShipmentSummaryWorksheetFormPage2 formats the data for page 2 of the Shipment Summary Worksheet
 func FormatValuesShipmentSummaryWorksheetFormPage3(data ShipmentSummaryFormData) ShipmentSummaryWorksheetPage3Values {
 	page3 := ShipmentSummaryWorksheetPage3Values{}
-	page3.ServiceMemberSignature = FormatSignature(data)
+	page3.PreparationDate = FormatDate(data.PreparationDate)
+	page3.ServiceMemberSignature = FormatSignature(data.ServiceMember)
+	page3.SignatureDate = FormatSignatureDate(data.SignedCertification)
 	return page3
 }
 
 //FormatSignature formats a service member's signature for the Shipment Summary Worksheet
-func FormatSignature(data ShipmentSummaryFormData) string {
-	dateLayout := "02 Jan 2006 at 3:04pm"
-	dt := data.SignedCertification.Date.Format(dateLayout)
-	first := derefStringTypes(data.ServiceMember.FirstName)
-	last := derefStringTypes(data.ServiceMember.LastName)
+func FormatSignature(sm ServiceMember) string {
+	first := derefStringTypes(sm.FirstName)
+	last := derefStringTypes(sm.LastName)
 
-	return fmt.Sprintf("%s %s electronically signed on %s", first, last, dt)
+	return fmt.Sprintf("%s %s", first, last)
+}
+
+// FormatSignatureDate formats the date the service member electronically signed for the Shipment Summary Worksheet
+func FormatSignatureDate(signature SignedCertification) string {
+	dateLayout := "02 Jan 2006 at 3:04pm"
+	dt := signature.Date.Format(dateLayout)
+	return fmt.Sprintf("%s", dt)
 }
 
 //FormatLocation formats AuthorizedOrigin and AuthorizedDestination for Shipment Summary Worksheet
@@ -562,6 +576,7 @@ func FormatSitExpenses(movingExpenseDocuments MovingExpenseDocuments) (Formatted
 	return FormattedSitExpenses{
 		TotalMemberPaidSIT: storageExpenses.StorageMemberPaid,
 		TotalGTCCPaidSIT:   storageExpenses.StorageGTCCPaid,
+		TotalPaidSIT:       FormatDollars(subTotals["TotalPaid"]),
 	}, nil
 }
 
@@ -594,6 +609,7 @@ func FormatMovingExpenses(movingExpenseDocuments MovingExpenseDocuments) (Format
 		TotalGTCCPaid:               FormatDollars(0),
 	}
 	subTotals := SubTotalExpenses(nonSitExpenses)
+	expenses.TotalPaidNonSIT = FormatDollars(subTotals["TotalPaid"])
 	formattedExpenses := make(map[string]string)
 	for key, value := range subTotals {
 		formattedExpenses[key] = FormatDollars(value)
@@ -625,6 +641,7 @@ func addToGrandTotal(totals map[string]float64, key string, expenseDollarAmt flo
 	} else {
 		totals["TotalMemberPaid"] += expenseDollarAmt
 	}
+	totals["TotalPaid"] += expenseDollarAmt
 }
 
 func getExpenseType(expense MovingExpenseDocument) string {
@@ -713,6 +730,12 @@ func FormatWeights(wtg unit.Pound) string {
 func FormatDollars(dollars float64) string {
 	p := message.NewPrinter(language.English)
 	return p.Sprintf("$%.2f", dollars)
+}
+
+// FormatMiles formats an int using 000s seperator
+func FormatMiles(miles int) string {
+	p := message.NewPrinter(language.English)
+	return p.Sprintf("%d", miles)
 }
 
 func derefStringTypes(st interface{}) string {

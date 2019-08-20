@@ -35,6 +35,7 @@ type CostComputation struct {
 	SITDiscount unit.DiscountRate
 	Weight      unit.Pound
 	ShipmentID  uuid.UUID
+	Miles       int
 }
 
 // Scale scales a cost computation by a multiplicative factor
@@ -153,6 +154,7 @@ func (re *RateEngine) computePPM(
 		LHDiscount:                 lhDiscount,
 		SITDiscount:                sitDiscount,
 		Weight:                     weight,
+		Miles:                      distanceMiles,
 	}
 
 	// Finally, scale by prorate factor
@@ -232,7 +234,6 @@ func (re *RateEngine) ComputeLowestCostPPMMove(weight unit.Pound, originPickupZi
 	}
 
 	re.logger.Info("Origin zip code information", zap.String("originZipLocation", originZipLocation), zap.String("originZipCode", originZipCode))
-
 	return cost, nil
 }
 

@@ -269,8 +269,6 @@ func (suite *ModelSuite) TestFetchMovingExpensesShipmentSummaryWorksheetNoPPM() 
 	suite.NoError(err)
 }
 
-<<<<<<< HEAD
-=======
 func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
 	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
@@ -388,7 +386,6 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal("$10.00", sswPage1.ActualObligationAdvance)
 }
 
->>>>>>> Add 3rd page and reorient files
 func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2() {
 	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
 	orderIssueDate := time.Date(2018, time.December, 21, 0, 0, 0, 0, time.UTC)
