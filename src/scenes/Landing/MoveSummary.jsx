@@ -348,22 +348,11 @@ const NewApprovedMoveSummaryComponent = ({
                   </div>
                 )}
                 {paymentRequested ? (
-                  isMissingWeightTicketDocuments ? (
+                  isMissingWeightTicketDocuments && (
                     <div className="step">
                       <div className="title">Next step: Contact the PPPO office</div>
                       <div>
                         You will need to go into the PPPO office in order to take care of your missing weight ticket.
-                      </div>
-                      <Link to={ppmPaymentRequestReviewRoute} className="usa-button usa-button-secondary">
-                        Edit Payment Request
-                      </Link>
-                    </div>
-                  ) : (
-                    <div className="step">
-                      <div className="title">Next step: Wait for your payment paperwork</div>
-                      <div>
-                        We're reviewing your payment request for ${formatCents(incentiveEstimate)}. We'll let you know
-                        when you can submit your payment paperwork to Finance.
                       </div>
                       <Link to={ppmPaymentRequestReviewRoute} className="usa-button usa-button-secondary">
                         Edit Payment Request
