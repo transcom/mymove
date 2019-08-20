@@ -906,6 +906,14 @@ spellcheck: .client_deps.stamp ## Run interactive spellchecker
 			-not -path "./vendor/*" \
 			-not -path "./docs/adr/index.md"`
 
+.PHONY: storybook
+storybook: ## Start the storybook server
+	yarn run storybook
+
+.PHONY: build_storybook
+build_storybook: ## Build static storybook site
+	yarn run build-storybook
+
 #
 # ----- END RANDOM TARGETS -----
 #
