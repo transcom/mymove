@@ -309,14 +309,6 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 		SpouseHasProGear:    true,
 	}
 	pickupDate := time.Date(2019, time.January, 11, 0, 0, 0, 0, time.UTC)
-	weight := unit.Pound(5000)
-	shipments := []models.Shipment{
-		{
-			ActualPickupDate: &pickupDate,
-			NetWeight:        &weight,
-			Status:           models.ShipmentStatusDELIVERED,
-		},
-	}
 	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
 	netWeight := unit.Pound(4000)
 	personallyProcuredMoves := []models.PersonallyProcuredMove{
@@ -334,7 +326,6 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 		NewDutyStation:          fortGordon,
 		PPMRemainingEntitlement: 3000,
 		WeightAllotment:         wtgEntitlements,
-		Shipments:               shipments,
 		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
 		PersonallyProcuredMoves: personallyProcuredMoves,
 		Obligations: models.Obligations{
@@ -769,20 +760,27 @@ func (suite *ModelSuite) TestCalculatePPMEntitlementNoHHGPPMGreaterThanMaxEntitl
 }
 
 func (suite *ModelSuite) TestFormatSignature() {
-	signatureDate := time.Date(2019, time.January, 26, 14, 40, 0, 0, time.UTC)
 	sm := models.ServiceMember{
 		FirstName: models.StringPointer("John"),
 		LastName:  models.StringPointer("Smith"),
 	}
+
+	formattedSignature := models.FormatSignature(sm)
+
+	suite.Equal("John Smith electronically signed", formattedSignature)
+}
+
+func (suite *ModelSuite) TestFormatSignatureDate() {
+	signatureDate := time.Date(2019, time.January, 26, 14, 40, 0, 0, time.UTC)
+
 	signature := models.SignedCertification{
 		Date: signatureDate,
 	}
 	sswfd := models.ShipmentSummaryFormData{
-		ServiceMember:       sm,
 		SignedCertification: signature,
 	}
 
-	formattedSignature := models.FormatSignature(sswfd)
+	formattedDate := models.FormatSignatureDate(sswfd.SignedCertification)
 
-	suite.Equal("John Smith electronically signed on 26 Jan 2019 at 2:40pm", formattedSignature)
+	suite.Equal("26 Jan 2019 at 2:40pm", formattedDate)
 }

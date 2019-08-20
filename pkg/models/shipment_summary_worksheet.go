@@ -469,7 +469,7 @@ func FormatSignature(sm ServiceMember) string {
 	first := derefStringTypes(sm.FirstName)
 	last := derefStringTypes(sm.LastName)
 
-	return fmt.Sprintf("%s %s", first, last)
+	return fmt.Sprintf("%s %s electronically signed", first, last)
 }
 
 // FormatSignatureDate formats the date the service member electronically signed for the Shipment Summary Worksheet
