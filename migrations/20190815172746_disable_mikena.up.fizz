@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190815172746_disable_mikena.up.sql")

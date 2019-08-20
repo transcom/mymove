@@ -31,7 +31,6 @@ If you are looking to understand choices made in this project, see the list of [
 * [display dates and times](how-to/display-dates-and-times.md#how-to-display-dates-and-times)
 * [Generate Mocks with Mockery](how-to/generate-mocks-with-mockery.md#how-to-generate-mocks-with-mockery)
 * [Run Acceptance Tests](how-to/how-to-run-acceptance-tests.md#how-to-run-acceptance-tests)
-* [Instrument Data in Honeycomb](how-to/instrument-data-in-honeycomb.md#how-to-instrument-data-in-honeycomb)
 * [Manage Dependencies With go mod](how-to/manage-dependencies-with-go-mod.md#how-to-manage-dependencies-with-go-mod)
 * [Manage Docker Locally](how-to/manage-docker-locally.md#how-to-manage-docker-locally)
 * [Migrate the Database](how-to/migrate-the-database.md#how-to-migrate-the-database)
@@ -46,6 +45,7 @@ If you are looking to understand choices made in this project, see the list of [
 * [Troubleshoot GEX Connection](how-to/troubleshoot-gex-connection.md#how-to-troubleshoot-gex-connection)
 * [Unit Test React Components](how-to/unit-test-react-components.md#how-to-unit-test-react-components)
 * [Upgrade Go Version](how-to/upgrade-go-version.md#how-to-upgrade-go-version)
+* [View ECS Service Logs](how-to/view-ecs-service-logs.md#how-to-view-ecs-service-logs)
 
 ## ADRs
 

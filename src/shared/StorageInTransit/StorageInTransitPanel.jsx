@@ -91,8 +91,9 @@ export class StorageInTransitPanel extends Component {
                 />
               );
             })}
-          {isCreatorActionable &&
-            isTspSite && <Creator onFormActivation={this.onFormActivation} saveStorageInTransit={this.onSubmit} />}
+          {isCreatorActionable && isTspSite && (
+            <Creator onFormActivation={this.onFormActivation} saveStorageInTransit={this.onSubmit} />
+          )}
         </BasicPanel>
       </div>
     );
@@ -135,4 +136,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ createStorageInTransit, deleteStorageInTransit }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(StorageInTransitPanel);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(StorageInTransitPanel);

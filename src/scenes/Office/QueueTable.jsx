@@ -118,7 +118,8 @@ class QueueTable extends Component {
     const titles = {
       new: 'New Moves/Shipments',
       troubleshooting: 'Troubleshooting',
-      ppm: 'PPM Shipments',
+      ppm: 'All PPMs',
+      ppm_payment_requested: 'Payment Requests PPMs',
       hhg_active: 'Active HHGs',
       hhg_delivered: 'Delivered HHGs',
       all: 'All Moves',
@@ -129,6 +130,7 @@ class QueueTable extends Component {
         case 'new':
           return newColumns;
         case 'ppm':
+        case 'ppm_payment_requested':
           return ppmColumns;
         case 'hhg_active':
           return hhgActiveColumns;
@@ -155,7 +157,10 @@ class QueueTable extends Component {
         row.shipments = 'HHG';
       }
 
-      if (this.props.queueType === 'ppm' && row.ppm_status !== null) {
+      if (
+        (this.props.queueType === 'ppm' || this.props.queueType === 'ppm_payment_requested') &&
+        row.ppm_status !== null
+      ) {
         row.synthetic_status = row.ppm_status;
       } else {
         row.synthetic_status = row.status;
@@ -217,4 +222,9 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ setUserIsLoggedIn }, dispatch);
 }
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(QueueTable));
+export default withRouter(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(QueueTable),
+);

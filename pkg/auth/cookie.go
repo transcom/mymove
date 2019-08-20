@@ -9,7 +9,6 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/csrf"
-	beeline "github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
@@ -256,9 +255,6 @@ func SessionCookieMiddleware(serverLogger Logger, secret string, noSessionTimeou
 				logger = serverLogger
 			}
 
-			ctx, span := beeline.StartSpan(ctx, "SessionCookieMiddleware")
-			defer span.Send()
-
 			// Set up the new session object
 			session := Session{}
 
@@ -281,9 +277,6 @@ func SessionCookieMiddleware(serverLogger Logger, secret string, noSessionTimeou
 
 			// And update the cookie. May get over-ridden later
 			WriteSessionCookie(w, &session, secret, noSessionTimeout, logger, useSecureCookie)
-
-			span.AddTraceField("auth.application_name", session.ApplicationName)
-			span.AddTraceField("auth.hostname", session.Hostname)
 
 			// And put the session info into the request context
 			next.ServeHTTP(w, r.WithContext(SetSessionInContext(ctx, &session)))

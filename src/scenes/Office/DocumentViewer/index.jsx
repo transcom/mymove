@@ -174,17 +174,16 @@ class DocumentViewer extends Component {
                 </div>
               </TabPanel>
 
-              {moveDocumentId &&
-                moveDocumentId !== 'new' && (
-                  <TabPanel>
-                    <DocumentDetailPanel
-                      className="document-viewer"
-                      moveDocumentId={moveDocumentId}
-                      moveId={moveId}
-                      title=""
-                    />
-                  </TabPanel>
-                )}
+              {moveDocumentId && moveDocumentId !== 'new' && (
+                <TabPanel>
+                  <DocumentDetailPanel
+                    className="document-viewer"
+                    moveDocumentId={moveDocumentId}
+                    moveId={moveId}
+                    title=""
+                  />
+                </TabPanel>
+              )}
             </Tabs>
           </div>
         </div>
@@ -235,4 +234,7 @@ const mapDispatchToProps = {
   getMoveDocumentsForMove,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(DocumentViewer);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(DocumentViewer);

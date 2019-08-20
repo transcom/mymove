@@ -48,30 +48,25 @@ function officeUserViewsSITPanel() {
   cy.get('[data-cy=storage-in-transit-panel]').contains('Storage in Transit');
   cy.get('[data-cy=storage-in-transit]').within(() => {
     cy.contains('Destination SIT');
-    cy
-      .get('[data-cy=sit-status-text]')
+    cy.get('[data-cy=sit-status-text]')
       .contains('Status')
       .parent()
       .siblings()
       .contains('SIT Requested');
-    cy
-      .contains('Dates')
+    cy.contains('Dates')
       .siblings()
       .contains('Est. start date')
       .siblings()
       .contains('22-Mar-2019');
-    cy
-      .contains('Note')
+    cy.contains('Note')
       .siblings()
       .contains('Shipper phoned to let us know he is delayed until next week.');
-    cy
-      .contains('Warehouse')
+    cy.contains('Warehouse')
       .siblings()
       .contains('Warehouse ID')
       .siblings()
       .contains('000383');
-    cy
-      .contains('Warehouse')
+    cy.contains('Warehouse')
       .siblings()
       .contains('Contact info')
       .siblings()
@@ -99,8 +94,7 @@ function officeUserStartsAndCancelsSitApproval() {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
   });
 
-  cy
-    .get('a')
+  cy.get('a')
     .contains('Approve')
     .click()
     .get('[data-cy=storage-in-transit]')
@@ -113,8 +107,7 @@ function officeUserStartsAndCancelsSitApproval() {
 
   cy.get('input[name="authorized_start_date"]').should('have.value', '3/22/2019');
 
-  cy
-    .get('.usa-button-secondary')
+  cy.get('.usa-button-secondary')
     .contains('Cancel')
     .click()
     .get('[data-cy=storage-in-transit-panel] [data-cy=add-request]')
@@ -144,8 +137,7 @@ function officeUserStartsAndCancelsSitEdit() {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
   });
 
-  cy
-    .get('[data-cy=storage-in-transit]')
+  cy.get('[data-cy=storage-in-transit]')
     .contains('Edit')
     .click()
     .get('.sit-authorization')
@@ -154,8 +146,7 @@ function officeUserStartsAndCancelsSitEdit() {
       expect(text).to.include('Edit SIT authorization');
     });
 
-  cy
-    .get('.usa-button-secondary')
+  cy.get('.usa-button-secondary')
     .contains('Cancel')
     .click()
     .get('[data-cy=storage-in-transit]')
@@ -186,8 +177,7 @@ function officeUserApprovesSITRequest() {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
   });
 
-  cy
-    .get('a')
+  cy.get('a')
     .contains('Approve')
     .click()
     .get('[data-cy="storage-in-transit"]')
@@ -202,8 +192,7 @@ function officeUserApprovesSITRequest() {
 
   cy.get('textarea[name="authorization_notes"]').type('this is a note', { force: true });
 
-  cy
-    .get('[data-cy="storage-in-transit-approve-button"]')
+  cy.get('[data-cy="storage-in-transit-approve-button"]')
     .contains('Approve')
     .click();
 
@@ -222,8 +211,7 @@ function officeUserApprovesSITRequest() {
 
   cy.get('textarea[name="authorization_notes"]').type('this is also a note', { force: true });
 
-  cy
-    .get('[data-cy="sit-editor-save-button"]')
+  cy.get('[data-cy="sit-editor-save-button"]')
     .contains('Save')
     .click();
 
@@ -253,8 +241,7 @@ function officeUserDeniesSITRequest() {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
   });
 
-  cy
-    .get('a[data-cy="sit-deny-link"]')
+  cy.get('a[data-cy="sit-deny-link"]')
     .contains('Deny')
     .click()
     .get('[data-cy="storage-in-transit"]')
@@ -265,8 +252,7 @@ function officeUserDeniesSITRequest() {
       expect(text).to.not.include('Edit');
     });
   cy.get('textarea[name="authorization_notes"]').type('this is a denial note');
-  cy
-    .get('[data-cy="storage-in-transit-deny-button"]')
+  cy.get('[data-cy="storage-in-transit-deny-button"]')
     .contains('Deny')
     .click();
 
@@ -277,8 +263,7 @@ function officeUserDeniesSITRequest() {
 
   cy.get('textarea[name="authorization_notes"]').type('this is also a note', { force: true });
 
-  cy
-    .get('[data-cy="sit-editor-save-button"]')
+  cy.get('[data-cy="sit-editor-save-button"]')
     .contains('Save')
     .click();
 
@@ -315,8 +300,7 @@ function officeUserEntitlementRemainingDays() {
 
   officeUserGoesToPlacedSIT();
 
-  cy
-    .get('[data-cy=storage-in-transit-panel]')
+  cy.get('[data-cy=storage-in-transit-panel]')
     .should($div => {
       const text = $div.text();
       expect(text).to.include('In SIT');
@@ -335,8 +319,7 @@ function officeUserEntitlementRemainingDaysExpired() {
 
   officeUserGoesToPlacedSIT();
 
-  cy
-    .get('[data-cy=storage-in-transit-panel]')
+  cy.get('[data-cy=storage-in-transit-panel]')
     .should($div => {
       const text = $div.text();
       expect(text).to.include('In SIT - SIT Expired');

@@ -14,7 +14,9 @@ import { fetchAccessCode } from 'shared/Entities/modules/accessCodes';
 // note that it does not work if the route is not inside a Switch
 class ValidatedPrivateRouteContainer extends React.Component {
   componentDidMount() {
-    this.props.fetchAccessCode();
+    if (this.props.requiresAccessCode) {
+      this.props.fetchAccessCode();
+    }
   }
 
   render() {
@@ -39,6 +41,9 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => bindActionCreators({ fetchAccessCode }, dispatch);
 
-const ValidatedPrivateRoute = connect(mapStateToProps, mapDispatchToProps)(ValidatedPrivateRouteContainer);
+const ValidatedPrivateRoute = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(ValidatedPrivateRouteContainer);
 
 export default ValidatedPrivateRoute;

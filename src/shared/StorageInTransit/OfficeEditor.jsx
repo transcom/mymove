@@ -106,4 +106,7 @@ function mapDispatchToProps(dispatch) {
     dispatch,
   );
 }
-export default connect(mapStateToProps, mapDispatchToProps)(OfficeEditor);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(OfficeEditor);
