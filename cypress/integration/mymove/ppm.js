@@ -387,7 +387,6 @@ function serviceMemberReviewsDocuments() {
     .click();
   cy.wait('@signedCertifications');
   cy.wait('@requestPayment');
-  cy.contains("We're reviewing your payment request for $");
 }
 function serviceMemberEditsPaymentRequest() {
   cy
