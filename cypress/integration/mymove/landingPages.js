@@ -35,53 +35,10 @@ describe('testing landing pages', function() {
     // ppm-canceled@example.com
     canceledMove('20102768-4d45-449c-a585-81bc386204b1');
   });
-
-  // HHG: SUBMITTED
-  it('tests submitted HHG', function() {
-    // hhg@incomplete.serviceagent
-    hhgMoveSummary('412e76e0-bb34-47d4-ba37-ff13e2dd40b9');
-  });
-
-  // HHG: AWARDED
-  it('tests awarded HHG', function() {
-    // hhg@reject.ing
-    hhgMoveSummary('76bdcff3-ade4-41ff-bf09-0b2474cec751');
-  });
-
-  // HHG: ACCEPTED
-  it('tests accepted HHG', function() {
-    // hhg@accept.ed
-    hhgMoveSummary('6a39dd2a-a23f-4967-a035-3bc9987c6848');
-  });
-
-  // HHG: APPROVED
-  it('tests approved HHG', function() {
-    // hhg@approv.ed
-    hhgMoveSummary('68461d67-5385-4780-9cb6-417075343b0e');
-  });
-
-  // HHG: IN_TRANSIT
-  it('tests in-transit HHG', function() {
-    // hhg@in.transit
-    hhgMoveSummary('1239dd2a-a23f-4967-a035-3bc9987c6848');
-  });
-
-  // HHG: DELIVERED
-  it('tests delivered HHG', function() {
-    // hhg@de.livered
-    hhgDeliveredOrCompletedMoveSummary('3339dd2a-a23f-4967-a035-3bc9987c6848');
-  });
-
-  // HHG: CANCELED
-  it('tests canceled HHG', function() {
-    // hhg@cancel.ed
-    canceledMove('05ea5bc3-fd77-4f42-bdc5-a984a81b3829');
-  });
 });
 
 function draftMove(userId) {
   cy.signInAsUserPostRequest(milmoveAppName, userId);
-  cy.contains('Move to be scheduled');
   cy.contains('Next Step: Finish setting up your move');
   cy.logout();
 }
@@ -108,21 +65,6 @@ function ppmPaymentRequested(userId) {
   cy.contains('Move your own stuff (PPM)');
   cy.contains('Your payment is in review');
   cy.contains('You will receive a notification from your destination PPPO office when it has been reviewed.');
-  cy.logout();
-}
-
-function hhgMoveSummary(userId) {
-  cy.signInAsUserPostRequest(milmoveAppName, userId);
-  cy.contains('Government Movers and Packers (HHG)');
-  cy.contains('Next Step: Prepare for move');
-  cy.contains('Add PPM (DITY) Move');
-  cy.logout();
-}
-
-function hhgDeliveredOrCompletedMoveSummary(userId) {
-  cy.signInAsUserPostRequest(milmoveAppName, userId);
-  cy.contains('Government Movers and Packers (HHG)');
-  cy.contains('Next Step: Survey');
   cy.logout();
 }
 
