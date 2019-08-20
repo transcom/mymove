@@ -26,7 +26,6 @@ import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
 import Review from 'scenes/Review/Review';
 import Agreement from 'scenes/Legalese';
-import PpmAgreement from 'scenes/Legalese/SubmitPpm';
 
 const PageNotInFlow = ({ location }) => (
   <div className="usa-grid">
@@ -160,24 +159,6 @@ const pages = {
       );
     },
   },
-  '/moves/:moveId/hhg-ppm-start': {
-    isInFlow: hasHHGPPM,
-    isComplete: ({ sm, orders, move, ppm }) => {
-      return ppm && every([ppm.original_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
-    },
-    render: key => ({ match }) => <PpmDateAndLocations pages={hhgPPMPages} pageKey={key} match={match} />,
-  },
-  '/moves/:moveId/hhg-ppm-size': {
-    isInFlow: hasHHGPPM,
-    isComplete: ({ sm, orders, move, ppm }) => !!ppm.size,
-    render: (key, pages) => ({ match }) => <PpmSize pages={hhgPPMPages} pageKey={key} match={match} />,
-  },
-  '/moves/:moveId/hhg-ppm-weight': {
-    isInFlow: hasHHGPPM,
-    isComplete: ({ sm, orders, move, ppm }) =>
-      get(ppm, 'weight_estimate', null) && get(ppm, 'weight_estimate', 0) !== 0,
-    render: (key, pages) => ({ match }) => <PpmWeight pages={hhgPPMPages} pageKey={key} match={match} />,
-  },
   '/moves/:moveId/ppm-start': {
     isInFlow: state => state.selectedMoveType === 'PPM',
     isComplete: ({ sm, orders, move, ppm }) => {
@@ -201,13 +182,6 @@ const pages = {
     isComplete: ({ sm, orders, move, ppm }) => isCurrentMoveSubmitted(move, ppm),
     render: (key, pages) => ({ match }) => <Review pages={pages} pageKey={key} match={match} />,
   },
-  '/moves/:moveId/hhg-ppm-agreement': {
-    isInFlow: hasHHGPPM,
-    isComplete: ({ sm, orders, move }) => get(move, 'status', 'DRAFT') === 'SUBMITTED',
-    render: (key, pages, description, props) => ({ match }) => {
-      return <PpmAgreement pages={hhgPPMPages} pageKey={key} match={match} />;
-    },
-  },
   '/moves/:moveId/agreement': {
     isInFlow: ({ selectedMoveType }) => !hasHHGPPM({ selectedMoveType }),
     isComplete: ({ sm, orders, move, ppm }) => isCurrentMoveSubmitted(move, ppm),
@@ -216,15 +190,6 @@ const pages = {
     },
   },
 };
-
-// TODO currently an interim step for adding hhgPPM combo move pages
-const hhgPPMPages = [
-  '/moves/:moveId/hhg-ppm-start',
-  '/moves/:moveId/hhg-ppm-size',
-  '/moves/:moveId/hhg-ppm-weight',
-  '/moves/:moveId/review',
-  '/moves/:moveId/hhg-ppm-agreement',
-];
 
 export const getPagesInFlow = ({ selectedMoveType, lastMoveIsCanceled }) =>
   Object.keys(pages).filter(pageKey => {
