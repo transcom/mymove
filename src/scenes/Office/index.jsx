@@ -38,27 +38,13 @@ export class Queues extends Component {
   }
 }
 
-export class RenderWithHeader extends Component {
+export class RenderWithOrWithoutHeader extends Component {
   render() {
     const Tag = detectIE11() ? 'div' : 'main';
     const Component = this.props.component;
     return (
       <>
-        <QueueHeader />
-        <Tag role="main" className="site__content">
-          <Component {...this.props} />
-        </Tag>
-      </>
-    );
-  }
-}
-
-export class RenderWithoutHeader extends Component {
-  render() {
-    const Tag = detectIE11() ? 'div' : 'main';
-    const Component = this.props.component;
-    return (
-      <>
+        {this.props.withHeader && <QueueHeader />}
         <Tag role="main" className="site__content">
           <Component {...this.props} />
         </Tag>
@@ -120,24 +106,30 @@ export class OfficeWrapper extends Component {
                 />
                 <PrivateRoute
                   path="/queues/:queueType/moves/:moveId"
-                  component={props => <RenderWithHeader component={MoveInfo} {...props} />}
+                  component={props => <RenderWithOrWithoutHeader component={MoveInfo} withHeader={true} {...props} />}
                 />
                 <PrivateRoute
                   path="/queues/:queueType"
-                  component={props => <RenderWithHeader component={Queues} {...props} />}
+                  component={props => <RenderWithOrWithoutHeader component={Queues} withHeader={true} {...props} />}
                 />
                 <PrivateRoute
                   path="/moves/:moveId/orders"
-                  component={props => <RenderWithoutHeader component={OrdersInfo} {...props} />}
+                  component={props => (
+                    <RenderWithOrWithoutHeader component={OrdersInfo} withHeader={false} {...props} />
+                  )}
                 />
                 <PrivateRoute
                   path="/moves/:moveId/documents/:moveDocumentId?"
-                  component={props => <RenderWithoutHeader component={DocumentViewer} {...props} />}
+                  component={props => (
+                    <RenderWithOrWithoutHeader component={DocumentViewer} withHeader={false} {...props} />
+                  )}
                 />
                 {!isProduction && (
                   <PrivateRoute
                     path="/playground"
-                    component={props => <RenderWithHeader component={ScratchPad} {...props} />}
+                    component={props => (
+                      <RenderWithOrWithoutHeader component={ScratchPad} withHeader={true} {...props} />
+                    )}
                   />
                 )}
               </Switch>
