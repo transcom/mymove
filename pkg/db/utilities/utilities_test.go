@@ -56,6 +56,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithoutAssociatio
 	})
 
 	suite.MustSave(&expenseDocumentModel)
+	suite.Nil(expenseDocumentModel.DeletedAt)
 
 	err := utilities.SoftDestroy(suite.DB(), &expenseDocumentModel)
 	suite.NoError(err)
@@ -67,7 +68,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithoutDeletedAtWithAssociatio
 	suite.MustSave(&serviceMember)
 
 	err := utilities.SoftDestroy(suite.DB(), &serviceMember)
-	suite.Error(err)
+	suite.Equal("this model does not have deleted_at field", err.Error())
 }
 
 func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasOneAssociations() {
@@ -89,6 +90,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasOneAssocia
 			},
 		})
 	suite.MustSave(&moveDoc)
+	suite.Nil(moveDoc.DeletedAt)
 
 	emptyWeight := unit.Pound(1000)
 	fullWeight := unit.Pound(2500)
@@ -105,6 +107,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasOneAssocia
 		TrailerOwnershipMissing:  false,
 	}
 	suite.MustSave(&weightTicketSetDocument)
+	suite.Nil(weightTicketSetDocument.DeletedAt)
 
 	err := utilities.SoftDestroy(suite.DB(), &moveDoc)
 
@@ -124,6 +127,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasManyAssoci
 		},
 	})
 	suite.MustSave(&document)
+	suite.Nil(document.DeletedAt)
 
 	upload := models.Upload{
 		DocumentID:  &document.ID,
@@ -143,6 +147,8 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasManyAssoci
 	}
 	suite.MustSave(&upload)
 	suite.MustSave(&upload2)
+	suite.Nil(upload.DeletedAt)
+	suite.Nil(upload2.DeletedAt)
 
 	err := utilities.SoftDestroy(suite.DB(), &document)
 
