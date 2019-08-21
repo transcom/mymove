@@ -628,6 +628,51 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	ppm7.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm7.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	models.SaveMoveDependencies(db, &ppm7.Move)
+
+	/*
+	 * Service member with a ppm move approved, but not in progress
+	 */
+	email = "ppm@approv.ed"
+	uuidStr = "70665111-7bbb-4876-a53d-18bb125c943e"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+	inProgressDate := nextValidMoveDatePlusTen
+	typeDetails := internalmessages.OrdersTypeDetailPCSTDY
+	ppmApproved := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("acfed739-9e7a-4d95-9a56-698ef0392500"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("PPM"),
+			LastName:      models.StringPointer("Approved"),
+			Edipi:         models.StringPointer("7617044099"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		// These values should be populated for an approved move
+		Order: models.Order{
+			OrdersNumber:        models.StringPointer("12345"),
+			OrdersTypeDetail:    &typeDetails,
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			TAC:                 models.StringPointer("99"),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("bd3d46b3-cb76-40d5-a622-6ada239e5504"),
+			Locator: "APPROV",
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			OriginalMoveDate: &inProgressDate,
+		},
+		Uploader: loader,
+	})
+	ppmApproved.Move.Submit(time.Now())
+	ppmApproved.Move.Approve()
+	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
+	ppmApproved.Move.PersonallyProcuredMoves[0].Submit(time.Now())
+	ppmApproved.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	models.SaveMoveDependencies(db, &ppmApproved.Move)
 }
 
 var selectedMoveTypeHHG = models.SelectedMoveTypeHHG
