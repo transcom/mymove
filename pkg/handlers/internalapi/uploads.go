@@ -76,7 +76,14 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		return uploadop.NewCreateUploadInternalServerError()
 	}
 	//TODO see if this helps
-	defer aFile.Close()
+	defer func() {
+		if aFileErr := aFile.Close(); aFileErr != nil {
+			logger.Error("error closing afero file", zap.Error(aFileErr))
+		}
+		if aFileErr := h.FileStorer().TempFileSystem().Remove(aFile.Name()); aFileErr != nil {
+			logger.Error("error deleting afero file", zap.Error(aFileErr))
+		}
+	}()
 
 	_, err = io.Copy(aFile, file.Data)
 	if err != nil {
