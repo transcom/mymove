@@ -87,18 +87,6 @@ const validateDifferentZip = (value, formValues) => {
 export class DateAndLocation extends Component {
   state = { showInfo: false };
 
-  componentDidMount() {
-    if (!this.props.currentPpm) {
-      const {
-        originalMoveDate,
-        pickupPostalCode,
-        originDutyStationZip,
-        destinationPostalCode,
-      } = this.props.defaultValues;
-      this.props.setInitialFormValues(originalMoveDate, pickupPostalCode, originDutyStationZip, destinationPostalCode);
-    }
-  }
-
   openInfo = () => {
     this.setState({ showInfo: true });
   };
