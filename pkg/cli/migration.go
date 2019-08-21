@@ -47,10 +47,6 @@ func CheckMigration(v *viper.Viper) error {
 		return errMissingMigrationPath
 	}
 	for _, p := range strings.Split(migrationPath, ";") {
-		// TODO: TOTALLY REMOVE THIS BEFORE GOING FORWARD
-		fmt.Println("==========")
-		fmt.Printf("The path that is being considered is '%s'\n", p)
-		fmt.Println("==========")
 		if len(p) == 0 {
 			continue
 		}
