@@ -11,7 +11,7 @@ import QueueTable from './QueueTable';
 import MoveInfo from './MoveInfo';
 import OrdersInfo from './OrdersInfo';
 import DocumentViewer from './DocumentViewer';
-import { getCurrentUserInfo } from 'shared/Data/users';
+import { getCurrentUserInfo, selectCurrentUser } from 'shared/Data/users';
 import { loadInternalSchema, loadPublicSchema } from 'shared/Swagger/ducks';
 import { detectIE11, no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
@@ -88,14 +88,13 @@ export class OfficeWrapper extends Component {
   render() {
     const ConditionalWrap = ({ condition, wrap, children }) => (condition ? wrap(children) : <>{children}</>);
     const Tag = detectIE11() ? 'div' : 'main';
-    const userIsLoggedOff = this.props.userHasErrored;
-
+    const { userIsLoggedIn } = this.props;
     return (
       <ConnectedRouter history={history}>
         <div className="Office site">
-          {userIsLoggedOff && <QueueHeader />}
+          {!userIsLoggedIn && <QueueHeader />}
           <ConditionalWrap
-            condition={userIsLoggedOff}
+            condition={!userIsLoggedIn}
             wrap={children => (
               <Tag role="main" className="site__content">
                 {children}
@@ -155,10 +154,13 @@ OfficeWrapper.defaultProps = {
   loadPublicSchema: no_op,
 };
 
-const mapStateToProps = state => ({
-  swaggerError: state.swaggerInternal.hasErrored,
-  userHasErrored: state.user.hasErrored,
-});
+const mapStateToProps = state => {
+  const user = selectCurrentUser(state);
+  return {
+    swaggerError: state.swaggerInternal.hasErrored,
+    userIsLoggedIn: user.isLoggedIn,
+  };
+};
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators({ loadInternalSchema, loadPublicSchema, getCurrentUserInfo }, dispatch);
