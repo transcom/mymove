@@ -86,9 +86,6 @@ if [[ "${MIGRATE_EXIT_CODE}" != "0" ]]; then
   exit 1
 fi
 
-echo "Current docker processes"
-docker ps -a
-
 # Build a small tools dockerfile
 make bin_linux/generate-test-data
 echo "Build tools docker container"
