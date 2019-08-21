@@ -125,6 +125,10 @@ if [ -z "${DOCKER_PID}" ]; then
   exit 1
 fi
 
+readonly spec="${SPEC:-cypress/integration/**/*}"
+echo "Testing this SPEC:"
+echo "${spec}"
+
 $DOCKER_RUN \
   -e CYPRESS_baseUrl="http://${MILMOVEHOST}:${HTTP_PORT}" \
   --add-host "${MILMOVEHOST}:${E2E_IP}" \
@@ -137,7 +141,7 @@ $DOCKER_RUN \
   --net "${NETWORK}" \
   --ipc=host \
   --detach \
-  ${CONTAINER_CYPRESS}:latest run --spec "${SPEC:-cypress/integration/**/*}"
+  ${CONTAINER_CYPRESS}:latest run --spec "${spec}"
 
 # Tail the logs so users can follow along
 docker logs -f ${CONTAINER_CYPRESS}
