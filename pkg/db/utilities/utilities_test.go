@@ -33,7 +33,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_NotModel() {
 
 	err := utilities.SoftDestroy(suite.DB(), &accessCodeFetcher)
 
-	suite.Error(err)
+	suite.Equal("can only soft delete type model", err.Error())
 }
 
 func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithoutDeletedAtWithoutAssociations() {
