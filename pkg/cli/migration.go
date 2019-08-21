@@ -35,8 +35,8 @@ func (e *errInvalidMigrationPath) Error() string {
 
 // InitMigrationFlags initializes the Migration command line flags
 func InitMigrationFlags(flag *pflag.FlagSet) {
-	flag.StringP(MigrationPathFlag, "p", "./migrations", "Path to the migrations folder")
-	flag.StringP(MigrationManifestFlag, "m", "./migrations_manifest.txt", "Path to the manifest")
+	flag.StringP(MigrationPathFlag, "p", "file:///migrations", "Path to the migrations folder")
+	flag.StringP(MigrationManifestFlag, "m", "migrations_manifest.txt", "Path to the manifest")
 	flag.DurationP(MigrationWaitFlag, "w", time.Millisecond*10, "duration to wait when polling for new data from migration file")
 }
 
