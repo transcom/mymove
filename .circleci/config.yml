@@ -352,6 +352,8 @@ jobs:
     executor: mymove_and_postgres_large
     steps:
       - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
@@ -392,6 +394,8 @@ jobs:
     executor: mymove_and_postgres_medium
     steps:
       - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
