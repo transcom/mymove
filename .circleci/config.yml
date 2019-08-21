@@ -319,7 +319,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          docker_layer_caching: true
+          docker_layer_caching: false
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
