@@ -36,14 +36,17 @@ make e2e_clean
 if [[ -n "${CIRCLECI+x}" ]]; then
   # CI/CD allows us to use pre-built images using the branch name
 
-  # TODO: Consider using "--rmi all" when running locally
-  docker-compose down || true
-  docker system prune --volumes -f
+  # Let's clean things up before starting
+  docker-compose down --rmi all || true
 
   # Docker Compose Setup
   aws ecr get-login --no-include-email --region us-west-2 --no-include-email | sh
   scripts/update-docker-compose
+
+  # If you don't pull and CircleCI has cached previous images then you won't see any changes from AWS ECR
   docker-compose pull
+
+  # Bring these containers up but don't start them so they can be manipulated first
   docker-compose up --no-start
 
   # Can't mount folders in CircleCI so copy this data in
@@ -53,11 +56,10 @@ if [[ -n "${CIRCLECI+x}" ]]; then
 
   echo "Start everything up"
   docker-compose up -d --no-recreate
-
 else
   # Locally development requires that we build the container
 
-  # TODO: Consider using "--rmi all" when running locally
+  # Let's clean things up before starting
   docker-compose -f docker-compose.local.yml down || true
 
   # Build artifacts
