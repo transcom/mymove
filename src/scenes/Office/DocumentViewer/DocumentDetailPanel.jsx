@@ -28,9 +28,7 @@ const DocumentDetailDisplay = ({
     values: moveDocument,
     schema: moveDocSchema,
   };
-  return isEmpty(moveDocument) ? (
-    <LoadingPlaceholder />
-  ) : (
+  return (
     <Fragment>
       <div>
         <span className="panel-subhead">

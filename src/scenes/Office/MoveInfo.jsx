@@ -56,6 +56,7 @@ import { approvePPM, loadPPMs, selectPPMForMove, selectReimbursement } from 'sha
 import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
 import { openLinkInNewWindow } from 'shared/utils';
+import { defaultRelativeWindowSize } from 'shared/constants';
 import {
   approveShipment,
   getPublicShipment,
@@ -331,9 +332,8 @@ class MoveInfo extends Component {
 
     const moveDate = isPPM ? ppm.original_move_date : shipment && shipment.requested_pickup_date;
 
-    const uploadDocumentUrl = `/moves/${this.props.moveId}/documents/new`;
+    const uploadDocumentUrl = `/moves/${moveId}/documents/new`;
     const ordersUrl = `/moves/${move.id}/orders`;
-    const relativeWindowSize = 2 / 3;
 
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
@@ -432,12 +432,12 @@ class MoveInfo extends Component {
                   )}
                 />
                 <PrivateRoute path={`${this.props.match.path}/basics`}>
-                  <BasicsTabContent moveId={this.props.moveId} serviceMember={this.props.serviceMember} />
+                  <BasicsTabContent moveId={moveId} serviceMember={this.props.serviceMember} />
                 </PrivateRoute>
                 <PrivateRoute path={`${this.props.match.path}/ppm`}>
                   <PPMTabContent
                     ppmPaymentRequestedFlag={this.props.context.flags.ppmPaymentRequest}
-                    moveId={this.props.moveId}
+                    moveId={moveId}
                     ppmPaymentRequested={ppmPaymentRequested}
                     moveDocuments={moveDocuments}
                   />
@@ -446,7 +446,7 @@ class MoveInfo extends Component {
                   {this.props.shipment && (
                     <HHGTabContent
                       canApprovePaymentInvoice={hhgDelivered}
-                      moveId={this.props.moveId}
+                      moveId={moveId}
                       serviceAgents={this.props.serviceAgents}
                       shipment={this.props.shipment}
                       shipmentStatus={this.props.shipmentStatus}
@@ -521,13 +521,13 @@ class MoveInfo extends Component {
                       <FontAwesomeIcon style={{ color: 'green' }} className="icon" icon={faCheck} />
                       <a
                         href={ordersUrl}
-                        target={`orders-${this.props.moveId}`}
+                        target={`orders-${moveId}`}
                         onClick={openLinkInNewWindow.bind(
                           this,
                           ordersUrl,
-                          `orders-${this.props.moveId}`,
+                          `orders-${moveId}`,
                           window,
-                          relativeWindowSize,
+                          defaultRelativeWindowSize,
                         )}
                       >
                         Orders ({formatDate(upload.created_at)})
@@ -538,13 +538,13 @@ class MoveInfo extends Component {
                       <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
                       <a
                         href={ordersUrl}
-                        target={`orders-${this.props.moveId}`}
+                        target={`orders-${moveId}`}
                         onClick={openLinkInNewWindow.bind(
                           this,
                           ordersUrl,
-                          `orders-${this.props.moveId}`,
+                          `orders-${moveId}`,
                           window,
-                          relativeWindowSize,
+                          defaultRelativeWindowSize,
                         )}
                       >
                         Orders ({formatDate(upload.created_at)})
@@ -555,7 +555,7 @@ class MoveInfo extends Component {
               )}
               {showDocumentViewer && (
                 <DocumentList
-                  detailUrlPrefix={`/moves/${this.props.moveId}/documents`}
+                  detailUrlPrefix={`/moves/${moveId}/documents`}
                   moveDocuments={moveDocuments}
                   uploadDocumentUrl={uploadDocumentUrl}
                   moveId={moveId}

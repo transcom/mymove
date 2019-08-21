@@ -6,9 +6,9 @@ import { faPlusCircle } from '@fortawesome/fontawesome-free-solid';
 import { Link } from 'react-router-dom';
 import { renderStatusIcon, openLinkInNewWindow } from 'shared/utils';
 import styles from 'shared/DocumentViewer/DocumentList.module.scss';
+import { defaultRelativeWindowSize } from 'shared/constants';
 
 const documentUploadIcon = faPlusCircle;
-const relativeWindowSize = 2 / 3;
 const DocumentList = ({
   currentMoveDocumentId,
   moveDocuments,
@@ -37,7 +37,13 @@ const DocumentList = ({
                 href={detailUrl}
                 target={`docViewer-${moveId}`}
                 className={chosenDocument}
-                onClick={openLinkInNewWindow.bind(this, detailUrl, `docViewer-${moveId}`, window, relativeWindowSize)}
+                onClick={openLinkInNewWindow.bind(
+                  this,
+                  detailUrl,
+                  `docViewer-${moveId}`,
+                  window,
+                  defaultRelativeWindowSize,
+                )}
               >
                 {doc.title}
               </a>
@@ -58,7 +64,13 @@ const DocumentList = ({
         <a
           href={uploadDocumentUrl}
           target={`docViewer-${moveId}`}
-          onClick={openLinkInNewWindow.bind(this, uploadDocumentUrl, `docViewer-${moveId}`, window, relativeWindowSize)}
+          onClick={openLinkInNewWindow.bind(
+            this,
+            uploadDocumentUrl,
+            `docViewer-${moveId}`,
+            window,
+            defaultRelativeWindowSize,
+          )}
         >
           <FontAwesomeIcon className="icon link-blue" icon={documentUploadIcon} />
           Upload new document

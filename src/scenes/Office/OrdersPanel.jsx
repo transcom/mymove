@@ -11,6 +11,7 @@ import { formatDate } from 'shared/formatters';
 
 import { PanelSwaggerField, PanelField, SwaggerValue, editablePanelify } from 'shared/EditablePanel';
 import { openLinkInNewWindow } from 'shared/utils';
+import { defaultRelativeWindowSize } from 'shared/constants';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
@@ -38,7 +39,6 @@ const OrdersDisplay = props => {
     schema: ordersSchema,
     values: orders,
   };
-  const relativeWindowSize = 2 / 3;
 
   return (
     <React.Fragment>
@@ -53,7 +53,7 @@ const OrdersDisplay = props => {
                 `/moves/${moveId}/orders`,
                 `orders-${moveId}`,
                 window,
-                relativeWindowSize,
+                defaultRelativeWindowSize,
               )}
             >
               <SwaggerValue fieldName="orders_number" {...fieldProps} />
@@ -72,7 +72,7 @@ const OrdersDisplay = props => {
                 `/moves/${moveId}/orders`,
                 `orders-${moveId}`,
                 window,
-                relativeWindowSize,
+                defaultRelativeWindowSize,
               )}
             >
               <SwaggerValue fieldName="orders_number" {...fieldProps} />
