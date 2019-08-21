@@ -42,7 +42,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithoutDeletedAtWithoutAssocia
 
 	err := utilities.SoftDestroy(suite.DB(), &user)
 
-	suite.Error(err)
+	suite.Equal("this model does not have deleted_at field", err.Error())
 }
 
 func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithoutAssociations() {
