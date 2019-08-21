@@ -189,14 +189,7 @@ commands:
             source $BASH_ENV
             make e2e_test_docker
           environment:
-            DB_PASSWORD: mysecretpassword
-            DB_USER: postgres
-            DB_HOST: localhost
-            DB_PORT: 5432
-            DB_NAME: test_db
             # Env vars needed for the webserver to run inside docker
-            MIGRATION_PATH: "/migrate/local_migrations;/migrate/migrations"
-            MIGRATION_MANIFEST: "/migrate/migrations_manifest.txt"
             LOGIN_GOV_CALLBACK_PROTOCOL: http
             LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
             LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
@@ -384,7 +377,7 @@ jobs:
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
-            MIGRATION_PATH: "/home/circleci/transcom/mymove/local_migrations;/home/circleci/transcom/mymove/migrations"
+            MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
             MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
 
       - announce_failure
@@ -433,7 +426,7 @@ jobs:
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
-            MIGRATION_PATH: "/home/circleci/transcom/mymove/local_migrations;/home/circleci/transcom/mymove/migrations"
+            MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
             MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
       - run:
           name: upload code coverage to codecov
