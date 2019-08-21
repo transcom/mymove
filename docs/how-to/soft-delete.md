@@ -22,6 +22,16 @@ type ExampleModel struct {
 
 If this has not been done, one must [create a migration](migrate-the-database.md) to make these changes.
 
+Furthermore, any queries to fetch the model must exclude those that have been 'soft deleted'.
+
+```go
+func FetchExampleModel(ctx context.Context, db *pop.Connection, session * auth.Session, id uuid.UUID) (ExampleModel, error) {
+    var exampleModel ExampleModel
+    err := db.Q().Where("example_models.deleted_at is null").Eager().Find(&exampleModel, id)
+    ...
+}
+```
+
 ## Using Soft Delete
 
 In order to use MilMove's soft delete method, one must import the following package

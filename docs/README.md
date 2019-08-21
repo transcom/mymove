@@ -88,5 +88,6 @@ If you are looking to understand choices made in this project, see the list of [
 * 0035 [Use Query Builder for for Admin Interface](adr/0035-use-query-builder.md#use-query-builder-for-for-admin-interface)
 * 0036 [Use Separate Integration Package for Go Integration Tests](adr/0036-go-integration.md#use-separate-integration-package-for-go-integration-tests)
 * 0037 [Put mymove outside of standard GOPATH](adr/0037-go-path-and-project-layout-revisited.md#put-mymove-outside-of-standard-gopath)
+* 0038 [Use Soft Delete Instead of Hard Delete](adr/0038-soft-delete.md#use-soft-delete-instead-of-hard-delete)
 
 <!--endindex-->
