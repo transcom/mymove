@@ -126,8 +126,7 @@ if [ -z "${DOCKER_PID}" ]; then
 fi
 
 readonly spec="${SPEC:-cypress/integration/**/*}"
-echo "Testing this SPEC:"
-echo "${spec}"
+echo "Testing this SPEC: ${spec}"
 
 $DOCKER_RUN \
   -e CYPRESS_baseUrl="http://${MILMOVEHOST}:${HTTP_PORT}" \
