@@ -2,15 +2,23 @@ package testdatagen
 
 import (
 	"github.com/gobuffalo/pop"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // MakeTransportationOffice creates a single ServiceMember and associated User.
 func MakeTransportationOffice(db *pop.Connection, assertions Assertions) models.TransportationOffice {
+
+	transportationOfficeID := assertions.TransportationOffice.ID
+	if isZeroUUID(transportationOfficeID) {
+		transportationOfficeID = uuid.Must(uuid.NewV4())
+	}
+
 	address := MakeDefaultAddress(db)
 
 	office := models.TransportationOffice{
+		ID:        transportationOfficeID,
 		Name:      "JPPSO Testy McTest",
 		AddressID: address.ID,
 		Address:   address,

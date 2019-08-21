@@ -5,12 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
+	awssession "github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -80,11 +83,29 @@ func checkMigrateConfig(v *viper.Viper, logger logger) error {
 	return nil
 }
 
+func expandPath(in string) string {
+	if strings.HasPrefix(in, "s3://") {
+		return in
+	}
+	if strings.HasPrefix(in, "file://") {
+		return in
+	}
+	return "file://" + in
+}
+
+func expandPaths(in []string) []string {
+	out := make([]string, 0, len(in))
+	for _, x := range in {
+		out = append(out, expandPath(x))
+	}
+	return out
+}
+
 func migrateFunction(cmd *cobra.Command, args []string) error {
 
 	err := cmd.ParseFlags(args)
 	if err != nil {
-		return errors.Wrap(err, "Could not parse flags")
+		return errors.Wrap(err, "could not parse flags")
 	}
 
 	flag := cmd.Flags()
@@ -92,16 +113,16 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 	err = v.BindPFlags(flag)
 	if err != nil {
-		return errors.Wrap(err, "Could not bind flags")
+		return errors.Wrap(err, "could not bind flags")
 	}
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
 	loggingEnv := v.GetString(cli.LoggingEnvFlag)
 
-	logger, err := logging.Config(loggingEnv, v.GetBool(cli.VerboseFlag))
-	if err != nil {
-		log.Fatalf("Failed to initialize Zap logging due to %v", err)
+	logger, errLogging := logging.Config(loggingEnv, v.GetBool(cli.VerboseFlag))
+	if errLogging != nil {
+		return errors.Wrapf(errLogging, "failed to initialize zap logging")
 	}
 
 	fields := make([]zap.Field, 0)
@@ -147,11 +168,48 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 
 	err = checkMigrateConfig(v, logger)
 	if err != nil {
-		logger.Fatal("invalid configuration", zap.Error(err))
+		return errors.Wrap(err, "invalid configuration")
 	}
 
 	if v.GetBool(cli.DbDebugFlag) {
 		pop.Debug = true
+	}
+
+	migrationPaths := expandPaths(strings.Split(v.GetString(cli.MigrationPathFlag), ";"))
+	logger.Info(fmt.Sprintf("using migration paths %q", migrationPaths))
+
+	s3Migrations := false
+	for _, p := range migrationPaths {
+		if strings.HasPrefix(p, "s3://") {
+			s3Migrations = true
+			break
+		}
+	}
+
+	var session *awssession.Session
+	if v.GetBool(cli.DbIamFlag) || s3Migrations {
+		c, errorConfig := cli.GetAWSConfig(v, v.GetBool(cli.VerboseFlag))
+		if errorConfig != nil {
+			return errors.Wrap(errorConfig, "error creating aws config")
+		}
+		s, errorSession := awssession.NewSession(c)
+		if errorSession != nil {
+			return errors.Wrap(errorSession, "error creating aws session")
+		}
+		session = s
+	}
+
+	var dbCreds *credentials.Credentials
+	if v.GetBool(cli.DbIamFlag) {
+		if session != nil {
+			// We want to get the credentials from the logged in AWS session rather than create directly,
+			// because the session conflates the environment, shared, and container metdata config
+			// within NewSession.  With stscreds, we use the Secure Token Service,
+			// to assume the given role (that has rds db connect permissions).
+			dbIamRole := v.GetString(cli.DbIamRoleFlag)
+			logger.Info(fmt.Sprintf("assuming AWS role %q for db connection", dbIamRole))
+			dbCreds = stscreds.NewCredentials(session, dbIamRole)
+		}
 	}
 
 	// Create a connection to the DB with retry logic
@@ -162,7 +220,7 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 	retryInterval := v.GetDuration(cli.DbRetryIntervalFlag)
 
 	for retryCount < retryMax {
-		dbConnection, errDbConn = cli.InitDatabase(v, logger)
+		dbConnection, errDbConn = cli.InitDatabase(v, dbCreds, logger)
 		if errDbConn != nil {
 			if dbConnection == nil {
 				// No connection object means that the configuraton failed to validate and we should kill server startup
@@ -184,68 +242,79 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	migrationPath := v.GetString(cli.MigrationPathFlag)
-	logger.Info(fmt.Sprintf("using migration path %q", migrationPath))
+	migrationTableName := dbConnection.MigrationTableName()
+	logger.Info(fmt.Sprintf("tracking migrations using table %q", migrationTableName))
 
-	migrationManifest := v.GetString(cli.MigrationManifestFlag)
-	logger.Info(fmt.Sprintf("using migration manifest at %q", migrationManifest))
+	migrationManifest := expandPath(v.GetString(cli.MigrationManifestFlag))
+	logger.Info(fmt.Sprintf("using migration manifest %q", migrationManifest))
 
-	manifest, err := os.Open(migrationManifest)
+	var s3Client *s3.S3
+	if s3Migrations {
+		s3Client = s3.New(session)
+	}
+
+	migrationFiles := map[string][]string{}
+
+	fileHelper := migrate.NewFileHelper()
+	for _, p := range migrationPaths {
+		filenames, errListFiles := fileHelper.ListFiles(p, s3Client)
+		if errListFiles != nil {
+			logger.Fatal(fmt.Sprintf("Error listing migrations directory %s", p), zap.Error(errListFiles))
+		}
+		migrationFiles[p] = filenames
+	}
+
+	manifest, err := os.Open(migrationManifest[len("file://"):])
 	if err != nil {
 		return errors.Wrap(err, "error reading manifest")
 	}
-	migrations := map[string]struct{}{}
+
+	wait := v.GetDuration(cli.MigrationWaitFlag)
+
+	migrator := pop.NewMigrator(dbConnection)
 	scanner := bufio.NewScanner(manifest)
 	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if len(line) == 0 {
-			// skip blank lines
-			continue
-		}
-		if strings.HasPrefix(line, "#") {
+		target := scanner.Text()
+		if strings.HasPrefix(target, "#") {
 			// If line starts with a #, then comment it out.
 			continue
 		}
-		migrations[line] = struct{}{}
-	}
-
-	fm := &pop.FileMigrator{
-		Migrator: pop.NewMigrator(dbConnection),
-		Path:     migrationPath,
-	}
-	fm.SchemaPath = migrationPath
-
-	runner := func(mf pop.Migration, tx *pop.Connection) error {
-
-		f, err := os.Open(mf.Path)
+		uri := ""
+		for dir, filenames := range migrationFiles {
+			for _, filename := range filenames {
+				if target == filename {
+					uri = fmt.Sprintf("%s/%s", dir, filename)
+					break
+				}
+			}
+		}
+		if len(uri) == 0 {
+			return errors.Errorf("Error finding migration for filename %q", target)
+		}
+		m, err := migrate.ParseMigrationFilename(target)
 		if err != nil {
-			return err
+			return errors.Wrapf(err, "error parsing migration filename %q", uri)
 		}
-
-		// if a secure migration, this step will execute.
-		// See https://github.com/gobuffalo/fizz/pull/54
-		content, err := pop.MigrationContent(mf, tx, f, false)
-		if err != nil {
-			return errors.Wrapf(err, "error processing %s", mf.Path)
+		if m == nil {
+			return errors.Errorf("Error parsing migration filename %q", uri)
 		}
-
-		if content == "" {
-			return nil
+		b := &migrate.Builder{Match: m, Path: uri}
+		migration, errCompile := b.Compile(s3Client, wait)
+		if errCompile != nil {
+			return errors.Wrap(errCompile, "Error compiling migration")
 		}
-
-		err = tx.RawQuery(content).Exec()
-		if err != nil {
-			return errors.Wrapf(err, "error executing %s, sql: %s", mf.Path, content)
-		}
-
-		return nil
-
+		migrator.Migrations[migration.Direction] = append(migrator.Migrations[migration.Direction], *migration)
 	}
 
-	errFindMigrations := migrate.FindMigrations(fm, migrations, runner, logger)
-	if errFindMigrations != nil {
-		return errFindMigrations
+	errSchemaMigrations := migrator.CreateSchemaMigrations()
+	if errSchemaMigrations != nil {
+		return errors.Wrap(errSchemaMigrations, "error creating table for tracking migrations")
 	}
 
-	return fm.Up()
+	errUp := migrator.Up()
+	if errUp != nil {
+		return errors.Wrap(errUp, "error running migrations")
+	}
+
+	return nil
 }

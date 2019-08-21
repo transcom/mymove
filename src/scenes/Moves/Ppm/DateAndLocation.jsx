@@ -1,11 +1,11 @@
-import { debounce, get, bind, cloneDeep } from 'lodash';
+import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
-import { createOrUpdatePpm, getPpmSitEstimate, setInitialFormValues } from './ducks';
+import { createOrUpdatePpm, setInitialFormValues } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlementsFromState } from 'shared/entitlements';
@@ -14,7 +14,6 @@ import './DateAndLocation.css';
 import { GetPpmWeightEstimate } from './api';
 import { ValidateZipRateData } from 'shared/api';
 
-const sitEstimateDebounceTime = 300;
 const formName = 'ppp_date_and_location';
 
 const InvalidMoveParamsErrorMsg =
@@ -120,30 +119,8 @@ export class DateAndLocation extends Component {
     }
   };
 
-  getSitEstimate = (moveDate, sitDays, pickupZip, destZip, weight) => {
-    if (!pickupZip || !destZip) return;
-    if (sitDays <= 90 && pickupZip.length === 5 && destZip.length === 5) {
-      this.props.getPpmSitEstimate(moveDate, sitDays, pickupZip, destZip, weight);
-    }
-  };
-
-  debouncedSitEstimate = debounce(bind(this.getSitEstimate, this), sitEstimateDebounceTime);
-
-  getDebouncedSitEstimate = (e, value, _, field) => {
-    const { formValues, entitlement } = this.props;
-    const estimateValues = cloneDeep(formValues);
-    estimateValues[field] = value; // eslint-disable-line security/detect-object-injection
-    this.debouncedSitEstimate(
-      estimateValues.original_move_date,
-      estimateValues.days_in_storage,
-      estimateValues.pickup_postal_code,
-      estimateValues.destination_postal_code,
-      entitlement.sum,
-    );
-  };
-
   render() {
-    const { pages, pageKey, error, currentOrders, initialValues, sitReimbursement, hasEstimateError } = this.props;
+    const { pages, pageKey, error, currentOrders, initialValues } = this.props;
 
     return (
       <div>
@@ -157,19 +134,9 @@ export class DateAndLocation extends Component {
         >
           <h2>PPM Dates & Locations</h2>
           <h3> Move Date </h3>
-          <SwaggerField
-            fieldName="original_move_date"
-            onChange={this.getDebouncedSitEstimate}
-            swagger={this.props.schema}
-            required
-          />
+          <SwaggerField fieldName="original_move_date" swagger={this.props.schema} required />
           <h3>Pickup Location</h3>
-          <SwaggerField
-            fieldName="pickup_postal_code"
-            onChange={this.getDebouncedSitEstimate}
-            swagger={this.props.schema}
-            required
-          />
+          <SwaggerField fieldName="pickup_postal_code" swagger={this.props.schema} required />
           <SwaggerField fieldName="has_additional_postal_code" swagger={this.props.schema} component={YesNoBoolean} />
           {get(this.props, 'formValues.has_additional_postal_code', false) && (
             <Fragment>
@@ -196,7 +163,6 @@ export class DateAndLocation extends Component {
           <SwaggerField
             fieldName="destination_postal_code"
             swagger={this.props.schema}
-            onChange={this.getDebouncedSitEstimate}
             validate={validateDifferentZip}
             required
           />
@@ -211,24 +177,9 @@ export class DateAndLocation extends Component {
                 className="days-in-storage"
                 fieldName="days_in_storage"
                 swagger={this.props.schema}
-                onChange={this.getDebouncedSitEstimate}
                 required
               />{' '}
               <span className="grey">You can choose up to 90 days.</span>
-              {sitReimbursement && (
-                <div className="storage-estimate">
-                  You can spend up to {sitReimbursement} on private storage. Save your receipts to submit with your PPM
-                  paperwork.
-                </div>
-              )}
-              {hasEstimateError && (
-                <div className="usa-width-one-whole error-message">
-                  <Alert type="warning" heading="Could not retrieve estimate">
-                    There was an issue retrieving an estimate for how much you could be reimbursed for private storage.
-                    You still qualify but may need to talk with your local PPPO.
-                  </Alert>
-                </div>
-              )}
             </Fragment>
           )}
         </DateAndLocationWizardForm>
@@ -268,7 +219,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createOrUpdatePpm, getPpmSitEstimate, setInitialFormValues }, dispatch);
+  return bindActionCreators({ createOrUpdatePpm, setInitialFormValues }, dispatch);
 }
 
 export default connect(

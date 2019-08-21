@@ -1,1 +1,0 @@
-exec("./apply-secure-migration.sh 20190726151515_grant_all_ecs_user.up.sql")
