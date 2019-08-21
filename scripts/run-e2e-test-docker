@@ -6,7 +6,7 @@ set -eux -o pipefail
 export REACT_APP_NODE_ENV=development
 
 # Set the container default name
-CONTAINER=e2e
+CONTAINER=mymove_milmove_1
 CONTAINER_CYPRESS=cypress
 
 # Set hostnames
@@ -15,6 +15,10 @@ OFFICEHOST=officelocal
 TSPHOST=tsplocal
 ADMINHOST=adminlocal
 ORDERSHOST=orderslocal
+
+# Set Defaults
+HTTP_PORT=4000
+NETWORK="mymove_default" # Docker network
 
 # When running locally enable TTY
 DOCKER_RUN="docker run -t"
@@ -26,18 +30,14 @@ fi
 # Check that the docker process is running first
 docker system info >> /dev/null
 
-# Set Defaults
-HTTP_PORT=4000
-NETWORK="mymove_default" # Docker network
-CONTAINER=mymove_milmove_1
-
 # Begin Setup
 make e2e_clean
-# TODO: Consider using "--rmi all" when running locally
-docker-compose down || true
 
 if [[ -n "${CIRCLECI+x}" ]]; then
   # CI/CD allows us to use pre-built images using the branch name
+
+  # TODO: Consider using "--rmi all" when running locally
+  docker-compose down || true
 
   # Docker Compose Setup
   aws ecr get-login --no-include-email --region us-west-2 --no-include-email | sh
@@ -54,6 +54,9 @@ if [[ -n "${CIRCLECI+x}" ]]; then
 
 else
   # Locally development requires that we build the container
+
+  # TODO: Consider using "--rmi all" when running locally
+  docker-compose -f docker-compose.local.yml down || true
 
   # Build artifacts
   make client_build server_build_linux bin_linux/milmove
@@ -103,7 +106,6 @@ $DOCKER_RUN \
   --link="database" \
   --net "${NETWORK}" \
   --rm \
-  --workdir "/bin" \
   --entrypoint generate-test-data \
   tools:latest \
   --named-scenario e2e_basic

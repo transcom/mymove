@@ -520,7 +520,6 @@ db_deployed_migrations_reset: db_deployed_migrations_destroy db_deployed_migrati
 .PHONY: db_deployed_migrations_migrate_standalone
 db_deployed_migrations_migrate_standalone: bin/milmove ## Migrate Deployed Migrations DB with local migrations
 	@echo "Migrating the ${DB_NAME_DEPLOYED_MIGRATIONS} database..."
-	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
 
 .PHONY: db_deployed_migrations_migrate
@@ -667,14 +666,11 @@ e2e_test_docker_api: ## Run e2e (end-to-end) API integration tests with docker
 .PHONY: e2e_clean
 e2e_clean: ## Clean e2e (end-to-end) files and docker images
 	rm -f .*_linux.stamp
-	rm -f .db_test_migrations_build.stamp
 	rm -rf cypress/results
 	rm -rf cypress/screenshots
 	rm -rf cypress/videos
 	rm -rf bin_linux/
 	docker rm -f cypress || true
-	docker rm -f e2e || true
-	docker rm -f e2e_migrations || true
 
 .PHONY: db_e2e_up
 db_e2e_up: bin/generate-test-data ## Truncate Test DB and Generate e2e (end-to-end) data
