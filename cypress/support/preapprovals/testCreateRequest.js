@@ -1,14 +1,12 @@
 /* global cy */
 export function fillAndSavePreApprovalRequest() {
   // Click on add Pre Approval Request
-  cy
-    .get('.add-request')
+  cy.get('.add-request')
     .contains('Add a request')
     .click();
 
   // Verify tariff items that don't require approval are not loaded into drop down
-  cy
-    .get('.tariff400-select #react-select-2-input')
+  cy.get('.tariff400-select #react-select-2-input')
     .first()
     .type('Linehaul Transportation{downarrow}{enter}', { force: true, delay: 75 });
   cy.get('.tariff400__single-value').should('not.exist');
@@ -17,66 +15,55 @@ export function fillAndSavePreApprovalRequest() {
   cy.selectTariff400ngItem('Article: Motorcycle');
 
   cy.get('select[name="location"]').select('ORIGIN');
-  cy
-    .get('input[name="quantity_1"]')
+  cy.get('input[name="quantity_1"]')
     .clear({ force: true })
     .type('2', { force: true });
   cy.typeInTextarea({ name: 'notes', value: `notes notes` });
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save & Close')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save & Close')
     .click();
 }
 
 export function editPreApprovalRequest() {
-  cy
-    .get('[data-test=edit-request]')
+  cy.get('[data-test=edit-request]')
     .first()
     .click();
 
   cy.typeInTextarea({ name: 'notes', value: `edited` });
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 }
 
 export function approvePreApprovalRequest() {
   cy.get('[data-test=approve-request]').should('exist');
-  cy
-    .get('[data-test=approve-request]')
+  cy.get('[data-test=approve-request]')
     .first()
     .click();
 }
 
 export function deletePreApprovalRequest() {
-  cy
-    .get('[data-test=delete-request]')
+  cy.get('[data-test=delete-request]')
     .first()
     .click();
-  cy
-    .get('button')
+  cy.get('button')
     .contains('No, do not delete')
     .click();
 
-  cy
-    .get('[data-test=delete-request]')
+  cy.get('[data-test=delete-request]')
     .first()
     .click();
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Yes, delete')
     .click();
 }

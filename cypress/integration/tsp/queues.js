@@ -29,8 +29,7 @@ function tspUserViewsNewShipments() {
   cy.get('h1').contains('Queue: New Shipments');
 
   // Find shipment and check properties in row
-  cy
-    .get('div')
+  cy.get('div')
     .contains('div', 'BACON1')
     .parentsUntil('div.rt-tr-group')
     .contains('div', 'Awarded')
@@ -105,8 +104,7 @@ function tspUserViewsDeliveredShipments() {
 
 function tspUserViewsAcceptedShipments() {
   // Open accepted shipments queue
-  cy
-    .get('div')
+  cy.get('div')
     .contains('Accepted Shipments')
     .click();
 

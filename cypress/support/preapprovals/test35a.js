@@ -30,7 +30,8 @@ export function test35A() {
   cy.selectQueueItemMoveLocator('DATESP');
 
   add35A({});
-  cy
-    .get('td[details-cy="35A-details"]')
-    .should('contain', 'description description 35A reason reason 35A Est. not to exceed: $250.00 Actual amount: --');
+  cy.get('td[details-cy="35A-details"]').should(
+    'contain',
+    'description description 35A reason reason 35A Est. not to exceed: $250.00 Actual amount: --',
+  );
 }

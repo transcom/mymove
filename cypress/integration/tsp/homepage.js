@@ -59,8 +59,7 @@ function tspAllMoves() {
     expect(loc.pathname).to.match(/^\/queues\/all/);
   });
 
-  cy
-    .get('[data-cy=locator]')
+  cy.get('[data-cy=locator]')
     .contains('NOSHOW')
     .should('not.exist');
 }

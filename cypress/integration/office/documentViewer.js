@@ -31,8 +31,7 @@ describe('The document viewer', function() {
     });
     it('can upload a new document', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy
-        .get('[data-cy="document-upload-link"]')
+      cy.get('[data-cy="document-upload-link"]')
         .find('a')
         .should('have.attr', 'href')
         .and('contain', '/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
@@ -46,8 +45,7 @@ describe('The document viewer', function() {
       cy.get('button.submit').should('be.disabled');
 
       cy.upload_file('.filepond--root', 'top-secret.png');
-      cy
-        .get('button.submit', { timeout: fileUploadTimeout })
+      cy.get('button.submit', { timeout: fileUploadTimeout })
         .should('not.be.disabled')
         .click();
     });
@@ -61,8 +59,7 @@ describe('The document viewer', function() {
       cy.get('button.submit').should('be.disabled');
 
       cy.upload_file('.filepond--root', 'top-secret.png');
-      cy
-        .get('button.submit', { timeout: fileUploadTimeout })
+      cy.get('button.submit', { timeout: fileUploadTimeout })
         .should('not.be.disabled')
         .click();
 
@@ -78,8 +75,7 @@ describe('The document viewer', function() {
 
       cy.get('select[name="moveDocument.status"]').select('OK');
 
-      cy
-        .get('button')
+      cy.get('button')
         .contains('Save')
         .should('not.be.disabled')
         .click();
@@ -94,8 +90,7 @@ describe('The document viewer', function() {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
       cy.contains('All Documents (2)');
       cy.contains('super secret info document');
-      cy
-        .get('.panel-field')
+      cy.get('.panel-field')
         .find('a')
         .should('have.attr', 'href')
         .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
@@ -113,16 +108,14 @@ describe('The document viewer', function() {
       cy.get('button.submit').should('be.disabled');
 
       cy.upload_file('.filepond--root', 'top-secret.png');
-      cy
-        .get('button.submit', { timeout: fileUploadTimeout })
+      cy.get('button.submit', { timeout: fileUploadTimeout })
         .should('not.be.disabled')
         .click();
     });
     it('can select and update newly-uploaded expense document', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
       cy.contains('expense document');
-      cy
-        .get('.panel-field')
+      cy.get('.panel-field')
         .find('a')
         .should('have.attr', 'href')
         .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
@@ -140,8 +133,7 @@ describe('The document viewer', function() {
       cy.get('select[name="moveDocument.payment_method"]').select('GTCC');
       cy.get('select[name="moveDocument.status"]').select('OK');
 
-      cy
-        .get('button')
+      cy.get('button')
         .contains('Save')
         .should('not.be.disabled')
         .click();
@@ -151,8 +143,7 @@ describe('The document viewer', function() {
     it('can update expense document to other doc type', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
       cy.contains('expense document');
-      cy
-        .get('.panel-field')
+      cy.get('.panel-field')
         .find('a')
         .should('have.attr', 'href')
         .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
@@ -164,24 +155,21 @@ describe('The document viewer', function() {
 
       cy.get('select[name="moveDocument.move_document_type"]').select('Other document type');
 
-      cy
-        .get('button')
+      cy.get('button')
         .contains('Save')
         .should('not.be.disabled')
         .click();
 
       cy.contains('Other document type');
 
-      cy
-        .get('.field-title')
+      cy.get('.field-title')
         .contains('Expense Type')
         .should('not.exist');
     });
     it('can update other document type back to expense type', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
       cy.contains('expense document');
-      cy
-        .get('.panel-field')
+      cy.get('.panel-field')
         .find('a')
         .should('have.attr', 'href')
         .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
@@ -193,15 +181,13 @@ describe('The document viewer', function() {
 
       cy.get('select[name="moveDocument.move_document_type"]').select('Expense');
       cy.get('select[name="moveDocument.moving_expense_type"]').select('Contracted expense');
-      cy
-        .get('input[name="moveDocument.requested_amount_cents"]')
+      cy.get('input[name="moveDocument.requested_amount_cents"]')
         .clear()
         .type('4,999.92');
       cy.get('select[name="moveDocument.payment_method"]').select('GTCC');
       cy.get('select[name="moveDocument.status"]').select('OK');
 
-      cy
-        .get('button')
+      cy.get('button')
         .contains('Save')
         .should('not.be.disabled')
         .click();
@@ -224,8 +210,7 @@ describe('The document viewer', function() {
       cy.get('button.submit').should('be.disabled');
 
       cy.upload_file('.filepond--root', 'top-secret.png');
-      cy
-        .get('button.submit', { timeout: fileUploadTimeout })
+      cy.get('button.submit', { timeout: fileUploadTimeout })
         .should('not.be.disabled')
         .click();
 
@@ -235,8 +220,7 @@ describe('The document viewer', function() {
       cy.get('input[name="title"]').type('Wait ticket');
       cy.get('input[name="notes"]').type('wait for this document');
       cy.upload_file('.filepond--root', 'top-secret.png');
-      cy
-        .get('button.submit', { timeout: fileUploadTimeout })
+      cy.get('button.submit', { timeout: fileUploadTimeout })
         .should('not.be.disabled')
         .click();
 
@@ -253,8 +237,7 @@ describe('The document viewer', function() {
         expect(loc.pathname).to.match(/^\/queues\/new/);
       });
 
-      cy
-        .get('div')
+      cy.get('div')
         .contains('Delivered')
         .click();
 
@@ -266,8 +249,7 @@ describe('The document viewer', function() {
 
       cy.get('[data-cy="hhg-tab"]').click();
 
-      cy
-        .get('[data-cy=invoice-panel]')
+      cy.get('[data-cy=invoice-panel]')
         .get('[data-cy=unbilled-table]')
         .find('tbody tr')
         .should(rows => {
