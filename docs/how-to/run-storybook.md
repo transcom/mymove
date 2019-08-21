@@ -1,4 +1,6 @@
-# What is storybook
+# How to Use and Run Storybook
+
+## What is Storybook
 
 Storybook is a user interface development environment and playground for UI components. The tool enables developers to create components independently and showcase components interactively in an isolated development environment. [Read more here](https://storybook.js.org/docs/basics/introduction/)
 
