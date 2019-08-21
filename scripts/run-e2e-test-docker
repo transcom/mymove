@@ -80,6 +80,12 @@ while true; do
   fi
 done
 
+MIGRATE_EXIT_CODE=$(docker inspect --format='{{.State.ExitCode}}' mymove_milmove_migrate_1)
+if [[ "${MIGRATE_EXIT_CODE}" != "0" ]]; then
+  echo "Migration exited with exit code ${MIGRATE_EXIT_CODE}"
+  exit 1
+fi
+
 echo "Current docker processes"
 docker ps -a
 
