@@ -40,7 +40,7 @@ export class Queues extends Component {
 
 export class RenderWithOrWithoutHeader extends Component {
   render() {
-    const Tag = detectIE11() ? 'div' : 'main';
+    const Tag = this.props.tag;
     const Component = this.props.component;
     return (
       <>
@@ -73,7 +73,7 @@ export class OfficeWrapper extends Component {
 
   render() {
     const ConditionalWrap = ({ condition, wrap, children }) => (condition ? wrap(children) : <>{children}</>);
-    const Tag = detectIE11() ? 'div' : 'main';
+    const DivOrMainTag = detectIE11() ? 'div' : 'main';
     const { userIsLoggedIn } = this.props;
     return (
       <ConnectedRouter history={history}>
@@ -82,9 +82,9 @@ export class OfficeWrapper extends Component {
           <ConditionalWrap
             condition={!userIsLoggedIn}
             wrap={children => (
-              <Tag role="main" className="site__content">
+              <DivOrMainTag role="main" className="site__content">
                 {children}
-              </Tag>
+              </DivOrMainTag>
             )}
           >
             <LogoutOnInactivity />
@@ -106,29 +106,48 @@ export class OfficeWrapper extends Component {
                 />
                 <PrivateRoute
                   path="/queues/:queueType/moves/:moveId"
-                  component={props => <RenderWithOrWithoutHeader component={MoveInfo} withHeader={true} {...props} />}
+                  component={props => (
+                    <RenderWithOrWithoutHeader component={MoveInfo} withHeader={true} tag={DivOrMainTag} {...props} />
+                  )}
                 />
                 <PrivateRoute
                   path="/queues/:queueType"
-                  component={props => <RenderWithOrWithoutHeader component={Queues} withHeader={true} {...props} />}
+                  component={props => (
+                    <RenderWithOrWithoutHeader component={Queues} withHeader={true} tag={DivOrMainTag} {...props} />
+                  )}
                 />
                 <PrivateRoute
                   path="/moves/:moveId/orders"
                   component={props => (
-                    <RenderWithOrWithoutHeader component={OrdersInfo} withHeader={false} {...props} />
+                    <RenderWithOrWithoutHeader
+                      component={OrdersInfo}
+                      withHeader={false}
+                      tag={DivOrMainTag}
+                      {...props}
+                    />
                   )}
                 />
                 <PrivateRoute
                   path="/moves/:moveId/documents/:moveDocumentId?"
                   component={props => (
-                    <RenderWithOrWithoutHeader component={DocumentViewer} withHeader={false} {...props} />
+                    <RenderWithOrWithoutHeader
+                      component={DocumentViewer}
+                      withHeader={false}
+                      tag={DivOrMainTag}
+                      {...props}
+                    />
                   )}
                 />
                 {!isProduction && (
                   <PrivateRoute
                     path="/playground"
                     component={props => (
-                      <RenderWithOrWithoutHeader component={ScratchPad} withHeader={true} {...props} />
+                      <RenderWithOrWithoutHeader
+                        component={ScratchPad}
+                        withHeader={true}
+                        tag={DivOrMainTag}
+                        {...props}
+                      />
                     )}
                   />
                 )}
