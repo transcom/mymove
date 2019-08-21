@@ -124,7 +124,7 @@ client_deps: .check_hosts.stamp .client_deps.stamp ## Install client dependencie
 	touch .client_deps.stamp
 
 .client_build.stamp: $(shell find src -type f)
-	CI=false yarn build
+	yarn build
 	touch .client_build.stamp
 
 .PHONY: client_build
