@@ -52,4 +52,7 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-export default connect(mapStateToProps, null)(InvoiceTable);
+export default connect(
+  mapStateToProps,
+  null,
+)(InvoiceTable);

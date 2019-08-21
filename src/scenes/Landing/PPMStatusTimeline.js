@@ -136,4 +136,7 @@ const mapDispatchToProps = {
   getSignedCertification,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(PPMStatusTimeline);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PPMStatusTimeline);

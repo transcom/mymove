@@ -130,13 +130,12 @@ function ServiceMemberSummary(props) {
                     <td> Dependents?: </td>
                     <td> {orders && yesNoMap[get(orders, 'has_dependents').toString()]}</td>
                   </tr>
-                  {orders &&
-                    get(orders, 'spouse_has_pro_gear') && (
-                      <tr>
-                        <td> Spouse Pro Gear?: </td>
-                        <td>{orders && yesNoMap[get(orders, 'spouse_has_pro_gear').toString()]}</td>
-                      </tr>
-                    )}
+                  {orders && get(orders, 'spouse_has_pro_gear') && (
+                    <tr>
+                      <td> Spouse Pro Gear?: </td>
+                      <td>{orders && yesNoMap[get(orders, 'spouse_has_pro_gear').toString()]}</td>
+                    </tr>
+                  )}
                   <tr>
                     <td> Orders Uploaded: </td>
                     <td>{get(orders, 'uploaded_orders.uploads') && get(orders, 'uploaded_orders.uploads').length}</td>

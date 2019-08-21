@@ -420,4 +420,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ updateStorageInTransit }, dispatch);
 }
 
-export default connect(null, mapDispatchToProps)(StorageInTransit);
+export default connect(
+  null,
+  mapDispatchToProps,
+)(StorageInTransit);

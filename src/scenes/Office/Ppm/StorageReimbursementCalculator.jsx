@@ -158,7 +158,10 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ getPpmSitEstimate, clearPpmSitEstimate }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(
   reduxForm({ form: formName, enableReinitialize: true, keepDirtyOnReinitialize: true })(
     StorageReimbursementCalculator,
   ),

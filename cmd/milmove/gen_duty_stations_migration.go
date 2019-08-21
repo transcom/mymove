@@ -131,7 +131,7 @@ func genDutyStationsMigration(cmd *cobra.Command, args []string) error {
 	dutyStationsFilename := v.GetString(DutyStationsFilenameFlag)
 
 	// Create a connection to the DB
-	dbConnection, err := cli.InitDatabase(v, logger)
+	dbConnection, err := cli.InitDatabase(v, nil, logger)
 	if err != nil {
 		if dbConnection == nil {
 			// No connection object means that the configuraton failed to validate and we should kill server startup

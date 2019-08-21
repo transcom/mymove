@@ -3,6 +3,8 @@ package cli
 import (
 	"fmt"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
@@ -14,6 +16,8 @@ const (
 	MigrationPathFlag string = "migration-path"
 	// MigrationManifestFlag is the migration manifest flag
 	MigrationManifestFlag string = "migration-manifest"
+	// MigrationWaitFlag is the migration wait flag
+	MigrationWaitFlag string = "migration-wait"
 )
 
 var (
@@ -33,6 +37,7 @@ func (e *errInvalidMigrationPath) Error() string {
 func InitMigrationFlags(flag *pflag.FlagSet) {
 	flag.StringP(MigrationPathFlag, "p", "./migrations", "Path to the migrations folder")
 	flag.StringP(MigrationManifestFlag, "m", "./migrations_manifest.txt", "Path to the manifest")
+	flag.DurationP(MigrationWaitFlag, "w", time.Millisecond*10, "duration to wait when polling for new data from migration file")
 }
 
 // CheckMigration validates migration command line flags
@@ -41,8 +46,19 @@ func CheckMigration(v *viper.Viper) error {
 	if len(migrationPath) == 0 {
 		return errMissingMigrationPath
 	}
-	if _, err := os.Stat(migrationPath); os.IsNotExist(err) {
-		return errors.Wrapf(&errInvalidMigrationPath{Path: migrationPath}, "Expected %s to exist", migrationPath)
+	for _, p := range strings.Split(migrationPath, ";") {
+		if strings.HasPrefix(p, "file://") {
+			if _, err := os.Stat(p[len("file://"):]); os.IsNotExist(err) {
+				return errors.Wrapf(&errInvalidMigrationPath{Path: p}, "Expected %s to exist", p)
+			}
+		}
+		if strings.HasSuffix(p, "/") {
+			return errors.Wrapf(&errInvalidMigrationPath{Path: p}, "Path %s Cannot end in slash", p)
+		}
+	}
+	migrationManifest := v.GetString(MigrationManifestFlag)
+	if len(migrationManifest) == 0 {
+		return errMissingMigrationManifest
 	}
 	if len(MigrationManifestFlag) == 0 {
 		return errMissingMigrationManifest

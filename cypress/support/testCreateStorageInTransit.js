@@ -1,55 +1,45 @@
 /* global cy */
 export function fillAndSaveStorageInTransit() {
   // Enter details in form and create the Storage In Transit request
-  cy
-
-    .get('input[name="estimated_start_date"]')
+  cy.get('input[name="estimated_start_date"]')
 
     .type('10/24/2018')
 
     .blur();
 
-  cy
-    .get('textarea[name="notes"]')
+  cy.get('textarea[name="notes"]')
     .first()
     .type('notes notes', { force: true, delay: 150 });
 
-  cy
-    .get('input[name="warehouse_id"]')
+  cy.get('input[name="warehouse_id"]')
     .first()
     .type('SIT123456SIT', { force: true, delay: 150 });
 
-  cy
-    .get('input[name="warehouse_name"]')
+  cy.get('input[name="warehouse_name"]')
     .first()
     .type('warehouse haus', { force: true, delay: 150 });
 
-  cy
-    .get('input[name="warehouse_address.street_address_1"]')
+  cy.get('input[name="warehouse_address.street_address_1"]')
     .first()
     .type('123 Anystreet St.', { force: true, delay: 150 });
 
-  cy
-    .get('input[name="warehouse_address.city"]')
+  cy.get('input[name="warehouse_address.city"]')
     .first()
     .type('Citycitycity', { force: true, delay: 150 });
 
   cy.get('select[name="warehouse_address.state"]').select('NY');
 
-  cy
-    .get('input[name="warehouse_address.postal_code"]')
+  cy.get('input[name="warehouse_address.postal_code"]')
     .first()
     .type('94703', { force: true, delay: 150 });
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Send Request')
     .should('be.enabled'); // assures default location is detected in form
 
   cy.get('input[data-cy="origin-radio"]').check({ force: true }); // checks Origin
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Send Request')
     .click();
 
@@ -74,8 +64,7 @@ export function fillAndSaveStorageInTransit() {
 }
 
 export function editAndSaveStorageInTransit() {
-  cy
-    .get('input[name="warehouse_name"]')
+  cy.get('input[name="warehouse_name"]')
     .first()
     .clear()
     .type('the haus', { force: true, delay: 150 });

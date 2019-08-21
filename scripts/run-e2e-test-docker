@@ -78,8 +78,6 @@ $DOCKER_RUN \
   -e MOVE_MIL_DOD_TLS_KEY \
   -e NO_TLS_ENABLED=1 \
   -e NO_TLS_PORT="${HTTP_PORT}" \
-  -e SECURE_MIGRATION_DIR \
-  -e SECURE_MIGRATION_SOURCE \
   -e STORAGE_BACKEND=memory \
   -p "${HTTP_PORT}:${HTTP_PORT}" \
   --expose="${HTTP_PORT}" \
@@ -88,7 +86,8 @@ $DOCKER_RUN \
   --read-only \
   --detach \
   --rm \
-  ${CONTAINER}:latest
+  ${CONTAINER}:latest \
+  serve
 
 # If your container is exiting unexpectedly try uncommenting this code to see the output:
 # docker logs -f ${CONTAINER}
