@@ -185,10 +185,10 @@ function mapStateToProps(state) {
   props.initialValues = props.currentPpm
     ? props.currentPpm
     : defaultPickupZip
-      ? {
-          pickup_postal_code: defaultPickupZip,
-        }
-      : null;
+    ? {
+        pickup_postal_code: defaultPickupZip,
+      }
+    : null;
   return props;
 }
 function mapDispatchToProps(dispatch) {
@@ -205,4 +205,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditDateAndLocation);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(EditDateAndLocation);

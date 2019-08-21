@@ -107,8 +107,7 @@ function tspUserDeletesPreApprovalRequest() {
   });
 
   deletePreApprovalRequest();
-  cy
-    .get('.pre-approval-panel td')
+  cy.get('.pre-approval-panel td')
     .first()
     .should('not.contain', 'Bulky Article: Motorcycle/Rec vehicle');
 }

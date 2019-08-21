@@ -2,13 +2,11 @@ package internalapi
 
 import (
 	"io"
-	"reflect"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
@@ -41,9 +39,6 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	ctx := params.HTTPRequest.Context()
 
 	session, logger := h.SessionAndLoggerFromContext(ctx)
-
-	ctx, span := beeline.StartSpan(ctx, reflect.TypeOf(h).Name())
-	defer span.Send()
 
 	file, ok := params.File.(*runtime.File)
 	if !ok {
@@ -109,8 +104,7 @@ type DeleteUploadHandler struct {
 // Handle deletes an upload
 func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middleware.Responder {
 
-	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
-	defer span.Send()
+	ctx := params.HTTPRequest.Context()
 
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
@@ -136,8 +130,7 @@ type DeleteUploadsHandler struct {
 // Handle deletes uploads
 func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middleware.Responder {
 
-	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
-	defer span.Send()
+	ctx := params.HTTPRequest.Context()
 
 	// User should always be populated by middleware
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)

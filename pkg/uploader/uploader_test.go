@@ -125,10 +125,10 @@ func (suite *UploaderSuite) TestTooLargeUploadFromLocalFile() {
 	up := uploader.NewUploader(suite.DB(), suite.logger, suite.storer)
 	file := suite.fixture("largejpeg.jpg")
 
-	upload, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesPDF)
-	suite.Equal(err, uploader.ErrTooLarge)
+	upload, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesServiceMember)
+	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate upload")
-	suite.Nil(upload, "returned an upload when erroring")
+	suite.NotNil(upload)
 }
 
 func (suite *UploaderSuite) helperNewTempFile() (afero.File, error) {

@@ -21,4 +21,7 @@ const LogoutButton = ({ userLogout, ...rest }) => (
 );
 const redirectTo = '/';
 const customUserLogout = () => userLogout(redirectTo);
-export default connect(undefined, { userLogout: customUserLogout })(LogoutButton);
+export default connect(
+  undefined,
+  { userLogout: customUserLogout },
+)(LogoutButton);

@@ -173,4 +173,9 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ getMoveDatesSummary, getAvailableMoveDates }, dispatch);
 }
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(HHGDatePicker));
+export default withRouter(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(HHGDatePicker),
+);

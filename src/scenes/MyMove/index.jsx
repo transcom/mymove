@@ -85,7 +85,7 @@ export class AppWrapper extends Component {
                   </Alert>
                 )}
               </div>
-              {this.state.hasError && <SomethingWentWrong error={this.state.error} info={this.state.info} />}
+              {this.state.hasError && <SomethingWentWrong />}
               {!this.state.hasError &&
                 !props.swaggerError && (
                   <Switch>

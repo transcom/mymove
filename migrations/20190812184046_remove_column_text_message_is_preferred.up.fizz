@@ -1,0 +1,1 @@
+drop_column("service_members", "text_message_is_preferred")

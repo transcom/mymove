@@ -40,7 +40,8 @@ function AllowableExpenses(props) {
       </p>
       <hr className="divider" />
       <div className="bullet-li-header">
-        <FontAwesomeIcon aria-hidden className="icon" icon={faCheck} />Some commonly claimed moving expenses:
+        <FontAwesomeIcon aria-hidden className="icon" icon={faCheck} />
+        Some commonly claimed moving expenses:
       </div>
       <ul>
         <li>Consumable packing materials</li>
@@ -53,8 +54,8 @@ function AllowableExpenses(props) {
       </ul>
       <div className="divider dashed-divider" />
       <div className="bullet-li-header">
-        <FontAwesomeIcon aria-hidden className="icon" icon={faBan} />Some common expenses that are <em>not</em>{' '}
-        claimable or reimbursable:
+        <FontAwesomeIcon aria-hidden className="icon" icon={faBan} />
+        Some common expenses that are <em>not</em> claimable or reimbursable:
       </div>
       <ul>
         <li>Animal costs (kennels, transportation)</li>

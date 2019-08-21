@@ -36,8 +36,7 @@ function tspUserViewsHHGHeaderInfo() {
   tspUserVerifiesShipmentStatus('Shipment awarded');
 
   // Check the info bar
-  cy
-    .get('ul')
+  cy.get('ul')
     .contains('li', 'GBL# LKNQ7123456')
     .parentsUntil('div')
     .contains('li', 'Locator# HHGPPM')
@@ -72,8 +71,7 @@ function tspUserViewsHHGPPMHeaderInfo() {
   tspUserVerifiesShipmentStatus('Shipment awarded');
 
   // Check the info bar
-  cy
-    .get('ul')
+  cy.get('ul')
     .contains('li', 'GBL# LKNQ7123456')
     .parentsUntil('div')
     .contains('li', 'Locator# HHGPPM')
