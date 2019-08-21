@@ -5,15 +5,13 @@ import './index.css';
 import styles from './DocumentContent.module.scss';
 import { RotationBar } from 'shared/RotationBar/RotationBar';
 
-class DocumentContent extends Component {
-  render() {
-    let { contentType, filename, url } = this.props;
-    if (contentType === 'application/pdf') {
-      return <PDFImage filename={filename} url={url} />;
-    }
-    return <NonPDFImage src={url} />;
+const DocumentContent = props => {
+  let { contentType, filename, url } = props;
+  if (contentType === 'application/pdf') {
+    return <PDFImage filename={filename} url={url} />;
   }
-}
+  return <NonPDFImage src={url} />;
+};
 
 DocumentContent.propTypes = {
   contentType: PropTypes.string.isRequired,
@@ -32,27 +30,25 @@ const downloadOnlyView = (filename, url) => (
   </div>
 );
 
-export class PDFImage extends Component {
-  render() {
-    return (
-      <div className="document-contents">
-        <div className="page">
-          {detectFirefox() ? (
-            downloadOnlyView(this.props.filename, this.props.url)
-          ) : (
-            <object className={styles.pdf} data={this.props.url} type="application/pdf" alt="document upload">
-              {downloadOnlyView(this.props.filename, this.props.url)}
-            </object>
-          )}
-        </div>
+export const PDFImage = props => {
+  return (
+    <div className="document-contents">
+      <div className="page">
+        {detectFirefox() ? (
+          downloadOnlyView(props.filename, props.url)
+        ) : (
+          <object className={styles.pdf} data={props.url} type="application/pdf" alt="document upload">
+            {downloadOnlyView(props.filename, props.url)}
+          </object>
+        )}
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 PDFImage.propTypes = {
-  filename: PropTypes.any,
-  url: PropTypes.any,
+  filename: PropTypes.string.isRequired,
+  url: PropTypes.string.isRequired,
 };
 
 export class NonPDFImage extends Component {
@@ -88,7 +84,7 @@ export class NonPDFImage extends Component {
 }
 
 NonPDFImage.propTypes = {
-  src: PropTypes.any,
+  src: PropTypes.string.isRequired,
 };
 
 export default DocumentContent;
