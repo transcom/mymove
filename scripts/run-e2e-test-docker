@@ -51,10 +51,9 @@ if [[ -n "${CIRCLECI+x}" ]]; then
 
   # Can't mount folders in CircleCI so copy this data in
   # https://circleci.com/docs/2.0/building-docker-images/#mounting-folders
-  echo "Copy in the local migration files"
   docker cp ./local_migrations mymove_milmove_migrate_1:/migrate/
 
-  echo "Start everything up"
+  # Start everything up
   docker-compose up -d --no-recreate
 else
   # Locally development requires that we build the container
@@ -65,12 +64,11 @@ else
   # Build artifacts
   make client_build server_build_linux bin_linux/milmove
 
-  echo "Start everything up"
+  # Build images and start everything up
   docker-compose -f docker-compose.local.yml up -d --build
 fi
 
 # Following the logs should block any more actions until migrations are completed and the container exits
-echo "Follow the migration logs"
 docker-compose logs -f milmove_migrate
 
 # Need to wait not just for DB but also migrations to finish
@@ -79,6 +77,7 @@ while true; do
   if [[ -n "${MIGRATE_EXIT}" ]]; then
     break
   else
+    echo
     echo "Waiting 5 seconds for migrations to complete"
     sleep 5
   fi
@@ -86,15 +85,16 @@ done
 
 MIGRATE_EXIT_CODE=$(docker inspect --format='{{.State.ExitCode}}' mymove_milmove_migrate_1)
 if [[ "${MIGRATE_EXIT_CODE}" != "0" ]]; then
+  echo
   echo "Migration exited with exit code ${MIGRATE_EXIT_CODE}"
   exit 1
 fi
 
 # Build a small tools dockerfile
 make bin_linux/generate-test-data
-echo "Build tools docker container"
 docker build -f Dockerfile.tools --tag tools:latest .
-echo "Truncate the DB"
+
+# Truncate the DB
 $DOCKER_RUN \
   --link="database" \
   --net "${NETWORK}" \
@@ -102,7 +102,8 @@ $DOCKER_RUN \
   --entrypoint psql \
   tools:latest \
   postgres://postgres:mysecretpassword@database:5432/dev_db?sslmode=disable -c 'TRUNCATE users CASCADE;'
-echo "Generate Test Data"
+
+# Generate Test Data
 $DOCKER_RUN \
   -t \
   -e DB_NAME=dev_db \
@@ -128,7 +129,7 @@ docker build -f Dockerfile.cypress --tag ${CONTAINER_CYPRESS}:latest .
 DOCKER_PID=$(docker ps -qf name=${CONTAINER})
 if [ -z "${DOCKER_PID}" ]; then
   echo
-  echo "Docker container ${CONTAINER} exited unexpectedly. No tests will be run. "
+  echo "Docker container ${CONTAINER} exited unexpectedly. No tests will be run."
   exit 1
 fi
 
