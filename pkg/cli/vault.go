@@ -103,7 +103,7 @@ func CheckVault(v *viper.Viper) error {
 	return nil
 }
 
-// GetAWSCredentialsFromKeyring uses aws-vault to return AWS credential from a system keyring.
+// GetAWSCredentialsFromKeyring uses aws-vault to return AWS credentials from a system keyring.
 func GetAWSCredentialsFromKeyring(keychainName string, awsProfile string, sessionDuration time.Duration, assumeRoleTTL time.Duration) (*credentials.Credentials, error) {
 
 	// Open the keyring which holds the credentials
