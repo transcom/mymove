@@ -3,7 +3,7 @@ package unit
 import "golang.org/x/text/language"
 import "golang.org/x/text/message"
 
-// Miless represents mile value in int
+// Miles represents mile value in int
 type Miles int
 
 // String gives a string representation of Miles

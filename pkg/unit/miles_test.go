@@ -10,6 +10,6 @@ func TestString(t *testing.T) {
 
 	expected := "2,500"
 	if result != expected {
-		t.Errorf("wrong number of Cents: expected %s, got %s", expected, result)
+		t.Errorf("wrong number of Miles: expected %s, got %s", expected, result)
 	}
 }
