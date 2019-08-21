@@ -84,6 +84,7 @@ DocumentList.propTypes = {
   currentMoveDocumentId: PropTypes.string,
   detailUrlPrefix: PropTypes.string.isRequired,
   disableLinks: PropTypes.bool,
+  moveId: PropTypes.string,
   moveDocuments: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string.isRequired,
