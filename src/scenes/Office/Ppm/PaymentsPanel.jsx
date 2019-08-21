@@ -11,12 +11,13 @@ import {
   downloadPPMAttachmentsLabel,
 } from 'shared/Entities/modules/ppms';
 import { selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import { getSignedCertification } from 'shared/Entities/modules/signed_certifications';
+import { selectPaymentRequestCertificationForMove } from 'shared/Entities/modules/signed_certifications';
+import { selectShipmentForMove } from 'shared/Entities/modules/shipments';
 import { getLastError } from 'shared/Swagger/selectors';
 
 import { no_op } from 'shared/utils';
 import { formatCents, formatDate } from 'shared/formatters';
-import Alert from 'shared/Alert';
-import ToolTip from 'shared/ToolTip';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
@@ -25,9 +26,8 @@ import faPlusSquare from '@fortawesome/fontawesome-free-solid/faPlusSquare';
 import faMinusSquare from '@fortawesome/fontawesome-free-solid/faMinusSquare';
 
 import './PaymentsPanel.css';
-import { getSignedCertification } from 'shared/Entities/modules/signed_certifications';
-import { selectPaymentRequestCertificationForMove } from 'shared/Entities/modules/signed_certifications';
-import { selectShipmentForMove } from 'shared/Entities/modules/shipments';
+import Alert from 'shared/Alert';
+import ToolTip from 'shared/ToolTip';
 
 const attachmentsErrorMessages = {
   422: 'Encountered an error while trying to create attachments bundle: Document is in the wrong format',

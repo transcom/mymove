@@ -505,19 +505,21 @@ const getPPMStatus = (moveStatus, ppm, selectedMoveType) => {
 };
 
 export class MoveSummaryComponent extends React.Component {
-  componentDidMount() {
-    this.props.getMoveDocumentsForMove(this.props.move.id).then(({ obj: documents }) => {
-      const weightTicketNetWeight = calcNetWeight(documents);
-      const netWeight =
-        weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
-      this.props.getPpmWeightEstimate(
-        this.props.ppm.actual_move_date || this.props.ppm.original_move_date,
-        this.props.ppm.pickup_postal_code,
-        this.props.originDutyStationZip,
-        this.props.ppm.destination_postal_code,
-        netWeight,
-      );
-    });
+  componentDidUpdate(prevProps) {
+    if (this.props.move.id !== prevProps.move.id) {
+      this.props.getMoveDocumentsForMove(this.props.move.id).then(({ obj: documents }) => {
+        const weightTicketNetWeight = calcNetWeight(documents);
+        const netWeight =
+          weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
+        this.props.getPpmWeightEstimate(
+          this.props.ppm.actual_move_date || this.props.ppm.original_move_date,
+          this.props.ppm.pickup_postal_code,
+          this.props.originDutyStationZip,
+          this.props.ppm.destination_postal_code,
+          netWeight,
+        );
+      });
+    }
   }
   render() {
     const {

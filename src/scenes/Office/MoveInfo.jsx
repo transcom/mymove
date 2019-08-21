@@ -7,9 +7,11 @@ import { capitalize, get, includes } from 'lodash';
 import { NavTab, RoutedTabs } from 'react-router-tabs';
 import { Link, NavLink, Redirect, Switch } from 'react-router-dom';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import { getStorageInTransitsForShipment, selectStorageInTransits } from 'shared/Entities/modules/storageInTransits';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import Alert from 'shared/Alert'; // eslint-disable-line
+import ToolTip from 'shared/ToolTip';
+import ComboButton from 'shared/ComboButton';
+import { DropDown, DropDownItem } from 'shared/ComboButton/dropdown';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
 import AccountingPanel from './AccountingPanel';
 import BackupInfoPanel from './BackupInfoPanel';
@@ -23,12 +25,10 @@ import ExpensesPanel from './Ppm/ExpensesPanel';
 import NetWeightPanel from './Ppm/NetWeightPanel';
 import { withContext } from 'shared/AppContext';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
-import ComboButton from 'shared/ComboButton';
-import ToolTip from 'shared/ToolTip';
-import { DropDown, DropDownItem } from 'shared/ComboButton/dropdown';
 
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { resetRequests } from 'shared/Swagger/request';
+import { getStorageInTransitsForShipment, selectStorageInTransits } from 'shared/Entities/modules/storageInTransits';
 import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
 import {
   selectSortedShipmentLineItems,
