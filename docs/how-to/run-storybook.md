@@ -4,7 +4,7 @@ Storybook is a user interface development environment and playground for UI comp
 
 ## Basics
 
-Storybook expects _stories_ to be defined for each component to be showcased. These stories are defined in the stories directory
+Storybook expects _stories_ to be defined for each component to be showcased. These stories are defined in the stories directory `src/stories`
 
 ### How to run storybook server locally
 
