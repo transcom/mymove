@@ -573,23 +573,11 @@ else
 	@echo "Relying on CircleCI's database setup to create the DB."
 endif
 
-.PHONY: db_test_create_docker
-db_test_create_docker: ## Create Test DB (docker)
-	@echo "Create the ${DB_NAME_TEST} database with docker command..."
-	DB_NAME=postgres DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_TEST) scripts/wait-for-db-docker && \
-		docker exec $(DB_DOCKER_CONTAINER_TEST) createdb -p $(DB_PORT_DOCKER) -h localhost -U postgres $(DB_NAME_TEST) || true
-
 .PHONY: db_test_run
 db_test_run: db_test_start db_test_create ## Run Test DB
 
-.PHONY: db_test_run_docker
-db_test_run_docker: db_test_start db_test_create_docker ## Run Test DB (docker)
-
 .PHONY: db_test_reset
 db_test_reset: db_test_destroy db_test_run ## Reset Test DB (destroy and run)
-
-.PHONY: db_test_reset_docker
-db_test_reset_docker: db_test_destroy db_test_run_docker ## Reset Test DB (docker, destroy and run)
 
 .PHONY: db_test_migrate_standalone
 db_test_migrate_standalone: bin/milmove ## Migrate Test DB directly
@@ -609,23 +597,6 @@ db_test_migrations_build: .db_test_migrations_build.stamp ## Build Test DB Migra
 .db_test_migrations_build.stamp: server_generate_linux bin_linux/milmove bin_linux/generate-test-data
 	@echo "Build the docker migration container..."
 	docker build -f Dockerfile.migrations_local --tag e2e_migrations:latest .
-
-.PHONY: db_test_migrate_docker
-db_test_migrate_docker: db_test_migrations_build ## Migrate Test DB (docker)
-	@echo "Migrating the ${DB_NAME_TEST} database with docker command..."
-	DB_NAME=$(DB_NAME_TEST) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_TEST) scripts/wait-for-db-docker
-	docker run \
-		-t \
-		-e DB_NAME=$(DB_NAME_TEST) \
-		-e DB_HOST=database \
-		-e DB_PORT=$(DB_PORT_DOCKER) \
-		-e DB_USER=postgres \
-		-e DB_PASSWORD=$(PGPASSWORD) \
-		--link="$(DB_DOCKER_CONTAINER_TEST):database" \
-		--rm \
-		--entrypoint /bin/milmove\
-		e2e_migrations:latest \
-		migrate -p "file:///migrate/local_migrations;file:///migrate/migrations" -m /migrate/migrations_manifest.txt
 
 .PHONY: db_test_psql
 db_test_psql: ## Open PostgreSQL shell for Test DB
@@ -679,35 +650,8 @@ db_e2e_up: bin/generate-test-data ## Truncate Test DB and Generate e2e (end-to-e
 	@echo "Populate the ${DB_NAME_TEST} database..."
 	DB_PORT=$(DB_PORT_TEST) bin/generate-test-data --named-scenario="e2e_basic" --db-env="test"
 
-.PHONY: db_e2e_up_docker
-db_e2e_up_docker: ## Truncate DB and Generate e2e (end-to-end) data (docker)
-	@echo "Truncate the ${DB_NAME_TEST} database with docker command..."
-	docker run \
-		--link="$(DB_DOCKER_CONTAINER_TEST):database" \
-		--rm \
-		--entrypoint psql \
-		e2e_migrations:latest \
-		postgres://postgres:$(PGPASSWORD)@database:$(DB_PORT_DOCKER)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE;'
-	@echo "Populate the ${DB_NAME_TEST} database with docker command..."
-	docker run \
-		-t \
-		-e DB_NAME=$(DB_NAME_TEST) \
-		-e DB_HOST=database \
-		-e DB_PORT=$(DB_PORT_DOCKER) \
-		-e DB_USER=postgres \
-		-e DB_PASSWORD=$(PGPASSWORD) \
-		--link="$(DB_DOCKER_CONTAINER_TEST):database" \
-		--rm \
-		--workdir "/bin" \
-		--entrypoint generate-test-data \
-		e2e_migrations:latest \
-		--named-scenario e2e_basic
-
 .PHONY: db_e2e_init
 db_e2e_init: db_test_reset db_test_migrate db_e2e_up ## Initialize e2e (end-to-end) DB (reset, migrate, up)
-
-.PHONY: db_e2e_init_docker
-db_e2e_init_docker: db_test_reset_docker db_test_migrate_docker db_e2e_up_docker ## Initialize e2e (end-to-end) DB (docker, reset, migrate, up)
 
 .PHONY: db_dev_e2e_populate
 db_dev_e2e_populate: db_dev_reset db_dev_migrate build_tools ## Populate Dev DB with generated e2e (end-to-end) data
@@ -715,7 +659,7 @@ db_dev_e2e_populate: db_dev_reset db_dev_migrate build_tools ## Populate Dev DB 
 	bin/generate-test-data --named-scenario="e2e_basic" --db-env="development"
 
 .PHONY: db_test_e2e_populate
-db_test_e2e_populate: db_test_reset_docker db_test_migrate_docker build_tools db_e2e_up_docker ## Populate Test DB with generated e2e (end-to-end) data
+db_test_e2e_populate: db_test_reset db_test_migrate build_tools db_e2e_up ## Populate Test DB with generated e2e (end-to-end) data
 
 .PHONY: db_test_e2e_backup
 db_test_e2e_backup: ## Backup Test DB as 'e2e_test'
