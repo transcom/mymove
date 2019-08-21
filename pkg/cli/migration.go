@@ -57,7 +57,7 @@ func CheckMigration(v *viper.Viper) error {
 		if strings.HasPrefix(p, "file://") {
 			filesystemPath := p[len("file://"):]
 			if _, err := os.Stat(filesystemPath); os.IsNotExist(err) {
-				return errors.Wrapf(&errInvalidMigrationPath{Path: filesystemPath}, "Expected %s to exist", filesystemPath)
+				return errors.Wrapf(&errInvalidMigrationPath{Path: filesystemPath}, "Expected %s to exist to be a path in the filesystem", filesystemPath)
 			}
 		} else if !strings.HasPrefix(p, "s3://") {
 			return errors.Wrapf(&errInvalidMigrationPath{Path: p}, "Expected %s to have prefix file:// or s3://", p)
