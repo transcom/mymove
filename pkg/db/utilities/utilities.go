@@ -44,10 +44,12 @@ func SoftDestroy(c *pop.Connection, model interface{}) error {
 	}
 
 	associations := GetForeignKeyAssociations(c, model)
-	for _, association := range associations {
-		err = SoftDestroy(c, association)
-		if err != nil {
-			return err
+	if len(associations) > 0 {
+		for _, association := range associations {
+			err = SoftDestroy(c, association)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
