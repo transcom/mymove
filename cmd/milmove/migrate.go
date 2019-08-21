@@ -96,6 +96,10 @@ func expandPath(in string) string {
 func expandPaths(in []string) []string {
 	out := make([]string, 0, len(in))
 	for _, x := range in {
+		// Don't expand empty paths
+		if len(x) == 0 {
+			continue
+		}
 		out = append(out, expandPath(x))
 	}
 	return out
@@ -257,6 +261,10 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 
 	fileHelper := migrate.NewFileHelper()
 	for _, p := range migrationPaths {
+		// Don't list files in empty paths
+		if len(p) == 0 {
+			continue
+		}
 		filenames, errListFiles := fileHelper.ListFiles(p, s3Client)
 		if errListFiles != nil {
 			logger.Fatal(fmt.Sprintf("Error listing migrations directory %s", p), zap.Error(errListFiles))
