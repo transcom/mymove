@@ -39,6 +39,7 @@ if [[ -n "${CIRCLECI+x}" ]]; then
   # TODO: Consider using "--rmi all" when running locally
   docker-compose down || true
   docker system prune --volumes -f
+  docker-compose pull
 
   # Docker Compose Setup
   aws ecr get-login --no-include-email --region us-west-2 --no-include-email | sh
