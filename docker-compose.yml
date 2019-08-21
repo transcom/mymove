@@ -1,86 +1,86 @@
 version: '3.3'
 
 services:
-   database:
-     image: postgres:10.9
-     restart: always
-     ports:
-       - '6432:5432'
-     environment:
-       - POSTGRES_USER=postgres
-       - POSTGRES_PASSWORD=mysecretpassword
-       - POSTGRES_DB=dev_db
+  database:
+    image: postgres:10.9
+    restart: always
+    ports:
+      - '6432:5432'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_DB=dev_db
 
-   milmove_migrate:
-     depends_on:
-       - database
-     image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app-migrations:git-branch-placeholder_branch_name
-     links:
-       - database
-     environment:
-       - DB_ENV=development
-       - DB_HOST=database
-       - DB_NAME=dev_db
-       - DB_PASSWORD=mysecretpassword
-       - DB_PORT=5432
-       - DB_SSL_MODE=disable
-       - DB_USER=postgres
-       - ENVIRONMENT=test
-       - MIGRATION_PATH=file:///migrate/local_migrations;file:///migrate/migrations
-       - MIGRATION_MANIFEST=/migrate/migrations_manifest.txt
-     entrypoint:
-       - "/bin/milmove"
-       - "migrate"
-     volumes:
-       - ./local_migrations:/migrate/local_migrations
+  milmove_migrate:
+    depends_on:
+      - database
+    image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app-migrations:git-branch-placeholder_branch_name
+    links:
+      - database
+    environment:
+      - DB_ENV=development
+      - DB_HOST=database
+      - DB_NAME=dev_db
+      - DB_PASSWORD=mysecretpassword
+      - DB_PORT=5432
+      - DB_SSL_MODE=disable
+      - DB_USER=postgres
+      - ENVIRONMENT=test
+      - MIGRATION_PATH=file:///migrate/local_migrations;file:///migrate/migrations
+      - MIGRATION_MANIFEST=/migrate/migrations_manifest.txt
+    entrypoint:
+      - "/bin/milmove"
+      - "migrate"
+    volumes:
+      - ./local_migrations:/migrate/local_migrations
 
-   milmove:
-     depends_on:
-       - database
-       - milmove_migrate
-     image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app:git-branch-placeholder_branch_name
-     links:
-       - database
-     ports:
-       - '4000:4000'
-     environment:
-       - CLIENT_AUTH_SECRET_KEY
-       - CSRF_AUTH_KEY
-       - DB_ENV=development
-       - DB_HOST=database
-       - DB_NAME=dev_db
-       - DB_PASSWORD=mysecretpassword
-       - DB_PORT=5432
-       - DB_SSL_MODE=disable
-       - DB_USER=postgres
-       - DEVLOCAL_CA=/config/tls/devlocal-ca.pem
-       - DEVLOCAL_AUTH=true
-       - DOD_CA_PACKAGE=/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
-       - DPS_AUTH_COOKIE_SECRET_KEY
-       - DPS_COOKIE_EXPIRES_IN_MINUTES
-       - ENVIRONMENT=test
-       - FEATURE_FLAG_ACCESS_CODE=false
-       - HERE_MAPS_APP_CODE
-       - HERE_MAPS_APP_ID
-       - HERE_MAPS_GEOCODE_ENDPOINT
-       - HERE_MAPS_ROUTING_ENDPOINT
-       - HTTP_MY_SERVER_NAME=milmovelocal
-       - HTTP_OFFICE_SERVER_NAME=officelocal
-       - HTTP_TSP_SERVER_NAME=tsplocal
-       - HTTP_ADMIN_SERVER_NAME=adminlocal
-       - HTTP_ORDERS_SERVER_NAME=orderslocal
-       - IWS_RBS_HOST
-       - LOGIN_GOV_CALLBACK_PORT=4000
-       - LOGIN_GOV_CALLBACK_PROTOCOL
-       - LOGIN_GOV_HOSTNAME
-       - LOGIN_GOV_MY_CLIENT_ID
-       - LOGIN_GOV_OFFICE_CLIENT_ID
-       - LOGIN_GOV_SECRET_KEY
-       - LOGIN_GOV_TSP_CLIENT_ID
-       - LOGIN_GOV_ADMIN_CLIENT_ID
-       - MOVE_MIL_DOD_CA_CERT
-       - MOVE_MIL_DOD_TLS_CERT
-       - MOVE_MIL_DOD_TLS_KEY
-       - NO_TLS_ENABLED=1
-       - NO_TLS_PORT=4000
-       - STORAGE_BACKEND=local
+  milmove:
+    depends_on:
+      - database
+      - milmove_migrate
+    image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app:git-branch-placeholder_branch_name
+    links:
+      - database
+    ports:
+      - '4000:4000'
+    environment:
+      - CLIENT_AUTH_SECRET_KEY
+      - CSRF_AUTH_KEY
+      - DB_ENV=development
+      - DB_HOST=database
+      - DB_NAME=dev_db
+      - DB_PASSWORD=mysecretpassword
+      - DB_PORT=5432
+      - DB_SSL_MODE=disable
+      - DB_USER=postgres
+      - DEVLOCAL_CA=/config/tls/devlocal-ca.pem
+      - DEVLOCAL_AUTH=true
+      - DOD_CA_PACKAGE=/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
+      - DPS_AUTH_COOKIE_SECRET_KEY
+      - DPS_COOKIE_EXPIRES_IN_MINUTES
+      - ENVIRONMENT=test
+      - FEATURE_FLAG_ACCESS_CODE=false
+      - HERE_MAPS_APP_CODE
+      - HERE_MAPS_APP_ID
+      - HERE_MAPS_GEOCODE_ENDPOINT
+      - HERE_MAPS_ROUTING_ENDPOINT
+      - HTTP_MY_SERVER_NAME=milmovelocal
+      - HTTP_OFFICE_SERVER_NAME=officelocal
+      - HTTP_TSP_SERVER_NAME=tsplocal
+      - HTTP_ADMIN_SERVER_NAME=adminlocal
+      - HTTP_ORDERS_SERVER_NAME=orderslocal
+      - IWS_RBS_HOST
+      - LOGIN_GOV_CALLBACK_PORT=4000
+      - LOGIN_GOV_CALLBACK_PROTOCOL
+      - LOGIN_GOV_HOSTNAME
+      - LOGIN_GOV_MY_CLIENT_ID
+      - LOGIN_GOV_OFFICE_CLIENT_ID
+      - LOGIN_GOV_SECRET_KEY
+      - LOGIN_GOV_TSP_CLIENT_ID
+      - LOGIN_GOV_ADMIN_CLIENT_ID
+      - MOVE_MIL_DOD_CA_CERT
+      - MOVE_MIL_DOD_TLS_CERT
+      - MOVE_MIL_DOD_TLS_KEY
+      - NO_TLS_ENABLED=1
+      - NO_TLS_PORT=4000
+      - STORAGE_BACKEND=local
