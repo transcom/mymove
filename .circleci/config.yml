@@ -81,8 +81,6 @@ commands:
   deploy_tasks_steps:
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
@@ -116,8 +114,6 @@ commands:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
       - attach_workspace:
           at: bin
-      - setup_remote_docker:
-          docker_layer_caching: true
       - deploy:
           name: Deploy app service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
@@ -144,8 +140,6 @@ commands:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
-      - setup_remote_docker:
-          docker_layer_caching: true
       - attach_workspace:
           at: bin
       - deploy:
@@ -358,8 +352,6 @@ jobs:
     executor: mymove_and_postgres_large
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
@@ -400,8 +392,6 @@ jobs:
     executor: mymove_and_postgres_medium
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
@@ -455,8 +445,6 @@ jobs:
     executor: mymove_large
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
       - restore_cache:
           keys:
             - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
