@@ -26,13 +26,13 @@ services:
        - DB_SSL_MODE=disable
        - DB_USER=postgres
        - ENVIRONMENT=test
-       - MIGRATION_PATH=file:///mymove/local_migrations;file:///migrate/migrations
+       - MIGRATION_PATH=file:///migrate/local_migrations;file:///migrate/migrations
        - MIGRATION_MANIFEST=/migrate/migrations_manifest.txt
      entrypoint:
        - "/bin/milmove"
        - "migrate"
      volumes:
-       - ./local_migrations:/mymove/local_migrations
+       - ./local_migrations:/migrate/local_migrations
 
    milmove:
      depends_on:

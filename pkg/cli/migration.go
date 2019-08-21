@@ -47,10 +47,16 @@ func CheckMigration(v *viper.Viper) error {
 		return errMissingMigrationPath
 	}
 	for _, p := range strings.Split(migrationPath, ";") {
+		if len(p) == 0 {
+			continue
+		}
 		if strings.HasPrefix(p, "file://") {
-			if _, err := os.Stat(p[len("file://"):]); os.IsNotExist(err) {
-				return errors.Wrapf(&errInvalidMigrationPath{Path: p}, "Expected %s to exist", p)
+			filesystemPath := p[len("file://"):]
+			if _, err := os.Stat(filesystemPath); os.IsNotExist(err) {
+				return errors.Wrapf(&errInvalidMigrationPath{Path: filesystemPath}, "Expected %s to exist", filesystemPath)
 			}
+		} else if !strings.HasPrefix(p, "s3://") {
+			return errors.Wrapf(&errInvalidMigrationPath{Path: p}, "Expected %s to have prefix file:// or s3://", p)
 		}
 		if strings.HasSuffix(p, "/") {
 			return errors.Wrapf(&errInvalidMigrationPath{Path: p}, "Path %s Cannot end in slash", p)
