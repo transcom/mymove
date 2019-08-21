@@ -80,4 +80,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(RoutingPanel);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(RoutingPanel);

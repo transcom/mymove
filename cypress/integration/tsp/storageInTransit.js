@@ -166,8 +166,7 @@ function tspUserCreatesSitRequest() {
   });
 
   // Click on Request SIT and see SIT Request form
-  cy
-    .get('[data-cy=storage-in-transit-panel]')
+  cy.get('[data-cy=storage-in-transit-panel]')
     .should($div => {
       const text = $div.text();
       expect(text).to.include('Entitlement: 90 days');
@@ -189,8 +188,7 @@ function tspUserCreatesSitRequest() {
   fillAndSaveStorageInTransit();
 
   // Verify action links
-  cy
-    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-edit-link]')
+  cy.get('[data-cy=storage-in-transit-panel] [data-cy=sit-edit-link]')
     .contains('Edit')
     .get('[data-cy=storage-in-transit-panel] [data-cy=sit-delete-link]')
     .contains('Delete');
@@ -210,13 +208,11 @@ function tspUserStartsAndCancelsSitRequest() {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  cy
-    .get('[data-cy=storage-in-transit-panel] [data-cy=add-request]')
+  cy.get('[data-cy=storage-in-transit-panel] [data-cy=add-request]')
     .contains('Request SIT')
     .click();
 
-  cy
-    .get('.usa-button-secondary')
+  cy.get('.usa-button-secondary')
     .contains('Cancel')
     .click()
     .get('[data-cy=storage-in-transit-panel] [data-cy=add-request]')
@@ -240,16 +236,14 @@ function tspUserEditsSitRequest() {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  cy
-    .get('[data-cy=storage-in-transit-panel] [data-cy=add-request]')
+  cy.get('[data-cy=storage-in-transit-panel] [data-cy=add-request]')
     .contains('Request SIT')
     .click();
 
   fillAndSaveStorageInTransit();
 
   // click edit
-  cy
-    .get('[data-cy="sit-edit-link"]')
+  cy.get('[data-cy="sit-edit-link"]')
     .first()
     .click();
 
@@ -277,14 +271,12 @@ function tspUserStartsAndCancelsSitPlaceInSit() {
   // Verify action links
   cy.get('[data-cy=storage-in-transit-panel] [data-cy=sit-delete-link]').contains('Delete');
 
-  cy
-    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-place-into-sit-link]')
+  cy.get('[data-cy=storage-in-transit-panel] [data-cy=sit-place-into-sit-link]')
     .contains('Place into SIT')
     .click();
 
   cy.get('input[name=actual_start_date]').should('have.value', '3/26/2019');
-  cy
-    .get('[data-cy=place-into-sit-cancel]')
+  cy.get('[data-cy=place-into-sit-cancel]')
     .contains('Cancel')
     .click()
     .get('[data-cy=storage-in-transit-panel] [data-cy=sit-place-into-sit-link]')
@@ -296,14 +288,12 @@ function tspUserStartsAndCancelsSitPlaceInSit() {
 
 function tspUserEntersInvalidActualStartDate() {
   // User starts from Approved SIT
-  cy
-    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-place-into-sit-link]')
+  cy.get('[data-cy=storage-in-transit-panel] [data-cy=sit-place-into-sit-link]')
     .contains('Place into SIT')
     .click();
 
   // calendar date picker date should be disabled
-  cy
-    .get('input[name=actual_start_date]')
+  cy.get('input[name=actual_start_date]')
     .should('have.value', '3/26/2019')
     // chooses invalid 3/22/2019
     .click()
@@ -312,8 +302,7 @@ function tspUserEntersInvalidActualStartDate() {
     .should('have.class', 'DayPicker-Day--disabled');
 
   // submit should be disabled typed invalid date input
-  cy
-    .get('input[name=actual_start_date]')
+  cy.get('input[name=actual_start_date]')
     .should('have.value', '3/26/2019')
     .click()
     .clear()
@@ -323,21 +312,18 @@ function tspUserEntersInvalidActualStartDate() {
   cy.get('input[name=actual_start_date]').should('have.value', '3/25/2019');
   // expect submit to be disabled
   cy.get('[data-cy=place-in-sit-button]').should('be.disabled');
-  cy
-    .get('[data-cy=place-into-sit-cancel]')
+  cy.get('[data-cy=place-into-sit-cancel]')
     .contains('Cancel')
     .click();
 }
 
 function tspUserSubmitsPlaceInSit() {
   // User starts from Approved SIT
-  cy
-    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-place-into-sit-link]')
+  cy.get('[data-cy=storage-in-transit-panel] [data-cy=sit-place-into-sit-link]')
     .contains('Place into SIT')
     .click();
 
-  cy
-    .get('input[name=actual_start_date')
+  cy.get('input[name=actual_start_date')
     .should('have.value', '3/26/2019')
     // Chooses valid 3/30/2019
     .click()
@@ -345,8 +331,7 @@ function tspUserSubmitsPlaceInSit() {
     .contains('30')
     .click();
   cy.get('input[name=actual_start_date]').should('have.value', '3/30/2019');
-  cy
-    .get('[data-cy=place-in-sit-button]')
+  cy.get('[data-cy=place-in-sit-button]')
     .contains('Place Into SIT')
     .click()
     .get('[data-cy=storage-in-transit-panel]')
@@ -361,8 +346,7 @@ function tspUserSubmitsPlaceInSit() {
     });
 
   // Verify action links
-  cy
-    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-edit-link]')
+  cy.get('[data-cy=storage-in-transit-panel] [data-cy=sit-edit-link]')
     .contains('Edit')
     .get('[data-cy=storage-in-transit-panel] [data-cy=sit-delete-link]')
     .contains('Delete');
@@ -390,8 +374,7 @@ function tspUserEntitlementRemainingDays() {
 
   tspUserGoesToPlacedSit();
 
-  cy
-    .get('[data-cy=storage-in-transit-panel]')
+  cy.get('[data-cy=storage-in-transit-panel]')
     .should($div => {
       const text = $div.text();
       expect(text).to.include('In SIT');
@@ -410,8 +393,7 @@ function tspUserEntitlementRemainingDaysExpired() {
 
   tspUserGoesToPlacedSit();
 
-  cy
-    .get('[data-cy=storage-in-transit-panel]')
+  cy.get('[data-cy=storage-in-transit-panel]')
     .should($div => {
       const text = $div.text();
       expect(text).to.include('In SIT - SIT Expired');
@@ -503,21 +485,18 @@ function tspUserDeliversShipment(tspQueue, moveLocator, deliveryDate) {
   });
 
   // click Enter Delivery button
-  cy
-    .get('[data-cy=tsp-enter-delivery]')
+  cy.get('[data-cy=tsp-enter-delivery]')
     .contains('Enter Delivery')
     .click();
 
   // enter Actual Delivery Date
-  cy
-    .get('input[name=actual_delivery_date]')
+  cy.get('input[name=actual_delivery_date]')
     .type(deliveryDate)
     .blur();
 
   // press button to release shipment and confirm the expected information on the panel
   // after releasing the shipment
-  cy
-    .get('[data-cy=tsp-enter-delivery-submit]')
+  cy.get('[data-cy=tsp-enter-delivery-submit]')
     .contains('Done')
     .click();
 }
@@ -534,14 +513,12 @@ function tspUserSubmitsReleaseSit(tspQueue, moveLocator, releaseOnDate, dateOut)
   });
 
   // click release shipment link
-  cy
-    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-release-from-sit-link]')
+  cy.get('[data-cy=storage-in-transit-panel] [data-cy=sit-release-from-sit-link]')
     .contains('Release from SIT')
     .click();
 
   // Test canceling after clicking release shipment link
-  cy
-    .get('[data-cy=release-from-sit-cancel]')
+  cy.get('[data-cy=release-from-sit-cancel]')
     .contains('Cancel')
     .click();
 
@@ -551,22 +528,19 @@ function tspUserSubmitsReleaseSit(tspQueue, moveLocator, releaseOnDate, dateOut)
   });
 
   // click release shipment link
-  cy
-    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-release-from-sit-link]')
+  cy.get('[data-cy=storage-in-transit-panel] [data-cy=sit-release-from-sit-link]')
     .contains('Release from SIT')
     .click();
 
   // enter in date released on
-  cy
-    .get('input[name=released_on]')
+  cy.get('input[name=released_on]')
     .focus()
     .type(releaseOnDate)
     .blur();
 
   // press button to release shipment and confirm the expected information on the panel
   // after releasing the shipment
-  cy
-    .get('[data-cy=release-from-sit-button]')
+  cy.get('[data-cy=release-from-sit-button]')
     .contains('Done')
     .click();
 
@@ -588,8 +562,7 @@ function tspUserDeletesSitRequest() {
   });
 
   // Click on Delete SIT and see SIT Delete warning, then click cancel and it should go away.
-  cy
-    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-delete-link]')
+  cy.get('[data-cy=storage-in-transit-panel] [data-cy=sit-delete-link]')
     .click()
     .get('[data-cy=sit-delete-warning] [data-cy=sit-delete-cancel]')
     .click()
@@ -597,8 +570,7 @@ function tspUserDeletesSitRequest() {
     .should('not.exist');
 
   // Now click on Delete SIT again, then actually delete it this time.
-  cy
-    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-delete-link]')
+  cy.get('[data-cy=storage-in-transit-panel] [data-cy=sit-delete-link]')
     .click()
     .get('[data-cy=sit-delete-warning] [data-cy=sit-delete-delete]')
     .click()
@@ -620,16 +592,13 @@ function tspUserEditsSitRequestInSit() {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  cy
-    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-edit-link]')
+  cy.get('[data-cy=storage-in-transit-panel] [data-cy=sit-edit-link]')
     .contains('Edit')
     .click();
-  cy
-    .get('input[name=actual_start_date]')
+  cy.get('input[name=actual_start_date]')
     .should('have.value', '3/30/2019')
     .click();
-  cy
-    .get('.DayPickerInput-Overlay .DayPicker-Day')
+  cy.get('.DayPickerInput-Overlay .DayPicker-Day')
     .contains('29')
     .click();
   cy.get('input[name=actual_start_date]').should('have.value', '3/29/2019');
@@ -656,16 +625,13 @@ function tspUserEditsReleasedSitRequest() {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  cy
-    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-edit-link]')
+  cy.get('[data-cy=storage-in-transit-panel] [data-cy=sit-edit-link]')
     .contains('Edit')
     .click();
-  cy
-    .get('input[name=out_date]')
+  cy.get('input[name=out_date]')
     .should('have.value', '5/26/2019')
     .click();
-  cy
-    .get('.DayPickerInput-Overlay .DayPicker-Day')
+  cy.get('.DayPickerInput-Overlay .DayPicker-Day')
     .contains('29')
     .click();
   cy.get('input[name=out_date]').should('have.value', '5/29/2019');
@@ -689,35 +655,46 @@ function tspUserEditsDeliveredSitRequest() {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  cy
-    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-edit-link]')
+  cy.get('[data-cy=storage-in-transit-panel] [data-cy=sit-edit-link]')
     .contains('Edit')
     .click();
-  cy
-    .get('input[name=out_date]')
+  cy.get('input[name=out_date]')
     .should('have.value', '3/27/2019')
     .click();
-  cy
-    .get('.DayPickerInput-Overlay .DayPicker-Day')
+  cy.get('.DayPickerInput-Overlay .DayPicker-Day')
     .contains('22')
     .click();
   // cannot change date_out to a date before the actual start date
-  cy
-    .get('input[name=out_date]')
+  cy.get('input[name=out_date]')
     .should('have.value', '3/27/2019')
     .click();
-  cy
-    .get('.DayPickerInput-Overlay .DayPicker-Day')
+  cy.get('.DayPickerInput-Overlay .DayPicker-Day')
     .contains('29')
     .click();
   cy.get('input[name=out_date]').should('have.value', '3/29/2019');
+  cy.get('input[name=actual_start_date]')
+    .should('have.value', '3/26/2019')
+    .click();
+  //if out date is changed, actual start date selector will update to include that new date as it's max date
+  cy.get('.DayPickerInput-Overlay .DayPicker-Day')
+    .contains('30')
+    .click();
+  cy.get('input[name=actual_start_date]')
+    .should('have.value', '3/26/2019')
+    .click();
+  cy.get('.DayPickerInput-Overlay .DayPicker-Day')
+    .contains('29')
+    .click();
+  cy.get('input[name=actual_start_date]').should('have.value', '3/29/2019');
+  cy.get('input[name=actual_start_date]')
+    .should('have.value', '3/29/2019')
+    .click();
   cy.get('.usa-button-primary').click();
   cy.get('[data-cy=storage-in-transit-panel]').should($div => {
     const text = $div.text();
     expect(text).to.include('29-Mar-2019');
   });
-  cy
-    .get('.editable-panel-header')
+  cy.get('.editable-panel-header')
     .contains('Dates')
     .siblings()
     .click()
@@ -731,8 +708,7 @@ function tspUserEditsDeliveredSitRequest() {
     .get('input[name="dates.actual_delivery_date"]')
     .should('have.value', '3/27/2019');
 
-  cy
-    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-edit-link]')
+  cy.get('[data-cy=storage-in-transit-panel] [data-cy=sit-edit-link]')
     .contains('Edit')
     .click();
   cy

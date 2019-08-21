@@ -97,7 +97,6 @@ function ppmSubmitted(userId) {
 function ppmApproved(userId) {
   cy.signInAsUserPostRequest(milmoveAppName, userId);
   cy.contains('Move your own stuff (PPM)');
-  cy.contains('Next Step: Get ready to move');
   cy.contains('Next Step: Request payment');
   cy.logout();
 }

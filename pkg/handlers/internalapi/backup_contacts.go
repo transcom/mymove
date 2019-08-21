@@ -1,11 +1,8 @@
 package internalapi
 
 import (
-	"reflect"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
 
 	backupop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/backup_contacts"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -37,9 +34,6 @@ func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBa
 
 	ctx := params.HTTPRequest.Context()
 
-	ctx, span := beeline.StartSpan(ctx, reflect.TypeOf(h).Name())
-	defer span.Send()
-
 	// User should always be populated by middleware
 	session, logger := h.SessionAndLoggerFromContext(ctx)
 	/* #nosec UUID is pattern matched by swagger which checks the format */
@@ -69,8 +63,7 @@ type IndexBackupContactsHandler struct {
 
 // Handle retrieves a list of all moves in the system belonging to the logged in user
 func (h IndexBackupContactsHandler) Handle(params backupop.IndexServiceMemberBackupContactsParams) middleware.Responder {
-	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
-	defer span.Send()
+	ctx := params.HTTPRequest.Context()
 
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 

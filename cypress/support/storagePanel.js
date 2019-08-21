@@ -1,25 +1,21 @@
 /* global cy */
 
 export function userSavesStorageDetails() {
-  cy
-    .get('.storage')
+  cy.get('.storage')
     .find('input[name="total_sit_cost"]')
     .first()
     .type('600');
 
-  cy
-    .get('.storage')
+  cy.get('.storage')
     .find('input[name="days_in_storage"]')
     .first()
     .type('60');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Save')
     .click();
 
@@ -30,25 +26,21 @@ export function userSavesStorageDetails() {
 }
 
 export function userCancelsStorageDetails() {
-  cy
-    .get('.storage')
+  cy.get('.storage')
     .find('input[name="total_sit_cost"]')
     .first()
     .type('600');
 
-  cy
-    .get('.storage')
+  cy.get('.storage')
     .find('input[name="days_in_storage"]')
     .first()
     .type('60');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Cancel')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Cancel')
     .click();
 

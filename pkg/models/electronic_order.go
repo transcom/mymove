@@ -9,7 +9,6 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
-	beeline "github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 )
 
@@ -86,8 +85,6 @@ func (e *ElectronicOrder) ValidateUpdate(tx *pop.Connection) (*validate.Errors, 
 
 // CreateElectronicOrder inserts an empty set of electronic Orders into the database
 func CreateElectronicOrder(ctx context.Context, dbConnection *pop.Connection, order *ElectronicOrder) (*validate.Errors, error) {
-	_, span := beeline.StartSpan(ctx, "CreateElectronicOrder")
-	defer span.Send()
 
 	responseVErrors := validate.NewErrors()
 	verrs, responseError := dbConnection.ValidateAndCreate(order)
@@ -100,8 +97,6 @@ func CreateElectronicOrder(ctx context.Context, dbConnection *pop.Connection, or
 
 // CreateElectronicOrderWithRevision inserts a new set of electronic Orders into the database with its first Revision
 func CreateElectronicOrderWithRevision(ctx context.Context, dbConnection *pop.Connection, order *ElectronicOrder, firstRevision *ElectronicOrdersRevision) (*validate.Errors, error) {
-	ctx, span := beeline.StartSpan(ctx, "CreateElectronicOrder")
-	defer span.Send()
 
 	responseVErrors := validate.NewErrors()
 	var responseError error

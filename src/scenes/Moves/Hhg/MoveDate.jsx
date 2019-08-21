@@ -126,4 +126,7 @@ function mapStateToProps(state) {
   return props;
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(MoveDate);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(MoveDate);

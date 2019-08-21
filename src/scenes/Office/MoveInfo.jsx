@@ -144,7 +144,13 @@ const ReferrerQueueLink = props => {
     case '/queues/ppm':
       return (
         <NavLink to="/queues/ppm" activeClassName="usa-current">
-          <span>PPM Queue</span>
+          <span>All PPMs Queue</span>
+        </NavLink>
+      );
+    case '/queues/ppm_payment_requested':
+      return (
+        <NavLink to="/queues/ppm_payment_requested" activeClassName="usa-current">
+          <span>Payment Requests PPMs Queue</span>
         </NavLink>
       );
     case '/queues/hhg_active':
@@ -257,9 +263,7 @@ class MoveInfo extends Component {
 
   cancelMoveAndRedirect = cancelReason => {
     const messageLines = [
-      `Move #${this.props.move.locator} for ${this.props.serviceMember.last_name}, ${
-        this.props.serviceMember.first_name
-      } has been canceled`,
+      `Move #${this.props.move.locator} for ${this.props.serviceMember.last_name}, ${this.props.serviceMember.first_name} has been canceled`,
       'An email confirmation has been sent to the customer.',
     ];
     this.props.cancelMove(this.props.moveId, cancelReason).then(() => {
@@ -627,5 +631,10 @@ const mapDispatchToProps = dispatch =>
     dispatch,
   );
 
-const connectedMoveInfo = withContext(connect(mapStateToProps, mapDispatchToProps)(MoveInfo));
+const connectedMoveInfo = withContext(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(MoveInfo),
+);
 export { connectedMoveInfo as default, ReferrerQueueLink };

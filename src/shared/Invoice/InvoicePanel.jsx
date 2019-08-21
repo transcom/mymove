@@ -122,4 +122,7 @@ const mapStateToProps = (state, ownProps) => {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ createInvoice, getAllShipmentLineItems, getAllInvoices }, dispatch);
 }
-export default connect(mapStateToProps, mapDispatchToProps)(InvoicePanel);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(InvoicePanel);

@@ -126,11 +126,12 @@ const configureDateField = (swaggerField, props) => {
   return props;
 };
 
-const configureRestrictedDateField = (swaggerField, props, minDate) => {
+const configureRestrictedDateField = (swaggerField, props, minDate, maxDate) => {
   props.type = 'date';
   props.customComponent = SingleDatePicker;
   props.normalize = normalizer.normalizeDates;
   props.validate.push(validator.minDateValidation(minDate, `Date must be no earlier than ${minDate}`));
+  props.validate.push(validator.maxDateValidation(maxDate, `Date must be no later than ${maxDate}`));
   return props;
 };
 
@@ -209,18 +210,17 @@ const renderInputField = ({
       {hideLabel || (
         <label className={displayError ? 'usa-input-error-label' : 'usa-input-label'} htmlFor={input.name}>
           {title}
-          {!always_required &&
-            type !== 'boolean' &&
-            !customComponent && <span className="label-optional">Optional</span>}
+          {!always_required && type !== 'boolean' && !customComponent && (
+            <span className="label-optional">Optional</span>
+          )}
         </label>
       )}
       <span className={prefixInputClassName}>{FieldComponent}</span>
-      {touched &&
-        error && (
-          <span className="usa-input-error-message" id={input.name + '-error'} role="alert">
-            {error}
-          </span>
-        )}
+      {touched && error && (
+        <span className="usa-input-error-message" id={input.name + '-error'} role="alert">
+          {error}
+        </span>
+      )}
     </div>
   );
 };
@@ -237,6 +237,7 @@ export const SwaggerField = props => {
     onChange,
     validate,
     minDate,
+    maxDate,
     disabledDays,
     zipPattern,
     filteredEnumListOverride,
@@ -270,6 +271,7 @@ export const SwaggerField = props => {
     onChange,
     validate,
     minDate,
+    maxDate,
     disabledDays,
     zipPattern,
     filteredEnumListOverride,
@@ -290,6 +292,7 @@ const createSchemaField = (
   onChange,
   validate,
   minDate,
+  maxDate,
   disabledDays,
   zipPattern,
   filteredEnumListOverride,
@@ -359,9 +362,9 @@ const createSchemaField = (
     }
   } else if (swaggerField.type === 'string') {
     const fieldFormat = swaggerField.format;
-    if (fieldFormat === 'date' && !isNil(minDate)) {
+    if (fieldFormat === 'date' && (!isNil(minDate) || !isNil(maxDate))) {
       inputProps.disabledDays = disabledDays ? disabledDays : undefined;
-      fieldProps = configureRestrictedDateField(swaggerField, fieldProps, minDate);
+      fieldProps = configureRestrictedDateField(swaggerField, fieldProps, minDate, maxDate);
     } else if (fieldFormat === 'date') {
       fieldProps = configureDateField(swaggerField, fieldProps);
     } else if (fieldFormat === 'telephone') {
