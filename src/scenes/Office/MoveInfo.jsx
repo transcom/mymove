@@ -29,7 +29,7 @@ import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { resetRequests } from 'shared/Swagger/request';
 import { getStorageInTransitsForShipment } from 'shared/Entities/modules/storageInTransits';
-import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
+import { getAllTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
 import { getAllInvoices } from 'shared/Entities/modules/invoices';
 import { approvePPM, loadPPMs, selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
@@ -448,7 +448,6 @@ const mapStateToProps = (state, ownProps) => {
     serviceMember,
     serviceMemberId,
     swaggerError: get(state, 'swagger.hasErrored'),
-    tariff400ngItems: selectTariff400ngItems(state),
     upload: get(orders, 'uploaded_orders.uploads.0', {}),
   };
 };
