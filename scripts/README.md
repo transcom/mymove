@@ -122,3 +122,4 @@ These scripts are primarily used for working with a CAC and the Orders API
 | `cac-extract-cert` | Get a certificate from CAC |
 | `cac-extract-fingerprint` | Get SHA 256 fingerprint from CAC |
 | `cac-extract-pubkey` | Get a public key from CAC |
+| `cac-extract-token` | Get the Subject Token from CAC |
