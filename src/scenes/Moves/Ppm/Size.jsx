@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { setPendingPpmSize, getRawWeightInfo, getActualRemainingWeight, getEstimatedRemainingWeight } from './ducks';
+import { setPendingPpmSize, getRawWeightInfo } from './ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import EntitlementBar from 'scenes/EntitlementBar';
 import BigButton from 'shared/BigButton';
@@ -117,8 +117,6 @@ PpmSize.propTypes = {
   currentPpm: PropTypes.shape({ id: PropTypes.string, size: PropTypes.string }),
   setPendingPpmSize: PropTypes.func.isRequired,
   entitlement: PropTypes.object,
-  estimatedRemainingWeight: PropTypes.number,
-  actualRemainingWeight: PropTypes.number,
 };
 
 function mapStateToProps(state) {
@@ -126,8 +124,6 @@ function mapStateToProps(state) {
     ...state.ppm,
     weightInfo: getRawWeightInfo(state),
     entitlement: loadEntitlementsFromState(state),
-    estimatedRemainingWeight: getEstimatedRemainingWeight(state),
-    actualRemainingWeight: getActualRemainingWeight(state),
   };
 }
 

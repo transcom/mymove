@@ -4,7 +4,6 @@ import { pick } from 'lodash';
 import { normalize } from 'normalizr';
 import { ordersArray } from 'shared/Entities/schema';
 import { addEntities } from 'shared/Entities/actions';
-import { getShipment } from 'shared/Entities/modules/shipments';
 
 export const setIsLoggedInType = 'SET_IS_LOGGED_IN';
 const getLoggedInUserType = 'GET_LOGGED_IN_USER';
@@ -19,10 +18,6 @@ export function getCurrentUserInfo() {
       .then(response => {
         if (response.service_member) {
           const data = normalize(response.service_member.orders, ordersArray);
-          if (data.entities.shipments) {
-            const shipmentIds = Object.keys(data.entities.shipments);
-            shipmentIds.map(id => dispatch(getShipment(id)));
-          }
 
           // Only store addresses in a normalized way. This prevents
           // data duplication while we're using both Redux approaches.
