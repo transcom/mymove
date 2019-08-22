@@ -129,11 +129,17 @@ func initGenOrdersMigrationFlags(flag *pflag.FlagSet) {
 
 func genOrdersMigration(cmd *cobra.Command, args []string) error {
 	err := cmd.ParseFlags(args)
+	if err != nil {
+		return errors.Wrap(err, "Could not parse flags")
+	}
+
 	flag := cmd.Flags()
+
 	err = flag.Parse(os.Args[1:])
 	if err != nil {
 		return errors.Wrap(err, "could not parse flags")
 	}
+
 	v := viper.New()
 	err = v.BindPFlags(flag)
 	if err != nil {
@@ -143,7 +149,6 @@ func genOrdersMigration(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	migrationsPath := v.GetString(cli.MigrationPathFlag)
 	migrationManifest := v.GetString(cli.MigrationManifestFlag)
 	migrationName := v.GetString(cli.MigrationNameFlag)
 	migrationVersion := v.GetString(cli.MigrationVersionFlag)
@@ -168,14 +173,7 @@ func genOrdersMigration(cmd *cobra.Command, args []string) error {
 	}
 	log.Printf("new migration file created at:  %q\n", localMigrationPath)
 
-	migrationFileName := fmt.Sprintf("%s_%s.up.fizz", migrationVersion, migrationName)
-	t2 := template.Must(template.New("migration").Parse(secureMigrationTemplate))
-	err = createMigration(migrationsPath, migrationFileName, t2, secureMigrationName)
-	if err != nil {
-		return err
-	}
-
-	err = addMigrationToManifest(migrationManifest, migrationFileName)
+	err = addMigrationToManifest(migrationManifest, secureMigrationName)
 	if err != nil {
 		return err
 	}
