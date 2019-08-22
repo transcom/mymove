@@ -93,6 +93,8 @@ var ShipmentSummaryPage3Layout = FormLayout{
 
 	FieldsLayout: map[string]FieldPos{
 		"PreparationDate":        FormField(155.5, 23, 46, floatPtr(10), nil, nil),
+		"Descriptions":           FormField(10, 64, 135, floatPtr(10), nil, nil),
+		"AmountsPaid":            FormField(155.5, 64, 30, floatPtr(10), nil, stringPtr("RM")),
 		"ServiceMemberSignature": FormField(10, 125, 200, floatPtr(10), nil, nil),
 		"SignatureDate":          FormField(10, 136, 200, floatPtr(10), nil, nil),
 	},

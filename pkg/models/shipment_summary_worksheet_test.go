@@ -760,6 +760,84 @@ func (suite *ModelSuite) TestCalculatePPMEntitlementNoHHGPPMGreaterThanMaxEntitl
 	suite.Equal(totalEntitlement, ppmRemainingEntitlement)
 }
 
+func (suite *ModelSuite) TestCalculatePPMEntitlementPPMGreaterThanRemainingEntitlement() {
+	ppmWeight := unit.Pound(1100)
+	totalEntitlement := unit.Pound(1000)
+	move := models.Move{
+		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
+	}
+
+	ppmRemainingEntitlement, err := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
+	suite.NoError(err)
+
+	suite.Equal(totalEntitlement, ppmRemainingEntitlement)
+}
+
+func (suite *ModelSuite) TestCalculatePPMEntitlementPPMLessThanRemainingEntitlement() {
+	ppmWeight := unit.Pound(500)
+	totalEntitlement := unit.Pound(1000)
+	move := models.Move{
+		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
+	}
+
+	ppmRemainingEntitlement, err := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
+	suite.NoError(err)
+
+	suite.Equal(unit.Pound(ppmWeight), ppmRemainingEntitlement)
+}
+
+func (suite *ModelSuite) TestFormatOtherExpenses() {
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	sm := ppm.Move.Orders.ServiceMember
+
+	assertions1 := testdatagen.Assertions{
+		MovingExpenseDocument: models.MovingExpenseDocument{
+			MovingExpenseType:    models.MovingExpenseTypeOTHER,
+			RequestedAmountCents: unit.Cents(2589),
+		},
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm.Move.ID,
+			Move:                     ppm.Move,
+			PersonallyProcuredMoveID: &ppm.ID,
+			Status:                   "OK",
+			MoveDocumentType:         "EXPENSE",
+			Title:                    "The Bard",
+		},
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+		},
+	}
+
+	assertions2 := testdatagen.Assertions{
+		MovingExpenseDocument: models.MovingExpenseDocument{
+			MovingExpenseType:    models.MovingExpenseTypeOTHER,
+			RequestedAmountCents: unit.Cents(1439),
+		},
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm.Move.ID,
+			Move:                     ppm.Move,
+			PersonallyProcuredMoveID: &ppm.ID,
+			Status:                   "OK",
+			MoveDocumentType:         "EXPENSE",
+			Title:                    "The Beedle",
+		},
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+		},
+	}
+
+	otherExpenseDocs := models.MovingExpenseDocuments{}
+	otherExpenseDocs = append(otherExpenseDocs, testdatagen.MakeMovingExpenseDocument(suite.DB(), assertions1))
+	otherExpenseDocs = append(otherExpenseDocs, testdatagen.MakeMovingExpenseDocument(suite.DB(), assertions2))
+
+	formattedOtherExpenses := models.FormatOtherExpenses(otherExpenseDocs)
+
+	suite.Equal("The Bard\n\nThe Beedle", formattedOtherExpenses.Descriptions)
+	suite.Equal("$2,589.00\n\n$1,439.00", formattedOtherExpenses.AmountsPaid)
+}
+
 func (suite *ModelSuite) TestFormatSignature() {
 	sm := models.ServiceMember{
 		FirstName: models.StringPointer("John"),

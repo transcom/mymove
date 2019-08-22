@@ -127,11 +127,18 @@ type FormattedMovingExpenses struct {
 	TotalPaidNonSIT             string
 }
 
+// FormattedOtherExpenses is an object representing the other moving expenses formatted for the SSW
+type FormattedOtherExpenses struct {
+	Descriptions string
+	AmountsPaid  string
+}
+
 // ShipmentSummaryWorksheetPage3Values is an object representing a Shipment Summary Worksheet
 type ShipmentSummaryWorksheetPage3Values struct {
 	PreparationDate        string
 	ServiceMemberSignature string
 	SignatureDate          string
+	FormattedOtherExpenses
 }
 
 // ShipmentSummaryFormData is a container for the various objects required for the a Shipment Summary Worksheet
@@ -459,9 +466,25 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData)
 func FormatValuesShipmentSummaryWorksheetFormPage3(data ShipmentSummaryFormData) ShipmentSummaryWorksheetPage3Values {
 	page3 := ShipmentSummaryWorksheetPage3Values{}
 	page3.PreparationDate = FormatDate(data.PreparationDate)
+	page3.FormattedOtherExpenses = FormatOtherExpenses(data.MovingExpenseDocuments)
 	page3.ServiceMemberSignature = FormatSignature(data.ServiceMember)
 	page3.SignatureDate = FormatSignatureDate(data.SignedCertification)
 	return page3
+}
+
+func FormatOtherExpenses(docs MovingExpenseDocuments) FormattedOtherExpenses {
+	var expenseDescriptions []string
+	var expenseAmounts []string
+	for _, doc := range docs {
+		if doc.MovingExpenseType == MovingExpenseTypeOTHER {
+			expenseDescriptions = append(expenseDescriptions, doc.MoveDocument.Title)
+			expenseAmounts = append(expenseAmounts, FormatDollars(float64(doc.RequestedAmountCents)))
+		}
+	}
+	return FormattedOtherExpenses{
+		Descriptions: strings.Join(expenseDescriptions, "\n\n"),
+		AmountsPaid:  strings.Join(expenseAmounts, "\n\n"),
+	}
 }
 
 //FormatSignature formats a service member's signature for the Shipment Summary Worksheet
