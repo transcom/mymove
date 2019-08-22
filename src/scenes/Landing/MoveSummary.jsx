@@ -194,7 +194,6 @@ const NewApprovedMoveSummaryComponent = ({
   incentiveEstimate,
 }) => {
   const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
-  const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
   const ppmPaymentRequestIntroRoute = `moves/${move.id}/ppm-payment-request-intro`;
   const ppmPaymentRequestReviewRoute = `moves/${move.id}/ppm-payment-review`;
   return (
@@ -210,18 +209,6 @@ const NewApprovedMoveSummaryComponent = ({
             <PPMStatusTimeline ppm={ppm} />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
-                {!moveInProgress && (
-                  <div className="step">
-                    <div className="title">Next Step: Get ready to move</div>
-                    <div>
-                      Remember to save your weight tickets and expense receipts. For more information, read the PPM info
-                      packet.
-                    </div>
-                    <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
-                      <button className="usa-button-secondary">Read PPM Info Packet</button>
-                    </a>
-                  </div>
-                )}
                 {paymentRequested ? (
                   isMissingWeightTicketDocuments ? (
                     <div className="step">
@@ -235,11 +222,6 @@ const NewApprovedMoveSummaryComponent = ({
                     </div>
                   ) : (
                     <div className="step">
-                      <div className="title">Next step: Wait for your payment paperwork</div>
-                      <div>
-                        We're reviewing your payment request for ${formatCents(incentiveEstimate)}. We'll let you know
-                        when you can submit your payment paperwork to Finance.
-                      </div>
                       <Link to={ppmPaymentRequestReviewRoute} className="usa-button usa-button-secondary">
                         Edit Payment Request
                       </Link>

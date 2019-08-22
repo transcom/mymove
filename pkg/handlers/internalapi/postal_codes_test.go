@@ -1,11 +1,11 @@
-package publicapi
+package internalapi
 
 import (
 	"fmt"
 	"net/http/httptest"
 	"strings"
 
-	postalcodesops "github.com/transcom/mymove/pkg/gen/restapi/apioperations/postal_codes"
+	postalcodesops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/postal_codes"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"

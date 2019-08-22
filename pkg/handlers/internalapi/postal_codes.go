@@ -1,4 +1,4 @@
-package publicapi
+package internalapi
 
 import (
 	"regexp"
@@ -6,8 +6,8 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/gen/apimessages"
-	postalcodesops "github.com/transcom/mymove/pkg/gen/restapi/apioperations/postal_codes"
+	postalcodesops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/postal_codes"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -47,7 +47,7 @@ func (h ValidatePostalCodeWithRateDataHandler) Handle(params postalcodesops.Vali
 		}
 	}
 
-	payload := apimessages.RateEnginePostalCodePayload{
+	payload := internalmessages.RateEnginePostalCodePayload{
 		Valid:          &valid,
 		PostalCode:     &postalCode,
 		PostalCodeType: &postalCodeType,

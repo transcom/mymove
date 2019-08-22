@@ -185,5 +185,6 @@
     }
   },
   "mountPoints": [],
-  "volumesFrom": []
+  "volumesFrom": [],
+  "readonlyRootFilesystem": true
 }
