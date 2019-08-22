@@ -65,7 +65,7 @@ func (suite *ModelSuite) TestFetchDocument() {
 		t.Errorf("did not expect validation errors: %v", verrs)
 	}
 
-	doc, _ := models.FetchDocument(ctx, suite.DB(), &session, document.ID)
+	doc, _ := models.FetchDocument(ctx, suite.DB(), &session, document.ID, false)
 	suite.Equal(doc.ID, document.ID)
 }
 
@@ -96,9 +96,15 @@ func (suite *ModelSuite) TestFetchDeletedDocument() {
 		t.Errorf("did not expect validation errors: %v", verrs)
 	}
 
-	doc, _ := models.FetchDocument(ctx, suite.DB(), &session, document.ID)
+	doc, _ := models.FetchDocument(ctx, suite.DB(), &session, document.ID, false)
 
 	// fetches a nil document
 	suite.Equal(doc.ID, uuid.Nil)
 	suite.Equal(doc.ServiceMemberID, uuid.Nil)
+
+	doc2, _ := models.FetchDocument(ctx, suite.DB(), &session, document.ID, true)
+
+	// fetches a nil document
+	suite.Equal(doc2.ID, document.ID)
+	suite.Equal(doc2.ServiceMemberID, serviceMember.ID)
 }

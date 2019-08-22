@@ -75,7 +75,7 @@ func FetchUpload(ctx context.Context, db *pop.Connection, session *auth.Session,
 	// If there's a document, check permissions. Otherwise user must
 	// have been the uploader
 	if upload.DocumentID != nil {
-		_, docErr := FetchDocument(ctx, db, session, *upload.DocumentID)
+		_, docErr := FetchDocument(ctx, db, session, *upload.DocumentID, false)
 		if docErr != nil {
 			return Upload{}, docErr
 		}
