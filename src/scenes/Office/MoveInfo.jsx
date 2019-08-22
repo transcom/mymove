@@ -34,7 +34,6 @@ import { getAllInvoices } from 'shared/Entities/modules/invoices';
 import { approvePPM, loadPPMs, selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
-import { getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 
 import { showBanner, removeBanner } from './ducks';
 import {
@@ -463,7 +462,6 @@ const mapDispatchToProps = dispatch =>
       cancelMove,
       getAllTariff400ngItems,
       getAllInvoices,
-      getTspForShipment,
       getStorageInTransitsForShipment,
       showBanner,
       removeBanner,
