@@ -26,6 +26,13 @@ describe('completing the ppm flow', function() {
       .clear()
       .type('76127');
 
+    cy.get('input[type="radio"][value="yes"]')
+      .eq(1)
+      .check('yes', { force: true });
+    cy.get('input[name="days_in_storage"]')
+      .clear()
+      .type('30');
+
     cy.nextPage();
 
     cy.location().should(loc => {
@@ -47,9 +54,6 @@ describe('completing the ppm flow', function() {
 
     cy.get('.incentive').contains('$');
 
-    cy.get('input[type="radio"]').check('yes', { force: true });
-    cy.get('input[name="requested_amount"]').type('1,333.91');
-    cy.get('select[name="method_of_receipt"]').select('MilPay');
     cy.nextPage();
 
     cy.location().should(loc => {
@@ -57,9 +61,36 @@ describe('completing the ppm flow', function() {
     });
     cy.get('.wizard-header').should('not.exist');
 
-    // //todo: should probably have test suite for review and edit screens
-    cy.contains('$1,333.91'); // Verify that the advance matches what was input
-    cy.contains('Storage: Not requested'); // Verify SIT on the ppm review page since it's optional on HHG_PPM
+    // todo: should probably have test suite for review and edit screens
+    cy.get('[data-cy="sit-display"]')
+      .contains('30 days')
+      .contains('$2441.00');
+
+    cy.get('[data-cy="edit-ppm-dates"]').click();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review\/edit-date-and-location/);
+    });
+
+    cy.get('.storage-estimate').contains('$2441.00');
+
+    cy.get('input[name="days_in_storage"]')
+      .clear()
+      .type('35');
+
+    cy.get('.storage-estimate').contains('$2,538.68');
+
+    cy.get('button')
+      .contains('Save')
+      .click();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
+    });
+
+    cy.get('[data-cy="sit-display"]')
+      .contains('35 days')
+      .contains('$2538.68');
 
     cy.nextPage();
 
@@ -363,7 +394,6 @@ function serviceMemberReviewsDocuments() {
     .click();
   cy.wait('@signedCertifications');
   cy.wait('@requestPayment');
-  cy.contains("We're reviewing your payment request for $");
 }
 function serviceMemberEditsPaymentRequest() {
   cy.get('.usa-alert-success')
