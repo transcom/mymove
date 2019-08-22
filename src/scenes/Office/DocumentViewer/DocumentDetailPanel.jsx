@@ -39,18 +39,15 @@ const DocumentDetailDisplay = ({
         <PanelSwaggerField title="Document Title" fieldName="title" required {...moveDocFieldProps} />
 
         <PanelSwaggerField title="Document Type" fieldName="move_document_type" required {...moveDocFieldProps} />
-        {isExpenseDocument &&
-          moveDocument.moving_expense_type && (
-            <PanelSwaggerField fieldName="moving_expense_type" {...moveDocFieldProps} />
-          )}
-        {isExpenseDocument &&
-          get(moveDocument, 'requested_amount_cents') && (
-            <PanelSwaggerField fieldName="requested_amount_cents" {...moveDocFieldProps} />
-          )}
-        {isExpenseDocument &&
-          get(moveDocument, 'payment_method') && (
-            <PanelSwaggerField fieldName="payment_method" {...moveDocFieldProps} />
-          )}
+        {isExpenseDocument && moveDocument.moving_expense_type && (
+          <PanelSwaggerField fieldName="moving_expense_type" {...moveDocFieldProps} />
+        )}
+        {isExpenseDocument && get(moveDocument, 'requested_amount_cents') && (
+          <PanelSwaggerField fieldName="requested_amount_cents" {...moveDocFieldProps} />
+        )}
+        {isExpenseDocument && get(moveDocument, 'payment_method') && (
+          <PanelSwaggerField fieldName="payment_method" {...moveDocFieldProps} />
+        )}
         {isWeightTicketDocument && (
           <>
             <PanelSwaggerField title="Vehicle Type" fieldName="vehicle_options" required {...moveDocFieldProps} />
@@ -228,4 +225,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(DocumentDetailPanel);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(DocumentDetailPanel);

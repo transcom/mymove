@@ -34,8 +34,7 @@ function tspUserCannotGenerateGBL() {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains(gblButtonText)
     .should('be.disabled');
 }
@@ -56,20 +55,17 @@ function tspUserGeneratesGBL() {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains(gblButtonText)
     .should('be.enabled');
 
   cy.get('.documents').should('not.contain', 'Government Bill Of Lading');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains(gblButtonText)
     .click();
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains(gblButtonText)
     .should('be.disabled');
 
@@ -79,13 +75,11 @@ function tspUserGeneratesGBL() {
 
   cy.get('.usa-alert-success').contains('Click the button to view, print, or download the GBL.');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('View GBL')
     .should('be.enabled');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains(gblButtonText)
     .should('not.exist');
 
@@ -117,13 +111,11 @@ function tspUserViewsGBL() {
 
   cy.get('.documents').should($div => expect($div.text()).to.contain('Government Bill Of Lading'));
 
-  cy
-    .get('[data-cy="doc-link"]')
+  cy.get('[data-cy="doc-link"]')
     .get('a')
     .contains('Government Bill Of Lading');
 
-  cy
-    .get('[data-cy="doc-link"]')
+  cy.get('[data-cy="doc-link"]')
     .find('a')
     .should('have.attr', 'href')
     .and('match', /^\/shipments\/[^/]+\/documents\/[^/]+/);

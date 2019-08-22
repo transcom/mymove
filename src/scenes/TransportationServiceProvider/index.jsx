@@ -100,4 +100,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => bindActionCreators({ loadPublicSchema, getCurrentUserInfo }, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(TspWrapper);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(TspWrapper);

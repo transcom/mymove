@@ -24,15 +24,13 @@ function officeUserViewsPpmPanel(locatorId) {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });
 
-  cy
-    .get('.nav-tab')
+  cy.get('.nav-tab')
     .contains('PPM')
     .click();
 }
 
 function officeUserEditsDocumentStatus(documentTitle, oldDocumentStatus, newDocumentStatus) {
-  cy
-    .get('.documents')
+  cy.get('.documents')
     .get('[data-cy="doc-link"]')
     .find('a')
     .contains(documentTitle)
@@ -46,8 +44,7 @@ function officeUserEditsDocumentStatus(documentTitle, oldDocumentStatus, newDocu
 
   cy.get('.editable-panel-edit').click();
 
-  cy
-    .get('label[for="moveDocument.status"]')
+  cy.get('label[for="moveDocument.status"]')
     .siblings()
     .first()
     .children()
