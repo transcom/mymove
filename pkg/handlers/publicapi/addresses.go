@@ -23,16 +23,6 @@ func addressModelFromPayload(rawAddress *apimessages.Address) *models.Address {
 	}
 }
 
-func updateAddressWithPayload(a *models.Address, payload *apimessages.Address) {
-	a.StreetAddress1 = *payload.StreetAddress1
-	a.StreetAddress2 = payload.StreetAddress2
-	a.StreetAddress3 = payload.StreetAddress3
-	a.City = *payload.City
-	a.State = *payload.State
-	a.PostalCode = *payload.PostalCode
-	a.Country = payload.Country
-}
-
 func payloadForAddressModel(a *models.Address) *apimessages.Address {
 	if a == nil {
 		return nil
