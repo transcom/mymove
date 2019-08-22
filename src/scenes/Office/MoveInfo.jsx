@@ -28,7 +28,6 @@ import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { resetRequests } from 'shared/Swagger/request';
-import { getAllInvoices } from 'shared/Entities/modules/invoices';
 import { approvePPM, loadPPMs, selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
@@ -456,7 +455,6 @@ const mapDispatchToProps = dispatch =>
       approveBasics,
       approvePPM,
       cancelMove,
-      getAllInvoices,
       showBanner,
       removeBanner,
       loadMove,
