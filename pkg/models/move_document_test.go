@@ -361,7 +361,7 @@ func (suite *ModelSuite) TestFetchMoveDocument() {
 		ServiceMemberID: sm.ID,
 	}
 
-	moveDoc, err := FetchMoveDocument(suite.DB(), session, moveDocument.ID)
+	moveDoc, err := FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	if suite.NoError(err) {
 		suite.Equal(moveDocument.MoveID, moveDoc.MoveID)
 	}
@@ -369,7 +369,7 @@ func (suite *ModelSuite) TestFetchMoveDocument() {
 	// When: the user is not authorized to fetch movedoc
 	session.UserID = uuid.Must(uuid.NewV4())
 	session.ServiceMemberID = uuid.Must(uuid.NewV4())
-	_, err = FetchMoveDocument(suite.DB(), session, moveDocument.ID)
+	_, err = FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	if suite.Error(err) {
 		suite.Equal(ErrFetchForbidden, err)
 	}
@@ -381,7 +381,7 @@ func (suite *ModelSuite) TestFetchMoveDocument() {
 	session.ApplicationName = auth.OfficeApp
 
 	// Then: move document is returned
-	moveDocOfficeUser, err := FetchMoveDocument(suite.DB(), session, moveDocument.ID)
+	moveDocOfficeUser, err := FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	if suite.NoError(err) {
 		suite.Equal(moveDocOfficeUser.MoveID, moveDoc.MoveID)
 	}

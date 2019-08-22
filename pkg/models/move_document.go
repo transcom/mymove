@@ -204,14 +204,20 @@ func (m *MoveDocument) ValidateUpdate(tx *pop.Connection) (*validate.Errors, err
 }
 
 // FetchMoveDocument fetches a MoveDocument model
-func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) (*MoveDocument, error) {
+func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID, includedDeletedMoveDocuments bool) (*MoveDocument, error) {
 	// Allow all office users to fetch move doc
 	if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
 		return &MoveDocument{}, ErrFetchForbidden
 	}
 
 	var moveDoc MoveDocument
-	err := db.Q().Where("deleted_at is null").Eager("Document.Uploads", "Move", "PersonallyProcuredMove", "Shipment").Find(&moveDoc, id)
+	query := db.Q()
+
+	if !includedDeletedMoveDocuments {
+		query = query.Where("deleted_at is null")
+	}
+
+	err := query.Eager("Document.Uploads", "Move", "PersonallyProcuredMove", "Shipment").Find(&moveDoc, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return nil, ErrFetchNotFound

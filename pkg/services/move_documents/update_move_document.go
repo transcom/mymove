@@ -51,7 +51,7 @@ func (m moveDocumentUpdater) Update(moveDocumentPayload *internalmessages.MoveDo
 	returnVerrs := validate.NewErrors()
 	newType := models.MoveDocumentType(moveDocumentPayload.MoveDocumentType)
 	newExpenseType := models.MovingExpenseType(moveDocumentPayload.MovingExpenseType)
-	originalMoveDocument, err := models.FetchMoveDocument(m.db, session, moveDocID)
+	originalMoveDocument, err := models.FetchMoveDocument(m.db, session, moveDocID, false)
 	if err != nil {
 		return nil, returnVerrs, models.ErrFetchNotFound
 	}

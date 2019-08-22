@@ -94,7 +94,7 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 
 	// Fetch move document from move doc id
 	moveDocID, _ := uuid.FromString(params.MoveDocumentID.String())
-	moveDoc, err := models.FetchMoveDocument(h.DB(), session, moveDocID)
+	moveDoc, err := models.FetchMoveDocument(h.DB(), session, moveDocID, false)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
