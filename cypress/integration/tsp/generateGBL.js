@@ -111,12 +111,12 @@ function tspUserViewsGBL() {
 
   cy.get('.documents').should($div => expect($div.text()).to.contain('Government Bill Of Lading'));
 
-  cy.get('.documents')
+  cy.get('[data-cy="doc-link"]')
     .get('a')
-    .contains('Government Bill Of Lading')
-    .click();
+    .contains('Government Bill Of Lading');
 
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/shipments\/[^/]+\/documents\/[^/]+/);
-  });
+  cy.get('[data-cy="doc-link"]')
+    .find('a')
+    .should('have.attr', 'href')
+    .and('match', /^\/shipments\/[^/]+\/documents\/[^/]+/);
 }

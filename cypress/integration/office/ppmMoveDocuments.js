@@ -31,12 +31,14 @@ function officeUserViewsPpmPanel(locatorId) {
 
 function officeUserEditsDocumentStatus(documentTitle, oldDocumentStatus, newDocumentStatus) {
   cy.get('.documents')
+    .get('[data-cy="doc-link"]')
+    .find('a')
     .contains(documentTitle)
-    .click();
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+/);
-  });
+    .should('have.attr', 'href')
+    .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/)
+    .then(href => {
+      cy.patientVisit(href);
+    });
 
   cy.get('.panel-field.status').contains(oldDocumentStatus);
 
