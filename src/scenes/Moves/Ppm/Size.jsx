@@ -2,13 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import {
-  setPendingPpmSize,
-  getRawWeightInfo,
-  getActualRemainingWeight,
-  getEstimatedRemainingWeight,
-  isHHGPPMComboMove,
-} from './ducks';
+import { setPendingPpmSize, getRawWeightInfo } from './ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import EntitlementBar from 'scenes/EntitlementBar';
 import BigButton from 'shared/BigButton';
@@ -93,47 +87,9 @@ export class PpmSize extends Component {
     this.props.setPendingPpmSize(value);
   };
 
-  addCommaToWeight(weight) {
-    return weight.toLocaleString('en');
-  }
-
   render() {
-    const {
-      pendingPpmSize,
-      currentPpm,
-      entitlement,
-      actualRemainingWeight,
-      estimatedRemainingWeight,
-      weightInfo,
-      isHHGPPMComboMove,
-    } = this.props;
+    const { pendingPpmSize, currentPpm, entitlement, weightInfo } = this.props;
     const selectedOption = pendingPpmSize || (currentPpm && currentPpm.size);
-
-    const weightRemainingEntitlementMsg = () => {
-      if (!isHHGPPMComboMove) {
-        return null;
-      }
-
-      if (actualRemainingWeight < entitlement.sum) {
-        return `${this.addCommaToWeight(
-          entitlement.sum - actualRemainingWeight,
-        )} lbs entitlement remaining (${this.addCommaToWeight(entitlement.sum)} lbs - ${this.addCommaToWeight(
-          actualRemainingWeight,
-        )} lbs HHG weight).`;
-      } else if (actualRemainingWeight >= entitlement.sum) {
-        return `You have no entitlement remaining (${this.addCommaToWeight(entitlement.sum)} lbs HHG weight).`;
-      } else if (entitlement.sum - estimatedRemainingWeight >= entitlement.sum) {
-        return `We estimate you have no entitlement remaining (Estimated ${this.addCommaToWeight(
-          entitlement.sum,
-        )} lbs estimated HHG weight).`;
-      } else if (estimatedRemainingWeight < entitlement.sum) {
-        return `Estimated ${this.addCommaToWeight(
-          entitlement.sum - estimatedRemainingWeight,
-        )} lbs entitlement remaining (${this.addCommaToWeight(entitlement.sum)} lbs - ${this.addCommaToWeight(
-          estimatedRemainingWeight,
-        )} lbs estimated HHG weight).`;
-      }
-    };
 
     return (
       <div className="usa-grid-full">
@@ -141,7 +97,7 @@ export class PpmSize extends Component {
           {weightInfo && (
             <Fragment>
               <h2>How much will you move?</h2>
-              {<EntitlementBar hhgPPMEntitlementMessage={weightRemainingEntitlementMsg()} entitlement={entitlement} />}
+              {<EntitlementBar hhgPPMEntitlementMessage={null} entitlement={entitlement} />}
               <BigButtonGroup
                 selectedOption={selectedOption}
                 onClick={this.onMoveTypeSelected}
@@ -161,8 +117,6 @@ PpmSize.propTypes = {
   currentPpm: PropTypes.shape({ id: PropTypes.string, size: PropTypes.string }),
   setPendingPpmSize: PropTypes.func.isRequired,
   entitlement: PropTypes.object,
-  estimatedRemainingWeight: PropTypes.number,
-  actualRemainingWeight: PropTypes.number,
 };
 
 function mapStateToProps(state) {
@@ -170,9 +124,6 @@ function mapStateToProps(state) {
     ...state.ppm,
     weightInfo: getRawWeightInfo(state),
     entitlement: loadEntitlementsFromState(state),
-    isHHGPPMComboMove: isHHGPPMComboMove(state),
-    estimatedRemainingWeight: getEstimatedRemainingWeight(state),
-    actualRemainingWeight: getActualRemainingWeight(state),
   };
 }
 

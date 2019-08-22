@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from '.';
+import { shallow } from 'enzyme';
+import * as constants from 'shared/constants.js';
 
 it('renders without crashing', () => {
   const div = document.createElement('div');
@@ -13,6 +15,14 @@ it('renders without crashing', () => {
   //    the test runner to crash. Immediately unmounting the component prevents the crash
   //    and still does the bare minimum of confirming that the whole app mounts without error.
   ReactDOM.unmountComponentAtNode(div);
+});
+
+it('renders the tsp app', () => {
+  constants.isTspSite = true;
+  const wrapper = shallow(<App />);
+  const h1 = wrapper.find('h1');
+  expect(h1.exists()).toBe(true);
+  expect(h1.text()).toEqual('TSP App');
 });
 
 //todo: add tests for routing

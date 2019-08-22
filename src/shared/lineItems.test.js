@@ -26,22 +26,8 @@ describe('lineItems', () => {
       });
     });
     describe('for Pack Reg Crate(105B) and UnPack Reg Crate(105E)', () => {
-      describe('for original accessorials', () => {
-        it('should display value in quantity_1', () => {
-          const tests = [
-            { input: { tariff400ng_item: { code: '105B' }, quantity_1: 5000000 }, expected: '500.0000' },
-            {
-              input: { tariff400ng_item: { code: '105E' }, quantity_1: Number.MAX_SAFE_INTEGER },
-              expected: '900,719,925,474.0991',
-            },
-            { input: null, expected: undefined },
-          ];
-          tests.forEach(test => runTest(test.input, test.expected));
-        });
-      });
-
       describe('for robust accessorials', () => {
-        it('should dispaly volume in cubic feet truncated to 2 decimal places', () => {
+        it('should display volume in cubic feet truncated to 2 decimal places', () => {
           const tests = [
             {
               input: { tariff400ng_item: { code: '105B' }, quantity_1: 5000000, crate_dimensions: {} },

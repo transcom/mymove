@@ -1,7 +1,7 @@
 import React from 'react';
+import ToolTip from 'shared/ToolTip';
 import ComboButton from 'shared/ComboButton/index.jsx';
 import { DropDown, DropDownItem } from 'shared/ComboButton/dropdown';
-import ToolTip from 'shared/ToolTip';
 
 const StyleGuide = () => (
   <div style={{ 'margin-left': '20px' }}>

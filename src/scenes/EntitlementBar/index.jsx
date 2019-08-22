@@ -37,21 +37,13 @@ class EntitlementBar extends Component {
       );
     };
 
-    const hhgPPMSummaryHtml = () => {
-      return (
-        <p>
-          {props.hhgPPMEntitlementMessage} <a onClick={this.openInfo}>What's this?</a>
-        </p>
-      );
-    };
-
     return (
       <div>
         <div className="entitlement-container">
           <p>
             <strong>How much weight are you entitled to move?</strong>
           </p>
-          {!props.hhgPPMEntitlementMessage ? ppmSummaryHtml() : hhgPPMSummaryHtml()}
+          {ppmSummaryHtml()}
         </div>
         {this.state.showInfo && (
           <div className="usa-width-one-whole top-bottom-buffered">
@@ -76,6 +68,5 @@ EntitlementBar.propTypes = {
     sum: PropTypes.number.isRequired,
     storage_in_transit: PropTypes.number.isRequired,
   }),
-  hhgPPMEntitlementMessage: PropTypes.string,
 };
 export default EntitlementBar;

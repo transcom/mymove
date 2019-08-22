@@ -11,9 +11,6 @@ import CertificationText from './CertificationText';
 import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { formatSwaggerDate } from 'shared/formatters';
-import WizardHeader from 'scenes/Moves/WizardHeader';
-import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
-import reviewGray from 'shared/icon/review-gray.svg';
 import './index.css';
 
 import { loadCertificationText, signAndSubmitForApproval } from './ducks';
@@ -64,7 +61,7 @@ export class SignedCertification extends Component {
     window.print();
   }
   render() {
-    const { hasSubmitError, pages, pageKey, latestSignedCertification, isHHGPPMComboMove } = this.props;
+    const { hasSubmitError, pages, pageKey, latestSignedCertification } = this.props;
     const today = formatSwaggerDate(new Date());
     const initialValues = {
       date: get(latestSignedCertification, 'date', today),
@@ -72,18 +69,6 @@ export class SignedCertification extends Component {
     };
     return (
       <div>
-        {isHHGPPMComboMove && (
-          <WizardHeader
-            icon={reviewGray}
-            title="Review"
-            right={
-              <ProgressTimeline>
-                <ProgressTimelineStep name="Move Setup" completed />
-                <ProgressTimelineStep name="Review" current />
-              </ProgressTimeline>
-            }
-          />
-        )}
         <div className="legalese">
           {this.props.certificationText && (
             <SignatureWizardForm

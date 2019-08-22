@@ -100,29 +100,6 @@ describe('HomePage tests', () => {
           expect(ppmAlert.length).toEqual(1);
           expect(ppmAlert.props().heading).toEqual('Congrats - your move is submitted!');
         });
-        describe('When a ppm is added to a combo move', () => {
-          it('renders the ppm added to combo move alert', () => {
-            const moveObj = { selected_move_type: 'HHG_PPM', status: 'SUBMITTED', hasSubmitSuccess: true };
-            wrapper = shallow(
-              <Landing
-                move={moveObj}
-                moveSubmitSuccess={moveObj.moveSubmitSuccess}
-                serviceMember={service_member}
-                ppm={ppmObj}
-                orders={orders}
-                isLoggedIn={true}
-                loggedInUserSuccess={true}
-                isProfileComplete={true}
-                hasSubmitSuccess={true}
-                isHHGPPMComboMove={true}
-              />,
-            );
-            const ppmAlert = wrapper.find(PPMAlert).shallow();
-
-            expect(ppmAlert.length).toEqual(1);
-            expect(ppmAlert.props().heading).toEqual('Your PPM shipment is submitted');
-          });
-        });
       });
     });
   });
