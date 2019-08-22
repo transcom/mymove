@@ -453,6 +453,7 @@ class ShipmentInfo extends Component {
                   detailUrlPrefix={`/shipments/${shipmentId}/documents`}
                   moveDocuments={shipmentDocuments}
                   uploadDocumentUrl={newDocumentUrl}
+                  moveId={shipmentId} // TODO: if TSP gets revived, change the prop name to uniqueId
                 />
               </div>
             </div>

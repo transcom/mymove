@@ -3,14 +3,23 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { capitalize, get, includes, some, isEmpty } from 'lodash';
-
 import { NavTab, RoutedTabs } from 'react-router-tabs';
-import { Link, NavLink, Redirect, Switch } from 'react-router-dom';
+import { NavLink, Redirect, Switch } from 'react-router-dom';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
+import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
+import faClock from '@fortawesome/fontawesome-free-solid/faClock';
+import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
+import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
+import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
+import moment from 'moment';
+
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { getStorageInTransitsForShipment, selectStorageInTransits } from 'shared/Entities/modules/storageInTransits';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import LocationsContainer from './Hhg/LocationsContainer';
 import Alert from 'shared/Alert'; // eslint-disable-line
+
 import DocumentList from 'shared/DocumentViewer/DocumentList';
 import AccountingPanel from './AccountingPanel';
 import BackupInfoPanel from './BackupInfoPanel';
@@ -46,6 +55,8 @@ import { getAllInvoices } from 'shared/Entities/modules/invoices';
 import { approvePPM, loadPPMs, selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
+import { openLinkInNewWindow } from 'shared/utils';
+import { defaultRelativeWindowSize } from 'shared/constants';
 import {
   approveShipment,
   getPublicShipment,
@@ -68,15 +79,6 @@ import {
 import { formatDate } from 'shared/formatters';
 import { getMoveDocumentsForMove, selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import SitStatusIcon from 'shared/StorageInTransit/SitStatusIcon';
-
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
-import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
-import faClock from '@fortawesome/fontawesome-free-solid/faClock';
-import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
-import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
-import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
-import moment from 'moment';
 
 const BasicsTabContent = props => {
   return (
@@ -303,6 +305,7 @@ class MoveInfo extends Component {
   render() {
     const {
       move,
+      moveId,
       moveDocuments,
       moveStatus,
       orders,
@@ -333,7 +336,8 @@ class MoveInfo extends Component {
 
     const moveDate = isPPM ? ppm.original_move_date : shipment && shipment.requested_pickup_date;
 
-    const uploadDocumentUrl = `/moves/${this.props.moveId}/documents/new`;
+    const uploadDocumentUrl = `/moves/${moveId}/documents/new`;
+    const ordersUrl = `/moves/${move.id}/orders`;
 
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
@@ -432,12 +436,12 @@ class MoveInfo extends Component {
                   )}
                 />
                 <PrivateRoute path={`${this.props.match.path}/basics`}>
-                  <BasicsTabContent moveId={this.props.moveId} serviceMember={this.props.serviceMember} />
+                  <BasicsTabContent moveId={moveId} serviceMember={this.props.serviceMember} />
                 </PrivateRoute>
                 <PrivateRoute path={`${this.props.match.path}/ppm`}>
                   <PPMTabContent
                     ppmPaymentRequestedFlag={this.props.context.flags.ppmPaymentRequest}
-                    moveId={this.props.moveId}
+                    moveId={moveId}
                     ppmPaymentRequested={ppmPaymentRequested}
                     moveDocuments={moveDocuments}
                   />
@@ -446,7 +450,7 @@ class MoveInfo extends Component {
                   {this.props.shipment && (
                     <HHGTabContent
                       canApprovePaymentInvoice={hhgDelivered}
-                      moveId={this.props.moveId}
+                      moveId={moveId}
                       serviceAgents={this.props.serviceAgents}
                       shipment={this.props.shipment}
                       shipmentStatus={this.props.shipmentStatus}
@@ -519,25 +523,46 @@ class MoveInfo extends Component {
                   {moveApproved ? (
                     <div className="panel-field">
                       <FontAwesomeIcon style={{ color: 'green' }} className="icon" icon={faCheck} />
-                      <Link to={`/moves/${move.id}/orders`} target="_blank">
+                      <a
+                        href={ordersUrl}
+                        target={`orders-${moveId}`}
+                        onClick={openLinkInNewWindow.bind(
+                          this,
+                          ordersUrl,
+                          `orders-${moveId}`,
+                          window,
+                          defaultRelativeWindowSize,
+                        )}
+                      >
                         Orders ({formatDate(upload.created_at)})
-                      </Link>
+                      </a>
                     </div>
                   ) : (
                     <div className="panel-field">
                       <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
-                      <Link to={`/moves/${move.id}/orders`} target="_blank">
+                      <a
+                        href={ordersUrl}
+                        target={`orders-${moveId}`}
+                        onClick={openLinkInNewWindow.bind(
+                          this,
+                          ordersUrl,
+                          `orders-${moveId}`,
+                          window,
+                          defaultRelativeWindowSize,
+                        )}
+                      >
                         Orders ({formatDate(upload.created_at)})
-                      </Link>
+                      </a>
                     </div>
                   )}
                 </div>
               )}
               {showDocumentViewer && (
                 <DocumentList
-                  detailUrlPrefix={`/moves/${this.props.moveId}/documents`}
+                  detailUrlPrefix={`/moves/${moveId}/documents`}
                   moveDocuments={moveDocuments}
                   uploadDocumentUrl={uploadDocumentUrl}
+                  moveId={moveId}
                 />
               )}
             </div>

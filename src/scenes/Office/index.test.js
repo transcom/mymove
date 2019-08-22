@@ -1,7 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import { OfficeWrapper } from '.';
-import QueueHeader from 'shared/Header/Office';
+import { OfficeWrapper, RenderWithOrWithoutHeader, Queues } from '.';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 describe('OfficeWrapper tests', () => {
@@ -17,12 +16,30 @@ describe('OfficeWrapper tests', () => {
     expect(_wrapper.find(SomethingWentWrong)).toHaveLength(0);
   });
 
-  it('renders Queue Header component', () => {
-    expect(_wrapper.find(QueueHeader)).toHaveLength(1);
-  });
-
   it('renders the fail whale', () => {
     _wrapper.setState({ hasError: true });
     expect(_wrapper.find(SomethingWentWrong)).toHaveLength(1);
+  });
+});
+
+describe('RenderWithOrWithoutHeader', () => {
+  it('renders QueueHeader component', () => {
+    const wrapper = shallow(<RenderWithOrWithoutHeader component={Queues} withHeader={true} />);
+    expect(wrapper.find('QueueHeader').exists()).toBe(true);
+  });
+  it('renders the component passed to it', () => {
+    const wrapper = shallow(<RenderWithOrWithoutHeader component={Queues} withHeader={true} />);
+    expect(wrapper.find('Queues').exists()).toBe(true);
+  });
+});
+
+describe('RenderWithOrWithoutHeader', () => {
+  it('does not renders QueueHeader component', () => {
+    const wrapper = shallow(<RenderWithOrWithoutHeader component={Queues} withHeader={false} />);
+    expect(wrapper.find('QueueHeader').exists()).toBe(false);
+  });
+  it('renders the component passed to it', () => {
+    const wrapper = shallow(<RenderWithOrWithoutHeader component={Queues} withHeader={false} />);
+    expect(wrapper.find('Queues').exists()).toBe(true);
   });
 });
