@@ -10,23 +10,8 @@ readonly MODULE=/usr/local/lib/pkcs11/cackey.dylib
 readonly PKCS11=/usr/local/bin/pkcs11-tool
 readonly PKCS15=/usr/local/bin/pkcs15-tool
 
-if [[ ! -x "${PKCS11}" ]]; then
-  echo "${PKCS11} has not been installed"
-  echo "Please install with 'brew install opensc'"
-  exit 1
-fi
-
-if [[ ! -x "${PKCS15}" ]]; then
-  echo "${PKCS15} has not been installed"
-  echo "Please install with 'brew install opensc'"
-  exit 1
-fi
-
-if [[ ! -f "${MODULE}" ]]; then
-  echo "${MODULE} has not been installed"
-  echo "Please visit http://militarycac.org/MacVideos.htm#CACKey_packages and follow instructions to install"
-  exit 1
-fi
+# Check the CAC Pre-Requirements
+cac-prereqs
 
 echo -e "\n----- List Info -----\n"
 
@@ -38,4 +23,4 @@ echo -e "\n----- List Certificates -----\n"
 
 echo -e "\n----- List Slots -----\n"
 
-"${PKCS11}" --list-slots
+"${PKCS11}" -r --module "${MODULE}" --list-slots
