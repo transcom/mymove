@@ -342,13 +342,21 @@ const NewApprovedMoveSummaryComponent = ({
                       <div>
                         You will need to go into the PPPO office in order to take care of your missing weight ticket.
                       </div>
-                      <Link to={ppmPaymentRequestReviewRoute} className="usa-button usa-button-secondary">
+                      <Link
+                        data-cy="edit-payment-request"
+                        to={ppmPaymentRequestReviewRoute}
+                        className="usa-button usa-button-secondary"
+                      >
                         Edit Payment Request
                       </Link>
                     </div>
                   ) : (
                     <div className="step">
-                      <Link to={ppmPaymentRequestReviewRoute} className="usa-button usa-button-secondary">
+                      <Link
+                        data-cy="edit-payment-request"
+                        to={ppmPaymentRequestReviewRoute}
+                        className="usa-button usa-button-secondary"
+                      >
                         Edit Payment Request
                       </Link>
                     </div>
@@ -710,11 +718,12 @@ export class MoveSummaryComponent extends React.Component {
               <br />
             </div>
           )}
-          {isMissingWeightTicketDocuments && ppm.status === 'PAYMENT_REQUESTED' && (
-            <Alert type="warning" heading="Payment request is missing info">
-              You will need to contact your local PPPO office to resolve your missing weight ticket.
-            </Alert>
-          )}
+          {isMissingWeightTicketDocuments &&
+            ppm.status === 'PAYMENT_REQUESTED' && (
+              <Alert type="warning" heading="Payment request is missing info">
+                You will need to contact your local PPPO office to resolve your missing weight ticket.
+              </Alert>
+            )}
           <div className="usa-width-three-fourths">
             {(showHHG || (!showHHG && !showPPM)) && (
               <HHGComponent
@@ -797,7 +806,4 @@ const mapDispatchToProps = {
   getMoveDocumentsForMove,
   getPpmWeightEstimate,
 };
-export const MoveSummary = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(MoveSummaryComponent);
+export const MoveSummary = connect(mapStateToProps, mapDispatchToProps)(MoveSummaryComponent);
