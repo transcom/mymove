@@ -35,7 +35,8 @@ describe('The document viewer', function() {
         .find('a')
         .should('have.attr', 'href')
         .and('contain', '/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
-      cy.get('[data-cy="document-upload-link"]').click();
+      cy.get('[data-cy="document-upload-link"]');
+      cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
 
       cy.contains('Upload a new document');
       cy.get('button.submit').should('be.disabled');
@@ -49,7 +50,7 @@ describe('The document viewer', function() {
         .should('not.be.disabled')
         .click();
     });
-    it('can upload a weight ticket set and edit it', () => {
+    it('can upload a weight ticket set', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
       cy.contains('Upload a new document');
       cy.get('button.submit').should('be.disabled');
@@ -62,8 +63,17 @@ describe('The document viewer', function() {
       cy.get('button.submit', { timeout: fileUploadTimeout })
         .should('not.be.disabled')
         .click();
+    });
 
-      cy.contains('Weight ticket document').click();
+    it('can edit an uploaded weight ticket set', () => {
+      cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
+      cy.get('[data-cy="doc-link"]')
+        .find('a')
+        .contains('Weight ticket document')
+        .should('have.attr', 'href')
+        .then(href => {
+          cy.patientVisit(href);
+        });
       cy.contains('Details').click();
 
       cy.contains('Edit').click();
@@ -89,9 +99,9 @@ describe('The document viewer', function() {
     it('shows the newly uploaded document in the document list tab', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
       cy.contains('All Documents (2)');
-      cy.contains('super secret info document');
       cy.get('.panel-field')
         .find('a')
+        .contains('super secret info document')
         .should('have.attr', 'href')
         .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
     });
@@ -114,13 +124,15 @@ describe('The document viewer', function() {
     });
     it('can select and update newly-uploaded expense document', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.contains('expense document');
-      cy.get('.panel-field')
+      cy.get('[data-cy="doc-link"]')
         .find('a')
+        .contains('expense document')
         .should('have.attr', 'href')
-        .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
+        .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/)
+        .then(href => {
+          cy.patientVisit(href);
+        });
 
-      cy.contains('expense document').click();
       cy.contains('Details').click();
 
       // Verify values have been stored correctly
@@ -142,13 +154,14 @@ describe('The document viewer', function() {
     });
     it('can update expense document to other doc type', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.contains('expense document');
-      cy.get('.panel-field')
+      cy.get('[data-cy="doc-link"]')
         .find('a')
+        .contains('expense document')
         .should('have.attr', 'href')
-        .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
-
-      cy.contains('expense document').click();
+        .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/)
+        .then(href => {
+          cy.patientVisit(href);
+        });
       cy.contains('Details').click();
       cy.contains('GTCC');
       cy.contains('Edit').click();
@@ -168,13 +181,15 @@ describe('The document viewer', function() {
     });
     it('can update other document type back to expense type', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.contains('expense document');
-      cy.get('.panel-field')
+      cy.get('[data-cy="doc-link"]')
         .find('a')
+        .contains('expense document')
         .should('have.attr', 'href')
-        .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
+        .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/)
+        .then(href => {
+          cy.patientVisit(href);
+        });
 
-      cy.contains('expense document').click();
       cy.contains('Details').click();
       cy.contains('OK');
       cy.contains('Edit').click();

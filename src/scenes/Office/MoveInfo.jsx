@@ -5,7 +5,16 @@ import { connect } from 'react-redux';
 import { capitalize, get, includes } from 'lodash';
 
 import { NavTab, RoutedTabs } from 'react-router-tabs';
-import { Link, NavLink, Redirect, Switch } from 'react-router-dom';
+import { NavLink, Redirect, Switch } from 'react-router-dom';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
+import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
+import faClock from '@fortawesome/fontawesome-free-solid/faClock';
+import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
+import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
+import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
+import moment from 'moment';
+
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import Alert from 'shared/Alert'; // eslint-disable-line
@@ -31,6 +40,8 @@ import { resetRequests } from 'shared/Swagger/request';
 import { approvePPM, loadPPMs, selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
+import { openLinkInNewWindow } from 'shared/utils';
+import { defaultRelativeWindowSize } from 'shared/constants';
 
 import { showBanner, removeBanner } from './ducks';
 import {
@@ -43,15 +54,6 @@ import {
 } from 'shared/Entities/modules/moves';
 import { formatDate } from 'shared/formatters';
 import { getMoveDocumentsForMove, selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
-
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
-import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
-import faClock from '@fortawesome/fontawesome-free-solid/faClock';
-import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
-import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
-import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
-import moment from 'moment';
 
 const BasicsTabContent = props => {
   return (
@@ -136,15 +138,11 @@ class MoveInfo extends Component {
       loadServiceMember,
       ordersId,
       serviceMemberId,
-      shipmentId,
     } = this.props;
     if (loadMoveIsSuccess !== prevProps.loadMoveIsSuccess && loadMoveIsSuccess) {
       loadOrders(ordersId);
       loadServiceMember(serviceMemberId);
       loadBackupContacts(serviceMemberId);
-      if (shipmentId) {
-        this.getAllShipmentInfo(shipmentId);
-      }
     }
   }
 
@@ -208,7 +206,7 @@ class MoveInfo extends Component {
   };
 
   render() {
-    const { move, moveDocuments, moveStatus, orders, ppm, shipmentStatus, serviceMember, upload } = this.props;
+    const { move, moveId, moveDocuments, moveStatus, orders, ppm, serviceMember, upload } = this.props;
     const isPPM = move.selected_move_type === 'PPM';
     const showDocumentViewer = this.props.context.flags.documentViewer;
     const moveInfoComboButton = this.props.context.flags.moveInfoComboButton;
@@ -218,11 +216,11 @@ class MoveInfo extends Component {
     const ppmPaymentRequested = includes(['PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     const moveApproved = moveStatus === 'APPROVED';
-    const hhgCantBeCanceled = includes(['IN_TRANSIT', 'DELIVERED'], shipmentStatus);
 
     const moveDate = isPPM ? ppm.original_move_date : null;
 
-    const uploadDocumentUrl = `/moves/${this.props.moveId}/documents/new`;
+    const uploadDocumentUrl = `/moves/${moveId}/documents/new`;
+    const ordersUrl = `/moves/${move.id}/orders`;
 
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
@@ -305,12 +303,12 @@ class MoveInfo extends Component {
                   )}
                 />
                 <PrivateRoute path={`${this.props.match.path}/basics`}>
-                  <BasicsTabContent moveId={this.props.moveId} serviceMember={this.props.serviceMember} />
+                  <BasicsTabContent moveId={moveId} serviceMember={this.props.serviceMember} />
                 </PrivateRoute>
                 <PrivateRoute path={`${this.props.match.path}/ppm`}>
                   <PPMTabContent
                     ppmPaymentRequestedFlag={this.props.context.flags.ppmPaymentRequest}
-                    moveId={this.props.moveId}
+                    moveId={moveId}
                     ppmPaymentRequested={ppmPaymentRequested}
                     moveDocuments={moveDocuments}
                   />
@@ -359,7 +357,7 @@ class MoveInfo extends Component {
                   reasonPrompt="Why is the move being canceled?"
                   warningPrompt="Are you sure you want to cancel the entire move?"
                   onConfirm={this.cancelMoveAndRedirect}
-                  buttonDisabled={hhgCantBeCanceled}
+                  buttonDisabled={false}
                 />
               </div>
             </div>
@@ -372,25 +370,46 @@ class MoveInfo extends Component {
                   {moveApproved ? (
                     <div className="panel-field">
                       <FontAwesomeIcon style={{ color: 'green' }} className="icon" icon={faCheck} />
-                      <Link to={`/moves/${move.id}/orders`} target="_blank">
+                      <a
+                        href={ordersUrl}
+                        target={`orders-${moveId}`}
+                        onClick={openLinkInNewWindow.bind(
+                          this,
+                          ordersUrl,
+                          `orders-${moveId}`,
+                          window,
+                          defaultRelativeWindowSize,
+                        )}
+                      >
                         Orders ({formatDate(upload.created_at)})
-                      </Link>
+                      </a>
                     </div>
                   ) : (
                     <div className="panel-field">
                       <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
-                      <Link to={`/moves/${move.id}/orders`} target="_blank">
+                      <a
+                        href={ordersUrl}
+                        target={`orders-${moveId}`}
+                        onClick={openLinkInNewWindow.bind(
+                          this,
+                          ordersUrl,
+                          `orders-${moveId}`,
+                          window,
+                          defaultRelativeWindowSize,
+                        )}
+                      >
                         Orders ({formatDate(upload.created_at)})
-                      </Link>
+                      </a>
                     </div>
                   )}
                 </div>
               )}
               {showDocumentViewer && (
                 <DocumentList
-                  detailUrlPrefix={`/moves/${this.props.moveId}/documents`}
+                  detailUrlPrefix={`/moves/${moveId}/documents`}
                   moveDocuments={moveDocuments}
                   uploadDocumentUrl={uploadDocumentUrl}
+                  moveId={moveId}
                 />
               )}
             </div>
@@ -439,7 +458,6 @@ const mapStateToProps = (state, ownProps) => {
     moveStatus: selectMoveStatus(state, moveId),
     orders,
     ordersId,
-    officeShipment: get(state, 'office.officeShipment', {}),
     ppmAdvance: selectReimbursement(state, ppm.advance),
     serviceMember,
     serviceMemberId,

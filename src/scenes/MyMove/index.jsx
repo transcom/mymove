@@ -53,6 +53,8 @@ export class AppWrapper extends Component {
   componentDidCatch(error, info) {
     this.setState({
       hasError: true,
+      error,
+      info,
     });
   }
 
