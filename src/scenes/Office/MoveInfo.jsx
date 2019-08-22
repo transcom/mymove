@@ -28,13 +28,9 @@ import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { resetRequests } from 'shared/Swagger/request';
-import { getStorageInTransitsForShipment } from 'shared/Entities/modules/storageInTransits';
-import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
-import { getAllInvoices } from 'shared/Entities/modules/invoices';
 import { approvePPM, loadPPMs, selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
-import { getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 
 import { showBanner, removeBanner } from './ducks';
 import {
@@ -129,7 +125,6 @@ class MoveInfo extends Component {
     const { moveId } = this.props;
     this.props.loadMove(moveId);
     this.props.getMoveDocumentsForMove(moveId);
-    this.props.getAllTariff400ngItems(true);
     this.props.loadPPMs(moveId);
   }
 
@@ -449,7 +444,6 @@ const mapStateToProps = (state, ownProps) => {
     serviceMember,
     serviceMemberId,
     swaggerError: get(state, 'swagger.hasErrored'),
-    tariff400ngItems: selectTariff400ngItems(state),
     upload: get(orders, 'uploaded_orders.uploads.0', {}),
   };
 };
@@ -461,10 +455,6 @@ const mapDispatchToProps = dispatch =>
       approveBasics,
       approvePPM,
       cancelMove,
-      getAllTariff400ngItems,
-      getAllInvoices,
-      getTspForShipment,
-      getStorageInTransitsForShipment,
       showBanner,
       removeBanner,
       loadMove,
