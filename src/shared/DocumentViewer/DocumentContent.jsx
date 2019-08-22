@@ -61,41 +61,95 @@ export class NonPDFImage extends Component {
     divXt: 0,
     ImgHeight: 'auto',
     ImgWidth: 'auto',
+    maxHeight: 'auto',
+    maxWidth: 'auto',
+  };
+
+  transformImage = degrees => {
+    const rotation = this.rotate(degrees);
+    const sign = this.translateSign(rotation);
+    const imageTranslationToApply = this.translateImage(sign);
+    const containerTranslationToApply = this.translateContainer(sign);
+    const imageMaxHeightWidth = this.calcImgMaxHeight();
+    this.setState({
+      rotation,
+      sign,
+      ...imageTranslationToApply,
+      ...containerTranslationToApply,
+      ...imageMaxHeightWidth,
+    });
   };
 
   rotate = degrees => {
-    let {delta} = this.state;
-    delta = this.state.ImgWidth > this.state.ImgHeight ? - delta : delta;
-    const radians = (this.state.rotation + degrees) / 180 * Math.PI;
-    const times = Math.abs(Math.sin(radians));
+    return (this.state.rotation + degrees) % 360;
+  };
+
+  rotateLeft = () => {
+    this.transformImage(-90);
+  };
+
+  rotateRight = () => {
+    this.transformImage(90);
+  };
+
+  // delta between height + width. used for calculating the image + container translations
+  get delta() {
+    let { delta } = this.state;
+    return this.state.ImgWidth > this.state.ImgHeight ? -delta : delta;
+  }
+
+  translateImage = sign => {
+    return {
+      Xt: this.delta * sign,
+      Yt: -this.delta * sign,
+    };
+  };
+
+  translateContainer = sign => {
     const [h, w] = [this.state.divWidth, this.state.divHeight];
-    this.setState({
+    return {
       divHeight: h,
       divWidth: w,
-      Xt: delta * times,
-      Yt: -delta * times,
-      divXt: -2 * delta * times,
-      rotation: (this.state.rotation + degrees) % 360,
-    });
+      divXt: -2 * this.delta * sign,
+    };
   };
-  rotateLeft = () => {
-    this.rotate(-90);
+
+  // rotation dependent sign to be used with coordinate translations
+  translateSign = rotation => {
+    const radians = rotation / 180 * Math.PI;
+    return Math.abs(Math.sin(radians));
   };
-  rotateRight = () => {
-    this.rotate(90);
+
+  calcImgMaxHeight = () => {
+    const { ImgWidth, ImgHeight, rotation } = this.state;
+    const { maxHeight, maxWidth } = this.state;
+    let maxHeightWidth = { maxHeight: maxHeight, maxWidth: maxWidth };
+    if (ImgWidth !== 'auto') {
+      maxHeightWidth =
+        rotation === 90 || rotation === 180
+          ? { maxWidth: ImgWidth, maxHeight: 'none' }
+          : { maxWidth: 'none', maxHeight: ImgHeight };
+    }
+    return maxHeightWidth;
+  };
+
+  formatMaxes = max => {
+    return max === 'none' ? 'none' : max + 'px';
   };
 
   render() {
     const { divWidth, divHeight, rotation } = this.state;
-    const adjDivWidth = divWidth ? divWidth + 10: divWidth;
+    const adjDivWidth = divWidth ? divWidth + 10 : divWidth;
     const adjDivHeight = divHeight ? divHeight + 80 : divWidth;
-    let s = {};
-    if (this.state.ImgWidth !== 'auto')
-      s = (this.state.rotation === 90 || this.state.rotation === 180) ? {'maxWidth': `${this.state.ImgWidth}px`, 'maxHeight': 'none'} : {'maxHeight': `${this.state.ImgHeight}px`, 'maxWidth': 'none'};
     return (
       <div
         className="document-contents"
-        style={{ padding: '5px', transform: `translateX(${this.state.divXt}px)`, width: adjDivWidth, height: adjDivHeight}}
+        style={{
+          padding: '5px',
+          transform: `translateX(${this.state.divXt}px)`,
+          width: adjDivWidth,
+          height: adjDivHeight,
+        }}
       >
         <div style={{ marginBottom: '2em' }}>
           <RotationBar onLeftButtonClick={this.rotateLeft} onRightButtonClick={this.rotateRight} />
@@ -103,7 +157,11 @@ export class NonPDFImage extends Component {
         <div>
           <img
             className={styles[`rotate-${rotation}`]}
-            style={{transform: `translate(${this.state.Xt}px, ${this.state.Yt}px) rotate(${rotation}deg)`, ...s}}
+            style={{
+              transform: `translate(${this.state.Xt}px, ${this.state.Yt}px) rotate(${rotation}deg)`,
+              maxHeight: this.formatMaxes(this.state.maxHeight),
+              maxWidth: this.formatMaxes(this.state.maxWidth),
+            }}
             src={this.props.src}
             alt="document upload"
             ref={this.imgEl}

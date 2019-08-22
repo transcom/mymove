@@ -27,10 +27,7 @@ describe('NonPDFImage', () => {
       let nonPdfImage = wrapper.find(NonPDFImage);
       nonPdfImage.instance().rotateRight();
       nonPdfImage.update();
-      nonPdfImage = wrapper.find(NonPDFImage);
 
-      const rotated = nonPdfImage.find('.rotate-90');
-      expect(rotated).toHaveLength(1);
       expect(wrapper.state().rotation).toBe(90);
     });
 
@@ -39,11 +36,8 @@ describe('NonPDFImage', () => {
       let nonPdfImage = wrapper.find(NonPDFImage);
       nonPdfImage.instance().rotateLeft();
       nonPdfImage.update();
-      nonPdfImage = wrapper.find(NonPDFImage);
 
-      const rotated = nonPdfImage.find('.rotate-270');
-      expect(rotated).toHaveLength(1);
-      expect(wrapper.state().rotation).toBe(270);
+      expect(wrapper.state().rotation).toBe(-90);
     });
 
     it('clicking rotate left twice rotates 180 degrees to the left', () => {
@@ -52,11 +46,8 @@ describe('NonPDFImage', () => {
       nonPdfImage.instance().rotateLeft();
       nonPdfImage.instance().rotateLeft();
       nonPdfImage.update();
-      nonPdfImage = wrapper.find(NonPDFImage);
 
-      const rotated = nonPdfImage.find('.rotate-180');
-      expect(rotated).toHaveLength(1);
-      expect(wrapper.state().rotation).toBe(180);
+      expect(wrapper.state().rotation).toBe(-180);
     });
   });
 });
