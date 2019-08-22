@@ -1950,27 +1950,6 @@ definitions:
       - code
       - move_type
       - created_at
-  RateEnginePostalCodePayload:
-    type: object
-    properties:
-      valid:
-        type: boolean
-        example: false
-      postal_code:
-        type: string
-        description: zip code, international allowed
-        format: zip
-        title: ZIP
-        example: "'90210' or 'N15 3NL'"
-      postal_code_type:
-        type: string
-        enum:
-          - origin
-          - destination
-    required:
-      - valid
-      - postal_code
-      - postal_code_type
 paths:
   /tariff_400ng_items:
     get:
@@ -3620,40 +3599,7 @@ paths:
           description: access code not found in system
         500:
           description: server error
-  /rate_engine_postal_codes/{postal_code}:
-    get:
-      summary: Validate if a zipcode is valid for origin or destination location for a move.
-      description: Verifies if a zipcode is valid for origin or destination location for a move.
-      operationId: validatePostalCodeWithRateData
-      tags:
-        - postal_codes
-      parameters:
-        - in: path
-          name: postal_code
-          type: string
-          required: true
-          format: zip
-          pattern: '^(\d{5}?)$'
-        - in: query
-          name: postal_code_type
-          type: string
-          required: true
-          enum:
-            - origin
-            - destination
-      responses:
-        200:
-          description: postal_code is valid or invalid
-          schema:
-            $ref: '#/definitions/RateEnginePostalCodePayload'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: user is not authorized
-        500:
-          description: server error
+
   /transportation_service_provider_performances/{transportationServiceProviderPerformanceId}:
     get:
       summary: Logs a Transportation Service Provider Performance
