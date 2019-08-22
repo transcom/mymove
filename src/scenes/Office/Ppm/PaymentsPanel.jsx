@@ -13,7 +13,6 @@ import {
 import { selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { getSignedCertification } from 'shared/Entities/modules/signed_certifications';
 import { selectPaymentRequestCertificationForMove } from 'shared/Entities/modules/signed_certifications';
-import { selectShipmentForMove } from 'shared/Entities/modules/shipments';
 import { getLastError } from 'shared/Swagger/selectors';
 
 import { no_op } from 'shared/utils';
@@ -35,8 +34,8 @@ const attachmentsErrorMessages = {
   500: 'An unexpected error has occurred',
 };
 
-export function sswIsDisabled(ppm, signedCertification, shipment, moveDocs) {
-  return missingSignature(signedCertification) || missingRequiredPPMInfo(ppm) || isComboAndNotDelivered(shipment);
+export function sswIsDisabled(ppm, signedCertification) {
+  return missingSignature(signedCertification) || missingRequiredPPMInfo(ppm);
 }
 
 function missingSignature(signedCertification) {
@@ -45,10 +44,6 @@ function missingSignature(signedCertification) {
 
 function missingRequiredPPMInfo(ppm) {
   return isEmpty(ppm) || !ppm.actual_move_date || !ppm.net_weight;
-}
-
-function isComboAndNotDelivered(shipment) {
-  return !isEmpty(shipment) && shipment.status !== 'DELIVERED';
 }
 
 function getUserDate() {
@@ -292,11 +287,10 @@ class PaymentsTable extends Component {
 const mapStateToProps = (state, ownProps) => {
   const { moveId } = ownProps;
   const ppm = selectPPMForMove(state, moveId);
-  const shipment = selectShipmentForMove(state, moveId);
   const advance = selectReimbursement(state, ppm.advance);
   const signedCertifications = selectPaymentRequestCertificationForMove(state, moveId);
   const moveDocuments = selectAllDocumentsForMove(state, moveId);
-  const disableSSW = sswIsDisabled(ppm, signedCertifications, shipment, moveDocuments);
+  const disableSSW = sswIsDisabled(ppm, signedCertifications);
   return {
     ppm,
     disableSSW,

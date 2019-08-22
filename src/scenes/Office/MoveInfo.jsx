@@ -28,25 +28,13 @@ import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { resetRequests } from 'shared/Swagger/request';
-import { getStorageInTransitsForShipment, selectStorageInTransits } from 'shared/Entities/modules/storageInTransits';
+import { getStorageInTransitsForShipment } from 'shared/Entities/modules/storageInTransits';
 import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
-import {
-  selectSortedShipmentLineItems,
-  fetchAndCalculateShipmentLineItems,
-} from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices } from 'shared/Entities/modules/invoices';
 import { approvePPM, loadPPMs, selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
-import {
-  approveShipment,
-  getPublicShipment,
-  selectShipment,
-  selectShipmentStatus,
-  updatePublicShipment,
-} from 'shared/Entities/modules/shipments';
 import { getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
-import { getServiceAgentsForShipment, selectServiceAgentsForShipment } from 'shared/Entities/modules/serviceAgents';
 
 import { showBanner, removeBanner } from './ducks';
 import {
@@ -175,14 +163,6 @@ class MoveInfo extends Component {
     const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     return moveApproved && ppmApproved;
   }
-  getAllShipmentInfo = shipmentId => {
-    this.props.getTspForShipment(shipmentId);
-    this.props.getPublicShipment(shipmentId);
-    this.props.fetchAndCalculateShipmentLineItems(shipmentId, this.props.shipmentStatus);
-    this.props.getAllInvoices(shipmentId);
-    this.props.getServiceAgentsForShipment(shipmentId);
-    this.props.getStorageInTransitsForShipment(shipmentId);
-  };
 
   approveBasics = () => {
     this.props.approveBasics(this.props.moveId);
@@ -191,11 +171,6 @@ class MoveInfo extends Component {
   approvePPM = () => {
     const approveDate = moment().format();
     this.props.approvePPM(this.props.ppm.id, approveDate);
-  };
-
-  approveShipment = () => {
-    const approveDate = moment().format();
-    this.props.approveShipment(this.props.shipmentId, approveDate);
   };
 
   cancelMoveAndRedirect = cancelReason => {
@@ -238,17 +213,7 @@ class MoveInfo extends Component {
   };
 
   render() {
-    const {
-      move,
-      moveDocuments,
-      moveStatus,
-      orders,
-      ppm,
-      shipment,
-      shipmentStatus,
-      serviceMember,
-      upload,
-    } = this.props;
+    const { move, moveDocuments, moveStatus, orders, ppm, shipmentStatus, serviceMember, upload } = this.props;
     const isPPM = move.selected_move_type === 'PPM';
     const showDocumentViewer = this.props.context.flags.documentViewer;
     const moveInfoComboButton = this.props.context.flags.moveInfoComboButton;
@@ -260,7 +225,7 @@ class MoveInfo extends Component {
     const moveApproved = moveStatus === 'APPROVED';
     const hhgCantBeCanceled = includes(['IN_TRANSIT', 'DELIVERED'], shipmentStatus);
 
-    const moveDate = isPPM ? ppm.original_move_date : shipment && shipment.requested_pickup_date;
+    const moveDate = isPPM ? ppm.original_move_date : null;
 
     const uploadDocumentUrl = `/moves/${this.props.moveId}/documents/new`;
 
@@ -305,7 +270,6 @@ class MoveInfo extends Component {
                 &nbsp;
               </li>
               <li>Locator# {move.locator}&nbsp;</li>
-              {shipment.gbl_number && <li>GBL# {shipment.gbl_number}&nbsp;</li>}
               <li>Move date {formatDate(moveDate)}&nbsp;</li>
             </ul>
           </div>
@@ -459,7 +423,6 @@ MoveInfo.propTypes = {
 const mapStateToProps = (state, ownProps) => {
   const moveId = ownProps.match.params.moveId;
   const move = selectMove(state, moveId);
-  const shipmentId = get(move, 'shipments.0.id');
   const ppm = selectPPMForMove(state, moveId);
   const ordersId = move.orders_id;
   const orders = selectOrders(state, ordersId);
@@ -483,14 +446,8 @@ const mapStateToProps = (state, ownProps) => {
     ordersId,
     officeShipment: get(state, 'office.officeShipment', {}),
     ppmAdvance: selectReimbursement(state, ppm.advance),
-    serviceAgents: selectServiceAgentsForShipment(state, shipmentId),
     serviceMember,
     serviceMemberId,
-    shipment: selectShipment(state, shipmentId),
-    shipmentId,
-    shipmentLineItems: selectSortedShipmentLineItems(state),
-    shipmentStatus: selectShipmentStatus(state, shipmentId),
-    storageInTransits: selectStorageInTransits(state, shipmentId),
     swaggerError: get(state, 'swagger.hasErrored'),
     tariff400ngItems: selectTariff400ngItems(state),
     upload: get(orders, 'uploaded_orders.uploads.0', {}),
@@ -500,18 +457,13 @@ const mapStateToProps = (state, ownProps) => {
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      getPublicShipment,
-      updatePublicShipment,
       getMoveDocumentsForMove,
       approveBasics,
       approvePPM,
-      approveShipment,
       cancelMove,
       getAllTariff400ngItems,
-      fetchAndCalculateShipmentLineItems,
       getAllInvoices,
       getTspForShipment,
-      getServiceAgentsForShipment,
       getStorageInTransitsForShipment,
       showBanner,
       removeBanner,

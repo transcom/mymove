@@ -101,10 +101,6 @@ export class AppWrapper extends Component {
                     component={EditDateAndLocation}
                   />
                   <ValidatedPrivateRoute path="/moves/:moveId/review/edit-weight" component={EditWeight} />
-
-                  {/* <ValidatedPrivateRoute path="/moves/:moveId/review/edit-hhg-locations" component={EditHHGLocations} /> */}
-                  {/* <ValidatedPrivateRoute path="/moves/:moveId/review/edit-hhg-weights" component={EditHHGWeights} /> */}
-
                   <ValidatedPrivateRoute path="/moves/:moveId/request-payment" component={PaymentRequest} />
                   <ValidatedPrivateRoute exact path="/weight-ticket-examples" component={WeightTicketExamples} />
                   <ValidatedPrivateRoute exact path="/trailer-criteria" component={TrailerCriteria} />

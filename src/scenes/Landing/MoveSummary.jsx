@@ -528,7 +528,6 @@ export class MoveSummaryComponent extends React.Component {
       move,
       orders,
       ppm,
-      shipment,
       editMove,
       entitlement,
       resumeMove,
@@ -571,7 +570,6 @@ export class MoveSummaryComponent extends React.Component {
               context={context}
               className="status-component"
               ppm={ppm}
-              shipment={shipment}
               orders={orders}
               profile={profile}
               move={move}

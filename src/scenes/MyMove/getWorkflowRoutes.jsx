@@ -111,7 +111,7 @@ const pages = {
   },
   '/service-member/:serviceMemberId/backup-contacts': {
     isInFlow: myFirstRodeo,
-    isComplete: ({ sm, orders, move, ppm, hhg, backupContacts }) => {
+    isComplete: ({ sm, orders, move, ppm, backupContacts }) => {
       return sm.is_profile_complete || backupContacts.length > 0;
     },
     render: (key, pages) => ({ match }) => <BackupContact pages={pages} pageKey={key} match={match} />,
@@ -205,14 +205,13 @@ export const getNextIncompletePage = ({
   orders = {},
   move = {},
   ppm = {},
-  hhg = {},
   backupContacts = [],
 }) => {
   const rawPath = findKey(
     pages,
     p =>
       p.isInFlow({ selectedMoveType, lastMoveIsCanceled }) &&
-      !p.isComplete({ sm: serviceMember, orders, move, ppm, hhg, backupContacts }),
+      !p.isComplete({ sm: serviceMember, orders, move, ppm, backupContacts }),
   );
   const compiledPath = generatePath(rawPath, {
     serviceMemberId: get(serviceMember, 'id'),
