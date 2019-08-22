@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"text/template"
 
 	"github.com/gofrs/uuid"
@@ -130,11 +131,10 @@ func initGenOrdersMigrationFlags(flag *pflag.FlagSet) {
 func genOrdersMigration(cmd *cobra.Command, args []string) error {
 	err := cmd.ParseFlags(args)
 	if err != nil {
-		return errors.Wrap(err, "Could not parse flags")
+		return errors.Wrap(err, "could not ParseFlags on args")
 	}
 
 	flag := cmd.Flags()
-
 	err = flag.Parse(os.Args[1:])
 	if err != nil {
 		return errors.Wrap(err, "could not parse flags")
@@ -145,6 +145,9 @@ func genOrdersMigration(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return errors.Wrap(err, "could not bind flags")
 	}
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+
 	err = CheckOrdersMigration(v)
 	if err != nil {
 		return err

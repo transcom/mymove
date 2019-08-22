@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"text/template"
 
@@ -82,10 +83,14 @@ func CheckDisableUserFlags(v *viper.Viper) error {
 func genDisableUserMigration(cmd *cobra.Command, args []string) error {
 	err := cmd.ParseFlags(args)
 	if err != nil {
-		return errors.Wrap(err, "Could not parse flags")
+		return errors.Wrap(err, "could not ParseFlags on args")
 	}
 
 	flag := cmd.Flags()
+	err = flag.Parse(os.Args[1:])
+	if err != nil {
+		return errors.Wrap(err, "could not parse flags")
+	}
 
 	v := viper.New()
 	err = v.BindPFlags(flag)
