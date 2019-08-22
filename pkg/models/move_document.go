@@ -255,7 +255,7 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID, 
 
 // FetchMoveDocuments fetches all move expense and weight ticket set documents for a ppm
 // the optional status parameter can be used for restricting to a subset of statuses.
-func FetchMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UUID, status *MoveDocumentStatus, moveDocumentType MoveDocumentType) (MoveDocuments, error) {
+func FetchMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UUID, status *MoveDocumentStatus, moveDocumentType MoveDocumentType, includedDeletedMoveDocuments bool) (MoveDocuments, error) {
 	// Allow all logged in office users to fetch move docs
 	if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
 		return nil, ErrFetchForbidden
@@ -267,7 +267,13 @@ func FetchMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UU
 	}
 
 	var moveDocuments MoveDocuments
-	query := db.Where("deleted_at is null").Where("move_document_type = $1", string(moveDocumentType)).Where("personally_procured_move_id = $2", ppmID.String())
+	query := db.Q()
+
+	if !includedDeletedMoveDocuments {
+		query = query.Where("deleted_at is null")
+	}
+
+	query = query.Where("move_document_type = $1", string(moveDocumentType)).Where("personally_procured_move_id = $2", ppmID.String())
 	if status != nil {
 		query = query.Where("status = $3", string(*status))
 	}
@@ -308,7 +314,7 @@ func FetchMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UU
 }
 
 // FetchMoveDocumentsByTypeForShipment fetches move documents for shipment and move document type
-func FetchMoveDocumentsByTypeForShipment(db *pop.Connection, session *auth.Session, moveDocumentType MoveDocumentType, shipmentID uuid.UUID) (MoveDocuments, error) {
+func FetchMoveDocumentsByTypeForShipment(db *pop.Connection, session *auth.Session, moveDocumentType MoveDocumentType, shipmentID uuid.UUID, includedDeletedMoveDocuments bool) (MoveDocuments, error) {
 
 	// Verify that the logged-in TSP user is authorized to generate GBL
 	// Does this need to be checked here if already checked in create gbl handler?
@@ -335,7 +341,12 @@ func FetchMoveDocumentsByTypeForShipment(db *pop.Connection, session *auth.Sessi
 	}
 
 	var moveDocuments MoveDocuments
-	err := db.Where("deleted_at is null").Where("move_document_type = $1", string(moveDocumentType)).Where("shipment_id = $2", shipmentID.String()).All(&moveDocuments)
+	query := db.Q()
+
+	if !includedDeletedMoveDocuments {
+		query = db.Where("deleted_at is null")
+	}
+	err := query.Where("move_document_type = $1", string(moveDocumentType)).Where("shipment_id = $2", shipmentID.String()).All(&moveDocuments)
 	if err != nil {
 		if errors.Cause(err).Error() != RecordNotFoundErrorString {
 			return nil, err

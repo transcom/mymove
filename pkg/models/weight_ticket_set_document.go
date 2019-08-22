@@ -61,7 +61,7 @@ func (m *WeightTicketSetDocument) ValidateUpdate(tx *pop.Connection) (*validate.
 func SumWeightTicketSetsForPPM(db *pop.Connection, session *auth.Session, ppmID uuid.UUID) (*unit.Pound, error) {
 	status := MoveDocumentStatusOK
 	var totalWeight unit.Pound
-	weightTicketSets, err := FetchMoveDocuments(db, session, ppmID, &status, MoveDocumentTypeWEIGHTTICKETSET)
+	weightTicketSets, err := FetchMoveDocuments(db, session, ppmID, &status, MoveDocumentTypeWEIGHTTICKETSET, false)
 
 	if err != nil {
 		return &totalWeight, err

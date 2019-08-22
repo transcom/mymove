@@ -42,8 +42,13 @@ func (suite *ModelSuite) TestFetchAllMoveDocumentsForMove() {
 	}
 	testdatagen.MakeMoveDocument(suite.DB(), deleteAssertions)
 
-	docs, err := move.FetchAllMoveDocumentsForMove(suite.DB())
+	docs, err := move.FetchAllMoveDocumentsForMove(suite.DB(), false)
 	if suite.NoError(err) {
 		suite.Len(docs, 3)
+	}
+
+	allDocs, err2 := move.FetchAllMoveDocumentsForMove(suite.DB(), false)
+	if suite.NoError(err2) {
+		suite.Len(allDocs, 3)
 	}
 }

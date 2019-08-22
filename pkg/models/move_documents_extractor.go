@@ -45,12 +45,15 @@ type MoveDocumentExtractor struct {
 type MoveDocumentExtractors []MoveDocumentExtractor
 
 // FetchAllMoveDocumentsForMove fetches all MoveDocument models
-func (m *Move) FetchAllMoveDocumentsForMove(db *pop.Connection) (MoveDocumentExtractors, error) {
+func (m *Move) FetchAllMoveDocumentsForMove(db *pop.Connection, includeAllMoveDocuments bool) (MoveDocumentExtractors, error) {
 	var moveDocs MoveDocumentExtractors
 	query := db.Q().LeftJoin("moving_expense_documents ed", "ed.move_document_id=move_documents.id").
 		LeftJoin("weight_ticket_set_documents wt", "wt.move_document_id=move_documents.id").
-		Where("move_documents.move_id=$1", m.ID.String()).
-		Where("move_documents.deleted_at is null")
+		Where("move_documents.move_id=$1", m.ID.String())
+
+	if !includeAllMoveDocuments {
+		query = query.Where("move_documents.deleted_at is null")
+	}
 
 	sql, args := query.ToSQL(&pop.Model{Value: MoveDocument{}},
 		`move_documents.*,
