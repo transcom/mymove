@@ -3,9 +3,13 @@ package cli
 import (
 	"fmt"
 	"io/ioutil"
+	"net/url"
 	"strconv"
 	"strings"
 
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/service/rds"
+	"github.com/aws/aws-sdk-go/service/rds/rdsutils"
 	"github.com/gobuffalo/pop"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
@@ -37,6 +41,12 @@ const (
 	DbSSLModeFlag string = "db-ssl-mode"
 	// DbSSLRootCertFlag is the DB SSL Root Cert flag
 	DbSSLRootCertFlag string = "db-ssl-root-cert"
+	// DbIamFlag is the DB IAM flag
+	DbIamFlag string = "db-iam"
+	// DbIamRoleFlag is the DB IAM Role flag
+	DbIamRoleFlag string = "db-iam-role"
+	// DbRegionFlag is the DB Region flag
+	DbRegionFlag string = "db-region"
 
 	// DbEnvContainer is the Container DB Env name
 	DbEnvContainer string = "container"
@@ -128,6 +138,10 @@ func (e *errInvalidSSLMode) Error() string {
 	return fmt.Sprintf("invalid ssl mode %s, must be one of: "+strings.Join(e.Modes, ", "), e.Mode)
 }
 
+var (
+	errMissingCredentials = errors.New("missing AWS Credentials")
+)
+
 // InitDatabaseFlags initializes DB command line flags
 func InitDatabaseFlags(flag *pflag.FlagSet) {
 	flag.String(DbEnvFlag, DbEnvDevelopment, "database environment: "+strings.Join(allDbEnvs, ", "))
@@ -141,6 +155,10 @@ func InitDatabaseFlags(flag *pflag.FlagSet) {
 	flag.String(DbSSLModeFlag, SSLModeDisable, "Database SSL Mode: "+strings.Join(allSSLModes, ", "))
 	flag.String(DbSSLRootCertFlag, "", "Path to the database root certificate file used for database connections")
 	flag.Bool(DbDebugFlag, false, "Set Pop to debug mode")
+	flag.Bool(DbIamFlag, false, "Use AWS IAM authentication")
+	flag.String(DbIamRoleFlag, "", "The arn of the AWS IAM role to assume when connecting to the database.")
+	// Required by https://docs.aws.amazon.com/sdk-for-go/api/service/rds/rdsutils/#BuildAuthToken
+	flag.String(DbRegionFlag, "", "AWS Region of the database")
 }
 
 // CheckDatabase validates DB command line flags
@@ -188,11 +206,28 @@ func CheckDatabase(v *viper.Viper, logger Logger) error {
 		logger.Debug(fmt.Sprintf("certificate chain from %s parsed", DbSSLRootCertFlag), zap.Any("count", len(tlsCerts)))
 	}
 
+	// Check IAM Authentication
+	if v.GetBool(DbIamFlag) {
+		// DbRegionFlag must be set if IAM authentication is enabled.
+		dbRegion := v.GetString(DbRegionFlag)
+		if err := CheckAWSRegionForService(dbRegion, rds.ServiceName); err != nil {
+			return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", DbRegionFlag, rds.ServiceName))
+		}
+
+		dbIamRole := v.GetString(DbIamRoleFlag)
+		if len(dbIamRole) == 0 {
+			return errors.New("database IAM role not provided")
+		}
+	}
+
 	return nil
 }
 
-// InitDatabase initializes a Pop connection from command line flags
-func InitDatabase(v *viper.Viper, logger Logger) (*pop.Connection, error) {
+// InitDatabase initializes a Pop connection from command line flags.
+// v is the viper Configuration.
+// creds must relate to an assumed role and can't point to a user or task role directly.
+// logger is the application logger.
+func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger) (*pop.Connection, error) {
 
 	dbEnv := v.GetString(DbEnvFlag)
 	dbName := v.GetString(DbNameFlag)
@@ -217,6 +252,18 @@ func InitDatabase(v *viper.Viper, logger Logger) (*pop.Connection, error) {
 
 	if str := v.GetString(DbSSLRootCertFlag); len(str) > 0 {
 		dbOptions["sslrootcert"] = str
+	}
+
+	if v.GetBool(DbIamFlag) {
+		if creds == nil {
+			return nil, errMissingCredentials
+		}
+		authToken, err := rdsutils.BuildAuthToken(dbHost+":"+dbPort, v.GetString(DbRegionFlag), dbUser, creds)
+		if err != nil {
+			return nil, errors.Wrap(err, "error building auth token")
+		}
+		dbPassword = url.QueryEscape(authToken)
+		logger.Info("Using IAM Authentication")
 	}
 
 	// Construct a safe URL and log it
@@ -258,6 +305,10 @@ func InitDatabase(v *viper.Viper, logger Logger) (*pop.Connection, error) {
 
 	// Check the connection
 	db, err := sqlx.Open(connection.Dialect.Details().Dialect, connection.Dialect.URL())
+	if err != nil {
+		logger.Warn("Failed to open DB by driver name", zap.Error(err))
+		return connection, err
+	}
 	err = db.Ping()
 	if err != nil {
 		logger.Warn("Failed to ping DB connection", zap.Error(err))

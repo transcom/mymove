@@ -39,7 +39,8 @@ class InvoicePaymentAlert extends PureComponent {
             <Alert type="success" heading="Already submitted">
               <span className={warningHeaderStyle}>
                 A payment request was made by {aproverFirstName} {aproverLastName} at {formatTime(invoiceDate)} on{' '}
-                {formatDate4DigitYear(invoiceDate)} andis already in process.<br />
+                {formatDate4DigitYear(invoiceDate)} andis already in process.
+                <br />
                 Please refresh this screen for updated details.
               </span>
             </Alert>

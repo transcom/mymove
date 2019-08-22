@@ -1,17 +1,11 @@
-import { debounce, get, bind, cloneDeep } from 'lodash';
+import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
-import {
-  createOrUpdatePpm,
-  getDestinationPostalCode,
-  getPpmSitEstimate,
-  isHHGPPMComboMove,
-  setInitialFormValues,
-} from './ducks';
+import { createOrUpdatePpm, getDestinationPostalCode, isHHGPPMComboMove, setInitialFormValues } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlementsFromState } from 'shared/entitlements';
@@ -23,7 +17,6 @@ import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline'
 import { GetPpmWeightEstimate } from './api';
 import { ValidateZipRateData } from 'shared/api';
 
-const sitEstimateDebounceTime = 300;
 const formName = 'ppp_date_and_location';
 
 const InvalidMoveParamsErrorMsg =
@@ -32,7 +25,7 @@ const UnsupportedZipCodeErrorMsg =
   'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.';
 
 async function asyncValidate(values, dispatch, props, currentFieldName) {
-  const { pickup_postal_code, destination_postal_code, original_move_date } = values;
+  const { original_move_date, pickup_postal_code, origin_duty_station_zip, destination_postal_code } = values;
 
   // If either postal code is blurred, check both of them for errors. We want to
   // catch these before checking on dates via `GetPpmWeightEstimate`.
@@ -68,7 +61,13 @@ async function asyncValidate(values, dispatch, props, currentFieldName) {
   const fakeLightWeight = 100;
   if (pickup_postal_code && destination_postal_code && original_move_date) {
     try {
-      await GetPpmWeightEstimate(original_move_date, pickup_postal_code, destination_postal_code, fakeLightWeight);
+      await GetPpmWeightEstimate(
+        original_move_date,
+        pickup_postal_code,
+        origin_duty_station_zip,
+        destination_postal_code,
+        fakeLightWeight,
+      );
     } catch (err) {
       // eslint-disable-next-line no-throw-literal
       throw { original_move_date: InvalidMoveParamsErrorMsg };
@@ -93,8 +92,13 @@ export class DateAndLocation extends Component {
 
   componentDidMount() {
     if (!this.props.currentPpm && this.props.isHHGPPMComboMove) {
-      const { originalMoveDate, pickupPostalCode, destinationPostalCode } = this.props.defaultValues;
-      this.props.setInitialFormValues(originalMoveDate, pickupPostalCode, destinationPostalCode);
+      const {
+        originalMoveDate,
+        pickupPostalCode,
+        originDutyStationZip,
+        destinationPostalCode,
+      } = this.props.defaultValues;
+      this.props.setInitialFormValues(originalMoveDate, pickupPostalCode, originDutyStationZip, destinationPostalCode);
     }
   }
 
@@ -118,39 +122,8 @@ export class DateAndLocation extends Component {
     }
   };
 
-  getSitEstimate = (moveDate, sitDays, pickupZip, destZip, weight) => {
-    if (!pickupZip || !destZip) return;
-    if (sitDays <= 90 && pickupZip.length === 5 && destZip.length === 5) {
-      this.props.getPpmSitEstimate(moveDate, sitDays, pickupZip, destZip, weight);
-    }
-  };
-
-  debouncedSitEstimate = debounce(bind(this.getSitEstimate, this), sitEstimateDebounceTime);
-
-  getDebouncedSitEstimate = (e, value, _, field) => {
-    const { formValues, entitlement } = this.props;
-    const estimateValues = cloneDeep(formValues);
-    estimateValues[field] = value; // eslint-disable-line security/detect-object-injection
-    this.debouncedSitEstimate(
-      estimateValues.original_move_date,
-      estimateValues.days_in_storage,
-      estimateValues.pickup_postal_code,
-      estimateValues.destination_postal_code,
-      entitlement.sum,
-    );
-  };
-
   render() {
-    const {
-      pages,
-      pageKey,
-      error,
-      currentOrders,
-      initialValues,
-      sitReimbursement,
-      hasEstimateError,
-      isHHGPPMComboMove,
-    } = this.props;
+    const { pages, pageKey, error, currentOrders, initialValues, isHHGPPMComboMove } = this.props;
 
     return (
       <div>
@@ -177,19 +150,9 @@ export class DateAndLocation extends Component {
           <h2>PPM Dates & Locations</h2>
           {isHHGPPMComboMove && <div>Great! Let's review your pickup and destination information.</div>}
           <h3> Move Date </h3>
-          <SwaggerField
-            fieldName="original_move_date"
-            onChange={this.getDebouncedSitEstimate}
-            swagger={this.props.schema}
-            required
-          />
+          <SwaggerField fieldName="original_move_date" swagger={this.props.schema} required />
           <h3>Pickup Location</h3>
-          <SwaggerField
-            fieldName="pickup_postal_code"
-            onChange={this.getDebouncedSitEstimate}
-            swagger={this.props.schema}
-            required
-          />
+          <SwaggerField fieldName="pickup_postal_code" swagger={this.props.schema} required />
           {!isHHGPPMComboMove && (
             <SwaggerField fieldName="has_additional_postal_code" swagger={this.props.schema} component={YesNoBoolean} />
           )}
@@ -220,7 +183,6 @@ export class DateAndLocation extends Component {
           <SwaggerField
             fieldName="destination_postal_code"
             swagger={this.props.schema}
-            onChange={this.getDebouncedSitEstimate}
             validate={validateDifferentZip}
             required
           />
@@ -237,24 +199,9 @@ export class DateAndLocation extends Component {
                 className="days-in-storage"
                 fieldName="days_in_storage"
                 swagger={this.props.schema}
-                onChange={this.getDebouncedSitEstimate}
                 required
               />{' '}
               <span className="grey">You can choose up to 90 days.</span>
-              {sitReimbursement && (
-                <div className="storage-estimate">
-                  You can spend up to {sitReimbursement} on private storage. Save your receipts to submit with your PPM
-                  paperwork.
-                </div>
-              )}
-              {hasEstimateError && (
-                <div className="usa-width-one-whole error-message">
-                  <Alert type="warning" heading="Could not retrieve estimate">
-                    There was an issue retrieving an estimate for how much you could be reimbursed for private storage.
-                    You still qualify but may need to talk with your local PPPO.
-                  </Alert>
-                </div>
-              )}
             </Fragment>
           )}
         </DateAndLocationWizardForm>
@@ -276,24 +223,27 @@ function mapStateToProps(state) {
     currentOrders: state.orders.currentOrders,
     formValues: getFormValues(formName)(state),
     entitlement: loadEntitlementsFromState(state),
-    hasEstimateError: state.ppm.hasEstimateError,
     isHHGPPMComboMove: isHHGPPMComboMove(state),
+    originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
   };
   const defaultPickupZip = get(state.serviceMember, 'currentServiceMember.residential_address.postal_code');
   const currentOrders = state.orders.currentOrders;
+  const originDutyStationZip = state.serviceMember.currentServiceMember.current_station.address.postal_code;
 
   props.initialValues = props.currentPpm
     ? props.currentPpm
     : defaultPickupZip
-      ? {
-          pickup_postal_code: defaultPickupZip,
-        }
-      : null;
+    ? {
+        pickup_postal_code: defaultPickupZip,
+        origin_duty_station_zip: originDutyStationZip,
+      }
+    : null;
 
   if (props.isHHGPPMComboMove) {
     props.defaultValues = {
       pickupPostalCode: defaultPickupZip,
       originalMoveDate: currentOrders.issue_date,
+      originDutyStationZip: originDutyStationZip,
       // defaults to SM's destination address, if none, uses destination duty station zip
       destinationPostalCode: getDestinationPostalCode(state),
     };
@@ -303,7 +253,10 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createOrUpdatePpm, getPpmSitEstimate, setInitialFormValues }, dispatch);
+  return bindActionCreators({ createOrUpdatePpm, setInitialFormValues }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(DateAndLocation);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(DateAndLocation);

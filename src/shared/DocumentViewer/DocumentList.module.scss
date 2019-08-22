@@ -1,0 +1,16 @@
+.document-upload-link {
+  padding-top: 2rem;
+  font-size: 0.8em;
+  cursor: pointer;
+}
+
+.chosen-document {
+  /* override anchor tag link style */
+  color: black !important;
+  background: #efefef;
+  font-weight: bold;
+  cursor: default;
+}
+
+
+

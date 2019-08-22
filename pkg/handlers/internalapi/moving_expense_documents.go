@@ -1,12 +1,10 @@
 package internalapi
 
 import (
-	"reflect"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
 
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -45,8 +43,7 @@ type CreateMovingExpenseDocumentHandler struct {
 
 // Handle is the handler
 func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMovingExpenseDocumentParams) middleware.Responder {
-	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
-	defer span.Send()
+	ctx := params.HTTPRequest.Context()
 
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	// #nosec UUID is pattern matched by swagger and will be ok

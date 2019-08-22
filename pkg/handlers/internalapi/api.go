@@ -5,6 +5,9 @@ import (
 	"log"
 	"net/http"
 
+	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
+	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
+
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/runtime"
 	"github.com/pkg/errors"
@@ -53,7 +56,9 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.MovesShowMoveDatesSummaryHandler = ShowMoveDatesSummaryHandler{context}
 
 	internalAPI.MoveDocsCreateGenericMoveDocumentHandler = CreateGenericMoveDocumentHandler{context}
-	internalAPI.MoveDocsUpdateMoveDocumentHandler = UpdateMoveDocumentHandler{context}
+	internalAPI.MoveDocsUpdateMoveDocumentHandler = UpdateMoveDocumentHandler{context,
+		movedocument.NewMoveDocumentUpdater(context.DB()),
+	}
 	internalAPI.MoveDocsIndexMoveDocumentsHandler = IndexMoveDocumentsHandler{context}
 
 	internalAPI.MoveDocsCreateMovingExpenseDocumentHandler = CreateMovingExpenseDocumentHandler{context}
@@ -99,6 +104,11 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.MovesShowShipmentSummaryWorksheetHandler = ShowShipmentSummaryWorksheetHandler{context}
 
 	internalAPI.ApplicationPdfProducer = PDFProducer()
+
+	internalAPI.PostalCodesValidatePostalCodeWithRateDataHandler = ValidatePostalCodeWithRateDataHandler{
+		context,
+		postalcodeservice.NewPostalCodeValidator(context.DB()),
+	}
 
 	return internalAPI.Serve(nil)
 }

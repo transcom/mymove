@@ -24,23 +24,19 @@ describe('TSP User Ships a Shipment', function() {
 });
 
 function tspUserCancelsEnteringADeliveryDate() {
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Enter Delivery')
     .should('exist');
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Enter Delivery')
     .click();
 
-  cy
-    .get('input[name="actual_delivery_date"]')
+  cy.get('input[name="actual_delivery_date"]')
     .type('10/24/2018')
     .blur();
 
-  cy
-    .get('a')
+  cy.get('a')
     .contains('Cancel')
     .click();
 
@@ -48,20 +44,17 @@ function tspUserCancelsEnteringADeliveryDate() {
 }
 
 function tspUserEntersADeliveryDate() {
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Enter Delivery')
     .click();
 
   cy.get('input[name="actual_delivery_date"]').should('be.empty');
 
-  cy
-    .get('input[name="actual_delivery_date"]')
+  cy.get('input[name="actual_delivery_date"]')
     .type('10/24/2018')
     .blur();
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Done')
     .click();
 
@@ -89,8 +82,7 @@ function tspUserEntersPackAndPickUpInfo() {
   cy.patientVisit('/queues/new');
 
   // Open approved shipments queue
-  cy
-    .get('div')
+  cy.get('div')
     .contains('All Shipments')
     .click();
 
@@ -106,90 +98,76 @@ function tspUserEntersPackAndPickUpInfo() {
   });
 
   // Click the Enter Pickup button
-  cy
-    .get('div')
+  cy.get('div')
     .contains('Enter Pickup')
     .click();
 
   // Done button should be disabled.
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Done')
     .should('be.disabled');
 
   // Pick a date!
-  cy
-    .get('div')
+  cy.get('div')
     .contains('Actual pickup')
     .get('input[name="actual_pickup_date"]')
     .type('10/20/2018')
     .blur();
 
   // Cancel
-  cy
-    .get('a')
+  cy.get('a')
     .contains('Cancel')
     .click();
 
   // Wash, Rinse, Repeat
   // Click the Enter Pickup button
-  cy
-    .get('div')
+  cy.get('div')
     .contains('Enter Pickup')
     .click();
 
   // Done button should be disabled.
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Done')
     .should('be.disabled');
 
   // Pick a Pack date!
-  cy
-    .get('div')
+  cy.get('div')
     .contains('Actual packing (first day)')
     .get('input[name="actual_pack_date"]')
     .type('10/18/2018')
     .blur();
 
   // Pick a Pickup date!
-  cy
-    .get('div')
+  cy.get('div')
     .contains('Actual pickup')
     .get('input[name="actual_pickup_date"]')
     .type('10/19/2018')
     .blur();
 
   // Done button should STILL be disabled.
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Done')
     .should('be.disabled');
-  cy
-    .get('input[name="net_weight"]')
+  cy.get('input[name="net_weight"]')
     .first()
     .clear()
     .type('2000')
     .blur();
   // Done button should be enabled.
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Done')
     .should('be.enabled');
-  cy
-    .get('input[name="gross_weight"]')
+  cy.get('input[name="gross_weight"]')
     .first()
     .clear()
     .type('3000')
     .blur();
-  cy
-    .get('input[name="tare_weight"]')
+  cy.get('input[name="tare_weight"]')
     .first()
     .clear()
     .type('1000')
     .blur();
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Done')
     .click();
 
@@ -214,62 +192,52 @@ function tspUserDeliversShipment(availableDays) {
   });
 
   // Click the Transport button
-  cy
-    .get('div')
+  cy.get('div')
     .contains('Enter Delivery')
     .click();
 
   // Done button should be disabled.
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Done')
     .should('be.disabled');
 
   // Pick a date!
-  cy
-    .get('div')
+  cy.get('div')
     .contains('Actual Delivery Date')
     .get('input')
     .click();
 
-  cy
-    .get('div')
-    .contains(availableDays[0].format('DD'))
+  cy.get('.DayPicker-Day')
+    .contains(availableDays[0].format('D'))
     .click();
 
   // Cancel
-  cy
-    .get('a')
+  cy.get('a')
     .contains('Cancel')
     .click();
 
   // Wash, Rinse, Repeat
   // Click the Transport button
-  cy
-    .get('div')
+  cy.get('div')
     .contains('Enter Delivery')
     .click();
 
   // Done button should be disabled.
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Done')
     .should('be.disabled');
 
   // Pick a date!
-  cy
-    .get('div')
+  cy.get('div')
     .contains('Actual Delivery Date')
     .get('input')
     .click();
 
-  cy
-    .get('div')
-    .contains(availableDays[1].format('DD'))
+  cy.get('.DayPicker-Day')
+    .contains(availableDays[1].format('D'))
     .click();
 
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Done')
     .click();
 

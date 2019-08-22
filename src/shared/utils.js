@@ -40,6 +40,13 @@ export function fetchActive(foos) {
   return find(foos, i => includes(['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED'], get(i, 'status'))) || null;
 }
 
+export function fetchActivePPM(foos) {
+  return (
+    find(foos, i => includes(['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], get(i, 'status'))) ||
+    null
+  );
+}
+
 export function fetchActiveShipment(shipments) {
   return (
     find(shipments, i =>
@@ -130,5 +137,18 @@ export function detectFirefox() {
   if (typeof InstallTrigger !== 'undefined') {
     return true;
   }
+  return false;
+}
+
+export function openLinkInNewWindow(url, windowName, window, relativeSize) {
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
+  window
+    .open(
+      url,
+      windowName,
+      `resizable,scrollbars,status,noopener=true,noreferrer=true,width=${window.outerWidth *
+        relativeSize},height=${window.outerHeight * relativeSize}`,
+    )
+    .focus(); // required in IE to put re-used window on top
   return false;
 }

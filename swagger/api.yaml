@@ -1065,16 +1065,14 @@ definitions:
         type: boolean
         x-nullable: true
         title: Telephone
-      text_message_is_preferred:
-        type: boolean
-        x-nullable: true
-        title: Text Message - Coming Soon!
       email_is_preferred:
         type: boolean
         x-nullable: true
         title: Email
       backup_contacts:
         $ref: '#/definitions/IndexServiceMemberBackupContacts'
+      weight_allotment:
+        $ref: '#/definitions/WeightAllotment'
   IndexServiceMemberBackupContacts:
     type: array
     items:
@@ -1138,6 +1136,26 @@ definitions:
       NONE: Contact Only
       VIEW: View all move details
       EDIT: View and edit all move details
+  WeightAllotment:
+    type: object
+    properties:
+      total_weight_self:
+        type: integer
+        example: 18000
+      total_weight_self_plus_dependents:
+        type: integer
+        example: 18000
+      pro_gear_weight:
+        type: integer
+        example: 2000
+      pro_gear_weight_spouse:
+        type: integer
+        example: 500
+    required:
+      - total_weight_self
+      - total_weight_self_plus_dependents
+      - pro_gear_weight
+      - pro_gear_weight_spouse
   TrafficDistributionList:
     type: object
     properties:
@@ -1932,27 +1950,6 @@ definitions:
       - code
       - move_type
       - created_at
-  RateEnginePostalCodePayload:
-    type: object
-    properties:
-      valid:
-        type: boolean
-        example: false
-      postal_code:
-        type: string
-        description: zip code, international allowed
-        format: zip
-        title: ZIP
-        example: "'90210' or 'N15 3NL'"
-      postal_code_type:
-        type: string
-        enum:
-          - origin
-          - destination
-    required:
-      - valid
-      - postal_code
-      - postal_code_type
 paths:
   /tariff_400ng_items:
     get:
@@ -2569,7 +2566,7 @@ paths:
           description: UUID of the shipment
       responses:
         200:
-          description: returns a Transporation Service Provider
+          description: returns a Transportation Service Provider
           schema:
             $ref: '#/definitions/TransportationServiceProvider'
         401:
@@ -3602,37 +3599,29 @@ paths:
           description: access code not found in system
         500:
           description: server error
-  /rate_engine_postal_codes/{postal_code}:
+
+  /transportation_service_provider_performances/{transportationServiceProviderPerformanceId}:
     get:
-      summary: Validate if a zipcode is valid for origin or destination location for a move.
-      description: Verifies if a zipcode is valid for origin or destination location for a move.
-      operationId: validatePostalCodeWithRateData
+      summary: Logs a Transportation Service Provider Performance
+      description: Logs a Transportation Service Provider Performance
+      operationId: logTransportationServiceProviderPerformance
       tags:
-        - postal_codes
+        - transportation_service_provider_performance
       parameters:
-        - in: path
-          name: postal_code
+        - name: transportationServiceProviderPerformanceId
+          in: path
           type: string
+          format: uuid
           required: true
-          format: zip
-          pattern: '^(\d{5}?)$'
-        - in: query
-          name: postal_code_type
-          type: string
-          required: true
-          enum:
-            - origin
-            - destination
+          description: UUID of the Transportation Service Provider Performance
       responses:
-        200:
-          description: postal_code is valid or invalid
-          schema:
-            $ref: '#/definitions/RateEnginePostalCodePayload'
+        204:
+          description: the Transportation Service Provider Performance was logged
         400:
           description: invalid request
         401:
           description: must be authenticated to use this endpoint
         403:
-          description: user is not authorized
+          description: not authorized to log the details of this Transportation Service Provider Performance
         500:
           description: server error

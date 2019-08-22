@@ -5,36 +5,34 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // MoveQueueItem represents a single move queue item within a queue.
 type MoveQueueItem struct {
-	ID                         uuid.UUID                           `json:"id" db:"id"`
-	CreatedAt                  time.Time                           `json:"created_at" db:"created_at"`
-	Edipi                      string                              `json:"edipi" db:"edipi"`
-	Rank                       *internalmessages.ServiceMemberRank `json:"rank" db:"rank"`
-	CustomerName               string                              `json:"customer_name" db:"customer_name"`
-	Locator                    string                              `json:"locator" db:"locator"`
-	GBLNumber                  *string                             `json:"gbl_number" db:"gbl_number"`
-	Status                     string                              `json:"status" db:"status"`
-	PpmStatus                  *string                             `json:"ppm_status" db:"ppm_status"`
-	HhgStatus                  *string                             `json:"hhg_status" db:"hhg_status"`
-	OrdersType                 string                              `json:"orders_type" db:"orders_type"`
-	MoveDate                   *time.Time                          `json:"move_date" db:"move_date"`
-	SubmittedDate              *time.Time                          `json:"submitted_date" db:"submitted_date"`
-	LastModifiedDate           time.Time                           `json:"last_modified_date" db:"last_modified_date"`
-	ShipmentID                 uuid.UUID                           `json:"shipment_id" db:"shipment_id"`
-	OriginDutyStationName      string                              `json:"origin_duty_station_name" db:"origin_duty_station_name"`
-	DestinationDutyStationName string                              `json:"destination_duty_station_name" db:"destination_duty_station_name"`
-	SitArray                   string                              `json:"sit_array" db:"sit_array"`
-	SliArray                   string                              `json:"sli_array" db:"sli_array"`
-	PmSurveyConductedDate      *time.Time                          `json:"pm_survey_conducted_date" db:"pm_survey_conducted_date"`
-	OriginGBLOC                *string                             `json:"origin_gbloc" db:"origin_gbloc"`
-	DestinationGBLOC           *string                             `json:"destination_gbloc" db:"destination_gbloc"`
-	DeliveredDate              *time.Time                          `json:"delivered_date" db:"delivered_date"`
-	InvoiceApprovedDate        *time.Time                          `json:"invoice_approved_date" db:"invoice_approved_date"`
+	ID                         uuid.UUID          `json:"id" db:"id"`
+	CreatedAt                  time.Time          `json:"created_at" db:"created_at"`
+	Edipi                      string             `json:"edipi" db:"edipi"`
+	Rank                       *ServiceMemberRank `json:"rank" db:"rank"`
+	CustomerName               string             `json:"customer_name" db:"customer_name"`
+	Locator                    string             `json:"locator" db:"locator"`
+	GBLNumber                  *string            `json:"gbl_number" db:"gbl_number"`
+	Status                     string             `json:"status" db:"status"`
+	PpmStatus                  *string            `json:"ppm_status" db:"ppm_status"`
+	HhgStatus                  *string            `json:"hhg_status" db:"hhg_status"`
+	OrdersType                 string             `json:"orders_type" db:"orders_type"`
+	MoveDate                   *time.Time         `json:"move_date" db:"move_date"`
+	SubmittedDate              *time.Time         `json:"submitted_date" db:"submitted_date"`
+	LastModifiedDate           time.Time          `json:"last_modified_date" db:"last_modified_date"`
+	ShipmentID                 uuid.UUID          `json:"shipment_id" db:"shipment_id"`
+	OriginDutyStationName      string             `json:"origin_duty_station_name" db:"origin_duty_station_name"`
+	DestinationDutyStationName string             `json:"destination_duty_station_name" db:"destination_duty_station_name"`
+	SitArray                   string             `json:"sit_array" db:"sit_array"`
+	SliArray                   string             `json:"sli_array" db:"sli_array"`
+	PmSurveyConductedDate      *time.Time         `json:"pm_survey_conducted_date" db:"pm_survey_conducted_date"`
+	OriginGBLOC                *string            `json:"origin_gbloc" db:"origin_gbloc"`
+	DestinationGBLOC           *string            `json:"destination_gbloc" db:"destination_gbloc"`
+	DeliveredDate              *time.Time         `json:"delivered_date" db:"delivered_date"`
+	InvoiceApprovedDate        *time.Time         `json:"invoice_approved_date" db:"invoice_approved_date"`
 }
 
 // GetMoveQueueItems gets all moveQueueItems for a specific lifecycleState
@@ -110,6 +108,32 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			LEFT JOIN shipments AS shipment ON moves.id = shipment.move_id
 			WHERE moves.show is true
 			and ppm.status in ('APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED')
+		`
+	} else if lifecycleState == "ppm_payment_requested" {
+		query = `
+			SELECT moves.ID,
+				COALESCE(sm.edipi, '*missing*') as edipi,
+				COALESCE(sm.rank, '*missing*') as rank,
+				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
+				moves.locator as locator,
+				ord.orders_type as orders_type,
+				COALESCE(ppm.actual_move_date, ppm.original_move_date) as move_date,
+				moves.created_at as created_at,
+				ppm.updated_at as last_modified_date,
+				moves.status as status,
+				ppm.status as ppm_status,
+				shipment.gbl_number as gbl_number,
+				origin_duty_station.name as origin_duty_station_name,
+				destination_duty_station.name as destination_duty_station_name
+			FROM moves
+			JOIN orders as ord ON moves.orders_id = ord.id
+			JOIN service_members AS sm ON ord.service_member_id = sm.id
+			JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
+			JOIN duty_stations as origin_duty_station ON sm.duty_station_id = origin_duty_station.id
+			JOIN duty_stations as destination_duty_station ON ord.new_duty_station_id = destination_duty_station.id
+			LEFT JOIN shipments AS shipment ON moves.id = shipment.move_id
+			WHERE moves.show is true
+			and ppm.status = 'PAYMENT_REQUESTED'
 		`
 	} else if lifecycleState == "hhg_active" {
 		// Move date is the Actual Pickup Date.

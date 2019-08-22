@@ -46,10 +46,12 @@ class TspWrapper extends Component {
 
   render() {
     const Tag = detectIE11() ? 'div' : 'main';
+    // TODO: if TSP app gets resurrected, follow pattern for adding header or not in Office/index.jsx
+    const isDocViewerUrl = window.location.href && /\/shipments\/[^/]+\/documents/.test(window.location.href);
     return (
       <ConnectedRouter history={history}>
         <div className="TSP site">
-          <TspHeader />
+          {!isDocViewerUrl && <TspHeader />}
           <Tag role="main" className="site__content">
             <div>
               <LogoutOnInactivity />
@@ -98,4 +100,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => bindActionCreators({ loadPublicSchema, getCurrentUserInfo }, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(TspWrapper);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(TspWrapper);

@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"time"
 
-	beeline "github.com/honeycombio/beeline-go"
-
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
@@ -340,8 +338,6 @@ func (e *ElectronicOrdersRevision) ValidateUpdate(tx *pop.Connection) (*validate
 
 // CreateElectronicOrdersRevision inserts a revision into the database
 func CreateElectronicOrdersRevision(ctx context.Context, dbConnection *pop.Connection, revision *ElectronicOrdersRevision) (*validate.Errors, error) {
-	ctx, span := beeline.StartSpan(ctx, "CreateElectronicOrdersRevision")
-	defer span.Send()
 
 	responseVErrors := validate.NewErrors()
 	verrs, responseError := dbConnection.ValidateAndCreate(revision)

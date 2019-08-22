@@ -43,11 +43,12 @@ export class Creator extends Component {
   };
 
   render() {
+    const defaultLocation = 'DESTINATION';
     if (this.state.showForm)
       return (
         <div className="storage-in-transit-panel-modal">
           <div className="title">Request SIT</div>
-          <StorageInTransitForm onSubmit={this.onSubmit} />
+          <StorageInTransitForm onSubmit={this.onSubmit} initialValues={{ location: defaultLocation }} />
           <div className="usa-grid-full align-center-vertical">
             <div className="usa-width-one-half">
               <p className="cancel-link">
@@ -102,4 +103,7 @@ function mapDispatchToProps(dispatch) {
     dispatch,
   );
 }
-export default connect(mapStateToProps, mapDispatchToProps)(Creator);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Creator);

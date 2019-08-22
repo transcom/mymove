@@ -273,7 +273,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 
-	verrs, err = SaveMoveDependencies(suite.DB(), move)
+	verrs, _ = SaveMoveDependencies(suite.DB(), move)
 	suite.True(verrs.HasAny(), "saving invalid statuses should yield an error")
 }
 

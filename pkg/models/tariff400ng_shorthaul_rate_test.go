@@ -119,7 +119,7 @@ func (suite *ModelSuite) Test_FetchShorthaulRateCents() {
 	}
 
 	// Test inclusivity of EffectiveDateLower
-	rate, err = FetchShorthaulRateCents(suite.DB(), 1500, testdatagen.PeakRateCycleStart)
+	_, err = FetchShorthaulRateCents(suite.DB(), 1500, testdatagen.PeakRateCycleStart)
 	if err != nil {
 		t.Errorf("EffectiveDateLower is incorrectly exlusive: %s", err)
 	}

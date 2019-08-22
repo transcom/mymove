@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -89,4 +90,44 @@ func (m *MovingExpenseDocument) ValidateCreate(tx *pop.Connection) (*validate.Er
 // This method is not required and may be deleted.
 func (m *MovingExpenseDocument) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+func (m *MovingExpenseDocument) DaysInStorage() (int, error) {
+	if m.MovingExpenseType != MovingExpenseTypeSTORAGE {
+		return 0, fmt.Errorf("not storage expense")
+	}
+	if m.StorageStartDate == nil || m.StorageEndDate == nil {
+		return 0, fmt.Errorf("storage end date or storage start date is nil")
+	}
+	if m.StorageEndDate.Before(*m.StorageStartDate) {
+		return 0, fmt.Errorf("storage end date before storage start date")
+	}
+	// don't include the first day
+	daysInStorage := int(m.StorageEndDate.Sub(*m.StorageStartDate).Hours() / 24)
+	if daysInStorage < 0 {
+		return 0, nil
+	}
+	return daysInStorage, nil
+}
+
+//FilterSITExpenses filter MovingExpenseDocuments to only storage expenses
+func FilterSITExpenses(movingExpenseDocuments MovingExpenseDocuments) MovingExpenseDocuments {
+	var sitExpenses []MovingExpenseDocument
+	for _, doc := range movingExpenseDocuments {
+		if doc.MovingExpenseType == MovingExpenseTypeSTORAGE {
+			sitExpenses = append(sitExpenses, doc)
+		}
+	}
+	return sitExpenses
+}
+
+//FilterMovingExpenseDocuments filter MoveDocuments to only moving expense documents
+func FilterMovingExpenseDocuments(moveDocuments MoveDocuments) MovingExpenseDocuments {
+	var movingExpenses []MovingExpenseDocument
+	for _, moveDocument := range moveDocuments {
+		if moveDocument.MovingExpenseDocument != nil {
+			movingExpenses = append(movingExpenses, *moveDocument.MovingExpenseDocument)
+		}
+	}
+	return movingExpenses
 }

@@ -30,7 +30,14 @@ describe('The document viewer', function() {
       cy.contains('1617033988');
     });
     it('can upload a new document', () => {
+      cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
+      cy.get('[data-cy="document-upload-link"]')
+        .find('a')
+        .should('have.attr', 'href')
+        .and('contain', '/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
+      cy.get('[data-cy="document-upload-link"]');
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
+
       cy.contains('Upload a new document');
       cy.get('button.submit').should('be.disabled');
       cy.get('input[name="title"]').type('super secret info document');
@@ -39,18 +46,62 @@ describe('The document viewer', function() {
       cy.get('button.submit').should('be.disabled');
 
       cy.upload_file('.filepond--root', 'top-secret.png');
-      cy
-        .get('button.submit', { timeout: fileUploadTimeout })
+      cy.get('button.submit', { timeout: fileUploadTimeout })
         .should('not.be.disabled')
         .click();
     });
+    it('can upload a weight ticket set', () => {
+      cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
+      cy.contains('Upload a new document');
+      cy.get('button.submit').should('be.disabled');
+      cy.get('input[name="title"]').type('Weight ticket document');
+      cy.get('select[name="move_document_type"]').select('Weight ticket set');
+      cy.get('input[name="notes"]').type('burn after reading');
+      cy.get('button.submit').should('be.disabled');
+
+      cy.upload_file('.filepond--root', 'top-secret.png');
+      cy.get('button.submit', { timeout: fileUploadTimeout })
+        .should('not.be.disabled')
+        .click();
+    });
+
+    it('can edit an uploaded weight ticket set', () => {
+      cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
+      cy.get('[data-cy="doc-link"]')
+        .find('a')
+        .contains('Weight ticket document')
+        .should('have.attr', 'href')
+        .then(href => {
+          cy.patientVisit(href);
+        });
+      cy.contains('Details').click();
+
+      cy.contains('Edit').click();
+
+      cy.get('select[name="moveDocument.vehicle_options"]').select('CAR');
+      cy.get('input[name="moveDocument.vehicle_nickname"]').type('Herbie');
+      cy.get('input[name="moveDocument.empty_weight"]').type('1000');
+      cy.get('input[name="moveDocument.full_weight"]').type('2000');
+
+      cy.get('select[name="moveDocument.status"]').select('OK');
+
+      cy.get('button')
+        .contains('Save')
+        .should('not.be.disabled')
+        .click();
+
+      cy.contains('Car');
+      cy.contains('Herbie');
+      cy.contains('1,000');
+      cy.contains('2,000');
+    });
+
     it('shows the newly uploaded document in the document list tab', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.contains('All Documents (1)');
-      cy.contains('super secret info document');
-      cy
-        .get('.pad-ns')
+      cy.contains('All Documents (2)');
+      cy.get('.panel-field')
         .find('a')
+        .contains('super secret info document')
         .should('have.attr', 'href')
         .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
     });
@@ -67,21 +118,21 @@ describe('The document viewer', function() {
       cy.get('button.submit').should('be.disabled');
 
       cy.upload_file('.filepond--root', 'top-secret.png');
-      cy
-        .get('button.submit', { timeout: fileUploadTimeout })
+      cy.get('button.submit', { timeout: fileUploadTimeout })
         .should('not.be.disabled')
         .click();
     });
     it('can select and update newly-uploaded expense document', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.contains('expense document');
-      cy
-        .get('.pad-ns')
+      cy.get('[data-cy="doc-link"]')
         .find('a')
+        .contains('expense document')
         .should('have.attr', 'href')
-        .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
+        .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/)
+        .then(href => {
+          cy.patientVisit(href);
+        });
 
-      cy.contains('expense document').click();
       cy.contains('Details').click();
 
       // Verify values have been stored correctly
@@ -94,8 +145,7 @@ describe('The document viewer', function() {
       cy.get('select[name="moveDocument.payment_method"]').select('GTCC');
       cy.get('select[name="moveDocument.status"]').select('OK');
 
-      cy
-        .get('button')
+      cy.get('button')
         .contains('Save')
         .should('not.be.disabled')
         .click();
@@ -104,43 +154,42 @@ describe('The document viewer', function() {
     });
     it('can update expense document to other doc type', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.contains('expense document');
-      cy
-        .get('.pad-ns')
+      cy.get('[data-cy="doc-link"]')
         .find('a')
+        .contains('expense document')
         .should('have.attr', 'href')
-        .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
-
-      cy.contains('expense document').click();
+        .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/)
+        .then(href => {
+          cy.patientVisit(href);
+        });
       cy.contains('Details').click();
       cy.contains('GTCC');
       cy.contains('Edit').click();
 
       cy.get('select[name="moveDocument.move_document_type"]').select('Other document type');
 
-      cy
-        .get('button')
+      cy.get('button')
         .contains('Save')
         .should('not.be.disabled')
         .click();
 
       cy.contains('Other document type');
 
-      cy
-        .get('.field-title')
+      cy.get('.field-title')
         .contains('Expense Type')
         .should('not.exist');
     });
     it('can update other document type back to expense type', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.contains('expense document');
-      cy
-        .get('.pad-ns')
+      cy.get('[data-cy="doc-link"]')
         .find('a')
+        .contains('expense document')
         .should('have.attr', 'href')
-        .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
+        .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/)
+        .then(href => {
+          cy.patientVisit(href);
+        });
 
-      cy.contains('expense document').click();
       cy.contains('Details').click();
       cy.contains('OK');
       cy.contains('Edit').click();
@@ -151,8 +200,7 @@ describe('The document viewer', function() {
       cy.get('select[name="moveDocument.payment_method"]').select('GTCC');
       cy.get('select[name="moveDocument.status"]').select('OK');
 
-      cy
-        .get('button')
+      cy.get('button')
         .contains('Save')
         .should('not.be.disabled')
         .click();
@@ -160,35 +208,6 @@ describe('The document viewer', function() {
       cy.contains('Expense');
       cy.contains('4,999.92');
       cy.contains('GTCC');
-    });
-    it('can upload and view a weight ticket set document', () => {
-      cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
-      cy.contains('Upload a new document');
-      cy.get('button.submit').should('be.disabled');
-      cy.get('select[name="move_document_type"]').select('Weight ticket set');
-      cy.get('input[name="title"]').type('weight ticket document');
-
-      cy.get('button.submit').should('be.disabled');
-
-      cy.upload_file('.filepond--root', 'top-secret.png');
-      cy
-        .get('button.submit', { timeout: fileUploadTimeout })
-        .should('not.be.disabled')
-        .click();
-
-      cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.contains('weight ticket document');
-      cy
-        .get('.pad-ns')
-        .find('a')
-        .should('have.attr', 'href')
-        .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
-
-      cy.contains('weight ticket').click();
-      cy.contains('Details').click();
-
-      cy.contains('Empty Weight Ticket');
-      cy.contains('Full Weight Ticket');
     });
     it('can upload documents to an HHG move', () => {
       cy.patientVisit('moves/533d176f-0bab-4c51-88cd-c899f6855b9d/documents/new');
@@ -204,8 +223,7 @@ describe('The document viewer', function() {
       cy.get('button.submit').should('be.disabled');
 
       cy.upload_file('.filepond--root', 'top-secret.png');
-      cy
-        .get('button.submit', { timeout: fileUploadTimeout })
+      cy.get('button.submit', { timeout: fileUploadTimeout })
         .should('not.be.disabled')
         .click();
 
@@ -215,44 +233,11 @@ describe('The document viewer', function() {
       cy.get('input[name="title"]').type('Wait ticket');
       cy.get('input[name="notes"]').type('wait for this document');
       cy.upload_file('.filepond--root', 'top-secret.png');
-      cy
-        .get('button.submit', { timeout: fileUploadTimeout })
+      cy.get('button.submit', { timeout: fileUploadTimeout })
         .should('not.be.disabled')
         .click();
 
       cy.contains('All Documents (2)');
-    });
-    it('can navigate to the shipment info page and show line item info', () => {
-      cy.patientVisit('/moves/fb4105cf-f5a5-43be-845e-d59fdb34f31c/documents/new', {
-        log: true,
-      });
-
-      cy.patientVisit('/');
-
-      cy.location().should(loc => {
-        expect(loc.pathname).to.match(/^\/queues\/new/);
-      });
-
-      cy
-        .get('div')
-        .contains('Delivered')
-        .click();
-
-      cy.selectQueueItemMoveLocator('DOOB');
-
-      cy.location().should(loc => {
-        expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
-      });
-
-      cy.get('[data-cy="hhg-tab"]').click();
-
-      cy
-        .get('[data-cy=invoice-panel]')
-        .get('[data-cy=unbilled-table]')
-        .find('tbody tr')
-        .should(rows => {
-          expect(rows).to.have.length.of.at.least(3);
-        });
     });
   });
 });

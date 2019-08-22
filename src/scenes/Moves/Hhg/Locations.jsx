@@ -116,4 +116,7 @@ function mapStateToProps(state, ownProps) {
   return props;
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Locations);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Locations);

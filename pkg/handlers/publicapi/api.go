@@ -11,10 +11,11 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/services/tsp"
 
 	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
-	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
 	shipmentservice "github.com/transcom/mymove/pkg/services/shipment"
 	shipmentlineitemservice "github.com/transcom/mymove/pkg/services/shipment_line_item"
 	sitservice "github.com/transcom/mymove/pkg/services/storage_in_transit"
@@ -81,6 +82,14 @@ func NewPublicAPIHandler(context handlers.HandlerContext, logger Logger) http.Ha
 	publicAPI.TspsIndexTSPsHandler = TspsIndexTSPsHandler{context}
 	publicAPI.TspsGetTspShipmentsHandler = TspsGetTspShipmentsHandler{context}
 
+	// Transportation Service Provider Performances
+	queryBuilder := query.NewQueryBuilder(context.DB())
+	publicAPI.TransportationServiceProviderPerformanceLogTransportationServiceProviderPerformanceHandler = LogTransportationServiceProviderPerformanceHandler{
+		HandlerContext: context,
+		NewQueryFilter: query.NewQueryFilter,
+		TransportationServiceProviderPerformanceFetcher: tsp.NewTransportationServiceProviderPerformanceFetcher(queryBuilder),
+	}
+
 	// Storage In Transits
 	publicAPI.StorageInTransitsCreateStorageInTransitHandler = CreateStorageInTransitHandler{
 		context,
@@ -123,12 +132,6 @@ func NewPublicAPIHandler(context handlers.HandlerContext, logger Logger) http.Ha
 	publicAPI.AccesscodeFetchAccessCodeHandler = FetchAccessCodeHandler{context, accesscodeservice.NewAccessCodeFetcher(context.DB())}
 	publicAPI.AccesscodeValidateAccessCodeHandler = ValidateAccessCodeHandler{context, accesscodeservice.NewAccessCodeValidator(context.DB())}
 	publicAPI.AccesscodeClaimAccessCodeHandler = ClaimAccessCodeHandler{context, accesscodeservice.NewAccessCodeClaimer(context.DB())}
-
-	// Postal Codes
-	publicAPI.PostalCodesValidatePostalCodeWithRateDataHandler = ValidatePostalCodeWithRateDataHandler{
-		context,
-		postalcodeservice.NewPostalCodeValidator(context.DB()),
-	}
 
 	return publicAPI.Serve(nil)
 }

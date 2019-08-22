@@ -15,28 +15,28 @@ executors:
     resource_class: small
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:9b7bfbf6bfae544566ade0c896f8aacbd16281e5
+      - image: trussworks/circleci-docker-primary:e5c10bf19185aa55354901106bad3ffd4c016265
   mymove_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:9b7bfbf6bfae544566ade0c896f8aacbd16281e5
+      - image: trussworks/circleci-docker-primary:e5c10bf19185aa55354901106bad3ffd4c016265
   mymove_medium_plus:
     resource_class: medium+
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:9b7bfbf6bfae544566ade0c896f8aacbd16281e5
+      - image: trussworks/circleci-docker-primary:e5c10bf19185aa55354901106bad3ffd4c016265
   mymove_large:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:9b7bfbf6bfae544566ade0c896f8aacbd16281e5
+      - image: trussworks/circleci-docker-primary:e5c10bf19185aa55354901106bad3ffd4c016265
   # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
   mymove_and_postgres_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:9b7bfbf6bfae544566ade0c896f8aacbd16281e5
+      - image: trussworks/circleci-docker-primary:e5c10bf19185aa55354901106bad3ffd4c016265
       - image: postgres:10.9
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -46,7 +46,7 @@ executors:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:9b7bfbf6bfae544566ade0c896f8aacbd16281e5
+      - image: trussworks/circleci-docker-primary:e5c10bf19185aa55354901106bad3ffd4c016265
       - image: postgres:10.9
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -90,10 +90,10 @@ commands:
           at: bin
       - deploy:
           name: Deploy task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command save-fuel-price-data
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command save-fuel-price-data --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2"
           environment:
             DB_PORT: 5432
-            DB_USER: master
+            DB_USER: ecs_user
             DB_NAME: app
             DB_SSL_MODE: verify-full
             DB_SSL_ROOT_CERT: /bin/rds-combined-ca-bundle.pem
@@ -176,6 +176,8 @@ commands:
             bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
             docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
+            docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//#}
+            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//#}
   e2e_tests:
     steps:
       - run:
@@ -193,15 +195,14 @@ commands:
             source $BASH_ENV
             make e2e_test_docker
           environment:
-            # Env vars needed by the `scripts/apply-secure-migration.sh` script
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
             DB_HOST: localhost
             DB_PORT: 5432
             DB_NAME: test_db
             # Env vars needed for the webserver to run inside docker
-            SECURE_MIGRATION_DIR: /home/circleci/transcom/mymove/local_migrations
-            SECURE_MIGRATION_SOURCE: local
+            MIGRATION_PATH: "/migrate/local_migrations;/migrate/migrations"
+            MIGRATION_MANIFEST: "/migrate/migrations_manifest.txt"
             LOGIN_GOV_CALLBACK_PROTOCOL: http
             LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
             LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
@@ -274,6 +275,7 @@ jobs:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run: echo 'export GOLANGCI_LINT_CONCURRENCY=1' >> $BASH_ENV
       - run: make bin/callgraph
       - run: make server_generate mocks_generate
       # this is so we can avoid go mod downloading and resulting in an error on a false positive
@@ -379,7 +381,6 @@ jobs:
             source $BASH_ENV
             make server_test
           environment:
-            # Env vars needed by the `scripts/apply-secure-migration.sh` script
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
             DB_HOST: localhost
@@ -389,10 +390,8 @@ jobs:
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
-            MIGRATION_PATH: /home/circleci/transcom/mymove/migrations
-            MIGRATION_MANIFEST: /home/circleci/transcom/mymove/migrations_manifest.txt
-            SECURE_MIGRATION_DIR: /home/circleci/transcom/mymove/local_migrations
-            SECURE_MIGRATION_SOURCE: local
+            MIGRATION_PATH: "/home/circleci/transcom/mymove/local_migrations;/home/circleci/transcom/mymove/migrations"
+            MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
 
       - announce_failure
 
@@ -431,7 +430,6 @@ jobs:
             source $BASH_ENV
             make server_test_coverage_generate
           environment:
-            # Env vars needed by the `scripts/apply-secure-migration.sh` script
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
             DB_HOST: localhost
@@ -441,16 +439,16 @@ jobs:
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
-            MIGRATION_PATH: /home/circleci/transcom/mymove/migrations
-            MIGRATION_MANIFEST: /home/circleci/transcom/mymove/migrations_manifest.txt
-            SECURE_MIGRATION_DIR: /home/circleci/transcom/mymove/local_migrations
-            SECURE_MIGRATION_SOURCE: local
+            MIGRATION_PATH: "/home/circleci/transcom/mymove/local_migrations;/home/circleci/transcom/mymove/migrations"
+            MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
       - run:
           name: upload code coverage to codecov
           command: |
-            curl -L --retry 5 --retry-connrefused https://codecov.io/bash --output /home/circleci/codecov
+            curl -L --retry 5 --retry-connrefused https://codecov.io/bash --output /home/circleci/codecov || exit 0
             chmod +x /home/circleci/codecov
             /home/circleci/codecov -F go -f coverage.out
+      - store_artifacts:
+          path: ~/transcom/mymove/coverage.out
 
   # `client_test` runs the client side Javascript tests
   client_test:
@@ -522,7 +520,7 @@ jobs:
           docker_layer_caching: true
       - run: make bin/chamber
       - run: make bin/rds-combined-ca-bundle.pem
-      - run: make bin/milmove
+      - run: make server_build
       - build_tag_push:
           dockerfile: Dockerfile.migrations
           tag: ppp-migrations:dev
@@ -731,7 +729,7 @@ jobs:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
       - run:
           name: Add ~/go/bin to path for golint
-          command: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+          command: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: make go_deps_update
       - run:
           name: Display changes

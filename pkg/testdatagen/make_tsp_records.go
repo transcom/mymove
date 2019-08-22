@@ -6,6 +6,7 @@ import (
 	"math/rand"
 
 	"github.com/gobuffalo/pop"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -40,12 +41,15 @@ func DefaultSupplierID(scac string) *string {
 func MakeTSP(db *pop.Connection, assertions Assertions) models.TransportationServiceProvider {
 
 	// Check to see if TSP has already been created
+	tspID := assertions.TransportationServiceProvider.ID
 	existingTsp := models.TransportationServiceProvider{}
-	if !isZeroUUID(assertions.TransportationServiceProvider.ID) {
+	if !isZeroUUID(tspID) {
 		if err := db.Find(&existingTsp, assertions.TransportationServiceProvider.ID); err == nil {
 			// Found existing TSP for this ID
 			return existingTsp
 		}
+	} else {
+		tspID = uuid.Must(uuid.NewV4())
 	}
 
 	scac := assertions.TransportationServiceProvider.StandardCarrierAlphaCode
@@ -94,6 +98,7 @@ func MakeTSP(db *pop.Connection, assertions Assertions) models.TransportationSer
 	}
 
 	tsp := models.TransportationServiceProvider{
+		ID:                       tspID,
 		StandardCarrierAlphaCode: scac,
 		SupplierID:               supplierID,
 		Enrolled:                 assertions.TransportationServiceProvider.Enrolled,
@@ -101,9 +106,9 @@ func MakeTSP(db *pop.Connection, assertions Assertions) models.TransportationSer
 		PocGeneralName:           pocGeneralName,
 		PocGeneralEmail:          pocGeneralEmail,
 		PocGeneralPhone:          pocGeneralPhone,
-		PocClaimsName:            pocGeneralName,
-		PocClaimsEmail:           pocGeneralEmail,
-		PocClaimsPhone:           pocGeneralPhone,
+		PocClaimsName:            pocClaimsName,
+		PocClaimsEmail:           pocClaimsEmail,
+		PocClaimsPhone:           pocClaimsPhone,
 	}
 
 	verrs, err := db.ValidateAndCreate(&tsp)

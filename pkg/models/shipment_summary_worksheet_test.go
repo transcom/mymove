@@ -60,7 +60,7 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 			MoveID:                   ppm.Move.ID,
 			Move:                     ppm.Move,
 			PersonallyProcuredMoveID: &ppm.ID,
-			Status:                   models.MoveDocumentStatusAWAITINGREVIEW,
+			Status:                   models.MoveDocumentStatusOK,
 			MoveDocumentType:         "EXPENSE",
 		},
 		Document: models.Document{
@@ -107,6 +107,129 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	suite.Equal(move.Orders.ID, ssd.Order.ID)
 	suite.Require().Len(ssd.Shipments, 1)
 	suite.Equal(shipment.ID, ssd.Shipments[0].ID)
+	suite.Require().Len(ssd.PersonallyProcuredMoves, 1)
+	suite.Equal(ppm.ID, ssd.PersonallyProcuredMoves[0].ID)
+	suite.Equal(serviceMemberID, ssd.ServiceMember.ID)
+	suite.Equal(yuma.ID, ssd.CurrentDutyStation.ID)
+	suite.Equal(yuma.Address.ID, ssd.CurrentDutyStation.Address.ID)
+	suite.Equal(fortGordon.ID, ssd.NewDutyStation.ID)
+	suite.Equal(fortGordon.Address.ID, ssd.NewDutyStation.Address.ID)
+	rankWtgAllotment := models.GetWeightAllotment(rank)
+	suite.Equal(unit.Pound(rankWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
+	suite.Equal(unit.Pound(rankWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
+	suite.Equal(unit.Pound(0), ssd.WeightAllotment.SpouseProGear)
+	suite.Require().NotNil(ssd.ServiceMember.Rank)
+	totalEntitlement, err := models.GetEntitlement(*ssd.ServiceMember.Rank, ssd.Order.HasDependents, ssd.Order.SpouseHasProGear)
+	suite.Require().Nil(err)
+	suite.Equal(unit.Pound(totalEntitlement), ssd.WeightAllotment.TotalWeight)
+	suite.Require().Len(ssd.MovingExpenseDocuments, 2)
+	suite.NotNil(ssd.MovingExpenseDocuments[0].ID)
+	suite.NotNil(ssd.MovingExpenseDocuments[1].ID)
+	suite.Equal(ppm.NetWeight, ssd.PersonallyProcuredMoves[0].NetWeight)
+	suite.Require().NotNil(ssd.PersonallyProcuredMoves[0].Advance)
+	suite.Equal(ppm.Advance.ID, ssd.PersonallyProcuredMoves[0].Advance.ID)
+	suite.Equal(unit.Cents(1000), ssd.PersonallyProcuredMoves[0].Advance.RequestedAmount)
+	suite.Equal(signedCertification.ID, ssd.SignedCertification.ID)
+}
+
+func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
+	moveID, _ := uuid.NewV4()
+	serviceMemberID, _ := uuid.NewV4()
+	//advanceID, _ := uuid.NewV4()
+	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
+	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
+	rank := models.ServiceMemberRankE9
+	moveType := models.SelectedMoveTypePPM
+
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			ID:               moveID,
+			SelectedMoveType: &moveType,
+		},
+		Order: models.Order{
+			OrdersType:       ordersType,
+			NewDutyStationID: fortGordon.ID,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            serviceMemberID,
+			DutyStationID: &yuma.ID,
+			Rank:          &rank,
+		},
+	})
+
+	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
+	netWeight := unit.Pound(10000)
+	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			MoveID:              move.ID,
+			NetWeight:           &netWeight,
+			HasRequestedAdvance: true,
+			AdvanceID:           &advance.ID,
+			Advance:             &advance,
+		},
+	})
+	// Only concerned w/ approved advances for ssw
+	ppm.Move.PersonallyProcuredMoves[0].Advance.Request()
+	ppm.Move.PersonallyProcuredMoves[0].Advance.Approve()
+	// Save advance in reimbursements table by saving ppm
+	models.SavePersonallyProcuredMove(suite.DB(), &ppm)
+	movedocuments := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm.Move.ID,
+			Move:                     ppm.Move,
+			PersonallyProcuredMoveID: &ppm.ID,
+			Status:                   models.MoveDocumentStatusOK,
+			MoveDocumentType:         "EXPENSE",
+		},
+		Document: models.Document{
+			ServiceMemberID: serviceMemberID,
+			ServiceMember:   move.Orders.ServiceMember,
+		},
+	}
+	movedocuments2 := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm.Move.ID,
+			Move:                     ppm.Move,
+			PersonallyProcuredMoveID: &ppm.ID,
+			Status:                   models.MoveDocumentStatusEXCLUDEFROMCALCULATION,
+			MoveDocumentType:         "EXPENSE",
+		},
+		Document: models.Document{
+			ServiceMemberID: serviceMemberID,
+			ServiceMember:   move.Orders.ServiceMember,
+		},
+	}
+	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
+	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
+	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments2)
+	session := auth.Session{
+		UserID:          move.Orders.ServiceMember.UserID,
+		ServiceMemberID: serviceMemberID,
+		ApplicationName: auth.MilApp,
+	}
+	ppm.Move.Submit(time.Now())
+	ppm.Move.Approve()
+	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
+	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
+	ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	ppm.Move.PersonallyProcuredMoves[0].RequestPayment()
+	models.SaveMoveDependencies(suite.DB(), &ppm.Move)
+	certificationType := models.SignedCertificationTypePPMPAYMENT
+	signedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID:                   moveID,
+			PersonallyProcuredMoveID: &ppm.ID,
+			CertificationType:        &certificationType,
+			CertificationText:        "LEGAL",
+			Signature:                "ACCEPT",
+			Date:                     testdatagen.NextValidMoveDate,
+		},
+	})
+	ssd, err := models.FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, moveID)
+
+	suite.NoError(err)
+	suite.Equal(move.Orders.ID, ssd.Order.ID)
 	suite.Require().Len(ssd.PersonallyProcuredMoves, 1)
 	suite.Equal(ppm.ID, ssd.PersonallyProcuredMoves[0].ID)
 	suite.Equal(serviceMemberID, ssd.ServiceMember.ID)
@@ -296,6 +419,21 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2() {
 			RequestedAmountCents: unit.Cents(10000),
 			PaymentMethod:        "GTCC",
 		},
+		{
+			MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
+			RequestedAmountCents: unit.Cents(100000),
+			PaymentMethod:        "GTCC",
+		},
+		{
+			MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
+			RequestedAmountCents: unit.Cents(20000),
+			PaymentMethod:        "GTCC",
+		},
+		{
+			MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
+			RequestedAmountCents: unit.Cents(10000),
+			PaymentMethod:        "OTHER",
+		},
 	}
 
 	ssd := models.ShipmentSummaryFormData{
@@ -314,6 +452,8 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2() {
 	suite.Equal("$100.00", sswPage2.GasMemberPaid)
 	suite.Equal("$200.00", sswPage2.TotalMemberPaid)
 	suite.Equal("$200.00", sswPage2.TotalMemberPaidRepeated)
+	suite.Equal("$100.00", sswPage2.TotalMemberPaidSIT)
+	suite.Equal("$1,200.00", sswPage2.TotalGTCCPaidSIT)
 }
 
 func (suite *ModelSuite) TestGroupExpenses() {
@@ -498,6 +638,32 @@ func (suite *ModelSuite) TestFormatShipmentNumberAndType() {
 
 	// testing a variety of shipments and ppms
 	suite.Equal("01 - HHG (GBL)\n\n02 - PPM\n\n03 - PPM", varietyOfShipmentsFormatted.ShipmentNumberAndTypes)
+}
+
+func (suite *ModelSuite) TestFormatAllSITExpenses() {
+	startdate1 := time.Date(2019, 5, 12, 0, 0, 0, 0, time.UTC)
+	endDate1 := time.Date(2019, 5, 15, 0, 0, 0, 0, time.UTC)
+	startdate2 := time.Date(2019, 5, 15, 0, 0, 0, 0, time.UTC)
+	endDate2 := time.Date(2019, 5, 20, 0, 0, 0, 0, time.UTC)
+	sitExpenses := models.MovingExpenseDocuments{
+		{
+			MovingExpenseType: models.MovingExpenseTypeSTORAGE,
+			StorageStartDate:  &startdate1,
+			StorageEndDate:    &endDate1,
+		},
+		{
+			MovingExpenseType: models.MovingExpenseTypeSTORAGE,
+			StorageStartDate:  &startdate2,
+			StorageEndDate:    &endDate2,
+		},
+	}
+
+	formattedSitExpenses := models.FormatAllSITExpenses(sitExpenses)
+
+	suite.Equal("01 - PPM\n\n02 - PPM", formattedSitExpenses.NumberAndTypes)
+	suite.Equal("12-May-2019\n\n15-May-2019", formattedSitExpenses.EntryDates)
+	suite.Equal("15-May-2019\n\n20-May-2019", formattedSitExpenses.EndDates)
+	suite.Equal("3\n\n5", formattedSitExpenses.DaysInStorage)
 }
 
 func (suite *ModelSuite) TestFormatShipmentWeight() {

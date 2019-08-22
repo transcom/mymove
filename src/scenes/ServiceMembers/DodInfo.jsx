@@ -54,13 +54,12 @@ class SSNField extends Component {
         <label className={displayError ? 'usa-input-error-label' : 'usa-input-label'} htmlFor={name}>
           Social security number
         </label>
-        {touched &&
-          error && (
-            <span className="usa-input-error-message" id={name + '-error'} role="alert">
-              {error}
-            </span>
-          )}
         <input {...this.props.input} onFocus={this.localOnFocus} onBlur={this.localOnBlur} value={displayedValue} />
+        {touched && error && (
+          <span className="usa-input-error-message" id={name + '-error'} role="alert">
+            {error}
+          </span>
+        )}
       </div>
     );
   }
@@ -147,4 +146,7 @@ function mapStateToProps(state) {
   };
   return props;
 }
-export default connect(mapStateToProps, mapDispatchToProps)(DodInfo);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(DodInfo);

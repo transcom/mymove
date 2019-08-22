@@ -14,7 +14,6 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-	beeline "github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
@@ -31,8 +30,7 @@ const mps = 0
 
 // AwardQueue encapsulates the TSP award queue process
 type AwardQueue struct {
-	db *pop.Connection
-	//logger *hnyzap.Logger
+	db     *pop.Connection
 	logger Logger
 }
 
@@ -45,8 +43,6 @@ func (aq *AwardQueue) findAllUnassignedShipments() (models.Shipments, error) {
 // a TSP.
 // TODO: refactor this method to ensure the transaction is wrapping what it needs to
 func (aq *AwardQueue) attemptShipmentOffer(ctx context.Context, shipment models.Shipment) (*models.ShipmentOffer, error) {
-	ctx, span := beeline.StartSpan(ctx, "attemptShipmentOffer")
-	defer span.Send()
 
 	// Validate that the shipment has all required data. Do this before touching
 	// the shipment, even for logging.
@@ -54,7 +50,7 @@ func (aq *AwardQueue) attemptShipmentOffer(ctx context.Context, shipment models.
 		return nil, err
 	}
 
-	aq.logger.TraceInfo(ctx, "Attempting to offer shipment",
+	aq.logger.Info("Attempting to offer shipment",
 		zap.String("shipment_id", shipment.ID.String()),
 		zap.String("traffic_distribution_list_id", shipment.TrafficDistributionListID.String()))
 
@@ -92,11 +88,11 @@ func (aq *AwardQueue) attemptShipmentOffer(ctx context.Context, shipment models.
 
 		tsp := models.TransportationServiceProvider{}
 		if findErr := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); findErr == nil {
-			aq.logger.TraceInfo(ctx, "Attempting to offer to TSP", zap.String("tsp_id", tsp.ID.String()))
+			aq.logger.Info("Attempting to offer to TSP", zap.String("tsp_id", tsp.ID.String()))
 
 			isAdministrativeShipment, shipmentWithinBlackoutDatesErr := aq.ShipmentWithinBlackoutDates(tsp.ID, shipment)
 			if shipmentWithinBlackoutDatesErr != nil {
-				aq.logger.TraceError(ctx, "Failed to determine if shipment is within TSP blackout dates", zap.Error(shipmentWithinBlackoutDatesErr))
+				aq.logger.Error("Failed to determine if shipment is within TSP blackout dates", zap.Error(shipmentWithinBlackoutDatesErr))
 				return nil, shipmentWithinBlackoutDatesErr
 			}
 
@@ -105,35 +101,35 @@ func (aq *AwardQueue) attemptShipmentOffer(ctx context.Context, shipment models.
 			if createShipmentOfferErr == nil {
 				var tspPerformanceErr error
 				if tspPerformance, tspPerformanceErr = models.IncrementTSPPerformanceOfferCount(aq.db, tspPerformance.ID); tspPerformanceErr == nil {
-					if isAdministrativeShipment == true {
-						aq.logger.TraceInfo(ctx, "Shipment pickup date is during a blackout period. Awarding Administrative Shipment to TSP.")
+					if isAdministrativeShipment {
+						aq.logger.Info("Shipment pickup date is during a blackout period. Awarding Administrative Shipment to TSP.")
 					} else {
 						qb := -1
 						if tspPerformance.QualityBand != nil {
 							qb = *tspPerformance.QualityBand
 						}
 
-						aq.logger.TraceInfo(ctx, "Shipment offered to TSP!",
+						aq.logger.Info("Shipment offered to TSP!",
 							zap.Int("quality_band", qb),
 							zap.Int("offer_count", tspPerformance.OfferCount))
 						foundAvailableTSP = true
 
 						// Award the shipment
 						if awardShipmentErr := models.AwardShipment(aq.db, shipment.ID); awardShipmentErr != nil {
-							aq.logger.TraceError(ctx, "Failed to set shipment as awarded", zap.Error(awardShipmentErr))
+							aq.logger.Error("Failed to set shipment as awarded", zap.Error(awardShipmentErr))
 							return nil, awardShipmentErr
 						}
 					}
 				} else {
-					aq.logger.TraceError(ctx, "Failed to increment offer count", zap.Error(tspPerformanceErr))
+					aq.logger.Error("Failed to increment offer count", zap.Error(tspPerformanceErr))
 				}
 			} else {
-				aq.logger.TraceError(ctx, "Failed to offer to TSP", zap.Error(createShipmentOfferErr))
+				aq.logger.Error("Failed to offer to TSP", zap.Error(createShipmentOfferErr))
 			}
 		}
 
 		if !foundAvailableTSP {
-			aq.logger.TraceInfo(ctx, "Selected TSP has blackouts. Checking for another TSP.")
+			aq.logger.Info("Selected TSP has blackouts. Checking for another TSP.")
 
 			tspPerformance, err = models.NextEligibleTSPPerformance(aq.db, tdl.ID, *shipment.BookDate,
 				*shipment.RequestedPickupDate)
@@ -153,8 +149,6 @@ func (aq *AwardQueue) attemptShipmentOffer(ctx context.Context, shipment models.
 // assignShipments searches for all shipments that haven't been offered
 // yet to a TSP, and attempts to generate offers for each of them.
 func (aq *AwardQueue) assignShipments(ctx context.Context) {
-	ctx, span := beeline.StartSpan(ctx, "assignShipments")
-	defer span.Send()
 	aq.logger.Info("TSP Award Queue running.")
 
 	shipments, err := aq.findAllUnassignedShipments()
@@ -164,17 +158,17 @@ func (aq *AwardQueue) assignShipments(ctx context.Context) {
 		for _, shipment := range shipments {
 			_, err = aq.attemptShipmentOffer(ctx, shipment)
 			if err != nil {
-				aq.logger.TraceError(ctx, "Failed to offer shipment", zap.Error(err))
+				aq.logger.Error("Failed to offer shipment", zap.Error(err))
 				unawardedCount++
 			} else {
 				awardedCount++
 			}
 		}
-		aq.logger.TraceInfo(ctx, "Awarded some shipments.",
+		aq.logger.Info("Awarded some shipments.",
 			zap.Int("shipments_awarded", awardedCount),
 			zap.Int("shipments_unawarded", unawardedCount))
 	} else {
-		aq.logger.TraceError(ctx, "Failed to query for shipments", zap.Error(err))
+		aq.logger.Error("Failed to query for shipments", zap.Error(err))
 	}
 }
 
@@ -199,8 +193,6 @@ func getTSPsPerBand(count int) []int {
 // assignPerformanceBands loops through each unique TransportationServiceProviderPerformances group
 // and assigns any unbanded TransportationServiceProviderPerformances to a band.
 func (aq *AwardQueue) assignPerformanceBands(ctx context.Context) error {
-	ctx, span := beeline.StartSpan(ctx, "assignPerformanceBands")
-	defer span.Send()
 	perfGroups, err := models.FetchUnbandedTSPPerformanceGroups(aq.db)
 	if err != nil {
 		return err
@@ -221,9 +213,7 @@ func (aq *AwardQueue) assignPerformanceBands(ctx context.Context) error {
 // This assumes that all TransportationServiceProviderPerformances have been properly created and
 // have a valid BestValueScore.
 func (aq *AwardQueue) assignPerformanceBandsForTSPPerformanceGroup(ctx context.Context, perfGroup models.TSPPerformanceGroup) error {
-	ctx, span := beeline.StartSpan(ctx, "assignPerformanceBandsForTSPPerformanceGroup")
-	defer span.Send()
-	aq.logger.TraceInfo(ctx, "Assigning performance bands",
+	aq.logger.Info("Assigning performance bands",
 		zap.String("traffic_distribution_list_id", perfGroup.TrafficDistributionListID.String()),
 		zap.String("performance_period_start", perfGroup.PerformancePeriodStart.String()),
 		zap.String("performance_period_end", perfGroup.PerformancePeriodEnd.String()),
@@ -241,7 +231,7 @@ func (aq *AwardQueue) assignPerformanceBandsForTSPPerformanceGroup(ctx context.C
 	for band, count := range bands {
 		for i := 0; i < count; i++ {
 			performance := perfs[perfsIndex]
-			aq.logger.TraceInfo(ctx, "Assigning tspPerformance to band", zap.String("tsp_performance_id", performance.ID.String()), zap.Int("band", band+1))
+			aq.logger.Info("Assigning tspPerformance to band", zap.String("tsp_performance_id", performance.ID.String()), zap.Int("band", band+1))
 			err := models.AssignQualityBandToTSPPerformance(ctx, aq.db, band+1, performance.ID)
 			if err != nil {
 				return err
@@ -267,8 +257,6 @@ func (aq *AwardQueue) ShipmentWithinBlackoutDates(tspID uuid.UUID, shipment mode
 
 // Run will execute the award queue algorithm.
 func (aq *AwardQueue) Run(ctx context.Context) error {
-	ctx, span := beeline.StartSpan(ctx, "awardqueue")
-	defer span.Send()
 
 	originalDB := aq.db
 	defer func() { aq.db = originalDB }()
@@ -297,9 +285,6 @@ func (aq *AwardQueue) Run(ctx context.Context) error {
 
 // waitForLock MUST be called within a transaction!
 func waitForLock(ctx context.Context, db *pop.Connection, id int) error {
-	ctx, span := beeline.StartSpan(ctx, "waitForLock")
-	defer span.Send()
-	span.AddField("wait_lock_id", awardQueueLockID)
 
 	// obtain transaction-level advisory-lock
 	return db.RawQuery("SELECT pg_advisory_xact_lock($1)", id).Exec()

@@ -5,7 +5,6 @@ import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamati
 import carImg from 'shared/images/car_mobile.png';
 import boxTruckImg from 'shared/images/box_truck_mobile.png';
 import carTrailerImg from 'shared/images/car-trailer_mobile.png';
-import deleteButtonImg from 'shared/images/delete-doc-button.png';
 import { formatToOrdinal } from 'shared/formatters';
 
 const WEIGHT_TICKET_IMAGES = {
@@ -42,7 +41,6 @@ const WeightTicketListItem = ({
         <h4>
           {vehicle_nickname} ({formatToOrdinal(num + 1)} set)
         </h4>
-        {showDelete && <img alt="delete document button" onClick={() => console.log('lol')} src={deleteButtonImg} />}
       </div>
       {empty_weight_ticket_missing ? (
         <MissingLabel>
@@ -60,13 +58,12 @@ const WeightTicketListItem = ({
       ) : (
         <p>Full weight ticket {full_weight} lbs</p>
       )}
-      {vehicle_options === 'CAR_TRAILER' &&
-        trailer_ownership_missing && (
-          <MissingLabel>
-            Missing ownership documentation{' '}
-            <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
-          </MissingLabel>
-        )}
+      {vehicle_options === 'CAR_TRAILER' && trailer_ownership_missing && (
+        <MissingLabel>
+          Missing ownership documentation{' '}
+          <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
+        </MissingLabel>
+      )}
       {vehicle_options === 'CAR_TRAILER' && !trailer_ownership_missing && <p>Ownership documentation</p>}
     </div>
   </div>

@@ -5,7 +5,6 @@ import { Redirect } from 'react-router-dom';
 import { get } from 'lodash';
 import { NavLink, Link } from 'react-router-dom';
 import { reduxForm } from 'redux-form';
-import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 import { titleCase } from 'shared/constants.js';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -48,9 +47,7 @@ import {
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
-import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
-import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
 import TspContainer from 'shared/TspPanel/TspContainer';
 import Weights from 'shared/ShipmentWeights';
 import Dates from 'shared/ShipmentDates';
@@ -258,7 +255,6 @@ class ShipmentInfo extends Component {
 
     const shipmentId = this.props.shipmentId;
     const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
-    const showDocumentViewer = context.flags.documentViewer;
     const showSitPanel = context.flags.sitPanel;
     const awarded = shipment.status === 'AWARDED';
     const accepted = shipment.status === 'ACCEPTED';
@@ -341,9 +337,6 @@ class ShipmentInfo extends Component {
                 {serviceMember.phone_is_preferred && (
                   <FontAwesomeIcon className="icon icon-grey" icon={faPhone} flip="horizontal" />
                 )}
-                {serviceMember.text_message_is_preferred && (
-                  <FontAwesomeIcon className="icon icon-grey" icon={faComments} />
-                )}
                 {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon icon-grey" icon={faEmail} />}
                 &nbsp;
               </li>
@@ -381,14 +374,13 @@ class ShipmentInfo extends Component {
                   </span>
                 </Alert>
               )}
-              {pmSurveyComplete &&
-                !gblGenerated && (
-                  <div>
-                    <button onClick={this.generateGBL} disabled={!approved || generateGBLInProgress}>
-                      Generate the GBL
-                    </button>
-                  </div>
-                )}
+              {pmSurveyComplete && !gblGenerated && (
+                <div>
+                  <button onClick={this.generateGBL} disabled={!approved || generateGBLInProgress}>
+                    Generate the GBL
+                  </button>
+                </div>
+              )}
               {canEnterPreMoveSurvey && (
                 <FormButton
                   shipmentId={shipmentId}
@@ -456,25 +448,13 @@ class ShipmentInfo extends Component {
                 <CustomerInfo shipment={this.props.shipment} />
               </div>
               <div className="documents">
-                <h2 className="extras usa-heading">
-                  Documents
-                  {!showDocumentViewer && <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />}
-                  {showDocumentViewer && (
-                    <Link to={newDocumentUrl} target="_blank">
-                      <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
-                    </Link>
-                  )}
-                </h2>
+                <h2 className="extras usa-heading">Documents</h2>
                 <DocumentList
                   detailUrlPrefix={`/shipments/${shipmentId}/documents`}
                   moveDocuments={shipmentDocuments}
+                  uploadDocumentUrl={newDocumentUrl}
+                  moveId={shipmentId} // TODO: if TSP gets revived, change the prop name to uniqueId
                 />
-                <Link className="status upload-documents-link" to={newDocumentUrl} target="_blank">
-                  <span>
-                    <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} />
-                  </span>
-                  Upload new document
-                </Link>
               </div>
             </div>
           </div>
@@ -543,6 +523,11 @@ const mapDispatchToProps = dispatch =>
     dispatch,
   );
 
-const connectedShipmentInfo = withContext(connect(mapStateToProps, mapDispatchToProps)(ShipmentInfo));
+const connectedShipmentInfo = withContext(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(ShipmentInfo),
+);
 
 export { DeliveryDateFormView, connectedShipmentInfo as default, ReferrerQueueLink };

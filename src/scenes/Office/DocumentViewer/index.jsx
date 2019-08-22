@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { includes, get } from 'lodash';
+import { includes, get, isEmpty } from 'lodash';
 import qs from 'query-string';
 
 import { selectMove } from 'shared/Entities/modules/moves';
@@ -14,7 +14,7 @@ import { getRequestStatus } from 'shared/Swagger/selectors';
 import { loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import PrivateRoute from 'shared/User/PrivateRoute';
-import { Switch, Redirect, Link } from 'react-router-dom';
+import { Switch, Redirect } from 'react-router-dom';
 
 import DocumentUploadViewer from 'shared/DocumentViewer/DocumentUploadViewer';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
@@ -29,21 +29,15 @@ import {
 import { stringifyName } from 'shared/utils/serviceMember';
 import { convertDollarsToCents } from 'shared/utils';
 
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
-
 import DocumentDetailPanel from './DocumentDetailPanel';
 
 import './index.css';
+
 class DocumentViewer extends Component {
   componentDidMount() {
     const { moveId } = this.props;
     this.props.loadMove(moveId);
     this.props.getMoveDocumentsForMove(moveId);
-  }
-
-  componentWillUpdate() {
-    document.title = 'Document Viewer';
   }
 
   componentDidUpdate(prevProps) {
@@ -113,6 +107,7 @@ class DocumentViewer extends Component {
     const { serviceMember, moveId, moveDocumentId, moveDocuments, moveLocator } = this.props;
     const numMoveDocs = moveDocuments ? moveDocuments.length : 0;
     const name = stringifyName(serviceMember);
+    document.title = `Document Viewer for ${name}`;
 
     // urls: has full url with IDs
     const defaultUrl = `/moves/${moveId}/documents`;
@@ -166,33 +161,28 @@ class DocumentViewer extends Component {
               </TabList>
 
               <TabPanel>
-                <div className="pad-ns">
-                  <span className="status">
-                    <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} />
-                  </span>
-                  <Link to={newUrl}>Upload new document</Link>
-                </div>
                 <div>
                   {' '}
                   <DocumentList
                     currentMoveDocumentId={moveDocumentId}
                     detailUrlPrefix={`/moves/${moveId}/documents`}
                     moveDocuments={moveDocuments}
+                    uploadDocumentUrl={newUrl}
+                    moveId={moveId}
                   />
                 </div>
               </TabPanel>
 
-              {moveDocumentId &&
-                moveDocumentId !== 'new' && (
-                  <TabPanel>
-                    <DocumentDetailPanel
-                      className="document-viewer"
-                      moveDocumentId={moveDocumentId}
-                      moveId={moveId}
-                      title=""
-                    />
-                  </TabPanel>
-                )}
+              {!isEmpty(moveDocuments) && moveDocumentId && moveDocumentId !== 'new' && (
+                <TabPanel>
+                  <DocumentDetailPanel
+                    className="document-viewer"
+                    moveDocumentId={moveDocumentId}
+                    moveId={moveId}
+                    title=""
+                  />
+                </TabPanel>
+              )}
             </Tabs>
           </div>
         </div>
@@ -243,4 +233,7 @@ const mapDispatchToProps = {
   getMoveDocumentsForMove,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(DocumentViewer);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(DocumentViewer);

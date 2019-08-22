@@ -1,12 +1,10 @@
 package internalapi
 
 import (
-	"reflect"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
-	beeline "github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
 	officeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
@@ -38,7 +36,7 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 	if ordersErr != nil {
 		return handlers.ResponseForError(logger, ordersErr)
 	}
-	if orders.IsComplete() != true {
+	if !orders.IsComplete() {
 		return officeop.NewApprovePPMBadRequest()
 	}
 
@@ -70,8 +68,7 @@ type CancelMoveHandler struct {
 // Handle ... cancels a Move from a request payload
 func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.Responder {
 
-	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
-	defer span.Send()
+	ctx := params.HTTPRequest.Context()
 
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	if !session.IsOfficeUser() {
@@ -123,8 +120,7 @@ type ApprovePPMHandler struct {
 
 // Handle ... approves a Personally Procured Move from a request payload
 func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.Responder {
-	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
-	defer span.Send()
+	ctx := params.HTTPRequest.Context()
 
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	if !session.IsOfficeUser() {

@@ -1,26 +1,82 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
-import { renderStatusIcon } from 'shared/utils';
 
-const DocumentList = ({ currentMoveDocumentId, moveDocuments, detailUrlPrefix, disableLinks }) => (
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import { faPlusCircle } from '@fortawesome/fontawesome-free-solid';
+import { Link } from 'react-router-dom';
+import { renderStatusIcon, openLinkInNewWindow } from 'shared/utils';
+import styles from 'shared/DocumentViewer/DocumentList.module.scss';
+import { defaultRelativeWindowSize } from 'shared/constants';
+
+const documentUploadIcon = faPlusCircle;
+const DocumentList = ({
+  currentMoveDocumentId,
+  moveDocuments,
+  detailUrlPrefix,
+  disableLinks,
+  uploadDocumentUrl,
+  moveId,
+}) => (
   <div>
     {moveDocuments.map(doc => {
-      const chosenDocument = currentMoveDocumentId === doc.id ? 'chosen-document' : null;
+      const chosenDocument = currentMoveDocumentId === doc.id ? styles['chosen-document'] : 'link-blue';
       const status = renderStatusIcon(doc.status);
       const detailUrl = `${detailUrlPrefix}/${doc.id}`;
       return (
-        <div className={`panel-field ${chosenDocument}`} key={doc.id}>
+        <div className={`panel-field ${chosenDocument}`} data-cy="doc-link" key={doc.id}>
           <span className="status">{status}</span>
-          {!disableLinks && (
-            <Link className={chosenDocument} to={detailUrl}>
-              {doc.title}
-            </Link>
-          )}
+          {!disableLinks &&
+            (window.name === `docViewer-${moveId}` ? (
+              // open in same window if already in document viewer
+              <Link className={chosenDocument} to={detailUrl}>
+                {doc.title}
+              </Link>
+            ) : (
+              // open in new window if one is not already open
+              <a
+                href={detailUrl}
+                target={`docViewer-${moveId}`}
+                className={chosenDocument}
+                onClick={openLinkInNewWindow.bind(
+                  this,
+                  detailUrl,
+                  `docViewer-${moveId}`,
+                  window,
+                  defaultRelativeWindowSize,
+                )}
+              >
+                {doc.title}
+              </a>
+            ))}
           {disableLinks && <span>{doc.title}</span>}
         </div>
       );
     })}
+    {window.name === `docViewer-${moveId}` ? (
+      <div className={`${styles['document-upload-link']} link-blue`}>
+        <Link to={uploadDocumentUrl}>
+          <FontAwesomeIcon className="icon link-blue" icon={documentUploadIcon} />
+          Upload new document
+        </Link>
+      </div>
+    ) : (
+      <div className={styles['document-upload-link']} data-cy="document-upload-link">
+        <a
+          href={uploadDocumentUrl}
+          target={`docViewer-${moveId}`}
+          onClick={openLinkInNewWindow.bind(
+            this,
+            uploadDocumentUrl,
+            `docViewer-${moveId}`,
+            window,
+            defaultRelativeWindowSize,
+          )}
+        >
+          <FontAwesomeIcon className="icon link-blue" icon={documentUploadIcon} />
+          Upload new document
+        </a>
+      </div>
+    )}
   </div>
 );
 
@@ -28,6 +84,7 @@ DocumentList.propTypes = {
   currentMoveDocumentId: PropTypes.string,
   detailUrlPrefix: PropTypes.string.isRequired,
   disableLinks: PropTypes.bool,
+  moveId: PropTypes.string,
   moveDocuments: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string.isRequired,
@@ -35,6 +92,7 @@ DocumentList.propTypes = {
       title: PropTypes.string.isRequired,
     }),
   ).isRequired,
+  uploadDocumentUrl: PropTypes.string.isRequired,
 };
 
 export default DocumentList;

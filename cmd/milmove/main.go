@@ -29,17 +29,19 @@ func main() {
 	}
 
 	root.AddCommand(&cobra.Command{
-		Use:   "version",
-		Short: "Print version information to stdout",
-		Long:  "Print version information to stdout",
-		RunE:  versionFunction,
+		Use:          "version",
+		Short:        "Print version information to stdout",
+		Long:         "Print version information to stdout",
+		RunE:         versionFunction,
+		SilenceUsage: true,
 	})
 
 	serveCommand := &cobra.Command{
-		Use:   "serve",
-		Short: "Runs MilMove webserver",
-		Long:  "Runs MilMove webserver",
-		RunE:  serveFunction,
+		Use:          "serve",
+		Short:        "Runs MilMove webserver",
+		Long:         "Runs MilMove webserver",
+		RunE:         serveFunction,
+		SilenceUsage: true,
 	}
 	initServeFlags(serveCommand.Flags())
 	root.AddCommand(serveCommand)
@@ -95,6 +97,17 @@ func main() {
 	}
 	initGenOrdersMigrationFlags(genOrdersMigrationCommand.Flags())
 	genCommand.AddCommand(genOrdersMigrationCommand)
+
+	genDutyStationsMigrationCommand := &cobra.Command{
+		Use:                   "duty-stations-migration -f CSV_FILENAME -n MIGRATION_NAME",
+		Short:                 "Generate migrations required for adding duty stations",
+		Long:                  "Generate migrations required for adding duty stations",
+		RunE:                  genDutyStationsMigration,
+		DisableFlagsInUseLine: true,
+		SilenceErrors:         true, // not needed
+	}
+	initGenDutyStationsMigrationFlags(genDutyStationsMigrationCommand.Flags())
+	genCommand.AddCommand(genDutyStationsMigrationCommand)
 
 	genDisableUserMigrationCommand := &cobra.Command{
 		Use:                   "disable-user-migration -e EMAIL",

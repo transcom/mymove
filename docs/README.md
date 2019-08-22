@@ -30,11 +30,11 @@ If you are looking to understand choices made in this project, see the list of [
 * [Deploy to Experimental](how-to/deploy-to-experimental.md#how-to-deploy-to-experimental)
 * [display dates and times](how-to/display-dates-and-times.md#how-to-display-dates-and-times)
 * [Generate Mocks with Mockery](how-to/generate-mocks-with-mockery.md#how-to-generate-mocks-with-mockery)
-* [Instrument Data in Honeycomb](how-to/instrument-data-in-honeycomb.md#how-to-instrument-data-in-honeycomb)
 * [Manage Dependencies With go mod](how-to/manage-dependencies-with-go-mod.md#how-to-manage-dependencies-with-go-mod)
 * [Manage Docker Locally](how-to/manage-docker-locally.md#how-to-manage-docker-locally)
 * [Migrate the Database](how-to/migrate-the-database.md#how-to-migrate-the-database)
 * [revert a change](how-to/revert-a-change.md#how-to-revert-a-change)
+* [Run Acceptance Tests](how-to/run-acceptance-tests.md#how-to-run-acceptance-tests)
 * [Run Against S3 Locally](how-to/run-against-s3-locally.md#how-to-run-against-s3-locally)
 * [Run End to End (Cypress) Tests](how-to/run-e2e-tests.md#how-to-run-end-to-end-cypress-tests)
 * [Run Go Tests](how-to/run-go-tests.md#how-to-run-go-tests)
@@ -46,6 +46,7 @@ If you are looking to understand choices made in this project, see the list of [
 * [Unit Test React Components](how-to/unit-test-react-components.md#how-to-unit-test-react-components)
 * [Upgrade Go Version](how-to/upgrade-go-version.md#how-to-upgrade-go-version)
 * [Upload Electronic Orders Using your CAC](how-to/upload-electronic-orders.md#how-to-upload-electronic-orders-using-your-cac)
+* [View ECS Service Logs](how-to/view-ecs-service-logs.md#how-to-view-ecs-service-logs)
 
 ## ADRs
 

@@ -15,6 +15,7 @@ export const isMilmoveSite = hostname.startsWith('my') || hostname.startsWith('m
 export const isOfficeSite = hostname.startsWith('office') || '';
 export const isTspSite = hostname.startsWith('tsp') || '';
 export const isAdminSite = hostname.startsWith('admin') || '';
+export const isSystemAdminSite = isAdminSite; // once we start building program admin, we can flesh this out
 
 export const titleCase = str => {
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -36,3 +37,9 @@ export const MOVE_DOC_STATUS = {
 export const isError = 'REQUEST_ERROR';
 export const isLoading = 'REQUEST_LOADING';
 export const isSuccess = 'REQUEST_SUCCESS';
+
+// documentSizeLimitMsg is used in several files around document upload
+export const documentSizeLimitMsg = 'Please keep each file under 25MB.';
+
+// new window dimensions in relation to current window
+export const defaultRelativeWindowSize = 2 / 3;

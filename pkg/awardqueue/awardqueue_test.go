@@ -17,7 +17,6 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/transcom/mymove/pkg/logging/hnyzap"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -861,7 +860,7 @@ func equalSlice(a []int, b []int) bool {
 
 type AwardQueueSuite struct {
 	testingsuite.PopTestSuite
-	logger *hnyzap.Logger
+	logger Logger
 }
 
 func (suite *AwardQueueSuite) SetupTest() {
@@ -876,7 +875,7 @@ func TestAwardQueueSuite(t *testing.T) {
 
 	hs := &AwardQueueSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
-		logger:       &hnyzap.Logger{Logger: logger},
+		logger:       logger,
 	}
 	suite.Run(t, hs)
 }

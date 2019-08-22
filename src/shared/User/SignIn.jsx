@@ -13,7 +13,8 @@ const SignIn = ({ context, location }) => {
         {error && (
           <div>
             <Alert type="error" heading="An error occurred">
-              There was an error during your last sign in attempt. Please try again.<br />
+              There was an error during your last sign in attempt. Please try again.
+              <br />
               Error code: {error}
             </Alert>
             <br />
@@ -32,7 +33,7 @@ const SignIn = ({ context, location }) => {
           </div>
         )}
         <div className="align-center">
-          <a href="/auth/login-gov" className="usa-button  usa-button-big ">
+          <a href="/auth/login-gov" className="usa-button  usa-button-big">
             Sign in
           </a>
         </div>
