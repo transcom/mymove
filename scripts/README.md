@@ -118,8 +118,9 @@ These scripts are primarily used for working with a CAC and the Orders API
 
 | Script Name | Description |
 | --- | --- |
-| `cac-info` | Get general information from a CAC |
 | `cac-extract-cert` | Get a certificate from CAC |
 | `cac-extract-fingerprint` | Get SHA 256 fingerprint from CAC |
 | `cac-extract-pubkey` | Get a public key from CAC |
+| `cac-extract-subject` | Get Subject from CAC |
 | `cac-extract-token-label` | Get the Token Label from CAC |
+| `cac-info` | Get general information from a CAC |

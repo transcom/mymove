@@ -3,7 +3,7 @@
 set -eu -o pipefail
 
 #
-# Get a sha256 hash of the certificate from CAC as well as the Subject
+# Get the Token Label from CAC
 #
 
 readonly MODULE=/usr/local/lib/pkcs11/cackey.dylib
