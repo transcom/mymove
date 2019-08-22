@@ -9,9 +9,6 @@ import Alert from 'shared/Alert';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { formatCentsRange, formatNumber } from 'shared/formatters';
 import { getPpmWeightEstimate, createOrUpdatePpm, getSelectedWeightInfo } from './ducks';
-import WizardHeader from '../WizardHeader';
-import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
-import ppmBlack from 'shared/icon/ppm-black.svg';
 
 import 'react-rangeslider/lib/index.css';
 import './Weight.css';
@@ -115,22 +112,9 @@ export class PpmWeight extends Component {
       error,
       hasEstimateError,
       selectedWeightInfo,
-      isHHGPPMComboMove,
     } = this.props;
     return (
       <div>
-        {isHHGPPMComboMove && (
-          <WizardHeader
-            icon={ppmBlack}
-            title="Move Setup"
-            right={
-              <ProgressTimeline>
-                <ProgressTimelineStep name="Move Setup" current />
-                <ProgressTimelineStep name="Review" />
-              </ProgressTimeline>
-            }
-          />
-        )}
         <WeightWizardForm
           handleSubmit={this.handleSubmit}
           pageList={pages}
@@ -178,12 +162,10 @@ export class PpmWeight extends Component {
               )}
               <table className="numeric-info">
                 <tbody>
-                  {!isHHGPPMComboMove && (
-                    <tr>
-                      <th>Your PPM Weight Estimate:</th>
-                      <td className="current-weight"> {formatNumber(this.state.pendingPpmWeight)} lbs.</td>
-                    </tr>
-                  )}
+                  <tr>
+                    <th>Your PPM Weight Estimate:</th>
+                    <td className="current-weight"> {formatNumber(this.state.pendingPpmWeight)} lbs.</td>
+                  </tr>
                   <tr>
                     <th>Your PPM Incentive:</th>
                     <td className="incentive">{formatCentsRange(incentive_estimate_min, incentive_estimate_max)}</td>
@@ -233,7 +215,6 @@ function mapStateToProps(state) {
     selectedWeightInfo: getSelectedWeightInfo(state),
     currentWeight: get(state, 'ppm.currentPpm.weight_estimate'),
     schema: schema,
-    isHHGPPMComboMove: get(state, 'moves.currentMove.selected_move_type') === 'HHG_PPM',
     originDutyStationZip: originDutyStationZip,
   };
 
