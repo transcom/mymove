@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
 	"text/template"
@@ -168,13 +166,12 @@ func genOrdersMigration(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	localMigrationPath := filepath.Join("local_migrations", secureMigrationName)
-	localMigrationFile, err := os.Create(localMigrationPath)
-	defer closeFile(localMigrationFile)
+
+	t2 := template.Must(template.New("local_migrations").Parse(localMigrationTemplate))
+	err = createMigration("./local_migrations", secureMigrationName, t2, nil)
 	if err != nil {
-		return errors.Wrapf(err, "error creating %s", localMigrationPath)
+		return err
 	}
-	log.Printf("new migration file created at:  %q\n", localMigrationPath)
 
 	err = addMigrationToManifest(migrationManifest, secureMigrationName)
 	if err != nil {

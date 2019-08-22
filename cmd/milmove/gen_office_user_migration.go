@@ -179,7 +179,8 @@ func genOfficeUserMigration(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	err = writeEmptyFile("local_migrations", secureMigrationName)
+	t2 := template.Must(template.New("local_migrations").Parse(localMigrationTemplate))
+	err = createMigration("./local_migrations", secureMigrationName, t2, nil)
 	if err != nil {
 		return err
 	}
