@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"gopkg.in/go-playground/validator.v9"
 
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/edi"
@@ -43,9 +44,17 @@ const billedRatedAsQuantity = 1
 type Invoice858C struct {
 	ISA      edisegment.ISA
 	GS       edisegment.GS
-	Shipment []edisegment.Segment
+	Shipment []edisegment.Segment `validate:"min=18,dive"`
 	GE       edisegment.GE
 	IEA      edisegment.IEA
+}
+
+var validate *validator.Validate
+
+func init() {
+	validate = validator.New()
+
+	// TODO: Additional registering of custom validators, struct level validators, etc. here.
 }
 
 // Segments returns the invoice as an array of rows (string arrays),
@@ -66,13 +75,23 @@ func (invoice Invoice858C) Segments() [][]string {
 
 // EDIString returns the EDI representation of an 858C
 func (invoice Invoice858C) EDIString() (string, error) {
+	err := invoice.Validate()
+	if err != nil {
+		return "", err
+	}
+
 	var b bytes.Buffer
 	ediWriter := edi.NewWriter(&b)
-	err := ediWriter.WriteAll(invoice.Segments())
+	err = ediWriter.WriteAll(invoice.Segments())
 	if err != nil {
 		return "", err
 	}
 	return b.String(), err
+}
+
+// Validate will validate the invoice struct (and nested structs) to make sure they will produce legal EDI
+func (invoice Invoice858C) Validate() error {
+	return validate.Struct(invoice)
 }
 
 // Generate858C generates an EDI X12 858C transaction set

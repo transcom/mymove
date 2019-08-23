@@ -7,13 +7,15 @@ import (
 
 // L0 represents the L0 EDI segment
 type L0 struct {
-	LadingLineItemNumber   int
-	BilledRatedAsQuantity  float64
-	BilledRatedAsQualifier string
-	Weight                 float64
-	WeightQualifier        string
-	WeightUnitCode         string
+	LadingLineItemNumber   int     `validate:"eq=1"`
+	BilledRatedAsQuantity  float64 `validate:"required_with=BilledRatedAsQualifier"`
+	BilledRatedAsQualifier string  `validate:"required_with=BilledRatedAsQuantity,omitempty,len=2"`
+	Weight                 float64 `validate:"required_with=WeightQualifier WeightUnitCode"`
+	WeightQualifier        string  `validate:"required_with=Weight WeightUnitCode,omitempty,eq=B"`
+	WeightUnitCode         string  `validate:"required_with=Weight WeightQualifier,omitempty,eq=L"`
 }
+
+// TODO: Create struct validation to ensure one of two sets of fields is included?
 
 // StringArray converts L0 to an array of strings
 func (s *L0) StringArray() []string {

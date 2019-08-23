@@ -26,6 +26,8 @@ require (
 	github.com/go-openapi/strfmt v0.19.2
 	github.com/go-openapi/swag v0.19.4
 	github.com/go-openapi/validate v0.19.2
+	github.com/go-playground/locales v0.12.1 // indirect
+	github.com/go-playground/universal-translator v0.16.0 // indirect
 	github.com/go-swagger/go-swagger v0.19.1-0.20190719001815-2f32a5a85285
 	github.com/gobuffalo/fizz v1.9.2
 	github.com/gobuffalo/logger v1.0.1 // indirect
@@ -46,6 +48,7 @@ require (
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/jung-kurt/gofpdf v1.5.4
+	github.com/leodido/go-urn v1.1.0 // indirect
 	github.com/lib/pq v1.2.0
 	github.com/markbates/goth v1.54.1
 	github.com/mattn/go-colorable v0.1.2 // indirect
@@ -80,6 +83,8 @@ require (
 	golang.org/x/text v0.3.2
 	golang.org/x/tools v0.0.0-20190807223507-b346f7fd45de
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
+	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
+	gopkg.in/go-playground/validator.v9 v9.29.1
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 	gopkg.in/ini.v1 v1.44.0 // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect

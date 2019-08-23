@@ -141,12 +141,11 @@ func (suite *InvoiceSuite) TestEDIString() {
 		invoiceModel := helperShipmentInvoice(suite, shipment)
 
 		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), false, suite.icnSequencer, clock.NewMock(), suite.logger)
-		suite.NoError(err, "Failed to generate 858C invoice")
+		suite.FatalNoError(err, "Failed to generate 858C invoice")
 		actualEDIString, err := generatedTransactions.EDIString()
-		suite.NoError(err, "Failed to get invoice 858C as EDI string")
+		suite.FatalNoError(err, "Failed to get invoice 858C as EDI string")
 
 		const expectedEDI = "expected_invoice.edi.golden"
-		suite.NoError(err, "generates error")
 		// Flag to update the test EDI
 		// Borrowed from https://about.sourcegraph.com/go/advanced-testing-in-go
 		update := suite.Viper.GetBool("update")
