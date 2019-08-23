@@ -57,6 +57,9 @@ func (m MoveSubmitted) emails(ctx context.Context) ([]emailContent, error) {
 	processText := "This can take up to 3 business days. The office will email you once your move has been approved."
 	pppoText := "If you have questions or need expedited processing contact your local transportation office."
 	closingText := "You can check the status of your move at any time at https://my.move.mil/"
+	surveyTextHTML := fmt.Sprintf("Let us know how we’re doing. Please take a <a href=\"%s\">brief survey</a> and share how well we’re handling your move so far.", "https://www.surveymonkey.com/r/MilMovePt1-08191")
+	surveyText := "Let us know how we're doing. Please take a brief survey at https://www.surveymonkey.com/r/MilMovePt1-08191 and share how well we're handling your move so far."
+
 	if serviceMember.DutyStationID != nil {
 		originDSTransportInfo, err := models.FetchDSContactInfo(m.db, serviceMember.DutyStationID)
 		if err != nil {
@@ -83,8 +86,8 @@ func (m MoveSubmitted) emails(ctx context.Context) ([]emailContent, error) {
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
 		subject:        "[MilMove] You’ve submitted your move details",
-		htmlBody:       fmt.Sprintf("%s<br/><br/>%s<br/><br/>%s<br/><br/><br/>%s", submittedText, processText, pppoText, closingText),
-		textBody:       fmt.Sprintf("%s\n\n%s\n\n%s\n\n\n%s", submittedText, processText, pppoText, closingText),
+		htmlBody:       fmt.Sprintf("%s<br/><br/>%s<br/><br/>%s<br/><br/>%s<br/><br/>%s", submittedText, processText, pppoText, closingText, surveyTextHTML),
+		textBody:       fmt.Sprintf("%s\n\n%s\n\n%s\n\n%s\n\n%s", submittedText, processText, pppoText, closingText, surveyText),
 	}
 
 	m.logger.Info("Generated move submitted email to service member",
