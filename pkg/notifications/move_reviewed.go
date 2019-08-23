@@ -31,6 +31,8 @@ func NewMoveReviewed(db *pop.Connection, logger Logger, session *auth.Session, m
 	}
 }
 
+
+
 func (m MoveReviewed) emails(ctx context.Context) ([]emailContent, error) {
 	var emails []emailContent
 
