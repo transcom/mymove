@@ -1,13 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import { forEach, get, isEmpty } from 'lodash';
+import { get } from 'lodash';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
-import { getShipment, selectShipment } from 'shared/Entities/modules/shipments';
 import { loadMove, selectMove } from 'shared/Entities/modules/moves';
-import { getCurrentShipmentID } from 'shared/UI/ducks';
 
 import { getPPM } from 'scenes/Moves/Ppm/ducks.js';
 import { moveIsApproved, lastMoveIsCanceled } from 'scenes/Moves/ducks';
@@ -18,7 +16,6 @@ import { titleCase } from 'shared/constants.js';
 import { checkEntitlement } from './ducks';
 import ServiceMemberSummary from './ServiceMemberSummary';
 import PPMShipmentSummary from './PPMShipmentSummary';
-import HHGShipmentSummary from './HHGShipmentSummary';
 
 import './Review.css';
 
@@ -39,7 +36,6 @@ export class Summary extends Component {
     const {
       currentMove,
       currentPpm,
-      currentShipment,
       currentBackupContacts,
       currentOrders,
       schemaRank,
@@ -48,7 +44,6 @@ export class Summary extends Component {
       moveIsApproved,
       serviceMember,
       entitlement,
-      isHHGPPMComboMove,
       match,
     } = this.props;
 
@@ -63,10 +58,8 @@ export class Summary extends Component {
 
     const showPPMShipmentSummary =
       (isReviewPage && currentPpm) || (!isReviewPage && currentPpm && currentPpm.status !== 'DRAFT');
-    const showHHGShipmentSummary =
-      (!isEmpty(currentShipment) && !isHHGPPMComboMove) || (currentShipment && isHHGPPMComboMove && !isReviewPage);
 
-    const showProfileAndOrders = (isReviewPage && !isHHGPPMComboMove) || !isReviewPage;
+    const showProfileAndOrders = isReviewPage || !isReviewPage;
     return (
       <Fragment>
         {get(this.props.reviewState.error, 'statusCode', false) === 409 && (
@@ -100,14 +93,8 @@ export class Summary extends Component {
           />
         )}
 
-        {showHHGShipmentSummary && (
-          <HHGShipmentSummary shipment={currentShipment} movePath={rootAddressWithMoveId} entitlements={entitlement} />
-        )}
-
-        {showPPMShipmentSummary && (
-          <PPMShipmentSummary ppm={currentPpm} movePath={rootAddressWithMoveId} isHHGPPMComboMove={isHHGPPMComboMove} />
-        )}
-        {moveIsApproved && !isHHGPPMComboMove && (
+        {showPPMShipmentSummary && <PPMShipmentSummary ppm={currentPpm} movePath={rootAddressWithMoveId} />}
+        {moveIsApproved && (
           <div className="approved-edit-warning">
             *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}
             {stationPhone ? ` at ${stationPhone}` : ''}.
@@ -123,19 +110,16 @@ Summary.propTypes = {
   getCurrentMove: PropTypes.func,
   currentOrders: PropTypes.object,
   currentPpm: PropTypes.object,
-  currentShipment: PropTypes.object,
   schemaRank: PropTypes.object,
   schemaOrdersType: PropTypes.object,
   moveIsApproved: PropTypes.bool,
   lastMoveIsCanceled: PropTypes.bool,
   error: PropTypes.object,
-  isHHGPPMComboMove: PropTypes.bool,
 };
 
 function mapStateToProps(state, ownProps) {
   return {
     currentPpm: getPPM(state),
-    currentShipment: selectShipment(state, getCurrentShipmentID(state)),
     serviceMember: state.serviceMember.currentServiceMember,
     currentMove: selectMove(state, ownProps.match.params.moveId),
     currentBackupContacts: state.serviceMember.currentBackupContacts,
@@ -147,18 +131,13 @@ function mapStateToProps(state, ownProps) {
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     reviewState: state.review,
     entitlement: loadEntitlementsFromState(state),
-    isHHGPPMComboMove: get(state, 'moves.currentMove.selected_move_type') === 'HHG_PPM',
   };
 }
 function mapDispatchToProps(dispatch, ownProps) {
   return {
     onDidMount: function() {
       const moveID = ownProps.match.params.moveId;
-      dispatch(loadMove(moveID, 'Summary.getMove')).then(function(action) {
-        forEach(action.entities.shipments, function(shipment) {
-          dispatch(getShipment(shipment.id));
-        });
-      });
+      dispatch(loadMove(moveID, 'Summary.getMove'));
     },
     onCheckEntitlement: moveId => {
       dispatch(checkEntitlement(moveId));

@@ -19,13 +19,14 @@ describe('DocumentList tests', () => {
         detailUrlPrefix="/moves/1/documents"
         moveDocuments={[defaultMoveDocument]}
         uploadDocumentUrl={newDocumentUrl}
+        moveId="1"
       />,
     );
     expect(
       wrapper
         .find('.document-upload-link')
-        .find('Link')
-        .prop('to'),
+        .find('a')
+        .prop('href'),
     ).toEqual(newDocumentUrl);
   });
 });

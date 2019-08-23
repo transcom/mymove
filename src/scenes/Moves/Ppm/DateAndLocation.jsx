@@ -5,15 +5,12 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
-import { createOrUpdatePpm, getDestinationPostalCode, isHHGPPMComboMove, setInitialFormValues } from './ducks';
+import { createOrUpdatePpm, setInitialFormValues } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import Alert from 'shared/Alert';
-import WizardHeader from '../WizardHeader';
-import ppmBlack from 'shared/icon/ppm-black.svg';
 import './DateAndLocation.css';
-import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import { GetPpmWeightEstimate } from './api';
 import { ValidateZipRateData } from 'shared/api';
 
@@ -90,18 +87,6 @@ const validateDifferentZip = (value, formValues) => {
 export class DateAndLocation extends Component {
   state = { showInfo: false };
 
-  componentDidMount() {
-    if (!this.props.currentPpm && this.props.isHHGPPMComboMove) {
-      const {
-        originalMoveDate,
-        pickupPostalCode,
-        originDutyStationZip,
-        destinationPostalCode,
-      } = this.props.defaultValues;
-      this.props.setInitialFormValues(originalMoveDate, pickupPostalCode, originDutyStationZip, destinationPostalCode);
-    }
-  }
-
   openInfo = () => {
     this.setState({ showInfo: true });
   };
@@ -123,22 +108,10 @@ export class DateAndLocation extends Component {
   };
 
   render() {
-    const { pages, pageKey, error, currentOrders, initialValues, isHHGPPMComboMove } = this.props;
+    const { pages, pageKey, error, currentOrders, initialValues } = this.props;
 
     return (
       <div>
-        {isHHGPPMComboMove && (
-          <WizardHeader
-            icon={ppmBlack}
-            title="Move Setup"
-            right={
-              <ProgressTimeline>
-                <ProgressTimelineStep name="Move Setup" current />
-                <ProgressTimelineStep name="Review" />
-              </ProgressTimeline>
-            }
-          />
-        )}
         <DateAndLocationWizardForm
           reduxFormSubmit={this.handleSubmit}
           pageList={pages}
@@ -148,14 +121,11 @@ export class DateAndLocation extends Component {
           enableReinitialize={true} //this is needed as the pickup_postal_code value needs to be initialized to the users residential address
         >
           <h2>PPM Dates & Locations</h2>
-          {isHHGPPMComboMove && <div>Great! Let's review your pickup and destination information.</div>}
           <h3> Move Date </h3>
           <SwaggerField fieldName="original_move_date" swagger={this.props.schema} required />
           <h3>Pickup Location</h3>
           <SwaggerField fieldName="pickup_postal_code" swagger={this.props.schema} required />
-          {!isHHGPPMComboMove && (
-            <SwaggerField fieldName="has_additional_postal_code" swagger={this.props.schema} component={YesNoBoolean} />
-          )}
+          <SwaggerField fieldName="has_additional_postal_code" swagger={this.props.schema} component={YesNoBoolean} />
           {get(this.props, 'formValues.has_additional_postal_code', false) && (
             <Fragment>
               <SwaggerField fieldName="additional_pickup_postal_code" swagger={this.props.schema} required />
@@ -174,12 +144,10 @@ export class DateAndLocation extends Component {
             </Fragment>
           )}
           <h3>Destination Location</h3>
-          {!isHHGPPMComboMove && (
-            <p>
-              Enter the ZIP for your new home if you know it, or for{' '}
-              {this.props.currentOrders && this.props.currentOrders.new_duty_station.name} if you don't.
-            </p>
-          )}
+          <p>
+            Enter the ZIP for your new home if you know it, or for{' '}
+            {this.props.currentOrders && this.props.currentOrders.new_duty_station.name} if you don't.
+          </p>
           <SwaggerField
             fieldName="destination_postal_code"
             swagger={this.props.schema}
@@ -190,9 +158,7 @@ export class DateAndLocation extends Component {
             The ZIP code for {currentOrders && currentOrders.new_duty_station.name} is{' '}
             {currentOrders && currentOrders.new_duty_station.address.postal_code}{' '}
           </span>
-          {!isHHGPPMComboMove && (
-            <SwaggerField fieldName="has_sit" swagger={this.props.schema} component={YesNoBoolean} />
-          )}
+          <SwaggerField fieldName="has_sit" swagger={this.props.schema} component={YesNoBoolean} />
           {get(this.props, 'formValues.has_sit', false) && (
             <Fragment>
               <SwaggerField
@@ -223,11 +189,9 @@ function mapStateToProps(state) {
     currentOrders: state.orders.currentOrders,
     formValues: getFormValues(formName)(state),
     entitlement: loadEntitlementsFromState(state),
-    isHHGPPMComboMove: isHHGPPMComboMove(state),
     originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
   };
   const defaultPickupZip = get(state.serviceMember, 'currentServiceMember.residential_address.postal_code');
-  const currentOrders = state.orders.currentOrders;
   const originDutyStationZip = state.serviceMember.currentServiceMember.current_station.address.postal_code;
 
   props.initialValues = props.currentPpm
@@ -238,15 +202,8 @@ function mapStateToProps(state) {
         origin_duty_station_zip: originDutyStationZip,
       }
     : null;
-
-  if (props.isHHGPPMComboMove) {
-    props.defaultValues = {
-      pickupPostalCode: defaultPickupZip,
-      originalMoveDate: currentOrders.issue_date,
-      originDutyStationZip: originDutyStationZip,
-      // defaults to SM's destination address, if none, uses destination duty station zip
-      destinationPostalCode: getDestinationPostalCode(state),
-    };
+  if (state.ppm && state.ppm.currentPpm) {
+    state.ppm.currentPpm.origin_duty_station_zip = originDutyStationZip;
   }
 
   return props;
