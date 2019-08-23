@@ -426,7 +426,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			if callerIdentityErr != nil {
 				logger.Error(errors.Wrap(callerIdentityErr, "error getting aws sts caller identity").Error())
 			} else {
-				logger.Info(fmt.Sprintf("Account: %s, ARN: %s, UserId: %s", *callerIdentity.Account, *callerIdentity.Arn, *callerIdentity.UserId))
+				logger.Info(fmt.Sprintf("STS Caller Identity - Account: %s, ARN: %s, UserId: %s", *callerIdentity.Account, *callerIdentity.Arn, *callerIdentity.UserId))
 			}
 		}
 	}
