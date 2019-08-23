@@ -53,7 +53,6 @@ func NewPublicAPIHandler(context handlers.HandlerContext, logger Logger) http.Ha
 	// TSPs
 	publicAPI.TransportationServiceProviderGetTransportationServiceProviderHandler = GetTransportationServiceProviderHandler{context}
 	publicAPI.TspsIndexTSPsHandler = TspsIndexTSPsHandler{context}
-	publicAPI.TspsGetTspShipmentsHandler = TspsGetTspShipmentsHandler{context}
 
 	// Transportation Service Provider Performances
 	queryBuilder := query.NewQueryBuilder(context.DB())
