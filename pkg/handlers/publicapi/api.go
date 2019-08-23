@@ -13,7 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/tsp"
 
 	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
-	shipmentlineitemservice "github.com/transcom/mymove/pkg/services/shipment_line_item"
 	sitservice "github.com/transcom/mymove/pkg/services/storage_in_transit"
 )
 
@@ -34,16 +33,6 @@ func NewPublicAPIHandler(context handlers.HandlerContext, logger Logger) http.Ha
 	publicAPI.MoveDocsUpdateMoveDocumentHandler = UpdateMoveDocumentHandler{context}
 	publicAPI.UploadsCreateUploadHandler = CreateUploadHandler{context}
 	publicAPI.UploadsDeleteUploadHandler = DeleteUploadHandler{context}
-
-	// Accessorials
-	publicAPI.AccessorialsGetShipmentLineItemsHandler = GetShipmentLineItemsHandler{context, shipmentlineitemservice.NewShipmentLineItemFetcher(context.DB())}
-	publicAPI.AccessorialsUpdateShipmentLineItemHandler = UpdateShipmentLineItemHandler{context}
-	publicAPI.AccessorialsCreateShipmentLineItemHandler = CreateShipmentLineItemHandler{context}
-	publicAPI.AccessorialsDeleteShipmentLineItemHandler = DeleteShipmentLineItemHandler{context}
-	publicAPI.AccessorialsApproveShipmentLineItemHandler = ApproveShipmentLineItemHandler{context}
-	publicAPI.AccessorialsRecalculateShipmentLineItemsHandler = RecalculateShipmentLineItemsHandler{context, shipmentlineitemservice.NewShipmentLineItemRecalculator(context.DB(), logger)}
-
-	publicAPI.AccessorialsGetTariff400ngItemsHandler = GetTariff400ngItemsHandler{context}
 
 	// Service Agents
 	publicAPI.ServiceAgentsIndexServiceAgentsHandler = IndexServiceAgentsHandler{context}
