@@ -81,8 +81,6 @@ commands:
   deploy_tasks_steps:
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
@@ -116,8 +114,6 @@ commands:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
       - attach_workspace:
           at: bin
-      - setup_remote_docker:
-          docker_layer_caching: true
       - deploy:
           name: Deploy app service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
@@ -144,8 +140,6 @@ commands:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
-      - setup_remote_docker:
-          docker_layer_caching: true
       - attach_workspace:
           at: bin
       - deploy:
@@ -195,14 +189,7 @@ commands:
             source $BASH_ENV
             make e2e_test_docker
           environment:
-            DB_PASSWORD: mysecretpassword
-            DB_USER: postgres
-            DB_HOST: localhost
-            DB_PORT: 5432
-            DB_NAME: test_db
             # Env vars needed for the webserver to run inside docker
-            MIGRATION_PATH: "/migrate/local_migrations;/migrate/migrations"
-            MIGRATION_MANIFEST: "/migrate/migrations_manifest.txt"
             LOGIN_GOV_CALLBACK_PROTOCOL: http
             LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
             LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
@@ -390,7 +377,7 @@ jobs:
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
-            MIGRATION_PATH: "/home/circleci/transcom/mymove/local_migrations;/home/circleci/transcom/mymove/migrations"
+            MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
             MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
 
       - announce_failure
@@ -439,7 +426,7 @@ jobs:
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
-            MIGRATION_PATH: "/home/circleci/transcom/mymove/local_migrations;/home/circleci/transcom/mymove/migrations"
+            MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
             MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
       - run:
           name: upload code coverage to codecov
@@ -455,8 +442,6 @@ jobs:
     executor: mymove_large
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
       - restore_cache:
           keys:
             - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
@@ -811,6 +796,8 @@ workflows:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+            - build_app
+            - build_migrations
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
           # filters:
