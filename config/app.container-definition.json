@@ -55,7 +55,7 @@
     },
     {
       "name": "DB_USER",
-      "value": "ecs_user"
+      "value": "{{ .DB_USER }}"
     },
     {
       "name": "DB_NAME",
