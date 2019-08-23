@@ -13,7 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/tsp"
 
 	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
-	sitservice "github.com/transcom/mymove/pkg/services/storage_in_transit"
 )
 
 // NewPublicAPIHandler returns a handler for the public API
@@ -51,44 +50,6 @@ func NewPublicAPIHandler(context handlers.HandlerContext, logger Logger) http.Ha
 		HandlerContext: context,
 		NewQueryFilter: query.NewQueryFilter,
 		TransportationServiceProviderPerformanceFetcher: tsp.NewTransportationServiceProviderPerformanceFetcher(queryBuilder),
-	}
-
-	// Storage In Transits
-	publicAPI.StorageInTransitsCreateStorageInTransitHandler = CreateStorageInTransitHandler{
-		context,
-		sitservice.NewStorageInTransitCreator(context.DB()),
-	}
-	publicAPI.StorageInTransitsGetStorageInTransitHandler = GetStorageInTransitHandler{
-		context,
-		sitservice.NewStorageInTransitByIDFetcher(context.DB()),
-	}
-	publicAPI.StorageInTransitsIndexStorageInTransitsHandler = IndexStorageInTransitHandler{
-		context,
-		sitservice.NewStorageInTransitIndexer(context.DB()),
-	}
-	publicAPI.StorageInTransitsDeleteStorageInTransitHandler = DeleteStorageInTransitHandler{
-		context,
-		sitservice.NewStorageInTransitDeleter(context.DB()),
-	}
-	publicAPI.StorageInTransitsPatchStorageInTransitHandler = PatchStorageInTransitHandler{
-		context,
-		sitservice.NewStorageInTransitPatcher(context.DB()),
-	}
-	publicAPI.StorageInTransitsApproveStorageInTransitHandler = ApproveStorageInTransitHandler{
-		context,
-		sitservice.NewStorageInTransitApprover(context.DB()),
-	}
-	publicAPI.StorageInTransitsDenyStorageInTransitHandler = DenyStorageInTransitHandler{
-		context,
-		sitservice.NewStorageInTransitDenier(context.DB()),
-	}
-	publicAPI.StorageInTransitsInSitStorageInTransitHandler = InSitStorageInTransitHandler{
-		context,
-		sitservice.NewStorageInTransitInSITPlacer(context.DB()),
-	}
-	publicAPI.StorageInTransitsReleaseStorageInTransitHandler = ReleaseStorageInTransitHandler{
-		context,
-		sitservice.NewStorageInTransitInReleaser(context.DB()),
 	}
 
 	// Access Codes
