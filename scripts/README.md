@@ -111,3 +111,11 @@ These scripts are primarily used for working with the database
 | `psql-wrapper` | A wrapper around `psql` that sets correct values |
 | `wait-for-db` |  waits for an available database connection, or until a timeout is reached |
 | `wait-for-db-docker` |  waits for an available database connection, or until a timeout is reached using docker |
+
+### Amazon Console Scripts
+
+These scripts are used for quickly opening up tools in the AWS Console
+
+| Script Name | Description |
+| --- | --- |
+| `cloudwatch-logs` | Open up the CloudWatch logs group page |
