@@ -106,10 +106,11 @@ export class NonPDFImage extends Component {
   };
 
   translateContainer = sign => {
-    const [h, w] = [this.state.divWidth, this.state.divHeight];
+    const { divHeight, divWidth } = this.state;
+    //switch divWidth and divHeight
     return {
-      divHeight: h,
-      divWidth: w,
+      divHeight: divWidth,
+      divWidth: divHeight,
       divXt: -2 * this.delta * sign,
     };
   };
@@ -156,7 +157,6 @@ export class NonPDFImage extends Component {
         </div>
         <div>
           <img
-            className={styles[`rotate-${rotation}`]}
             style={{
               transform: `translate(${this.state.Xt}px, ${this.state.Yt}px) rotate(${rotation}deg)`,
               maxHeight: this.formatMaxes(this.state.maxHeight),
