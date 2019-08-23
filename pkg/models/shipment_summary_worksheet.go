@@ -9,7 +9,6 @@ import (
 	"github.com/mitchellh/mapstructure"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
@@ -170,83 +169,6 @@ func (obligation Obligation) FormatSIT() float64 {
 //MaxAdvance calculates the Max Advance on the shipment summary worksheet
 func (obligation Obligation) MaxAdvance() float64 {
 	return obligation.Gcc.MultiplyFloat64(.60).ToDollarFloat()
-}
-
-// FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
-func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth.Session, moveID uuid.UUID) (ShipmentSummaryFormData, error) {
-	move := Move{}
-	dbQErr := db.Q().Eager(
-		"Orders",
-		"Orders.NewDutyStation.Address",
-		"Orders.ServiceMember",
-		"Orders.ServiceMember.DutyStation.Address",
-		"Shipments",
-		"PersonallyProcuredMoves",
-	).Find(&move, moveID)
-
-	if dbQErr != nil {
-		if errors.Cause(dbQErr).Error() == RecordNotFoundErrorString {
-			return ShipmentSummaryFormData{}, ErrFetchNotFound
-		}
-		return ShipmentSummaryFormData{}, dbQErr
-	}
-
-	for i, ppm := range move.PersonallyProcuredMoves {
-		ppmDetails, err := FetchPersonallyProcuredMove(db, session, ppm.ID)
-		if err != nil {
-			return ShipmentSummaryFormData{}, err
-		}
-		if ppmDetails.Advance != nil {
-			status := ppmDetails.Advance.Status
-			if status == ReimbursementStatusAPPROVED || status == ReimbursementStatusPAID {
-				move.PersonallyProcuredMoves[i].Advance = ppmDetails.Advance
-			}
-		}
-	}
-
-	_, authErr := FetchOrderForUser(db, session, move.OrdersID)
-	if authErr != nil {
-		return ShipmentSummaryFormData{}, authErr
-	}
-
-	serviceMember := move.Orders.ServiceMember
-	var rank ServiceMemberRank
-	var weightAllotment SSWMaxWeightEntitlement
-	if serviceMember.Rank != nil {
-		rank = ServiceMemberRank(*serviceMember.Rank)
-		weightAllotment = SSWGetEntitlement(rank, move.Orders.HasDependents, move.Orders.SpouseHasProGear)
-	}
-
-	movingExpenses, err := FetchMovingExpensesShipmentSummaryWorksheet(move, db, session)
-	if err != nil {
-		return ShipmentSummaryFormData{}, err
-	}
-
-	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, weightAllotment.TotalWeight)
-	if err != nil {
-		return ShipmentSummaryFormData{}, err
-	}
-
-	signedCertification, err := FetchSignedCertificationsPPMPayment(db, session, moveID)
-	if err != nil {
-		return ShipmentSummaryFormData{}, err
-	}
-	if signedCertification == nil {
-		return ShipmentSummaryFormData{},
-			errors.New("shipment summary worksheet: signed certification is nil")
-	}
-	ssd := ShipmentSummaryFormData{
-		ServiceMember:           serviceMember,
-		Order:                   move.Orders,
-		CurrentDutyStation:      serviceMember.DutyStation,
-		NewDutyStation:          move.Orders.NewDutyStation,
-		WeightAllotment:         weightAllotment,
-		PersonallyProcuredMoves: move.PersonallyProcuredMoves,
-		SignedCertification:     *signedCertification,
-		PPMRemainingEntitlement: ppmRemainingEntitlement,
-		MovingExpenseDocuments:  movingExpenses,
-	}
-	return ssd, nil
 }
 
 //SSWMaxWeightEntitlement weight allotment for the shipment summary worksheet.
