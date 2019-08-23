@@ -18,7 +18,6 @@ import EditContactInfo from 'scenes/Review/EditContactInfo';
 import EditOrders from 'scenes/Review/EditOrders';
 import EditDateAndLocation from 'scenes/Review/EditDateAndLocation';
 import EditWeight from 'scenes/Review/EditWeight';
-import EditHHGDates from 'scenes/Review/EditShipment';
 import Header from 'shared/Header/MyMove';
 import PPMPaymentRequestIntro from 'scenes/Moves/Ppm/PPMPaymentRequestIntro';
 import WeightTicket from 'scenes/Moves/Ppm/WeightTicket';
@@ -54,6 +53,8 @@ export class AppWrapper extends Component {
   componentDidCatch(error, info) {
     this.setState({
       hasError: true,
+      error,
+      info,
     });
   }
 
@@ -84,64 +85,51 @@ export class AppWrapper extends Component {
                 )}
               </div>
               {this.state.hasError && <SomethingWentWrong />}
-              {!this.state.hasError &&
-                !props.swaggerError && (
-                  <Switch>
-                    <Route exact path="/" component={Landing} />
-                    <Route exact path="/sm_style_guide" component={StyleGuide} />
-                    <Route path="/privacy-and-security-policy" component={PrivacyPolicyStatement} />
-                    <Route path="/accessibility" component={AccessibilityStatement} />
-                    {getWorkflowRoutes(props)}
-                    <ValidatedPrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
-                    <ValidatedPrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
-                    <ValidatedPrivateRoute
-                      exact
-                      path="/moves/review/edit-backup-contact"
-                      component={EditBackupContact}
-                    />
-                    <ValidatedPrivateRoute exact path="/moves/review/edit-contact-info" component={EditContactInfo} />
+              {!this.state.hasError && !props.swaggerError && (
+                <Switch>
+                  <Route exact path="/" component={Landing} />
+                  <Route exact path="/sm_style_guide" component={StyleGuide} />
+                  <Route path="/privacy-and-security-policy" component={PrivacyPolicyStatement} />
+                  <Route path="/accessibility" component={AccessibilityStatement} />
+                  {getWorkflowRoutes(props)}
+                  <ValidatedPrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
+                  <ValidatedPrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
+                  <ValidatedPrivateRoute exact path="/moves/review/edit-backup-contact" component={EditBackupContact} />
+                  <ValidatedPrivateRoute exact path="/moves/review/edit-contact-info" component={EditContactInfo} />
 
-                    <ValidatedPrivateRoute path="/moves/:moveId/review/edit-orders" component={EditOrders} />
-                    <ValidatedPrivateRoute
-                      path="/moves/:moveId/review/edit-date-and-location"
-                      component={EditDateAndLocation}
-                    />
-                    <ValidatedPrivateRoute path="/moves/:moveId/review/edit-weight" component={EditWeight} />
-
-                    <ValidatedPrivateRoute
-                      path="/shipments/:shipmentId/review/edit-hhg-dates"
-                      component={EditHHGDates}
-                    />
-                    {/* <ValidatedPrivateRoute path="/moves/:moveId/review/edit-hhg-locations" component={EditHHGLocations} /> */}
-                    {/* <ValidatedPrivateRoute path="/moves/:moveId/review/edit-hhg-weights" component={EditHHGWeights} /> */}
-
-                    <ValidatedPrivateRoute path="/moves/:moveId/request-payment" component={PaymentRequest} />
-                    <ValidatedPrivateRoute exact path="/weight-ticket-examples" component={WeightTicketExamples} />
-                    <ValidatedPrivateRoute exact path="/trailer-criteria" component={TrailerCriteria} />
-                    <ValidatedPrivateRoute exact path="/allowable-expenses" component={AllowableExpenses} />
-                    <ValidatedPrivateRoute
-                      path="/moves/:moveId/ppm-payment-request-intro"
-                      component={PPMPaymentRequestIntro}
-                    />
-                    <ValidatedPrivateRoute path="/moves/:moveId/ppm-weight-ticket" component={WeightTicket} />
-                    <ValidatedPrivateRoute path="/moves/:moveId/ppm-expenses-intro" component={ExpensesLanding} />
-                    <ValidatedPrivateRoute path="/moves/:moveId/ppm-expenses" component={ExpensesUpload} />
-                    <ValidatedPrivateRoute path="/moves/:moveId/ppm-payment-review" component={PaymentReview} />
-                    <ValidatedPrivateRoute exact path="/ppm-customer-agreement" component={CustomerAgreementLegalese} />
-                    <ValidatedPrivateRoute path="/dps_cookie" component={DPSAuthCookie} />
-                    <Route exact path="/forbidden">
-                      <div className="usa-grid">
-                        <h2>You are forbidden to use this endpoint</h2>
-                      </div>
-                    </Route>
-                    <Route exact path="/server_error">
-                      <div className="usa-grid">
-                        <h2>We are experiencing an internal server error</h2>
-                      </div>
-                    </Route>
-                    <Route component={this.noMatch} />
-                  </Switch>
-                )}
+                  <ValidatedPrivateRoute path="/moves/:moveId/review/edit-orders" component={EditOrders} />
+                  <ValidatedPrivateRoute
+                    path="/moves/:moveId/review/edit-date-and-location"
+                    component={EditDateAndLocation}
+                  />
+                  <ValidatedPrivateRoute path="/moves/:moveId/review/edit-weight" component={EditWeight} />
+                  <ValidatedPrivateRoute path="/moves/:moveId/request-payment" component={PaymentRequest} />
+                  <ValidatedPrivateRoute exact path="/weight-ticket-examples" component={WeightTicketExamples} />
+                  <ValidatedPrivateRoute exact path="/trailer-criteria" component={TrailerCriteria} />
+                  <ValidatedPrivateRoute exact path="/allowable-expenses" component={AllowableExpenses} />
+                  <ValidatedPrivateRoute
+                    path="/moves/:moveId/ppm-payment-request-intro"
+                    component={PPMPaymentRequestIntro}
+                  />
+                  <ValidatedPrivateRoute path="/moves/:moveId/ppm-weight-ticket" component={WeightTicket} />
+                  <ValidatedPrivateRoute path="/moves/:moveId/ppm-expenses-intro" component={ExpensesLanding} />
+                  <ValidatedPrivateRoute path="/moves/:moveId/ppm-expenses" component={ExpensesUpload} />
+                  <ValidatedPrivateRoute path="/moves/:moveId/ppm-payment-review" component={PaymentReview} />
+                  <ValidatedPrivateRoute exact path="/ppm-customer-agreement" component={CustomerAgreementLegalese} />
+                  <ValidatedPrivateRoute path="/dps_cookie" component={DPSAuthCookie} />
+                  <Route exact path="/forbidden">
+                    <div className="usa-grid">
+                      <h2>You are forbidden to use this endpoint</h2>
+                    </div>
+                  </Route>
+                  <Route exact path="/server_error">
+                    <div className="usa-grid">
+                      <h2>We are experiencing an internal server error</h2>
+                    </div>
+                  </Route>
+                  <Route component={this.noMatch} />
+                </Switch>
+              )}
             </Tag>
             <Footer />
           </div>
@@ -168,4 +156,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch =>
   bindActionCreators({ goBack, push, loadInternalSchema, getCurrentUserInfo }, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(AppWrapper);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(AppWrapper);

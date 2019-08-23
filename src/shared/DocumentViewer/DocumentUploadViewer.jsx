@@ -48,5 +48,4 @@ function mapStateToProps(state, props) {
     moveDocument: selectMoveDocument(state, moveDocumentId),
   };
 }
-
 export default connect(mapStateToProps)(DocumentUploadViewer);

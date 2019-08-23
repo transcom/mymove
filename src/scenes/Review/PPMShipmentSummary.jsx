@@ -12,13 +12,13 @@ import { formatDateSM } from 'shared/formatters';
 import './Review.css';
 
 function PPMShipmentSummary(props) {
-  const { advance, movePath, ppm, isHHGPPMComboMove } = props;
+  const { advance, movePath, ppm } = props;
 
   const editDateAndLocationAddress = movePath + '/edit-date-and-location';
   const editWeightAddress = movePath + '/edit-weight';
 
   const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
-    ? `(spend up to ${formatCents(ppm.estimated_storage_reimbursement)} on private storage)`
+    ? `(spend up to ${ppm.estimated_storage_reimbursement} on private storage)`
     : '';
   const sitDisplay = get(ppm, 'has_sit', false)
     ? `${ppm.days_in_storage} days ${privateStorageString}`
@@ -59,12 +59,14 @@ function PPMShipmentSummary(props) {
               <td> Delivery ZIP Code: </td>
               <td> {ppm && ppm.destination_postal_code}</td>
             </tr>
-            {!isHHGPPMComboMove && (
-              <tr>
-                <td> Storage: </td>
-                <td>{sitDisplay}</td>
-              </tr>
-            )}
+            <tr>
+              <td> Storage: </td>
+              <td data-cy="sit-display">{sitDisplay}</td>
+            </tr>
+            <tr>
+              <td> Storage: </td>
+              <td data-cy="sit-display">{sitDisplay}</td>
+            </tr>
           </tbody>
         </table>
       </div>

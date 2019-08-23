@@ -3,11 +3,13 @@ package paperwork
 import (
 	"image"
 	"image/color"
+	"image/jpeg"
 	"image/png"
 	"io"
 	"path/filepath"
 	"strings"
 
+	"github.com/disintegration/imaging"
 	"github.com/gobuffalo/pop"
 	"github.com/jung-kurt/gofpdf"
 	"github.com/pdfcpu/pdfcpu/pkg/api"
@@ -25,6 +27,7 @@ const (
 	PdfOrientation string  = "P"
 	PdfUnit        string  = "mm"
 	PdfPageWidth   float64 = 210.0
+	PdfPageHeight  float64 = 297.0
 	PdfPageSize    string  = "A4"
 	PdfFontDir     string  = ""
 )
@@ -174,6 +177,7 @@ func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error
 		defer download.Close()
 
 		outputFile, err := g.newTempFile()
+
 		if err != nil {
 			return nil, errors.Wrap(err, "Creating temp file")
 		}
@@ -221,15 +225,62 @@ var contentTypeToImageType = map[string]string{
 	"image/png":  "PNG",
 }
 
+func ReduceUnusedSpace(file afero.File, g *Generator, contentType string) (imgFile afero.File, width float64, height float64, err error) {
+	// Figure out if the image should be rotated by calculating height and width of image.
+	pic, _, decodeErr := image.Decode(file)
+	if decodeErr != nil {
+		return nil, 0.0, 0.0, errors.Wrapf(decodeErr, "file %s was not decodable", file.Name())
+	}
+	rect := pic.Bounds()
+	w := float64(rect.Max.X - rect.Min.X)
+	h := float64(rect.Max.Y - rect.Min.Y)
+
+	// If the image is landscape, then turn it to portrait orientation
+	if w > h {
+		newFile, newTemplateFileErr := g.newTempFile()
+		if newTemplateFileErr != nil {
+			return nil, 0.0, 0.0, errors.Wrap(newTemplateFileErr, "Creating temp file for image rotation")
+		}
+
+		// Rotate and save new file
+		newPic := imaging.Rotate90(pic)
+		if contentType == "image/png" {
+			err := png.Encode(newFile, newPic)
+			if err != nil {
+				return nil, 0.0, 0.0, errors.Wrap(err, "Encountered an error rotating and encoding the png")
+			}
+		} else {
+			err := jpeg.Encode(newFile, newPic, nil)
+			if err != nil {
+				return nil, 0.0, 0.0, errors.Wrap(err, "Encountered an error rotating and encoding the jpg")
+			}
+		}
+
+		// The original width is now the height and vice versa.
+		w, h = h, w
+
+		// Use newFile instead of oldFile
+		file = newFile
+		file.Close()
+		return newFile, w, h, nil
+	}
+	return file, w, h, nil
+}
+
 // PDFFromImages returns the path to tempfile PDF containing all images included
 // in urls.
+//
+// Images will be rotated to have as little white space as possible.
 //
 // The files at those paths will be tempfiles that will need to be cleaned
 // up by the caller.
 func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
+	// These constants are based on A4 page size, which we currently default to.
 	horizontalMargin := 0.0
 	topMargin := 0.0
 	bodyWidth := PdfPageWidth - (horizontalMargin * 2)
+	bodyHeight := PdfPageHeight - (topMargin * 2)
+	wToHRatio := bodyWidth / bodyHeight
 
 	pdf := gofpdf.New(PdfOrientation, PdfUnit, PdfPageSize, PdfFontDir)
 	pdf.SetMargins(horizontalMargin, topMargin, horizontalMargin)
@@ -244,17 +295,26 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	defer outputFile.Close()
 
 	var opt gofpdf.ImageOptions
 	for _, img := range images {
 		pdf.AddPage()
-		file, _ := g.fs.Open(img.Path)
+		file, openErr := g.fs.Open(img.Path)
+		if openErr != nil {
+			return "", errors.Wrap(openErr, "Opening image file")
+		}
+		defer file.Close()
+
 		if img.ContentType == "image/png" {
+			g.logger.Debug("Converting png to 8-bit")
 			// gofpdf isn't able to process 16-bit PNGs, so to be safe we convert all PNGs to an 8-bit color depth
 			newFile, newTemplateFileErr := g.newTempFile()
 			if newTemplateFileErr != nil {
 				return "", errors.Wrap(newTemplateFileErr, "Creating temp file for png conversion")
 			}
+			defer newFile.Close()
+
 			convertTo8BitPNGErr := convertTo8BitPNG(file, newFile)
 			if convertTo8BitPNGErr != nil {
 				return "", errors.Wrap(convertTo8BitPNGErr, "Converting to 8-bit png")
@@ -262,16 +322,49 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 			file = newFile
 			_, fileSeekErr := file.Seek(0, io.SeekStart)
 			if fileSeekErr != nil {
-				return "", errors.Wrapf(err, "file.Seek offset: 0 whence: %d", io.SeekStart)
+				return "", errors.Wrapf(fileSeekErr, "file.Seek offset: 0 whence: %d", io.SeekStart)
 			}
 		}
+
+		optimizedFile, w, h, rotateErr := ReduceUnusedSpace(file, g, img.ContentType)
+		if rotateErr != nil {
+			return "", errors.Wrapf(rotateErr, "Rotating image if in landscape orientation")
+		}
+
+		widthInPdf := bodyWidth
+		heightInPdf := 0.0
+
+		// Scale using the imageOptions below
+		// BodyWidth should be set to 0 when the image height the proportion of the page
+		// is taller than wide as compared to an A4 page.
+		//
+		// The opposite is true and defaulted for when the image is wider than it is tall,
+		// in comparison to an A4 page.
+		if float64(w/h) < wToHRatio {
+			widthInPdf = 0
+			heightInPdf = bodyHeight
+		}
+
+		// Rotation may have closed the file, so reopen the file before we use it.
+		optimizedFile, err = g.fs.Open(optimizedFile.Name())
+		if err != nil {
+			return "", err
+		}
+
+		// Seek to the beginning of the file so when we register the image, it doesn't start
+		// at the end of the file.
+		_, fileSeekErr := optimizedFile.Seek(0, io.SeekStart)
+		if fileSeekErr != nil {
+			return "", errors.Wrapf(fileSeekErr, "file.Seek offset: 0 whence: %d", io.SeekStart)
+		}
 		// Need to register the image using an afero reader, else it uses default filesystem
-		pdf.RegisterImageReader(img.Path, contentTypeToImageType[img.ContentType], file)
+		pdf.RegisterImageReader(img.Path, contentTypeToImageType[img.ContentType], optimizedFile)
 		opt.ImageType = contentTypeToImageType[img.ContentType]
-		pdf.ImageOptions(img.Path, horizontalMargin, topMargin, bodyWidth, 0, false, opt, 0, "")
+
+		pdf.ImageOptions(img.Path, horizontalMargin, topMargin, widthInPdf, heightInPdf, false, opt, 0, "")
 		fileCloseErr := file.Close()
 		if fileCloseErr != nil {
-			return "", errors.Wrapf(err, "error closing file: %s", file.Name())
+			return "", errors.Wrapf(err, "error closing file: %s", optimizedFile.Name())
 		}
 	}
 
