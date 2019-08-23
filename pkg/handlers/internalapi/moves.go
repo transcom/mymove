@@ -39,15 +39,6 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		SelectedMoveType = internalmessages.SelectedMoveType(*move.SelectedMoveType)
 	}
 
-	var shipmentPayloads []*internalmessages.Shipment
-	for _, shipment := range move.Shipments {
-		payload, err := payloadForShipmentModel(shipment)
-		if err != nil {
-			return nil, err
-		}
-		shipmentPayloads = append(shipmentPayloads, payload)
-	}
-
 	movePayload := &internalmessages.MovePayload{
 		CreatedAt:               handlers.FmtDateTime(move.CreatedAt),
 		SelectedMoveType:        &SelectedMoveType,
@@ -58,7 +49,6 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		OrdersID:                handlers.FmtUUID(order.ID),
 		ServiceMemberID:         *handlers.FmtUUID(order.ServiceMemberID),
 		Status:                  internalmessages.MoveStatus(move.Status),
-		Shipments:               shipmentPayloads,
 	}
 	return movePayload, nil
 }
