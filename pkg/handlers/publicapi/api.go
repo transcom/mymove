@@ -17,7 +17,7 @@ import (
 )
 
 // NewPublicAPIHandler returns a handler for the public API
-func NewPublicAPIHandler(context handlers.HandlerContext, logger Logger) http.Handler {
+func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	// Wire up the handlers to the publicAPIMux
 	apiSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
