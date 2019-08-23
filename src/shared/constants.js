@@ -40,3 +40,6 @@ export const isSuccess = 'REQUEST_SUCCESS';
 
 // documentSizeLimitMsg is used in several files around document upload
 export const documentSizeLimitMsg = 'Please keep each file under 25MB.';
+
+// new window dimensions in relation to current window
+export const defaultRelativeWindowSize = 2 / 3;

@@ -12,7 +12,7 @@ import { formatDateSM } from 'shared/formatters';
 import './Review.css';
 
 function PPMShipmentSummary(props) {
-  const { advance, movePath, ppm, isHHGPPMComboMove } = props;
+  const { advance, movePath, ppm } = props;
 
   const editDateAndLocationAddress = movePath + '/edit-date-and-location';
   const editWeightAddress = movePath + '/edit-weight';
@@ -59,12 +59,14 @@ function PPMShipmentSummary(props) {
               <td> Delivery ZIP Code: </td>
               <td> {ppm && ppm.destination_postal_code}</td>
             </tr>
-            {!isHHGPPMComboMove && (
-              <tr>
-                <td> Storage: </td>
-                <td data-cy="sit-display">{sitDisplay}</td>
-              </tr>
-            )}
+            <tr>
+              <td> Storage: </td>
+              <td data-cy="sit-display">{sitDisplay}</td>
+            </tr>
+            <tr>
+              <td> Storage: </td>
+              <td data-cy="sit-display">{sitDisplay}</td>
+            </tr>
           </tbody>
         </table>
       </div>
