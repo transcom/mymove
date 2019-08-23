@@ -12,7 +12,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/assets"
-	"github.com/transcom/mymove/pkg/awardqueue"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -161,10 +160,6 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	if err != nil {
 		logger.Error("problem sending email to user", zap.Error(err))
 		return handlers.ResponseForError(logger, err)
-	}
-
-	if len(move.Shipments) > 0 {
-		go awardqueue.NewAwardQueue(h.DB(), logger).Run(ctx)
 	}
 
 	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
