@@ -27,8 +27,6 @@ func NewPublicAPIHandler(context handlers.HandlerContext, logger Logger) http.Ha
 
 	publicAPI := publicops.NewMymoveAPI(apiSpec)
 
-	publicAPI.AccessorialsGetTariff400ngItemsHandler = GetTariff400ngItemsHandler{context}
-
 	// Service Agents
 	publicAPI.ServiceAgentsIndexServiceAgentsHandler = IndexServiceAgentsHandler{context}
 	publicAPI.ServiceAgentsCreateServiceAgentHandler = CreateServiceAgentHandler{context}
