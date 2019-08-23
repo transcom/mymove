@@ -27,13 +27,6 @@ func NewPublicAPIHandler(context handlers.HandlerContext, logger Logger) http.Ha
 
 	publicAPI := publicops.NewMymoveAPI(apiSpec)
 
-	// Documents
-	publicAPI.MoveDocsCreateGenericMoveDocumentHandler = CreateGenericMoveDocumentHandler{context}
-	publicAPI.MoveDocsIndexMoveDocumentsHandler = IndexMoveDocumentsHandler{context}
-	publicAPI.MoveDocsUpdateMoveDocumentHandler = UpdateMoveDocumentHandler{context}
-	publicAPI.UploadsCreateUploadHandler = CreateUploadHandler{context}
-	publicAPI.UploadsDeleteUploadHandler = DeleteUploadHandler{context}
-
 	publicAPI.AccessorialsGetTariff400ngItemsHandler = GetTariff400ngItemsHandler{context}
 
 	// Service Agents
