@@ -2,11 +2,13 @@ package notifications
 
 import (
 	"fmt"
-	"github.com/gobuffalo/pop"
-	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"log"
 	"time"
+
+	"github.com/gobuffalo/pop"
+
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 type EmailInfo struct {
@@ -58,5 +60,3 @@ func (suite *NotificationSuite) TestMoveReviewedFetch() {
 	log.Fatal(emailInfo)
 	suite.Len(emailInfo, 2)
 }
-
-
