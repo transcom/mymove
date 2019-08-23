@@ -203,6 +203,10 @@ function mapStateToProps(state) {
         origin_duty_station_zip: originDutyStationZip,
       }
     : null;
+  if (state.ppm && state.ppm.currentPpm) {
+    state.ppm.currentPpm.origin_duty_station_zip = originDutyStationZip;
+  }
+
   return props;
 }
 
