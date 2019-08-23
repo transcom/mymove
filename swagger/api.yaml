@@ -1030,26 +1030,6 @@ definitions:
       NONE: Contact Only
       VIEW: View all move details
       EDIT: View and edit all move details
-  WeightAllotment:
-    type: object
-    properties:
-      total_weight_self:
-        type: integer
-        example: 18000
-      total_weight_self_plus_dependents:
-        type: integer
-        example: 18000
-      pro_gear_weight:
-        type: integer
-        example: 2000
-      pro_gear_weight_spouse:
-        type: integer
-        example: 500
-    required:
-      - total_weight_self
-      - total_weight_self_plus_dependents
-      - pro_gear_weight
-      - pro_gear_weight_spouse
   TransportationServiceProvider:
     type: object
     properties:
