@@ -117,7 +117,7 @@ export class NonPDFImage extends Component {
 
   // rotation dependent sign to be used with coordinate translations
   translateSign = rotation => {
-    const radians = rotation / 180 * Math.PI;
+    const radians = (rotation / 180) * Math.PI;
     return Math.abs(Math.sin(radians));
   };
 
