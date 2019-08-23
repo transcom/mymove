@@ -78,3 +78,6 @@ cypress/results
 
 # SQLEditor
 *.sqs
+
+# Ignore static storybook content
+storybook-static
