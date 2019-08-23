@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
-
+import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { selectReimbursement } from 'shared/Entities/modules/ppms';
 import ppmBlack from 'shared/icon/ppm-black.svg';
 import { formatCentsRange, formatCents } from 'shared/formatters';
@@ -85,7 +85,11 @@ function PPMShipmentSummary(props) {
             </tr>
             <tr>
               <td> Estimated PPM Incentive: </td>
-              <td> {ppm && formatCentsRange(ppm.incentive_estimate_min, ppm.incentive_estimate_max)}</td>
+              {/* <td> {ppm && formatCentsRange(ppm.incentive_estimate_min, ppm.incentive_estimate_max)}</td> */}
+              <td>
+                Not ready yet{' '}
+                <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
+              </td>
             </tr>
             {ppm.has_requested_advance && (
               <tr>

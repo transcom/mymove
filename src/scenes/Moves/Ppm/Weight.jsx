@@ -7,6 +7,7 @@ import Slider from 'react-rangeslider'; //todo: pull from node_modules, override
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Alert from 'shared/Alert';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { formatCentsRange, formatNumber } from 'shared/formatters';
 import { getPpmWeightEstimate, createOrUpdatePpm, getSelectedWeightInfo } from './ducks';
 
@@ -168,7 +169,11 @@ export class PpmWeight extends Component {
                   </tr>
                   <tr>
                     <th>Your PPM Incentive:</th>
-                    <td className="incentive">{formatCentsRange(incentive_estimate_min, incentive_estimate_max)}</td>
+                    {/* <td className="incentive">{formatCentsRange(incentive_estimate_min, incentive_estimate_max)}</td> */}
+                    <td className="incentive">
+                      Not ready yet{' '}
+                      <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
+                    </td>
                   </tr>
                 </tbody>
               </table>
