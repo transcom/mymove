@@ -1050,25 +1050,6 @@ definitions:
       - total_weight_self_plus_dependents
       - pro_gear_weight
       - pro_gear_weight_spouse
-  TrafficDistributionList:
-    type: object
-    properties:
-      source_rate_area:
-        type: string
-        example: US34
-      destination_region:
-        type: string
-        example: '5'
-      code_of_service:
-        type: string
-        example: D
-        enum:
-          - D
-          - '2'
-    required:
-      - source_rate_area
-      - destination_region
-      - code_of_service
   TransportationServiceProvider:
     type: object
     properties:
