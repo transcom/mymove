@@ -33,7 +33,6 @@ func NewPublicAPIHandler(context handlers.HandlerContext, logger Logger) http.Ha
 	publicAPI.ServiceAgentsPatchServiceAgentHandler = PatchServiceAgentHandler{context}
 
 	// TSPs
-	publicAPI.TransportationServiceProviderGetTransportationServiceProviderHandler = GetTransportationServiceProviderHandler{context}
 	publicAPI.TspsIndexTSPsHandler = TspsIndexTSPsHandler{context}
 
 	// Transportation Service Provider Performances
