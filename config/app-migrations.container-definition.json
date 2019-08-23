@@ -12,18 +12,25 @@
     "--",
     "/bin/milmove",
     "migrate",
-    "--logging-env",
-    "production",
     "--db-env",
     "container",
-    "--db-iam",
-    "--db-iam-role",
-    "arn:aws:iam::923914045601:role/ecs-rds-role-app-{{ .environment }}",
-    "--db-region",
-    "us-west-2"
+    "--logging-env",
+    "production"
   ],
   "command": [],
   "environment": [
+    {
+      "name": "DB_IAM",
+      "value": "{{ .DB_IAM }}"
+    },
+    {
+      "name": "DB_IAM_ROLE",
+      "value": "{{ .DB_IAM_ROLE }}"
+    },
+    {
+      "name": "DB_REGION",
+      "value": "us-west-2"
+    },
     {
       "name": "ENVIRONMENT",
       "value": "{{ .environment }}"
