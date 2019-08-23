@@ -90,10 +90,10 @@ commands:
           at: bin
       - deploy:
           name: Deploy task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command save-fuel-price-data
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command save-fuel-price-data --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2"
           environment:
             DB_PORT: 5432
-            DB_USER: master
+            DB_USER: ecs_user
             DB_NAME: app
             DB_SSL_MODE: verify-full
             DB_SSL_ROOT_CERT: /bin/rds-combined-ca-bundle.pem
@@ -195,15 +195,14 @@ commands:
             source $BASH_ENV
             make e2e_test_docker
           environment:
-            # Env vars needed by the `scripts/apply-secure-migration.sh` script
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
             DB_HOST: localhost
             DB_PORT: 5432
             DB_NAME: test_db
             # Env vars needed for the webserver to run inside docker
-            SECURE_MIGRATION_DIR: /home/circleci/transcom/mymove/local_migrations
-            SECURE_MIGRATION_SOURCE: local
+            MIGRATION_PATH: "/migrate/local_migrations;/migrate/migrations"
+            MIGRATION_MANIFEST: "/migrate/migrations_manifest.txt"
             LOGIN_GOV_CALLBACK_PROTOCOL: http
             LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
             LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
@@ -382,7 +381,6 @@ jobs:
             source $BASH_ENV
             make server_test
           environment:
-            # Env vars needed by the `scripts/apply-secure-migration.sh` script
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
             DB_HOST: localhost
@@ -392,10 +390,8 @@ jobs:
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
-            MIGRATION_PATH: /home/circleci/transcom/mymove/migrations
-            MIGRATION_MANIFEST: /home/circleci/transcom/mymove/migrations_manifest.txt
-            SECURE_MIGRATION_DIR: /home/circleci/transcom/mymove/local_migrations
-            SECURE_MIGRATION_SOURCE: local
+            MIGRATION_PATH: "/home/circleci/transcom/mymove/local_migrations;/home/circleci/transcom/mymove/migrations"
+            MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
 
       - announce_failure
 
@@ -434,7 +430,6 @@ jobs:
             source $BASH_ENV
             make server_test_coverage_generate
           environment:
-            # Env vars needed by the `scripts/apply-secure-migration.sh` script
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
             DB_HOST: localhost
@@ -444,10 +439,8 @@ jobs:
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
-            MIGRATION_PATH: /home/circleci/transcom/mymove/migrations
-            MIGRATION_MANIFEST: /home/circleci/transcom/mymove/migrations_manifest.txt
-            SECURE_MIGRATION_DIR: /home/circleci/transcom/mymove/local_migrations
-            SECURE_MIGRATION_SOURCE: local
+            MIGRATION_PATH: "/home/circleci/transcom/mymove/local_migrations;/home/circleci/transcom/mymove/migrations"
+            MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
       - run:
           name: upload code coverage to codecov
           command: |
@@ -527,7 +520,7 @@ jobs:
           docker_layer_caching: true
       - run: make bin/chamber
       - run: make bin/rds-combined-ca-bundle.pem
-      - run: make bin/milmove
+      - run: make server_build
       - build_tag_push:
           dockerfile: Dockerfile.migrations
           tag: ppp-migrations:dev

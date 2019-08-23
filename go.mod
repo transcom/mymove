@@ -27,7 +27,7 @@ require (
 	github.com/go-openapi/swag v0.19.4
 	github.com/go-openapi/validate v0.19.2
 	github.com/go-swagger/go-swagger v0.19.1-0.20190719001815-2f32a5a85285
-	github.com/gobuffalo/fizz v1.9.2 // indirect
+	github.com/gobuffalo/fizz v1.9.2
 	github.com/gobuffalo/logger v1.0.1 // indirect
 	github.com/gobuffalo/makr v1.2.0 // indirect
 	github.com/gobuffalo/nulls v0.1.0 // indirect

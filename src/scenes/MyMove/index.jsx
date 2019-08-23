@@ -18,7 +18,6 @@ import EditContactInfo from 'scenes/Review/EditContactInfo';
 import EditOrders from 'scenes/Review/EditOrders';
 import EditDateAndLocation from 'scenes/Review/EditDateAndLocation';
 import EditWeight from 'scenes/Review/EditWeight';
-import EditHHGDates from 'scenes/Review/EditShipment';
 import Header from 'shared/Header/MyMove';
 import PPMPaymentRequestIntro from 'scenes/Moves/Ppm/PPMPaymentRequestIntro';
 import WeightTicket from 'scenes/Moves/Ppm/WeightTicket';
@@ -54,6 +53,8 @@ export class AppWrapper extends Component {
   componentDidCatch(error, info) {
     this.setState({
       hasError: true,
+      error,
+      info,
     });
   }
 
@@ -102,11 +103,6 @@ export class AppWrapper extends Component {
                     component={EditDateAndLocation}
                   />
                   <ValidatedPrivateRoute path="/moves/:moveId/review/edit-weight" component={EditWeight} />
-
-                  <ValidatedPrivateRoute path="/shipments/:shipmentId/review/edit-hhg-dates" component={EditHHGDates} />
-                  {/* <ValidatedPrivateRoute path="/moves/:moveId/review/edit-hhg-locations" component={EditHHGLocations} /> */}
-                  {/* <ValidatedPrivateRoute path="/moves/:moveId/review/edit-hhg-weights" component={EditHHGWeights} /> */}
-
                   <ValidatedPrivateRoute path="/moves/:moveId/request-payment" component={PaymentRequest} />
                   <ValidatedPrivateRoute exact path="/weight-ticket-examples" component={WeightTicketExamples} />
                   <ValidatedPrivateRoute exact path="/trailer-criteria" component={TrailerCriteria} />

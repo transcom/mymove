@@ -23,6 +23,7 @@ class MoveDocumentView extends Component {
       newDocumentUrl,
       serviceMember: { edipi, name },
       uploads,
+      moveId,
     } = this.props;
     const currentMoveDocumentId = this.props.match.params.moveDocumentId;
     return (
@@ -55,6 +56,7 @@ class MoveDocumentView extends Component {
                     detailUrlPrefix={documentDetailUrlPrefix}
                     moveDocuments={moveDocuments}
                     uploadDocumentUrl={newDocumentUrl}
+                    moveId={moveId}
                   />
                 </div>
               </TabPanel>
