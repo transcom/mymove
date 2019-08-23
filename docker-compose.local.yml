@@ -42,7 +42,7 @@ services:
       - milmove_migrate
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.local
     links:
       - database
     ports:

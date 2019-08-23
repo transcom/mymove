@@ -1,7 +1,5 @@
 FROM gcr.io/distroless/base:latest
 
-COPY bin/rds-combined-ca-bundle.pem /bin/rds-combined-ca-bundle.pem
-COPY bin_linux/chamber /bin/chamber
 COPY bin_linux/milmove /bin/milmove
 
 COPY config /config
