@@ -215,9 +215,6 @@ bin/generate-access-codes: .server_generate.stamp
 bin/generate-shipment-edi: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-shipment-edi ./cmd/generate_shipment_edi
 
-bin/generate-shipment-summary: .server_generate.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
-
 bin/generate-test-data: pkg/assets/assets.go .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate-test-data
 
@@ -342,7 +339,6 @@ build_tools: server_deps \
 	bin/generate-1203-form \
 	bin/generate-access-codes \
 	bin/generate-shipment-edi \
-	bin/generate-shipment-summary \
 	bin/generate-test-data \
 	bin/health-checker \
 	bin/iws \
