@@ -3,13 +3,14 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 
-	// "github.com/pkg/errors"
+	"github.com/pkg/errors"
 	// "github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -28,6 +29,12 @@ func main() {
 
 	flag := pflag.CommandLine
 	cli.InitDatabaseFlags(flag)
+	err = flag.Parse(os.Args[1:])
+	if err != nil {
+		log.Fatalf(err.Error())
+		os.Exit(1)
+	}
+
 	v := viper.New()
 	err = v.BindPFlags(flag)
 	if err != nil {
@@ -36,8 +43,20 @@ func main() {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	var dbCreds *credentials.Credentials
 	var session *awssession.Session
+	if v.GetBool(cli.DbIamFlag) || (v.GetString(cli.EmailBackendFlag) == "ses") || (v.GetString(cli.StorageBackendFlag) == "s3") {
+		c, errorConfig := cli.GetAWSConfig(v, v.GetBool(cli.VerboseFlag))
+		if errorConfig != nil {
+			logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())
+		}
+		s, errorSession := awssession.NewSession(c)
+		if errorSession != nil {
+			logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
+		}
+		session = s
+	}
+
+	var dbCreds *credentials.Credentials
 	if v.GetBool(cli.DbIamFlag) {
 		// We want to get the credentials from the logged in AWS session rather than create directly,
 		// because the session conflates the environment, shared, and container metdata config
