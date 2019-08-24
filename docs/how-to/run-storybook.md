@@ -15,3 +15,7 @@ To see the components locally simply run `make storybook` and the server will st
 ### How to generate static storybook site files
 
 If you wish to generate the static version of storybook run `make build_storybook` and the command will generate the files in `storybook-static`
+
+## Adding Stories
+
+To showcase a component add the _stories_ to the `src/stories` folder in an appropriate file. The storybook documentation on [Writing Stories](https://storybook.js.org/docs/basics/writing-stories/) is a good place to start with how to create ones. If there is not an appropriate file you need to create a new file in the pattern `componentName.stories.js` in the src/stories directory, and then modify the `.storybook/config.js` file to include your new file in the generated site.
