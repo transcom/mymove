@@ -192,6 +192,10 @@
     {
       "name": "FEATURE_FLAG_ACCESS_CODE",
       "value": "{{ .FEATURE_FLAG_ACCESS_CODE }}"
+    },
+    {
+      "name": "ENABLE_PPROF",
+      "value": "{{ .ENABLE_PPROF }}"
     }
   ],
   "logConfiguration": {

@@ -11,6 +11,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"net/http/pprof"
 	"os"
 	"os/signal"
 	"path"
@@ -129,6 +130,9 @@ func initServeFlags(flag *pflag.FlagSet) {
 
 	// Feature Flags
 	cli.InitFeatureFlags(flag)
+
+	// pprof flags
+	cli.InitPProfFlags(flag)
 
 	// Sort command line flags
 	flag.SortFlags = true
@@ -712,6 +716,26 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	root.Use(middleware.ContextLogger("milmove_trace_id", logger)) // injects http request logger
 	root.Use(sessionCookieMiddleware)
 	root.Use(middleware.RequestLogger(logger))
+
+	debug := goji.SubMux()
+	debug.Use(userAuthMiddleware)
+	root.Handle(pat.New("/debug/pprof/*"), debug)
+	// TODO why in dev local is it at 8080/debug/pprof ?
+	if v.GetBool(cli.EnablePProfFlag) {
+		debug.HandleFunc(pat.Get("/"), pprof.Index)
+		debug.Handle(pat.Get("/allocs"), pprof.Handler("allocs"))
+		debug.Handle(pat.Get("/block"), pprof.Handler("block"))
+		debug.HandleFunc(pat.Get("/cmdline"), pprof.Cmdline)
+		debug.Handle(pat.Get("/goroutine"), pprof.Handler("goroutine"))
+		debug.Handle(pat.Get("/heap"), pprof.Handler("heap"))
+		debug.Handle(pat.Get("/mutex"), pprof.Handler("mutex"))
+		debug.HandleFunc(pat.Get("/profile"), pprof.Profile)
+		debug.HandleFunc(pat.Get("/trace"), pprof.Trace)
+		debug.Handle(pat.Get("/threadcreate"), pprof.Handler("threadcreate"))
+		debug.HandleFunc(pat.Get("/symbol"), pprof.Symbol)
+	} else {
+		debug.HandleFunc(pat.Get("/*"), http.NotFound)
+	}
 
 	// CSRF path is set specifically at the root to avoid duplicate tokens from different paths
 	csrfAuthKey, err := hex.DecodeString(v.GetString(cli.CSRFAuthKeyFlag))
