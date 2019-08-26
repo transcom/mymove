@@ -22,19 +22,6 @@ func (suite *ShipmentServiceSuite) TestDeliverAndPriceShipment() {
 
 		shipment := shipments[0]
 
-		authorizedStartDate := shipment.ActualPickupDate
-		actualStartDate := authorizedStartDate.Add(testdatagen.OneDay)
-		sit := testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
-			StorageInTransit: models.StorageInTransit{
-				ShipmentID:          shipment.ID,
-				EstimatedStartDate:  *authorizedStartDate,
-				AuthorizedStartDate: authorizedStartDate,
-				ActualStartDate:     &actualStartDate,
-				Status:              models.StorageInTransitStatusINSIT,
-			},
-		})
-
-		shipment.StorageInTransits = models.StorageInTransits{sit}
 		// And an unpriced, approved pre-approval
 		testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{
 			ShipmentLineItem: models.ShipmentLineItem{
@@ -65,14 +52,7 @@ func (suite *ShipmentServiceSuite) TestDeliverAndPriceShipment() {
 
 		suite.Equal(models.ShipmentStatusDELIVERED, shipment.Status)
 
-		sits, _ := models.FetchStorageInTransitsOnShipment(suite.DB(), shipment.ID)
-		sit = sits[0]
-
-		suite.Equal(models.StorageInTransitStatusDELIVERED, sit.Status)
-		suite.NotNil(sit.OutDate)
-
 		suite.DB().Reload(&shipment)
-		suite.Equal(shipment.ActualDeliveryDate, sit.OutDate)
 
 		fetchedLineItems, err := models.FetchLineItemsByShipmentID(suite.DB(), &shipment.ID)
 		suite.FatalNoError(err)
@@ -92,19 +72,6 @@ func (suite *ShipmentServiceSuite) TestDeliverAndPriceShipment() {
 
 		shipment := shipments[0]
 
-		authorizedStartDate := shipment.BookDate
-		actualStartDate := authorizedStartDate.Add(testdatagen.OneDay)
-		sit := testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
-			StorageInTransit: models.StorageInTransit{
-				ShipmentID:          shipment.ID,
-				EstimatedStartDate:  *authorizedStartDate,
-				AuthorizedStartDate: authorizedStartDate,
-				ActualStartDate:     &actualStartDate,
-				Status:              models.StorageInTransitStatusINSIT,
-			},
-		})
-		shipment.StorageInTransits = models.StorageInTransits{sit}
-
 		deliveryDate := testdatagen.DateInsidePerformancePeriod
 		planner := route.NewTestingPlanner(1044)
 
@@ -120,9 +87,6 @@ func (suite *ShipmentServiceSuite) TestDeliverAndPriceShipment() {
 
 		suite.DB().Reload(&shipment)
 		suite.Equal(models.ShipmentStatusAPPROVED, shipment.Status)
-
-		suite.DB().Reload(&sit)
-		suite.Equal(models.StorageInTransitStatusINSIT, sit.Status)
 
 		// No items should be priced
 		fetchedLineItems, _ := models.FetchLineItemsByShipmentID(suite.DB(), &shipment.ID)
@@ -141,18 +105,6 @@ func (suite *ShipmentServiceSuite) TestDeliverAndPriceShipment() {
 
 		shipment := shipments[0]
 		shipment.MoveID = uuid.UUID{} // make shipment unprice-able to force error
-		authorizedStartDate := shipment.ActualPickupDate
-		actualStartDate := authorizedStartDate.Add(testdatagen.OneDay)
-		sit := testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
-			StorageInTransit: models.StorageInTransit{
-				ShipmentID:          shipment.ID,
-				EstimatedStartDate:  *authorizedStartDate,
-				AuthorizedStartDate: authorizedStartDate,
-				ActualStartDate:     &actualStartDate,
-				Status:              models.StorageInTransitStatusINSIT,
-			},
-		})
-		shipment.StorageInTransits = models.StorageInTransits{sit}
 
 		// And an unpriced, approved pre-approval
 		testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{
@@ -180,9 +132,6 @@ func (suite *ShipmentServiceSuite) TestDeliverAndPriceShipment() {
 
 		suite.DB().Reload(&shipment)
 		suite.Equal(models.ShipmentStatusINTRANSIT, shipment.Status)
-
-		suite.DB().Reload(&sit)
-		suite.Equal(models.StorageInTransitStatusINSIT, sit.Status)
 
 		// No items should be priced
 		fetchedLineItems, _ := models.FetchLineItemsByShipmentID(suite.DB(), &shipment.ID)

@@ -112,7 +112,7 @@ func (suite *RateEngineSuite) TestPricePreapprovalRequestsForShipment() {
 	}
 
 	engine := NewRateEngine(suite.DB(), suite.logger)
-	pricedItems, err := engine.PriceAdditionalRequestsForShipment(shipment, []models.ShipmentLineItem{})
+	pricedItems, err := engine.PriceAdditionalRequestsForShipment(shipment)
 
 	// There should be no error
 	if suite.NoError(err) {

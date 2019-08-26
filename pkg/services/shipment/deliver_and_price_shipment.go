@@ -38,13 +38,6 @@ func (c *shipmentDeliverAndPricer) DeliverAndPriceShipment(deliveryDate time.Tim
 			return errors.New("error saving shipment")
 		}
 
-		verrs, transactionError = db.ValidateAndSave(shipment.StorageInTransits)
-		if transactionError != nil {
-			return transactionError
-		}
-		if verrs.HasAny() {
-			return errors.New("error saving storage in transits")
-		}
 		shipmentPricer := NewShipmentPricer(db, c.engine, c.planner)
 		verrs, transactionError = shipmentPricer.PriceShipment(shipment, ShipmentPriceNEW)
 		if transactionError != nil {
