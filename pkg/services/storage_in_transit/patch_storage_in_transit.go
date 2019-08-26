@@ -39,10 +39,6 @@ func patchStorageInTransitWithPayload(storageInTransit *models.StorageInTransit,
 		storageInTransit.WarehouseName = *payload.WarehouseName
 	}
 
-	if payload.WarehouseAddress != nil {
-		updateAddressWithPayload(&storageInTransit.WarehouseAddress, payload.WarehouseAddress)
-	}
-
 	storageInTransit.WarehousePhone = handlers.FmtStringPtrNonEmpty(payload.WarehousePhone)
 	storageInTransit.WarehouseEmail = handlers.FmtStringPtrNonEmpty(payload.WarehouseEmail)
 
