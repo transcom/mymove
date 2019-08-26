@@ -52,6 +52,11 @@ executors:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
         command: "-c fsync=off -c full_page_writes=off -c max_connections=200"
+  mymove_anti_virus:
+    resource_class: small
+    working_directory: ~/transcom/mymove
+    docker:
+      - image: mk0x/docker-clamav:alpine
 
 commands:
   announce_failure:
@@ -242,6 +247,14 @@ jobs:
           key: v2-mymove-node-modules-{{ checksum "yarn.lock" }}
           paths:
             - ~/transcom/mymove/node_modules
+      - announce_failure
+
+  # `anti_virus` uses virus detection software to scan the source code
+  anti_virus:
+    executor: mymove_anti_virus
+    steps:
+      - checkout
+      - run: clamdscan -r ~/transcom/mymove
       - announce_failure
 
   # `pre_test` runs pre-commit against all files.
@@ -772,6 +785,8 @@ workflows:
 
       - pre_deps_yarn
 
+      - anti_virus
+
       - pre_test:
           requires:
             - pre_deps_golang
@@ -830,6 +845,7 @@ workflows:
 
       - build_app:
           requires:
+            - anti_virus
             - pre_deps_golang
             - pre_deps_yarn
             - acceptance_tests_local # don't bother building and pushing the application if it won't even start properly
