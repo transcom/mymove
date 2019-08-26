@@ -29,7 +29,7 @@ func (suite *NotificationSuite) TestMoveReviewedFetchSomeFound() {
 		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &offDate}},
 	}
 	suite.createPPMMoves(moves)
-	moveReviewed := NewMoveReviewed(db, suite.logger)
+	moveReviewed := NewMoveReviewed(db, suite.logger, onDate)
 
 	emailInfo, err := moveReviewed.GetEmailInfo(onDate)
 
@@ -47,7 +47,7 @@ func (suite *NotificationSuite) TestMoveReviewedFetchNoneFound() {
 	}
 	suite.createPPMMoves(moves)
 
-	moveReviewed := NewMoveReviewed(db, suite.logger)
+	moveReviewed := NewMoveReviewed(db, suite.logger, startDate)
 
 	emailInfo, err := moveReviewed.GetEmailInfo(startDate)
 
@@ -74,14 +74,16 @@ func (suite *NotificationSuite) TestHMTLTemplateRender() {
 }
 
 func (suite *NotificationSuite) TestHTMLTemplateRender() {
-	mr := NewMoveReviewed(suite.DB(), suite.logger)
+	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
+	onDate := startDate.AddDate(0, 0, -6)
+	mr := NewMoveReviewed(suite.DB(), suite.logger, onDate)
 	s := emailData{
 		Link:                   "www.survey",
 		OriginDutyStation:      "OriginDutyStation",
 		DestinationDutyStation: "DestDutyStation",
 		Email:                  "email",
 	}
-	expectedHtmlContent := `<em>Good news:</em> Your move from OriginDutyStation to DestDutyStation has been processed for payment.
+	expectedHTMLContent := `<em>Good news:</em> Your move from OriginDutyStation to DestDutyStation has been processed for payment.
 
 Can we ask a quick favor? <a href="www.survey"> Tell us about your experience</a> with requesting and receiving payment.
 
@@ -89,13 +91,15 @@ We’ll use your feedback to make MilMove better for your fellow service members
 
 Thank you for your thoughts, and <em>congratulations on your move.</em>`
 
-	htmlContent := mr.RenderHtml(s)
-	suite.Equal(expectedHtmlContent, htmlContent)
+	htmlContent := mr.RenderHTML(s)
+	suite.Equal(expectedHTMLContent, htmlContent)
 
 }
 
 func (suite *NotificationSuite) TestTextTemplateRender() {
-	mr := NewMoveReviewed(suite.DB(), suite.logger)
+	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
+	onDate := startDate.AddDate(0, 0, -6)
+	mr := NewMoveReviewed(suite.DB(), suite.logger, onDate)
 	s := emailData{
 		Link:                   "www.survey",
 		OriginDutyStation:      "OriginDutyStation",
@@ -112,11 +116,12 @@ Thank you for your thoughts, and congratulations on your move.`
 
 	textContent := mr.RenderText(s)
 	suite.Equal(expectedTextContent, textContent)
-
 }
 
 func (suite *NotificationSuite) TestFormatEmails() {
-	mr := NewMoveReviewed(suite.DB(), suite.logger)
+	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
+	onDate := startDate.AddDate(0, 0, -6)
+	mr := NewMoveReviewed(suite.DB(), suite.logger, onDate)
 	email1 := "email1"
 	email2 := "email2"
 	emailInfos := EmailInfos{
@@ -142,20 +147,20 @@ func (suite *NotificationSuite) TestFormatEmails() {
 	suite.Nil(err)
 	for i, v := range formattedEmails {
 		content := emailInfos[i]
-		emailData := emailData{
+		data := emailData{
 			Link:                   link,
 			OriginDutyStation:      content.DutyStationName,
 			DestinationDutyStation: content.NewDutyStationName,
 			Email:                  *content.Email,
 		}
-		emailContent := emailContent{
+		email := emailContent{
 			recipientEmail: *content.Email,
 			subject:        "[MilMove] Let us know how we did",
-			htmlBody:       mr.RenderHtml(emailData),
-			textBody:       mr.RenderText(emailData),
+			htmlBody:       mr.RenderHTML(data),
+			textBody:       mr.RenderText(data),
 		}
 		if content.Email != nil {
-			suite.Equal(emailContent, v)
+			suite.Equal(email, v)
 		}
 	}
 }

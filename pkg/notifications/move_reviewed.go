@@ -2,6 +2,7 @@ package notifications
 
 import (
 	"bytes"
+	"context"
 	html "html/template"
 	text "text/template"
 	"time"
@@ -32,14 +33,16 @@ Thank you for your thoughts, and congratulations on your move.`))
 type MoveReviewed struct {
 	db     *pop.Connection
 	logger Logger
+	date   time.Time
 }
 
 // NewMoveReviewed returns a new move submitted notification
-func NewMoveReviewed(db *pop.Connection, logger Logger) *MoveReviewed {
+func NewMoveReviewed(db *pop.Connection, logger Logger, date time.Time) *MoveReviewed {
 
 	return &MoveReviewed{
 		db:     db,
 		logger: logger,
+		date:   date,
 	}
 }
 
@@ -68,10 +71,10 @@ func (m MoveReviewed) GetEmailInfo(date time.Time) (*EmailInfos, error) {
 }
 
 // Notifications expects emails to be implemented so we do
-func (m MoveReviewed) emails(date time.Time) ([]emailContent, error) {
-	emailInfos, err := m.GetEmailInfo(date)
+func (m MoveReviewed) emails(ctx context.Context) ([]emailContent, error) {
+	emailInfos, err := m.GetEmailInfo(m.date)
 	if emailInfos == nil || err == nil {
-		m.logger.Info("no emails to be sent for", zap.String("date", date.String()))
+		m.logger.Info("no emails to be sent for", zap.String("date", m.date.String()))
 		return nil, nil
 	}
 	return m.FormatEmails(emailInfos)
@@ -80,8 +83,6 @@ func (m MoveReviewed) emails(date time.Time) ([]emailContent, error) {
 //FormatEmails formats email data using both html and text template
 func (m MoveReviewed) FormatEmails(emailInfos *EmailInfos) ([]emailContent, error) {
 	var emails []emailContent
-	// now := time.Now()
-	// then := now.AddDate(0, 0, offsetDays)
 	for _, emailInfo := range *emailInfos {
 		var email string
 		if emailInfo.Email == nil {
@@ -98,7 +99,7 @@ func (m MoveReviewed) FormatEmails(emailInfos *EmailInfos) ([]emailContent, erro
 		smEmail := emailContent{
 			recipientEmail: email,
 			subject:        "[MilMove] Let us know how we did",
-			htmlBody:       m.RenderHtml(data),
+			htmlBody:       m.RenderHTML(data),
 			textBody:       m.RenderText(data),
 		}
 		m.logger.Info("Generated move reviewed email to service member",
@@ -116,7 +117,8 @@ type emailData struct {
 	Email                  string
 }
 
-func (m MoveReviewed) RenderHtml(data emailData) string {
+// RenderHTML renders the html for the email
+func (m MoveReviewed) RenderHTML(data emailData) string {
 	var htmlBuffer bytes.Buffer
 	if err := htmlTemplate.Execute(&htmlBuffer, data); err != nil {
 		m.logger.Error("cant render html template for: ",
@@ -125,6 +127,7 @@ func (m MoveReviewed) RenderHtml(data emailData) string {
 	return htmlBuffer.String()
 }
 
+// RenderText renders the text for the email
 func (m MoveReviewed) RenderText(data emailData) string {
 	var textBuffer bytes.Buffer
 	if err := textTemplate.Execute(&textBuffer, data); err != nil {

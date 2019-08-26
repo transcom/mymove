@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
@@ -110,12 +112,16 @@ func main() {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	//TODO the thing
+	ctx := context.TODO()
+	targetDate := time.Now().AddDate(0, 0, -15)
 	notificationSender := notifications.InitEmail(v, session, logger)
 	log.Print(notificationSender, dbConnection)
-	//err = notificationSender.SendNotification(
-	//	context,
-	//	notifications.NewMoveReviewed(dbConnection, logger),
-	//)
+	err = notificationSender.SendNotification(
+		ctx,
+		notifications.NewMoveReviewed(dbConnection, logger, targetDate),
+	)
 
+	if err != nil {
+		logger.Fatal("Emails failed to send", zap.Error(err))
+	}
 }
