@@ -3,6 +3,7 @@ package notifications
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
@@ -21,14 +22,36 @@ type MoveReviewed struct {
 }
 
 // NewMoveReviewed returns a new move submitted notification
-func NewMoveReviewed(db *pop.Connection, logger Logger, session *auth.Session, moveID uuid.UUID) *MoveReviewed {
+func NewMoveReviewed(db *pop.Connection, logger Logger) *MoveReviewed {
 
 	return &MoveReviewed{
-		db:      db,
-		logger:  logger,
-		moveID:  moveID,
-		session: session,
+		db:     db,
+		logger: logger,
 	}
+}
+
+type EmailInfos []EmailInfo
+
+type EmailInfo struct {
+	Email              string `db:"personal_email"`
+	DutyStationName    string `db:"name"`
+	NewDutyStationName string `db:"name"`
+}
+
+func (m MoveReviewed) GetEmailInfo(begRange time.Time, endRange time.Time) (*EmailInfos, error) {
+	//TODO query below needs to be updated to use review date not approve date
+	query := `SELECT sm.personal_email, dsn.name, dso.name
+	FROM personally_procured_moves
+	         JOIN moves m ON personally_procured_moves.move_id = m.id
+	         JOIN orders o ON m.orders_id = o.id
+	         JOIN service_members sm ON o.service_member_id = sm.id
+	         JOIN duty_stations dso ON sm.duty_station_id = dso.id
+	         JOIN duty_stations dsn ON o.new_duty_station_id = dsn.id
+	WHERE approve_date BETWEEN $1 AND $2;`
+
+	emailInfo := &EmailInfos{}
+	err := m.db.RawQuery(query, begRange, endRange).All(emailInfo)
+	return emailInfo, err
 }
 
 func (m MoveReviewed) emails(ctx context.Context) ([]emailContent, error) {

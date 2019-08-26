@@ -1,23 +1,22 @@
 package main
 
 import (
-	context "context"
 	"fmt"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
-	"github.com/pkg/errors"
-	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
-	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/cli"
-	"github.com/transcom/mymove/pkg/logging"
-	"github.com/transcom/mymove/pkg/notifications"
-	"github.com/xtgo/uuid"
-	"go.uber.org/zap"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
+	"github.com/pkg/errors"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/cli"
+	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/notifications"
 )
 
 func checkConfig(v *viper.Viper, logger logger) error {
@@ -113,14 +112,13 @@ func main() {
 
 	//TODO the thing
 	notificationSender := notifications.InitEmail(v, session, logger)
-	//TODO instantiate auth
-	//auth := &auth.Session{}
-	//TODO instantiate context
-	//context := context.Context()
 	log.Print(notificationSender, dbConnection)
+	// TODO need to initialize context
+	// TODO might be better to just remove this from SendNotification since this just fowards along
+	// TODO and never directly uses it
 	//err = notificationSender.SendNotification(
 	//	context,
-	//	notifications.NewMoveReviewed(dbConnection, logger, auth, moveID),
+	//	notifications.NewMoveReviewed(dbConnection, logger),
 	//)
 
 }
