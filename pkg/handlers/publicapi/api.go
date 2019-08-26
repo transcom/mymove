@@ -9,7 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/restapi"
 	publicops "github.com/transcom/mymove/pkg/gen/restapi/apioperations"
 	"github.com/transcom/mymove/pkg/handlers"
-	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	sitservice "github.com/transcom/mymove/pkg/services/storage_in_transit"
 )
 
@@ -64,11 +63,6 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		sitservice.NewStorageInTransitInReleaser(context.DB()),
 	}
-
-	// Access Codes
-	publicAPI.AccesscodeFetchAccessCodeHandler = FetchAccessCodeHandler{context, accesscodeservice.NewAccessCodeFetcher(context.DB())}
-	publicAPI.AccesscodeValidateAccessCodeHandler = ValidateAccessCodeHandler{context, accesscodeservice.NewAccessCodeValidator(context.DB())}
-	publicAPI.AccesscodeClaimAccessCodeHandler = ClaimAccessCodeHandler{context, accesscodeservice.NewAccessCodeClaimer(context.DB())}
 
 	return publicAPI.Serve(nil)
 }
