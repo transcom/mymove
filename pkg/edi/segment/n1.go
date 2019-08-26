@@ -8,11 +8,9 @@ import (
 type N1 struct {
 	EntityIdentifierCode        string `validate:"oneof=SF RG RH"`
 	Name                        string `validate:"min=1,max=60"`
-	IdentificationCodeQualifier string `validate:"omitempty,eq=27"`
-	IdentificationCode          string `validate:"omitempty,min=2,max=80"`
+	IdentificationCodeQualifier string `validate:"required_with=IdentificationCode,omitempty,eq=27"`
+	IdentificationCode          string `validate:"required_with=IdentificationCodeQualifier,omitempty,min=2,max=80"`
 }
-
-// TODO: Have the last two come in as a group?
 
 // StringArray converts N1 to an array of strings
 func (s *N1) StringArray() []string {

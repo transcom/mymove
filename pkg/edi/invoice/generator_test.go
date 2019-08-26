@@ -15,6 +15,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
+	"gopkg.in/go-playground/validator.v9"
 
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/edi"
@@ -142,7 +143,7 @@ func (suite *InvoiceSuite) TestEDIString() {
 
 		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), false, suite.icnSequencer, clock.NewMock(), suite.logger)
 		suite.FatalNoError(err, "Failed to generate 858C invoice")
-		actualEDIString, err := generatedTransactions.EDIString()
+		actualEDIString, err := generatedTransactions.EDIString(suite.logger)
 		suite.FatalNoError(err, "Failed to get invoice 858C as EDI string")
 
 		const expectedEDI = "expected_invoice.edi.golden"
@@ -160,6 +161,66 @@ func (suite *InvoiceSuite) TestEDIString() {
 		}
 
 		suite.Equal(helperLoadExpectedEDI(suite, "expected_invoice.edi.golden"), actualEDIString)
+	})
+}
+
+func (suite *InvoiceSuite) TestValidate() {
+	shipment := helperShipment(suite)
+
+	invoiceModel := helperShipmentInvoice(suite, shipment)
+
+	invoice, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), false, suite.icnSequencer, clock.NewMock(), suite.logger)
+	suite.FatalNoError(err, "Failed to generate 858C invoice")
+
+	suite.T().Run("everything validates successfully", func(t *testing.T) {
+		err := invoice.Validate()
+		suite.NoError(err, "Failed to get invoice 858C as EDI string")
+	})
+
+	suite.T().Run("should fail some validations", func(t *testing.T) {
+		// Manipulate the invoice struct to spot check validations and struct diving
+		invoice.ISA.AuthorizationInformationQualifier = "01" // should be "00"
+		invoice.GS.Date = "060102"                           // should be "20060102" format
+
+		st, ok := invoice.Shipment[0].(*edisegment.ST)
+		suite.True(ok, "Couldn't cast to an ST segment")
+		st.TransactionSetControlNumber = "859" // should be "858"
+
+		n9, ok := invoice.Shipment[5].(*edisegment.N9)
+		suite.True(ok, "Couldn't cast to an N9 segment")
+		n9.ReferenceIdentification = "string longer than 30 characters" // should be length 1 to 30
+		n9.Date = "20181530"                                            // right format, but bad month
+
+		l10, ok := invoice.Shipment[13].(*edisegment.L10)
+		suite.True(ok, "Couldn't cast to an L10 segment")
+		l10.Weight = 0 // should be a non-zero float (required)
+
+		invoice.GE.GroupControlNumber = 1000000000 // should be between 1 and 999999999
+
+		err := invoice.Validate()
+
+		suite.Error(err, "Failed to cause validation errors")
+
+		validationErrs := err.(validator.ValidationErrors)
+		suite.Len(validationErrs, 7, "wrong number of validation errors")
+
+		var expectedErrors = []struct {
+			name       string
+			validation string
+		}{
+			{"Invoice858C.ISA.AuthorizationInformationQualifier", "eq"},
+			{"Invoice858C.GS.Date", "timeformat"},
+			{"Invoice858C.Shipment[0].TransactionSetControlNumber", "min"},
+			{"Invoice858C.Shipment[5].ReferenceIdentification", "max"},
+			{"Invoice858C.Shipment[5].Date", "timeformat"},
+			{"Invoice858C.Shipment[13].Weight", "required"},
+			{"Invoice858C.GE.GroupControlNumber", "max"},
+		}
+
+		for i, expected := range expectedErrors {
+			suite.Equal(expected.name, validationErrs[i].Namespace(), "unexpected validation namespace")
+			suite.Equal(expected.validation, validationErrs[i].Tag(), "unexpected validation tag")
+		}
 	})
 }
 
@@ -385,5 +446,4 @@ func (suite *InvoiceSuite) TestMakeEDISegments() {
 			suite.Equal(lineItem.Tariff400ngItem.Code, l1Segment.SpecialChargeDescription)
 		}
 	})
-
 }

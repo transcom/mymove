@@ -15,8 +15,6 @@ type L0 struct {
 	WeightUnitCode         string  `validate:"required_with=Weight WeightQualifier,omitempty,eq=L"`
 }
 
-// TODO: Create struct validation to ensure one of two sets of fields is included?
-
 // StringArray converts L0 to an array of strings
 func (s *L0) StringArray() []string {
 

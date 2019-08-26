@@ -53,7 +53,7 @@ func (p ProcessInvoice) generateAndSendInvoiceData(invoice *models.Invoice, ship
 
 	// send edi through gex post api
 	transactionName := "placeholder"
-	invoice858CString, err := invoice858C.EDIString()
+	invoice858CString, err := invoice858C.EDIString(p.Logger)
 	if err != nil {
 		return nil, err
 	}

@@ -3,11 +3,14 @@ package ediinvoice
 import (
 	"bytes"
 	"fmt"
+	"log"
+	"time"
 
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 	"gopkg.in/go-playground/validator.v9"
 
 	"github.com/transcom/mymove/pkg/db/sequence"
@@ -38,8 +41,6 @@ const weightUnitCode = "L"         // Pounds
 const ladingLineItemNumber = 1
 const billedRatedAsQuantity = 1
 
-//var logger Logger
-
 // Invoice858C holds all the segments that are generated
 type Invoice858C struct {
 	ISA      edisegment.ISA
@@ -54,7 +55,23 @@ var validate *validator.Validate
 func init() {
 	validate = validator.New()
 
-	// TODO: Additional registering of custom validators, struct level validators, etc. here.
+	// Custom validators
+	err := validate.RegisterValidation("timeformat", hasTimeFormat)
+	if err != nil {
+		log.Fatalf("Failed to register timeformat validator: %v", err)
+	}
+}
+
+// hasTimeFormat is a custom validator to verify time format matches expectations.
+// Example usage: timeformat=20060102 or timeformat=1504
+// See https://golang.org/pkg/time/#Parse for how to interpret formats.
+func hasTimeFormat(fl validator.FieldLevel) bool {
+	field := fl.Field()
+	param := fl.Param()
+
+	_, err := time.Parse(param, field.String())
+
+	return err == nil
 }
 
 // Segments returns the invoice as an array of rows (string arrays),
@@ -74,10 +91,12 @@ func (invoice Invoice858C) Segments() [][]string {
 }
 
 // EDIString returns the EDI representation of an 858C
-func (invoice Invoice858C) EDIString() (string, error) {
+func (invoice Invoice858C) EDIString(logger Logger) (string, error) {
 	err := invoice.Validate()
 	if err != nil {
-		return "", err
+		// Log validation details, but do not expose details via API
+		logValidationErrors(logger, err)
+		return "", errors.New("EDI failed validation; see log for details")
 	}
 
 	var b bytes.Buffer
@@ -89,7 +108,24 @@ func (invoice Invoice858C) EDIString() (string, error) {
 	return b.String(), err
 }
 
-// Validate will validate the invoice struct (and nested structs) to make sure they will produce legal EDI
+func logValidationErrors(logger Logger, err error) {
+	if _, ok := err.(*validator.InvalidValidationError); ok {
+		logger.Error("InvalidValidationError", zap.Error(err))
+		return
+	}
+
+	errs := err.(validator.ValidationErrors)
+	strErrs := make([]string, len(errs))
+	for i, err := range errs {
+		strErrs[i] = fmt.Sprintf("%v (value '%s')", err, err.Value())
+	}
+
+	logger.Error("ValidationErrors", zap.Strings("errors", strErrs))
+}
+
+// Validate will validate the invoice struct (and nested structs) to make sure they will produce legal EDI.
+// This returns either an InvalidValidationError or a validator.ValidationErrors that allows all validation
+// errors to be introspected individually.
 func (invoice Invoice858C) Validate() error {
 	return validate.Struct(invoice)
 }

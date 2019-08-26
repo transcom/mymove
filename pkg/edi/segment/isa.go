@@ -15,8 +15,8 @@ type ISA struct {
 	InterchangeSenderID               string `validate:"eq=MYMOVE         "`
 	InterchangeReceiverIDQualifier    string `validate:"eq=12"`
 	InterchangeReceiverID             string `validate:"eq=8004171844     "`
-	InterchangeDate                   string `validate:"number,len=6"` // TODO: Custom validation for date?
-	InterchangeTime                   string `validate:"number,len=4"` // TODO: Custom validation for time?
+	InterchangeDate                   string `validate:"timeformat=060102"`
+	InterchangeTime                   string `validate:"timeformat=1504"`
 	InterchangeControlStandards       string `validate:"eq=U"`
 	InterchangeControlVersionNumber   string `validate:"eq=00401"`
 	InterchangeControlNumber          int64  `validate:"min=1,max=999999999"`
