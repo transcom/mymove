@@ -234,6 +234,10 @@ func checkServeConfig(v *viper.Viper, logger logger) error {
 		return err
 	}
 
+	if err := cli.CheckDebugFlags(v); err != nil {
+		return err
+	}
+
 	return nil
 }
 
