@@ -44,10 +44,10 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 				logger.Error("unauthorized user for office.move.mil", zap.String("email", session.Email))
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
-			} else if session.IsTspApp() && !session.IsTspUser() {
-				logger.Error("unauthorized user for tsp.move.mil", zap.String("email", session.Email))
-				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-				return
+			// } else if session.IsTspApp() && !session.IsTspUser() {
+			// 	logger.Error("unauthorized user for tsp.move.mil", zap.String("email", session.Email))
+			// 	http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+			// 	return
 			} else if session.IsAdminApp() && !session.IsAdminUser() {
 				logger.Error("unauthorized user for admin.move.mil", zap.String("email", session.Email))
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
