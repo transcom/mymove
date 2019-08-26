@@ -724,7 +724,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	debug := goji.SubMux()
 	debug.Use(userAuthMiddleware)
 	root.Handle(pat.New("/debug/pprof/*"), debug)
-	// TODO why in dev local is it at 8080/debug/pprof ?
 	if v.GetBool(cli.DebugPProfFlag) {
 		debug.HandleFunc(pat.Get("/"), pprof.Index)
 		debug.Handle(pat.Get("/allocs"), pprof.Handler("allocs"))
