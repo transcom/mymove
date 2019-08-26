@@ -250,8 +250,10 @@ jobs:
     steps:
       - checkout
       - run: make anti_virus_start
-      - run: sleep 30
+      # It can take up to 2 minutes to download the new definition files and be ready to run
+      - run: sleep 120
       - run: make anti_virus_scan
+      - run: make anti_virus_logs
       - announce_failure
 
   # `pre_test` runs pre-commit against all files.
