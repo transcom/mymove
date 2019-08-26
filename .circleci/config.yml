@@ -249,8 +249,9 @@ jobs:
     executor: mymove_medium
     steps:
       - checkout
-      - run: docker run -d -p 3310:3310 -v ~/transcom/mymove:/transcom/mymove --name av
-      - run: docker exec av clamscan -r /transcom/mymove
+      - run: make anti_virus_start
+      - run: sleep 30
+      - run: make anti_virus_scan
       - announce_failure
 
   # `pre_test` runs pre-commit against all files.

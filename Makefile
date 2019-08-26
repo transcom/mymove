@@ -886,4 +886,28 @@ docker_compose_down: ## Destroy docker-compose containers
 # ----- END DOCKER COMPOSE TARGETS -----
 #
 
+#
+# ----- START ANTI VIRUS TARGETS -----
+#
+
+.PHONY: anti_virus_start
+anti_virus_start: clean
+	docker run -d -p 3310:3310 -v $(shell pwd):/transcom/mymove --name anti_virus mk0x/docker-clamav:alpine
+
+.PHONY: anti_virus_scan
+anti_virus_scan:
+ifndef CIRCLECI
+	docker exec -it anti_virus clamdscan -v /transcom/mymove
+else
+	docker exec anti_virus clamdscan -v /transcom/mymove
+endif
+
+.PHONY: anti_virus_clean
+anti_virus_clean:
+	docker rm -f anti_virus
+
+#
+# ----- END ANTI VIRUS TARGETS -----
+#
+
 default: help
