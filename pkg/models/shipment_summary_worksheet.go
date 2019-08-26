@@ -18,16 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// FormatValuesShipmentSummaryWorksheet returns the formatted pages for the Shipment Summary Worksheet
-func FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData ShipmentSummaryFormData) (ShipmentSummaryWorksheetPage1Values, ShipmentSummaryWorksheetPage2Values, error) {
-	page1 := FormatValuesShipmentSummaryWorksheetFormPage1(shipmentSummaryFormData)
-	page2, err := FormatValuesShipmentSummaryWorksheetFormPage2(shipmentSummaryFormData)
-	if err != nil {
-		return page1, page2, err
-	}
-	return page1, page2, nil
-}
-
 // ShipmentSummaryWorksheetPage1Values is an object representing a Shipment Summary Worksheet
 type ShipmentSummaryWorksheetPage1Values struct {
 	ServiceMemberName               string
@@ -241,73 +231,6 @@ func FetchMovingExpensesShipmentSummaryWorksheet(move Move, db *pop.Connection, 
 		movingExpenseDocuments = FilterMovingExpenseDocuments(moveDocuments)
 	}
 	return movingExpenseDocuments, nil
-}
-
-// FormatValuesShipmentSummaryWorksheetFormPage1 formats the data for page 1 of the Shipment Summary Worksheet
-func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData) ShipmentSummaryWorksheetPage1Values {
-	page1 := ShipmentSummaryWorksheetPage1Values{}
-	page1.MaxSITStorageEntitlement = "90 days per each shipment"
-	// We don't currently know what allows POV to be authorized, so we are hardcoding it to "No" to start
-	page1.POVAuthorized = "No"
-	page1.PreparationDate = FormatDate(data.PreparationDate)
-
-	sm := data.ServiceMember
-	page1.ServiceMemberName = FormatServiceMemberFullName(sm)
-	page1.PreferredPhoneNumber = derefStringTypes(sm.Telephone)
-	page1.ServiceBranch = FormatServiceMemberAffiliation(sm.Affiliation)
-	page1.PreferredEmail = derefStringTypes(sm.PersonalEmail)
-	page1.DODId = derefStringTypes(sm.Edipi)
-	page1.RankGrade = FormatRank(data.ServiceMember.Rank)
-
-	page1.IssuingBranchOrAgency = FormatServiceMemberAffiliation(sm.Affiliation)
-	page1.OrdersIssueDate = FormatDate(data.Order.IssueDate)
-	page1.OrdersTypeAndOrdersNumber = FormatOrdersTypeAndOrdersNumber(data.Order)
-	page1.TAC = derefStringTypes(data.Order.TAC)
-	page1.SAC = derefStringTypes(data.Order.SAC)
-
-	page1.AuthorizedOrigin = FormatLocation(data.CurrentDutyStation)
-	page1.AuthorizedDestination = FormatLocation(data.NewDutyStation)
-	page1.NewDutyAssignment = FormatLocation(data.NewDutyStation)
-
-	page1.WeightAllotment = FormatWeights(data.WeightAllotment.Entitlement)
-	page1.WeightAllotmentProgear = FormatWeights(data.WeightAllotment.ProGear)
-	page1.WeightAllotmentProgearSpouse = FormatWeights(data.WeightAllotment.SpouseProGear)
-	page1.TotalWeightAllotment = FormatWeights(data.WeightAllotment.TotalWeight)
-
-	formattedShipments := FormatAllShipments(data.PersonallyProcuredMoves)
-	page1.ShipmentNumberAndTypes = formattedShipments.ShipmentNumberAndTypes
-	page1.ShipmentPickUpDates = formattedShipments.PickUpDates
-	page1.ShipmentCurrentShipmentStatuses = formattedShipments.CurrentShipmentStatuses
-	page1.ShipmentWeights = formattedShipments.ShipmentWeights
-
-	formattedSit := FormatAllSITExpenses(data.MovingExpenseDocuments)
-	page1.SITNumberAndTypes = formattedSit.NumberAndTypes
-	page1.SITEntryDates = formattedSit.EntryDates
-	page1.SITEndDates = formattedSit.EndDates
-	page1.SITDaysInStorage = formattedSit.DaysInStorage
-
-	maxObligations := data.Obligations.MaxObligation
-	page1.MaxObligationGCC100 = FormatDollars(maxObligations.GCC100())
-	page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
-	page1.MaxObligationGCC95 = FormatDollars(maxObligations.GCC95())
-	page1.MaxObligationSIT = FormatDollars(maxObligations.FormatSIT())
-	page1.MaxObligationGCCMaxAdvance = FormatDollars(maxObligations.MaxAdvance())
-
-	actualObligations := data.Obligations.ActualObligation
-	page1.ActualObligationGCC100 = FormatDollars(actualObligations.GCC100())
-	page1.PPMRemainingEntitlement = FormatWeights(data.PPMRemainingEntitlement)
-	page1.ActualObligationGCC95 = FormatDollars(actualObligations.GCC95())
-	page1.ActualObligationSIT = FormatDollars(actualObligations.FormatSIT())
-	page1.ActualObligationAdvance = formatActualObligationAdvance(data)
-	return page1
-}
-
-func formatActualObligationAdvance(data ShipmentSummaryFormData) string {
-	if len(data.PersonallyProcuredMoves) > 0 && data.PersonallyProcuredMoves[0].Advance != nil {
-		advance := data.PersonallyProcuredMoves[0].Advance.RequestedAmount.ToDollarFloat()
-		return FormatDollars(advance)
-	}
-	return FormatDollars(0)
 }
 
 //FormatRank formats the service member's rank for Shipment Summary Worksheet
