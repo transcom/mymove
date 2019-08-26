@@ -2,6 +2,7 @@ import React from 'react';
 import moment from 'moment';
 
 import { storiesOf } from '@storybook/react';
+import { withKnobs, boolean, text, date } from '@storybook/addon-knobs';
 
 import { StatusTimeline } from '../scenes/Landing/StatusTimeline';
 
@@ -13,156 +14,83 @@ const StatusTimelineCodes = {
   PaymentReviewed: 'PAYMENT_REVIEWED',
 };
 
-const oneStatusBlockComplete = [
-  {
-    name: 'Submitted',
-    code: StatusTimelineCodes.Submitted,
-    completed: true,
-    dates: [
-      moment()
-        .subtract(1, 'day')
-        .format(),
-    ],
-  },
-  {
-    name: 'Approved',
-    code: StatusTimelineCodes.PpmApproved,
-    completed: false,
-  },
-  {
-    name: 'In progress',
-    code: StatusTimelineCodes.InProgress,
-    completed: false,
-  },
-  {
-    name: 'Payment requested',
-    code: StatusTimelineCodes.PaymentRequested,
-    completed: false,
-  },
-  {
-    name: 'Payment reviewed',
-    code: StatusTimelineCodes.PaymentReviewed,
-    completed: false,
-  },
-];
-
-const someStatusBlocksCompleted = [
-  {
-    name: 'Submitted',
-    code: StatusTimelineCodes.Submitted,
-    completed: true,
-    dates: [
-      moment()
-        .subtract(4, 'days')
-        .format(),
-    ],
-  },
-  {
-    name: 'Approved',
-    code: StatusTimelineCodes.PpmApproved,
-    completed: true,
-    dates: [
-      moment()
-        .subtract(2, 'days')
-        .format(),
-    ],
-  },
-  {
-    name: 'In progress',
-    code: StatusTimelineCodes.InProgress,
-    completed: true,
-    dates: [
-      moment()
-        .subtract(1, 'day')
-        .format(),
-    ],
-  },
-  {
-    name: 'Payment requested',
-    code: StatusTimelineCodes.PaymentRequested,
-    completed: false,
-    dates: [moment().format()],
-  },
-  {
-    name: 'Payment reviewed',
-    code: StatusTimelineCodes.PaymentReviewed,
-    completed: false,
-  },
-];
-
-const allStatusBlocksCompleted = [
-  {
-    name: 'Submitted',
-    code: StatusTimelineCodes.Submitted,
-    completed: true,
-    dates: [
-      moment()
-        .subtract(8, 'days')
-        .format(),
-    ],
-  },
-  {
-    name: 'Approved',
-    code: StatusTimelineCodes.PpmApproved,
-    completed: true,
-    dates: [
-      moment()
-        .subtract(6, 'days')
-        .format(),
-    ],
-  },
-  {
-    name: 'In progress',
-    code: StatusTimelineCodes.InProgress,
-    completed: true,
-    dates: [
-      moment()
-        .subtract(5, 'days')
-        .format(),
-    ],
-  },
-  {
-    name: 'Payment requested',
-    code: StatusTimelineCodes.PaymentRequested,
-    completed: true,
-    dates: [
-      moment()
-        .subtract(4, 'days')
-        .format(),
-    ],
-  },
-  {
-    name: 'Payment reviewed',
-    code: StatusTimelineCodes.PaymentReviewed,
-    completed: true,
-    dates: [
-      moment()
-        .subtract(2, 'days')
-        .format(),
-    ],
-  },
-];
-
-storiesOf('StatusTimeline/showEstimatedTrue', module)
+storiesOf('StatusTimeline', module)
+  .addDecorator(withKnobs)
   .addDecorator(storyFn => <div className="shipment_box_contents">{storyFn()}</div>)
-  .add('with one status block complete', () => (
-    <StatusTimeline statuses={oneStatusBlockComplete} showEstimated={true} />
-  ))
-  .add('with more than one but not all status blocks complete', () => (
-    <StatusTimeline statuses={someStatusBlocksCompleted} showEstimated={true} />
-  ))
-  .add('with all status block complete', () => (
-    <StatusTimeline statuses={allStatusBlocksCompleted} showEstimated={true} />
-  ));
-
-storiesOf('StatusTimeline/showEstimatedFalse', module)
-  .addDecorator(storyFn => <div className="shipment_box_contents">{storyFn()}</div>)
-  .add('with one status block complete', () => (
-    <StatusTimeline statuses={oneStatusBlockComplete} showEstimated={false} />
-  ))
-  .add('with more than one but not all status blocks complete', () => (
-    <StatusTimeline statuses={someStatusBlocksCompleted} showEstimated={false} />
-  ))
-  .add('with all status block complete', () => (
-    <StatusTimeline statuses={allStatusBlocksCompleted} showEstimated={false} />
+  .add('with 5 status blocks', () => (
+    <StatusTimeline
+      showEstimated={boolean('showEstimated', false)}
+      statuses={[
+        {
+          name: text('StatusBlock1.Name', 'Submitted', 'Block 1'),
+          code: StatusTimelineCodes.Submitted,
+          completed: boolean('StatusBlock1.Completed', true, 'Block 1'),
+          dates: [
+            date(
+              'StatusBlock1.Date1',
+              moment()
+                .subtract(8, 'days')
+                .toDate(),
+              'Block 1',
+            ),
+          ],
+        },
+        {
+          name: text('StatusBlock2.Name', 'Approved', 'Block 2'),
+          code: StatusTimelineCodes.PpmApproved,
+          completed: boolean('StatusBlock2.Completed', false, 'Block 2'),
+          dates: [
+            date(
+              'StatusBlock2.Date1',
+              moment()
+                .subtract(6, 'days')
+                .toDate(),
+              'Block 2',
+            ),
+          ],
+        },
+        {
+          name: text('StatusBlock3.Name', 'In Progress', 'Block 3'),
+          code: StatusTimelineCodes.InProgress,
+          completed: boolean('StatusBlock3.Completed', false, 'Block 3'),
+          dates: [
+            date(
+              'StatusBlock3.Date1',
+              moment()
+                .subtract(5, 'days')
+                .toDate(),
+              'Block 3',
+            ),
+          ],
+        },
+        {
+          name: text('StatusBlock4.Name', 'Payment Requested', 'Block 4'),
+          code: StatusTimelineCodes.PaymentRequested,
+          completed: boolean('StatusBlock4.Completed', false, 'Block 4'),
+          dates: [
+            date(
+              'StatusBlock4.Date1',
+              moment()
+                .subtract(4, 'days')
+                .toDate(),
+              'Block 4',
+            ),
+          ],
+        },
+        {
+          name: text('StatusBlock5.Name', 'Payment Reviewed', 'Block 5'),
+          code: StatusTimelineCodes.PaymentReviewed,
+          completed: boolean('StatusBlock5.Completed', false, 'Block 5'),
+          dates: [
+            date(
+              'StatusBlock5.Date1',
+              moment()
+                .subtract(2, 'days')
+                .toDate(),
+              'Block 5',
+            ),
+          ],
+        },
+      ]}
+    />
   ));
