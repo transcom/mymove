@@ -122,27 +122,28 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 }
 
 func (suite *InvoiceSuite) TestEDIString() {
+	err := suite.icnSequencer.SetVal(1)
+	suite.NoError(err, "error setting sequence value")
+	shipment := helperShipment(suite)
+
+	// NOTE: Hard-coding the CreatedAt on the shipment to an explicit date (we can't force it
+	// as it gets overwritten by Pop) so we can set the golden EDI accordingly.
+	shipment.CreatedAt = time.Date(2018, 7, 1, 0, 0, 0, 0, time.UTC)
+
+	// We need to determine the SCAC/year so that we can reset the invoice sequence number to test
+	// against the golden EDI.
+	scac, err := shipment.ShipmentOffers[0].SCAC()
+	suite.NoError(err)
+	year := shipment.CreatedAt.UTC().Year()
+	err = testdatagen.ResetInvoiceSequenceNumber(suite.DB(), scac, year)
+	suite.NoError(err)
+
+	invoiceModel := helperShipmentInvoice(suite, shipment)
+
+	generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), false, suite.icnSequencer, clock.NewMock(), suite.logger)
+	suite.FatalNoError(err, "Failed to generate 858C invoice")
+
 	suite.T().Run("full EDI string is expected", func(t *testing.T) {
-		err := suite.icnSequencer.SetVal(1)
-		suite.NoError(err, "error setting sequence value")
-		shipment := helperShipment(suite)
-
-		// NOTE: Hard-coding the CreatedAt on the shipment to an explicit date (we can't force it
-		// as it gets overwritten by Pop) so we can set the golden EDI accordingly.
-		shipment.CreatedAt = time.Date(2018, 7, 1, 0, 0, 0, 0, time.UTC)
-
-		// We need to determine the SCAC/year so that we can reset the invoice sequence number to test
-		// against the golden EDI.
-		scac, err := shipment.ShipmentOffers[0].SCAC()
-		suite.NoError(err)
-		year := shipment.CreatedAt.UTC().Year()
-		err = testdatagen.ResetInvoiceSequenceNumber(suite.DB(), scac, year)
-		suite.NoError(err)
-
-		invoiceModel := helperShipmentInvoice(suite, shipment)
-
-		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), false, suite.icnSequencer, clock.NewMock(), suite.logger)
-		suite.FatalNoError(err, "Failed to generate 858C invoice")
 		actualEDIString, err := generatedTransactions.EDIString(suite.logger)
 		suite.FatalNoError(err, "Failed to get invoice 858C as EDI string")
 
@@ -162,11 +163,21 @@ func (suite *InvoiceSuite) TestEDIString() {
 
 		suite.Equal(helperLoadExpectedEDI(suite, "expected_invoice.edi.golden"), actualEDIString)
 	})
+
+	suite.T().Run("EDI string has validation errors", func(t *testing.T) {
+		// Change a field to an invalid value and validate we got an error.
+		generatedTransactions.ISA.AuthorizationInformationQualifier = "01" // should be "00"
+
+		_, err := generatedTransactions.EDIString(suite.logger)
+		suite.Error(err, "Invalid struct fields should have caused error")
+
+		_, ok := err.(validator.ValidationErrors)
+		suite.False(ok, "The returned error should not be of type ValidationErrors")
+	})
 }
 
 func (suite *InvoiceSuite) TestValidate() {
 	shipment := helperShipment(suite)
-
 	invoiceModel := helperShipmentInvoice(suite, shipment)
 
 	invoice, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), false, suite.icnSequencer, clock.NewMock(), suite.logger)
