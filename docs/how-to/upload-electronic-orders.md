@@ -120,3 +120,9 @@ MODULE=`/usr/local/lib/pkcs11/cackey.dylib`
 bin/nom -host orderslocal -port 9443 -insecure -pkcs11module "${MODULE}" --tokenlabel "${TOKEN}" nom_demo_20190404.csv
 PIN: ********
 ```
+
+## Updating the Sample CSV for transcom/nom
+
+The data in transcom/nom `sample.csv` is generated from data in the fake records hosted by the DMDC. Copies of
+the fake data exist in CSV/Excel files in the [USTC MilMove -> Integrations -> Identity Web Services -> Developer Samples](https://drive.google.com/drive/folders/16k7eG4j5vSBQIX_eTWnoXqiae1T0ysiq) folder. The latest set of data is [Cust2675_TRANSCOM_20190823_Demo2](https://drive.google.com/drive/folders/16k7eG4j5vSBQIX_eTWnoXqiae1T0ysiq). If you need to update
+this data you will need to contact DMDC as they refresh the data from time to time.

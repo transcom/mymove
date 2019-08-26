@@ -427,6 +427,7 @@ _High_Sierra_
 _and_Sierra_
 10.12.x
 _Built_in_Smart_Card_Ability
+Cust2675_TRANSCOM_20190823_Demo2
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - /usr/local
  - docs/data/tspp-data-creation.md
