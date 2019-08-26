@@ -28,7 +28,6 @@ func payloadForStorageInTransitModel(s *models.StorageInTransit) *apimessages.St
 		ShipmentID:          *handlers.FmtUUID(s.ShipmentID),
 		EstimatedStartDate:  handlers.FmtDate(s.EstimatedStartDate),
 		Notes:               handlers.FmtStringPtr(s.Notes),
-		WarehouseAddress:    payloadForAddressModel(&s.WarehouseAddress),
 		WarehouseEmail:      handlers.FmtStringPtr(s.WarehouseEmail),
 		WarehouseID:         handlers.FmtString(s.WarehouseID),
 		WarehouseName:       handlers.FmtString(s.WarehouseName),

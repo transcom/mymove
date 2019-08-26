@@ -68,19 +68,6 @@ func processStorageInTransitInput(shipmentID uuid.UUID, payload apimessages.Stor
 		warehouseName = *payload.WarehouseName
 	}
 
-	var warehouseAddress models.Address
-	if payload.WarehouseAddress != nil {
-		warehouseAddress = models.Address{
-			StreetAddress1: *payload.WarehouseAddress.StreetAddress1,
-			StreetAddress2: payload.WarehouseAddress.StreetAddress2,
-			StreetAddress3: payload.WarehouseAddress.StreetAddress3,
-			City:           *payload.WarehouseAddress.City,
-			State:          *payload.WarehouseAddress.State,
-			PostalCode:     *payload.WarehouseAddress.PostalCode,
-			Country:        payload.WarehouseAddress.Country,
-		}
-	}
-
 	newStorageInTransit := models.StorageInTransit{
 		ShipmentID:         shipmentID,
 		Location:           savedLocation,
@@ -88,8 +75,6 @@ func processStorageInTransitInput(shipmentID uuid.UUID, payload apimessages.Stor
 		Notes:              payload.Notes,
 		WarehouseID:        *payload.WarehouseID,
 		WarehouseName:      warehouseName,
-		WarehouseAddressID: warehouseAddress.ID,
-		WarehouseAddress:   warehouseAddress,
 		WarehouseEmail:     payload.WarehouseEmail,
 		WarehousePhone:     payload.WarehousePhone,
 		Status:             status,
