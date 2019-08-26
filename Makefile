@@ -259,9 +259,6 @@ bin_linux/save-fuel-price-data: .server_generate_linux.stamp
 bin/send-to-gex: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
 
-bin/tsp-award-queue: .server_generate.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
-
 pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
 	go-bindata -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/
 
