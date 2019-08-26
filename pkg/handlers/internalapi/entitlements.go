@@ -73,7 +73,7 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 	}
 
 	// Return 404 if there's no PPM or Shipment,  or if there is no Rank
-	if (len(move.PersonallyProcuredMoves) < 1 && len(move.Shipments) < 1) || serviceMember.Rank == nil {
+	if (len(move.PersonallyProcuredMoves) < 1) || serviceMember.Rank == nil {
 		return entitlementop.NewValidateEntitlementNotFound()
 	}
 	var weightEstimate int64
@@ -86,13 +86,6 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 			weightEstimate = int64(0)
 		}
 
-	} else if len(move.Shipments) >= 1 {
-		shipment := move.Shipments[0]
-		if shipment.WeightEstimate != nil {
-			weightEstimate = int64(*shipment.WeightEstimate)
-		} else {
-			weightEstimate = int64(0)
-		}
 	}
 
 	smEntitlement, err := models.GetEntitlement(*serviceMember.Rank, orders.HasDependents, orders.SpouseHasProGear)
