@@ -244,6 +244,16 @@ jobs:
             - ~/transcom/mymove/node_modules
       - announce_failure
 
+  # `anti_virus` uses virus detection software to scan the source code
+  anti_virus:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run: make anti_virus
+      - announce_failure
+
   # `pre_test` runs pre-commit against all files.
   pre_test:
     executor: mymove_medium_plus
@@ -772,6 +782,8 @@ workflows:
 
       - pre_deps_yarn
 
+      - anti_virus
+
       - pre_test:
           requires:
             - pre_deps_golang
@@ -830,16 +842,19 @@ workflows:
 
       - build_app:
           requires:
+            - anti_virus
             - pre_deps_golang
             - pre_deps_yarn
             - acceptance_tests_local # don't bother building and pushing the application if it won't even start properly
 
       - build_tools:
           requires:
+            - anti_virus
             - pre_deps_golang
 
       - build_migrations:
           requires:
+            - anti_virus
             - pre_deps_golang
 
       - build_tasks:

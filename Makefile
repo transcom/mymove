@@ -886,4 +886,16 @@ docker_compose_down: ## Destroy docker-compose containers
 # ----- END DOCKER COMPOSE TARGETS -----
 #
 
+#
+# ----- START ANTI VIRUS TARGETS -----
+#
+
+.PHONY: anti_virus
+anti_virus: ## Scan repo with anti-virus service
+	scripts/anti-virus
+
+#
+# ----- END ANTI VIRUS TARGETS -----
+#
+
 default: help
