@@ -91,6 +91,7 @@ func evalActiveConnection(v *viper.Viper, logger *zap.Logger) {
 			if err == nil {
 				count = count + 1
 				logger.Info(fmt.Sprintf("Ran query successfully at %d minute", count))
+				dbConn.Close()
 			} else {
 				log.Fatalf(err.Error())
 				return
@@ -112,13 +113,13 @@ func evalActiveCredentials(v *viper.Viper, logger *zap.Logger) {
 		log.Fatalf("Failed to get IAM creds")
 	}
 
-	runtime := time.Duration(22)
+	runtime := time.Duration(1080) // 30 hours
 	period := time.Duration(1)
 	count := 0
 
 	logger.Info(fmt.Sprintf("Starting evalActiveCredentials test, use existing credential to open connection every %dm for %dm", period, runtime))
 
-	ticker := time.NewTicker(period * time.Minute)
+	ticker := time.NewTicker(period * time.Second)
 	go func() {
 		for range ticker.C {
 
@@ -133,6 +134,10 @@ func evalActiveCredentials(v *viper.Viper, logger *zap.Logger) {
 			if err == nil {
 				count = count + 1
 				logger.Info(fmt.Sprintf("Ran query successfully at %d minute", count))
+				err = dbConn.Close()
+				if err != nil {
+					logger.Fatal(fmt.Sprintf("Error closing db connection: %s", err))
+				}
 			} else {
 				log.Fatalf(err.Error())
 				return

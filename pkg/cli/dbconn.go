@@ -264,6 +264,7 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger)
 		}
 		dbPassword = url.QueryEscape(authToken)
 		logger.Info("Using IAM Authentication")
+		logger.Info(authToken)
 	}
 
 	// Construct a safe URL and log it
