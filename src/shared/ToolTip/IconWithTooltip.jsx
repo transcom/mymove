@@ -13,7 +13,8 @@ class IconWithTooltip extends Component {
   };
 
   render() {
-    const { icon, iconClassName, toolTipText, toolTipClassName } = this.props;
+    const { showTooltip } = this.state;
+    const { icon, iconClassName, toolTipText, toolTipTextClassName } = this.props;
 
     return (
       <div style={{ display: 'inline-block' }}>
@@ -23,9 +24,12 @@ class IconWithTooltip extends Component {
           icon={icon ? icon : faQuestionCircle}
           onClick={this.toggleTooltip}
         />
-        <div className="tooltip">
-          <span className="tooltiptext">{toolTipText}</span>
-        </div>
+        {showTooltip && (
+          <div className="tooltip2">
+            <div className="arrow" />
+            <div className={`tooltiptext2 ${toolTipTextClassName}`}>{toolTipText}</div>
+          </div>
+        )}
       </div>
     );
   }
