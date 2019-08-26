@@ -897,8 +897,8 @@ anti_virus_update:  ## Update the definitions for anti-virus
 	docker rm clamav
 
 .PHONY: anti_virus
-anti_virus: clean anti_virus_update  ## Clean out generated files and start anti-virus service
-	docker run --rm -v $(shell pwd):/malware:ro --name anti_virus malice/clamav:updated . | tee -a virus_log.txt
+anti_virus: anti_virus_update  ## Scan repo with anti-virus service
+	docker run --rm -v $(shell pwd):/malware:ro malice/clamav:updated . | tee -a virus_log.txt
 
 #
 # ----- END ANTI VIRUS TARGETS -----
