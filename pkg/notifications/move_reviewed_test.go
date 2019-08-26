@@ -1,7 +1,6 @@
 package notifications
 
 import (
-	"log"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -17,68 +16,38 @@ func (suite *NotificationSuite) createPPMMoves(assertions []testdatagen.Assertio
 	return ppms
 }
 
-func (suite *NotificationSuite) TestMoveReviewedFetchInRange() {
+func (suite *NotificationSuite) TestMoveReviewedFetchSomeFound() {
 	db := suite.DB()
-	endRange := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
-	begRange := endRange.AddDate(0, 0, -7)
-	inRange := begRange.AddDate(0, 0, 1)
-	outOfRange := endRange.AddDate(0, 0, 1)
+	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
+	onDate := startDate.AddDate(0, 0, -6)
+	offDate := startDate.AddDate(0, 0, -7)
 	moves := []testdatagen.Assertions{
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ApproveDate: &inRange}},
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ApproveDate: &outOfRange}},
+		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &onDate}},
+		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &offDate}},
 	}
-	ppms := suite.createPPMMoves(moves)
-	for _, v := range ppms {
-		log.Println(*v.Move.Orders.ServiceMember.PersonalEmail)
-	}
+	suite.createPPMMoves(moves)
 	moveReviewed := NewMoveReviewed(db, suite.logger)
 
-	emailInfo, err := moveReviewed.GetEmailInfo(begRange, endRange)
+	emailInfo, err := moveReviewed.GetEmailInfo(onDate)
 
 	suite.NoError(err)
 	suite.Len(*emailInfo, 1)
 }
 
-func (suite *NotificationSuite) TestMoveReviewedFetchNoneInRange() {
+func (suite *NotificationSuite) TestMoveReviewedFetchNoneFound() {
 	db := suite.DB()
-	endRange := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
-	begRange := endRange.AddDate(0, 0, -7)
-	outOfRange1 := begRange.AddDate(0, 0, -1)
-	outOfRange2 := endRange.AddDate(0, 0, 1)
+	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
+	offDate := startDate.AddDate(0, 0, -7)
 	moves := []testdatagen.Assertions{
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ApproveDate: &outOfRange1}},
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ApproveDate: &outOfRange2}},
+		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &offDate}},
+		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &offDate}},
 	}
-	ppms := suite.createPPMMoves(moves)
-	for _, v := range ppms {
-		log.Println(*v.Move.Orders.ServiceMember.PersonalEmail)
-	}
+	suite.createPPMMoves(moves)
+
 	moveReviewed := NewMoveReviewed(db, suite.logger)
 
-	emailInfo, err := moveReviewed.GetEmailInfo(begRange, endRange)
+	emailInfo, err := moveReviewed.GetEmailInfo(startDate)
 
 	suite.NoError(err)
 	suite.Len(*emailInfo, 0)
-}
-
-func (suite *NotificationSuite) TestMoveReviewedFetchAllInRange() {
-	db := suite.DB()
-	endRange := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
-	begRange := endRange.AddDate(0, 0, -7)
-	inRange1 := begRange.AddDate(0, 0, 1)
-	inRange2 := endRange.AddDate(0, 0, -1)
-	moves := []testdatagen.Assertions{
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ApproveDate: &inRange1}},
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ApproveDate: &inRange2}},
-	}
-	ppms := suite.createPPMMoves(moves)
-	for _, v := range ppms {
-		log.Println(*v.Move.Orders.ServiceMember.PersonalEmail)
-	}
-	moveReviewed := NewMoveReviewed(db, suite.logger)
-
-	emailInfo, err := moveReviewed.GetEmailInfo(begRange, endRange)
-
-	suite.NoError(err)
-	suite.Len(*emailInfo, 2)
 }

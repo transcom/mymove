@@ -113,9 +113,6 @@ func main() {
 	//TODO the thing
 	notificationSender := notifications.InitEmail(v, session, logger)
 	log.Print(notificationSender, dbConnection)
-	// TODO need to initialize context
-	// TODO might be better to just remove this from SendNotification since this just fowards along
-	// TODO and never directly uses it
 	//err = notificationSender.SendNotification(
 	//	context,
 	//	notifications.NewMoveReviewed(dbConnection, logger),
