@@ -249,9 +249,12 @@ jobs:
     executor: mymove_medium
     steps:
       - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run: make anti_virus_start
       # It can take up to 2 minutes to download the new definition files and be ready to run
       - run: sleep 120
+      - run: make anti_virus_version
       - run: make anti_virus_scan
       - run: make anti_virus_logs
       - announce_failure

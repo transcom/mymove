@@ -894,6 +894,14 @@ docker_compose_down: ## Destroy docker-compose containers
 anti_virus_start: clean  ## Clean out generated files and start anti-virus service
 	docker run -d -p 3310:3310 -v $(shell pwd):/transcom/mymove --name anti_virus mk0x/docker-clamav:alpine
 
+.PHONY: anti_virus_version
+anti_virus_version:  ## Return the version of the anti-virus service
+ifndef CIRCLECI
+	docker exec -it anti_virus clamd --version
+else
+	docker exec anti_virus clamd --version
+endif
+
 .PHONY: anti_virus_scan
 anti_virus_scan:  ## Scan source code for viruses
 ifndef CIRCLECI
