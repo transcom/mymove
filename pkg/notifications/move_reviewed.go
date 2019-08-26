@@ -1,13 +1,32 @@
 package notifications
 
 import (
-	"errors"
-	"fmt"
+	"bytes"
+	html "html/template"
+	text "text/template"
 	"time"
 
 	"github.com/gobuffalo/pop"
 	"go.uber.org/zap"
 )
+
+const link = "https://www.surveymonkey.com/r/MilMovePt3-08191"
+
+var htmlTemplate = html.Must(html.New("email_survey_html").Parse(`<em>Good news:</em> Your move from {{.OriginDutyStation}} to {{.DestinationDutyStation}} has been processed for payment.
+
+Can we ask a quick favor? <a href="{{.Link}}"> Tell us about your experience</a> with requesting and receiving payment.
+
+We’ll use your feedback to make MilMove better for your fellow service members.
+
+Thank you for your thoughts, and <em>congratulations on your move.</em>`))
+
+var textTemplate = text.Must(text.New("email_survey_text").Parse(`Good news: Your move from {{.OriginDutyStation}} to {{.DestinationDutyStation}} has been processed for payment.
+
+Can we ask a quick favor? Tell us about your experience with requesting and receiving payment at {{.Link}}.
+
+We’ll use your feedback to make MilMove better for your fellow service members.
+
+Thank you for your thoughts, and congratulations on your move.`))
 
 // MoveReviewed has notification content for completed/reviewed moves
 type MoveReviewed struct {
@@ -27,9 +46,9 @@ func NewMoveReviewed(db *pop.Connection, logger Logger) *MoveReviewed {
 type EmailInfos []EmailInfo
 
 type EmailInfo struct {
-	Email              string `db:"personal_email"`
-	DutyStationName    string `db:"name"`
-	NewDutyStationName string `db:"name"`
+	Email              *string `db:"personal_email"`
+	DutyStationName    string  `db:"name"`
+	NewDutyStationName string  `db:"name"`
 }
 
 func (m MoveReviewed) GetEmailInfo(date time.Time) (*EmailInfos, error) {
@@ -47,54 +66,70 @@ func (m MoveReviewed) GetEmailInfo(date time.Time) (*EmailInfos, error) {
 	err := m.db.RawQuery(query, dateString).All(emailInfo)
 	return emailInfo, err
 }
+
+// Notifications expects emails to be implemented so we do
 func (m MoveReviewed) emails(date time.Time) ([]emailContent, error) {
+	emailInfos, err := m.GetEmailInfo(date)
+	if emailInfos == nil || err == nil {
+		m.logger.Info("no emails to be sent for", zap.String("date", date.String()))
+		return nil, nil
+	}
+	return m.FormatEmails(emailInfos)
+}
+
+//FormatEmails formats email data using both html and text template
+func (m MoveReviewed) FormatEmails(emailInfos *EmailInfos) ([]emailContent, error) {
 	var emails []emailContent
 	// now := time.Now()
 	// then := now.AddDate(0, 0, offsetDays)
-	emailInfos, err := m.GetEmailInfo(date)
-
-	if err != nil {
-		return nil, err
-	}
-
-	if emailInfos == nil {
-		return nil, errors.New("TODO")
-	}
 	for _, emailInfo := range *emailInfos {
-		// TODO email should not be nil but can be in db
-		// if emailInfo.Email == nil {
-		// 	return emails, fmt.Errorf("no email found for service member")
-		// }
-
-		link := "https://www.surveymonkey.com/r/MilMovePt3-08191"
-		startText := fmt.Sprintf(
-			"Good news: Your move from %s to %s has been processed for payment. ",
-			emailInfo.DutyStationName,
-			emailInfo.NewDutyStationName,
-		)
-		startTextHTML := fmt.Sprintf(
-			"<strong>Good news:</strong> Your move from %s to %s has been processed for payment. ",
-			emailInfo.DutyStationName,
-			emailInfo.NewDutyStationName,
-		)
-		surveyText := fmt.Sprintf("Can we ask a quick favor? Tell us about your experience with requesting and receiving payment at %s.", link)
-		surveyTextHTML := fmt.Sprintf("Can we ask a quick favor? <a href=\"%s\">Tell us about your experience</a> with requesting and receiving payment.", link)
-		feedbackText := "We’ll use your feedback to make MilMove better for your fellow service members."
-		closingText := "Thank you for your thoughts, and congratulations on your move."
-		closingTextHTML := "Thank you for your thoughts, and <strong>congratulations on your move.</strong>"
-
-		smEmail := emailContent{
-			recipientEmail: emailInfo.Email,
-			subject:        "[MilMove] Let us know how we did",
-			htmlBody:       fmt.Sprintf("%s<br/><br/>%s<br/><br/>%s<br/><br/><br/>%s", startTextHTML, surveyTextHTML, feedbackText, closingTextHTML),
-			textBody:       fmt.Sprintf("%s\n\n%s\n\n%s\n\n\n%s", startText, surveyText, feedbackText, closingText),
+		var email string
+		if emailInfo.Email == nil {
+			m.logger.Error("no email found for service member")
+			continue
 		}
-
+		email = *emailInfo.Email
+		data := emailData{
+			Link:                   link,
+			OriginDutyStation:      emailInfo.DutyStationName,
+			DestinationDutyStation: emailInfo.NewDutyStationName,
+			Email:                  email,
+		}
+		smEmail := emailContent{
+			recipientEmail: email,
+			subject:        "[MilMove] Let us know how we did",
+			htmlBody:       m.RenderHtml(data),
+			textBody:       m.RenderText(data),
+		}
 		m.logger.Info("Generated move reviewed email to service member",
-			zap.String("service member email address", emailInfo.Email))
-
+			zap.String("service member email address", email))
 		// TODO: Send email to trusted contacts when that's supported
 		emails = append(emails, smEmail)
 	}
 	return emails, nil
+}
+
+type emailData struct {
+	Link                   string
+	OriginDutyStation      string
+	DestinationDutyStation string
+	Email                  string
+}
+
+func (m MoveReviewed) RenderHtml(data emailData) string {
+	var htmlBuffer bytes.Buffer
+	if err := htmlTemplate.Execute(&htmlBuffer, data); err != nil {
+		m.logger.Error("cant render html template for: ",
+			zap.String("service member email address", data.Email))
+	}
+	return htmlBuffer.String()
+}
+
+func (m MoveReviewed) RenderText(data emailData) string {
+	var textBuffer bytes.Buffer
+	if err := textTemplate.Execute(&textBuffer, data); err != nil {
+		m.logger.Error("cant render text template for: ",
+			zap.String("service member email address", data.Email))
+	}
+	return textBuffer.String()
 }

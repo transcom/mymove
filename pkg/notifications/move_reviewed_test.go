@@ -1,6 +1,9 @@
 package notifications
 
 import (
+	"bytes"
+	"fmt"
+	"log"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -50,4 +53,109 @@ func (suite *NotificationSuite) TestMoveReviewedFetchNoneFound() {
 
 	suite.NoError(err)
 	suite.Len(*emailInfo, 0)
+}
+
+func (suite *NotificationSuite) TestHMTLTemplateRender() {
+	var tpl bytes.Buffer
+	s := struct {
+		Link                   string
+		OriginDutyStation      string
+		DestinationDutyStation string
+	}{
+		Link:                   "www.survey",
+		OriginDutyStation:      "OriginDutyStation",
+		DestinationDutyStation: "DestDutyStation",
+	}
+	if err := htmlTemplate.Execute(&tpl, s); err != nil {
+		fmt.Println("Cant render template")
+	}
+	log.Fatal(tpl.String())
+
+}
+
+func (suite *NotificationSuite) TestHTMLTemplateRender() {
+	mr := NewMoveReviewed(suite.DB(), suite.logger)
+	s := emailData{
+		Link:                   "www.survey",
+		OriginDutyStation:      "OriginDutyStation",
+		DestinationDutyStation: "DestDutyStation",
+		Email:                  "email",
+	}
+	expectedHtmlContent := `<em>Good news:</em> Your move from OriginDutyStation to DestDutyStation has been processed for payment.
+
+Can we ask a quick favor? <a href="www.survey"> Tell us about your experience</a> with requesting and receiving payment.
+
+We’ll use your feedback to make MilMove better for your fellow service members.
+
+Thank you for your thoughts, and <em>congratulations on your move.</em>`
+
+	htmlContent := mr.RenderHtml(s)
+	suite.Equal(expectedHtmlContent, htmlContent)
+
+}
+
+func (suite *NotificationSuite) TestTextTemplateRender() {
+	mr := NewMoveReviewed(suite.DB(), suite.logger)
+	s := emailData{
+		Link:                   "www.survey",
+		OriginDutyStation:      "OriginDutyStation",
+		DestinationDutyStation: "DestDutyStation",
+		Email:                  "email",
+	}
+	expectedTextContent := `Good news: Your move from OriginDutyStation to DestDutyStation has been processed for payment.
+
+Can we ask a quick favor? Tell us about your experience with requesting and receiving payment at www.survey.
+
+We’ll use your feedback to make MilMove better for your fellow service members.
+
+Thank you for your thoughts, and congratulations on your move.`
+
+	textContent := mr.RenderText(s)
+	suite.Equal(expectedTextContent, textContent)
+
+}
+
+func (suite *NotificationSuite) TestFormatEmails() {
+	mr := NewMoveReviewed(suite.DB(), suite.logger)
+	email1 := "email1"
+	email2 := "email2"
+	emailInfos := EmailInfos{
+		{
+			Email:              &email1,
+			DutyStationName:    "d1",
+			NewDutyStationName: "nd2",
+		},
+		{
+			Email:              &email2,
+			DutyStationName:    "d2",
+			NewDutyStationName: "nd2",
+		},
+		{
+			// nil emails should be skipped
+			Email:              nil,
+			DutyStationName:    "d2",
+			NewDutyStationName: "nd2",
+		},
+	}
+
+	formattedEmails, err := mr.FormatEmails(&emailInfos)
+	suite.Nil(err)
+	for i, v := range formattedEmails {
+		content := emailInfos[i]
+		emailData := emailData{
+			Link:                   link,
+			OriginDutyStation:      content.DutyStationName,
+			DestinationDutyStation: content.NewDutyStationName,
+			Email:                  *content.Email,
+		}
+		emailContent := emailContent{
+			recipientEmail: *content.Email,
+			subject:        "[MilMove] Let us know how we did",
+			htmlBody:       mr.RenderHtml(emailData),
+			textBody:       mr.RenderText(emailData),
+		}
+		if content.Email != nil {
+			suite.Equal(emailContent, v)
+		}
+	}
 }
