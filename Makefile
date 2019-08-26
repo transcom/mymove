@@ -890,33 +890,15 @@ docker_compose_down: ## Destroy docker-compose containers
 # ----- START ANTI VIRUS TARGETS -----
 #
 
-.PHONY: anti_virus_start
-anti_virus_start: clean  ## Clean out generated files and start anti-virus service
-	docker run -d -p 3310:3310 -v $(shell pwd):/transcom/mymove --name anti_virus mk0x/docker-clamav:alpine
+.PHONY: anti_virus_update
+anti_virus_update:  ## Update the definitions for anti-virus
+	docker run --name=clamav malice/clamav update
+	docker commit clamav malice/clamav:updated
+	docker rm clamav
 
-.PHONY: anti_virus_version
-anti_virus_version:  ## Return the version of the anti-virus service
-ifndef CIRCLECI
-	docker exec -it anti_virus clamd --version
-else
-	docker exec anti_virus clamd --version
-endif
-
-.PHONY: anti_virus_scan
-anti_virus_scan:  ## Scan source code for viruses
-ifndef CIRCLECI
-	docker exec -it anti_virus clamdscan -v /transcom/mymove
-else
-	docker exec anti_virus clamdscan -v /transcom/mymove
-endif
-
-.PHONY: anti_virus_clean
-anti_virus_clean:  ## Remove the anti-virus docker container
-	docker rm -f anti_virus
-
-.PHONY: anti_virus_logs
-anti_virus_logs:  ## View the anti-virus docker container logs
-	docker logs anti_virus
+.PHONY: anti_virus
+anti_virus: clean anti_virus_update  ## Clean out generated files and start anti-virus service
+	docker run --rm -v $(shell pwd):/malware:ro --name anti_virus malice/clamav:updated . | tee -a virus_log.txt
 
 #
 # ----- END ANTI VIRUS TARGETS -----
