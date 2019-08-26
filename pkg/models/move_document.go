@@ -110,8 +110,6 @@ type MoveDocument struct {
 	Move                     Move                     `belongs_to:"moves"`
 	PersonallyProcuredMoveID *uuid.UUID               `json:"personally_procured_move_id" db:"personally_procured_move_id"`
 	PersonallyProcuredMove   PersonallyProcuredMove   `belongs_to:"personally_procured_moves"`
-	ShipmentID               *uuid.UUID               `json:"shipment_id" db:"shipment_id"`
-	Shipment                 Shipment                 `belongs_to:"shipments"`
 	Title                    string                   `json:"title" db:"title"`
 	Status                   MoveDocumentStatus       `json:"status" db:"status"`
 	MoveDocumentType         MoveDocumentType         `json:"move_document_type" db:"move_document_type"`
@@ -305,20 +303,7 @@ func FetchMoveDocumentsByTypeForShipment(db *pop.Connection, session *auth.Sessi
 	// Verify that the logged-in TSP user is authorized to generate GBL
 	// Does this need to be checked here if already checked in create gbl handler?
 	if session.IsTspApp() {
-		if session.TspUserID == uuid.Nil {
-			return nil, ErrFetchForbidden
-		}
-		tspUser, err := FetchTspUserByID(db, session.TspUserID)
-		if err != nil {
-			return nil, ErrFetchNotFound
-		}
-		shipment, err := FetchShipmentByTSP(db, tspUser.TransportationServiceProviderID, shipmentID)
-		if err != nil {
-			return nil, ErrFetchForbidden
-		}
-		if shipment.ID != shipmentID {
-			return nil, ErrFetchForbidden
-		}
+		return nil, ErrFetchForbidden
 	}
 
 	// Allow all logged in office users to fetch move docs
@@ -387,17 +372,6 @@ func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveExpens
 			if verrs, err := db.ValidateAndSave(&ppm); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = errors.Wrap(err, "Error Saving Move Document's PPM")
-				return transactionError
-			}
-		}
-
-		// Updating the move document can cause the Shipment to be updated
-		if moveDocument.ShipmentID != nil {
-			shipment := moveDocument.Shipment
-
-			if verrs, err := db.ValidateAndSave(&shipment); verrs.HasAny() || err != nil {
-				responseVErrors.Append(verrs)
-				responseError = errors.Wrap(err, "Error Saving Move Document's Shipment")
 				return transactionError
 			}
 		}

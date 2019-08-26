@@ -18,16 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *AwardQueueSuite) Test_FindAllUnassignedShipments() {
-	t := suite.T()
-	queue := NewAwardQueue(suite.DB(), suite.logger)
-	_, err := queue.findAllUnassignedShipments()
-
-	if err != nil {
-		t.Error("Unable to find shipments: ", err)
-	}
-}
-
 func (suite *AwardQueueSuite) Test_GetTSPsPerBandWithRemainder() {
 	t := suite.T()
 	// Check bands should expect differing num of TSPs when not divisible by 4

@@ -18,7 +18,6 @@ type ShipmentRecalculateLog struct {
 	CreatedAt  time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at" db:"updated_at"`
 	ShipmentID uuid.UUID `json:"shipment_id" db:"shipment_id"`
-	Shipment   Shipment  `belongs_to:"shipments"`
 }
 
 // String is not required by pop and may be deleted

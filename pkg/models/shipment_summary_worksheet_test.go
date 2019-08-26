@@ -76,14 +76,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 		SpouseHasProGear:    true,
 	}
 	pickupDate := time.Date(2019, time.January, 11, 0, 0, 0, 0, time.UTC)
-	weight := unit.Pound(5000)
-	shipments := []models.Shipment{
-		{
-			ActualPickupDate: &pickupDate,
-			NetWeight:        &weight,
-			Status:           models.ShipmentStatusDELIVERED,
-		},
-	}
+
 	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
 	netWeight := unit.Pound(4000)
 	personallyProcuredMoves := []models.PersonallyProcuredMove{
@@ -101,7 +94,6 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 		NewDutyStation:          fortGordon,
 		PPMRemainingEntitlement: 3000,
 		WeightAllotment:         wtgEntitlements,
-		Shipments:               shipments,
 		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
 		PersonallyProcuredMoves: personallyProcuredMoves,
 		Obligations: models.Obligations{
@@ -348,14 +340,6 @@ func (suite *ModelSuite) TestFormatServiceMemberFullName() {
 	suite.Equal("Smith, Tom", models.FormatServiceMemberFullName(sm2))
 }
 
-func (suite *ModelSuite) TestFormatCurrentShipmentStatus() {
-	completed := models.Shipment{Status: models.ShipmentStatusDELIVERED}
-	inTransit := models.Shipment{Status: models.ShipmentStatusINTRANSIT}
-
-	suite.Equal("Delivered", models.FormatCurrentShipmentStatus(completed))
-	suite.Equal("In Transit", models.FormatCurrentShipmentStatus(inTransit))
-}
-
 func (suite *ModelSuite) TestFormatCurrentPPMStatus() {
 	paymentRequested := models.PersonallyProcuredMove{Status: models.PPMStatusPAYMENTREQUESTED}
 	completed := models.PersonallyProcuredMove{Status: models.PPMStatusCOMPLETED}
@@ -373,29 +357,17 @@ func (suite *ModelSuite) TestFormatRank() {
 }
 
 func (suite *ModelSuite) TestFormatShipmentNumberAndType() {
-	singleShipment := models.Shipments{models.Shipment{}}
-	multipleShipments := models.Shipments{models.Shipment{}, models.Shipment{}}
 	singlePPM := models.PersonallyProcuredMoves{models.PersonallyProcuredMove{}}
 	multiplePPMs := models.PersonallyProcuredMoves{models.PersonallyProcuredMove{}, models.PersonallyProcuredMove{}}
-	var blankHHGSlice []models.Shipment
-	var blankPPMSlice []models.PersonallyProcuredMove
 
-	multipleShipmentsFormatted := models.FormatAllShipments(blankPPMSlice, multipleShipments)
-	multiplePPMsFormatted := models.FormatAllShipments(multiplePPMs, blankHHGSlice)
-	varietyOfShipmentsFormatted := models.FormatAllShipments(multiplePPMs, singleShipment)
+	multiplePPMsFormatted := models.FormatAllShipments(multiplePPMs)
+	singlePPMFormatted := models.FormatAllShipments(singlePPM)
 
 	// testing single shipment moves
-	suite.Equal("01 - HHG (GBL)", models.FormatAllShipments(blankPPMSlice, singleShipment).ShipmentNumberAndTypes)
-	suite.Equal("01 - PPM", models.FormatAllShipments(singlePPM, blankHHGSlice).ShipmentNumberAndTypes)
-
-	// testing multiple shipment moves
-	suite.Equal("01 - HHG (GBL)\n\n02 - HHG (GBL)", multipleShipmentsFormatted.ShipmentNumberAndTypes)
+	suite.Equal("01 - PPM", singlePPMFormatted.ShipmentNumberAndTypes)
 
 	// testing multiple ppm moves
 	suite.Equal("01 - PPM\n\n02 - PPM", multiplePPMsFormatted.ShipmentNumberAndTypes)
-
-	// testing a variety of shipments and ppms
-	suite.Equal("01 - HHG (GBL)\n\n02 - PPM\n\n03 - PPM", varietyOfShipmentsFormatted.ShipmentNumberAndTypes)
 }
 
 func (suite *ModelSuite) TestFormatAllSITExpenses() {
@@ -422,20 +394,6 @@ func (suite *ModelSuite) TestFormatAllSITExpenses() {
 	suite.Equal("12-May-2019\n\n15-May-2019", formattedSitExpenses.EntryDates)
 	suite.Equal("15-May-2019\n\n20-May-2019", formattedSitExpenses.EndDates)
 	suite.Equal("3\n\n5", formattedSitExpenses.DaysInStorage)
-}
-
-func (suite *ModelSuite) TestFormatShipmentWeight() {
-	pounds := unit.Pound(1000)
-	shipment := models.Shipment{NetWeight: &pounds}
-
-	suite.Equal("1,000 lbs - FINAL", models.FormatShipmentWeight(shipment))
-}
-
-func (suite *ModelSuite) TestFormatPickupDate() {
-	hhgPickupDate := time.Date(2018, time.December, 1, 0, 0, 0, 0, time.UTC)
-	shipment := models.Shipment{ActualPickupDate: &hhgPickupDate}
-
-	suite.Equal("01-Dec-2018", models.FormatShipmentPickupDate(shipment))
 }
 
 func (suite *ModelSuite) TestFormatWeights() {

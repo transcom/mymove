@@ -18,7 +18,6 @@ type ShipmentOffer struct {
 	CreatedAt                                  time.Time                                `json:"created_at" db:"created_at"`
 	UpdatedAt                                  time.Time                                `json:"updated_at" db:"updated_at"`
 	ShipmentID                                 uuid.UUID                                `json:"shipment_id" db:"shipment_id"`
-	Shipment                                   Shipment                                 `belongs_to:"shipments"`
 	TransportationServiceProviderID            uuid.UUID                                `json:"transportation_service_provider_id" db:"transportation_service_provider_id"`
 	TransportationServiceProvider              TransportationServiceProvider            `belongs_to:"transportation_service_providers"`
 	TransportationServiceProviderPerformanceID uuid.UUID                                `json:"transportation_service_provider_performance_id" db:"transportation_service_provider_performance_id"`
