@@ -52,11 +52,6 @@ executors:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
         command: "-c fsync=off -c full_page_writes=off -c max_connections=200"
-  mymove_anti_virus:
-    resource_class: small
-    working_directory: ~/transcom/mymove
-    docker:
-      - image: mk0x/docker-clamav:alpine
 
 commands:
   announce_failure:
@@ -251,10 +246,11 @@ jobs:
 
   # `anti_virus` uses virus detection software to scan the source code
   anti_virus:
-    executor: mymove_anti_virus
+    executor: mymove_medium
     steps:
       - checkout
-      - run: clamdscan -r ~/transcom/mymove
+      - run: docker run -d -p 3310:3310 -v ~/transcom/mymove:/transcom/mymove --name av
+      - run: docker exec av clamscan -r /transcom/mymove
       - announce_failure
 
   # `pre_test` runs pre-commit against all files.
