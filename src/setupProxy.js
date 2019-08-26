@@ -9,4 +9,5 @@ module.exports = function(app) {
   app.use(proxy('/auth/**', { target: 'http://milmovelocal:8080/' }));
   app.use(proxy('/logout', { target: 'http://milmovelocal:8080/' }));
   app.use(proxy('/downloads', { target: 'http://milmovelocal:8080/' }));
+  app.use(proxy('/debug/**', { target: 'http://milmovelocal:8080/' }));
 };
