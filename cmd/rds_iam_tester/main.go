@@ -91,7 +91,6 @@ func evalActiveConnection(v *viper.Viper, logger *zap.Logger) {
 			if err == nil {
 				count = count + 1
 				logger.Info(fmt.Sprintf("Ran query successfully at %d minute", count))
-				dbConn.Close()
 			} else {
 				log.Fatalf(err.Error())
 				return
@@ -119,7 +118,7 @@ func evalActiveCredentials(v *viper.Viper, logger *zap.Logger) {
 
 	logger.Info(fmt.Sprintf("Starting evalActiveCredentials test, use existing credential to open connection every %dm for %dm", period, runtime))
 
-	ticker := time.NewTicker(period * time.Second)
+	ticker := time.NewTicker(period * time.Minute)
 	go func() {
 		for range ticker.C {
 
