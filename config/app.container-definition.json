@@ -194,8 +194,8 @@
       "value": "{{ .FEATURE_FLAG_ACCESS_CODE }}"
     },
     {
-      "name": "ENABLE_PPROF",
-      "value": "{{ .ENABLE_PPROF }}"
+      "name": "DEBUG_PPROF",
+      "value": "{{ .DEBUG_PPROF }}"
     }
   ],
   "logConfiguration": {

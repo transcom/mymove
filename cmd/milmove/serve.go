@@ -132,7 +132,7 @@ func initServeFlags(flag *pflag.FlagSet) {
 	cli.InitFeatureFlags(flag)
 
 	// pprof flags
-	cli.InitPProfFlags(flag)
+	cli.InitDebugFlags(flag)
 
 	// Sort command line flags
 	flag.SortFlags = true
@@ -721,7 +721,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	debug.Use(userAuthMiddleware)
 	root.Handle(pat.New("/debug/pprof/*"), debug)
 	// TODO why in dev local is it at 8080/debug/pprof ?
-	if v.GetBool(cli.EnablePProfFlag) {
+	if v.GetBool(cli.DebugPProfFlag) {
 		debug.HandleFunc(pat.Get("/"), pprof.Index)
 		debug.Handle(pat.Get("/allocs"), pprof.Handler("allocs"))
 		debug.Handle(pat.Get("/block"), pprof.Handler("block"))
