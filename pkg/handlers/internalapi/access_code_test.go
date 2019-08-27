@@ -1,4 +1,4 @@
-package publicapi
+package internalapi
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
-	accesscodeops "github.com/transcom/mymove/pkg/gen/restapi/apioperations/accesscode"
+	accesscodeops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/accesscode"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
