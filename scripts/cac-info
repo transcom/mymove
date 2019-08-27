@@ -23,4 +23,4 @@ echo -e "\n----- List Certificates -----\n"
 
 echo -e "\n----- List Slots -----\n"
 
-"${PKCS11}" -r --module "${MODULE}" --list-slots
+"${PKCS11}" -r --module "${MODULE}" --list-slots || true
