@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-set -eu -o pipefail
+set -xeu -o pipefail
 
 #
 # Anti Virus Scanning of Source Code
@@ -12,6 +12,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
 readonly DIR
 SLEEP=15
 readonly SLEEP
+DOCKER_IMAGE=mk0x/docker-clamav:alpine
+readonly DOCKER_IMAGE
 CONTAINER_NAME=anti_virus
 readonly CONTAINER_NAME
 MOUNT_DIR=/transcom/mymove
@@ -29,13 +31,14 @@ rm -f "${WHITELIST}"
 
 # Start the clamd service and update with freshclam (takes several minutes to be running)
 # Mount the project directory inside for scanning later
-docker run -d -p 3310:3310 -v "${DIR}:${MOUNT_DIR}:ro" --name "${CONTAINER_NAME}" mk0x/docker-clamav:alpine
+docker pull "${DOCKER_IMAGE}"
+docker run -d -p 3310:3310 -v "${DIR}:${MOUNT_DIR}:ro" --name "${CONTAINER_NAME}" "${DOCKER_IMAGE}"
 
 # Create a whitelist of files to ignore
 # See https://www.clamav.net/documents/whitelist-databases
 # See https://owlbearconsulting.com/doku.php?id=linux_wiki:clamav#whitelist_a_file
 for file in ${IGNORE_FILES}; do
-  docker exec -it "${CONTAINER_NAME}" sigtool --md5 "${MOUNT_DIR}/${file}"  >> "${WHITELIST}"
+  docker exec -it "${CONTAINER_NAME}" sigtool --md5 "${MOUNT_DIR}/${file}" >> "${WHITELIST}"
 done
 
 # Copy the ignore list into the container in the same directory as the virus database
