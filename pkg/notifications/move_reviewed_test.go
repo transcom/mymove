@@ -148,4 +148,6 @@ func (suite *NotificationSuite) TestFormatEmails() {
 			suite.Equal(email, v)
 		}
 	}
+	// only expect the two moves with email addresses to get added to formattedEmails
+	suite.Len(formattedEmails, 2)
 }
