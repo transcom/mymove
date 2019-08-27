@@ -14,7 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/services/tsp"
 
-	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
 	shipmentservice "github.com/transcom/mymove/pkg/services/shipment"
 	shipmentlineitemservice "github.com/transcom/mymove/pkg/services/shipment_line_item"
@@ -127,11 +126,6 @@ func NewPublicAPIHandler(context handlers.HandlerContext, logger Logger) http.Ha
 		context,
 		sitservice.NewStorageInTransitInReleaser(context.DB()),
 	}
-
-	// Access Codes
-	publicAPI.AccesscodeFetchAccessCodeHandler = FetchAccessCodeHandler{context, accesscodeservice.NewAccessCodeFetcher(context.DB())}
-	publicAPI.AccesscodeValidateAccessCodeHandler = ValidateAccessCodeHandler{context, accesscodeservice.NewAccessCodeValidator(context.DB())}
-	publicAPI.AccesscodeClaimAccessCodeHandler = ClaimAccessCodeHandler{context, accesscodeservice.NewAccessCodeClaimer(context.DB())}
 
 	return publicAPI.Serve(nil)
 }

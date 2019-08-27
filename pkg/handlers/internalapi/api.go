@@ -14,6 +14,8 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
+	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
+
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
@@ -109,6 +111,11 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		postalcodeservice.NewPostalCodeValidator(context.DB()),
 	}
+
+	// Access Codes
+	internalAPI.AccesscodeFetchAccessCodeHandler = FetchAccessCodeHandler{context, accesscodeservice.NewAccessCodeFetcher(context.DB())}
+	internalAPI.AccesscodeValidateAccessCodeHandler = ValidateAccessCodeHandler{context, accesscodeservice.NewAccessCodeValidator(context.DB())}
+	internalAPI.AccesscodeClaimAccessCodeHandler = ClaimAccessCodeHandler{context, accesscodeservice.NewAccessCodeClaimer(context.DB())}
 
 	return internalAPI.Serve(nil)
 }
