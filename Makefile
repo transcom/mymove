@@ -892,7 +892,7 @@ docker_compose_down: ## Destroy docker-compose containers
 
 .PHONY: anti_virus
 anti_virus: ## Scan repo with anti-virus service
-	scripts/anti_virus
+	scripts/anti-virus
 
 #
 # ----- END ANTI VIRUS TARGETS -----
