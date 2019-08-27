@@ -72,7 +72,6 @@ This subset of development scripts is used primarily for building the app.
 | Script Name | Description |
 | --- | --- |
 | `copy-swagger-ui` |  Copies the assets (other than xxx.html) into the public directory |
-| `gen-model` | generate models using soda |
 | `gen-server` | generate swagger code from yaml files |
 
 ### Testing
@@ -81,7 +80,6 @@ This subset of development scripts is used for testing
 
 | Script Name | Description |
 | --- | --- |
-| `gen-e2e-migration` | generate migrations for cypress |
 | `run-e2e-test` | Runs cypress tests with interactive GUI |
 | `run-e2e-test-docker` | Runs cypress tests entirely inside docker containers like in CircleCI |
 
