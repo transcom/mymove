@@ -38,7 +38,6 @@ type MoveReviewed struct {
 
 // NewMoveReviewed returns a new move submitted notification
 func NewMoveReviewed(db *pop.Connection, logger Logger, date time.Time) *MoveReviewed {
-
 	return &MoveReviewed{
 		db:     db,
 		logger: logger,
@@ -54,7 +53,7 @@ type EmailInfo struct {
 	NewDutyStationName string  `db:"new_duty_station_name"`
 }
 
-func (m MoveReviewed) GetEmailInfo(date time.Time) (*EmailInfos, error) {
+func (m MoveReviewed) GetEmailInfo(date time.Time) (EmailInfos, error) {
 	dateString := date.Format("2006-01-02")
 	query := `SELECT sm.personal_email, dsn.name as new_duty_station_name, dso.name as duty_station_name
 	FROM personally_procured_moves
@@ -65,13 +64,13 @@ func (m MoveReviewed) GetEmailInfo(date time.Time) (*EmailInfos, error) {
 	         JOIN duty_stations dsn ON o.new_duty_station_id = dsn.id
 	WHERE CAST(reviewed_date as date) = $1;`
 
-	emailInfo := &EmailInfos{}
-	err := m.db.RawQuery(query, dateString).All(emailInfo)
-	return emailInfo, err
+	emailInfos := EmailInfos{}
+	err := m.db.RawQuery(query, dateString).All(&emailInfos)
+	return emailInfos, err
 }
 
-// NotificationSendingContext expects a notification with an email method, so we implement email to
-// satisfy that interface
+// NotificationSendingContext expects a `notification` with an `emails` method,
+// so we implement `email` to satisfy that interface
 func (m MoveReviewed) emails(ctx context.Context) ([]emailContent, error) {
 	emailInfos, err := m.GetEmailInfo(m.date)
 	if err != nil {
@@ -85,11 +84,11 @@ func (m MoveReviewed) emails(ctx context.Context) ([]emailContent, error) {
 	return m.formatEmails(emailInfos)
 }
 
-//TODO figure out best way to fix linter complaint that this is a private but method is public
-//formatEmails formats email data using both html and text template
-func (m MoveReviewed) formatEmails(emailInfos *EmailInfos) ([]emailContent, error) {
+// TODO figure out best way to fix linter complaint that []emailContent private but method is public
+// formatEmails formats email data using both html and text template
+func (m MoveReviewed) formatEmails(emailInfos EmailInfos) ([]emailContent, error) {
 	var emails []emailContent
-	for _, emailInfo := range *emailInfos {
+	for _, emailInfo := range emailInfos {
 		var email string
 		if emailInfo.Email == nil {
 			m.logger.Info("no email found for service member")

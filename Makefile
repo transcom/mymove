@@ -265,7 +265,6 @@ bin_linux/save-fuel-price-data: .server_generate_linux.stamp
 bin/send-post-move-survey-email: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/send-post-move-survey-email ./cmd/send_post_move_survey_email
 
-#TODO not sure if need bin_linux version ....
 bin_linux/send-post-move-survey-email: .server_generate.stamp
 	GOOS=linux GOARCH=amd64  go build -ldflags "$(LDFLAGS)" -o bin/send-post-move-survey-email ./cmd/send_post_move_survey_email
 

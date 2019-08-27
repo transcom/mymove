@@ -31,13 +31,12 @@ func (suite *NotificationSuite) TestMoveReviewedFetchSomeFound() {
 	emailInfo, err := moveReviewed.GetEmailInfo(onDate)
 
 	suite.NoError(err)
-	emailInfoDeref := *emailInfo
-	suite.Greater(len(emailInfoDeref), 0)
-	emailInfoOne := emailInfoDeref[0]
-	suite.Equal(emailInfoOne.NewDutyStationName, ppms[0].Move.Orders.NewDutyStation.Name)
-	suite.Equal(*emailInfoOne.Email, *ppms[0].Move.Orders.ServiceMember.PersonalEmail)
-	suite.Equal(emailInfoOne.DutyStationName, ppms[0].Move.Orders.ServiceMember.DutyStation.Name)
-	suite.Len(*emailInfo, 1)
+	suite.NotNil(emailInfo)
+	suite.Len(emailInfo, 1)
+	suite.Equal(ppms[0].Move.Orders.NewDutyStation.Name, emailInfo[0].NewDutyStationName)
+	suite.NotNil(emailInfo[0].Email)
+	suite.Equal(*ppms[0].Move.Orders.ServiceMember.PersonalEmail, *emailInfo[0].Email)
+	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.Name, emailInfo[0].DutyStationName)
 }
 
 func (suite *NotificationSuite) TestMoveReviewedFetchNoneFound() {
@@ -51,11 +50,10 @@ func (suite *NotificationSuite) TestMoveReviewedFetchNoneFound() {
 	suite.createPPMMoves(moves)
 
 	moveReviewed := NewMoveReviewed(db, suite.logger, startDate)
-
 	emailInfo, err := moveReviewed.GetEmailInfo(startDate)
 
 	suite.NoError(err)
-	suite.Len(*emailInfo, 0)
+	suite.Len(emailInfo, 0)
 }
 
 func (suite *NotificationSuite) TestHTMLTemplateRender() {
@@ -77,6 +75,7 @@ We’ll use your feedback to make MilMove better for your fellow service members
 Thank you for your thoughts, and <em>congratulations on your move.</em>`
 
 	htmlContent := mr.RenderHTML(s)
+
 	suite.Equal(expectedHTMLContent, htmlContent)
 
 }
@@ -100,6 +99,7 @@ We’ll use your feedback to make MilMove better for your fellow service members
 Thank you for your thoughts, and congratulations on your move.`
 
 	textContent := mr.RenderText(s)
+
 	suite.Equal(expectedTextContent, textContent)
 }
 
@@ -128,26 +128,27 @@ func (suite *NotificationSuite) TestFormatEmails() {
 		},
 	}
 
-	formattedEmails, err := mr.formatEmails(&emailInfos)
-	suite.Nil(err)
-	for i, v := range formattedEmails {
-		content := emailInfos[i]
+	formattedEmails, err := mr.formatEmails(emailInfos)
+
+	suite.NoError(err)
+	for i, actualEmailContent := range formattedEmails {
+		emailInfo := emailInfos[i]
 		data := moveReviewedEmailData{
 			Link:                   surveyLink,
-			OriginDutyStation:      content.DutyStationName,
-			DestinationDutyStation: content.NewDutyStationName,
-			Email:                  *content.Email,
+			OriginDutyStation:      emailInfo.DutyStationName,
+			DestinationDutyStation: emailInfo.NewDutyStationName,
+			Email:                  *emailInfo.Email,
 		}
-		email := emailContent{
-			recipientEmail: *content.Email,
+		expectedEmailContent := emailContent{
+			recipientEmail: *emailInfo.Email,
 			subject:        "[MilMove] Let us know how we did",
 			htmlBody:       mr.RenderHTML(data),
 			textBody:       mr.RenderText(data),
 		}
-		if content.Email != nil {
-			suite.Equal(email, v)
+		if emailInfo.Email != nil {
+			suite.Equal(expectedEmailContent, actualEmailContent)
 		}
 	}
-	// only expect the two moves with email addresses to get added to formattedEmails
+	// only expect the two moves with non-nil email addresses to get added to formattedEmails
 	suite.Len(formattedEmails, 2)
 }
