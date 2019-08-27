@@ -41,13 +41,14 @@ docker run -d -p 3310:3310 -v "${DIR}:${MOUNT_DIR}" --name "${CONTAINER_NAME}" "
 if [[ -n "${CIRCLECI+x}" ]]; then
   # Can't mount folders in CircleCI so copy this data in
   # https://circleci.com/docs/2.0/building-docker-images/#mounting-folders
-  docker cp "${DIR}" "${CONTAINER_NAME}:${MOUNT_DIR}"
+  docker cp "${DIR}" "${CONTAINER_NAME}:${MOUNT_DIR}/.."
 fi
 
 # Create a whitelist of files to ignore
 # See https://www.clamav.net/documents/whitelist-databases
 # See https://owlbearconsulting.com/doku.php?id=linux_wiki:clamav#whitelist_a_file
 touch "${WHITELIST}"
+docker exec -it "${CONTAINER_NAME}" find "${MOUNT_DIR}"
 for file in ${IGNORE_FILES}; do
   docker exec -it "${CONTAINER_NAME}" ls "${MOUNT_DIR}/${file}"
   docker exec -it "${CONTAINER_NAME}" sigtool --md5 "${MOUNT_DIR}/${file}" | tee -a "${WHITELIST}"
