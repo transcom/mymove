@@ -34,7 +34,7 @@ docker rm -f "${CONTAINER_NAME}" || true
 # Start the clamd service and update with freshclam (takes SLEEP amount of time to be running)
 # Mount the project directory inside for scanning later
 docker run -d -p 3310:3310 -v "${DIR}:/transcom/mymove:ro" --name "${CONTAINER_NAME}" mk0x/docker-clamav:alpine
-echo "Sleeping ${SLEEP} to allow ClamAV to update"
+echo "Sleeping for ${SLEEP} seconds to allow ClamAV to update"
 echo
 sleep "${SLEEP}"
 
