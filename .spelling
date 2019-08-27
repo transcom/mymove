@@ -421,6 +421,7 @@ SVY_SCORE
 RATE_SCORE
 README.md
 MY_NAME
+12-factor-app
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - /usr/local
  - docs/data/tspp-data-creation.md
@@ -433,3 +434,4 @@ MY_NAME
  - ./docs/data/tspp-data-creation.md
  - ./docs/data/tariff400ng-yearly-import.md
  - ./scripts/README.md
+
