@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-const link = "https://www.surveymonkey.com/r/MilMovePt3-08191"
+const surveyLink = "https://www.surveymonkey.com/r/MilMovePt3-08191"
 
 var htmlTemplate = html.Must(html.New("email_survey_html").Parse(`<em>Good news:</em> Your move from {{.OriginDutyStation}} to {{.DestinationDutyStation}} has been processed for payment.
 
@@ -91,12 +91,12 @@ func (m MoveReviewed) formatEmails(emailInfos *EmailInfos) ([]emailContent, erro
 	for _, emailInfo := range *emailInfos {
 		var email string
 		if emailInfo.Email == nil {
-			m.logger.Error("no email found for service member")
+			m.logger.Info("no email found for service member")
 			continue
 		}
 		email = *emailInfo.Email
 		data := moveReviewedEmailData{
-			Link:                   link,
+			Link:                   surveyLink,
 			OriginDutyStation:      emailInfo.DutyStationName,
 			DestinationDutyStation: emailInfo.NewDutyStationName,
 			Email:                  email,

@@ -25,12 +25,7 @@ func checkConfig(v *viper.Viper, logger logger) error {
 
 	logger.Debug("checking config")
 
-	err := cli.CheckEIA(v)
-	if err != nil {
-		return err
-	}
-
-	err = cli.CheckDatabase(v, logger)
+	err := cli.CheckDatabase(v, logger)
 	if err != nil {
 		return err
 	}
@@ -42,9 +37,6 @@ func initFlags(flag *pflag.FlagSet) {
 
 	// DB Config
 	cli.InitDatabaseFlags(flag)
-
-	// EIA Open Data API
-	cli.InitEIAFlags(flag)
 
 	// Verbose
 	cli.InitVerboseFlags(flag)
@@ -59,7 +51,6 @@ func main() {
 	flag := pflag.CommandLine
 	initFlags(flag)
 	flag.Parse(os.Args[1:])
-
 	v := viper.New()
 	v.BindPFlags(flag)
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))

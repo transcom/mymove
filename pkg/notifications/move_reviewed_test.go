@@ -1,9 +1,6 @@
 package notifications
 
 import (
-	"bytes"
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -53,24 +50,6 @@ func (suite *NotificationSuite) TestMoveReviewedFetchNoneFound() {
 
 	suite.NoError(err)
 	suite.Len(*emailInfo, 0)
-}
-
-func (suite *NotificationSuite) TestHMTLTemplateRender() {
-	var tpl bytes.Buffer
-	s := struct {
-		Link                   string
-		OriginDutyStation      string
-		DestinationDutyStation string
-	}{
-		Link:                   "www.survey",
-		OriginDutyStation:      "OriginDutyStation",
-		DestinationDutyStation: "DestDutyStation",
-	}
-	if err := htmlTemplate.Execute(&tpl, s); err != nil {
-		fmt.Println("Cant render template")
-	}
-	log.Fatal(tpl.String())
-
 }
 
 func (suite *NotificationSuite) TestHTMLTemplateRender() {
@@ -148,7 +127,7 @@ func (suite *NotificationSuite) TestFormatEmails() {
 	for i, v := range formattedEmails {
 		content := emailInfos[i]
 		data := moveReviewedEmailData{
-			Link:                   link,
+			Link:                   surveyLink,
 			OriginDutyStation:      content.DutyStationName,
 			DestinationDutyStation: content.NewDutyStationName,
 			Email:                  *content.Email,
