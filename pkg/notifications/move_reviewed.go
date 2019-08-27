@@ -70,18 +70,23 @@ func (m MoveReviewed) GetEmailInfo(date time.Time) (*EmailInfos, error) {
 	return emailInfo, err
 }
 
-// Notifications expects emails to be implemented so we do
+// Notifications expects `emails` to be implemented so we implement it
 func (m MoveReviewed) emails(ctx context.Context) ([]emailContent, error) {
 	emailInfos, err := m.GetEmailInfo(m.date)
-	if emailInfos == nil || err == nil {
-		m.logger.Info("no emails to be sent for", zap.String("date", m.date.String()))
-		return nil, nil
+	if err != nil {
+		m.logger.Error("error retrieving email info for", zap.String("date", m.date.String()))
+		return []emailContent{}, nil
 	}
-	return m.FormatEmails(emailInfos)
+	if emailInfos == nil {
+		m.logger.Info("no emails to be sent for", zap.String("date", m.date.String()))
+		return []emailContent{}, nil
+	}
+	return m.formatEmails(emailInfos)
 }
 
-//FormatEmails formats email data using both html and text template
-func (m MoveReviewed) FormatEmails(emailInfos *EmailInfos) ([]emailContent, error) {
+//TODO figure out best way to fix linter complaint that this is a private but method is public
+//formatEmails formats email data using both html and text template
+func (m MoveReviewed) formatEmails(emailInfos *EmailInfos) ([]emailContent, error) {
 	var emails []emailContent
 	for _, emailInfo := range *emailInfos {
 		var email string
@@ -90,7 +95,7 @@ func (m MoveReviewed) FormatEmails(emailInfos *EmailInfos) ([]emailContent, erro
 			continue
 		}
 		email = *emailInfo.Email
-		data := emailData{
+		data := moveReviewedEmailData{
 			Link:                   link,
 			OriginDutyStation:      emailInfo.DutyStationName,
 			DestinationDutyStation: emailInfo.NewDutyStationName,
@@ -110,7 +115,7 @@ func (m MoveReviewed) FormatEmails(emailInfos *EmailInfos) ([]emailContent, erro
 	return emails, nil
 }
 
-type emailData struct {
+type moveReviewedEmailData struct {
 	Link                   string
 	OriginDutyStation      string
 	DestinationDutyStation string
@@ -118,7 +123,7 @@ type emailData struct {
 }
 
 // RenderHTML renders the html for the email
-func (m MoveReviewed) RenderHTML(data emailData) string {
+func (m MoveReviewed) RenderHTML(data moveReviewedEmailData) string {
 	var htmlBuffer bytes.Buffer
 	if err := htmlTemplate.Execute(&htmlBuffer, data); err != nil {
 		m.logger.Error("cant render html template for: ",
@@ -128,7 +133,7 @@ func (m MoveReviewed) RenderHTML(data emailData) string {
 }
 
 // RenderText renders the text for the email
-func (m MoveReviewed) RenderText(data emailData) string {
+func (m MoveReviewed) RenderText(data moveReviewedEmailData) string {
 	var textBuffer bytes.Buffer
 	if err := textTemplate.Execute(&textBuffer, data); err != nil {
 		m.logger.Error("cant render text template for: ",

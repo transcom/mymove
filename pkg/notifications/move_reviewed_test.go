@@ -77,7 +77,7 @@ func (suite *NotificationSuite) TestHTMLTemplateRender() {
 	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
 	onDate := startDate.AddDate(0, 0, -6)
 	mr := NewMoveReviewed(suite.DB(), suite.logger, onDate)
-	s := emailData{
+	s := moveReviewedEmailData{
 		Link:                   "www.survey",
 		OriginDutyStation:      "OriginDutyStation",
 		DestinationDutyStation: "DestDutyStation",
@@ -100,7 +100,7 @@ func (suite *NotificationSuite) TestTextTemplateRender() {
 	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
 	onDate := startDate.AddDate(0, 0, -6)
 	mr := NewMoveReviewed(suite.DB(), suite.logger, onDate)
-	s := emailData{
+	s := moveReviewedEmailData{
 		Link:                   "www.survey",
 		OriginDutyStation:      "OriginDutyStation",
 		DestinationDutyStation: "DestDutyStation",
@@ -143,11 +143,11 @@ func (suite *NotificationSuite) TestFormatEmails() {
 		},
 	}
 
-	formattedEmails, err := mr.FormatEmails(&emailInfos)
+	formattedEmails, err := mr.formatEmails(&emailInfos)
 	suite.Nil(err)
 	for i, v := range formattedEmails {
 		content := emailInfos[i]
-		data := emailData{
+		data := moveReviewedEmailData{
 			Link:                   link,
 			OriginDutyStation:      content.DutyStationName,
 			DestinationDutyStation: content.NewDutyStationName,
