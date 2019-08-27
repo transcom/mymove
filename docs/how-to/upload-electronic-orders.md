@@ -16,7 +16,7 @@ It's important that you disable default smart card access on your OSX machine. [
 sudo defaults write /Library/Preferences/com.apple.security.smartcard DisabledTokens -array com.apple.CryptoTokenKit.pivtoken
 ```
 
-This should get you in the state where you can use your CAC to generate certs. You may also want to run these commands
+This should get you in the state where you can use your CAC to extract certs. You may also want to run these commands
 to check:
 
 ```sh
@@ -30,15 +30,14 @@ Orders does mutual TLS authentication and then authorizes you by comparing a SHA
 stored on your CAC. To get that information into the system you have to create a secure migration using your
 SHA 256 fingerprint and the Subject on your CAC certificate.
 
-To get the Fingerprint and Subject you can run this command:
+To get the Fingerprint and Subject you can run these commands:
 
 ```sh
-cac-generate-fingerprint
+cac-extract-fingerprint
+cac-extract-subject
 ```
 
-It will print out both on separate lines. Copy these to a clipboard for use later.
-
-Now you need to generate the secure migration:
+Now you need to generate the secure migration with these scripts:
 
 ```sh
 FINGERPRINT=`cac-extract-fingerprint`
