@@ -8,7 +8,7 @@ import 'react-table/react-table.css';
 import Alert from 'shared/Alert';
 import { formatTimeAgo } from 'shared/formatters';
 import { setUserIsLoggedIn } from 'shared/Data/users';
-import { newColumns, ppmColumns, defaultColumns } from './queueTableColumns';
+import { defaultColumns } from './queueTableColumns';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
@@ -125,24 +125,9 @@ class QueueTable extends Component {
       ppm_approved: 'Approved Moves',
     };
 
-    const showColumns = queueType => {
-      switch (queueType) {
-        case 'new':
-          return newColumns;
-        case 'ppm':
-        case 'ppm_payment_requested':
-          return ppmColumns;
-        default:
-          return defaultColumns;
-      }
-    };
+    const showColumns = defaultColumns;
 
-    const defaultSort = queueType => {
-      if (['new'].includes(queueType)) {
-        return [{ id: 'clockIcon', asc: true }, { id: 'move_date', asc: true }];
-      }
-      return [{ id: 'move_date', asc: true }];
-    };
+    const defaultSort = [{ id: 'move_date', asc: true }];
 
     this.state.data.forEach(row => {
       row.shipments = 'PPM';
