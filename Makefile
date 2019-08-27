@@ -757,15 +757,15 @@ tasks_clean: ## Clean Scheduled Task files and docker images
 	docker rm -f tasks || true
 
 .PHONY: tasks_build
-tasks_build: server_generate bin/save-fuel-price-data ## Build Scheduled Task dependencies
+tasks_build: server_generate bin/save-fuel-price-data bin/send-post-move-survey-email ## Build Scheduled Task dependencies
 
 .PHONY: tasks_build_docker
-tasks_build_docker: bin/chamber server_generate bin/save-fuel-price-data ## Build Scheduled Task dependencies and Docker image
+tasks_build_docker: bin/chamber server_generate bin/save-fuel-price-data bin/send-post-move-survey-email ## Build Scheduled Task dependencies and Docker image
 	@echo "Build the docker scheduled tasks container..."
 	docker build -f Dockerfile.tasks --tag $(TASKS_DOCKER_CONTAINER):latest .
 
 .PHONY: tasks_build_linux_docker
-tasks_build_linux_docker: bin_linux/save-fuel-price-data ## Build Scheduled Task binaries (linux) and Docker image (local)
+tasks_build_linux_docker: bin_linux/save-fuel-price-data bin_linux/send-post-move-survey-email ## Build Scheduled Task binaries (linux) and Docker image (local)
 	@echo "Build the docker scheduled tasks container..."
 	docker build -f Dockerfile.tasks_local --tag $(TASKS_DOCKER_CONTAINER):latest .
 
@@ -786,6 +786,21 @@ tasks_save_fuel_price_data: tasks_build_linux_docker ## Run save-fuel-price-data
 		--rm \
 		$(TASKS_DOCKER_CONTAINER):latest \
 		save-fuel-price-data
+
+tasks_send_post_move_survey: tasks_build_linux_docker ## Run send-post-move-survey from inside docker container
+	@echo "sending post move survey with docker command..."
+	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
+	docker run \
+		-t \
+		-e DB_HOST="database" \
+		-e DB_NAME \
+		-e DB_PORT \
+		-e DB_USER \
+		-e DB_PASSWORD \
+		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
+		--rm \
+		$(TASKS_DOCKER_CONTAINER):latest \
+		send-post-move-survey
 
 #
 # ----- END SCHEDULED TASK TARGETS -----
