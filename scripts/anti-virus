@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-set -xeu -o pipefail
+set -eu -o pipefail
 
 #
 # Anti Virus Scanning of Source Code
@@ -48,7 +48,6 @@ fi
 # See https://www.clamav.net/documents/whitelist-databases
 # See https://owlbearconsulting.com/doku.php?id=linux_wiki:clamav#whitelist_a_file
 touch "${WHITELIST}"
-docker exec -it "${CONTAINER_NAME}" find "${MOUNT_DIR}"
 for file in ${IGNORE_FILES}; do
   docker exec -it "${CONTAINER_NAME}" ls "${MOUNT_DIR}/${file}"
   docker exec -it "${CONTAINER_NAME}" sigtool --md5 "${MOUNT_DIR}/${file}" | tee -a "${WHITELIST}"
