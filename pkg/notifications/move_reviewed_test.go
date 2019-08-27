@@ -25,12 +25,18 @@ func (suite *NotificationSuite) TestMoveReviewedFetchSomeFound() {
 		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &onDate}},
 		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &offDate}},
 	}
-	suite.createPPMMoves(moves)
-	moveReviewed := NewMoveReviewed(db, suite.logger, onDate)
+	ppms := suite.createPPMMoves(moves)
 
+	moveReviewed := NewMoveReviewed(db, suite.logger, onDate)
 	emailInfo, err := moveReviewed.GetEmailInfo(onDate)
 
 	suite.NoError(err)
+	emailInfoDeref := *emailInfo
+	suite.Greater(len(emailInfoDeref), 0)
+	emailInfoOne := emailInfoDeref[0]
+	suite.Equal(emailInfoOne.NewDutyStationName, ppms[0].Move.Orders.NewDutyStation.Name)
+	suite.Equal(*emailInfoOne.Email, *ppms[0].Move.Orders.ServiceMember.PersonalEmail)
+	suite.Equal(emailInfoOne.DutyStationName, ppms[0].Move.Orders.ServiceMember.DutyStation.Name)
 	suite.Len(*emailInfo, 1)
 }
 

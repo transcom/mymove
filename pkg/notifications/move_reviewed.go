@@ -50,13 +50,13 @@ type EmailInfos []EmailInfo
 
 type EmailInfo struct {
 	Email              *string `db:"personal_email"`
-	DutyStationName    string  `db:"name"`
-	NewDutyStationName string  `db:"name"`
+	DutyStationName    string  `db:"duty_station_name"`
+	NewDutyStationName string  `db:"new_duty_station_name"`
 }
 
 func (m MoveReviewed) GetEmailInfo(date time.Time) (*EmailInfos, error) {
 	dateString := date.Format("2006-01-02")
-	query := `SELECT sm.personal_email, dsn.name, dso.name
+	query := `SELECT sm.personal_email, dsn.name as new_duty_station_name, dso.name as duty_station_name
 	FROM personally_procured_moves
 	         JOIN moves m ON personally_procured_moves.move_id = m.id
 	         JOIN orders o ON m.orders_id = o.id
@@ -70,7 +70,8 @@ func (m MoveReviewed) GetEmailInfo(date time.Time) (*EmailInfos, error) {
 	return emailInfo, err
 }
 
-// Notifications expects `emails` to be implemented so we implement it
+// NotificationSendingContext expects a notification with an email method, so we implement email to
+// satisfy that interface
 func (m MoveReviewed) emails(ctx context.Context) ([]emailContent, error) {
 	emailInfos, err := m.GetEmailInfo(m.date)
 	if err != nil {
