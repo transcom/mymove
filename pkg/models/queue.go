@@ -135,8 +135,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			WHERE moves.show is true
 			and ppm.status = 'PAYMENT_REQUESTED'
 		`
-	} else if lifecycleState == "hhg_active" {
-		// Move date is the Actual Pickup Date.
+	} else if lifecycleState == "ppm_completed" {
 		query = `
 			SELECT moves.ID,
 				COALESCE(sm.edipi, '*missing*') as edipi,
@@ -144,32 +143,25 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
 				moves.locator as locator,
 				ord.orders_type as orders_type,
-				shipment.actual_pickup_date as move_date,
+				COALESCE(ppm.actual_move_date, ppm.original_move_date) as move_date,
 				moves.created_at as created_at,
-				moves.updated_at as last_modified_date,
+				ppm.updated_at as last_modified_date,
 				moves.status as status,
-				shipment.status as hhg_status,
+				ppm.status as ppm_status,
 				shipment.gbl_number as gbl_number,
 				origin_duty_station.name as origin_duty_station_name,
-				destination_duty_station.name as destination_duty_station_name,
-				shipment.id as shipment_id,
-				shipment.pm_survey_conducted_date as pm_survey_conducted_date,
-				json_agg(json_build_object('id', sits.id , 'location', sits.location, 'status', sits.status, 'actual_start_date', sits.actual_start_date, 'out_date', sits.out_date)) as sit_array,
-				json_agg(slis.status) as sli_array
+				destination_duty_station.name as destination_duty_station_name
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
+			JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
 			JOIN duty_stations as origin_duty_station ON sm.duty_station_id = origin_duty_station.id
 			JOIN duty_stations as destination_duty_station ON ord.new_duty_station_id = destination_duty_station.id
-			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
-			LEFT JOIN storage_in_transits as sits ON sits.shipment_id = shipment.id
-			LEFT JOIN shipment_line_items as slis ON slis.shipment_id = shipment.id
-			WHERE ((shipment.status IN ('IN_TRANSIT', 'APPROVED')) OR (shipment.status = 'ACCEPTED' AND shipment.pm_survey_conducted_date IS NOT NULL))
-			AND moves.show is true AND moves.status != 'CANCELED'
-			GROUP BY moves.ID, rank, customer_name, edipi, locator, orders_type, move_date, moves.created_at, last_modified_date, moves.status, origin_duty_station_name, destination_duty_station_name, shipment.id
+			LEFT JOIN shipments AS shipment ON moves.id = shipment.move_id
+			WHERE moves.show is true
+			and ppm.status = 'COMPLETED'
 		`
-	} else if lifecycleState == "hhg_in_transit" {
-		// Move date is the Actual Pickup Date.
+	} else if lifecycleState == "ppm_approved" {
 		query = `
 			SELECT moves.ID,
 				COALESCE(sm.edipi, '*missing*') as edipi,
@@ -177,53 +169,23 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
 				moves.locator as locator,
 				ord.orders_type as orders_type,
-				shipment.actual_pickup_date as move_date,
+				COALESCE(ppm.actual_move_date, ppm.original_move_date) as move_date,
 				moves.created_at as created_at,
-				moves.updated_at as last_modified_date,
+				ppm.updated_at as last_modified_date,
 				moves.status as status,
-				shipment.status as hhg_status,
-				shipment.gbl_number as gbl_number
-			FROM moves
-			JOIN orders as ord ON moves.orders_id = ord.id
-			JOIN service_members AS sm ON ord.service_member_id = sm.id
-			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
-			WHERE shipment.status = 'IN_TRANSIT'
-			and moves.show is true
-		`
-	} else if lifecycleState == "hhg_delivered" {
-		// Move date is the Actual Pickup Date.
-		query = `
-			SELECT moves.ID,
-				COALESCE(sm.edipi, '*missing*') as edipi,
-				COALESCE(sm.rank, '*missing*') as rank,
-				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
-				moves.locator as locator,
-				ord.orders_type as orders_type,
-				shipment.actual_pickup_date as move_date,
-				moves.created_at as created_at,
-				moves.updated_at as last_modified_date,
-				moves.status as status,
-				shipment.status as hhg_status,
+				ppm.status as ppm_status,
 				shipment.gbl_number as gbl_number,
-				shipment.pm_survey_conducted_date as pm_survey_conducted_date,
-				json_agg(json_build_object('id', sits.id , 'location', sits.location, 'status', sits.status, 'actual_start_date', sits.actual_start_date, 'out_date', sits.out_date)) as sit_array,
-				json_agg(slis.status) as sli_array,
-				shipment.source_gbloc as origin_gbloc,
-				shipment.destination_gbloc as destination_gbloc,
-				shipment.actual_delivery_date as delivered_date,
-				(case when invoice.status = 'SUBMITTED' then invoice.invoiced_date end) as invoice_approved_date
+				origin_duty_station.name as origin_duty_station_name,
+				destination_duty_station.name as destination_duty_station_name
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
-			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
-			LEFT JOIN storage_in_transits as sits ON sits.shipment_id = shipment.id
-			LEFT JOIN shipment_line_items as slis ON slis.shipment_id = shipment.id
-			LEFT JOIN invoices as invoice on invoice.shipment_id = shipment.id
-			WHERE shipment.status = 'DELIVERED'
-			and moves.show is true
-			GROUP BY moves.ID, rank, customer_name, edipi, locator, orders_type, move_date, moves.created_at, last_modified_date, moves.status,
-			shipment.id, origin_gbloc, destination_gbloc, invoice_approved_date, delivered_date
-
+			JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
+			JOIN duty_stations as origin_duty_station ON sm.duty_station_id = origin_duty_station.id
+			JOIN duty_stations as destination_duty_station ON ord.new_duty_station_id = destination_duty_station.id
+			LEFT JOIN shipments AS shipment ON moves.id = shipment.move_id
+			WHERE moves.show is true
+			and ppm.status = 'APPROVED'
 		`
 	} else if lifecycleState == "all" {
 		query = `

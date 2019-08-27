@@ -121,6 +121,8 @@ class QueueTable extends Component {
       ppm: 'All PPMs',
       ppm_payment_requested: 'Payment Requests PPMs',
       all: 'All Moves',
+      ppm_completed: 'Completed Moves',
+      ppm_approved: 'Approved Moves',
     };
 
     const showColumns = queueType => {
