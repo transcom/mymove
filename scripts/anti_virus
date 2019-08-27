@@ -1,0 +1,41 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+#
+# Anti Virus Scanning of Source Code
+#
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
+readonly DIR
+SLEEP=150
+readonly SLEEP
+CONTAINER_NAME=anti_virus
+
+# Create the ignore list
+anti_virus_ignore
+
+# Remove any existing containers
+docker rm -f "${CONTAINER_NAME}" || true
+
+# Start the clamd service and update with freshclam (takes SLEEP amount of time to be running)
+# Mount the project directory inside for scanning later
+docker run -d -p 3310:3310 -v "${DIR}:/transcom/mymove:ro" --name "${CONTAINER_NAME}" mk0x/docker-clamav:alpine
+echo "Sleeping ${SLEEP} to allow ClamAV to update"
+sleep "${SLEEP}"
+
+# Print the logs so we can see the state of clamd
+docker logs "${CONTAINER_NAME}"
+
+# Copy the ignore list into the container
+docker cp whitelist_files.fp "${CONTAINER_NAME}:/var/lib/clamav/"
+
+# List the version we're working with for auditing reasons
+docker exec -it "${CONTAINER_NAME}" clamd --version
+
+# Run the scan against the mounted folder
+docker exec -it "${CONTAINER_NAME}" clamdscan -v /transcom/mymove
+
+# Clean up
+docker rm -f "${CONTAINER_NAME}"
+rm -f whitelist_files.fp

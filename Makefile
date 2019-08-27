@@ -890,15 +890,9 @@ docker_compose_down: ## Destroy docker-compose containers
 # ----- START ANTI VIRUS TARGETS -----
 #
 
-.PHONY: anti_virus_update
-anti_virus_update:  ## Update the definitions for anti-virus
-	docker run --name=clamav malice/clamav update
-	docker commit clamav malice/clamav:updated
-	docker rm clamav
-
 .PHONY: anti_virus
-anti_virus: anti_virus_update  ## Scan repo with anti-virus service
-	docker run --rm -v $(shell pwd):/malware:ro malice/clamav:updated . | tee -a virus_log.txt
+anti_virus: ## Scan repo with anti-virus service
+	scripts/anti_virus
 
 #
 # ----- END ANTI VIRUS TARGETS -----
