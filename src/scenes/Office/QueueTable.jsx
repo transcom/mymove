@@ -164,10 +164,10 @@ class QueueTable extends Component {
             />
           </span>
           <ReactTable
-            columns={showColumns(this.props.queueType)}
+            columns={showColumns}
             data={this.state.data}
             loading={this.state.loading} // Display the loading overlay when we need it
-            defaultSorted={defaultSort(this.props.queueType)}
+            defaultSorted={defaultSort}
             pageSize={this.state.data.length}
             className="-striped -highlight"
             showPagination={false}
