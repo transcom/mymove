@@ -22,8 +22,11 @@ for file in ${FILES}; do
   echo "${md5}:${size}:${name}" >> whitelist_files.fp
 done
 
-echo "Ignoring these files:"
+echo "****************************************"
+echo "WARNING: Ignoring these specific files:"
 cat whitelist_files.fp
+echo "****************************************"
+echo
 
 # Remove any existing containers
 docker rm -f "${CONTAINER_NAME}" || true
@@ -32,6 +35,7 @@ docker rm -f "${CONTAINER_NAME}" || true
 # Mount the project directory inside for scanning later
 docker run -d -p 3310:3310 -v "${DIR}:/transcom/mymove:ro" --name "${CONTAINER_NAME}" mk0x/docker-clamav:alpine
 echo "Sleeping ${SLEEP} to allow ClamAV to update"
+echo
 sleep "${SLEEP}"
 
 # Print the logs so we can see the state of clamd
@@ -41,7 +45,9 @@ docker logs "${CONTAINER_NAME}"
 docker cp whitelist_files.fp "${CONTAINER_NAME}:/var/lib/clamav/"
 
 # List the version we're working with for auditing reasons
+echo "Version Information:"
 docker exec -it "${CONTAINER_NAME}" clamd --version
+echo
 
 # Run the scan against the mounted folder
 docker exec -it "${CONTAINER_NAME}" clamdscan -v /transcom/mymove
