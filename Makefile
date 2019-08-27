@@ -265,8 +265,8 @@ bin_linux/save-fuel-price-data: .server_generate_linux.stamp
 bin/send-post-move-survey-email: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/send-post-move-survey-email ./cmd/send_post_move_survey_email
 
-bin_linux/send-post-move-survey-email: .server_generate.stamp
-	GOOS=linux GOARCH=amd64  go build -ldflags "$(LDFLAGS)" -o bin/send-post-move-survey-email ./cmd/send_post_move_survey_email
+bin_linux/send-post-move-survey-email: .server_generate_linux.stamp
+	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/send-post-move-survey-email ./cmd/send_post_move_survey_email
 
 bin/send-to-gex: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
@@ -799,7 +799,7 @@ tasks_send_post_move_survey: tasks_build_linux_docker ## Run send-post-move-surv
 		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
 		--rm \
 		$(TASKS_DOCKER_CONTAINER):latest \
-		send-post-move-survey
+		send-post-move-survey-email
 
 #
 # ----- END SCHEDULED TASK TARGETS -----
