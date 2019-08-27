@@ -35,7 +35,7 @@ docker run -d -p 3310:3310 -v "${DIR}:${MOUNT_DIR}:ro" --name "${CONTAINER_NAME}
 # See https://www.clamav.net/documents/whitelist-databases
 # See https://owlbearconsulting.com/doku.php?id=linux_wiki:clamav#whitelist_a_file
 for file in ${IGNORE_FILES}; do
-  docker exec -it anti_virus sigtool --md5 "${MOUNT_DIR}/${file}"  >> "${WHITELIST}"
+  docker exec -it "${CONTAINER_NAME}" sigtool --md5 "${MOUNT_DIR}/${file}"  >> "${WHITELIST}"
 done
 
 # Copy the ignore list into the container in the same directory as the virus database
@@ -51,7 +51,7 @@ echo
 
 # Wait for the clamd service to be available by checking on the existence of the socket
 while true; do
-  if docker exec -it anti_virus ls /tmp/clamd.sock &> /dev/null ; then
+  if docker exec -it "${CONTAINER_NAME}" ls /tmp/clamd.sock &> /dev/null ; then
     break
   else
     echo "Waiting ${SLEEP} seconds for clamd service to be available"
