@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/rds"
@@ -138,10 +139,6 @@ func (e *errInvalidSSLMode) Error() string {
 	return fmt.Sprintf("invalid ssl mode %s, must be one of: "+strings.Join(e.Modes, ", "), e.Mode)
 }
 
-var (
-	errMissingCredentials = errors.New("missing AWS Credentials")
-)
-
 // InitDatabaseFlags initializes DB command line flags
 func InitDatabaseFlags(flag *pflag.FlagSet) {
 	flag.String(DbEnvFlag, DbEnvDevelopment, "database environment: "+strings.Join(allDbEnvs, ", "))
@@ -254,18 +251,6 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger)
 		dbOptions["sslrootcert"] = str
 	}
 
-	if v.GetBool(DbIamFlag) {
-		if creds == nil {
-			return nil, errMissingCredentials
-		}
-		authToken, err := rdsutils.BuildAuthToken(dbHost+":"+dbPort, v.GetString(DbRegionFlag), dbUser, creds)
-		if err != nil {
-			return nil, errors.Wrap(err, "error building auth token")
-		}
-		dbPassword = url.QueryEscape(authToken)
-		logger.Info("Using IAM Authentication")
-	}
-
 	// Construct a safe URL and log it
 	s := "postgres://%s:%s@%s:%s/%s?sslmode=%s"
 	dbURL := fmt.Sprintf(s, dbUser, "*****", dbHost, dbPort, dbName, dbOptions["sslmode"])
@@ -278,15 +263,51 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger)
 		Host:     dbHost,
 		Port:     dbPort,
 		User:     dbUser,
-		Password: dbPassword,
+		Password: "",
 		Options:  dbOptions,
 		Pool:     dbPool,
 		IdlePool: dbIdlePool,
 	}
-	err := dbConnectionDetails.Finalize()
-	if err != nil {
-		logger.Error("Failed to finalize DB connection details", zap.Error(err))
-		return nil, err
+
+	// GoRoutine to continually refresh the RDS IAM auth on a 10m interval.
+	ticker := time.NewTicker(10 * time.Minute)
+	go func() {
+		// This for loop immediatley runs the first tick then on internval
+		for ; true; <-ticker.C {
+			if v.GetBool(DbIamFlag) {
+				if creds == nil {
+					logger.Error("IAM Credentials are missing")
+					return
+				}
+				logger.Info("Using IAM Authentication")
+				authToken, err := rdsutils.BuildAuthToken(dbHost+":"+dbPort, v.GetString(DbRegionFlag), dbUser, creds)
+				if err != nil {
+					logger.Error("Error building auth token", zap.Error(err))
+					return
+				}
+				dbPassword = url.QueryEscape(authToken)
+				logger.Debug("Successfully generated new IAM token")
+			}
+
+			// Update DB password either from IAM (if used) or plain text password from Vriper
+			dbConnectionDetails.Password = dbPassword
+
+			err := dbConnectionDetails.Finalize()
+			if err != nil {
+				logger.Error("Failed to finalize DB connection details", zap.Error(err))
+				return
+			}
+		}
+	}()
+
+	// Blocks until the password from the dbConnectionDetails has a non blank password
+	for {
+		if dbConnectionDetails.Password != "" {
+			// If valid password skip waiting
+			break
+		}
+		logger.Info("Waiting for DB password to be generated")
+		time.Sleep(time.Second)
 	}
 
 	// Set up the connection
