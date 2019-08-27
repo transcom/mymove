@@ -11,19 +11,14 @@
     "--",
     "/bin/milmove",
     "serve",
+    "--db-env",
+    "container",
     "--logging-env",
     "production",
     "--debug-logging",
     "--log-task-metadata",
-    "--db-env",
-    "container",
     "--tls-enabled",
-    "--mutual-tls-enabled",
-    "--db-iam",
-    "--db-iam-role",
-    "arn:aws:iam::923914045601:role/ecs-rds-role-app-{{ .environment }}",
-    "--db-region",
-    "us-west-2"
+    "--mutual-tls-enabled"
   ],
   "command": [],
   "portMappings": [
@@ -36,8 +31,16 @@
   "command": [],
   "environment": [
     {
-      "name": "HONEYCOMB_SERVICE_NAME",
-      "value": "app-client-tls"
+      "name": "DB_IAM",
+      "value": "{{ .DB_IAM }}"
+    },
+    {
+      "name": "DB_IAM_ROLE",
+      "value": "{{ .DB_IAM_ROLE }}"
+    },
+    {
+      "name": "DB_REGION",
+      "value": "us-west-2"
     },
     {
       "name": "ENVIRONMENT",
@@ -53,7 +56,7 @@
     },
     {
       "name": "DB_USER",
-      "value": "ecs_user"
+      "value": "{{ .DB_USER }}"
     },
     {
       "name": "DB_NAME",
@@ -146,14 +149,6 @@
     {
       "name": "LOGIN_GOV_HOSTNAME",
       "value": "{{ .LOGIN_GOV_HOSTNAME }}"
-    },
-    {
-      "name": "HONEYCOMB_ENABLED",
-      "value": "{{ .HONEYCOMB_ENABLED }}"
-    },
-    {
-      "name": "HONEYCOMB_DATASET",
-      "value": "{{ .HONEYCOMB_DATASET }}"
     },
     {
       "name": "DOD_CA_PACKAGE",

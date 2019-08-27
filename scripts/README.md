@@ -125,3 +125,11 @@ These scripts are primarily used for working with a CAC and the Orders API
 | `cac-extract-token-label` | Get the Token Label from CAC |
 | `cac-info` | Get general information from a CAC |
 | `cac-prereqs` | Check the prereqs for CAC |
+
+### Amazon Console Scripts
+
+These scripts are used for quickly opening up tools in the AWS Console
+
+| Script Name | Description |
+| --- | --- |
+| `cloudwatch-logs` | Open up the CloudWatch logs group page |

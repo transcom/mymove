@@ -1,12 +1,12 @@
 #! /usr/bin/env bash
 
-set -eu -o pipefail
+set -eux -o pipefail
 
 # Setting REACT_APP_NODE_ENV to develompent enables the "Local Sign In" button
 export REACT_APP_NODE_ENV=development
 
 # Set the container default name
-CONTAINER=e2e
+CONTAINER=mymove_milmove_1
 CONTAINER_CYPRESS=cypress
 
 # Set hostnames
@@ -16,81 +16,107 @@ TSPHOST=tsplocal
 ADMINHOST=adminlocal
 ORDERSHOST=orderslocal
 
-# Change the port for tests
+# Set Defaults
 HTTP_PORT=4000
+NETWORK="mymove_default" # Docker network
 
 # When running locally enable TTY
 DOCKER_RUN="docker run -t"
 if [ -n "${CIRCLECI+x}" ]; then
+  echo "RUNNING IN CIRCLECI"
   DOCKER_RUN="docker run"
 fi
 
 # Check that the docker process is running first
 docker system info >> /dev/null
 
-# Begin setup
-make e2e_clean client_build db_e2e_init_docker server_build_linux
+# Begin Setup
+make e2e_clean
 
-# Download RDS Certificates
-# Dockerfile requires them even though not used locally.
-# Might as well download them so we don't have to split Dockerfile
-make bin/rds-combined-ca-bundle.pem
+if [[ -n "${CIRCLECI+x}" ]]; then
+  # CI/CD allows us to use pre-built images using the branch name
 
-# Build the docker container
-docker build --tag e2e:latest .
+  # Let's clean things up before starting
+  docker-compose down --rmi all || true
 
-# Run the image with the ports changed
+  # Docker Compose Setup
+  aws ecr get-login --no-include-email --region us-west-2 --no-include-email | sh
+  scripts/update-docker-compose
+
+  # If you don't pull and CircleCI has cached previous images then you won't see any changes from AWS ECR
+  docker-compose pull
+
+  # Bring these containers up but don't start them so they can be manipulated first
+  docker-compose up --no-start
+
+  # Can't mount folders in CircleCI so copy this data in
+  # https://circleci.com/docs/2.0/building-docker-images/#mounting-folders
+  docker cp ./local_migrations mymove_milmove_migrate_1:/migrate/
+
+  # Start everything up
+  docker-compose up -d --no-recreate
+else
+  # Locally development requires that we build the container
+
+  # Let's clean things up before starting
+  docker-compose -f docker-compose.local.yml down || true
+
+  # Build artifacts
+  make client_build server_build_linux bin_linux/milmove
+
+  # Build images and start everything up
+  docker-compose -f docker-compose.local.yml up -d --build
+fi
+
+# Following the logs should block any more actions until migrations are completed and the container exits
+docker-compose logs -f milmove_migrate
+
+# Need to wait not just for DB but also migrations to finish
+while true; do
+  MIGRATE_EXIT=$(docker ps --filter="name=mymove_milmove_migrate_1" --filter="status=exited" -q)
+  if [[ -n "${MIGRATE_EXIT}" ]]; then
+    break
+  else
+    echo
+    echo "Waiting 5 seconds for migrations to complete"
+    sleep 5
+  fi
+done
+
+MIGRATE_EXIT_CODE=$(docker inspect --format='{{.State.ExitCode}}' mymove_milmove_migrate_1)
+if [[ "${MIGRATE_EXIT_CODE}" != "0" ]]; then
+  echo
+  echo "Migration exited with exit code ${MIGRATE_EXIT_CODE}"
+  exit 1
+fi
+
+# Build a small tools dockerfile
+make bin_linux/generate-test-data
+docker build -f Dockerfile.tools --tag tools:latest .
+
+# Truncate the DB
 $DOCKER_RUN \
-  -e CLIENT_AUTH_SECRET_KEY \
-  -e CSRF_AUTH_KEY \
-  -e DB_ENV="test" \
-  -e DB_HOST="database" \
-  -e DB_NAME \
-  -e DB_PASSWORD \
-  -e DB_PORT \
-  -e DB_USER \
-  -e DEVLOCAL_CA="/config/tls/devlocal-ca.pem" \
-  -e DEVLOCAL_AUTH="true" \
-  -e DOD_CA_PACKAGE="/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b" \
-  -e DPS_AUTH_COOKIE_SECRET_KEY \
-  -e DPS_COOKIE_EXPIRES_IN_MINUTES \
-  -e ENVIRONMENT="test" \
-  -e HERE_MAPS_APP_CODE \
-  -e HERE_MAPS_APP_ID \
-  -e HERE_MAPS_GEOCODE_ENDPOINT \
-  -e HERE_MAPS_ROUTING_ENDPOINT \
-  -e HTTP_MY_SERVER_NAME="${MILMOVEHOST}" \
-  -e HTTP_OFFICE_SERVER_NAME="${OFFICEHOST}" \
-  -e HTTP_TSP_SERVER_NAME="${TSPHOST}" \
-  -e HTTP_ADMIN_SERVER_NAME="${ADMINHOST}" \
-  -e HTTP_ORDERS_SERVER_NAME="${ORDERSHOST}" \
-  -e IWS_RBS_HOST \
-  -e LOGIN_GOV_CALLBACK_PORT="${HTTP_PORT}" \
-  -e LOGIN_GOV_CALLBACK_PROTOCOL \
-  -e LOGIN_GOV_HOSTNAME \
-  -e LOGIN_GOV_MY_CLIENT_ID \
-  -e LOGIN_GOV_OFFICE_CLIENT_ID \
-  -e LOGIN_GOV_SECRET_KEY \
-  -e LOGIN_GOV_TSP_CLIENT_ID \
-  -e LOGIN_GOV_ADMIN_CLIENT_ID \
-  -e MOVE_MIL_DOD_CA_CERT \
-  -e MOVE_MIL_DOD_TLS_CERT \
-  -e MOVE_MIL_DOD_TLS_KEY \
-  -e NO_TLS_ENABLED=1 \
-  -e NO_TLS_PORT="${HTTP_PORT}" \
-  -e STORAGE_BACKEND=memory \
-  -p "${HTTP_PORT}:${HTTP_PORT}" \
-  --expose="${HTTP_PORT}" \
-  --name="${CONTAINER}" \
-  --link="milmove-db-test:database" \
-  --read-only \
-  --detach \
+  --link="database" \
+  --net "${NETWORK}" \
   --rm \
-  ${CONTAINER}:latest \
-  serve
+  --entrypoint psql \
+  tools:latest \
+  postgres://postgres:mysecretpassword@database:5432/dev_db?sslmode=disable -c 'TRUNCATE users CASCADE;'
 
-# If your container is exiting unexpectedly try uncommenting this code to see the output:
-# docker logs -f ${CONTAINER}
+# Generate Test Data
+$DOCKER_RUN \
+  -t \
+  -e DB_NAME=dev_db \
+  -e DB_HOST=database \
+  -e DB_PORT=5432 \
+  -e DB_USER=postgres \
+  -e DB_PASSWORD=mysecretpassword \
+  --link="database" \
+  --net "${NETWORK}" \
+  --rm \
+  --entrypoint generate-test-data \
+  tools:latest \
+  --named-scenario e2e_basic
 
 # Grab the IP address of the running container
 E2E_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${CONTAINER})
@@ -103,21 +129,26 @@ docker build -f Dockerfile.cypress --tag ${CONTAINER_CYPRESS}:latest .
 DOCKER_PID=$(docker ps -qf name=${CONTAINER})
 if [ -z "${DOCKER_PID}" ]; then
   echo
-  echo "Docker container ${CONTAINER} exited unexpectedly. No tests will be run. "
+  echo "Docker container ${CONTAINER} exited unexpectedly. No tests will be run."
   exit 1
 fi
 
+readonly spec="${SPEC:-cypress/integration/**/*}"
+echo "Testing this SPEC: ${spec}"
+
 $DOCKER_RUN \
-  -e CYPRESS_baseUrl=http://${MILMOVEHOST}:4000 \
-  --add-host ${MILMOVEHOST}:"${E2E_IP}" \
-  --add-host ${OFFICEHOST}:"${E2E_IP}" \
-  --add-host ${TSPHOST}:"${E2E_IP}" \
-  --add-host ${ADMINHOST}:"${E2E_IP}" \
+  -e CYPRESS_baseUrl="http://${MILMOVEHOST}:${HTTP_PORT}" \
+  --add-host "${MILMOVEHOST}:${E2E_IP}" \
+  --add-host "${OFFICEHOST}:${E2E_IP}" \
+  --add-host "${TSPHOST}:${E2E_IP}" \
+  --add-host "${ADMINHOST}:${E2E_IP}" \
+  --add-host "${ORDERSHOST}:${E2E_IP}" \
   --name="${CONTAINER_CYPRESS}" \
   --link="${CONTAINER}" \
+  --net "${NETWORK}" \
   --ipc=host \
   --detach \
-  ${CONTAINER_CYPRESS}:latest run --spec "${SPEC:-cypress/integration/**/*}"
+  ${CONTAINER_CYPRESS}:latest run --spec "${spec}"
 
 # Tail the logs so users can follow along
 docker logs -f ${CONTAINER_CYPRESS}

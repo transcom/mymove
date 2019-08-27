@@ -63,10 +63,6 @@ function PPMShipmentSummary(props) {
               <td> Storage: </td>
               <td data-cy="sit-display">{sitDisplay}</td>
             </tr>
-            <tr>
-              <td> Storage: </td>
-              <td data-cy="sit-display">{sitDisplay}</td>
-            </tr>
           </tbody>
         </table>
       </div>

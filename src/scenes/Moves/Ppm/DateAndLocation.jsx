@@ -189,7 +189,6 @@ function mapStateToProps(state) {
     currentOrders: state.orders.currentOrders,
     formValues: getFormValues(formName)(state),
     entitlement: loadEntitlementsFromState(state),
-    hasEstimateError: state.ppm.hasEstimateError,
     originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
   };
   const defaultPickupZip = get(state.serviceMember, 'currentServiceMember.residential_address.postal_code');
@@ -203,6 +202,10 @@ function mapStateToProps(state) {
         origin_duty_station_zip: originDutyStationZip,
       }
     : null;
+  if (state.ppm && state.ppm.currentPpm) {
+    state.ppm.currentPpm.origin_duty_station_zip = originDutyStationZip;
+  }
+
   return props;
 }
 

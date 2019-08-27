@@ -14,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -96,6 +97,10 @@ func expandPath(in string) string {
 func expandPaths(in []string) []string {
 	out := make([]string, 0, len(in))
 	for _, x := range in {
+		// Don't expand empty paths
+		if len(x) == 0 {
+			continue
+		}
 		out = append(out, expandPath(x))
 	}
 	return out
@@ -209,6 +214,13 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 			dbIamRole := v.GetString(cli.DbIamRoleFlag)
 			logger.Info(fmt.Sprintf("assuming AWS role %q for db connection", dbIamRole))
 			dbCreds = stscreds.NewCredentials(session, dbIamRole)
+			stsService := sts.New(session)
+			callerIdentity, callerIdentityErr := stsService.GetCallerIdentity(&sts.GetCallerIdentityInput{})
+			if callerIdentityErr != nil {
+				logger.Error(errors.Wrap(callerIdentityErr, "error getting aws sts caller identity").Error())
+			} else {
+				logger.Info(fmt.Sprintf("STS Caller Identity - Account: %s, ARN: %s, UserId: %s", *callerIdentity.Account, *callerIdentity.Arn, *callerIdentity.UserId))
+			}
 		}
 	}
 
@@ -257,6 +269,10 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 
 	fileHelper := migrate.NewFileHelper()
 	for _, p := range migrationPaths {
+		// Don't list files in empty paths
+		if len(p) == 0 {
+			continue
+		}
 		filenames, errListFiles := fileHelper.ListFiles(p, s3Client)
 		if errListFiles != nil {
 			logger.Fatal(fmt.Sprintf("Error listing migrations directory %s", p), zap.Error(errListFiles))
