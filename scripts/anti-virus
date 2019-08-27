@@ -38,7 +38,8 @@ docker run -d -p 3310:3310 -v "${DIR}:${MOUNT_DIR}:ro" --name "${CONTAINER_NAME}
 # See https://www.clamav.net/documents/whitelist-databases
 # See https://owlbearconsulting.com/doku.php?id=linux_wiki:clamav#whitelist_a_file
 for file in ${IGNORE_FILES}; do
-  docker exec -it "${CONTAINER_NAME}" sigtool --md5 "${MOUNT_DIR}/${file}" >> "${WHITELIST}"
+  echo "Ignoring file: ${file}"
+  docker exec -it "${CONTAINER_NAME}" sigtool --md5 "${MOUNT_DIR}/${file}" | tee -a "${WHITELIST}"
 done
 
 # Copy the ignore list into the container in the same directory as the virus database
