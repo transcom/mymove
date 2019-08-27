@@ -45,7 +45,7 @@ func initFlags(flag *pflag.FlagSet) {
 	// Verbose
 	cli.InitVerboseFlags(flag)
 
-	flag.Int(offsetFlag, 15, "A sentence I can't formulate right now.")
+	flag.Int(offsetFlag, 15, "Number of days ago moves had their payment request reviewed")
 
 	// Don't sort flags
 	flag.SortFlags = false
