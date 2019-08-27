@@ -36,7 +36,7 @@ rm -f "${WHITELIST}"
 # Start the clamd service and update with freshclam (takes several minutes to be running)
 # Mount the project directory inside for scanning later
 docker pull "${DOCKER_IMAGE}"
-docker run -d -p 3310:3310 -v "${DIR}:${MOUNT_DIR}:ro" --name "${CONTAINER_NAME}" "${DOCKER_IMAGE}"
+docker run -d -p 3310:3310 -v "${DIR}:${MOUNT_DIR}" --name "${CONTAINER_NAME}" "${DOCKER_IMAGE}"
 
 if [[ -n "${CIRCLECI+x}" ]]; then
   # Can't mount folders in CircleCI so copy this data in
