@@ -332,7 +332,6 @@ build_tools: server_deps \
 	bin/ecs-service-logs \
 	bin/generate-1203-form \
 	bin/generate-access-codes \
-	bin/generate-shipment-edi \
 	bin/generate-test-data \
 	bin/health-checker \
 	bin/iws \
