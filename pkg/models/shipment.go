@@ -623,45 +623,6 @@ func FetchShipment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Sh
 	return &shipment, nil
 }
 
-// FetchShipmentByTSP looks up a shipments belonging to a TSP ID by Shipment ID
-func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID) (*Shipment, error) {
-
-	shipments := []Shipment{}
-	err := tx.Eager(ShipmentAssociationsDefault...).
-		Where("shipment_offers.transportation_service_provider_id = $1 and shipments.id = $2", tspID, shipmentID).
-		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
-		All(&shipments)
-
-	if err != nil {
-		return nil, err
-	}
-
-	// Unlikely that we see more than one but to be safe this will error.
-	if len(shipments) != 1 {
-		return nil, ErrFetchNotFound
-	}
-
-	return &shipments[0], err
-}
-
-// FetchShipmentForVerifiedTSPUser fetches a shipment for a verified, authorized TSP user
-func FetchShipmentForVerifiedTSPUser(db *pop.Connection, tspUserID uuid.UUID, shipmentID uuid.UUID) (*TspUser, *Shipment, error) {
-	// Verify that the logged in TSP user exists
-	var shipment *Shipment
-	var tspUser *TspUser
-	tspUser, err := FetchTspUserByID(db, tspUserID)
-	if err != nil {
-		return tspUser, shipment, ErrUserUnauthorized
-	}
-	// Verify that TSP is associated to shipment
-	shipment, err = FetchShipmentByTSP(db, tspUser.TransportationServiceProviderID, shipmentID)
-	if err != nil {
-		return tspUser, shipment, ErrFetchForbidden
-	}
-	return tspUser, shipment, nil
-
-}
-
 // SaveShipment validates and saves the Shipment
 func SaveShipment(db *pop.Connection, shipment *Shipment) (*validate.Errors, error) {
 	verrs, err := db.ValidateAndSave(shipment)
@@ -670,32 +631,6 @@ func SaveShipment(db *pop.Connection, shipment *Shipment) (*validate.Errors, err
 		return verrs, saveError
 	}
 	return verrs, nil
-}
-
-// saveShipmentAndOffer Validates and updates the Shipment and Shipment Offer
-func saveShipmentAndOffer(db *pop.Connection, shipment *Shipment, offer *ShipmentOffer) (*Shipment, *ShipmentOffer, *validate.Errors, error) {
-	// wrapped in a transaction because if one fails this actions should roll back.
-	responseVErrors := validate.NewErrors()
-	var responseError error
-	db.Transaction(func(db *pop.Connection) error {
-		transactionError := errors.New("rollback")
-
-		if verrs, err := db.ValidateAndUpdate(shipment); verrs.HasAny() || err != nil {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrapf(err, "Error changing shipment status to %s", shipment.Status)
-			return transactionError
-		}
-
-		if verrs, err := db.ValidateAndUpdate(offer); verrs.HasAny() || err != nil {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrapf(err, "Error changing shipment offer status %v", offer.Accepted)
-			return transactionError
-		}
-
-		return nil
-	})
-
-	return shipment, offer, responseVErrors, responseError
 }
 
 // AwardShipment sets the shipment as awarded.
@@ -717,50 +652,6 @@ func AwardShipment(db *pop.Connection, shipmentID uuid.UUID) error {
 	}
 
 	return nil
-}
-
-// AcceptShipmentForTSP accepts a shipment and shipment_offer
-func AcceptShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID) (*Shipment, *ShipmentOffer, *validate.Errors, error) {
-
-	// Get the Shipment and Shipment Offer
-	shipment, err := FetchShipmentByTSP(db, tspID, shipmentID)
-	if err != nil {
-		return shipment, nil, nil, err
-	}
-
-	// by default we should use the address of duty station when a TSP accepts shipment unless actual delivery
-	// shipment address is available at the time
-	destAddOnAcceptance := shipment.Move.Orders.NewDutyStation.Address
-	if shipment.HasDeliveryAddress && shipment.DeliveryAddress != nil {
-		destAddOnAcceptance = *shipment.DeliveryAddress
-	}
-
-	// setting id to nil to force a new Address in the db
-	destAddOnAcceptance.ID = uuid.Nil
-	shipment.DestinationAddressOnAcceptance = &destAddOnAcceptance
-
-	_, err = SaveDestinationAddress(db, shipment)
-	if err != nil {
-		return shipment, nil, nil, err
-	}
-
-	shipmentOffer, err := FetchShipmentOfferByTSP(db, tspID, shipmentID)
-	if err != nil {
-		return shipment, shipmentOffer, nil, err
-	}
-
-	// Accept the Shipment and Shipment Offer
-	err = shipment.Accept()
-	if err != nil {
-		return shipment, shipmentOffer, nil, err
-	}
-
-	err = shipmentOffer.Accept()
-	if err != nil {
-		return shipment, shipmentOffer, nil, err
-	}
-
-	return saveShipmentAndOffer(db, shipment, shipmentOffer)
 }
 
 // SaveDestinationAddress saves a DestinationAddressOnAcceptance

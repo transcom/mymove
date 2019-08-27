@@ -24,8 +24,6 @@ const (
 	// OfficeUserType is the type of user for an Office user
 	OfficeUserType string = "office"
 	// TspUserType is the type of user for a TSP user
-	TspUserType string = "tsp"
-	// DpsUserType is the type of user for a DPS user
 	DpsUserType string = "dps"
 	// AdminUserType is the type of user for an admin user
 	AdminUserType string = "admin"
@@ -70,8 +68,6 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		MilMoveUserType string
 		IsOfficeApp     bool
 		OfficeUserType  string
-		IsTspApp        bool
-		TspUserType     string
 		DpsUserType     string
 		IsAdminApp      bool
 		AdminUserType   string
@@ -85,8 +81,6 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		MilMoveUserType: MilMoveUserType,
 		IsOfficeApp:     auth.OfficeApp == session.ApplicationName,
 		OfficeUserType:  OfficeUserType,
-		IsTspApp:        auth.TspApp == session.ApplicationName,
-		TspUserType:     TspUserType,
 		DpsUserType:     DpsUserType,
 		IsAdminApp:      auth.AdminApp == session.ApplicationName,
 		AdminUserType:   AdminUserType,
@@ -434,42 +428,6 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		if verrs.HasAny() {
 			h.logger.Error("validation errors creating office user", zap.Stringer("errors", verrs))
 		}
-	case TspUserType:
-		var tsp models.TransportationServiceProvider
-		h.db.Where("standard_carrier_alpha_code = $1", "TRS1").First(&tsp)
-		if tsp.ID == uuid.Nil {
-			// TSP not found, create one for Truss
-			tsp = models.TransportationServiceProvider{
-				StandardCarrierAlphaCode: "TRSS",
-			}
-			verrs, err := h.db.ValidateAndSave(&tsp)
-			if err != nil {
-				h.logger.Error("could not create TSP", zap.Error(err))
-			}
-			if verrs.HasAny() {
-				h.logger.Error("validation errors creating TSP", zap.Stringer("errors", verrs))
-			}
-		}
-
-		tspUser := models.TspUser{
-			FirstName:                       firstName,
-			LastName:                        lastName,
-			Telephone:                       telephone,
-			TransportationServiceProviderID: tsp.ID,
-			Email:                           email,
-			Disabled:                        false,
-		}
-		if user.ID != uuid.Nil {
-			tspUser.UserID = &user.ID
-		}
-
-		verrs, err := h.db.ValidateAndSave(&tspUser)
-		if err != nil {
-			h.logger.Error("could not create tsp user", zap.Error(err))
-		}
-		if verrs.HasAny() {
-			h.logger.Error("validation errors creating tsp user", zap.Stringer("errors", verrs))
-		}
 	case DpsUserType:
 		dpsUser := models.DpsUser{
 			LoginGovEmail: email,
@@ -535,10 +493,6 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 		session.ApplicationName = auth.OfficeApp
 		session.Hostname = h.appnames.OfficeServername
 		disabled = userIdentity.Disabled || (userIdentity.OfficeDisabled != nil && *userIdentity.OfficeDisabled)
-	case TspUserType:
-		session.ApplicationName = auth.TspApp
-		session.Hostname = h.appnames.TspServername
-		disabled = userIdentity.Disabled || (userIdentity.TspDisabled != nil && *userIdentity.TspDisabled)
 	case AdminUserType:
 		session.ApplicationName = auth.AdminApp
 		session.Hostname = h.appnames.AdminServername
@@ -565,10 +519,6 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 
 	if userIdentity.OfficeUserID != nil && (session.IsOfficeApp() || userType == OfficeUserType) {
 		session.OfficeUserID = *(userIdentity.OfficeUserID)
-	}
-
-	if userIdentity.TspUserID != nil && (session.IsTspApp() || userType == TspUserType) {
-		session.TspUserID = *(userIdentity.TspUserID)
 	}
 
 	if userIdentity.DpsUserID != nil && (userIdentity.DpsDisabled != nil && !*userIdentity.DpsDisabled) {
