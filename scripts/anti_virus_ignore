@@ -9,6 +9,7 @@ set -eu -o pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
 readonly DIR
 
+rm -f whitelist_files.fp
 FILES=pkg/handlers/fixtures/orders.pdf
 for file in ${FILES}; do
   name=$(basename "${file}")
