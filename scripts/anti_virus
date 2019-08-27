@@ -8,7 +8,7 @@ set -eu -o pipefail
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
 readonly DIR
-SLEEP=150
+SLEEP=180
 readonly SLEEP
 CONTAINER_NAME=anti_virus
 
