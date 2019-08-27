@@ -21,6 +21,10 @@ import (
 	"github.com/transcom/mymove/pkg/notifications"
 )
 
+const (
+	offsetFlag string = "offset-days"
+)
+
 func checkConfig(v *viper.Viper, logger logger) error {
 
 	logger.Debug("checking config")
@@ -41,6 +45,8 @@ func initFlags(flag *pflag.FlagSet) {
 	// Verbose
 	cli.InitVerboseFlags(flag)
 
+	flag.String(offsetFlag, "", "A sentence I can't formulate right now.")
+
 	// Don't sort flags
 	flag.SortFlags = false
 }
@@ -57,6 +63,7 @@ func main() {
 	v.AutomaticEnv()
 
 	dbEnv := v.GetString(cli.DbEnvFlag)
+	offsetDays := v.GetInt(offsetFlag)
 
 	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
 	if err != nil {
@@ -104,9 +111,9 @@ func main() {
 	}
 
 	ctx := context.TODO()
-	targetDate := time.Now().AddDate(0, 0, -15)
+	targetDate := time.Now().AddDate(0, 0, -offsetDays)
 	notificationSender := notifications.InitEmail(v, session, logger)
-	log.Print(notificationSender, dbConnection)
+
 	err = notificationSender.SendNotification(
 		ctx,
 		notifications.NewMoveReviewed(dbConnection, logger, targetDate),
