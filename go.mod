@@ -69,7 +69,6 @@ require (
 	github.com/subosito/gotenv v1.1.1 // indirect
 	github.com/tealeg/xlsx v1.0.3
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5
-	github.com/xtgo/uuid v0.0.0-20140804021211-a0b114877d4c
 	go.mongodb.org/mongo-driver v1.0.4 // indirect
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
 	go.uber.org/zap v1.10.0
