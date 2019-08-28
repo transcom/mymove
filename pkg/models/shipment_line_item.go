@@ -36,9 +36,7 @@ const (
 
 // ShipmentLineItem is an object representing a line item in a pre-approval request
 type ShipmentLineItem struct {
-	ID         uuid.UUID `json:"id" db:"id"`
-	ShipmentID uuid.UUID `json:"shipment_id" db:"shipment_id"`
-
+	ID                uuid.UUID                `json:"id" db:"id"`
 	Tariff400ngItemID uuid.UUID                `json:"tariff400ng_item_id" db:"tariff400ng_item_id"`
 	Tariff400ngItem   Tariff400ngItem          `belongs_to:"tariff400ng_items"`
 	Location          ShipmentLineItemLocation `json:"location" db:"location"`
