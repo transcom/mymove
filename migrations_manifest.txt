@@ -346,3 +346,4 @@
 20190815172746_disable_mikena.up.sql
 20190821192638_add_office_user.up.sql
 20190822210248_add-payment-reviewed-date-to-personally-procured-moves.up.sql
+20190828135605_add-survey-email-sent-to-personally-procured-moves.up.sql
