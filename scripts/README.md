@@ -117,3 +117,11 @@ These scripts are used for quickly opening up tools in the AWS Console
 | Script Name | Description |
 | --- | --- |
 | `cloudwatch-logs` | Open up the CloudWatch logs group page |
+
+### Vulnerability Scanning
+
+These scripts are used to do vulnerability scanning on our code
+
+| Script Name | Description |
+| --- | --- |
+| `anti-virus` | Scan the source code for viruses |
