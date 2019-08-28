@@ -15,10 +15,8 @@ type MoveQueueItem struct {
 	Rank                       *ServiceMemberRank `json:"rank" db:"rank"`
 	CustomerName               string             `json:"customer_name" db:"customer_name"`
 	Locator                    string             `json:"locator" db:"locator"`
-	GBLNumber                  *string            `json:"gbl_number" db:"gbl_number"`
 	Status                     string             `json:"status" db:"status"`
 	PpmStatus                  *string            `json:"ppm_status" db:"ppm_status"`
-	HhgStatus                  *string            `json:"hhg_status" db:"hhg_status"`
 	OrdersType                 string             `json:"orders_type" db:"orders_type"`
 	MoveDate                   *time.Time         `json:"move_date" db:"move_date"`
 	SubmittedDate              *time.Time         `json:"submitted_date" db:"submitted_date"`
@@ -26,8 +24,6 @@ type MoveQueueItem struct {
 	ShipmentID                 uuid.UUID          `json:"shipment_id" db:"shipment_id"`
 	OriginDutyStationName      string             `json:"origin_duty_station_name" db:"origin_duty_station_name"`
 	DestinationDutyStationName string             `json:"destination_duty_station_name" db:"destination_duty_station_name"`
-	SitArray                   string             `json:"sit_array" db:"sit_array"`
-	SliArray                   string             `json:"sli_array" db:"sli_array"`
 	PmSurveyConductedDate      *time.Time         `json:"pm_survey_conducted_date" db:"pm_survey_conducted_date"`
 	OriginGBLOC                *string            `json:"origin_gbloc" db:"origin_gbloc"`
 	DestinationGBLOC           *string            `json:"destination_gbloc" db:"destination_gbloc"`
@@ -63,11 +59,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				moves.updated_at as last_modified_date,
 				moves.status as status,
 				ppm.status as ppm_status,
-				shipment.status as hhg_status,
-				shipment.gbl_number as gbl_number,
 				shipment.pm_survey_conducted_date as pm_survey_conducted_date,
-				json_agg(json_build_object('id', sits.id , 'location', sits.location, 'status', sits.status, 'actual_start_date', sits.actual_start_date, 'out_date', sits.out_date)) as sit_array,
-				json_agg(slis.status) as sli_array,
 				origin_duty_station.name as origin_duty_station_name
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
@@ -75,39 +67,11 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN duty_stations as origin_duty_station ON sm.duty_station_id = origin_duty_station.id
 			LEFT JOIN shipments AS shipment ON moves.id = shipment.move_id
 			LEFT JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
-			LEFT JOIN storage_in_transits as sits ON sits.shipment_id = shipment.id
-			LEFT JOIN shipment_line_items as slis ON slis.shipment_id = shipment.id
 			WHERE (moves.status = 'SUBMITTED'
-			OR ((shipment.status in ('SUBMITTED', 'AWARDED', 'ACCEPTED') OR ppm.status = 'SUBMITTED')
+			OR (ppm.status = 'SUBMITTED'
 				AND (NOT moves.status in ('CANCELED', 'DRAFT'))))
 			AND moves.show is true
 			GROUP BY moves.ID, rank, customer_name, edipi, locator, orders_type, move_date, moves.created_at, last_modified_date, moves.status, shipment.id, ppm.submit_date, ppm_status, origin_duty_station.name
-		`
-	} else if lifecycleState == "ppm" {
-		query = `
-			SELECT moves.ID,
-				COALESCE(sm.edipi, '*missing*') as edipi,
-				COALESCE(sm.rank, '*missing*') as rank,
-				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
-				moves.locator as locator,
-				ord.orders_type as orders_type,
-				COALESCE(ppm.actual_move_date, ppm.original_move_date) as move_date,
-				moves.created_at as created_at,
-				ppm.updated_at as last_modified_date,
-				moves.status as status,
-				ppm.status as ppm_status,
-				shipment.gbl_number as gbl_number,
-				origin_duty_station.name as origin_duty_station_name,
-				destination_duty_station.name as destination_duty_station_name
-			FROM moves
-			JOIN orders as ord ON moves.orders_id = ord.id
-			JOIN service_members AS sm ON ord.service_member_id = sm.id
-			JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
-			JOIN duty_stations as origin_duty_station ON sm.duty_station_id = origin_duty_station.id
-			JOIN duty_stations as destination_duty_station ON ord.new_duty_station_id = destination_duty_station.id
-			LEFT JOIN shipments AS shipment ON moves.id = shipment.move_id
-			WHERE moves.show is true
-			and ppm.status in ('APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED')
 		`
 	} else if lifecycleState == "ppm_payment_requested" {
 		query = `
