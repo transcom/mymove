@@ -421,6 +421,7 @@ SVY_SCORE
 RATE_SCORE
 README.md
 MY_NAME
+HackerOne
 addons
 addon
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
