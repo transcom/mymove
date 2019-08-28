@@ -7,7 +7,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/dates"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -46,15 +45,6 @@ func (suite *ModelSuite) TestFetchMove() {
 	order1 := testdatagen.MakeDefaultOrder(suite.DB())
 	order2 := testdatagen.MakeDefaultOrder(suite.DB())
 
-	calendar := dates.NewUSCalendar()
-	pickupDate := dates.NextWorkday(*calendar, time.Date(testdatagen.TestYear, time.January, 28, 0, 0, 0, 0, time.UTC))
-	deliveryDate := dates.NextWorkday(*calendar, pickupDate)
-
-	tdl := testdatagen.MakeDefaultTDL(suite.DB())
-
-	market := "dHHG"
-	sourceGBLOC := "BMLK"
-
 	session := &auth.Session{
 		UserID:          order1.ServiceMember.UserID,
 		ServiceMemberID: order1.ServiceMemberID,
@@ -71,25 +61,10 @@ func (suite *ModelSuite) TestFetchMove() {
 	suite.False(verrs.HasAny(), "failed to validate move")
 	suite.Equal(6, len(move.Locator))
 
-	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
-		Shipment: Shipment{
-			RequestedPickupDate:     &pickupDate,
-			ActualPickupDate:        &pickupDate,
-			ActualDeliveryDate:      &deliveryDate,
-			TrafficDistributionList: &tdl,
-			SourceGBLOC:             &sourceGBLOC,
-			Market:                  &market,
-			ServiceMember:           order1.ServiceMember,
-			Move:                    *move,
-			MoveID:                  move.ID,
-		},
-	})
-
 	// All correct
 	fetchedMove, err := FetchMove(suite.DB(), session, move.ID)
 	suite.Nil(err, "Expected to get moveResult back.")
 	suite.Equal(fetchedMove.ID, move.ID, "Expected new move to match move.")
-	suite.Equal(fetchedMove.Shipments[0].PickupAddressID, shipment.PickupAddressID)
 
 	// We're asserting that if for any reason
 	// a move gets into the remove "COMPLETED" state
@@ -176,32 +151,6 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	})
 	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
 
-	// Create hhg (shipment) on this move
-	calendar := dates.NewUSCalendar()
-	pickupDate := dates.NextWorkday(*calendar, time.Date(testdatagen.TestYear, time.January, 28, 0, 0, 0, 0, time.UTC))
-	deliveryDate := dates.NextWorkday(*calendar, pickupDate)
-	tdl := testdatagen.MakeDefaultTDL(suite.DB())
-	market := "dHHG"
-	sourceGBLOC := "KKFA"
-	destinationGBLOC := "HAFC"
-
-	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
-		Shipment: Shipment{
-			MoveID:                  move.ID,
-			Move:                    *move,
-			RequestedPickupDate:     &pickupDate,
-			ActualPickupDate:        &pickupDate,
-			ActualDeliveryDate:      &deliveryDate,
-			TrafficDistributionList: &tdl,
-			SourceGBLOC:             &sourceGBLOC,
-			DestinationGBLOC:        &destinationGBLOC,
-			Market:                  &market,
-			Status:                  ShipmentStatusDRAFT,
-		},
-	})
-
-	move.Shipments = append(move.Shipments, shipment)
-
 	// Once submitted
 	currentTime := time.Now()
 	err = move.Submit(currentTime)
@@ -210,7 +159,6 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	suite.NoError(err)
 	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
 	suite.Equal(PPMStatusSUBMITTED, move.PersonallyProcuredMoves[0].Status, "expected Submitted")
-	suite.Equal(ShipmentStatusSUBMITTED, move.Shipments[0].Status, "expected Submitted")
 	// Can cancel move
 	err = move.Cancel(reason)
 	suite.NoError(err)
@@ -296,65 +244,4 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 	verrs, err = SaveMoveDependencies(suite.DB(), move)
 	suite.False(verrs.HasAny(), "failed to save valid statuses")
 	suite.NoError(err)
-}
-
-func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
-	// Given: A shipment's move with orders in acceptable status
-
-	dutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
-	serviceMember.DutyStationID = &dutyStation.ID
-	serviceMember.DutyStation = dutyStation
-	suite.MustSave(&serviceMember)
-
-	calendar := dates.NewUSCalendar()
-	pickupDate := dates.NextWorkday(*calendar, time.Date(testdatagen.TestYear, time.January, 28, 0, 0, 0, 0, time.UTC))
-	deliveryDate := dates.NextWorkday(*calendar, pickupDate)
-	tdl := testdatagen.MakeDefaultTDL(suite.DB())
-	market := "dHHG"
-	sourceGBLOC := "BMLK"
-
-	orders := testdatagen.MakeDefaultOrder(suite.DB())
-	orders.Status = OrderStatusSUBMITTED
-
-	selectedMoveType := SelectedMoveTypeHHGPPM
-	moveOptions := MoveOptions{
-		SelectedType: &selectedMoveType,
-		Show:         swag.Bool(true),
-	}
-	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
-	suite.NoError(err)
-	suite.False(verrs.HasAny(), "failed to validate move")
-
-	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
-		Shipment: Shipment{
-			RequestedPickupDate:     &pickupDate,
-			ActualPickupDate:        &pickupDate,
-			ActualDeliveryDate:      &deliveryDate,
-			TrafficDistributionList: &tdl,
-			SourceGBLOC:             &sourceGBLOC,
-			Market:                  &market,
-			ServiceMember:           serviceMember,
-			Move:                    *move,
-			MoveID:                  move.ID,
-		},
-	})
-	// Associate Shipment with the move it's on.
-	move.Shipments = append(move.Shipments, shipment)
-	move.Orders = orders
-
-	// And: Move is in SUBMITTED state
-	move.Status = MoveStatusSUBMITTED
-	verrs, err = SaveMoveDependencies(suite.DB(), move)
-	suite.False(verrs.HasAny(), "failed to save valid statuses")
-	suite.NoError(err)
-	suite.DB().Reload(&shipment)
-
-	// Then: Shipment GBLOCs will be equal to:
-	// destination GBLOC: orders' new duty station's transportation office's GBLOC
-	suite.Equal(orders.NewDutyStation.TransportationOffice.Gbloc, *shipment.DestinationGBLOC)
-	// source GBLOC: service member's current duty station's transportation office's GBLOC
-	suite.Equal(serviceMember.DutyStation.TransportationOffice.Gbloc, *shipment.SourceGBLOC)
-	// GBL number should be set
-	suite.NotNil(shipment.GBLNumber)
 }

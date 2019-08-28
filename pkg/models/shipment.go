@@ -51,7 +51,6 @@ var (
 		"ShipmentOffers.TransportationServiceProviderPerformance.TransportationServiceProvider",
 		"ShippingDistance.OriginAddress",
 		"ShippingDistance.DestinationAddress",
-		"StorageInTransits",
 	}
 )
 
@@ -85,7 +84,6 @@ type Shipment struct {
 	ShipmentOffers            ShipmentOffers           `has_many:"shipment_offers" order_by:"created_at desc"`
 	ServiceAgents             ServiceAgents            `has_many:"service_agents" order_by:"created_at desc"`
 	ShipmentLineItems         ShipmentLineItems        `has_many:"shipment_line_items" order_by:"created_at desc"`
-	StorageInTransits         StorageInTransits        `has_many:"storage_in_transits" order_by:"location desc, estimated_start_date"`
 
 	// dates
 	ActualPickupDate     *time.Time `json:"actual_pickup_date" db:"actual_pickup_date"`         // when shipment is scheduled to be picked up by the TSP
@@ -302,23 +300,6 @@ func (s *Shipment) Deliver(actualDeliveryDate time.Time) (err error) {
 	}
 	s.Status = ShipmentStatusDELIVERED
 	s.ActualDeliveryDate = &actualDeliveryDate
-
-	var sits []StorageInTransit
-	// deliver SITs
-	for _, sit := range s.StorageInTransits {
-		// only deliver DESTINATION Sits that are IN_SIT
-		if sit.Status == StorageInTransitStatusINSIT &&
-			sit.Location == StorageInTransitLocationDESTINATION {
-			err = sit.Deliver(actualDeliveryDate)
-			if err != nil {
-				return err
-			}
-			sits = append(sits, sit)
-		} else {
-			sits = append(sits, sit)
-		}
-	}
-	s.StorageInTransits = sits
 
 	return err
 }

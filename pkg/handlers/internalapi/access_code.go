@@ -1,4 +1,4 @@
-package publicapi
+package internalapi
 
 import (
 	"strings"
@@ -7,15 +7,15 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/gen/apimessages"
-	accesscodeop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/accesscode"
+	accesscodeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/accesscode"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
-func payloadForAccessCodeModel(accessCode models.AccessCode) *apimessages.AccessCode {
-	payload := &apimessages.AccessCode{
+func payloadForAccessCodeModel(accessCode models.AccessCode) *internalmessages.AccessCode {
+	payload := &internalmessages.AccessCode{
 		ID:        handlers.FmtUUID(accessCode.ID),
 		Code:      handlers.FmtStringPtr(&accessCode.Code),
 		MoveType:  handlers.FmtString(accessCode.MoveType.String()),
@@ -49,11 +49,11 @@ func (h FetchAccessCodeHandler) Handle(params accesscodeop.FetchAccessCodeParams
 
 	// Fetch access code
 	accessCode, err := h.accessCodeFetcher.FetchAccessCode(session.ServiceMemberID)
-	var fetchAccessCodePayload *apimessages.AccessCode
+	var fetchAccessCodePayload *internalmessages.AccessCode
 
 	if err != nil {
 		logger.Error("Error retrieving access_code for service member", zap.Error(err))
-		fetchAccessCodePayload = &apimessages.AccessCode{}
+		fetchAccessCodePayload = &internalmessages.AccessCode{}
 		return accesscodeop.NewFetchAccessCodeOK().WithPayload(fetchAccessCodePayload)
 	}
 
@@ -80,11 +80,11 @@ func (h ValidateAccessCodeHandler) Handle(params accesscodeop.ValidateAccessCode
 	moveType, code := splitParams[0], splitParams[1]
 
 	accessCode, valid, _ := h.accessCodeValidator.ValidateAccessCode(code, models.SelectedMoveType(moveType))
-	var validateAccessCodePayload *apimessages.AccessCode
+	var validateAccessCodePayload *internalmessages.AccessCode
 
 	if !valid {
 		logger.Warn("Access code not valid")
-		validateAccessCodePayload = &apimessages.AccessCode{}
+		validateAccessCodePayload = &internalmessages.AccessCode{}
 		return accesscodeop.NewValidateAccessCodeOK().WithPayload(validateAccessCodePayload)
 	}
 
