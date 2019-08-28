@@ -79,7 +79,7 @@ Validate your client certificate was updated (use your name):
 
 ```sh
 psql-dev
-> select * from client_certs where subject ILIKE 'chris';
+> select * from client_certs where subject ILIKE '%chris%';
 ```
 
 Now to test this with transcom/nom you need to enable the Mutual TLS listener and then run the server. To do so modify your `.envrc.local` with this content:
@@ -113,8 +113,8 @@ Now over in your git checkout of the transcom/nom repo. Then download the [sampl
 
 ```sh
 make bin/nom
-TOKEN=`ENTERYOURTOKEN`
-MODULE=`/usr/local/lib/pkcs11/cackey.dylib`
+TOKEN="ENTERYOURTOKEN"
+MODULE="/usr/local/lib/pkcs11/cackey.dylib"
 bin/nom -host orderslocal -port 9443 -insecure -pkcs11module "${MODULE}" --tokenlabel "${TOKEN}" nom_demo_20190404.csv
 PIN: ********
 ```
