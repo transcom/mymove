@@ -422,6 +422,8 @@ RATE_SCORE
 README.md
 MY_NAME
 HackerOne
+addons
+addon
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - /usr/local
  - docs/data/tspp-data-creation.md
@@ -434,3 +436,4 @@ HackerOne
  - ./docs/data/tspp-data-creation.md
  - ./docs/data/tariff400ng-yearly-import.md
  - ./scripts/README.md
+ - ./docs/how-to/run-storybook.md
