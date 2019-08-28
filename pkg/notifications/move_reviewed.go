@@ -77,7 +77,7 @@ func (m MoveReviewed) emails(ctx context.Context) ([]emailContent, error) {
 		m.logger.Error("error retrieving email info for", zap.String("date", m.date.String()))
 		return []emailContent{}, nil
 	}
-	if emailInfos == nil {
+	if len(emailInfos) == 0 {
 		m.logger.Info("no emails to be sent for", zap.String("date", m.date.String()))
 		return []emailContent{}, nil
 	}
