@@ -3,10 +3,10 @@ package notifications
 import (
 	"bytes"
 	"context"
-	html "html/template"
-	"path/filepath"
 	text "text/template"
 	"time"
+
+	"github.com/transcom/mymove/pkg/assets"
 
 	"github.com/gobuffalo/pop"
 	"go.uber.org/zap"
@@ -86,11 +86,21 @@ func (m MoveReviewed) formatEmails(emailInfos EmailInfos) ([]emailContent, error
 			DestinationDutyStation: emailInfo.NewDutyStationName,
 			Email:                  email,
 		}
+		htmlBody, err := m.RenderHTML(data)
+		if err != nil {
+			m.logger.Error("error rendering template")
+			return []emailContent{}, err
+		}
+		textBody, err := m.RenderText(data)
+		if err != nil {
+			m.logger.Error("error rendering template")
+			return []emailContent{}, err
+		}
 		smEmail := emailContent{
 			recipientEmail: email,
 			subject:        "[MilMove] Let us know how we did",
-			htmlBody:       m.RenderHTML(data),
-			textBody:       m.RenderText(data),
+			htmlBody:       htmlBody,
+			textBody:       textBody,
 		}
 		m.logger.Info("Generated move reviewed email to service member",
 			zap.String("service member email address", email))
@@ -108,47 +118,44 @@ type moveReviewedEmailData struct {
 }
 
 // RenderHTML renders the html for the email
-func (m MoveReviewed) RenderHTML(data moveReviewedEmailData) string {
+func (m MoveReviewed) RenderHTML(data moveReviewedEmailData) (string, error) {
 	var htmlBuffer bytes.Buffer
-	var htmlTemplate html.Template
-	absPath, err := filepath.Abs("pkg/notifications/templates/move_reviewed_template.txt")
+	t, err := assets.Asset("pkg/notifications/templates/move_reviewed_template.html")
 	if err != nil {
 		m.logger.Error("html template pathing error")
+		return "", err
 	}
-	t, err := html.ParseFiles(absPath)
+	templateString := string(t)
+	htmlTemplate, err := text.New("text_template").Parse(templateString)
 	if err != nil {
-		m.logger.Error("unable to parse html template")
+		m.logger.Error("unable to parse html template", zap.String("template:", templateString))
+		return "", err
 	}
-	if t == nil {
-		m.logger.Error("html template should not be nil")
-	}
-	htmlTemplate = *t
 	if err := htmlTemplate.Execute(&htmlBuffer, data); err != nil {
 		m.logger.Error("cant render html template for: ",
 			zap.String("service member email address", data.Email))
 	}
-	return htmlBuffer.String()
+	return htmlBuffer.String(), nil
 }
 
 // RenderText renders the text for the email
-func (m MoveReviewed) RenderText(data moveReviewedEmailData) string {
+func (m MoveReviewed) RenderText(data moveReviewedEmailData) (string, error) {
 	var textBuffer bytes.Buffer
-	var textTemplate text.Template
-	absPath, err := filepath.Abs("pkg/notifications/templates/move_reviewed_template.html")
+	t, err := assets.Asset("pkg/notifications/templates/move_reviewed_template.txt")
 	if err != nil {
 		m.logger.Error("text template pathing error")
+		return "", err
 	}
-	t, err := text.ParseFiles(absPath)
+	templateString := string(t)
+	textTemplate, err := text.New("html_template").Parse(templateString)
 	if err != nil {
-		m.logger.Error("unable to parse text template")
+		m.logger.Error("unable to parse html template", zap.String("template:", templateString))
+		return "", err
 	}
-	if t == nil {
-		m.logger.Error("text template should not be nil")
-	}
-	textTemplate = *t
 	if err := textTemplate.Execute(&textBuffer, data); err != nil {
 		m.logger.Error("cant render text template for: ",
 			zap.String("service member email address", data.Email))
+		return "", err
 	}
-	return textBuffer.String()
+	return textBuffer.String(), nil
 }

@@ -74,8 +74,9 @@ func (suite *NotificationSuite) TestHTMLTemplateRender() {
 
 <p>Thank you for your thoughts, and <strong>congratulations on your move.</strong></p>`
 
-	htmlContent := mr.RenderHTML(s)
+	htmlContent, err := mr.RenderHTML(s)
 
+	suite.NoError(err)
 	suite.Equal(expectedHTMLContent, htmlContent)
 
 }
@@ -98,8 +99,9 @@ We’ll use your feedback to make MilMove better for your fellow service members
 
 Thank you for your thoughts, and congratulations on your move.`
 
-	textContent := mr.RenderText(s)
+	textContent, err := mr.RenderText(s)
 
+	suite.NoError(err)
 	suite.Equal(expectedTextContent, textContent)
 }
 
@@ -139,11 +141,15 @@ func (suite *NotificationSuite) TestFormatEmails() {
 			DestinationDutyStation: emailInfo.NewDutyStationName,
 			Email:                  *emailInfo.Email,
 		}
+		htmlBody, err := mr.RenderHTML(data)
+		suite.NoError(err)
+		textBody, err := mr.RenderText(data)
+		suite.NoError(err)
 		expectedEmailContent := emailContent{
 			recipientEmail: *emailInfo.Email,
 			subject:        "[MilMove] Let us know how we did",
-			htmlBody:       mr.RenderHTML(data),
-			textBody:       mr.RenderText(data),
+			htmlBody:       htmlBody,
+			textBody:       textBody,
 		}
 		if emailInfo.Email != nil {
 			suite.Equal(expectedEmailContent, actualEmailContent)
