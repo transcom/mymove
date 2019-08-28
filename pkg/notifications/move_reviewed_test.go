@@ -99,7 +99,7 @@ func (suite *NotificationSuite) TestTextTemplateRender() {
 
 Can we ask a quick favor? Tell us about your experience with requesting and receiving payment at www.survey.
 
-We’ll use your feedback to make MilMove better for your fellow service members.
+We'll use your feedback to make MilMove better for your fellow service members.
 
 Thank you for your thoughts, and congratulations on your move.`
 
