@@ -9,7 +9,6 @@ import (
 
 	entitlementop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -73,78 +72,6 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns409IfPPM() {
 	wtgEst := unit.Pound(14000)
 	ppm.WeightEstimate = &wtgEst
 	suite.MustSave(&ppm)
-
-	// And: the context contains the auth values
-	request := httptest.NewRequest("GET", "/entitlements/move_id", nil)
-	request = suite.AuthenticateRequest(request, move.Orders.ServiceMember)
-
-	params := entitlementop.ValidateEntitlementParams{
-		HTTPRequest: request,
-		MoveID:      strfmt.UUID(move.ID.String()),
-	}
-
-	// And: validate entitlements endpoint is hit
-	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	response := handler.Handle(params)
-
-	// Then: expect a 409 status code
-	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
-	errResponse := response.(*handlers.ErrResponse)
-
-	// Then: expect a 409 status code
-	suite.Assertions.Equal(http.StatusConflict, errResponse.Code)
-}
-
-func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns409IfHHG() {
-	// Given: a set of orders, a move, user, servicemember and an HHG
-	shipment := testdatagen.MakeDefaultShipment(suite.DB())
-	move := shipment.Move
-
-	// When: rank is E1, the orders have dependents and spouse gear, and
-	// the weight estimate stored is over entitlement of 10500
-	weight := unit.Pound(14000)
-	shipment.WeightEstimate = &weight
-	suite.MustSave(&shipment)
-
-	// And: the context contains the auth values
-	request := httptest.NewRequest("GET", "/entitlements/move_id", nil)
-	request = suite.AuthenticateRequest(request, move.Orders.ServiceMember)
-
-	params := entitlementop.ValidateEntitlementParams{
-		HTTPRequest: request,
-		MoveID:      strfmt.UUID(move.ID.String()),
-	}
-
-	// And: validate entitlements endpoint is hit
-	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	response := handler.Handle(params)
-
-	// Then: expect a 409 status code
-	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
-	errResponse := response.(*handlers.ErrResponse)
-
-	// Then: expect a 409 status code
-	suite.Assertions.Equal(http.StatusConflict, errResponse.Code)
-}
-
-func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns409IfComboMove() {
-	// Given: a set of orders, a move, user, servicemember and Combo HHG and PPM
-	shipment := testdatagen.MakeDefaultShipment(suite.DB())
-	move := shipment.Move
-
-	// When: rank is E1, the orders have dependents and spouse gear, and
-	// the weight estimate stored is over entitlement of 10500
-	weight := unit.Pound(14000)
-	shipment.WeightEstimate = &weight
-	suite.MustSave(&shipment)
-
-	ppmWeight := unit.Pound(weight)
-	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			Move:           move,
-			WeightEstimate: &ppmWeight,
-		},
-	})
 
 	// And: the context contains the auth values
 	request := httptest.NewRequest("GET", "/entitlements/move_id", nil)
@@ -256,32 +183,6 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerManagesNilPPMWeightEsti
 	// This endpoint can be called when the ppm weight estimate has not been set
 	ppm.WeightEstimate = nil
 	suite.MustSave(&ppm)
-
-	// And: the context contains the auth values
-	request := httptest.NewRequest("GET", "/entitlements/move_id", nil)
-	request = suite.AuthenticateRequest(request, move.Orders.ServiceMember)
-
-	params := entitlementop.ValidateEntitlementParams{
-		HTTPRequest: request,
-		MoveID:      strfmt.UUID(move.ID.String()),
-	}
-
-	// And: validate entitlements endpoint is hit
-	handler := ValidateEntitlementHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	response := handler.Handle(params)
-
-	// Then: expect a 200 status code
-	suite.Assertions.IsType(&entitlementop.ValidateEntitlementOK{}, response)
-}
-
-func (suite *HandlerSuite) TestValidateEntitlementHandlerManagesNilShipmentWeightEstimate() {
-	// Given: a set of orders, a move, user, servicemember and an HHG
-	shipment := testdatagen.MakeDefaultShipment(suite.DB())
-	move := shipment.Move
-
-	// This endpoint can be called when the shipment weight estimate has not been set
-	shipment.WeightEstimate = nil
-	suite.MustSave(&shipment)
 
 	// And: the context contains the auth values
 	request := httptest.NewRequest("GET", "/entitlements/move_id", nil)

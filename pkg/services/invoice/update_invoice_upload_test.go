@@ -8,12 +8,9 @@ import (
 	"path"
 
 	"github.com/facebookgo/clock"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
-
-	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
@@ -94,112 +91,6 @@ func (suite *InvoiceServiceSuite) helperCreateUpload(storer *storage.FileStorer)
 	return upload
 }
 
-func (suite *InvoiceServiceSuite) helperShipment() models.Shipment {
-	weight := unit.Pound(2000)
-	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
-		Shipment: models.Shipment{
-			NetWeight: &weight,
-		},
-	})
-	err := shipment.AssignGBLNumber(suite.DB())
-	//TODO: mustSave(db, shipment)
-	if err != nil {
-		log.Fatalf("could not assign GBLNumber: %v", err)
-	}
-
-	// Create an accepted shipment offer and the associated TSP.
-	scac := "ABBV"
-	supplierID := scac + "2708" //scac + payee code -- ABBV2708
-
-	tsp := testdatagen.MakeTSP(suite.DB(), testdatagen.Assertions{
-		TransportationServiceProvider: models.TransportationServiceProvider{
-			StandardCarrierAlphaCode: scac,
-			SupplierID:               &supplierID,
-		},
-	})
-
-	tspp, _ := testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
-		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
-			TransportationServiceProvider:   tsp,
-			TransportationServiceProviderID: tsp.ID,
-		},
-	})
-
-	shipmentOffer := testdatagen.MakeShipmentOffer(suite.DB(), testdatagen.Assertions{
-		ShipmentOffer: models.ShipmentOffer{
-			Shipment:                                   shipment,
-			Accepted:                                   swag.Bool(true),
-			TransportationServiceProvider:              tsp,
-			TransportationServiceProviderID:            tsp.ID,
-			TransportationServiceProviderPerformance:   tspp,
-			TransportationServiceProviderPerformanceID: tspp.ID,
-		},
-	})
-	shipment.ShipmentOffers = models.ShipmentOffers{shipmentOffer}
-
-	// Create some shipment line items.
-	var lineItems []models.ShipmentLineItem
-	codes := []string{"LHS", "135A", "135B", "105A", "16A", "105C", "125B", "105B", "130B", "46A"}
-	amountCents := unit.Cents(12325)
-
-	for _, code := range codes {
-		appliedRate := unit.Millicents(2537234)
-		var measurementUnit1 models.Tariff400ngItemMeasurementUnit
-		var location models.ShipmentLineItemLocation
-
-		switch code {
-		case "LHS":
-			measurementUnit1 = models.Tariff400ngItemMeasurementUnitFLATRATE
-			appliedRate = 0
-		case "16A":
-			measurementUnit1 = models.Tariff400ngItemMeasurementUnitFLATRATE
-		case "105B":
-			measurementUnit1 = models.Tariff400ngItemMeasurementUnitCUBICFOOT
-
-		case "130B":
-			measurementUnit1 = models.Tariff400ngItemMeasurementUnitEACH
-
-		case "125B":
-			measurementUnit1 = models.Tariff400ngItemMeasurementUnitFLATRATE
-
-		default:
-			measurementUnit1 = models.Tariff400ngItemMeasurementUnitWEIGHT
-		}
-
-		// default location created in testdatagen shipmentLineItem is DESTINATION
-		if code == "135A" || code == "105A" || code == "LHS" {
-			location = models.ShipmentLineItemLocationORIGIN
-		} else if code == "135B" {
-			location = models.ShipmentLineItemLocationDESTINATION
-		} else if code == "46A" {
-			location = models.ShipmentLineItemLocationNEITHER
-		}
-
-		item := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
-			Tariff400ngItem: models.Tariff400ngItem{
-				Code:             code,
-				MeasurementUnit1: measurementUnit1,
-			},
-		})
-		lineItem := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
-			ShipmentLineItem: models.ShipmentLineItem{
-				Shipment:          shipment,
-				Tariff400ngItemID: item.ID,
-				Tariff400ngItem:   item,
-				Quantity1:         unit.BaseQuantityFromInt(2000),
-				AppliedRate:       &appliedRate,
-				AmountCents:       &amountCents,
-				Location:          location,
-			},
-		})
-
-		lineItems = append(lineItems, lineItem)
-	}
-	shipment.ShipmentLineItems = lineItems
-
-	return shipment
-}
-
 func (suite *InvoiceServiceSuite) helperShipmentInvoice(shipment models.Shipment) *models.Invoice {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
@@ -235,39 +126,4 @@ func (suite *InvoiceServiceSuite) helperFetchInvoice(invoiceID uuid.UUID) (*mode
 	}
 
 	return &invoice, nil
-}
-
-// TestUpdateInvoiceUploadCall Test the Service UpdateInvoiceUpload{}.Call() function
-func (suite *InvoiceServiceSuite) TestUpdateInvoiceUploadCall() {
-	storer := suite.helperCreateFileStorer()
-	shipment := suite.helperShipment()
-	invoice := suite.helperShipmentInvoice(shipment)
-	suite.NotNil(invoice)
-	upload := suite.helperCreateUpload(storer)
-	suite.NotNil(upload)
-
-	up := uploader.NewUploader(suite.DB(), suite.logger, *storer)
-
-	// Add upload to invoice
-	verrs, err := UpdateInvoiceUpload{DB: suite.DB(), Uploader: up}.Call(invoice, upload)
-	suite.NoError(err)
-	suite.Empty(verrs.Error())
-	suite.Equal(upload.ID, *invoice.UploadID)
-
-	// Fetch Invoice from database and compare Upload IDs
-	fetchInvoice, err := suite.helperFetchInvoice(invoice.ID)
-	suite.NoError(err)
-	suite.NotNil(fetchInvoice)
-	suite.NotNil(fetchInvoice.UploadID)
-	suite.NotNil(fetchInvoice.Upload)
-	suite.Equal(upload.ID, *(fetchInvoice).UploadID)
-
-	// Delete upload
-	upload = suite.helperCreateUpload(storer)
-	suite.NotNil(upload)
-	err = UpdateInvoiceUpload{DB: suite.DB(), Uploader: up}.DeleteUpload(invoice)
-	suite.NoError(err)
-	suite.Empty(verrs.Error())
-	suite.Nil(invoice.UploadID)
-	suite.Nil(invoice.Upload)
 }
