@@ -45,6 +45,9 @@ func initFlags(flag *pflag.FlagSet) {
 	// Verbose
 	cli.InitVerboseFlags(flag)
 
+	// Email
+	cli.InitEmailFlags(flag)
+
 	flag.Int(offsetFlag, 15, "Number of days ago moves had their payment request reviewed")
 
 	// Don't sort flags
