@@ -14,7 +14,9 @@ services:
   milmove_migrate:
     depends_on:
       - database
-    image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app-migrations:git-branch-placeholder_branch_name
+    build:
+      context: .
+      dockerfile: Dockerfile.migrations_local
     links:
       - database
     environment:
@@ -38,7 +40,9 @@ services:
     depends_on:
       - database
       - milmove_migrate
-    image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app:git-branch-placeholder_branch_name
+    build:
+      context: .
+      dockerfile: Dockerfile.local
     links:
       - database
     ports:
