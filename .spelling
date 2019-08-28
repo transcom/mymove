@@ -427,6 +427,7 @@ pflags
 contexts.go
 milmove
 serve.go
+HackerOne
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - /usr/local
  - docs/data/tspp-data-creation.md
@@ -440,5 +441,4 @@ serve.go
  - ./docs/data/tariff400ng-yearly-import.md
  - ./scripts/README.md
 
- - ./docs/how-to/access-global-variables.md
 
