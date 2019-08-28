@@ -284,7 +284,7 @@ go_deps_update: server_deps server_generate mocks_generate ## Update golang depe
 	go run cmd/update_deps/main.go
 
 .PHONY: server_deps
-server_deps: .check_gopath.stamp bin/callgraph bin/chamber bin/gin bin/soda bin/swagger bin/mockery bin/rds-combined-ca-bundle.pem ## Install or Build server dependencies
+server_deps: .check_gopath.stamp bin/callgraph bin/chamber bin/gin bin/swagger bin/mockery bin/rds-combined-ca-bundle.pem ## Install or Build server dependencies
 
 .PHONY: server_generate
 server_generate: .check_go_version.stamp .check_gopath.stamp .server_generate.stamp ## Generate golang server code from Swagger files
