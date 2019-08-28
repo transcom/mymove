@@ -9,8 +9,6 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/models"
 )
 
 const surveyLink = "https://www.surveymonkey.com/r/MilMovePt3-08191"
@@ -50,23 +48,21 @@ func NewMoveReviewed(db *pop.Connection, logger Logger, date time.Time) *MoveRev
 type EmailInfos []EmailInfo
 
 type EmailInfo struct {
-	PersonallyProcuredMove models.PersonallyProcuredMove `db:"ppm"`
-	Email                  *string                       `db:"personal_email"`
-	DutyStationName        string                        `db:"duty_station_name"`
-	NewDutyStationName     string                        `db:"new_duty_station_name"`
+	Email              *string `db:"personal_email"`
+	DutyStationName    string  `db:"duty_station_name"`
+	NewDutyStationName string  `db:"new_duty_station_name"`
 }
 
 func (m MoveReviewed) GetEmailInfo(date time.Time) (EmailInfos, error) {
 	dateString := date.Format("2006-01-02")
-	query := `SELECT p.* as ppm, sm.personal_email, dsn.name as new_duty_station_name, dso.name as duty_station_name
-	FROM personally_procured_moves p
-	         JOIN moves m ON p.move_id = m.id
+	query := `SELECT sm.personal_email, dsn.name as new_duty_station_name, dso.name as duty_station_name
+	FROM personally_procured_moves
+	         JOIN moves m ON personally_procured_moves.move_id = m.id
 	         JOIN orders o ON m.orders_id = o.id
 	         JOIN service_members sm ON o.service_member_id = sm.id
 	         JOIN duty_stations dso ON sm.duty_station_id = dso.id
 	         JOIN duty_stations dsn ON o.new_duty_station_id = dsn.id
-	WHERE CAST(p.reviewed_date as date) = $1
-		AND p.survey_email_sent = false;`
+	WHERE CAST(reviewed_date as date) = $1;`
 
 	emailInfos := EmailInfos{}
 	err := m.db.RawQuery(query, dateString).All(&emailInfos)
@@ -115,7 +111,6 @@ func (m MoveReviewed) formatEmails(emailInfos EmailInfos) ([]emailContent, error
 			zap.String("service member email address", email))
 		// TODO: Send email to trusted contacts when that's supported
 		emails = append(emails, smEmail)
-		emailInfo.PersonallyProcuredMove.SurveyEmailSent = true
 	}
 	return emails, nil
 }

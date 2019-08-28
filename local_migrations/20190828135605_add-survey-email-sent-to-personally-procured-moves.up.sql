@@ -1,1 +1,0 @@
-ALTER TABLE personally_procured_moves ADD COLUMN survey_email_sent boolean NOT NULL DEFAULT FALSE;
