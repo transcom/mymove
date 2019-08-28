@@ -342,8 +342,7 @@ build_tools: server_deps \
 	bin/make-tsp-user \
 	bin/renderer \
 	bin/save-fuel-price-data \
-	bin/send-to-gex \
-	bin/tsp-award-queue ## Build all tools
+	bin/send-to-gex ## Build all tools
 
 .PHONY: build
 build: server_build build_tools client_build ## Build the server, tools, and client
