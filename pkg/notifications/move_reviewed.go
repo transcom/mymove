@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	html "html/template"
+	"path/filepath"
 	text "text/template"
 	"time"
 
@@ -110,7 +111,11 @@ type moveReviewedEmailData struct {
 func (m MoveReviewed) RenderHTML(data moveReviewedEmailData) string {
 	var htmlBuffer bytes.Buffer
 	var htmlTemplate html.Template
-	t, err := html.ParseFiles("./templates/move_reviewed_template.html")
+	absPath, err := filepath.Abs("pkg/notifications/templates/move_reviewed_template.txt")
+	if err != nil {
+		m.logger.Error("html template pathing error")
+	}
+	t, err := html.ParseFiles(absPath)
 	if err != nil {
 		m.logger.Error("unable to parse html template")
 	}
@@ -129,7 +134,11 @@ func (m MoveReviewed) RenderHTML(data moveReviewedEmailData) string {
 func (m MoveReviewed) RenderText(data moveReviewedEmailData) string {
 	var textBuffer bytes.Buffer
 	var textTemplate text.Template
-	t, err := text.ParseFiles("./templates/move_reviewed_template.txt")
+	absPath, err := filepath.Abs("pkg/notifications/templates/move_reviewed_template.html")
+	if err != nil {
+		m.logger.Error("text template pathing error")
+	}
+	t, err := text.ParseFiles(absPath)
 	if err != nil {
 		m.logger.Error("unable to parse text template")
 	}

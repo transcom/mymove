@@ -66,13 +66,13 @@ func (suite *NotificationSuite) TestHTMLTemplateRender() {
 		DestinationDutyStation: "DestDutyStation",
 		Email:                  "email",
 	}
-	expectedHTMLContent := `<em>Good news:</em> Your move from OriginDutyStation to DestDutyStation has been processed for payment.
+	expectedHTMLContent := `<p><strong>Good news:</strong> Your move from OriginDutyStation to DestDutyStation has been processed for payment.</p>
 
-Can we ask a quick favor? <a href="www.survey"> Tell us about your experience</a> with requesting and receiving payment.
+<p>Can we ask a quick favor? <a href="www.survey"> Tell us about your experience</a> with requesting and receiving payment.</p>
 
-We’ll use your feedback to make MilMove better for your fellow service members.
+<p>We'll use your feedback to make MilMove better for your fellow service members.</p>
 
-Thank you for your thoughts, and <em>congratulations on your move.</em>`
+<p>Thank you for your thoughts, and <strong>congratulations on your move.</strong></p>`
 
 	htmlContent := mr.RenderHTML(s)
 
