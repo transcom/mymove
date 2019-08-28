@@ -117,11 +117,11 @@ func main() {
 	targetDate := time.Now().AddDate(0, 0, -offsetDays)
 	notificationSender := notifications.InitEmail(v, session, logger)
 
-	err = notificationSender.SendNotification(
-		ctx,
-		notifications.NewMoveReviewed(dbConnection, logger, targetDate),
-	)
-
+	moveReviewedNotifier, err := notifications.NewMoveReviewed(dbConnection, logger, targetDate)
+	if err != nil {
+		logger.Fatal("initializing MoveReviewed", zap.Error(err))
+	}
+	err = notificationSender.SendNotification(ctx, moveReviewedNotifier)
 	if err != nil {
 		logger.Fatal("Emails failed to send", zap.Error(err))
 	}

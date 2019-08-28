@@ -3,6 +3,7 @@ package notifications
 import (
 	"bytes"
 	"context"
+	html "html/template"
 	text "text/template"
 	"time"
 
@@ -16,18 +17,63 @@ const surveyLink = "https://www.surveymonkey.com/r/MilMovePt3-08191"
 
 // MoveReviewed has notification content for completed/reviewed moves
 type MoveReviewed struct {
-	db     *pop.Connection
-	logger Logger
-	date   time.Time
+	db           *pop.Connection
+	logger       Logger
+	date         time.Time
+	htmlTemplate *html.Template
+	textTemplate *text.Template
 }
 
 // NewMoveReviewed returns a new move submitted notification
-func NewMoveReviewed(db *pop.Connection, logger Logger, date time.Time) *MoveReviewed {
-	return &MoveReviewed{
-		db:     db,
-		logger: logger,
-		date:   date,
+func NewMoveReviewed(db *pop.Connection, logger Logger, date time.Time) (*MoveReviewed, error) {
+
+	htmlTemplate, err := initHMTLTemplate(logger)
+	if err != nil {
+		return &MoveReviewed{}, err
 	}
+
+	textTemplate, err := initTextTemplate(logger)
+	if err != nil {
+		return &MoveReviewed{}, err
+	}
+
+	return &MoveReviewed{
+		db:           db,
+		logger:       logger,
+		date:         date,
+		htmlTemplate: htmlTemplate,
+		textTemplate: textTemplate,
+	}, nil
+}
+
+func initTextTemplate(logger Logger) (*text.Template, error) {
+	tt, err := assets.Asset("pkg/notifications/templates/move_reviewed_template.txt")
+	if err != nil {
+		logger.Error("text template pathing error")
+		return nil, err
+	}
+	templateString := string(tt)
+	textTemplate, err := text.New("text_template").Parse(templateString)
+	if err != nil {
+		logger.Error("unable to parse text template", zap.String("template:", templateString))
+		return nil, err
+	}
+	return textTemplate, nil
+}
+
+func initHMTLTemplate(logger Logger) (*html.Template, error) {
+	ht, err := assets.Asset("pkg/notifications/templates/move_reviewed_template.html")
+	if err != nil {
+		logger.Error("html template pathing error")
+		return nil, err
+	}
+	htmlTemplateString := string(ht)
+	htmlTemplate, err := html.New("html_template").Parse(htmlTemplateString)
+	if err != nil {
+		logger.Error("unable to parse html template", zap.String("template:", htmlTemplateString))
+		return nil, err
+	}
+	return htmlTemplate, err
 }
 
 type EmailInfos []EmailInfo
@@ -120,18 +166,7 @@ type moveReviewedEmailData struct {
 // RenderHTML renders the html for the email
 func (m MoveReviewed) RenderHTML(data moveReviewedEmailData) (string, error) {
 	var htmlBuffer bytes.Buffer
-	t, err := assets.Asset("pkg/notifications/templates/move_reviewed_template.html")
-	if err != nil {
-		m.logger.Error("html template pathing error")
-		return "", err
-	}
-	templateString := string(t)
-	htmlTemplate, err := text.New("text_template").Parse(templateString)
-	if err != nil {
-		m.logger.Error("unable to parse html template", zap.String("template:", templateString))
-		return "", err
-	}
-	if err := htmlTemplate.Execute(&htmlBuffer, data); err != nil {
+	if err := m.htmlTemplate.Execute(&htmlBuffer, data); err != nil {
 		m.logger.Error("cant render html template for: ",
 			zap.String("service member email address", data.Email))
 	}
@@ -141,18 +176,7 @@ func (m MoveReviewed) RenderHTML(data moveReviewedEmailData) (string, error) {
 // RenderText renders the text for the email
 func (m MoveReviewed) RenderText(data moveReviewedEmailData) (string, error) {
 	var textBuffer bytes.Buffer
-	t, err := assets.Asset("pkg/notifications/templates/move_reviewed_template.txt")
-	if err != nil {
-		m.logger.Error("text template pathing error")
-		return "", err
-	}
-	templateString := string(t)
-	textTemplate, err := text.New("html_template").Parse(templateString)
-	if err != nil {
-		m.logger.Error("unable to parse html template", zap.String("template:", templateString))
-		return "", err
-	}
-	if err := textTemplate.Execute(&textBuffer, data); err != nil {
+	if err := m.textTemplate.Execute(&textBuffer, data); err != nil {
 		m.logger.Error("cant render text template for: ",
 			zap.String("service member email address", data.Email))
 		return "", err

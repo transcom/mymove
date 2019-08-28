@@ -27,7 +27,8 @@ func (suite *NotificationSuite) TestMoveReviewedFetchSomeFound() {
 	}
 	ppms := suite.createPPMMoves(moves)
 
-	moveReviewed := NewMoveReviewed(db, suite.logger, onDate)
+	moveReviewed, err := NewMoveReviewed(db, suite.logger, onDate)
+	suite.NoError(err)
 	emailInfo, err := moveReviewed.GetEmailInfo(onDate)
 
 	suite.NoError(err)
@@ -49,7 +50,8 @@ func (suite *NotificationSuite) TestMoveReviewedFetchNoneFound() {
 	}
 	suite.createPPMMoves(moves)
 
-	moveReviewed := NewMoveReviewed(db, suite.logger, startDate)
+	moveReviewed, err := NewMoveReviewed(db, suite.logger, startDate)
+	suite.NoError(err)
 	emailInfo, err := moveReviewed.GetEmailInfo(startDate)
 
 	suite.NoError(err)
@@ -59,7 +61,8 @@ func (suite *NotificationSuite) TestMoveReviewedFetchNoneFound() {
 func (suite *NotificationSuite) TestHTMLTemplateRender() {
 	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
 	onDate := startDate.AddDate(0, 0, -6)
-	mr := NewMoveReviewed(suite.DB(), suite.logger, onDate)
+	mr, err := NewMoveReviewed(suite.DB(), suite.logger, onDate)
+	suite.NoError(err)
 	s := moveReviewedEmailData{
 		Link:                   "www.survey",
 		OriginDutyStation:      "OriginDutyStation",
@@ -84,7 +87,8 @@ func (suite *NotificationSuite) TestHTMLTemplateRender() {
 func (suite *NotificationSuite) TestTextTemplateRender() {
 	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
 	onDate := startDate.AddDate(0, 0, -6)
-	mr := NewMoveReviewed(suite.DB(), suite.logger, onDate)
+	mr, err := NewMoveReviewed(suite.DB(), suite.logger, onDate)
+	suite.NoError(err)
 	s := moveReviewedEmailData{
 		Link:                   "www.survey",
 		OriginDutyStation:      "OriginDutyStation",
@@ -108,7 +112,8 @@ Thank you for your thoughts, and congratulations on your move.`
 func (suite *NotificationSuite) TestFormatEmails() {
 	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
 	onDate := startDate.AddDate(0, 0, -6)
-	mr := NewMoveReviewed(suite.DB(), suite.logger, onDate)
+	mr, err := NewMoveReviewed(suite.DB(), suite.logger, onDate)
+	suite.NoError(err)
 	email1 := "email1"
 	email2 := "email2"
 	emailInfos := EmailInfos{
