@@ -13,22 +13,6 @@ import (
 
 const surveyLink = "https://www.surveymonkey.com/r/MilMovePt3-08191"
 
-var htmlTemplate = html.Must(html.New("email_survey_html").Parse(`<em>Good news:</em> Your move from {{.OriginDutyStation}} to {{.DestinationDutyStation}} has been processed for payment.
-
-Can we ask a quick favor? <a href="{{.Link}}"> Tell us about your experience</a> with requesting and receiving payment.
-
-We’ll use your feedback to make MilMove better for your fellow service members.
-
-Thank you for your thoughts, and <em>congratulations on your move.</em>`))
-
-var textTemplate = text.Must(text.New("email_survey_text").Parse(`Good news: Your move from {{.OriginDutyStation}} to {{.DestinationDutyStation}} has been processed for payment.
-
-Can we ask a quick favor? Tell us about your experience with requesting and receiving payment at {{.Link}}.
-
-We’ll use your feedback to make MilMove better for your fellow service members.
-
-Thank you for your thoughts, and congratulations on your move.`))
-
 // MoveReviewed has notification content for completed/reviewed moves
 type MoveReviewed struct {
 	db     *pop.Connection
@@ -56,8 +40,8 @@ type EmailInfo struct {
 func (m MoveReviewed) GetEmailInfo(date time.Time) (EmailInfos, error) {
 	dateString := date.Format("2006-01-02")
 	query := `SELECT sm.personal_email, dsn.name as new_duty_station_name, dso.name as duty_station_name
-	FROM personally_procured_moves
-	         JOIN moves m ON personally_procured_moves.move_id = m.id
+	FROM personally_procured_moves p
+	         JOIN moves m ON p.move_id = m.id
 	         JOIN orders o ON m.orders_id = o.id
 	         JOIN service_members sm ON o.service_member_id = sm.id
 	         JOIN duty_stations dso ON sm.duty_station_id = dso.id
@@ -75,7 +59,7 @@ func (m MoveReviewed) emails(ctx context.Context) ([]emailContent, error) {
 	emailInfos, err := m.GetEmailInfo(m.date)
 	if err != nil {
 		m.logger.Error("error retrieving email info for", zap.String("date", m.date.String()))
-		return []emailContent{}, nil
+		return []emailContent{}, err
 	}
 	if len(emailInfos) == 0 {
 		m.logger.Info("no emails to be sent for", zap.String("date", m.date.String()))
@@ -125,6 +109,15 @@ type moveReviewedEmailData struct {
 // RenderHTML renders the html for the email
 func (m MoveReviewed) RenderHTML(data moveReviewedEmailData) string {
 	var htmlBuffer bytes.Buffer
+	var htmlTemplate html.Template
+	t, err := html.ParseFiles("./templates/move_reviewed_template.html")
+	if err != nil {
+		m.logger.Error("unable to parse html template")
+	}
+	if t == nil {
+		m.logger.Error("html template should not be nil")
+	}
+	htmlTemplate = *t
 	if err := htmlTemplate.Execute(&htmlBuffer, data); err != nil {
 		m.logger.Error("cant render html template for: ",
 			zap.String("service member email address", data.Email))
@@ -135,6 +128,15 @@ func (m MoveReviewed) RenderHTML(data moveReviewedEmailData) string {
 // RenderText renders the text for the email
 func (m MoveReviewed) RenderText(data moveReviewedEmailData) string {
 	var textBuffer bytes.Buffer
+	var textTemplate text.Template
+	t, err := text.ParseFiles("./templates/move_reviewed_template.txt")
+	if err != nil {
+		m.logger.Error("unable to parse text template")
+	}
+	if t == nil {
+		m.logger.Error("text template should not be nil")
+	}
+	textTemplate = *t
 	if err := textTemplate.Execute(&textBuffer, data); err != nil {
 		m.logger.Error("cant render text template for: ",
 			zap.String("service member email address", data.Email))

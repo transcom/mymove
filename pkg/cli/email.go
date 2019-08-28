@@ -15,7 +15,7 @@ const (
 	// AWSSESRegionFlag is the AWS SES Region Flag
 	AWSSESRegionFlag string = "aws-ses-region"
 	// AWSSESDomainFlag is the AWS SES Domain Flag
-	AWSSESDomainFlag string = "aws-ses-domain"
+	AWSSESDomainFlag string = ""
 )
 
 // InitEmailFlags initializes Email command line flags
