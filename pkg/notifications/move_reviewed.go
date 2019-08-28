@@ -3,6 +3,7 @@ package notifications
 import (
 	"bytes"
 	"context"
+	"fmt"
 	html "html/template"
 	text "text/template"
 	"time"
@@ -134,13 +135,15 @@ func (m MoveReviewed) formatEmails(emailInfos EmailInfos) ([]emailContent, error
 		}
 		htmlBody, err := m.RenderHTML(data)
 		if err != nil {
-			m.logger.Error("error rendering template")
-			return []emailContent{}, err
+			dataString := fmt.Sprintf("%#v", data)
+			m.logger.Error("error rendering html template using", zap.String("data", dataString))
+			continue
 		}
 		textBody, err := m.RenderText(data)
 		if err != nil {
-			m.logger.Error("error rendering template")
-			return []emailContent{}, err
+			dataString := fmt.Sprintf("%#v", data)
+			m.logger.Error("error rendering text template using", zap.String("data", dataString))
+			continue
 		}
 		smEmail := emailContent{
 			recipientEmail: email,
