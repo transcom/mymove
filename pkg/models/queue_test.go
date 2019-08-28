@@ -161,7 +161,4 @@ func (suite *ModelSuite) TestActivePPMQueue() {
 		},
 	})
 
-	moves, err := GetMoveQueueItems(suite.DB(), "hhg_active")
-	suite.NoError(err)
-	suite.Len(moves, 3)
 }
