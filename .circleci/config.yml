@@ -782,7 +782,10 @@ workflows:
 
       - pre_deps_yarn
 
-      - anti_virus
+      - anti_virus:
+          filters:
+            branches:
+              only: master
 
       - pre_test:
           requires:
