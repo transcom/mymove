@@ -13,7 +13,10 @@ We use [spf13/viper](https://github.com/spf13/viper) and [spf13/pflags](https://
 ## Getting Environment Variables
 
 We use command line flags to get the environment variables. The flags are set in the `cli` package.  Viper can take the flag and gets the value associated with that flag.  For example:
-`dbEnv := v.GetString(cli.DbEnvFlag)` returns the database environment name.
+
+`dbEnv := v.GetString(cli.DbEnvFlag)` returns the database environment name
+
+`loginGovSecretKey := v.GetString(cli.LoginGovSecretKeyFlag))` grabs the `LOGIN_GOV_SECRET_KEY` from the `.envrc`
 
 ## Setting up global variables in the Handler Context
 
