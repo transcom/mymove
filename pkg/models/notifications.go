@@ -9,7 +9,7 @@ import (
 type NotificationTypes string
 
 const (
-	// MoveReviewedEmail captures enum value "move_reviewed_email"
+	// MoveReviewedEmail captures enum value "MOVE_REVIEWED_EMAIL"
 	MoveReviewedEmail NotificationTypes = "MOVE_REVIEWED_EMAIL"
 )
 

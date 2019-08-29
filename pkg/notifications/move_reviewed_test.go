@@ -109,7 +109,6 @@ func (suite *NotificationSuite) TestHTMLTemplateRender() {
 		Link:                   "www.survey",
 		OriginDutyStation:      "OriginDutyStation",
 		DestinationDutyStation: "DestDutyStation",
-		Email:                  "email",
 	}
 	expectedHTMLContent := `<p><strong>Good news:</strong> Your move from OriginDutyStation to DestDutyStation has been processed for payment.</p>
 
@@ -135,7 +134,6 @@ func (suite *NotificationSuite) TestTextTemplateRender() {
 		Link:                   "www.survey",
 		OriginDutyStation:      "OriginDutyStation",
 		DestinationDutyStation: "DestDutyStation",
-		Email:                  "email",
 	}
 	expectedTextContent := `Good news: Your move from OriginDutyStation to DestDutyStation has been processed for payment.
 
@@ -186,7 +184,6 @@ func (suite *NotificationSuite) TestFormatEmails() {
 			Link:                   surveyLink,
 			OriginDutyStation:      emailInfo.DutyStationName,
 			DestinationDutyStation: emailInfo.NewDutyStationName,
-			Email:                  *emailInfo.Email,
 		}
 		htmlBody, err := mr.RenderHTML(data)
 		suite.NoError(err)
