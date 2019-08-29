@@ -69,9 +69,6 @@ func RequestLogger(serverLogger Logger) func(inner http.Handler) http.Handler {
 				if session.IsOfficeUser() {
 					fields = append(fields, zap.String("office-user-id", session.OfficeUserID.String()))
 				}
-				// if session.IsTspUser() {
-				// 	fields = append(fields, zap.String("tsp-user-id", session.TspUserID.String()))
-				// }
 			}
 
 			metrics := httpsnoop.CaptureMetrics(inner, w, r)
