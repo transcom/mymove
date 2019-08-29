@@ -8,7 +8,7 @@ import 'react-table/react-table.css';
 import Alert from 'shared/Alert';
 import { formatTimeAgo } from 'shared/formatters';
 import { setUserIsLoggedIn } from 'shared/Data/users';
-import { newColumns, ppmColumns, hhgActiveColumns, defaultColumns, hhgDeliveredColumns } from './queueTableColumns';
+import { newColumns, ppmColumns, defaultColumns } from './queueTableColumns';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
@@ -120,8 +120,6 @@ class QueueTable extends Component {
       troubleshooting: 'Troubleshooting',
       ppm: 'All PPMs',
       ppm_payment_requested: 'Payment Requests PPMs',
-      hhg_active: 'Active HHGs',
-      hhg_delivered: 'Delivered HHGs',
       all: 'All Moves',
     };
 
@@ -132,35 +130,22 @@ class QueueTable extends Component {
         case 'ppm':
         case 'ppm_payment_requested':
           return ppmColumns;
-        case 'hhg_active':
-          return hhgActiveColumns;
-        case 'hhg_delivered':
-          return hhgDeliveredColumns;
         default:
           return defaultColumns;
       }
     };
 
     const defaultSort = queueType => {
-      if (['hhg_active', 'hhg_delivered', 'new'].includes(queueType)) {
+      if (['new'].includes(queueType)) {
         return [{ id: 'clockIcon', asc: true }, { id: 'move_date', asc: true }];
       }
       return [{ id: 'move_date', asc: true }];
     };
 
     this.state.data.forEach(row => {
-      if (this.props.queueType === 'new' && row.ppm_status && row.hhg_status) {
-        row.shipments = 'HHG, PPM';
-      } else if (row.ppm_status && !row.hhg_status) {
-        row.shipments = 'PPM';
-      } else {
-        row.shipments = 'HHG';
-      }
+      row.shipments = 'PPM';
 
-      if (
-        (this.props.queueType === 'ppm' || this.props.queueType === 'ppm_payment_requested') &&
-        row.ppm_status !== null
-      ) {
+      if (row.ppm_status !== null) {
         row.synthetic_status = row.ppm_status;
       } else {
         row.synthetic_status = row.status;

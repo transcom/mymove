@@ -6,8 +6,6 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
-	storageintransit "github.com/transcom/mymove/pkg/services/storage_in_transit"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
@@ -85,18 +83,8 @@ func (c *shipmentPricer) PriceShipment(shipment *models.Shipment, price services
 		return validate.NewErrors(), err
 	}
 
-	// Create Storage in Transit (SIT) line items for Shipment
-	createStorageInTransitLineItems := storageintransit.CreateStorageInTransitLineItems{
-		DB:      c.db,
-		Planner: c.planner,
-	}
-	storageInTransitLineItems, err := createStorageInTransitLineItems.CreateStorageInTransitLineItems(shipmentCost)
-	if err != nil {
-		return validate.NewErrors(), err
-	}
-
 	// Price existing approved accessorials that require approval (and have been approved) and price storage in transit line items
-	additionalLineItems, err := c.engine.PriceAdditionalRequestsForShipment(*shipment, storageInTransitLineItems)
+	additionalLineItems, err := c.engine.PriceAdditionalRequestsForShipment(*shipment)
 	if err != nil {
 		return validate.NewErrors(), err
 	}

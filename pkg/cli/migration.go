@@ -35,8 +35,8 @@ func (e *errInvalidMigrationPath) Error() string {
 
 // InitMigrationFlags initializes the Migration command line flags
 func InitMigrationFlags(flag *pflag.FlagSet) {
-	flag.StringP(MigrationPathFlag, "p", "./migrations", "Path to the migrations folder")
-	flag.StringP(MigrationManifestFlag, "m", "./migrations_manifest.txt", "Path to the manifest")
+	flag.StringP(MigrationPathFlag, "p", "file:///migrations", "Path to the migrations folder")
+	flag.StringP(MigrationManifestFlag, "m", "migrations_manifest.txt", "Path to the manifest")
 	flag.DurationP(MigrationWaitFlag, "w", time.Millisecond*10, "duration to wait when polling for new data from migration file")
 }
 
@@ -47,10 +47,16 @@ func CheckMigration(v *viper.Viper) error {
 		return errMissingMigrationPath
 	}
 	for _, p := range strings.Split(migrationPath, ";") {
+		if len(p) == 0 {
+			continue
+		}
 		if strings.HasPrefix(p, "file://") {
-			if _, err := os.Stat(p[len("file://"):]); os.IsNotExist(err) {
-				return errors.Wrapf(&errInvalidMigrationPath{Path: p}, "Expected %s to exist", p)
+			filesystemPath := p[len("file://"):]
+			if _, err := os.Stat(filesystemPath); os.IsNotExist(err) {
+				return errors.Wrapf(&errInvalidMigrationPath{Path: filesystemPath}, "Expected %s to be a path in the filesystem", filesystemPath)
 			}
+		} else if !strings.HasPrefix(p, "s3://") {
+			return errors.Wrapf(&errInvalidMigrationPath{Path: p}, "Expected %s to have prefix file:// or s3://", p)
 		}
 		if strings.HasSuffix(p, "/") {
 			return errors.Wrapf(&errInvalidMigrationPath{Path: p}, "Path %s Cannot end in slash", p)

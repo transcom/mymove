@@ -3,15 +3,12 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { get, includes, isEmpty } from 'lodash';
 import moment from 'moment';
-import fedHolidays from '@18f/us-federal-holidays';
 
-import { ppmInfoPacket, hhgInfoPacket } from 'shared/constants';
+import { ppmInfoPacket } from 'shared/constants';
 import Alert from 'shared/Alert';
 import { formatCents, formatCentsRange } from 'shared/formatters';
 import TransportationOfficeContactInfo from 'shared/TransportationOffices/TransportationOfficeContactInfo';
-import TransportationServiceProviderContactInfo from 'scenes/TransportationServiceProvider/ContactInfo';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faPlus from '@fortawesome/fontawesome-free-solid/faPlus';
 import truck from 'shared/icon/truck-gray.svg';
 import { selectReimbursement } from 'shared/Entities/modules/ppms';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
@@ -20,7 +17,7 @@ import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamati
 import { calcNetWeight } from 'scenes/Moves/Ppm/utility';
 import { getPpmWeightEstimate } from 'scenes/Moves/Ppm/ducks';
 import ppmCar from './images/ppm-car.svg';
-import { ShipmentStatusTimeline, ProfileStatusTimeline } from './StatusTimeline';
+import { ProfileStatusTimeline } from './StatusTimeline';
 import PPMStatusTimeline from './PPMStatusTimeline';
 
 import './MoveSummary.css';
@@ -188,129 +185,6 @@ export const SubmittedPpmMoveSummary = props => {
   );
 };
 
-const getTenDaysBookedDate = bookDate => {
-  let businessDays = 0;
-  let newDate;
-  const bookDateMoment = moment(bookDate);
-  while (businessDays < 10) {
-    newDate = bookDateMoment.add(1, 'day');
-    // Saturday => 6, Sunday => 7
-    if (newDate.isoWeekday() !== 6 && newDate.isoWeekday() !== 7 && !fedHolidays.isAHoliday(newDate.toDate())) {
-      businessDays += 1;
-    }
-  }
-
-  return newDate;
-};
-
-const showHhgLandingPageText = shipment => {
-  const today = moment();
-  if (shipment.status === 'DELIVERED') {
-    return (
-      <div className="step">
-        <div className="title">Next Step: Survey</div>
-        <div>
-          You will be asked to participate in a satisfaction survey. We will use this information to decide which movers
-          we allow to work with you.
-        </div>
-      </div>
-    );
-  } else if (today.isBefore(getTenDaysBookedDate(shipment.book_date), 'day')) {
-    return (
-      <div className="step">
-        <div className="title">Next Step: Prepare for move</div>
-        <div>
-          Your mover will contact you within ten days to schedule a pre-move survey, where they will provide you with a
-          detailed weight estimate and more accurate packing and delivery dates.
-        </div>
-      </div>
-    );
-  } else {
-    return (
-      <div className="step">
-        <div className="title">Next step: Read pre-move tips</div>
-        <div>
-          Read the{' '}
-          <a href={hhgInfoPacket} target="_blank" rel="noopener noreferrer">
-            pre-move tips
-          </a>{' '}
-          documents, so you know what to expect and are prepared for your move.
-        </div>
-      </div>
-    );
-  }
-};
-
-export const SubmittedHhgMoveSummary = props => {
-  const { shipment, move, addPPMShipment } = props;
-  const selectedMoveType = get(move, 'selected_move_type');
-  const moveId = get(move, 'id');
-  const showAddShipmentLink =
-    selectedMoveType === 'HHG' &&
-    includes(['SUBMITTED', 'ACCEPTED', 'AWARDED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED'], move.status);
-
-  return (
-    <Fragment>
-      <div>
-        <div className="shipment_box">
-          <div className="shipment_type">
-            <img className="move_sm" src={truck} alt="hhg-truck" />
-            Government Movers and Packers (HHG)
-          </div>
-
-          <div className="shipment_box_contents">
-            <ShipmentStatusTimeline shipment={shipment} />
-            <div className="step-contents">
-              <div className="status_box usa-width-two-thirds">
-                {showHhgLandingPageText(shipment)}
-                {shipment.status === 'DELIVERED' && (
-                  <TransportationServiceProviderContactInfo showFileAClaimInfo shipmentId={shipment.id} />
-                )}
-              </div>
-              <div className="usa-width-one-third">
-                <HhgMoveDetails hhg={shipment} />
-                <div className="titled_block">
-                  <div className="title">Documents</div>
-                  <div className="details-links">
-                    <a href={hhgInfoPacket} target="_blank" rel="noopener noreferrer">
-                      Pre-move tips
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      {showAddShipmentLink && (
-        <div className="ppm-panel">
-          <div className="shipment_box">
-            <div className="shipment_type">
-              <img className="move_sm" src={ppmCar} alt="ppm-car" />
-              Move your own stuff (PPM)
-            </div>
-            <div className="shipment_box_contents">
-              <div className="step-contents">
-                <div className="status_box">
-                  <div className="step">
-                    <div className="title">Are you moving any items yourself or hiring your own mover?</div>
-                    <div>Tell us about your move to see if you're eligible for additional payment.</div>
-                  </div>
-                  <div className="step">
-                    <button className="usa-button-secondary" onClick={() => addPPMShipment(moveId)}>
-                      <FontAwesomeIcon icon={faPlus} /> Add PPM (DITY) Move
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </Fragment>
-  );
-};
-
 //TODO remove redundant ApprovedMoveSummary component w/ ppmPaymentRequest flag
 const NewApprovedMoveSummaryComponent = ({
   ppm,
@@ -320,7 +194,6 @@ const NewApprovedMoveSummaryComponent = ({
   incentiveEstimate,
 }) => {
   const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
-  const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
   const ppmPaymentRequestIntroRoute = `moves/${move.id}/ppm-payment-request-intro`;
   const ppmPaymentRequestReviewRoute = `moves/${move.id}/ppm-payment-review`;
   return (
@@ -336,18 +209,6 @@ const NewApprovedMoveSummaryComponent = ({
             <PPMStatusTimeline ppm={ppm} />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
-                {!moveInProgress && (
-                  <div className="step">
-                    <div className="title">Next Step: Get ready to move</div>
-                    <div>
-                      Remember to save your weight tickets and expense receipts. For more information, read the PPM info
-                      packet.
-                    </div>
-                    <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
-                      <button className="usa-button-secondary">Read PPM Info Packet</button>
-                    </a>
-                  </div>
-                )}
                 {paymentRequested ? (
                   isMissingWeightTicketDocuments ? (
                     <div className="step">
@@ -355,18 +216,21 @@ const NewApprovedMoveSummaryComponent = ({
                       <div>
                         You will need to go into the PPPO office in order to take care of your missing weight ticket.
                       </div>
-                      <Link to={ppmPaymentRequestReviewRoute} className="usa-button usa-button-secondary">
+                      <Link
+                        data-cy="edit-payment-request"
+                        to={ppmPaymentRequestReviewRoute}
+                        className="usa-button usa-button-secondary"
+                      >
                         Edit Payment Request
                       </Link>
                     </div>
                   ) : (
                     <div className="step">
-                      <div className="title">Next step: Wait for your payment paperwork</div>
-                      <div>
-                        We're reviewing your payment request for ${formatCents(incentiveEstimate)}. We'll let you know
-                        when you can submit your payment paperwork to Finance.
-                      </div>
-                      <Link to={ppmPaymentRequestReviewRoute} className="usa-button usa-button-secondary">
+                      <Link
+                        data-cy="edit-payment-request"
+                        to={ppmPaymentRequestReviewRoute}
+                        className="usa-button usa-button-secondary"
+                      >
                         Edit Payment Request
                       </Link>
                     </div>
@@ -573,15 +437,6 @@ const mapStateToPPMMoveDetailsProps = (state, ownProps) => {
 const PPMMoveDetails = connect(mapStateToPPMMoveDetailsProps)(PPMMoveDetailsPanel);
 const NewPPMMoveDetails = connect(mapStateToPPMMoveDetailsProps)(NewPPMMoveDetailsPanel);
 
-const HhgMoveDetails = props => {
-  return (
-    <div className="titled_block">
-      <div className="title">Details</div>
-      <div>Weight (est.): {props.hhg.weight_estimate} lbs</div>
-    </div>
-  );
-};
-
 const FindWeightScales = () => (
   <span>
     <a href="https://www.move.mil/resources/locator-maps" target="_blank" rel="noopener noreferrer">
@@ -629,17 +484,6 @@ const genPpmSummaryStatusComponents = context => {
   };
 };
 
-const hhgSummaryStatusComponents = {
-  DRAFT: DraftMoveSummary,
-  SUBMITTED: SubmittedHhgMoveSummary,
-  AWARDED: SubmittedHhgMoveSummary,
-  ACCEPTED: SubmittedHhgMoveSummary,
-  APPROVED: SubmittedHhgMoveSummary,
-  IN_TRANSIT: SubmittedHhgMoveSummary,
-  DELIVERED: SubmittedHhgMoveSummary,
-  CANCELED: CanceledMoveSummary,
-};
-
 const getPPMStatus = (moveStatus, ppm, selectedMoveType) => {
   // PPM status determination
   const ppmStatus = get(ppm, 'status', 'DRAFT');
@@ -650,32 +494,22 @@ const getPPMStatus = (moveStatus, ppm, selectedMoveType) => {
   return moveStatus === 'APPROVED' && (ppmStatus === 'SUBMITTED' || ppmStatus === 'DRAFT') ? 'SUBMITTED' : moveStatus;
 };
 
-const getHHGStatus = (moveStatus, shipment) => {
-  // HHG status determination
-  if (moveStatus === 'CANCELED') {
-    // Shipment does not have a canceled status, but move does.
-    return moveStatus;
-  }
-  const shipmentStatus = get(shipment, 'status', 'DRAFT');
-  return includes(['SUBMITTED', 'AWARDED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED'], shipmentStatus)
-    ? shipmentStatus
-    : 'DRAFT';
-};
-
 export class MoveSummaryComponent extends React.Component {
-  componentDidMount() {
-    this.props.getMoveDocumentsForMove(this.props.move.id).then(({ obj: documents }) => {
-      const weightTicketNetWeight = calcNetWeight(documents);
-      const netWeight =
-        weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
-      this.props.getPpmWeightEstimate(
-        this.props.ppm.actual_move_date || this.props.ppm.original_move_date,
-        this.props.ppm.pickup_postal_code,
-        this.props.originDutyStationZip,
-        this.props.ppm.destination_postal_code,
-        netWeight,
-      );
-    });
+  componentDidUpdate(prevProps) {
+    if (this.props.move.id !== prevProps.move.id) {
+      this.props.getMoveDocumentsForMove(this.props.move.id).then(({ obj: documents }) => {
+        const weightTicketNetWeight = calcNetWeight(documents);
+        const netWeight =
+          weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
+        this.props.getPpmWeightEstimate(
+          this.props.ppm.actual_move_date || this.props.ppm.original_move_date,
+          this.props.ppm.pickup_postal_code,
+          this.props.originDutyStationZip,
+          this.props.ppm.destination_postal_code,
+          netWeight,
+        );
+      });
+    }
   }
   render() {
     const {
@@ -684,28 +518,16 @@ export class MoveSummaryComponent extends React.Component {
       move,
       orders,
       ppm,
-      shipment,
       editMove,
       entitlement,
       resumeMove,
       reviewProfile,
       requestPaymentSuccess,
-      addPPMShipment,
       isMissingWeightTicketDocuments,
     } = this.props;
     const moveStatus = get(move, 'status', 'DRAFT');
-    const moveId = get(move, 'id');
     const selectedMoveType = get(move, 'selected_move_type');
-    const showHHG = selectedMoveType === 'HHG' || selectedMoveType === 'HHG_PPM';
-    const showPPM = selectedMoveType === 'PPM' || selectedMoveType === 'HHG_PPM';
-    const hhgStatus = getHHGStatus(moveStatus, shipment);
-    const HHGComponent = hhgSummaryStatusComponents[hhgStatus]; // eslint-disable-line security/detect-object-injection
     const PPMComponent = genPpmSummaryStatusComponents(context)[getPPMStatus(moveStatus, ppm, selectedMoveType)];
-    const showAddShipmentLink =
-      selectedMoveType === 'HHG' &&
-      includes(['SUBMITTED', 'ACCEPTED', 'AWARDED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED'], move.status);
-    const showTsp =
-      move.selected_move_type !== 'PPM' && includes(['ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED'], hhgStatus);
     return (
       <div className="move-summary">
         {move.status === 'CANCELED' && (
@@ -734,37 +556,19 @@ export class MoveSummaryComponent extends React.Component {
             </Alert>
           )}
           <div className="usa-width-three-fourths">
-            {(showHHG || (!showHHG && !showPPM)) && (
-              <HHGComponent
-                className="status-component"
-                ppm={ppm}
-                shipment={shipment}
-                orders={orders}
-                profile={profile}
-                move={move}
-                entitlement={entitlement}
-                resumeMove={resumeMove}
-                reviewProfile={reviewProfile}
-                requestPaymentSuccess={requestPaymentSuccess}
-                addPPMShipment={addPPMShipment}
-              />
-            )}
-            {showPPM && (
-              <PPMComponent
-                context={context}
-                className="status-component"
-                ppm={ppm}
-                shipment={shipment}
-                orders={orders}
-                profile={profile}
-                move={move}
-                entitlement={entitlement}
-                resumeMove={resumeMove}
-                reviewProfile={reviewProfile}
-                requestPaymentSuccess={requestPaymentSuccess}
-                isMissingWeightTicketDocuments={isMissingWeightTicketDocuments}
-              />
-            )}
+            <PPMComponent
+              context={context}
+              className="status-component"
+              ppm={ppm}
+              orders={orders}
+              profile={profile}
+              move={move}
+              entitlement={entitlement}
+              resumeMove={resumeMove}
+              reviewProfile={reviewProfile}
+              requestPaymentSuccess={requestPaymentSuccess}
+              isMissingWeightTicketDocuments={isMissingWeightTicketDocuments}
+            />
           </div>
 
           <div className="sidebar usa-width-one-fourth">
@@ -777,21 +581,9 @@ export class MoveSummaryComponent extends React.Component {
                 Edit Move
               </button>
             </div>
-            <div>
-              {showAddShipmentLink && (
-                <button className="link" onClick={() => addPPMShipment(moveId)}>
-                  <FontAwesomeIcon icon={faPlus} />
-                  <span> Add PPM (DITY) Move</span>
-                </button>
-              )}
-            </div>
             <div className="contact_block">
               <div className="title">Contacts</div>
               <TransportationOfficeContactInfo dutyStation={profile.current_station} isOrigin={true} />
-              {hhgStatus !== 'CANCELED' && (
-                <TransportationOfficeContactInfo dutyStation={get(orders, 'new_duty_station')} />
-              )}
-              {showTsp && <TransportationServiceProviderContactInfo shipmentId={shipment.id} />}
             </div>
           </div>
         </div>

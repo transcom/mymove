@@ -214,7 +214,7 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 }
 
 // PriceAdditionalRequestsForShipment for a shipment, computes prices for all approved pre-approval requests and populates amount_cents field and applied_rate on those models
-func (re *RateEngine) PriceAdditionalRequestsForShipment(shipment models.Shipment, storageInTransitLineItems []models.ShipmentLineItem) ([]models.ShipmentLineItem, error) {
+func (re *RateEngine) PriceAdditionalRequestsForShipment(shipment models.Shipment) ([]models.ShipmentLineItem, error) {
 
 	var additionalItems models.ShipmentLineItems
 
@@ -224,9 +224,6 @@ func (re *RateEngine) PriceAdditionalRequestsForShipment(shipment models.Shipmen
 		return []models.ShipmentLineItem{}, err
 	}
 	additionalItems = append(additionalItems, preapprovalItems...)
-
-	// Append storage in transit line items
-	additionalItems = append(additionalItems, storageInTransitLineItems...)
 
 	for i := 0; i < len(additionalItems); i++ {
 		err := re.PriceAdditionalRequest(&additionalItems[i])

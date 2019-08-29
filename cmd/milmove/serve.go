@@ -21,6 +21,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
 	"github.com/gorilla/csrf"
@@ -420,6 +421,13 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			dbIamRole := v.GetString(cli.DbIamRoleFlag)
 			logger.Info(fmt.Sprintf("assuming AWS role %q for db connection", dbIamRole))
 			dbCreds = stscreds.NewCredentials(session, dbIamRole)
+			stsService := sts.New(session)
+			callerIdentity, callerIdentityErr := stsService.GetCallerIdentity(&sts.GetCallerIdentityInput{})
+			if callerIdentityErr != nil {
+				logger.Error(errors.Wrap(callerIdentityErr, "error getting aws sts caller identity").Error())
+			} else {
+				logger.Info(fmt.Sprintf("STS Caller Identity - Account: %s, ARN: %s, UserId: %s", *callerIdentity.Account, *callerIdentity.Arn, *callerIdentity.UserId))
+			}
 		}
 	}
 
@@ -729,7 +737,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	apiMux.Handle(pat.New("/*"), externalAPIMux)
 	externalAPIMux.Use(middleware.NoCache(logger))
 	externalAPIMux.Use(userAuthMiddleware)
-	externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext, logger))
+	externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext))
 
 	internalMux := goji.SubMux()
 	root.Handle(pat.New("/internal/*"), internalMux)

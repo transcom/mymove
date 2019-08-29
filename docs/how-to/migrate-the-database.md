@@ -6,10 +6,9 @@ If you need to change the database schema, you'll need to write a migration.
 
 ## Running Migrations
 
-To run a migration you should use the `milmove migrate` command. This is done in a similar way to the `soda migrate`
-command but uses our DB connection code instead. This avoids us having to use the `database.yaml` as a config file
-and allows us to leverage different authentication methods for migrations in development and in production using
-the same code.  To migrate you should use a command based on your DB:
+To run a migration you should use the `milmove migrate` command. This allows us to leverage different authentication
+methods for migrations in development and in production using the same code.  To migrate you should use a command
+based on your DB:
 
 * `make db_dev_migrate`
 * `make db_test_migrate`
@@ -20,7 +19,7 @@ database with environment variables.
 
 ## Creating a migration
 
-Use soda (a part of [pop](https://github.com/gobuffalo/pop/)) to generate models and migrations.
+Use the `milmove gen <subcommand>` commands to generate models and migrations.
 
 > **We don't use down-migrations to revert changes to the schema; any problems are to be fixed by a follow-up migration.**
 
