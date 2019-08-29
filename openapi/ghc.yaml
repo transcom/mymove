@@ -18,22 +18,27 @@ paths:
       operationId: createPaymentRequest
       tags:
         - payment_requests
+      requestBody:
+        content:
+          'appication/json':
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
       responses:
-        201:
+        '201':
           description: created instance of payment request
           content:
-            application/json:
+            'application/json':
               schema:
                 $ref: '#/components/schemas/PaymentRequest'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        500:
+        '500':
           description: internal server error
-    get:
+    get: # TODO add filters when we know what we are filtering
       summary: Gets payment requests
       description: Gets a list of payment requests
       operationId: getPaymentRequests
@@ -43,26 +48,26 @@ paths:
         200:
           description: fetched list of payment request
           content:
-            application/json:
+            'application/json':
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/PaymentRequest'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        500:
+        '500':
           description: internal server error
-  /payment_requests/{payment_request_id}:
+  /payment_requests/{paymentRequestId}:
     get:
       summary: Fetches a payment request
       description: Fetches an instance of a payment request
       operationId: fetchPaymentRequest
       parameters:
-        - name: payment_request_id
+        - name: paymentRequestId
           in: path
           description: UUID of payment request
           required: true
@@ -74,17 +79,21 @@ paths:
       responses:
         200:
           description: fetched instance of payment request
-        400:
+          content:
+            'appication/json':
+              schema:
+                $ref: '#/components/schemas/PaymentRequest'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
         404:
           description: orders not found
-        500:
+        '500':
           description: internal server error
-    put:
+    put: # GHC can mark final- could be its own endpoint; could do status update for accept/reject in separate endpoint
       summary: Updates a payment request
       description: Updates a payment request
       operationId: updatePaymentRequest
@@ -95,18 +104,23 @@ paths:
           required: true
       tags:
         - payment_requests
+      requestBody:
+        content:
+          'appication/json':
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
       responses:
-        200:
+        '200':
           description: updated payment request
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
         404:
           description: orders not found
-        500:
+        '500':
           description: internal server error
   /invoice_requests:
     post:
@@ -115,22 +129,27 @@ paths:
       operationId: createInvoiceRequest
       tags:
         - invoice_requests
+      requestBody:
+        content:
+          'appication/json':
+            schema:
+              $ref: '#/components/schemas/InvoiceRequest'
       responses:
-        201:
+        '201':
           description: created instance of invoice request
           content:
-            application/json:
+            'application/json':
               schema:
                 $ref: '#/components/schemas/InvoiceRequest'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        500:
+        '500':
           description: internal server error
-    get:
+    get: # TODO add filters when we know what we are filtering
       summary: Gets invoice requests
       description: Gets a list of invoice requests
       operationId: getInvoiceRequests
@@ -140,26 +159,26 @@ paths:
         200:
           description: fetched list of invoice request
           content:
-            application/json:
+            'application/json':
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/InvoiceRequest'
-        400:
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
-        500:
+        '500':
           description: internal server error
-  /invoice_requests/{invoice_request_id}:
+  /invoice_requests/{invoiceRequestId}:
     get:
       summary: Fetches a invoice request
       description: Fetches an instance of a invoice request
       operationId: fetchInvoiceRequest
       parameters:
-        - name: invoice_request_id
+        - name: invoiceRequestId
           in: path
           description: UUID of invoice request
           required: true
@@ -168,17 +187,21 @@ paths:
       responses:
         200:
           description: fetched instance of invoice request
-        400:
+          content:
+            'appication/json':
+              schema:
+                $ref: '#/components/schemas/InvoiceRequest'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
         404:
           description: orders not found
-        500:
+        '500':
           description: internal server error
-    put:
+    put: # could make update of status to accept/reject a different endpoint
       summary: Updates a invoice request
       description: Updates a invoice request
       operationId: updateInvoiceRequest
@@ -189,21 +212,30 @@ paths:
           required: true
       tags:
         - invoice_requests
+      requestBody:
+        content:
+          'appication/json':
+            schema:
+              $ref: '#/components/schemas/InvoiceRequest'
       responses:
         200:
           description: updated invoice request
-        400:
+          content:
+            'appication/json':
+              schema:
+                $ref: '#/components/schemas/InvoiceRequest'
+        '400':
           description: invalid request
-        401:
+        '401':
           description: request requires user authentication
-        403:
+        '403':
           description: user is not authorized
         404:
           description: orders not found
-        500:
+        '500':
           description: internal server error
 components:
-  schemas:
+  schemas: # These are guesses at what values will be needed; need to know which fields are required
     PaymentRequest:
       type: object
       properties:
@@ -215,9 +247,11 @@ components:
           $ref: '#/components/schemas/DocumentPackage'
         task_order:
           $ref: '#/components/schemas/TaskOrder'
+        is_final:
+          type: boolean
+          default: false
         status:
-          type: string
-          example: APPROVED
+          $ref: '#/components/schemas/PaymentRequestStatus'
         rejection_reason:
           type: string
           example: documentation was incomplete
@@ -231,12 +265,11 @@ components:
         payment_request:
           $ref: '#/components/schemas/PaymentRequest'
         status:
-          type: string
-          example: DENIED
+          $ref: '#/components/schemas/InvoiceRequestStatus'
         rejection_reason:
           type: string
           description: documentation missing
-    DocumentPackage:
+    DocumentPackage: # Need more info on what a documentPackage is
       type: object
       properties:
         id:
@@ -247,18 +280,32 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Document'
-    Document:
+    Document: # need more info on what a document is, how it's stored
       type: object
       properties:
         id:
           type: string
           format: uuid
           example: c56a4180-65aa-42ec-a945-5fd21dec0538
-    TaskOrder:
+    TaskOrder: # stub
       type: object
       properties:
         id:
           type: string
           format: uuid
           example: c56a4180-65aa-42ec-a945-5fd21dec0538
-
+    PaymentRequestStatus:
+      type: string
+      title: Payment Request Status
+      enum:
+        - DRAFT
+        - SUBMITTED
+        - REJECTED
+        - APPROVED
+    InvoiceRequestStatus:
+      type: string
+      title: Payment Request Status
+      enum:
+        - SUBMITTED
+        - REJECTED
+        - APPROVED
