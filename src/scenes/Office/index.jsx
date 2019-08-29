@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Redirect, Switch, Route } from 'react-router-dom';
+import { Redirect, Route, Switch } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
 import { history } from 'shared/store';
 import { connect } from 'react-redux';
@@ -11,7 +11,7 @@ import QueueTable from './QueueTable';
 import MoveInfo from './MoveInfo';
 import OrdersInfo from './OrdersInfo';
 import DocumentViewer from './DocumentViewer';
-import { getCurrentUserInfo } from 'shared/Data/users';
+import { getCurrentUserInfo, selectCurrentUser } from 'shared/Data/users';
 import { loadInternalSchema, loadPublicSchema } from 'shared/Swagger/ducks';
 import { detectIE11, no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
@@ -23,7 +23,7 @@ import { RetrieveMovesForOffice } from './api';
 
 import './office.scss';
 
-class Queues extends Component {
+export class Queues extends Component {
   render() {
     return (
       <div className="usa-grid grid-wide queue-columns">
@@ -34,6 +34,21 @@ class Queues extends Component {
           <QueueTable queueType={this.props.match.params.queueType} retrieveMoves={RetrieveMovesForOffice} />
         </div>
       </div>
+    );
+  }
+}
+
+export class RenderWithOrWithoutHeader extends Component {
+  render() {
+    const Tag = this.props.tag;
+    const Component = this.props.component;
+    return (
+      <>
+        {this.props.withHeader && <QueueHeader />}
+        <Tag role="main" className="site__content">
+          <Component {...this.props} />
+        </Tag>
+      </>
     );
   }
 }
@@ -51,43 +66,94 @@ export class OfficeWrapper extends Component {
   componentDidCatch(error, info) {
     this.setState({
       hasError: true,
+      error,
+      info,
     });
   }
 
   render() {
-    const Tag = detectIE11() ? 'div' : 'main';
+    const ConditionalWrap = ({ condition, wrap, children }) => (condition ? wrap(children) : <>{children}</>);
+    const DivOrMainTag = detectIE11() ? 'div' : 'main';
+    const { userIsLoggedIn } = this.props;
     return (
       <ConnectedRouter history={history}>
         <div className="Office site">
-          <QueueHeader />
-          <Tag role="main" className="site__content">
-            <div>
-              <LogoutOnInactivity />
-              {this.state.hasError && <SomethingWentWrong />}
-              {!this.state.hasError && (
-                <Switch>
-                  <Route
-                    exact
-                    path="/"
-                    component={({ location }) => (
-                      <Redirect
-                        from="/"
-                        to={{
-                          ...location,
-                          pathname: '/queues/new',
-                        }}
+          {!userIsLoggedIn && <QueueHeader />}
+          <ConditionalWrap
+            condition={!userIsLoggedIn}
+            wrap={children => (
+              <DivOrMainTag role="main" className="site__content">
+                {children}
+              </DivOrMainTag>
+            )}
+          >
+            <LogoutOnInactivity />
+            {this.state.hasError && <SomethingWentWrong error={this.state.error} info={this.state.info} />}
+            {!this.state.hasError && (
+              <Switch>
+                <Route
+                  exact
+                  path="/"
+                  component={({ location }) => (
+                    <Redirect
+                      from="/"
+                      to={{
+                        ...location,
+                        pathname: '/queues/new',
+                      }}
+                    />
+                  )}
+                />
+                <PrivateRoute
+                  path="/queues/:queueType/moves/:moveId"
+                  component={props => (
+                    <RenderWithOrWithoutHeader component={MoveInfo} withHeader={true} tag={DivOrMainTag} {...props} />
+                  )}
+                />
+                <PrivateRoute
+                  path="/queues/:queueType"
+                  component={props => (
+                    <RenderWithOrWithoutHeader component={Queues} withHeader={true} tag={DivOrMainTag} {...props} />
+                  )}
+                />
+                <PrivateRoute
+                  path="/moves/:moveId/orders"
+                  component={props => (
+                    <RenderWithOrWithoutHeader
+                      component={OrdersInfo}
+                      withHeader={false}
+                      tag={DivOrMainTag}
+                      {...props}
+                    />
+                  )}
+                />
+                <PrivateRoute
+                  path="/moves/:moveId/documents/:moveDocumentId?"
+                  component={props => (
+                    <RenderWithOrWithoutHeader
+                      component={DocumentViewer}
+                      withHeader={false}
+                      tag={DivOrMainTag}
+                      {...props}
+                    />
+                  )}
+                />
+                {!isProduction && (
+                  <PrivateRoute
+                    path="/playground"
+                    component={props => (
+                      <RenderWithOrWithoutHeader
+                        component={ScratchPad}
+                        withHeader={true}
+                        tag={DivOrMainTag}
+                        {...props}
                       />
                     )}
                   />
-                  <PrivateRoute path="/queues/:queueType/moves/:moveId" component={MoveInfo} />
-                  <PrivateRoute path="/queues/:queueType" component={Queues} />
-                  <PrivateRoute path="/moves/:moveId/orders" component={OrdersInfo} />
-                  <PrivateRoute path="/moves/:moveId/documents/:moveDocumentId?" component={DocumentViewer} />
-                  {!isProduction && <PrivateRoute path="/playground" component={ScratchPad} />}
-                </Switch>
-              )}
-            </div>
-          </Tag>
+                )}
+              </Switch>
+            )}
+          </ConditionalWrap>
         </div>
       </ConnectedRouter>
     );
@@ -99,9 +165,13 @@ OfficeWrapper.defaultProps = {
   loadPublicSchema: no_op,
 };
 
-const mapStateToProps = state => ({
-  swaggerError: state.swaggerInternal.hasErrored,
-});
+const mapStateToProps = state => {
+  const user = selectCurrentUser(state);
+  return {
+    swaggerError: state.swaggerInternal.hasErrored,
+    userIsLoggedIn: user.isLoggedIn,
+  };
+};
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators({ loadInternalSchema, loadPublicSchema, getCurrentUserInfo }, dispatch);

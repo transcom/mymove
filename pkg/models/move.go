@@ -72,7 +72,6 @@ type Move struct {
 	Orders                  Order                   `belongs_to:"orders"`
 	SelectedMoveType        *SelectedMoveType       `json:"selected_move_type" db:"selected_move_type"`
 	PersonallyProcuredMoves PersonallyProcuredMoves `has_many:"personally_procured_moves" order_by:"created_at desc"`
-	Shipments               Shipments               `has_many:"shipments"`
 	MoveDocuments           MoveDocuments           `has_many:"move_documents" order_by:"created_at desc"`
 	Status                  MoveStatus              `json:"status" db:"status"`
 	SignedCertifications    SignedCertifications    `has_many:"signed_certifications" order_by:"created_at desc"`
@@ -125,14 +124,6 @@ func (m *Move) Submit(submitDate time.Time) error {
 	for i := range m.PersonallyProcuredMoves {
 		ppm := &m.PersonallyProcuredMoves[i]
 		err := ppm.Submit(submitDate)
-		if err != nil {
-			return err
-		}
-	}
-
-	// Update HHG (Shipment) status too
-	for i := range m.Shipments {
-		err := m.Shipments[i].Submit(submitDate)
 		if err != nil {
 			return err
 		}
@@ -198,8 +189,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		"SignedCertifications",
 		"Orders",
 		"MoveDocuments.Document",
-		"Shipments.TrafficDistributionList",
-		"Shipments.ServiceAgents").Find(&move, id)
+	).Find(&move, id)
 
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
@@ -213,30 +203,6 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 	for i, moveDoc := range move.MoveDocuments {
 		db.Load(&moveDoc.Document, "Uploads")
 		move.MoveDocuments[i] = moveDoc
-	}
-
-	// Eager loading of nested has_many associations is broken
-	for i, shipment := range move.Shipments {
-		if shipment.PickupAddressID != nil {
-			pickupAddress := Address{}
-			if err = db.Find(&pickupAddress, shipment.PickupAddressID); err == nil {
-				move.Shipments[i].PickupAddress = &pickupAddress
-			}
-		}
-
-		if shipment.HasSecondaryPickupAddress && shipment.SecondaryPickupAddressID != nil {
-			secondaryPickupAddress := Address{}
-			if err = db.Find(&secondaryPickupAddress, shipment.SecondaryPickupAddressID); err == nil {
-				move.Shipments[i].SecondaryPickupAddress = &secondaryPickupAddress
-			}
-		}
-
-		if shipment.HasDeliveryAddress && shipment.DeliveryAddressID != nil {
-			deliveryAddress := Address{}
-			if err = db.Find(&deliveryAddress, shipment.DeliveryAddressID); err == nil {
-				move.Shipments[i].DeliveryAddress = &deliveryAddress
-			}
-		}
 	}
 
 	// Ensure that the logged-in user is authorized to access this move
@@ -625,51 +591,6 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 			}
 		}
 
-		if move.Status == MoveStatusSUBMITTED {
-
-			// Save Shipment GBLOCs
-			orders, err := FetchOrder(db, move.OrdersID)
-			if err != nil {
-				responseError = errors.Wrap(err, "Error fetching orders")
-				return transactionError
-			}
-
-			for _, shipment := range move.Shipments {
-				serviceMember, err := FetchServiceMember(db, shipment.ServiceMemberID)
-				if err != nil {
-					responseError = errors.Wrap(err, "Error fetching service member")
-					return transactionError
-				}
-
-				destinationGbloc, err := getGbloc(db, orders.NewDutyStationID)
-				if err != nil {
-					responseError = errors.Wrap(err, "Error getting shipment destination GBLOC")
-					return transactionError
-				}
-				shipment.DestinationGBLOC = &destinationGbloc
-
-				sourceGbloc, err := getGbloc(db, *serviceMember.DutyStationID)
-				if err != nil {
-					responseError = errors.Wrap(err, "Error getting shipment destination GBLOC")
-					return transactionError
-				}
-				shipment.SourceGBLOC = &sourceGbloc
-
-				// Assign a new unique GBL number using source GBLOC
-				err = shipment.AssignGBLNumber(db)
-				if err != nil {
-					responseError = errors.Wrap(err, "Error assigning GBL number for shipment")
-					return transactionError
-				}
-
-				if verrs, err := db.ValidateAndSave(&shipment); verrs.HasAny() || err != nil {
-					responseVErrors.Append(verrs)
-					responseError = errors.Wrap(err, "Error Saving Shipment")
-					return transactionError
-				}
-			}
-		}
-
 		if verrs, err := db.ValidateAndSave(&move.Orders); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error Saving Orders")
@@ -685,24 +606,6 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 	})
 
 	return responseVErrors, responseError
-}
-
-func getGbloc(db *pop.Connection, dutyStationID uuid.UUID) (gbloc string, err error) {
-	transportationOffice, err := FetchDutyStationTransportationOffice(db, dutyStationID)
-	if err != nil {
-		return "", errors.Wrap(err, "could not load transportation office for duty station")
-	}
-	return transportationOffice.Gbloc, nil
-}
-
-// FetchMoveForAdvancePaperwork returns a Move with all of the associations required
-// to generate the Advance paperwork.
-func FetchMoveForAdvancePaperwork(db *pop.Connection, moveID uuid.UUID) (Move, error) {
-	var move Move
-	if err := db.Q().Eager("Orders.NewDutyStation", "Orders.ServiceMember.BackupContacts", "Orders.ServiceMember.ResidentialAddress", "PersonallyProcuredMoves.Advance").Find(&move, moveID); err != nil {
-		return move, errors.Wrap(err, "could not load move")
-	}
-	return move, nil
 }
 
 // FetchMoveForMoveDates returns a Move along with all the associations needed to determine

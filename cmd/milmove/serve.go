@@ -18,7 +18,10 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
 	"github.com/gorilla/csrf"
@@ -396,7 +399,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	var session *awssession.Session
-	if v.GetString(cli.EmailBackendFlag) == "ses" || v.GetString(cli.StorageBackendFlag) == "s3" {
+	if v.GetBool(cli.DbIamFlag) || (v.GetString(cli.EmailBackendFlag) == "ses") || (v.GetString(cli.StorageBackendFlag) == "s3") {
 		c, errorConfig := cli.GetAWSConfig(v, v.GetBool(cli.VerboseFlag))
 		if errorConfig != nil {
 			logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())
@@ -408,16 +411,36 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		session = s
 	}
 
+	var dbCreds *credentials.Credentials
+	if v.GetBool(cli.DbIamFlag) {
+		if session != nil {
+			// We want to get the credentials from the logged in AWS session rather than create directly,
+			// because the session conflates the environment, shared, and container metdata config
+			// within NewSession.  With stscreds, we use the Secure Token Service,
+			// to assume the given role (that has rds db connect permissions).
+			dbIamRole := v.GetString(cli.DbIamRoleFlag)
+			logger.Info(fmt.Sprintf("assuming AWS role %q for db connection", dbIamRole))
+			dbCreds = stscreds.NewCredentials(session, dbIamRole)
+			stsService := sts.New(session)
+			callerIdentity, callerIdentityErr := stsService.GetCallerIdentity(&sts.GetCallerIdentityInput{})
+			if callerIdentityErr != nil {
+				logger.Error(errors.Wrap(callerIdentityErr, "error getting aws sts caller identity").Error())
+			} else {
+				logger.Info(fmt.Sprintf("STS Caller Identity - Account: %s, ARN: %s, UserId: %s", *callerIdentity.Account, *callerIdentity.Arn, *callerIdentity.UserId))
+			}
+		}
+	}
+
 	// Create a connection to the DB
-	dbConnection, err = cli.InitDatabase(v, logger)
-	if err != nil {
+	dbConnection, errDbConnection := cli.InitDatabase(v, dbCreds, logger)
+	if errDbConnection != nil {
 		if dbConnection == nil {
 			// No connection object means that the configuraton failed to validate and we should kill server startup
-			logger.Fatal("Invalid DB Configuration", zap.Error(err))
+			logger.Fatal("Invalid DB Configuration", zap.Error(errDbConnection))
 		} else {
 			// A valid connection object that still has an error indicates that the DB is not up but we
 			// can proceed (this avoids a failure loop when deploying containers).
-			logger.Warn("DB is not ready for connections", zap.Error(err))
+			logger.Warn("DB is not ready for connections", zap.Error(errDbConnection))
 		}
 	}
 
@@ -714,7 +737,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	apiMux.Handle(pat.New("/*"), externalAPIMux)
 	externalAPIMux.Use(middleware.NoCache(logger))
 	externalAPIMux.Use(userAuthMiddleware)
-	externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext, logger))
+	externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext))
 
 	internalMux := goji.SubMux()
 	root.Handle(pat.New("/internal/*"), internalMux)

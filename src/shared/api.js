@@ -43,7 +43,7 @@ export async function CreateDocument(name, serviceMemberId) {
 }
 
 export async function ValidateZipRateData(zipCode, zipType) {
-  const client = await getPublicClient();
+  const client = await getInternalClient();
   const response = await client.apis.postal_codes.validatePostalCodeWithRateData({
     postal_code: zipCode,
     postal_code_type: zipType,

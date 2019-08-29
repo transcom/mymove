@@ -81,8 +81,6 @@ commands:
   deploy_tasks_steps:
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
@@ -90,10 +88,10 @@ commands:
           at: bin
       - deploy:
           name: Deploy task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command save-fuel-price-data
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command save-fuel-price-data --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2"
           environment:
             DB_PORT: 5432
-            DB_USER: master
+            DB_USER: ecs_user
             DB_NAME: app
             DB_SSL_MODE: verify-full
             DB_SSL_ROOT_CERT: /bin/rds-combined-ca-bundle.pem
@@ -116,8 +114,6 @@ commands:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
       - attach_workspace:
           at: bin
-      - setup_remote_docker:
-          docker_layer_caching: true
       - deploy:
           name: Deploy app service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
@@ -144,8 +140,6 @@ commands:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
-      - setup_remote_docker:
-          docker_layer_caching: true
       - attach_workspace:
           at: bin
       - deploy:
@@ -176,8 +170,9 @@ commands:
             bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
             docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
-            docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//#}
-            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//#}
+            shopt -s extglob
+            docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
+            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
   e2e_tests:
     steps:
       - run:
@@ -195,15 +190,7 @@ commands:
             source $BASH_ENV
             make e2e_test_docker
           environment:
-            # Env vars needed by the `scripts/apply-secure-migration.sh` script
-            DB_PASSWORD: mysecretpassword
-            DB_USER: postgres
-            DB_HOST: localhost
-            DB_PORT: 5432
-            DB_NAME: test_db
             # Env vars needed for the webserver to run inside docker
-            SECURE_MIGRATION_DIR: /home/circleci/transcom/mymove/local_migrations
-            SECURE_MIGRATION_SOURCE: local
             LOGIN_GOV_CALLBACK_PROTOCOL: http
             LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
             LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
@@ -256,6 +243,16 @@ jobs:
           key: v2-mymove-node-modules-{{ checksum "yarn.lock" }}
           paths:
             - ~/transcom/mymove/node_modules
+      - announce_failure
+
+  # `anti_virus` uses virus detection software to scan the source code
+  anti_virus:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run: make anti_virus
       - announce_failure
 
   # `pre_test` runs pre-commit against all files.
@@ -382,7 +379,6 @@ jobs:
             source $BASH_ENV
             make server_test
           environment:
-            # Env vars needed by the `scripts/apply-secure-migration.sh` script
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
             DB_HOST: localhost
@@ -392,10 +388,8 @@ jobs:
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
-            MIGRATION_PATH: /home/circleci/transcom/mymove/migrations
-            MIGRATION_MANIFEST: /home/circleci/transcom/mymove/migrations_manifest.txt
-            SECURE_MIGRATION_DIR: /home/circleci/transcom/mymove/local_migrations
-            SECURE_MIGRATION_SOURCE: local
+            MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
+            MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
 
       - announce_failure
 
@@ -434,7 +428,6 @@ jobs:
             source $BASH_ENV
             make server_test_coverage_generate
           environment:
-            # Env vars needed by the `scripts/apply-secure-migration.sh` script
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
             DB_HOST: localhost
@@ -444,10 +437,8 @@ jobs:
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
-            MIGRATION_PATH: /home/circleci/transcom/mymove/migrations
-            MIGRATION_MANIFEST: /home/circleci/transcom/mymove/migrations_manifest.txt
-            SECURE_MIGRATION_DIR: /home/circleci/transcom/mymove/local_migrations
-            SECURE_MIGRATION_SOURCE: local
+            MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
+            MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
       - run:
           name: upload code coverage to codecov
           command: |
@@ -462,8 +453,6 @@ jobs:
     executor: mymove_large
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
       - restore_cache:
           keys:
             - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
@@ -527,7 +516,7 @@ jobs:
           docker_layer_caching: true
       - run: make bin/chamber
       - run: make bin/rds-combined-ca-bundle.pem
-      - run: make bin/milmove
+      - run: make server_build
       - build_tag_push:
           dockerfile: Dockerfile.migrations
           tag: ppp-migrations:dev
@@ -794,6 +783,11 @@ workflows:
 
       - pre_deps_yarn
 
+      - anti_virus:
+          filters:
+            branches:
+              only: master
+
       - pre_test:
           requires:
             - pre_deps_golang
@@ -818,6 +812,8 @@ workflows:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+            - build_app
+            - build_migrations
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
           # filters:
@@ -850,16 +846,19 @@ workflows:
 
       - build_app:
           requires:
+            - anti_virus
             - pre_deps_golang
             - pre_deps_yarn
             - acceptance_tests_local # don't bother building and pushing the application if it won't even start properly
 
       - build_tools:
           requires:
+            - anti_virus
             - pre_deps_golang
 
       - build_migrations:
           requires:
+            - anti_virus
             - pre_deps_golang
 
       - build_tasks:

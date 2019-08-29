@@ -100,7 +100,6 @@ func genDisableUserMigration(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	migrationPath := v.GetString(cli.MigrationPathFlag)
 	migrationManifest := v.GetString(cli.MigrationManifestFlag)
 	migrationName := v.GetString(cli.MigrationNameFlag)
 	migrationVersion := v.GetString(cli.MigrationVersionFlag)
@@ -123,16 +122,10 @@ func genDisableUserMigration(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	migrationFilename := fmt.Sprintf("%s_%s.up.fizz", migrationVersion, migrationName)
-	t2 := template.Must(template.New("migration").Parse(secureMigrationTemplate))
-	err = createMigration(migrationPath, migrationFilename, t2, secureMigrationName)
+	err = addMigrationToManifest(migrationManifest, secureMigrationName)
 	if err != nil {
 		return err
 	}
 
-	err = addMigrationToManifest(migrationManifest, migrationFilename)
-	if err != nil {
-		return err
-	}
 	return nil
 }

@@ -12,4 +12,4 @@ readonly DIR
 [[ "${CI:-}" == "true" ]] && exit 0
 
 echo -e "# This is the migrations manifest.\n# If a migration is not recorded here, then it will error." > "$DIR/../migrations_manifest.txt"
-find "${DIR}/../migrations"  -type f \( -name "*.sql" -o -name "*.fizz" \) -exec basename {} \; | sort | uniq | grep -v "^schema[.]sql$" >> "$DIR/../migrations_manifest.txt"
+find "${DIR}/../migrations" "${DIR}/../local_migrations"  -type f \( -name "*.sql" -o -name "*.fizz" \) -exec basename {} \; | sort | uniq | grep -v "^schema[.]sql$" >> "$DIR/../migrations_manifest.txt"

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { includes, get } from 'lodash';
+import { includes, get, isEmpty } from 'lodash';
 import qs from 'query-string';
 
 import { selectMove } from 'shared/Entities/modules/moves';
@@ -32,15 +32,12 @@ import { convertDollarsToCents } from 'shared/utils';
 import DocumentDetailPanel from './DocumentDetailPanel';
 
 import './index.css';
+
 class DocumentViewer extends Component {
   componentDidMount() {
     const { moveId } = this.props;
     this.props.loadMove(moveId);
     this.props.getMoveDocumentsForMove(moveId);
-  }
-
-  componentWillUpdate() {
-    document.title = 'Document Viewer';
   }
 
   componentDidUpdate(prevProps) {
@@ -110,6 +107,7 @@ class DocumentViewer extends Component {
     const { serviceMember, moveId, moveDocumentId, moveDocuments, moveLocator } = this.props;
     const numMoveDocs = moveDocuments ? moveDocuments.length : 0;
     const name = stringifyName(serviceMember);
+    document.title = `Document Viewer for ${name}`;
 
     // urls: has full url with IDs
     const defaultUrl = `/moves/${moveId}/documents`;
@@ -170,11 +168,12 @@ class DocumentViewer extends Component {
                     detailUrlPrefix={`/moves/${moveId}/documents`}
                     moveDocuments={moveDocuments}
                     uploadDocumentUrl={newUrl}
+                    moveId={moveId}
                   />
                 </div>
               </TabPanel>
 
-              {moveDocumentId && moveDocumentId !== 'new' && (
+              {!isEmpty(moveDocuments) && moveDocumentId && moveDocumentId !== 'new' && (
                 <TabPanel>
                   <DocumentDetailPanel
                     className="document-viewer"
