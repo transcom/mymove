@@ -58,6 +58,48 @@ func (suite *NotificationSuite) TestMoveReviewedFetchNoneFound() {
 	suite.Len(emailInfo, 0)
 }
 
+func (suite *NotificationSuite) TestMoveReviewedFetchAlreadySentEmail() {
+	db := suite.DB()
+	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
+	moves := []testdatagen.Assertions{
+		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &startDate}},
+		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &startDate}},
+	}
+	suite.createPPMMoves(moves)
+	moveReviewed, err := NewMoveReviewed(db, suite.logger, startDate)
+	suite.NoError(err)
+	emailInfoBeforeSending, err := moveReviewed.GetEmailInfo(startDate)
+	suite.NoError(err)
+	suite.Len(emailInfoBeforeSending, 2)
+
+	// simulate successfully sending an email and then check that this email does not get sent again.
+	err = moveReviewed.OnSuccess(emailInfoBeforeSending[0])("SES_MOVE_ID")
+	suite.NoError(err)
+	emailInfoAfterSending, err := moveReviewed.GetEmailInfo(startDate)
+	suite.NoError(err)
+	suite.Len(emailInfoAfterSending, 1)
+}
+
+func (suite *NotificationSuite) TestMoveReviewedOnSuccess() {
+	db := suite.DB()
+	sm := testdatagen.MakeDefaultServiceMember(db)
+	ei := EmailInfo{
+		ServiceMemberID: sm.ID,
+	}
+	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
+	moveReviewed, err := NewMoveReviewed(db, suite.logger, startDate)
+	suite.NoError(err)
+	err = moveReviewed.OnSuccess(ei)("SESID")
+	suite.NoError(err)
+
+	n := models.Notification{}
+	err = db.First(&n)
+	suite.NoError(err)
+	suite.Equal(sm.ID, n.ServiceMemberID)
+	suite.Equal(models.MoveReviewedEmail, n.NotificationType)
+	suite.Equal("SESID", n.SESMessageID)
+}
+
 func (suite *NotificationSuite) TestHTMLTemplateRender() {
 	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
 	onDate := startDate.AddDate(0, 0, -6)
@@ -157,7 +199,10 @@ func (suite *NotificationSuite) TestFormatEmails() {
 			textBody:       textBody,
 		}
 		if emailInfo.Email != nil {
-			suite.Equal(expectedEmailContent, actualEmailContent)
+			suite.Equal(expectedEmailContent.recipientEmail, actualEmailContent.recipientEmail)
+			suite.Equal(expectedEmailContent.subject, actualEmailContent.subject)
+			suite.Equal(expectedEmailContent.htmlBody, actualEmailContent.htmlBody)
+			suite.Equal(expectedEmailContent.textBody, actualEmailContent.textBody)
 		}
 	}
 	// only expect the two moves with non-nil email addresses to get added to formattedEmails

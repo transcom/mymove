@@ -8,6 +8,10 @@ import (
 	text "text/template"
 	"time"
 
+	"github.com/transcom/mymove/pkg/models"
+
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/assets"
 
 	"github.com/gobuffalo/pop"
@@ -80,21 +84,24 @@ func initHMTLTemplate(logger Logger) (*html.Template, error) {
 type EmailInfos []EmailInfo
 
 type EmailInfo struct {
-	Email              *string `db:"personal_email"`
-	DutyStationName    string  `db:"duty_station_name"`
-	NewDutyStationName string  `db:"new_duty_station_name"`
+	ServiceMemberID    uuid.UUID `db:"id"`
+	Email              *string   `db:"personal_email"`
+	DutyStationName    string    `db:"duty_station_name"`
+	NewDutyStationName string    `db:"new_duty_station_name"`
 }
 
 func (m MoveReviewed) GetEmailInfo(date time.Time) (EmailInfos, error) {
 	dateString := date.Format("2006-01-02")
-	query := `SELECT sm.personal_email, dsn.name as new_duty_station_name, dso.name as duty_station_name
-	FROM personally_procured_moves p
-	         JOIN moves m ON p.move_id = m.id
-	         JOIN orders o ON m.orders_id = o.id
-	         JOIN service_members sm ON o.service_member_id = sm.id
-	         JOIN duty_stations dso ON sm.duty_station_id = dso.id
-	         JOIN duty_stations dsn ON o.new_duty_station_id = dsn.id
-	WHERE CAST(reviewed_date as date) = $1;`
+	query := `SELECT sm.id, sm.personal_email, dsn.name AS new_duty_station_name, dso.name AS duty_station_name
+FROM personally_procured_moves p
+         JOIN moves m ON p.move_id = m.id
+         JOIN orders o ON m.orders_id = o.id
+         JOIN service_members sm ON o.service_member_id = sm.id
+         JOIN duty_stations dso ON sm.duty_station_id = dso.id
+         JOIN duty_stations dsn ON o.new_duty_station_id = dsn.id
+         LEFT JOIN notifications n ON sm.id = n.service_member_id
+WHERE CAST(reviewed_date AS date) = $1
+    AND (notification_type != 'MOVE_REVIEWED_EMAIL' OR n.service_member_id is NULL);`
 
 	emailInfos := EmailInfos{}
 	err := m.db.RawQuery(query, dateString).All(&emailInfos)
@@ -150,6 +157,7 @@ func (m MoveReviewed) formatEmails(emailInfos EmailInfos) ([]emailContent, error
 			subject:        "[MilMove] Let us know how we did",
 			htmlBody:       htmlBody,
 			textBody:       textBody,
+			onSuccess:      m.OnSuccess(emailInfo),
 		}
 		m.logger.Info("Generated move reviewed email to service member",
 			zap.String("service member email address", email))
@@ -157,6 +165,23 @@ func (m MoveReviewed) formatEmails(emailInfos EmailInfos) ([]emailContent, error
 		emails = append(emails, smEmail)
 	}
 	return emails, nil
+}
+
+func (m MoveReviewed) OnSuccess(emailInfo EmailInfo) func(string) error {
+	return func(msgID string) error {
+		n := models.Notification{
+			ServiceMemberID:  emailInfo.ServiceMemberID,
+			SESMessageID:     msgID,
+			NotificationType: models.MoveReviewedEmail,
+		}
+		err := m.db.Create(&n)
+		if err != nil {
+			dataString := fmt.Sprintf("%#v", n)
+			m.logger.Error("adding notification to notifications table", zap.String("notification", dataString))
+			return err
+		}
+		return nil
+	}
 }
 
 type moveReviewedEmailData struct {
