@@ -47,8 +47,6 @@ func (suite *ModelSuite) TestCreateNewMoveShowFalse() {
 }
 
 func (suite *ModelSuite) TestShowPPMQueue() {
-	// PPMs should only show statuses in the queue:
-	// approved, payment requested and completed
 
 	// Make PPMs with different statuses
 	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
@@ -68,9 +66,25 @@ func (suite *ModelSuite) TestShowPPMQueue() {
 	})
 
 	// Expected 3 moves for PPM queue returned
-	moves, err := GetMoveQueueItems(suite.DB(), "ppm")
+	moves, err := GetMoveQueueItems(suite.DB(), "all")
 	suite.NoError(err)
 	suite.Len(moves, 3)
+
+	// One move with Payment requested
+	moves, err = GetMoveQueueItems(suite.DB(), "ppm_payment_requested")
+	suite.NoError(err)
+	suite.Len(moves, 1)
+
+	// One move with Completed status
+	moves, err = GetMoveQueueItems(suite.DB(), "ppm_completed")
+	suite.NoError(err)
+	suite.Len(moves, 1)
+
+	// One move with Approved status
+	moves, err = GetMoveQueueItems(suite.DB(), "ppm_approved")
+	suite.NoError(err)
+	suite.Len(moves, 1)
+
 }
 
 func (suite *ModelSuite) TestShowPPMPaymentRequestsQueue() {
@@ -99,33 +113,6 @@ func (suite *ModelSuite) TestShowPPMPaymentRequestsQueue() {
 	suite.NoError(err)
 	suite.Len(moves, 1)
 	suite.EqualValues(models.PPMStatusPAYMENTREQUESTED, *moves[0].PpmStatus)
-}
-
-func (suite *ModelSuite) TestShowPPMQueueStatusDraftSubmittedCanceled() {
-	// PPMs should only show statuses in the queue:
-	// approved, payment requested and completed
-
-	// PPMs not in approved, payment requested or completed states are not returned
-	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			Status: models.PPMStatusDRAFT,
-		},
-	})
-	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			Status: models.PPMStatusSUBMITTED,
-		},
-	})
-	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			Status: models.PPMStatusCANCELED,
-		},
-	})
-
-	// Expected 0 moves for PPM queue returned
-	moves, err := GetMoveQueueItems(suite.DB(), "ppm")
-	suite.NoError(err)
-	suite.Len(moves, 0)
 }
 
 func (suite *ModelSuite) TestQueueNotFound() {
