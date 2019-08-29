@@ -215,9 +215,6 @@ bin/generate-access-codes: .server_generate.stamp
 bin/generate-shipment-edi: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-shipment-edi ./cmd/generate_shipment_edi
 
-bin/generate-shipment-summary: .server_generate.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
-
 bin/generate-test-data: pkg/assets/assets.go .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate-test-data
 
@@ -284,7 +281,7 @@ go_deps_update: server_deps server_generate mocks_generate ## Update golang depe
 	go run cmd/update_deps/main.go
 
 .PHONY: server_deps
-server_deps: .check_gopath.stamp bin/callgraph bin/chamber bin/gin bin/soda bin/swagger bin/mockery bin/rds-combined-ca-bundle.pem ## Install or Build server dependencies
+server_deps: .check_gopath.stamp bin/callgraph bin/chamber bin/gin bin/swagger bin/mockery bin/rds-combined-ca-bundle.pem ## Install or Build server dependencies
 
 .PHONY: server_generate
 server_generate: .check_go_version.stamp .check_gopath.stamp .server_generate.stamp ## Generate golang server code from Swagger files
@@ -342,7 +339,6 @@ build_tools: server_deps \
 	bin/generate-1203-form \
 	bin/generate-access-codes \
 	bin/generate-shipment-edi \
-	bin/generate-shipment-summary \
 	bin/generate-test-data \
 	bin/health-checker \
 	bin/iws \
@@ -884,6 +880,18 @@ docker_compose_down: ## Destroy docker-compose containers
 
 #
 # ----- END DOCKER COMPOSE TARGETS -----
+#
+
+#
+# ----- START ANTI VIRUS TARGETS -----
+#
+
+.PHONY: anti_virus
+anti_virus: ## Scan repo with anti-virus service
+	scripts/anti-virus
+
+#
+# ----- END ANTI VIRUS TARGETS -----
 #
 
 default: help

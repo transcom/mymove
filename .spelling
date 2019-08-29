@@ -428,6 +428,9 @@ _and_Sierra_
 10.12.x
 _Built_in_Smart_Card_Ability
 Cust2675_TRANSCOM_20190823_Demo2
+HackerOne
+addons
+addon
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - /usr/local
  - docs/data/tspp-data-creation.md
@@ -440,3 +443,4 @@ Cust2675_TRANSCOM_20190823_Demo2
  - ./docs/data/tspp-data-creation.md
  - ./docs/data/tariff400ng-yearly-import.md
  - ./scripts/README.md
+ - ./docs/how-to/run-storybook.md
