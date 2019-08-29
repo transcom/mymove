@@ -212,9 +212,6 @@ bin/generate-1203-form: .server_generate.stamp
 bin/generate-access-codes: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-access-codes ./cmd/generate_access_codes
 
-bin/generate-shipment-edi: .server_generate.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/generate-shipment-edi ./cmd/generate_shipment_edi
-
 bin/generate-test-data: pkg/assets/assets.go .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate-test-data
 
@@ -239,9 +236,6 @@ bin/make-dps-user: .server_generate.stamp
 bin/make-office-user: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
 
-bin/make-tsp-user: .server_generate.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/make-tsp-user ./cmd/make_tsp_user
-
 bin/milmove: .server_generate.stamp
 	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
@@ -261,9 +255,6 @@ bin_linux/save-fuel-price-data: .server_generate_linux.stamp
 
 bin/send-to-gex: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
-
-bin/tsp-award-queue: .server_generate.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
 
 pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
 	go-bindata -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/
@@ -338,7 +329,6 @@ build_tools: server_deps \
 	bin/ecs-service-logs \
 	bin/generate-1203-form \
 	bin/generate-access-codes \
-	bin/generate-shipment-edi \
 	bin/generate-test-data \
 	bin/health-checker \
 	bin/iws \
@@ -346,11 +336,9 @@ build_tools: server_deps \
 	bin/load-user-gen \
 	bin/make-dps-user \
 	bin/make-office-user \
-	bin/make-tsp-user \
 	bin/renderer \
 	bin/save-fuel-price-data \
-	bin/send-to-gex \
-	bin/tsp-award-queue ## Build all tools
+	bin/send-to-gex ## Build all tools
 
 .PHONY: build
 build: server_build build_tools client_build ## Build the server, tools, and client
