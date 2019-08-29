@@ -23,8 +23,6 @@ const (
 	MilMoveUserType string = "milmove"
 	// OfficeUserType is the type of user for an Office user
 	OfficeUserType string = "office"
-	// TspUserType is the type of user for a TSP user
-	TspUserType string = "tsp"
 	// DpsUserType is the type of user for a DPS user
 	DpsUserType string = "dps"
 	// AdminUserType is the type of user for an admin user
