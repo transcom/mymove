@@ -3,11 +3,9 @@ package invoice
 import (
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path"
 
-	"github.com/facebookgo/clock"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
@@ -89,21 +87,6 @@ func (suite *InvoiceServiceSuite) helperCreateUpload(storer *storage.FileStorer)
 	// Call Close on file after CreateUploadForDocument is complete
 	file.Close()
 	return upload
-}
-
-func (suite *InvoiceServiceSuite) helperShipmentInvoice(shipment models.Shipment) *models.Invoice {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-
-	var invoiceModel models.Invoice
-	verrs, err := CreateInvoice{DB: suite.DB(), Clock: clock.NewMock()}.Call(officeUser, &invoiceModel, shipment)
-	if err != nil {
-		log.Fatalf("error when creating invoice: %v", err)
-	}
-	if verrs.HasAny() {
-		log.Fatalf("validation errors when creating invoice: %s", verrs.String())
-	}
-
-	return &invoiceModel
 }
 
 func (suite *InvoiceServiceSuite) helperCreateFileStorer() *storage.FileStorer {
