@@ -14,7 +14,7 @@ describe('office user finds the shipment', function() {
 
 function officeUserViewsPpmPanel(locatorId) {
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/ppm/);
+    expect(loc.pathname).to.match(/^\/queues\/all/);
   });
 
   // Find shipment and open it
