@@ -251,7 +251,55 @@ definitions:
         type: string
         format: uuid
         example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
+  AccessCode:
+    type: object
+    properties:
+      code:
+        type: string
+        example: CODE456
+      move_type:
+        type: string
+        title: Selected Move Type
+        enum:
+          - HHG
+          - PPM
+      locator:
+          type: string
+          example: '11232'
+  AccessCodes:
+    type: object
+    properties:
+      access_codes:
+        type: array
+        items:
+          $ref: '#/definitions/AccessCode'
 paths:
+  /access_codes:
+    get:
+      summary: List access codes
+      description: Returns a list of access codes
+      operationId: indexAccessCodes
+      tags:
+        - office
+      parameters:
+        - in: query
+          name: filter
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: access codes
+          schema:
+            $ref: '#/definitions/AccessCodes'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: access codes not found
+        500:
+          description: server error
   /office_users:
     get:
       summary: List office users

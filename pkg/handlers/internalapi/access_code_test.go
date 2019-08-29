@@ -71,7 +71,7 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Valid() {
 	}
 	fullCode := fmt.Sprintf("%s-%s", selectedMoveType, code)
 	// makes request
-	request := httptest.NewRequest("GET", fmt.Sprintf("/access_codes/valid?code=%s", fullCode), nil)
+	request := httptest.NewRequest("GET", fmt.Sprintf("/access_code/valid?code=%s", fullCode), nil)
 	request = suite.AuthenticateUserRequest(request, user)
 
 	params := accesscodeops.ValidateAccessCodeParams{
@@ -115,7 +115,7 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Invalid() {
 	fullCode := fmt.Sprintf("%s-%s", selectedMoveType, code)
 
 	// makes request
-	request := httptest.NewRequest("GET", fmt.Sprintf("/access_codes/valid?code=%s", fullCode), nil)
+	request := httptest.NewRequest("GET", fmt.Sprintf("/access_code/valid?code=%s", fullCode), nil)
 	request = suite.AuthenticateUserRequest(request, user)
 
 	params := accesscodeops.ValidateAccessCodeParams{
@@ -156,7 +156,7 @@ func (suite *HandlerSuite) TestClaimAccessCodeHandler_Success() {
 	claimedAt := time.Now()
 
 	// makes request
-	request := httptest.NewRequest("PATCH", "/access_codes/invalid", nil)
+	request := httptest.NewRequest("PATCH", "/access_code/invalid", nil)
 	request = suite.AuthenticateRequest(request, serviceMember)
 
 	params := accesscodeops.ClaimAccessCodeParams{

@@ -3,8 +3,9 @@ import { fetchUtils, Admin, Resource, Layout } from 'react-admin';
 import { createBrowserHistory } from 'history';
 import React from 'react';
 import Menu from './Menu';
-import UserList from './UserList';
+import AccessCodeList from './AccessCodeList';
 import OfficeList from './OfficeList';
+import UserList from './UserList';
 import UserShow from './UserShow';
 import styles from './Home.module.scss';
 
@@ -26,6 +27,7 @@ const Home = () => (
     <Admin dataProvider={dataProvider} history={history} appLayout={AdminLayout}>
       <Resource name="office_users" list={UserList} show={UserShow} />
       <Resource name="offices" list={OfficeList} />
+      <Resource name="access_codes" list={AccessCodeList} />
     </Admin>
   </div>
 );

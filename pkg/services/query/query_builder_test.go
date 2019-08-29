@@ -2,6 +2,7 @@ package query
 
 import (
 	"testing"
+	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
@@ -232,5 +233,64 @@ func (suite *QueryBuilderSuite) TestCreateOne() {
 		_, err := builder.CreateOne(userInfo)
 		suite.Error(err, "Model should be a pointer to a struct")
 	})
+
+}
+
+func (suite *QueryBuilderSuite) TestQueryAssociations() {
+	// this should be stubbed out with a model that is agnostic to our code
+	// similar to how the pop repo tests might work
+	// create office user
+	// create service member
+	// create orders
+	// create move
+	// create access code
+	// make sure QueryAssociations will return to you the right associated data for a model
+	// TODO test query associations with filters
+
+	user := testdatagen.MakeDefaultUser(suite.DB())
+	selectedMoveType := models.SelectedMoveTypeHHG
+	sm := models.ServiceMember{
+		User:                 user,
+		UserID:               user.ID,
+		FirstName:            models.StringPointer("Travis"),
+		LastName:			  models.StringPointer("Wayfarer"),
+	}
+	suite.MustSave(&sm)
+	// creates access code
+	code := "TEST2"
+	claimedTime := time.Now()
+	invalidAccessCode := models.AccessCode{
+		Code:            code,
+		MoveType:        &selectedMoveType,
+		ServiceMemberID: &sm.ID,
+		ClaimedAt:       &claimedTime,
+	}
+	suite.MustSave(&invalidAccessCode)
+
+
+	builder := NewQueryBuilder(suite.DB())
+	var accessCodes models.AccessCodes
+
+
+	suite.T().Run("fetches associated data", func(t *testing.T) {
+
+		filters := []services.QueryFilter{}
+		associations := []services.QueryAssociation{
+			NewQueryAssociation("ServiceMember", "ID"),
+		}
+		[]services.QueryAssociations{
+			NewQueryAssociations(associations)
+		}
+
+		err := builder.QueryAssociations(&accessCodes,
+			associations,
+			filters,
+		)
+		//
+		suite.NoError(err)
+		suite.Equal(accessCodes[0].ServiceMember.FirstName, sm.FirstName)
+
+	})
+
 
 }

@@ -47,6 +47,7 @@ func getDBColumn(t reflect.Type, field string) (string, bool) {
 func getComparator(comparator string) (string, bool) {
 	switch comparator {
 	case equals:
+
 		return equals, true
 	case greaterThan:
 		return greaterThan, true
@@ -137,4 +138,36 @@ func (p *Builder) CreateOne(model interface{}) (*validate.Errors, error) {
 		return verrs, err
 	}
 	return nil, nil
+}
+
+func (p *Builder) QueryAssociations(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter) error {
+	t := reflect.TypeOf(model)
+	if t.Kind() != reflect.Ptr {
+		return errors.New(fetchOneReflectionMessage)
+	}
+	t = t.Elem()
+	if t.Kind() != reflect.Slice {
+		return errors.New(fetchManyReflectionMessage)
+	}
+	t = t.Elem()
+	if t.Kind() != reflect.Struct {
+		return errors.New(fetchManyReflectionMessage)
+	}
+	query := p.db.Q()
+	query, err := filteredQuery(query, filters, t)
+	if err != nil {
+		return err
+	}
+
+	err = associatedQuery(query, associations, model)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func associatedQuery(query *pop.Query, associations services.QueryAssociations, model interface  {}) error {
+	query = query.Eager(associations.StringGetAssociations()...)
+	fmt.Println(associations)
+	return query.All(model)
 }
