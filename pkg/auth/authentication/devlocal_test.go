@@ -147,7 +147,7 @@ func (suite *AuthSuite) TestCreateUserHandlerDPS() {
 
 	_, err = models.FetchDPSUserByEmail(suite.DB(), user.LoginGovEmail)
 	if err != nil {
-		t.Error("Could not find tsp user for this user.", err)
+		t.Error("Could not find dps user for this user.", err)
 	}
 }
 
