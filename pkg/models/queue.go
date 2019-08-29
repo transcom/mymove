@@ -86,7 +86,6 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				ppm.updated_at as last_modified_date,
 				moves.status as status,
 				ppm.status as ppm_status,
-				shipment.gbl_number as gbl_number,
 				origin_duty_station.name as origin_duty_station_name,
 				destination_duty_station.name as destination_duty_station_name
 			FROM moves
@@ -112,7 +111,6 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				ppm.updated_at as last_modified_date,
 				moves.status as status,
 				ppm.status as ppm_status,
-				shipment.gbl_number as gbl_number,
 				origin_duty_station.name as origin_duty_station_name,
 				destination_duty_station.name as destination_duty_station_name
 			FROM moves
@@ -138,7 +136,6 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				ppm.updated_at as last_modified_date,
 				moves.status as status,
 				ppm.status as ppm_status,
-				shipment.gbl_number as gbl_number,
 				origin_duty_station.name as origin_duty_station_name,
 				destination_duty_station.name as destination_duty_station_name
 			FROM moves
@@ -170,7 +167,6 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				moves.updated_at as last_modified_date,
 				moves.status as status,
 				ppm.status as ppm_status,
-				shipment.gbl_number as gbl_number,
 				origin_duty_station.name as origin_duty_station_name,
 				destination_duty_station.name as destination_duty_station_name
 			FROM moves
