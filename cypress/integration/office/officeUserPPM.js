@@ -78,7 +78,7 @@ describe('office user finds the move', function() {
 
   it('edits pickup and destination zip codes in estimates panel and these values are reflected in the storage and incentive calculators', function() {
     officeUserGoesToPPMPanel('FDXTIU');
-    officeUserEditsEstimatesPanel(60606, 72018, 6000);
+    officeUserEditsEstimatesPanel(60606, 72018, 5000);
   });
 
   it('office user completes storage panel', function() {
@@ -325,10 +325,10 @@ function officeUserVerifiesPPM() {
 
 function officeUserGoesToPPMPanel(locator) {
   // Open ppm queue
-  cy.patientVisit('/queues/ppm');
+  cy.patientVisit('/queues/all');
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/ppm/);
+    expect(loc.pathname).to.match(/^\/queues\/all/);
   });
 
   // Find shipment and open it
