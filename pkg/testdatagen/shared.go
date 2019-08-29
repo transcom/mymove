@@ -56,7 +56,6 @@ type Assertions struct {
 	TransportationOffice                     models.TransportationOffice
 	TransportationServiceProvider            models.TransportationServiceProvider
 	TransportationServiceProviderPerformance models.TransportationServiceProviderPerformance
-	TspUser                                  models.TspUser
 	Upload                                   models.Upload
 	Uploader                                 *uploader.Uploader
 	User                                     models.User

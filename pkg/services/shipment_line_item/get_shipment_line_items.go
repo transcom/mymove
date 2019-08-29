@@ -16,13 +16,7 @@ type getShipmentLineItems struct {
 // IndexStorageInTransits returns a collection of Storage In Transits that are associated with a specific shipmentID
 func (i *getShipmentLineItems) GetShipmentLineItemsByShipmentID(shipmentID uuid.UUID, session *auth.Session) ([]models.ShipmentLineItem, error) {
 
-	if session.IsTspUser() {
-		// Check that the TSP user can access the shipment
-		_, _, err := models.FetchShipmentForVerifiedTSPUser(i.db, session.TspUserID, shipmentID)
-		if err != nil {
-			return nil, err
-		}
-	} else if !session.IsOfficeUser() {
+	if !session.IsOfficeUser() {
 		return nil, models.ErrFetchForbidden
 	}
 

@@ -302,25 +302,6 @@ func FetchMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UU
 // FetchMoveDocumentsByTypeForShipment fetches move documents for shipment and move document type
 func FetchMoveDocumentsByTypeForShipment(db *pop.Connection, session *auth.Session, moveDocumentType MoveDocumentType, shipmentID uuid.UUID) (MoveDocuments, error) {
 
-	// Verify that the logged-in TSP user is authorized to generate GBL
-	// Does this need to be checked here if already checked in create gbl handler?
-	if session.IsTspApp() {
-		if session.TspUserID == uuid.Nil {
-			return nil, ErrFetchForbidden
-		}
-		tspUser, err := FetchTspUserByID(db, session.TspUserID)
-		if err != nil {
-			return nil, ErrFetchNotFound
-		}
-		shipment, err := FetchShipmentByTSP(db, tspUser.TransportationServiceProviderID, shipmentID)
-		if err != nil {
-			return nil, ErrFetchForbidden
-		}
-		if shipment.ID != shipmentID {
-			return nil, ErrFetchForbidden
-		}
-	}
-
 	// Allow all logged in office users to fetch move docs
 	if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
 		return nil, ErrFetchForbidden
