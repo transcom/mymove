@@ -12,7 +12,7 @@ import (
 
 var statusToQueueMap = map[string]string{
 	"SUBMITTED": "new",
-	"APPROVED":  "ppm",
+	"APPROVED":  "ppm_approved",
 }
 
 func (suite *HandlerSuite) TestShowQueueHandler() {
