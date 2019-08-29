@@ -77,13 +77,7 @@ func FetchInvoice(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Inv
 		// Otherwise, it's an unexpected err so we return that.
 		return nil, err
 	}
-	// Check that the TSP user is authorized to get this Invoice
-	if session.IsTspUser() {
-		_, _, err := FetchShipmentForVerifiedTSPUser(db, session.TspUserID, invoice.ShipmentID)
-		if err != nil {
-			return nil, err
-		}
-	} else if !session.IsOfficeUser() {
+	if !session.IsOfficeUser() {
 		// Allow office users to fetch invoices
 		return nil, ErrFetchForbidden
 	}

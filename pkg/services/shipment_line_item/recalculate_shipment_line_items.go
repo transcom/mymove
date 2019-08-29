@@ -19,13 +19,7 @@ type recalculateShipmentLineItems struct {
 
 // RecalculateShipmentLineItems returns a collection of ShipmentLineItems that have been recalculated.
 func (r *recalculateShipmentLineItems) RecalculateShipmentLineItems(shipmentID uuid.UUID, session *auth.Session, route route.Planner) ([]models.ShipmentLineItem, error) {
-	if session.IsTspUser() {
-		// Check that the TSP user can access the shipment
-		_, _, err := models.FetchShipmentForVerifiedTSPUser(r.db, session.TspUserID, shipmentID)
-		if err != nil {
-			return nil, err
-		}
-	} else if !session.IsOfficeUser() {
+	if !session.IsOfficeUser() {
 		return nil, models.ErrFetchForbidden
 	}
 

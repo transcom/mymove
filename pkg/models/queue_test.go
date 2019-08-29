@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"time"
-
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -119,33 +117,4 @@ func (suite *ModelSuite) TestQueueNotFound() {
 	moves, moveErrs := GetMoveQueueItems(suite.DB(), "queue_not_found")
 	suite.Equal(ErrFetchNotFound, moveErrs, "Expected not to find move queue items")
 	suite.Empty(moves)
-}
-
-func (suite *ModelSuite) TestActivePPMQueue() {
-	testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
-		Shipment: models.Shipment{
-			Status: models.ShipmentStatusINTRANSIT,
-		},
-	})
-
-	testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
-		Shipment: models.Shipment{
-			Status: models.ShipmentStatusAPPROVED,
-		},
-	})
-
-	now := time.Now()
-	testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
-		Shipment: models.Shipment{
-			Status:                models.ShipmentStatusACCEPTED,
-			PmSurveyConductedDate: &now,
-		},
-	})
-
-	testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
-		Shipment: models.Shipment{
-			Status: models.ShipmentStatusACCEPTED,
-		},
-	})
-
 }

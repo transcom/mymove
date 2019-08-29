@@ -81,3 +81,9 @@ cypress/results
 
 # Ignore static storybook content
 storybook-static
+
+# Anti-Virus
+*.fp
+*.sfp
+*.ign
+*.ign2

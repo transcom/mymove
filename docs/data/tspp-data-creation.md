@@ -205,6 +205,7 @@ and generating new UUIDs to be consistent across environments.
 We'll now create a new migration with that data (replace your migration filename):
 
 ```bash
+make bin/soda
 ./bin/soda generate sql add_new_tdls
 rm migrations/20190410152949_add_new_tdls.down.sql
 echo -e "INSERT INTO traffic_distribution_lists (id, source_rate_area, destination_region, code_of_service, created_at, updated_at) \nVALUES\n$(
@@ -267,6 +268,7 @@ INSERT INTO temp_tsps (standard_carrier_alpha_code, id, import)
 Generate the migration (replacing your migration filename):
 
 ```bash
+make bin/soda
 ./bin/soda generate sql add_new_scacs
 rm migrations/20190409010258_add_new_scacs.down.sql
 
