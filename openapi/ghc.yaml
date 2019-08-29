@@ -1,0 +1,264 @@
+openapi: '3.0'
+info:
+  title: move.mil GHC API
+  description: The API for interfacing with GHC and the government system for move.mil
+  #  termsOfService:
+  contact:
+    email: milmove@truss.works # ??
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 1.0.0
+# servers:
+paths:
+  /payment_requests:
+    post:
+      summary: Creates a payment request
+      description: Creates a payment request
+      operationId: createPaymentRequest
+      tags:
+        - payment_requests
+      responses:
+        201:
+          description: created instance of payment request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentRequest'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
+    get:
+      summary: Gets payment requests
+      description: Gets a list of payment requests
+      operationId: getPaymentRequests
+      tags:
+        - payment_requests
+      responses:
+        200:
+          description: fetched list of payment request
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PaymentRequest'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
+  /payment_requests/{payment_request_id}:
+    get:
+      summary: Fetches a payment request
+      description: Fetches an instance of a payment request
+      operationId: fetchPaymentRequest
+      parameters:
+        - name: payment_request_id
+          in: path
+          description: UUID of payment request
+          required: true
+          schema:
+            type: string
+            format: uuid
+      tags:
+        - payment_requests
+      responses:
+        200:
+          description: fetched instance of payment request
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: orders not found
+        500:
+          description: internal server error
+    put:
+      summary: Updates a payment request
+      description: Updates a payment request
+      operationId: updatePaymentRequest
+      parameters:
+        - name: payment_request_id
+          in: path
+          description: UUID of payment request
+          required: true
+      tags:
+        - payment_requests
+      responses:
+        200:
+          description: updated payment request
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: orders not found
+        500:
+          description: internal server error
+  /invoice_requests:
+    post:
+      summary: Creates an invoice request
+      description: Creates an invoice request
+      operationId: createInvoiceRequest
+      tags:
+        - invoice_requests
+      responses:
+        201:
+          description: created instance of invoice request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceRequest'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
+    get:
+      summary: Gets invoice requests
+      description: Gets a list of invoice requests
+      operationId: getInvoiceRequests
+      tags:
+        - invoice_requests
+      responses:
+        200:
+          description: fetched list of invoice request
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InvoiceRequest'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
+  /invoice_requests/{invoice_request_id}:
+    get:
+      summary: Fetches a invoice request
+      description: Fetches an instance of a invoice request
+      operationId: fetchInvoiceRequest
+      parameters:
+        - name: invoice_request_id
+          in: path
+          description: UUID of invoice request
+          required: true
+      tags:
+        - invoice_requests
+      responses:
+        200:
+          description: fetched instance of invoice request
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: orders not found
+        500:
+          description: internal server error
+    put:
+      summary: Updates a invoice request
+      description: Updates a invoice request
+      operationId: updateInvoiceRequest
+      parameters:
+        - name: invoice_request_id
+          in: path
+          description: UUID of invoice request
+          required: true
+      tags:
+        - invoice_requests
+      responses:
+        200:
+          description: updated invoice request
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: orders not found
+        500:
+          description: internal server error
+components:
+  schemas:
+    PaymentRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        document_package:
+          $ref: '#/components/schemas/DocumentPackage'
+        task_order:
+          $ref: '#/components/schemas/TaskOrder'
+        status:
+          type: string
+          example: APPROVED
+        rejection_reason:
+          type: string
+          example: documentation was incomplete
+    InvoiceRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        payment_request:
+          $ref: '#/components/schemas/PaymentRequest'
+        status:
+          type: string
+          example: DENIED
+        rejection_reason:
+          type: string
+          description: documentation missing
+    DocumentPackage:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+    Document:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    TaskOrder:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+
