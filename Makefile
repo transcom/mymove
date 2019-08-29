@@ -236,9 +236,6 @@ bin/make-dps-user: .server_generate.stamp
 bin/make-office-user: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
 
-bin/make-tsp-user: .server_generate.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/make-tsp-user ./cmd/make_tsp_user
-
 bin/milmove: .server_generate.stamp
 	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
@@ -339,7 +336,6 @@ build_tools: server_deps \
 	bin/load-user-gen \
 	bin/make-dps-user \
 	bin/make-office-user \
-	bin/make-tsp-user \
 	bin/renderer \
 	bin/save-fuel-price-data \
 	bin/send-to-gex ## Build all tools
