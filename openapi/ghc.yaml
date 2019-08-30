@@ -20,18 +20,22 @@ paths:
         - payment_requests
       requestBody:
         content:
-          'appication/json':
+          application/json:
             schema:
-              $ref: '#/components/schemas/PaymentRequest'
+              $ref: '#/components/schemas/CreatePaymentRequestPayload'
       responses:
         '201':
           description: created instance of payment request
           content:
-            'application/json':
+            application/json:
               schema:
                 $ref: '#/components/schemas/PaymentRequest'
         '400':
           description: invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestResponsePayload'
         '401':
           description: request requires user authentication
         '403':
@@ -48,13 +52,17 @@ paths:
         200:
           description: fetched list of payment request
           content:
-            'application/json':
+            application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/PaymentRequest'
         '400':
           description: invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestResponsePayload'
         '401':
           description: request requires user authentication
         '403':
@@ -80,11 +88,15 @@ paths:
         200:
           description: fetched instance of payment request
           content:
-            'appication/json':
+            application/json:
               schema:
                 $ref: '#/components/schemas/PaymentRequest'
         '400':
           description: invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestResponsePayload'
         '401':
           description: request requires user authentication
         '403':
@@ -106,7 +118,7 @@ paths:
         - payment_requests
       requestBody:
         content:
-          'appication/json':
+          application/json:
             schema:
               $ref: '#/components/schemas/PaymentRequest'
       responses:
@@ -114,6 +126,10 @@ paths:
           description: updated payment request
         '400':
           description: invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestResponsePayload'
         '401':
           description: request requires user authentication
         '403':
@@ -131,18 +147,22 @@ paths:
         - invoice_requests
       requestBody:
         content:
-          'appication/json':
+          application/json:
             schema:
-              $ref: '#/components/schemas/InvoiceRequest'
+              $ref: '#/components/schemas/CreateInvoiceRequestPayload'
       responses:
         '201':
           description: created instance of invoice request
           content:
-            'application/json':
+            application/json:
               schema:
                 $ref: '#/components/schemas/InvoiceRequest'
         '400':
           description: invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestResponsePayload'
         '401':
           description: request requires user authentication
         '403':
@@ -159,13 +179,17 @@ paths:
         200:
           description: fetched list of invoice request
           content:
-            'application/json':
+            application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/InvoiceRequest'
         '400':
           description: invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestResponsePayload'
         '401':
           description: request requires user authentication
         '403':
@@ -188,11 +212,15 @@ paths:
         200:
           description: fetched instance of invoice request
           content:
-            'appication/json':
+            application/json:
               schema:
                 $ref: '#/components/schemas/InvoiceRequest'
         '400':
           description: invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestResponsePayload'
         '401':
           description: request requires user authentication
         '403':
@@ -214,18 +242,22 @@ paths:
         - invoice_requests
       requestBody:
         content:
-          'appication/json':
+          application/json:
             schema:
               $ref: '#/components/schemas/InvoiceRequest'
       responses:
         200:
           description: updated invoice request
           content:
-            'appication/json':
+            application/json:
               schema:
                 $ref: '#/components/schemas/InvoiceRequest'
         '400':
           description: invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestResponsePayload'
         '401':
           description: request requires user authentication
         '403':
@@ -234,6 +266,67 @@ paths:
           description: orders not found
         '500':
           description: internal server error
+  /uploads:
+    post:
+      summary: Create a new upload
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      operationId: createUpload
+      tags:
+        - uploads
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateUploadPayload'
+      responses:
+        201:
+          description: created upload
+          content:
+            multipart/form-data:
+              schema:
+                $ref: '#/components/schemas/Upload'
+        400:
+          description: invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestResponsePayload'
+        403:
+          description: not authorized
+        404:
+          description: not found
+        500:
+          description: server error
+  /uploads/{upload_id}:
+    get:
+      summary: Fetches upload
+      description: Fetches an upload by id
+      operationId: upload
+      parameters:
+        - name: upload_id
+          in: path
+          description: upload id
+      tags:
+        - uploads
+      responses:
+        200:
+          description: created upload
+          content:
+            multipart/form-data:
+              schema:
+                $ref: '#/components/schemas/Upload'
+        400:
+          description: invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvalidRequestResponsePayload'
+        403:
+          description: not authorized
+        404:
+          description: not found
+        500:
+          description: server error
 components:
   schemas: # These are guesses at what values will be needed; need to know which fields are required
     PaymentRequest:
@@ -243,6 +336,21 @@ components:
           type: string
           format: uuid
           example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        document_package:
+          $ref: '#/components/schemas/DocumentPackage'
+        task_order:
+          $ref: '#/components/schemas/TaskOrder'
+        is_final:
+          type: boolean
+          default: false
+        status:
+          $ref: '#/components/schemas/PaymentRequestStatus'
+        rejection_reason:
+          type: string
+          example: documentation was incomplete
+    CreatePaymentRequestPayload:
+      type: object
+      properties:
         document_package:
           $ref: '#/components/schemas/DocumentPackage'
         task_order:
@@ -269,24 +377,27 @@ components:
         rejection_reason:
           type: string
           description: documentation missing
-    DocumentPackage: # Need more info on what a documentPackage is
+    CreateInvoiceRequestPayload:
+      type: object
+      properties:
+        payment_request:
+          $ref: '#/components/schemas/PaymentRequest'
+        status:
+          $ref: '#/components/schemas/InvoiceRequestStatus'
+        rejection_reason:
+          type: string
+          description: documentation missing
+    DocumentPackage: # Need more info on what a documentPackage is, what is in it
       type: object
       properties:
         id:
           type: string
           format: uuid
           example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        documents:
+        uploads:
           type: array
           items:
-            $ref: '#/components/schemas/Document'
-    Document: # need more info on what a document is, how it's stored
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+            $ref: '#/components/schemas/Upload' # this could alternatively be a document that holds an upload
     TaskOrder: # stub
       type: object
       properties:
@@ -309,3 +420,73 @@ components:
         - SUBMITTED
         - REJECTED
         - APPROVED
+    CreateUploadPayload:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+        filename:
+          type: string
+          example: filename.pdf
+        content_type:
+          type: string
+          format: mime-type
+          example: application/pdf
+        bytes:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - url
+        - filename
+        - content_type
+        - bytes
+        - created_at
+        - updated_at
+    Upload:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        url:
+          type: string
+          format: uri
+          example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+        filename:
+          type: string
+          example: filename.pdf
+        content_type:
+          type: string
+          format: mime-type
+          example: application/pdf
+        bytes:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - url
+        - filename
+        - content_type
+        - bytes
+        - created_at
+        - updated_at
+    InvalidRequestResponsePayload:
+      type: object
+      properties:
+        errors:
+          type: object
+          additionalProperties:
+            type: string
