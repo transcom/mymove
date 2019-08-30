@@ -18,8 +18,7 @@ describe('setting up service member profile requiring an access code', function(
 
 function serviceMemberEntersAccessCode() {
   cy.get('input[name="claim_access_code"]').type('PPM-X3FQJK');
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Continue')
     .click();
 }
@@ -27,14 +26,12 @@ function serviceMemberEntersAccessCode() {
 function serviceMemberProfile(reloadAfterEveryPage) {
   //dod info
   // does not have welcome message throughout setup
-  cy
-    .get('span')
+  cy.get('span')
     .contains('Welcome,')
     .should('not.exist');
 
   // does not have a back button on first flow page
-  cy
-    .get('button')
+  cy.get('button')
     .contains('Back')
     .should('not.be.visible');
 
@@ -61,8 +58,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   //contact info
   cy.get('button.next').should('be.disabled');
   cy.get('input[name="telephone"]').type('6784567890');
-  cy
-    .get('[type="checkbox"]')
+  cy.get('[type="checkbox"]')
     .not('[disabled]')
     .check({ force: true })
     .should('be.checked');
@@ -87,15 +83,13 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy.get('input[name="street_address_1"]').type('123 main');
   cy.get('input[name="city"]').type('Anytown');
   cy.get('select[name="state"]').select('CO');
-  cy
-    .get('input[name="postal_code"]')
+  cy.get('input[name="postal_code"]')
     .clear()
     .type('00001')
     .blur();
   cy.get('#postal_code-error').should('exist');
   cy.get('button.next').should('be.disabled');
-  cy
-    .get('input[name="postal_code"]')
+  cy.get('input[name="postal_code"]')
     .clear()
     .type('80913');
   cy.get('#postal_code-error').should('not.exist');

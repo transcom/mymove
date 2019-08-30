@@ -14,25 +14,6 @@ consumes:
 produces:
   - application/json
 definitions:
-  ShipmentMarket:
-    type: string
-    description: One of the possible 'Markets' for a shipment
-    example: dHHG
-    enum:
-      - dHHG
-      - iHHG
-      - iUB
-    x-display-value:
-      dHHG: Domestic HHG
-      iHHG: International HHG
-      iUB: International unaccompanied baggage
-    x-nullable: true
-  GBLOC:
-    type: string
-    description: Office Codes for Transcom offices originating GBLs
-    pattern: '^[A-Z]{4}$'
-    example: LHNQ
-    x-nullable: true
   LoggedInUserPayload:
     type: object
     properties:
@@ -640,10 +621,6 @@ definitions:
         format: date-time
       personally_procured_moves:
         $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
-      shipments:
-        type: array
-        items:
-          $ref: '#/definitions/Shipment'
       cancel_reason:
         type: string
         example: 'Change of orders'
@@ -967,10 +944,12 @@ definitions:
       - AWAITING_REVIEW
       - OK
       - HAS_ISSUE
+      - EXCLUDE_FROM_CALCULATION
     x-display-value:
       AWAITING_REVIEW: Awaiting review
       OK: OK
       HAS_ISSUE: Has issue
+      EXCLUDE_FROM_CALCULATION: Exclude from calculation
   CreateWeightTicketDocumentsPayload:
     type: object
     properties:
@@ -1102,10 +1081,6 @@ definitions:
         type: boolean
         x-nullable: true
         title: Telephone
-      text_message_is_preferred:
-        type: boolean
-        x-nullable: true
-        title: Text Message - Coming Soon!
       email_is_preferred:
         type: boolean
         x-nullable: true
@@ -1212,10 +1187,6 @@ definitions:
         type: boolean
         x-nullable: true
         title: Phone
-      text_message_is_preferred:
-        type: boolean
-        x-nullable: true
-        title: Text Message - Coming Soon!
       email_is_preferred:
         type: boolean
         x-nullable: true
@@ -1302,10 +1273,6 @@ definitions:
         type: boolean
         x-nullable: true
         title: Phone
-      text_message_is_preferred:
-        type: boolean
-        x-nullable: true
-        title: Text Message - Coming Soon!
       email_is_preferred:
         type: boolean
         x-nullable: true
@@ -1713,301 +1680,6 @@ definitions:
       AIR_FORCE: 57 - United States Air Force
       MARINES: 17 - United States Marines
       ARMY: 21 - United States Army
-  TrafficDistributionList:
-    type: object
-    properties:
-      source_rate_area:
-        type: string
-        example: US34
-      destination_region:
-        type: string
-        example: '5'
-      code_of_service:
-        type: string
-        example: D
-        enum:
-          - D
-          - '2'
-        x-display-value:
-          D: D
-          '2': '2'
-    required:
-      - source_rate_area
-      - destination_region
-      - code_of_service
-  Shipment:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      status:
-        $ref: '#/definitions/ShipmentStatus'
-        readOnly: true
-      source_gbloc:
-        $ref: '#/definitions/GBLOC'
-        title: Channel
-      destination_gbloc:
-        $ref: '#/definitions/GBLOC'
-      market:
-        $ref: '#/definitions/ShipmentMarket'
-        readOnly: true
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
-      move_id:
-        type: string
-        format: uuid
-        example: d56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      traffic_distribution_list_id:
-        type: string
-        format: uuid
-        example: d56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
-      traffic_distribution_list:
-        $ref: '#/definitions/TrafficDistributionList'
-        readOnly: true
-      service_member_id:
-        type: string
-        format: uuid
-        example: d56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      book_date:
-        type: string
-        format: date
-        example: '2018-04-26'
-        readOnly: true
-        x-nullable: true
-      requested_pickup_date:
-        type: string
-        format: date
-        example: '2018-04-26'
-        x-nullable: true
-      original_delivery_date:
-        type: string
-        format: date
-        example: '2018-04-26'
-        readOnly: true
-        x-nullable: true
-      original_pack_date:
-        type: string
-        format: date
-        example: '2018-04-26'
-        readOnly: true
-        x-nullable: true
-      actual_pickup_date:
-        type: string
-        format: date
-        example: '2018-04-26'
-        readOnly: true
-        x-nullable: true
-      actual_pack_date:
-        type: string
-        format: date
-        example: '2018-04-26'
-        readOnly: true
-        x-nullable: true
-      actual_delivery_date:
-        type: string
-        format: date
-        example: '2018-04-26'
-        readOnly: true
-        x-nullable: true
-      approve_date:
-        type: string
-        format: date-time
-        title: When was the ppm move approved?
-        example: '2019-03-26T13:19:56-04:00'
-        x-nullable: true
-      estimated_pack_days:
-        type: integer
-        minimum: 0
-        example: 3
-        readOnly: true
-        x-nullable: true
-      estimated_transit_days:
-        type: integer
-        minimum: 0
-        example: 30
-        readOnly: true
-        x-nullable: true
-      move_dates_summary:
-        type: object
-        properties:
-          pack:
-            type: array
-            readOnly: true
-            items:
-              type: string
-              format: date
-          pickup:
-            type: array
-            readOnly: true
-            items:
-              type: string
-              format: date
-          transit:
-            type: array
-            readOnly: true
-            items:
-              type: string
-              format: date
-          delivery:
-            type: array
-            readOnly: true
-            items:
-              type: string
-              format: date
-        x-nullable: true
-      pickup_address:
-        $ref: '#/definitions/Address'
-        title: Pickup Address
-      has_secondary_pickup_address:
-        type: boolean
-        default: false
-        title: 'Do you have stuff at another pickup location?'
-      secondary_pickup_address:
-        $ref: '#/definitions/Address'
-        title: Secondary Pickup Address
-        x-nullable: true
-      has_delivery_address:
-        type: boolean
-        default: false
-        title: 'Do you know your home address at your destination yet?'
-      delivery_address:
-        $ref: '#/definitions/Address'
-        title: Delivery Address
-        x-nullable: true
-      shipping_distance:
-        $ref: '#/definitions/DistanceCalculation'
-      has_partial_sit_delivery_address:
-        type: boolean
-        default: false
-        title: 'Do you want to deliver some of your household goods to an additional destination (such as a self-storage unit)?'
-      partial_sit_delivery_address:
-        $ref: '#/definitions/Address'
-        title: Partial SIT Delivery Address
-        x-nullable: true
-      weight_estimate:
-        type: integer
-        minimum: 0
-        example: 10000
-        title: Weight
-        x-nullable: true
-        x-formatting: weight
-      progear_weight_estimate:
-        type: integer
-        minimum: 0
-        example: 500
-        title: Pro-Gear Weight
-        x-nullable: true
-        x-formatting: weight
-      spouse_progear_weight_estimate:
-        type: integer
-        minimum: 0
-        example: 200
-        title: Spouse's Pro-Gear
-        x-nullable: true
-        x-formatting: weight
-      net_weight:
-        type: integer
-        description: Actual net weight of the shipment in lbs
-        minimum: 0
-        example: 10000
-        x-nullable: true
-        x-formatting: weight
-        title: Net
-      gross_weight:
-        type: integer
-        minimum: 0
-        example: 10000
-        title: Gross Weight
-        x-nullable: true
-        x-formatting: weight
-      tare_weight:
-        type: integer
-        minimum: 0
-        example: 10000
-        title: Tare Weight
-        x-nullable: true
-        x-formatting: weight
-      pm_survey_completed_at:
-        type: string
-        format: date-time
-        x-nullable: true
-      pm_survey_conducted_date:
-        type: string
-        format: date
-        example: '2018-04-26'
-        title: 'Conducted'
-        x-nullable: true
-      pm_survey_planned_pack_date:
-        type: string
-        format: date
-        example: '2018-04-26'
-        title: 'Planned pack date'
-        x-nullable: true
-      pm_survey_planned_pickup_date:
-        type: string
-        format: date
-        example: '2018-04-26'
-        title: 'Planned pickup date'
-        x-nullable: true
-      pm_survey_planned_delivery_date:
-        type: string
-        format: date
-        example: '2018-04-26'
-        title: 'Planned delivery date'
-        x-nullable: true
-      pm_survey_weight_estimate:
-        type: integer
-        minimum: 0
-        example: 10000
-        title: Weight
-        x-nullable: true
-        x-formatting: weight
-      pm_survey_progear_weight_estimate:
-        type: integer
-        minimum: 0
-        example: 10000
-        title: Pro-Gear weight
-        x-nullable: true
-        x-formatting: weight
-      pm_survey_spouse_progear_weight_estimate:
-        type: integer
-        minimum: 0
-        example: 10000
-        title: Spouse's pro-gear
-        x-nullable: true
-        x-formatting: weight
-      pm_survey_notes:
-        type: string
-        format: textarea
-        example: This document is good to go!
-        x-nullable: true
-        title: Notes about dates
-      pm_survey_method:
-        type: string
-        title: Survey method
-        enum:
-          - IN_PERSON
-          - PHONE
-          - VIDEO
-        x-display-value:
-          IN_PERSON: In person
-          PHONE: Phone
-          VIDEO: Video
-      transportation_service_provider_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
   Address:
     type: object
     properties:
@@ -2469,105 +2141,6 @@ definitions:
         type: object
         additionalProperties:
           type: string
-  StorageInTransit:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      location:
-        type: string
-        title: SIT Location
-        enum:
-          - ORIGIN
-          - DESTINATION
-        x-display-value:
-          ORIGIN: Origin
-          DESTINATION: Destination
-      estimated_start_date:
-        type: string
-        format: date
-        example: '2018-04-26'
-        title: Estimated start date
-      authorized_start_date:
-        type: string
-        format: date
-        x-nullable: true
-        example: '2018-04-26'
-        title: Authorized Start Date
-      actual_start_date:
-        type: string
-        format: date
-        x-nullable: true
-        example: '2018-04-26'
-        title: Actual Start Date
-      out_date:
-        type: string
-        format: date
-        x-nullable: true
-        example: '2018-04-26'
-        title: Out Date
-      notes:
-        type: string
-        example: Good to go!
-        format: textarea
-        x-nullable: true
-        title: Note
-      authorization_notes:
-        type: string
-        example: Good to go!
-        format: textarea
-        x-nullable: true
-        title: Authorization Notes
-      warehouse_id:
-        type: string
-        example: '000383'
-        title: Warehouse ID number
-      warehouse_name:
-        type: string
-        example: ABC Warehouse, Inc.
-        title: Warehouse Name
-      warehouse_phone:
-        type: string
-        format: telephone
-        pattern: '^$|^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-555-5555
-        x-nullable: true
-        title: Phone
-      warehouse_email:
-        type: string
-        format: x-email
-        pattern: '^$|^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        example: john_bob@example.com
-        x-nullable: true
-        title: Email
-      shipment_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        title: Shipment ID
-      sit_number:
-        type: string
-        x-nullable: true
-        example: 123456
-        title: SIT Number
-      status:
-        type: string
-        example: REQUESTED
-        title: Status
-      warehouse_address:
-        $ref: '#/definitions/Address'
-    required:
-      - location
-      - warehouse_address
-      - warehouse_id
-      - warehouse_name
-      - estimated_start_date
-  StorageInTransits:
-    type: array
-    items:
-      $ref: '#/definitions/StorageInTransit'
   MoveQueueItem:
     type: object
     properties:
@@ -2643,8 +2216,6 @@ definitions:
         example: Dover AFB
         title: Destination
         x-nullable: true
-      storage_in_transits:
-        $ref: '#/definitions/StorageInTransits'
       has_unapproved_shipment_line_items:
         type: boolean
         title: Are there any unapproved shipment line items?
@@ -2786,6 +2357,63 @@ definitions:
         type: string
         x-nullable: false
         title: MilMove access code
+  RateEnginePostalCodePayload:
+    type: object
+    properties:
+      valid:
+        type: boolean
+        example: false
+      postal_code:
+        type: string
+        description: zip code, international allowed
+        format: zip
+        title: ZIP
+        example: "'90210' or 'N15 3NL'"
+      postal_code_type:
+        type: string
+        enum:
+          - origin
+          - destination
+    required:
+      - valid
+      - postal_code
+      - postal_code_type
+  AccessCode:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        service_member_id:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        code:
+          type: string
+          example: CODE456
+        move_type:
+          type: string
+          title: Selected Move Type
+          enum:
+            - HHG
+            - PPM
+        created_at:
+          type: string
+          format: datetime
+          example: 2018-04-12T23:20:50.52Z
+          description: when the access code was created
+        claimed_at:
+          type: string
+          format: datetime
+          example: 2018-04-12T23:20:50.52Z
+          description: when the access code was claimed or used
+          x-nullable: true
+      required:
+        - id
+        - code
+        - move_type
+        - created_at
 paths:
   /estimates/ppm:
     get:
@@ -3371,138 +2999,6 @@ paths:
           description: user is not authorized
         404:
           description: move not found
-        500:
-          description: server error
-  /moves/{moveId}/shipment:
-    post:
-      summary: Creates a new Shipment for the given move
-      description: Create a Shipment tied to the move ID
-      operationId: createShipment
-      tags:
-        - shipments
-      parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move this Shipment is associated with
-        - in: body
-          name: shipment
-          required: true
-          schema:
-            $ref: '#/definitions/Shipment'
-      responses:
-        201:
-          description: created Shipment
-          schema:
-            $ref: '#/definitions/Shipment'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
-        404:
-          description: move not found
-        500:
-          description: server error
-  /shipments/{shipmentId}:
-    patch:
-      summary: Updates a Shipment for the given move
-      description: Update a Shipment tied to the move ID
-      operationId: patchShipment
-      tags:
-        - shipments
-      parameters:
-        - in: path
-          name: shipmentId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the Shipment being updated
-        - in: body
-          name: shipment
-          required: true
-          schema:
-            $ref: '#/definitions/Shipment'
-      responses:
-        200:
-          description: updated Shipment
-          schema:
-            $ref: '#/definitions/Shipment'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
-        404:
-          description: shipment not found
-        500:
-          description: server error
-    get:
-      summary: Fetch a Shipment
-      description: Returns the shipment with the provided ID
-      operationId: getShipment
-      tags:
-        - shipments
-      parameters:
-        - in: path
-          name: shipmentId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the Shipment being updated
-      responses:
-        200:
-          description: Returns Shipment for hhg move
-          schema:
-            $ref: '#/definitions/Shipment'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
-        404:
-          description: shipment not found
-        500:
-          description: server error
-  /shipments/{shipmentId}/approve:
-    post:
-      summary: Approves an accepted shipment
-      description: Approves a shipment accepted by a TSP. The status of the Shipment will be updated to APPROVED.
-      operationId: approveHHG
-      tags:
-        - shipments
-      parameters:
-        - name: shipmentId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the shipment
-        - name: approveShipmentPayload
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/ApproveShipmentPayload'
-      responses:
-        200:
-          description: returns updated (approved) shipment object
-          schema:
-            $ref: '#/definitions/Shipment'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to approve this shipment
-        409:
-          description: the shipment is not in a state to be approved
-          schema:
-            $ref: '#/definitions/Shipment'
         500:
           description: server error
   /shipments/{shipmentId}/invoice:
@@ -4469,6 +3965,7 @@ paths:
           enum:
             - new
             - ppm
+            - ppm_payment_requested
             - hhg_active
             - hhg_delivered
             - all
@@ -4608,5 +4105,118 @@ paths:
           description: must be authenticated to use this endpoint
         403:
           description: not authorized to modify this move
+        500:
+          description: server error
+  /rate_engine_postal_codes/{postal_code}:
+    get:
+      summary: Validate if a zipcode is valid for origin or destination location for a move.
+      description: Verifies if a zipcode is valid for origin or destination location for a move.
+      operationId: validatePostalCodeWithRateData
+      tags:
+        - postal_codes
+      parameters:
+        - in: path
+          name: postal_code
+          type: string
+          required: true
+          format: zip
+          pattern: '^(\d{5}?)$'
+        - in: query
+          name: postal_code_type
+          type: string
+          required: true
+          enum:
+            - origin
+            - destination
+      responses:
+        200:
+          description: postal_code is valid or invalid
+          schema:
+            $ref: '#/definitions/RateEnginePostalCodePayload'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: user is not authorized
+        500:
+          description: server error
+  /access_codes:
+    get:
+      summary: Fetches an access code
+      description: Fetches the access code for a service member.
+      operationId: fetchAccessCode
+      tags:
+        - accesscode
+      responses:
+        200:
+          description: access code has been found in system
+          schema:
+            $ref: '#/definitions/AccessCode'
+        400:
+          description: invalid request
+        401:
+          description: not authorized to fetch access code
+        404:
+          description: access code not found in system
+        500:
+          description: server error
+  /access_codes/valid:
+    get:
+      summary: Validate if an access code has been unused and associated with the correct move type.
+      description: Verifies if access code is both unused and correctly associated with a move type.
+      operationId: validateAccessCode
+      tags:
+        - accesscode
+      parameters:
+        - in: query
+          name: code
+          type: string
+          description: the code the access code represents and verifies if in use
+          pattern: '^(HHG|PPM)-[A-Z0-9]{6}$'
+          x-nullable: false
+      responses:
+        200:
+          description: access code is invalid or valid
+          schema:
+            $ref: '#/definitions/AccessCode'
+        400:
+          description: invalid request
+        401:
+          description: not authorized to validate access code
+        404:
+          description: access code not found in system
+        500:
+          description: server error
+  /access_codes/invalid:
+    patch:
+      summary: Updates access code as invalid by associating it with the current service member.
+      description: Updates access code as invalid by associating it with the current service member.
+      operationId: claimAccessCode
+      tags:
+        - accesscode
+      parameters:
+        - in: body
+          name: accessCode
+          description: the code the access code represents and verifies if in use
+          required: true
+          schema:
+            type: object
+            required:
+              - code
+            properties:
+              code:
+                type: string
+      responses:
+        200:
+          description: access code is invalid or valid
+          schema:
+            $ref: '#/definitions/AccessCode'
+        400:
+          description: invalid request
+        401:
+          description: not authorized to validate access code
+        404:
+          description: access code not found in system
         500:
           description: server error

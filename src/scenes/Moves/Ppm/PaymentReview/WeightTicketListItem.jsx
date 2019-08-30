@@ -58,13 +58,12 @@ const WeightTicketListItem = ({
       ) : (
         <p>Full weight ticket {full_weight} lbs</p>
       )}
-      {vehicle_options === 'CAR_TRAILER' &&
-        trailer_ownership_missing && (
-          <MissingLabel>
-            Missing ownership documentation{' '}
-            <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
-          </MissingLabel>
-        )}
+      {vehicle_options === 'CAR_TRAILER' && trailer_ownership_missing && (
+        <MissingLabel>
+          Missing ownership documentation{' '}
+          <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
+        </MissingLabel>
+      )}
       {vehicle_options === 'CAR_TRAILER' && !trailer_ownership_missing && <p>Ownership documentation</p>}
     </div>
   </div>

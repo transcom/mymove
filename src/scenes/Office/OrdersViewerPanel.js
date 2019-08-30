@@ -105,7 +105,7 @@ const OrdersViewerEdit = props => {
           <SwaggerField title="Orders Issuing Agency" fieldName="orders_issuing_agency" swagger={schema} />
           <SwaggerField title="Paragraph Number" fieldName="paragraph_number" swagger={schema} />
           <SwaggerField title="TAC" fieldName="tac" swagger={schema} required />
-          <SwaggerField title="SAC" fieldName="sac" swagger={schema} />
+          <SwaggerField title="SAC" fieldName="sac" swagger={schema} required />
         </FormSection>
       </div>
     </React.Fragment>
@@ -162,4 +162,7 @@ function mapDispatchToProps(dispatch) {
   return { update };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(OrdersViewerPanel);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(OrdersViewerPanel);

@@ -3,12 +3,8 @@ import WizardPage from 'shared/WizardPage';
 import React, { Component } from 'react';
 import Summary from './Summary';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
-import WizardHeader from 'scenes/Moves/WizardHeader';
-import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import scrollToTop from 'shared/scrollToTop';
 
-import reviewGray from 'shared/icon/review-gray.svg';
 import './Review.css';
 
 class Review extends Component {
@@ -16,22 +12,10 @@ class Review extends Component {
     scrollToTop();
   }
   render() {
-    const { pages, pageKey, isHHGPPMComboMove } = this.props;
+    const { pages, pageKey } = this.props;
 
     return (
       <div>
-        {isHHGPPMComboMove && (
-          <WizardHeader
-            icon={reviewGray}
-            title="Review"
-            right={
-              <ProgressTimeline>
-                <ProgressTimelineStep name="Move Setup" completed />
-                <ProgressTimelineStep name="Review" current />
-              </ProgressTimeline>
-            }
-          />
-        )}
         <WizardPage handleSubmit={no_op} pageList={pages} pageKey={pageKey} pageIsValid={true}>
           <div className="edit-title">
             <h2>Review Move Details</h2>
@@ -45,7 +29,6 @@ class Review extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  isHHGPPMComboMove: get(state, 'moves.currentMove.selected_move_type') === 'HHG_PPM',
   ...ownProps,
 });
 

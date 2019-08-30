@@ -11,9 +11,6 @@ import (
 )
 
 const (
-	// secureMigrationTemplate is the template to apply secure migration
-	secureMigrationTemplate string = `exec("./apply-secure-migration.sh {{.}}")`
-
 	// tempMigrationPath is the temporary path for generated migrations
 	tempMigrationPath string = "./tmp"
 )

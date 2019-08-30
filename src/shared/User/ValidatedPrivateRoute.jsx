@@ -39,6 +39,9 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => bindActionCreators({ fetchAccessCode }, dispatch);
 
-const ValidatedPrivateRoute = connect(mapStateToProps, mapDispatchToProps)(ValidatedPrivateRouteContainer);
+const ValidatedPrivateRoute = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(ValidatedPrivateRouteContainer);
 
 export default ValidatedPrivateRoute;

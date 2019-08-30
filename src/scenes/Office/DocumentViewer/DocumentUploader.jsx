@@ -14,6 +14,7 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import Uploader from 'shared/Uploader';
 import ExpenseDocumentForm from './ExpenseDocumentForm';
 import { convertDollarsToCents } from 'shared/utils';
+import { documentSizeLimitMsg } from 'shared/constants';
 
 import './DocumentUploader.css';
 
@@ -143,6 +144,7 @@ export class DocumentUploader extends Component {
             <div>
               <h4>Attach PDF or image</h4>
               <p>Upload a PDF or take a picture of each page and upload the images.</p>
+              <p>{documentSizeLimitMsg}</p>
             </div>
             <Uploader onRef={ref => (this.uploader = ref)} onChange={this.onChange} onAddFile={this.onAddFile} />
             <div className="hint">(Each page must be clear and legible)</div>
@@ -197,4 +199,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(DocumentUploader);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(DocumentUploader);

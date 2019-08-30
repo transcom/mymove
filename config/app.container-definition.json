@@ -1,13 +1,6 @@
 {
   "name": "app-{{ .environment }}",
   "image": "{{ .image }}",
-  "portMappings": [
-    {
-      "containerPort": 8443,
-      "hostPort": 8443,
-      "protocol": "tcp"
-    }
-  ],
   "essential": true,
   "entryPoint": [
     "/bin/chamber",
@@ -27,10 +20,26 @@
     "--tls-enabled"
   ],
   "command": [],
+  "portMappings": [
+    {
+      "containerPort": 8443,
+      "hostPort": 8443,
+      "protocol": "tcp"
+    }
+  ],
+  "command": [],
   "environment": [
     {
-      "name": "HONEYCOMB_SERVICE_NAME",
-      "value": "app"
+      "name": "DB_IAM",
+      "value": "{{ .DB_IAM }}"
+    },
+    {
+      "name": "DB_IAM_ROLE",
+      "value": "{{ .DB_IAM_ROLE }}"
+    },
+    {
+      "name": "DB_REGION",
+      "value": "us-west-2"
     },
     {
       "name": "ENVIRONMENT",
@@ -46,7 +55,7 @@
     },
     {
       "name": "DB_USER",
-      "value": "master"
+      "value": "{{ .DB_USER }}"
     },
     {
       "name": "DB_NAME",
@@ -137,14 +146,6 @@
       "value": "{{ .LOGIN_GOV_HOSTNAME }}"
     },
     {
-      "name": "HONEYCOMB_ENABLED",
-      "value": "{{ .HONEYCOMB_ENABLED }}"
-    },
-    {
-      "name": "HONEYCOMB_DATASET",
-      "value": "{{ .HONEYCOMB_DATASET }}"
-    },
-    {
       "name": "DOD_CA_PACKAGE",
       "value": "/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b"
     },
@@ -202,5 +203,6 @@
     }
   },
   "mountPoints": [],
-  "volumesFrom": []
+  "volumesFrom": [],
+  "readonlyRootFilesystem": true
 }

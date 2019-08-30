@@ -8,7 +8,7 @@ import 'react-table/react-table.css';
 import Alert from 'shared/Alert';
 import { formatTimeAgo } from 'shared/formatters';
 import { setUserIsLoggedIn } from 'shared/Data/users';
-import { newColumns, ppmColumns, hhgActiveColumns, defaultColumns, hhgDeliveredColumns } from './queueTableColumns';
+import { newColumns, ppmColumns, defaultColumns } from './queueTableColumns';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
@@ -118,9 +118,8 @@ class QueueTable extends Component {
     const titles = {
       new: 'New Moves/Shipments',
       troubleshooting: 'Troubleshooting',
-      ppm: 'PPM Shipments',
-      hhg_active: 'Active HHGs',
-      hhg_delivered: 'Delivered HHGs',
+      ppm: 'All PPMs',
+      ppm_payment_requested: 'Payment Requests PPMs',
       all: 'All Moves',
     };
 
@@ -129,33 +128,24 @@ class QueueTable extends Component {
         case 'new':
           return newColumns;
         case 'ppm':
+        case 'ppm_payment_requested':
           return ppmColumns;
-        case 'hhg_active':
-          return hhgActiveColumns;
-        case 'hhg_delivered':
-          return hhgDeliveredColumns;
         default:
           return defaultColumns;
       }
     };
 
     const defaultSort = queueType => {
-      if (['hhg_active', 'hhg_delivered', 'new'].includes(queueType)) {
+      if (['new'].includes(queueType)) {
         return [{ id: 'clockIcon', asc: true }, { id: 'move_date', asc: true }];
       }
       return [{ id: 'move_date', asc: true }];
     };
 
     this.state.data.forEach(row => {
-      if (this.props.queueType === 'new' && row.ppm_status && row.hhg_status) {
-        row.shipments = 'HHG, PPM';
-      } else if (row.ppm_status && !row.hhg_status) {
-        row.shipments = 'PPM';
-      } else {
-        row.shipments = 'HHG';
-      }
+      row.shipments = 'PPM';
 
-      if (this.props.queueType === 'ppm' && row.ppm_status !== null) {
+      if (row.ppm_status !== null) {
         row.synthetic_status = row.ppm_status;
       } else {
         row.synthetic_status = row.status;
@@ -217,4 +207,9 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ setUserIsLoggedIn }, dispatch);
 }
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(QueueTable));
+export default withRouter(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(QueueTable),
+);

@@ -6,22 +6,20 @@ If you need to change the database schema, you'll need to write a migration.
 
 ## Running Migrations
 
-To run a migration you should use the `milmove migrate` command. This is done in a similar way to the `soda migrate`
-command but uses our DB connection code instead. This avoids us having to use the `database.yaml` as a config file
-and allows us to leverage different authentication methods for migrations in development and in production using
-the same code.  To migrate you should use a command based on your DB:
+To run a migration you should use the `milmove migrate` command. This allows us to leverage different authentication
+methods for migrations in development and in production using the same code.  To migrate you should use a command
+based on your DB:
 
 * `make db_dev_migrate`
 * `make db_test_migrate`
 * `make db_deployed_migrations_migrate`
 
-The reason to use a `make` target is because it will put you into the `scripts/` directory from which it is required
-you run the migration so that `scripts/apply-secure-migrations.sh` is called with the correct paths for the different
-files in the `./migrations` folder.
+The reason to use a `make` target is because it will correctly set the migration flag variables and target the correct
+database with environment variables.
 
 ## Creating a migration
 
-Use soda (a part of [pop](https://github.com/gobuffalo/pop/)) to generate models and migrations.
+Use the `milmove gen <subcommand>` commands to generate models and migrations.
 
 > **We don't use down-migrations to revert changes to the schema; any problems are to be fixed by a follow-up migration.**
 
@@ -83,14 +81,17 @@ To run a secure migration on ONLY staging (or other chosen environment), upload 
 
 ### How Secure Migrations Work
 
-When secure migrations are run, `soda` will shell out to our script, `apply-secure-migration.sh`. This script will:
+When migrations are run the `$MIGRATION_MANIFEST` will be checked against files inside the paths listed in
+`$MIGRATION_PATH` (a semicolon separated list of local `file://` or AWS S3 `s3://` paths). The migration code
+will then run each migration listed in the manifest in order of the Version (which is typically a time stamp
+at the front of a file).
 
-* Look at `$SECURE_MIGRATION_SOURCE` to determine if the migrations should be found locally (`local`, for dev & testing,) or on S3 (`s3`).
-* If the file is to be found on S3, it is downloaded from `${AWS_S3_BUCKET_NAME}/secure-migrations/${FILENAME}`.
-* If it is to be found locally, the script looks for it in `$SECURE_MIGRATION_DIR`.
-* Regardless of where the migration comes from, it is then applied to the database by essentially doing: `psql-deployed-migrations < ${FILENAME}`.
+* Look at `$MIGRATION_MANIFEST` to determine list of migrations to run (anything not listed will not be run, anything listed but missing will throw an error)
+* Look at `$MIGRATION_PATH` to find files locally or in AWS S3. See the `Makefile` for examples.
+* If the file is to be found on S3, it is streamed directly into memory instead of downloading.
+* If it is to be found locally, the script looks for it in the listed path.
 
-There is an example of a secure migration [in the repo](https://github.com/transcom/mymove/blob/master/migrations/20180424010930_test_secure_migrations.up.fizz).
+There is an example of local secure migrations [in the repo](https://github.com/transcom/mymove/blob/master/local_migrations/).
 
 ### Downloading Secure Migrations
 

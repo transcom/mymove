@@ -1,0 +1,13 @@
+FROM gcr.io/distroless/base:latest
+
+COPY bin_linux/milmove /bin/milmove
+
+COPY config /config
+COPY swagger/* /swagger/
+COPY build /build
+
+ENTRYPOINT ["/bin/milmove"]
+
+CMD ["serve", "--debug-logging"]
+
+EXPOSE 8080

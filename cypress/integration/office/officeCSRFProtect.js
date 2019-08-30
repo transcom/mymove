@@ -32,27 +32,23 @@ describe('testing CSRF protection updating move info', function() {
     cy.signIntoOffice();
 
     // update info
-    cy
-      .get('div[class="rt-tr -odd"]')
+    cy.get('div[class="rt-tr -odd"]')
       .first()
       .dblclick();
 
     // save info
-    cy
-      .get('a[class="editable-panel-edit"]')
+    cy.get('a[class="editable-panel-edit"]')
       .first()
       .click();
 
-    cy
-      .get('input[name="orders.orders_number"]')
+    cy.get('input[name="orders.orders_number"]')
       .clear()
       .type('CSRF Test')
       .blur();
 
     cy.get('select[name="orders.orders_type_detail"]').select('HHG_PERMITTED');
 
-    cy
-      .get('button[class="usa-button editable-panel-save"]')
+    cy.get('button[class="usa-button editable-panel-save"]')
       .should('be.enabled')
       .click();
 
@@ -67,19 +63,16 @@ describe('testing CSRF protection updating move info', function() {
     cy.signIntoOffice();
 
     // update info
-    cy
-      .get('div[class="rt-tr -odd"]')
+    cy.get('div[class="rt-tr -odd"]')
       .first()
       .dblclick();
 
     // save info
-    cy
-      .get('a[class="editable-panel-edit"]')
+    cy.get('a[class="editable-panel-edit"]')
       .first()
       .click();
 
-    cy
-      .get('input[name="orders.orders_number"]')
+    cy.get('input[name="orders.orders_number"]')
       .clear()
       .type('CSRF Protection Failed')
       .blur();
@@ -90,8 +83,7 @@ describe('testing CSRF protection updating move info', function() {
     cy.clearCookie('masked_gorilla_csrf');
     cy.getCookie('masked_gorilla_csrf').should('not.exist');
 
-    cy
-      .get('button[class="usa-button editable-panel-save"]')
+    cy.get('button[class="usa-button editable-panel-save"]')
       .should('be.enabled')
       .click();
 

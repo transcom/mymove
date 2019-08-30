@@ -14,11 +14,13 @@ import 'filepond/dist/filepond.min.css';
 import './index.css';
 
 import FilepondPluginFileValidateType from 'filepond-plugin-file-validate-type';
+import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
 import FilepondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation';
 import FilePondImagePreview from 'filepond-plugin-image-preview';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
 
 registerPlugin(FilepondPluginFileValidateType);
+registerPlugin(FilePondPluginFileValidateSize);
 registerPlugin(FilepondPluginImageExifOrientation);
 registerPlugin(FilePondImagePreview);
 
@@ -150,6 +152,7 @@ export class Uploader extends Component {
       labelIdle: 'Drag & drop or <span class="filepond--label-action">click to upload</span>',
       labelTapToUndo: 'tap to delete',
       acceptedFileTypes: ['image/jpeg', 'image/png', 'application/pdf'],
+      maxFileSize: '25MB',
     };
     this.pond._pond.setOptions({ ...defaultOptions, ...options });
   }
@@ -178,4 +181,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({}, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Uploader);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Uploader);

@@ -44,7 +44,7 @@ func (suite *ErrorsSuite) TestResponseForErrorWhenASQLErrorIsEncountered() {
 	var actual middleware.Responder
 	var signedCertification []*models.SignedCertification
 	var noTableModel []*fakeModel
-	var invalidShipmentOffer = models.ShipmentOffer{}
+	var invalidUpload = models.Upload{}
 
 	// invalid column
 	errInvalidColumn := suite.DB().Where("move_iid = $1", "123").All(&signedCertification)
@@ -55,7 +55,7 @@ func (suite *ErrorsSuite) TestResponseForErrorWhenASQLErrorIsEncountered() {
 	// invalid sql
 	errInvalidQuery := suite.DB().Where("this should not compile").All(&signedCertification)
 	// key constraint error
-	errFK := suite.DB().Create(&invalidShipmentOffer)
+	errFK := suite.DB().Create(&invalidUpload)
 
 	// slice to hold all errors and assert against
 	errs := []error{errInvalidColumn, errNoTable, errInvalidArguments, errInvalidQuery, errFK}
@@ -64,8 +64,8 @@ func (suite *ErrorsSuite) TestResponseForErrorWhenASQLErrorIsEncountered() {
 		actual = ResponseForError(suite.logger, err)
 		res, ok := actual.(*ErrResponse)
 		suite.True(ok)
-		suite.Equal(res.Code, 500)
-		suite.Equal(res.Err.Error(), SQLErrMessage)
+		suite.Equal(500, res.Code)
+		suite.Equal(SQLErrMessage, res.Err.Error())
 	}
 
 }

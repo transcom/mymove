@@ -34,6 +34,7 @@ class OrdersInfo extends Component {
   render() {
     const { serviceMember, uploads } = this.props;
     const name = stringifyName(serviceMember);
+    document.title = `Orders for ${name}`;
 
     if (!this.props.loadDependenciesHasSuccess && !this.props.loadDependenciesHasError) return <LoadingPlaceholder />;
     if (this.props.loadDependenciesHasError)
@@ -96,4 +97,7 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = dispatch => bindActionCreators({ loadMove, loadOrders, loadServiceMember }, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(OrdersInfo);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(OrdersInfo);

@@ -5,8 +5,6 @@ import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { fetchActive, fetchActivePPM } from 'shared/utils';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCents } from 'shared/formatters';
-import { selectShipment } from 'shared/Entities/modules/shipments';
-import { getCurrentShipmentID } from 'shared/UI/ducks';
 import { change } from 'redux-form';
 
 // Types
@@ -164,68 +162,11 @@ export function getSelectedWeightInfo(state) {
   return weightInfo[size]; // eslint-disable-line security/detect-object-injection
 }
 
-export function isHHGPPMComboMove(state) {
-  return get(state, 'moves.currentMove.selected_move_type') === 'HHG_PPM';
-}
-
-const estimatedRemainingWeight = (sum, weight) => {
-  if (sum >= weight) {
-    return sum - weight;
-  } else {
-    return sum;
-  }
-};
-
-export function getEstimatedRemainingWeight(state) {
-  const entitlements = loadEntitlementsFromState(state);
-
-  if (!isHHGPPMComboMove(state) || isNull(entitlements)) {
-    return null;
-  }
-
-  const { sum } = entitlements;
-
-  const { pm_survey_weight_estimate, weight_estimate } = selectShipment(state, getCurrentShipmentID(state));
-
-  if (pm_survey_weight_estimate) {
-    return estimatedRemainingWeight(sum, pm_survey_weight_estimate);
-  }
-
-  if (sum && weight_estimate >= 0) {
-    return estimatedRemainingWeight(sum, weight_estimate);
-  }
-}
-
-export function getActualRemainingWeight(state) {
-  const entitlements = loadEntitlementsFromState(state);
-
-  if (!isHHGPPMComboMove(state) || isNull(entitlements)) {
-    return null;
-  }
-
-  const { sum } = entitlements;
-  const { tare_weight, gross_weight } = selectShipment(state, getCurrentShipmentID(state));
-
-  if (sum && gross_weight && tare_weight) {
-    return estimatedRemainingWeight(sum, gross_weight - tare_weight);
-  }
-}
-
-export function getDestinationPostalCode(state) {
-  const currentShipment = selectShipment(state, getCurrentShipmentID(state));
-  const addresses = state.entities.addresses;
-  const currentOrders = state.orders.currentOrders;
-
-  return currentShipment.has_delivery_address && addresses
-    ? addresses[currentShipment.delivery_address].postal_code
-    : currentOrders.new_duty_station.address.postal_code;
-}
-
 export function getPPM(state) {
   const move = state.moves.currentMove || state.moves.latestMove || {};
   const moveId = move.id;
   const ppmFromEntities = Object.values(state.entities.personallyProcuredMoves).find(ppm => ppm.move_id === moveId);
-  return ppmFromEntities || state.ppm.currentPpm;
+  return ppmFromEntities || state.ppm.currentPpm || {};
 }
 
 // Reducer

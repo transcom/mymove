@@ -55,7 +55,7 @@ func FetchTDL(db *pop.Connection, rateArea string, region string, codeOfService 
 		First(&trafficDistributionList)
 
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return TrafficDistributionList{}, ErrFetchNotFound
 		}
 		return TrafficDistributionList{}, err

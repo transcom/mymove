@@ -102,7 +102,6 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(alice.LoginGovEmail, identity.Email)
 	suite.Nil(identity.ServiceMemberID)
 	suite.Nil(identity.OfficeUserID)
-	suite.Nil(identity.TspUserID)
 
 	bob := testdatagen.MakeDefaultServiceMember(suite.DB())
 	identity, err = FetchUserIdentity(suite.DB(), bob.User.LoginGovUUID.String())
@@ -112,7 +111,6 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(bob.User.LoginGovEmail, identity.Email)
 	suite.Equal(bob.ID, *identity.ServiceMemberID)
 	suite.Nil(identity.OfficeUserID)
-	suite.Nil(identity.TspUserID)
 
 	carol := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	identity, err = FetchUserIdentity(suite.DB(), carol.User.LoginGovUUID.String())
@@ -122,17 +120,6 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(carol.User.LoginGovEmail, identity.Email)
 	suite.Nil(identity.ServiceMemberID)
 	suite.Equal(carol.ID, *identity.OfficeUserID)
-	suite.Nil(identity.TspUserID)
-
-	danielle := testdatagen.MakeDefaultTspUser(suite.DB())
-	identity, err = FetchUserIdentity(suite.DB(), danielle.User.LoginGovUUID.String())
-	suite.Nil(err, "loading danielle's identity")
-	suite.NotNil(identity)
-	suite.Equal(*danielle.UserID, identity.ID)
-	suite.Equal(danielle.User.LoginGovEmail, identity.Email)
-	suite.Nil(identity.ServiceMemberID)
-	suite.Nil(identity.OfficeUserID)
-	suite.Equal(danielle.ID, *identity.TspUserID)
 
 	systemAdmin := testdatagen.MakeDefaultAdminUser(suite.DB())
 	identity, err = FetchUserIdentity(suite.DB(), systemAdmin.User.LoginGovUUID.String())
@@ -142,7 +129,6 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(systemAdmin.User.LoginGovEmail, identity.Email)
 	suite.Nil(identity.ServiceMemberID)
 	suite.Nil(identity.OfficeUserID)
-	suite.Nil(identity.TspUserID)
 }
 
 func (suite *ModelSuite) TestFetchAppUserIdentities() {
@@ -166,7 +152,6 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 		if len(identities) > 1 {
 			suite.NotNil(identities[0].ServiceMemberID)
 			suite.Nil(identities[0].OfficeUserID)
-			suite.Nil(identities[0].TspUserID)
 		}
 
 		// Service member is super user
@@ -181,7 +166,6 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 		if len(identities) == 2 {
 			suite.NotNil(identities[1].ServiceMemberID)
 			suite.Nil(identities[1].OfficeUserID)
-			suite.Nil(identities[1].TspUserID)
 		}
 	})
 
@@ -198,21 +182,6 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 		if len(identities) > 1 {
 			suite.Nil(identities[0].ServiceMemberID)
 			suite.NotNil(identities[0].OfficeUserID)
-			suite.Nil(identities[0].TspUserID)
-		}
-	})
-
-	suite.T().Run("tsp user", func(t *testing.T) {
-		testdatagen.MakeDefaultTspUser(suite.DB())
-		identities, err := FetchAppUserIdentities(suite.DB(), auth.TspApp, 5)
-		suite.NoError(err)
-		suite.NotEmpty(identities)
-		suite.Equal(1, len(identities))
-
-		if len(identities) > 1 {
-			suite.Nil(identities[0].ServiceMemberID)
-			suite.Nil(identities[0].OfficeUserID)
-			suite.NotNil(identities[0].TspUserID)
 		}
 	})
 
@@ -226,7 +195,6 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 		if len(identities) > 1 {
 			suite.Nil(identities[0].ServiceMemberID)
 			suite.Nil(identities[0].OfficeUserID)
-			suite.Nil(identities[0].TspUserID)
 			suite.NotNil(identities[0].AdminUserID)
 		}
 	})

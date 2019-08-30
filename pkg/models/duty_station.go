@@ -8,7 +8,6 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -81,8 +80,6 @@ func FetchDSContactInfo(db *pop.Connection, dutyStationID *uuid.UUID) (*DutyStat
 
 // FetchDutyStation returns a station for a given id
 func FetchDutyStation(ctx context.Context, tx *pop.Connection, id uuid.UUID) (DutyStation, error) {
-	_, span := beeline.StartSpan(ctx, "FetchDutyStation")
-	defer span.Send()
 	var station DutyStation
 	err := tx.Q().Eager().Find(&station, id)
 	return station, err
@@ -102,7 +99,7 @@ func FindDutyStations(tx *pop.Connection, search string) (DutyStations, error) {
 	query := tx.Q().Eager().Where("name ILIKE $1", queryString)
 
 	if err := query.All(&stations); err != nil {
-		if errors.Cause(err).Error() != recordNotFoundErrorString {
+		if errors.Cause(err).Error() != RecordNotFoundErrorString {
 			return stations, err
 		}
 	}

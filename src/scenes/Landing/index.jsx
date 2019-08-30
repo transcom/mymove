@@ -7,9 +7,7 @@ import { withLastLocation } from 'react-router-last-location';
 import { withContext } from 'shared/AppContext';
 
 import { MoveSummary, PPMAlert } from './MoveSummary';
-import { isHHGPPMComboMove } from 'scenes/Moves/Ppm/ducks';
 import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
-import { getCurrentShipment } from 'shared/UI/ducks';
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import {
@@ -25,7 +23,6 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
 import { updateMove } from 'scenes/Moves/ducks';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
-import { selectShipment } from 'shared/Entities/modules/shipments';
 
 export class Landing extends Component {
   componentDidMount() {
@@ -78,7 +75,7 @@ export class Landing extends Component {
   };
 
   getNextIncompletePage = () => {
-    const { selectedMoveType, lastMoveIsCanceled, serviceMember, orders, move, ppm, hhg, backupContacts } = this.props;
+    const { selectedMoveType, lastMoveIsCanceled, serviceMember, orders, move, ppm, backupContacts } = this.props;
     return getNextIncompletePageInternal({
       selectedMoveType,
       lastMoveIsCanceled,
@@ -86,7 +83,6 @@ export class Landing extends Component {
       orders,
       move,
       ppm,
-      hhg,
       backupContacts,
     });
   };
@@ -100,14 +96,11 @@ export class Landing extends Component {
       isProfileComplete,
       createdServiceMemberError,
       moveSubmitSuccess,
-      hasSubmitSuccess,
-      isHHGPPMComboMove,
       entitlement,
       serviceMember,
       orders,
       move,
       ppm,
-      currentShipment,
       requestPaymentSuccess,
       updateMove,
     } = this.props;
@@ -118,13 +111,11 @@ export class Landing extends Component {
         {loggedInUserSuccess && (
           <Fragment>
             <div>
-              {moveSubmitSuccess &&
-                !ppm && (
-                  <Alert type="success" heading="Success">
-                    You've submitted your move
-                  </Alert>
-                )}
-              {isHHGPPMComboMove && hasSubmitSuccess && <PPMAlert heading="Your PPM shipment is submitted" />}
+              {moveSubmitSuccess && !ppm && (
+                <Alert type="success" heading="Success">
+                  You've submitted your move
+                </Alert>
+              )}
               {ppm && moveSubmitSuccess && <PPMAlert heading="Congrats - your move is submitted!" />}
               {loggedInUserError && (
                 <Alert type="error" heading="An error occurred">
@@ -138,26 +129,23 @@ export class Landing extends Component {
               )}
             </div>
 
-            {isLoggedIn &&
-              !isEmpty(serviceMember) &&
-              isProfileComplete && (
-                <MoveSummary
-                  context={context}
-                  entitlement={entitlement}
-                  profile={serviceMember}
-                  orders={orders}
-                  move={move}
-                  ppm={ppm}
-                  shipment={currentShipment}
-                  editMove={this.editMove}
-                  resumeMove={this.resumeMove}
-                  reviewProfile={this.reviewProfile}
-                  requestPaymentSuccess={requestPaymentSuccess}
-                  moveSubmitSuccess={moveSubmitSuccess}
-                  updateMove={updateMove}
-                  addPPMShipment={this.addPPMShipment}
-                />
-              )}
+            {isLoggedIn && !isEmpty(serviceMember) && isProfileComplete && (
+              <MoveSummary
+                context={context}
+                entitlement={entitlement}
+                profile={serviceMember}
+                orders={orders}
+                move={move}
+                ppm={ppm}
+                editMove={this.editMove}
+                resumeMove={this.resumeMove}
+                reviewProfile={this.reviewProfile}
+                requestPaymentSuccess={requestPaymentSuccess}
+                moveSubmitSuccess={moveSubmitSuccess}
+                updateMove={updateMove}
+                addPPMShipment={this.addPPMShipment}
+              />
+            )}
           </Fragment>
         )}
       </div>
@@ -166,21 +154,17 @@ export class Landing extends Component {
 }
 
 const mapStateToProps = state => {
-  const shipmentId = getCurrentShipment(state);
   const user = selectCurrentUser(state);
   const props = {
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     selectedMoveType: selectedMoveType(state),
     isLoggedIn: user.isLoggedIn,
     isProfileComplete: isProfileComplete(state),
-    isHHGPPMComboMove: isHHGPPMComboMove(state),
     serviceMember: state.serviceMember.currentServiceMember || {},
     backupContacts: state.serviceMember.currentBackupContacts || [],
     orders: state.orders.currentOrders || {},
     move: state.moves.currentMove || state.moves.latestMove || {},
-    hhg: selectShipment(state, shipmentId),
     ppm: getPPM(state),
-    currentShipment: shipmentId || {},
     loggedInUser: user,
     loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
     loggedInUserError: selectGetCurrentUserIsError(state),
@@ -190,7 +174,6 @@ const mapStateToProps = state => {
     createdServiceMemberError: state.serviceMember.error,
     createdServiceMember: state.serviceMember.currentServiceMember,
     moveSubmitSuccess: state.signedCertification.moveSubmitSuccess,
-    hasSubmitSuccess: state.signedCertification.hasSubmitSuccess,
     entitlement: loadEntitlementsFromState(state),
     requestPaymentSuccess: state.ppm.requestPaymentSuccess,
   };
@@ -201,4 +184,11 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ push, createServiceMember, updateMove }, dispatch);
 }
 
-export default withContext(withLastLocation(connect(mapStateToProps, mapDispatchToProps)(Landing)));
+export default withContext(
+  withLastLocation(
+    connect(
+      mapStateToProps,
+      mapDispatchToProps,
+    )(Landing),
+  ),
+);

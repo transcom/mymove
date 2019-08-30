@@ -1,6 +1,6 @@
 import React from 'react';
 import { shallow, mount } from 'enzyme';
-import { StatusBlock, ShipmentStatusTimeline, ProfileStatusTimeline } from './StatusTimeline';
+import { StatusBlock, ProfileStatusTimeline } from './StatusTimeline';
 import { PPMStatusTimeline } from './PPMStatusTimeline';
 
 describe('StatusTimeline', () => {
@@ -36,41 +36,6 @@ describe('StatusTimeline', () => {
       const current = wrapper.findWhere(b => b.prop('current'));
       expect(current).toHaveLength(1);
       expect(current.prop('code')).toEqual('IN_PROGRESS');
-    });
-  });
-
-  describe('ShipmentStatusTimeline', () => {
-    test('renders timeline', () => {
-      const shipment = {};
-      const wrapper = mount(<ShipmentStatusTimeline shipment={shipment} />);
-
-      expect(wrapper.find(StatusBlock)).toHaveLength(5);
-    });
-
-    test('renders timeline for scheduled hhg', () => {
-      const shipment = { status: 'SCHEDULED' };
-      const wrapper = mount(<ShipmentStatusTimeline shipment={shipment} />);
-
-      const completed = wrapper.findWhere(b => b.prop('completed'));
-      expect(completed).toHaveLength(1);
-      expect(completed.prop('code')).toEqual('SCHEDULED');
-
-      const current = wrapper.findWhere(b => b.prop('current'));
-      expect(current).toHaveLength(1);
-      expect(current.prop('code')).toEqual('SCHEDULED');
-    });
-
-    test('renders timeline for packed hhg', () => {
-      const shipment = { status: 'PACKED', actual_pack_date: '2019-03-20', today: '2019-03-20' };
-      const wrapper = mount(<ShipmentStatusTimeline shipment={shipment} />);
-
-      const completed = wrapper.findWhere(b => b.prop('completed'));
-      expect(completed).toHaveLength(2);
-      expect(completed.map(b => b.prop('code'))).toEqual(['SCHEDULED', 'PACKED']);
-
-      const current = wrapper.findWhere(b => b.prop('current'));
-      expect(current).toHaveLength(1);
-      expect(current.prop('code')).toEqual('PACKED');
     });
   });
 

@@ -23,6 +23,8 @@ const (
 	MoveDocumentStatusOK MoveDocumentStatus = "OK"
 	// MoveDocumentStatusHASISSUE captures enum value "HAS_ISSUE"
 	MoveDocumentStatusHASISSUE MoveDocumentStatus = "HAS_ISSUE"
+	// MoveDocumentStatusEXCLUDEFROMCALCULATION captures enum value "EXCLUDE_FROM_CALCULATION"
+	MoveDocumentStatusEXCLUDEFROMCALCULATION MoveDocumentStatus = "EXCLUDE_FROM_CALCULATION"
 )
 
 // MoveDocumentType represents types of different move documents
@@ -108,8 +110,6 @@ type MoveDocument struct {
 	Move                     Move                     `belongs_to:"moves"`
 	PersonallyProcuredMoveID *uuid.UUID               `json:"personally_procured_move_id" db:"personally_procured_move_id"`
 	PersonallyProcuredMove   PersonallyProcuredMove   `belongs_to:"personally_procured_moves"`
-	ShipmentID               *uuid.UUID               `json:"shipment_id" db:"shipment_id"`
-	Shipment                 Shipment                 `belongs_to:"shipments"`
 	Title                    string                   `json:"title" db:"title"`
 	Status                   MoveDocumentStatus       `json:"status" db:"status"`
 	MoveDocumentType         MoveDocumentType         `json:"move_document_type" db:"move_document_type"`
@@ -150,6 +150,8 @@ func (m *MoveDocument) AttemptTransition(targetStatus MoveDocumentStatus) error 
 		return m.Approve()
 	case MoveDocumentStatusHASISSUE:
 		return m.Reject()
+	case MoveDocumentStatusEXCLUDEFROMCALCULATION:
+		return m.Exclude()
 	}
 
 	return errors.Wrap(ErrInvalidTransition, string(targetStatus))
@@ -175,6 +177,16 @@ func (m *MoveDocument) Reject() error {
 	return nil
 }
 
+// Exclude marks the Document as HAS_ISSUE
+func (m *MoveDocument) Exclude() error {
+	if m.Status == MoveDocumentStatusEXCLUDEFROMCALCULATION {
+		return errors.Wrap(ErrInvalidTransition, "Exclude")
+	}
+
+	m.Status = MoveDocumentStatusEXCLUDEFROMCALCULATION
+	return nil
+}
+
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
 // This method is not required and may be deleted.
 func (m *MoveDocument) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
@@ -195,9 +207,9 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	}
 
 	var moveDoc MoveDocument
-	err := db.Q().Eager("Document.Uploads", "Move", "PersonallyProcuredMove", "Shipment").Find(&moveDoc, id)
+	err := db.Q().Eager("Document.Uploads", "Move", "PersonallyProcuredMove").Find(&moveDoc, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return nil, ErrFetchNotFound
 		}
 		return nil, err
@@ -210,7 +222,7 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	if movingDocumentErr = q.Eager().First(movingExpenseDocument); movingDocumentErr == nil {
 		moveDoc.MovingExpenseDocument = movingExpenseDocument
 	}
-	if movingDocumentErr != nil && errors.Cause(movingDocumentErr).Error() != recordNotFoundErrorString {
+	if movingDocumentErr != nil && errors.Cause(movingDocumentErr).Error() != RecordNotFoundErrorString {
 		return nil, err
 	}
 
@@ -219,7 +231,7 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	if weightTicketSetDocumentErr = q.Eager().First(weightTicketSetDocument); weightTicketSetDocumentErr == nil {
 		moveDoc.WeightTicketSetDocument = weightTicketSetDocument
 	}
-	if weightTicketSetDocumentErr != nil && errors.Cause(weightTicketSetDocumentErr).Error() != recordNotFoundErrorString {
+	if weightTicketSetDocumentErr != nil && errors.Cause(weightTicketSetDocumentErr).Error() != RecordNotFoundErrorString {
 		return nil, err
 	}
 
@@ -251,7 +263,7 @@ func FetchMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UU
 	}
 	err := query.All(&moveDocuments)
 	if err != nil {
-		if errors.Cause(err).Error() != recordNotFoundErrorString {
+		if errors.Cause(err).Error() != RecordNotFoundErrorString {
 			return nil, err
 		}
 	}
@@ -261,7 +273,7 @@ func FetchMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UU
 		moveDoc.MovingExpenseDocument = nil
 		err = db.Where("move_document_id = $1", moveDoc.ID.String()).Eager().First(&movingExpenseDocument)
 		if err != nil {
-			if errors.Cause(err).Error() != recordNotFoundErrorString {
+			if errors.Cause(err).Error() != RecordNotFoundErrorString {
 				return nil, err
 			}
 		} else {
@@ -274,7 +286,7 @@ func FetchMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UU
 		moveDoc.WeightTicketSetDocument = nil
 		err = db.Where("move_document_id = $1", moveDoc.ID.String()).Eager().First(&weightTicketSet)
 		if err != nil {
-			if errors.Cause(err).Error() != recordNotFoundErrorString {
+			if errors.Cause(err).Error() != RecordNotFoundErrorString {
 				return nil, err
 			}
 		} else {
@@ -288,25 +300,6 @@ func FetchMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UU
 // FetchMoveDocumentsByTypeForShipment fetches move documents for shipment and move document type
 func FetchMoveDocumentsByTypeForShipment(db *pop.Connection, session *auth.Session, moveDocumentType MoveDocumentType, shipmentID uuid.UUID) (MoveDocuments, error) {
 
-	// Verify that the logged-in TSP user is authorized to generate GBL
-	// Does this need to be checked here if already checked in create gbl handler?
-	if session.IsTspApp() {
-		if session.TspUserID == uuid.Nil {
-			return nil, ErrFetchForbidden
-		}
-		tspUser, err := FetchTspUserByID(db, session.TspUserID)
-		if err != nil {
-			return nil, ErrFetchNotFound
-		}
-		shipment, err := FetchShipmentByTSP(db, tspUser.TransportationServiceProviderID, shipmentID)
-		if err != nil {
-			return nil, ErrFetchForbidden
-		}
-		if shipment.ID != shipmentID {
-			return nil, ErrFetchForbidden
-		}
-	}
-
 	// Allow all logged in office users to fetch move docs
 	if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
 		return nil, ErrFetchForbidden
@@ -315,7 +308,7 @@ func FetchMoveDocumentsByTypeForShipment(db *pop.Connection, session *auth.Sessi
 	var moveDocuments MoveDocuments
 	err := db.Where("move_document_type = $1", string(moveDocumentType)).Where("shipment_id = $2", shipmentID.String()).All(&moveDocuments)
 	if err != nil {
-		if errors.Cause(err).Error() != recordNotFoundErrorString {
+		if errors.Cause(err).Error() != RecordNotFoundErrorString {
 			return nil, err
 		}
 	}
@@ -373,17 +366,6 @@ func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveExpens
 			if verrs, err := db.ValidateAndSave(&ppm); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = errors.Wrap(err, "Error Saving Move Document's PPM")
-				return transactionError
-			}
-		}
-
-		// Updating the move document can cause the Shipment to be updated
-		if moveDocument.ShipmentID != nil {
-			shipment := moveDocument.Shipment
-
-			if verrs, err := db.ValidateAndSave(&shipment); verrs.HasAny() || err != nil {
-				responseVErrors.Append(verrs)
-				responseError = errors.Wrap(err, "Error Saving Move Document's Shipment")
 				return transactionError
 			}
 		}

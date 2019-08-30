@@ -4,4 +4,5 @@ create_table("personally_procured_moves") {
 	t.Column("size", "string", {"null": true})
 	t.Column("weight_estimate", "integer", {"null": true})
 	t.ForeignKey("move_id", {"moves": ["id"]}, {})
+	t.Timestamps()
 }

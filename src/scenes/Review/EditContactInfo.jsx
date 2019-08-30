@@ -30,7 +30,6 @@ let EditContactForm = props => {
         <fieldset key="contact_preferences">
           <legend htmlFor="contact_preferences">Preferred contact method(s) during your move:</legend>
           <SwaggerField fieldName="phone_is_preferred" swagger={serviceMemberSchema} />
-          <SwaggerField fieldName="text_message_is_preferred" swagger={serviceMemberSchema} disabled={true} />
           <SwaggerField fieldName="email_is_preferred" swagger={serviceMemberSchema} />
         </fieldset>
       </FormSection>
@@ -86,11 +85,7 @@ const validateEditContactFormBools = fields => {
 
 EditContactForm = reduxForm({
   form: editContactFormName,
-  validate: validateEditContactFormBools([
-    'serviceMember.phone_is_preferred',
-    'serviceMember.text_message_is_preferred',
-    'serviceMember.email_is_preferred',
-  ]),
+  validate: validateEditContactFormBools(['serviceMember.phone_is_preferred', 'serviceMember.email_is_preferred']),
 })(EditContactForm);
 
 class EditContact extends Component {
@@ -168,4 +163,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditContact);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(EditContact);

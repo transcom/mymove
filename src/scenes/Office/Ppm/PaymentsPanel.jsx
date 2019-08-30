@@ -11,12 +11,12 @@ import {
   downloadPPMAttachmentsLabel,
 } from 'shared/Entities/modules/ppms';
 import { selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import { getSignedCertification } from 'shared/Entities/modules/signed_certifications';
+import { selectPaymentRequestCertificationForMove } from 'shared/Entities/modules/signed_certifications';
 import { getLastError } from 'shared/Swagger/selectors';
 
 import { no_op } from 'shared/utils';
 import { formatCents, formatDate } from 'shared/formatters';
-import Alert from 'shared/Alert';
-import ToolTip from 'shared/ToolTip';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
@@ -25,9 +25,8 @@ import faPlusSquare from '@fortawesome/fontawesome-free-solid/faPlusSquare';
 import faMinusSquare from '@fortawesome/fontawesome-free-solid/faMinusSquare';
 
 import './PaymentsPanel.css';
-import { getSignedCertification } from 'shared/Entities/modules/signed_certifications';
-import { selectPaymentRequestCertificationForMove } from 'shared/Entities/modules/signed_certifications';
-import { selectShipmentForMove } from 'shared/Entities/modules/shipments';
+import Alert from 'shared/Alert';
+import ToolTip from 'shared/ToolTip';
 
 const attachmentsErrorMessages = {
   422: 'Encountered an error while trying to create attachments bundle: Document is in the wrong format',
@@ -35,8 +34,8 @@ const attachmentsErrorMessages = {
   500: 'An unexpected error has occurred',
 };
 
-export function sswIsDisabled(ppm, signedCertification, shipment, moveDocs) {
-  return missingSignature(signedCertification) || missingRequiredPPMInfo(ppm) || isComboAndNotDelivered(shipment);
+export function sswIsDisabled(ppm, signedCertification) {
+  return missingSignature(signedCertification) || missingRequiredPPMInfo(ppm);
 }
 
 function missingSignature(signedCertification) {
@@ -45,10 +44,6 @@ function missingSignature(signedCertification) {
 
 function missingRequiredPPMInfo(ppm) {
   return isEmpty(ppm) || !ppm.actual_move_date || !ppm.net_weight;
-}
-
-function isComboAndNotDelivered(shipment) {
-  return !isEmpty(shipment) && shipment.status !== 'DELIVERED';
 }
 
 function getUserDate() {
@@ -292,11 +287,10 @@ class PaymentsTable extends Component {
 const mapStateToProps = (state, ownProps) => {
   const { moveId } = ownProps;
   const ppm = selectPPMForMove(state, moveId);
-  const shipment = selectShipmentForMove(state, moveId);
   const advance = selectReimbursement(state, ppm.advance);
   const signedCertifications = selectPaymentRequestCertificationForMove(state, moveId);
   const moveDocuments = selectAllDocumentsForMove(state, moveId);
-  const disableSSW = sswIsDisabled(ppm, signedCertifications, shipment, moveDocuments);
+  const disableSSW = sswIsDisabled(ppm, signedCertifications);
   return {
     ppm,
     disableSSW,
@@ -319,4 +313,7 @@ const mapDispatchToProps = dispatch =>
     dispatch,
   );
 
-export default connect(mapStateToProps, mapDispatchToProps)(PaymentsTable);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(PaymentsTable);

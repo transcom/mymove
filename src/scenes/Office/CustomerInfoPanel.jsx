@@ -19,7 +19,6 @@ import { getRequestStatus } from 'shared/Swagger/selectors';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
-import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 
 const CustomerInfoDisplay = props => {
@@ -49,12 +48,6 @@ const CustomerInfoDisplay = props => {
             <span>
               <FontAwesomeIcon icon={faPhone} flip="horizontal" />
               phone
-            </span>
-          )}
-          {values.text_message_is_preferred && (
-            <span>
-              <FontAwesomeIcon icon={faComments} />
-              text
             </span>
           )}
           {values.email_is_preferred && (
@@ -105,7 +98,6 @@ const CustomerInfoEdit = props => {
                 <p>Preferred contact method</p>
               </legend>
               <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
-              <SwaggerField fieldName="text_message_is_preferred" swagger={schema} />
               <SwaggerField fieldName="email_is_preferred" swagger={schema} />
             </fieldset>
           </FormSection>
@@ -182,4 +174,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CustomerInfoPanel);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(CustomerInfoPanel);

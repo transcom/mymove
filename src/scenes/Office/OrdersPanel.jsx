@@ -2,7 +2,6 @@ import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { reduxForm, Field, FormSection, getFormValues } from 'redux-form';
-import { Link } from 'react-router-dom';
 
 import { calculateEntitlementsForMove } from 'shared/Entities/modules/moves';
 import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
@@ -11,6 +10,8 @@ import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMem
 import { formatDate } from 'shared/formatters';
 
 import { PanelSwaggerField, PanelField, SwaggerValue, editablePanelify } from 'shared/EditablePanel';
+import { openLinkInNewWindow } from 'shared/utils';
+import { defaultRelativeWindowSize } from 'shared/constants';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
@@ -44,18 +45,40 @@ const OrdersDisplay = props => {
       <div className="editable-panel-column">
         {orders.orders_number ? (
           <PanelField title="Orders Number" className="orders_number">
-            <Link to={`/moves/${moveId}/orders`} target="_blank">
+            <a
+              href={`/moves/${moveId}/orders`}
+              target={`orders-${moveId}`}
+              onClick={openLinkInNewWindow.bind(
+                this,
+                `/moves/${moveId}/orders`,
+                `orders-${moveId}`,
+                window,
+                defaultRelativeWindowSize,
+              )}
+            >
               <SwaggerValue fieldName="orders_number" {...fieldProps} />
               &nbsp;
               <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
-            </Link>
+            </a>
           </PanelField>
         ) : (
           <PanelField title="Orders Number" className="missing orders_number">
             missing
-            <Link to={`/moves/${moveId}/orders`} target="_blank">
+            <a
+              href={`/moves/${moveId}/orders`}
+              target={`orders-${moveId}`}
+              onClick={openLinkInNewWindow.bind(
+                this,
+                `/moves/${moveId}/orders`,
+                `orders-${moveId}`,
+                window,
+                defaultRelativeWindowSize,
+              )}
+            >
+              <SwaggerValue fieldName="orders_number" {...fieldProps} />
+              &nbsp;
               <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
-            </Link>
+            </a>
           </PanelField>
         )}
         <PanelField title="Date issued" value={formatDate(orders.issue_date)} />
@@ -168,4 +191,7 @@ function mapDispatchToProps(dispatch) {
   return { update };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(OrdersPanel);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(OrdersPanel);

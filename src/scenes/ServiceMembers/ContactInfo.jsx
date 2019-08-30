@@ -17,16 +17,13 @@ const subsetOfFields = [
   'secondary_telephone',
   'personal_email',
   'phone_is_preferred',
-  'text_message_is_preferred',
   'email_is_preferred',
 ];
 
 const validateContactForm = values => {
   let errors = {};
 
-  let prefSelected = Boolean(
-    values.phone_is_preferred || values.text_message_is_preferred || values.email_is_preferred,
-  );
+  let prefSelected = Boolean(values.phone_is_preferred || values.email_is_preferred);
   if (!prefSelected) {
     const newError = {
       phone_is_preferred: 'Please select a preferred method of contact.',
@@ -70,7 +67,6 @@ export class ContactInfo extends Component {
         <fieldset key="contact_preferences">
           <legend htmlFor="contact_preferences">Preferred contact method(s) during your move:</legend>
           <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
-          <SwaggerField fieldName="text_message_is_preferred" swagger={schema} disabled={true} />
           <SwaggerField fieldName="email_is_preferred" swagger={schema} />
         </fieldset>
       </ContactWizardForm>
@@ -97,4 +93,7 @@ function mapStateToProps(state) {
     ...state.serviceMember,
   };
 }
-export default connect(mapStateToProps, mapDispatchToProps)(ContactInfo);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(ContactInfo);

@@ -1,127 +1,15 @@
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
-import { get, filter, findLast } from 'lodash';
-import moment from 'moment';
+import { filter, findLast } from 'lodash';
 
 import { displayDateRange } from 'shared/formatters';
 import './StatusTimeline.css';
-
-export function getDates(source, dateType) {
-  // The in progress state in PPMStatusTimeline has different expectations
-  if (dateType === 'actual_move_date') {
-    // if there's no approve date, then the PPM hasn't been approved yet
-    // and the in progress date should not be shown
-    const approveDate = get(source, 'approve_date');
-    if (approveDate) {
-      let date = undefined;
-      // if there's an actual move date that is known and passed, show it
-      // else show original move date if it has passed
-      const actualMoveDate = get(source, dateType);
-      const originalMoveDate = get(source, 'original_move_date');
-      if (actualMoveDate && moment(actualMoveDate, 'YYYY-MM-DD').isSameOrBefore()) {
-        date = actualMoveDate;
-      } else if (moment(originalMoveDate, 'YYYY-MM-DD').isSameOrBefore()) {
-        date = originalMoveDate;
-      }
-      return date;
-    }
-    return;
-  }
-  return get(source, dateType);
-}
 
 function getCurrentStatus(statuses) {
   return findLast(statuses, function(status) {
     return status.completed;
   });
 }
-
-export class ShipmentStatusTimeline extends React.Component {
-  getStatuses() {
-    return [
-      { name: 'Scheduled', code: 'SCHEDULED', date_type: 'book_date' },
-      { name: 'Packed', code: 'PACKED', date_type: 'pack' },
-      { name: 'Loaded', code: 'LOADED', date_type: 'pickup' },
-      { name: 'In transit', code: 'IN_TRANSIT', date_type: 'transit' },
-      { name: 'Delivered', code: 'DELIVERED', date_type: 'delivery' },
-    ];
-  }
-
-  getCompletedStatus(status) {
-    const { shipment } = this.props;
-    const today = this.props.today ? moment(this.props.today) : moment();
-
-    if (status === 'SCHEDULED') {
-      return true;
-    }
-
-    if (status === 'PACKED') {
-      const actualPackDate = get(shipment, 'actual_pack_date', null);
-      const originalPackDate = get(shipment, 'original_pack_date', null);
-      const pmSurveyPlannedPackDate = get(shipment, 'pm_survey_planned_pack_date', null);
-      return actualPackDate || today.isSameOrAfter(pmSurveyPlannedPackDate) || today.isSameOrAfter(originalPackDate)
-        ? true
-        : false;
-    }
-
-    const actualPickupDate = get(shipment, 'actual_pickup_date', null);
-    const pmSurveyPlannedPickupDate = get(shipment, 'pm_survey_planned_pickup_date', null);
-    const requestedPickupDate = get(shipment, 'requested_pickup_date', null);
-
-    if (status === 'LOADED') {
-      return actualPickupDate ||
-        today.isSameOrAfter(pmSurveyPlannedPickupDate, 'day') ||
-        today.isSameOrAfter(requestedPickupDate, 'day')
-        ? true
-        : false;
-    }
-
-    if (status === 'IN_TRANSIT') {
-      return (actualPickupDate && today.isAfter(actualPickupDate, 'day')) ||
-        today.isAfter(pmSurveyPlannedPickupDate, 'day') ||
-        today.isAfter(requestedPickupDate, 'day')
-        ? true
-        : false;
-    }
-
-    if (status === 'DELIVERED') {
-      const actualDeliveryDate = get(shipment, 'actual_delivery_date', null);
-      return actualDeliveryDate || shipment.status === 'DELIVERED' ? true : false;
-    }
-  }
-
-  addDates(statuses) {
-    const moveDatesSummary = get(this.props.shipment, 'move_dates_summary');
-    return statuses.map(status => {
-      return {
-        ...status,
-        dates:
-          status.date_type === 'book_date'
-            ? [getDates(this.props.shipment, status.date_type)]
-            : getDates(moveDatesSummary, status.date_type),
-      };
-    });
-  }
-
-  addCompleted(statuses) {
-    return statuses.map(status => {
-      return {
-        ...status,
-        completed: this.getCompletedStatus(status.code),
-      };
-    });
-  }
-
-  render() {
-    const statuses = this.addDates(this.addCompleted(this.getStatuses()));
-    return <StatusTimeline statuses={statuses} showEstimated={true} />;
-  }
-}
-
-ShipmentStatusTimeline.propTypes = {
-  shipment: PropTypes.object.isRequired,
-  today: PropTypes.string,
-};
 
 export class ProfileStatusTimeline extends React.Component {
   getStatuses() {
@@ -184,8 +72,9 @@ export const StatusBlock = props => {
     <div className={classes.join(' ')}>
       <div className="status_dot" />
       <div className="status_name">{props.name}</div>
-      {props.dates &&
-        props.dates.length > 0 && <div className="status_dates">{displayDateRange(props.dates, 'condensed')}</div>}
+      {props.dates && props.dates.length > 0 && (
+        <div className="status_dates">{displayDateRange(props.dates, 'condensed')}</div>
+      )}
     </div>
   );
 };
