@@ -17,7 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem, StorageInTransits internalmessages.StorageInTransits, HasUnapprovedShipmentLineItems bool) *internalmessages.MoveQueueItem {
+func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem, HasUnapprovedShipmentLineItems bool) *internalmessages.MoveQueueItem {
 	MoveQueueItemPayload := internalmessages.MoveQueueItem{
 		ID:                             handlers.FmtUUID(MoveQueueItem.ID),
 		CreatedAt:                      handlers.FmtDateTime(MoveQueueItem.CreatedAt),
@@ -35,7 +35,6 @@ func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem, StorageInTransi
 		LastModifiedDate:               handlers.FmtDateTime(MoveQueueItem.LastModifiedDate),
 		OriginDutyStationName:          swag.String(MoveQueueItem.OriginDutyStationName),
 		DestinationDutyStationName:     swag.String(MoveQueueItem.DestinationDutyStationName),
-		StorageInTransits:              StorageInTransits,
 		HasUnapprovedShipmentLineItems: &HasUnapprovedShipmentLineItems,
 		PmSurveyConductedDate:          handlers.FmtDateTimePtr(MoveQueueItem.PmSurveyConductedDate),
 		OriginGbloc:                    handlers.FmtStringPtr(MoveQueueItem.OriginGBLOC),
@@ -127,23 +126,6 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 			sits = []QueueSitData{}
 		}
 
-		storageInTransitsList := make(internalmessages.StorageInTransits, len(sits))
-
-		for i, storageInTransit := range sits {
-			actualStartDate := time.Time(storageInTransit.ActualStartDate)
-			outDate := time.Time(storageInTransit.OutDate)
-
-			sitObject := models.StorageInTransit{
-				ID:              storageInTransit.ID,
-				Status:          models.StorageInTransitStatus(storageInTransit.Status),
-				ActualStartDate: &actualStartDate,
-				OutDate:         &outDate,
-				Location:        models.StorageInTransitLocation(storageInTransit.Location),
-			}
-
-			storageInTransitsList[i] = payloadForStorageInTransitModel(&sitObject)
-		}
-
 		var shipmentLineItems []models.ShipmentLineItemStatus
 		if MoveQueueItem.SliArray != "" {
 			err := json.Unmarshal([]byte(MoveQueueItem.SliArray), &shipmentLineItems)
@@ -163,7 +145,7 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 			}
 		}
 
-		MoveQueueItemPayload := payloadForMoveQueueItem(MoveQueueItem, storageInTransitsList, hasUnapprovedShipmentLineItems)
+		MoveQueueItemPayload := payloadForMoveQueueItem(MoveQueueItem, hasUnapprovedShipmentLineItems)
 		MoveQueueItemPayloads[i] = MoveQueueItemPayload
 
 	}

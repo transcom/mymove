@@ -38,8 +38,6 @@ type Invoice struct {
 	Status            InvoiceStatus     `json:"status" db:"status"`
 	InvoiceNumber     string            `json:"invoice_number" db:"invoice_number"`
 	InvoicedDate      time.Time         `json:"invoiced_date" db:"invoiced_date"`
-	ShipmentID        uuid.UUID         `json:"shipment_id" db:"shipment_id"`
-	Shipment          Shipment          `belongs_to:"shipments"`
 	ShipmentLineItems ShipmentLineItems `has_many:"shipment_line_items"`
 	CreatedAt         time.Time         `json:"created_at" db:"created_at"`
 	UpdatedAt         time.Time         `json:"updated_at" db:"updated_at"`
@@ -59,7 +57,6 @@ func (i *Invoice) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		// length should be 2 (SCAC) + 2 (two-digit year) + 4 (sequence number).
 		&validators.StringLengthInRange{Field: i.InvoiceNumber, Name: "InvoiceNumber", Min: 8, Max: 255},
 		&validators.TimeIsPresent{Field: i.InvoicedDate, Name: "InvoicedDate"},
-		&validators.UUIDIsPresent{Field: i.ShipmentID, Name: "ShipmentID"},
 		&validators.UUIDIsPresent{Field: i.ApproverID, Name: "ApproverID"},
 	), nil
 }
@@ -78,12 +75,7 @@ func FetchInvoice(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Inv
 		return nil, err
 	}
 	// Check that the TSP user is authorized to get this Invoice
-	if session.IsTspUser() {
-		_, _, err := FetchShipmentForVerifiedTSPUser(db, session.TspUserID, invoice.ShipmentID)
-		if err != nil {
-			return nil, err
-		}
-	} else if !session.IsOfficeUser() {
+	if !session.IsOfficeUser() {
 		// Allow office users to fetch invoices
 		return nil, ErrFetchForbidden
 	}

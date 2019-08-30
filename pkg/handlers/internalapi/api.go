@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
 	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
 
@@ -83,12 +84,6 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	internalAPI.QueuesShowQueueHandler = ShowQueueHandler{context}
 
-	internalAPI.ShipmentsCreateShipmentHandler = CreateShipmentHandler{context}
-	internalAPI.ShipmentsPatchShipmentHandler = PatchShipmentHandler{context}
-	internalAPI.ShipmentsGetShipmentHandler = GetShipmentHandler{context}
-	internalAPI.ShipmentsApproveHHGHandler = ApproveHHGHandler{context}
-	internalAPI.ShipmentsCreateAndSendHHGInvoiceHandler = ShipmentInvoiceHandler{context}
-
 	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler{context}
 	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler{context}
 	internalAPI.OfficeApproveReimbursementHandler = ApproveReimbursementHandler{context}
@@ -101,14 +96,17 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	internalAPI.DpsAuthGetCookieURLHandler = DPSAuthGetCookieURLHandler{context}
 
-	internalAPI.MovesShowShipmentSummaryWorksheetHandler = ShowShipmentSummaryWorksheetHandler{context}
-
 	internalAPI.ApplicationPdfProducer = PDFProducer()
 
 	internalAPI.PostalCodesValidatePostalCodeWithRateDataHandler = ValidatePostalCodeWithRateDataHandler{
 		context,
 		postalcodeservice.NewPostalCodeValidator(context.DB()),
 	}
+
+	// Access Codes
+	internalAPI.AccesscodeFetchAccessCodeHandler = FetchAccessCodeHandler{context, accesscodeservice.NewAccessCodeFetcher(context.DB())}
+	internalAPI.AccesscodeValidateAccessCodeHandler = ValidateAccessCodeHandler{context, accesscodeservice.NewAccessCodeValidator(context.DB())}
+	internalAPI.AccesscodeClaimAccessCodeHandler = ClaimAccessCodeHandler{context, accesscodeservice.NewAccessCodeClaimer(context.DB())}
 
 	return internalAPI.Serve(nil)
 }

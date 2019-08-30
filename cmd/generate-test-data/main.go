@@ -13,9 +13,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	tdgs "github.com/transcom/mymove/pkg/testdatagen/scenario"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -128,11 +126,7 @@ func main() {
 	scenario := v.GetInt(scenarioFlag)
 	namedScenario := v.GetString(namedScenarioFlag)
 
-	if scenario == 1 {
-		tdgs.RunAwardQueueScenario1(dbConnection)
-	} else if scenario == 2 {
-		tdgs.RunAwardQueueScenario2(dbConnection)
-	} else if scenario == 4 {
+	if scenario == 4 {
 		err = tdgs.RunPPMSITEstimateScenario1(dbConnection)
 	} else if scenario == 5 {
 		err = tdgs.RunRateEngineScenario1(dbConnection)
@@ -153,20 +147,6 @@ func main() {
 			logger.Fatal("Failed to run raw query", zap.Error(err))
 		}
 		err = tdgs.RunRateEngineScenario2(dbConnection)
-	} else if scenario == 7 {
-		// Create TSPs with shipments divided among them
-		numTspUsers := 2
-		numShipments := 25
-		numShipmentOfferSplit := []int{15, 10}
-		// TSPs should never be able to see DRAFT or SUBMITTED or AWARDING shipments.
-		status := []models.ShipmentStatus{"AWARDED", "ACCEPTED", "APPROVED", "IN_TRANSIT", "DELIVERED"}
-		_, _, _, createShipmentOfferDataErr := testdatagen.CreateShipmentOfferData(dbConnection, numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
-		if createShipmentOfferDataErr != nil {
-			logger.Fatal("Failed to create shipment offer data", zap.Error(createShipmentOfferDataErr))
-		}
-		// Create an office user
-		testdatagen.MakeDefaultOfficeUser(dbConnection)
-		logger.Info("Success! Created TSP test data.")
 	} else if namedScenario == tdgs.E2eBasicScenario.Name {
 		// Initialize logger
 		logger, newDevelopmentErr := zap.NewDevelopment()

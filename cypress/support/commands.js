@@ -2,13 +2,10 @@ import * as mime from 'mime-types';
 import {
   milmoveBaseURL,
   officeBaseURL,
-  tspBaseURL,
   milmoveAppName,
   officeAppName,
-  tspAppName,
   milmoveUserType,
   officeUserType,
-  tspUserType,
   dpsUserType,
   userTypeToBaseURL,
   longPageLoadTimeout,
@@ -66,11 +63,6 @@ Cypress.Commands.add('signInAsNewOfficeUser', () => {
   cy.url().should('eq', officeBaseURL + '/queues/new');
 });
 
-Cypress.Commands.add('signInAsNewTSPUser', () => {
-  cy.signInAsNewUser(tspUserType);
-  cy.url().should('eq', tspBaseURL + '/queues/new');
-});
-
 Cypress.Commands.add('signInAsNewDPSUser', () => {
   cy.signInAsNewUser(dpsUserType);
   cy.url().should('contain', 'milmovelocal');
@@ -86,14 +78,6 @@ Cypress.Commands.add('signIntoOfficeAsUser', userId => {
 });
 Cypress.Commands.add('signIntoOffice', () => {
   cy.signIntoOfficeAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b');
-});
-
-Cypress.Commands.add('signIntoTSPAsUser', userId => {
-  cy.signInAsUserPostRequest(tspAppName, userId);
-  cy.waitForReactTableLoad();
-});
-Cypress.Commands.add('signIntoTSP', () => {
-  cy.signIntoTSPAsUser('6cd03e5b-bee8-4e97-a340-fecb8f3d5465');
 });
 
 // Reloads the page but makes an attempt to wait for the loading screen to disappear
@@ -180,15 +164,9 @@ Cypress.Commands.add(
           if (sendRequestUserType === milmoveAppName) {
             cy.getCookie('mil_session_token').should('exist');
             cy.getCookie('office_session_token').should('not.exist');
-            cy.getCookie('tsp_session_token').should('not.exist');
           } else if (sendRequestUserType === officeAppName) {
             cy.getCookie('mil_session_token').should('not.exist');
             cy.getCookie('office_session_token').should('exist');
-            cy.getCookie('tsp_session_token').should('not.exist');
-          } else if (sendRequestUserType === tspAppName) {
-            cy.getCookie('mil_session_token').should('not.exist');
-            cy.getCookie('office_session_token').should('not.exist');
-            cy.getCookie('tsp_session_token').should('exist');
           }
         }
       });
@@ -240,7 +218,7 @@ Cypress.Commands.add('logout', () => {
 });
 
 Cypress.Commands.add('setBaseUrlAndClearAllCookies', userType => {
-  [milmoveBaseURL, officeBaseURL, tspBaseURL].forEach(url => {
+  [milmoveBaseURL, officeBaseURL].forEach(url => {
     Cypress.config('baseUrl', url);
     cy.visit('/');
     cy.clearCookies();
@@ -348,9 +326,6 @@ Cypress.Commands.add('setupBaseUrl', appname => {
       break;
     case officeAppName:
       Cypress.config('baseUrl', officeBaseURL);
-      break;
-    case tspAppName:
-      Cypress.config('baseUrl', tspBaseURL);
       break;
     default:
       break;

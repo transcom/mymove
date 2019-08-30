@@ -1,6 +1,6 @@
 import { filter, map } from 'lodash';
 import { denormalize, normalize } from 'normalizr';
-import { getClient, getPublicClient, checkResponse } from 'shared/Swagger/api';
+import { getClient, checkResponse } from 'shared/Swagger/api';
 import { MOVE_DOC_TYPE, MOVE_DOC_STATUS } from 'shared/constants';
 import { moveDocuments } from '../schema';
 import { ADD_ENTITIES, addEntities } from '../actions';
@@ -56,20 +56,6 @@ export function createMoveDocument({ moveId, personallyProcuredMoveId, uploadIds
         move_document_type: moveDocumentType,
         notes: notes,
       },
-    });
-    checkResponse(response, 'failed to create move document due to server error');
-    const data = normalize(response.body, schema.moveDocument);
-    dispatch(addEntities(data.entities));
-    return response;
-  };
-}
-
-export function createShipmentDocument(shipmentId, createGenericMoveDocumentPayload) {
-  return async function(dispatch, getState, { schema }) {
-    const client = await getPublicClient();
-    const response = await client.apis.move_docs.createGenericMoveDocument({
-      shipmentId,
-      createGenericMoveDocumentPayload,
     });
     checkResponse(response, 'failed to create move document due to server error');
     const data = normalize(response.body, schema.moveDocument);

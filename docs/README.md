@@ -23,6 +23,7 @@ If you are looking to understand choices made in this project, see the list of [
 
 ## HOWTOs
 
+* [Access a Global Application Variable](how-to/access-global-variables.md#how-to-access-a-global-application-variable)
 * [Call Swagger Endpoints from React](how-to/access-swagger-endpoints-from-react.md#how-to-call-swagger-endpoints-from-react)
 * [Add Application Logging](how-to/add-application-logging.md#how-to-add-application-logging)
 * [Backup and Restore the Development Database](how-to/backup-and-restore-dev-database.md#how-to-backup-and-restore-the-development-database)
@@ -40,6 +41,7 @@ If you are looking to understand choices made in this project, see the list of [
 * [Run Go Tests](how-to/run-go-tests.md#how-to-run-go-tests)
 * [Run JavaScript (Jest) Tests](how-to/run-js-tests.md#how-to-run-javascript-jest-tests)
 * [Run and troubleshoot pre-commit hooks](how-to/run-pre-commit-hooks.md#run-and-troubleshoot-pre-commit-hooks)
+* [Use and Run Storybook](how-to/run-storybook.md#how-to-use-and-run-storybook)
 * [Store Data in Redux](how-to/store-data-in-redux.md#how-to-store-data-in-redux)
 * [Store UI State in Redux](how-to/store-ui-state-in-redux.md#how-to-store-ui-state-in-redux)
 * [Troubleshoot GEX Connection](how-to/troubleshoot-gex-connection.md#how-to-troubleshoot-gex-connection)
