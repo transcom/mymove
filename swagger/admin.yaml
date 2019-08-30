@@ -251,12 +251,11 @@ definitions:
         type: string
         format: uuid
         example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
-  Order:
+  ElectronicOrder:
     type: object
     required:
       - id
-      - issue_date
-      - report_by_date
+      - issuer
       - created_at
       - updated_at
     properties:
@@ -264,20 +263,8 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      issue_date:
-        type: string
-        description: The date and time that these orders were cut.
-        format: date
-        example: '2018-04-26'
-        title: Date issued
-      report_by_date:
-        type: string
-        description: Report By Date
-        format: date
-        example: '2018-04-26'
-        title: Report by
-      department_indicator:
-        $ref: '#/definitions/DeptIndicator'
+      issuer:
+        $ref: '#/definitions/Issuer'
       created_at:
         type: string
         format: datetime
@@ -286,22 +273,22 @@ definitions:
         type: string
         format: datetime
         title: Updated at
-  DeptIndicator:
-    type: string
-    x-nullable: true
-    title: Dept. indicator
-    enum:
-      - AIR_FORCE
-      - MARINES
-      - ARMY
-    x-display-value:
-      AIR_FORCE: 57 - United States Air Force
-      MARINES: 17 - United States Marines
-      ARMY: 21 - United States Army
-  Orders:
+  ElectronicOrders:
     type: array
     items:
-      $ref: '#/definitions/Order'
+      $ref: '#/definitions/ElectronicOrder'
+  Issuer:
+    type: string
+    description: >-
+      Organization that issues orders. If more organizations, especially
+      civilian ones, become clients of this API in the future, this enumeration
+      may need to be expanded.
+    enum:
+      - army
+      - navy
+      - air-force
+      - marine-corps
+      - coast-guard
 paths:
   /office_users:
     get:
@@ -414,13 +401,13 @@ paths:
           description: office not found
         500:
           description: server error
-  /orders:
+  /electronic_orders:
     get:
-      summary: List orders
-      description: Returns a list of orders
-      operationId: indexOrders
+      summary: List electronic orders
+      description: Returns a list of electronic orders
+      operationId: indexElectronicOrders
       tags:
-        - order
+        - electronic_order
       parameters:
         - in: query
           name: filter
@@ -435,7 +422,7 @@ paths:
               type: string
               description: Used for pagination
           schema:
-            $ref: '#/definitions/Orders'
+            $ref: '#/definitions/ElectronicOrders'
         400:
           description: invalid request
         401:

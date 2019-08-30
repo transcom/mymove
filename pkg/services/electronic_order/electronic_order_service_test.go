@@ -1,4 +1,4 @@
-package order
+package electronicorder
 
 import (
 	"testing"
@@ -9,18 +9,18 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-type OrderServiceSuite struct {
+type ElectronicOrderServiceSuite struct {
 	testingsuite.PopTestSuite
 	logger Logger
 }
 
-func (suite *OrderServiceSuite) SetupTest() {
+func (suite *ElectronicOrderServiceSuite) SetupTest() {
 	suite.DB().TruncateAll()
 }
 
 func TestUserSuite(t *testing.T) {
 
-	hs := &OrderServiceSuite{
+	hs := &ElectronicOrderServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}

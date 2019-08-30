@@ -1,4 +1,4 @@
-package order
+package electronicorder
 
 import (
 	"go.uber.org/zap"
