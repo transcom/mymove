@@ -1,4 +1,4 @@
-openapi: '3.0'
+openapi: 3.0.2
 info:
   title: move.mil GHC API
   description: The API for interfacing with GHC and the government system for move.mil
@@ -8,7 +8,7 @@ info:
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
-  version: 1.0.0
+  version: 0.0.1
 # servers:
 paths:
   /payment_requests:
@@ -49,8 +49,8 @@ paths:
       tags:
         - payment_requests
       responses:
-        200:
-          description: fetched list of payment request
+        '200':
+          description: fetched list of payment requests
           content:
             application/json:
               schema:
@@ -74,6 +74,8 @@ paths:
       summary: Fetches a payment request
       description: Fetches an instance of a payment request
       operationId: fetchPaymentRequest
+      tags:
+        - payment_requests
       parameters:
         - name: paymentRequestId
           in: path
@@ -82,10 +84,8 @@ paths:
           schema:
             type: string
             format: uuid
-      tags:
-        - payment_requests
       responses:
-        200:
+        '200':
           description: fetched instance of payment request
           content:
             application/json:
@@ -101,7 +101,7 @@ paths:
           description: request requires user authentication
         '403':
           description: user is not authorized
-        404:
+        '404':
           description: orders not found
         '500':
           description: internal server error
@@ -109,21 +109,29 @@ paths:
       summary: Updates a payment request
       description: Updates a payment request
       operationId: updatePaymentRequest
+      tags:
+        - payment_requests
       parameters:
-        - name: payment_request_id
+        - name: paymentRequestId
           in: path
           description: UUID of payment request
           required: true
-      tags:
-        - payment_requests
+          schema:
+            type: string
+            format: uuid
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/PaymentRequest'
+        required: true
       responses:
         '200':
           description: updated payment request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentRequest'
         '400':
           description: invalid request
           content:
@@ -134,7 +142,7 @@ paths:
           description: request requires user authentication
         '403':
           description: user is not authorized
-        404:
+        '404':
           description: orders not found
         '500':
           description: internal server error
@@ -176,7 +184,7 @@ paths:
       tags:
         - invoice_requests
       responses:
-        200:
+        '200':
           description: fetched list of invoice request
           content:
             application/json:
@@ -201,15 +209,18 @@ paths:
       summary: Fetches a invoice request
       description: Fetches an instance of a invoice request
       operationId: fetchInvoiceRequest
+      tags:
+        - invoice_requests
       parameters:
         - name: invoiceRequestId
           in: path
           description: UUID of invoice request
           required: true
-      tags:
-        - invoice_requests
+          schema:
+            type: string
+            format: uuid
       responses:
-        200:
+        '200':
           description: fetched instance of invoice request
           content:
             application/json:
@@ -225,7 +236,7 @@ paths:
           description: request requires user authentication
         '403':
           description: user is not authorized
-        404:
+        '404':
           description: orders not found
         '500':
           description: internal server error
@@ -233,20 +244,24 @@ paths:
       summary: Updates a invoice request
       description: Updates a invoice request
       operationId: updateInvoiceRequest
+      tags:
+        - invoice_requests
       parameters:
-        - name: invoice_request_id
+        - name: invoiceRequestId
           in: path
           description: UUID of invoice request
           required: true
-      tags:
-        - invoice_requests
+          schema:
+            type: string
+            format: uuid
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/InvoiceRequest'
+        required: true
       responses:
-        200:
+        '200':
           description: updated invoice request
           content:
             application/json:
@@ -262,7 +277,7 @@ paths:
           description: request requires user authentication
         '403':
           description: user is not authorized
-        404:
+        '404':
           description: orders not found
         '500':
           description: internal server error
@@ -348,6 +363,7 @@ components:
         rejection_reason:
           type: string
           example: documentation was incomplete
+          nullable: true
     CreatePaymentRequestPayload:
       type: object
       properties:
@@ -377,6 +393,7 @@ components:
         rejection_reason:
           type: string
           description: documentation missing
+          nullable: true
     CreateInvoiceRequestPayload:
       type: object
       properties:
