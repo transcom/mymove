@@ -153,18 +153,6 @@ func (suite *BaseHandlerTestSuite) AuthenticateOfficeRequest(req *http.Request, 
 	return req.WithContext(ctx)
 }
 
-// AuthenticateTspRequest authenticates TSP users
-func (suite *BaseHandlerTestSuite) AuthenticateTspRequest(req *http.Request, user models.TspUser) *http.Request {
-	session := auth.Session{
-		ApplicationName: auth.TspApp,
-		UserID:          *user.UserID,
-		IDToken:         "fake token",
-		TspUserID:       user.ID,
-	}
-	ctx := auth.SetSessionInRequestContext(req, &session)
-	return req.WithContext(ctx)
-}
-
 // AuthenticateDpsRequest authenticates DPS users
 func (suite *BaseHandlerTestSuite) AuthenticateDpsRequest(req *http.Request, serviceMember models.ServiceMember, dpsUser models.DpsUser) *http.Request {
 	session := auth.Session{

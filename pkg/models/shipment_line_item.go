@@ -36,10 +36,7 @@ const (
 
 // ShipmentLineItem is an object representing a line item in a pre-approval request
 type ShipmentLineItem struct {
-	ID         uuid.UUID `json:"id" db:"id"`
-	ShipmentID uuid.UUID `json:"shipment_id" db:"shipment_id"`
-	Shipment   Shipment  `belongs_to:"shipments"`
-
+	ID                uuid.UUID                `json:"id" db:"id"`
 	Tariff400ngItemID uuid.UUID                `json:"tariff400ng_item_id" db:"tariff400ng_item_id"`
 	Tariff400ngItem   Tariff400ngItem          `belongs_to:"tariff400ng_items"`
 	Location          ShipmentLineItemLocation `json:"location" db:"location"`
@@ -177,34 +174,6 @@ func FetchLineItemsByShipmentID(dbConnection *pop.Connection, shipmentID *uuid.U
 	}
 
 	return shipmentLineItems, err
-}
-
-// FetchApprovedPreapprovalRequestsByShipment fetches approved pre-approval requests for a shipment
-func FetchApprovedPreapprovalRequestsByShipment(dbConnection *pop.Connection, shipment Shipment) ([]ShipmentLineItem, error) {
-	var items []ShipmentLineItem
-
-	sitCodes := StorageInTransitLineItemCodes()
-	storageInTransitCodes := make([]interface{}, len(sitCodes))
-	for i, t := range sitCodes {
-		storageInTransitCodes[i] = t
-	}
-
-	query := dbConnection.Q().
-		LeftJoin("tariff400ng_items", "shipment_line_items.tariff400ng_item_id=tariff400ng_items.id").
-		Where("shipment_id = ?", shipment.ID).
-		Where("status = ?", ShipmentLineItemStatusAPPROVED).
-		Where("tariff400ng_items.requires_pre_approval = true").
-		Where("code not in (?)", storageInTransitCodes...).
-		Eager("Tariff400ngItem")
-
-	err := query.All(&items)
-
-	// Add the shipment model
-	for i := 0; i < len(items); i++ {
-		items[i].Shipment = shipment
-	}
-
-	return items, err
 }
 
 // FetchShipmentLineItemByID returns a shipment line item by id
