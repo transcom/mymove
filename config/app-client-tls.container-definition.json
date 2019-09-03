@@ -133,14 +133,6 @@
       "value": "us-west-2"
     },
     {
-      "name": "HONEYCOMB_ENABLED",
-      "value": "{{ .HONEYCOMB_ENABLED }}"
-    },
-    {
-      "name": "HONEYCOMB_DATASET",
-      "value": "{{ .HONEYCOMB_DATASET }}"
-    },
-    {
       "name": "LOGIN_GOV_HOSTNAME",
       "value": "{{ .LOGIN_GOV_HOSTNAME }}"
     },
