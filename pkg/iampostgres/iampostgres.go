@@ -4,7 +4,6 @@ package iampostgres
 // - https://stackoverflow.com/questions/56355577/using-database-sql-library-and-fetching-password-from-vault-when-a-new-connectio
 
 import (
-	"fmt"
 	"net/url"
 	"strings"
 	"time"
@@ -14,8 +13,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/rds/rdsutils"
-
-	// "go.uber.org/zap"
+	"go.uber.org/zap"
 
 	pg "github.com/lib/pq"
 )
@@ -23,8 +21,6 @@ import (
 var useIAM = false
 var passHolder = ""
 var currentIamPass = ""
-
-// var driveLogger Logger
 
 // RDSPostgresDriver wrapper around postgres ddiver
 type RDSPostgresDriver struct {
@@ -37,7 +33,6 @@ func GetCurrentPass() string {
 	for {
 		if currentIamPass == "" {
 			time.Sleep(time.Millisecond * 250)
-			// logger.Info("Waiting for DB password to be generated")
 		} else {
 			break
 		}
@@ -52,32 +47,28 @@ func updateDSN(dsn string) string {
 }
 
 // EnableIAM enables the use of IAM and pulls first credential set as a sanity check
-func EnableIAM(host string, port string, region string, user string, passTemplate string, creds *credentials.Credentials) {
+func EnableIAM(host string, port string, region string, user string, passTemplate string, creds *credentials.Credentials, logger Logger) {
 	// Lets enable and configure the DSN settings
 	useIAM = true
 	passHolder = passTemplate
 
 	// GoRoutine to continually refresh the RDS IAM auth on a 10m interval.
-	ticker := time.NewTicker(10 * time.Minute)
+	ticker := time.NewTicker(1 * time.Minute)
 	go func() {
 		// This for loop immediatley runs the first tick then on internval
 		for ; true; <-ticker.C {
-			fmt.Println("Running IAM refresh loop")
 			if creds == nil {
-				// logger.Error("IAM Credentials are missing")
-				fmt.Println("Credentials are missing")
+				logger.Error("IAM Credentials are missing")
 				return
 			}
-			// logger.Info("Using IAM Authentication")
+			logger.Info("Using IAM Authentication")
 			authToken, err := rdsutils.BuildAuthToken(host+":"+port, region, user, creds)
 			if err != nil {
-				// logger.Error("Error building auth token", zap.Error(err))
-				fmt.Println("Error building auth token")
+				logger.Error("Error building auth token", zap.Error(err))
 				return
 			}
 			currentIamPass = url.QueryEscape(authToken)
-			fmt.Println("Successfully generated IAM token")
-			// logger.Debug("Successfully generated new IAM token")
+			logger.Info("Successfully generated new IAM token")
 		}
 	}()
 
@@ -86,7 +77,6 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 // Open wrapper around postgres Open func
 func (d RDSPostgresDriver) Open(dsn string) (_ driver.Conn, err error) {
 	if useIAM == true {
-		fmt.Println("Use IAM = true")
 		dsn = updateDSN(dsn)
 	}
 

@@ -278,8 +278,8 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger)
 			v.GetString(DbRegionFlag),
 			dbConnectionDetails.User,
 			passHolder,
-			creds)
-		// logger)
+			creds,
+			logger)
 
 		dbConnectionDetails.Password = passHolder
 	}
@@ -352,5 +352,6 @@ func testConnection(dbConnDetails *pop.ConnectionDetails, useIam bool, logger Lo
 		return err
 	}
 
+	logger.Info("Test connection passed with successfull DB ping.")
 	return nil
 }
