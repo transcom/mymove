@@ -87,4 +87,7 @@ services:
       - MOVE_MIL_DOD_TLS_KEY
       - NO_TLS_ENABLED=1
       - NO_TLS_PORT=4000
+      - SERVE_ADMIN=true
+      - SERVE_API_INTERNAL=true
+      - SERVE_API_EXTERNAL=true
       - STORAGE_BACKEND=local
