@@ -760,32 +760,6 @@ func (suite *ModelSuite) TestCalculatePPMEntitlementNoHHGPPMGreaterThanMaxEntitl
 	suite.Equal(totalEntitlement, ppmRemainingEntitlement)
 }
 
-func (suite *ModelSuite) TestCalculatePPMEntitlementPPMGreaterThanRemainingEntitlement() {
-	ppmWeight := unit.Pound(1100)
-	totalEntitlement := unit.Pound(1000)
-	move := models.Move{
-		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
-	}
-
-	ppmRemainingEntitlement, err := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
-	suite.NoError(err)
-
-	suite.Equal(totalEntitlement, ppmRemainingEntitlement)
-}
-
-func (suite *ModelSuite) TestCalculatePPMEntitlementPPMLessThanRemainingEntitlement() {
-	ppmWeight := unit.Pound(500)
-	totalEntitlement := unit.Pound(1000)
-	move := models.Move{
-		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
-	}
-
-	ppmRemainingEntitlement, err := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
-	suite.NoError(err)
-
-	suite.Equal(unit.Pound(ppmWeight), ppmRemainingEntitlement)
-}
-
 func (suite *ModelSuite) TestFormatOtherExpenses() {
 	ppm := testdatagen.MakeDefaultPPM(suite.DB())
 	sm := ppm.Move.Orders.ServiceMember
