@@ -359,10 +359,10 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal("500", sswPage1.WeightAllotmentProgearSpouse)
 	suite.Equal("17,500", sswPage1.TotalWeightAllotment)
 
-	suite.Equal("01 - HHG (GBL)\n\n02 - PPM", sswPage1.ShipmentNumberAndTypes)
-	suite.Equal("11-Jan-2019\n\n11-Jan-2019", sswPage1.ShipmentPickUpDates)
-	suite.Equal("5,000 lbs - FINAL\n\n4,000 lbs - FINAL", sswPage1.ShipmentWeights)
-	suite.Equal("Delivered\n\nAt destination", sswPage1.ShipmentCurrentShipmentStatuses)
+	suite.Equal("02 - PPM", sswPage1.ShipmentNumberAndTypes)
+	suite.Equal("11-Jan-2019", sswPage1.ShipmentPickUpDates)
+	suite.Equal("4,000 lbs - FINAL", sswPage1.ShipmentWeights)
+	suite.Equal("At destination", sswPage1.ShipmentCurrentShipmentStatuses)
 
 	suite.Equal("17,500", sswPage1.TotalWeightAllotmentRepeat)
 	suite.Equal("$6,000.00", sswPage1.MaxObligationGCC100)
@@ -505,6 +505,7 @@ func (suite *ModelSuite) TestGroupExpenses() {
 				"GasMemberPaid":   300,
 				"TotalMemberPaid": 300,
 				"TotalGTCCPaid":   100,
+				"TotalPaid":       400,
 			},
 		},
 		{
@@ -548,6 +549,7 @@ func (suite *ModelSuite) TestGroupExpenses() {
 				"GasMemberPaid":              200,
 				"TotalMemberPaid":            400,
 				"TotalGTCCPaid":              400,
+				"TotalPaid":                  800,
 			},
 		},
 	}
