@@ -256,7 +256,6 @@ func (m Move) createMoveDocumentWithoutTransaction(
 			MoveID:           m.ID,
 			Document:         newDoc,
 			DocumentID:       newDoc.ID,
-			ShipmentID:       modelID,
 			MoveDocumentType: moveDocumentType,
 			Title:            title,
 			Status:           MoveDocumentStatusAWAITINGREVIEW,

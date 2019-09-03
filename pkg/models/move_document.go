@@ -110,8 +110,6 @@ type MoveDocument struct {
 	Move                     Move                     `belongs_to:"moves"`
 	PersonallyProcuredMoveID *uuid.UUID               `json:"personally_procured_move_id" db:"personally_procured_move_id"`
 	PersonallyProcuredMove   PersonallyProcuredMove   `belongs_to:"personally_procured_moves"`
-	ShipmentID               *uuid.UUID               `json:"shipment_id" db:"shipment_id"`
-	Shipment                 Shipment                 `belongs_to:"shipments"`
 	Title                    string                   `json:"title" db:"title"`
 	Status                   MoveDocumentStatus       `json:"status" db:"status"`
 	MoveDocumentType         MoveDocumentType         `json:"move_document_type" db:"move_document_type"`
@@ -209,7 +207,7 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	}
 
 	var moveDoc MoveDocument
-	err := db.Q().Eager("Document.Uploads", "Move", "PersonallyProcuredMove", "Shipment").Find(&moveDoc, id)
+	err := db.Q().Eager("Document.Uploads", "Move", "PersonallyProcuredMove").Find(&moveDoc, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return nil, ErrFetchNotFound
@@ -368,17 +366,6 @@ func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveExpens
 			if verrs, err := db.ValidateAndSave(&ppm); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = errors.Wrap(err, "Error Saving Move Document's PPM")
-				return transactionError
-			}
-		}
-
-		// Updating the move document can cause the Shipment to be updated
-		if moveDocument.ShipmentID != nil {
-			shipment := moveDocument.Shipment
-
-			if verrs, err := db.ValidateAndSave(&shipment); verrs.HasAny() || err != nil {
-				responseVErrors.Append(verrs)
-				responseError = errors.Wrap(err, "Error Saving Move Document's Shipment")
 				return transactionError
 			}
 		}
