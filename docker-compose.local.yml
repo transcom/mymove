@@ -89,5 +89,5 @@ services:
       - NO_TLS_PORT=4000
       - SERVE_ADMIN=true
       - SERVE_API_INTERNAL=true
-      - SERVE_API_EXTERNAL=true
+      - SERVE_API_PUBLIC=true
       - STORAGE_BACKEND=local
