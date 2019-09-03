@@ -3,20 +3,19 @@ package cli
 import (
 	"fmt"
 	"io/ioutil"
-	"net/url"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/rds"
-	"github.com/aws/aws-sdk-go/service/rds/rdsutils"
 	"github.com/gobuffalo/pop"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+
+	iampg "github.com/transcom/mymove/pkg/iampostgres"
 )
 
 const (
@@ -259,55 +258,36 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger)
 	// Configure DB connection details
 	dbConnectionDetails := pop.ConnectionDetails{
 		Dialect:  "postgres",
+		Driver:   "iampostgres",
 		Database: dbName,
 		Host:     dbHost,
 		Port:     dbPort,
 		User:     dbUser,
-		Password: "",
+		Password: dbPassword,
 		Options:  dbOptions,
 		Pool:     dbPool,
 		IdlePool: dbIdlePool,
 	}
 
-	// GoRoutine to continually refresh the RDS IAM auth on a 10m interval.
-	ticker := time.NewTicker(10 * time.Minute)
-	go func() {
-		// This for loop immediatley runs the first tick then on internval
-		for ; true; <-ticker.C {
-			if v.GetBool(DbIamFlag) {
-				if creds == nil {
-					logger.Error("IAM Credentials are missing")
-					return
-				}
-				logger.Info("Using IAM Authentication")
-				authToken, err := rdsutils.BuildAuthToken(dbHost+":"+dbPort, v.GetString(DbRegionFlag), dbUser, creds)
-				if err != nil {
-					logger.Error("Error building auth token", zap.Error(err))
-					return
-				}
-				dbPassword = url.QueryEscape(authToken)
-				logger.Debug("Successfully generated new IAM token")
-			}
+	if v.GetBool(DbIamFlag) {
+		// Set password holder for IAMPostgres to easily repalce with temp password
+		passHolder := "*****"
 
-			// Update DB password either from IAM (if used) or plain text password from Vriper
-			dbConnectionDetails.Password = dbPassword
+		iampg.EnableIAM(dbConnectionDetails.Host,
+			dbConnectionDetails.Port,
+			v.GetString(DbRegionFlag),
+			dbConnectionDetails.User,
+			passHolder,
+			creds)
+		// logger)
 
-			err := dbConnectionDetails.Finalize()
-			if err != nil {
-				logger.Error("Failed to finalize DB connection details", zap.Error(err))
-				return
-			}
-		}
-	}()
+		dbConnectionDetails.Password = passHolder
+	}
 
-	// Blocks until the password from the dbConnectionDetails has a non blank password
-	for {
-		if dbConnectionDetails.Password != "" {
-			// If valid password skip waiting
-			break
-		}
-		logger.Info("Waiting for DB password to be generated")
-		time.Sleep(time.Second)
+	err := dbConnectionDetails.Finalize()
+	if err != nil {
+		logger.Error("Failed to finalize DB connection details", zap.Error(err))
+		return nil, err
 	}
 
 	// Set up the connection
@@ -317,25 +297,60 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger)
 		return nil, err
 	}
 
+	err = testConnection(&dbConnectionDetails, v.GetBool(DbIamFlag), logger)
+	if err != nil {
+		logger.Error("Failed to ping database")
+		return connection, err
+	}
+
+	// Return the open connection
+	return connection, nil
+}
+
+func testConnection(dbConnDetails *pop.ConnectionDetails, useIam bool, logger Logger) error {
+	// Copy connection info as we don't want to alter connection info
+	dbConnectionDetails := pop.ConnectionDetails{
+		Dialect:  "postgres",
+		Driver:   "iampostgres",
+		Database: dbConnDetails.Database,
+		Host:     dbConnDetails.Host,
+		Port:     dbConnDetails.Port,
+		User:     dbConnDetails.User,
+		Password: dbConnDetails.Password,
+		Options:  dbConnDetails.Options,
+		Pool:     dbConnDetails.Pool,
+		IdlePool: dbConnDetails.IdlePool,
+	}
+
+	if useIam == true {
+		dbConnectionDetails.Password = iampg.GetCurrentPass()
+	}
+
+	// Set up the connection
+	connection, err := pop.NewConnection(&dbConnectionDetails)
+	if err != nil {
+		logger.Error("Failed create DB connection", zap.Error(err))
+		return err
+	}
+
 	// Open the connection
 	err = connection.Open()
 	if err != nil {
 		logger.Error("Failed to open DB connection", zap.Error(err))
-		return nil, err
+		return err
 	}
 
 	// Check the connection
 	db, err := sqlx.Open(connection.Dialect.Details().Dialect, connection.Dialect.URL())
 	if err != nil {
 		logger.Warn("Failed to open DB by driver name", zap.Error(err))
-		return connection, err
+		return err
 	}
 	err = db.Ping()
 	if err != nil {
 		logger.Warn("Failed to ping DB connection", zap.Error(err))
-		return connection, err
+		return err
 	}
 
-	// Return the open connection
-	return connection, nil
+	return nil
 }
