@@ -1,0 +1,22 @@
+#! /usr/bin/env bash
+
+#
+# Deploy a Lambda Function
+#
+# https://docs.aws.amazon.com/lambda/latest/dg/lambda-go-how-to-create-deployment-package.html
+
+environment=$1
+lambda=$2
+# Let's enforce semver on every lambda? and `bin/my-lambda --version` should print out the version for this
+semver=$3
+
+s3bucket="transcom-ppp-lambda-builds-us-west-2/${lambda}/${semver}"
+
+# TODO: change execution role, definition in ppp-infra
+EXECUTION_ROLE="arn:aws:iam::${AWS_ACCOUNT_ID}:role/tbd_lambda_execution_role"
+
+/usr/bin/zip -j "${lambda}.zip" "bin_linux/${lambda}"
+aws cp function.zip "${s3bucket}"
+aws lambda create-function --function-name "${lambda}" --runtime go1.x --handler main \
+  --code "S3Bucket=${s3bucket},S3Key=${lambda}.zip" \
+  --role "${EXECUTION_ROLE}"

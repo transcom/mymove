@@ -259,6 +259,16 @@ bin/send-to-gex: .server_generate.stamp
 pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
 	go-bindata -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/
 
+### Lambda Targets
+
+bin/lambda-hello-world:
+	go build -ldflags "$(LDFLAGS)" -o bin/lambda-hello-world ./cmd/lambda-hello-world
+
+bin_linux/lambda-hello-world:
+	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/lambda-hello-world ./cmd/lambda-hello-world
+
+
+
 #
 # ----- END BIN TARGETS -----
 #
@@ -339,6 +349,9 @@ build_tools: server_deps \
 	bin/renderer \
 	bin/save-fuel-price-data \
 	bin/send-to-gex ## Build all tools
+
+.PHONY: build_lambda
+build_lambda: bin/lambda-hello-world ## Build all AWS Lambda functions
 
 .PHONY: build
 build: server_build build_tools client_build ## Build the server, tools, and client
