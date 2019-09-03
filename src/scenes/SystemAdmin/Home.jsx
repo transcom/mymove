@@ -5,6 +5,7 @@ import React from 'react';
 import Menu from './Menu';
 import UserList from './UserList';
 import OfficeList from './OfficeList';
+import ElectronicOrderList from './ElectronicOrderList';
 import UserShow from './UserShow';
 import styles from './Home.module.scss';
 
@@ -26,6 +27,7 @@ const Home = () => (
     <Admin dataProvider={dataProvider} history={history} appLayout={AdminLayout}>
       <Resource name="office_users" list={UserList} show={UserShow} />
       <Resource name="offices" list={OfficeList} />
+      <Resource name="electronic_orders" list={ElectronicOrderList} />
     </Admin>
   </div>
 );
