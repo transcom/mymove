@@ -359,7 +359,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal("500", sswPage1.WeightAllotmentProgearSpouse)
 	suite.Equal("17,500", sswPage1.TotalWeightAllotment)
 
-	suite.Equal("02 - PPM", sswPage1.ShipmentNumberAndTypes)
+	suite.Equal("01 - PPM", sswPage1.ShipmentNumberAndTypes)
 	suite.Equal("11-Jan-2019", sswPage1.ShipmentPickUpDates)
 	suite.Equal("4,000 lbs - FINAL", sswPage1.ShipmentWeights)
 	suite.Equal("At destination", sswPage1.ShipmentCurrentShipmentStatuses)
