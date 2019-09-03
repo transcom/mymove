@@ -84,3 +84,6 @@ services:
       - NO_TLS_ENABLED=1
       - NO_TLS_PORT=4000
       - STORAGE_BACKEND=local
+      - SERVE_ADMIN=true
+      - SERVE_API_INTERNAL=true
+      - SERVE_API_EXTERNAL=true
