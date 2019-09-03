@@ -1,17 +1,10 @@
 FROM alpine:3.7
 
 COPY bin_linux/milmove /bin/milmove
-COPY bin_linux/generate-test-data /bin/generate-test-data
 
 COPY migrations /migrate/migrations
-COPY local_migrations /migrate/local_migrations
 COPY migrations_manifest.txt /migrate/migrations_manifest.txt
-RUN mkdir -p /bin/pkg/testdatagen/testdata/
-COPY pkg/testdatagen/testdata/test.pdf /bin/pkg/testdatagen/testdata/test.pdf
-
-# psql (aka postgresql-client) is required to run `TRUNCATE users CASCADE;` to reset local database
-RUN apk update
-RUN apk add postgresql-client bash --no-cache
 
 WORKDIR /
-ENTRYPOINT ["/bin/milmove"]
+
+ENTRYPOINT ["/bin/milmove", "migrate", "-p", "file:///migrate/migrations", "-m", "/migrate/migrations_manifest.txt"]

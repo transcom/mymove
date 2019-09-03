@@ -44,10 +44,6 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 				logger.Error("unauthorized user for office.move.mil", zap.String("email", session.Email))
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
-			} else if session.IsTspApp() && !session.IsTspUser() {
-				logger.Error("unauthorized user for tsp.move.mil", zap.String("email", session.Email))
-				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-				return
 			} else if session.IsAdminApp() && !session.IsAdminUser() {
 				logger.Error("unauthorized user for admin.move.mil", zap.String("email", session.Email))
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
@@ -385,38 +381,6 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 		}
 	}
 
-	if session.IsTspApp() {
-		if userIdentity.TspDisabled != nil && *userIdentity.TspDisabled {
-			h.logger.Error("TSP user is disabled", zap.String("email", session.Email))
-			http.Error(w, http.StatusText(403), http.StatusForbidden)
-			return
-		}
-		if userIdentity.TspUserID != nil {
-			session.TspUserID = *(userIdentity.TspUserID)
-		} else {
-			// In case they managed to login before the tsp_user record was created
-			tspUser, err := models.FetchTspUserByEmail(h.db, session.Email)
-			if err == models.ErrFetchNotFound {
-				h.logger.Error("Non-TSP user authenticated at tsp site", zap.String("email", session.Email))
-				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-				return
-			} else if err != nil {
-				h.logger.Error("Checking for TSP user", zap.String("email", session.Email), zap.Error(err))
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return
-			}
-
-			session.TspUserID = tspUser.ID
-			tspUser.UserID = &userIdentity.ID
-			err = h.db.Save(tspUser)
-			if err != nil {
-				h.logger.Error("Updating TSP user", zap.String("email", session.Email), zap.Error(err))
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return
-			}
-		}
-	}
-
 	if session.IsAdminApp() {
 		if userIdentity.AdminUserDisabled != nil && *userIdentity.AdminUserDisabled {
 			h.logger.Error("Admin user is disabled", zap.String("email", session.Email))
@@ -492,25 +456,6 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 		}
 	}
 
-	var tspUser *models.TspUser
-	if session.IsTspApp() { // Look to see if we have TspUser with this email address
-		tspUser, err = models.FetchTspUserByEmail(h.db, session.Email)
-		if err == models.ErrFetchNotFound {
-			h.logger.Error("No TSP user found", zap.String("email", session.Email))
-			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-			return
-		} else if err != nil {
-			h.logger.Error("Checking for TSP user", zap.String("email", session.Email), zap.Error(err))
-			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-			return
-		}
-		if tspUser.Disabled {
-			h.logger.Error("TSP user is disabled", zap.String("email", session.Email))
-			http.Error(w, http.StatusText(403), http.StatusForbidden)
-			return
-		}
-	}
-
 	var adminUser models.AdminUser
 	if session.IsAdminApp() {
 		queryBuilder := query.NewQueryBuilder(h.db)
@@ -543,10 +488,6 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 			session.OfficeUserID = officeUser.ID
 			officeUser.UserID = &user.ID
 			err = h.db.Save(officeUser)
-		} else if session.IsTspApp() && tspUser != nil {
-			session.TspUserID = tspUser.ID
-			tspUser.UserID = &user.ID
-			err = h.db.Save(tspUser)
 		} else if session.IsAdminApp() && adminUser.ID != uuid.Nil {
 			session.AdminUserID = adminUser.ID
 			adminUser.UserID = &user.ID

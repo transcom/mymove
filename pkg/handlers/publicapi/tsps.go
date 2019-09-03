@@ -22,17 +22,7 @@ type TspsGetTspShipmentsHandler struct {
 	handlers.HandlerContext
 }
 
-// Handle simply returns a NotImplementedError
-func (h TspsGetTspShipmentsHandler) Handle(params tspsop.GetTspShipmentsParams) middleware.Responder {
-	return middleware.NotImplemented("operation .tspShipments has not yet been implemented")
-}
-
 // TspsGetTspBlackoutsHandler lists all the shipments that belong to a tsp
 type TspsGetTspBlackoutsHandler struct {
 	handlers.HandlerContext
-}
-
-// Handle simply returns a NotImplementedError
-func (h TspsGetTspBlackoutsHandler) Handle(params tspsop.GetTspShipmentsParams) middleware.Responder {
-	return middleware.NotImplemented("operation .tspShipments has not yet been implemented")
 }

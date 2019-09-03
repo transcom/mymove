@@ -1,0 +1,10 @@
+FROM alpine:3.7
+
+COPY bin_linux/generate-test-data /bin/generate-test-data
+COPY pkg/testdatagen/testdata/test.pdf /bin/pkg/testdatagen/testdata/test.pdf
+
+# Install tools needed in container
+RUN apk update
+RUN apk add postgresql-client bash --no-cache
+
+WORKDIR /bin

@@ -27,7 +27,6 @@ const (
 type ServiceAgent struct {
 	ID               uuid.UUID `json:"id" db:"id"`
 	ShipmentID       uuid.UUID `json:"shipment_id" db:"shipment_id"`
-	Shipment         *Shipment `belongs_to:"shipment"`
 	CreatedAt        time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt        time.Time `json:"updated_at" db:"updated_at"`
 	Role             Role      `json:"role" db:"role"`

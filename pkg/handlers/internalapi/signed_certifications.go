@@ -56,15 +56,6 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 		}
 	}
 	var shipmentID *uuid.UUID
-	if payload.ShipmentID != nil {
-		shipmentID, err := uuid.FromString((*payload.ShipmentID).String())
-		if err == nil {
-			_, err = models.FetchShipment(h.DB(), session, shipmentID)
-			if err != nil {
-				return handlers.ResponseForError(logger, err)
-			}
-		}
-	}
 
 	var ptrCertType *models.SignedCertificationType
 	if payload.CertificationType != nil {

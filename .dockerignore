@@ -1,13 +1,20 @@
 *.swp
 
+# direnv
+.envrc.local
+.envrc.chamber
 
 # dependencies
 /vendor
 /node_modules
+/.vendor-new
+
+/pkg/gen
+/pkg/assets
+**/mocks
 
 # testing
 /coverage
-**/mocks
 coverage.out
 __snapshots__
 
@@ -45,6 +52,7 @@ yarn-error.log*
 *.sublime-*
 
 **/migrations/schema.sql
+**/local_migrations/schema.sql
 
 *.stamp
 
