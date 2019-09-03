@@ -1,1 +1,0 @@
-exec("./apply-secure-migration.sh 20190730194820_pp3_2019_tspp_data.sql")

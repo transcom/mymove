@@ -1,13 +1,11 @@
 package internalapi
 
 import (
-	"reflect"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
 
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -65,8 +63,7 @@ type CreateOrdersHandler struct {
 // Handle ... creates new Orders from a request payload
 func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middleware.Responder {
 
-	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
-	defer span.Send()
+	ctx := params.HTTPRequest.Context()
 
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
@@ -161,8 +158,7 @@ type UpdateOrdersHandler struct {
 // Handle ... updates an order from a request payload
 func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middleware.Responder {
 
-	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
-	defer span.Send()
+	ctx := params.HTTPRequest.Context()
 
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 

@@ -7,7 +7,6 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
 )
 
 // BlackoutDate indicates the range of unavailable times for a TSP and includes its TDL as well.
@@ -23,28 +22,6 @@ type BlackoutDate struct {
 	SourceGBLOC                     *string    `json:"source_gbloc" db:"source_gbloc"`
 	Zip3                            *int       `json:"zip3" db:"zip3"`
 	VolumeMove                      *bool      `json:"volume_move" db:"volume_move"`
-}
-
-// FetchTSPBlackoutDates runs a SQL query to find all blackout_date records connected to a TSP ID.
-func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment Shipment) ([]BlackoutDate, error) {
-	blackoutDates := []BlackoutDate{}
-	var err error
-	query := tx.Where("transportation_service_provider_id = ?", tspID).Where("? BETWEEN start_blackout_date and end_blackout_date", shipment.ActualPickupDate)
-
-	if shipment.Market != nil {
-		query = query.Where("market = ?", *shipment.Market)
-	}
-
-	if shipment.SourceGBLOC != nil {
-		query = query.Where("source_gbloc = ?", *shipment.SourceGBLOC)
-	}
-
-	err = query.All(&blackoutDates)
-	if err != nil {
-		return blackoutDates, errors.Wrap(err, "Blackout dates query failed")
-	}
-
-	return blackoutDates, err
 }
 
 // BlackoutDates is not required by pop and may be deleted

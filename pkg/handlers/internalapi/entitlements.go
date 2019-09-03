@@ -2,13 +2,10 @@ package internalapi
 
 import (
 	"fmt"
-	"reflect"
 
 	"github.com/dustin/go-humanize"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
-
-	"github.com/honeycombio/beeline-go"
 
 	entitlementop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -56,8 +53,7 @@ type ValidateEntitlementHandler struct {
 // Handle is the handler
 func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlementParams) middleware.Responder {
 
-	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
-	defer span.Send()
+	ctx := params.HTTPRequest.Context()
 
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
@@ -77,7 +73,7 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 	}
 
 	// Return 404 if there's no PPM or Shipment,  or if there is no Rank
-	if (len(move.PersonallyProcuredMoves) < 1 && len(move.Shipments) < 1) || serviceMember.Rank == nil {
+	if (len(move.PersonallyProcuredMoves) < 1) || serviceMember.Rank == nil {
 		return entitlementop.NewValidateEntitlementNotFound()
 	}
 	var weightEstimate int64
@@ -90,13 +86,6 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 			weightEstimate = int64(0)
 		}
 
-	} else if len(move.Shipments) >= 1 {
-		shipment := move.Shipments[0]
-		if shipment.WeightEstimate != nil {
-			weightEstimate = int64(*shipment.WeightEstimate)
-		} else {
-			weightEstimate = int64(0)
-		}
 	}
 
 	smEntitlement, err := models.GetEntitlement(*serviceMember.Rank, orders.HasDependents, orders.SpouseHasProGear)

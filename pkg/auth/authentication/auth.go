@@ -8,14 +8,11 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"reflect"
 	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-	beeline "github.com/honeycombio/beeline-go"
-	"github.com/honeycombio/beeline-go/trace"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/pkg/errors"
@@ -33,8 +30,6 @@ import (
 func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			ctx, span := beeline.StartSpan(r.Context(), "UserAuthMiddleware")
-			defer span.Send()
 
 			session := auth.SessionFromRequestContext(r)
 			// We must have a logged in session and a user
@@ -49,24 +44,13 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 				logger.Error("unauthorized user for office.move.mil", zap.String("email", session.Email))
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
-			} else if session.IsTspApp() && !session.IsTspUser() {
-				logger.Error("unauthorized user for tsp.move.mil", zap.String("email", session.Email))
-				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-				return
 			} else if session.IsAdminApp() && !session.IsAdminUser() {
 				logger.Error("unauthorized user for admin.move.mil", zap.String("email", session.Email))
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
 
-			// Include session office ID, service member ID, tsp ID, user ID, and admin ID to the beeline event
-			span.AddTraceField("auth.office_user_id", session.OfficeUserID)
-			span.AddTraceField("auth.service_member_id", session.ServiceMemberID)
-			span.AddTraceField("auth.tsp_user_id", session.TspUserID)
-			span.AddTraceField("auth.admin_user_id", session.AdminUserID)
-			span.AddTraceField("auth.user_id", session.UserID)
-
-			next.ServeHTTP(w, r.WithContext(ctx))
+			next.ServeHTTP(w, r)
 		}
 		return http.HandlerFunc(mw)
 	}
@@ -75,8 +59,6 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 func AdminAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			ctx, span := beeline.StartSpan(r.Context(), "AdminAuthMiddleware")
-			defer span.Send()
 			session := auth.SessionFromRequestContext(r)
 
 			if session == nil || !session.IsAdminUser() {
@@ -84,7 +66,7 @@ func AdminAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 				return
 			}
 
-			next.ServeHTTP(w, r.WithContext(ctx))
+			next.ServeHTTP(w, r)
 		}
 
 		return http.HandlerFunc(mw)
@@ -238,8 +220,6 @@ func NewCallbackHandler(ac Context, db *pop.Connection, clientAuthSecretKey stri
 
 // AuthorizationCallbackHandler handles the callback from the Login.gov authorization flow
 func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	_, span := beeline.StartSpan(r.Context(), reflect.TypeOf(h).Name())
-	defer span.Send()
 
 	session := auth.SessionFromRequestContext(r)
 	if session == nil {
@@ -336,10 +316,10 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	userIdentity, err := models.FetchUserIdentity(h.db, openIDUser.UserID)
 	if err == nil { // Someone we know already
-		authorizeKnownUser(userIdentity, h, session, w, span, r, landingURL.String())
+		authorizeKnownUser(userIdentity, h, session, w, r, landingURL.String())
 		return
 	} else if err == models.ErrFetchNotFound { // Never heard of them so far
-		authorizeUnknownUser(openIDUser, h, session, w, span, r, landingURL.String())
+		authorizeUnknownUser(openIDUser, h, session, w, r, landingURL.String())
 		return
 	} else {
 		h.logger.Error("Error loading Identity.", zap.Error(err))
@@ -348,7 +328,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, session *auth.Session, w http.ResponseWriter, span *trace.Span, r *http.Request, lURL string) {
+func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
 
 	if userIdentity.Disabled {
 		h.logger.Error("Disabled user requesting authentication",
@@ -361,11 +341,9 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 	}
 
 	session.UserID = userIdentity.ID
-	span.AddField("session.user_id", session.UserID)
 
 	if userIdentity.ServiceMemberID != nil {
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
-		span.AddField("session.service_member_id", session.ServiceMemberID)
 	}
 
 	if userIdentity.DpsUserID != nil && (userIdentity.DpsDisabled != nil && !*userIdentity.DpsDisabled) {
@@ -393,44 +371,10 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 				return
 			}
 			session.OfficeUserID = officeUser.ID
-			span.AddField("session.office_user_id", session.OfficeUserID)
 			officeUser.UserID = &userIdentity.ID
 			err = h.db.Save(officeUser)
 			if err != nil {
 				h.logger.Error("Updating office user", zap.String("email", session.Email), zap.Error(err))
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return
-			}
-		}
-	}
-
-	if session.IsTspApp() {
-		if userIdentity.TspDisabled != nil && *userIdentity.TspDisabled {
-			h.logger.Error("TSP user is disabled", zap.String("email", session.Email))
-			http.Error(w, http.StatusText(403), http.StatusForbidden)
-			return
-		}
-		if userIdentity.TspUserID != nil {
-			session.TspUserID = *(userIdentity.TspUserID)
-		} else {
-			// In case they managed to login before the tsp_user record was created
-			tspUser, err := models.FetchTspUserByEmail(h.db, session.Email)
-			if err == models.ErrFetchNotFound {
-				h.logger.Error("Non-TSP user authenticated at tsp site", zap.String("email", session.Email))
-				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-				return
-			} else if err != nil {
-				h.logger.Error("Checking for TSP user", zap.String("email", session.Email), zap.Error(err))
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return
-			}
-
-			session.TspUserID = tspUser.ID
-			span.AddField("session.tsp_user_id", session.TspUserID)
-			tspUser.UserID = &userIdentity.ID
-			err = h.db.Save(tspUser)
-			if err != nil {
-				h.logger.Error("Updating TSP user", zap.String("email", session.Email), zap.Error(err))
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 				return
 			}
@@ -466,7 +410,6 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 
 			session.AdminUserID = adminUser.ID
 			session.AdminUserRole = adminUser.Role.String()
-			span.AddField("session.admin_user_id", session.AdminUserID)
 			adminUser.UserID = &userIdentity.ID
 			verrs, err := h.db.ValidateAndSave(&adminUser)
 			if err != nil {
@@ -492,7 +435,7 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
 }
 
-func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth.Session, w http.ResponseWriter, span *trace.Span, r *http.Request, lURL string) {
+func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
 	var officeUser *models.OfficeUser
 	var err error
 	if session.IsOfficeApp() { // Look to see if we have OfficeUser with this email address
@@ -508,25 +451,6 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 		}
 		if officeUser.Disabled {
 			h.logger.Error("Office user is disabled", zap.String("email", session.Email))
-			http.Error(w, http.StatusText(403), http.StatusForbidden)
-			return
-		}
-	}
-
-	var tspUser *models.TspUser
-	if session.IsTspApp() { // Look to see if we have TspUser with this email address
-		tspUser, err = models.FetchTspUserByEmail(h.db, session.Email)
-		if err == models.ErrFetchNotFound {
-			h.logger.Error("No TSP user found", zap.String("email", session.Email))
-			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-			return
-		} else if err != nil {
-			h.logger.Error("Checking for TSP user", zap.String("email", session.Email), zap.Error(err))
-			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-			return
-		}
-		if tspUser.Disabled {
-			h.logger.Error("TSP user is disabled", zap.String("email", session.Email))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		}
@@ -560,20 +484,12 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 
 	if err == nil { // Successfully created the user
 		session.UserID = user.ID
-		span.AddField("session.user_id", session.UserID)
 		if session.IsOfficeApp() && officeUser != nil {
 			session.OfficeUserID = officeUser.ID
-			span.AddField("session.office_user_id", session.OfficeUserID)
 			officeUser.UserID = &user.ID
 			err = h.db.Save(officeUser)
-		} else if session.IsTspApp() && tspUser != nil {
-			session.TspUserID = tspUser.ID
-			span.AddField("session.tsp_user_id", session.TspUserID)
-			tspUser.UserID = &user.ID
-			err = h.db.Save(tspUser)
 		} else if session.IsAdminApp() && adminUser.ID != uuid.Nil {
 			session.AdminUserID = adminUser.ID
-			span.AddField("session.admin_user_id", session.AdminUserID)
 			adminUser.UserID = &user.ID
 			err = h.db.Save(&adminUser)
 		}

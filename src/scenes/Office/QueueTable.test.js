@@ -32,38 +32,6 @@ describe('Shipments column', () => {
     });
   });
 
-  it('renders "HHG" when it is a HHG move', done => {
-    wrapper = mountComponents(
-      retrieveMovesStub({
-        ppm_status: undefined,
-        hhg_status: 'APPROVED',
-      }),
-    );
-
-    setTimeout(() => {
-      const move = getMove(wrapper);
-      expect(move.shipments).toEqual('HHG');
-
-      done();
-    });
-  });
-
-  it('renders "HHG, PPM" when it is a combo move', done => {
-    wrapper = mountComponents(
-      retrieveMovesStub({
-        ppm_status: 'PAYMENT_REQUESTED',
-        hhg_status: 'APPROVED',
-      }),
-    );
-
-    setTimeout(() => {
-      const move = getMove(wrapper);
-      expect(move.shipments).toEqual('HHG, PPM');
-
-      done();
-    });
-  });
-
   it('does not display when the queue type is anything other than "new"', done => {
     wrapper = mountComponents(
       retrieveMovesStub({

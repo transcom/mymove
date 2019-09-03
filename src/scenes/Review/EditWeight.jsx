@@ -102,16 +102,13 @@ let EditWeightForm = props => {
             <span> lbs</span>
           </div>
           <div>
-            {!advanceError &&
-              initialValues &&
-              initialValues.incentive_estimate_min &&
-              dirty && (
-                <div className="usa-alert usa-alert-warning">
-                  <div className="usa-alert-body">
-                    <p className="usa-alert-text">This update will change your incentive.</p>
-                  </div>
+            {!advanceError && initialValues && initialValues.incentive_estimate_min && dirty && (
+              <div className="usa-alert usa-alert-warning">
+                <div className="usa-alert-body">
+                  <p className="usa-alert-text">This update will change your incentive.</p>
                 </div>
-              )}
+              </div>
+            )}
             {advanceError && (
               <p className="advance-error">Weight is too low and will require paying back the advance.</p>
             )}
@@ -286,4 +283,7 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditWeight);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(EditWeight);

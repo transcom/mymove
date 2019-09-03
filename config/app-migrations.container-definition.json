@@ -12,32 +12,36 @@
     "--",
     "/bin/milmove",
     "migrate",
-    "--logging-env",
-    "production",
     "--db-env",
     "container",
-    "-p",
-    "/migrate/migrations",
-    "-m",
-    "/migrate/migrations_manifest.txt"
+    "--logging-env",
+    "production"
   ],
   "command": [],
   "environment": [
+    {
+      "name": "DB_IAM",
+      "value": "{{ .DB_IAM }}"
+    },
+    {
+      "name": "DB_IAM_ROLE",
+      "value": "{{ .DB_IAM_ROLE }}"
+    },
+    {
+      "name": "DB_REGION",
+      "value": "us-west-2"
+    },
     {
       "name": "ENVIRONMENT",
       "value": "{{ .environment }}"
     },
     {
-      "name": "SECURE_MIGRATION_SOURCE",
-      "value": "s3"
+      "name": "MIGRATION_PATH",
+      "value": "s3://transcom-ppp-app-{{ .environment }}-us-west-2/secure-migrations;file:///migrate/migrations"
     },
     {
-      "name": "SECURE_MIGRATION_DIR",
-      "value": "/migrate/secure/"
-    },
-    {
-      "name": "SECURE_MIGRATION_BUCKET_NAME",
-      "value": "transcom-ppp-app-{{ .environment }}-us-west-2"
+      "name": "MIGRATION_MANIFEST",
+      "value": "/migrate/migrations_manifest.txt"
     },
     {
       "name": "DB_HOST",
@@ -49,7 +53,7 @@
     },
     {
       "name": "DB_USER",
-      "value": "master"
+      "value": "{{ .DB_USER }}"
     },
     {
       "name": "DB_NAME",
@@ -85,5 +89,6 @@
     }
   },
   "mountPoints": [],
-  "volumesFrom": []
+  "volumesFrom": [],
+  "readonlyRootFilesystem": true
 }

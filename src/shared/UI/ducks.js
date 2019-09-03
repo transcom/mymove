@@ -2,7 +2,6 @@ import { get } from 'lodash';
 
 import { fetchActive, fetchActiveShipment } from 'shared/utils';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
-import { selectShipment } from 'shared/Entities/modules/shipments';
 
 const initialState = {
   currentShipmentID: null,
@@ -45,8 +44,4 @@ export function setCurrentShipmentID(shipmentID) {
 // Selectors
 export function getCurrentShipmentID(state) {
   return get(state, 'ui.currentShipmentID');
-}
-
-export function getCurrentShipment(state) {
-  return selectShipment(state, get(state, 'ui.currentShipmentID'));
 }

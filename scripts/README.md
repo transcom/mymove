@@ -49,15 +49,6 @@ These scripts are primarily used for CircleCI workflows.
 | `ecs-run-app-migrations-container` | Creates and runs a migration task using the given container definition. |
 | `rds-snapshot-app-db` | Creates a snapshot of the app database for the given environment. |
 
-## Bug Triaging Scripts
-
-These scripts are used primarily for bug triaging in AWS.
-
-| Script Name | Description |
-| --- | --- |
-| `ecs-show-service-logs` |  Show logs from the containers running for the named service. |
-| `ecs-show-service-stopped-logs` |  Show logs from the most recently stopped app tasks. |
-
 ## Development Scripts
 
 These scripts are primarily used for developing the application and
@@ -81,7 +72,6 @@ This subset of development scripts is used primarily for building the app.
 | Script Name | Description |
 | --- | --- |
 | `copy-swagger-ui` |  Copies the assets (other than xxx.html) into the public directory |
-| `gen-model` | generate models using soda |
 | `gen-server` | generate swagger code from yaml files |
 
 ### Testing
@@ -90,7 +80,6 @@ This subset of development scripts is used for testing
 
 | Script Name | Description |
 | --- | --- |
-| `gen-e2e-migration` | generate migrations for cypress |
 | `run-e2e-test` | Runs cypress tests with interactive GUI |
 | `run-e2e-test-docker` | Runs cypress tests entirely inside docker containers like in CircleCI |
 
@@ -101,10 +90,8 @@ migrations.
 
 | Script Name | Description |
 | --- | --- |
-| `apply-secure-migration.sh` | Executes an SQL file from S3 against the environment's database. |
-| `generate-secure-migration` |  A script to help manage the creation of secure migrations |
 | `download-secure-migration` |  A script to download secure migrations from all environments |
-| `run-prod-migrations` |  A script to apply all migrations, including secure migrations, to a local database. |
+| `generate-secure-migration` |  A script to help manage the creation of secure migrations |
 | `upload-secure-migration` | A script to upload secure migrations to all environments |
 
 ### Database Scripts
@@ -122,3 +109,19 @@ These scripts are primarily used for working with the database
 | `psql-wrapper` | A wrapper around `psql` that sets correct values |
 | `wait-for-db` |  waits for an available database connection, or until a timeout is reached |
 | `wait-for-db-docker` |  waits for an available database connection, or until a timeout is reached using docker |
+
+### Amazon Console Scripts
+
+These scripts are used for quickly opening up tools in the AWS Console
+
+| Script Name | Description |
+| --- | --- |
+| `cloudwatch-logs` | Open up the CloudWatch logs group page |
+
+### Vulnerability Scanning
+
+These scripts are used to do vulnerability scanning on our code
+
+| Script Name | Description |
+| --- | --- |
+| `anti-virus` | Scan the source code for viruses |

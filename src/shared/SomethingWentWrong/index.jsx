@@ -1,6 +1,7 @@
 import React from 'react';
 import sadComputer from 'shared/images/sad-computer.png';
-const SomethingWentWrong = () => (
+
+const SomethingWentWrong = ({ error, info }) => (
   <div className="usa-grid">
     <div className="usa-width-one-whole align-center">
       <p>

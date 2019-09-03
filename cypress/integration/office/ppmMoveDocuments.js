@@ -24,28 +24,27 @@ function officeUserViewsPpmPanel(locatorId) {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });
 
-  cy
-    .get('.nav-tab')
+  cy.get('.nav-tab')
     .contains('PPM')
     .click();
 }
 
 function officeUserEditsDocumentStatus(documentTitle, oldDocumentStatus, newDocumentStatus) {
-  cy
-    .get('.documents')
+  cy.get('.documents')
+    .get('[data-cy="doc-link"]')
+    .find('a')
     .contains(documentTitle)
-    .click();
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+/);
-  });
+    .should('have.attr', 'href')
+    .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/)
+    .then(href => {
+      cy.patientVisit(href);
+    });
 
   cy.get('.panel-field.status').contains(oldDocumentStatus);
 
   cy.get('.editable-panel-edit').click();
 
-  cy
-    .get('label[for="moveDocument.status"]')
+  cy.get('label[for="moveDocument.status"]')
     .siblings()
     .first()
     .children()

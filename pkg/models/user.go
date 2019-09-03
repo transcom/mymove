@@ -103,11 +103,6 @@ type UserIdentity struct {
 	OfficeUserLastName     *string    `db:"ou_lname"`
 	OfficeUserMiddle       *string    `db:"ou_middle"`
 	OfficeDisabled         *bool      `db:"ou_disabled"`
-	TspUserID              *uuid.UUID `db:"tu_id"`
-	TspUserFirstName       *string    `db:"tu_fname"`
-	TspUserLastName        *string    `db:"tu_lname"`
-	TspUserMiddle          *string    `db:"tu_middle"`
-	TspDisabled            *bool      `db:"tu_disabled"`
 	AdminUserID            *uuid.UUID `db:"au_id"`
 	AdminUserRole          *AdminRole `db:"au_role"`
 	AdminUserFirstName     *string    `db:"au_fname"`
@@ -132,11 +127,6 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 				ou.last_name AS ou_lname,
 				ou.middle_initials AS ou_middle,
 				ou.disabled AS ou_disabled,
-				tu.id AS tu_id,
-				tu.first_name AS tu_fname,
-				tu.last_name AS tu_lname,
-				tu.middle_initials AS tu_middle,
-				tu.disabled AS tu_disabled,
 				au.id AS au_id,
 				au.role AS au_role,
 				au.first_name AS au_fname,
@@ -147,7 +137,6 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 			FROM users
 			LEFT OUTER JOIN service_members AS sm on sm.user_id = users.id
 			LEFT OUTER JOIN office_users AS ou on ou.user_id = users.id
-			LEFT OUTER JOIN tsp_users AS tu on tu.user_id = users.id
 			LEFT OUTER JOIN admin_users AS au on au.user_id = users.id
 			LEFT OUTER JOIN dps_users AS du on du.login_gov_email = users.login_gov_email
 			WHERE users.login_gov_uuid  = $1`
@@ -177,17 +166,6 @@ func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit 
 				ou.middle_initials AS ou_middle
 			FROM office_users as ou
 			JOIN users on ou.user_id = users.id
-			ORDER BY users.created_at LIMIT $1`
-	case auth.TspApp:
-		query = `SELECT users.id,
-				users.login_gov_email AS email,
-				users.disabled AS disabled,
-				tu.id AS tu_id,
-				tu.first_name AS tu_fname,
-				tu.last_name AS tu_lname,
-				tu.middle_initials AS tu_middle
-			FROM tsp_users as tu
-			JOIN users on tu.user_id = users.id
 			ORDER BY users.created_at LIMIT $1`
 	case auth.AdminApp:
 		query = `SELECT users.id,
@@ -232,17 +210,17 @@ func firstValue(vals ...*string) string {
 	return ""
 }
 
-// FirstName gets the firstname of the user from either the ServiceMember or OfficeUser or TspUser identity
+// FirstName gets the firstname of the user from either the ServiceMember or OfficeUser identity
 func (ui *UserIdentity) FirstName() string {
-	return firstValue(ui.ServiceMemberFirstName, ui.OfficeUserFirstName, ui.TspUserFirstName)
+	return firstValue(ui.ServiceMemberFirstName, ui.OfficeUserFirstName)
 }
 
 // LastName gets the firstname of the user from either the ServiceMember or OfficeUser or TspUser identity
 func (ui *UserIdentity) LastName() string {
-	return firstValue(ui.ServiceMemberLastName, ui.OfficeUserLastName, ui.TspUserLastName)
+	return firstValue(ui.ServiceMemberLastName, ui.OfficeUserLastName)
 }
 
 // Middle gets the MiddleName or Initials from the ServiceMember or OfficeUser or TspUser Identity
 func (ui *UserIdentity) Middle() string {
-	return firstValue(ui.ServiceMemberMiddle, ui.OfficeUserMiddle, ui.TspUserMiddle)
+	return firstValue(ui.ServiceMemberMiddle, ui.OfficeUserMiddle)
 }

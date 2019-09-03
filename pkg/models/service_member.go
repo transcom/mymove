@@ -9,7 +9,6 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -91,9 +90,6 @@ func (s *ServiceMember) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 // This method is thereby a useful way of performing access control checks.
 func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (ServiceMember, error) {
 
-	_, span := beeline.StartSpan(ctx, "FetchServiceMemberForUser")
-	defer span.Send()
-
 	var serviceMember ServiceMember
 	err := db.Q().Eager("User",
 		"BackupMailingAddress",
@@ -113,25 +109,6 @@ func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session 
 	// TODO: Handle case where more than one user is authorized to modify serviceMember
 	if session.IsMilApp() && serviceMember.ID != session.ServiceMemberID {
 		return ServiceMember{}, ErrFetchForbidden
-	} else if session.IsTspApp() {
-		// A TspUser is only allowed to interact with a service member if they are associated with one of their shipments.
-		query := `
-			SELECT tsp_users.id FROM tsp_users, shipment_offers, shipments
-			WHERE
-				tsp_users.transportation_service_provider_id = shipment_offers.transportation_service_provider_id
-				AND shipment_offers.shipment_id = shipments.id
-				AND shipment_offers.accepted IS NOT FALSE
-				AND tsp_users.id = $1
-				AND shipments.service_member_id = $2
-		`
-
-		count, err := db.RawQuery(query, session.TspUserID, serviceMember.ID).Count(TspUser{})
-		if err != nil {
-			return ServiceMember{}, err
-		}
-		if count == 0 {
-			return ServiceMember{}, ErrFetchForbidden
-		}
 	}
 
 	// TODO: Remove this when Pop's eager loader stops populating blank structs into these fields
@@ -167,9 +144,6 @@ func FetchServiceMember(db *pop.Connection, id uuid.UUID) (ServiceMember, error)
 
 // SaveServiceMember takes a serviceMember with Address structs and coordinates saving it all in a transaction
 func SaveServiceMember(ctx context.Context, dbConnection *pop.Connection, serviceMember *ServiceMember) (*validate.Errors, error) {
-
-	_, span := beeline.StartSpan(ctx, "SaveServiceMember")
-	defer span.Send()
 
 	responseVErrors := validate.NewErrors()
 	var responseError error
@@ -351,8 +325,6 @@ func (s *ServiceMember) IsProfileComplete() bool {
 
 // FetchLatestOrder gets the latest order for a service member
 func (s ServiceMember) FetchLatestOrder(ctx context.Context, db *pop.Connection) (Order, error) {
-	_, span := beeline.StartSpan(ctx, "FetchLatestOrder")
-	defer span.Send()
 
 	var order Order
 	query := db.Where("service_member_id = $1", s.ID).Order("created_at desc")
