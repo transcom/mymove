@@ -1,9 +1,12 @@
 package models_test
 
 import (
+	"time"
+
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/models"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -79,4 +82,52 @@ func (suite *ModelSuite) TestPPMStateMachine() {
 	err = ppm.Cancel()
 	suite.NoError(err)
 	suite.Equal(PPMStatusCANCELED, ppm.Status, "expected Canceled")
+}
+
+func (suite *ModelSuite) TestFetchMoveDocumentsForTypes() {
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	sm := ppm.Move.Orders.ServiceMember
+
+	assertions := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm.Move.ID,
+			Move:                     ppm.Move,
+			PersonallyProcuredMoveID: &ppm.ID,
+			Status:                   "OK",
+			MoveDocumentType:         "EXPENSE",
+		},
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+		},
+	}
+
+	testdatagen.MakeMovingExpenseDocument(suite.DB(), assertions)
+	testdatagen.MakeMovingExpenseDocument(suite.DB(), assertions)
+
+	deletedAt := time.Date(2019, 8, 7, 0, 0, 0, 0, time.UTC)
+	deleteAssertions := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm.Move.ID,
+			Move:                     ppm.Move,
+			PersonallyProcuredMoveID: &ppm.ID,
+			Status:                   "OK",
+			MoveDocumentType:         "EXPENSE",
+			DeletedAt:                &deletedAt,
+		},
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+			DeletedAt:       &deletedAt,
+		},
+	}
+	testdatagen.MakeMovingExpenseDocument(suite.DB(), deleteAssertions)
+
+	docTypes := []string{"EXPENSE"}
+	moveDocs, err := ppm.FetchMoveDocumentsForTypes(suite.DB(), docTypes)
+
+	if suite.NoError(err) {
+		suite.Equal(2, len(moveDocs))
+	}
+
 }

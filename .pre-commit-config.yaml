@@ -9,7 +9,7 @@ repos:
         types: [go]
 
   - repo: git://github.com/pre-commit/pre-commit-hooks
-    rev: v2.2.3
+    rev: v2.3.0
     hooks:
       - id: check-json
       - id: check-merge-conflict
@@ -35,7 +35,7 @@ repos:
 
 
   - repo: git://github.com/igorshubovych/markdownlint-cli
-    rev: v0.17.0
+    rev: v0.18.0
     hooks:
       - id: markdownlint
         entry: markdownlint --ignore .github/*.md
