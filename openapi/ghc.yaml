@@ -105,7 +105,7 @@ paths:
           description: orders not found
         '500':
           description: internal server error
-    put: # GHC can mark final- could be its own endpoint; could do status update for accept/reject in separate endpoint
+    patch: # GHC can mark final- could be its own endpoint; could do status update for accept/reject in separate endpoint
       summary: Updates a payment request
       description: Updates a payment request
       operationId: updatePaymentRequest
@@ -240,7 +240,7 @@ paths:
           description: orders not found
         '500':
           description: internal server error
-    put: # could make update of status to accept/reject a different endpoint
+    patch: # could make update of status to accept/reject a different endpoint
       summary: Updates a invoice request
       description: Updates a invoice request
       operationId: updateInvoiceRequest
