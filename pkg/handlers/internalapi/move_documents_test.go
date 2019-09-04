@@ -338,3 +338,46 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	}
 	suite.Equal(expectedResponse, response)
 }
+
+func (suite *HandlerSuite) TestDeleteMoveDocumentHandler() {
+	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			Status: models.PPMStatusPAYMENTREQUESTED,
+		},
+	})
+	move := ppm.Move
+	sm := move.Orders.ServiceMember
+
+	moveDocument := testdatagen.MakeMoveDocument(suite.DB(), testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   move.ID,
+			Move:                     move,
+			MoveDocumentType:         models.MoveDocumentTypeSHIPMENTSUMMARY,
+			PersonallyProcuredMoveID: &ppm.ID,
+		},
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+		},
+	})
+	request := httptest.NewRequest("POST", "/fake/path", nil)
+	request = suite.AuthenticateRequest(request, sm)
+
+	deleteMoveDocParams := movedocop.DeleteMoveDocumentParams{
+		HTTPRequest:    request,
+		MoveDocumentID: strfmt.UUID(moveDocument.ID.String()),
+	}
+
+	handler := DeleteMoveDocumentHandler{
+		handlers.NewHandlerContext(suite.DB(),
+			suite.TestLogger()),
+	}
+
+	response := handler.Handle(deleteMoveDocParams)
+	errorResponse := response.(*handlers.ErrResponse)
+	//expectedError := errors.New("Can only delete weight ticket set and expense documents")
+	suite.Equal(http.StatusInternalServerError, errorResponse.Code)
+	suite.Equal("Can only delete weight ticket set and expense documents", errorResponse.Err.Error())
+
+	//suite.Assertions.IsType(&movedocop.DeleteMoveDocumentNoContent{}, response)
+}
