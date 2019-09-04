@@ -107,8 +107,6 @@ To continue you need to get the Token from the CAC with a script in transcom/mym
 cac-extract-token-label
 ```
 
-Grab the `token label` from `Slot 0`. It should have your name and a number in it.
-
 Now over in your git checkout of the transcom/nom repo. Then download the [sample csv](https://drive.google.com/open?id=1-zxetfRhLEpnx1SBTAveoTLpwEzp3fK-) into the repo. And run these commands (**NOTE:** you will need your CAC personal PIN to do this operation):
 
 ```sh
