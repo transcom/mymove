@@ -149,9 +149,6 @@ function officeUserVerifiesOrders(moveLocator) {
   // Verify data has been saved in the UI
   cy.get('span').contains('666666');
 
-  cy.get('span').contains('ISSUING AGENCY');
-  cy.get('span').contains('FP-TP');
-
   // Enter SAC
   cy.get('.combo-button button').should('be.disabled');
 
@@ -182,9 +179,6 @@ function officeUserVerifiesOrders(moveLocator) {
 
   cy.get('span').contains('666666');
   cy.get('span').contains('Delayed Approval 20 Weeks or More');
-
-  cy.get('span').contains('ISSUING AGENCY');
-  cy.get('span').contains('FP-TP');
 }
 
 function officeUserVerifiesAccounting() {
