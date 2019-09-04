@@ -29,9 +29,13 @@ type IndexElectronicOrdersHandler struct {
 
 func (h IndexElectronicOrdersHandler) Handle(params electronicorderop.IndexElectronicOrdersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	queryFilters := []services.QueryFilter{}
+	// queryFilters := []services.QueryFilter{}
 
-	electronicOrders, err := h.ElectronicOrderListFetcher.FetchElectronicOrderList(queryFilters)
+	// electronicOrders, err := h.ElectronicOrderListFetcher.FetchElectronicOrderList(queryFilters)
+	// TODO: Remove when we ship pagination in the query builder
+	query := `SELECT id, issuer, created_at, updated_at from electronic_orders LIMIT 100`
+	electronicOrders := models.ElectronicOrders{}
+	err := h.DB().RawQuery(query).All(&electronicOrders)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
