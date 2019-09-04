@@ -4,6 +4,7 @@ import { getClient, checkResponse } from 'shared/Swagger/api';
 import { MOVE_DOC_TYPE, MOVE_DOC_STATUS } from 'shared/constants';
 import { moveDocuments } from '../schema';
 import { ADD_ENTITIES, addEntities } from '../actions';
+import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 export const STATE_KEY = 'moveDocuments';
 
@@ -20,6 +21,9 @@ export default function reducer(state = {}, action) {
       return state;
   }
 }
+
+const deleteMoveDocumentType = 'DELETE_MOVE_DOCUMENT';
+export const DELETE_MOVE_DOCUMENT = ReduxHelpers.generateAsyncActionTypes(deleteMoveDocumentType);
 
 // Utilities
 export const findPendingWeightTickets = moveDocs => {
@@ -76,6 +80,20 @@ export const updateMoveDocument = (moveId, moveDocumentId, payload) => {
     const data = normalize(response.body, schema.moveDocument);
     dispatch(addEntities(data.entities));
     return response;
+  };
+};
+
+export const deleteMoveDocument = (moveId, moveDocumentId) => {
+  return async function(dispatch, getState) {
+    const action = ReduxHelpers.generateAsyncActions(deleteMoveDocumentType);
+    const client = await getClient();
+    const response = await client.apis.move_docs.deleteMoveDocument({
+      moveId,
+      moveDocumentId,
+    });
+    checkResponse(response, 'failed to delete move document due to server error');
+    dispatch(action.success(moveDocumentId));
+    return Promise.resolve();
   };
 };
 
