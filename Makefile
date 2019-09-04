@@ -239,7 +239,7 @@ bin/make-dps-user: .server_generate.stamp
 bin/make-office-user: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
 
-bin/milmove: .server_generate.stamp
+bin/milmove: .server_generate.stamp pkg/assets/assets.go
 	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
 bin_linux/milmove: .server_generate_linux.stamp
