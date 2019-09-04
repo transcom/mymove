@@ -258,7 +258,7 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger)
 	// Configure DB connection details
 	dbConnectionDetails := pop.ConnectionDetails{
 		Dialect:  "postgres",
-		Driver:   "postgres",
+		Driver:   "iampostgres",
 		Database: dbName,
 		Host:     dbHost,
 		Port:     dbPort,
@@ -272,8 +272,6 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger)
 	if v.GetBool(DbIamFlag) {
 		// Set password holder for IAMPostgres to easily repalce with temp password
 		passHolder := "*****"
-
-		dbConnectionDetails.Driver = "iampostgres"
 
 		iampg.EnableIAM(dbConnectionDetails.Host,
 			dbConnectionDetails.Port,
@@ -365,6 +363,6 @@ func testConnection(dbConnDetails *pop.ConnectionDetails, useIam bool, logger Lo
 		return err
 	}
 
-	logger.Info("Test connection passed with successfull DB ping.")
+	logger.Info("...DB ping successful!")
 	return nil
 }
