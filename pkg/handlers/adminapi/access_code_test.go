@@ -1,9 +1,9 @@
 package adminapi
 
 import (
-	"github.com/transcom/mymove/pkg/handlers"
+	"fmt"
 )
 
-type IndexAccessCodesHandler struct {
-	handlers.HandlerContext
+func (suite *HandlerSuite) TestIndexAccessCodesHandler() {
+	fmt.Println("Not yet implemented")
 }

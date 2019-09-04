@@ -2,13 +2,14 @@ package accesscode
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"strings"
 )
 
 type accessCodeListQueryBuilder interface {
-	QueryAssociations(model interface{}, associations []services.QueryAssociation, filters []services.QueryFilter) error
+	QueryForAssociations(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter) error
 }
 
 type accessCodeListFetcher struct {
@@ -16,13 +17,13 @@ type accessCodeListFetcher struct {
 }
 
 // FetchAccessCodeList uses the passed query builder to fetch a list of access codes
-func (o *accessCodeListFetcher) FetchAccessCodeList(filters []services.QueryFilter, associations []services.QueryAssociation) (models.AccessCodes, error) {
+func (o *accessCodeListFetcher) FetchAccessCodeList(filters []services.QueryFilter, associations services.QueryAssociations) (models.AccessCodes, error) {
 	var accessCodes models.AccessCodes
 
 	fmt.Println(strings.Repeat("*", 100))
 	fmt.Println(accessCodes)
 	fmt.Println(len(accessCodes))
-	error := o.builder.QueryAssociations(&accessCodes, associations, filters)
+	error := o.builder.QueryForAssociations(&accessCodes, associations, filters)
 
 	return accessCodes, error
 }

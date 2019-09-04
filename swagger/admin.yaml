@@ -33,10 +33,33 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
       transportation_office:
         $ref: '#/definitions/TransportationOffice'
+  AccessCode:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      code:
+        type: string
+        example: CODE456
+      move_type:
+        type: string
+        title: Selected Move Type
+        enum:
+          - HHG
+          - PPM
+      locator:
+        type: string
+        example: '11232'
   OfficeUsers:
     type: array
     items:
       $ref: '#/definitions/OfficeUser'
+  AccessCodes:
+    type: array
+    items:
+      $ref: '#/definitions/AccessCode'
   TransportationOffice:
     type: object
     properties:
@@ -251,28 +274,6 @@ definitions:
         type: string
         format: uuid
         example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
-  AccessCode:
-    type: object
-    properties:
-      code:
-        type: string
-        example: CODE456
-      move_type:
-        type: string
-        title: Selected Move Type
-        enum:
-          - HHG
-          - PPM
-      locator:
-          type: string
-          example: '11232'
-  AccessCodes:
-    type: object
-    properties:
-      access_codes:
-        type: array
-        items:
-          $ref: '#/definitions/AccessCode'
 paths:
   /access_codes:
     get:
@@ -289,7 +290,11 @@ paths:
             type: string
       responses:
         200:
-          description: access codes
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
           schema:
             $ref: '#/definitions/AccessCodes'
         400:

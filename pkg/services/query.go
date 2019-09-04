@@ -16,12 +16,12 @@ type NewQueryFilter func(column string, comparator string, value interface{}) Qu
 // QueryAssociation is an interface to allow passing association values into query interfaces
 //go:generate mockery -name QueryAssociation
 type QueryAssociation interface {
-	Association() string
+	Field() string
 }
 
 // NewQueryAssociation is a function type definition for building a QueryAssociation
 // Should allow services to pass associated data values for querying into QueryAssociations
-type NewQueryAssociation func(model string, column string) QueryAssociation
+type NewQueryAssociation func(field string) QueryAssociation
 
 // QueryAssociations is an interface to allow
 //go:generate mockery -name QueryAssociations

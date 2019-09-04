@@ -1,43 +1,39 @@
 package query
 
 import (
-	"fmt"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 type queryAssociation struct {
-	model string
-	column string
+	field string
 }
 
-func(a queryAssociation) Association() string {
-	return fmt.Sprintf("%s.%s", a.model, a.column)
+func (q queryAssociation) Field() string {
+	return q.field
 }
 
-func NewQueryAssociation(model string, column string) services.QueryAssociation {
+func NewQueryAssociation(field string) services.QueryAssociation {
 	return queryAssociation{
-		model,
-		column,
+		field,
 	}
 }
 
 type queryAssociations struct {
-	associations []queryAssociation
+	associations []services.QueryAssociation
 }
 
-func(as queryAssociations) StringGetAssociations () []string {
-	associations := make([]string, 0, len(as.associations))
+func (qa queryAssociations) StringGetAssociations() []string {
+	associations := make([]string, 0, len(qa.associations))
 
-	for _, a := range as.associations {
-		associations = append(associations, a.Association())
+	for _, a := range qa.associations {
+		associations = append(associations, a.Field())
 	}
 
 	return associations
 }
 
-func NewQueryAssociations(associations []queryAssociation) services.QueryAssociations {
+func NewQueryAssociations(associations []services.QueryAssociation) services.QueryAssociations {
 	return queryAssociations{
 		associations,
 	}
 }
-

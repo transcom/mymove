@@ -250,10 +250,10 @@ func (suite *QueryBuilderSuite) TestQueryAssociations() {
 	user := testdatagen.MakeDefaultUser(suite.DB())
 	selectedMoveType := models.SelectedMoveTypeHHG
 	sm := models.ServiceMember{
-		User:                 user,
-		UserID:               user.ID,
-		FirstName:            models.StringPointer("Travis"),
-		LastName:			  models.StringPointer("Wayfarer"),
+		User:      user,
+		UserID:    user.ID,
+		FirstName: models.StringPointer("Travis"),
+		LastName:  models.StringPointer("Wayfarer"),
 	}
 	suite.MustSave(&sm)
 	// creates access code
@@ -267,30 +267,25 @@ func (suite *QueryBuilderSuite) TestQueryAssociations() {
 	}
 	suite.MustSave(&invalidAccessCode)
 
-
 	builder := NewQueryBuilder(suite.DB())
 	var accessCodes models.AccessCodes
-
 
 	suite.T().Run("fetches associated data", func(t *testing.T) {
 
 		filters := []services.QueryFilter{}
-		associations := []services.QueryAssociation{
-			NewQueryAssociation("ServiceMember", "ID"),
+		queryAssociations := []services.QueryAssociation{
+			NewQueryAssociation("ServiceMember"),
 		}
-		[]services.QueryAssociations{
-			NewQueryAssociations(associations)
-		}
+		associations := NewQueryAssociations(queryAssociations)
 
-		err := builder.QueryAssociations(&accessCodes,
+		err := builder.QueryForAssociations(
+			&accessCodes,
 			associations,
 			filters,
 		)
-		//
+
 		suite.NoError(err)
 		suite.Equal(accessCodes[0].ServiceMember.FirstName, sm.FirstName)
-
 	})
-
 
 }

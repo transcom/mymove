@@ -5,6 +5,7 @@ import AdminPagination from './AdminPagination';
 const AccessCodeList = props => (
   <List {...props} pagination={<AdminPagination />} perPage={500}>
     <Datagrid>
+      <TextField source="id" />
       <TextField source="code" />
       <TextField source="move_type" />
       <TextField source="locator" />

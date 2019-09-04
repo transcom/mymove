@@ -140,7 +140,7 @@ func (p *Builder) CreateOne(model interface{}) (*validate.Errors, error) {
 	return nil, nil
 }
 
-func (p *Builder) QueryAssociations(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter) error {
+func (p *Builder) QueryForAssociations(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return errors.New(fetchOneReflectionMessage)
@@ -166,8 +166,7 @@ func (p *Builder) QueryAssociations(model interface{}, associations services.Que
 	return nil
 }
 
-func associatedQuery(query *pop.Query, associations services.QueryAssociations, model interface  {}) error {
+func associatedQuery(query *pop.Query, associations services.QueryAssociations, model interface{}) error {
 	query = query.Eager(associations.StringGetAssociations()...)
-	fmt.Println(associations)
 	return query.All(model)
 }
