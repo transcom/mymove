@@ -9,6 +9,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -16,7 +17,7 @@ type testElectronicOrderListQueryBuilder struct {
 	fakeFetchMany func(model interface{}) error
 }
 
-func (t *testElectronicOrderListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter) error {
+func (t *testElectronicOrderListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, pagination services.Pagination) error {
 	m := t.fakeFetchMany(model)
 	return m
 }
@@ -39,7 +40,9 @@ func (suite *ElectronicOrderServiceSuite) TestFetchElectronicOrderList() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		electronicOrders, err := fetcher.FetchElectronicOrderList(filters)
+		pagination := pagination.NewPagination(1, 25)
+
+		electronicOrders, err := fetcher.FetchElectronicOrderList(filters, pagination)
 
 		suite.NoError(err)
 		suite.Equal(id, electronicOrders[0].ID)
@@ -55,7 +58,9 @@ func (suite *ElectronicOrderServiceSuite) TestFetchElectronicOrderList() {
 
 		fetcher := NewElectronicOrderListFetcher(builder)
 
-		electronicOrders, err := fetcher.FetchElectronicOrderList([]services.QueryFilter{})
+		pagination := pagination.NewPagination(1, 25)
+
+		electronicOrders, err := fetcher.FetchElectronicOrderList([]services.QueryFilter{}, pagination)
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

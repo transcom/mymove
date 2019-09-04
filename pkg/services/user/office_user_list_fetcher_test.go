@@ -9,6 +9,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -16,7 +17,7 @@ type testOfficeUserListQueryBuilder struct {
 	fakeFetchMany func(model interface{}) error
 }
 
-func (t *testOfficeUserListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter) error {
+func (t *testOfficeUserListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, pagination services.Pagination) error {
 	m := t.fakeFetchMany(model)
 	return m
 }
@@ -39,7 +40,9 @@ func (suite *UserServiceSuite) TestFetchOfficeUserList() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		officeUsers, err := fetcher.FetchOfficeUserList(filters)
+		pagination := pagination.NewPagination(1, 25)
+
+		officeUsers, err := fetcher.FetchOfficeUserList(filters, pagination)
 
 		suite.NoError(err)
 		suite.Equal(id, officeUsers[0].ID)
@@ -54,8 +57,9 @@ func (suite *UserServiceSuite) TestFetchOfficeUserList() {
 		}
 
 		fetcher := NewOfficeUserListFetcher(builder)
+		pagination := pagination.NewPagination(1, 25)
 
-		officeUsers, err := fetcher.FetchOfficeUserList([]services.QueryFilter{})
+		officeUsers, err := fetcher.FetchOfficeUserList([]services.QueryFilter{}, pagination)
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

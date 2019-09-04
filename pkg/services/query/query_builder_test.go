@@ -9,6 +9,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
@@ -119,7 +120,9 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 			NewQueryFilter("id", equals, user2.ID.String()),
 		}
 
-		err := builder.FetchMany(&actualUsers, filters)
+		pagination := pagination.NewPagination(1, 25)
+
+		err := builder.FetchMany(&actualUsers, filters, pagination)
 
 		suite.NoError(err)
 		suite.Len(actualUsers, 1)
@@ -131,7 +134,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		}
 		var actualUsers models.OfficeUsers
 
-		err = builder.FetchMany(&actualUsers, filters)
+		err = builder.FetchMany(&actualUsers, filters, pagination)
 
 		suite.NoError(err)
 		suite.Len(actualUsers, 1)
@@ -144,8 +147,10 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		}
 		var actualUsers models.OfficeUsers
 
+		pagination := pagination.NewPagination(1, 25)
+
 		pop.Debug = true
-		err := builder.FetchMany(&actualUsers, filters)
+		err := builder.FetchMany(&actualUsers, filters, pagination)
 		pop.Debug = false
 
 		suite.NoError(err)
@@ -159,7 +164,9 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 			NewQueryFilter("fake_column", equals, user.ID.String()),
 		}
 
-		err := builder.FetchMany(&actualUsers, filters)
+		pagination := pagination.NewPagination(1, 25)
+
+		err := builder.FetchMany(&actualUsers, filters, pagination)
 
 		suite.Error(err)
 		suite.Equal("[fake_column =] is not valid input", err.Error())
@@ -172,7 +179,9 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 			NewQueryFilter("id", "*", user.ID.String()),
 		}
 
-		err := builder.FetchMany(&actualUsers, filters)
+		pagination := pagination.NewPagination(1, 25)
+
+		err := builder.FetchMany(&actualUsers, filters, pagination)
 
 		suite.Error(err)
 		suite.Equal("[id *] is not valid input", err.Error())
@@ -182,7 +191,9 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 	suite.T().Run("fails when not pointer", func(t *testing.T) {
 		var actualUsers models.OfficeUsers
 
-		err := builder.FetchMany(actualUsers, []services.QueryFilter{})
+		pagination := pagination.NewPagination(1, 25)
+
+		err := builder.FetchMany(actualUsers, []services.QueryFilter{}, pagination)
 
 		suite.Error(err)
 		suite.Equal("Model should be pointer to slice of structs", err.Error())
@@ -192,7 +203,9 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 	suite.T().Run("fails when not pointer to slice", func(t *testing.T) {
 		var actualUser models.OfficeUser
 
-		err := builder.FetchMany(&actualUser, []services.QueryFilter{})
+		pagination := pagination.NewPagination(1, 25)
+
+		err := builder.FetchMany(&actualUser, []services.QueryFilter{}, pagination)
 
 		suite.Error(err)
 		suite.Equal("Model should be pointer to slice of structs", err.Error())
@@ -202,7 +215,9 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 	suite.T().Run("fails when not pointer to slice of structs", func(t *testing.T) {
 		var intSlice []int
 
-		err := builder.FetchMany(&intSlice, []services.QueryFilter{})
+		pagination := pagination.NewPagination(1, 25)
+
+		err := builder.FetchMany(&intSlice, []services.QueryFilter{}, pagination)
 
 		suite.Error(err)
 		suite.Equal("Model should be pointer to slice of structs", err.Error())
