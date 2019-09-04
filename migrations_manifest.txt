@@ -345,3 +345,4 @@
 20190814223800_add_john_gedeon.sql
 20190815172746_disable_mikena.up.sql
 20190821192638_add_office_user.up.sql
+20190903215326_delete_hhg_tables_data.up.sql
