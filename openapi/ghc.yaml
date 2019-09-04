@@ -371,6 +371,12 @@ components:
           $ref: '#/components/schemas/DocumentPackage'
         task_order:
           $ref: '#/components/schemas/TaskOrder'
+        task_order_line_item_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+            example: c56a4180-65aa-42ec-a945-5fd21dec0538
         is_final:
           type: boolean
           default: false
@@ -422,6 +428,21 @@ components:
           type: string
           format: uuid
           example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    TaskOrderLineItem: #stub
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        task_order_id:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        payment_request_id:
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+          x-nullable: true
     PaymentRequestStatus:
       type: string
       title: Payment Request Status
