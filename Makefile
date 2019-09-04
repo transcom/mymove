@@ -206,9 +206,6 @@ bin/ecs-deploy-task-container: server_deps server_generate
 bin/ecs-service-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
 
-bin/generate-1203-form: .server_generate.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
-
 bin/generate-access-codes: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-access-codes ./cmd/generate_access_codes
 

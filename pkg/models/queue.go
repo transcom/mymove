@@ -63,7 +63,6 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				moves.status as status,
 				ppm.status as ppm_status,
 				shipment.status as hhg_status,
-				shipment.gbl_number as gbl_number,
 				shipment.pm_survey_conducted_date as pm_survey_conducted_date,
 				json_agg(json_build_object('id', sits.id , 'location', sits.location, 'status', sits.status, 'actual_start_date', sits.actual_start_date, 'out_date', sits.out_date)) as sit_array,
 				json_agg(slis.status) as sli_array,
