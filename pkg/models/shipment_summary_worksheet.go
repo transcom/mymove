@@ -87,44 +87,47 @@ type ShipmentSummaryWorkSheetSIT struct {
 	DaysInStorage  string
 }
 
-type FormattedSitExpenses struct {
-	TotalMemberPaidSIT string
-	TotalGTCCPaidSIT   string
-	TotalPaidSIT       string
-}
-
 // ShipmentSummaryWorksheetPage2Values is an object representing a Shipment Summary Worksheet
 type ShipmentSummaryWorksheetPage2Values struct {
 	PreparationDate string
 	TAC             string
 	SAC             string
 	FormattedMovingExpenses
-	FormattedSitExpenses
+}
+
+type Dollar float64
+
+func (d Dollar) String() string {
+	p := message.NewPrinter(language.English)
+	return p.Sprintf("$%.2f", d)
 }
 
 //FormattedMovingExpenses is an object representing the service member's moving expenses formatted for the SSW
 type FormattedMovingExpenses struct {
-	ContractedExpenseMemberPaid string
-	ContractedExpenseGTCCPaid   string
-	RentalEquipmentMemberPaid   string
-	RentalEquipmentGTCCPaid     string
-	PackingMaterialsMemberPaid  string
-	PackingMaterialsGTCCPaid    string
-	WeighingFeesMemberPaid      string
-	WeighingFeesGTCCPaid        string
-	GasMemberPaid               string
-	GasGTCCPaid                 string
-	TollsMemberPaid             string
-	TollsGTCCPaid               string
-	OilMemberPaid               string
-	OilGTCCPaid                 string
-	OtherMemberPaid             string
-	OtherGTCCPaid               string
-	TotalMemberPaid             string
-	TotalGTCCPaid               string
-	TotalMemberPaidRepeated     string
-	TotalGTCCPaidRepeated       string
-	TotalPaidNonSIT             string
+	ContractedExpenseMemberPaid Dollar
+	ContractedExpenseGTCCPaid   Dollar
+	RentalEquipmentMemberPaid   Dollar
+	RentalEquipmentGTCCPaid     Dollar
+	PackingMaterialsMemberPaid  Dollar
+	PackingMaterialsGTCCPaid    Dollar
+	WeighingFeesMemberPaid      Dollar
+	WeighingFeesGTCCPaid        Dollar
+	GasMemberPaid               Dollar
+	GasGTCCPaid                 Dollar
+	TollsMemberPaid             Dollar
+	TollsGTCCPaid               Dollar
+	OilMemberPaid               Dollar
+	OilGTCCPaid                 Dollar
+	OtherMemberPaid             Dollar
+	OtherGTCCPaid               Dollar
+	TotalMemberPaid             Dollar
+	TotalGTCCPaid               Dollar
+	TotalMemberPaidRepeated     Dollar
+	TotalGTCCPaidRepeated       Dollar
+	TotalPaidNonSIT             Dollar
+	TotalMemberPaidSIT          Dollar
+	TotalGTCCPaidSIT            Dollar
+	TotalPaidSIT                Dollar
 }
 
 // FormattedOtherExpenses is an object representing the other moving expenses formatted for the SSW
@@ -450,15 +453,13 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData)
 	page2.SAC = derefStringTypes(data.Order.SAC)
 	page2.PreparationDate = FormatDate(data.PreparationDate)
 	page2.FormattedMovingExpenses, err = FormatMovingExpenses(data.MovingExpenseDocuments)
+	page2.FormattedMovingExpenses.TotalPaidNonSIT = page2.FormattedMovingExpenses.TotalGTCCPaid + page2.FormattedMovingExpenses.TotalMemberPaid
+	page2.FormattedMovingExpenses.TotalPaidSIT = page2.FormattedMovingExpenses.TotalGTCCPaidSIT + page2.FormattedMovingExpenses.TotalMemberPaidSIT
 	if err != nil {
 		return page2, err
 	}
-	page2.FormattedSitExpenses, err = FormatSitExpenses(data.MovingExpenseDocuments)
 	page2.TotalMemberPaidRepeated = page2.TotalMemberPaid
 	page2.TotalGTCCPaidRepeated = page2.TotalGTCCPaid
-	if err != nil {
-		return page2, err
-	}
 	return page2, nil
 }
 
@@ -578,71 +579,9 @@ func FormatAllSITExpenses(movingExpenseDocuments MovingExpenseDocuments) Shipmen
 }
 
 //FormatMovingExpenses formats moving expenses for Shipment Summary Worksheet
-func FormatSitExpenses(movingExpenseDocuments MovingExpenseDocuments) (FormattedSitExpenses, error) {
-	sitExpenses := FilterSITExpenses(movingExpenseDocuments)
-	storageExpenses := struct {
-		StorageGTCCPaid   string
-		StorageMemberPaid string
-	}{
-		StorageGTCCPaid:   FormatDollars(0),
-		StorageMemberPaid: FormatDollars(0),
-	}
-	subTotals := SubTotalExpenses(sitExpenses)
-	formattedExpenses := make(map[string]string)
-	for key, value := range subTotals {
-		formattedExpenses[key] = FormatDollars(value)
-	}
-	err := mapstructure.Decode(formattedExpenses, &storageExpenses)
-	if err != nil {
-		return FormattedSitExpenses{}, err
-	}
-	return FormattedSitExpenses{
-		TotalMemberPaidSIT: storageExpenses.StorageMemberPaid,
-		TotalGTCCPaidSIT:   storageExpenses.StorageGTCCPaid,
-		TotalPaidSIT:       FormatDollars(subTotals["TotalPaid"]),
-	}, nil
-}
-
-//FormatMovingExpenses formats moving expenses for Shipment Summary Worksheet
 func FormatMovingExpenses(movingExpenseDocuments MovingExpenseDocuments) (FormattedMovingExpenses, error) {
-	var nonSitExpenses []MovingExpenseDocument
-	for _, doc := range movingExpenseDocuments {
-		if doc.MovingExpenseType != MovingExpenseTypeSTORAGE {
-			nonSitExpenses = append(nonSitExpenses, doc)
-		}
-	}
-	expenses := FormattedMovingExpenses{
-		ContractedExpenseMemberPaid: FormatDollars(0),
-		ContractedExpenseGTCCPaid:   FormatDollars(0),
-		RentalEquipmentMemberPaid:   FormatDollars(0),
-		RentalEquipmentGTCCPaid:     FormatDollars(0),
-		PackingMaterialsMemberPaid:  FormatDollars(0),
-		PackingMaterialsGTCCPaid:    FormatDollars(0),
-		WeighingFeesMemberPaid:      FormatDollars(0),
-		WeighingFeesGTCCPaid:        FormatDollars(0),
-		GasMemberPaid:               FormatDollars(0),
-		GasGTCCPaid:                 FormatDollars(0),
-		TollsMemberPaid:             FormatDollars(0),
-		TollsGTCCPaid:               FormatDollars(0),
-		OilMemberPaid:               FormatDollars(0),
-		OilGTCCPaid:                 FormatDollars(0),
-		OtherMemberPaid:             FormatDollars(0),
-		OtherGTCCPaid:               FormatDollars(0),
-		TotalMemberPaid:             FormatDollars(0),
-		TotalGTCCPaid:               FormatDollars(0),
-	}
-	subTotals := SubTotalExpenses(nonSitExpenses)
-	expenses.TotalPaidNonSIT = FormatDollars(subTotals["TotalPaid"])
-	formattedExpenses := make(map[string]string)
-	for key, value := range subTotals {
-		formattedExpenses[key] = FormatDollars(value)
-	}
-
-	err := mapstructure.Decode(formattedExpenses, &expenses)
-	if err != nil {
-		return expenses, err
-	}
-	return expenses, nil
+	totals := SubTotalExpenses(movingExpenseDocuments)
+	return SubTotalsMapToStruct(totals)
 }
 
 //SubTotalExpenses groups moving expenses by type and payment method
@@ -656,6 +595,15 @@ func SubTotalExpenses(expenseDocuments MovingExpenseDocuments) map[string]float6
 		addToGrandTotal(totals, expenseType, expenseDollarAmt)
 	}
 	return totals
+}
+
+func SubTotalsMapToStruct(subTotals map[string]float64) (FormattedMovingExpenses, error) {
+	expenses := FormattedMovingExpenses{}
+	err := mapstructure.Decode(subTotals, &expenses)
+	if err != nil {
+		return FormattedMovingExpenses{}, err
+	}
+	return expenses, nil
 }
 
 func addToGrandTotal(totals map[string]float64, key string, expenseDollarAmt float64) {
