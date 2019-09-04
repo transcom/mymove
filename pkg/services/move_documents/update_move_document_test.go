@@ -30,7 +30,7 @@ func setup(suite *MoveDocumentServiceSuite) (*models.MoveDocument, uuid.UUID, *a
 				ServiceMember:   sm,
 			},
 		})
-	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
+	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Require().Nil(err)
 	return originalMoveDocument, moveDocument.ID, session
 }

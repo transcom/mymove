@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/db/utilities"
 )
 
 // MoveDocumentStatus represents the status of a move document record's lifecycle
@@ -117,6 +118,7 @@ type MoveDocument struct {
 	Notes                    *string                  `json:"notes" db:"notes"`
 	CreatedAt                time.Time                `json:"created_at" db:"created_at"`
 	UpdatedAt                time.Time                `json:"updated_at" db:"updated_at"`
+	DeletedAt                *time.Time               `db:"deleted_at"`
 	WeightTicketSetDocument  *WeightTicketSetDocument `has_one:"weight_ticket_set_document"`
 }
 
@@ -200,14 +202,20 @@ func (m *MoveDocument) ValidateUpdate(tx *pop.Connection) (*validate.Errors, err
 }
 
 // FetchMoveDocument fetches a MoveDocument model
-func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) (*MoveDocument, error) {
+func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID, includedDeletedMoveDocuments bool) (*MoveDocument, error) {
 	// Allow all office users to fetch move doc
 	if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
 		return &MoveDocument{}, ErrFetchForbidden
 	}
 
 	var moveDoc MoveDocument
-	err := db.Q().Eager("Document.Uploads", "Move", "PersonallyProcuredMove").Find(&moveDoc, id)
+	query := db.Q()
+
+	if !includedDeletedMoveDocuments {
+		query = query.Where("deleted_at is null")
+	}
+
+	err := query.Eager("Document.Uploads", "Move", "PersonallyProcuredMove").Find(&moveDoc, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return nil, ErrFetchNotFound
@@ -245,7 +253,7 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 
 // FetchMoveDocuments fetches all move expense and weight ticket set documents for a ppm
 // the optional status parameter can be used for restricting to a subset of statuses.
-func FetchMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UUID, status *MoveDocumentStatus, moveDocumentType MoveDocumentType) (MoveDocuments, error) {
+func FetchMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UUID, status *MoveDocumentStatus, moveDocumentType MoveDocumentType, includedDeletedMoveDocuments bool) (MoveDocuments, error) {
 	// Allow all logged in office users to fetch move docs
 	if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
 		return nil, ErrFetchForbidden
@@ -257,7 +265,13 @@ func FetchMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UU
 	}
 
 	var moveDocuments MoveDocuments
-	query := db.Where("move_document_type = $1", string(moveDocumentType)).Where("personally_procured_move_id = $2", ppmID.String())
+	query := db.Q()
+
+	if !includedDeletedMoveDocuments {
+		query = query.Where("deleted_at is null")
+	}
+
+	query = query.Where("move_document_type = $1", string(moveDocumentType)).Where("personally_procured_move_id = $2", ppmID.String())
 	if status != nil {
 		query = query.Where("status = $3", string(*status))
 	}
@@ -298,7 +312,7 @@ func FetchMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UU
 }
 
 // FetchMoveDocumentsByTypeForShipment fetches move documents for shipment and move document type
-func FetchMoveDocumentsByTypeForShipment(db *pop.Connection, session *auth.Session, moveDocumentType MoveDocumentType, shipmentID uuid.UUID) (MoveDocuments, error) {
+func FetchMoveDocumentsByTypeForShipment(db *pop.Connection, session *auth.Session, moveDocumentType MoveDocumentType, shipmentID uuid.UUID, includedDeletedMoveDocuments bool) (MoveDocuments, error) {
 
 	// Allow all logged in office users to fetch move docs
 	if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
@@ -306,7 +320,12 @@ func FetchMoveDocumentsByTypeForShipment(db *pop.Connection, session *auth.Sessi
 	}
 
 	var moveDocuments MoveDocuments
-	err := db.Where("move_document_type = $1", string(moveDocumentType)).Where("shipment_id = $2", shipmentID.String()).All(&moveDocuments)
+	query := db.Q()
+
+	if !includedDeletedMoveDocuments {
+		query = db.Where("deleted_at is null")
+	}
+	err := query.Where("move_document_type = $1", string(moveDocumentType)).Where("shipment_id = $2", shipmentID.String()).All(&moveDocuments)
 	if err != nil {
 		if errors.Cause(err).Error() != RecordNotFoundErrorString {
 			return nil, err
@@ -321,7 +340,7 @@ func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveExpens
 	responseVErrors := validate.NewErrors()
 
 	db.Transaction(func(db *pop.Connection) error {
-		transactionError := errors.New("Rollback The transaction")
+		transactionError := errors.New("Rollback the transaction")
 
 		if saveExpenseAction == MoveDocumentSaveActionSAVEEXPENSEMODEL {
 			// Save expense document
@@ -334,7 +353,7 @@ func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveExpens
 		} else if saveExpenseAction == MoveDocumentSaveActionDELETEEXPENSEMODEL {
 			// destroy expense document
 			expenseDocument := moveDocument.MovingExpenseDocument
-			if err := db.Destroy(expenseDocument); err != nil {
+			if err := utilities.SoftDestroy(db, expenseDocument); err != nil {
 				responseError = errors.Wrap(err, "Error Deleting Moving Expense Document")
 				return transactionError
 			}
@@ -352,7 +371,7 @@ func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveExpens
 		} else if saveWeightTicketSetAction == MoveDocumentSaveActionDELETEWEIGHTTICKETSETMODEL {
 			// destroy weight ticket set document
 			weightTicketSetDocument := moveDocument.WeightTicketSetDocument
-			if err := db.Destroy(weightTicketSetDocument); err != nil {
+			if err := utilities.SoftDestroy(db, weightTicketSetDocument); err != nil {
 				responseError = errors.Wrap(err, "Error Deleting Moving Expense Document")
 				return transactionError
 			}
