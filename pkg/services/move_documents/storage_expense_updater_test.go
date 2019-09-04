@@ -77,13 +77,13 @@ func (suite *MoveDocumentServiceSuite) TestStorageExpenseUpdate() {
 		StorageStartDate:     handlers.FmtDate(newStartDate),
 	}
 
-	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
+	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
 	umd, verrs, err := stu.Update(updateMoveDocPayload, originalMoveDocument, session)
 	suite.NotNil(umd)
 	suite.Nil(err)
 	suite.NoVerrs(verrs)
-	md, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
+	md, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
 
 	suite.Require().Equal(md.ID.String(), moveDocument.ID.String(), "expected move doc ids to match")
@@ -169,13 +169,13 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysRemovedWhenNotOK() 
 		StorageStartDate:     handlers.FmtDate(newStartDate),
 	}
 
-	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
+	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
 	umd, verrs, err := stu.Update(updateMoveDocPayload, originalMoveDocument, session)
 	suite.NotNil(umd)
 	suite.Nil(err)
 	suite.NoVerrs(verrs)
-	md, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
+	md, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
 
 	suite.Require().Equal(md.ID.String(), moveDocument.ID.String(), "expected move doc ids to match")
@@ -298,14 +298,14 @@ func (suite *MoveDocumentServiceSuite) TestStorageDaysTotalCostMultipleReceipts(
 		StorageStartDate:     handlers.FmtDate(startDateTwo),
 	}
 
-	originalMoveDocumentOne, err := models.FetchMoveDocument(suite.DB(), session, moveDocumentOne.ID)
+	originalMoveDocumentOne, err := models.FetchMoveDocument(suite.DB(), session, moveDocumentOne.ID, false)
 	suite.Nil(err)
 	umd, verrs, err := stu.Update(updateMoveDocOnePayload, originalMoveDocumentOne, session)
 	suite.NotNil(umd)
 	suite.Nil(err)
 	suite.NoVerrs(verrs)
 
-	originalMoveDocumentTwo, err := models.FetchMoveDocument(suite.DB(), session, moveDocumentTwo.ID)
+	originalMoveDocumentTwo, err := models.FetchMoveDocument(suite.DB(), session, moveDocumentTwo.ID, false)
 	suite.Nil(err)
 	umd, verrs, err = stu.Update(updateMoveDocTwoPayload, originalMoveDocumentTwo, session)
 	suite.NotNil(umd)
@@ -386,13 +386,13 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysAfterManualOverride
 		StorageStartDate:     handlers.FmtDate(newStartDate),
 	}
 
-	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
+	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
 	umd, verrs, err := stu.Update(updateMoveDocPayload, originalMoveDocument, session)
 	suite.NotNil(umd)
 	suite.Nil(err)
 	suite.NoVerrs(verrs)
-	md, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
+	md, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
 
 	suite.Require().Equal(md.ID.String(), moveDocument.ID.String(), "expected move doc ids to match")

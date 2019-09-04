@@ -212,6 +212,9 @@ bin/generate-1203-form: .server_generate.stamp
 bin/generate-access-codes: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-access-codes ./cmd/generate_access_codes
 
+bin/generate-shipment-summary: .server_generate.stamp
+	go build -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
+
 bin/generate-test-data: pkg/assets/assets.go .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate-test-data
 
