@@ -138,9 +138,6 @@ function officeUserVerifiesOrders(moveLocator) {
   cy.get('input[name="orders.orders_number"]').type('666666');
   cy.get('select[name="orders.orders_type_detail"]').select('DELAYED_APPROVAL');
 
-  cy.get('input[name="orders.orders_issuing_agency"]').type('ISSUING AGENCY');
-  cy.get('input[name="orders.paragraph_number"]').type('FP-TP');
-
   cy.get('button')
     .contains('Save')
     .should('be.enabled');
