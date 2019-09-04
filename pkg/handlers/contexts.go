@@ -13,7 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -47,8 +46,6 @@ type HandlerContext interface {
 	SetFeatureFlag(flags FeatureFlag)
 	GetFeatureFlag(name string) bool
 
-	GexSender() services.GexSender
-	SetGexSender(gexSender services.GexSender)
 	ICNSequencer() sequence.Sequencer
 	SetICNSequencer(sequencer sequence.Sequencer)
 	DPSAuthParams() dpsauth.Params
@@ -73,7 +70,6 @@ type handlerContext struct {
 	iwsPersonLookup       iws.PersonLookup
 	sendProductionInvoice bool
 	dpsAuthParams         dpsauth.Params
-	senderToGex           services.GexSender
 	icnSequencer          sequence.Sequencer
 	useSecureCookie       bool
 	appNames              auth.ApplicationServername
@@ -196,14 +192,6 @@ func (hctx *handlerContext) SendProductionInvoice() bool {
 // Set UsageIndicator flag for use in EDI invoicing (ediinvoice pkg)
 func (hctx *handlerContext) SetSendProductionInvoice(sendProductionInvoice bool) {
 	hctx.sendProductionInvoice = sendProductionInvoice
-}
-
-func (hctx *handlerContext) GexSender() services.GexSender {
-	return hctx.senderToGex
-}
-
-func (hctx *handlerContext) SetGexSender(sendGexRequest services.GexSender) {
-	hctx.senderToGex = sendGexRequest
 }
 
 func (hctx *handlerContext) ICNSequencer() sequence.Sequencer {

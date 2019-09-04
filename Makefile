@@ -256,9 +256,6 @@ bin/save-fuel-price-data: .server_generate.stamp
 bin_linux/save-fuel-price-data: .server_generate_linux.stamp
 	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/save-fuel-price-data ./cmd/save_fuel_price_data
 
-bin/send-to-gex: .server_generate.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
-
 pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
 	go-bindata -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/
 
@@ -340,8 +337,7 @@ build_tools: server_deps \
 	bin/make-dps-user \
 	bin/make-office-user \
 	bin/renderer \
-	bin/save-fuel-price-data \
-	bin/send-to-gex ## Build all tools
+	bin/save-fuel-price-data ## Build all tools
 
 .PHONY: build
 build: server_build build_tools client_build ## Build the server, tools, and client

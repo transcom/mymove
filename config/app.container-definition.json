@@ -178,14 +178,6 @@
       "value": ".sddc.army.mil"
     },
     {
-      "name": "GEX_URL",
-      "value": "https://gexweba.daas.dla.mil/msg_data/submit/"
-    },
-    {
-      "name": "GEX_SEND_PROD_INVOICE",
-      "value": "{{ .GEX_SEND_PROD_INVOICE }}"
-    },
-    {
       "name": "SERVE_SWAGGER_UI",
       "value": "{{ .SERVE_SWAGGER_UI }}"
     },

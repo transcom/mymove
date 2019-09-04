@@ -50,8 +50,6 @@ type ShipmentLineItem struct {
 	Quantity2           unit.BaseQuantity          `json:"quantity_2" db:"quantity_2"`
 	Notes               string                     `json:"notes" db:"notes"`
 	Status              ShipmentLineItemStatus     `json:"status" db:"status"`
-	InvoiceID           *uuid.UUID                 `json:"invoice_id" db:"invoice_id"`
-	Invoice             Invoice                    `belongs_to:"invoices"`
 	EstimateAmountCents *unit.Cents                `json:"estimate_amount_cents" db:"estimate_amount_cents"`
 	ActualAmountCents   *unit.Cents                `json:"actual_amount_cents" db:"actual_amount_cents"`
 	AmountCents         *unit.Cents                `json:"amount_cents" db:"amount_cents"`
@@ -120,15 +118,6 @@ func (s *ShipmentLineItem) Validate(tx *pop.Connection) (*validate.Errors, error
 		&validators.StringInclusion{Field: string(s.Status), Name: "Status", List: validStatuses},
 		&validators.StringInclusion{Field: string(s.Location), Name: "Locations", List: validLocations},
 	), nil
-}
-
-// BeforeDestroy verifies that a ShipmentLineItem is in a state to be destroyed
-func (s *ShipmentLineItem) BeforeDestroy(tx *pop.Connection) error {
-	if s.InvoiceID != nil {
-		return ErrDestroyForbidden
-	}
-
-	return nil
 }
 
 // AfterDestroy also destroys associated items in the dimensions table, if they exist

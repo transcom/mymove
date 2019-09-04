@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"net/http/httptest"
 	"os"
 	"os/signal"
 	"path"
@@ -37,10 +36,8 @@ import (
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/certs"
 	"github.com/transcom/mymove/pkg/cli"
-	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/ecs"
-	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/adminapi"
 	"github.com/transcom/mymove/pkg/handlers/dpsapi"
@@ -53,8 +50,6 @@ import (
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/server"
-	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/invoice"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -96,9 +91,6 @@ func initServeFlags(flag *pflag.FlagSet) {
 
 	// HERE Route Config
 	cli.InitRouteFlags(flag)
-
-	// EDI Invoice Config
-	cli.InitGEXFlags(flag)
 
 	// Storage
 	cli.InitStorageFlags(flag)
@@ -186,10 +178,6 @@ func checkServeConfig(v *viper.Viper, logger logger) error {
 	}
 
 	if err := cli.CheckRoute(v); err != nil {
-		return err
-	}
-
-	if err := cli.CheckGEX(v); err != nil {
 		return err
 	}
 
@@ -499,9 +487,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	routePlanner := route.InitRoutePlanner(v, logger)
 	handlerContext.SetPlanner(routePlanner)
 
-	// Set SendProductionInvoice for ediinvoice
-	handlerContext.SetSendProductionInvoice(v.GetBool(cli.GEXSendProdInvoiceFlag))
-
 	// Storage
 	storer := storage.InitStorage(v, session, logger)
 	handlerContext.SetFileStorer(storer)
@@ -514,52 +499,10 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	logger.Debug("Server DOD Key Pair Loaded")
 	logger.Debug("Trusted Certificate Authorities", zap.Any("subjects", rootCAs.Subjects()))
 
-	// Set the GexSender() and GexSender fields
-	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
-	var gexRequester services.GexSender
-	gexURL := v.GetString(cli.GEXURLFlag)
-	if len(gexURL) == 0 {
-		// this spins up a local test server
-		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusOK)
-		}))
-		gexRequester = invoice.NewGexSenderHTTP(
-			server.URL,
-			false,
-			&tls.Config{},
-			"",
-			"",
-		)
-	} else {
-		gexRequester = invoice.NewGexSenderHTTP(
-			gexURL,
-			true,
-			tlsConfig,
-			v.GetString(cli.GEXBasicAuthUsernameFlag),
-			v.GetString(cli.GEXBasicAuthPasswordFlag),
-		)
-	}
-	handlerContext.SetGexSender(gexRequester)
-
 	// Set feature flag
 	handlerContext.SetFeatureFlag(
 		handlers.FeatureFlag{Name: cli.FeatureFlagAccessCode, Active: v.GetBool(cli.FeatureFlagAccessCode)},
 	)
-
-	// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
-	// GEX URL, then we should use a random ICN number within a defined range to avoid duplicate
-	// test ICNs in Syncada.
-	var icnSequencer sequence.Sequencer
-	if isDevOrTest && len(gexURL) > 0 {
-		// ICNs are 9-digit numbers; reserve the ones in an upper range for development/testing.
-		icnSequencer, err = sequence.NewRandomSequencer(ediinvoice.ICNRandomMin, ediinvoice.ICNRandomMax)
-		if err != nil {
-			logger.Fatal("Could not create random sequencer for ICN", zap.Error(err))
-		}
-	} else {
-		icnSequencer = sequence.NewDatabaseSequencer(dbConnection, ediinvoice.ICNSequenceName)
-	}
-	handlerContext.SetICNSequencer(icnSequencer)
 
 	rbs, err := iws.InitRBSPersonLookup(v, logger)
 	if err != nil {
