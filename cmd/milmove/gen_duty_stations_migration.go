@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 
 	"github.com/pkg/errors"
@@ -103,16 +104,20 @@ func genDutyStationsMigration(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return errors.Wrap(err, "could not ParseFlags on args")
 	}
+
 	flag := cmd.Flags()
 	err = flag.Parse(os.Args[1:])
 	if err != nil {
 		return errors.Wrap(err, "could not parse flags")
 	}
+
 	v := viper.New()
 	err = v.BindPFlags(flag)
 	if err != nil {
 		return errors.Wrap(err, "could not bind flags")
 	}
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
 
 	logger, err := logging.Config(v.GetString(cli.LoggingEnvFlag), v.GetBool(cli.VerboseFlag))
 	if err != nil {

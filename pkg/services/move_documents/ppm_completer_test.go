@@ -48,13 +48,13 @@ func (suite *MoveDocumentServiceSuite) TestPPMCompleteWhenSSWOK() {
 		MoveDocumentType: internalmessages.MoveDocumentTypeSHIPMENTSUMMARY,
 	}
 
-	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
+	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
 	umd, verrs, err := ppmc.Update(updateMoveDocPayload, originalMoveDocument, session)
 	suite.NotNil(umd)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
-	md, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
+	md, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
 
 	suite.Require().Equal(moveDocument.ID.String(), md.ID.String(), "expected move doc ids to match")
@@ -105,12 +105,12 @@ func (suite *MoveDocumentServiceSuite) TestPPMNothingHappensWhenPPMAlreadyComple
 		Status:           internalmessages.MoveDocumentStatusHASISSUE,
 	}
 
-	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
+	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
 	_, verrs, err := ppmc.Update(updateMoveDocPayload, originalMoveDocument, session)
 	suite.Nil(err)
 	suite.NoVerrs(verrs)
-	md, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
+	md, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
 
 	suite.Require().Equal(md.ID.String(), moveDocument.ID.String(), "expected move doc ids to match")
