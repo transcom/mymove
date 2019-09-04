@@ -53,7 +53,7 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 	passHolder = passTemplate
 
 	// GoRoutine to continually refresh the RDS IAM auth on a 10m interval.
-	ticker := time.NewTicker(1 * time.Minute)
+	ticker := time.NewTicker(10 * time.Minute)
 	go func() {
 		// This for loop immediatley runs the first tick then on internval
 		for ; true; <-ticker.C {

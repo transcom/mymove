@@ -258,7 +258,7 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger)
 	// Configure DB connection details
 	dbConnectionDetails := pop.ConnectionDetails{
 		Dialect:  "postgres",
-		Driver:   "iampostgres",
+		Driver:   "postgres",
 		Database: dbName,
 		Host:     dbHost,
 		Port:     dbPort,
@@ -272,6 +272,8 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger)
 	if v.GetBool(DbIamFlag) {
 		// Set password holder for IAMPostgres to easily repalce with temp password
 		passHolder := "*****"
+
+		dbConnectionDetails.Driver = "iampostgres"
 
 		iampg.EnableIAM(dbConnectionDetails.Host,
 			dbConnectionDetails.Port,
@@ -314,11 +316,12 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger)
 	return connection, nil
 }
 
+//testConnection tests the connection to determine successful ping
 func testConnection(dbConnDetails *pop.ConnectionDetails, useIam bool, logger Logger) error {
 	// Copy connection info as we don't want to alter connection info
 	dbConnectionDetails := pop.ConnectionDetails{
 		Dialect:  "postgres",
-		Driver:   "iampostgres",
+		Driver:   dbConnDetails.Driver,
 		Database: dbConnDetails.Database,
 		Host:     dbConnDetails.Host,
 		Port:     dbConnDetails.Port,
@@ -353,6 +356,9 @@ func testConnection(dbConnDetails *pop.ConnectionDetails, useIam bool, logger Lo
 		logger.Warn("Failed to open DB by driver name", zap.Error(err))
 		return err
 	}
+
+	// Make the db ping
+	logger.Info("Starting database ping....")
 	err = db.Ping()
 	if err != nil {
 		logger.Warn("Failed to ping DB connection", zap.Error(err))
