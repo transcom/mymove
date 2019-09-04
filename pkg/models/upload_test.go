@@ -1,6 +1,9 @@
 package models_test
 
 import (
+	"context"
+
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
@@ -75,4 +78,75 @@ func (suite *ModelSuite) Test_UploadValidations() {
 	}
 
 	suite.verifyValidationErrors(upload, expErrors)
+}
+
+func (suite *ModelSuite) TestFetchUpload() {
+	t := suite.T()
+
+	ctx := context.Background()
+	document := testdatagen.MakeDefaultDocument(suite.DB())
+
+	session := auth.Session{
+		UserID:          document.ServiceMember.UserID,
+		ApplicationName: auth.MilApp,
+		ServiceMemberID: document.ServiceMember.ID,
+	}
+	upload := models.Upload{
+		DocumentID:  &document.ID,
+		UploaderID:  document.ServiceMember.UserID,
+		Filename:    "test.pdf",
+		Bytes:       1048576,
+		ContentType: "application/pdf",
+		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
+	}
+
+	verrs, err := suite.DB().ValidateAndSave(&upload)
+	if err != nil {
+		t.Fatalf("could not save Upload: %v", err)
+	}
+
+	if verrs.Count() != 0 {
+		t.Errorf("did not expect validation errors: %v", verrs)
+	}
+
+	up, _ := models.FetchUpload(ctx, suite.DB(), &session, upload.ID)
+	suite.Equal(up.ID, upload.ID)
+}
+
+func (suite *ModelSuite) TestFetchDeletedUpload() {
+	t := suite.T()
+
+	ctx := context.Background()
+	document := testdatagen.MakeDefaultDocument(suite.DB())
+
+	session := auth.Session{
+		UserID:          document.ServiceMember.UserID,
+		ApplicationName: auth.MilApp,
+		ServiceMemberID: document.ServiceMember.ID,
+	}
+	upload := models.Upload{
+		DocumentID:  &document.ID,
+		UploaderID:  document.ServiceMember.UserID,
+		Filename:    "test.pdf",
+		Bytes:       1048576,
+		ContentType: "application/pdf",
+		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
+	}
+
+	verrs, err := suite.DB().ValidateAndSave(&upload)
+	if err != nil {
+		t.Fatalf("could not save Upload: %v", err)
+	}
+
+	if verrs.Count() != 0 {
+		t.Errorf("did not expect validation errors: %v", verrs)
+	}
+
+	models.DeleteUpload(suite.DB(), &upload)
+	up, _ := models.FetchUpload(ctx, suite.DB(), &session, upload.ID)
+
+	// fetches a nil upload
+	suite.Equal(up.Filename, "")
+	suite.Equal(up.ContentType, "")
+	suite.Equal(up.ID, uuid.Nil)
 }

@@ -41,7 +41,6 @@ require (
 	github.com/golang/protobuf v1.3.2 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20190430165422-3e4dfb77656c // indirect
 	github.com/gorilla/csrf v1.6.0
-	github.com/hashicorp/go-multierror v1.0.0
 	github.com/imdario/mergo v0.3.7
 	github.com/jackc/fake v0.0.0-20150926172116-812a484cc733 // indirect
 	github.com/jackc/pgx v3.5.0+incompatible // indirect
