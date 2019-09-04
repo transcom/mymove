@@ -253,10 +253,10 @@ bin/save-fuel-price-data: .server_generate.stamp
 bin_linux/save-fuel-price-data: .server_generate_linux.stamp
 	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/save-fuel-price-data ./cmd/save_fuel_price_data
 
-bin/send-post-move-survey-email: .server_generate.stamp
+bin/send-post-move-survey-email: .server_generate.stamp pkg/assets/assets.go
 	go build -ldflags "$(LDFLAGS)" -o bin/send-post-move-survey-email ./cmd/send_post_move_survey_email
 
-bin_linux/send-post-move-survey-email: .server_generate_linux.stamp
+bin_linux/send-post-move-survey-email: .server_generate_linux.stamp pkg/assets/assets.go
 	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/send-post-move-survey-email ./cmd/send_post_move_survey_email
 
 bin/send-to-gex: .server_generate.stamp
