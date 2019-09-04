@@ -343,7 +343,6 @@
 20190807163505_modify-moves-bad-zip3-and-delete.up.sql
 20190812151703_add_product_admin_users.sql
 20190812184046_remove_column_text_message_is_preferred.up.fizz
-20190814195556_delete-truss-tsp-user-data.sql
 20190814223800_add_john_gedeon.sql
 20190815172746_disable_mikena.up.sql
 20190821192638_add_office_user.up.sql
