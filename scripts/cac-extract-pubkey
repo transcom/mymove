@@ -1,0 +1,16 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+#
+# Get a publick key from CAC
+#
+
+readonly MODULE=/usr/local/lib/pkcs11/cackey.dylib
+readonly PKCS11=/usr/local/bin/pkcs11-tool
+
+# Check the CAC Pre-Requirements
+cac-prereqs
+
+# Pubkey
+"${PKCS11}" -r --module "${MODULE}" -a "Identity #0" --type cert 2>/dev/null | openssl x509 -inform der -pubkey -noout

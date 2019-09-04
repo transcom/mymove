@@ -161,6 +161,7 @@ func (p *PersonallyProcuredMove) FetchMoveDocumentsForTypes(db *pop.Connection, 
 	var moveDocs MoveDocuments
 
 	q := db.
+		Where("deleted_at is null").
 		Where("personally_procured_move_id = ?", p.ID).
 		Where("status = ?", MoveDocumentStatusOK)
 

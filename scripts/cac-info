@@ -1,0 +1,26 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+#
+# Get general information from a CAC
+#
+
+readonly MODULE=/usr/local/lib/pkcs11/cackey.dylib
+readonly PKCS11=/usr/local/bin/pkcs11-tool
+readonly PKCS15=/usr/local/bin/pkcs15-tool
+
+# Check the CAC Pre-Requirements
+cac-prereqs
+
+echo -e "\n----- List Info -----\n"
+
+"${PKCS15}" --list-info
+
+echo -e "\n----- List Certificates -----\n"
+
+"${PKCS15}" --list-certificates
+
+echo -e "\n----- List Slots -----\n"
+
+"${PKCS11}" -r --module "${MODULE}" --list-slots || true
