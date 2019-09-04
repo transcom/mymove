@@ -36,9 +36,9 @@ func (seu StorageExpenseUpdater) Update(moveDocumentPayload *internalmessages.Mo
 	if moveDocumentPayload.StorageEndDate != nil {
 		storageEndDate = handlers.FmtDatePtrToPopPtr(moveDocumentPayload.StorageEndDate)
 	}
-	var recieptMissing bool
+	var receiptMissing bool
 	if moveDocumentPayload.ReceiptMissing != nil {
-		recieptMissing = *moveDocumentPayload.ReceiptMissing
+		receiptMissing = *moveDocumentPayload.ReceiptMissing
 	}
 	updatedMoveDoc.Title = *moveDocumentPayload.Title
 	updatedMoveDoc.Notes = moveDocumentPayload.Notes
@@ -54,7 +54,7 @@ func (seu StorageExpenseUpdater) Update(moveDocumentPayload *internalmessages.Mo
 	updatedMoveDoc.MovingExpenseDocument.PaymentMethod = moveDocumentPayload.PaymentMethod
 	updatedMoveDoc.MovingExpenseDocument.StorageStartDate = storageStartDate
 	updatedMoveDoc.MovingExpenseDocument.StorageEndDate = storageEndDate
-	updatedMoveDoc.MovingExpenseDocument.ReceiptMissing = recieptMissing
+	updatedMoveDoc.MovingExpenseDocument.ReceiptMissing = receiptMissing
 
 	updatedMoveDoc, returnVerrs, err = seu.updatePPMSIT(updatedMoveDoc, session)
 	if err != nil || returnVerrs.HasAny() {

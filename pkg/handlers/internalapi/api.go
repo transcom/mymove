@@ -96,6 +96,8 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	internalAPI.DpsAuthGetCookieURLHandler = DPSAuthGetCookieURLHandler{context}
 
+	internalAPI.MovesShowShipmentSummaryWorksheetHandler = ShowShipmentSummaryWorksheetHandler{context}
+
 	internalAPI.ApplicationPdfProducer = PDFProducer()
 
 	internalAPI.PostalCodesValidatePostalCodeWithRateDataHandler = ValidatePostalCodeWithRateDataHandler{

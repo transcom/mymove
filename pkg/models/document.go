@@ -22,6 +22,7 @@ type Document struct {
 	ServiceMember   ServiceMember `belongs_to:"service_members"`
 	CreatedAt       time.Time     `db:"created_at"`
 	UpdatedAt       time.Time     `db:"updated_at"`
+	DeletedAt       *time.Time    `db:"deleted_at"`
 	Uploads         Uploads       `has_many:"uploads" order_by:"created_at asc"`
 }
 
@@ -36,10 +37,17 @@ func (d *Document) Validate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 // FetchDocument returns a document if the user has access to that document
-func FetchDocument(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (Document, error) {
+func FetchDocument(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID, includeDeletedDocs bool) (Document, error) {
 
 	var document Document
-	err := db.Q().Eager().Find(&document, id)
+	query := db.Q()
+
+	if !includeDeletedDocs {
+		query = query.Where("documents.deleted_at is null")
+	}
+
+	err := query.Eager().Find(&document, id)
+
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Document{}, ErrFetchNotFound
