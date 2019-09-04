@@ -347,5 +347,5 @@
 20190815172746_disable_mikena.up.sql
 20190821192638_add_office_user.up.sql
 20190822210248_add-payment-reviewed-date-to-personally-procured-moves.up.sql
-20190829150706_create_migrations_table.up.sql
+20190829150706_create_notifications_table.up.sql
 20190829152347_create-deleted-at-indices-for-document-tables.up.sql
