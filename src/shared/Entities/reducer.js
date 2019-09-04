@@ -34,7 +34,6 @@ const initialState = {
   moves: {},
   personallyProcuredMoves: {},
   reimbursements: {},
-  serviceAgents: {},
   signedCertifications: {},
   shipmentLineItems: {},
   shipments: {},

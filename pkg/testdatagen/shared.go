@@ -41,7 +41,6 @@ type Assertions struct {
 	PersonallyProcuredMove                   models.PersonallyProcuredMove
 	Reimbursement                            models.Reimbursement
 	SignedCertification                      models.SignedCertification
-	ServiceAgent                             models.ServiceAgent
 	ServiceMember                            models.ServiceMember
 	ShipmentLineItem                         models.ShipmentLineItem
 	ShipmentLineItemDimensions               models.ShipmentLineItemDimensions

@@ -161,8 +161,6 @@ func FetchGovBillOfLadingFormValues(db *pop.Connection, shipmentID uuid.UUID) (G
 				ON m.orders_id = o.id
 			INNER JOIN duty_stations ds
 				ON o.new_duty_station_id = ds.id
-			INNER JOIN service_agents sa
-			ON s.id = sa.shipment_id
 			INNER JOIN transportation_offices source_to
 				ON s.source_gbloc = source_to.gbloc and source_to.shipping_office_id is NULL
 			INNER JOIN transportation_offices dest_to
@@ -182,7 +180,6 @@ func FetchGovBillOfLadingFormValues(db *pop.Connection, shipmentID uuid.UUID) (G
 				AND s.pm_survey_planned_pickup_date IS NOT NULL
 				AND s.pm_survey_planned_delivery_date IS NOT NULL
 				AND sm.edipi IS NOT NULL
-				AND sa.company IS NOT NULL
 				AND tsp.name IS NOT NULL
 				AND o.department_indicator IS NOT NULL
 				AND o.sac IS NOT NULL
