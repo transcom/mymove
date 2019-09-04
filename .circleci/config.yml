@@ -440,6 +440,7 @@ jobs:
             ENVIRONMENT: test
             MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
             MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
+            SERVE_API_INTERNAL: true
       - run:
           name: upload code coverage to codecov
           command: |
