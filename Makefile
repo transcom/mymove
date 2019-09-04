@@ -355,6 +355,13 @@ ifndef TEST_ACC_ENV
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
 	TEST_ACC_HONEYCOMB=0 \
 	TEST_ACC_CWD=$(PWD) \
+	SERVE_ADMIN=true \
+  SERVE_SDDC=true \
+  SERVE_ORDERS=true \
+  SERVE_DPS=true \
+  SERVE_API_INTERNAL=true \
+  SERVE_API_PUBLIC=true \
+  MUTUAL_TLS_ENABLED=true \
 	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 else
 ifndef CIRCLECI

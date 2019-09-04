@@ -17,8 +17,10 @@
     "production",
     "--debug-logging",
     "--log-task-metadata",
-    "--tls-enabled",
-    "--mutual-tls-enabled"
+    "--db-env",
+    "container",
+    "--mutual-tls-enabled",
+    "--tls-enabled"
   ],
   "command": [],
   "portMappings": [
@@ -91,24 +93,8 @@
       "value": "my.{{ .domain }}"
     },
     {
-      "name": "HTTP_OFFICE_SERVER_NAME",
-      "value": "office.{{ .domain }}"
-    },
-    {
-      "name": "HTTP_TSP_SERVER_NAME",
-      "value": "tsp.{{ .domain }}"
-    },
-    {
-      "name": "HTTP_ADMIN_SERVER_NAME",
-      "value": "admin.{{ .domain }}"
-    },
-    {
       "name": "HTTP_ORDERS_SERVER_NAME",
       "value": "orders.{{ .domain }}"
-    },
-    {
-      "name": "HTTP_DPS_SERVER_NAME",
-      "value": "dps.{{ .domain }}"
     },
     {
       "name": "AWS_S3_BUCKET_NAME",
@@ -159,16 +145,12 @@
       "value": "{{ .IWS_RBS_HOST }}"
     },
     {
-      "name": "GEX_URL",
-      "value": "https://gexweba.daas.dla.mil/msg_data/submit/"
-    },
-    {
-      "name": "GEX_SEND_PROD_INVOICE",
-      "value": "{{ .GEX_SEND_PROD_INVOICE }}"
-    },
-    {
       "name": "SERVE_SWAGGER_UI",
       "value": "{{ .SERVE_SWAGGER_UI }}"
+    },
+    {
+      "name": "SERVE_ORDERS",
+      "value": "{{ .SERVE_ORDERS }}"
     }
   ],
   "logConfiguration": {
