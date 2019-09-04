@@ -297,6 +297,13 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger)
 		return nil, err
 	}
 
+	// Open the connection - required
+	err = connection.Open()
+	if err != nil {
+		logger.Error("Failed to open DB connection", zap.Error(err))
+		return nil, err
+	}
+
 	err = testConnection(&dbConnectionDetails, v.GetBool(DbIamFlag), logger)
 	if err != nil {
 		logger.Error("Failed to ping database")
