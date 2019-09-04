@@ -26,7 +26,6 @@ type MoveQueueItem struct {
 	ShipmentID                 uuid.UUID          `json:"shipment_id" db:"shipment_id"`
 	OriginDutyStationName      string             `json:"origin_duty_station_name" db:"origin_duty_station_name"`
 	DestinationDutyStationName string             `json:"destination_duty_station_name" db:"destination_duty_station_name"`
-	SitArray                   string             `json:"sit_array" db:"sit_array"`
 	SliArray                   string             `json:"sli_array" db:"sli_array"`
 	PmSurveyConductedDate      *time.Time         `json:"pm_survey_conducted_date" db:"pm_survey_conducted_date"`
 	OriginGBLOC                *string            `json:"origin_gbloc" db:"origin_gbloc"`
@@ -64,7 +63,6 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				ppm.status as ppm_status,
 				shipment.status as hhg_status,
 				shipment.pm_survey_conducted_date as pm_survey_conducted_date,
-				json_agg(json_build_object('id', sits.id , 'location', sits.location, 'status', sits.status, 'actual_start_date', sits.actual_start_date, 'out_date', sits.out_date)) as sit_array,
 				json_agg(slis.status) as sli_array,
 				origin_duty_station.name as origin_duty_station_name
 			FROM moves
@@ -73,7 +71,6 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN duty_stations as origin_duty_station ON sm.duty_station_id = origin_duty_station.id
 			LEFT JOIN shipments AS shipment ON moves.id = shipment.move_id
 			LEFT JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
-			LEFT JOIN storage_in_transits as sits ON sits.shipment_id = shipment.id
 			LEFT JOIN shipment_line_items as slis ON slis.shipment_id = shipment.id
 			WHERE (moves.status = 'SUBMITTED'
 			OR ((shipment.status in ('SUBMITTED', 'AWARDED', 'ACCEPTED') OR ppm.status = 'SUBMITTED')
@@ -152,7 +149,6 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				destination_duty_station.name as destination_duty_station_name,
 				shipment.id as shipment_id,
 				shipment.pm_survey_conducted_date as pm_survey_conducted_date,
-				json_agg(json_build_object('id', sits.id , 'location', sits.location, 'status', sits.status, 'actual_start_date', sits.actual_start_date, 'out_date', sits.out_date)) as sit_array,
 				json_agg(slis.status) as sli_array
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
@@ -160,7 +156,6 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN duty_stations as origin_duty_station ON sm.duty_station_id = origin_duty_station.id
 			JOIN duty_stations as destination_duty_station ON ord.new_duty_station_id = destination_duty_station.id
 			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
-			LEFT JOIN storage_in_transits as sits ON sits.shipment_id = shipment.id
 			LEFT JOIN shipment_line_items as slis ON slis.shipment_id = shipment.id
 			WHERE ((shipment.status IN ('IN_TRANSIT', 'APPROVED')) OR (shipment.status = 'ACCEPTED' AND shipment.pm_survey_conducted_date IS NOT NULL))
 			AND moves.show is true AND moves.status != 'CANCELED'
@@ -204,7 +199,6 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				shipment.status as hhg_status,
 				shipment.gbl_number as gbl_number,
 				shipment.pm_survey_conducted_date as pm_survey_conducted_date,
-				json_agg(json_build_object('id', sits.id , 'location', sits.location, 'status', sits.status, 'actual_start_date', sits.actual_start_date, 'out_date', sits.out_date)) as sit_array,
 				json_agg(slis.status) as sli_array,
 				shipment.source_gbloc as origin_gbloc,
 				shipment.destination_gbloc as destination_gbloc,
@@ -213,7 +207,6 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
-			LEFT JOIN storage_in_transits as sits ON sits.shipment_id = shipment.id
 			LEFT JOIN shipment_line_items as slis ON slis.shipment_id = shipment.id
 			WHERE shipment.status = 'DELIVERED'
 			and moves.show is true

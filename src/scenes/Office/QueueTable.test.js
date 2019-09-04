@@ -78,8 +78,6 @@ describe('calculateNeedsAttention function', () => {
       [{ hhg_status: 'ACCEPTED' }, ['Awaiting review']],
       [{ hhg_status: 'SUBMITTED', status: 'SUBMITTED' }, ['Awaiting review']],
       [{ has_unapproved_shipment_line_items: true }, ['Pre-approval requested']],
-      [{ storage_in_transits: [{ status: 'REQUESTED', location: 'ORIGIN' }] }, ['Origin SIT requested']],
-      [{ storage_in_transits: [{ status: 'REQUESTED', location: 'DESTINATION' }] }, ['Dest SIT requested']],
     ];
 
     tests.forEach(test => {

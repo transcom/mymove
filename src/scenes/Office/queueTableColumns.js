@@ -81,18 +81,7 @@ export const calculateNeedsAttention = row => {
   if (row.has_unapproved_shipment_line_items) {
     attentions.push('Pre-approval requested');
   }
-  if (
-    row.storage_in_transits &&
-    row.storage_in_transits.some(sit => sit.status === 'REQUESTED' && sit.location === 'ORIGIN')
-  ) {
-    attentions.push('Origin SIT requested');
-  }
-  if (
-    row.storage_in_transits &&
-    row.storage_in_transits.some(sit => sit.status === 'REQUESTED' && sit.location === 'DESTINATION')
-  ) {
-    attentions.push('Dest SIT requested');
-  }
+
   return attentions;
 };
 
