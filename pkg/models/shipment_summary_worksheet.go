@@ -453,8 +453,8 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData)
 	page2.SAC = derefStringTypes(data.Order.SAC)
 	page2.PreparationDate = FormatDate(data.PreparationDate)
 	page2.FormattedMovingExpenses, err = FormatMovingExpenses(data.MovingExpenseDocuments)
-	page2.FormattedMovingExpenses.TotalPaidNonSIT = page2.FormattedMovingExpenses.TotalGTCCPaid + page2.FormattedMovingExpenses.TotalMemberPaid
-	page2.FormattedMovingExpenses.TotalPaidSIT = page2.FormattedMovingExpenses.TotalGTCCPaidSIT + page2.FormattedMovingExpenses.TotalMemberPaidSIT
+	page2.TotalPaidNonSIT = page2.TotalGTCCPaid + page2.TotalMemberPaid
+	page2.TotalPaidSIT = page2.TotalGTCCPaidSIT + page2.TotalMemberPaidSIT
 	if err != nil {
 		return page2, err
 	}
