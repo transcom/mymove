@@ -7,11 +7,11 @@ import (
 
 // L1 represents the L1 EDI segment
 type L1 struct {
-	LadingLineItemNumber     int
-	FreightRate              float64
-	RateValueQualifier       string
-	Charge                   float64
-	SpecialChargeDescription string
+	LadingLineItemNumber     int     `validate:"omitempty,min=1,max=999"`
+	FreightRate              float64 `validate:"eq=0"`
+	RateValueQualifier       string  `validate:"eq=RC"`
+	Charge                   float64 `validate:"required"`
+	SpecialChargeDescription string  `validate:"min=2,max=25"`
 }
 
 // StringArray converts L1 to an array of strings

@@ -7,8 +7,8 @@ import (
 
 // IEA represents the IEA EDI segment
 type IEA struct {
-	NumberOfIncludedFunctionalGroups int
-	InterchangeControlNumber         int64
+	NumberOfIncludedFunctionalGroups int   `validate:"eq=1"`
+	InterchangeControlNumber         int64 `validate:"min=1,max=999999999"`
 }
 
 // StringArray converts IEA to an array of strings

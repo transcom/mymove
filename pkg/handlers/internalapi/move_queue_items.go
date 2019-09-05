@@ -24,7 +24,6 @@ func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem) *internalmessag
 		Rank:                       (*internalmessages.ServiceMemberRank)(MoveQueueItem.Rank),
 		CustomerName:               swag.String(MoveQueueItem.CustomerName),
 		Locator:                    swag.String(MoveQueueItem.Locator),
-		GblNumber:                  handlers.FmtStringPtr(MoveQueueItem.GBLNumber),
 		Status:                     swag.String(MoveQueueItem.Status),
 		PpmStatus:                  handlers.FmtStringPtr(MoveQueueItem.PpmStatus),
 		OrdersType:                 swag.String(MoveQueueItem.OrdersType),

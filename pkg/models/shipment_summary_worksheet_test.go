@@ -441,19 +441,19 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2() {
 	suite.Equal("SAC", sswPage2.SAC)
 
 	// fields w/ no expenses should format as $0.00
-	suite.Equal("$0.00", sswPage2.RentalEquipmentGTCCPaid)
-	suite.Equal("$0.00", sswPage2.PackingMaterialsGTCCPaid)
+	suite.Equal("$0.00", sswPage2.RentalEquipmentGTCCPaid.String())
+	suite.Equal("$0.00", sswPage2.PackingMaterialsGTCCPaid.String())
 
-	suite.Equal("$300.00", sswPage2.ContractedExpenseGTCCPaid)
-	suite.Equal("$300.00", sswPage2.TotalGTCCPaid)
-	suite.Equal("$300.00", sswPage2.TotalGTCCPaidRepeated)
+	suite.Equal("$300.00", sswPage2.ContractedExpenseGTCCPaid.String())
+	suite.Equal("$300.00", sswPage2.TotalGTCCPaid.String())
+	suite.Equal("$300.00", sswPage2.TotalGTCCPaidRepeated.String())
 
-	suite.Equal("$100.00", sswPage2.TollsMemberPaid)
-	suite.Equal("$100.00", sswPage2.GasMemberPaid)
-	suite.Equal("$200.00", sswPage2.TotalMemberPaid)
-	suite.Equal("$200.00", sswPage2.TotalMemberPaidRepeated)
-	suite.Equal("$100.00", sswPage2.TotalMemberPaidSIT)
-	suite.Equal("$1,200.00", sswPage2.TotalGTCCPaidSIT)
+	suite.Equal("$100.00", sswPage2.TollsMemberPaid.String())
+	suite.Equal("$100.00", sswPage2.GasMemberPaid.String())
+	suite.Equal("$200.00", sswPage2.TotalMemberPaid.String())
+	suite.Equal("$200.00", sswPage2.TotalMemberPaidRepeated.String())
+	suite.Equal("$100.00", sswPage2.TotalMemberPaidSIT.String())
+	suite.Equal("$1,200.00", sswPage2.TotalGTCCPaidSIT.String())
 }
 
 func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage3() {
@@ -499,13 +499,21 @@ func (suite *ModelSuite) TestGroupExpenses() {
 					RequestedAmountCents: unit.Cents(20000),
 					PaymentMethod:        "OTHER",
 				},
+				{
+					MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
+					RequestedAmountCents: unit.Cents(20000),
+					PaymentMethod:        "GTCC",
+				},
 			},
 			map[string]float64{
-				"TollsGTCCPaid":   100,
-				"GasMemberPaid":   300,
-				"TotalMemberPaid": 300,
-				"TotalGTCCPaid":   100,
-				"TotalPaid":       400,
+				"TollsGTCCPaid":    100,
+				"GasMemberPaid":    300,
+				"TotalMemberPaid":  300,
+				"TotalGTCCPaid":    100,
+				"TotalPaidNonSIT":  400,
+				"StorageGTCCPaid":  200,
+				"TotalGTCCPaidSIT": 200,
+				"TotalPaidSIT":     200,
 			},
 		},
 		{
@@ -549,7 +557,7 @@ func (suite *ModelSuite) TestGroupExpenses() {
 				"GasMemberPaid":              200,
 				"TotalMemberPaid":            400,
 				"TotalGTCCPaid":              400,
-				"TotalPaid":                  800,
+				"TotalPaidNonSIT":            800,
 			},
 		},
 	}

@@ -7,8 +7,8 @@ import (
 
 // GE represents the GE EDI segment
 type GE struct {
-	NumberOfTransactionSetsIncluded int
-	GroupControlNumber              int64
+	NumberOfTransactionSetsIncluded int   `validate:"eq=1"`
+	GroupControlNumber              int64 `validate:"min=1,max=999999999"`
 }
 
 // StringArray converts GE to an array of strings

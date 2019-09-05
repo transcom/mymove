@@ -8,7 +8,6 @@ import QueueTable from './QueueTable';
 import ReactTable from 'react-table';
 import store from 'shared/store';
 import { mount } from 'enzyme/build';
-import { calculateNeedsAttention } from './queueTableColumns';
 import { setIsLoggedInType } from 'shared/Data/users';
 
 const push = jest.fn();
@@ -68,19 +67,6 @@ describe('Refreshing', () => {
       expect(fetchDataSpy).toHaveBeenCalled();
 
       done();
-    });
-  });
-});
-
-describe('calculateNeedsAttention function', () => {
-  it('returns the correct notifications', () => {
-    const tests = [
-      [{ hhg_status: 'ACCEPTED' }, ['Awaiting review']],
-      [{ hhg_status: 'SUBMITTED', status: 'SUBMITTED' }, ['Awaiting review']],
-    ];
-
-    tests.forEach(test => {
-      expect(calculateNeedsAttention(test[0])).toEqual(test[1]);
     });
   });
 });

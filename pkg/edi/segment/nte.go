@@ -6,8 +6,8 @@ import (
 
 // NTE represents the NTE EDI segment
 type NTE struct {
-	NoteReferenceCode string
-	Description       string
+	NoteReferenceCode string `validate:"omitempty,len=3"`
+	Description       string `validate:"min=1,max=80"`
 }
 
 // StringArray converts NTE to an array of strings

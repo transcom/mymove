@@ -325,10 +325,10 @@ function officeUserVerifiesPPM() {
 
 function officeUserGoesToPPMPanel(locator) {
   // Open ppm queue
-  cy.patientVisit('/queues/ppm');
+  cy.patientVisit('/queues/all');
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/ppm/);
+    expect(loc.pathname).to.match(/^\/queues\/all/);
   });
 
   // Find shipment and open it
