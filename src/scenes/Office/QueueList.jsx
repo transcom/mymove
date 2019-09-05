@@ -9,7 +9,7 @@ export default class QueueList extends Component {
         <ul className="usa-sidenav-list">
           <li>
             <NavLink to="/queues/new" activeClassName="usa-current">
-              <span>New</span>
+              <span>New moves</span>
             </NavLink>
           </li>
 
@@ -24,7 +24,7 @@ export default class QueueList extends Component {
               activeClassName="usa-current"
               data-cy="ppm-payment-requests-queue"
             >
-              <span>Payment Requested</span>
+              <span>Payment requested</span>
             </NavLink>
           </li>
           <li>
@@ -34,7 +34,7 @@ export default class QueueList extends Component {
           </li>
           <li>
             <NavLink to="/queues/all" activeClassName="usa-current" data-cy="ppm-queue">
-              <span>All Moves</span>
+              <span>All moves</span>
             </NavLink>
           </li>
         </ul>

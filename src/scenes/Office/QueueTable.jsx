@@ -116,18 +116,23 @@ class QueueTable extends Component {
 
   render() {
     const titles = {
-      new: 'New Moves/Shipments',
+      new: 'New moves',
       troubleshooting: 'Troubleshooting',
       ppm: 'All PPMs',
-      ppm_payment_requested: 'Payment Requests PPMs',
-      all: 'All Moves',
-      ppm_completed: 'Completed Moves',
-      ppm_approved: 'Approved Moves',
+      ppm_payment_requested: 'Payment requested',
+      all: 'All moves',
+      ppm_completed: 'Completed moves',
+      ppm_approved: 'Approved moves',
     };
 
     const showColumns = defaultColumns;
 
-    const defaultSort = [{ id: 'move_date', asc: true }];
+    const defaultSort = queueType => {
+      if (['all'].includes(queueType)) {
+        return [{ id: 'locator', asc: true }];
+      }
+      return [{ id: 'move_date', asc: true }];
+    };
 
     this.state.data.forEach(row => {
       row.shipments = 'PPM';
@@ -167,7 +172,7 @@ class QueueTable extends Component {
             columns={showColumns}
             data={this.state.data}
             loading={this.state.loading} // Display the loading overlay when we need it
-            defaultSorted={defaultSort}
+            defaultSorted={defaultSort(this.props.queueType)}
             pageSize={this.state.data.length}
             className="-striped -highlight"
             showPagination={false}
