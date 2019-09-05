@@ -27,7 +27,6 @@ func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem) *internalmessag
 		GblNumber:                  handlers.FmtStringPtr(MoveQueueItem.GBLNumber),
 		Status:                     swag.String(MoveQueueItem.Status),
 		PpmStatus:                  handlers.FmtStringPtr(MoveQueueItem.PpmStatus),
-		HhgStatus:                  handlers.FmtStringPtr(MoveQueueItem.HhgStatus),
 		OrdersType:                 swag.String(MoveQueueItem.OrdersType),
 		MoveDate:                   handlers.FmtDatePtr(MoveQueueItem.MoveDate),
 		SubmittedDate:              handlers.FmtDateTimePtr(MoveQueueItem.SubmittedDate),
@@ -38,6 +37,7 @@ func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem) *internalmessag
 		OriginGbloc:                handlers.FmtStringPtr(MoveQueueItem.OriginGBLOC),
 		DestinationGbloc:           handlers.FmtStringPtr(MoveQueueItem.DestinationGBLOC),
 		DeliveredDate:              handlers.FmtDateTimePtr(MoveQueueItem.DeliveredDate),
+		InvoiceApprovedDate:        handlers.FmtDateTimePtr(MoveQueueItem.InvoiceApprovedDate),
 		WeightAllotment:            payloadForWeightAllotmentModel(models.GetWeightAllotment(*MoveQueueItem.Rank)),
 	}
 	return &MoveQueueItemPayload
