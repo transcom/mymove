@@ -18,6 +18,10 @@ type NotificationSuite struct {
 	logger Logger
 }
 
+func (suite *NotificationSuite) SetupTest() {
+	suite.DB().TruncateAll()
+}
+
 type testNotification struct {
 	email emailContent
 }
