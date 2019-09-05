@@ -256,7 +256,7 @@ const setupKnobs = () => {
   initstore.orders.currentOrders.new_duty_station.address.postal_code = text('New Duty Station ZIP', '95652');
 };
 
-storiesOf('scenes/Moves/Ppm/DateAndLocation', module)
+storiesOf('scenes/Moves/Ppm', module)
   .addDecorator(withKnobs)
   .addDecorator(story => (
     <Provider store={store}>
@@ -264,7 +264,7 @@ storiesOf('scenes/Moves/Ppm/DateAndLocation', module)
     </Provider>
   ))
   .addDecorator(story => <div className="my-move site">{story()}</div>)
-  .add('sample', () => (
+  .add('DateAndLocation', () => (
     <div>
       {setupKnobs()}
       <DateAndLocation
