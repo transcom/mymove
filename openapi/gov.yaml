@@ -1,7 +1,7 @@
 openapi: 3.0.2
 info:
-  title: move.mil GHC API
-  description: The API for the GHC Prime to interact with move.mil
+  title: move.mil Government System API
+  description: The API for government officials interfacing with GHC for move.mil
   #  termsOfService:
   contact:
     email: dp3@truss.works
@@ -12,36 +12,6 @@ info:
 # servers:
 paths:
   /payment_requests:
-    post:
-      summary: Creates a payment request
-      description: Creates a payment request
-      operationId: createPaymentRequest
-      tags:
-        - payment_requests
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreatePaymentRequestPayload'
-      responses:
-        '201':
-          description: created instance of payment request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaymentRequest'
-        '400':
-          description: invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/InvalidRequestResponsePayload'
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '500':
-          description: internal server error
     get: # TODO add filters when we know what we are filtering
       summary: Gets payment requests
       description: Gets a list of payment requests
@@ -105,7 +75,7 @@ paths:
           description: orders not found
         '500':
           description: internal server error
-    patch: # GHC can mark final- could be its own endpoint
+    patch:
       summary: Updates a payment request
       description: Updates a payment request
       operationId: updatePaymentRequest
@@ -146,37 +116,6 @@ paths:
           description: orders not found
         '500':
           description: internal server error
-  /uploads:
-    post:
-      summary: Create a new upload
-      description: Uploads represent a single digital file, such as a JPEG or PDF.
-      operationId: createUpload
-      tags:
-        - uploads
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/CreateUploadPayload'
-      responses:
-        201:
-          description: created upload
-          content:
-            multipart/form-data:
-              schema:
-                $ref: '#/components/schemas/Upload'
-        400:
-          description: invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/InvalidRequestResponsePayload'
-        403:
-          description: not authorized
-        404:
-          description: not found
-        500:
-          description: server error
   /uploads/{upload_id}:
     get:
       summary: Fetches upload
@@ -241,45 +180,19 @@ components:
           type: string
           example: documentation was incomplete
           nullable: true
-    CreatePaymentRequestPayload:
+    UpdatePaymentRequestPayload:
       type: object
       properties:
-        proof_of_service_package:
-          $ref: '#/components/schemas/ProofOfServicePackage'
-        task_order_id:
-          type: string
-          format: uuid
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        task_order_line_item_ids:
-          type: array
-          items:
-            type: string
-            format: uuid
-            example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        is_final:
-          type: boolean
-          default: false
         status:
           $ref: '#/components/schemas/PaymentRequestStatus'
         payment_rejection_reason:
           type: string
           example: documentation was incomplete
-    UpdatePaymentRequestPayload:
-      type: object
-      properties:
-        task_order_line_item_ids:
-          type: array
-          items:
-            type: string
-            format: uuid
-            example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        proof_of_service_package:
-          $ref: '#/components/schemas/ProofOfServicePackage'
-        is_final:
-          type: boolean
-          default: false
-        status:
-          $ref: '#/components/schemas/PaymentRequestStatus'
+          nullable: true
+        invoice_rejection_reason:
+          type: string
+          example: documentation was incomplete
+          nullable: true
     ProofOfServicePackage: # Need more info on what a ProofOfServicePackage is, what is in it
       type: object
       properties:
@@ -320,36 +233,6 @@ components:
         - INVOICE_SUBMITTED
         - INVOICE_APPROVED
         - INVOICE_REJECTED
-    CreateUploadPayload:
-      type: object
-      properties:
-        url:
-          type: string
-          format: uri
-          example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
-        filename:
-          type: string
-          format: binary
-          example: filename.pdf
-        content_type:
-          type: string
-          format: mime-type
-          example: application/pdf
-        bytes:
-          type: integer
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-      required:
-        - url
-        - filename
-        - content_type
-        - bytes
-        - created_at
-        - updated_at
     Upload:
       type: object
       properties:
