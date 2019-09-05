@@ -580,8 +580,7 @@ func FormatAllSITExpenses(movingExpenseDocuments MovingExpenseDocuments) Shipmen
 
 //FormatMovingExpenses formats moving expenses for Shipment Summary Worksheet
 func FormatMovingExpenses(movingExpenseDocuments MovingExpenseDocuments) (FormattedMovingExpenses, error) {
-	totals := SubTotalExpenses(movingExpenseDocuments)
-	return SubTotalsMapToStruct(totals)
+	return SubTotalsMapToStruct(SubTotalExpenses(movingExpenseDocuments))
 }
 
 //SubTotalExpenses groups moving expenses by type and payment method
@@ -607,12 +606,21 @@ func SubTotalsMapToStruct(subTotals map[string]float64) (FormattedMovingExpenses
 }
 
 func addToGrandTotal(totals map[string]float64, key string, expenseDollarAmt float64) {
-	if strings.HasSuffix(key, "GTCCPaid") {
-		totals["TotalGTCCPaid"] += expenseDollarAmt
+	if strings.HasPrefix(key, "Storage") {
+		if strings.HasSuffix(key, "GTCCPaid") {
+			totals["TotalGTCCPaidSIT"] += expenseDollarAmt
+		} else {
+			totals["TotalMemberPaidSIT"] += expenseDollarAmt
+		}
+		totals["TotalPaidSIT"] += expenseDollarAmt
 	} else {
-		totals["TotalMemberPaid"] += expenseDollarAmt
+		if strings.HasSuffix(key, "GTCCPaid") {
+			totals["TotalGTCCPaid"] += expenseDollarAmt
+		} else {
+			totals["TotalMemberPaid"] += expenseDollarAmt
+		}
+		totals["TotalPaidNonSIT"] += expenseDollarAmt
 	}
-	totals["TotalPaid"] += expenseDollarAmt
 }
 
 func getExpenseType(expense MovingExpenseDocument) string {
