@@ -14,7 +14,7 @@ const StatusTimelineCodes = {
   PaymentReviewed: 'PAYMENT_REVIEWED',
 };
 
-storiesOf('StatusTimeline', module)
+storiesOf('scenes/Landing/StatusTimeline', module)
   .addDecorator(withKnobs)
   .addDecorator(storyFn => <div className="shipment_box_contents">{storyFn()}</div>)
   .add('with 5 status blocks', () => (
