@@ -77,7 +77,6 @@ describe('calculateNeedsAttention function', () => {
     const tests = [
       [{ hhg_status: 'ACCEPTED' }, ['Awaiting review']],
       [{ hhg_status: 'SUBMITTED', status: 'SUBMITTED' }, ['Awaiting review']],
-      [{ has_unapproved_shipment_line_items: true }, ['Pre-approval requested']],
     ];
 
     tests.forEach(test => {

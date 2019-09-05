@@ -78,9 +78,6 @@ export const calculateNeedsAttention = row => {
   if ((row.hhg_status && row.hhg_status === 'ACCEPTED') || row.status === 'SUBMITTED') {
     attentions.push('Awaiting review');
   }
-  if (row.has_unapproved_shipment_line_items) {
-    attentions.push('Pre-approval requested');
-  }
 
   return attentions;
 };

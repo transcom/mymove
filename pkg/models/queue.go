@@ -63,7 +63,6 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				ppm.status as ppm_status,
 				shipment.status as hhg_status,
 				shipment.pm_survey_conducted_date as pm_survey_conducted_date,
-				json_agg(slis.status) as sli_array,
 				origin_duty_station.name as origin_duty_station_name
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
@@ -71,7 +70,6 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN duty_stations as origin_duty_station ON sm.duty_station_id = origin_duty_station.id
 			LEFT JOIN shipments AS shipment ON moves.id = shipment.move_id
 			LEFT JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
-			LEFT JOIN shipment_line_items as slis ON slis.shipment_id = shipment.id
 			WHERE (moves.status = 'SUBMITTED'
 			OR ((shipment.status in ('SUBMITTED', 'AWARDED', 'ACCEPTED') OR ppm.status = 'SUBMITTED')
 				AND (NOT moves.status in ('CANCELED', 'DRAFT'))))
@@ -149,14 +147,12 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				destination_duty_station.name as destination_duty_station_name,
 				shipment.id as shipment_id,
 				shipment.pm_survey_conducted_date as pm_survey_conducted_date,
-				json_agg(slis.status) as sli_array
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			JOIN duty_stations as origin_duty_station ON sm.duty_station_id = origin_duty_station.id
 			JOIN duty_stations as destination_duty_station ON ord.new_duty_station_id = destination_duty_station.id
 			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
-			LEFT JOIN shipment_line_items as slis ON slis.shipment_id = shipment.id
 			WHERE ((shipment.status IN ('IN_TRANSIT', 'APPROVED')) OR (shipment.status = 'ACCEPTED' AND shipment.pm_survey_conducted_date IS NOT NULL))
 			AND moves.show is true AND moves.status != 'CANCELED'
 			GROUP BY moves.ID, rank, customer_name, edipi, locator, orders_type, move_date, moves.created_at, last_modified_date, moves.status, origin_duty_station_name, destination_duty_station_name, shipment.id
@@ -199,7 +195,6 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				shipment.status as hhg_status,
 				shipment.gbl_number as gbl_number,
 				shipment.pm_survey_conducted_date as pm_survey_conducted_date,
-				json_agg(slis.status) as sli_array,
 				shipment.source_gbloc as origin_gbloc,
 				shipment.destination_gbloc as destination_gbloc,
 				shipment.actual_delivery_date as delivered_date,
@@ -207,7 +202,6 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
-			LEFT JOIN shipment_line_items as slis ON slis.shipment_id = shipment.id
 			WHERE shipment.status = 'DELIVERED'
 			and moves.show is true
 			GROUP BY moves.ID, rank, customer_name, edipi, locator, orders_type, move_date, moves.created_at, last_modified_date, moves.status,
