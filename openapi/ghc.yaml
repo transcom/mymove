@@ -146,141 +146,6 @@ paths:
           description: orders not found
         '500':
           description: internal server error
-  /invoice_requests:
-    post:
-      summary: Creates an invoice request
-      description: Creates an invoice request
-      operationId: createInvoiceRequest
-      tags:
-        - invoice_requests
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateInvoiceRequestPayload'
-      responses:
-        '201':
-          description: created instance of invoice request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InvoiceRequest'
-        '400':
-          description: invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InvalidRequestResponsePayload'
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '500':
-          description: internal server error
-    get: # TODO add filters when we know what we are filtering
-      summary: Gets invoice requests
-      description: Gets a list of invoice requests
-      operationId: getInvoiceRequests
-      tags:
-        - invoice_requests
-      responses:
-        '200':
-          description: fetched list of invoice request
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/InvoiceRequest'
-        '400':
-          description: invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InvalidRequestResponsePayload'
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '500':
-          description: internal server error
-  /invoice_requests/{invoiceRequestId}:
-    get:
-      summary: Fetches a invoice request
-      description: Fetches an instance of a invoice request
-      operationId: fetchInvoiceRequest
-      tags:
-        - invoice_requests
-      parameters:
-        - name: invoiceRequestId
-          in: path
-          description: UUID of invoice request
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: fetched instance of invoice request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InvoiceRequest'
-        '400':
-          description: invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InvalidRequestResponsePayload'
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '404':
-          description: orders not found
-        '500':
-          description: internal server error
-    patch: # could make update of status to accept/reject a different endpoint
-      summary: Updates a invoice request
-      description: Updates a invoice request
-      operationId: updateInvoiceRequest
-      tags:
-        - invoice_requests
-      parameters:
-        - name: invoiceRequestId
-          in: path
-          description: UUID of invoice request
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/InvoiceRequest'
-        required: true
-      responses:
-        '200':
-          description: updated invoice request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InvoiceRequest'
-        '400':
-          description: invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InvalidRequestResponsePayload'
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '404':
-          description: orders not found
-        '500':
-          description: internal server error
   /uploads:
     post:
       summary: Create a new upload
@@ -352,7 +217,7 @@ components:
           format: uuid
           example: c56a4180-65aa-42ec-a945-5fd21dec0538
         document_package:
-          $ref: '#/components/schemas/DocumentPackage'
+          $ref: '#/components/schemas/ProofOfServicePackage'
         task_order:
           $ref: '#/components/schemas/TaskOrder'
         is_final:
@@ -360,7 +225,11 @@ components:
           default: false
         status:
           $ref: '#/components/schemas/PaymentRequestStatus'
-        rejection_reason:
+        payment_rejection_reason:
+          type: string
+          example: documentation was incomplete
+          nullable: true
+        invoice_rejection_reason:
           type: string
           example: documentation was incomplete
           nullable: true
@@ -368,49 +237,18 @@ components:
       type: object
       properties:
         document_package:
-          $ref: '#/components/schemas/DocumentPackage'
+          $ref: '#/components/schemas/ProofOfServicePackage'
         task_order:
           $ref: '#/components/schemas/TaskOrder'
-        task_order_line_item_ids:
-          type: array
-          items:
-            type: string
-            format: uuid
-            example: c56a4180-65aa-42ec-a945-5fd21dec0538
         is_final:
           type: boolean
           default: false
         status:
           $ref: '#/components/schemas/PaymentRequestStatus'
-        rejection_reason:
+        payment_rejection_reason:
           type: string
           example: documentation was incomplete
-    InvoiceRequest:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        payment_request:
-          $ref: '#/components/schemas/PaymentRequest'
-        status:
-          $ref: '#/components/schemas/InvoiceRequestStatus'
-        rejection_reason:
-          type: string
-          description: documentation missing
-          nullable: true
-    CreateInvoiceRequestPayload:
-      type: object
-      properties:
-        payment_request:
-          $ref: '#/components/schemas/PaymentRequest'
-        status:
-          $ref: '#/components/schemas/InvoiceRequestStatus'
-        rejection_reason:
-          type: string
-          description: documentation missing
-    DocumentPackage: # Need more info on what a documentPackage is, what is in it
+    ProofOfServicePackage: # Need more info on what a ProofOfServicePackage is, what is in it
       type: object
       properties:
         id:
@@ -428,6 +266,10 @@ components:
           type: string
           format: uuid
           example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        task_order_line_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskOrderLineItem'
     TaskOrderLineItem: #stub
       type: object
       properties:
@@ -435,29 +277,17 @@ components:
           type: string
           format: uuid
           example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        task_order_id:
-          type: string
-          format: uuid
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        payment_request_id:
-          format: uuid
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
-          x-nullable: true
     PaymentRequestStatus:
       type: string
       title: Payment Request Status
       enum:
         - DRAFT
-        - SUBMITTED
-        - REJECTED
-        - APPROVED
-    InvoiceRequestStatus:
-      type: string
-      title: Payment Request Status
-      enum:
-        - SUBMITTED
-        - REJECTED
-        - APPROVED
+        - PAYMENT_SUBMITTED
+        - PAYMENT_REJECTED
+        - PAYMENT_APPROVED
+        - INVOICE_SUBMITTED
+        - INVOICE_APPROVED
+        - INVOICE_REJECTED
     CreateUploadPayload:
       type: object
       properties:
@@ -467,6 +297,7 @@ components:
           example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
         filename:
           type: string
+          format: binary
           example: filename.pdf
         content_type:
           type: string
@@ -500,6 +331,7 @@ components:
           example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
         filename:
           type: string
+          format: binary
           example: filename.pdf
         content_type:
           type: string
