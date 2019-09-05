@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -42,15 +43,19 @@ func genMigrationFunction(cmd *cobra.Command, args []string) error {
 
 	err := cmd.ParseFlags(args)
 	if err != nil {
-		return errors.Wrap(err, "Could not parse flags")
+		return errors.Wrap(err, "could not ParseFlags on args")
 	}
 
 	flag := cmd.Flags()
+	err = flag.Parse(os.Args[1:])
+	if err != nil {
+		return errors.Wrap(err, "could not parse flags")
+	}
 
 	v := viper.New()
 	err = v.BindPFlags(flag)
 	if err != nil {
-		return errors.Wrap(err, "Could not bind flags")
+		return errors.Wrap(err, "could not bind flags")
 	}
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()

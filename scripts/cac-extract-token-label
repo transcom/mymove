@@ -1,0 +1,16 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+#
+# Get the Token Label from CAC
+#
+
+readonly MODULE=/usr/local/lib/pkcs11/cackey.dylib
+readonly PKCS11=/usr/local/bin/pkcs11-tool
+
+# Check the CAC Pre-Requirements
+cac-prereqs
+
+# Token Label
+"${PKCS11}" -r --module "${MODULE}" -a "Identity #0" --list-slots 2>/dev/null| grep label | perl -ne 's/^  token label        : //; print' | head -n1

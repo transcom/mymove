@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/db/utilities"
 )
 
 // An Upload represents an uploaded file, such as an image or PDF.
@@ -27,6 +28,7 @@ type Upload struct {
 	StorageKey  string     `db:"storage_key"`
 	CreatedAt   time.Time  `db:"created_at"`
 	UpdatedAt   time.Time  `db:"updated_at"`
+	DeletedAt   *time.Time `db:"deleted_at"`
 }
 
 // Uploads is not required by pop and may be deleted
@@ -61,7 +63,7 @@ func (u *Upload) BeforeCreate(tx *pop.Connection) error {
 func FetchUpload(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (Upload, error) {
 
 	var upload Upload
-	err := db.Q().Eager().Find(&upload, id)
+	err := db.Q().Where("uploads.deleted_at is null").Eager().Find(&upload, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Upload{}, errors.Wrap(ErrFetchNotFound, "error fetching upload")
@@ -73,7 +75,7 @@ func FetchUpload(ctx context.Context, db *pop.Connection, session *auth.Session,
 	// If there's a document, check permissions. Otherwise user must
 	// have been the uploader
 	if upload.DocumentID != nil {
-		_, docErr := FetchDocument(ctx, db, session, *upload.DocumentID)
+		_, docErr := FetchDocument(ctx, db, session, *upload.DocumentID, false)
 		if docErr != nil {
 			return Upload{}, docErr
 		}
@@ -85,5 +87,7 @@ func FetchUpload(ctx context.Context, db *pop.Connection, session *auth.Session,
 
 // DeleteUpload deletes an upload from the database
 func DeleteUpload(db *pop.Connection, upload *Upload) error {
-	return db.Destroy(upload)
+	return db.Transaction(func(db *pop.Connection) error {
+		return utilities.SoftDestroy(db, upload)
+	})
 }

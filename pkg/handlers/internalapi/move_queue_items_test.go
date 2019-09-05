@@ -11,12 +11,26 @@ import (
 )
 
 var statusToQueueMap = map[string]string{
-	"SUBMITTED": "new",
-	"APPROVED":  "ppm",
+	"SUBMITTED":         "new",
+	"APPROVED":          "ppm_approved",
+	"PAYMENT_REQUESTED": "ppm_payment_requested",
+	"COMPLETED":         "ppm_completed",
 }
 
 func (suite *HandlerSuite) TestShowQueueHandler() {
 	for status, queueType := range statusToQueueMap {
+		var ppmStatus models.PPMStatus
+
+		switch status {
+		case "COMPLETED":
+			ppmStatus = models.PPMStatusCOMPLETED
+		case "APPROVED":
+			ppmStatus = models.PPMStatusAPPROVED
+		case "PAYMENT_REQUESTED":
+			ppmStatus = models.PPMStatusPAYMENTREQUESTED
+		case "SUBMITTED":
+			ppmStatus = models.PPMStatusSUBMITTED
+		}
 
 		suite.DB().TruncateAll()
 
@@ -39,7 +53,7 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 			PersonallyProcuredMove: models.PersonallyProcuredMove{
 				Move:   newMove,
 				MoveID: newMove.ID,
-				Status: models.PPMStatusAPPROVED,
+				Status: ppmStatus,
 			},
 		})
 
@@ -67,6 +81,7 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 		// furthest link in that chain
 		expectedCustomerName := fmt.Sprintf("%v, %v", *order.ServiceMember.LastName, *order.ServiceMember.FirstName)
 		suite.Equal(expectedCustomerName, *moveQueueItem.CustomerName)
+		suite.Equal(string(ppmStatus), *moveQueueItem.Status)
 	}
 }
 

@@ -173,7 +173,7 @@ func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsPar
 		return handlers.ResponseForError(logger, err)
 	}
 
-	moveDocs, err := move.FetchAllMoveDocumentsForMove(h.DB())
+	moveDocs, err := move.FetchAllMoveDocumentsForMove(h.DB(), false)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

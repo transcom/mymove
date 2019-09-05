@@ -6,8 +6,8 @@ import (
 
 // ST represents the ST EDI segment
 type ST struct {
-	TransactionSetIdentifierCode string
-	TransactionSetControlNumber  string
+	TransactionSetIdentifierCode string `validate:"eq=858"`
+	TransactionSetControlNumber  string `validate:"min=4,max=9"`
 }
 
 // StringArray converts ST to an array of strings

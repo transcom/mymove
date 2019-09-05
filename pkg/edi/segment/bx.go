@@ -6,13 +6,13 @@ import (
 
 // BX represents the BX EDI segment
 type BX struct {
-	TransactionSetPurposeCode    string
-	TransactionMethodTypeCode    string
-	ShipmentMethodOfPayment      string
-	ShipmentIdentificationNumber string
-	StandardCarrierAlphaCode     string
-	WeightUnitCode               string
-	ShipmentQualifier            string
+	TransactionSetPurposeCode    string `validate:"eq=00"`
+	TransactionMethodTypeCode    string `validate:"eq=J"`
+	ShipmentMethodOfPayment      string `validate:"eq=PP"`
+	ShipmentIdentificationNumber string `validate:"alphanum,min=1,max=30"`
+	StandardCarrierAlphaCode     string `validate:"alpha,min=2,max=4"`
+	WeightUnitCode               string `validate:"isdefault"` // not used
+	ShipmentQualifier            string `validate:"eq=4"`
 }
 
 // StringArray converts BX to an array of strings

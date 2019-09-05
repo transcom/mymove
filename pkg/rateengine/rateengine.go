@@ -232,7 +232,6 @@ func (re *RateEngine) ComputeLowestCostPPMMove(weight unit.Pound, originPickupZi
 	}
 
 	re.logger.Info("Origin zip code information", zap.String("originZipLocation", originZipLocation), zap.String("originZipCode", originZipCode))
-
 	return cost, nil
 }
 

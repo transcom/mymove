@@ -1,6 +1,8 @@
 package models_test
 
 import (
+	"time"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -25,8 +27,28 @@ func (suite *ModelSuite) TestFetchAllMoveDocumentsForMove() {
 	testdatagen.MakeMovingExpenseDocument(suite.DB(), assertions)
 	testdatagen.MakeWeightTicketSetDocument(suite.DB(), assertions)
 
-	docs, err := move.FetchAllMoveDocumentsForMove(suite.DB())
+	deletedAt := time.Date(2019, 8, 7, 0, 0, 0, 0, time.UTC)
+	deleteAssertions := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:    move.ID,
+			Move:      move,
+			DeletedAt: &deletedAt,
+		},
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+			DeletedAt:       &deletedAt,
+		},
+	}
+	testdatagen.MakeMoveDocument(suite.DB(), deleteAssertions)
+
+	docs, err := move.FetchAllMoveDocumentsForMove(suite.DB(), false)
 	if suite.NoError(err) {
 		suite.Len(docs, 3)
+	}
+
+	allDocs, err2 := move.FetchAllMoveDocumentsForMove(suite.DB(), false)
+	if suite.NoError(err2) {
+		suite.Len(allDocs, 3)
 	}
 }

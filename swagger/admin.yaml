@@ -251,6 +251,44 @@ definitions:
         type: string
         format: uuid
         example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
+  ElectronicOrder:
+    type: object
+    required:
+      - id
+      - issuer
+      - created_at
+      - updated_at
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      issuer:
+        $ref: '#/definitions/Issuer'
+      created_at:
+        type: string
+        format: datetime
+        title: Created at
+      updated_at:
+        type: string
+        format: datetime
+        title: Updated at
+  ElectronicOrders:
+    type: array
+    items:
+      $ref: '#/definitions/ElectronicOrder'
+  Issuer:
+    type: string
+    description: >-
+      Organization that issues orders. If more organizations, especially
+      civilian ones, become clients of this API in the future, this enumeration
+      may need to be expanded.
+    enum:
+      - army
+      - navy
+      - air-force
+      - marine-corps
+      - coast-guard
 paths:
   /office_users:
     get:
@@ -361,5 +399,35 @@ paths:
           description: request requires user authentication
         404:
           description: office not found
+        500:
+          description: server error
+  /electronic_orders:
+    get:
+      summary: List electronic orders
+      description: Returns a list of electronic orders
+      operationId: indexElectronicOrders
+      tags:
+        - electronic_order
+      parameters:
+        - in: query
+          name: filter
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
+          schema:
+            $ref: '#/definitions/ElectronicOrders'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: not found
         500:
           description: server error

@@ -86,7 +86,7 @@ func main() {
 		log.Fatalf("%s", errors.Wrap(err, "Error calculating obligations "))
 	}
 
-	page1Data, page2Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)
+	page1Data, page2Data, page3Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)
 	noErr(err)
 
 	// page 1
@@ -105,6 +105,15 @@ func main() {
 	defer page2Template.Close()
 
 	err = formFiller.AppendPage(page2Template, page2Layout.FieldsLayout, page2Data)
+	noErr(err)
+
+	// page 3
+	page3Layout := paperwork.ShipmentSummaryPage3Layout
+	page3Template, err := os.Open(page3Layout.TemplateImagePath)
+	noErr(err)
+	defer page3Template.Close()
+
+	err = formFiller.AppendPage(page3Template, page3Layout.FieldsLayout, page3Data)
 	noErr(err)
 
 	filename := fmt.Sprintf("shipment-summary-worksheet-%s.pdf", time.Now().Format(time.RFC3339))

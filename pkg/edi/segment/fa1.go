@@ -16,7 +16,7 @@ var AffiliationToAgency = map[models.ServiceMemberAffiliation]string{
 
 // FA1 represents the FA1 EDI segment
 type FA1 struct {
-	AgencyQualifierCode string
+	AgencyQualifierCode string `validate:"oneof=DN DX DY DZ"`
 }
 
 // StringArray converts FA1 to an array of strings

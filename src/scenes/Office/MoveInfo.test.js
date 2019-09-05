@@ -55,7 +55,7 @@ describe('ShipmentInfo tests', () => {
           </MockRouter>
         </Provider>,
       );
-      expect(wrapper.text()).toEqual('Payment Requests PPMs Queue');
+      expect(wrapper.text()).toEqual('Payment requested');
     });
     it('when no referrer is set', () => {
       wrapper = mount(
@@ -65,7 +65,7 @@ describe('ShipmentInfo tests', () => {
           </MockRouter>
         </Provider>,
       );
-      expect(wrapper.text()).toEqual('New Moves/Shipments Queue');
+      expect(wrapper.text()).toEqual('New moves');
     });
   });
 });
