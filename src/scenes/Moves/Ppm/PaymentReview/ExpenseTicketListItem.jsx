@@ -1,5 +1,6 @@
 import React from 'react';
 import { string } from 'prop-types';
+import deleteButtonImg from 'shared/images/delete-doc-button.png';
 
 const ExpenseTicketListItem = ({ amount, type, paymentMethod, showDelete }) => (
   <div className="ticket-item">
@@ -7,6 +8,7 @@ const ExpenseTicketListItem = ({ amount, type, paymentMethod, showDelete }) => (
       <h4>
         {type} - ${amount}
       </h4>
+      {showDelete && <img alt="delete document button" onClick={() => console.log('lol')} src={deleteButtonImg} />}
     </div>
     <div>
       {type} ({paymentMethod === 'OTHER' ? 'Not GTCC' : paymentMethod})
