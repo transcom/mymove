@@ -360,7 +360,7 @@ func (suite *HandlerSuite) TestDeleteMoveDocumentHandler() {
 			ServiceMember:   sm,
 		},
 	})
-	request := httptest.NewRequest("POST", "/fake/path", nil)
+	request := httptest.NewRequest("DELETE", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
 
 	deleteMoveDocParams := movedocop.DeleteMoveDocumentParams{
@@ -406,7 +406,7 @@ func (suite *HandlerSuite) TestDeleteMoveDocumentHandler() {
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
-	request2 := httptest.NewRequest("POST", "/fake/path", nil)
+	request2 := httptest.NewRequest("DELETE", "/fake/path", nil)
 	request2 = suite.AuthenticateRequest(request2, sm)
 
 	deleteMoveDocParams2 := movedocop.DeleteMoveDocumentParams{

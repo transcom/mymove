@@ -61,6 +61,7 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 		movedocument.NewMoveDocumentUpdater(context.DB()),
 	}
 	internalAPI.MoveDocsIndexMoveDocumentsHandler = IndexMoveDocumentsHandler{context}
+	internalAPI.MoveDocsDeleteMoveDocumentHandler = DeleteMoveDocumentHandler{context}
 
 	internalAPI.MoveDocsCreateMovingExpenseDocumentHandler = CreateMovingExpenseDocumentHandler{context}
 
