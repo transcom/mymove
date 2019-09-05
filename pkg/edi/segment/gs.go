@@ -7,14 +7,14 @@ import (
 
 // GS represents the GS EDI segment
 type GS struct {
-	FunctionalIdentifierCode string
-	ApplicationSendersCode   string
-	ApplicationReceiversCode string
-	Date                     string
-	Time                     string
-	GroupControlNumber       int64
-	ResponsibleAgencyCode    string
-	Version                  string
+	FunctionalIdentifierCode string `validate:"eq=SI"`
+	ApplicationSendersCode   string `validate:"eq=MYMOVE"`
+	ApplicationReceiversCode string `validate:"eq=8004171844"`
+	Date                     string `validate:"timeformat=20060102"`
+	Time                     string `validate:"timeformat=1504"`
+	GroupControlNumber       int64  `validate:"min=1,max=999999999"`
+	ResponsibleAgencyCode    string `validate:"eq=X"`
+	Version                  string `validate:"eq=004010"`
 }
 
 // StringArray converts GS to an array of strings

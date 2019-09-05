@@ -7,8 +7,8 @@ import (
 
 // SE represents the SE EDI segment
 type SE struct {
-	NumberOfIncludedSegments    int
-	TransactionSetControlNumber string
+	NumberOfIncludedSegments    int    `validate:"min=1,max=9999999999"`
+	TransactionSetControlNumber string `validate:"min=4,max=9"`
 }
 
 // StringArray converts SE to an array of strings

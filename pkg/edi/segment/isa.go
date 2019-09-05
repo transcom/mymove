@@ -7,22 +7,22 @@ import (
 
 // ISA represents the ISA EDI segment
 type ISA struct {
-	AuthorizationInformationQualifier string
-	AuthorizationInformation          string
-	SecurityInformationQualifier      string
-	SecurityInformation               string
-	InterchangeSenderIDQualifier      string
-	InterchangeSenderID               string
-	InterchangeReceiverIDQualifier    string
-	InterchangeReceiverID             string
-	InterchangeDate                   string
-	InterchangeTime                   string
-	InterchangeControlStandards       string
-	InterchangeControlVersionNumber   string
-	InterchangeControlNumber          int64
-	AcknowledgementRequested          int
-	UsageIndicator                    string
-	ComponentElementSeparator         string
+	AuthorizationInformationQualifier string `validate:"eq=00"`
+	AuthorizationInformation          string `validate:"eq=0000000000"`
+	SecurityInformationQualifier      string `validate:"eq=00"`
+	SecurityInformation               string `validate:"eq=0000000000"`
+	InterchangeSenderIDQualifier      string `validate:"eq=ZZ"`
+	InterchangeSenderID               string `validate:"eq=MYMOVE         "`
+	InterchangeReceiverIDQualifier    string `validate:"eq=12"`
+	InterchangeReceiverID             string `validate:"eq=8004171844     "`
+	InterchangeDate                   string `validate:"timeformat=060102"`
+	InterchangeTime                   string `validate:"timeformat=1504"`
+	InterchangeControlStandards       string `validate:"eq=U"`
+	InterchangeControlVersionNumber   string `validate:"eq=00401"`
+	InterchangeControlNumber          int64  `validate:"min=1,max=999999999"`
+	AcknowledgementRequested          int    `validate:"eq=1"`
+	UsageIndicator                    string `validate:"oneof=P T"`
+	ComponentElementSeparator         string `validate:"eq=0x7C"` // Have to escape pipe symbol
 }
 
 // StringArray converts ISA to an array of strings

@@ -18,7 +18,7 @@ func (suite *TSPServiceSuite) SetupTest() {
 	suite.DB().TruncateAll()
 }
 
-func TestUserSuite(t *testing.T) {
+func TestTSPServiceSuite(t *testing.T) {
 
 	hs := &TSPServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),

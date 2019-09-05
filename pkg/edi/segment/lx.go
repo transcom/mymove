@@ -7,7 +7,7 @@ import (
 
 // LX represents the LX EDI segment
 type LX struct {
-	AssignedNumber int
+	AssignedNumber int `validate:"min=1,max=999999"`
 }
 
 // StringArray converts LX to an array of strings
