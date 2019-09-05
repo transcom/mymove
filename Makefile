@@ -327,7 +327,6 @@ build_tools: server_deps \
 	bin/compare-secure-migrations \
 	bin/ecs-deploy-task-container \
 	bin/ecs-service-logs \
-	bin/generate-1203-form \
 	bin/generate-access-codes \
 	bin/generate-test-data \
 	bin/health-checker \
