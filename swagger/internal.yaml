@@ -3964,11 +3964,10 @@ paths:
           type: string
           enum:
             - new
-            - ppm
             - ppm_payment_requested
-            - hhg_active
-            - hhg_delivered
             - all
+            - ppm_approved
+            - ppm_completed
           required: true
           description: Queue type to show
       responses:
