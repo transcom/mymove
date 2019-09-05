@@ -224,7 +224,7 @@ const initstore = {
   orders: {
     currentOrders: {
       new_duty_station: {
-        name: text('new duty station', 'McCllellan Air Force Base'),
+        name: 'McCllellan Air Force Base',
         address: {
           postal_code: 11209,
         },
