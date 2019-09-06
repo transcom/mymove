@@ -233,6 +233,9 @@ const initstore = {
   },
   serviceMember: {
     currentServiceMember: {
+      residential_address: {
+        postal_code: 90211,
+      },
       current_station: {
         address: {
           postal_code: 90210,
