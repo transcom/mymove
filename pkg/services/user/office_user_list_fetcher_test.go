@@ -22,6 +22,11 @@ func (t *testOfficeUserListQueryBuilder) FetchMany(model interface{}, filters []
 	return m
 }
 
+func defaultPagination() services.Pagination {
+	page, perPage := pagination.DefaultPage(), pagination.DefaultPerPage()
+	return pagination.NewPagination(&page, &perPage)
+}
+
 func (suite *UserServiceSuite) TestFetchOfficeUserList() {
 	suite.T().Run("if the user is fetched, it should be returned", func(t *testing.T) {
 		id, err := uuid.NewV4()
@@ -40,9 +45,7 @@ func (suite *UserServiceSuite) TestFetchOfficeUserList() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		pagination := pagination.NewPagination(1, 25)
-
-		officeUsers, err := fetcher.FetchOfficeUserList(filters, pagination)
+		officeUsers, err := fetcher.FetchOfficeUserList(filters, defaultPagination())
 
 		suite.NoError(err)
 		suite.Equal(id, officeUsers[0].ID)
@@ -57,9 +60,8 @@ func (suite *UserServiceSuite) TestFetchOfficeUserList() {
 		}
 
 		fetcher := NewOfficeUserListFetcher(builder)
-		pagination := pagination.NewPagination(1, 25)
 
-		officeUsers, err := fetcher.FetchOfficeUserList([]services.QueryFilter{}, pagination)
+		officeUsers, err := fetcher.FetchOfficeUserList([]services.QueryFilter{}, defaultPagination())
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

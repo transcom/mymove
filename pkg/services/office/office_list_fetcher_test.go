@@ -22,6 +22,11 @@ func (t *testOfficeListQueryBuilder) FetchMany(model interface{}, filters []serv
 	return m
 }
 
+func defaultPagination() services.Pagination {
+	page, perPage := pagination.DefaultPage(), pagination.DefaultPerPage()
+	return pagination.NewPagination(&page, &perPage)
+}
+
 func (suite *OfficeServiceSuite) TestFetchOfficeList() {
 	suite.T().Run("if the transportation office is fetched, it should be returned", func(t *testing.T) {
 		id, err := uuid.NewV4()
@@ -40,9 +45,7 @@ func (suite *OfficeServiceSuite) TestFetchOfficeList() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		pagination := pagination.NewPagination(1, 25)
-
-		offices, err := fetcher.FetchOfficeList(filters, pagination)
+		offices, err := fetcher.FetchOfficeList(filters, defaultPagination())
 
 		suite.NoError(err)
 		suite.Equal(id, offices[0].ID)
@@ -57,9 +60,8 @@ func (suite *OfficeServiceSuite) TestFetchOfficeList() {
 		}
 
 		fetcher := NewOfficeListFetcher(builder)
-		pagination := pagination.NewPagination(1, 25)
 
-		offices, err := fetcher.FetchOfficeList([]services.QueryFilter{}, pagination)
+		offices, err := fetcher.FetchOfficeList([]services.QueryFilter{}, defaultPagination())
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

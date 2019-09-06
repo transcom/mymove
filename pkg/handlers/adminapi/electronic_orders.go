@@ -32,13 +32,7 @@ func (h IndexElectronicOrdersHandler) Handle(params electronicorderop.IndexElect
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	queryFilters := []services.QueryFilter{}
 
-	var pagination services.Pagination
-	if params.Page == nil {
-		pagination = h.NewPagination(1, 25) // default number of records per page
-	} else {
-		page, perPage := *params.Page, *params.PerPage
-		pagination = h.NewPagination(page, perPage)
-	}
+	pagination := h.NewPagination(params.Page, params.PerPage)
 
 	electronicOrders, err := h.ElectronicOrderListFetcher.FetchElectronicOrderList(queryFilters, pagination)
 	if err != nil {

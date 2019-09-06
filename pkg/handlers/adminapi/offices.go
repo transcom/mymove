@@ -38,13 +38,7 @@ func (h IndexOfficesHandler) Handle(params officeop.IndexOfficesParams) middlewa
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
 	queryFilters := []services.QueryFilter{}
 
-	var pagination services.Pagination
-	if params.Page == nil {
-		pagination = h.NewPagination(1, 25) // default number of records per page
-	} else {
-		page, perPage := *params.Page, *params.PerPage
-		pagination = h.NewPagination(page, perPage)
-	}
+	pagination := h.NewPagination(params.Page, params.PerPage)
 
 	offices, err := h.OfficeListFetcher.FetchOfficeList(queryFilters, pagination)
 	if err != nil {

@@ -22,6 +22,11 @@ func (t *testElectronicOrderListQueryBuilder) FetchMany(model interface{}, filte
 	return m
 }
 
+func defaultPagination() services.Pagination {
+	page, perPage := pagination.DefaultPage(), pagination.DefaultPerPage()
+	return pagination.NewPagination(&page, &perPage)
+}
+
 func (suite *ElectronicOrderServiceSuite) TestFetchElectronicOrderList() {
 	suite.T().Run("if the transportation order is fetched, it should be returned", func(t *testing.T) {
 		id, err := uuid.NewV4()
@@ -40,9 +45,7 @@ func (suite *ElectronicOrderServiceSuite) TestFetchElectronicOrderList() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		pagination := pagination.NewPagination(1, 25)
-
-		electronicOrders, err := fetcher.FetchElectronicOrderList(filters, pagination)
+		electronicOrders, err := fetcher.FetchElectronicOrderList(filters, defaultPagination())
 
 		suite.NoError(err)
 		suite.Equal(id, electronicOrders[0].ID)
@@ -58,9 +61,7 @@ func (suite *ElectronicOrderServiceSuite) TestFetchElectronicOrderList() {
 
 		fetcher := NewElectronicOrderListFetcher(builder)
 
-		pagination := pagination.NewPagination(1, 25)
-
-		electronicOrders, err := fetcher.FetchElectronicOrderList([]services.QueryFilter{}, pagination)
+		electronicOrders, err := fetcher.FetchElectronicOrderList([]services.QueryFilter{}, defaultPagination())
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

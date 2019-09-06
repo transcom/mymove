@@ -6,4 +6,4 @@ type Pagination interface {
 	Offset() int
 }
 
-type NewPagination func(page int64, perPage int64) Pagination
+type NewPagination func(page *int64, perPage *int64) Pagination
