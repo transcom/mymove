@@ -1,4 +1,4 @@
-import restProvider from 'ra-data-simple-rest';
+import restProvider from './rest_provider';
 import { fetchUtils, Admin, Resource, Layout } from 'react-admin';
 import { createBrowserHistory } from 'history';
 import React from 'react';

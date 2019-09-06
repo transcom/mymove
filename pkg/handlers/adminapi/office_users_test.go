@@ -18,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/services/user"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -50,6 +51,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:        query.NewQueryFilter,
 			OfficeUserListFetcher: user.NewOfficeUserListFetcher(queryBuilder),
+			NewPagination:         pagination.NewPagination,
 		}
 
 		response := handler.Handle(params)
@@ -71,11 +73,13 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		officeUserListFetcher := &mocks.OfficeUserListFetcher{}
 		officeUserListFetcher.On("FetchOfficeUserList",
 			mock.Anything,
+			mock.Anything,
 		).Return(models.OfficeUsers{officeUser}, nil).Once()
 		handler := IndexOfficeUsersHandler{
 			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:        newQueryFilter,
 			OfficeUserListFetcher: officeUserListFetcher,
+			NewPagination:         pagination.NewPagination,
 		}
 
 		response := handler.Handle(params)
@@ -94,11 +98,13 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		officeUserListFetcher := &mocks.OfficeUserListFetcher{}
 		officeUserListFetcher.On("FetchOfficeUserList",
 			mock.Anything,
+			mock.Anything,
 		).Return(nil, expectedError).Once()
 		handler := IndexOfficeUsersHandler{
 			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:        newQueryFilter,
 			OfficeUserListFetcher: officeUserListFetcher,
+			NewPagination:         pagination.NewPagination,
 		}
 
 		response := handler.Handle(params)
