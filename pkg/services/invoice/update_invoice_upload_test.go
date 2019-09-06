@@ -64,7 +64,7 @@ func (suite *InvoiceServiceSuite) fixture(name string) afero.File {
 func (suite *InvoiceServiceSuite) helperCreateUpload(storer *storage.FileStorer) *models.Upload {
 	document := testdatagen.MakeDefaultDocument(suite.DB())
 	userID := document.ServiceMember.UserID
-	up := uploader.NewUploader(suite.DB(), suite.logger, *storer)
+	up := uploader.NewUploader(suite.DB(), suite.logger, *storer, 25*uploader.MB)
 
 	// Create file to use for upload
 	file := suite.fixture("test.pdf")

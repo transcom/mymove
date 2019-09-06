@@ -69,7 +69,7 @@ func TestPaperworkSuite(t *testing.T) {
 	hs := &PaperworkSuite{
 		PopTestSuite: popSuite,
 		logger:       logger,
-		uploader:     uploader.NewUploader(popSuite.DB(), logger, storer),
+		uploader:     uploader.NewUploader(popSuite.DB(), logger, storer, 25*uploader.MB),
 	}
 
 	suite.Run(t, hs)

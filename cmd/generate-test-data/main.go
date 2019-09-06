@@ -158,7 +158,7 @@ func main() {
 		zap.L().Info("Using memory storage backend")
 		fsParams := storage.NewMemoryParams("tmp", "testdata", logger)
 		storer := storage.NewMemory(fsParams)
-		loader := uploader.NewUploader(dbConnection, logger, storer)
+		loader := uploader.NewUploader(dbConnection, logger, storer, 25*uploader.MB)
 
 		tdgs.E2eBasicScenario.Run(dbConnection, loader, logger, storer)
 		logger.Info("Success! Created e2e test data.")

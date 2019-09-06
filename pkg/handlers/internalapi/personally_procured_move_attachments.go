@@ -41,7 +41,7 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	}
 
 	// Init our tools
-	loader := uploader.NewUploader(h.DB(), logger, h.FileStorer())
+	loader := uploader.NewUploader(h.DB(), logger, h.FileStorer(), 100*uploader.MB)
 	generator, err := paperwork.NewGenerator(h.DB(), logger, loader)
 	if err != nil {
 		logger.Error("failed to initialize generator", zap.Error(err))
@@ -74,7 +74,12 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	// Upload merged PDF to S3 and return Upload object
 	pdfUpload, verrs, err := loader.CreateUpload(session.UserID, &mergedPdf, uploader.AllowedTypesPDF)
 	if verrs.HasAny() || err != nil {
-		return handlers.ResponseForVErrors(logger, verrs, err)
+		switch err.(type) {
+		case uploader.ErrTooLarge:
+			return ppmop.NewCreatePPMAttachmentsRequestEntityTooLarge()
+		default:
+			return handlers.ResponseForVErrors(logger, verrs, err)
+		}
 	}
 
 	url, err := loader.PresignedURL(pdfUpload)

@@ -81,10 +81,15 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		return uploadop.NewCreateUploadInternalServerError()
 	}
 
-	uploader := uploaderpkg.NewUploader(h.DB(), logger, h.FileStorer())
+	uploader := uploaderpkg.NewUploader(h.DB(), logger, h.FileStorer(), 25*uploaderpkg.MB)
 	newUpload, verrs, err := uploader.CreateUploadForDocument(docID, session.UserID, aFile, uploaderpkg.AllowedTypesServiceMember)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(logger, verrs, err)
+	if verrs.HasAny() || err != nil {
+		switch err.(type) {
+		case uploaderpkg.ErrTooLarge:
+			return uploadop.NewCreateUploadRequestEntityTooLarge()
+		default:
+			return handlers.ResponseForVErrors(logger, verrs, err)
+		}
 	}
 
 	url, err := uploader.PresignedURL(newUpload)
@@ -114,7 +119,7 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 		return handlers.ResponseForError(logger, err)
 	}
 
-	uploader := uploaderpkg.NewUploader(h.DB(), logger, h.FileStorer())
+	uploader := uploaderpkg.NewUploader(h.DB(), logger, h.FileStorer(), 25*uploaderpkg.MB)
 	if err = uploader.DeleteUpload(&upload); err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -134,7 +139,7 @@ func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middle
 
 	// User should always be populated by middleware
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	uploader := uploaderpkg.NewUploader(h.DB(), logger, h.FileStorer())
+	uploader := uploaderpkg.NewUploader(h.DB(), logger, h.FileStorer(), 25*uploaderpkg.MB)
 
 	for _, uploadID := range params.UploadIds {
 		uuid, _ := uuid.FromString(uploadID.String())

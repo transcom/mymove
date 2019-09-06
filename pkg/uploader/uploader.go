@@ -1,6 +1,7 @@
 package uploader
 
 import (
+	"fmt"
 	"io"
 
 	"github.com/gobuffalo/pop"
@@ -17,6 +18,27 @@ import (
 // ErrZeroLengthFile represents an error caused by a file with no content
 var ErrZeroLengthFile = errors.New("File has length of 0")
 
+type ErrTooLarge struct {
+	FileSize      int64
+	FileSizeLimit ByteSize
+}
+
+func (e ErrTooLarge) Error() string {
+	return fmt.Sprintf("file is too large: %d > %d filesize limit", e.FileSize, e.FileSizeLimit)
+}
+
+type ByteSize int64
+
+const (
+	B  ByteSize = 1
+	KB          = 1000
+	MB          = 1000 * 1000
+)
+
+func (b ByteSize) AsInt64() int64 {
+	return int64(b)
+}
+
 // Uploader encapsulates a few common processes: creating Uploads for a Document,
 // generating pre-signed URLs for file access, and deleting Uploads.
 type Uploader struct {
@@ -24,15 +46,17 @@ type Uploader struct {
 	logger           Logger
 	Storer           storage.FileStorer
 	UploadStorageKey string
+	FileSizeLimit    ByteSize
 }
 
 // NewUploader creates and returns a new uploader
-func NewUploader(db *pop.Connection, logger Logger, storer storage.FileStorer) *Uploader {
+func NewUploader(db *pop.Connection, logger Logger, storer storage.FileStorer, fileSizeLimit ByteSize) *Uploader {
 	return &Uploader{
 		db:               db,
 		logger:           logger,
 		Storer:           storer,
 		UploadStorageKey: "",
+		FileSizeLimit:    fileSizeLimit,
 	}
 }
 
@@ -54,6 +78,14 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 
 	if info.Size() == 0 {
 		return nil, responseVErrors, ErrZeroLengthFile
+	}
+
+	if info.Size() > u.FileSizeLimit.AsInt64() {
+		u.logger.Error("upload exceeds file size limit",
+			zap.String("Filename", file.Name()),
+			zap.Int64("FileSize", info.Size()),
+			zap.Int64("FileSizeLimit", int64(u.FileSizeLimit)))
+		return nil, responseVErrors, ErrTooLarge{info.Size(), u.FileSizeLimit}
 	}
 
 	contentType, detectContentTypeErr := storage.DetectContentType(file)

@@ -35,7 +35,7 @@ func main() {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
 	storer := storage.NewMemory(storage.NewMemoryParams("", "", logger))
-	uploader := uploader.NewUploader(nil, logger, storer)
+	uploader := uploader.NewUploader(nil, logger, storer, 25*uploader.MB)
 	generator, err := paperwork.NewGenerator(nil, logger, uploader)
 	if err != nil {
 		log.Fatal(err.Error())
