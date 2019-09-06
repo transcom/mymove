@@ -48,8 +48,6 @@ type Order struct {
 	UploadedOrders      Document                           `belongs_to:"documents"`
 	UploadedOrdersID    uuid.UUID                          `json:"uploaded_orders_id" db:"uploaded_orders_id"`
 	OrdersNumber        *string                            `json:"orders_number" db:"orders_number"`
-	ParagraphNumber     *string                            `json:"paragraph_number" db:"paragraph_number"`
-	OrdersIssuingAgency *string                            `json:"orders_issuing_agency" db:"orders_issuing_agency"`
 	Moves               Moves                              `has_many:"moves" fk_id:"orders_id" order_by:"created_at desc"`
 	Status              OrderStatus                        `json:"status" db:"status"`
 	TAC                 *string                            `json:"tac" db:"tac"`
@@ -72,8 +70,6 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: string(o.Status), Name: "Status"},
 		&StringIsNilOrNotBlank{Field: o.TAC, Name: "TransportationAccountingCode"},
 		&StringIsNilOrNotBlank{Field: o.SAC, Name: "SAC"},
-		&StringIsNilOrNotBlank{Field: o.OrdersIssuingAgency, Name: "OrdersIssuingAgency"},
-		&StringIsNilOrNotBlank{Field: o.ParagraphNumber, Name: "ParagraphNumber"},
 		&StringIsNilOrNotBlank{Field: o.DepartmentIndicator, Name: "DepartmentIndicator"},
 		&CannotBeTrueIfFalse{Field1: o.SpouseHasProGear, Name1: "SpouseHasProGear", Field2: o.HasDependents, Name2: "HasDependents"},
 	), nil
