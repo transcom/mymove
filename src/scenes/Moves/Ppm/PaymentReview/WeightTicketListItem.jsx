@@ -21,6 +21,7 @@ const MissingLabel = ({ children }) => (
 );
 
 const WeightTicketListItem = ({
+  id,
   empty_weight_ticket_missing,
   empty_weight,
   full_weight_ticket_missing,
@@ -30,6 +31,7 @@ const WeightTicketListItem = ({
   vehicle_nickname,
   vehicle_options,
   showDelete,
+  deleteDocumentListItem,
 }) => (
   <div className="ticket-item" style={{ display: 'flex' }}>
     {/* size of largest of the images */}
@@ -42,7 +44,9 @@ const WeightTicketListItem = ({
         <h4>
           {vehicle_nickname} ({formatToOrdinal(num + 1)} set)
         </h4>
-        {showDelete && <img alt="delete document button" onClick={() => console.log('lol')} src={deleteButtonImg} />}
+        {showDelete && (
+          <img alt="delete document button" onClick={() => deleteDocumentListItem(id)} src={deleteButtonImg} />
+        )}
       </div>
       {empty_weight_ticket_missing ? (
         <MissingLabel>
@@ -72,6 +76,7 @@ const WeightTicketListItem = ({
 );
 
 WeightTicketListItem.propTypes = {
+  id: string.isRequired,
   empty_weight_ticket_missing: bool.isRequired,
   empty_weight: number.isRequired,
   full_weight_ticket_missing: bool.isRequired,

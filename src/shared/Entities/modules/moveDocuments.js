@@ -83,20 +83,6 @@ export const updateMoveDocument = (moveId, moveDocumentId, payload) => {
   };
 };
 
-export const deleteMoveDocument = (moveId, moveDocumentId) => {
-  return async function(dispatch, getState) {
-    const action = ReduxHelpers.generateAsyncActions(deleteMoveDocumentType);
-    const client = await getClient();
-    const response = await client.apis.move_docs.deleteMoveDocument({
-      moveId,
-      moveDocumentId,
-    });
-    checkResponse(response, 'failed to delete move document due to server error');
-    dispatch(action.success(moveDocumentId));
-    return Promise.resolve();
-  };
-};
-
 // Selectors
 export const selectMoveDocument = (state, id) => {
   if (!id) {

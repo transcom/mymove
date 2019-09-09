@@ -110,25 +110,30 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
           label,
         };
 
-        let schemaKey = successfulReturnType(routeDefinition, response.status);
-        if (!schemaKey) {
-          throw new Error(`Could not find schemaKey for ${operationPath} status ${response.status}`);
-        }
+        if (routeDefinition.method === 'delete') {
+          action.entities = {};
+        } else {
+          let schemaKey = successfulReturnType(routeDefinition, response.status);
+          if (!schemaKey) {
+            throw new Error(`Could not find schemaKey for ${operationPath} status ${response.status}`);
+          }
 
-        if (schemaKey.indexOf('Payload') !== -1) {
-          const newSchemaKey = schemaKey.replace('Payload', '');
-          console.warn(
-            `Using 'Payload' as a response type prefix is deprecated. Please rename ${schemaKey} to ${newSchemaKey}`,
-          );
-          schemaKey = newSchemaKey;
-        }
+          if (schemaKey.indexOf('Payload') !== -1) {
+            const newSchemaKey = schemaKey.replace('Payload', '');
+            console.warn(
+              `Using 'Payload' as a response type prefix is deprecated. Please rename ${schemaKey} to ${newSchemaKey}`,
+            );
+            schemaKey = newSchemaKey;
+          }
 
-        // eslint-disable-next-line security/detect-object-injection
-        const payloadSchema = schema[schemaKey];
-        if (!payloadSchema) {
-          throw new Error(`Could not find a schema for ${schemaKey}`);
+          // eslint-disable-next-line security/detect-object-injection
+          const payloadSchema = schema[schemaKey];
+          if (!payloadSchema) {
+            throw new Error(`Could not find a schema for ${schemaKey}`);
+          }
+
+          action.entities = normalizePayload(response.body, payloadSchema).entities;
         }
-        action.entities = normalizePayload(response.body, payloadSchema).entities;
         dispatch(action);
         return action;
       })
