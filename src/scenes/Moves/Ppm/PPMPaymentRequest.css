@@ -70,6 +70,11 @@
   .ppm-payment-request-footer {
     flex-direction: column;
   }
+
+  .ppm-payment-request-footer .usa-button-secondary {
+    width: 50%;
+    margin-left: 0px;
+  }
 }
 
 .allowable-expenses-container li {
