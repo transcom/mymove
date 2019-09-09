@@ -75,6 +75,10 @@
     width: 50%;
     margin-left: 0px;
   }
+
+  .ppm-payment-request-footer .body--heading {
+    flex-wrap: wrap;
+  }
 }
 
 .allowable-expenses-container li {
