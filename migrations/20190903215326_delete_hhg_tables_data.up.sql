@@ -1,5 +1,11 @@
 BEGIN;
 
+select * into temp tempsit from storage_in_transits;
+select * into temp tempshipment from shipments;
+select * into temp tempsli from shipment_line_items;
+select * into temp tempsm from service_members where id IN (select sm.id from service_members sm inner join orders o on sm.id = o.service_member_id inner join moves m on m.orders_id = o.id WHERE m.selected_move_type = 'HHG');
+select * into temp tempdc from distance_calculations where id IN (select shipping_distance_id from tempshipment);
+
 DROP TABLE IF EXISTS shipment_line_items;
 DROP TABLE IF EXISTS shipment_line_item_dimensions;
 DROP TABLE IF EXISTS shipment_offers;
@@ -24,22 +30,43 @@ DROP TABLE tsp_users;
 -- documents
 DELETE FROM weight_ticket_set_documents WHERE move_document_id IN (SELECT md.id FROM move_documents md INNER JOIN moves m ON m.id = md.move_id AND m.selected_move_type = 'HHG');
 DELETE FROM moving_expense_documents WHERE move_document_id IN (SELECT md.id FROM move_documents md INNER JOIN moves m ON m.id = md.move_id AND m.selected_move_type = 'HHG');
+
 DELETE FROM move_documents WHERE move_id IN (SELECT id FROM moves where selected_move_type = 'HHG');
-DELETE FROM uploads WHERE document_id IN (select id from documents WHERE service_member_id IN (select sm.id from service_members sm inner join orders o on sm.id = o.service_member_id inner join moves m on m.orders_id = o.id WHERE m.selected_move_type = 'HHG'));
-DELETE FROM documents WHERE service_member_id IN (select sm.id from service_members sm inner join orders o on sm.id = o.service_member_id inner join moves m on m.orders_id = o.id WHERE m.selected_move_type = 'HHG');
 DELETE FROM signed_certifications WHERE move_id IN (SELECT id FROM moves where selected_move_type = 'HHG');
 
 -- finally dropping the shipments
 DROP TABLE IF EXISTS shipments;
 
--- delete all HHG moves
 DELETE FROM moves WHERE selected_move_type = 'HHG';
 
--- service members
-DELETE FROM access_codes WHERE service_member_id IN (select sm.id from service_members sm inner join orders o on sm.id = o.service_member_id inner join moves m on m.orders_id = o.id WHERE m.selected_move_type = 'HHG');
-DELETE FROM backup_contacts WHERE service_member_id IN (select sm.id from service_members sm inner join orders o on sm.id = o.service_member_id inner join moves m on m.orders_id = o.id WHERE m.selected_move_type = 'HHG');
-DELETE FROM orders WHERE service_member_id IN (select sm.id from service_members sm inner join orders o on sm.id = o.service_member_id inner join moves m on m.orders_id = o.id WHERE m.selected_move_type = 'HHG');
-DELETE FROM service_members WHERE id IN (select sm.id from service_members sm inner join orders o on sm.id = o.service_member_id inner join moves m on m.orders_id = o.id WHERE m.selected_move_type = 'HHG');
 
+
+-- service members
+ALTER TABLE service_members DROP CONSTRAINT IF EXISTS service_members_residential_address_id_fkey;
+
+DELETE FROM access_codes WHERE service_member_id IN (select id from tempsm);
+DELETE FROM backup_contacts WHERE service_member_id IN (select id from tempsm);
+DELETE FROM orders WHERE service_member_id IN (select id from tempsm);
+
+
+DELETE FROM uploads WHERE document_id IN (select id from documents WHERE service_member_id IN (select id from tempsm));
+DELETE FROM documents WHERE service_member_id IN (select id from tempsm);
+DELETE FROM service_members WHERE id IN (select id from tempsm);
+
+-- delete distance calcs
+DELETE FROM distance_calculations where id IN (select shipping_distance_id from tempshipment);
+
+-- delete addresses
+DELETE FROM addresses where id IN (select warehouse_address_id from tempsit);
+DELETE FROM addresses where id IN (select pickup_address_id from tempshipment);
+DELETE FROM addresses where id IN (select secondary_pickup_address_id from tempshipment);
+DELETE FROM addresses where id IN (select delivery_address_id from tempshipment);
+DELETE FROM addresses where id IN (select partial_sit_delivery_address_id from tempshipment);
+DELETE FROM addresses where id IN (select destination_address_on_acceptance_id from tempshipment);
+DELETE FROM addresses where id IN (select address_id from tempsli);
+DELETE FROM addresses where id IN (select residential_address_id from tempsm);
+DELETE FROM addresses where id IN (select backup_mailing_address_id from tempsm);
+DELETE FROM addresses where id IN (select dc.origin_address_id from tempdc dc right join duty_stations ds on dc.origin_address_id = ds.address_id where ds.address_id is null);
+DELETE FROM addresses where id IN (select dc.destination_address_id from tempdc dc right join duty_stations ds on dc.destination_address_id = ds.address_id where ds.address_id is null);
 
 COMMIT;
