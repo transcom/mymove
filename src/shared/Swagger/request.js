@@ -135,9 +135,10 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
         }
 
         if (options.deletedId) {
+          // eslint-disable-next-line security/detect-object-injection
           var oldEntities = state.entities[schemaKey];
           var deletedEntities = filter(oldEntities, entity => {
-            return entity.id === options.removeId;
+            return entity.id === options.deletedId;
           });
           action.entities = normalizePayload(deletedEntities, payloadSchema).entities;
         } else {
