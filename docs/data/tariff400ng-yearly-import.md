@@ -13,7 +13,7 @@
 
 1. Visit: [https://www.ustranscom.mil/dp3/hhg.cfm](https://www.ustranscom.mil/dp3/hhg.cfm) (for some reason, I had to load hit this url twice... the first visit redirected to another page).
 2. Look under “Special Requirements and Rates Team” -> “Domestic” -> “400NG Baseline Rates” and download yearly rate file.
-3. Copy the file to DP3 Google drive: DP3 -> Engineering -> Reference Docs -> rate engine: filing
+3. Copy the file to USTC MilMove Google drive: USTC MilMove -> Data -> Rate Engine pre GHC
 
 ## Importing `full_pack_rates`, `full_unpack_rates`, `linehaul_rates`, `service_areas`, and `shorthaul_rates`
 
