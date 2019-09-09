@@ -303,6 +303,12 @@ paths:
           type: array
           items:
             type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
       responses:
         200:
           description: success
@@ -384,6 +390,12 @@ paths:
           type: array
           items:
             type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
       responses:
         200:
           description: success
@@ -414,6 +426,12 @@ paths:
           type: array
           items:
             type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
       responses:
         200:
           description: success

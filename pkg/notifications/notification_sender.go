@@ -26,6 +26,7 @@ type emailContent struct {
 	subject        string
 	htmlBody       string
 	textBody       string
+	onSuccess      func(string) error
 }
 
 // NotificationSender is an interface for sending notifications
@@ -93,9 +94,15 @@ func sendEmails(emails []emailContent, svc sesiface.SESAPI, domain string, logge
 		}
 
 		// Returns the message ID. Should we store that somewhere?
-		_, err = svc.SendRawEmail(&input)
+		sendRawEmailOutput, err := svc.SendRawEmail(&input)
 		if err != nil {
 			return errors.Wrap(err, "Failed to send email using SES")
+		}
+		if email.onSuccess != nil && sendRawEmailOutput.MessageId != nil {
+			err := email.onSuccess(*sendRawEmailOutput.MessageId)
+			if err != nil {
+				logger.Error("email.onSuccess error", zap.Error(err))
+			}
 		}
 
 		logger.Info("Sent email to service member",
