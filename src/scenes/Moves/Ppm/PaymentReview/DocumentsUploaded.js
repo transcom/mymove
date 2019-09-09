@@ -2,12 +2,10 @@ import React, { Component } from 'react';
 import { bool } from 'prop-types';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { filter } from 'lodash';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
-import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
-import { deleteMoveDocument } from 'shared/Entities/modules/deleteMoveDocuments';
+import { getMoveDocumentsForMove, deleteMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import docsAddedCheckmarkImg from 'shared/images/docs_added_checkmark.png';
 import WeightTicketListItem from './WeightTicketListItem';
 import ExpenseTicketListItem from './ExpenseTicketListItem';
@@ -39,18 +37,6 @@ export class DocumentsUploaded extends Component {
     this.setState({ showDocs: !this.state.showDocs });
   };
 
-  deleteDocumentListItem = moveDocumentId => {
-    const { deleteMoveDocument } = this.props;
-    return deleteMoveDocument(moveDocumentId).then(() => {
-      this.props.expenseDocs = filter(this.props.expenseDocs, doc => {
-        return doc.id !== moveDocumentId;
-      });
-      this.props.weightTicketDocs = filter(this.props.weightTicketDocs, doc => {
-        return doc.id !== moveDocumentId;
-      });
-    });
-  };
-
   renderHeader = () => {
     const { expenseDocs, weightTicketDocs, inReviewPage } = this.props;
     const totalDocs = expenseDocs.length + weightTicketDocs.length;
@@ -61,7 +47,7 @@ export class DocumentsUploaded extends Component {
 
   render() {
     const { showDocs } = this.state;
-    const { expenseDocs, weightTicketDocs, moveId, showLinks, inReviewPage } = this.props;
+    const { expenseDocs, weightTicketDocs, moveId, showLinks, inReviewPage, deleteMoveDocument } = this.props;
     const totalDocs = expenseDocs.length + weightTicketDocs.length;
     const expandedDocumentList = showDocs || inReviewPage;
     const hiddenDocumentList = !inReviewPage && !showDocs;
@@ -99,7 +85,7 @@ export class DocumentsUploaded extends Component {
                   key={ticket.id}
                   num={index}
                   showDelete={inReviewPage}
-                  deleteDocumentListItem={this.deleteDocumentListItem}
+                  deleteDocumentListItem={deleteMoveDocument}
                   {...ticket}
                 />
               ))}
@@ -118,7 +104,7 @@ export class DocumentsUploaded extends Component {
                 <ExpenseTicketListItem
                   key={expense.id}
                   showDelete={inReviewPage}
-                  deleteDocumentListItem={this.deleteDocumentListItem}
+                  deleteDocumentListItem={deleteMoveDocument}
                   {...expense}
                 />
               ))}

@@ -1,4 +1,4 @@
-import { get, some, uniqueId } from 'lodash';
+import { get, some, uniqueId, filter } from 'lodash';
 import { normalize } from 'normalizr';
 
 // Given a schema path (e.g. shipments.getShipment), return the
@@ -46,6 +46,7 @@ function successfulReturnType(routeDefinition, status) {
 export function swaggerRequest(getClient, operationPath, params, options = {}) {
   return async function(dispatch, getState, { schema }) {
     const client = await getClient();
+    const state = await getState();
     const operation = get(client, 'apis.' + operationPath);
 
     if (!operation) {
@@ -110,28 +111,36 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
           label,
         };
 
-        if (routeDefinition.method === 'delete') {
-          action.entities = {};
+        let schemaKey = options.schemaKey;
+        if (!schemaKey) {
+          schemaKey = successfulReturnType(routeDefinition, response.status);
+        }
+
+        if (!schemaKey) {
+          throw new Error(`Could not find schemaKey for ${operationPath} status ${response.status}`);
+        }
+
+        if (schemaKey.indexOf('Payload') !== -1) {
+          const newSchemaKey = schemaKey.replace('Payload', '');
+          console.warn(
+            `Using 'Payload' as a response type prefix is deprecated. Please rename ${schemaKey} to ${newSchemaKey}`,
+          );
+          schemaKey = newSchemaKey;
+        }
+
+        // eslint-disable-next-line security/detect-object-injection
+        const payloadSchema = schema[schemaKey];
+        if (!payloadSchema) {
+          throw new Error(`Could not find a schema for ${schemaKey}`);
+        }
+
+        if (options.deletedId) {
+          var oldEntities = state.entities[schemaKey];
+          var deletedEntities = filter(oldEntities, entity => {
+            return entity.id === options.removeId;
+          });
+          action.entities = normalizePayload(deletedEntities, payloadSchema).entities;
         } else {
-          let schemaKey = successfulReturnType(routeDefinition, response.status);
-          if (!schemaKey) {
-            throw new Error(`Could not find schemaKey for ${operationPath} status ${response.status}`);
-          }
-
-          if (schemaKey.indexOf('Payload') !== -1) {
-            const newSchemaKey = schemaKey.replace('Payload', '');
-            console.warn(
-              `Using 'Payload' as a response type prefix is deprecated. Please rename ${schemaKey} to ${newSchemaKey}`,
-            );
-            schemaKey = newSchemaKey;
-          }
-
-          // eslint-disable-next-line security/detect-object-injection
-          const payloadSchema = schema[schemaKey];
-          if (!payloadSchema) {
-            throw new Error(`Could not find a schema for ${schemaKey}`);
-          }
-
           action.entities = normalizePayload(response.body, payloadSchema).entities;
         }
         dispatch(action);

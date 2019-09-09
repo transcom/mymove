@@ -1,6 +1,7 @@
 import { filter, map } from 'lodash';
 import { denormalize, normalize } from 'normalizr';
 import { getClient, checkResponse } from 'shared/Swagger/api';
+import { swaggerRequest } from 'shared/Swagger/request';
 import { MOVE_DOC_TYPE, MOVE_DOC_STATUS } from 'shared/constants';
 import { moveDocuments } from '../schema';
 import { ADD_ENTITIES, addEntities } from '../actions';
@@ -23,6 +24,8 @@ export default function reducer(state = {}, action) {
 }
 
 const deleteMoveDocumentType = 'DELETE_MOVE_DOCUMENT';
+const deleteMoveDocumentLabel = `MoveDocument.deleteMoveDocument`;
+
 export const DELETE_MOVE_DOCUMENT = ReduxHelpers.generateAsyncActionTypes(deleteMoveDocumentType);
 
 // Utilities
@@ -82,6 +85,12 @@ export const updateMoveDocument = (moveId, moveDocumentId, payload) => {
     return response;
   };
 };
+
+export function deleteMoveDocument(moveDocumentId, label = deleteMoveDocumentLabel) {
+  const schemaKey = 'moveDocuments';
+  const deletedId = moveDocumentId;
+  return swaggerRequest(getClient, 'move_docs.deleteMoveDocument', { moveDocumentId }, { label, schemaKey, deletedId });
+}
 
 // Selectors
 export const selectMoveDocument = (state, id) => {
