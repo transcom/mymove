@@ -1,22 +1,25 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
+	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
 
 	"github.com/transcom/mymove/pkg/auth"
 
-	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -26,58 +29,113 @@ import (
 // hereRequestTimeout is how long to wait on HERE request before timing out (15 seconds).
 const hereRequestTimeout = time.Duration(15) * time.Second
 
+const (
+	moveIDFlag string = "move"
+	debugFlag  string = "debug"
+)
+
 func noErr(err error) {
 	if err != nil {
 		log.Panic(err)
 	}
 }
 
+func checkConfig(v *viper.Viper, logger logger) error {
+
+	logger.Debug("checking config")
+
+	err := cli.CheckEIA(v)
+	if err != nil {
+		return err
+	}
+
+	err = cli.CheckDatabase(v, logger)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func initFlags(flag *pflag.FlagSet) {
+
+	// Scenario config
+	flag.String(moveIDFlag, "", "The move ID to generate a shipment summary worksheet for")
+	flag.Bool(debugFlag, false, "show field debug output")
+
+	// DB Config
+	cli.InitDatabaseFlags(flag)
+
+	// EIA Open Data API
+	cli.InitEIAFlags(flag)
+
+	// Verbose
+	cli.InitVerboseFlags(flag)
+
+	// Don't sort flags
+	flag.SortFlags = false
+}
+
 func main() {
-	config := flag.String("config-dir", "config", "The location of server config files")
-	env := flag.String("env", "development", "The environment to run in, which configures the database.")
-	moveID := flag.String("move", "", "The move ID to generate a shipment summary worksheet for")
-	debug := flag.Bool("debug", false, "show field debug output")
-	flag.Parse()
+	flag := pflag.CommandLine
+	initFlags(flag)
+	flag.Parse(os.Args[1:])
+
+	v := viper.New()
+	v.BindPFlags(flag)
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+
+	dbEnv := v.GetString(cli.DbEnvFlag)
+
+	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
+	if err != nil {
+		log.Fatalf("Failed to initialize Zap logging due to %v", err)
+	}
+	zap.ReplaceGlobals(logger)
+
+	fmt.Println("logger: ", logger)
+
+	err = checkConfig(v, logger)
+	if err != nil {
+		logger.Fatal("invalid configuration", zap.Error(err))
+	}
 
 	// DB connection
-	err := pop.AddLookupPaths(*config)
+	dbConnection, err := cli.InitDatabase(v, nil, logger)
 	if err != nil {
-		log.Fatal(err)
-	}
-	db, err := pop.Connect(*env)
-	if err != nil {
-		log.Fatal(err)
+		// No connection object means that the configuraton failed to validate and we should not startup
+		// A valid connection object that still has an error indicates that the DB is not up and we should not startup
+		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	if *moveID == "" {
+	moveID := v.GetString(moveIDFlag)
+	if moveID == "" {
 		log.Fatal("Usage: generate_shipment_summary -move <29cb984e-c70d-46f0-926d-cd89e07a6ec3>")
 	}
 
 	// Define the data here that you want to populate the form with. Data will only be populated
 	// in the form if the field name exist BOTH in the fields map and your data below
-	parsedID := uuid.Must(uuid.FromString(*moveID))
+	parsedID := uuid.Must(uuid.FromString(moveID))
 
 	// Build our form with a template image and field placement
 	formFiller := paperwork.NewFormFiller()
 
+	debug := v.GetBool(debugFlag)
 	// This is very useful for getting field positioning right initially
-	if *debug {
+	if debug {
 		formFiller.Debug()
 	}
 
-	logger, err := logging.Config(*env, true)
-	if err != nil {
-		log.Fatalf("Failed to initialize Zap logging due to %v", err)
-	}
 	geocodeEndpoint := os.Getenv("HERE_MAPS_GEOCODE_ENDPOINT")
 	routingEndpoint := os.Getenv("HERE_MAPS_ROUTING_ENDPOINT")
 	testAppID := os.Getenv("HERE_MAPS_APP_ID")
 	testAppCode := os.Getenv("HERE_MAPS_APP_CODE")
 	hereClient := &http.Client{Timeout: hereRequestTimeout}
 	planner := route.NewHEREPlanner(logger, hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
-	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(db, logger))
+	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(dbConnection, logger))
 
-	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(db, &auth.Session{}, parsedID)
+	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(dbConnection, &auth.Session{}, parsedID)
 	if err != nil {
 		log.Fatalf("%s", errors.Wrap(err, "Error fetching shipment summary worksheet data "))
 	}
