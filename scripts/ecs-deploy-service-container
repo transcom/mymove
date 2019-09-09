@@ -120,7 +120,7 @@ put_metric DeployFail "${name}-${environment}"
 
 echo
 echo "Showing logs from recently stopped tasks:"
-"$DIR"/ecs-show-service-stopped-logs "$name" "$environment" || true
+"$DIR"/ecs-service-logs show --cluster "app-${environment}" --service "${name}" --environment "${environment}" --status "STOPPED" --verbose
 echo
 
 echo "* Rolling back to $blue_task_def_arn"
