@@ -24,32 +24,22 @@ DROP TABLE tsp_users;
 -- documents
 DELETE FROM weight_ticket_set_documents WHERE move_document_id IN (SELECT md.id FROM move_documents md INNER JOIN moves m ON m.id = md.move_id AND m.selected_move_type = 'HHG');
 DELETE FROM moving_expense_documents WHERE move_document_id IN (SELECT md.id FROM move_documents md INNER JOIN moves m ON m.id = md.move_id AND m.selected_move_type = 'HHG');
-
 DELETE FROM move_documents WHERE move_id IN (SELECT id FROM moves where selected_move_type = 'HHG');
+DELETE FROM uploads WHERE document_id IN (select id from documents WHERE service_member_id IN (select sm.id from service_members sm inner join orders o on sm.id = o.service_member_id inner join moves m on m.orders_id = o.id WHERE m.selected_move_type = 'HHG'));
+DELETE FROM documents WHERE service_member_id IN (select sm.id from service_members sm inner join orders o on sm.id = o.service_member_id inner join moves m on m.orders_id = o.id WHERE m.selected_move_type = 'HHG');
 DELETE FROM signed_certifications WHERE move_id IN (SELECT id FROM moves where selected_move_type = 'HHG');
 
 -- finally dropping the shipments
 DROP TABLE IF EXISTS shipments;
 
+-- delete all HHG moves
 DELETE FROM moves WHERE selected_move_type = 'HHG';
-
-
 
 -- service members
 DELETE FROM access_codes WHERE service_member_id IN (select sm.id from service_members sm inner join orders o on sm.id = o.service_member_id inner join moves m on m.orders_id = o.id WHERE m.selected_move_type = 'HHG');
 DELETE FROM backup_contacts WHERE service_member_id IN (select sm.id from service_members sm inner join orders o on sm.id = o.service_member_id inner join moves m on m.orders_id = o.id WHERE m.selected_move_type = 'HHG');
 DELETE FROM orders WHERE service_member_id IN (select sm.id from service_members sm inner join orders o on sm.id = o.service_member_id inner join moves m on m.orders_id = o.id WHERE m.selected_move_type = 'HHG');
-
-
--- delete don't drop...
-DROP TABLE IF EXISTS service_members sm inner join orders o on sm.id = o.service_member_id inner join moves m on m.orders_id = o.id WHERE m.selected_move_type = 'HHG';
-
-
-
-
-
-
-
+DELETE FROM service_members WHERE id IN (select sm.id from service_members sm inner join orders o on sm.id = o.service_member_id inner join moves m on m.orders_id = o.id WHERE m.selected_move_type = 'HHG');
 
 
 COMMIT;
