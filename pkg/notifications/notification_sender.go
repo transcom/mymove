@@ -61,7 +61,7 @@ func (n NotificationSendingContext) SendNotification(ctx context.Context, notifi
 }
 
 // InitEmail initializes the email backend
-func InitEmail(v *viper.Viper, sess *awssession.Session, logger Logger) NotificationSender {
+func InitEmail(v *viper.Viper, sess *awssession.Session, logger Logger) (NotificationSender, error) {
 	if v.GetString(cli.EmailBackendFlag) == "ses" {
 		// Setup Amazon SES (email) service
 		// TODO: This might be able to be combined with the AWS Session that we're using for S3 down
@@ -72,12 +72,18 @@ func InitEmail(v *viper.Viper, sess *awssession.Session, logger Logger) Notifica
 			zap.String("region", awsSESRegion),
 			zap.String("domain", awsSESDomain))
 		sesService := ses.New(sess)
-		return NewNotificationSender(sesService, awsSESDomain, logger)
+		input := &ses.GetAccountSendingEnabledInput{}
+		result, err := sesService.GetAccountSendingEnabled(input)
+		if err != nil || result == nil || *result.Enabled != true {
+			logger.Error("email sending not enabled", zap.Error(err))
+			return NewNotificationSender(sesService, awsSESDomain, logger), err
+		}
+		return NewNotificationSender(sesService, awsSESDomain, logger), nil
 	}
 
 	domain := "milmovelocal"
 	logger.Info("Using local email backend", zap.String("domain", domain))
-	return NewStubNotificationSender(domain, logger)
+	return NewStubNotificationSender(domain, logger), nil
 }
 
 func sendEmails(emails []emailContent, svc sesiface.SESAPI, domain string, logger Logger) error {

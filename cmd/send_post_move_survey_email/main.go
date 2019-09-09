@@ -34,6 +34,10 @@ func checkConfig(v *viper.Viper, logger logger) error {
 		return err
 	}
 
+	if err := cli.CheckEmail(v); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -115,7 +119,10 @@ func main() {
 
 	ctx := context.TODO()
 	targetDate := time.Now().AddDate(0, 0, -offsetDays)
-	notificationSender := notifications.InitEmail(v, session, logger)
+	notificationSender, notificationSenderErr := notifications.InitEmail(v, session, logger)
+	if notificationSenderErr != nil {
+		logger.Fatal("notification sender sending not enabled", zap.Error(notificationSenderErr))
+	}
 
 	moveReviewedNotifier, err := notifications.NewMoveReviewed(dbConnection, logger, targetDate)
 	if err != nil {
