@@ -84,7 +84,7 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 		u.logger.Error("upload exceeds file size limit",
 			zap.String("Filename", file.Name()),
 			zap.Int64("FileSize", info.Size()),
-			zap.Int64("FileSizeLimit", int64(u.FileSizeLimit)))
+			zap.Int64("FileSizeLimit", u.FileSizeLimit.AsInt64()))
 		return nil, responseVErrors, ErrTooLarge{info.Size(), u.FileSizeLimit}
 	}
 
