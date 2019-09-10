@@ -64,14 +64,15 @@ func (suite *InvoiceServiceSuite) fixture(name string) afero.File {
 func (suite *InvoiceServiceSuite) helperCreateUpload(storer *storage.FileStorer) *models.Upload {
 	document := testdatagen.MakeDefaultDocument(suite.DB())
 	userID := document.ServiceMember.UserID
-	up := uploader.NewUploader(suite.DB(), suite.logger, *storer, 25*uploader.MB)
+	up, err := uploader.NewUploader(suite.DB(), suite.logger, *storer, 25*uploader.MB)
+	suite.NoError(err)
 
 	// Create file to use for upload
 	file := suite.fixture("test.pdf")
 	if file == nil {
 		suite.T().Fatal("test.pdf is missing")
 	}
-	_, err := file.Stat()
+	_, err = file.Stat()
 	if err != nil {
 		suite.T().Fatalf("file.Stat() err: %s", err.Error())
 	}

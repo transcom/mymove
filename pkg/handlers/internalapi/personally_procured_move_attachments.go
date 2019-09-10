@@ -41,7 +41,11 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	}
 
 	// Init our tools
-	loader := uploader.NewUploader(h.DB(), logger, h.FileStorer(), 100*uploader.MB)
+	loader, err := uploader.NewUploader(h.DB(), logger, h.FileStorer(), 100*uploader.MB)
+	if err != nil {
+		logger.Error("failed to initialize uploader")
+		return ppmop.NewCreatePPMAttachmentsInternalServerError()
+	}
 	generator, err := paperwork.NewGenerator(h.DB(), logger, loader)
 	if err != nil {
 		logger.Error("failed to initialize generator", zap.Error(err))

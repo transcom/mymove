@@ -98,7 +98,8 @@ func TestUploaderSuite(t *testing.T) {
 func (suite *UploaderSuite) TestUploadFromLocalFile() {
 	document := testdatagen.MakeDefaultDocument(suite.DB())
 
-	up := uploader.NewUploader(suite.DB(), suite.logger, suite.storer, 25*uploader.MB)
+	up, err := uploader.NewUploader(suite.DB(), suite.logger, suite.storer, 25*uploader.MB)
+	suite.NoError(err)
 	file := suite.fixture("test.pdf")
 
 	upload, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesPDF)
@@ -111,7 +112,8 @@ func (suite *UploaderSuite) TestUploadFromLocalFile() {
 func (suite *UploaderSuite) TestUploadFromLocalFileZeroLength() {
 	document := testdatagen.MakeDefaultDocument(suite.DB())
 
-	up := uploader.NewUploader(suite.DB(), suite.logger, suite.storer, 25*uploader.MB)
+	up, err := uploader.NewUploader(suite.DB(), suite.logger, suite.storer, 25*uploader.MB)
+	suite.NoError(err)
 	file, cleanup, err := suite.createFileOfArbitrarySize(uint64(0 * uploader.MB))
 	suite.Nil(err, "failed to create upload")
 	defer cleanup()
@@ -125,7 +127,8 @@ func (suite *UploaderSuite) TestUploadFromLocalFileZeroLength() {
 func (suite *UploaderSuite) TestUploadFromLocalFileWrongContentType() {
 	document := testdatagen.MakeDefaultDocument(suite.DB())
 
-	up := uploader.NewUploader(suite.DB(), suite.logger, suite.storer, 25*uploader.MB)
+	up, err := uploader.NewUploader(suite.DB(), suite.logger, suite.storer, 25*uploader.MB)
+	suite.NoError(err)
 	file, cleanup, err := suite.createFileOfArbitrarySize(uint64(1 * uploader.MB))
 	suite.Nil(err, "failed to create upload")
 	defer cleanup()
@@ -139,7 +142,8 @@ func (suite *UploaderSuite) TestUploadFromLocalFileWrongContentType() {
 func (suite *UploaderSuite) TestTooLargeUploadFromLocalFile() {
 	document := testdatagen.MakeDefaultDocument(suite.DB())
 
-	up := uploader.NewUploader(suite.DB(), suite.logger, suite.storer, 25*uploader.MB)
+	up, err := uploader.NewUploader(suite.DB(), suite.logger, suite.storer, 25*uploader.MB)
+	suite.NoError(err)
 	f, cleanup, err := suite.createFileOfArbitrarySize(uint64(26 * uploader.MB))
 	suite.NoError(err)
 	defer cleanup()
@@ -184,7 +188,8 @@ func (suite *UploaderSuite) TestCreateUploadNoDocument() {
 	document := testdatagen.MakeDefaultDocument(suite.DB())
 	userID := document.ServiceMember.UserID
 
-	up := uploader.NewUploader(suite.DB(), suite.logger, suite.storer, 25*uploader.MB)
+	up, err := uploader.NewUploader(suite.DB(), suite.logger, suite.storer, 25*uploader.MB)
+	suite.NoError(err)
 	file := suite.fixture("test.pdf")
 	fixtureFileInfo, err := file.Stat()
 	suite.NoError(err)

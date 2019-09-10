@@ -66,10 +66,14 @@ func TestPaperworkSuite(t *testing.T) {
 	storer := storageTest.NewFakeS3Storage(true)
 
 	popSuite := testingsuite.NewPopTestSuite(testingsuite.CurrentPackage())
+	newUploader, err := uploader.NewUploader(popSuite.DB(), logger, storer, 25*uploader.MB)
+	if err != nil {
+		log.Panic(err)
+	}
 	hs := &PaperworkSuite{
 		PopTestSuite: popSuite,
 		logger:       logger,
-		uploader:     uploader.NewUploader(popSuite.DB(), logger, storer, 25*uploader.MB),
+		uploader:     newUploader,
 	}
 
 	suite.Run(t, hs)

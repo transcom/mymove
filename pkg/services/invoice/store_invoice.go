@@ -54,7 +54,10 @@ func (s StoreInvoice858C) Call(edi string, invoice *models.Invoice, userID uuid.
 	}
 
 	// Create Upload'r
-	loader := uploader.NewUploader(s.DB, s.Logger, *s.Storer, 25*uploader.MB)
+	loader, err := uploader.NewUploader(s.DB, s.Logger, *s.Storer, 25*uploader.MB)
+	if err != nil {
+		s.Logger.Fatal("could not instantiate uploader", zap.Error(err))
+	}
 	// Set Storagekey path for S3
 	loader.SetUploadStorageKey(ediTmpFile)
 
