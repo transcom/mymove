@@ -37,7 +37,7 @@ const (
 	MB          = 1000 * 1000
 )
 
-func (b ByteSize) AsInt64() int64 {
+func (b ByteSize) Int64() int64 {
 	return int64(b)
 }
 
@@ -85,11 +85,11 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 		return nil, responseVErrors, ErrZeroLengthFile
 	}
 
-	if info.Size() > u.FileSizeLimit.AsInt64() {
+	if info.Size() > u.FileSizeLimit.Int64() {
 		u.logger.Error("upload exceeds file size limit",
 			zap.String("Filename", file.Name()),
 			zap.Int64("FileSize", info.Size()),
-			zap.Int64("FileSizeLimit", u.FileSizeLimit.AsInt64()))
+			zap.Int64("FileSizeLimit", u.FileSizeLimit.Int64()))
 		return nil, responseVErrors, ErrTooLarge{info.Size(), u.FileSizeLimit}
 	}
 
