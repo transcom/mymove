@@ -26,7 +26,6 @@ describe('MoveSummary', () => {
     hhgObj,
     editMoveFn,
     resumeMoveFn,
-    addPPMShipmentFn,
   ) => {
     return shallow(
       <MoveSummary
@@ -39,7 +38,6 @@ describe('MoveSummary', () => {
         editMove={editMoveFn}
         moveSubmitSuccess={moveObj.moveSubmitSuccess}
         resumeMove={resumeMoveFn}
-        addPPMShipment={addPPMShipmentFn}
         getMoveDocumentsForMove={getMoveDocumentsForMove}
         getPpmWeightEstimate={getPpmWeightEstimate}
       />,
