@@ -43,8 +43,8 @@
 * [2018 data load](https://github.com/transcom/mymove/pull/338)
 * [2019 data load](https://github.com/transcom/mymove/pull/2036)
 
-1. Create migration to load dump tables into `temp tables`. (see pr for example).
-2. Create migration to transform `temp table` data into `MilMove` table structures. (see pr for example).
+1. Create migration to load dump tables into `temp tables` by putting the contents of the pg\_dump into a migration. (see pr for example, `migrations/20190424155008_import_400ng_from_move_mil_2019.up.sql`).
+2. Create migration to transform `temp table` data from previous step into `MilMove` table structures. (see pr for example, `migrations/20190424155037_translate_400ng_from_move_mil_2019.up.sql`).
 
 ## Add additional `sit` data to `tariff400ng_service_areas` table
 
@@ -55,7 +55,7 @@
 * [2018 data load](https://github.com/transcom/mymove/pull/382)
 * [2019 data load](https://github.com/transcom/mymove/pull/2036)
 
-1. Create a function that will take values and update the corresponding columns in the `tariff400ng_service_areas`. (see pr for details)
+1. Create a sql function that will take values and update the corresponding columns in the `tariff400ng_service_areas`. (see pr for details)
 2. Transform rates into cents add for each row, transform row into form `SELECT update_sit_rates('service_area', sit_185a, sit_185b, sit_pd_schedule);` for each row.
 3. Remember to drop the function in the migration.
 
