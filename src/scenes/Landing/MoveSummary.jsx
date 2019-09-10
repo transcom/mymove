@@ -484,13 +484,9 @@ const genPpmSummaryStatusComponents = context => {
   };
 };
 
-const getPPMStatus = (moveStatus, ppm, selectedMoveType) => {
+const getPPMStatus = (moveStatus, ppm) => {
   // PPM status determination
   const ppmStatus = get(ppm, 'status', 'DRAFT');
-  // If an HHG_PPM move, move type will be past draft, even if PPM is still in draft status.
-  if (selectedMoveType === 'HHG_PPM') {
-    return ppmStatus;
-  }
   return moveStatus === 'APPROVED' && (ppmStatus === 'SUBMITTED' || ppmStatus === 'DRAFT') ? 'SUBMITTED' : moveStatus;
 };
 
@@ -526,8 +522,7 @@ export class MoveSummaryComponent extends React.Component {
       isMissingWeightTicketDocuments,
     } = this.props;
     const moveStatus = get(move, 'status', 'DRAFT');
-    const selectedMoveType = get(move, 'selected_move_type');
-    const PPMComponent = genPpmSummaryStatusComponents(context)[getPPMStatus(moveStatus, ppm, selectedMoveType)];
+    const PPMComponent = genPpmSummaryStatusComponents(context)[getPPMStatus(moveStatus, ppm)];
     return (
       <div className="move-summary">
         {move.status === 'CANCELED' && (

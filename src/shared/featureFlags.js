@@ -10,7 +10,6 @@ import { forEach } from 'lodash';
 
 const defaultFlags = {
   ppm: true,
-  hhg: true,
   documentViewer: true,
   moveInfoComboButton: true,
   sitPanel: true,
