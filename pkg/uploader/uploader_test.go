@@ -95,6 +95,12 @@ func TestUploaderSuite(t *testing.T) {
 	suite.Run(t, hs)
 }
 
+func (suite *UploaderSuite) TestUploaderExceedsFileSizeLimit() {
+	_, err := uploader.NewUploader(suite.DB(), suite.logger, suite.storer, 361*uploader.MB)
+	suite.Error(err)
+	suite.Equal(uploader.ErrFileSizeLimitExceedsMax, err)
+}
+
 func (suite *UploaderSuite) TestUploadFromLocalFile() {
 	document := testdatagen.MakeDefaultDocument(suite.DB())
 
