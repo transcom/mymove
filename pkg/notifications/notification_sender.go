@@ -3,6 +3,7 @@ package notifications
 import (
 	"bytes"
 	"context"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
@@ -87,7 +88,7 @@ func InitEmail(v *viper.Viper, sess *awssession.Session, logger Logger) (Notific
 }
 
 func sendEmails(emails []emailContent, svc sesiface.SESAPI, domain string, logger Logger) error {
-	for _, email := range emails {
+	for i, email := range emails {
 		rawMessage, err := formatRawEmailMessage(email, domain)
 		if err != nil {
 			return err
@@ -110,9 +111,12 @@ func sendEmails(emails []emailContent, svc sesiface.SESAPI, domain string, logge
 				logger.Error("email.onSuccess error", zap.Error(err))
 			}
 		}
-
 		logger.Info("Sent email to service member",
 			zap.String("service member email address", email.recipientEmail))
+		// rate limited if exceed > 80 emails / second. delay to prevent hitting the limit
+		if i > 0 {
+			time.Sleep(20 * time.Millisecond)
+		}
 	}
 
 	return nil
