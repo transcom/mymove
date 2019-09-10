@@ -1,0 +1,69 @@
+openapi: 3.0.0
+info:
+  title: Move Task Orders API
+  description: API that facilitates GHC move task orders
+  version: 0.1.9
+servers:
+  - url: http://api.move-task-orders.com/v1
+    description: Production server
+  - url: http://staging-api.move-task-orders.com/v1
+    description: Staging server
+  - url: http://experimental-api.move-task-orders.com/v1
+    description: Experimental server
+paths:
+  /move-task-order:
+    post:
+      summary: Creates a move task order
+      description: Creates a move task order
+      operationId: createMoveTaskOrder
+      tags:
+        - moveTaskOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMoveTaskOrder'
+      responses:
+        '201':
+          description: Successfully created move task order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MoveTaskOrder'
+        '400':
+          description: Invalid Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/InvalidRequestResponsePayload'
+        '404':
+          description: Did not successfully create move task order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/InvalidRequestResponsePayload'
+components:
+  CreateMoveTaskOrder:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+  MoveTaskOrder:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+responses:
+  InvalidRequestResponsePayload:
+    description: The request-response payload is invalid
+    content:
+      application/json:
+        schema:
+          type: object
+          additionalProperties:
+            type: string
