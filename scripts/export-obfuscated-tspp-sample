@@ -44,10 +44,10 @@ ALTER TABLE ${TSPP} RENAME TO ${TSPP_BACKUP};
 
 CREATE TABLE ${TSPP} AS
     SELECT (tspp).* FROM (
-        SELECT (tspp), rank() OVER (PARTITION BY traffic_distribution_list_id ORDER BY best_value_score DESC)
+        SELECT (tspp), row_number() OVER (PARTITION BY traffic_distribution_list_id ORDER BY best_value_score DESC)
         FROM ${TSPP_BACKUP} tspp
     ) ranked
-    WHERE rank < 3;
+    WHERE row_number < 3;
 
 UPDATE ${TSPP} SET
 	best_value_score = round((random() * 30 + 70)::numeric, 2),
@@ -55,7 +55,7 @@ UPDATE ${TSPP} SET
 	sit_rate = round((random() * .2 + 0.4)::numeric, 2);
 SQL
 
-pg_dump -h localhost -d dev_db -U postgres -t ${TSPP} --inserts -O --data-only -f "${output_file}"
+pg_dump -h localhost -d dev_db -U postgres -t ${TSPP} --data-only -f "${output_file}"
 
 scripts/psql-dev << SQL
 DROP TABLE ${TSPP};

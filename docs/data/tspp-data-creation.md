@@ -1,6 +1,6 @@
 # Turning TDL scores and TSP discounts into transportation service provider performances
 
-This outlines the steps you need to do to join the two data sources we've traditionally gotten - CSVs or text files of best value scores tide to TDLs, exported one code of service at a time, and CSVs or text files of TSP discount rates, organized by the three pieces of data that make up a TDL (origin, destination, and code of service). If anything behaves in a surprising way, double check the schema detailed here against the organization of your input files. No step of this should alter zero rows, for instance.
+This outlines the steps you need to do to join the two data sources we've traditionally gotten - CSVs or text files of best value scores tied to TDLs, exported one code of service at a time, and CSVs or text files of TSP discount rates, organized by the three pieces of data that make up a TDL (origin, destination, and code of service). If anything behaves in a surprising way, double check the schema detailed here against the organization of your input files. No step of this should alter zero rows, for instance.
 
 Before you begin this process, convert discount rate Excel files or txt files to CSVs, if needed. **Verify that values for SVY_SCORE, RATE_SCORE, and BVS are decimal values (should be formatted like `77.3456`).**
 
@@ -202,12 +202,9 @@ This will add the new entries to the temporary TDL table,
 forcing them to adhere to any table constraints
 and generating new UUIDs to be consistent across environments.
 
-We'll now create a new migration with that data (replace your migration filename):
+We'll now [create a new migration](../how-to/migrate-the-database.md#how-to-migrate-the-database) with that data (replace your migration filename):
 
 ```bash
-make bin/soda
-./bin/soda generate sql add_new_tdls
-rm migrations/20190410152949_add_new_tdls.down.sql
 echo -e "INSERT INTO traffic_distribution_lists (id, source_rate_area, destination_region, code_of_service, created_at, updated_at) \nVALUES\n$(
 ./scripts/psql-deployed-migrations "\copy (SELECT id, source_rate_area, destination_region, code_of_service FROM temp_tdls WHERE import = true) TO stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
   | awk '{print "  ("$0", now(), now()),"}' \
@@ -265,13 +262,9 @@ INSERT INTO temp_tsps (standard_carrier_alpha_code, id, import)
   WHERE tsp_id IS NULL;
 ```
 
-Generate the migration (replacing your migration filename):
+[Generate the migration](../how-to/migrate-the-database.md#how-to-migrate-the-database) (replacing your migration filename):
 
 ```bash
-make bin/soda
-./bin/soda generate sql add_new_scacs
-rm migrations/20190409010258_add_new_scacs.down.sql
-
 echo -e "INSERT INTO transportation_service_providers (id, standard_carrier_alpha_code, created_at, updated_at, name) \nVALUES\n$(
 ./scripts/psql-deployed-migrations "\copy (SELECT id, standard_carrier_alpha_code from temp_tsps) TO stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
   | awk '{print "  ("$0", now(), now(), '\''),"}' \
@@ -410,71 +403,22 @@ WHERE performance_period_start='2019-01-01' and performance_period_end='2019-05-
 ## Create Secure Migrations
 
 You will have to create a secure migration for this data import. Two files will need to be created,
-the file that contains the real data and a local migration (dummy file for dev). Follow the instructions
-at [docs/database.md#secure-migrations](https://github.com/transcom/mymove/blob/master/docs/database.md#secure-migrations)
+the file that contains the real data and a local migration (dummy file for dev). Follow the
+[secure migration steps](../how-to/migrate-the-database.md#secure-migrations)
 
-### Some tips for creating the dummy file
+### How to create the dummy file
 
 You will need to scrub the data that is in the dummy file. The fields: `linehaul_rate`, `sit_rate`, and `best_value_score`
 are company competition sensitive data and needs to scrubbed.
 
 The file will also need to be reduced. Currently, we are picking 2 TSPs per TDL.
 
-The following SQL can be used to do the above mentioned:
-
-* Truncate the table `transportation_service_provider_performances`:
-
-```sql
-TRUNCATE transportation_service_provider_performances CASCADE;
-```
-
-* Load the file created from the `pg_dump`:
+We have a script to help with this process. The script will backup the TSPP table, make the appropriate reduction of
+data and scrubbing of key columns, output the results, then restore the original TSPP table.  You can run it like so:
 
 ```sh
-scripts/psql-dev < tspp_data_dump.pgsql
+export-obfuscated-tspp-sample <filename>
 ```
 
-* Reduce the number of TSPs to two (2) TSPs per TDL:
-
-```sql
-DELETE FROM transportation_service_provider_performances
-WHERE id not in (
-      SELECT id  FROM
-          (SELECT id, traffic_distribution_list_id, transportation_service_provider_id, performance_period_start, ROW_NUMBER() OVER
-            (PARTITION BY (traffic_distribution_list_id, performance_period_start, performance_period_end)) rn
-           FROM transportation_service_provider_performances
-          ) tmp WHERE (rn = 1 OR rn = 2)
-    );
-```
-
-* Scrub the data:
-
-First, define a `random_between` function ([source](http://www.postgresqltutorial.com/postgresql-random-range/)).
-
-```sql
-CREATE OR REPLACE FUNCTION random_between(low INT ,high INT)
-   RETURNS INT AS
-$$
-BEGIN
-   RETURN floor(random()* (high-low + 1) + low);
-END;
-$$ language 'plpgsql' STRICT;
-```
-
-Then, use that function to set random values for fields that contain secret values:
-
-```sql
-UPDATE transportation_service_provider_performances
-SET linehaul_rate=random(),
-    sit_rate=random(),
-    best_value_score=random_between(60,70);
-```
-
-* Run the `pg_dump` again to capture the new local migration file:
-
-```sql
-pg_dump -h localhost -U postgres -W dev_db --table transportation_service_provider_performances --data-only > local_migration_tspp_data_dump.pgsql
-```
-
-Complete the steps from [docs/database.md#secure-migrations](https://github.com/transcom/mymove/blob/master/docs/database.md#secure-migrations) to
+Complete the [secure migration steps](../how-to/migrate-the-database.md#secure-migrations) to
 submit both migration files.
