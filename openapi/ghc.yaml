@@ -30,19 +30,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaymentRequest'
-        '400':
-          $ref: '#/components/responses/InvalidRequestResponsePayload'
-          description: invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/InvalidRequestResponsePayload'
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '500':
-          description: internal server error
+        400:
+          $ref: '#/components/responses/InvalidRequest'
+        401:
+          $ref: '#/components/responses/PermissionDenied'
+        403:
+          $ref: '#/components/responses/PermissionDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
     get: # TODO add filters when we know what we are filtering
       summary: Gets payment requests
       description: Gets a list of payment requests
@@ -56,18 +53,16 @@ paths:
             application/json:
               schema:
                 type: object # in order to include meta data, plus list
-        '400':
-          description: invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/InvalidRequestResponsePayload'
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '500':
-          description: internal server error
+        400:
+          $ref: '#/components/responses/InvalidRequest'
+        401:
+          $ref: '#/components/responses/PermissionDenied'
+        403:
+          $ref: '#/components/responses/PermissionDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
   /payment-requests/{paymentRequestId}:
     get:
       summary: Fetches a payment request
@@ -90,20 +85,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaymentRequest'
-        '400':
-          description: invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/InvalidRequestResponsePayload'
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '404':
-          description: orders not found
-        '500':
-          description: internal server error
+        400:
+          $ref: '#/components/responses/InvalidRequest'
+        401:
+          $ref: '#/components/responses/PermissionDenied'
+        403:
+          $ref: '#/components/responses/PermissionDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
     patch: # GHC can mark final- could be its own endpoint
       summary: Updates a payment request
       description: Updates a payment request
@@ -131,20 +122,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaymentRequest'
-        '400':
-          description: invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/InvalidRequestResponsePayload'
-        '401':
-          description: request requires user authentication
-        '403':
-          description: user is not authorized
-        '404':
-          description: orders not found
-        '500':
-          description: internal server error
+        400:
+          $ref: '#/components/responses/InvalidRequest'
+        401:
+          $ref: '#/components/responses/PermissionDenied'
+        403:
+          $ref: '#/components/responses/PermissionDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
   /uploads:
     post:
       summary: Create a new upload
@@ -165,17 +152,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/Upload'
         400:
-          description: invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/InvalidRequestResponsePayload'
+          $ref: '#/components/responses/InvalidRequest'
+        401:
+          $ref: '#/components/responses/PermissionDenied'
         403:
-          description: not authorized
+          $ref: '#/components/responses/PermissionDenied'
         404:
-          description: not found
+          $ref: '#/components/responses/NotFound'
         500:
-          description: server error
+          $ref: '#/components/responses/ServerError'
   /uploads/{uploadId}:
     get:
       summary: Fetches upload
@@ -199,17 +184,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/Upload'
         400:
-          description: invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/InvalidRequestResponsePayload'
+          $ref: '#/components/responses/InvalidRequest'
+        401:
+          $ref: '#/components/responses/PermissionDenied'
         403:
-          description: not authorized
+          $ref: '#/components/responses/PermissionDenied'
         404:
-          description: not found
+          $ref: '#/components/responses/NotFound'
         500:
-          description: server error
+          $ref: '#/components/responses/ServerError'
+
 components:
   schemas: # These are guesses at what values will be needed; need to know which fields are required
     PaymentRequest:
@@ -385,13 +369,35 @@ components:
         - bytes
         - created_at
         - updated_at
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
   responses:
-    InvalidRequestResponsePayload:
+    InvalidRequest: # 400
       description: The request-response payload is invalid
       content:
         application/json:
           schema:
-            type: object
-            additionalProperties:
-              type: string
-
+            $ref: '#/components/schemas/Error'
+    NotFound: # 404
+      description: The requested resource wasn't found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    PermissionDenied: # 401, 403
+      description: The request was denied
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ServerError: # 500
+      description: A server error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
