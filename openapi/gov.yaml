@@ -125,6 +125,10 @@ paths:
         - name: upload_id
           in: path
           description: upload id
+          required: true
+          schema:
+            type: string
+            format: uuid
       tags:
         - uploads
       responses:
