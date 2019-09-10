@@ -11,13 +11,13 @@ info:
   version: 0.0.1
 # servers:
 paths:
-  /payment_requests:
+  /payment-requests:
     post:
       summary: Creates a payment request
       description: Creates a payment request
       operationId: createPaymentRequest
       tags:
-        - payment_requests
+        - payment-requests
       requestBody:
         content:
           application/json:
@@ -47,7 +47,7 @@ paths:
       description: Gets a list of payment requests
       operationId: getPaymentRequests
       tags:
-        - payment_requests
+        - payment-requests
       responses:
         '200':
           description: fetched list of payment requests
@@ -69,13 +69,13 @@ paths:
           description: user is not authorized
         '500':
           description: internal server error
-  /payment_requests/{paymentRequestId}:
+  /payment-requests/{paymentRequestId}:
     get:
       summary: Fetches a payment request
       description: Fetches an instance of a payment request
       operationId: fetchPaymentRequest
       tags:
-        - payment_requests
+        - payment-requests
       parameters:
         - name: paymentRequestId
           in: path
@@ -110,7 +110,7 @@ paths:
       description: Updates a payment request
       operationId: updatePaymentRequest
       tags:
-        - payment_requests
+        - payment-requests
       parameters:
         - name: paymentRequestId
           in: path
@@ -177,13 +177,13 @@ paths:
           description: not found
         500:
           description: server error
-  /uploads/{upload_id}:
+  /uploads/{uploadId}:
     get:
       summary: Fetches upload
       description: Fetches an upload by id
       operationId: upload
       parameters:
-        - name: upload_id
+        - name: uploadId
           in: path
           description: upload id
           required: true
@@ -220,66 +220,63 @@ components:
           type: string
           format: uuid
           example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        document_package:
+        documentPackage:
           $ref: '#/components/schemas/ProofOfServicePackage'
-        task_order_id:
+        taskOrderId:
           type: string
           format: uuid
           example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        task_order_line_item_ids:
+        taskOrderLineItemIds:
           type: array
           items:
             type: string
             format: uuid
             example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        is_final:
+        isFinal:
           type: boolean
           default: false
         status:
           $ref: '#/components/schemas/PaymentRequestStatus'
-        payment_rejection_reason:
+        paymentRejectionReason:
           type: string
           example: documentation was incomplete
           nullable: true
-        invoice_rejection_reason:
+        invoiceRejectionReason:
           type: string
           example: documentation was incomplete
           nullable: true
     CreatePaymentRequestPayload:
       type: object
       properties:
-        proof_of_service_package:
+        proofOfServicePackage:
           $ref: '#/components/schemas/ProofOfServicePackage'
-        task_order_id:
+        taskOrderId:
           type: string
           format: uuid
           example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        task_order_line_item_ids:
+        taskOrderLineItemIds:
           type: array
           items:
             type: string
             format: uuid
             example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        is_final:
+        isFinal:
           type: boolean
           default: false
         status:
           $ref: '#/components/schemas/PaymentRequestStatus'
-        payment_rejection_reason:
-          type: string
-          example: documentation was incomplete
     UpdatePaymentRequestPayload:
       type: object
       properties:
-        task_order_line_item_ids:
+        taskOrderLineItemIds:
           type: array
           items:
             type: string
             format: uuid
             example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        proof_of_service_package:
+        proofOfServicePackage:
           $ref: '#/components/schemas/ProofOfServicePackage'
-        is_final:
+        isFinal:
           type: boolean
           default: false
         status:
@@ -302,7 +299,7 @@ components:
           type: string
           format: uuid
           example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        task_order_line_items:
+        taskOrderLineItems:
           type: array
           items:
             $ref: '#/components/schemas/TaskOrderLineItem'
@@ -335,16 +332,16 @@ components:
           type: string
           format: binary
           example: filename.pdf
-        content_type:
+        contentType:
           type: string
           format: mime-type
           example: application/pdf
         bytes:
           type: integer
-        created_at:
+        createdAt:
           type: string
           format: date-time
-        updated_at:
+        updatedAt:
           type: string
           format: date-time
       required:
@@ -369,16 +366,16 @@ components:
           type: string
           format: binary
           example: filename.pdf
-        content_type:
+        contentType:
           type: string
           format: mime-type
           example: application/pdf
         bytes:
           type: integer
-        created_at:
+        createdAt:
           type: string
           format: date-time
-        updated_at:
+        updatedAt:
           type: string
           format: date-time
       required:
