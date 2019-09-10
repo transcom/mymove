@@ -404,7 +404,7 @@ WHERE performance_period_start='2019-01-01' and performance_period_end='2019-05-
 
 You will have to create a secure migration for this data import. Two files will need to be created,
 the file that contains the real data and a local migration (dummy file for dev). Follow the
-[secure migration steps](../how-to/migrate-the-database.md#secure-migrations)
+[secure migration steps](../how-to/migrate-the-database.md#secure-migrations).
 
 ### How to create the dummy file
 
@@ -417,7 +417,7 @@ We have a [script](../../scripts/export-obfuscated-tspp-sample) to help with thi
 data and scrubbing of key columns, output the results, then restore the original TSPP table.  You can run it like so:
 
 ```sh
-export-obfuscated-tspp-sample <filename>
+./scripts/export-obfuscated-tspp-sample <filename>
 ```
 
 Complete the [secure migration steps](../how-to/migrate-the-database.md#secure-migrations) to
