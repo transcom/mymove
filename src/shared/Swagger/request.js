@@ -1,4 +1,4 @@
-import { get, some, uniqueId, filter } from 'lodash';
+import { get, some, uniqueId } from 'lodash';
 import { normalize } from 'normalizr';
 
 // Given a schema path (e.g. shipments.getShipment), return the
@@ -134,13 +134,10 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
           throw new Error(`Could not find a schema for ${schemaKey}`);
         }
 
-        if (options.deletedId) {
+        if (options.deleteId) {
           // eslint-disable-next-line security/detect-object-injection
-          var oldEntities = state.entities[schemaKey];
-          var deletedEntities = filter(oldEntities, entity => {
-            return entity.id === options.deletedId;
-          });
-          action.entities = normalizePayload(deletedEntities, payloadSchema).entities;
+          var oldEntity = state.entities[schemaKey][options.deleteId];
+          action.entities = normalizePayload([oldEntity], payloadSchema).entities;
         } else {
           action.entities = normalizePayload(response.body, payloadSchema).entities;
         }

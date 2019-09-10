@@ -88,8 +88,8 @@ export const updateMoveDocument = (moveId, moveDocumentId, payload) => {
 
 export function deleteMoveDocument(moveDocumentId, label = deleteMoveDocumentLabel) {
   const schemaKey = 'moveDocuments';
-  const deletedId = moveDocumentId;
-  return swaggerRequest(getClient, 'move_docs.deleteMoveDocument', { moveDocumentId }, { label, schemaKey, deletedId });
+  const deleteId = moveDocumentId;
+  return swaggerRequest(getClient, 'move_docs.deleteMoveDocument', { moveDocumentId }, { label, schemaKey, deleteId });
 }
 
 // Selectors
