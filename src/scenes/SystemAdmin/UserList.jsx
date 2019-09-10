@@ -1,5 +1,5 @@
 import React from 'react';
-import { List, EmailField, Datagrid, TextField } from 'react-admin';
+import { List, EmailField, Datagrid, TextField, BooleanField } from 'react-admin';
 import AdminPagination from './AdminPagination';
 
 const UserList = props => (
@@ -9,6 +9,7 @@ const UserList = props => (
       <TextField source="first_name" />
       <TextField source="id" />
       <TextField source="last_name" />
+      <BooleanField source="disabled" label="Deactivated" />
     </Datagrid>
   </List>
 );
