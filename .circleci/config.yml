@@ -88,7 +88,7 @@ commands:
           at: bin
       - deploy:
           name: Deploy fuel price data task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command save-fuel-price-data --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2"
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command ecs-tasks save-fuel-price-data --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2"
           environment:
             DB_PORT: 5432
             DB_USER: ecs_user
@@ -100,7 +100,7 @@ commands:
 #      TODO remove --offset-days from args before merge to default back to 15 days.
       - deploy:
           name: Deploy post move email survey task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command send-post-move-survey-email --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2 --email-backend=ses --offset-days 0"
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command ecs-tasks send-post-move-survey-email --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2 --email-backend=ses --offset-days 0"
           environment:
             DB_PORT: 5432
             DB_USER: ecs_user
@@ -831,33 +831,33 @@ workflows:
             - build_migrations
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          filters:
-            branches:
-              ignore: mk-168035083-deploy-ecs-email-task
+          # filters:
+          #   branches:
+          #     ignore: placeholder_branch_name
 
       - client_test:
           requires:
             - pre_deps_yarn
           # if testing on experimental, you can disable these tests by using the commented block below.
-          filters:
-            branches:
-              ignore: mk-168035083-deploy-ecs-email-task
+          # filters:
+          #   branches:
+          #     ignore: placeholder_branch_name
 
       - server_test:
           requires:
             - pre_deps_golang
           # if testing on experimental, you can disable these tests by using the commented block below.
-          filters:
-            branches:
-              ignore: mk-168035083-deploy-ecs-email-task
+          # filters:
+          #   branches:
+          #     ignore: placeholder_branch_name
 
       - server_test_coverage:
           requires:
             - pre_deps_golang
           # if testing on experimental, you can disable these tests by using the commented block below.
-          filters:
-            branches:
-              ignore: mk-168035083-deploy-ecs-email-task
+          # filters:
+          #   branches:
+          #     ignore: placeholder_branch_name
 
       - build_app:
           requires:
@@ -893,28 +893,28 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: mk-168035083-deploy-ecs-email-task
+              only: placeholder_branch_name
 
       - deploy_experimental_tasks:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: mk-168035083-deploy-ecs-email-task
+              only: placeholder_branch_name
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: mk-168035083-deploy-ecs-email-task
+              only: placeholder_branch_name
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: mk-168035083-deploy-ecs-email-task
+              only: placeholder_branch_name
 
       - check_circle_against_staging_sha:
           requires:
