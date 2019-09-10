@@ -1,5 +1,3 @@
-BEGIN;
-
 select * into temp tempsit from storage_in_transits;
 select * into temp tempshipment from shipments;
 select * into temp tempsli from shipment_line_items;
@@ -68,5 +66,3 @@ DELETE FROM addresses where id IN (select residential_address_id from tempsm);
 DELETE FROM addresses where id IN (select backup_mailing_address_id from tempsm);
 DELETE FROM addresses where id IN (select dc.origin_address_id from tempdc dc right join duty_stations ds on dc.origin_address_id = ds.address_id where ds.address_id is null);
 DELETE FROM addresses where id IN (select dc.destination_address_id from tempdc dc right join duty_stations ds on dc.destination_address_id = ds.address_id where ds.address_id is null);
-
-COMMIT;
