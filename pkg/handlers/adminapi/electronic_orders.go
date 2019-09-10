@@ -25,26 +25,31 @@ type IndexElectronicOrdersHandler struct {
 	handlers.HandlerContext
 	services.ElectronicOrderListFetcher
 	services.NewQueryFilter
+	services.NewPagination
 }
 
 func (h IndexElectronicOrdersHandler) Handle(params electronicorderop.IndexElectronicOrdersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	// queryFilters := []services.QueryFilter{}
+	queryFilters := []services.QueryFilter{}
 
-	// electronicOrders, err := h.ElectronicOrderListFetcher.FetchElectronicOrderList(queryFilters)
-	// TODO: Remove when we ship pagination in the query builder
-	query := `SELECT id, issuer, created_at, updated_at from electronic_orders LIMIT 100`
-	electronicOrders := models.ElectronicOrders{}
-	err := h.DB().RawQuery(query).All(&electronicOrders)
+	pagination := h.NewPagination(params.Page, params.PerPage)
+
+	electronicOrders, err := h.ElectronicOrderListFetcher.FetchElectronicOrderList(queryFilters, pagination)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	electronicOrdersCount := len(electronicOrders)
-	payload := make(adminmessages.ElectronicOrders, electronicOrdersCount)
+	totalElectronicOrdersCount, err := h.DB().Count(&models.ElectronicOrder{})
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	queriedOfficeUsersCount := len(electronicOrders)
+
+	payload := make(adminmessages.ElectronicOrders, queriedOfficeUsersCount)
 	for i, s := range electronicOrders {
 		payload[i] = payloadForElectronicOrderModel(s)
 	}
 
-	return electronicorderop.NewIndexElectronicOrdersOK().WithContentRange(fmt.Sprintf("electronic_orders 0-%d/%d", electronicOrdersCount, electronicOrdersCount)).WithPayload(payload)
+	return electronicorderop.NewIndexElectronicOrdersOK().WithContentRange(fmt.Sprintf("electronic_orders %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, totalElectronicOrdersCount)).WithPayload(payload)
 }

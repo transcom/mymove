@@ -6,7 +6,7 @@ import (
 )
 
 type electronicOrderListQueryBuilder interface {
-	FetchMany(model interface{}, filters []services.QueryFilter) error
+	FetchMany(model interface{}, filters []services.QueryFilter, pagination services.Pagination) error
 }
 
 type electronicOrderListFetcher struct {
@@ -14,9 +14,9 @@ type electronicOrderListFetcher struct {
 }
 
 // FetchElectronicOrderList uses the passed query builder to fetch a list of electronic_orders
-func (o *electronicOrderListFetcher) FetchElectronicOrderList(filters []services.QueryFilter) (models.ElectronicOrders, error) {
+func (o *electronicOrderListFetcher) FetchElectronicOrderList(filters []services.QueryFilter, pagination services.Pagination) (models.ElectronicOrders, error) {
 	var electronicOrders models.ElectronicOrders
-	error := o.builder.FetchMany(&electronicOrders, filters)
+	error := o.builder.FetchMany(&electronicOrders, filters, pagination)
 	return electronicOrders, error
 }
 
