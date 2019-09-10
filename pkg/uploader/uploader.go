@@ -23,7 +23,9 @@ type ErrTooLarge struct {
 	FileSizeLimit ByteSize
 }
 
-var ErrFileSizeLimitExceedsMax = errors.New("FileSizeLimit exceeds max")
+var ErrFileSizeLimitExceedsMax = errors.Errorf("FileSizeLimit exceeds max of %d bytes", MaxFileSizeLimit)
+
+const MaxFileSizeLimit = 350 * MB
 
 func (e ErrTooLarge) Error() string {
 	return fmt.Sprintf("file is too large: %d > %d filesize limit", e.FileSize, e.FileSizeLimit)
@@ -53,7 +55,7 @@ type Uploader struct {
 
 // NewUploader creates and returns a new uploader
 func NewUploader(db *pop.Connection, logger Logger, storer storage.FileStorer, fileSizeLimit ByteSize) (*Uploader, error) {
-	if fileSizeLimit > 350*MB {
+	if fileSizeLimit > MaxFileSizeLimit {
 		return nil, ErrFileSizeLimitExceedsMax
 	}
 	return &Uploader{
