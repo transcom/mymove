@@ -4,7 +4,7 @@ import AdminPagination from './AdminPagination';
 import TitleizedField from './TitleizedField';
 
 const ElectronicOrderList = props => (
-  <List {...props} pagination={<AdminPagination />} perPage={500}>
+  <List {...props} pagination={<AdminPagination />} perPage={25}>
     <Datagrid>
       <TextField source="id" />
       <TitleizedField source="issuer" />
