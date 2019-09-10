@@ -413,7 +413,7 @@ are company competition sensitive data and needs to scrubbed.
 
 The file will also need to be reduced. Currently, we are picking 2 TSPs per TDL.
 
-We have a script to help with this process. The script will backup the TSPP table, make the appropriate reduction of
+We have a [script](../../scripts/export-obfuscated-tspp-sample) to help with this process. The script will backup the TSPP table, make the appropriate reduction of
 data and scrubbing of key columns, output the results, then restore the original TSPP table.  You can run it like so:
 
 ```sh
