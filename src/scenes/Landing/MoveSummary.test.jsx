@@ -17,16 +17,7 @@ describe('MoveSummary', () => {
   const ordersObj = {};
   const getMoveDocumentsForMove = jest.fn(() => ({ then: () => {} }));
   const getPpmWeightEstimate = jest.fn();
-  const getShallowRender = (
-    entitlementObj,
-    serviceMember,
-    ordersObj,
-    moveObj,
-    ppmObj,
-    hhgObj,
-    editMoveFn,
-    resumeMoveFn,
-  ) => {
+  const getShallowRender = (entitlementObj, serviceMember, ordersObj, moveObj, ppmObj, editMoveFn, resumeMoveFn) => {
     return shallow(
       <MoveSummary
         entitlement={entitlementObj}
@@ -34,7 +25,6 @@ describe('MoveSummary', () => {
         orders={ordersObj}
         move={moveObj}
         ppm={ppmObj}
-        shipment={hhgObj}
         editMove={editMoveFn}
         moveSubmitSuccess={moveObj.moveSubmitSuccess}
         resumeMove={resumeMoveFn}
@@ -54,14 +44,12 @@ describe('MoveSummary', () => {
         estimated_incentive: '$24665.59 - 27261.97',
         status: 'CANCELED',
       };
-      const hhgObj = {};
       const subComponent = getShallowRender(
         entitlementObj,
         serviceMember,
         ordersObj,
         moveObj,
         ppmObj,
-        hhgObj,
         editMoveFn,
         resumeMoveFn,
       );
@@ -87,14 +75,12 @@ describe('MoveSummary', () => {
         estimated_incentive: '$24665.59 - 27261.97',
         status: 'CANCELED',
       };
-      const hhgObj = {};
       const subComponent = getShallowRender(
         entitlementObj,
         serviceMember,
         ordersObj,
         moveObj,
         ppmObj,
-        hhgObj,
         editMoveFn,
         resumeMoveFn,
       );
@@ -117,14 +103,12 @@ describe('MoveSummary', () => {
         weight_estimate: '10000',
         estimated_incentive: '$24665.59 - 27261.97',
       };
-      const hhgObj = {};
       const subComponent = getShallowRender(
         entitlementObj,
         serviceMember,
         ordersObj,
         moveObj,
         ppmObj,
-        hhgObj,
         editMoveFn,
         resumeMoveFn,
       ).find(SubmittedPpmMoveSummary);
@@ -151,14 +135,12 @@ describe('MoveSummary', () => {
         estimated_incentive: '$24665.59 - 27261.97',
         status: 'SUBMITTED',
       };
-      const hhgObj = {};
       const subComponent = getShallowRender(
         entitlementObj,
         serviceMember,
         ordersObj,
         moveObj,
         ppmObj,
-        hhgObj,
         editMoveFn,
         resumeMoveFn,
       ).find(SubmittedPpmMoveSummary);
@@ -184,14 +166,12 @@ describe('MoveSummary', () => {
         estimated_incentive: '$24665.59 - 27261.97',
         status: 'APPROVED',
       };
-      const hhgObj = {};
       const subComponent = getShallowRender(
         entitlementObj,
         serviceMember,
         ordersObj,
         moveObj,
         ppmObj,
-        hhgObj,
         editMoveFn,
         resumeMoveFn,
       ).find(ApprovedMoveSummary);
@@ -215,14 +195,12 @@ describe('MoveSummary', () => {
         weight_estimate: '10000',
         estimated_incentive: '$24665.59 - 27261.97',
       };
-      const hhgObj = {};
       const subComponent = getShallowRender(
         entitlementObj,
         serviceMember,
         ordersObj,
         moveObj,
         ppmObj,
-        hhgObj,
         editMoveFn,
         resumeMoveFn,
       ).find(ApprovedMoveSummary);
