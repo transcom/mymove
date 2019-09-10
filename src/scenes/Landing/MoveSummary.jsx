@@ -495,7 +495,7 @@ const getPPMStatus = (moveStatus, ppm, selectedMoveType) => {
 };
 
 export class MoveSummaryComponent extends React.Component {
-  componentDidUpdate() {
+  componentDidMount() {
     this.props.getMoveDocumentsForMove(this.props.move.id).then(({ obj: documents }) => {
       const weightTicketNetWeight = calcNetWeight(documents);
       const netWeight =
