@@ -24,9 +24,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/PaymentRequest'
+                type: object # in order to include meta data, plus list
         '400':
           description: invalid request
           content:
@@ -171,7 +169,7 @@ components:
             type: string
             format: uuid
             example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        is_final:
+        isFinal:
           type: boolean
           default: false
         status:

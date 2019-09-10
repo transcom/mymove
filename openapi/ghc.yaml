@@ -54,9 +54,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/PaymentRequest'
+                type: object # in order to include meta data, plus list
         '400':
           description: invalid request
           content:
