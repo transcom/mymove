@@ -31,6 +31,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaymentRequest'
         '400':
+          $ref: '#/components/responses/InvalidRequestResponsePayload'
           description: invalid request
           content:
             application/json:
