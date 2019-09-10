@@ -10,7 +10,12 @@ const ExpenseTicketListItem = ({ id, amount, type, paymentMethod, showDelete, de
           {type} - ${amount}
         </h4>
         {showDelete && (
-          <img alt="delete document button" onClick={() => deleteDocumentListItem(id)} src={deleteButtonImg} />
+          <img
+            alt="delete document button"
+            data-cy="delete-ticket"
+            onClick={() => deleteDocumentListItem(id)}
+            src={deleteButtonImg}
+          />
         )}
       </div>
       <div>

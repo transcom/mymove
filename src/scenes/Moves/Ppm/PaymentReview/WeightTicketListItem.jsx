@@ -45,7 +45,12 @@ const WeightTicketListItem = ({
           {vehicle_nickname} ({formatToOrdinal(num + 1)} set)
         </h4>
         {showDelete && (
-          <img alt="delete document button" onClick={() => deleteDocumentListItem(id)} src={deleteButtonImg} />
+          <img
+            alt="delete document button"
+            data-cy="delete-ticket"
+            onClick={() => deleteDocumentListItem(id)}
+            src={deleteButtonImg}
+          />
         )}
       </div>
       {empty_weight_ticket_missing ? (
