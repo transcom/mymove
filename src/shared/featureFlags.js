@@ -14,6 +14,7 @@ const defaultFlags = {
   moveInfoComboButton: true,
   sitPanel: true,
   ppmPaymentRequest: true,
+  createAdminUser: true,
 };
 
 const environmentFlags = {
