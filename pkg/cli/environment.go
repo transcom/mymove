@@ -21,6 +21,9 @@ const (
 	EnvironmentTest string = "test"
 	// EnvironmentDevelopment is the Development Environment name
 	EnvironmentDevelopment string = "development"
+
+	// EnvironmentLee is for Lee's branch
+	EnvironmentLee string = "lee"
 )
 
 var environments = []string{
@@ -29,6 +32,7 @@ var environments = []string{
 	EnvironmentExperimental,
 	EnvironmentTest,
 	EnvironmentDevelopment,
+	EnvironmentLee,
 }
 
 type errInvalidEnvironment struct {

@@ -672,7 +672,7 @@ jobs:
   deploy_lee_migrations:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: 'experimental'
+      - APP_ENVIRONMENT: 'lee'
     steps:
       - deploy_migrations_steps
 
@@ -680,7 +680,7 @@ jobs:
   deploy_lee_tasks:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: 'experimental'
+      - APP_ENVIRONMENT: 'lee'
     steps:
       - deploy_tasks_steps
 
@@ -688,7 +688,7 @@ jobs:
   deploy_lee_app:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: 'experimental'
+      - APP_ENVIRONMENT: 'lee'
     steps:
       - deploy_app_steps:
           compare_host: "" # leave blank since we want lee to be able to roll back
@@ -698,7 +698,7 @@ jobs:
   deploy_lee_app_client_tls:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: 'experimental'
+      - APP_ENVIRONMENT: 'lee'
     steps:
       - deploy_app_client_tls_steps:
           compare_host: "" # leave blank since we want lee to be able to roll back
