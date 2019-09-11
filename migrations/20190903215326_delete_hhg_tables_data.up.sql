@@ -35,8 +35,9 @@ DELETE FROM signed_certifications WHERE move_id IN (SELECT id FROM moves where s
 -- finally dropping the shipments
 DROP TABLE IF EXISTS shipments;
 
-DELETE FROM moves WHERE selected_move_type = 'HHG';
-
+-- Dropping moves that are select HHG
+-- make sure that the moves don't have PPMs previously
+DELETE FROM moves WHERE selected_move_type = 'HHG' AND id NOT IN (SELECT move_id FROM personally_procured_moves);
 
 
 -- service members
