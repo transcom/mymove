@@ -1,7 +1,7 @@
 import React from 'react';
 
-const UserShow = props => {
+const UserCreate = props => {
   return <div />;
 };
 
-export default UserShow;
+export default UserCreate;
