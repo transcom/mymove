@@ -692,7 +692,7 @@ jobs:
     steps:
       - deploy_app_steps:
           compare_host: "" # leave blank since we want lee to be able to roll back
-          health_check_hosts: my.lee.move.mil,office.experimental.move.mil,tsp.experimental.move.mil
+          health_check_hosts: my.lee.move.mil,office.lee.move.mil,tsp.lee.move.mil
 
   # `deploy_lee_app_client_tls` updates the mutual-TLS service in the experimental environment
   deploy_lee_app_client_tls:
