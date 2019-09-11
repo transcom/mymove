@@ -4,6 +4,7 @@ The local transportation office approved your move from {{.OriginDutyStation}} t
 
 Please review the Personally Procured Move (PPM) info sheet for detailed instructions at {{.Link}}.
 
+
 Next steps
 Because you’ve chosen a do-it-yourself move, you can start whenever you are ready.
 
