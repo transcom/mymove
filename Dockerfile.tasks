@@ -2,6 +2,6 @@ FROM gcr.io/distroless/base:latest
 
 COPY bin/rds-combined-ca-bundle.pem /bin/rds-combined-ca-bundle.pem
 COPY bin/chamber /bin/chamber
-COPY bin/ecs-tasks /bin/ecs-tasks
+COPY bin/milmove-tasks /bin/milmove-tasks
 
 WORKDIR /bin

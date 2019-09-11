@@ -14,9 +14,9 @@ var gitCommit string
 func main() {
 
 	root := cobra.Command{
-		Use:   "ecs-tasks [flags]",
-		Short: "ecs tasks for MilMove",
-		Long:  "ecs tasks for MilMove",
+		Use:   "milmove-tasks [flags]",
+		Short: "MilMove tasks",
+		Long:  "MilMove tasks",
 	}
 
 	root.AddCommand(&cobra.Command{
