@@ -6,48 +6,160 @@ info:
   version: 0.1.9
 
 servers:
-  - url: http://api.move-task-orders.com/v1
+  - url: http://api.move-orders.com/v1
     description: Production server
-  - url: http://staging-api.move-task-orders.com/v1
+  - url: http://staging-api.move-orders.com/v1
     description: Staging server
-  - url: http://experimental-api.move-task-orders.com/v1
+  - url: http://experimental-api.move-orders.com/v1
     description: Experimental server
 
 paths:
-  /move-task-order:
+  /move-order:
     post:
-      summary: Creates a move task order
-      description: Creates a move task order
-      operationId: createMoveTaskOrder
+      summary: Creates a move order
+      description: Creates a move order
+      operationId: createMoveOrder
       tags:
-        - moveTaskOrder
+        - moveOrder
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MoveTaskOrder'
+              $ref: '#/components/schemas/MoveOrder'
       responses:
         '201':
           description: Successfully created move task order
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MoveTaskOrder'
+                $ref: '#/components/schemas/MoveOrder'
         '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
           $ref: '#/components/responses/PermissionDenied'
         '404':
           $ref: '#/components/responses/NotFound'
+  /move-order/{id}:
+    get:
+      summary: Gets a move order by id
+      description: Gets a move order
+      operationId: getMoveOrder
+      tags:
+        - moveOrder
+      responses:
+        '200':
+          description: Successfully retrieved move task order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MoveOrder'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      summary: Updates a move order by id
+      description: Updates a move order by id
+      operationId: updateMoveOrder
+      tags:
+        - moveOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MoveOrder'
+      responses:
+        '200':
+          description: Successfully retrieved move task order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MoveOrder'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      summary: Deletes a move order by id
+      description: Deletes a move order by id
+      operationId: deleteMoveOrder
+      tags:
+        - moveOrder
+      responses:
+        '200':
+          description: Successfully deleted move task order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MoveOrder'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    parameters:
+      - name: id
+        in: path
+        description: ID of move order to use
+        required: true
+        schema:
+          type: string
+  /move-order/{id}/status:
+    patch:
+      summary: Change the status of a move order
+      description: Changes move order status
+      operationId: updateMoveOrderStatus
+      tags:
+        - moveOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MoveOrderStatus'
+      responses:
+        '200':
+          description: Successfully updated move task order status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MoveOrder'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    parameters:
+      - name: id
+        in: path
+        description: ID of move order to use
+        required: true
+        schema:
+          type: string
 
 components:
   schemas:
-    MoveTaskOrder:
+    MoveOrder:
       type: object
       properties:
         id:
           type: string
           format: uuid
           example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    MoveOrderStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "APPROVED"
     Error:
       type: object
       properties:
