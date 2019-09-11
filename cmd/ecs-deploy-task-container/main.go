@@ -339,7 +339,11 @@ func main() {
 	serviceRDS := rds.New(sess)
 
 	// Get the current task definition (for rollback)
-	commandName := v.GetString(commandFlag)
+	s := strings.Fields(v.GetString(commandFlag))
+	var commandName = s[0]
+	if len(s) > 1 {
+		commandName = s[1]
+	}
 	commandArgs := []string{}
 	if str := v.GetString(commandArgsFlag); len(str) > 0 {
 		commandArgs = strings.Split(str, " ")
