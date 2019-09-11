@@ -234,3 +234,61 @@ func (suite *QueryBuilderSuite) TestCreateOne() {
 	})
 
 }
+
+func (suite *QueryBuilderSuite) TestFetchCategoricalCountsFromOneModel() {
+	builder := NewQueryBuilder(suite.DB())
+	var electronicOrder models.ElectronicOrder
+	ordersAssertion := testdatagen.Assertions{
+		ElectronicOrder: models.ElectronicOrder{},
+	}
+	// Let's make a some electronic orders to test this with
+	ordersAssertion.ElectronicOrder.Issuer = models.IssuerNavy
+	ordersAssertion.ElectronicOrder.OrdersNumber = "8675308"
+	testdatagen.MakeElectronicOrder(suite.DB(), ordersAssertion)
+
+	ordersAssertion.ElectronicOrder.Issuer = models.IssuerArmy
+	ordersAssertion.ElectronicOrder.OrdersNumber = "8675310"
+	testdatagen.MakeElectronicOrder(suite.DB(), ordersAssertion)
+
+	ordersAssertion.ElectronicOrder.Issuer = models.IssuerMarineCorps
+	ordersAssertion.ElectronicOrder.OrdersNumber = "8675311"
+	ordersAssertion.ElectronicOrder.UpdatedAt = testdatagen.PerformancePeriodStart
+	testdatagen.MakeElectronicOrder(suite.DB(), ordersAssertion)
+
+	ordersAssertion.ElectronicOrder.Issuer = models.IssuerAirForce
+	ordersAssertion.ElectronicOrder.OrdersNumber = "8675312"
+	testdatagen.MakeElectronicOrder(suite.DB(), ordersAssertion)
+
+	ordersAssertion.ElectronicOrder.Issuer = models.IssuerCoastGuard
+	ordersAssertion.ElectronicOrder.OrdersNumber = "8675313"
+	testdatagen.MakeElectronicOrder(suite.DB(), ordersAssertion)
+
+	filters := []services.QueryFilter{
+		NewQueryFilter("issuer", equals, models.IssuerArmy),
+		NewQueryFilter("issuer", equals, models.IssuerCoastGuard),
+		NewQueryFilter("issuer", equals, models.IssuerMarineCorps),
+		NewQueryFilter("issuer", equals, models.IssuerNavy),
+		NewQueryFilter("issuer", equals, models.IssuerAirForce),
+	}
+
+	andFilters := []services.QueryFilter{
+		NewQueryFilter("updated_at", equals, testdatagen.PerformancePeriodStart),
+	}
+
+	suite.T().Run("Successfully select some category counts", func(t *testing.T) {
+		counts, err := builder.FetchCategoricalCountsFromOneModel(electronicOrder, filters, nil)
+		suite.Nil(err)
+		suite.Equal(1, counts[models.IssuerArmy])
+		suite.Equal(1, counts[models.IssuerCoastGuard])
+		suite.Equal(1, counts[models.IssuerMarineCorps])
+		suite.Equal(1, counts[models.IssuerNavy])
+		suite.Equal(1, counts[models.IssuerAirForce])
+	})
+
+	suite.T().Run("Successfully select some counts using and AND filter", func(t *testing.T) {
+		counts, err := builder.FetchCategoricalCountsFromOneModel(electronicOrder, filters, &andFilters)
+		suite.Nil(err)
+		suite.Equal(1, counts[models.IssuerMarineCorps])
+	})
+
+}

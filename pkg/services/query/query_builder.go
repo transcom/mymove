@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/gobuffalo/validate"
-
 	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
 
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -55,27 +54,76 @@ func getComparator(comparator string) (string, bool) {
 	}
 }
 
+// Validate that the QueryFilter is valid using getDBColumn and getComparator
+func validateFilter(f services.QueryFilter, t reflect.Type) string {
+	invalidField := ""
+	_, ok := getDBColumn(t, f.Column())
+	if !ok {
+		invalidField = fmt.Sprintf("%s %s", f.Column(), f.Comparator())
+	}
+	_, ok = getComparator(f.Comparator())
+	if !ok {
+		invalidField = fmt.Sprintf("%s %s", f.Column(), f.Comparator())
+	}
+	return invalidField
+}
+
+// Currently this can select counts for 'categories' based on a field comparison using an array of QueryFilters. Additionally it supports adding in AND logic
+// by including a list of AND clauses, also via an array of QueryFilters. TODO: Add in functionality for OR when a use case for it comes up.
+func categoricalCountsQueryOneModel(conn *pop.Connection, filters []services.QueryFilter, andFilters *[]services.QueryFilter, t reflect.Type) (map[interface{}]int, error) {
+	invalidFields := make([]string, 0)
+	counts := make(map[interface{}]int, 0)
+
+	for _, f := range filters {
+		// Set up an empty query for us to use to get the count
+		query := conn.Q()
+
+		// Validate the filter we're using is valid/safe
+		invalidField := validateFilter(f, t)
+		if invalidField != "" {
+			invalidFields = append(invalidFields, fmt.Sprintf("%s %s", f.Column(), f.Comparator()))
+		}
+
+		queryColumn := fmt.Sprintf("%s %s ?", f.Column(), f.Comparator())
+		query = query.Where(queryColumn, f.Value())
+
+		if andFilters != nil {
+			for _, af := range *andFilters {
+				invalidField := validateFilter(af, t)
+				if invalidField != "" {
+					return nil, fmt.Errorf("%v is not valid input", invalidField)
+				}
+
+				queryColumn := fmt.Sprintf("%s %s ?", f.Column(), f.Comparator())
+				query = query.Where(queryColumn, f.Value())
+			}
+		}
+
+		if len(invalidFields) != 0 {
+			return nil, fmt.Errorf("%v is not valid input", invalidFields)
+		}
+
+		count, err := query.Count(reflect.Zero(t).Interface())
+		if err != nil {
+			return nil, err
+		}
+		counts[f.Value()] = count
+	}
+
+	return counts, nil
+}
+
 func filteredQuery(query *pop.Query, filters []services.QueryFilter, t reflect.Type) (*pop.Query, error) {
 	invalidFields := make([]string, 0)
 	for _, f := range filters {
-		column, ok := getDBColumn(t, f.Column())
-		if !ok {
-			invalidFields = append(
-				invalidFields,
-				fmt.Sprintf("%s %s", f.Column(), f.Comparator()),
-			)
-		}
-		comparator, ok := getComparator(f.Comparator())
-		if !ok {
-			invalidFields = append(
-				invalidFields,
-				fmt.Sprintf("%s %s", f.Column(), f.Comparator()),
-			)
-			continue
+		// Validate the filter we're using is valid/safe
+		invalidField := validateFilter(f, t)
+		if invalidField != "" {
+			invalidFields = append(invalidFields, fmt.Sprintf("%s %s", f.Column(), f.Comparator()))
 		}
 		// Column lookup should always adhere to SQL injection input validations
 		// https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.md#defense-option-3-whitelist-input-validation
-		columnQuery := fmt.Sprintf("%s %s ?", column, comparator)
+		columnQuery := fmt.Sprintf("%s %s ?", f.Column(), f.Comparator())
 		query = query.Where(columnQuery, f.Value())
 	}
 	if len(invalidFields) != 0 {
@@ -137,4 +185,14 @@ func (p *Builder) CreateOne(model interface{}) (*validate.Errors, error) {
 		return verrs, err
 	}
 	return nil, nil
+}
+
+func (p *Builder) FetchCategoricalCountsFromOneModel(model interface{}, filters []services.QueryFilter, andFilters *[]services.QueryFilter) (map[interface{}]int, error) {
+	conn := p.db
+	t := reflect.TypeOf(model)
+	categoricalCounts, err := categoricalCountsQueryOneModel(conn, filters, andFilters, t)
+	if err != nil {
+		return nil, err
+	}
+	return categoricalCounts, nil
 }
