@@ -284,7 +284,7 @@ The following command will fill the TSPP table with data. Use your data's curren
 
 > _Rate cycle_ in this context means the rate cycle **period**, so either the peak or non-peak part of the annual rate cycle and **not** the rate cycle itself.
 >
-> [This document](https://docs.google.com/document/d/1BsE_yIx5_6URs4Kp7baRVMhqJ4Ec_q3hdCmwOYR4EIc) specifies the date ranges for both the performance periods and the rate cycle periods.
+> [This document](https://docs.google.com/document/d/12AN1igDt9Acxm9cu1cJA0fiWQIMI3XGs5u_jhCHLo6I) specifies the date ranges for both the performance periods and the rate cycle periods.
 
 ```SQL
 INSERT INTO
