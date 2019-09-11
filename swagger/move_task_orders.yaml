@@ -360,11 +360,10 @@ components:
           type: string
           format: uuid
           example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        type_orders:
+        orders_type:
           type: string
           enum:
-            - TYPE_1
-            - TYPE_2
+            - PERMANENT_CHANGE_OF_STATION
         travel_authorization_name:
           type: string
         travel_authorization_date:
@@ -382,12 +381,6 @@ components:
           type: string
           format: uuid
           example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        orders_with_all_amendments:
-          type: array
-          items:
-            type: string
-            format: uuid
-            example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         created_at:
           type: string
           format: date
@@ -406,7 +399,10 @@ components:
       properties:
         status:
           type: string
-          example: "APPROVED"
+          enum:
+            - APPROVED
+            - SUBMITTED
+            - REJECTED
     LineItems:
       type: array
       items:
@@ -426,6 +422,7 @@ components:
           type: string
           enum:
             - APPROVED
+            - SUBMITTED
             - REJECTED
         fee_type:
           type: string
