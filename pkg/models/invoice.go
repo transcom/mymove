@@ -32,17 +32,16 @@ const (
 
 // Invoice is a collection of line item charges to be sent for payment
 type Invoice struct {
-	ID                uuid.UUID         `json:"id" db:"id"`
-	ApproverID        uuid.UUID         `json:"approver_id" db:"approver_id"`
-	Approver          OfficeUser        `belongs_to:"office_user"`
-	Status            InvoiceStatus     `json:"status" db:"status"`
-	InvoiceNumber     string            `json:"invoice_number" db:"invoice_number"`
-	InvoicedDate      time.Time         `json:"invoiced_date" db:"invoiced_date"`
-	ShipmentLineItems ShipmentLineItems `has_many:"shipment_line_items"`
-	CreatedAt         time.Time         `json:"created_at" db:"created_at"`
-	UpdatedAt         time.Time         `json:"updated_at" db:"updated_at"`
-	UploadID          *uuid.UUID        `json:"upload_id" db:"upload_id"`
-	Upload            *Upload           `belongs_to:"uploads"`
+	ID            uuid.UUID     `json:"id" db:"id"`
+	ApproverID    uuid.UUID     `json:"approver_id" db:"approver_id"`
+	Approver      OfficeUser    `belongs_to:"office_user"`
+	Status        InvoiceStatus `json:"status" db:"status"`
+	InvoiceNumber string        `json:"invoice_number" db:"invoice_number"`
+	InvoicedDate  time.Time     `json:"invoiced_date" db:"invoiced_date"`
+	CreatedAt     time.Time     `json:"created_at" db:"created_at"`
+	UpdatedAt     time.Time     `json:"updated_at" db:"updated_at"`
+	UploadID      *uuid.UUID    `json:"upload_id" db:"upload_id"`
+	Upload        *Upload       `belongs_to:"uploads"`
 }
 
 // Invoices is an array of invoices

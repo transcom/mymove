@@ -10,15 +10,15 @@ import { forEach } from 'lodash';
 
 const defaultFlags = {
   ppm: true,
-  hhg: true,
   documentViewer: true,
   moveInfoComboButton: true,
   sitPanel: true,
   ppmPaymentRequest: true,
+  createAdminUser: false,
 };
 
 const environmentFlags = {
-  development: Object.assign({}, defaultFlags),
+  development: Object.assign({}, defaultFlags, { createAdminUser: true }),
 
   test: Object.assign({}, defaultFlags),
 
