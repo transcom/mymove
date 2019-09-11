@@ -251,10 +251,10 @@ bin/renderer:
 	go build -o bin/renderer ./cmd/renderer
 
 bin/milmove-tasks: .server_generate.stamp pkg/assets/assets.go
-	go build -ldflags "$(LDFLAGS)" -o bin/milmove-tasks ./cmd/milmove-tasks
+	go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove-tasks ./cmd/milmove-tasks
 
 bin_linux/milmove-tasks: .server_generate_linux.stamp pkg/assets/assets.go
-	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/milmove-tasks ./cmd/milmove-tasks
+	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin_linux/milmove-tasks ./cmd/milmove-tasks
 
 bin/send-to-gex: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
