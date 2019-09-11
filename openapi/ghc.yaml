@@ -1,4 +1,5 @@
 openapi: 3.0.2
+
 info:
   title: move.mil GHC API
   description: The API for the GHC Prime to interact with move.mil
@@ -9,7 +10,9 @@ info:
     name: MIT
     url: https://opensource.org/licenses/MIT
   version: 0.0.1
+
 # servers:
+
 paths:
   /payment-requests:
     post:
@@ -203,6 +206,7 @@ components:
           type: string
           format: uuid
           example: c56a4180-65aa-42ec-a945-5fd21dec0538
+          readOnly: true
         documentPackage:
           $ref: '#/components/schemas/ProofOfServicePackage'
         taskOrderId:
