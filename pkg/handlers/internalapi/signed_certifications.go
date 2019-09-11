@@ -27,7 +27,6 @@ func payloadForSignedCertificationModel(cert models.SignedCertification) *intern
 		ID:                       handlers.FmtUUID(cert.ID),
 		MoveID:                   handlers.FmtUUID(cert.MoveID),
 		PersonallyProcuredMoveID: handlers.FmtUUIDPtr(cert.PersonallyProcuredMoveID),
-		ShipmentID:               handlers.FmtUUIDPtr(cert.ShipmentID),
 		Signature:                handlers.FmtString(cert.Signature),
 		UpdatedAt:                handlers.FmtDateTime(cert.UpdatedAt),
 	}
@@ -55,7 +54,6 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 			}
 		}
 	}
-	var shipmentID *uuid.UUID
 
 	var ptrCertType *models.SignedCertificationType
 	if payload.CertificationType != nil {
@@ -74,7 +72,6 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 		*payload.Signature,
 		(time.Time)(*payload.Date),
 		ppmID,
-		shipmentID,
 		ptrCertType)
 	if verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(logger, verrs, err)
