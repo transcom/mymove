@@ -726,7 +726,7 @@ tasks_send_post_move_survey: tasks_build_linux_docker ## Run send-post-move-surv
 		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
 		--rm \
 		$(TASKS_DOCKER_CONTAINER):latest \
-		milmove-tasks send-post-move-survey-email
+		milmove-tasks send-post-move-survey
 
 #
 # ----- END SCHEDULED TASK TARGETS -----

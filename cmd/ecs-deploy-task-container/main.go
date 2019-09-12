@@ -26,7 +26,7 @@ var services = []string{"app"}
 var environments = []string{"prod", "staging", "experimental"}
 
 // Commands should be the name of the binary found in the /bin directory in the container
-var commands = []string{"milmove-tasks save-fuel-price-data", "milmove-tasks send-post-move-survey-email"}
+var commands = []string{"milmove-tasks save-fuel-price-data", "milmove-tasks send-post-move-survey"}
 
 type errInvalidAccountID struct {
 	AwsAccountID string
