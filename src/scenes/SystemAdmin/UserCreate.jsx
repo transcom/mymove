@@ -3,10 +3,6 @@ import { Create, SimpleForm, TextInput, ReferenceInput, AutocompleteInput, requi
 
 const phoneValidators = [required(), regex(/^[2-9]\d{2}-\d{3}-\d{4}$/, 'Invalid phone number, should be 000-000-0000')];
 
-const valueMatcher = (input, suggestion, getOptionText) => {
-  return input.toLowerCase().trim() === getOptionText(suggestion).toLowerCase();
-};
-
 const UserCreate = props => (
   <Create {...props}>
     <SimpleForm>
@@ -16,7 +12,7 @@ const UserCreate = props => (
       <TextInput source="email" validate={required()} />
       <TextInput source="telephone" validate={phoneValidators} />
       <ReferenceInput label="Transportation Office" reference="offices" source="transportation_office_id" perPage={500}>
-        <AutocompleteInput optionText="name" inputValueMatcher={valueMatcher} />
+        <AutocompleteInput optionText="name" />
       </ReferenceInput>
     </SimpleForm>
   </Create>
