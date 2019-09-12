@@ -2,8 +2,11 @@ package storage
 
 import (
 	"io"
+	"log"
 	"path"
 	"time"
+
+	"github.com/aws/aws-sdk-go/aws/awserr"
 
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -81,6 +84,7 @@ func (s *S3) Delete(key string) error {
 // It is the caller's responsibility to cleanup this file.
 func (s *S3) Fetch(key string) (io.ReadCloser, error) {
 	namespacedKey := path.Join(s.keyNamespace, key)
+	log.Println(namespacedKey)
 
 	input := &s3.GetObjectInput{
 		Bucket: &s.bucket,
@@ -119,4 +123,28 @@ func (s *S3) PresignedURL(key string, contentType string) (string, error) {
 		return "", errors.Wrap(err, "could not generate presigned URL")
 	}
 	return url, nil
+}
+
+func (s *S3) ContentType(key string) (string, error) {
+	namespacedKey := path.Join(s.keyNamespace, key)
+	result, err := s.client.HeadObject(&s3.HeadObjectInput{
+		Bucket: &s.bucket,
+		Key:    &namespacedKey,
+	})
+	if err != nil {
+		if aerr, ok := err.(awserr.Error); ok {
+			switch aerr.Code() {
+			default:
+				return "", err
+			}
+		} else {
+			// Print the error, cast err to awserr.Error to get the Code and
+			// Message from an error.
+			return "", err
+		}
+	}
+	if result.ContentType != nil {
+		return *result.ContentType, nil
+	}
+	return "", nil
 }

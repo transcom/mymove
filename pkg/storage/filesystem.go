@@ -23,6 +23,10 @@ type Filesystem struct {
 	tempFs  *afero.Afero
 }
 
+func (fs *Filesystem) ContentType(string) (string, error) {
+	panic("implement me")
+}
+
 // FilesystemParams contains parameter for instantiating a Filesystem storage backend
 type FilesystemParams struct {
 	root    string

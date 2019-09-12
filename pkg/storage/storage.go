@@ -31,6 +31,7 @@ type FileStorer interface {
 	Fetch(string) (io.ReadCloser, error)
 	Delete(string) error
 	PresignedURL(string, string) (string, error)
+	ContentType(string) (string, error)
 	FileSystem() *afero.Afero
 	TempFileSystem() *afero.Afero
 }

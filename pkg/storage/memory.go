@@ -23,6 +23,10 @@ type Memory struct {
 	tempFs  *afero.Afero
 }
 
+func (fs *Memory) ContentType(string) (string, error) {
+	panic("implement me")
+}
+
 // MemoryParams contains parameter for instantiating a Memory storage backend
 type MemoryParams struct {
 	root    string

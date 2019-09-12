@@ -6,6 +6,7 @@ require (
 	github.com/0xAX/notificator v0.0.0-20181105090803-d81462e38c21 // indirect
 	github.com/99designs/aws-vault v4.5.1+incompatible
 	github.com/99designs/keyring v1.1.0
+	github.com/aws/aws-lambda-go v1.13.2
 	github.com/aws/aws-sdk-go v1.21.3
 	github.com/cockroachdb/apd v2.0.0+incompatible // indirect
 	github.com/cockroachdb/cockroach-go v0.0.0-20181001143604-e0a95dfd547c // indirect
@@ -67,7 +68,7 @@ require (
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/pflag v1.0.4-0.20181223182923-24fa6976df40
 	github.com/spf13/viper v1.4.1-0.20190713102802-e02bc9eca55d
-	github.com/stretchr/testify v1.3.1-0.20190712000136-221dbe5ed467
+	github.com/stretchr/testify v1.4.0
 	github.com/subosito/gotenv v1.1.1 // indirect
 	github.com/tealeg/xlsx v1.0.3
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5
