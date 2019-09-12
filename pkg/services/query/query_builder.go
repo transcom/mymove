@@ -158,3 +158,17 @@ func (p *Builder) CreateOne(model interface{}) (*validate.Errors, error) {
 	}
 	return nil, nil
 }
+
+func (p *Builder) UpdateOne(model interface{}) (*validate.Errors, error) {
+	t := reflect.TypeOf(model)
+	if t.Kind() != reflect.Ptr {
+		return nil, errors.New(fetchOneReflectionMessage)
+	}
+
+	verrs, err := p.db.ValidateAndUpdate(model)
+	if err != nil || verrs.HasAny() {
+		return verrs, err
+	}
+
+	return nil, nil
+}
