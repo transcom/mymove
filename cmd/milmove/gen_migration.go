@@ -22,6 +22,9 @@ func initGenMigrationFlags(flag *pflag.FlagSet) {
 	// Migration File Config
 	cli.InitMigrationFileFlags(flag)
 
+	// Migration Gen Path Config
+	cli.InitMigrationGenPathFlags(flag)
+
 	// Sort command line flags
 	flag.SortFlags = true
 }
@@ -33,6 +36,10 @@ func checkGenMigrationConfig(v *viper.Viper) error {
 	}
 
 	if err := cli.CheckMigrationFile(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckMigrationGenPath(v); err != nil {
 		return err
 	}
 
@@ -65,13 +72,14 @@ func genMigrationFunction(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	migrationPath := v.GetString(cli.MigrationGenPathFlag)
 	migrationManifest := v.GetString(cli.MigrationManifestFlag)
 	migrationVersion := v.GetString(cli.MigrationVersionFlag)
 	migrationName := v.GetString(cli.MigrationNameFlag)
 	migrationType := v.GetString(cli.MigrationTypeFlag)
 
 	filename := fmt.Sprintf("%s_%s.up.%s", migrationVersion, migrationName, migrationType)
-	err = writeEmptyFile("./migrations", filename)
+	err = writeEmptyFile(migrationPath, filename)
 	if err != nil {
 		return err
 	}
