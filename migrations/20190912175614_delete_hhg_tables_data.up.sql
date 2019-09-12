@@ -1,7 +1,13 @@
 select * into temp tempsit from storage_in_transits;
 select * into temp tempshipment from shipments;
 select * into temp tempsli from shipment_line_items;
-select * into temp tempsm from service_members where id IN (select sm.id from service_members sm inner join orders o on sm.id = o.service_member_id inner join moves m on m.orders_id = o.id WHERE m.selected_move_type = 'HHG');
+select * into temp tempsm from service_members
+	where id IN
+	(select sm.id from service_members sm
+		inner join orders o on sm.id = o.service_member_id
+		inner join moves m on m.orders_id = o.id
+		WHERE m.selected_move_type = 'HHG'
+		and m.id NOT IN (SELECT move_id FROM personally_procured_moves));
 select * into temp tempdc from distance_calculations where id IN (select shipping_distance_id from tempshipment);
 
 DROP TABLE IF EXISTS shipment_line_items;

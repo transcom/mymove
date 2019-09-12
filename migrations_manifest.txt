@@ -349,6 +349,6 @@
 20190822210248_add-payment-reviewed-date-to-personally-procured-moves.up.sql
 20190829150706_create_notifications_table.up.sql
 20190829152347_create-deleted-at-indices-for-document-tables.up.sql
-20190903215326_delete_hhg_tables_data.up.sql
 20190905183034_disable_truss_tsp_user.up.sql
 20190906223934_remove_oia_pn.up.fizz
+20190912175614_delete_hhg_tables_data.up.sql
