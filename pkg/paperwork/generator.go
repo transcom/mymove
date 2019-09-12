@@ -25,10 +25,10 @@ import (
 // Default values for PDF generation
 const (
 	PdfOrientation string  = "P"
-	PdfUnit        string  = "mm"
-	PdfPageWidth   float64 = 210.0
-	PdfPageHeight  float64 = 297.0
-	PdfPageSize    string  = "A4"
+	PdfUnit        string  = "pt"
+	PdfPageWidth   float64 = 612.0
+	PdfPageHeight  float64 = 792.0
+	PdfPageSize    string  = "Letter"
 	PdfFontDir     string  = ""
 )
 
