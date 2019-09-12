@@ -3,7 +3,7 @@ import { List, Datagrid, TextField, BooleanField } from 'react-admin';
 import AdminPagination from './AdminPagination';
 
 const UserList = props => (
-  <List {...props} pagination={<AdminPagination />} perPage={25}>
+  <List {...props} pagination={<AdminPagination />} perPage={25} bulkActionButtons={false}>
     <Datagrid rowClick="show">
       <TextField source="id" />
       <TextField source="email" />
