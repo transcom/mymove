@@ -129,7 +129,6 @@ func genDutyStationsMigration(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	migrationPath := v.GetString(cli.MigrationPathFlag)
 	migrationManifest := v.GetString(cli.MigrationManifestFlag)
 	migrationName := v.GetString(cli.MigrationNameFlag)
 	migrationVersion := v.GetString(cli.MigrationVersionFlag)
@@ -155,7 +154,7 @@ func genDutyStationsMigration(cmd *cobra.Command, args []string) error {
 	}
 
 	migrationFilename := fmt.Sprintf("%s_%s.up.sql", migrationVersion, migrationName)
-	err = createDutyStationMigration(migrationPath, migrationFilename, insertions)
+	err = createDutyStationMigration("./migrations", migrationFilename, insertions)
 	if err != nil {
 		return err
 	}

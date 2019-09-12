@@ -40,6 +40,9 @@ func initMigrateFlags(flag *pflag.FlagSet) {
 	// Migration Config
 	cli.InitMigrationFlags(flag)
 
+	// Migration Path Config
+	cli.InitMigrationPathFlags(flag)
+
 	// aws-vault Config
 	cli.InitVaultFlags(flag)
 
@@ -66,6 +69,10 @@ func checkMigrateConfig(v *viper.Viper, logger logger) error {
 	}
 
 	if err := cli.CheckMigration(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckMigrationPath(v); err != nil {
 		return err
 	}
 

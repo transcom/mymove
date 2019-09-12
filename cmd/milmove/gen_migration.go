@@ -65,14 +65,13 @@ func genMigrationFunction(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	migrationPath := v.GetString(cli.MigrationPathFlag)
 	migrationManifest := v.GetString(cli.MigrationManifestFlag)
 	migrationVersion := v.GetString(cli.MigrationVersionFlag)
 	migrationName := v.GetString(cli.MigrationNameFlag)
 	migrationType := v.GetString(cli.MigrationTypeFlag)
 
 	filename := fmt.Sprintf("%s_%s.up.%s", migrationVersion, migrationName, migrationType)
-	err = writeEmptyFile(migrationPath, filename)
+	err = writeEmptyFile("./migrations", filename)
 	if err != nil {
 		return err
 	}

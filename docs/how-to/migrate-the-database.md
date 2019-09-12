@@ -19,7 +19,8 @@ database with environment variables.
 
 ## Creating a migration
 
-Use the `milmove gen <subcommand>` commands to generate models and migrations.
+Use the `milmove gen <subcommand>` commands to generate models and migrations.  To see a list of available subcommands,
+use `milmove gen`.
 
 > **We don't use down-migrations to revert changes to the schema; any problems are to be fixed by a follow-up migration.**
 
@@ -29,7 +30,7 @@ If you are generating a new model, use: `gen-model model-name column-name:type c
 
 ### Generating a New Migration
 
-If you are generating a new migration, use: `milmove gen migration`, which will create a placeholder migration and add it to the manifest.
+If you are generating a new migration, use: `milmove gen migration -n <migration_name>`, which will create a placeholder migration and add it to the manifest.
 
 ## Zero-Downtime Migrations
 
