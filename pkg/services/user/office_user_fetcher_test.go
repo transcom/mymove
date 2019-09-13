@@ -17,6 +17,7 @@ import (
 type testOfficeUserQueryBuilder struct {
 	fakeFetchOne  func(model interface{}) error
 	fakeCreateOne func(models interface{}) (*validate.Errors, error)
+	fakeUpdateOne func(models interface{}) (*validate.Errors, error)
 }
 
 func (t *testOfficeUserQueryBuilder) FetchOne(model interface{}, filters []services.QueryFilter) error {
@@ -25,6 +26,10 @@ func (t *testOfficeUserQueryBuilder) FetchOne(model interface{}, filters []servi
 }
 
 func (t *testOfficeUserQueryBuilder) CreateOne(model interface{}) (*validate.Errors, error) {
+	return nil, nil
+}
+
+func (t *testOfficeUserQueryBuilder) UpdateOne(model interface{}) (*validate.Errors, error) {
 	return nil, nil
 }
 
@@ -45,6 +50,7 @@ func (suite *UserServiceSuite) TestFetchOfficeUser() {
 			fakeFetchOne:  fakeFetchOne,
 			fakeCreateOne: fakeCreateOne,
 		}
+
 		fetcher := NewOfficeUserFetcher(builder)
 		filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 

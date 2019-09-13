@@ -260,6 +260,24 @@ definitions:
         type: string
         format: uuid
         example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
+  OfficeUserPatchPayload:
+    type: object
+    properties:
+      first_name:
+        type: string
+        title: First Name
+      middle_initials:
+        type: string
+        title: Middle Initials
+        example: Q.
+      last_name:
+        type: string
+        title: Last Name
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
   ElectronicOrder:
     type: object
     required:
@@ -386,6 +404,36 @@ paths:
           description: office not found
         500:
           description: server error
+    patch:
+      summary: Patches an office user
+      operationId: patchOfficeUser
+      tags:
+        - office
+      parameters:
+        - in: path
+          name: officeUserId
+          type: string
+          format: uuid
+          required: true
+        - in: body
+          name: officeUser
+          description: Office user information
+          required: true
+          schema:
+            $ref: '#/definitions/OfficeUserPatchPayload'
+      responses:
+        201:
+          description: Successfully updated Office User
+          schema:
+            $ref: '#/definitions/OfficeUser'
+        400:
+          description: Invalid Request
+        401:
+          description: Must be authenticated to use this end point
+        403:
+          description: Not authorized to create an office user
+        500:
+          description: Server error
   /offices:
     get:
       summary: List transportation offices

@@ -122,3 +122,38 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 	returnPayload := payloadForOfficeUserModel(*createdOfficeUser)
 	return officeuserop.NewCreateOfficeUserCreated().WithPayload(returnPayload)
 }
+
+type PatchOfficeUserHandler struct {
+	handlers.HandlerContext
+	services.OfficeUserUpdater
+	services.NewQueryFilter
+}
+
+func (h PatchOfficeUserHandler) Handle(params officeuserop.PatchOfficeUserParams) middleware.Responder {
+	payload := params.OfficeUser
+	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	officeUserID, err := uuid.FromString(params.OfficeUserID.String())
+	if err != nil {
+		logger.Error(fmt.Sprintf("UUID Parsing for %s", params.OfficeUserID.String()), zap.Error(err))
+	}
+
+	officeUser := models.OfficeUser{
+		ID:             officeUserID,
+		MiddleInitials: handlers.FmtString(payload.MiddleInitials),
+		LastName:       payload.LastName,
+		FirstName:      payload.FirstName,
+		Telephone:      payload.Telephone,
+	}
+
+	updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(&officeUser)
+	if err != nil || verrs != nil {
+		fmt.Printf("%#v", verrs)
+		logger.Error("Error saving user", zap.Error(err))
+		return officeuserop.NewCreateOfficeUserInternalServerError()
+	}
+
+	returnPayload := payloadForOfficeUserModel(*updatedOfficeUser)
+
+	return officeuserop.NewPatchOfficeUserCreated().WithPayload(returnPayload)
+}
