@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	// MigrationGenPathFlag is the migration path (for generated migrations) flag
+	// MigrationGenPathFlag is the migration path flag used for generating new migrations
 	MigrationGenPathFlag string = "migration-gen-path"
 )
 
