@@ -189,7 +189,9 @@ Create a new temp table for TDLs and add the new entries as follows:
 
 ```sql
 CREATE TABLE temp_tdls AS SELECT * FROM traffic_distribution_lists;
+
 ALTER TABLE temp_tdls ADD COLUMN import boolean;
+
 INSERT INTO temp_tdls (id, source_rate_area, destination_region, code_of_service, created_at, updated_at, import)
 VALUES
   (uuid_generate_v4(), 'US4965500', '1', '2', now(), now(), true),
@@ -205,6 +207,8 @@ and generating new UUIDs to be consistent across environments.
 We'll now [create a new migration](../how-to/migrate-the-database.md#how-to-migrate-the-database) with that data (replace your migration filename):
 
 ```bash
+make bin/milmove
+milmove gen migration -n add_new_tdls
 echo -e "INSERT INTO traffic_distribution_lists (id, source_rate_area, destination_region, code_of_service, created_at, updated_at) \nVALUES\n$(
 ./scripts/psql-deployed-migrations "\copy (SELECT id, source_rate_area, destination_region, code_of_service FROM temp_tdls WHERE import = true) TO stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
   | awk '{print "  ("$0", now(), now()),"}' \
@@ -255,9 +259,11 @@ If this is not 0, add the TSPs:
 
 ```sql
 CREATE TABLE temp_tsps AS SELECT * FROM transportation_service_providers;
+
 ALTER TABLE temp_tsps ADD COLUMN import boolean;
+
 INSERT INTO temp_tsps (standard_carrier_alpha_code, id, import)
-  SELECT DISTNCT ON (scac) scac AS standard_carrier_alpha_code, uuid_generate_v4() AS id, true AS import
+  SELECT DISTINCT ON (scac) scac AS standard_carrier_alpha_code, uuid_generate_v4() AS id, true AS import
   FROM tdl_scores_and_discounts
   WHERE tsp_id IS NULL;
 ```
@@ -265,9 +271,11 @@ INSERT INTO temp_tsps (standard_carrier_alpha_code, id, import)
 [Generate the migration](../how-to/migrate-the-database.md#how-to-migrate-the-database) (replacing your migration filename):
 
 ```bash
-echo -e "INSERT INTO transportation_service_providers (id, standard_carrier_alpha_code, created_at, updated_at, name) \nVALUES\n$(
-./scripts/psql-deployed-migrations "\copy (SELECT id, standard_carrier_alpha_code from temp_tsps) TO stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
-  | awk '{print "  ("$0", now(), now(), '\''),"}' \
+make bin/milmove
+milmove gen migration -n add_new_scacs
+echo -e "INSERT INTO transportation_service_providers (id, standard_carrier_alpha_code, created_at, updated_at) \nVALUES\n$(
+./scripts/psql-deployed-migrations "\copy (SELECT id, standard_carrier_alpha_code FROM temp_tsps WHERE import = true) TO stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
+  | awk '{print "  ("$0", now(), now()),"}' \
   | sed '$ s/.$//');" \
   > migrations/20190409010258_add_new_scacs.up.sql
 ```
