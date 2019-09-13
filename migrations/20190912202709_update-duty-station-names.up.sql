@@ -1,5 +1,5 @@
 -- air force
-UPDATE duty_stations SET name = 'Davis-Monthan' WHERE name = 'Davis Monthan AFB';
+UPDATE duty_stations SET name = 'Davis-Monthan AFB' WHERE name = 'Davis Monthan AFB';
 UPDATE duty_stations SET name = 'Griffiss AFB' WHERE name = 'Griffiss Air Force Base';
 UPDATE duty_stations SET name = 'JB Charleston' WHERE name = 'Joint Base Charleston';
 UPDATE duty_stations SET name = 'JB Elmendorf-Richardson' WHERE name = 'Joint Base Elmendorf-Richardson';
@@ -32,7 +32,7 @@ UPDATE duty_stations set name = 'Base Kodiak' WHERE name = 'US Coast Guard Kodia
 UPDATE duty_stations set name = 'Base Miami Beach' WHERE name = 'US Coast Guard Miami';
 UPDATE duty_stations set name = 'Sector Mobile' WHERE name = 'US Coast Guard Mobile';
 UPDATE duty_stations set name = 'Training Center Petaluma' WHERE name = 'US Coast Guard Petaluma';
-UPDATE duty_stations set name = 'Base Portsmouth' WHERE name = 'US Coast Guard Petaluma';
+UPDATE duty_stations set name = 'Base Portsmouth' WHERE name = 'US Coast Guard Portsmouth';
 UPDATE duty_stations set name = 'Base Seattle' WHERE name = 'US Coast Guard Seattle';
 UPDATE duty_stations set name = 'Sector New York' WHERE name = 'US Coast Guard Staten Island';
 UPDATE duty_stations set name = 'Station Washington DC' WHERE name = 'US Coast Guard Washington DC';
