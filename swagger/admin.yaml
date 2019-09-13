@@ -292,8 +292,8 @@ definitions:
   ElectronicOrdersTotal:
     type: object
     properties:
-      issuer:
-        $ref: '#/definitions/Issuer'
+      category:
+        type: string
       count:
         type: integer
         minimum: 0
@@ -454,6 +454,11 @@ paths:
       parameters:
         - in: query
           name: filter
+          type: array
+          items:
+            type: string
+        - in: query
+          name: andFilter
           type: array
           items:
             type: string

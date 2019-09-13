@@ -2,6 +2,7 @@ package adminapi
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
 
@@ -47,4 +48,41 @@ func (h IndexElectronicOrdersHandler) Handle(params electronicorderop.IndexElect
 	}
 
 	return electronicorderop.NewIndexElectronicOrdersOK().WithContentRange(fmt.Sprintf("electronic_orders 0-%d/%d", electronicOrdersCount, electronicOrdersCount)).WithPayload(payload)
+}
+
+type GetElectronicOrdersTotalsHandler struct {
+	handlers.HandlerContext
+	services.ElectronicOrderCategoryCountFetcher
+	services.NewQueryFilter
+}
+
+func split(r rune) bool {
+	return r == '.' || r == ':'
+}
+
+func (h GetElectronicOrdersTotalsHandler) Handle(params electronicorderop.GetElectronicOrdersTotalsParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	queryFilters := []services.QueryFilter{}
+	andQueryFilters := []services.QueryFilter{}
+
+	for _, filter := range params.Filter {
+		queryFilterSplit := strings.FieldsFunc(filter, split)
+		queryFilters = append(queryFilters, h.NewQueryFilter(queryFilterSplit[0], queryFilterSplit[1], queryFilterSplit[2]))
+	}
+
+	if params.AndFilter != nil {
+		for _, andFilter := range params.AndFilter {
+			andFilterSplit := strings.FieldsFunc(andFilter, split)
+			andQueryFilters = append(andQueryFilters, h.NewQueryFilter(andFilterSplit[0], andFilterSplit[1], andFilterSplit[2]))
+		}
+	}
+
+	counts, err := h.ElectronicOrderCategoryCountFetcher.FetchElectronicOrderCategoricalCounts(queryFilters, &andQueryFilters)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+	fmt.Println(counts)
+
+	return electronicorderop.NewGetElectronicOrdersTotalsOK()
 }

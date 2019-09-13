@@ -94,11 +94,10 @@ func categoricalCountsQueryOneModel(conn *pop.Connection, filters []services.Que
 					return nil, fmt.Errorf("%v is not valid input", invalidField)
 				}
 
-				queryColumn := fmt.Sprintf("%s %s ?", f.Column(), f.Comparator())
-				query = query.Where(queryColumn, f.Value())
+				queryColumn := fmt.Sprintf("%s %s ?", af.Column(), af.Comparator())
+				query = query.Where(queryColumn, af.Value())
 			}
 		}
-
 		if len(invalidFields) != 0 {
 			return nil, fmt.Errorf("%v is not valid input", invalidFields)
 		}

@@ -252,8 +252,7 @@ func (suite *QueryBuilderSuite) TestFetchCategoricalCountsFromOneModel() {
 
 	ordersAssertion.ElectronicOrder.Issuer = models.IssuerMarineCorps
 	ordersAssertion.ElectronicOrder.OrdersNumber = "8675311"
-	ordersAssertion.ElectronicOrder.UpdatedAt = testdatagen.PerformancePeriodStart
-	testdatagen.MakeElectronicOrder(suite.DB(), ordersAssertion)
+	marineCorpsOrders := testdatagen.MakeElectronicOrder(suite.DB(), ordersAssertion)
 
 	ordersAssertion.ElectronicOrder.Issuer = models.IssuerAirForce
 	ordersAssertion.ElectronicOrder.OrdersNumber = "8675312"
@@ -272,7 +271,7 @@ func (suite *QueryBuilderSuite) TestFetchCategoricalCountsFromOneModel() {
 	}
 
 	andFilters := []services.QueryFilter{
-		NewQueryFilter("updated_at", equals, testdatagen.PerformancePeriodStart),
+		NewQueryFilter("updated_at", equals, marineCorpsOrders.UpdatedAt),
 	}
 
 	suite.T().Run("Successfully select some category counts", func(t *testing.T) {
@@ -283,12 +282,21 @@ func (suite *QueryBuilderSuite) TestFetchCategoricalCountsFromOneModel() {
 		suite.Equal(1, counts[models.IssuerMarineCorps])
 		suite.Equal(1, counts[models.IssuerNavy])
 		suite.Equal(1, counts[models.IssuerAirForce])
+
+		counts, err = builder.FetchCategoricalCountsFromOneModel(electronicOrder, andFilters, nil)
+		suite.Nil(err)
+		suite.Equal(1, counts[marineCorpsOrders.UpdatedAt])
+
 	})
 
-	suite.T().Run("Successfully select some counts using and AND filter", func(t *testing.T) {
+	suite.T().Run("Successfully select some counts using and AN filter", func(t *testing.T) {
 		counts, err := builder.FetchCategoricalCountsFromOneModel(electronicOrder, filters, &andFilters)
 		suite.Nil(err)
+		suite.Equal(0, counts[models.IssuerArmy])
+		suite.Equal(0, counts[models.IssuerCoastGuard])
 		suite.Equal(1, counts[models.IssuerMarineCorps])
+		suite.Equal(0, counts[models.IssuerNavy])
+		suite.Equal(0, counts[models.IssuerAirForce])
 	})
 
 }
