@@ -111,7 +111,7 @@ func (h GetElectronicOrdersTotalsHandler) Handle(params electronicorderop.GetEle
 	payload := adminmessages.ElectronicOrdersTotals{}
 	for key, count := range counts {
 		count64 := int64(count)
-		stringKey := key.(string)
+		stringKey := fmt.Sprintf("%v", key)
 		totalCount := adminmessages.ElectronicOrdersTotal{
 			Category: stringKey,
 			Count:    &count64,
