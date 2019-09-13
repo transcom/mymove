@@ -17,10 +17,12 @@ import (
 
 func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 	return &adminmessages.OfficeUser{
-		ID:        *handlers.FmtUUID(o.ID),
-		FirstName: o.FirstName,
-		LastName:  o.LastName,
-		Email:     o.Email,
+		ID:        handlers.FmtUUID(o.ID),
+		FirstName: handlers.FmtString(o.FirstName),
+		LastName:  handlers.FmtString(o.LastName),
+		Telephone: handlers.FmtString(o.Telephone),
+		Email:     handlers.FmtString(o.Email),
+		Disabled:  handlers.FmtBool(o.Disabled),
 	}
 }
 
@@ -53,6 +55,7 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 	queriedOfficeUsersCount := len(officeUsers)
 
 	payload := make(adminmessages.OfficeUsers, queriedOfficeUsersCount)
+
 	for i, s := range officeUsers {
 		payload[i] = payloadForOfficeUserModel(s)
 	}

@@ -64,11 +64,7 @@ const always = () => true;
 const myFirstRodeo = props => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = props => props.lastMoveIsCanceled;
 const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === 'PPM';
-const hasHHGPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === 'HHG_PPM';
-const isCurrentMoveSubmitted = ({ move, ppm }) => {
-  if (get(move, 'selected_move_type') === 'HHG_PPM') {
-    return get(ppm, 'status', 'DRAFT') === 'SUBMITTED';
-  }
+const isCurrentMoveSubmitted = ({ move }) => {
   return get(move, 'status', 'DRAFT') === 'SUBMITTED';
 };
 
@@ -183,7 +179,7 @@ const pages = {
     render: (key, pages) => ({ match }) => <Review pages={pages} pageKey={key} match={match} />,
   },
   '/moves/:moveId/agreement': {
-    isInFlow: ({ selectedMoveType }) => !hasHHGPPM({ selectedMoveType }),
+    isInFlow: always,
     isComplete: ({ sm, orders, move, ppm }) => isCurrentMoveSubmitted(move, ppm),
     render: (key, pages, description, props) => ({ match }) => {
       return <Agreement pages={pages} pageKey={key} match={match} />;

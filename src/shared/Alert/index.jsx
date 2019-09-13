@@ -17,16 +17,14 @@ const Alert = props => (
           </div>
         ) : null}
         <div>
-          <div>
-            {props.heading && <h3 className="usa-alert-heading">{props.heading}</h3>}
-            {props.onRemove && (
-              <FontAwesomeIcon
-                className="icon remove-icon actionable actionable-secondary"
-                onClick={props.onRemove}
-                icon={faTimes}
-              />
-            )}
-          </div>
+          {props.heading && <h3 className="usa-alert-heading">{props.heading}</h3>}
+          {props.onRemove && (
+            <FontAwesomeIcon
+              className="icon remove-icon actionable actionable-secondary"
+              onClick={props.onRemove}
+              icon={faTimes}
+            />
+          )}
           <div className="usa-alert-text">{props.children}</div>
         </div>
       </div>
