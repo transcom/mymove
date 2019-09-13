@@ -111,8 +111,6 @@ func sendEmails(emails []emailContent, svc sesiface.SESAPI, domain string, logge
 				logger.Error("email.onSuccess error", zap.Error(err))
 			}
 		}
-		logger.Info("Sent email to service member",
-			zap.String("service member email address", email.recipientEmail))
 		// rate limited if exceed > 80 emails / second. delay to prevent hitting the limit
 		if i > 0 {
 			time.Sleep(20 * time.Millisecond)
