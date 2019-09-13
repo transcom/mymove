@@ -421,6 +421,7 @@ func main() {
 	chamberRetries := v.GetInt(chamberRetriesFlag)
 	chamberStore := fmt.Sprintf("%s-%s", serviceName, environmentName)
 
+	dockerCmds := fmt.Sprintf("%s", strings.Join(cmds, "\n"))
 	entryPoint := []string{
 		chamberBinary,
 		"-r",
@@ -428,7 +429,7 @@ func main() {
 		"exec",
 		chamberStore,
 		"--",
-		fmt.Sprintf("/bin/%s", commandName),
+		fmt.Sprintf("/bin/%s", dockerCmds),
 	}
 	if len(commandArgs) > 0 {
 		entryPoint = append(entryPoint, commandArgs...)
