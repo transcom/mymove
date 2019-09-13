@@ -206,9 +206,6 @@ bin/ecs-deploy-task-container: server_deps server_generate
 bin/ecs-service-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
 
-bin/generate-1203-form: .server_generate.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
-
 bin/generate-access-codes: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-access-codes ./cmd/generate_access_codes
 
@@ -239,7 +236,7 @@ bin/make-dps-user: .server_generate.stamp
 bin/make-office-user: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
 
-bin/milmove: .server_generate.stamp
+bin/milmove: .server_generate.stamp pkg/assets/assets.go
 	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
 bin_linux/milmove: .server_generate_linux.stamp
@@ -256,11 +253,17 @@ bin/save-fuel-price-data: .server_generate.stamp
 bin_linux/save-fuel-price-data: .server_generate_linux.stamp
 	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/save-fuel-price-data ./cmd/save_fuel_price_data
 
+bin/send-post-move-survey-email: .server_generate.stamp pkg/assets/assets.go
+	go build -ldflags "$(LDFLAGS)" -o bin/send-post-move-survey-email ./cmd/send_post_move_survey_email
+
+bin_linux/send-post-move-survey-email: .server_generate_linux.stamp pkg/assets/assets.go
+	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/send-post-move-survey-email ./cmd/send_post_move_survey_email
+
 bin/send-to-gex: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
 
 pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
-	go-bindata -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/
+	go-bindata -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/ pkg/notifications/templates/
 
 #
 # ----- END BIN TARGETS -----
@@ -330,7 +333,6 @@ build_tools: server_deps \
 	bin/compare-secure-migrations \
 	bin/ecs-deploy-task-container \
 	bin/ecs-service-logs \
-	bin/generate-1203-form \
 	bin/generate-access-codes \
 	bin/generate-test-data \
 	bin/health-checker \
@@ -341,6 +343,7 @@ build_tools: server_deps \
 	bin/make-office-user \
 	bin/renderer \
 	bin/save-fuel-price-data \
+	bin/send-post-move-survey-email \
 	bin/send-to-gex ## Build all tools
 
 .PHONY: build
@@ -683,15 +686,15 @@ tasks_clean: ## Clean Scheduled Task files and docker images
 	docker rm -f tasks || true
 
 .PHONY: tasks_build
-tasks_build: server_generate bin/save-fuel-price-data ## Build Scheduled Task dependencies
+tasks_build: server_generate bin/save-fuel-price-data bin/send-post-move-survey-email ## Build Scheduled Task dependencies
 
 .PHONY: tasks_build_docker
-tasks_build_docker: bin/chamber server_generate bin/save-fuel-price-data ## Build Scheduled Task dependencies and Docker image
+tasks_build_docker: bin/chamber server_generate bin/save-fuel-price-data bin/send-post-move-survey-email ## Build Scheduled Task dependencies and Docker image
 	@echo "Build the docker scheduled tasks container..."
 	docker build -f Dockerfile.tasks --tag $(TASKS_DOCKER_CONTAINER):latest .
 
 .PHONY: tasks_build_linux_docker
-tasks_build_linux_docker: bin_linux/save-fuel-price-data ## Build Scheduled Task binaries (linux) and Docker image (local)
+tasks_build_linux_docker: bin_linux/save-fuel-price-data bin_linux/send-post-move-survey-email ## Build Scheduled Task binaries (linux) and Docker image (local)
 	@echo "Build the docker scheduled tasks container..."
 	docker build -f Dockerfile.tasks_local --tag $(TASKS_DOCKER_CONTAINER):latest .
 
@@ -712,6 +715,21 @@ tasks_save_fuel_price_data: tasks_build_linux_docker ## Run save-fuel-price-data
 		--rm \
 		$(TASKS_DOCKER_CONTAINER):latest \
 		save-fuel-price-data
+
+tasks_send_post_move_survey: tasks_build_linux_docker ## Run send-post-move-survey from inside docker container
+	@echo "sending post move survey with docker command..."
+	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
+	docker run \
+		-t \
+		-e DB_HOST="database" \
+		-e DB_NAME \
+		-e DB_PORT \
+		-e DB_USER \
+		-e DB_PASSWORD \
+		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
+		--rm \
+		$(TASKS_DOCKER_CONTAINER):latest \
+		send-post-move-survey-email
 
 #
 # ----- END SCHEDULED TASK TARGETS -----

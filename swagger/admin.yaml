@@ -33,6 +33,15 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
       transportation_office:
         $ref: '#/definitions/TransportationOffice'
+      disabled:
+        type: boolean
+    required:
+      - id
+      - first_name
+      - last_name
+      - email
+      - telephone
+      - disabled
   OfficeUsers:
     type: array
     items:
@@ -316,6 +325,12 @@ paths:
           type: array
           items:
             type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
       responses:
         200:
           description: success
@@ -397,6 +412,12 @@ paths:
           type: array
           items:
             type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
       responses:
         200:
           description: success
@@ -427,6 +448,12 @@ paths:
           type: array
           items:
             type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
       responses:
         200:
           description: success

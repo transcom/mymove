@@ -54,6 +54,26 @@ func getComparator(comparator string) (string, bool) {
 	}
 }
 
+func buildQuery(query *pop.Query, filters []services.QueryFilter, pagination services.Pagination, t reflect.Type) (*pop.Query, error) {
+	query, err := filteredQuery(query, filters, t)
+
+	if err != nil {
+		return nil, err
+	}
+
+	query, err = paginatedQuery(query, pagination, t)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return query, nil
+}
+
+func paginatedQuery(query *pop.Query, pagination services.Pagination, t reflect.Type) (*pop.Query, error) {
+	return query.Paginate(pagination.Page(), pagination.PerPage()), nil
+}
+
 // Validate that the QueryFilter is valid using getDBColumn and getComparator
 func validateFilter(f services.QueryFilter, t reflect.Type) string {
 	invalidField := ""
@@ -152,7 +172,7 @@ func (p *Builder) FetchOne(model interface{}, filters []services.QueryFilter) er
 
 // FetchMany fetches multiple model records using pop's All method
 // Will return error if model is not pointer to slice of structs
-func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter) error {
+func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter, pagination services.Pagination) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return errors.New(fetchManyReflectionMessage)
@@ -166,7 +186,7 @@ func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter) e
 		return errors.New(fetchManyReflectionMessage)
 	}
 	query := p.db.Q()
-	query, err := filteredQuery(query, filters, t)
+	query, err := buildQuery(query, filters, pagination, t)
 	if err != nil {
 		return err
 	}

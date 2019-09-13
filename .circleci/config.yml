@@ -570,6 +570,7 @@ jobs:
             DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
             TEST_ACC_ENV: experimental
             NO_TLS_ENABLED: true
+            DB_REGION: us-west-2
       - announce_failure
 
   # `deploy_experimental_migrations` deploys migrations to the experimental environment
