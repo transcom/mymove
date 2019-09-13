@@ -289,7 +289,7 @@ func (suite *QueryBuilderSuite) TestFetchCategoricalCountsFromOneModel() {
 
 	})
 
-	suite.T().Run("Successfully select some counts using and AN filter", func(t *testing.T) {
+	suite.T().Run("Successfully select some counts using an AND filter", func(t *testing.T) {
 		counts, err := builder.FetchCategoricalCountsFromOneModel(electronicOrder, filters, &andFilters)
 		suite.Nil(err)
 		suite.Equal(0, counts[models.IssuerArmy])

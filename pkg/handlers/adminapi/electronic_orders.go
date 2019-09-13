@@ -60,29 +60,59 @@ func split(r rune) bool {
 	return r == '.' || r == ':'
 }
 
+func translateComparator(s string) string {
+	s = strings.ToLower(s)
+	switch s {
+	case "eq":
+		return "="
+	case "gt":
+		return ">"
+	case "lt":
+		return "<"
+	case "neq":
+		return "!="
+	case "lte":
+		return "<="
+	case "gte":
+		return ">="
+	}
+	return s
+}
+
 func (h GetElectronicOrdersTotalsHandler) Handle(params electronicorderop.GetElectronicOrdersTotalsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	comparator := ""
 
 	queryFilters := []services.QueryFilter{}
 	andQueryFilters := []services.QueryFilter{}
 
 	for _, filter := range params.Filter {
 		queryFilterSplit := strings.FieldsFunc(filter, split)
-		queryFilters = append(queryFilters, h.NewQueryFilter(queryFilterSplit[0], queryFilterSplit[1], queryFilterSplit[2]))
+		comparator = translateComparator(queryFilterSplit[1])
+		queryFilters = append(queryFilters, h.NewQueryFilter(queryFilterSplit[0], comparator, queryFilterSplit[2]))
 	}
 
 	if params.AndFilter != nil {
 		for _, andFilter := range params.AndFilter {
 			andFilterSplit := strings.FieldsFunc(andFilter, split)
-			andQueryFilters = append(andQueryFilters, h.NewQueryFilter(andFilterSplit[0], andFilterSplit[1], andFilterSplit[2]))
+			comparator = translateComparator(andFilterSplit[1])
+			andQueryFilters = append(andQueryFilters, h.NewQueryFilter(andFilterSplit[0], comparator, andFilterSplit[2]))
 		}
 	}
-
 	counts, err := h.ElectronicOrderCategoryCountFetcher.FetchElectronicOrderCategoricalCounts(queryFilters, &andQueryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-	fmt.Println(counts)
+	payload := adminmessages.ElectronicOrdersTotals{}
+	for key, count := range counts {
+		count64 := int64(count)
+		stringKey := key.(string)
+		totalCount := adminmessages.ElectronicOrdersTotal{
+			Category: stringKey,
+			Count:    &count64,
+		}
+		payload = append(payload, &totalCount)
+	}
 
-	return electronicorderop.NewGetElectronicOrdersTotalsOK()
+	return electronicorderop.NewGetElectronicOrdersTotalsOK().WithPayload(payload)
 }

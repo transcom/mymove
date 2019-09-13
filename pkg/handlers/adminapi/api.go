@@ -57,5 +57,11 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		query.NewQueryFilter,
 	}
 
+	adminAPI.ElectronicOrderGetElectronicOrdersTotalsHandler = GetElectronicOrdersTotalsHandler{
+		context,
+		electronicorder.NewElectronicOrdersCategoricalCountsFetcher(queryBuilder),
+		query.NewQueryFilter,
+	}
+
 	return adminAPI.Serve(nil)
 }
