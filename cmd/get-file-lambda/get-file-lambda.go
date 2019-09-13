@@ -18,8 +18,8 @@ import (
 	"go.uber.org/zap"
 )
 
-type MyEvent struct {
-	Name string `json:"name"`
+type Event struct {
+	Key string `json:"name"`
 }
 
 const (
@@ -59,7 +59,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
-func HandleRequest(ctx context.Context, name MyEvent) (string, error) {
+func HandleRequest(ctx context.Context, name Event) (string, error) {
 
 	flag := pflag.CommandLine
 	initFlags(flag)
@@ -103,6 +103,7 @@ func HandleRequest(ctx context.Context, name MyEvent) (string, error) {
 	if err != nil {
 		logger.Fatal("can't get content type", zap.Error(err))
 	}
+
 	f, err := storer.PresignedURL(v.GetString(StorageKey), contentType)
 	if err != nil {
 		logger.Fatal("can't get generate presigned url", zap.Error(err))
@@ -112,7 +113,7 @@ func HandleRequest(ctx context.Context, name MyEvent) (string, error) {
 
 func main() {
 
-	HandleRequest(context.TODO(), MyEvent{})
+	HandleRequest(context.TODO(), Event{Key: StorageKey})
 	//TODO lambda, lambda, lambda
 	//lambda.Start(HandleRequest)
 }
