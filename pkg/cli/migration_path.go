@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	// MigrationPathFlag is the migration path flag
+	// MigrationPathFlag is the migration path flag used for finding files to migrate the DB
 	MigrationPathFlag string = "migration-path"
 )
 
