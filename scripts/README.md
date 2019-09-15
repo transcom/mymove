@@ -56,8 +56,6 @@ application testing
 
 | Script Name | Description |
 | --- | --- |
-| `dump-function-calls` |  Show all used functions in our codebase. |
-| `dump-packages` |  Show all used packages in our codebase. |
 | `export-obfuscated-tspp-sample` | Export a subset of rows from the `transportation_service_provider_performances` table |
 | `find-invoices` |  This script will use available API endpoints to find invoices in whatever environment you specify|
 | `generate-devlocal-cert` | Convenience script for creating a new certificate signed by the DevLocal CA. |
