@@ -119,7 +119,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 		return officeuserop.NewCreateOfficeUserInternalServerError()
 	}
 
-	logger.Info("Create Office User", zap.String("office_user_id", createdOfficeUser.ID.String()), zap.String("created_by_id", session.UserID.String()), zap.String("event_type", "created"))
+	logger.Info("Create Office User", zap.String("office_user_id", createdOfficeUser.ID.String()), zap.String("responsible_user_id", session.UserID.String()), zap.String("event_type", "created"))
 	returnPayload := payloadForOfficeUserModel(*createdOfficeUser)
 	return officeuserop.NewCreateOfficeUserCreated().WithPayload(returnPayload)
 }
