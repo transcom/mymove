@@ -10,10 +10,15 @@ import ElectronicOrderList from './ElectronicOrderList';
 import UserShow from './UserShow';
 import styles from './Home.module.scss';
 import { withContext } from 'shared/AppContext';
+import * as Cookies from 'js-cookie';
 
 const httpClient = (url, options = {}) => {
+  const token = Cookies.get('masked_gorilla_csrf');
+  if (!token) {
+    console.warn('Unable to retrieve CSRF Token from cookie');
+  }
   if (!options.headers) {
-    options.headers = new Headers({ Accept: 'application/json' });
+    options.headers = new Headers({ Accept: 'application/json', 'X-CSRF-TOKEN': token });
   }
   // send cookies in the request
   options.credentials = 'same-origin';

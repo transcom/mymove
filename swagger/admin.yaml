@@ -248,6 +248,11 @@ definitions:
       first_name:
         type: string
         title: First Name
+      middle_initials:
+        type: string
+        example: L.
+        x-nullable: true
+        title: Middle Initials
       last_name:
         type: string
         title: Last Name
