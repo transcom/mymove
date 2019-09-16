@@ -42,7 +42,7 @@ DROP TABLE IF EXISTS shipments;
 
 -- Dropping moves that are select HHG
 -- make sure that the moves don't have PPMs previously
-DELETE FROM moves WHERE id in (select move_id from tempsom);
+DELETE FROM moves WHERE orders_id in (select id from orders WHERE service_member_id IN (select service_member_id from tempsom));
 
 
 -- service members
