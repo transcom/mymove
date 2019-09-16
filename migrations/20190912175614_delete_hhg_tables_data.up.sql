@@ -1,7 +1,7 @@
 select * into temp tempsit from storage_in_transits;
 select * into temp tempshipment from shipments;
 select * into temp tempsli from shipment_line_items;
-select m.id as move_id, o.id as order_id, sm.id as service_member_id, sm.residential_address_id, sm.backup_mailing_address_id into temp tempsom from service_members sm
+select m.id as move_id, o.id as order_id, o.uploaded_orders_id, sm.id as service_member_id, sm.residential_address_id, sm.backup_mailing_address_id into temp tempsom from service_members sm
 		inner join orders o on sm.id = o.service_member_id
 		inner join moves m on m.orders_id = o.id
 		WHERE m.selected_move_type = 'HHG'
@@ -53,7 +53,7 @@ DELETE FROM orders WHERE id IN (select order_id from tempsom);
 
 
 DELETE FROM uploads WHERE document_id IN (select id from documents WHERE service_member_id IN (select service_member_id from tempsom));
-DELETE FROM documents WHERE service_member_id IN (select service_member_id from tempsom);
+DELETE FROM documents WHERE id IN (select uploaded_orders_id from tempsom);
 DELETE FROM service_members WHERE id IN (select service_member_id from tempsom);
 
 -- delete distance calcs
