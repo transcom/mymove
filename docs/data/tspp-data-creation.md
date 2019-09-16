@@ -318,6 +318,11 @@ Run this in your terminal to dump the contents of the `transportation_service_pr
 
 Et voilà: TSPPs!
 
+Note that the above `pg_dump` command will generate a file that uses a single `COPY ... FROM stdin` to load data
+as opposed to a series of `INSERT` statements.  Using `COPY` can be dramatically faster than `INSERT` -- around 100 times
+faster in some cases.  We generally [prefer `INSERT`](https://github.com/transcom/mymove/pull/2670/files#r322981353)
+but the amount of data being loaded may make using it simply too expensive for a migration.
+
 ## Data Validation
 
 The following SQL statements can be used to verify that the above process has been completed successfully. Some numbers may be slightly off
