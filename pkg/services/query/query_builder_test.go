@@ -305,4 +305,12 @@ func (suite *QueryBuilderSuite) TestFetchCategoricalCountsFromOneModel() {
 		suite.Equal(0, counts[models.IssuerAirForce])
 	})
 
+	suite.T().Run("Unsuccessfully select some category counts", func(t *testing.T) {
+		unsuccessfulFilter := []services.QueryFilter{NewQueryFilter("nonexisting-column", equals, "string")}
+
+		_, err := builder.FetchCategoricalCountsFromOneModel(electronicOrder, unsuccessfulFilter, nil)
+		suite.NotNil(err)
+
+	})
+
 }
