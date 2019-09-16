@@ -97,5 +97,5 @@ DO $do$
 -- Creating the table at the top as a workaround for now
 -- Removing the table and column after we're done
 -- Will re-visit to squash migrations
-DROP TABLE IF EXISTS shipments;
 ALTER TABLE invoices DROP COLUMN IF EXISTS shipment_id;
+DROP TABLE IF EXISTS shipments;
