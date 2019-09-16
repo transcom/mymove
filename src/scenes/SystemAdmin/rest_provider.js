@@ -75,7 +75,7 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
       }
       case UPDATE:
         url = `${apiUrl}/${resource}/${params.id}`;
-        options.method = 'PATCH';
+        options.method = 'PUT';
         options.body = JSON.stringify(params.data);
         break;
       case CREATE:

@@ -47,7 +47,7 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		query.NewQueryFilter,
 	}
 
-	adminAPI.OfficePatchOfficeUserHandler = PatchOfficeUserHandler{
+	adminAPI.OfficeUpdateOfficeUserHandler = UpdateOfficeUserHandler{
 		context,
 		user.NewOfficeUserUpdater(queryBuilder),
 		query.NewQueryFilter,

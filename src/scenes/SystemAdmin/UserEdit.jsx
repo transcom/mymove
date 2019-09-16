@@ -1,9 +1,11 @@
 import React from 'react';
-import { Edit, SimpleForm, TextInput } from 'react-admin';
+import { Edit, SimpleForm, TextInput, DisabledInput } from 'react-admin';
 
-const UserEdit = (props) => (
+const UserEdit = props => (
   <Edit {...props}>
     <SimpleForm>
+      <DisabledInput source="id" />
+      <DisabledInput source="email" />
       <TextInput source="first_name" />
       <TextInput source="middle_initials" />
       <TextInput source="last_name" />
@@ -12,4 +14,4 @@ const UserEdit = (props) => (
   </Edit>
 );
 
-export default UserEdit
+export default UserEdit;

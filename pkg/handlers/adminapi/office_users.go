@@ -123,13 +123,13 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 	return officeuserop.NewCreateOfficeUserCreated().WithPayload(returnPayload)
 }
 
-type PatchOfficeUserHandler struct {
+type UpdateOfficeUserHandler struct {
 	handlers.HandlerContext
 	services.OfficeUserUpdater
 	services.NewQueryFilter
 }
 
-func (h PatchOfficeUserHandler) Handle(params officeuserop.PatchOfficeUserParams) middleware.Responder {
+func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserParams) middleware.Responder {
 	payload := params.OfficeUser
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
@@ -140,7 +140,7 @@ func (h PatchOfficeUserHandler) Handle(params officeuserop.PatchOfficeUserParams
 
 	officeUser := models.OfficeUser{
 		ID:             officeUserID,
-		MiddleInitials: handlers.FmtString(payload.MiddleInitials),
+		MiddleInitials: handlers.FmtStringPtr(payload.MiddleInitials),
 		LastName:       payload.LastName,
 		FirstName:      payload.FirstName,
 		Telephone:      payload.Telephone,
@@ -155,5 +155,5 @@ func (h PatchOfficeUserHandler) Handle(params officeuserop.PatchOfficeUserParams
 
 	returnPayload := payloadForOfficeUserModel(*updatedOfficeUser)
 
-	return officeuserop.NewPatchOfficeUserCreated().WithPayload(returnPayload)
+	return officeuserop.NewUpdateOfficeUserCreated().WithPayload(returnPayload)
 }

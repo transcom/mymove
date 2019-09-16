@@ -2,6 +2,7 @@ package user
 
 import (
 	"github.com/gobuffalo/validate"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -20,12 +21,17 @@ func (o *officeUserUpdater) UpdateOfficeUser(user *models.OfficeUser) (*models.O
 		return nil, nil, err
 	}
 
-	verrs, err := o.builder.UpdateOne(user)
+	foundUser.FirstName = user.FirstName
+	foundUser.MiddleInitials = user.MiddleInitials
+	foundUser.LastName = user.LastName
+	foundUser.Telephone = user.Telephone
+
+	verrs, err := o.builder.UpdateOne(&foundUser)
 	if verrs != nil || err != nil {
 		return nil, verrs, err
 	}
 
-	return user, nil, nil
+	return &foundUser, nil, nil
 }
 
 func NewOfficeUserUpdater(builder officeUserQueryBuilder) services.OfficeUserUpdater {

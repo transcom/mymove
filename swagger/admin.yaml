@@ -260,7 +260,7 @@ definitions:
         type: string
         format: uuid
         example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
-  OfficeUserPatchPayload:
+  OfficeUserUpdatePayload:
     type: object
     properties:
       first_name:
@@ -270,6 +270,7 @@ definitions:
         type: string
         title: Middle Initials
         example: Q.
+        x-nullable: true
       last_name:
         type: string
         title: Last Name
@@ -404,9 +405,9 @@ paths:
           description: office not found
         500:
           description: server error
-    patch:
-      summary: Patches an office user
-      operationId: patchOfficeUser
+    put:
+      summary: Updates an office user
+      operationId: updateOfficeUser
       tags:
         - office
       parameters:
@@ -420,7 +421,7 @@ paths:
           description: Office user information
           required: true
           schema:
-            $ref: '#/definitions/OfficeUserPatchPayload'
+            $ref: '#/definitions/OfficeUserUpdatePayload'
       responses:
         201:
           description: Successfully updated Office User
