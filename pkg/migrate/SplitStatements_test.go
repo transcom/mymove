@@ -146,8 +146,8 @@ invoice_count := invoice_count + 1;
 END LOOP;
 END LOOP;
 END $do$;`,
-		"DROP TABLE IF EXISTS shipments;",
 		"ALTER TABLE invoices DROP COLUMN IF EXISTS shipment_id;",
+		"DROP TABLE IF EXISTS shipments;",
 	}
 
 	i := 0
