@@ -244,17 +244,11 @@ bin/renderer:
 	# throws errors loadinternal: cannot find runtime/cgo
 	go build -o bin/renderer ./cmd/renderer
 
-bin/save-fuel-price-data: .server_generate.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/save-fuel-price-data ./cmd/save_fuel_price_data
+bin/milmove-tasks: .server_generate.stamp pkg/assets/assets.go
+	go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove-tasks ./cmd/milmove-tasks
 
-bin_linux/save-fuel-price-data: .server_generate_linux.stamp
-	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/save-fuel-price-data ./cmd/save_fuel_price_data
-
-bin/send-post-move-survey-email: .server_generate.stamp pkg/assets/assets.go
-	go build -ldflags "$(LDFLAGS)" -o bin/send-post-move-survey-email ./cmd/send_post_move_survey_email
-
-bin_linux/send-post-move-survey-email: .server_generate_linux.stamp pkg/assets/assets.go
-	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/send-post-move-survey-email ./cmd/send_post_move_survey_email
+bin_linux/milmove-tasks: .server_generate_linux.stamp pkg/assets/assets.go
+	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin_linux/milmove-tasks ./cmd/milmove-tasks
 
 bin/send-to-gex: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
@@ -339,8 +333,7 @@ build_tools: server_deps \
 	bin/make-dps-user \
 	bin/make-office-user \
 	bin/renderer \
-	bin/save-fuel-price-data \
-	bin/send-post-move-survey-email \
+	bin/milmove-tasks \
 	bin/send-to-gex ## Build all tools
 
 .PHONY: build
@@ -683,15 +676,15 @@ tasks_clean: ## Clean Scheduled Task files and docker images
 	docker rm -f tasks || true
 
 .PHONY: tasks_build
-tasks_build: server_generate bin/save-fuel-price-data bin/send-post-move-survey-email ## Build Scheduled Task dependencies
+tasks_build: server_generate bin/milmove-tasks ## Build Scheduled Task dependencies
 
 .PHONY: tasks_build_docker
-tasks_build_docker: bin/chamber server_generate bin/save-fuel-price-data bin/send-post-move-survey-email ## Build Scheduled Task dependencies and Docker image
+tasks_build_docker: bin/chamber server_generate bin/milmove-tasks ## Build Scheduled Task dependencies and Docker image
 	@echo "Build the docker scheduled tasks container..."
 	docker build -f Dockerfile.tasks --tag $(TASKS_DOCKER_CONTAINER):latest .
 
 .PHONY: tasks_build_linux_docker
-tasks_build_linux_docker: bin_linux/save-fuel-price-data bin_linux/send-post-move-survey-email ## Build Scheduled Task binaries (linux) and Docker image (local)
+tasks_build_linux_docker: bin_linux/milmove-tasks ## Build Scheduled Task binaries (linux) and Docker image (local)
 	@echo "Build the docker scheduled tasks container..."
 	docker build -f Dockerfile.tasks_local --tag $(TASKS_DOCKER_CONTAINER):latest .
 
@@ -711,7 +704,7 @@ tasks_save_fuel_price_data: tasks_build_linux_docker ## Run save-fuel-price-data
 		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
 		--rm \
 		$(TASKS_DOCKER_CONTAINER):latest \
-		save-fuel-price-data
+		milmove-tasks save-fuel-price-data
 
 tasks_send_post_move_survey: tasks_build_linux_docker ## Run send-post-move-survey from inside docker container
 	@echo "sending post move survey with docker command..."
@@ -726,7 +719,7 @@ tasks_send_post_move_survey: tasks_build_linux_docker ## Run send-post-move-surv
 		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
 		--rm \
 		$(TASKS_DOCKER_CONTAINER):latest \
-		send-post-move-survey-email
+		milmove-tasks send-post-move-survey
 
 #
 # ----- END SCHEDULED TASK TARGETS -----
