@@ -492,6 +492,7 @@ MatchReasonCodeFull
 MatchReasonCodeNone
 wkEma
 _No_
+subcommands
 server_run
 DB_DEBUG
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.

@@ -351,3 +351,4 @@
 20190829152347_create-deleted-at-indices-for-document-tables.up.sql
 20190905183034_disable_truss_tsp_user.up.sql
 20190906223934_remove_oia_pn.up.fizz
+20190912202709_update-duty-station-names.up.sql

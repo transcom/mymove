@@ -3400,6 +3400,8 @@ paths:
           description: must be authenticated to use this endpoint
         403:
           description: not authorized to perform this action
+        413:
+          description: payload is too large
         422:
           description: malformed PDF contained in uploads
         424:
@@ -3599,6 +3601,8 @@ paths:
           description: not authorized
         404:
           description: not found
+        413:
+          description: payload is too large
         500:
           description: server error
     delete:
