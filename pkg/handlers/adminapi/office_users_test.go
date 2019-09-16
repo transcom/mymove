@@ -277,3 +277,76 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 	suite.Error(err, "Error saving user")
 
 }
+
+func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
+	officeUserID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
+	officeUser := models.OfficeUser{ID: officeUserID, FirstName: "Leo", LastName: "Spaceman", Telephone: "206-555-0199"}
+	queryFilter := mocks.QueryFilter{}
+	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
+
+	endpoint := fmt.Sprintf("/office_users/%s", officeUserID)
+	req := httptest.NewRequest("PUT", endpoint, nil)
+	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	req = suite.AuthenticateUserRequest(req, requestUser)
+
+	params := officeuserop.UpdateOfficeUserParams{
+		HTTPRequest: req,
+		OfficeUser: &adminmessages.OfficeUserUpdatePayload{
+			FirstName:      officeUser.FirstName,
+			MiddleInitials: officeUser.MiddleInitials,
+			LastName:       officeUser.LastName,
+			Telephone:      officeUser.Telephone,
+		},
+	}
+
+	suite.T().Run("Successful update", func(t *testing.T) {
+		officeUserUpdater := &mocks.OfficeUserUpdater{}
+
+		officeUserUpdater.On("UpdateOfficeUser",
+			&officeUser,
+		).Return(&officeUser, nil, nil).Once()
+
+		handler := UpdateOfficeUserHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			officeUserUpdater,
+			newQueryFilter,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&officeuserop.UpdateOfficeUserCreated{}, response)
+	})
+
+	suite.T().Run("Failed update", func(t *testing.T) {
+		officeUserUpdater := &mocks.OfficeUserUpdater{}
+
+		officeUserUpdater.On("UpdateOfficeUser",
+			&officeUser,
+		).Return(&officeUser, nil, nil).Once()
+
+		handler := UpdateOfficeUserHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			officeUserUpdater,
+			newQueryFilter,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&officeuserop.UpdateOfficeUserCreated{}, response)
+	})
+
+	officeUserUpdater := &mocks.OfficeUserUpdater{}
+	err := validate.NewErrors()
+
+	officeUserUpdater.On("UpdateOfficeUser",
+		&officeUser,
+	).Return(nil, err, nil).Once()
+
+	handler := UpdateOfficeUserHandler{
+		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		officeUserUpdater,
+		newQueryFilter,
+	}
+
+	handler.Handle(params)
+	suite.Error(err, "Error saving user")
+
+}
