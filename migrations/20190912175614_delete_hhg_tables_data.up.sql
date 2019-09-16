@@ -1,7 +1,8 @@
 select * into temp tempsit from storage_in_transits;
 select * into temp tempshipment from shipments;
 select * into temp tempsli from shipment_line_items;
-select m.id as move_id, o.id as order_id, o.uploaded_orders_id, sm.id as service_member_id, sm.residential_address_id, sm.backup_mailing_address_id into temp tempsom from service_members sm
+select m.id as move_id, o.id as order_id, o.uploaded_orders_id, sm.id as service_member_id, sm.residential_address_id, sm.backup_mailing_address_id into temp tempsom
+	from service_members sm
 		inner join orders o on sm.id = o.service_member_id
 		inner join moves m on m.orders_id = o.id
 		WHERE m.selected_move_type = 'HHG'
@@ -49,11 +50,16 @@ ALTER TABLE service_members DROP CONSTRAINT IF EXISTS service_members_residentia
 
 DELETE FROM access_codes WHERE service_member_id IN (select service_member_id from tempsom);
 DELETE FROM backup_contacts WHERE service_member_id IN (select service_member_id from tempsom);
-DELETE FROM orders WHERE id IN (select order_id from tempsom);
+DELETE FROM orders WHERE service_member_id IN (select service_member_id from tempsom);
 
+-- delete service member order document
+-- DELETE FROM uploads WHERE document_id IN (select uploaded_orders_id from tempsom);
+-- DELETE FROM documents WHERE id IN (select uploaded_orders_id from tempsom);
 
-DELETE FROM uploads WHERE document_id IN (select id from documents WHERE service_member_id IN (select service_member_id from tempsom));
-DELETE FROM documents WHERE id IN (select uploaded_orders_id from tempsom);
+-- might be some data left from the service member so delete based on service member id
+DELETE FROM uploads WHERE document_id IN (select id from documents where service_member_id in (select service_member_id from tempsom));
+DELETE FROM documents WHERE service_member_id IN (select service_member_id from tempsom);
+
 DELETE FROM service_members WHERE id IN (select service_member_id from tempsom);
 
 -- delete distance calcs
