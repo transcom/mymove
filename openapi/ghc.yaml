@@ -2,7 +2,7 @@ openapi: 3.0.2
 
 info:
   title: move.mil GHC API
-  description: The API for the GHC Prime to interact with move.mil
+  description: The API for the GHC Prime and Transcom government officials to interact with move.mil
   #  termsOfService:
   contact:
     email: dp3@truss.works
@@ -21,6 +21,7 @@ paths:
       operationId: createPaymentRequest
       tags:
         - payment-requests
+        - prime
       requestBody:
         content:
           application/json:
@@ -49,6 +50,8 @@ paths:
       operationId: getPaymentRequests
       tags:
         - payment-requests
+        - prime
+        - gov
       responses:
         '200':
           description: fetched list of payment requests
@@ -73,6 +76,8 @@ paths:
       operationId: fetchPaymentRequest
       tags:
         - payment-requests
+        - prime
+        - gov
       parameters:
         - name: paymentRequestId
           in: path
@@ -98,12 +103,13 @@ paths:
           $ref: '#/components/responses/NotFound'
         500:
           $ref: '#/components/responses/ServerError'
-    patch: # GHC can mark final- could be its own endpoint
+    patch: # TODO: remove if the Prime will not be updating
       summary: Updates a payment request
       description: Updates a payment request
       operationId: updatePaymentRequest
       tags:
         - payment-requests
+        - prime
       parameters:
         - name: paymentRequestId
           in: path
@@ -135,7 +141,45 @@ paths:
           $ref: '#/components/responses/NotFound'
         500:
           $ref: '#/components/responses/ServerError'
-
+  /payment-requests/{paymentRequestId}/status:
+    patch:
+      summary: Updates a payment request
+      description: Updates a payment request
+      operationId: updatePaymentRequest
+      tags:
+        - payment-requests
+        - gov
+      parameters:
+        - name: paymentRequestId
+          in: path
+          description: UUID of payment request
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePaymentRequestStatusPayload'
+        required: true
+      responses:
+        '200':
+          description: updated payment request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentRequest'
+        400:
+          $ref: '#/components/responses/InvalidRequest'
+        401:
+          $ref: '#/components/responses/PermissionDenied'
+        403:
+          $ref: '#/components/responses/PermissionDenied'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
 components:
   schemas: # These are guesses at what values will be needed; need to know which fields are required
     PaymentRequest:
@@ -189,9 +233,7 @@ components:
         isFinal:
           type: boolean
           default: false
-        status:
-          $ref: '#/components/schemas/PaymentRequestStatus'
-    UpdatePaymentRequestPayload:
+    UpdatePaymentRequestPayload: # TODO: remove if we Prime will not be updating payment request
       type: object
       properties:
         taskOrderLineItemIds:
@@ -202,11 +244,19 @@ components:
             example: c56a4180-65aa-42ec-a945-5fd21dec0538
         proofOfServicePackage:
           $ref: '#/components/schemas/ProofOfServicePackage'
-        isFinal:
-          type: boolean
-          default: false
+    UpdatePaymentRequestStatusPayload:
+      type: object
+      properties:
         status:
           $ref: '#/components/schemas/PaymentRequestStatus'
+        paymentRejectionReason:
+          type: string
+          example: documentation was incomplete
+          nullable: true
+        invoiceRejectionReason:
+          type: string
+          example: documentation was incomplete
+          nullable: true
     ProofOfServicePackage: # Need more info on what a ProofOfServicePackage is, what is in it
       type: object
       properties:
@@ -240,7 +290,6 @@ components:
       type: string
       title: Payment Request Status
       enum:
-        - DRAFT
         - PAYMENT_SUBMITTED
         - PAYMENT_REJECTED
         - PAYMENT_APPROVED
@@ -277,7 +326,7 @@ components:
         - bytes
         - created_at
         - updated_at
-    Upload:
+    Upload: # TODO: does this need to identify which line item it is associated with?
       type: object
       properties:
         id:
