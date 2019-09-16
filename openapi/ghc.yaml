@@ -135,67 +135,6 @@ paths:
           $ref: '#/components/responses/NotFound'
         500:
           $ref: '#/components/responses/ServerError'
-  /uploads:
-    post:
-      summary: Create a new upload
-      description: Uploads represent a single digital file, such as a JPEG or PDF.
-      operationId: createUpload
-      tags:
-        - uploads
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/CreateUploadPayload'
-      responses:
-        201:
-          description: created upload
-          content:
-            multipart/form-data:
-              schema:
-                $ref: '#/components/schemas/Upload'
-        400:
-          $ref: '#/components/responses/InvalidRequest'
-        401:
-          $ref: '#/components/responses/PermissionDenied'
-        403:
-          $ref: '#/components/responses/PermissionDenied'
-        404:
-          $ref: '#/components/responses/NotFound'
-        500:
-          $ref: '#/components/responses/ServerError'
-  /uploads/{uploadId}:
-    get:
-      summary: Fetches upload
-      description: Fetches an upload by id
-      operationId: upload
-      parameters:
-        - name: uploadId
-          in: path
-          description: upload id
-          required: true
-          schema:
-            type: string
-            format: uuid
-      tags:
-        - uploads
-      responses:
-        200:
-          description: created upload
-          content:
-            multipart/form-data:
-              schema:
-                $ref: '#/components/schemas/Upload'
-        400:
-          $ref: '#/components/responses/InvalidRequest'
-        401:
-          $ref: '#/components/responses/PermissionDenied'
-        403:
-          $ref: '#/components/responses/PermissionDenied'
-        404:
-          $ref: '#/components/responses/NotFound'
-        500:
-          $ref: '#/components/responses/ServerError'
 
 components:
   schemas: # These are guesses at what values will be needed; need to know which fields are required
