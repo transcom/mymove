@@ -9,7 +9,9 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi"
 	adminops "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations"
 	"github.com/transcom/mymove/pkg/handlers"
+	electronicorder "github.com/transcom/mymove/pkg/services/electronic_order"
 	"github.com/transcom/mymove/pkg/services/office"
+	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/services/user"
 )
@@ -30,6 +32,7 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		user.NewOfficeUserListFetcher(queryBuilder),
 		query.NewQueryFilter,
+		pagination.NewPagination,
 	}
 
 	adminAPI.OfficeGetOfficeUserHandler = GetOfficeUserHandler{
@@ -48,6 +51,14 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		office.NewOfficeListFetcher(queryBuilder),
 		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
+
+	adminAPI.ElectronicOrderIndexElectronicOrdersHandler = IndexElectronicOrdersHandler{
+		context,
+		electronicorder.NewElectronicOrderListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
 	}
 
 	return adminAPI.Serve(nil)

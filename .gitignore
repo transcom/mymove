@@ -32,8 +32,6 @@ __snapshots__
 # Ignore
 /docs/packages.txt
 
-# pdf artifacts
-/cmd/generate_1203_form/*.pdf
 
 #debugging
 /cmd/milmove/debug

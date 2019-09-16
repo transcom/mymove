@@ -7,9 +7,9 @@ import (
 
 // L10 represents the B3 EDI segment
 type L10 struct {
-	Weight          float64
-	WeightQualifier string
-	WeightUnitCode  string
+	Weight          float64 `validate:"required"`
+	WeightQualifier string  `validate:"eq=B"`
+	WeightUnitCode  string  `validate:"eq=L"`
 }
 
 // StringArray converts L10 to an array of strings

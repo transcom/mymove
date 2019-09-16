@@ -1,0 +1,1 @@
+ALTER TABLE personally_procured_moves ADD COLUMN reviewed_date timestamp with time zone;

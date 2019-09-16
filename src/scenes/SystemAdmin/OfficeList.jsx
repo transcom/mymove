@@ -3,7 +3,7 @@ import { List, Datagrid, TextField } from 'react-admin';
 import AdminPagination from './AdminPagination';
 
 const OfficeList = props => (
-  <List {...props} pagination={<AdminPagination />} perPage={500}>
+  <List {...props} pagination={<AdminPagination />} perPage={25}>
     <Datagrid>
       <TextField source="id" />
       <TextField source="name" />

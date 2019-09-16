@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 
 	"github.com/pkg/errors"
@@ -52,6 +53,10 @@ func CheckAddDutyStations(v *viper.Viper, logger logger) error {
 		return err
 	}
 
+	if err := cli.CheckMigrationGenPath(v); err != nil {
+		return err
+	}
+
 	DutyStationsFilename := v.GetString(DutyStationsFilenameFlag)
 	if DutyStationsFilename == "" {
 		return fmt.Errorf("--duty-stations-filename is required")
@@ -68,6 +73,9 @@ func initGenDutyStationsMigrationFlags(flag *pflag.FlagSet) {
 
 	// Migration File Config
 	cli.InitMigrationFileFlags(flag)
+
+	// Migration Gen Path Config
+	cli.InitMigrationGenPathFlags(flag)
 
 	// Add Duty Stations
 	InitAddDutyStationsFlags(flag)
@@ -103,16 +111,20 @@ func genDutyStationsMigration(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return errors.Wrap(err, "could not ParseFlags on args")
 	}
+
 	flag := cmd.Flags()
 	err = flag.Parse(os.Args[1:])
 	if err != nil {
 		return errors.Wrap(err, "could not parse flags")
 	}
+
 	v := viper.New()
 	err = v.BindPFlags(flag)
 	if err != nil {
 		return errors.Wrap(err, "could not bind flags")
 	}
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
 
 	logger, err := logging.Config(v.GetString(cli.LoggingEnvFlag), v.GetBool(cli.VerboseFlag))
 	if err != nil {
@@ -124,7 +136,7 @@ func genDutyStationsMigration(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	migrationPath := v.GetString(cli.MigrationPathFlag)
+	migrationPath := v.GetString(cli.MigrationGenPathFlag)
 	migrationManifest := v.GetString(cli.MigrationManifestFlag)
 	migrationName := v.GetString(cli.MigrationNameFlag)
 	migrationVersion := v.GetString(cli.MigrationVersionFlag)

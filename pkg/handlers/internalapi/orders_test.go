@@ -36,8 +36,6 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		NewDutyStationID:    handlers.FmtUUID(station.ID),
 		ServiceMemberID:     handlers.FmtUUID(sm.ID),
 		OrdersNumber:        handlers.FmtString("123456"),
-		ParagraphNumber:     handlers.FmtString("123"),
-		OrdersIssuingAgency: handlers.FmtString("Test Agency"),
 		Tac:                 handlers.FmtString("TacNumber"),
 		Sac:                 handlers.FmtString("SacNumber"),
 		DepartmentIndicator: &deptIndicator,
@@ -62,8 +60,6 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	suite.Assertions.Len(okResponse.Payload.Moves, 1)
 	suite.Assertions.Equal(ordersType, okResponse.Payload.OrdersType)
 	suite.Assertions.Equal(handlers.FmtString("123456"), okResponse.Payload.OrdersNumber)
-	suite.Assertions.Equal(handlers.FmtString("123"), okResponse.Payload.ParagraphNumber)
-	suite.Assertions.Equal(handlers.FmtString("Test Agency"), okResponse.Payload.OrdersIssuingAgency)
 	suite.Assertions.Equal(handlers.FmtString("TacNumber"), okResponse.Payload.Tac)
 	suite.Assertions.Equal(handlers.FmtString("SacNumber"), okResponse.Payload.Sac)
 	suite.Assertions.Equal(&deptIndicator, okResponse.Payload.DepartmentIndicator)
@@ -118,8 +114,6 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 		NewDutyStationID:    handlers.FmtUUID(order.NewDutyStationID),
 		Tac:                 order.TAC,
 		Sac:                 handlers.FmtString("N3TEST"),
-		OrdersIssuingAgency: handlers.FmtString("TEST AGENCY"),
-		ParagraphNumber:     handlers.FmtString("123456"),
 		DepartmentIndicator: &departmentIndicator,
 		// Attempt to assign to another service member
 		ServiceMemberID: handlers.FmtUUID(otherServiceMemberUUID),
@@ -146,6 +140,4 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	suite.Assertions.Equal(newOrdersType, okResponse.Payload.OrdersType)
 	suite.Assertions.Equal(newOrdersTypeDetail, *okResponse.Payload.OrdersTypeDetail)
 	suite.Assertions.Equal(handlers.FmtString("N3TEST"), okResponse.Payload.Sac)
-	suite.Assertions.Equal(handlers.FmtString("TEST AGENCY"), okResponse.Payload.OrdersIssuingAgency)
-	suite.Assertions.Equal(handlers.FmtString("123456"), okResponse.Payload.ParagraphNumber)
 }

@@ -6,12 +6,12 @@ import (
 
 // N4 represents the N4 EDI segment
 type N4 struct {
-	CityName            string
-	StateOrProvinceCode string
-	PostalCode          string
-	CountryCode         string
-	LocationQualifier   string
-	LocationIdentifier  string
+	CityName            string `validate:"min=2,max=30"`
+	StateOrProvinceCode string `validate:"len=2"`
+	PostalCode          string `validate:"min=3,max=15"`
+	CountryCode         string `validate:"omitempty,min=2,max=3"`
+	LocationQualifier   string `validate:"isdefault"` // not used
+	LocationIdentifier  string `validate:"isdefault"` // not used
 }
 
 // StringArray converts N4 to an array of strings

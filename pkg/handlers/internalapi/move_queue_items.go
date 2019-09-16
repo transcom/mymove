@@ -1,7 +1,6 @@
 package internalapi
 
 import (
-	"encoding/json"
 	"sort"
 	"strings"
 	"time"
@@ -17,31 +16,28 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem, HasUnapprovedShipmentLineItems bool) *internalmessages.MoveQueueItem {
+func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem) *internalmessages.MoveQueueItem {
 	MoveQueueItemPayload := internalmessages.MoveQueueItem{
-		ID:                             handlers.FmtUUID(MoveQueueItem.ID),
-		CreatedAt:                      handlers.FmtDateTime(MoveQueueItem.CreatedAt),
-		Edipi:                          swag.String(MoveQueueItem.Edipi),
-		Rank:                           (*internalmessages.ServiceMemberRank)(MoveQueueItem.Rank),
-		CustomerName:                   swag.String(MoveQueueItem.CustomerName),
-		Locator:                        swag.String(MoveQueueItem.Locator),
-		GblNumber:                      handlers.FmtStringPtr(MoveQueueItem.GBLNumber),
-		Status:                         swag.String(MoveQueueItem.Status),
-		PpmStatus:                      handlers.FmtStringPtr(MoveQueueItem.PpmStatus),
-		HhgStatus:                      handlers.FmtStringPtr(MoveQueueItem.HhgStatus),
-		OrdersType:                     swag.String(MoveQueueItem.OrdersType),
-		MoveDate:                       handlers.FmtDatePtr(MoveQueueItem.MoveDate),
-		SubmittedDate:                  handlers.FmtDateTimePtr(MoveQueueItem.SubmittedDate),
-		LastModifiedDate:               handlers.FmtDateTime(MoveQueueItem.LastModifiedDate),
-		OriginDutyStationName:          swag.String(MoveQueueItem.OriginDutyStationName),
-		DestinationDutyStationName:     swag.String(MoveQueueItem.DestinationDutyStationName),
-		HasUnapprovedShipmentLineItems: &HasUnapprovedShipmentLineItems,
-		PmSurveyConductedDate:          handlers.FmtDateTimePtr(MoveQueueItem.PmSurveyConductedDate),
-		OriginGbloc:                    handlers.FmtStringPtr(MoveQueueItem.OriginGBLOC),
-		DestinationGbloc:               handlers.FmtStringPtr(MoveQueueItem.DestinationGBLOC),
-		DeliveredDate:                  handlers.FmtDateTimePtr(MoveQueueItem.DeliveredDate),
-		InvoiceApprovedDate:            handlers.FmtDateTimePtr(MoveQueueItem.InvoiceApprovedDate),
-		WeightAllotment:                payloadForWeightAllotmentModel(models.GetWeightAllotment(*MoveQueueItem.Rank)),
+		ID:                         handlers.FmtUUID(MoveQueueItem.ID),
+		CreatedAt:                  handlers.FmtDateTime(MoveQueueItem.CreatedAt),
+		Edipi:                      swag.String(MoveQueueItem.Edipi),
+		Rank:                       (*internalmessages.ServiceMemberRank)(MoveQueueItem.Rank),
+		CustomerName:               swag.String(MoveQueueItem.CustomerName),
+		Locator:                    swag.String(MoveQueueItem.Locator),
+		Status:                     swag.String(MoveQueueItem.Status),
+		PpmStatus:                  handlers.FmtStringPtr(MoveQueueItem.PpmStatus),
+		OrdersType:                 swag.String(MoveQueueItem.OrdersType),
+		MoveDate:                   handlers.FmtDatePtr(MoveQueueItem.MoveDate),
+		SubmittedDate:              handlers.FmtDateTimePtr(MoveQueueItem.SubmittedDate),
+		LastModifiedDate:           handlers.FmtDateTime(MoveQueueItem.LastModifiedDate),
+		OriginDutyStationName:      swag.String(MoveQueueItem.OriginDutyStationName),
+		DestinationDutyStationName: swag.String(MoveQueueItem.DestinationDutyStationName),
+		PmSurveyConductedDate:      handlers.FmtDateTimePtr(MoveQueueItem.PmSurveyConductedDate),
+		OriginGbloc:                handlers.FmtStringPtr(MoveQueueItem.OriginGBLOC),
+		DestinationGbloc:           handlers.FmtStringPtr(MoveQueueItem.DestinationGBLOC),
+		DeliveredDate:              handlers.FmtDateTimePtr(MoveQueueItem.DeliveredDate),
+		InvoiceApprovedDate:        handlers.FmtDateTimePtr(MoveQueueItem.InvoiceApprovedDate),
+		WeightAllotment:            payloadForWeightAllotmentModel(models.GetWeightAllotment(*MoveQueueItem.Rank)),
 	}
 	return &MoveQueueItemPayload
 }
@@ -112,42 +108,8 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 
 	MoveQueueItemPayloads := make([]*internalmessages.MoveQueueItem, len(MoveQueueItems))
 	for i, MoveQueueItem := range MoveQueueItems {
-		var sits []QueueSitData
-		if MoveQueueItem.SitArray != "" {
-			err := json.Unmarshal([]byte(MoveQueueItem.SitArray), &sits)
-
-			if err != nil {
-				logger.Error("Unmarshalling SITs", zap.Error(err))
-				return handlers.ResponseForError(logger, err)
-			}
-		}
-
-		if len(sits) == 1 && sits[0].ID == uuid.Nil {
-			sits = []QueueSitData{}
-		}
-
-		var shipmentLineItems []models.ShipmentLineItemStatus
-		if MoveQueueItem.SliArray != "" {
-			err := json.Unmarshal([]byte(MoveQueueItem.SliArray), &shipmentLineItems)
-
-			if err != nil {
-				logger.Error("Unmarshalling Shipment Line Items", zap.Error(err))
-
-				return handlers.ResponseForError(logger, err)
-			}
-		}
-
-		hasUnapprovedShipmentLineItems := false
-		for _, shipmentLineItemStatus := range shipmentLineItems {
-			if shipmentLineItemStatus == models.ShipmentLineItemStatusSUBMITTED {
-				hasUnapprovedShipmentLineItems = true
-				break
-			}
-		}
-
-		MoveQueueItemPayload := payloadForMoveQueueItem(MoveQueueItem, hasUnapprovedShipmentLineItems)
+		MoveQueueItemPayload := payloadForMoveQueueItem(MoveQueueItem)
 		MoveQueueItemPayloads[i] = MoveQueueItemPayload
-
 	}
 	return queueop.NewShowQueueOK().WithPayload(MoveQueueItemPayloads)
 }

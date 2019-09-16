@@ -3,6 +3,8 @@ package notifications
 import (
 	"context"
 
+	"github.com/gofrs/uuid"
+
 	"go.uber.org/zap"
 )
 
@@ -28,6 +30,13 @@ func (m StubNotificationSender) SendNotification(ctx context.Context, notificati
 		rawMessage, err := formatRawEmailMessage(email, m.domain)
 		if err != nil {
 			return err
+		}
+		if email.onSuccess != nil {
+			id, _ := uuid.NewV4()
+			err := email.onSuccess(id.String())
+			if err != nil {
+				m.logger.Error("email.onSuccess error", zap.Error(err))
+			}
 		}
 
 		m.logger.Debug("Not sending this email",

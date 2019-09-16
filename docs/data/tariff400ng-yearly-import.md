@@ -13,7 +13,7 @@
 
 1. Visit: [https://www.ustranscom.mil/dp3/hhg.cfm](https://www.ustranscom.mil/dp3/hhg.cfm) (for some reason, I had to load hit this url twice... the first visit redirected to another page).
 2. Look under “Special Requirements and Rates Team” -> “Domestic” -> “400NG Baseline Rates” and download yearly rate file.
-3. Copy the file to DP3 Google drive: DP3 -> Engineering -> Reference Docs -> rate engine: filing
+3. Copy the file to USTC MilMove Google drive: USTC MilMove -> Data -> Rate Engine pre GHC
 
 ## Importing `full_pack_rates`, `full_unpack_rates`, `linehaul_rates`, `service_areas`, and `shorthaul_rates`
 
@@ -43,8 +43,8 @@
 * [2018 data load](https://github.com/transcom/mymove/pull/338)
 * [2019 data load](https://github.com/transcom/mymove/pull/2036)
 
-1. Create migration to load dump tables into `temp tables`. (see pr for example).
-2. Create migration to transform `temp table` data into `MilMove` table structures. (see pr for example).
+1. Create migration to load dump tables into `temp tables` by putting the contents of the pg\_dump into a migration. (see pr for example, `migrations/20190424155008_import_400ng_from_move_mil_2019.up.sql`).
+2. Create migration to transform `temp table` data from previous step into `MilMove` table structures. (see pr for example, `migrations/20190424155037_translate_400ng_from_move_mil_2019.up.sql`).
 
 ## Add additional `sit` data to `tariff400ng_service_areas` table
 
@@ -55,7 +55,7 @@
 * [2018 data load](https://github.com/transcom/mymove/pull/382)
 * [2019 data load](https://github.com/transcom/mymove/pull/2036)
 
-1. Create a function that will take values and update the corresponding columns in the `tariff400ng_service_areas`. (see pr for details)
+1. Create a sql function that will take values and update the corresponding columns in the `tariff400ng_service_areas`. (see pr for details)
 2. Transform rates into cents add for each row, transform row into form `SELECT update_sit_rates('service_area', sit_185a, sit_185b, sit_pd_schedule);` for each row.
 3. Remember to drop the function in the migration.
 
@@ -65,7 +65,7 @@
 
 We're going to make use of the work that Patrick Stanger delivered in [this PR](https://github.com/transcom/mymove/pull/1286).
 
-1. Open [this google sheet](https://docs.google.com/spreadsheets/d/1z1O6hvditeVE4AX1UI-XGu0puwIidXA08tVT6VkG254/edit#gid=138983343) alongside the 400ng data you have received for the upcoming year.
+1. Open [this google sheet](https://docs.google.com/spreadsheets/d/1Zp--NWMr6VYrRlCn8Bi4_Ab4wXFKjxYl/edit#gid=1235758365) alongside the 400ng data you have received for the upcoming year.
 2. Visit the `Accessorials` tab in both spreadsheets.
 3. In the new data sheet, within the main section and the Alaska waterhaul section, copy all the values to the left of where it says "weight". Start with the cells marked in the screenshot below:
     ![accessorials sheet](./accessorials_spreadsheet.png)
