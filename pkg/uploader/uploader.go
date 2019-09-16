@@ -75,7 +75,7 @@ func (u *Uploader) SetUploadStorageKey(key string) {
 // CreateUploadForDocument creates a new Upload by performing validations, storing the specified
 // file using the supplied storer, and saving an Upload object to the database containing
 // the file's metadata.
-func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UUID, file afero.File, allowedTypes AllowedFileTypes) (*models.Upload, *validate.Errors, error) {
+func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UUID, file afero.File, allowedTypes AllowedFileTypes, metaData map[string]*string) (*models.Upload, *validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 
 	info, fileStatErr := file.Stat()
@@ -144,7 +144,7 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 		}
 
 		// Push file to S3
-		if _, err := u.Storer.Store(newUpload.StorageKey, file, checksum); err != nil {
+		if _, err := u.Storer.Store(newUpload.StorageKey, file, checksum, metaData); err != nil {
 			u.logger.Error("failed to store object", zap.Error(err))
 			responseVErrors.Append(verrs)
 			uploadError = errors.Wrap(err, "failed to store object")
@@ -162,8 +162,8 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 }
 
 // CreateUpload stores Upload but does not assign a Document
-func (u *Uploader) CreateUpload(userID uuid.UUID, aFile *afero.File, allowedFileTypes AllowedFileTypes) (*models.Upload, *validate.Errors, error) {
-	return u.CreateUploadForDocument(nil, userID, *aFile, allowedFileTypes)
+func (u *Uploader) CreateUpload(userID uuid.UUID, aFile *afero.File, allowedFileTypes AllowedFileTypes, fileMetaData map[string]*string) (*models.Upload, *validate.Errors, error) {
+	return u.CreateUploadForDocument(nil, userID, *aFile, allowedFileTypes, fileMetaData)
 }
 
 // PresignedURL returns a URL that can be used to access an Upload's file.

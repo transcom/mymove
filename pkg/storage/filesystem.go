@@ -61,7 +61,7 @@ func NewFilesystem(params FilesystemParams) *Filesystem {
 }
 
 // Store stores the content from an io.ReadSeeker at the specified key.
-func (fs *Filesystem) Store(key string, data io.ReadSeeker, checksum string) (*StoreResult, error) {
+func (fs *Filesystem) Store(key string, data io.ReadSeeker, checksum string, strings map[string]*string) (*StoreResult, error) {
 	if key == "" {
 		return nil, errors.New("A valid StorageKey must be set before data can be uploaded")
 	}

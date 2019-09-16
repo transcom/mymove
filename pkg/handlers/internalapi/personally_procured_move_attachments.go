@@ -17,6 +17,15 @@ type CreatePersonallyProcuredMoveAttachmentsHandler struct {
 	handlers.HandlerContext
 }
 
+func newGeneratedObjectMetaData() map[string]*string {
+	metaData := make(map[string]*string)
+	avStatus := "CLEANED"
+	metaData["av-status"] = &avStatus
+	avNotes := "GENERATED"
+	metaData["av-notes"] = &avNotes
+	return metaData
+}
+
 // Handle is the handler
 func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.CreatePPMAttachmentsParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
@@ -76,7 +85,8 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	}
 
 	// Upload merged PDF to S3 and return Upload object
-	pdfUpload, verrs, err := loader.CreateUpload(session.UserID, &mergedPdf, uploader.AllowedTypesPDF)
+	metaData := newGeneratedObjectMetaData()
+	pdfUpload, verrs, err := loader.CreateUpload(session.UserID, &mergedPdf, uploader.AllowedTypesPDF, metaData)
 	if verrs.HasAny() || err != nil {
 		switch err.(type) {
 		case uploader.ErrTooLarge:

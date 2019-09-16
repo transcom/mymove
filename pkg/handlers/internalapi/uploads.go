@@ -85,7 +85,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	if err != nil {
 		logger.Fatal("could not instantiate uploader", zap.Error(err))
 	}
-	newUpload, verrs, err := uploader.CreateUploadForDocument(docID, session.UserID, aFile, uploaderpkg.AllowedTypesServiceMember)
+	newUpload, verrs, err := uploader.CreateUploadForDocument(docID, session.UserID, aFile, uploaderpkg.AllowedTypesServiceMember, nil)
 	if verrs.HasAny() || err != nil {
 		switch err.(type) {
 		case uploaderpkg.ErrTooLarge:
