@@ -149,7 +149,7 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 		}
 
 		// Push file to S3
-		if _, err := u.Storer.Store(newUpload.StorageKey, file, checksum, nil); err != nil {
+		if _, err := u.Storer.Store(newUpload.StorageKey, file.File, checksum, file.MetaData); err != nil {
 			u.logger.Error("failed to store object", zap.Error(err))
 			responseVErrors.Append(verrs)
 			uploadError = errors.Wrap(err, "failed to store object")

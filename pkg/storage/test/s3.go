@@ -38,7 +38,6 @@ func (fake *FakeS3Storage) Store(key string, data io.ReadSeeker, md5 string, str
 	if err != nil {
 		return nil, err
 	}
-
 	if fake.willSucceed {
 		return &storage.StoreResult{}, nil
 	}

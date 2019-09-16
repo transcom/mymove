@@ -161,7 +161,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 	suite.Nil(upload.DeletedAt)
 
 	file := suite.Fixture("test.pdf")
-	fakeS3.Store(upload.StorageKey, file.Data, "somehash", nil, nil)
+	fakeS3.Store(upload.StorageKey, file.Data, "somehash", nil)
 
 	params := uploadop.NewDeleteUploadParams()
 	params.UploadID = strfmt.UUID(upload.ID.String())
@@ -199,8 +199,8 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	upload2 := testdatagen.MakeUpload(suite.DB(), upload2Assertions)
 
 	file := suite.Fixture("test.pdf")
-	fakeS3.Store(upload1.StorageKey, file.Data, "somehash", nil, nil)
-	fakeS3.Store(upload2.StorageKey, file.Data, "somehash", nil, nil)
+	fakeS3.Store(upload1.StorageKey, file.Data, "somehash", nil)
+	fakeS3.Store(upload2.StorageKey, file.Data, "somehash", nil)
 
 	params := uploadop.NewDeleteUploadsParams()
 	params.UploadIds = []strfmt.UUID{

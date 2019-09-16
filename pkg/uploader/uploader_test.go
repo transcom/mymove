@@ -8,6 +8,10 @@ import (
 	"path"
 	"testing"
 
+	"github.com/stretchr/testify/mock"
+
+	"github.com/transcom/mymove/pkg/storage/mocks"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/suite"
@@ -157,6 +161,30 @@ func (suite *UploaderSuite) TestTooLargeUploadFromLocalFile() {
 	_, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, uploader.File{File: f}, uploader.AllowedTypesAny)
 	suite.Error(err)
 	suite.IsType(uploader.ErrTooLarge{}, err)
+	suite.False(verrs.HasAny(), "failed to validate upload")
+}
+
+func (suite *UploaderSuite) TestStorerCalledWithMetaData() {
+	document := testdatagen.MakeDefaultDocument(suite.DB())
+
+	fakeS3 := &mocks.FileStorer{}
+	up, err := uploader.NewUploader(suite.DB(), suite.logger, fakeS3, 25*uploader.MB)
+	suite.NoError(err)
+	f, cleanup, err := suite.createFileOfArbitrarySize(uint64(5 * uploader.MB))
+	suite.NoError(err)
+	defer cleanup()
+
+	value := "value"
+	metaData := map[string]*string{"metaDataTag": &value}
+	fakeS3.On("Store",
+		mock.Anything,
+		mock.Anything,
+		mock.Anything,
+		metaData).Return(&storage.StoreResult{}, nil)
+	// assert metadata is passed along to storer
+	_, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, uploader.File{File: f, MetaData: metaData}, uploader.AllowedTypesAny)
+
+	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate upload")
 }
 
