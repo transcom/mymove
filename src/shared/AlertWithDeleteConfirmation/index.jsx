@@ -1,10 +1,11 @@
 // eslint-disable-next-line no-unused-vars
-import React, { Component } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import './index.css';
 
 export function AlertWithConfirmation(props) {
   return (
-    <div className="usa-alert usa-alert-warning usa-width-two-thirds">
+    <div className={`usa-alert usa-alert-warning usa-width-two-thirds ${props.type}`}>
       <div className="usa-alert-body usa-width-one-whole">
         <div className="body--heading">
           <div>{props.heading && <h3 className="usa-alert-heading">{props.heading}</h3>}</div>
@@ -32,5 +33,6 @@ const requiredPropsCheck = (props, propName, componentName) => {
 AlertWithConfirmation.propTypes = {
   heading: requiredPropsCheck,
   message: requiredPropsCheck,
+  type: PropTypes.oneOf(['weight-ticket-list-alert', 'expense-ticket-list-alert']),
 };
 export default AlertWithConfirmation;

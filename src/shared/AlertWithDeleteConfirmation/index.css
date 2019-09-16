@@ -4,7 +4,15 @@
 
 .usa-alert.usa-alert-warning {
   margin-top: 10px;
+  max-width: 500px;
+}
+
+.usa-alert.weight-ticket-list-alert {
   right: 75px;
+}
+
+.usa-alert.expense-ticket-list-alert {
+  left: 25px;
 }
 
 .usa-alert-body {

@@ -21,26 +21,6 @@ const MissingLabel = ({ children }) => (
   </p>
 );
 
-// const WeightTicketListItem = ({
-//   id,
-//   empty_weight_ticket_missing,
-//   empty_weight,
-//   full_weight_ticket_missing,
-//   full_weight,
-//   num,
-//   trailer_ownership_missing,
-//   vehicle_nickname,
-//   vehicle_options,
-//   showDelete,
-//   showDeleteConfirmation,
-//   deleteDocumentListItem,
-// }) => {
-
-//   return (
-//
-//   );
-// };
-
 class WeightTicketListItem extends Component {
   state = {
     showDeleteConfirmation: false,
@@ -117,6 +97,7 @@ class WeightTicketListItem extends Component {
               message="This action cannot be undone."
               deleteActionHandler={() => deleteDocumentListItem(id)}
               cancelActionHandler={this.toggleShowConfirmation}
+              type="weight-ticket-list-alert"
             ></AlertWithDeleteConfirmation>
           )}
         </div>
