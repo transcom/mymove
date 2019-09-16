@@ -19,7 +19,7 @@ If you need to turn this off _permanently_ on your local instance add the follow
 
 #### Excessive Queries (e.g. n+1 Problem)
 
-When looking up objects that have a one-to-many relationship, ORMs such as Pop can fire off n+1 queries to the database to do the look up for n number of child objects + 1 for the original parent object. Depending on the size of n this will cause performance issues loading such lists of objects that have many children. This is a problem that eager loading seeks to solve by reducing the number of queries by looking child relationships up immediately. For more through description of the issue please read the following references.
+When looking up objects that have a one-to-many relationship, ORMs such as Pop can fire off n+1 queries to the database to do the look up for n number of child objects + 1 for the original parent object. Depending on the size of n this will cause performance issues loading such lists of objects that have many children. To help prevent this in Pop, developers should avoid using unbounded `Eager()` calls and try and only fetch children when that data is needed. For more through description of the issue please read the following references.
 
 * [What is the "N+1 selects problem" in Object-Relational Mapping?](https://stackoverflow.com/questions/97197/what-is-the-n1-selects-problem-in-orm-object-relational-mapping)
 * [N+1 Queries and How to Avoid Them!](https://medium.com/@bretdoucette/n-1-queries-and-how-to-avoid-them-a12f02345be5) -- This uses examples from Ruby on Rails but the concept is the same
