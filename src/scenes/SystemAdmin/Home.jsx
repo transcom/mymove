@@ -15,6 +15,9 @@ import * as Cookies from 'js-cookie';
 
 const httpClient = (url, options = {}) => {
   const token = Cookies.get('masked_gorilla_csrf');
+  if (!token) {
+    console.warn('Unable to retrieve CSRF Token from cookie');
+  }
 
   if (!options.headers) {
     options.headers = new Headers({ Accept: 'application/json', 'X-CSRF-TOKEN': token });
