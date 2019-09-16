@@ -50,7 +50,7 @@ func main() {
 	completionCommand := &cobra.Command{
 		Use:   "completion",
 		Short: "Generates bash completion scripts",
-		Long:  "To install completion scripts run:\n\nmilmove completion > /usr/local/etc/bash_completion.d/milmove",
+		Long:  "To install completion scripts run:\n\nmilmove-tasks completion > /usr/local/etc/bash_completion.d/milmove-tasks",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return root.GenBashCompletion(os.Stdout)
 		},
