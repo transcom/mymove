@@ -35,6 +35,12 @@ definitions:
         $ref: '#/definitions/TransportationOffice'
       disabled:
         type: boolean
+      created_at:
+        type: string
+        format: datetime
+      updated_at:
+        type: string
+        format: datetime
     required:
       - id
       - first_name
@@ -42,6 +48,8 @@ definitions:
       - email
       - telephone
       - disabled
+      - created_at
+      - updated_at
   OfficeUsers:
     type: array
     items:

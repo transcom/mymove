@@ -14,6 +14,8 @@ const UserShow = props => {
         <TextField source="first_name" />
         <TextField source="last_name" />
         <BooleanField source="disabled" label="Deactivated" />
+        <TextField source="created_at" />
+        <TextField source="updated_at" />
       </SimpleShowLayout>
     </Show>
   );

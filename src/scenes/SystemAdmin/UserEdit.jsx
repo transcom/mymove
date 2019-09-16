@@ -11,6 +11,9 @@ const UserEdit = props => (
       <TextInput source="middle_initials" />
       <TextInput source="last_name" validate={required()} />
       <TextInput source="telephone" validate={phoneValidators} />
+      <DisabledInput source="disabled" />
+      <DisabledInput source="created_at" />
+      <DisabledInput source="updated_at" />
     </SimpleForm>
   </Edit>
 );

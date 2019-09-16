@@ -23,6 +23,8 @@ func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 		Telephone: handlers.FmtString(o.Telephone),
 		Email:     handlers.FmtString(o.Email),
 		Disabled:  handlers.FmtBool(o.Disabled),
+		CreatedAt: handlers.FmtDateTime(o.CreatedAt),
+		UpdatedAt: handlers.FmtDateTime(o.UpdatedAt),
 	}
 }
 
