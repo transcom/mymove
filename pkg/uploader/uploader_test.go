@@ -108,7 +108,7 @@ func (suite *UploaderSuite) TestUploadFromLocalFile() {
 	suite.NoError(err)
 	file := suite.fixture("test.pdf")
 
-	upload, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesPDF, nil)
+	upload, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.Nil(err, "failed to create upload")
 	suite.False(verrs.HasAny(), "failed to validate upload", verrs)
 	suite.Equal(upload.ContentType, "application/pdf")
@@ -124,7 +124,7 @@ func (suite *UploaderSuite) TestUploadFromLocalFileZeroLength() {
 	suite.Nil(err, "failed to create upload")
 	defer cleanup()
 
-	upload, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesAny, nil)
+	upload, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesAny)
 	suite.Equal(uploader.ErrZeroLengthFile, err)
 	suite.False(verrs.HasAny(), "failed to validate upload")
 	suite.Nil(upload, "returned an upload when erroring")
@@ -139,7 +139,7 @@ func (suite *UploaderSuite) TestUploadFromLocalFileWrongContentType() {
 	suite.Nil(err, "failed to create upload")
 	defer cleanup()
 
-	upload, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesPDF, nil)
+	upload, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.NoError(err)
 	suite.True(verrs.HasAny(), "invalid content type for upload")
 	suite.Nil(upload, "returned an upload when erroring")
@@ -154,7 +154,7 @@ func (suite *UploaderSuite) TestTooLargeUploadFromLocalFile() {
 	suite.NoError(err)
 	defer cleanup()
 
-	_, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, f, uploader.AllowedTypesAny, nil)
+	_, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, uploader.File{File: f}, uploader.AllowedTypesAny)
 	suite.Error(err)
 	suite.IsType(uploader.ErrTooLarge{}, err)
 	suite.False(verrs.HasAny(), "failed to validate upload")
@@ -201,7 +201,7 @@ func (suite *UploaderSuite) TestCreateUploadNoDocument() {
 	suite.NoError(err)
 
 	// Create file and upload
-	upload, verrs, err := up.CreateUpload(userID, &file, uploader.AllowedTypesPDF, nil)
+	upload, verrs, err := up.CreateUpload(userID, uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.Nil(err, "failed to create upload")
 	suite.Empty(verrs.Error(), "verrs returned error")
 	suite.NotNil(upload, "failed to create upload structure")

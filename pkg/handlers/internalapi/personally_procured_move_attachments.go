@@ -85,8 +85,8 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	}
 
 	// Upload merged PDF to S3 and return Upload object
-	metaData := newGeneratedObjectMetaData()
-	pdfUpload, verrs, err := loader.CreateUpload(session.UserID, &mergedPdf, uploader.AllowedTypesPDF, metaData)
+	file := uploader.File{File: mergedPdf, MetaData: newGeneratedObjectMetaData()}
+	pdfUpload, verrs, err := loader.CreateUpload(session.UserID, file, uploader.AllowedTypesPDF)
 	if verrs.HasAny() || err != nil {
 		switch err.(type) {
 		case uploader.ErrTooLarge:

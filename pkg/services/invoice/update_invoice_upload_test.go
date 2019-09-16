@@ -78,7 +78,7 @@ func (suite *InvoiceServiceSuite) helperCreateUpload(storer *storage.FileStorer)
 	}
 
 	// Create Upload and save it
-	upload, verrs, err := up.CreateUpload(userID, &file, uploader.AllowedTypesPDF, nil)
+	upload, verrs, err := up.CreateUpload(userID, uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.Nil(err, "CreateUpload() failed to create upload")
 	suite.Empty(verrs.Error(), "CreateUpload() verrs returned error")
 	suite.NotNil(upload, "CreateUpload() failed to create upload structure")
