@@ -17,14 +17,15 @@ import (
 
 func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 	return &adminmessages.OfficeUser{
-		ID:        handlers.FmtUUID(o.ID),
-		FirstName: handlers.FmtString(o.FirstName),
-		LastName:  handlers.FmtString(o.LastName),
-		Telephone: handlers.FmtString(o.Telephone),
-		Email:     handlers.FmtString(o.Email),
-		Disabled:  handlers.FmtBool(o.Disabled),
-		CreatedAt: handlers.FmtDateTime(o.CreatedAt),
-		UpdatedAt: handlers.FmtDateTime(o.UpdatedAt),
+		ID:             handlers.FmtUUID(o.ID),
+		FirstName:      handlers.FmtString(o.FirstName),
+		MiddleInitials: handlers.FmtStringPtr(o.MiddleInitials),
+		LastName:       handlers.FmtString(o.LastName),
+		Telephone:      handlers.FmtString(o.Telephone),
+		Email:          handlers.FmtString(o.Email),
+		Disabled:       handlers.FmtBool(o.Disabled),
+		CreatedAt:      handlers.FmtDateTime(o.CreatedAt),
+		UpdatedAt:      handlers.FmtDateTime(o.UpdatedAt),
 	}
 }
 
@@ -152,10 +153,10 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 	if err != nil || verrs != nil {
 		fmt.Printf("%#v", verrs)
 		logger.Error("Error saving user", zap.Error(err))
-		return officeuserop.NewCreateOfficeUserInternalServerError()
+		return officeuserop.NewUpdateOfficeUserInternalServerError()
 	}
 
 	returnPayload := payloadForOfficeUserModel(*updatedOfficeUser)
 
-	return officeuserop.NewUpdateOfficeUserCreated().WithPayload(returnPayload)
+	return officeuserop.NewUpdateOfficeUserOK().WithPayload(returnPayload)
 }

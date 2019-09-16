@@ -313,7 +313,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		}
 
 		response := handler.Handle(params)
-		suite.IsType(&officeuserop.UpdateOfficeUserCreated{}, response)
+		suite.IsType(&officeuserop.UpdateOfficeUserOK{}, response)
 	})
 
 	suite.T().Run("Failed update", func(t *testing.T) {
@@ -330,7 +330,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		}
 
 		response := handler.Handle(params)
-		suite.IsType(&officeuserop.UpdateOfficeUserCreated{}, response)
+		suite.IsType(&officeuserop.UpdateOfficeUserOK{}, response)
 	})
 
 	officeUserUpdater := &mocks.OfficeUserUpdater{}

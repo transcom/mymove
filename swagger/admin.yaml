@@ -21,6 +21,8 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       first_name:
         type: string
+      middle_initials:
+        type: string
       last_name:
         type: string
       email:
@@ -44,6 +46,7 @@ definitions:
     required:
       - id
       - first_name
+      - middle_initials
       - last_name
       - email
       - telephone
@@ -418,7 +421,7 @@ paths:
           description: office not found
         500:
           description: server error
-    put:
+    patch:
       summary: Updates an office user
       operationId: updateOfficeUser
       tags:
@@ -436,7 +439,7 @@ paths:
           schema:
             $ref: '#/definitions/OfficeUserUpdatePayload'
       responses:
-        201:
+        200:
           description: Successfully updated Office User
           schema:
             $ref: '#/definitions/OfficeUser'
