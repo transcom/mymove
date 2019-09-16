@@ -145,7 +145,7 @@ paths:
     patch:
       summary: Updates a payment request
       description: Updates a payment request
-      operationId: updatePaymentRequest
+      operationId: updatePaymentRequestStatus
       tags:
         - payment-requests
         - gov
