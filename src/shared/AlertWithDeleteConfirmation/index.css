@@ -1,0 +1,35 @@
+.usa-alert {
+  white-space: pre-wrap;
+}
+
+.usa-alert.usa-alert-warning {
+  margin-top: 10px;
+  right: 75px;
+}
+
+.usa-alert-body {
+  display: block;
+}
+
+.body--heading {
+  display: block;
+  align-items: center;
+}
+
+.usa-alert-heading {
+  display: inline;
+}
+
+.heading--icon {
+  margin-right: 2em;
+}
+
+.delete-or-cancel-buttons {
+  padding-top: 10px;
+  flex-grow: 1;
+  display: flex;
+}
+
+.usa-button {
+  margin-right: 20px !important;
+}
