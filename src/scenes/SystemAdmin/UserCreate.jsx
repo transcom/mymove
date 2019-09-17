@@ -1,7 +1,6 @@
 import React from 'react';
-import { Create, SimpleForm, TextInput, ReferenceInput, AutocompleteInput, required, regex } from 'react-admin';
-
-const phoneValidators = [required(), regex(/^[2-9]\d{2}-\d{3}-\d{4}$/, 'Invalid phone number, should be 000-000-0000')];
+import { phoneValidators } from './form_validators';
+import { Create, SimpleForm, TextInput, ReferenceInput, AutocompleteInput, required } from 'react-admin';
 
 const UserCreate = props => (
   <Create {...props}>
