@@ -1,35 +1,28 @@
-.usa-alert {
+.delete-alert {
   white-space: pre-wrap;
-}
-
-.usa-alert.usa-alert-warning {
-  margin-top: 10px;
+  margin-top: 10px !important;
   max-width: 500px;
 }
 
-.usa-alert.weight-ticket-list-alert {
+.weight-ticket-list-alert {
   right: 75px;
 }
 
-.usa-alert.expense-ticket-list-alert {
+.expense-ticket-list-alert {
   left: 25px;
 }
 
-.usa-alert-body {
+.delete-alert-body {
   display: block;
 }
 
-.body--heading {
+.delete-body--heading {
   display: block;
   align-items: center;
 }
 
-.usa-alert-heading {
+.delete-alert-heading {
   display: inline;
-}
-
-.heading--icon {
-  margin-right: 2em;
 }
 
 .delete-or-cancel-buttons {
@@ -38,6 +31,6 @@
   display: flex;
 }
 
-.usa-button {
+.delete-button {
   margin-right: 20px !important;
 }

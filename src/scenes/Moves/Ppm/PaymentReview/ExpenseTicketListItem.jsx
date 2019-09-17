@@ -42,7 +42,7 @@ class ExpenseTicketListItem extends Component {
               deleteActionHandler={() => deleteDocumentListItem(id)}
               cancelActionHandler={this.toggleShowConfirmation}
               type="expense-ticket-list-alert"
-            ></AlertWithDeleteConfirmation>
+            />
           )}
         </div>
       </div>

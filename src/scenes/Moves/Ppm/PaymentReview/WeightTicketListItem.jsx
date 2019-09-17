@@ -98,7 +98,7 @@ class WeightTicketListItem extends Component {
               deleteActionHandler={() => deleteDocumentListItem(id)}
               cancelActionHandler={this.toggleShowConfirmation}
               type="weight-ticket-list-alert"
-            ></AlertWithDeleteConfirmation>
+            />
           )}
         </div>
       </div>
