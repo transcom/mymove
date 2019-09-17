@@ -213,3 +213,28 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	}
 	return movedocop.NewUpdateMoveDocumentOK().WithPayload(moveDocPayload)
 }
+
+// DeleteMoveDocumentHandler deletes a move document via DELETE /moves/{moveId}/documents/{moveDocumentId}
+type DeleteMoveDocumentHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle ... deletes a move document
+func (h DeleteMoveDocumentHandler) Handle(params movedocop.DeleteMoveDocumentParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	moveDocID, _ := uuid.FromString(params.MoveDocumentID.String())
+
+	// for now, only delete if weight ticket set or expense
+	moveDoc, err := models.FetchMoveDocument(h.DB(), session, moveDocID, false)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	err = models.DeleteMoveDocument(h.DB(), moveDoc)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+	return movedocop.NewDeleteMoveDocumentNoContent()
+
+}

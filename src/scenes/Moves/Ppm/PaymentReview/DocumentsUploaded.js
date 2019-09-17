@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
-import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import { getMoveDocumentsForMove, deleteMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import docsAddedCheckmarkImg from 'shared/images/docs_added_checkmark.png';
 import WeightTicketListItem from './WeightTicketListItem';
 import ExpenseTicketListItem from './ExpenseTicketListItem';
@@ -47,7 +47,7 @@ export class DocumentsUploaded extends Component {
 
   render() {
     const { showDocs } = this.state;
-    const { expenseDocs, weightTicketDocs, moveId, showLinks, inReviewPage } = this.props;
+    const { expenseDocs, weightTicketDocs, moveId, showLinks, inReviewPage, deleteMoveDocument } = this.props;
     const totalDocs = expenseDocs.length + weightTicketDocs.length;
     const expandedDocumentList = showDocs || inReviewPage;
     const hiddenDocumentList = !inReviewPage && !showDocs;
@@ -81,7 +81,13 @@ export class DocumentsUploaded extends Component {
             <h4>{weightTicketDocs.length} sets of weight tickets</h4>
             <div className="tickets">
               {weightTicketDocs.map((ticket, index) => (
-                <WeightTicketListItem key={ticket.id} num={index} showDelete={inReviewPage} {...ticket} />
+                <WeightTicketListItem
+                  key={ticket.id}
+                  num={index}
+                  showDelete={inReviewPage}
+                  deleteDocumentListItem={deleteMoveDocument}
+                  {...ticket}
+                />
               ))}
             </div>
             {showLinks && (
@@ -95,7 +101,12 @@ export class DocumentsUploaded extends Component {
             </h4>
             <div className="tickets">
               {formatExpenseDocs(expenseDocs).map(expense => (
-                <ExpenseTicketListItem key={expense.id} showDelete={inReviewPage} {...expense} />
+                <ExpenseTicketListItem
+                  key={expense.id}
+                  showDelete={inReviewPage}
+                  deleteDocumentListItem={deleteMoveDocument}
+                  {...expense}
+                />
               ))}
             </div>
             {showLinks && (
@@ -123,6 +134,7 @@ function mapStateToProps(state, { moveId }) {
 const mapDispatchToProps = {
   selectPPMCloseoutDocumentsForMove,
   getMoveDocumentsForMove,
+  deleteMoveDocument,
 };
 
 export default connect(
