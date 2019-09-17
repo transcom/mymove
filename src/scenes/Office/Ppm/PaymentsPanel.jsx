@@ -238,7 +238,10 @@ class PaymentsTable extends Component {
                         Ask service member to <b>request payment</b>
                       </li>
                     </ul>
-                    <p>After that, if the button is still inactive, contact support at </p>
+                    <p>
+                      After that, if the button is still inactive, contact support at{' '}
+                      <a href="tel:(628) 225-1540">(628) 225-1540</a>
+                    </p>
                   </Alert>
                 )}
                 <hr />
