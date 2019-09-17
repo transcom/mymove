@@ -11,9 +11,7 @@ import { formatDateSM } from 'shared/formatters';
 
 import './Review.css';
 
-function PPMShipmentSummary(props) {
-  const { advance, movePath, ppm } = props;
-
+function PPMShipmentSummary({ advance, movePath, ppm, hasEstimateError }) {
   const editDateAndLocationAddress = movePath + '/edit-date-and-location';
   const editWeightAddress = movePath + '/edit-weight';
 
@@ -85,11 +83,14 @@ function PPMShipmentSummary(props) {
             </tr>
             <tr>
               <td> Estimated PPM Incentive: </td>
-              {/* <td> {ppm && formatCentsRange(ppm.incentive_estimate_min, ppm.incentive_estimate_max)}</td> */}
-              <td>
-                Not ready yet{' '}
-                <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
-              </td>
+              {hasEstimateError ? (
+                <td>
+                  Not ready yet{' '}
+                  <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
+                </td>
+              ) : (
+                <td> {ppm && formatCentsRange(ppm.incentive_estimate_min, ppm.incentive_estimate_max)}</td>
+              )}
             </tr>
             {ppm.has_requested_advance && (
               <tr>
@@ -107,12 +108,13 @@ function PPMShipmentSummary(props) {
 PPMShipmentSummary.propTypes = {
   ppm: PropTypes.object.isRequired,
   movePath: PropTypes.string.isRequired,
+  hasEstimateError: PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
   const { ppm } = ownProps;
   const advance = selectReimbursement(state, ppm.advance);
-  return { ...ownProps, advance };
+  return { ...ownProps, advance, hasEstimateError: state.ppm.hasEstimateError };
 }
 
 export default connect(mapStateToProps)(PPMShipmentSummary);

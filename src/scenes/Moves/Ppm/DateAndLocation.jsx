@@ -67,7 +67,7 @@ async function asyncValidate(values, dispatch, props, currentFieldName) {
       );
     } catch (err) {
       // eslint-disable-next-line no-throw-literal
-      throw { original_move_date: InvalidMoveParamsErrorMsg };
+      // throw { original_move_date: InvalidMoveParamsErrorMsg };
     }
   }
 }

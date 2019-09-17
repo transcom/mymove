@@ -169,11 +169,14 @@ export class PpmWeight extends Component {
                   </tr>
                   <tr>
                     <th>Your PPM Incentive:</th>
-                    {/* <td className="incentive">{formatCentsRange(incentive_estimate_min, incentive_estimate_max)}</td> */}
-                    <td className="incentive">
-                      Not ready yet{' '}
-                      <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
-                    </td>
+                    {hasEstimateError ? (
+                      <td className="incentive">
+                        Not ready yet{' '}
+                        <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
+                      </td>
+                    ) : (
+                      <td className="incentive">{formatCentsRange(incentive_estimate_min, incentive_estimate_max)}</td>
+                    )}
                   </tr>
                 </tbody>
               </table>
