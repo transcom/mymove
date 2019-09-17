@@ -45,7 +45,7 @@ func (b ByteSize) Int64() int64 {
 
 type File struct {
 	afero.File
-	MetaData map[string]*string
+	Tags *string
 }
 
 // Uploader encapsulates a few common processes: creating Uploads for a Document,
@@ -149,7 +149,7 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 		}
 
 		// Push file to S3
-		if _, err := u.Storer.Store(newUpload.StorageKey, file.File, checksum, file.MetaData); err != nil {
+		if _, err := u.Storer.Store(newUpload.StorageKey, file.File, checksum, file.Tags); err != nil {
 			u.logger.Error("failed to store object", zap.Error(err))
 			responseVErrors.Append(verrs)
 			uploadError = errors.Wrap(err, "failed to store object")

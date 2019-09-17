@@ -17,10 +17,7 @@ type CreatePersonallyProcuredMoveAttachmentsHandler struct {
 	handlers.HandlerContext
 }
 
-var generatedObjectMetaData = map[string]*string{
-	"av-status": handlers.FmtString("CLEANED"),
-	"av-notes":  handlers.FmtString("GENERATED"),
-}
+var generatedObjectTags = handlers.FmtString("av-status=CLEANED&av-notes=GENERATED")
 
 // Handle is the handler
 func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.CreatePPMAttachmentsParams) middleware.Responder {
@@ -81,7 +78,7 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	}
 
 	// Upload merged PDF to S3 and return Upload object
-	file := uploader.File{File: mergedPdf, MetaData: generatedObjectMetaData}
+	file := uploader.File{File: mergedPdf, Tags: generatedObjectTags}
 	pdfUpload, verrs, err := loader.CreateUpload(session.UserID, file, uploader.AllowedTypesPDF)
 	if verrs.HasAny() || err != nil {
 		switch err.(type) {

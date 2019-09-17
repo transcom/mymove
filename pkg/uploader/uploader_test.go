@@ -174,15 +174,14 @@ func (suite *UploaderSuite) TestStorerCalledWithMetaData() {
 	suite.NoError(err)
 	defer cleanup()
 
-	value := "value"
-	metaData := map[string]*string{"metaDataTag": &value}
+	tags := "metaDataTag=value"
 	fakeS3.On("Store",
 		mock.Anything,
 		mock.Anything,
 		mock.Anything,
-		metaData).Return(&storage.StoreResult{}, nil)
-	// assert metadata is passed along to storer
-	_, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, uploader.File{File: f, MetaData: metaData}, uploader.AllowedTypesAny)
+		&tags).Return(&storage.StoreResult{}, nil)
+	// assert tags are passed along to storer
+	_, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, uploader.File{File: f, Tags: &tags}, uploader.AllowedTypesAny)
 
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate upload")
