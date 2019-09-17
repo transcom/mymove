@@ -1,14 +1,11 @@
 import React from 'react';
-import { List, Datagrid, TextField, TextInput } from 'react-admin';
-import { Filter, ReferenceInput, SelectInput } from 'react-admin';
+import { Datagrid, Filter, List, SelectInput, TextField, TextInput } from 'react-admin';
 import AdminPagination from './AdminPagination';
 
 const AccessCodeFilter = props => (
   <Filter {...props}>
     <TextInput label="Search" source="code" reference="access_codes" alwaysOn />
-    <ReferenceInput label="Move Type" source="move_type" reference="access_codes" allowEmpty>
-      <SelectInput optionText="move_type" optionValue="move_type" />
-    </ReferenceInput>
+    <SelectInput source="move_type" choices={[{ id: 'PPM', name: 'PPM' }, { id: 'HHG', name: 'HHG' }]} />
   </Filter>
 );
 
