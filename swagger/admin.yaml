@@ -333,6 +333,19 @@ definitions:
       - air-force
       - marine-corps
       - coast-guard
+  ElectronicOrdersTotal:
+    type: object
+    properties:
+      category:
+        type: string
+      count:
+        type: integer
+        minimum: 0
+        title: Total Orders Count
+  ElectronicOrdersTotals:
+    type: array
+    items:
+      $ref: '#/definitions/ElectronicOrdersTotal'
 paths:
   /office_users:
     get:
@@ -523,3 +536,36 @@ paths:
           description: not found
         500:
           description: server error
+  /electronic_orders/totals:
+    get:
+      summary: Get total counts for the orders stored in MilMove
+      description: Returns a list of record counts for orders
+      operationId: getElectronicOrdersTotals
+      tags:
+        - electronic_order
+      parameters:
+        - in: query
+          name: filter
+          type: array
+          items:
+            type: string
+        - in: query
+          name: andFilter
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/ElectronicOrdersTotals'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: not found
+        500:
+          description: server error
+
+
