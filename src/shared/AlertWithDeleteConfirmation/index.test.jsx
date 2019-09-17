@@ -13,7 +13,7 @@ describe('basic alert with delete confirmation component', () => {
     </Provider>,
   );
   it('should render children and heading', () => {
-    expect(wrapper.find('.usa-alert-heading').text()).toBe(heading);
+    expect(wrapper.find('.delete-alert-heading').text()).toBe(heading);
     expect(wrapper.find('.usa-alert-text').text()).toBe(text);
   });
   it('should not have a close button', () => {
