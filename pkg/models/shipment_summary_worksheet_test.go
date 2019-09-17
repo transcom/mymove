@@ -835,7 +835,7 @@ func (suite *ModelSuite) TestFormatOtherExpenses() {
 	formattedOtherExpenses := models.FormatOtherExpenses(otherExpenseDocs)
 
 	suite.Equal("The Bard\n\nThe Beedle", formattedOtherExpenses.Descriptions)
-	suite.Equal("$2,589.00\n\n$1,439.00", formattedOtherExpenses.AmountsPaid)
+	suite.Equal("$25.89\n\n$14.39", formattedOtherExpenses.AmountsPaid)
 }
 
 func (suite *ModelSuite) TestFormatSignature() {
