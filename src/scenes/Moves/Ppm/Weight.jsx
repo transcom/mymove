@@ -65,19 +65,17 @@ export class PpmWeight extends Component {
   // affect it
   updateIncentive() {
     const { currentWeight, currentPpm, originDutyStationZip } = this.props;
-    const weight_estimate = get(this.props, 'currentPpm.weight_estimate');
-    if (![this.state.pendingPpmWeight, weight_estimate].includes(currentWeight) || !currentWeight) {
-      const newWeight = currentWeight && currentWeight !== 0 ? currentWeight : this.state.pendingPpmWeight;
-      this.onWeightSelecting(newWeight);
-      this.props.getPpmWeightEstimate(
-        currentPpm.original_move_date,
-        currentPpm.pickup_postal_code,
-        originDutyStationZip,
-        currentPpm.destination_postal_code,
-        newWeight,
-      );
-    }
+    const newWeight = currentWeight && currentWeight !== 0 ? currentWeight : this.state.pendingPpmWeight;
+    this.onWeightSelecting(newWeight);
+    this.props.getPpmWeightEstimate(
+      currentPpm.original_move_date,
+      currentPpm.pickup_postal_code,
+      originDutyStationZip,
+      currentPpm.destination_postal_code,
+      newWeight,
+    );
   }
+
   handleSubmit = () => {
     const { createOrUpdatePpm } = this.props;
     const moveId = this.props.match.params.moveId;
@@ -87,11 +85,13 @@ export class PpmWeight extends Component {
     };
     return createOrUpdatePpm(moveId, ppmBody);
   };
+
   onWeightSelecting = value => {
     this.setState({
       pendingPpmWeight: value,
     });
   };
+
   onWeightSelected() {
     const { currentPpm, originDutyStationZip } = this.props;
     this.props.getPpmWeightEstimate(
@@ -223,7 +223,7 @@ function mapStateToProps(state) {
     selectedWeightInfo: getSelectedWeightInfo(state),
     currentWeight: get(state, 'ppm.currentPpm.weight_estimate'),
     schema: schema,
-    originDutyStationZip: originDutyStationZip,
+    originDutyStationZip,
   };
 
   return props;

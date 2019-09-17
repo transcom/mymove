@@ -16,8 +16,6 @@ import { ValidateZipRateData } from 'shared/api';
 
 const formName = 'ppp_date_and_location';
 
-const InvalidMoveParamsErrorMsg =
-  "We can't schedule a move that far in the future. You can try an earlier date, or contact your PPPO for help.";
 const UnsupportedZipCodeErrorMsg =
   'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.';
 
@@ -57,18 +55,13 @@ async function asyncValidate(values, dispatch, props, currentFieldName) {
   // all SM weight entitlements.
   const fakeLightWeight = 100;
   if (pickup_postal_code && destination_postal_code && original_move_date) {
-    try {
-      await GetPpmWeightEstimate(
-        original_move_date,
-        pickup_postal_code,
-        origin_duty_station_zip,
-        destination_postal_code,
-        fakeLightWeight,
-      );
-    } catch (err) {
-      // eslint-disable-next-line no-throw-literal
-      // throw { original_move_date: InvalidMoveParamsErrorMsg };
-    }
+    await GetPpmWeightEstimate(
+      original_move_date,
+      pickup_postal_code,
+      origin_duty_station_zip,
+      destination_postal_code,
+      fakeLightWeight,
+    );
   }
 }
 
