@@ -11,7 +11,7 @@ export function AlertWithConfirmation(props) {
           <div>{props.heading && <h3 className="usa-alert-heading">{props.heading}</h3>}</div>
           <div className="usa-alert-text">{props.message}</div>
           <div className="delete-or-cancel-buttons">
-            <button type="button" className="usa-button" onClick={props.deleteActionHandler}>
+            <button type="button" className="usa-button delete-button" onClick={props.deleteActionHandler}>
               Delete
             </button>
             <button type="button" className="usa-button-secondary" onClick={props.cancelActionHandler}>

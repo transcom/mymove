@@ -166,6 +166,7 @@ function serviceMemberDeletesDocuments() {
   cy.get('[data-cy="delete-ticket"]')
     .first()
     .click();
+  cy.get('.delete-button').click();
   cy.get('.ticket-item').should('have.length', 3);
 }
 function serviceMemberEditsPaymentRequest() {
