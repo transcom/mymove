@@ -22,7 +22,7 @@ const environmentFlags = {
 
   test: Object.assign({}, defaultFlags),
 
-  experimental: Object.assign({}, defaultFlags, { createAdminUser: true }),
+  experimental: Object.assign({}, defaultFlags),
 
   staging: Object.assign({}, defaultFlags, {}),
 
