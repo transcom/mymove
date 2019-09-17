@@ -11,7 +11,7 @@ describe('testing CSRF protection', function() {
 
   it('tests dev login with both unmasked and masked token', function() {
     cy.signInAsUserPostRequest(officeAppName, userId);
-    cy.contains('New Moves/Shipments');
+    cy.contains('New moves');
   });
 
   it('tests dev login with masked token only', function() {

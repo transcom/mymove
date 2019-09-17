@@ -18,16 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *AwardQueueSuite) Test_FindAllUnassignedShipments() {
-	t := suite.T()
-	queue := NewAwardQueue(suite.DB(), suite.logger)
-	_, err := queue.findAllUnassignedShipments()
-
-	if err != nil {
-		t.Error("Unable to find shipments: ", err)
-	}
-}
-
 func (suite *AwardQueueSuite) Test_GetTSPsPerBandWithRemainder() {
 	t := suite.T()
 	// Check bands should expect differing num of TSPs when not divisible by 4
@@ -108,30 +98,6 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 		} else if (*perf.QualityBand) != band {
 			t.Errorf("Wrong quality band: expected %v, got %v", band, *perf.QualityBand)
 		}
-	}
-}
-
-func (suite *AwardQueueSuite) verifyOfferCount(tsp models.TransportationServiceProvider, expectedCount int) {
-	t := suite.T()
-	t.Helper()
-
-	query := suite.DB().Where("transportation_service_provider_id = $1", tsp.ID)
-	offers := []models.ShipmentOffer{}
-	count, err := query.Count(&offers)
-
-	if err != nil {
-		t.Fatalf("Error counting shipment offers: %v", err)
-	}
-	if count != expectedCount {
-		t.Errorf("Wrong number of ShipmentOffers found: expected %d, got %d", expectedCount, count)
-	}
-
-	var tspPerformance models.TransportationServiceProviderPerformance
-	if err := query.First(&tspPerformance); err != nil {
-		t.Errorf("No TSP Performance record found with id %s", tsp.ID)
-	}
-	if expectedCount != tspPerformance.OfferCount {
-		t.Errorf("Wrong OfferCount for TSP: expected %d, got %d", expectedCount, tspPerformance.OfferCount)
 	}
 }
 

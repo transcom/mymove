@@ -74,13 +74,13 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightUpdate() {
 		WeightTicketDate: handlers.FmtDate(wtDate),
 	}
 
-	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
+	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
 	umd, verrs, err := wtu.Update(updateMoveDocPayload, originalMoveDocument, session)
 	suite.NotNil(umd)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
-	md, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
+	md, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
 
 	suite.Require().NotNil(md.WeightTicketSetDocument)
@@ -204,14 +204,14 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightWhenMultipleWeightTickets() 
 		FullWeight:       handlers.FmtInt64((int64)(fullWeight2)),
 		WeightTicketDate: handlers.FmtDate(wtDateTwo),
 	}
-	originalMoveDocumentOne, err := models.FetchMoveDocument(suite.DB(), session, moveDocumentOne.ID)
+	originalMoveDocumentOne, err := models.FetchMoveDocument(suite.DB(), session, moveDocumentOne.ID, false)
 	suite.Nil(err)
 	umd, verrs, err := wtu.Update(updateMoveDocOnePayload, originalMoveDocumentOne, session)
 	suite.NotNil(umd)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
 
-	originalMoveDocumentTwo, err := models.FetchMoveDocument(suite.DB(), session, moveDocumentTwo.ID)
+	originalMoveDocumentTwo, err := models.FetchMoveDocument(suite.DB(), session, moveDocumentTwo.ID, false)
 	suite.Nil(err)
 	umd, verrs, err = wtu.Update(updateMoveDocTwoPayload, originalMoveDocumentTwo, session)
 	suite.NotNil(umd)
@@ -287,13 +287,13 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightRemovedWhenStatusNotOK() {
 		WeightTicketDate: handlers.FmtDate(wtDate),
 	}
 
-	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
+	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
 	umd, verrs, err := wtu.Update(updateMoveDocPayload, originalMoveDocument, session)
 	suite.NotNil(umd)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
-	md, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
+	md, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
 
 	suite.Require().Equal(moveDocument.ID.String(), md.ID.String(), "expected move doc ids to match")
@@ -377,13 +377,13 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightAfterManualOverride() {
 		WeightTicketDate: handlers.FmtDate(wtDate),
 	}
 
-	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
+	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
 	umd, verrs, err := wtu.Update(updateMoveDocPayload, originalMoveDocument, session)
 	suite.NotNil(umd)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
-	md, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
+	md, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	suite.Nil(err)
 
 	suite.Require().NotNil(md.WeightTicketSetDocument)

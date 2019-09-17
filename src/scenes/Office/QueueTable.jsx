@@ -8,7 +8,7 @@ import 'react-table/react-table.css';
 import Alert from 'shared/Alert';
 import { formatTimeAgo } from 'shared/formatters';
 import { setUserIsLoggedIn } from 'shared/Data/users';
-import { newColumns, ppmColumns, defaultColumns } from './queueTableColumns';
+import { defaultColumns } from './queueTableColumns';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
@@ -116,28 +116,20 @@ class QueueTable extends Component {
 
   render() {
     const titles = {
-      new: 'New Moves/Shipments',
+      new: 'New moves',
       troubleshooting: 'Troubleshooting',
       ppm: 'All PPMs',
-      ppm_payment_requested: 'Payment Requests PPMs',
-      all: 'All Moves',
+      ppm_payment_requested: 'Payment requested',
+      all: 'All moves',
+      ppm_completed: 'Completed moves',
+      ppm_approved: 'Approved moves',
     };
 
-    const showColumns = queueType => {
-      switch (queueType) {
-        case 'new':
-          return newColumns;
-        case 'ppm':
-        case 'ppm_payment_requested':
-          return ppmColumns;
-        default:
-          return defaultColumns;
-      }
-    };
+    const showColumns = defaultColumns;
 
     const defaultSort = queueType => {
-      if (['new'].includes(queueType)) {
-        return [{ id: 'clockIcon', asc: true }, { id: 'move_date', asc: true }];
+      if (['all'].includes(queueType)) {
+        return [{ id: 'locator', asc: true }];
       }
       return [{ id: 'move_date', asc: true }];
     };
@@ -177,7 +169,7 @@ class QueueTable extends Component {
             />
           </span>
           <ReactTable
-            columns={showColumns(this.props.queueType)}
+            columns={showColumns}
             data={this.state.data}
             loading={this.state.loading} // Display the loading overlay when we need it
             defaultSorted={defaultSort(this.props.queueType)}

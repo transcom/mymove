@@ -17,10 +17,12 @@ import (
 
 func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 	return &adminmessages.OfficeUser{
-		ID:        *handlers.FmtUUID(o.ID),
-		FirstName: o.FirstName,
-		LastName:  o.LastName,
-		Email:     o.Email,
+		ID:        handlers.FmtUUID(o.ID),
+		FirstName: handlers.FmtString(o.FirstName),
+		LastName:  handlers.FmtString(o.LastName),
+		Telephone: handlers.FmtString(o.Telephone),
+		Email:     handlers.FmtString(o.Email),
+		Disabled:  handlers.FmtBool(o.Disabled),
 	}
 }
 
@@ -29,6 +31,7 @@ type IndexOfficeUsersHandler struct {
 	handlers.HandlerContext
 	services.OfficeUserListFetcher
 	services.NewQueryFilter
+	services.NewPagination
 }
 
 // Handle retrieves a list of office users
@@ -37,19 +40,27 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
 	queryFilters := []services.QueryFilter{}
 
-	officeUsers, err := h.OfficeUserListFetcher.FetchOfficeUserList(queryFilters)
+	pagination := h.NewPagination(params.Page, params.PerPage)
+
+	officeUsers, err := h.OfficeUserListFetcher.FetchOfficeUserList(queryFilters, pagination)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	officeUsersCount := len(officeUsers)
+	totalOfficeUsersCount, err := h.DB().Count(&models.OfficeUser{})
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 
-	payload := make(adminmessages.OfficeUsers, officeUsersCount)
+	queriedOfficeUsersCount := len(officeUsers)
+
+	payload := make(adminmessages.OfficeUsers, queriedOfficeUsersCount)
+
 	for i, s := range officeUsers {
 		payload[i] = payloadForOfficeUserModel(s)
 	}
 
-	return officeuserop.NewIndexOfficeUsersOK().WithContentRange(fmt.Sprintf("office users 0-%d/%d", officeUsersCount, officeUsersCount)).WithPayload(payload)
+	return officeuserop.NewIndexOfficeUsersOK().WithContentRange(fmt.Sprintf("office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, totalOfficeUsersCount)).WithPayload(payload)
 }
 
 type GetOfficeUserHandler struct {

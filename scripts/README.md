@@ -56,8 +56,6 @@ application testing
 
 | Script Name | Description |
 | --- | --- |
-| `dump-function-calls` |  Show all used functions in our codebase. |
-| `dump-packages` |  Show all used packages in our codebase. |
 | `export-obfuscated-tspp-sample` | Export a subset of rows from the `transportation_service_provider_performances` table |
 | `find-invoices` |  This script will use available API endpoints to find invoices in whatever environment you specify|
 | `generate-devlocal-cert` | Convenience script for creating a new certificate signed by the DevLocal CA. |
@@ -109,6 +107,20 @@ These scripts are primarily used for working with the database
 | `psql-wrapper` | A wrapper around `psql` that sets correct values |
 | `wait-for-db` |  waits for an available database connection, or until a timeout is reached |
 | `wait-for-db-docker` |  waits for an available database connection, or until a timeout is reached using docker |
+
+### CAC Scripts
+
+These scripts are primarily used for working with a CAC and the Orders API
+
+| Script Name | Description |
+| --- | --- |
+| `cac-extract-cert` | Get a certificate from CAC |
+| `cac-extract-fingerprint` | Get SHA 256 fingerprint from CAC |
+| `cac-extract-pubkey` | Get a public key from CAC |
+| `cac-extract-subject` | Get Subject from CAC |
+| `cac-extract-token-label` | Get the Token Label from CAC |
+| `cac-info` | Get general information from a CAC |
+| `cac-prereqs` | Check the prereqs for CAC |
 
 ### Amazon Console Scripts
 

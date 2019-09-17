@@ -64,6 +64,7 @@ type MovingExpenseDocument struct {
 	StorageEndDate       *time.Time        `json:"storage_end_date" db:"storage_end_date"`
 	CreatedAt            time.Time         `json:"created_at" db:"created_at"`
 	UpdatedAt            time.Time         `json:"updated_at" db:"updated_at"`
+	DeletedAt            *time.Time        `db:"deleted_at"`
 }
 
 // MovingExpenseDocuments is not required by pop and may be deleted
@@ -92,6 +93,7 @@ func (m *MovingExpenseDocument) ValidateUpdate(tx *pop.Connection) (*validate.Er
 	return validate.NewErrors(), nil
 }
 
+// DaysInStorage calculates the days in storage excluding the entry day
 func (m *MovingExpenseDocument) DaysInStorage() (int, error) {
 	if m.MovingExpenseType != MovingExpenseTypeSTORAGE {
 		return 0, fmt.Errorf("not storage expense")

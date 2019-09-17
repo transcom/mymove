@@ -168,9 +168,6 @@ admin_client_run: .client_deps.stamp ## Run MilMove Admin client
 
 ### Go Tool Targets
 
-bin/callgraph: .check_go_version.stamp .check_gopath.stamp
-	go build -o bin/callgraph golang.org/x/tools/cmd/callgraph
-
 bin/chamber: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
 
@@ -206,14 +203,11 @@ bin/ecs-deploy-task-container: server_deps server_generate
 bin/ecs-service-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
 
-bin/generate-1203-form: .server_generate.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
-
 bin/generate-access-codes: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-access-codes ./cmd/generate_access_codes
 
-bin/generate-shipment-edi: .server_generate.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/generate-shipment-edi ./cmd/generate_shipment_edi
+bin/generate-shipment-summary: .server_generate.stamp
+	go build -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
 
 bin/generate-test-data: pkg/assets/assets.go .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate-test-data
@@ -239,7 +233,7 @@ bin/make-dps-user: .server_generate.stamp
 bin/make-office-user: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
 
-bin/milmove: .server_generate.stamp
+bin/milmove: .server_generate.stamp pkg/assets/assets.go
 	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
 bin_linux/milmove: .server_generate_linux.stamp
@@ -250,20 +244,17 @@ bin/renderer:
 	# throws errors loadinternal: cannot find runtime/cgo
 	go build -o bin/renderer ./cmd/renderer
 
-bin/save-fuel-price-data: .server_generate.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/save-fuel-price-data ./cmd/save_fuel_price_data
+bin/milmove-tasks: .server_generate.stamp pkg/assets/assets.go
+	go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove-tasks ./cmd/milmove-tasks
 
-bin_linux/save-fuel-price-data: .server_generate_linux.stamp
-	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/save-fuel-price-data ./cmd/save_fuel_price_data
+bin_linux/milmove-tasks: .server_generate_linux.stamp pkg/assets/assets.go
+	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin_linux/milmove-tasks ./cmd/milmove-tasks
 
 bin/send-to-gex: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
 
-bin/tsp-award-queue: .server_generate.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
-
 pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
-	go-bindata -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/
+	go-bindata -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/ pkg/notifications/templates/
 
 #
 # ----- END BIN TARGETS -----
@@ -278,7 +269,7 @@ go_deps_update: server_deps server_generate mocks_generate ## Update golang depe
 	go run cmd/update_deps/main.go
 
 .PHONY: server_deps
-server_deps: .check_gopath.stamp bin/callgraph bin/chamber bin/gin bin/swagger bin/mockery bin/rds-combined-ca-bundle.pem ## Install or Build server dependencies
+server_deps: .check_gopath.stamp bin/chamber bin/gin bin/swagger bin/mockery bin/rds-combined-ca-bundle.pem ## Install or Build server dependencies
 
 .PHONY: server_generate
 server_generate: .check_go_version.stamp .check_gopath.stamp .server_generate.stamp ## Generate golang server code from Swagger files
@@ -333,9 +324,7 @@ build_tools: server_deps \
 	bin/compare-secure-migrations \
 	bin/ecs-deploy-task-container \
 	bin/ecs-service-logs \
-	bin/generate-1203-form \
 	bin/generate-access-codes \
-	bin/generate-shipment-edi \
 	bin/generate-test-data \
 	bin/health-checker \
 	bin/iws \
@@ -344,9 +333,8 @@ build_tools: server_deps \
 	bin/make-dps-user \
 	bin/make-office-user \
 	bin/renderer \
-	bin/save-fuel-price-data \
-	bin/send-to-gex \
-	bin/tsp-award-queue ## Build all tools
+	bin/milmove-tasks \
+	bin/send-to-gex ## Build all tools
 
 .PHONY: build
 build: server_build build_tools client_build ## Build the server, tools, and client
@@ -360,6 +348,13 @@ ifndef TEST_ACC_ENV
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
 	TEST_ACC_HONEYCOMB=0 \
 	TEST_ACC_CWD=$(PWD) \
+	SERVE_ADMIN=true \
+  SERVE_SDDC=true \
+  SERVE_ORDERS=true \
+  SERVE_DPS=true \
+  SERVE_API_INTERNAL=true \
+  SERVE_API_PUBLIC=true \
+  MUTUAL_TLS_ENABLED=true \
 	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 else
 ifndef CIRCLECI
@@ -681,15 +676,15 @@ tasks_clean: ## Clean Scheduled Task files and docker images
 	docker rm -f tasks || true
 
 .PHONY: tasks_build
-tasks_build: server_generate bin/save-fuel-price-data ## Build Scheduled Task dependencies
+tasks_build: server_generate bin/milmove-tasks ## Build Scheduled Task dependencies
 
 .PHONY: tasks_build_docker
-tasks_build_docker: bin/chamber server_generate bin/save-fuel-price-data ## Build Scheduled Task dependencies and Docker image
+tasks_build_docker: bin/chamber server_generate bin/milmove-tasks ## Build Scheduled Task dependencies and Docker image
 	@echo "Build the docker scheduled tasks container..."
 	docker build -f Dockerfile.tasks --tag $(TASKS_DOCKER_CONTAINER):latest .
 
 .PHONY: tasks_build_linux_docker
-tasks_build_linux_docker: bin_linux/save-fuel-price-data ## Build Scheduled Task binaries (linux) and Docker image (local)
+tasks_build_linux_docker: bin_linux/milmove-tasks ## Build Scheduled Task binaries (linux) and Docker image (local)
 	@echo "Build the docker scheduled tasks container..."
 	docker build -f Dockerfile.tasks_local --tag $(TASKS_DOCKER_CONTAINER):latest .
 
@@ -709,7 +704,22 @@ tasks_save_fuel_price_data: tasks_build_linux_docker ## Run save-fuel-price-data
 		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
 		--rm \
 		$(TASKS_DOCKER_CONTAINER):latest \
-		save-fuel-price-data
+		milmove-tasks save-fuel-price-data
+
+tasks_send_post_move_survey: tasks_build_linux_docker ## Run send-post-move-survey from inside docker container
+	@echo "sending post move survey with docker command..."
+	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
+	docker run \
+		-t \
+		-e DB_HOST="database" \
+		-e DB_NAME \
+		-e DB_PORT \
+		-e DB_USER \
+		-e DB_PASSWORD \
+		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
+		--rm \
+		$(TASKS_DOCKER_CONTAINER):latest \
+		milmove-tasks send-post-move-survey
 
 #
 # ----- END SCHEDULED TASK TARGETS -----

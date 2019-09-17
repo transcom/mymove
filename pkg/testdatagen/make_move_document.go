@@ -25,8 +25,6 @@ func MakeMoveDocument(db *pop.Connection, assertions Assertions) models.MoveDocu
 	// than to make default versions of these structs.
 	ppmID := assertions.MoveDocument.PersonallyProcuredMoveID
 	ppm := assertions.MoveDocument.PersonallyProcuredMove
-	shipmentID := assertions.MoveDocument.ShipmentID
-	shipment := assertions.MoveDocument.Shipment
 
 	moveDocumentType := models.MoveDocumentTypeOTHER
 	if string(assertions.MoveDocument.MoveDocumentType) != "" {
@@ -45,8 +43,6 @@ func MakeMoveDocument(db *pop.Connection, assertions Assertions) models.MoveDocu
 		Move:                     move,
 		PersonallyProcuredMoveID: ppmID,
 		PersonallyProcuredMove:   ppm,
-		ShipmentID:               shipmentID,
-		Shipment:                 shipment,
 		Status:                   models.MoveDocumentStatusAWAITINGREVIEW,
 		MoveDocumentType:         moveDocumentType,
 		Title:                    title,

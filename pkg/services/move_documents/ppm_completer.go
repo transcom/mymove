@@ -1,6 +1,8 @@
 package movedocument
 
 import (
+	"time"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/pkg/errors"
@@ -52,7 +54,7 @@ func (ppmc PPMCompleter) completePPM(moveDoc *models.MoveDocument) (*models.Move
 	returnVerrs := validate.NewErrors()
 	ppm := &moveDoc.PersonallyProcuredMove
 	if ppm.Status != models.PPMStatusCOMPLETED && moveDoc.Status == models.MoveDocumentStatusOK {
-		err := ppm.Complete()
+		err := ppm.Complete(time.Now())
 		if err != nil {
 			return &models.MoveDocument{}, returnVerrs, errors.Wrap(err, "ppmcompleter.completeppm: error completing ppm")
 		}

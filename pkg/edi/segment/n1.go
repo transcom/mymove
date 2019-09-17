@@ -6,10 +6,10 @@ import (
 
 // N1 represents the N1 EDI segment
 type N1 struct {
-	EntityIdentifierCode        string
-	Name                        string
-	IdentificationCodeQualifier string
-	IdentificationCode          string
+	EntityIdentifierCode        string `validate:"oneof=SF RG RH"`
+	Name                        string `validate:"min=1,max=60"`
+	IdentificationCodeQualifier string `validate:"required_with=IdentificationCode,omitempty,eq=27"`
+	IdentificationCode          string `validate:"required_with=IdentificationCodeQualifier,omitempty,min=2,max=80"`
 }
 
 // StringArray converts N1 to an array of strings

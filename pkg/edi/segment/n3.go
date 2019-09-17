@@ -6,8 +6,8 @@ import (
 
 // N3 represents the N3 EDI segment
 type N3 struct {
-	AddressInformation1 string
-	AddressInformation2 string
+	AddressInformation1 string `validate:"min=1,max=55"`
+	AddressInformation2 string `validate:"omitempty,min=1,max=55"`
 }
 
 // StringArray converts N3 to an array of strings

@@ -138,9 +138,6 @@ function officeUserVerifiesOrders(moveLocator) {
   cy.get('input[name="orders.orders_number"]').type('666666');
   cy.get('select[name="orders.orders_type_detail"]').select('DELAYED_APPROVAL');
 
-  cy.get('input[name="orders.orders_issuing_agency"]').type('ISSUING AGENCY');
-  cy.get('input[name="orders.paragraph_number"]').type('FP-TP');
-
   cy.get('button')
     .contains('Save')
     .should('be.enabled');
@@ -151,9 +148,6 @@ function officeUserVerifiesOrders(moveLocator) {
 
   // Verify data has been saved in the UI
   cy.get('span').contains('666666');
-
-  cy.get('span').contains('ISSUING AGENCY');
-  cy.get('span').contains('FP-TP');
 
   // Enter SAC
   cy.get('.combo-button button').should('be.disabled');
@@ -185,9 +179,6 @@ function officeUserVerifiesOrders(moveLocator) {
 
   cy.get('span').contains('666666');
   cy.get('span').contains('Delayed Approval 20 Weeks or More');
-
-  cy.get('span').contains('ISSUING AGENCY');
-  cy.get('span').contains('FP-TP');
 }
 
 function officeUserVerifiesAccounting() {
@@ -325,10 +316,10 @@ function officeUserVerifiesPPM() {
 
 function officeUserGoesToPPMPanel(locator) {
   // Open ppm queue
-  cy.patientVisit('/queues/ppm');
+  cy.patientVisit('/queues/all');
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/ppm/);
+    expect(loc.pathname).to.match(/^\/queues\/all/);
   });
 
   // Find shipment and open it

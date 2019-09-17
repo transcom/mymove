@@ -48,8 +48,6 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 
 	SAC := "N002214CSW32Y9"
 	ordersNumber := "FD4534JFJ"
-	paragraphNumber := "djfklda;ej"
-	ordersIssuingAgency := "SOMETHING AGENCY"
 
 	order := Order{
 		ServiceMemberID:     serviceMember1.ID,
@@ -65,8 +63,6 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 		UploadedOrders:      uploadedOrder,
 		Status:              OrderStatusSUBMITTED,
 		OrdersNumber:        &ordersNumber,
-		ParagraphNumber:     &paragraphNumber,
-		OrdersIssuingAgency: &ordersIssuingAgency,
 		TAC:                 &TAC,
 		SAC:                 &SAC,
 		DepartmentIndicator: &deptIndicator,

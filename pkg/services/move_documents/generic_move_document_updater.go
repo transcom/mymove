@@ -29,9 +29,9 @@ func (gu GenericUpdater) Update(moveDocumentPayload *internalmessages.MoveDocume
 	if moveDocumentPayload.Title != nil {
 		title = *moveDocumentPayload.Title
 	}
-	var recieptMissing bool
+	var receiptMissing bool
 	if moveDocumentPayload.ReceiptMissing != nil {
-		recieptMissing = *moveDocumentPayload.ReceiptMissing
+		receiptMissing = *moveDocumentPayload.ReceiptMissing
 	}
 	updatedMoveDoc.Title = title
 	updatedMoveDoc.Notes = moveDocumentPayload.Notes
@@ -46,7 +46,7 @@ func (gu GenericUpdater) Update(moveDocumentPayload *internalmessages.MoveDocume
 		updatedMoveDoc.MovingExpenseDocument.MovingExpenseType = models.MovingExpenseType(moveDocumentPayload.MovingExpenseType)
 		updatedMoveDoc.MovingExpenseDocument.RequestedAmountCents = unit.Cents(moveDocumentPayload.RequestedAmountCents)
 		updatedMoveDoc.MovingExpenseDocument.PaymentMethod = moveDocumentPayload.PaymentMethod
-		updatedMoveDoc.MovingExpenseDocument.ReceiptMissing = recieptMissing
+		updatedMoveDoc.MovingExpenseDocument.ReceiptMissing = receiptMissing
 		// Storage expenses have their own updater StorageExpenseUpdater
 		updatedMoveDoc.MovingExpenseDocument.StorageStartDate = nil
 		updatedMoveDoc.MovingExpenseDocument.StorageEndDate = nil

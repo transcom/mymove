@@ -3,11 +3,9 @@ package invoice
 import (
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path"
 
-	"github.com/facebookgo/clock"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
@@ -66,14 +64,15 @@ func (suite *InvoiceServiceSuite) fixture(name string) afero.File {
 func (suite *InvoiceServiceSuite) helperCreateUpload(storer *storage.FileStorer) *models.Upload {
 	document := testdatagen.MakeDefaultDocument(suite.DB())
 	userID := document.ServiceMember.UserID
-	up := uploader.NewUploader(suite.DB(), suite.logger, *storer)
+	up, err := uploader.NewUploader(suite.DB(), suite.logger, *storer, 25*uploader.MB)
+	suite.NoError(err)
 
 	// Create file to use for upload
 	file := suite.fixture("test.pdf")
 	if file == nil {
 		suite.T().Fatal("test.pdf is missing")
 	}
-	_, err := file.Stat()
+	_, err = file.Stat()
 	if err != nil {
 		suite.T().Fatalf("file.Stat() err: %s", err.Error())
 	}
@@ -89,21 +88,6 @@ func (suite *InvoiceServiceSuite) helperCreateUpload(storer *storage.FileStorer)
 	// Call Close on file after CreateUploadForDocument is complete
 	file.Close()
 	return upload
-}
-
-func (suite *InvoiceServiceSuite) helperShipmentInvoice(shipment models.Shipment) *models.Invoice {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-
-	var invoiceModel models.Invoice
-	verrs, err := CreateInvoice{DB: suite.DB(), Clock: clock.NewMock()}.Call(officeUser, &invoiceModel, shipment)
-	if err != nil {
-		log.Fatalf("error when creating invoice: %v", err)
-	}
-	if verrs.HasAny() {
-		log.Fatalf("validation errors when creating invoice: %s", verrs.String())
-	}
-
-	return &invoiceModel
 }
 
 func (suite *InvoiceServiceSuite) helperCreateFileStorer() *storage.FileStorer {

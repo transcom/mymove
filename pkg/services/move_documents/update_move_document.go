@@ -51,7 +51,7 @@ func (m moveDocumentUpdater) Update(moveDocumentPayload *internalmessages.MoveDo
 	returnVerrs := validate.NewErrors()
 	newType := models.MoveDocumentType(moveDocumentPayload.MoveDocumentType)
 	newExpenseType := models.MovingExpenseType(moveDocumentPayload.MovingExpenseType)
-	originalMoveDocument, err := models.FetchMoveDocument(m.db, session, moveDocID)
+	originalMoveDocument, err := models.FetchMoveDocument(m.db, session, moveDocID, false)
 	if err != nil {
 		return nil, returnVerrs, models.ErrFetchNotFound
 	}
@@ -92,7 +92,7 @@ func (mds moveDocumentStatusUpdater) UpdateMoveDocumentStatus(moveDocumentPayloa
 
 func mergeMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UUID, moveDoc *models.MoveDocument, moveDocumentType models.MoveDocumentType, status models.MoveDocumentStatus) (models.MoveDocuments, error) {
 	// get all documents excluding new document merge in new updated document if status is correct
-	moveDocuments, err := models.FetchMoveDocuments(db, session, ppmID, &status, moveDocumentType)
+	moveDocuments, err := models.FetchMoveDocuments(db, session, ppmID, &status, moveDocumentType, false)
 	if err != nil {
 		return models.MoveDocuments{}, errors.New("mergeDocuments: unable to fetch move documents")
 	}
