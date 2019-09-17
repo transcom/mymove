@@ -1,0 +1,28 @@
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+  responses:
+    InvalidRequest:
+      description: The request payload is invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    PermissionDenied:
+      description: The request was denied
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: The requested resource wasn't found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

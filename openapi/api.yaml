@@ -21,7 +21,9 @@ servers:
 
 paths:
   /move-orders:
-    $ref: './move-order.yaml'
+    $ref: './move-order.yaml#/CreateMoveOrder'
+  /move-orders/{id}:
+    $ref: './move-order.yaml#/MoveOrderItem'
 
 
 

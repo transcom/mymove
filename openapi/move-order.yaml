@@ -1,20 +1,73 @@
-post:
-  summary: Creates a move order
-  description: Creates a move order
-  operationId: createMoveOrder
-  tags:
-    - moveOrder
-  requestBody:
-    required: true
-    content:
-      application/json:
-        schema:
-          $ref: './components.yaml#/components/schemas/MoveOrder'
-  responses:
-    '201':
-      description: Successfully created move task order
+CreateMoveOrder:
+  post:
+    summary: Creates a move order
+    description: Creates a move order
+    operationId: createMoveOrder
+    tags:
+      - moveOrder
+    requestBody:
+      required: true
       content:
         application/json:
           schema:
             $ref: './components.yaml#/components/schemas/MoveOrder'
+    responses:
+      '201':
+        description: Successfully created move task order
+        content:
+          application/json:
+            schema:
+              $ref: './components.yaml#/components/schemas/MoveOrder'
 
+MoveOrderItem:
+  get:
+    summary: Gets a move order by ID
+    description: Gets a move order
+    operationId: getMoveOrder
+    tags:
+      - moveOrder
+    responses:
+      '200':
+        description: Successfully retrieved move task order
+        content:
+          application/json:
+            schema:
+              $ref: './components.yaml#/components/schemas/MoveOrder'
+      '400':
+        $ref: './responses.yaml#/components/responses/InvalidRequest'
+      '401':
+        $ref: './responses.yaml#/components/responses/PermissionDenied'
+      '404':
+        $ref: './responses.yaml#/components/responses/NotFound'
+  patch:
+    summary: Updates a move order by ID
+    description: Updates a move order by ID
+    operationId: updateMoveOrder
+    tags:
+      - moveOrder
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: './components.yaml#/components/schemas/MoveOrder'
+    responses:
+      '200':
+        description: Successfully retrieved move task order
+        content:
+          application/json:
+            schema:
+              $ref: './components.yaml#/components/schemas/MoveOrder'
+  delete:
+    summary: Deletes a move order by ID
+    description: Deletes a move order by ID
+    operationId: deleteMoveOrder
+    tags:
+      - moveOrder
+    responses:
+      '200':
+        description: Successfully deleted move task order
+        content:
+          application/json:
+            schema:
+              $ref: './components.yaml#/components/schemas/MoveOrder'

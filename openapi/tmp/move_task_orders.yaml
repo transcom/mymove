@@ -12,7 +12,7 @@ servers:
     description: Staging server
   - url: http://experimental-api.move-orders.com/v1
     description: Experimental server
-
+paths:
   /move-orders:
     post:
       summary: Creates a move order
