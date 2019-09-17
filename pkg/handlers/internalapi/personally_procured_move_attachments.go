@@ -17,7 +17,7 @@ type CreatePersonallyProcuredMoveAttachmentsHandler struct {
 	handlers.HandlerContext
 }
 
-var generatedObjectTags = handlers.FmtString("av-status=CLEANED&av-notes=GENERATED")
+var generatedObjectTags = handlers.FmtString("av-status=CLEAN&av-notes=GENERATED")
 
 // Handle is the handler
 func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.CreatePPMAttachmentsParams) middleware.Responder {
