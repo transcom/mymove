@@ -91,10 +91,21 @@ func (h GetElectronicOrdersTotalsHandler) Handle(params electronicorderop.GetEle
 	queryFilters := []services.QueryFilter{}
 	andQueryFilters := []services.QueryFilter{}
 
-	for _, filter := range params.Filter {
-		queryFilterSplit := strings.FieldsFunc(filter, split)
-		comparator = translateComparator(queryFilterSplit[1])
-		queryFilters = append(queryFilters, h.NewQueryFilter(queryFilterSplit[0], comparator, queryFilterSplit[2]))
+	// Default behavior for this handler is going to be returning counts for each of the component services as categories
+	if len(params.Filter) == 0 {
+		queryFilters = []services.QueryFilter{
+			h.NewQueryFilter("issuer", "=", models.IssuerAirForce),
+			h.NewQueryFilter("issuer", "=", models.IssuerArmy),
+			h.NewQueryFilter("issuer", "=", models.IssuerCoastGuard),
+			h.NewQueryFilter("issuer", "=", models.IssuerNavy),
+			h.NewQueryFilter("issuer", "=", models.IssuerMarineCorps),
+		}
+	} else {
+		for _, filter := range params.Filter {
+			queryFilterSplit := strings.FieldsFunc(filter, split)
+			comparator = translateComparator(queryFilterSplit[1])
+			queryFilters = append(andQueryFilters, h.NewQueryFilter(queryFilterSplit[0], comparator, queryFilterSplit[2]))
+		}
 	}
 
 	if params.AndFilter != nil {
