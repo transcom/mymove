@@ -10,14 +10,14 @@ CreateMoveOrder:
       content:
         application/json:
           schema:
-            $ref: './components.yaml#/components/schemas/MoveOrder'
+            $ref: '../schemas/move-orders.yaml#/MoveOrder'
     responses:
       '201':
         description: Successfully created move task order
         content:
           application/json:
             schema:
-              $ref: './components.yaml#/components/schemas/MoveOrder'
+              $ref: '../schemas/move-orders.yaml#/MoveOrder'
 
 MoveOrderItem:
   get:
@@ -32,13 +32,13 @@ MoveOrderItem:
         content:
           application/json:
             schema:
-              $ref: './components.yaml#/components/schemas/MoveOrder'
+              $ref: '../schemas/move-orders.yaml#/MoveOrder'
       '400':
-        $ref: './responses.yaml#/components/responses/InvalidRequest'
+        $ref: '../shared/responses.yaml#/components/responses/InvalidRequest'
       '401':
-        $ref: './responses.yaml#/components/responses/PermissionDenied'
+        $ref: '../shared/responses.yaml#/components/responses/PermissionDenied'
       '404':
-        $ref: './responses.yaml#/components/responses/NotFound'
+        $ref: '../shared/responses.yaml#/components/responses/NotFound'
   patch:
     summary: Updates a move order by ID
     description: Updates a move order by ID
@@ -50,14 +50,20 @@ MoveOrderItem:
       content:
         application/json:
           schema:
-            $ref: './components.yaml#/components/schemas/MoveOrder'
+            $ref: '../schemas/move-orders.yaml#/MoveOrder'
     responses:
       '200':
         description: Successfully retrieved move task order
         content:
           application/json:
             schema:
-              $ref: './components.yaml#/components/schemas/MoveOrder'
+              $ref: '../schemas/move-orders.yaml#/MoveOrder'
+      '400':
+        $ref: '../shared/responses.yaml#/components/responses/InvalidRequest'
+      '401':
+        $ref: '../shared/responses.yaml#/components/responses/PermissionDenied'
+      '404':
+        $ref: '../shared/responses.yaml#/components/responses/NotFound'
   delete:
     summary: Deletes a move order by ID
     description: Deletes a move order by ID
@@ -70,4 +76,10 @@ MoveOrderItem:
         content:
           application/json:
             schema:
-              $ref: './components.yaml#/components/schemas/MoveOrder'
+              $ref: '../schemas/move-orders.yaml#/MoveOrder'
+      '400':
+        $ref: '../shared/responses.yaml#/components/responses/InvalidRequest'
+      '401':
+        $ref: '../shared/responses.yaml#/components/responses/PermissionDenied'
+      '404':
+        $ref: '../shared/responses.yaml#/components/responses/NotFound'
