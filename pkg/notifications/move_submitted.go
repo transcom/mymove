@@ -1,33 +1,48 @@
 package notifications
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	html "html/template"
+	text "text/template"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 )
 
+var (
+	moveSubmittedRawTextTemplate = string(assets.MustAsset("pkg/notifications/templates/move_approved_template.txt"))
+	moveSubmittedTextTemplate    = text.Must(text.New("text_template").Parse(moveSubmittedRawTextTemplate))
+	moveSubmittedRawHTMLTemplate = string(assets.MustAsset("pkg/notifications/templates/move_approved_template.html"))
+	moveSubmittedHTMLTemplate    = html.Must(html.New("text_template").Parse(moveSubmittedRawHTMLTemplate))
+)
+
 // MoveSubmitted has notification content for submitted moves
 type MoveSubmitted struct {
-	db      *pop.Connection
-	logger  Logger
-	moveID  uuid.UUID
-	session *auth.Session // TODO - remove this when we move permissions up to handlers and out of models
+	db           *pop.Connection
+	logger       Logger
+	moveID       uuid.UUID
+	session      *auth.Session // TODO - remove this when we move permissions up to handlers and out of models
+	htmlTemplate *html.Template
+	textTemplate *text.Template
 }
 
 // NewMoveSubmitted returns a new move submitted notification
 func NewMoveSubmitted(db *pop.Connection, logger Logger, session *auth.Session, moveID uuid.UUID) *MoveSubmitted {
 
 	return &MoveSubmitted{
-		db:      db,
-		logger:  logger,
-		moveID:  moveID,
-		session: session,
+		db:           db,
+		logger:       logger,
+		moveID:       moveID,
+		session:      session,
+		htmlTemplate: moveSubmittedHTMLTemplate,
+		textTemplate: moveSubmittedTextTemplate,
 	}
 }
 
@@ -49,45 +64,31 @@ func (m MoveSubmitted) emails(ctx context.Context) ([]emailContent, error) {
 		return emails, err
 	}
 
+	originDSTransportInfo, err := models.FetchDSContactInfo(m.db, serviceMember.DutyStationID)
+	if err != nil {
+		return emails, err
+	}
+
 	if serviceMember.PersonalEmail == nil {
 		return emails, fmt.Errorf("no email found for service member")
 	}
 
-	submittedText := "Your move has been submitted to your local transportation office for review. "
-	processText := "This can take up to 3 business days. The office will email you once your move has been approved."
-	pppoText := "If you have questions or need expedited processing contact your local transportation office."
-	closingText := "You can check the status of your move at any time at https://my.move.mil/"
-	surveyTextHTML := fmt.Sprintf("Let us know how we’re doing. Please take a <a href=\"%s\">brief survey</a> and share how well we’re handling your move so far.", "https://www.surveymonkey.com/r/MilMovePt1-08191")
-	surveyText := "Let us know how we're doing. Please take a brief survey at https://www.surveymonkey.com/r/MilMovePt1-08191 and share how well we're handling your move so far."
+	htmlBody, textBody, err := m.renderTemplates(moveSubmittedEmailData{
+		Link:                       "https://www.surveymonkey.com/r/MilMovePt1-08191",
+		OriginDutyStation:          originDSTransportInfo.Name,
+		DestinationDutyStation:     orders.NewDutyStation.Name,
+		OriginDutyStationPhoneLine: originDSTransportInfo.PhoneLine,
+	})
 
-	if serviceMember.DutyStationID != nil {
-		originDSTransportInfo, err := models.FetchDSContactInfo(m.db, serviceMember.DutyStationID)
-		if err != nil {
-			return emails, err
-		}
-		destinationDutyStation, err := models.FetchDutyStation(context.Background(), m.db, orders.NewDutyStationID)
-		if err != nil {
-			return emails, err
-		}
-
-		submittedText = fmt.Sprintf(
-			"Your move from %s to %s has been submitted to your local transportation office for review.",
-			originDSTransportInfo.Name,
-			destinationDutyStation.Name,
-		)
-
-		pppoText = fmt.Sprintf(
-			"In the meantime, if you have questions or need expedited processing, call the %s PPPO at %s.",
-			originDSTransportInfo.Name,
-			originDSTransportInfo.PhoneLine,
-		)
+	if err != nil {
+		m.logger.Error("error rendering template", zap.Error(err))
 	}
 
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
 		subject:        "[MilMove] You’ve submitted your move details",
-		htmlBody:       fmt.Sprintf("%s<br/><br/>%s<br/><br/>%s<br/><br/>%s<br/><br/>%s", submittedText, processText, pppoText, closingText, surveyTextHTML),
-		textBody:       fmt.Sprintf("%s\n\n%s\n\n%s\n\n%s\n\n%s", submittedText, processText, pppoText, closingText, surveyText),
+		htmlBody:       htmlBody,
+		textBody:       textBody,
 	}
 
 	m.logger.Info("Generated move submitted email to service member",
@@ -95,4 +96,42 @@ func (m MoveSubmitted) emails(ctx context.Context) ([]emailContent, error) {
 
 	// TODO: Send email to trusted contacts when that's supported
 	return append(emails, smEmail), nil
+}
+
+func (m MoveSubmitted) renderTemplates(data moveSubmittedEmailData) (string, string, error) {
+	htmlBody, err := m.RenderHTML(data)
+	if err != nil {
+		return "", "", fmt.Errorf("error rendering html template using %#v", data)
+	}
+	textBody, err := m.RenderText(data)
+	if err != nil {
+		return "", "", fmt.Errorf("error rendering text template using %#v", data)
+	}
+	return htmlBody, textBody, nil
+}
+
+type moveSubmittedEmailData struct {
+	Link                       string
+	OriginDutyStation          string
+	DestinationDutyStation     string
+	OriginDutyStationPhoneLine string
+}
+
+// RenderHTML renders the html for the email
+func (m MoveSubmitted) RenderHTML(data moveSubmittedEmailData) (string, error) {
+	var htmlBuffer bytes.Buffer
+	if err := m.htmlTemplate.Execute(&htmlBuffer, data); err != nil {
+		m.logger.Error("cant render html template ", zap.Error(err))
+	}
+	return htmlBuffer.String(), nil
+}
+
+// RenderText renders the text for the email
+func (m MoveSubmitted) RenderText(data moveSubmittedEmailData) (string, error) {
+	var textBuffer bytes.Buffer
+	if err := m.textTemplate.Execute(&textBuffer, data); err != nil {
+		m.logger.Error("cant render text template ", zap.Error(err))
+		return "", err
+	}
+	return textBuffer.String(), nil
 }

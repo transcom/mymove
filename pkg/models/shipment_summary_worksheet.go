@@ -477,7 +477,7 @@ func FormatOtherExpenses(docs MovingExpenseDocuments) FormattedOtherExpenses {
 	for _, doc := range docs {
 		if doc.MovingExpenseType == MovingExpenseTypeOTHER {
 			expenseDescriptions = append(expenseDescriptions, doc.MoveDocument.Title)
-			expenseAmounts = append(expenseAmounts, FormatDollars(float64(doc.RequestedAmountCents)))
+			expenseAmounts = append(expenseAmounts, FormatDollars(float64(doc.RequestedAmountCents.ToDollarFloat())))
 		}
 	}
 	return FormattedOtherExpenses{

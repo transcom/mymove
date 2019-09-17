@@ -459,17 +459,36 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage3() {
 		FirstName: models.StringPointer("John"),
 		LastName:  models.StringPointer("Smith"),
 	}
+	movingExpenses := models.MovingExpenseDocuments{
+		{
+			MovingExpenseType:    models.MovingExpenseTypeOTHER,
+			RequestedAmountCents: unit.Cents(100000),
+			PaymentMethod:        "GTCC",
+		},
+		{
+			MovingExpenseType:    models.MovingExpenseTypeOTHER,
+			RequestedAmountCents: unit.Cents(20000),
+			PaymentMethod:        "GTCC",
+		},
+		{
+			MovingExpenseType:    models.MovingExpenseTypeOTHER,
+			RequestedAmountCents: unit.Cents(10000),
+			PaymentMethod:        "OTHER",
+		},
+	}
 	signature := models.SignedCertification{
 		Date: signatureDate,
 	}
 
 	ssd := models.ShipmentSummaryFormData{
-		ServiceMember:       sm,
-		SignedCertification: signature,
+		ServiceMember:          sm,
+		SignedCertification:    signature,
+		MovingExpenseDocuments: movingExpenses,
 	}
 
 	sswPage3 := models.FormatValuesShipmentSummaryWorksheetFormPage3(ssd)
 
+	suite.Equal("$1,000.00\n\n$200.00\n\n$100.00", sswPage3.AmountsPaid)
 	suite.Equal("John Smith electronically signed", sswPage3.ServiceMemberSignature)
 	suite.Equal("26 Jan 2019 at 2:40pm", sswPage3.SignatureDate)
 }
@@ -816,7 +835,7 @@ func (suite *ModelSuite) TestFormatOtherExpenses() {
 	formattedOtherExpenses := models.FormatOtherExpenses(otherExpenseDocs)
 
 	suite.Equal("The Bard\n\nThe Beedle", formattedOtherExpenses.Descriptions)
-	suite.Equal("$2,589.00\n\n$1,439.00", formattedOtherExpenses.AmountsPaid)
+	suite.Equal("$25.89\n\n$14.39", formattedOtherExpenses.AmountsPaid)
 }
 
 func (suite *ModelSuite) TestFormatSignature() {
