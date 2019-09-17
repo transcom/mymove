@@ -66,6 +66,9 @@ func (h IndexAccessCodesHandler) Handle(params accesscodeop.IndexAccessCodesPara
 	return accesscodeop.NewIndexAccessCodesOK().WithContentRange(fmt.Sprintf("access codes 0-%d/%d", accessCodesCount, accessCodesCount)).WithPayload(payload)
 }
 
+// generateQueryFilters is helper to convert filter params from array of json strings
+// of the form []string{`{"move_type": "PPM"}`, `{"code": "XYZBCS"}`}
+// to an array of services.QueryFilter
 func (h IndexAccessCodesHandler) generateQueryFilters(filters []string, logger handlers.Logger) []services.QueryFilter {
 	type Filter struct {
 		MoveType string `json:"move_type"`
