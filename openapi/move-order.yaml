@@ -1,0 +1,20 @@
+post:
+  summary: Creates a move order
+  description: Creates a move order
+  operationId: createMoveOrder
+  tags:
+    - moveOrder
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: './components.yaml#/components/schemas/MoveOrder'
+  responses:
+    '201':
+      description: Successfully created move task order
+      content:
+        application/json:
+          schema:
+            $ref: './components.yaml#/components/schemas/MoveOrder'
+

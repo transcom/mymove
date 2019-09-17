@@ -1,0 +1,28 @@
+openapi: 3.0.2
+
+info:
+  title: move.mil API
+  description: The API for move.mil
+  #  termsOfService:
+  contact:
+    email: dp3@truss.works
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 0.0.1
+
+servers:
+  - url: http://api.move.mil/v1
+    description: Production server
+  - url: http://staging-api.move.mil/v1
+    description: Staging server
+  - url: http://experimental-api.move.mil/v1
+    description: Experimental server
+
+paths:
+  /move-orders:
+    $ref: './move-order.yaml'
+
+
+
+  # Payment Request Endpoints
