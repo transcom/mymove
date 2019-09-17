@@ -8,7 +8,6 @@ export const isDevelopment = process.env.NODE_ENV === 'development' || process.e
 export const isTest = process.env.NODE_ENV === 'test';
 export const NULL_UUID = '00000000-0000-0000-0000-000000000000';
 export const ppmInfoPacket = '/downloads/ppm_info_sheet.pdf';
-export const hhgInfoPacket = '/downloads/hhg_info_sheet.pdf';
 
 export const hostname = window && window.location && window.location.hostname;
 export const isMilmoveSite = hostname.startsWith('my') || hostname.startsWith('mil') || '';

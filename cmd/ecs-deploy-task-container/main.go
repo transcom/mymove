@@ -26,7 +26,7 @@ var services = []string{"app"}
 var environments = []string{"prod", "staging", "experimental"}
 
 // Commands should be the name of the binary found in the /bin directory in the container
-var commands = []string{"save-fuel-price-data"}
+var commands = []string{"milmove-tasks save-fuel-price-data", "milmove-tasks send-post-move-survey"}
 
 type errInvalidAccountID struct {
 	AwsAccountID string
@@ -340,11 +340,16 @@ func main() {
 
 	// Get the current task definition (for rollback)
 	commandName := v.GetString(commandFlag)
+	cmds := strings.Fields(commandName)
+	subCommandName := cmds[0]
+	if len(cmds) > 1 {
+		subCommandName = cmds[1]
+	}
 	commandArgs := []string{}
 	if str := v.GetString(commandArgsFlag); len(str) > 0 {
 		commandArgs = strings.Split(str, " ")
 	}
-	ruleName := fmt.Sprintf("%s-%s", commandName, v.GetString(environmentFlag))
+	ruleName := fmt.Sprintf("%s-%s", subCommandName, v.GetString(environmentFlag))
 	targetsOutput, err := serviceCloudWatchEvents.ListTargetsByRule(&cloudwatchevents.ListTargetsByRuleInput{
 		Rule: aws.String(ruleName),
 	})
@@ -405,7 +410,7 @@ func main() {
 	dbHost := *dbInstancesOutput.DBInstances[0].Endpoint.Address
 
 	// Name the container definition and verify it exists
-	containerDefName := fmt.Sprintf("%s-tasks-%s-%s", serviceName, commandName, environmentName)
+	containerDefName := fmt.Sprintf("%s-tasks-%s-%s", serviceName, subCommandName, environmentName)
 
 	// AWS Logs Group is related to the cluster and should not be changed
 	awsLogsGroup := fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
@@ -423,7 +428,10 @@ func main() {
 		"exec",
 		chamberStore,
 		"--",
-		fmt.Sprintf("/bin/%s", commandName),
+		fmt.Sprintf("/bin/%s", cmds[0]),
+	}
+	if len(cmds) > 1 {
+		entryPoint = append(entryPoint, cmds[1:]...)
 	}
 	if len(commandArgs) > 0 {
 		entryPoint = append(entryPoint, commandArgs...)

@@ -33,6 +33,15 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
       transportation_office:
         $ref: '#/definitions/TransportationOffice'
+      disabled:
+        type: boolean
+    required:
+      - id
+      - first_name
+      - last_name
+      - email
+      - telephone
+      - disabled
   OfficeUsers:
     type: array
     items:
@@ -239,6 +248,11 @@ definitions:
       first_name:
         type: string
         title: First Name
+      middle_initials:
+        type: string
+        example: L.
+        x-nullable: true
+        title: Middle Initials
       last_name:
         type: string
         title: Last Name
@@ -289,6 +303,19 @@ definitions:
       - air-force
       - marine-corps
       - coast-guard
+  ElectronicOrdersTotal:
+    type: object
+    properties:
+      category:
+        type: string
+      count:
+        type: integer
+        minimum: 0
+        title: Total Orders Count
+  ElectronicOrdersTotals:
+    type: array
+    items:
+      $ref: '#/definitions/ElectronicOrdersTotal'
 paths:
   /office_users:
     get:
@@ -449,3 +476,36 @@ paths:
           description: not found
         500:
           description: server error
+  /electronic_orders/totals:
+    get:
+      summary: Get total counts for the orders stored in MilMove
+      description: Returns a list of record counts for orders
+      operationId: getElectronicOrdersTotals
+      tags:
+        - electronic_order
+      parameters:
+        - in: query
+          name: filter
+          type: array
+          items:
+            type: string
+        - in: query
+          name: andFilter
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/ElectronicOrdersTotals'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: not found
+        500:
+          description: server error
+
+

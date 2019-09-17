@@ -4,7 +4,7 @@ info:
   version: 0.0.1
   title: my.move.mil
   contact:
-    email: ppp@truss.works
+    email: dp3@truss.works
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
@@ -2198,10 +2198,6 @@ definitions:
         example: Dover AFB
         title: Destination
         x-nullable: true
-      has_unapproved_shipment_line_items:
-        type: boolean
-        title: Are there any unapproved shipment line items?
-        x-nullable: true
       pm_survey_conducted_date:
         type: string
         format: date-time
@@ -2361,41 +2357,41 @@ definitions:
       - postal_code
       - postal_code_type
   AccessCode:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        service_member_id:
-          type: string
-          format: uuid
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        code:
-          type: string
-          example: CODE456
-        move_type:
-          type: string
-          title: Selected Move Type
-          enum:
-            - HHG
-            - PPM
-        created_at:
-          type: string
-          format: datetime
-          example: 2018-04-12T23:20:50.52Z
-          description: when the access code was created
-        claimed_at:
-          type: string
-          format: datetime
-          example: 2018-04-12T23:20:50.52Z
-          description: when the access code was claimed or used
-          x-nullable: true
-      required:
-        - id
-        - code
-        - move_type
-        - created_at
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      code:
+        type: string
+        example: CODE456
+      move_type:
+        type: string
+        title: Selected Move Type
+        enum:
+          - HHG
+          - PPM
+      created_at:
+        type: string
+        format: datetime
+        example: 2018-04-12T23:20:50.52Z
+        description: when the access code was created
+      claimed_at:
+        type: string
+        format: datetime
+        example: 2018-04-12T23:20:50.52Z
+        description: when the access code was claimed or used
+        x-nullable: true
+    required:
+      - id
+      - code
+      - move_type
+      - created_at
 paths:
   /estimates/ppm:
     get:
@@ -3404,6 +3400,8 @@ paths:
           description: must be authenticated to use this endpoint
         403:
           description: not authorized to perform this action
+        413:
+          description: payload is too large
         422:
           description: malformed PDF contained in uploads
         424:
@@ -3603,6 +3601,8 @@ paths:
           description: not authorized
         404:
           description: not found
+        413:
+          description: payload is too large
         500:
           description: server error
     delete:

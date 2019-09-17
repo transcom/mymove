@@ -68,12 +68,6 @@ export class Landing extends Component {
     this.props.push('profile-review');
   };
 
-  addPPMShipment = moveID => {
-    this.props.updateMove(moveID, 'HHG_PPM').then(() => {
-      this.props.push(`/moves/${moveID}/hhg-ppm-start`);
-    });
-  };
-
   getNextIncompletePage = () => {
     const { selectedMoveType, lastMoveIsCanceled, serviceMember, orders, move, ppm, backupContacts } = this.props;
     return getNextIncompletePageInternal({
@@ -143,7 +137,6 @@ export class Landing extends Component {
                 requestPaymentSuccess={requestPaymentSuccess}
                 moveSubmitSuccess={moveSubmitSuccess}
                 updateMove={updateMove}
-                addPPMShipment={this.addPPMShipment}
               />
             )}
           </Fragment>

@@ -226,6 +226,14 @@ const NewApprovedMoveSummaryComponent = ({
                     </div>
                   ) : (
                     <div className="step">
+                      <div className="title">What's next?</div>
+                      <div>
+                        We'll email you a link so you can see and download your final payment paperwork.
+                        <br />
+                        <br />
+                        We've also sent your paperwork to Finance. They'll review it, determine a final amount, then
+                        send your payment.
+                      </div>
                       <Link
                         data-cy="edit-payment-request"
                         to={ppmPaymentRequestReviewRoute}
@@ -484,32 +492,26 @@ const genPpmSummaryStatusComponents = context => {
   };
 };
 
-const getPPMStatus = (moveStatus, ppm, selectedMoveType) => {
+const getPPMStatus = (moveStatus, ppm) => {
   // PPM status determination
   const ppmStatus = get(ppm, 'status', 'DRAFT');
-  // If an HHG_PPM move, move type will be past draft, even if PPM is still in draft status.
-  if (selectedMoveType === 'HHG_PPM') {
-    return ppmStatus;
-  }
   return moveStatus === 'APPROVED' && (ppmStatus === 'SUBMITTED' || ppmStatus === 'DRAFT') ? 'SUBMITTED' : moveStatus;
 };
 
 export class MoveSummaryComponent extends React.Component {
-  componentDidUpdate(prevProps) {
-    if (this.props.move.id !== prevProps.move.id) {
-      this.props.getMoveDocumentsForMove(this.props.move.id).then(({ obj: documents }) => {
-        const weightTicketNetWeight = calcNetWeight(documents);
-        const netWeight =
-          weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
-        this.props.getPpmWeightEstimate(
-          this.props.ppm.actual_move_date || this.props.ppm.original_move_date,
-          this.props.ppm.pickup_postal_code,
-          this.props.originDutyStationZip,
-          this.props.ppm.destination_postal_code,
-          netWeight,
-        );
-      });
-    }
+  componentDidMount() {
+    this.props.getMoveDocumentsForMove(this.props.move.id).then(({ obj: documents }) => {
+      const weightTicketNetWeight = calcNetWeight(documents);
+      const netWeight =
+        weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
+      this.props.getPpmWeightEstimate(
+        this.props.ppm.actual_move_date || this.props.ppm.original_move_date,
+        this.props.ppm.pickup_postal_code,
+        this.props.originDutyStationZip,
+        this.props.ppm.destination_postal_code,
+        netWeight,
+      );
+    });
   }
   render() {
     const {
@@ -526,8 +528,7 @@ export class MoveSummaryComponent extends React.Component {
       isMissingWeightTicketDocuments,
     } = this.props;
     const moveStatus = get(move, 'status', 'DRAFT');
-    const selectedMoveType = get(move, 'selected_move_type');
-    const PPMComponent = genPpmSummaryStatusComponents(context)[getPPMStatus(moveStatus, ppm, selectedMoveType)];
+    const PPMComponent = genPpmSummaryStatusComponents(context)[getPPMStatus(moveStatus, ppm)];
     return (
       <div className="move-summary">
         {move.status === 'CANCELED' && (
