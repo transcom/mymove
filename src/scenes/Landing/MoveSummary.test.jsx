@@ -1,8 +1,9 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import { MoveSummaryComponent as MoveSummary, SubmittedPpmMoveSummary } from './MoveSummary';
+import { MoveSummaryComponent as MoveSummary } from './MoveSummary';
 import CanceledMoveSummary from 'scenes/Landing/MoveSummary/CanceledMoveSummary';
 import DraftMoveSummary from 'scenes/Landing/MoveSummary/DraftMoveSummary';
+import SubmittedPpmMoveSummary from 'scenes/Landing/MoveSummary/SubmittedPpmMoveSummary';
 import moment from 'moment';
 
 describe('MoveSummary', () => {
