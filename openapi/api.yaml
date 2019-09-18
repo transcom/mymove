@@ -28,3 +28,9 @@ paths:
 
 
   # Payment Request Endpoints
+  /payment-requests:
+    $ref: './paths/payment-requests.yaml#/PaymentRequests'
+  /payment-requests/{paymentRequestId}:
+    $ref: './paths/payment-requests.yaml#/PaymentRequestsId'
+#  /payment-requests/{paymentRequestId}/status:
+#    $ref: './paths/payment-requests.yaml#/PaymentRequestStatus'
