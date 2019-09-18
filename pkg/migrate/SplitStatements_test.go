@@ -151,5 +151,5 @@ END $do$;`,
 		require.Equal(t, expectedStmt[i], stmt)
 		i++
 	}
-	require.Equal(t, i, 7)
+	require.Equal(t, i, 3)
 }
