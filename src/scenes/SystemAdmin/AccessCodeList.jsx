@@ -1,10 +1,11 @@
 import React from 'react';
 import { Datagrid, Filter, List, SelectInput, TextField, TextInput } from 'react-admin';
 import AdminPagination from './AdminPagination';
+import styles from './AccessCode.module.scss';
 
 const AccessCodeFilter = props => (
-  <Filter {...props}>
-    <TextInput label="Search" source="code" reference="access_codes" alwaysOn />
+  <Filter {...props} className={styles['access-codes-filters']}>
+    <TextInput label="Access Code" source="code" reference="access_codes" alwaysOn />
     <SelectInput source="move_type" choices={[{ id: 'PPM', name: 'PPM' }, { id: 'HHG', name: 'HHG' }]} />
   </Filter>
 );
