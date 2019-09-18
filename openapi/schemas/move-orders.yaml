@@ -129,3 +129,13 @@ MoveOrderLineItem:
     deleted_at:
       type: string
       format: date
+
+LineItemStatus:
+  type: object
+  properties:
+    status:
+      type: string
+      enum:
+        - APPROVED
+        - SUBMITTED
+        - REJECTED

@@ -20,6 +20,7 @@ servers:
     description: Experimental server
 
 paths:
+  # Move Orders Endpoints
   /move-orders:
     $ref: './paths/move-orders.yaml#/MoveOrders'
   /move-orders/{id}:
@@ -28,7 +29,8 @@ paths:
     $ref: './paths/move-orders.yaml#/MoveOrderStatus'
   /move-orders/{moveOrderId}/line-items/{lineItemId}:
     $ref: './paths/move-orders.yaml#/MoveOrderLineItems'
-
+  /move-orders/{moveOrderId}/line-items/{lineItemId}/status:
+    $ref: './paths/move-orders.yaml#/LineItemStatus'
 
   # Payment Request Endpoints
   /payment-requests:
