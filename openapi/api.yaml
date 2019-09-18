@@ -21,11 +21,13 @@ servers:
 
 paths:
   /move-orders:
-    $ref: './paths/move-orders.yaml#/CreateMoveOrder'
+    $ref: './paths/move-orders.yaml#/MoveOrders'
   /move-orders/{id}:
     $ref: './paths/move-orders.yaml#/MoveOrderItem'
   /move-orders/{id}/status:
     $ref: './paths/move-orders.yaml#/MoveOrderStatus'
+  /move-orders/{moveOrderId}/line-items/{lineItemId}:
+    $ref: './paths/move-orders.yaml#/MoveOrderLineItems'
 
 
   # Payment Request Endpoints
