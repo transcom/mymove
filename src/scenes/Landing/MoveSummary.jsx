@@ -2,7 +2,6 @@ import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { get, includes, isEmpty } from 'lodash';
 
-import { ppmInfoPacket } from 'shared/constants';
 import Alert from 'shared/Alert';
 import TransportationOfficeContactInfo from 'shared/TransportationOffices/TransportationOfficeContactInfo';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
@@ -17,40 +16,6 @@ import PaymentRequestedSummary from 'scenes/Landing/MoveSummary/PaymentRequested
 import SubmittedPpmMoveSummary from 'scenes/Landing/MoveSummary/SubmittedPpmMoveSummary';
 
 import './MoveSummary.css';
-
-export const PPMAlert = props => {
-  return (
-    <Alert type="success" heading={props.heading}>
-      Next, wait for approval. Once approved:
-      <br />
-      <ul>
-        <li>
-          Get certified <strong>weight tickets</strong>, both empty &amp; full
-        </li>
-        <li>
-          Save <strong>expense receipts</strong>, including for storage
-        </li>
-        <li>
-          Read the{' '}
-          <strong>
-            <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
-              PPM info sheet
-            </a>
-          </strong>{' '}
-          for more info
-        </li>
-      </ul>
-    </Alert>
-  );
-};
-
-const FindWeightScales = () => (
-  <span>
-    <a href="https://www.move.mil/resources/locator-maps" target="_blank" rel="noopener noreferrer">
-      Find Certified Weight Scales
-    </a>
-  </span>
-);
 
 const MoveInfoHeader = props => {
   const { orders, profile, move, entitlement, requestPaymentSuccess } = props;

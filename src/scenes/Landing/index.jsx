@@ -5,7 +5,8 @@ import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
 import { withLastLocation } from 'react-router-last-location';
 
-import { MoveSummary, PPMAlert } from './MoveSummary';
+import { MoveSummary } from './MoveSummary';
+import PpmAlert from './PpmAlert';
 import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
@@ -108,7 +109,7 @@ export class Landing extends Component {
                   You've submitted your move
                 </Alert>
               )}
-              {ppm && moveSubmitSuccess && <PPMAlert heading="Congrats - your move is submitted!" />}
+              {ppm && moveSubmitSuccess && <PpmAlert heading="Congrats - your move is submitted!" />}
               {loggedInUserError && (
                 <Alert type="error" heading="An error occurred">
                   There was an error loading your user information.
