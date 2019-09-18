@@ -18,8 +18,9 @@ import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamati
 import { calcNetWeight } from 'scenes/Moves/Ppm/utility';
 import { getPpmWeightEstimate } from 'scenes/Moves/Ppm/ducks';
 import ppmCar from './images/ppm-car.svg';
-import { ProfileStatusTimeline } from './StatusTimeline';
 import PPMStatusTimeline from './PPMStatusTimeline';
+
+import DraftMoveSummary from 'scenes/Landing/MoveSummary/DraftMoveSummary';
 
 import './MoveSummary.css';
 
@@ -52,52 +53,6 @@ export const CanceledMoveSummary = props => {
             </div>
             <div className="step-links">
               <button onClick={reviewProfile}>Start</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </Fragment>
-  );
-};
-
-export const DraftMoveSummary = props => {
-  const { profile, resumeMove } = props;
-  return (
-    <Fragment>
-      <div>
-        <div className="shipment_box">
-          <div className="shipment_type">
-            <img className="move_sm" src={truck} alt="ppm-car" />
-            Move to be scheduled
-          </div>
-
-          <div className="shipment_box_contents">
-            <div>
-              <ProfileStatusTimeline profile={profile} />
-              <div className="step-contents">
-                <div className="status_box usa-width-two-thirds">
-                  <div className="step">
-                    <div className="title">Next Step: Finish setting up your move</div>
-                    <div>
-                      Questions or need help? Contact your local Transportation Office (PPPO) at{' '}
-                      {get(profile, 'current_station.name')}.
-                    </div>
-                  </div>
-                </div>
-                <div className="usa-width-one-third">
-                  <div className="titled_block">
-                    <div className="title">Details</div>
-                    <div>No details</div>
-                  </div>
-                  <div className="titled_block">
-                    <div className="title">Documents</div>
-                    <div className="details-links">No documents</div>
-                  </div>
-                </div>
-              </div>
-              <div className="step-links">
-                <button onClick={resumeMove}>Continue Move Setup</button>
-              </div>
             </div>
           </div>
         </div>
