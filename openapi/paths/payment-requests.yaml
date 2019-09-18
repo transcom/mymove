@@ -54,7 +54,7 @@ PaymentRequests:
       '500':
         $ref: '../shared/responses.yaml#/components/responses/ServerError'
 
-PaymentRequestsId:
+PaymentRequestsItem:
   get:
     summary: Fetches a payment request
     description: Fetches an instance of a payment request
@@ -108,6 +108,46 @@ PaymentRequestsId:
         application/json:
           schema:
             $ref: '../schemas/payment-requests.yaml#/UpdatePaymentRequestPayload'
+      required: true
+    responses:
+      '200':
+        description: updated payment request
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/payment-requests.yaml#/PaymentRequest'
+      '400':
+        $ref: '../shared/responses.yaml#/components/responses/InvalidRequest'
+      '401':
+        $ref: '../shared/responses.yaml#/components/responses/PermissionDenied'
+      '403':
+        $ref: '../shared/responses.yaml#/components/responses/PermissionDenied'
+      '404':
+        $ref: '../shared/responses.yaml#/components/responses/NotFound'
+      '500':
+        $ref: '../shared/responses.yaml#/components/responses/ServerError'
+
+PaymentRequestStatus:
+  patch:
+    summary: Updates a payment request
+    description: Updates a payment request
+    operationId: updatePaymentRequestStatus
+    tags:
+      - payment-requests
+      - gov
+    parameters:
+      - name: paymentRequestId
+        in: path
+        description: UUID of payment request
+        required: true
+        schema:
+          type: string
+          format: uuid
+    requestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/payment-requests.yaml#/UpdatePaymentRequestStatusPayload'
       required: true
     responses:
       '200':

@@ -7,7 +7,7 @@ PaymentRequest:
       example: c56a4180-65aa-42ec-a945-5fd21dec0538
       readOnly: true
     documentPackage:
-      $ref: './payment-requests.yaml#/ProofOfServicePackage'
+      $ref: '#/ProofOfServicePackage'
     taskOrderId:
       type: string
       format: uuid
@@ -22,7 +22,7 @@ PaymentRequest:
       type: boolean
       default: false
     status:
-      $ref: './payment-requests.yaml#/PaymentRequestStatus'
+      $ref: '#/PaymentRequestStatus'
     rejectionReason:
       type: string
       example: documentation was incomplete
@@ -32,7 +32,7 @@ CreatePaymentRequestPayload:
   type: object
   properties:
     proofOfServicePackage:
-      $ref: './payment-requests.yaml#/ProofOfServicePackage'
+      $ref: '#/ProofOfServicePackage'
     taskOrderId:
       type: string
       format: uuid
@@ -57,7 +57,21 @@ UpdatePaymentRequestPayload: # TODO: remove if we Prime will not be updating pay
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
     proofOfServicePackage:
-      $ref: './payment-requests.yaml#/ProofOfServicePackage'
+      $ref: '#/ProofOfServicePackage'
+
+UpdatePaymentRequestStatusPayload:
+  type: object
+  properties:
+    status:
+      $ref: '#/PaymentRequestStatus'
+    paymentRejectionReason:
+      type: string
+      example: documentation was incomplete
+      nullable: true
+    invoiceRejectionReason:
+      type: string
+      example: documentation was incomplete
+      nullable: true
 
 ProofOfServicePackage: # Need more info on what a ProofOfServicePackage is, what is in it
   type: object
@@ -69,7 +83,7 @@ ProofOfServicePackage: # Need more info on what a ProofOfServicePackage is, what
     uploads:
       type: array
       items:
-        $ref: './payment-requests.yaml#/Upload' # this could alternatively be a document that holds an upload
+        $ref: '#/Upload' # this could alternatively be a document that holds an upload
 
 PaymentRequestStatus:
   type: string
