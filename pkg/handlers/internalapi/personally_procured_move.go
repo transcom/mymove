@@ -220,6 +220,48 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 	}
 }
 
+// UpdatePersonallyProcuredMoveEstimateHandler Updates a PPMs incentive estimate
+type UpdatePersonallyProcuredMoveEstimateHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle is the handler
+func (h UpdatePersonallyProcuredMoveEstimateHandler) Handle(params ppmop.UpdatePersonallyProcuredMoveEstimateParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	// #nosec UUID is pattern matched by swagger and will be ok
+	moveID, _ := uuid.FromString(params.MoveID.String())
+	// #nosec UUID is pattern matched by swagger and will be ok
+	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
+
+	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	if ppm.MoveID != moveID {
+		logger.Info("Move ID for PPM does not match requested PPM Move ID", zap.String("requested move_id", moveID.String()), zap.String("actual move_id", ppm.MoveID.String()))
+		return ppmop.NewUpdatePersonallyProcuredMoveEstimateBadRequest()
+	}
+
+	err = h.updateEstimates(ppm, logger)
+	if err != nil {
+		logger.Error("Unable to set calculated fields on PPM", zap.Error(err))
+		return handlers.ResponseForError(logger, err)
+	}
+
+	verrs, err := models.SavePersonallyProcuredMove(h.DB(), ppm)
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(logger, verrs, err)
+	}
+
+	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+	return ppmop.NewUpdatePersonallyProcuredMoveEstimateOK().WithPayload(ppmPayload)
+}
+
 // PatchPersonallyProcuredMoveHandler Patches a PPM
 type PatchPersonallyProcuredMoveHandler struct {
 	handlers.HandlerContext
@@ -391,7 +433,7 @@ func dateForComparison(previousValue, newValue *time.Time) (value time.Time, val
 	return value, false, false
 }
 
-func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.PersonallyProcuredMove, logger Logger) error {
+func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models.PersonallyProcuredMove, logger Logger) error {
 	re := rateengine.NewRateEngine(h.DB(), logger)
 	daysInSIT := 0
 	if ppm.HasSit != nil && *ppm.HasSit && ppm.DaysInStorage != nil {
