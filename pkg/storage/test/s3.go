@@ -28,7 +28,7 @@ func (fake *FakeS3Storage) Delete(key string) error {
 }
 
 // Store stores a file.
-func (fake *FakeS3Storage) Store(key string, data io.ReadSeeker, md5 string, strings *string) (*storage.StoreResult, error) {
+func (fake *FakeS3Storage) Store(key string, data io.ReadSeeker, md5 string, tags *string) (*storage.StoreResult, error) {
 	f, err := fake.fs.Create(key)
 	if err != nil {
 		return nil, err

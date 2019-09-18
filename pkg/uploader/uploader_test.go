@@ -164,7 +164,7 @@ func (suite *UploaderSuite) TestTooLargeUploadFromLocalFile() {
 	suite.False(verrs.HasAny(), "failed to validate upload")
 }
 
-func (suite *UploaderSuite) TestStorerCalledWithMetaData() {
+func (suite *UploaderSuite) TestStorerCalledWithTags() {
 	document := testdatagen.MakeDefaultDocument(suite.DB())
 
 	fakeS3 := &mocks.FileStorer{}
