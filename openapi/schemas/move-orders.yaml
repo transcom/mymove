@@ -5,3 +5,75 @@ MoveOrder:
       type: string
       format: uuid
       example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    payment_method:
+      type: string
+    status:
+      type: string
+      enum:
+        - APPROVED
+        - REJECTED
+        - SUBMITTED
+    move_date:
+      type: string
+      format: date
+    origin_duty_station:
+      type: string
+      format: uuid
+      example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    origin_ppso:
+      type: string
+      format: uuid
+      example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    destination_duty_station:
+      type: string
+      format: uuid
+      example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    destination_ppso:
+      type: string
+      format: uuid
+      example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    orders_type:
+      type: string
+      enum:
+        - PERMANENT_CHANGE_OF_STATION
+    travel_authorization_name:
+      type: string
+    travel_authorization_date:
+      type: string
+      format: date
+    travel_authorization_issuing_hq:
+      type: string
+      format: uuid
+      example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    line_of_accounting:
+      type: string
+    tac:
+      type: string
+    electronic_copy_of_orders:
+      type: string
+      format: uuid
+      example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    created_at:
+      type: string
+      format: date
+    updated_at:
+      type: string
+      format: date
+    deleted_at:
+      type: string
+      format: date
+
+MoveOrders:
+  type: array
+  items:
+    $ref: '#/MoveOrder'
+
+MoveOrderStatus:
+  type: object
+  properties:
+    status:
+      type: string
+      enum:
+        - APPROVED
+        - SUBMITTED
+        - REJECTED

@@ -24,7 +24,8 @@ paths:
     $ref: './paths/move-orders.yaml#/CreateMoveOrder'
   /move-orders/{id}:
     $ref: './paths/move-orders.yaml#/MoveOrderItem'
-
+  /move-orders/{id}/status:
+    $ref: './paths/move-orders.yaml#/MoveOrderStatus'
 
 
   # Payment Request Endpoints
