@@ -55,7 +55,17 @@ func (m *Move) FetchAllMoveDocumentsForMove(db *pop.Connection, includeAllMoveDo
 	}
 
 	sql, args := query.ToSQL(&pop.Model{Value: MoveDocument{}},
-		`move_documents.*,
+		`move_documents.id,
+	  move_documents.move_id,
+	  move_documents.document_id,
+	  move_documents.move_document_type,
+	  move_documents.status,
+	  move_documents.notes,
+	  move_documents.created_at,
+	  move_documents.updated_at,
+	  move_documents.title,
+	  move_documents.personally_procured_move_id,
+	  move_documents.deleted_at,
 	  ed.moving_expense_type,
 	  ed.requested_amount_cents,
 	  ed.payment_method,
