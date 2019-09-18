@@ -1,9 +1,6 @@
 package accesscode
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -20,12 +17,12 @@ type accessCodeListFetcher struct {
 func (o *accessCodeListFetcher) FetchAccessCodeList(filters []services.QueryFilter, associations services.QueryAssociations) (models.AccessCodes, error) {
 	var accessCodes models.AccessCodes
 
-	fmt.Println(strings.Repeat("*", 100))
-	fmt.Println(accessCodes)
-	fmt.Println(len(accessCodes))
-	error := o.builder.QueryForAssociations(&accessCodes, associations, filters)
+	err := o.builder.QueryForAssociations(&accessCodes, associations, filters)
+	if err != nil {
+		return models.AccessCodes{}, err
+	}
 
-	return accessCodes, error
+	return accessCodes, nil
 }
 
 // NewAccessCodeListFetcher returns an implementation of OfficeUserListFetcher
