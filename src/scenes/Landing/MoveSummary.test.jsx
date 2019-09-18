@@ -170,7 +170,7 @@ describe('MoveSummary', () => {
         editMoveFn,
         resumeMoveFn,
       );
-      const ppmSummary = component.find('Connect(ApprovedMoveSummaryComponent)');
+      const ppmSummary = component.find('Connect(ApprovedMoveSummary)');
       expect(ppmSummary.exists()).toBe(true);
     });
   });
