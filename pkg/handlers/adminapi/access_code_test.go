@@ -92,10 +92,11 @@ func (suite *HandlerSuite) TestIndexAccessCodesHandlerHelpers() {
 	}
 
 	suite.T().Run("test both filters present", func(t *testing.T) {
-		qfs := handler.generateQueryFilters([]string{`{"move_type": "PPM"}`, `{"code": "XYZBCS"}`}, suite.TestLogger())
+
+		qfs := handler.generateQueryFilters([]string{`{"move_type":"PPM"`, `"code":"ABC123"}`}, suite.TestLogger())
 		expectedFilters := []services.QueryFilter{
 			query.NewQueryFilter("move_type", "=", "PPM"),
-			query.NewQueryFilter("code", "=", "XYZBCS"),
+			query.NewQueryFilter("code", "=", "ABC123"),
 		}
 		suite.Equal(expectedFilters, qfs)
 	})

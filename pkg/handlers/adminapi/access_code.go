@@ -3,6 +3,7 @@ package adminapi
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"go.uber.org/zap"
 
@@ -67,7 +68,7 @@ func (h IndexAccessCodesHandler) Handle(params accesscodeop.IndexAccessCodesPara
 }
 
 // generateQueryFilters is helper to convert filter params from array of json strings
-// of the form []string{`{"move_type": "PPM"}`, `{"code": "XYZBCS"}`}
+// of the form []string{`{"move_type": "PPM"`, `"code": "XYZBCS"}`}
 // to an array of services.QueryFilter
 func (h IndexAccessCodesHandler) generateQueryFilters(filters []string, logger handlers.Logger) []services.QueryFilter {
 	type Filter struct {
@@ -75,19 +76,19 @@ func (h IndexAccessCodesHandler) generateQueryFilters(filters []string, logger h
 		Code     string `json:"code"`
 	}
 	f := Filter{}
-	for i := 0; i < len(filters); i++ {
-		b := []byte(filters[i])
-		err := json.Unmarshal(b, &f)
-		if err != nil {
-			logger.Warn("unable to decode param", zap.String("filter param:", filters[i]))
-			continue
-		}
+	b := []byte(strings.Join(filters, ","))
+	err := json.Unmarshal(b, &f)
+	if err != nil {
+		fs := fmt.Sprintf("%v", filters)
+		logger.Warn("unable to decode param", zap.Error(err),
+			zap.String("filters", fs))
 	}
 	var queryFilters []services.QueryFilter
 	if f.MoveType != "" {
 		queryFilters = append(queryFilters, query.NewQueryFilter("move_type", "=", f.MoveType))
 	}
-	if f.Code != "" {
+	//TODO confirm length of real access codes is 6
+	if f.Code != "" && len(f.Code) == 6 {
 		queryFilters = append(queryFilters, query.NewQueryFilter("code", "=", f.Code))
 	}
 	return queryFilters
