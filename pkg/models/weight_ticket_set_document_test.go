@@ -89,7 +89,7 @@ func (suite *ModelSuite) TestCalculateNetWeightWeightTicketAwaitingReview() {
 	suite.NoError(err)
 
 	status := models.MoveDocumentStatusOK
-	wts, err := models.FetchMoveDocuments(suite.DB(), session, ppm.ID, &status, models.MoveDocumentTypeWEIGHTTICKETSET)
+	wts, err := models.FetchMoveDocuments(suite.DB(), session, ppm.ID, &status, models.MoveDocumentTypeWEIGHTTICKETSET, false)
 	suite.NoError(err)
 	suite.Len(wts, 2)
 

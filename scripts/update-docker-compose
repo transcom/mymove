@@ -1,7 +1,8 @@
 #! /usr/bin/env bash
 
 set -eu -o pipefail
+shopt -s extglob
 
 BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
-perl -pi.bak -e "s/(.*git-branch).*/\$1-${BRANCH_NAME//\#}/g" docker-compose.yml
+perl -pi.bak -e "s/(.*git-branch).*/\$1-${BRANCH_NAME//+([^A-Za-z0-9-.])/-}/g" docker-compose.yml
 rm docker-compose.yml.bak

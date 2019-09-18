@@ -3,20 +3,19 @@ package edisegment
 import (
 	"fmt"
 	"strconv"
-	"strings"
 )
 
 // L7 represents the B3 EDI segment
 type L7 struct {
-	LadingLineItemNumber int
-	TariffNumber         string
-	TariffItemNumber     string
-	TariffDistance       int
+	LadingLineItemNumber int    `validate:"omitempty,min=1,max=999"`
+	TariffNumber         string `validate:"omitempty,min=1,max=7"`
+	TariffItemNumber     string `validate:"omitempty,min=1,max=16"`
+	TariffDistance       int    `validate:"omitempty,min=1,max=99999"`
 }
 
 // StringArray converts L7 to an array of strings
-func (s *L7) String(delimiter string) string {
-	elements := []string{
+func (s *L7) StringArray() []string {
+	return []string{
 		"L7",
 		strconv.Itoa(s.LadingLineItemNumber),
 		"",
@@ -32,7 +31,6 @@ func (s *L7) String(delimiter string) string {
 		"",
 		strconv.Itoa(s.TariffDistance),
 	}
-	return strings.Join(elements, delimiter)
 }
 
 // Parse parses an X12 string that's split into an array into the L7 struct

@@ -249,6 +249,8 @@ func (f *FormFiller) drawData(fields map[string]FieldPos, data interface{}) erro
 			if v != nil {
 				displayValue = v.Format()
 			}
+		case fmt.Stringer:
+			displayValue = v.String()
 		default:
 			fmt.Println(v)
 		}

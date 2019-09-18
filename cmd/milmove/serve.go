@@ -130,6 +130,9 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// Feature Flags
 	cli.InitFeatureFlags(flag)
 
+	// Service Flags
+	cli.InitServiceFlags(flag)
+
 	// Sort command line flags
 	flag.SortFlags = true
 }
@@ -227,6 +230,10 @@ func checkServeConfig(v *viper.Viper, logger logger) error {
 	}
 
 	if err := cli.CheckFeatureFlag(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckServices(v); err != nil {
 		return err
 	}
 
@@ -479,7 +486,10 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	handlerContext.SetAppNames(appnames)
 
 	// Email
-	notificationSender := notifications.InitEmail(v, session, logger)
+	notificationSender, notificationSenderErr := notifications.InitEmail(v, session, logger)
+	if notificationSenderErr != nil {
+		logger.Fatal("notification sender sending not enabled", zap.Error(notificationSenderErr))
+	}
 	handlerContext.SetNotificationSender(notificationSender)
 
 	build := v.GetString(cli.BuildRootFlag)
@@ -664,47 +674,52 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		site.Handle(pat.Get("/swagger-ui/*"), http.NotFoundHandler())
 	}
 
-	ordersMux := goji.SubMux()
-	ordersDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.OrdersServername)
-	ordersMux.Use(ordersDetectionMiddleware)
-	ordersMux.Use(middleware.NoCache(logger))
-	ordersMux.Use(clientCertMiddleware)
-	ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.OrdersSwaggerFlag)))
-	if v.GetBool(cli.ServeSwaggerUIFlag) {
-		logger.Info("Orders API Swagger UI serving is enabled")
-		ordersMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "orders.html")))
-	} else {
-		ordersMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+	if v.GetBool(cli.ServeOrdersFlag) {
+		ordersMux := goji.SubMux()
+		ordersDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.OrdersServername)
+		ordersMux.Use(ordersDetectionMiddleware)
+		ordersMux.Use(middleware.NoCache(logger))
+		ordersMux.Use(clientCertMiddleware)
+		ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.OrdersSwaggerFlag)))
+		if v.GetBool(cli.ServeSwaggerUIFlag) {
+			logger.Info("Orders API Swagger UI serving is enabled")
+			ordersMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "orders.html")))
+		} else {
+			ordersMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+		}
+		ordersMux.Handle(pat.New("/*"), ordersapi.NewOrdersAPIHandler(handlerContext))
+		site.Handle(pat.New("/orders/v1/*"), ordersMux)
 	}
-	ordersMux.Handle(pat.New("/*"), ordersapi.NewOrdersAPIHandler(handlerContext))
-	site.Handle(pat.New("/orders/v1/*"), ordersMux)
-
-	dpsMux := goji.SubMux()
-	dpsDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.DpsServername)
-	dpsMux.Use(dpsDetectionMiddleware)
-	dpsMux.Use(middleware.NoCache(logger))
-	dpsMux.Use(clientCertMiddleware)
-	dpsMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.DPSSwaggerFlag)))
-	if v.GetBool(cli.ServeSwaggerUIFlag) {
-		logger.Info("DPS API Swagger UI serving is enabled")
-		dpsMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "dps.html")))
-	} else {
-		dpsMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+	if v.GetBool(cli.ServeDPSFlag) {
+		dpsMux := goji.SubMux()
+		dpsDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.DpsServername)
+		dpsMux.Use(dpsDetectionMiddleware)
+		dpsMux.Use(middleware.NoCache(logger))
+		dpsMux.Use(clientCertMiddleware)
+		dpsMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.DPSSwaggerFlag)))
+		if v.GetBool(cli.ServeSwaggerUIFlag) {
+			logger.Info("DPS API Swagger UI serving is enabled")
+			dpsMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "dps.html")))
+		} else {
+			dpsMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+		}
+		dpsMux.Handle(pat.New("/*"), dpsapi.NewDPSAPIHandler(handlerContext))
+		site.Handle(pat.New("/dps/v0/*"), dpsMux)
 	}
-	dpsMux.Handle(pat.New("/*"), dpsapi.NewDPSAPIHandler(handlerContext))
-	site.Handle(pat.New("/dps/v0/*"), dpsMux)
 
-	sddcDPSMux := goji.SubMux()
-	sddcDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.SddcServername)
-	sddcDPSMux.Use(sddcDetectionMiddleware)
-	sddcDPSMux.Use(middleware.NoCache(logger))
-	site.Handle(pat.New("/dps_auth/*"), sddcDPSMux)
-	sddcDPSMux.Handle(pat.Get("/set_cookie"),
-		dpsauth.NewSetCookieHandler(logger,
-			dpsAuthSecretKey,
-			dpsCookieDomain,
-			dpsCookieSecret,
-			dpsCookieExpires))
+	if v.GetBool(cli.ServeSDDCFlag) {
+		sddcDPSMux := goji.SubMux()
+		sddcDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.SddcServername)
+		sddcDPSMux.Use(sddcDetectionMiddleware)
+		sddcDPSMux.Use(middleware.NoCache(logger))
+		site.Handle(pat.New("/dps_auth/*"), sddcDPSMux)
+		sddcDPSMux.Handle(pat.Get("/set_cookie"),
+			dpsauth.NewSetCookieHandler(logger,
+				dpsAuthSecretKey,
+				dpsCookieDomain,
+				dpsCookieSecret,
+				dpsCookieExpires))
+	}
 
 	root := goji.NewMux()
 	root.Use(middleware.Recovery(logger))
@@ -724,53 +739,60 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	site.Handle(pat.New("/*"), root)
 
-	apiMux := goji.SubMux()
-	root.Handle(pat.New("/api/v1/*"), apiMux)
-	apiMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.SwaggerFlag)))
-	if v.GetBool(cli.ServeSwaggerUIFlag) {
-		logger.Info("Public API Swagger UI serving is enabled")
-		apiMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "api.html")))
-	} else {
-		apiMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+	if v.GetBool(cli.ServePublicAPIlFlag) {
+		apiMux := goji.SubMux()
+		root.Handle(pat.New("/api/v1/*"), apiMux)
+		apiMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.SwaggerFlag)))
+		if v.GetBool(cli.ServeSwaggerUIFlag) {
+			logger.Info("Public API Swagger UI serving is enabled")
+			apiMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "api.html")))
+		} else {
+			apiMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+		}
+		externalAPIMux := goji.SubMux()
+		apiMux.Handle(pat.New("/*"), externalAPIMux)
+		externalAPIMux.Use(middleware.NoCache(logger))
+		externalAPIMux.Use(userAuthMiddleware)
+		externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext))
 	}
-	externalAPIMux := goji.SubMux()
-	apiMux.Handle(pat.New("/*"), externalAPIMux)
-	externalAPIMux.Use(middleware.NoCache(logger))
-	externalAPIMux.Use(userAuthMiddleware)
-	externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext, logger))
 
-	internalMux := goji.SubMux()
-	root.Handle(pat.New("/internal/*"), internalMux)
-	internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.InternalSwaggerFlag)))
-	if v.GetBool(cli.ServeSwaggerUIFlag) {
-		logger.Info("Internal API Swagger UI serving is enabled")
-		internalMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "internal.html")))
-	} else {
-		internalMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+	if v.GetBool(cli.ServeInternalAPIFlag) {
+		internalMux := goji.SubMux()
+		root.Handle(pat.New("/internal/*"), internalMux)
+		internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.InternalSwaggerFlag)))
+		if v.GetBool(cli.ServeSwaggerUIFlag) {
+			logger.Info("Internal API Swagger UI serving is enabled")
+			internalMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "internal.html")))
+		} else {
+			internalMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+		}
+		// Mux for internal API that enforces auth
+		internalAPIMux := goji.SubMux()
+		internalMux.Handle(pat.New("/*"), internalAPIMux)
+		internalAPIMux.Use(userAuthMiddleware)
+		internalAPIMux.Use(middleware.NoCache(logger))
+		internalAPIMux.Handle(pat.New("/*"), internalapi.NewInternalAPIHandler(handlerContext))
 	}
-	// Mux for internal API that enforces auth
-	internalAPIMux := goji.SubMux()
-	internalMux.Handle(pat.New("/*"), internalAPIMux)
-	internalAPIMux.Use(userAuthMiddleware)
-	internalAPIMux.Use(middleware.NoCache(logger))
-	internalAPIMux.Handle(pat.New("/*"), internalapi.NewInternalAPIHandler(handlerContext))
 
-	adminMux := goji.SubMux()
-	root.Handle(pat.New("/admin/v1/*"), adminMux)
-	adminMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.AdminSwaggerFlag)))
-	if v.GetBool(cli.ServeSwaggerUIFlag) {
-		logger.Info("Admin API Swagger UI serving is enabled")
-		adminMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "admin.html")))
-	} else {
-		adminMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+	if v.GetBool(cli.ServeAdminFlag) {
+		adminMux := goji.SubMux()
+		root.Handle(pat.New("/admin/v1/*"), adminMux)
+		adminMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.AdminSwaggerFlag)))
+		if v.GetBool(cli.ServeSwaggerUIFlag) {
+			logger.Info("Admin API Swagger UI serving is enabled")
+			adminMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "admin.html")))
+		} else {
+			adminMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+		}
+
+		// Mux for admin API that enforces auth
+		adminAPIMux := goji.SubMux()
+		adminMux.Handle(pat.New("/*"), adminAPIMux)
+		adminAPIMux.Use(userAuthMiddleware)
+		adminAPIMux.Use(authentication.AdminAuthMiddleware(logger))
+		adminAPIMux.Use(middleware.NoCache(logger))
+		adminAPIMux.Handle(pat.New("/*"), adminapi.NewAdminAPIHandler(handlerContext))
 	}
-	// Mux for admin API that enforces auth
-	adminAPIMux := goji.SubMux()
-	adminMux.Handle(pat.New("/*"), adminAPIMux)
-	adminAPIMux.Use(userAuthMiddleware)
-	adminAPIMux.Use(authentication.AdminAuthMiddleware(logger))
-	adminAPIMux.Use(middleware.NoCache(logger))
-	adminAPIMux.Handle(pat.New("/*"), adminapi.NewAdminAPIHandler(handlerContext))
 
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
 	authMux := goji.SubMux()

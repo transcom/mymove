@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/gobuffalo/validate"
-
 	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
 
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -47,7 +46,6 @@ func getDBColumn(t reflect.Type, field string) (string, bool) {
 func getComparator(comparator string) (string, bool) {
 	switch comparator {
 	case equals:
-
 		return equals, true
 	case greaterThan:
 		return greaterThan, true
@@ -56,27 +54,95 @@ func getComparator(comparator string) (string, bool) {
 	}
 }
 
+func buildQuery(query *pop.Query, filters []services.QueryFilter, pagination services.Pagination, t reflect.Type) (*pop.Query, error) {
+	query, err := filteredQuery(query, filters, t)
+
+	if err != nil {
+		return nil, err
+	}
+
+	query, err = paginatedQuery(query, pagination, t)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return query, nil
+}
+
+func paginatedQuery(query *pop.Query, pagination services.Pagination, t reflect.Type) (*pop.Query, error) {
+	return query.Paginate(pagination.Page(), pagination.PerPage()), nil
+}
+
+// Validate that the QueryFilter is valid using getDBColumn and getComparator
+func validateFilter(f services.QueryFilter, t reflect.Type) string {
+	invalidField := ""
+	_, ok := getDBColumn(t, f.Column())
+	if !ok {
+		invalidField = fmt.Sprintf("%s %s", f.Column(), f.Comparator())
+	}
+	_, ok = getComparator(f.Comparator())
+	if !ok {
+		invalidField = fmt.Sprintf("%s %s", f.Column(), f.Comparator())
+	}
+	return invalidField
+}
+
+// Currently this can select counts for 'categories' based on a field comparison using an array of QueryFilters. Additionally it supports adding in AND logic
+// by including a list of AND clauses, also via an array of QueryFilters. TODO: Add in functionality for OR when a use case for it comes up.
+func categoricalCountsQueryOneModel(conn *pop.Connection, filters []services.QueryFilter, andFilters *[]services.QueryFilter, t reflect.Type) (map[interface{}]int, error) {
+	invalidFields := make([]string, 0)
+	counts := make(map[interface{}]int, 0)
+
+	for _, f := range filters {
+		// Set up an empty query for us to use to get the count
+		query := conn.Q()
+
+		// Validate the filter we're using is valid/safe
+		invalidField := validateFilter(f, t)
+		if invalidField != "" {
+			invalidFields = append(invalidFields, fmt.Sprintf("%s %s", f.Column(), f.Comparator()))
+		}
+
+		queryColumn := fmt.Sprintf("%s %s ?", f.Column(), f.Comparator())
+		query = query.Where(queryColumn, f.Value())
+
+		if andFilters != nil {
+			for _, af := range *andFilters {
+				invalidField := validateFilter(af, t)
+				if invalidField != "" {
+					return nil, fmt.Errorf("%v is not valid input", invalidField)
+				}
+
+				queryColumn := fmt.Sprintf("%s %s ?", af.Column(), af.Comparator())
+				query = query.Where(queryColumn, af.Value())
+			}
+		}
+		if len(invalidFields) != 0 {
+			return nil, fmt.Errorf("%v is not valid input", invalidFields)
+		}
+
+		count, err := query.Count(reflect.Zero(t).Interface())
+		if err != nil {
+			return nil, err
+		}
+		counts[f.Value()] = count
+	}
+
+	return counts, nil
+}
+
 func filteredQuery(query *pop.Query, filters []services.QueryFilter, t reflect.Type) (*pop.Query, error) {
 	invalidFields := make([]string, 0)
 	for _, f := range filters {
-		column, ok := getDBColumn(t, f.Column())
-		if !ok {
-			invalidFields = append(
-				invalidFields,
-				fmt.Sprintf("%s %s", f.Column(), f.Comparator()),
-			)
-		}
-		comparator, ok := getComparator(f.Comparator())
-		if !ok {
-			invalidFields = append(
-				invalidFields,
-				fmt.Sprintf("%s %s", f.Column(), f.Comparator()),
-			)
-			continue
+		// Validate the filter we're using is valid/safe
+		invalidField := validateFilter(f, t)
+		if invalidField != "" {
+			invalidFields = append(invalidFields, fmt.Sprintf("%s %s", f.Column(), f.Comparator()))
 		}
 		// Column lookup should always adhere to SQL injection input validations
 		// https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.md#defense-option-3-whitelist-input-validation
-		columnQuery := fmt.Sprintf("%s %s ?", column, comparator)
+		columnQuery := fmt.Sprintf("%s %s ?", f.Column(), f.Comparator())
 		query = query.Where(columnQuery, f.Value())
 	}
 	if len(invalidFields) != 0 {
@@ -106,7 +172,7 @@ func (p *Builder) FetchOne(model interface{}, filters []services.QueryFilter) er
 
 // FetchMany fetches multiple model records using pop's All method
 // Will return error if model is not pointer to slice of structs
-func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter) error {
+func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter, pagination services.Pagination) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return errors.New(fetchManyReflectionMessage)
@@ -120,7 +186,7 @@ func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter) e
 		return errors.New(fetchManyReflectionMessage)
 	}
 	query := p.db.Q()
-	query, err := filteredQuery(query, filters, t)
+	query, err := buildQuery(query, filters, pagination, t)
 	if err != nil {
 		return err
 	}
@@ -138,6 +204,30 @@ func (p *Builder) CreateOne(model interface{}) (*validate.Errors, error) {
 		return verrs, err
 	}
 	return nil, nil
+}
+
+func (p *Builder) UpdateOne(model interface{}) (*validate.Errors, error) {
+	t := reflect.TypeOf(model)
+	if t.Kind() != reflect.Ptr {
+		return nil, errors.New(fetchOneReflectionMessage)
+	}
+
+	verrs, err := p.db.ValidateAndUpdate(model)
+	if err != nil || verrs.HasAny() {
+		return verrs, err
+	}
+
+	return nil, nil
+}
+
+func (p *Builder) FetchCategoricalCountsFromOneModel(model interface{}, filters []services.QueryFilter, andFilters *[]services.QueryFilter) (map[interface{}]int, error) {
+	conn := p.db
+	t := reflect.TypeOf(model)
+	categoricalCounts, err := categoricalCountsQueryOneModel(conn, filters, andFilters, t)
+	if err != nil {
+		return nil, err
+	}
+	return categoricalCounts, nil
 }
 
 func (p *Builder) QueryForAssociations(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter) error {

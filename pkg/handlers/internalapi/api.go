@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
 	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
 
@@ -14,7 +15,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
-	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 
 	"github.com/transcom/mymove/pkg/handlers"
 )
@@ -62,6 +62,7 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 		movedocument.NewMoveDocumentUpdater(context.DB()),
 	}
 	internalAPI.MoveDocsIndexMoveDocumentsHandler = IndexMoveDocumentsHandler{context}
+	internalAPI.MoveDocsDeleteMoveDocumentHandler = DeleteMoveDocumentHandler{context}
 
 	internalAPI.MoveDocsCreateMovingExpenseDocumentHandler = CreateMovingExpenseDocumentHandler{context}
 
@@ -84,12 +85,6 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.UploadsDeleteUploadsHandler = DeleteUploadsHandler{context}
 
 	internalAPI.QueuesShowQueueHandler = ShowQueueHandler{context}
-
-	internalAPI.ShipmentsCreateShipmentHandler = CreateShipmentHandler{context}
-	internalAPI.ShipmentsPatchShipmentHandler = PatchShipmentHandler{context}
-	internalAPI.ShipmentsGetShipmentHandler = GetShipmentHandler{context}
-	internalAPI.ShipmentsApproveHHGHandler = ApproveHHGHandler{context}
-	internalAPI.ShipmentsCreateAndSendHHGInvoiceHandler = ShipmentInvoiceHandler{context}
 
 	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler{context}
 	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler{context}

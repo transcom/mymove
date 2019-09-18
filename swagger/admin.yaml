@@ -12,27 +12,6 @@ consumes:
 produces:
   - application/json
 definitions:
-  OfficeUser:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      first_name:
-        type: string
-      last_name:
-        type: string
-      email:
-        type: string
-        format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-      telephone:
-        type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-      transportation_office:
-        $ref: '#/definitions/TransportationOffice'
   AccessCode:
     type: object
     properties:
@@ -52,14 +31,55 @@ definitions:
       locator:
         type: string
         example: '11232'
-  OfficeUsers:
-    type: array
-    items:
-      $ref: '#/definitions/OfficeUser'
   AccessCodes:
     type: array
     items:
       $ref: '#/definitions/AccessCode'
+  OfficeUser:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      first_name:
+        type: string
+      middle_initials:
+        type: string
+      last_name:
+        type: string
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+      transportation_office:
+        $ref: '#/definitions/TransportationOffice'
+      disabled:
+        type: boolean
+      created_at:
+        type: string
+        format: datetime
+      updated_at:
+        type: string
+        format: datetime
+    required:
+      - id
+      - first_name
+      - middle_initials
+      - last_name
+      - email
+      - telephone
+      - disabled
+      - created_at
+      - updated_at
+  OfficeUsers:
+    type: array
+    items:
+      $ref: '#/definitions/OfficeUser'
   TransportationOffice:
     type: object
     properties:
@@ -262,6 +282,11 @@ definitions:
       first_name:
         type: string
         title: First Name
+      middle_initials:
+        type: string
+        example: L.
+        x-nullable: true
+        title: Middle Initials
       last_name:
         type: string
         title: Last Name
@@ -274,6 +299,76 @@ definitions:
         type: string
         format: uuid
         example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
+  OfficeUserUpdatePayload:
+    type: object
+    properties:
+      first_name:
+        type: string
+        title: First Name
+      middle_initials:
+        type: string
+        title: Middle Initials
+        example: Q.
+        x-nullable: true
+      last_name:
+        type: string
+        title: Last Name
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+  ElectronicOrder:
+    type: object
+    required:
+      - id
+      - issuer
+      - created_at
+      - updated_at
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      issuer:
+        $ref: '#/definitions/Issuer'
+      created_at:
+        type: string
+        format: datetime
+        title: Created at
+      updated_at:
+        type: string
+        format: datetime
+        title: Updated at
+  ElectronicOrders:
+    type: array
+    items:
+      $ref: '#/definitions/ElectronicOrder'
+  Issuer:
+    type: string
+    description: >-
+      Organization that issues orders. If more organizations, especially
+      civilian ones, become clients of this API in the future, this enumeration
+      may need to be expanded.
+    enum:
+      - army
+      - navy
+      - air-force
+      - marine-corps
+      - coast-guard
+  ElectronicOrdersTotal:
+    type: object
+    properties:
+      category:
+        type: string
+      count:
+        type: integer
+        minimum: 0
+        title: Total Orders Count
+  ElectronicOrdersTotals:
+    type: array
+    items:
+      $ref: '#/definitions/ElectronicOrdersTotal'
 paths:
   /access_codes:
     get:
@@ -316,6 +411,12 @@ paths:
           type: array
           items:
             type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
       responses:
         200:
           description: success
@@ -384,6 +485,36 @@ paths:
           description: office not found
         500:
           description: server error
+    patch:
+      summary: Updates an office user
+      operationId: updateOfficeUser
+      tags:
+        - office
+      parameters:
+        - in: path
+          name: officeUserId
+          type: string
+          format: uuid
+          required: true
+        - in: body
+          name: officeUser
+          description: Office user information
+          required: true
+          schema:
+            $ref: '#/definitions/OfficeUserUpdatePayload'
+      responses:
+        200:
+          description: Successfully updated Office User
+          schema:
+            $ref: '#/definitions/OfficeUser'
+        400:
+          description: Invalid Request
+        401:
+          description: Must be authenticated to use this end point
+        403:
+          description: Not authorized to create an office user
+        500:
+          description: Server error
   /offices:
     get:
       summary: List transportation offices
@@ -397,6 +528,12 @@ paths:
           type: array
           items:
             type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
       responses:
         200:
           description: success
@@ -412,5 +549,72 @@ paths:
           description: request requires user authentication
         404:
           description: office not found
+        500:
+          description: server error
+  /electronic_orders:
+    get:
+      summary: List electronic orders
+      description: Returns a list of electronic orders
+      operationId: indexElectronicOrders
+      tags:
+        - electronic_order
+      parameters:
+        - in: query
+          name: filter
+          type: array
+          items:
+            type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
+      responses:
+        200:
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
+          schema:
+            $ref: '#/definitions/ElectronicOrders'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: not found
+        500:
+          description: server error
+  /electronic_orders/totals:
+    get:
+      summary: Get total counts for the orders stored in MilMove
+      description: Returns a list of record counts for orders
+      operationId: getElectronicOrdersTotals
+      tags:
+        - electronic_order
+      parameters:
+        - in: query
+          name: filter
+          type: array
+          items:
+            type: string
+        - in: query
+          name: andFilter
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/ElectronicOrdersTotals'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: not found
         500:
           description: server error

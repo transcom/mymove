@@ -17,10 +17,15 @@ import (
 
 func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 	return &adminmessages.OfficeUser{
-		ID:        *handlers.FmtUUID(o.ID),
-		FirstName: o.FirstName,
-		LastName:  o.LastName,
-		Email:     o.Email,
+		ID:             handlers.FmtUUID(o.ID),
+		FirstName:      handlers.FmtString(o.FirstName),
+		MiddleInitials: handlers.FmtStringPtr(o.MiddleInitials),
+		LastName:       handlers.FmtString(o.LastName),
+		Telephone:      handlers.FmtString(o.Telephone),
+		Email:          handlers.FmtString(o.Email),
+		Disabled:       handlers.FmtBool(o.Disabled),
+		CreatedAt:      handlers.FmtDateTime(o.CreatedAt),
+		UpdatedAt:      handlers.FmtDateTime(o.UpdatedAt),
 	}
 }
 
@@ -29,6 +34,7 @@ type IndexOfficeUsersHandler struct {
 	handlers.HandlerContext
 	services.OfficeUserListFetcher
 	services.NewQueryFilter
+	services.NewPagination
 }
 
 // Handle retrieves a list of office users
@@ -37,19 +43,27 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
 	queryFilters := []services.QueryFilter{}
 
-	officeUsers, err := h.OfficeUserListFetcher.FetchOfficeUserList(queryFilters)
+	pagination := h.NewPagination(params.Page, params.PerPage)
+
+	officeUsers, err := h.OfficeUserListFetcher.FetchOfficeUserList(queryFilters, pagination)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	officeUsersCount := len(officeUsers)
+	totalOfficeUsersCount, err := h.DB().Count(&models.OfficeUser{})
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 
-	payload := make(adminmessages.OfficeUsers, officeUsersCount)
+	queriedOfficeUsersCount := len(officeUsers)
+
+	payload := make(adminmessages.OfficeUsers, queriedOfficeUsersCount)
+
 	for i, s := range officeUsers {
 		payload[i] = payloadForOfficeUserModel(s)
 	}
 
-	return officeuserop.NewIndexOfficeUsersOK().WithContentRange(fmt.Sprintf("office users 0-%d/%d", officeUsersCount, officeUsersCount)).WithPayload(payload)
+	return officeuserop.NewIndexOfficeUsersOK().WithContentRange(fmt.Sprintf("office users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficeUsersCount, totalOfficeUsersCount)).WithPayload(payload)
 }
 
 type GetOfficeUserHandler struct {
@@ -110,4 +124,39 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 
 	returnPayload := payloadForOfficeUserModel(*createdOfficeUser)
 	return officeuserop.NewCreateOfficeUserCreated().WithPayload(returnPayload)
+}
+
+type UpdateOfficeUserHandler struct {
+	handlers.HandlerContext
+	services.OfficeUserUpdater
+	services.NewQueryFilter
+}
+
+func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserParams) middleware.Responder {
+	payload := params.OfficeUser
+	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	officeUserID, err := uuid.FromString(params.OfficeUserID.String())
+	if err != nil {
+		logger.Error(fmt.Sprintf("UUID Parsing for %s", params.OfficeUserID.String()), zap.Error(err))
+	}
+
+	officeUser := models.OfficeUser{
+		ID:             officeUserID,
+		MiddleInitials: handlers.FmtStringPtr(payload.MiddleInitials),
+		LastName:       payload.LastName,
+		FirstName:      payload.FirstName,
+		Telephone:      payload.Telephone,
+	}
+
+	updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(&officeUser)
+	if err != nil || verrs != nil {
+		fmt.Printf("%#v", verrs)
+		logger.Error("Error saving user", zap.Error(err))
+		return officeuserop.NewUpdateOfficeUserInternalServerError()
+	}
+
+	returnPayload := payloadForOfficeUserModel(*updatedOfficeUser)
+
+	return officeuserop.NewUpdateOfficeUserOK().WithPayload(returnPayload)
 }

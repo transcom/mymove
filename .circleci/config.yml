@@ -87,8 +87,19 @@ commands:
       - attach_workspace:
           at: bin
       - deploy:
-          name: Deploy task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command save-fuel-price-data --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2"
+          name: Deploy fuel price data task service
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command "milmove-tasks save-fuel-price-data" --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2"
+          environment:
+            DB_PORT: 5432
+            DB_USER: ecs_user
+            DB_NAME: app
+            DB_SSL_MODE: verify-full
+            DB_SSL_ROOT_CERT: /bin/rds-combined-ca-bundle.pem
+          no_output_timeout: 20m
+      - announce_failure
+      - deploy:
+          name: Deploy post move email survey task service
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command "milmove-tasks send-post-move-survey" --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2 --email-backend=ses --offset-days 15"
           environment:
             DB_PORT: 5432
             DB_USER: ecs_user
@@ -170,8 +181,9 @@ commands:
             bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
             docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
-            docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//#}
-            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//#}
+            shopt -s extglob
+            docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
+            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
   e2e_tests:
     steps:
       - run:
@@ -244,6 +256,16 @@ jobs:
             - ~/transcom/mymove/node_modules
       - announce_failure
 
+  # `anti_virus` uses virus detection software to scan the source code
+  anti_virus:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run: make anti_virus
+      - announce_failure
+
   # `pre_test` runs pre-commit against all files.
   pre_test:
     executor: mymove_medium_plus
@@ -263,7 +285,6 @@ jobs:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: echo 'export GOLANGCI_LINT_CONCURRENCY=1' >> $BASH_ENV
-      - run: make bin/callgraph
       - run: make server_generate mocks_generate
       # this is so we can avoid go mod downloading and resulting in an error on a false positive
       - run: scripts/pre-commit-go-mod || exit 0
@@ -379,6 +400,7 @@ jobs:
             ENVIRONMENT: test
             MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
             MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
+            SERVE_API_INTERNAL: true
 
       - announce_failure
 
@@ -428,6 +450,7 @@ jobs:
             ENVIRONMENT: test
             MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
             MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
+            SERVE_API_INTERNAL: true
       - run:
           name: upload code coverage to codecov
           command: |
@@ -557,6 +580,7 @@ jobs:
             DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
             TEST_ACC_ENV: experimental
             NO_TLS_ENABLED: true
+            DB_REGION: us-west-2
       - announce_failure
 
   # `deploy_experimental_migrations` deploys migrations to the experimental environment
@@ -772,6 +796,11 @@ workflows:
 
       - pre_deps_yarn
 
+      - anti_virus:
+          filters:
+            branches:
+              only: master
+
       - pre_test:
           requires:
             - pre_deps_golang
@@ -830,16 +859,19 @@ workflows:
 
       - build_app:
           requires:
+            - anti_virus
             - pre_deps_golang
             - pre_deps_yarn
             - acceptance_tests_local # don't bother building and pushing the application if it won't even start properly
 
       - build_tools:
           requires:
+            - anti_virus
             - pre_deps_golang
 
       - build_migrations:
           requires:
+            - anti_virus
             - pre_deps_golang
 
       - build_tasks:

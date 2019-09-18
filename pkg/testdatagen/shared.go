@@ -42,13 +42,7 @@ type Assertions struct {
 	PersonallyProcuredMove                   models.PersonallyProcuredMove
 	Reimbursement                            models.Reimbursement
 	SignedCertification                      models.SignedCertification
-	ServiceAgent                             models.ServiceAgent
 	ServiceMember                            models.ServiceMember
-	Shipment                                 models.Shipment
-	ShipmentLineItem                         models.ShipmentLineItem
-	ShipmentLineItemDimensions               models.ShipmentLineItemDimensions
-	ShipmentOffer                            models.ShipmentOffer
-	StorageInTransit                         models.StorageInTransit
 	Tariff400ngServiceArea                   models.Tariff400ngServiceArea
 	Tariff400ngItem                          models.Tariff400ngItem
 	Tariff400ngItemRate                      models.Tariff400ngItemRate
@@ -57,7 +51,6 @@ type Assertions struct {
 	TransportationOffice                     models.TransportationOffice
 	TransportationServiceProvider            models.TransportationServiceProvider
 	TransportationServiceProviderPerformance models.TransportationServiceProviderPerformance
-	TspUser                                  models.TspUser
 	Upload                                   models.Upload
 	Uploader                                 *uploader.Uploader
 	User                                     models.User
@@ -69,14 +62,6 @@ func stringPointer(s string) *string {
 
 func poundPointer(p unit.Pound) *unit.Pound {
 	return &p
-}
-
-func uuidPointer(u uuid.UUID) *uuid.UUID {
-	return &u
-}
-
-func timePointer(t time.Time) *time.Time {
-	return &t
 }
 
 func mustCreate(db *pop.Connection, model interface{}) {
@@ -103,11 +88,6 @@ func noErr(err error) {
 	if err != nil {
 		log.Panic(fmt.Errorf("Error encountered: %v", err))
 	}
-}
-
-// zip5ToZip3 takes a ZIP5 string and returns the ZIP3 representation of it.
-func zip5ToZip3(zip5 string) string {
-	return zip5[0:3]
 }
 
 // isZeroUUID determines whether a UUID is its zero value

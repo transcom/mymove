@@ -158,6 +158,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 
 	upload := testdatagen.MakeDefaultUpload(suite.DB())
+	suite.Nil(upload.DeletedAt)
 
 	file := suite.Fixture("test.pdf")
 	fakeS3.Store(upload.StorageKey, file.Data, "somehash")
@@ -179,13 +180,15 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 
 	queriedUpload := models.Upload{}
 	err := suite.DB().Find(&queriedUpload, upload.ID)
-	suite.NotNil(err)
+	suite.Nil(err)
+	suite.NotNil(queriedUpload.DeletedAt)
 }
 
 func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 
 	upload1 := testdatagen.MakeDefaultUpload(suite.DB())
+	suite.Nil(upload1.DeletedAt)
 
 	upload2Assertions := testdatagen.Assertions{
 		Upload: models.Upload{
@@ -219,5 +222,6 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 
 	queriedUpload := models.Upload{}
 	err := suite.DB().Find(&queriedUpload, upload1.ID)
-	suite.NotNil(err)
+	suite.Nil(err)
+	suite.NotNil(queriedUpload.DeletedAt)
 }

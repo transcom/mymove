@@ -336,6 +336,7 @@
 20190724193344_add_more_system_admin_users.sql
 20190726151515_grant_all_ecs_user.up.sql
 20190730194820_pp3_2019_tspp_data.sql
+20190730225048_add_deleted_at_to_document_tables.up.sql
 20190731163048_remove_is_superuser.up.fizz
 20190805161006_disable_truss_user.sql
 20190807134704_admin_user_fname_lname_required.up.fizz
@@ -345,3 +346,9 @@
 20190814223800_add_john_gedeon.sql
 20190815172746_disable_mikena.up.sql
 20190821192638_add_office_user.up.sql
+20190822210248_add-payment-reviewed-date-to-personally-procured-moves.up.sql
+20190829150706_create_notifications_table.up.sql
+20190829152347_create-deleted-at-indices-for-document-tables.up.sql
+20190905183034_disable_truss_tsp_user.up.sql
+20190906223934_remove_oia_pn.up.fizz
+20190912202709_update-duty-station-names.up.sql

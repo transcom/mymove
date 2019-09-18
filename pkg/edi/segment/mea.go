@@ -7,9 +7,9 @@ import (
 
 // MEA represents the MEA EDI segment
 type MEA struct {
-	MeasurementReferenceIDCode string
-	MeasurementQualifier       string
-	MeasurementValue           float64
+	MeasurementReferenceIDCode string  `validate:"omitempty,len=2"`
+	MeasurementQualifier       string  `validate:"omitempty,oneof=HT LN WD"`
+	MeasurementValue           float64 `validate:"required"`
 }
 
 // StringArray converts MEA to an array of strings

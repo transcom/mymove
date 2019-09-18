@@ -46,6 +46,7 @@ type PersonallyProcuredMove struct {
 	ActualMoveDate                *time.Time                   `json:"actual_move_date" db:"actual_move_date"`
 	SubmitDate                    *time.Time                   `json:"submit_date" db:"submit_date"`
 	ApproveDate                   *time.Time                   `json:"approve_date" db:"approve_date"`
+	ReviewedDate                  *time.Time                   `json:"reviewed_date" db:"reviewed_date"`
 	NetWeight                     *unit.Pound                  `json:"net_weight" db:"net_weight"`
 	PickupPostalCode              *string                      `json:"pickup_postal_code" db:"pickup_postal_code"`
 	HasAdditionalPostalCode       *bool                        `json:"has_additional_postal_code" db:"has_additional_postal_code"`
@@ -135,12 +136,13 @@ func (p *PersonallyProcuredMove) RequestPayment() error {
 }
 
 // Complete marks the PPM as completed
-func (p *PersonallyProcuredMove) Complete() error {
+func (p *PersonallyProcuredMove) Complete(reviewedDate time.Time) error {
 	if p.Status != PPMStatusPAYMENTREQUESTED {
 		return errors.Wrap(ErrInvalidTransition, "Complete")
 	}
 
 	p.Status = PPMStatusCOMPLETED
+	p.ReviewedDate = &reviewedDate
 	return nil
 }
 
@@ -161,6 +163,7 @@ func (p *PersonallyProcuredMove) FetchMoveDocumentsForTypes(db *pop.Connection, 
 	var moveDocs MoveDocuments
 
 	q := db.
+		Where("deleted_at is null").
 		Where("personally_procured_move_id = ?", p.ID).
 		Where("status = ?", MoveDocumentStatusOK)
 

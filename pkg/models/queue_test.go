@@ -1,7 +1,7 @@
 package models_test
 
 import (
-	"time"
+	"fmt"
 
 	"github.com/go-openapi/swag"
 
@@ -47,8 +47,30 @@ func (suite *ModelSuite) TestCreateNewMoveShowFalse() {
 }
 
 func (suite *ModelSuite) TestShowPPMQueue() {
-	// PPMs should only show statuses in the queue:
-	// approved, payment requested and completed
+	all := map[string]bool{
+		string(models.PPMStatusAPPROVED):         true,
+		string(models.PPMStatusPAYMENTREQUESTED): true,
+		string(models.PPMStatusCOMPLETED):        true,
+		string(models.PPMStatusSUBMITTED):        true,
+		string(models.PPMStatusDRAFT):            true,
+	}
+
+	new := map[string]bool{
+		string(models.PPMStatusSUBMITTED): true,
+		string(models.PPMStatusDRAFT):     true,
+	}
+
+	tests := []struct {
+		input      string
+		movesCount int
+		want       map[string]bool
+	}{
+		{input: "new", movesCount: 2, want: new},
+		{input: "ppm_payment_requested", movesCount: 1, want: map[string]bool{string(models.PPMStatusPAYMENTREQUESTED): true}},
+		{input: "ppm_completed", movesCount: 1, want: map[string]bool{string(models.PPMStatusCOMPLETED): true}},
+		{input: "ppm_approved", movesCount: 1, want: map[string]bool{string(models.PPMStatusAPPROVED): true}},
+		{input: "all", movesCount: 5, want: all},
+	}
 
 	// Make PPMs with different statuses
 	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
@@ -66,102 +88,36 @@ func (suite *ModelSuite) TestShowPPMQueue() {
 			Status: models.PPMStatusCOMPLETED,
 		},
 	})
-
-	// Expected 3 moves for PPM queue returned
-	moves, err := GetMoveQueueItems(suite.DB(), "ppm")
-	suite.NoError(err)
-	suite.Len(moves, 3)
-}
-
-func (suite *ModelSuite) TestShowPPMPaymentRequestsQueue() {
-	// PPMs should only show statuses in the queue:
-	// payment requested
-
-	// Make PPMs with different statuses
 	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			Status: models.PPMStatusAPPROVED,
+		Move: models.Move{
+			Status: models.MoveStatusSUBMITTED,
 		},
 	})
 	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			Status: models.PPMStatusPAYMENTREQUESTED,
+		Move: models.Move{
+			Status: models.MoveStatusAPPROVED,
 		},
-	})
-	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			Status: models.PPMStatusCOMPLETED,
-		},
-	})
-
-	// Expected 1 move for PPM payment requests queue returned
-	moves, err := GetMoveQueueItems(suite.DB(), "ppm_payment_requested")
-	suite.NoError(err)
-	suite.Len(moves, 1)
-	suite.EqualValues(models.PPMStatusPAYMENTREQUESTED, *moves[0].PpmStatus)
-}
-
-func (suite *ModelSuite) TestShowPPMQueueStatusDraftSubmittedCanceled() {
-	// PPMs should only show statuses in the queue:
-	// approved, payment requested and completed
-
-	// PPMs not in approved, payment requested or completed states are not returned
-	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			Status: models.PPMStatusDRAFT,
-		},
-	})
-	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			Status: models.PPMStatusSUBMITTED,
 		},
 	})
-	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			Status: models.PPMStatusCANCELED,
-		},
-	})
 
-	// Expected 0 moves for PPM queue returned
-	moves, err := GetMoveQueueItems(suite.DB(), "ppm")
-	suite.NoError(err)
-	suite.Len(moves, 0)
+	for _, tc := range tests {
+		moves, err := GetMoveQueueItems(suite.DB(), tc.input)
+
+		suite.NoError(err)
+		suite.Len(moves, tc.movesCount)
+		for _, move := range moves {
+			fmt.Printf("%+v", *move.PpmStatus)
+			fmt.Println(tc.want[*move.PpmStatus])
+			suite.True(tc.want[*move.PpmStatus])
+		}
+	}
+
 }
 
 func (suite *ModelSuite) TestQueueNotFound() {
 	moves, moveErrs := GetMoveQueueItems(suite.DB(), "queue_not_found")
 	suite.Equal(ErrFetchNotFound, moveErrs, "Expected not to find move queue items")
 	suite.Empty(moves)
-}
-
-func (suite *ModelSuite) TestActivePPMQueue() {
-	testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
-		Shipment: models.Shipment{
-			Status: models.ShipmentStatusINTRANSIT,
-		},
-	})
-
-	testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
-		Shipment: models.Shipment{
-			Status: models.ShipmentStatusAPPROVED,
-		},
-	})
-
-	now := time.Now()
-	testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
-		Shipment: models.Shipment{
-			Status:                models.ShipmentStatusACCEPTED,
-			PmSurveyConductedDate: &now,
-		},
-	})
-
-	testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
-		Shipment: models.Shipment{
-			Status: models.ShipmentStatusACCEPTED,
-		},
-	})
-
-	moves, err := GetMoveQueueItems(suite.DB(), "hhg_active")
-	suite.NoError(err)
-	suite.Len(moves, 3)
 }

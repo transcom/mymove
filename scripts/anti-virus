@@ -1,0 +1,91 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+#
+# Anti Virus Scanning of Source Code
+#
+# More information about the docker setup is found here: https://github.com/mko-x/docker-clamav
+#
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../" && pwd )"
+readonly DIR
+SLEEP=15
+readonly SLEEP
+DOCKER_IMAGE=mk0x/docker-clamav:alpine
+readonly DOCKER_IMAGE
+CONTAINER_NAME=anti_virus
+readonly CONTAINER_NAME
+MOUNT_DIR=/transcom/mymove
+readonly MOUNT_DIR
+IGNORE_FILES=pkg/handlers/fixtures/orders.pdf
+readonly IGNORE_FILES
+WHITELIST=whitelist_files.fp
+readonly WHITELIST
+
+if [ -n "${CIRCLECI+x}" ]; then
+  echo "RUNNING IN CIRCLECI"
+fi
+
+# Remove any existing containers
+echo
+echo "Cleaning up existing containers and files:"
+docker rm -f "${CONTAINER_NAME}" || true
+rm -f "${WHITELIST}"
+
+# Start the clamd service and update with freshclam (takes several minutes to be running)
+# Mount the project directory inside for scanning later
+docker pull "${DOCKER_IMAGE}"
+docker run -d -p 3310:3310 -v "${DIR}:${MOUNT_DIR}" --name "${CONTAINER_NAME}" "${DOCKER_IMAGE}"
+
+if [[ -n "${CIRCLECI+x}" ]]; then
+  # Can't mount folders in CircleCI so copy this data in
+  # https://circleci.com/docs/2.0/building-docker-images/#mounting-folders
+  docker cp "${DIR}" "${CONTAINER_NAME}:${MOUNT_DIR}/.."
+fi
+
+# Create a whitelist of files to ignore
+# See https://www.clamav.net/documents/whitelist-databases
+# See https://owlbearconsulting.com/doku.php?id=linux_wiki:clamav#whitelist_a_file
+touch "${WHITELIST}"
+for file in ${IGNORE_FILES}; do
+  docker exec -it "${CONTAINER_NAME}" ls "${MOUNT_DIR}/${file}"
+  docker exec -it "${CONTAINER_NAME}" sigtool --md5 "${MOUNT_DIR}/${file}" | tee -a "${WHITELIST}"
+done
+
+# Copy the ignore list into the container in the same directory as the virus database
+docker cp "${WHITELIST}" "${CONTAINER_NAME}:/store/"
+docker exec -it "${CONTAINER_NAME}" chown clamav:clamav "/store/${WHITELIST}"
+
+echo
+echo "********************************************************************************"
+echo "WARNING: Ignoring these specific files in sigtool format:"
+cat "${WHITELIST}"
+echo "********************************************************************************"
+echo
+
+# Wait for the clamd service to be available by checking on the existence of the socket
+while true; do
+  if docker exec -it "${CONTAINER_NAME}" ls /tmp/clamd.sock &> /dev/null ; then
+    break
+  else
+    echo "Waiting ${SLEEP} seconds for clamd service to be available"
+    sleep "${SLEEP}"
+  fi
+done
+
+# Print the logs so we can see the state of clamd prior to scanning
+docker logs "${CONTAINER_NAME}"
+
+# List the version we're working with for auditing reasons
+echo
+echo "Version Information:"
+docker exec -it "${CONTAINER_NAME}" clamd --version
+echo
+
+# Run the scan against the mounted folder
+docker exec -it "${CONTAINER_NAME}" clamdscan -v "${MOUNT_DIR}"
+
+# Clean up
+# docker rm -f "${CONTAINER_NAME}"
+# rm -f "${WHITELIST}"

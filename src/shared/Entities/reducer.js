@@ -34,11 +34,7 @@ const initialState = {
   moves: {},
   personallyProcuredMoves: {},
   reimbursements: {},
-  serviceAgents: {},
   signedCertifications: {},
-  shipmentLineItems: {},
-  shipments: {},
-  storageInTransits: {},
   tariff400ngItems: {},
   transportationServiceProviders: {},
 };

@@ -23,6 +23,7 @@ If you are looking to understand choices made in this project, see the list of [
 
 ## HOWTOs
 
+* [Access a Global Application Variable](how-to/access-global-variables.md#how-to-access-a-global-application-variable)
 * [Call Swagger Endpoints from React](how-to/access-swagger-endpoints-from-react.md#how-to-call-swagger-endpoints-from-react)
 * [Add Application Logging](how-to/add-application-logging.md#how-to-add-application-logging)
 * [Backup and Restore the Development Database](how-to/backup-and-restore-dev-database.md#how-to-backup-and-restore-the-development-database)
@@ -41,11 +42,13 @@ If you are looking to understand choices made in this project, see the list of [
 * [Run JavaScript (Jest) Tests](how-to/run-js-tests.md#how-to-run-javascript-jest-tests)
 * [Run and troubleshoot pre-commit hooks](how-to/run-pre-commit-hooks.md#run-and-troubleshoot-pre-commit-hooks)
 * [Use and Run Storybook](how-to/run-storybook.md#how-to-use-and-run-storybook)
+* [Soft Delete](how-to/soft-delete.md#how-to-soft-delete)
 * [Store Data in Redux](how-to/store-data-in-redux.md#how-to-store-data-in-redux)
 * [Store UI State in Redux](how-to/store-ui-state-in-redux.md#how-to-store-ui-state-in-redux)
 * [Troubleshoot GEX Connection](how-to/troubleshoot-gex-connection.md#how-to-troubleshoot-gex-connection)
 * [Unit Test React Components](how-to/unit-test-react-components.md#how-to-unit-test-react-components)
 * [Upgrade Go Version](how-to/upgrade-go-version.md#how-to-upgrade-go-version)
+* [Upload Electronic Orders Using your CAC](how-to/upload-electronic-orders.md#how-to-upload-electronic-orders-using-your-cac)
 * [View ECS Service Logs](how-to/view-ecs-service-logs.md#how-to-view-ecs-service-logs)
 
 ## ADRs
@@ -88,5 +91,6 @@ If you are looking to understand choices made in this project, see the list of [
 * 0035 [Use Query Builder for for Admin Interface](adr/0035-use-query-builder.md#use-query-builder-for-for-admin-interface)
 * 0036 [Use Separate Integration Package for Go Integration Tests](adr/0036-go-integration.md#use-separate-integration-package-for-go-integration-tests)
 * 0037 [Put mymove outside of standard GOPATH](adr/0037-go-path-and-project-layout-revisited.md#put-mymove-outside-of-standard-gopath)
+* 0038 [Use Soft Delete Instead of Hard Delete](adr/0038-soft-delete.md#use-soft-delete-instead-of-hard-delete)
 
 <!--endindex-->

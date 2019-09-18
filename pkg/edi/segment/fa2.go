@@ -6,8 +6,8 @@ import (
 
 // FA2 represents the FA2 EDI segment
 type FA2 struct {
-	BreakdownStructureDetailCode string
-	FinancialInformationCode     string
+	BreakdownStructureDetailCode string `validate:"eq=TA"`
+	FinancialInformationCode     string `validate:"min=1,max=80"`
 }
 
 // StringArray converts FA2 to an array of strings

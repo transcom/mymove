@@ -94,12 +94,6 @@ export const signedCertification = new schema.Entity('signedCertifications');
 
 export const signedCertifications = new schema.Array(signedCertification);
 
-// ShipmentLineItem
-export const shipmentLineItem = new schema.Entity('shipmentLineItems', {
-  invoice: invoice,
-});
-export const shipmentLineItems = new schema.Array(shipmentLineItem);
-
 // AvailableMoveDates
 export const availableMoveDates = new schema.Entity('availableMoveDates', {}, { idAttribute: 'start_date' });
 
