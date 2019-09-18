@@ -88,6 +88,12 @@ check_gopath: .check_gopath.stamp ## Check that $GOPATH exists in $PATH
 	scripts/check-gopath
 	touch .check_gopath.stamp
 
+.PHONY: check_node_version
+check_node_version: .check_node_version.stamp
+.check_node_version.stamp:
+	scripts/check-node-version
+	touch .check_node_version.stamp
+
 .PHONY: check_bash_version
 check_bash_version: .check_bash_version.stamp ## Check that the correct Bash version is installed
 .check_bash_version.stamp: scripts/check-bash-version
