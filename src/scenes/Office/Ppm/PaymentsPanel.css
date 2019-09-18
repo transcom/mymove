@@ -46,15 +46,7 @@
 	align-self: center;
 }
 
-.usa-alert {
-  background-position: 1.5rem center;
-}
-
 .usa-alert li {
   line-height: 1;
   margin-left: 1rem;
-}
-
-.usa-alert-heading {
-  text-align: left;
 }
