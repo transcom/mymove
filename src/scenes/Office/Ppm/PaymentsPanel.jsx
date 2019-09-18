@@ -225,7 +225,25 @@ class PaymentsTable extends Component {
                     Download Worksheet (PDF)
                   </button>
                 </div>
-
+                {this.props.disableSSW && (
+                  <Alert type="warning" heading="To get this worksheet ready to download:">
+                    <ul>
+                      <li>
+                        Enter <b>departure date</b> (PPM tab)
+                      </li>
+                      <li>
+                        Process <i>all</i> weight tickets to calculate <b>net weight</b>
+                      </li>
+                      <li>
+                        Ask service member to <b>request payment</b>
+                      </li>
+                    </ul>
+                    <p>
+                      After that, if the button is still inactive, contact support at{' '}
+                      <a href="tel:(628) 225-1540">(628) 225-1540</a>
+                    </p>
+                  </Alert>
+                )}
                 <hr />
 
                 <div className="paperwork-step">
