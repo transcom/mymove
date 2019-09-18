@@ -53,9 +53,6 @@ DELETE FROM backup_contacts WHERE service_member_id IN (select service_member_id
 DELETE FROM orders WHERE service_member_id IN (select service_member_id from tempsom);
 
 -- delete service member order document
--- DELETE FROM uploads WHERE document_id IN (select uploaded_orders_id from tempsom);
--- DELETE FROM documents WHERE id IN (select uploaded_orders_id from tempsom);
-
 -- might be some data left from the service member so delete based on service member id
 DELETE FROM uploads WHERE document_id IN (select id from documents where service_member_id in (select service_member_id from tempsom));
 DELETE FROM documents WHERE service_member_id IN (select service_member_id from tempsom);
