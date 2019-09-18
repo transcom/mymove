@@ -105,7 +105,7 @@ endif
 	touch .check_bash_version.stamp
 
 .PHONY: deps
-deps: prereqs check_hosts check_go_version check_gopath check_bash_version ensure_pre_commit client_deps server_deps ## Run all checks and install all depdendencies
+deps: prereqs check_hosts check_go_version check_node_version check_gopath check_bash_version ensure_pre_commit client_deps server_deps ## Run all checks and install all depdendencies
 
 .PHONY: test
 test: client_test server_test e2e_test ## Run all tests
@@ -134,7 +134,7 @@ client_deps: .check_hosts.stamp .client_deps.stamp ## Install client dependencie
 	touch .client_build.stamp
 
 .PHONY: client_build
-client_build: .client_deps.stamp .client_build.stamp ## Build the client
+client_build: check_node_version .client_deps.stamp .client_build.stamp ## Build the client
 
 build/index.html: ## milmove serve requires this file to boot, but it isn't used during local development
 	mkdir -p build
