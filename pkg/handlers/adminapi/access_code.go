@@ -89,7 +89,6 @@ func (h IndexAccessCodesHandler) generateQueryFilters(filters *string, logger ha
 	if f.MoveType != "" {
 		queryFilters = append(queryFilters, query.NewQueryFilter("move_type", "=", f.MoveType))
 	}
-	//TODO confirm length of real access codes is 6
 	if f.Code != "" && len(f.Code) == 6 {
 		queryFilters = append(queryFilters, query.NewQueryFilter("code", "=", f.Code))
 	}

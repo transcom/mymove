@@ -364,7 +364,6 @@ func (suite *QueryBuilderSuite) TestQueryAssociations() {
 	// create move
 	// create access code
 	// make sure QueryAssociations will return to you the right associated data for a model
-	// TODO test query associations with filters
 
 	user := testdatagen.MakeDefaultUser(suite.DB())
 	selectedMoveType := models.SelectedMoveTypeHHG
@@ -385,13 +384,19 @@ func (suite *QueryBuilderSuite) TestQueryAssociations() {
 		ClaimedAt:       &claimedTime,
 	}
 	suite.MustSave(&invalidAccessCode)
+	code2 := "TEST10"
+	accessCode2 := models.AccessCode{
+		Code:     code2,
+		MoveType: &selectedMoveType,
+	}
+	suite.MustSave(&accessCode2)
 
 	builder := NewQueryBuilder(suite.DB())
-	var accessCodes models.AccessCodes
 
 	suite.T().Run("fetches associated data", func(t *testing.T) {
 
-		filters := []services.QueryFilter{}
+		var accessCodes models.AccessCodes
+		var filters []services.QueryFilter
 		queryAssociations := []services.QueryAssociation{
 			NewQueryAssociation("ServiceMember"),
 		}
@@ -404,6 +409,34 @@ func (suite *QueryBuilderSuite) TestQueryAssociations() {
 		)
 
 		suite.NoError(err)
+		suite.Len(accessCodes, 2)
+		var names []string
+		for _, v := range accessCodes {
+			if v.ServiceMember.FirstName != nil {
+				names = append(names, *v.ServiceMember.FirstName)
+			}
+		}
+		suite.Contains(names, *sm.FirstName)
+	})
+
+	suite.T().Run("fetches associated data with filter", func(t *testing.T) {
+
+		var filters []services.QueryFilter
+		var accessCodes models.AccessCodes
+		queryFilters := append(filters, NewQueryFilter("code", "=", code))
+		queryAssociations := []services.QueryAssociation{
+			NewQueryAssociation("ServiceMember"),
+		}
+		associations := NewQueryAssociations(queryAssociations)
+
+		err := builder.QueryForAssociations(
+			&accessCodes,
+			associations,
+			queryFilters,
+		)
+
+		suite.NoError(err)
+		suite.Len(accessCodes, 1)
 		suite.Equal(accessCodes[0].ServiceMember.FirstName, sm.FirstName)
 	})
 
