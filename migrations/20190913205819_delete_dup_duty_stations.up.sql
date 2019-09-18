@@ -47,7 +47,7 @@ UPDATE orders
 DELETE FROM duty_stations WHERE name = 'USCG Mobile'
 	AND NOT EXISTS (SELECT id FROM orders WHERE new_duty_station_id = (select id from duty_stations where name = 'USCG Mobile'))
 	AND NOT EXISTS (SELECT id FROM service_members WHERE duty_station_id = (select id from duty_stations where name = 'USCG Mobile'));
-DELETE FROM addresses WHERE id = '042222cd-2f6a-47b7-bd0c-3de55c6f3f17'
+DELETE FROM addresses WHERE id = 'be84b14a-f836-4821-af13-fdbe8530386d'
 	AND NOT EXISTS (SELECT id FROM duty_stations WHERE name = 'USCG Mobile');
 
 -- Fort Eustis -> Joint Base Langley-Eustis
