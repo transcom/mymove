@@ -2,7 +2,7 @@
 
 set -eu -o pipefail
 
-VERSION="v10.16.3"
+VERSION="v10.16"
 
 if [[ $(node -v) = *$VERSION* ]]; then
   echo "$VERSION installed"
