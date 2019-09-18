@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
 import { withLastLocation } from 'react-router-last-location';
-import { withContext } from 'shared/AppContext';
 
 import { MoveSummary, PPMAlert } from './MoveSummary';
 import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
@@ -82,7 +81,6 @@ export class Landing extends Component {
   };
   render() {
     const {
-      context,
       isLoggedIn,
       loggedInUserIsLoading,
       loggedInUserSuccess,
@@ -125,7 +123,6 @@ export class Landing extends Component {
 
             {isLoggedIn && !isEmpty(serviceMember) && isProfileComplete && (
               <MoveSummary
-                context={context}
                 entitlement={entitlement}
                 profile={serviceMember}
                 orders={orders}
@@ -177,11 +174,9 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ push, createServiceMember, updateMove }, dispatch);
 }
 
-export default withContext(
-  withLastLocation(
-    connect(
-      mapStateToProps,
-      mapDispatchToProps,
-    )(Landing),
-  ),
+export default withLastLocation(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(Landing),
 );

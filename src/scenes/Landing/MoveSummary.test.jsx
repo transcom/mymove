@@ -3,7 +3,6 @@ import { shallow } from 'enzyme';
 import {
   MoveSummaryComponent as MoveSummary,
   CanceledMoveSummary,
-  ApprovedMoveSummary,
   SubmittedPpmMoveSummary,
   DraftMoveSummary,
 } from './MoveSummary';
@@ -166,7 +165,7 @@ describe('MoveSummary', () => {
         estimated_incentive: '$24665.59 - 27261.97',
         status: 'APPROVED',
       };
-      const subComponent = getShallowRender(
+      const component = getShallowRender(
         entitlementObj,
         serviceMember,
         ordersObj,
@@ -174,16 +173,9 @@ describe('MoveSummary', () => {
         ppmObj,
         editMoveFn,
         resumeMoveFn,
-      ).find(ApprovedMoveSummary);
-      expect(subComponent).not.toBeNull();
-      // expect(
-      //   subComponent
-      //     .dive()
-      //     .find('.step')
-      //     .find('div.title')
-      //     .first()
-      //     .html(),
-      // ).toEqual('<div class="title">Next Step: Get ready to move</div>');
+      );
+      const ppmSummary = component.find('Connect(ApprovedMoveSummaryComponent)');
+      expect(ppmSummary.exists()).toBe(true);
     });
   });
   describe('when a move with a ppm is in in progress state', () => {
@@ -195,7 +187,7 @@ describe('MoveSummary', () => {
         weight_estimate: '10000',
         estimated_incentive: '$24665.59 - 27261.97',
       };
-      const subComponent = getShallowRender(
+      const component = getShallowRender(
         entitlementObj,
         serviceMember,
         ordersObj,
@@ -203,16 +195,9 @@ describe('MoveSummary', () => {
         ppmObj,
         editMoveFn,
         resumeMoveFn,
-      ).find(ApprovedMoveSummary);
-      expect(subComponent).not.toBeNull();
-      //   expect(
-      //     subComponent
-      //       .dive()
-      //       .find('.step')
-      //       .find('div.title')
-      //       .first()
-      //       .html(),
-      //   ).toEqual('<div class="title">Next Step: Request payment</div>');
+      );
+      const ppmSummary = component.find(SubmittedPpmMoveSummary);
+      expect(ppmSummary.exists()).toBe(true);
     });
   });
 });

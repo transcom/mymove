@@ -186,8 +186,7 @@ export const SubmittedPpmMoveSummary = props => {
   );
 };
 
-//TODO remove redundant ApprovedMoveSummary component w/ ppmPaymentRequest flag
-const NewApprovedMoveSummaryComponent = ({
+const ApprovedMoveSummaryComponent = ({
   ppm,
   move,
   weightTicketSets,
@@ -283,14 +282,14 @@ const NewApprovedMoveSummaryComponent = ({
   );
 };
 
-const mapStateToNewApprovedMoveSummaryProps = (state, { move }) => ({
+const mapStateToApprovedMoveSummaryProps = (state, { move }) => ({
   weightTicketSets: selectPPMCloseoutDocumentsForMove(state, move.id, ['WEIGHT_TICKET_SET']),
   incentiveEstimate: get(state, 'ppm.incentive_estimate_min'),
 });
 
-const NewApprovedMoveSummary = connect(mapStateToNewApprovedMoveSummaryProps)(NewApprovedMoveSummaryComponent);
+const ApprovedMoveSummary = connect(mapStateToApprovedMoveSummaryProps)(ApprovedMoveSummaryComponent);
 
-export const ApprovedMoveSummary = props => {
+export const PaymentRequestedSummary = props => {
   const { ppm, move, requestPaymentSuccess } = props;
   const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
   const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
@@ -491,24 +490,12 @@ const MoveInfoHeader = props => {
   );
 };
 
-// TODO revert this function to a constant when remove ppmPaymentRequest flag
-const genPpmSummaryStatusComponents = context => {
-  if (context && context.flags && context.flags.ppmPaymentRequest) {
-    return {
-      DRAFT: DraftMoveSummary,
-      SUBMITTED: SubmittedPpmMoveSummary,
-      APPROVED: NewApprovedMoveSummary,
-      CANCELED: CanceledMoveSummary,
-      PAYMENT_REQUESTED: ApprovedMoveSummary,
-    };
-  }
-  return {
-    DRAFT: DraftMoveSummary,
-    SUBMITTED: SubmittedPpmMoveSummary,
-    APPROVED: ApprovedMoveSummary,
-    CANCELED: CanceledMoveSummary,
-    PAYMENT_REQUESTED: ApprovedMoveSummary,
-  };
+const genPpmSummaryStatusComponents = {
+  DRAFT: DraftMoveSummary,
+  SUBMITTED: SubmittedPpmMoveSummary,
+  APPROVED: ApprovedMoveSummary,
+  CANCELED: CanceledMoveSummary,
+  PAYMENT_REQUESTED: PaymentRequestedSummary,
 };
 
 const getPPMStatus = (moveStatus, ppm) => {
@@ -538,7 +525,6 @@ export class MoveSummaryComponent extends React.Component {
   }
   render() {
     const {
-      context,
       profile,
       move,
       orders,
@@ -551,7 +537,9 @@ export class MoveSummaryComponent extends React.Component {
       isMissingWeightTicketDocuments,
     } = this.props;
     const moveStatus = get(move, 'status', 'DRAFT');
-    const PPMComponent = genPpmSummaryStatusComponents(context)[getPPMStatus(moveStatus, ppm)];
+    const ppmStatus = getPPMStatus(moveStatus, ppm);
+    // eslint-disable-next-line security/detect-object-injection
+    const PPMComponent = genPpmSummaryStatusComponents[ppmStatus];
     return (
       <div className="move-summary">
         {move.status === 'CANCELED' && (
@@ -581,7 +569,6 @@ export class MoveSummaryComponent extends React.Component {
           )}
           <div className="usa-width-three-fourths">
             <PPMComponent
-              context={context}
               className="status-component"
               ppm={ppm}
               orders={orders}
