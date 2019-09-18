@@ -285,9 +285,7 @@ paths:
       parameters:
         - in: query
           name: filter
-          type: array
-          items:
-            type: string
+          type: string
       responses:
         200:
           description: success

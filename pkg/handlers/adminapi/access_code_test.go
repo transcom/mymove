@@ -93,7 +93,8 @@ func (suite *HandlerSuite) TestIndexAccessCodesHandlerHelpers() {
 
 	suite.T().Run("test both filters present", func(t *testing.T) {
 
-		qfs := handler.generateQueryFilters([]string{`{"move_type":"PPM"`, `"code":"ABC123"}`}, suite.TestLogger())
+		s := `{"move_type":"PPM", "code":"ABC123"}`
+		qfs := handler.generateQueryFilters(&s, suite.TestLogger())
 		expectedFilters := []services.QueryFilter{
 			query.NewQueryFilter("move_type", "=", "PPM"),
 			query.NewQueryFilter("code", "=", "ABC123"),
@@ -101,14 +102,16 @@ func (suite *HandlerSuite) TestIndexAccessCodesHandlerHelpers() {
 		suite.Equal(expectedFilters, qfs)
 	})
 	suite.T().Run("test only move_type present", func(t *testing.T) {
-		qfs := handler.generateQueryFilters([]string{`{"move_type": "PPM"}`}, suite.TestLogger())
+		s := `{"move_type": "PPM"}`
+		qfs := handler.generateQueryFilters(&s, suite.TestLogger())
 		expectedFilters := []services.QueryFilter{
 			query.NewQueryFilter("move_type", "=", "PPM"),
 		}
 		suite.Equal(expectedFilters, qfs)
 	})
 	suite.T().Run("test only code present", func(t *testing.T) {
-		qfs := handler.generateQueryFilters([]string{`{"code": "XYZBCS"}`}, suite.TestLogger())
+		s := `{"code": "XYZBCS"}`
+		qfs := handler.generateQueryFilters(&s, suite.TestLogger())
 		expectedFilters := []services.QueryFilter{
 			query.NewQueryFilter("code", "=", "XYZBCS"),
 		}
