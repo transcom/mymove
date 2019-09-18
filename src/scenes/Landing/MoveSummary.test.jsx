@@ -1,10 +1,10 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import { MoveSummaryComponent as MoveSummary } from './MoveSummary';
+import moment from 'moment';
 import CanceledMoveSummary from 'scenes/Landing/MoveSummary/CanceledMoveSummary';
 import DraftMoveSummary from 'scenes/Landing/MoveSummary/DraftMoveSummary';
 import SubmittedPpmMoveSummary from 'scenes/Landing/MoveSummary/SubmittedPpmMoveSummary';
-import moment from 'moment';
 
 describe('MoveSummary', () => {
   const editMoveFn = jest.fn();

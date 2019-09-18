@@ -1,28 +1,19 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import { get, includes, isEmpty } from 'lodash';
-import moment from 'moment';
 
 import { ppmInfoPacket } from 'shared/constants';
 import Alert from 'shared/Alert';
-<<<<<<< HEAD
-import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
-import { formatCents, formatCentsRange } from 'shared/formatters';
-=======
->>>>>>> Separate Submitted Move Summary into its own component.
 import TransportationOfficeContactInfo from 'shared/TransportationOffices/TransportationOfficeContactInfo';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { calcNetWeight } from 'scenes/Moves/Ppm/utility';
 import { getPpmWeightEstimate } from 'scenes/Moves/Ppm/ducks';
-import ppmCar from './images/ppm-car.svg';
-import PPMStatusTimeline from './PPMStatusTimeline';
 
 import ApprovedMoveSummary from 'scenes/Landing/MoveSummary/ApprovedMoveSummary';
 import CanceledMoveSummary from 'scenes/Landing/MoveSummary/CanceledMoveSummary';
 import DraftMoveSummary from 'scenes/Landing/MoveSummary/DraftMoveSummary';
-import PpmMoveDetails from 'scenes/Landing/MoveSummary/SubmittedPpmMoveDetails';
+import PaymentRequestedSummary from 'scenes/Landing/MoveSummary/PaymentRequestedSummary';
 import SubmittedPpmMoveSummary from 'scenes/Landing/MoveSummary/SubmittedPpmMoveSummary';
 
 import './MoveSummary.css';
@@ -53,130 +44,6 @@ export const PPMAlert = props => {
   );
 };
 
-export const PaymentRequestedSummary = props => {
-  const { ppm, move, requestPaymentSuccess } = props;
-  const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
-  const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
-  const ppmPaymentRequestIntroRoute = `moves/${move.id}/request-payment`;
-  return (
-    <Fragment>
-      <div>
-        <div className="shipment_box">
-          <div className="shipment_type">
-            <img className="move_sm" src={ppmCar} alt="ppm-car" />
-            Move your own stuff (PPM)
-          </div>
-
-          <div className="shipment_box_contents">
-            {requestPaymentSuccess && (
-              <Alert type="success" heading="">
-                Payment request submitted
-              </Alert>
-            )}
-
-            <PPMStatusTimeline ppm={ppm} />
-            <div className="step-contents">
-              <div className="status_box usa-width-two-thirds">
-                {!moveInProgress && (
-                  <div className="step">
-                    <div className="title">Next Step: Get ready to move</div>
-                    <div>
-                      Remember to save your weight tickets and expense receipts. For more information, read the PPM info
-                      packet.
-                    </div>
-                    <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
-                      <button className="usa-button-secondary">Read PPM Info Packet</button>
-                    </a>
-                  </div>
-                )}
-                {paymentRequested ? (
-                  <div className="step">
-                    <div className="title">Your payment is in review</div>
-                    <div>
-                      You will receive a notification from your destination PPPO office when it has been reviewed.
-                    </div>
-                  </div>
-                ) : (
-                  <div className="step">
-                    <div className="title">Next Step: Request payment</div>
-                    <div>
-                      Request a PPM payment, a storage payment, or an advance against your PPM payment before your move
-                      is done.
-                    </div>
-                    <Link to={ppmPaymentRequestIntroRoute} className="usa-button usa-button-secondary">
-                      Request Payment
-                    </Link>
-                  </div>
-                )}
-              </div>
-              <div className="usa-width-one-third">
-                <PpmMoveDetails ppm={ppm} />
-                <div className="titled_block">
-                  <div className="title">Documents</div>
-                  <div className="details-links">
-                    <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
-                      PPM Info Packet
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="step-links">
-              <FindWeightScales />
-            </div>
-          </div>
-        </div>
-      </div>
-    </Fragment>
-  );
-};
-
-const PPMMoveDetailsPanel = props => {
-  const { advance, ppm } = props;
-  const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
-    ? `(up to ${ppm.estimated_storage_reimbursement})`
-    : '';
-  const advanceString = ppm.has_requested_advance ? `Advance Requested: $${formatCents(advance.requested_amount)}` : '';
-  const hasSitString = `Temp. Storage: ${ppm.days_in_storage} days ${privateStorageString}`;
-  const incentiveRange = formatCentsRange(ppm.currentPpm.incentive_estimate_min, ppm.currentPpm.incentive_estimate_max);
-  return (
-    <div className="titled_block">
-      <div className="title">Details</div>
-      <div>Weight (est.): {ppm.currentPpm.weight_estimate} lbs</div>
-      <div>
-        Incentive (est.):{' '}
-        {ppm.hasEstimateError ? (
-          <>
-            Not ready yet{' '}
-            <IconWithTooltip
-              // without this styling the tooltip is obstructed by the status timeline and z-index does not help because they don't share the same parent container
-              toolTipStyles={{ position: 'absolute', top: '8.5em', left: '20.5em' }}
-              toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive."
-            />
-          </>
-        ) : (
-          incentiveRange
-        )}
-      </div>
-      {ppm.has_sit && <div>{hasSitString}</div>}
-      {ppm.has_requested_advance && <div>{advanceString}</div>}
-    </div>
-  );
-};
-
-const mapStateToPPMMoveDetailsProps = (state, ownProps) => {
-  const advance = selectReimbursement(state, ownProps.ppm.advance);
-  const isMissingWeightTicketDocuments = selectPPMCloseoutDocumentsForMove(state, ownProps.ppm.move_id, [
-    'WEIGHT_TICKET_SET',
-  ]).some(doc => doc.empty_weight_ticket_missing || doc.full_weight_ticket_missing);
-  return { ppm: get(state, 'ppm', {}), advance, isMissingWeightTicketDocuments };
-};
-
-// TODO remove redundant function when remove ppmPaymentRequest flag
-const PPMMoveDetails = connect(mapStateToPPMMoveDetailsProps)(PPMMoveDetailsPanel);
-
-=======
->>>>>>> Separate Submitted Move Summary into its own component.
 const FindWeightScales = () => (
   <span>
     <a href="https://www.move.mil/resources/locator-maps" target="_blank" rel="noopener noreferrer">
