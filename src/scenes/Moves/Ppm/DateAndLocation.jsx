@@ -5,14 +5,15 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
-import { createOrUpdatePpm, setInitialFormValues } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlementsFromState } from 'shared/entitlements';
+import { updatePPMEstimate } from 'shared/Entities/modules/ppms';
 import Alert from 'shared/Alert';
-import './DateAndLocation.css';
-import { GetPpmWeightEstimate } from './api';
 import { ValidateZipRateData } from 'shared/api';
+import { createOrUpdatePpm, setInitialFormValues } from './ducks';
+
+import './DateAndLocation.css';
 
 const formName = 'ppp_date_and_location';
 
@@ -20,7 +21,7 @@ const UnsupportedZipCodeErrorMsg =
   'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.';
 
 async function asyncValidate(values, dispatch, props, currentFieldName) {
-  const { original_move_date, pickup_postal_code, origin_duty_station_zip, destination_postal_code } = values;
+  const { pickup_postal_code, destination_postal_code } = values;
 
   // If either postal code is blurred, check both of them for errors. We want to
   // catch these before checking on dates via `GetPpmWeightEstimate`.
@@ -48,20 +49,6 @@ async function asyncValidate(values, dispatch, props, currentFieldName) {
     if (responseObject.pickup_postal_code || responseObject.destination_postal_code) {
       throw responseObject;
     }
-  }
-
-  // If we have all valid postal codes and a move date, we can verify the rate engine
-  // data for the date, while assuming a very small weight (100) that should be covered in
-  // all SM weight entitlements.
-  const fakeLightWeight = 100;
-  if (pickup_postal_code && destination_postal_code && original_move_date) {
-    await GetPpmWeightEstimate(
-      original_move_date,
-      pickup_postal_code,
-      origin_duty_station_zip,
-      destination_postal_code,
-      fakeLightWeight,
-    );
   }
 }
 
@@ -96,7 +83,10 @@ export class DateAndLocation extends Component {
         pendingValues.days_in_storage = null;
       }
       const moveId = this.props.match.params.moveId;
-      return this.props.createOrUpdatePpm(moveId, pendingValues);
+      return this.props
+        .createOrUpdatePpm(moveId, pendingValues)
+        .then(({ payload }) => this.props.updatePPMEstimate(moveId, payload.id).catch(err => err));
+      // catch block returns error so that the wizard can continue on with its flow
     }
   };
 
@@ -203,7 +193,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createOrUpdatePpm, setInitialFormValues }, dispatch);
+  return bindActionCreators({ createOrUpdatePpm, setInitialFormValues, updatePPMEstimate }, dispatch);
 }
 
 export default connect(

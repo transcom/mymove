@@ -14,7 +14,7 @@ class IconWithTooltip extends Component {
 
   render() {
     const { showTooltip } = this.state;
-    const { icon, iconClassName, toolTipText, toolTipTextClassName } = this.props;
+    const { icon, iconClassName, toolTipText, toolTipTextClassName, toolTipStyles } = this.props;
 
     return (
       <div style={{ display: 'inline-block' }}>
@@ -25,7 +25,7 @@ class IconWithTooltip extends Component {
           onClick={this.toggleTooltip}
         />
         {showTooltip && (
-          <div className="tooltip2">
+          <div className="tooltip2" style={{ ...toolTipStyles }}>
             <div className="arrow" />
             <div className={`tooltiptext2 ${toolTipTextClassName}`}>{toolTipText}</div>
           </div>

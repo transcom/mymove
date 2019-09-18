@@ -10,7 +10,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { formatCentsRange, formatNumber } from 'shared/formatters';
 import { getPpmWeightEstimate, createOrUpdatePpm, getSelectedWeightInfo } from './ducks';
-
+import { updatePPMEstimate } from 'shared/Entities/modules/ppms';
 import 'react-rangeslider/lib/index.css';
 import './Weight.css';
 
@@ -77,13 +77,15 @@ export class PpmWeight extends Component {
   }
 
   handleSubmit = () => {
-    const { createOrUpdatePpm } = this.props;
     const moveId = this.props.match.params.moveId;
     const ppmBody = {
       weight_estimate: this.state.pendingPpmWeight,
       has_requested_advance: false,
     };
-    return createOrUpdatePpm(moveId, ppmBody);
+    return this.props
+      .createOrUpdatePpm(moveId, ppmBody)
+      .then(({ payload }) => this.props.updatePPMEstimate(moveId, payload.id).catch(err => err));
+    // catch block returns error so that the wizard can continue on with its flow
   };
 
   onWeightSelecting = value => {
@@ -234,6 +236,7 @@ function mapDispatchToProps(dispatch) {
     {
       getPpmWeightEstimate,
       createOrUpdatePpm,
+      updatePPMEstimate,
     },
     dispatch,
   );

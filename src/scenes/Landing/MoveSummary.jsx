@@ -436,7 +436,11 @@ const PPMMoveDetailsPanel = props => {
         {ppm.hasEstimateError ? (
           <>
             Not ready yet{' '}
-            <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
+            <IconWithTooltip
+              // without this styling the tooltip is obstructed by the status timeline and z-index does not help because they don't share the same parent container
+              toolTipStyles={{ position: 'absolute', top: '8.5em', left: '20.5em' }}
+              toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive."
+            />
           </>
         ) : (
           incentiveRange

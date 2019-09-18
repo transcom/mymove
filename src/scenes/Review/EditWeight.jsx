@@ -9,7 +9,7 @@ import { reduxForm } from 'redux-form';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import { formatCents } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-
+import { updatePPMEstimate } from 'shared/Entities/modules/ppms';
 import { createOrUpdatePpm, getPpmWeightEstimate } from 'scenes/Moves/Ppm/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCentsRange } from 'shared/formatters';
@@ -201,15 +201,27 @@ class EditWeight extends Component {
       .createOrUpdatePpm(moveId, {
         weight_estimate: values.weight_estimate,
       })
-      .then(() => {
-        // This promise resolves regardless of error.
-        if (!this.props.hasSubmitError) {
-          this.props.editSuccessful();
-          this.props.history.goBack();
-          this.props.checkEntitlement(moveId);
-        } else {
-          scrollToTop();
-        }
+      .then(({ payload }) => {
+        this.props
+          .updatePPMEstimate(payload.move_id, payload.id)
+          .then(() => {
+            if (!this.props.hasSubmitError) {
+              this.props.editSuccessful();
+              this.props.history.goBack();
+              this.props.checkEntitlement(moveId);
+            } else {
+              scrollToTop();
+            }
+          })
+          .catch(() => {
+            if (!this.props.hasSubmitError) {
+              this.props.editSuccessful();
+              this.props.history.goBack();
+              this.props.checkEntitlement(moveId);
+            } else {
+              scrollToTop();
+            }
+          });
       });
   };
 
@@ -278,6 +290,7 @@ function mapDispatchToProps(dispatch) {
       editSuccessful,
       entitlementChangeBegin,
       checkEntitlement,
+      updatePPMEstimate,
     },
     dispatch,
   );

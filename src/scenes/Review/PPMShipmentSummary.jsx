@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { get } from 'lodash';
-import PropTypes from 'prop-types';
+import { object, string, shape, bool, number } from 'prop-types';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
-import { selectReimbursement } from 'shared/Entities/modules/ppms';
+import { selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
 import ppmBlack from 'shared/icon/ppm-black.svg';
 import { formatCentsRange, formatCents } from 'shared/formatters';
 import { formatDateSM } from 'shared/formatters';
@@ -129,14 +129,22 @@ class PPMShipmentSummary extends Component {
 }
 
 PPMShipmentSummary.propTypes = {
-  ppm: PropTypes.object.isRequired,
-  movePath: PropTypes.string.isRequired,
-  hasEstimateError: PropTypes.bool.isRequired,
+  ppm: object.isRequired,
+  movePath: string.isRequired,
+  ppmEstimate: shape({
+    hasEstimateError: bool.isRequired,
+    hasEstimateSuccess: bool.isRequired,
+    hasEstimateInProgress: bool.isRequired,
+    originDutyStationZip: string.isRequired,
+    incentive_estimate_min: number,
+    incentive_estimate_max: number,
+  }).isRequired,
 };
 
 function mapStateToProps(state, ownProps) {
   const { ppm } = ownProps;
   const advance = selectReimbursement(state, ppm.advance);
+  const { incentive_estimate_min, incentive_estimate_max } = selectPPMForMove(state, ppm.move_id);
   return {
     ...ownProps,
     advance,
@@ -145,8 +153,8 @@ function mapStateToProps(state, ownProps) {
       hasEstimateSuccess: state.ppm.hasEstimateSuccess,
       hasEstimateInProgress: state.ppm.hasEstimateInProgress,
       originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
-      incentive_estimate_min: state.ppm.incentive_estimate_min,
-      incentive_estimate_max: state.ppm.incentive_estimate_max,
+      incentive_estimate_min,
+      incentive_estimate_max,
     },
   };
 }
