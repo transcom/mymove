@@ -15,7 +15,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
-
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
