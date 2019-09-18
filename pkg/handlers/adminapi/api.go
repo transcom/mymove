@@ -47,6 +47,12 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		query.NewQueryFilter,
 	}
 
+	adminAPI.OfficeUpdateOfficeUserHandler = UpdateOfficeUserHandler{
+		context,
+		user.NewOfficeUserUpdater(queryBuilder),
+		query.NewQueryFilter,
+	}
+
 	adminAPI.OfficeIndexOfficesHandler = IndexOfficesHandler{
 		context,
 		office.NewOfficeListFetcher(queryBuilder),
@@ -59,6 +65,12 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		electronicorder.NewElectronicOrderListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
+	}
+
+	adminAPI.ElectronicOrderGetElectronicOrdersTotalsHandler = GetElectronicOrdersTotalsHandler{
+		context,
+		electronicorder.NewElectronicOrdersCategoricalCountsFetcher(queryBuilder),
+		query.NewQueryFilter,
 	}
 
 	return adminAPI.Serve(nil)

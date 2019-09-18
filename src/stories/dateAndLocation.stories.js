@@ -233,6 +233,9 @@ const initstore = {
   },
   serviceMember: {
     currentServiceMember: {
+      residential_address: {
+        postal_code: 90211,
+      },
       current_station: {
         address: {
           postal_code: 90210,
@@ -254,6 +257,10 @@ const store = createStore(appReducer, initstore);
 const setupKnobs = () => {
   initstore.orders.currentOrders.new_duty_station.name = text('New Duty Station', 'McClellan Air Force Base');
   initstore.orders.currentOrders.new_duty_station.address.postal_code = text('New Duty Station ZIP', '95652');
+  initstore.serviceMember.currentServiceMember.residential_address.postal_code = text(
+    'Current Service Member Residential ZIP',
+    54321,
+  );
 };
 
 storiesOf('scenes/Moves/Ppm', module)

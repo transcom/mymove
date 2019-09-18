@@ -14,10 +14,11 @@ const defaultFlags = {
   moveInfoComboButton: true,
   sitPanel: true,
   ppmPaymentRequest: true,
+  createAdminUser: false,
 };
 
 const environmentFlags = {
-  development: Object.assign({}, defaultFlags),
+  development: Object.assign({}, defaultFlags, { createAdminUser: true }),
 
   test: Object.assign({}, defaultFlags),
 
@@ -55,19 +56,21 @@ export function detectEnvironment(nodeEnv, host) {
 
   // If we've built the app, then use the hostname to determine what the
   // environment is.
-  const domain = host;
-  switch (domain) {
+  switch (host) {
     case 'tsp.move.mil':
     case 'office.move.mil':
     case 'my.move.mil':
+    case 'admin.move.mil:':
       return 'production';
     case 'tsp.staging.move.mil':
     case 'office.staging.move.mil':
     case 'my.staging.move.mil':
+    case 'admin.staging.move.mil':
       return 'staging';
     case 'my.experimental.move.mil':
     case 'office.experimental.move.mil':
     case 'tsp.experimental.move.mil':
+    case 'admin.experimental.move.mil':
       return 'experimental';
     default:
       return 'development';

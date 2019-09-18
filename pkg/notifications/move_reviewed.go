@@ -81,11 +81,11 @@ WHERE CAST(reviewed_date AS date) = $1
 func (m MoveReviewed) emails(ctx context.Context) ([]emailContent, error) {
 	emailInfos, err := m.GetEmailInfo(m.date)
 	if err != nil {
-		m.logger.Error("error retrieving email info for", zap.String("date", m.date.String()))
+		m.logger.Error("error retrieving email info", zap.String("date", m.date.String()))
 		return []emailContent{}, err
 	}
 	if len(emailInfos) == 0 {
-		m.logger.Info("no emails to be sent for", zap.String("date", m.date.String()))
+		m.logger.Info("no emails to be sent", zap.String("date", m.date.String()))
 		return []emailContent{}, nil
 	}
 	return m.formatEmails(emailInfos)
@@ -105,7 +105,8 @@ func (m MoveReviewed) formatEmails(emailInfos EmailInfos) ([]emailContent, error
 			continue
 		}
 		if emailInfo.Email == nil {
-			m.logger.Info("no email found for service member")
+			m.logger.Info("no email found for service member",
+				zap.String("service member uuid", emailInfo.ServiceMemberID.String()))
 			continue
 		}
 		smEmail := emailContent{
@@ -115,8 +116,8 @@ func (m MoveReviewed) formatEmails(emailInfos EmailInfos) ([]emailContent, error
 			textBody:       textBody,
 			onSuccess:      m.OnSuccess(emailInfo),
 		}
-		m.logger.Info("Generated move reviewed email to service member",
-			zap.String("service member email address", *emailInfo.Email))
+		m.logger.Info("generated move reviewed email to service member",
+			zap.String("service member uuid", emailInfo.ServiceMemberID.String()))
 		emails = append(emails, smEmail)
 	}
 	return emails, nil

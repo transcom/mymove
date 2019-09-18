@@ -201,6 +201,20 @@ func (m *MoveDocument) ValidateUpdate(tx *pop.Connection) (*validate.Errors, err
 	return validate.NewErrors(), nil
 }
 
+// DeleteMoveDocument deletes a MoveDocument model
+func DeleteMoveDocument(db *pop.Connection, moveDoc *MoveDocument) error {
+	docType := moveDoc.MoveDocumentType
+
+	// only delete weight ticket set and expense documents at this time
+	if docType != MoveDocumentTypeEXPENSE && docType != MoveDocumentTypeWEIGHTTICKETSET {
+		return errors.New("Can only delete weight ticket set and expense documents")
+	}
+
+	return db.Transaction(func(db *pop.Connection) error {
+		return utilities.SoftDestroy(db, moveDoc)
+	})
+}
+
 // FetchMoveDocument fetches a MoveDocument model
 func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID, includedDeletedMoveDocuments bool) (*MoveDocument, error) {
 	// Allow all office users to fetch move doc

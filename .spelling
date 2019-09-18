@@ -492,6 +492,9 @@ MatchReasonCodeFull
 MatchReasonCodeNone
 wkEma
 _No_
+subcommands
+server_run
+DB_DEBUG
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - /usr/local
  - docs/data/tspp-data-creation.md
@@ -505,3 +508,4 @@ _No_
  - ./docs/data/tariff400ng-yearly-import.md
  - ./scripts/README.md
  - ./docs/how-to/run-storybook.md
+ - ./docs/database.md

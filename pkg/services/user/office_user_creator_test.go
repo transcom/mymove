@@ -32,6 +32,7 @@ func (suite *UserServiceSuite) TestCreateOfficeUser() {
 		fakeCreateOne := func(interface{}) (*validate.Errors, error) {
 			return nil, nil
 		}
+
 		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", transportationOffice.ID)}
 
 		builder := &testOfficeUserQueryBuilder{
