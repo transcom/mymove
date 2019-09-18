@@ -9,7 +9,6 @@ import Alert from 'shared/Alert';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { formatCents, formatCentsRange } from 'shared/formatters';
 import TransportationOfficeContactInfo from 'shared/TransportationOffices/TransportationOfficeContactInfo';
-import truck from 'shared/icon/truck-gray.svg';
 import { selectReimbursement } from 'shared/Entities/modules/ppms';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
@@ -19,46 +18,10 @@ import ppmCar from './images/ppm-car.svg';
 import PPMStatusTimeline from './PPMStatusTimeline';
 
 import ApprovedMoveSummary from 'scenes/Landing/MoveSummary/ApprovedMoveSummary';
+import CanceledMoveSummary from 'scenes/Landing/MoveSummary/CanceledMoveSummary';
 import DraftMoveSummary from 'scenes/Landing/MoveSummary/DraftMoveSummary';
 
 import './MoveSummary.css';
-
-export const CanceledMoveSummary = props => {
-  const { profile, reviewProfile } = props;
-  const currentStation = get(profile, 'current_station');
-  const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
-  return (
-    <Fragment>
-      <h2>New move</h2>
-      <br />
-      <div>
-        <div className="shipment_box">
-          <div className="shipment_type">
-            <img className="move_sm" src={truck} alt="ppm-car" />
-            Start here
-          </div>
-
-          <div className="shipment_box_contents">
-            <div className="step-contents">
-              <div className="status_box usa-width-two-thirds">
-                <div className="step">
-                  <div>
-                    Make sure you have a copy of your move orders before you get started. Questions or need to help?
-                    Contact your local Transportation Office (PPPO) at {get(currentStation, 'name')}
-                    {stationPhone ? ` at ${stationPhone}` : ''}.
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="step-links">
-              <button onClick={reviewProfile}>Start</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </Fragment>
-  );
-};
 
 export const PPMAlert = props => {
   return (
