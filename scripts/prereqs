@@ -26,6 +26,7 @@ has go-bindata "brew install go-bindata"
 has node "brew install node"
 has pkcs11-tool "brew install opensc; chmod go+w /usr/local/lib/pkcs11-tool; brew link opensc"
 has pkcs15-tool "brew install opensc; chmod go+w /usr/local/lib/pkcs15-tool; brew link opensc"
+has nvm "brew install nvm"
 
 # macOS only
 if [[ $(uname -s) = Darwin ]]; then
