@@ -17,8 +17,6 @@ type CreatePersonallyProcuredMoveAttachmentsHandler struct {
 	handlers.HandlerContext
 }
 
-var generatedObjectTags = handlers.FmtString("av-status=CLEAN&av-notes=GENERATED")
-
 // Handle is the handler
 func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.CreatePPMAttachmentsParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
@@ -78,6 +76,7 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	}
 
 	// Upload merged PDF to S3 and return Upload object
+	generatedObjectTags := handlers.FmtString("av-status=CLEAN&av-notes=GENERATED")
 	file := uploader.File{File: mergedPdf, Tags: generatedObjectTags}
 	pdfUpload, verrs, err := loader.CreateUpload(session.UserID, file, uploader.AllowedTypesPDF)
 	if verrs.HasAny() || err != nil {
