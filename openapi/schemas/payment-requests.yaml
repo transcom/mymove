@@ -8,11 +8,11 @@ PaymentRequest:
       readOnly: true
     documentPackage:
       $ref: '#/ProofOfServicePackage'
-    taskOrderId:
+    moveOrderId:
       type: string
       format: uuid
       example: c56a4180-65aa-42ec-a945-5fd21dec0538
-    taskOrderLineItemIds:
+    moveOrderLineItemIds:
       type: array
       items:
         type: string
@@ -33,11 +33,11 @@ CreatePaymentRequestPayload:
   properties:
     proofOfServicePackage:
       $ref: '#/ProofOfServicePackage'
-    taskOrderId:
+    moveOrderId:
       type: string
       format: uuid
       example: c56a4180-65aa-42ec-a945-5fd21dec0538
-    taskOrderLineItemIds:
+    moveOrderLineItemIds:
       type: array
       items:
         type: string
@@ -50,7 +50,7 @@ CreatePaymentRequestPayload:
 UpdatePaymentRequestPayload: # TODO: remove if we Prime will not be updating payment request
   type: object
   properties:
-    taskOrderLineItemIds:
+    moveOrderLineItemIds:
       type: array
       items:
         type: string
@@ -64,11 +64,7 @@ UpdatePaymentRequestStatusPayload:
   properties:
     status:
       $ref: '#/PaymentRequestStatus'
-    paymentRejectionReason:
-      type: string
-      example: documentation was incomplete
-      nullable: true
-    invoiceRejectionReason:
+    rejectionReason:
       type: string
       example: documentation was incomplete
       nullable: true
