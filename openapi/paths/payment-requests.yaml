@@ -63,14 +63,6 @@ PaymentRequestsItem:
       - payment-requests
       - prime
       - gov
-    parameters:
-      - name: paymentRequestId
-        in: path
-        description: UUID of payment request
-        required: true
-        schema:
-          type: string
-          format: uuid
     responses:
       '200':
         description: fetched instance of payment request
@@ -95,14 +87,6 @@ PaymentRequestsItem:
     tags:
       - payment-requests
       - prime
-    parameters:
-      - name: paymentRequestId
-        in: path
-        description: UUID of payment request
-        required: true
-        schema:
-          type: string
-          format: uuid
     requestBody:
       content:
         application/json:
@@ -126,6 +110,14 @@ PaymentRequestsItem:
         $ref: '../shared/responses.yaml#/components/responses/NotFound'
       '500':
         $ref: '../shared/responses.yaml#/components/responses/ServerError'
+  parameters:
+    - name: paymentRequestId
+      in: path
+      description: UUID of payment request
+      required: true
+      schema:
+        type: string
+        format: uuid
 
 PaymentRequestStatus:
   patch:
