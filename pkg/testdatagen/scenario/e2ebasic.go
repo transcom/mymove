@@ -309,6 +309,20 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Uploader: loader,
 	})
+	docAssertions := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm2.Move.ID,
+			Move:                     ppm2.Move,
+			PersonallyProcuredMoveID: &ppm2.ID,
+			Status:                   "AWAITING_REVIEW",
+			MoveDocumentType:         "WEIGHT_TICKET",
+		},
+		Document: models.Document{
+			ServiceMemberID: ppm2.Move.Orders.ServiceMember.ID,
+			ServiceMember:   ppm2.Move.Orders.ServiceMember,
+		},
+	}
+	testdatagen.MakeMoveDocument(db, docAssertions)
 	ppm2.Move.Submit(time.Now())
 	ppm2.Move.Approve()
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
