@@ -88,5 +88,5 @@ func (d RDSPostgresDriver) Open(dsn string) (_ driver.Conn, err error) {
 }
 
 func init() {
-	sql.Register("iampostgres", &RDSPostgresDriver{&pg.Driver{}})
+	sql.Register("custompostgres", &RDSPostgresDriver{&pg.Driver{}})
 }
