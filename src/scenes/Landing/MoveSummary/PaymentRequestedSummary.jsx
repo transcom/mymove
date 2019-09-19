@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { ppmInfoPacket } from 'shared/constants';
 import Alert from 'shared/Alert';
 import moment from 'moment';
@@ -9,10 +8,8 @@ import FindWeightScales from 'scenes/Landing/MoveSummary/FindWeightScales';
 import PpmMoveDetails from 'scenes/Landing/MoveSummary/SubmittedPpmMoveDetails';
 
 const PaymentRequestedSummary = props => {
-  const { ppm, move, requestPaymentSuccess } = props;
-  const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
+  const { ppm, requestPaymentSuccess } = props;
   const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
-  const ppmPaymentRequestIntroRoute = `moves/${move.id}/request-payment`;
   return (
     <div>
       <div className="shipment_box">
@@ -43,25 +40,10 @@ const PaymentRequestedSummary = props => {
                   </a>
                 </div>
               )}
-              {paymentRequested ? (
-                <div className="step">
-                  <div className="title">Your payment is in review</div>
-                  <div>
-                    You will receive a notification from your destination PPPO office when it has been reviewed.
-                  </div>
-                </div>
-              ) : (
-                <div className="step">
-                  <div className="title">Next Step: Request payment</div>
-                  <div>
-                    Request a PPM payment, a storage payment, or an advance against your PPM payment before your move is
-                    done.
-                  </div>
-                  <Link to={ppmPaymentRequestIntroRoute} className="usa-button usa-button-secondary">
-                    Request Payment
-                  </Link>
-                </div>
-              )}
+              <div className="step">
+                <div className="title">Your payment is in review</div>
+                <div>You will receive a notification from your destination PPPO office when it has been reviewed.</div>
+              </div>
             </div>
             <div className="usa-width-one-third">
               <PpmMoveDetails ppm={ppm} />
