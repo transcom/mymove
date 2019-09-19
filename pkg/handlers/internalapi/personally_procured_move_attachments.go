@@ -75,9 +75,10 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 		return ppmop.NewCreatePPMAttachmentsUnprocessableEntity()
 	}
 
-	// Upload merged PDF to S3 and return Upload object
+	// Add relevant av-.* tags for generated objects (for s3)
 	generatedObjectTags := handlers.FmtString("av-status=CLEAN&av-notes=GENERATED")
 	file := uploader.File{File: mergedPdf, Tags: generatedObjectTags}
+	// Upload merged PDF to S3 and return Upload object
 	pdfUpload, verrs, err := loader.CreateUpload(session.UserID, file, uploader.AllowedTypesPDF)
 	if verrs.HasAny() || err != nil {
 		switch err.(type) {
