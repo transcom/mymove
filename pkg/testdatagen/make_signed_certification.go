@@ -24,6 +24,7 @@ func MakeSignedCertification(db *pop.Connection, assertions Assertions) models.S
 		MoveID:                   moveID,
 		SubmittingUserID:         userID,
 		PersonallyProcuredMoveID: nil,
+		ShipmentID:               nil,
 		CertificationType:        &certificationType,
 		CertificationText:        "LEGAL TEXT",
 		Signature:                "SIGNATURE",

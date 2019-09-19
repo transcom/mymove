@@ -40,6 +40,7 @@ type SignedCertification struct {
 	SubmittingUserID         uuid.UUID                `json:"submitting_user_id" db:"submitting_user_id"`
 	MoveID                   uuid.UUID                `json:"move_id" db:"move_id"`
 	PersonallyProcuredMoveID *uuid.UUID               `json:"personally_procured_move_id" db:"personally_procured_move_id"`
+	ShipmentID               *uuid.UUID               `json:"shipment_id" db:"shipment_id"`
 	CertificationType        *SignedCertificationType `json:"certification_type" db:"certification_type"`
 	CreatedAt                time.Time                `json:"created_at" db:"created_at"`
 	UpdatedAt                time.Time                `json:"updated_at" db:"updated_at"`

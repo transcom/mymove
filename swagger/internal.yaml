@@ -1295,6 +1295,10 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      shipment_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       status:
         $ref: '#/definitions/InvoiceStatus'
       approver_first_name:
@@ -1475,6 +1479,10 @@ definitions:
         type: string
         format: uuid
         x-nullable: true
+      shipment_id:
+        type: string
+        format: uuid
+        x-nullable: true
       certification_type:
         $ref: '#/definitions/SignedCertificationType'
         x-nullable: true
@@ -1499,6 +1507,10 @@ definitions:
       certification_text:
         type: string
       personally_procured_move_id:
+        type: string
+        format: uuid
+        x-nullable: true
+      shipment_id:
         type: string
         format: uuid
         x-nullable: true
@@ -2965,6 +2977,39 @@ paths:
           description: user is not authorized
         404:
           description: move not found
+        500:
+          description: server error
+  /shipments/{shipmentId}/invoice:
+    post:
+      summary: Creates an invoice to send to Syncada through GEX
+      description: Generates an EDI from the shipment and rate engine costs and sends an invoice.
+      operationId: createAndSendHHGInvoice
+      tags:
+        - shipments
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+      responses:
+        200:
+          description: invoice was submitted successfully
+          schema:
+            $ref: '#/definitions/Invoice'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to send this invoice
+        409:
+          description: the shipment is in process or has already been submitted successfully
+          schema:
+            $ref: '#/definitions/Invoice'
+        412:
+          description: the shipment status not in delivered state
         500:
           description: server error
   /reimbursement/{reimbursementId}/approve:

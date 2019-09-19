@@ -3,6 +3,8 @@ package rateengine
 import (
 	"time"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/gobuffalo/pop"
@@ -32,6 +34,7 @@ type CostComputation struct {
 	LHDiscount  unit.DiscountRate
 	SITDiscount unit.DiscountRate
 	Weight      unit.Pound
+	ShipmentID  uuid.UUID
 }
 
 // Scale scales a cost computation by a multiplicative factor
@@ -66,6 +69,7 @@ func (c CostComputation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	encoder.AddFloat64("SITDiscount", float64(c.SITDiscount))
 	encoder.AddInt("Miles", c.Mileage)
 	encoder.AddInt("Weight", c.Weight.Int())
+	encoder.AddString("ShipmentID", c.ShipmentID.String())
 
 	return nil
 }

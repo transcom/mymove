@@ -7,7 +7,7 @@ export const getSignedCertificationsLabel = 'SignedCertifications.indexSignedCer
 
 export function createSignedCertification(
   moveId,
-  payload /*shape: {personally_procured_move_id, certification_text, signature, date, certification_type}*/,
+  payload /*shape: {personally_procured_move_id, shipment_id, certification_text, signature, date, certification_type}*/,
   label = createSignedCertificationLabel,
 ) {
   return swaggerRequest(
