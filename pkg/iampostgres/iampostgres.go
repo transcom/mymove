@@ -18,9 +18,13 @@ import (
 	pg "github.com/lib/pq"
 )
 
-var useIAM = false
-var passHolder = ""
-var currentIamPass = ""
+type config struct {
+	useIAM         bool
+	passHolder     string
+	currentIamPass string
+}
+
+var iamConfig = config{false, "", ""}
 
 // RDSPostgresDriver wrapper around postgres ddiver
 type RDSPostgresDriver struct {
@@ -31,31 +35,31 @@ type RDSPostgresDriver struct {
 func GetCurrentPass() string {
 	// Blocks until the password from the dbConnectionDetails has a non blank password
 	for {
-		if currentIamPass == "" {
+		if iamConfig.currentIamPass == "" {
 			time.Sleep(time.Millisecond * 250)
 		} else {
 			break
 		}
 	}
 
-	return currentIamPass
+	return iamConfig.currentIamPass
 }
 
 func updateDSN(dsn string) string {
-	dsn = strings.Replace(dsn, passHolder, GetCurrentPass(), 1)
+	dsn = strings.Replace(dsn, iamConfig.passHolder, GetCurrentPass(), 1)
 	return dsn
 }
 
 // EnableIAM enables the use of IAM and pulls first credential set as a sanity check
 func EnableIAM(host string, port string, region string, user string, passTemplate string, creds *credentials.Credentials, logger Logger) {
 	// Lets enable and configure the DSN settings
-	useIAM = true
-	passHolder = passTemplate
+	iamConfig.useIAM = true
+	iamConfig.passHolder = passTemplate
 
 	// GoRoutine to continually refresh the RDS IAM auth on a 10m interval.
 	ticker := time.NewTicker(10 * time.Minute)
 	go func() {
-		// This for loop immediatley runs the first tick then on internval
+		// This for loop immediately runs the first tick then on interval
 		for ; true; <-ticker.C {
 			if creds == nil {
 				logger.Error("IAM Credentials are missing")
@@ -67,7 +71,7 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 				logger.Error("Error building auth token", zap.Error(err))
 				return
 			}
-			currentIamPass = url.QueryEscape(authToken)
+			iamConfig.currentIamPass = url.QueryEscape(authToken)
 			logger.Info("Successfully generated new IAM token")
 		}
 	}()
@@ -76,7 +80,7 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 
 // Open wrapper around postgres Open func
 func (d RDSPostgresDriver) Open(dsn string) (_ driver.Conn, err error) {
-	if useIAM == true {
+	if iamConfig.useIAM == true {
 		dsn = updateDSN(dsn)
 	}
 
