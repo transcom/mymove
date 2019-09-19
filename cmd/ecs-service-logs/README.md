@@ -66,7 +66,7 @@ Filter by url is defined and the number of headers is greater than 14.
 ecs-service-logs show -s app -e experimental url=* "headers>14"
 ```
 
-Search for requests with an event type, such as `create_office_user`
+Search for requests with an event type, such as `create_office_user`, within the logs for stopped ECS containers:
 
 ```shell
 ecs-service-logs show -s app -c app-experimental -e experimental --status STOPPED event_type="create_office_user"
