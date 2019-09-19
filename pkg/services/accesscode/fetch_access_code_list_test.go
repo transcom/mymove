@@ -3,11 +3,18 @@ package accesscode
 import (
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/services/pagination"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
+
+func defaultPagination() services.Pagination {
+	page, perPage := pagination.DefaultPage(), pagination.DefaultPerPage()
+	return pagination.NewPagination(&page, &perPage)
+}
 
 func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListNoFilterNoAssociation() {
 	ppmMove := models.SelectedMoveTypePPM
@@ -30,7 +37,7 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListNoFilterNoAssociatio
 	queryBuilder := query.NewQueryBuilder(suite.DB())
 	lf := NewAccessCodeListFetcher(queryBuilder)
 
-	acs, err := lf.FetchAccessCodeList(queryFilters, newAssociations)
+	acs, err := lf.FetchAccessCodeList(queryFilters, newAssociations, defaultPagination())
 
 	suite.NoError(err)
 	suite.Len(acs, 2)
@@ -64,7 +71,7 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListWithFilter() {
 	queryBuilder := query.NewQueryBuilder(suite.DB())
 	lf := NewAccessCodeListFetcher(queryBuilder)
 
-	acs, err := lf.FetchAccessCodeList(queryFilters, newAssociations)
+	acs, err := lf.FetchAccessCodeList(queryFilters, newAssociations, defaultPagination())
 
 	suite.NoError(err)
 	suite.Len(acs, 1)
@@ -94,7 +101,7 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListWithAssociation() {
 	queryBuilder := query.NewQueryBuilder(suite.DB())
 	lf := NewAccessCodeListFetcher(queryBuilder)
 
-	acs, err := lf.FetchAccessCodeList(queryFilters, newAssociations)
+	acs, err := lf.FetchAccessCodeList(queryFilters, newAssociations, defaultPagination())
 
 	suite.NoError(err)
 	suite.Len(acs, 1)

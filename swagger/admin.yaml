@@ -381,6 +381,12 @@ paths:
         - in: query
           name: filter
           type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
       responses:
         200:
           description: success

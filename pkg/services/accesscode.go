@@ -32,5 +32,5 @@ type OfficeAccessCodes []adminmessages.AccessCode
 // AccessCodeListFetcher is the service object interface for FetchAccessCodeList
 //go:generate mockery -name AccessCodeListFetcher
 type AccessCodeListFetcher interface {
-	FetchAccessCodeList(filters []QueryFilter, associations QueryAssociations) (models.AccessCodes, error)
+	FetchAccessCodeList(filters []QueryFilter, associations QueryAssociations, pagination Pagination) (models.AccessCodes, error)
 }

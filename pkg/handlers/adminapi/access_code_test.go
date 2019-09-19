@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/services/pagination"
+
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/stretchr/testify/mock"
@@ -39,6 +41,7 @@ func (suite *HandlerSuite) TestIndexAccessCodesHandler() {
 	}
 	testdatagen.MakeAccessCode(suite.DB(), assertions)
 	req := httptest.NewRequest("GET", "/access_codes", nil)
+
 	suite.T().Run("integration test ok response", func(t *testing.T) {
 		params := accesscodeop.IndexAccessCodesParams{
 			HTTPRequest: req,
@@ -48,6 +51,7 @@ func (suite *HandlerSuite) TestIndexAccessCodesHandler() {
 			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:        query.NewQueryFilter,
 			AccessCodeListFetcher: accesscode.NewAccessCodeListFetcher(queryBuilder),
+			NewPagination:         pagination.NewPagination,
 		}
 
 		response := handler.Handle(params)
@@ -76,6 +80,7 @@ func (suite *HandlerSuite) TestIndexAccessCodesHandler() {
 			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:        newQueryFilter,
 			AccessCodeListFetcher: accessCodeListFetcher,
+			NewPagination:         pagination.NewPagination,
 		}
 		response := handler.Handle(params)
 
@@ -89,6 +94,7 @@ func (suite *HandlerSuite) TestIndexAccessCodesHandlerHelpers() {
 		HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 		NewQueryFilter:        query.NewQueryFilter,
 		AccessCodeListFetcher: accesscode.NewAccessCodeListFetcher(queryBuilder),
+		NewPagination:         pagination.NewPagination,
 	}
 
 	suite.T().Run("test both filters present", func(t *testing.T) {

@@ -393,11 +393,7 @@ func (suite *QueryBuilderSuite) TestQueryAssociations() {
 		}
 		associations := NewQueryAssociations(queryAssociations)
 
-		err := builder.QueryForAssociations(
-			&accessCodes,
-			associations,
-			filters,
-		)
+		err := builder.QueryForAssociations(&accessCodes, associations, filters, defaultPagination())
 
 		suite.NoError(err)
 		suite.Len(accessCodes, 2)
@@ -420,11 +416,7 @@ func (suite *QueryBuilderSuite) TestQueryAssociations() {
 		}
 		associations := NewQueryAssociations(queryAssociations)
 
-		err := builder.QueryForAssociations(
-			&accessCodes,
-			associations,
-			queryFilters,
-		)
+		err := builder.QueryForAssociations(&accessCodes, associations, queryFilters, defaultPagination())
 
 		suite.NoError(err)
 		suite.Len(accessCodes, 1)

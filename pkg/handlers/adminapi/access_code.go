@@ -22,6 +22,7 @@ type IndexAccessCodesHandler struct {
 	handlers.HandlerContext
 	services.AccessCodeListFetcher
 	services.NewQueryFilter
+	services.NewPagination
 }
 
 func payloadForOfficeAccessCodeModel(accessCode models.AccessCode) *adminmessages.AccessCode {
@@ -43,26 +44,30 @@ func payloadForOfficeAccessCodeModel(accessCode models.AccessCode) *adminmessage
 func (h IndexAccessCodesHandler) Handle(params accesscodeop.IndexAccessCodesParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
+	pagination := h.NewPagination(params.Page, params.PerPage)
 	queryFilters := h.generateQueryFilters(params.Filter, logger)
 	queryAssociations := []services.QueryAssociation{
 		query.NewQueryAssociation("ServiceMember.Orders.Moves"),
 	}
 
 	associations := query.NewQueryAssociations(queryAssociations)
-
-	accessCodes, err := h.AccessCodeListFetcher.FetchAccessCodeList(queryFilters, associations)
+	accessCodes, err := h.AccessCodeListFetcher.FetchAccessCodeList(queryFilters, associations, pagination)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-
 	accessCodesCount := len(accessCodes)
+
+	totalAccessCodeCount, err := h.DB().Count(&models.AccessCode{})
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 
 	payload := make(adminmessages.AccessCodes, accessCodesCount)
 	for i, s := range accessCodes {
 		payload[i] = payloadForOfficeAccessCodeModel(s)
 	}
 
-	return accesscodeop.NewIndexAccessCodesOK().WithContentRange(fmt.Sprintf("access codes 0-%d/%d", accessCodesCount, accessCodesCount)).WithPayload(payload)
+	return accesscodeop.NewIndexAccessCodesOK().WithContentRange(fmt.Sprintf("access codes %d-%d/%d", pagination.Offset(), pagination.Offset()+accessCodesCount, totalAccessCodeCount)).WithPayload(payload)
 }
 
 // generateQueryFilters is helper to convert filter params from a json string

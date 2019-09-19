@@ -79,6 +79,7 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		accesscodeservice.NewAccessCodeListFetcher(queryBuilder),
 		query.NewQueryFilter,
+		pagination.NewPagination,
 	}
 	return adminAPI.Serve(nil)
 }

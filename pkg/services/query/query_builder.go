@@ -230,7 +230,7 @@ func (p *Builder) FetchCategoricalCountsFromOneModel(model interface{}, filters 
 	return categoricalCounts, nil
 }
 
-func (p *Builder) QueryForAssociations(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter) error {
+func (p *Builder) QueryForAssociations(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return errors.New(fetchOneReflectionMessage)
@@ -244,7 +244,7 @@ func (p *Builder) QueryForAssociations(model interface{}, associations services.
 		return errors.New(fetchManyReflectionMessage)
 	}
 	query := p.db.Q()
-	query, err := filteredQuery(query, filters, t)
+	query, err := buildQuery(query, filters, pagination, t)
 	if err != nil {
 		return err
 	}

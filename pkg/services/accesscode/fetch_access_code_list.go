@@ -6,7 +6,7 @@ import (
 )
 
 type accessCodeListQueryBuilder interface {
-	QueryForAssociations(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter) error
+	QueryForAssociations(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination) error
 }
 
 type accessCodeListFetcher struct {
@@ -14,10 +14,10 @@ type accessCodeListFetcher struct {
 }
 
 // FetchAccessCodeList uses the passed query builder to fetch a list of access codes
-func (o *accessCodeListFetcher) FetchAccessCodeList(filters []services.QueryFilter, associations services.QueryAssociations) (models.AccessCodes, error) {
+func (o *accessCodeListFetcher) FetchAccessCodeList(filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) (models.AccessCodes, error) {
 	var accessCodes models.AccessCodes
 
-	err := o.builder.QueryForAssociations(&accessCodes, associations, filters)
+	err := o.builder.QueryForAssociations(&accessCodes, associations, filters, pagination)
 	if err != nil {
 		return models.AccessCodes{}, err
 	}
