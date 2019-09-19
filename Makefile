@@ -858,6 +858,11 @@ storybook: ## Start the storybook server
 build_storybook: ## Build static storybook site
 	yarn run build-storybook
 
+.PHONY: generate_new_apis
+generate_new_apis: ## Generate Go code for openapi 3.0
+	swagger-cli bundle -r openapi/api.yaml > oapi.yaml
+	oapi-codegen -generate types,server,spec oapi.yaml > pkg/oapi/api.gen.go
+	rm oapi.yaml
 #
 # ----- END RANDOM TARGETS -----
 #

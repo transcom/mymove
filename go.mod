@@ -51,6 +51,7 @@ require (
 	github.com/lib/pq v1.2.0
 	github.com/markbates/goth v1.54.1
 	github.com/mattn/go-colorable v0.1.2 // indirect
+	github.com/mattn/go-isatty v0.0.9 // indirect
 	github.com/mattn/go-shellwords v1.0.5 // indirect
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/namsral/flag v1.7.4-pre.0.20170814194028-67f268f20922
@@ -67,7 +68,7 @@ require (
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/pflag v1.0.4-0.20181223182923-24fa6976df40
 	github.com/spf13/viper v1.4.1-0.20190713102802-e02bc9eca55d
-	github.com/stretchr/testify v1.3.1-0.20190712000136-221dbe5ed467
+	github.com/stretchr/testify v1.4.0
 	github.com/subosito/gotenv v1.1.1 // indirect
 	github.com/tealeg/xlsx v1.0.3
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5
@@ -78,9 +79,8 @@ require (
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
 	golang.org/x/image v0.0.0-20190802002840-cff245a6509b // indirect
 	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80
-	golang.org/x/sys v0.0.0-20190804053845-51ab0e2deafa // indirect
 	golang.org/x/text v0.3.2
-	golang.org/x/tools v0.0.0-20190807223507-b346f7fd45de
+	golang.org/x/tools v0.0.0-20190807223507-b346f7fd45de // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.29.1
