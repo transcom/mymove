@@ -75,6 +75,7 @@ func (suite *HandlerSuite) TestIndexAccessCodesHandler() {
 		accessCodeListFetcher.On("FetchAccessCodeList",
 			mock.Anything,
 			mock.Anything,
+			mock.Anything,
 		).Return(nil, expectedError).Once()
 		handler := IndexAccessCodesHandler{
 			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
