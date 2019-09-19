@@ -45,7 +45,7 @@ const Home = props => (
       />
       <Resource name="offices" options={{ label: 'Offices' }} list={OfficeList} />
       <Resource name="electronic_orders" options={{ label: 'Electronic orders' }} list={ElectronicOrderList} />
-      <Resource name="access_codes" list={AccessCodeList} />
+      <Resource name="access_codes" options={{ label: 'Access codes' }} list={AccessCodeList} />
     </Admin>
   </div>
 );
