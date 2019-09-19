@@ -338,3 +338,83 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	}
 	suite.Equal(expectedResponse, response)
 }
+
+func (suite *HandlerSuite) TestDeleteMoveDocumentHandler() {
+	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			Status: models.PPMStatusPAYMENTREQUESTED,
+		},
+	})
+	move := ppm.Move
+	sm := move.Orders.ServiceMember
+
+	moveDocument := testdatagen.MakeMoveDocument(suite.DB(), testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   move.ID,
+			Move:                     move,
+			MoveDocumentType:         models.MoveDocumentTypeSHIPMENTSUMMARY,
+			PersonallyProcuredMoveID: &ppm.ID,
+		},
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+		},
+	})
+	request := httptest.NewRequest("DELETE", "/fake/path", nil)
+	request = suite.AuthenticateRequest(request, sm)
+
+	deleteMoveDocParams := movedocop.DeleteMoveDocumentParams{
+		HTTPRequest:    request,
+		MoveDocumentID: strfmt.UUID(moveDocument.ID.String()),
+	}
+
+	handler := DeleteMoveDocumentHandler{
+		handlers.NewHandlerContext(suite.DB(),
+			suite.TestLogger()),
+	}
+
+	response := handler.Handle(deleteMoveDocParams)
+	errorResponse := response.(*handlers.ErrResponse)
+	suite.Equal(http.StatusInternalServerError, errorResponse.Code)
+	suite.Equal("Can only delete weight ticket set and expense documents", errorResponse.Err.Error())
+
+	moveDocument2 := testdatagen.MakeMoveDocument(suite.DB(), testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   move.ID,
+			Move:                     move,
+			MoveDocumentType:         models.MoveDocumentTypeWEIGHTTICKETSET,
+			PersonallyProcuredMoveID: &ppm.ID,
+		},
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+		},
+	})
+	weightTicketSetDocument := models.WeightTicketSetDocument{
+		MoveDocumentID:           moveDocument2.ID,
+		MoveDocument:             moveDocument2,
+		EmptyWeight:              nil,
+		EmptyWeightTicketMissing: true,
+		FullWeight:               nil,
+		FullWeightTicketMissing:  true,
+		VehicleNickname:          "My Car",
+		VehicleOptions:           "CAR",
+		WeightTicketDate:         nil,
+		TrailerOwnershipMissing:  false,
+	}
+	verrs, err := suite.DB().ValidateAndCreate(&weightTicketSetDocument)
+	suite.NoError(err)
+	suite.False(verrs.HasAny())
+
+	request2 := httptest.NewRequest("DELETE", "/fake/path", nil)
+	request2 = suite.AuthenticateRequest(request2, sm)
+
+	deleteMoveDocParams2 := movedocop.DeleteMoveDocumentParams{
+		HTTPRequest:    request2,
+		MoveDocumentID: strfmt.UUID(moveDocument2.ID.String()),
+	}
+
+	successResponse := handler.Handle(deleteMoveDocParams2)
+
+	suite.Assertions.IsType(&movedocop.DeleteMoveDocumentNoContent{}, successResponse)
+}

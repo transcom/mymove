@@ -5,6 +5,7 @@ import React from 'react';
 import Menu from './Menu';
 import UserList from './UserList';
 import UserCreate from './UserCreate';
+import UserEdit from './UserEdit';
 import OfficeList from './OfficeList';
 import ElectronicOrderList from './ElectronicOrderList';
 import UserShow from './UserShow';
@@ -17,6 +18,7 @@ const httpClient = (url, options = {}) => {
   if (!token) {
     console.warn('Unable to retrieve CSRF Token from cookie');
   }
+
   if (!options.headers) {
     options.headers = new Headers({ Accept: 'application/json', 'X-CSRF-TOKEN': token });
   }
@@ -38,6 +40,7 @@ const Home = props => (
         list={UserList}
         show={UserShow}
         create={props.context.flags.createAdminUser && UserCreate}
+        edit={props.context.flags.createAdminUser && UserEdit}
       />
       <Resource name="offices" options={{ label: 'Offices' }} list={OfficeList} />
       <Resource name="electronic_orders" options={{ label: 'Electronic orders' }} list={ElectronicOrderList} />

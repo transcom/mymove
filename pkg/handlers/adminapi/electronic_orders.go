@@ -88,8 +88,8 @@ func (h GetElectronicOrdersTotalsHandler) Handle(params electronicorderop.GetEle
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	comparator := ""
 
-	queryFilters := []services.QueryFilter{}
-	andQueryFilters := []services.QueryFilter{}
+	andQueryFilters := make([]services.QueryFilter, len(params.AndFilter))
+	queryFilters := make([]services.QueryFilter, len(params.Filter))
 
 	// Default behavior for this handler is going to be returning counts for each of the component services as categories
 	if len(params.Filter) == 0 {
@@ -101,20 +101,21 @@ func (h GetElectronicOrdersTotalsHandler) Handle(params electronicorderop.GetEle
 			h.NewQueryFilter("issuer", "=", models.IssuerMarineCorps),
 		}
 	} else {
-		for _, filter := range params.Filter {
+		for i, filter := range params.Filter {
 			queryFilterSplit := strings.FieldsFunc(filter, split)
 			comparator = translateComparator(queryFilterSplit[1])
-			queryFilters = append(andQueryFilters, h.NewQueryFilter(queryFilterSplit[0], comparator, queryFilterSplit[2]))
+			queryFilters[i] = h.NewQueryFilter(queryFilterSplit[0], comparator, queryFilterSplit[2])
 		}
 	}
 
 	if params.AndFilter != nil {
-		for _, andFilter := range params.AndFilter {
+		for i, andFilter := range params.AndFilter {
 			andFilterSplit := strings.FieldsFunc(andFilter, split)
 			comparator = translateComparator(andFilterSplit[1])
-			andQueryFilters = append(andQueryFilters, h.NewQueryFilter(andFilterSplit[0], comparator, andFilterSplit[2]))
+			andQueryFilters[i] = h.NewQueryFilter(andFilterSplit[0], comparator, andFilterSplit[2])
 		}
 	}
+
 	counts, err := h.ElectronicOrderCategoryCountFetcher.FetchElectronicOrderCategoricalCounts(queryFilters, &andQueryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)

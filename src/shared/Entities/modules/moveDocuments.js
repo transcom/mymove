@@ -1,9 +1,11 @@
 import { filter, map } from 'lodash';
 import { denormalize, normalize } from 'normalizr';
 import { getClient, checkResponse } from 'shared/Swagger/api';
+import { swaggerRequest } from 'shared/Swagger/request';
 import { MOVE_DOC_TYPE, MOVE_DOC_STATUS } from 'shared/constants';
 import { moveDocuments } from '../schema';
 import { ADD_ENTITIES, addEntities } from '../actions';
+import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 export const STATE_KEY = 'moveDocuments';
 
@@ -20,6 +22,11 @@ export default function reducer(state = {}, action) {
       return state;
   }
 }
+
+const deleteMoveDocumentType = 'DELETE_MOVE_DOCUMENT';
+const deleteMoveDocumentLabel = `MoveDocument.deleteMoveDocument`;
+
+export const DELETE_MOVE_DOCUMENT = ReduxHelpers.generateAsyncActionTypes(deleteMoveDocumentType);
 
 // Utilities
 export const findPendingWeightTickets = moveDocs => {
@@ -78,6 +85,12 @@ export const updateMoveDocument = (moveId, moveDocumentId, payload) => {
     return response;
   };
 };
+
+export function deleteMoveDocument(moveDocumentId, label = deleteMoveDocumentLabel) {
+  const schemaKey = 'moveDocuments';
+  const deleteId = moveDocumentId;
+  return swaggerRequest(getClient, 'move_docs.deleteMoveDocument', { moveDocumentId }, { label, schemaKey, deleteId });
+}
 
 // Selectors
 export const selectMoveDocument = (state, id) => {

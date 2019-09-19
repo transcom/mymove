@@ -201,6 +201,20 @@ func (m *MoveDocument) ValidateUpdate(tx *pop.Connection) (*validate.Errors, err
 	return validate.NewErrors(), nil
 }
 
+// DeleteMoveDocument deletes a MoveDocument model
+func DeleteMoveDocument(db *pop.Connection, moveDoc *MoveDocument) error {
+	docType := moveDoc.MoveDocumentType
+
+	// only delete weight ticket set and expense documents at this time
+	if docType != MoveDocumentTypeEXPENSE && docType != MoveDocumentTypeWEIGHTTICKETSET {
+		return errors.New("Can only delete weight ticket set and expense documents")
+	}
+
+	return db.Transaction(func(db *pop.Connection) error {
+		return utilities.SoftDestroy(db, moveDoc)
+	})
+}
+
 // FetchMoveDocument fetches a MoveDocument model
 func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID, includedDeletedMoveDocuments bool) (*MoveDocument, error) {
 	// Allow all office users to fetch move doc
@@ -308,29 +322,6 @@ func FetchMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UU
 		}
 	}
 
-	return moveDocuments, nil
-}
-
-// FetchMoveDocumentsByTypeForShipment fetches move documents for shipment and move document type
-func FetchMoveDocumentsByTypeForShipment(db *pop.Connection, session *auth.Session, moveDocumentType MoveDocumentType, shipmentID uuid.UUID, includedDeletedMoveDocuments bool) (MoveDocuments, error) {
-
-	// Allow all logged in office users to fetch move docs
-	if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
-		return nil, ErrFetchForbidden
-	}
-
-	var moveDocuments MoveDocuments
-	query := db.Q()
-
-	if !includedDeletedMoveDocuments {
-		query = db.Where("deleted_at is null")
-	}
-	err := query.Where("move_document_type = $1", string(moveDocumentType)).Where("shipment_id = $2", shipmentID.String()).All(&moveDocuments)
-	if err != nil {
-		if errors.Cause(err).Error() != RecordNotFoundErrorString {
-			return nil, err
-		}
-	}
 	return moveDocuments, nil
 }
 

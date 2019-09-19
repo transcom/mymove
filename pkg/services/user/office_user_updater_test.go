@@ -1,20 +1,22 @@
 package user
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *UserServiceSuite) TestCreateOfficeUser() {
+func (suite *UserServiceSuite) TestUpdateOfficeUser() {
 	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{})
+
+	newUUID, _ := uuid.NewV4()
+
 	userInfo := models.OfficeUser{
+		ID:                     newUUID,
 		LastName:               "Spaceman",
 		FirstName:              "Leo",
 		Email:                  "spaceman@leo.org",
@@ -24,41 +26,43 @@ func (suite *UserServiceSuite) TestCreateOfficeUser() {
 	}
 
 	// Happy path
-	suite.T().Run("If the user is created successfully it should be returned", func(t *testing.T) {
-		fakeFetchOne := func(model interface{}) error {
-			reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(transportationOffice.ID))
-			return nil
-		}
-		fakeCreateOne := func(interface{}) (*validate.Errors, error) {
+	suite.T().Run("If the user is updated successfully it should be returned", func(t *testing.T) {
+		fakeUpdateOne := func(interface{}) (*validate.Errors, error) {
 			return nil, nil
 		}
 
-		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", transportationOffice.ID)}
+		fakeFetchOne := func(model interface{}) error {
+			return nil
+		}
 
 		builder := &testOfficeUserQueryBuilder{
 			fakeFetchOne:  fakeFetchOne,
-			fakeCreateOne: fakeCreateOne,
+			fakeUpdateOne: fakeUpdateOne,
 		}
 
-		creator := NewOfficeUserCreator(builder)
-		_, verrs, err := creator.CreateOfficeUser(&userInfo, filter)
+		updater := NewOfficeUserUpdater(builder)
+		_, verrs, err := updater.UpdateOfficeUser(&userInfo)
 		suite.NoError(err)
 		suite.Nil(verrs)
-
 	})
 
 	// Bad transportation office ID
 	suite.T().Run("If we are provided a transportation office that doesn't exist, the create should fail", func(t *testing.T) {
+		fakeUpdateOne := func(model interface{}) (*validate.Errors, error) {
+			return nil, nil
+		}
+
 		fakeFetchOne := func(model interface{}) error {
 			return models.ErrFetchNotFound
 		}
-		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", "b9c41d03-c730-4580-bd37-9ccf4845af6c")}
+
 		builder := &testOfficeUserQueryBuilder{
-			fakeFetchOne: fakeFetchOne,
+			fakeFetchOne:  fakeFetchOne,
+			fakeUpdateOne: fakeUpdateOne,
 		}
 
-		creator := NewOfficeUserCreator(builder)
-		_, _, err := creator.CreateOfficeUser(&userInfo, filter)
+		updater := NewOfficeUserUpdater(builder)
+		_, _, err := updater.UpdateOfficeUser(&userInfo)
 		suite.Error(err)
 		suite.Equal(models.ErrFetchNotFound.Error(), err.Error())
 

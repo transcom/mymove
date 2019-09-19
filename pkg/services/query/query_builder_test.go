@@ -241,6 +241,46 @@ func (suite *QueryBuilderSuite) TestCreateOne() {
 
 }
 
+func (suite *QueryBuilderSuite) TestUpdateOne() {
+	builder := NewQueryBuilder(suite.DB())
+
+	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{})
+	userInfo := models.OfficeUser{
+		LastName:               "Spaceman",
+		FirstName:              "Leo",
+		Email:                  "spaceman@leo.org",
+		TransportationOfficeID: transportationOffice.ID,
+		Telephone:              "312-111-1111",
+		TransportationOffice:   transportationOffice,
+	}
+
+	builder.CreateOne(&userInfo)
+
+	officeUser := models.OfficeUser{}
+	suite.DB().Last(&officeUser)
+
+	updatedOfficeUserInfo := models.OfficeUser{
+		ID:                     officeUser.ID,
+		LastName:               "Spaceman",
+		FirstName:              "Leo",
+		Email:                  "leo@spaceman.org", // updated the email
+		TransportationOfficeID: transportationOffice.ID,
+		Telephone:              "312-111-1111",
+		TransportationOffice:   transportationOffice,
+	}
+
+	suite.T().Run("Successfully creates a record", func(t *testing.T) {
+		verrs, err := builder.UpdateOne(&updatedOfficeUserInfo)
+		suite.Nil(verrs)
+		suite.Nil(err)
+	})
+
+	suite.T().Run("Rejects input that isn't a pointer to a struct", func(t *testing.T) {
+		_, err := builder.UpdateOne(updatedOfficeUserInfo)
+		suite.Error(err, "Model should be a pointer to a struct")
+	})
+}
+
 func (suite *QueryBuilderSuite) TestFetchCategoricalCountsFromOneModel() {
 	builder := NewQueryBuilder(suite.DB())
 	var electronicOrder models.ElectronicOrder
@@ -312,5 +352,4 @@ func (suite *QueryBuilderSuite) TestFetchCategoricalCountsFromOneModel() {
 		suite.NotNil(err)
 
 	})
-
 }

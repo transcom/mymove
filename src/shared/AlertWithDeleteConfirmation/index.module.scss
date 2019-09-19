@@ -1,0 +1,36 @@
+.delete-alert {
+  white-space: pre-wrap;
+  margin-top: 10px !important;
+  max-width: 500px;
+}
+
+.weight-ticket-list-alert {
+  right: 75px;
+}
+
+.expense-ticket-list-alert {
+  left: 25px;
+}
+
+.delete-alert-body {
+  display: block;
+}
+
+.delete-body--heading {
+  display: block;
+  align-items: center;
+}
+
+.delete-alert-heading {
+  display: inline;
+}
+
+.delete-or-cancel-buttons {
+  padding-top: 10px;
+  flex-grow: 1;
+  display: flex;
+}
+
+.delete-button {
+  margin-right: 20px !important;
+}

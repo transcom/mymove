@@ -23,3 +23,9 @@ type OfficeUserListFetcher interface {
 type OfficeUserCreator interface {
 	CreateOfficeUser(user *models.OfficeUser, transportationIDFilter []QueryFilter) (*models.OfficeUser, *validate.Errors, error)
 }
+
+// OfficeUserUpdater is the exported interface for creating an office user
+//go:generate mockery -name OfficeUserUpdater
+type OfficeUserUpdater interface {
+	UpdateOfficeUser(user *models.OfficeUser) (*models.OfficeUser, *validate.Errors, error)
+}
