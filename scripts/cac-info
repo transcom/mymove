@@ -13,14 +13,14 @@ readonly PKCS15=/usr/local/bin/pkcs15-tool
 # Check the CAC Pre-Requirements
 cac-prereqs
 
-echo -e "\n----- List Info -----\n"
+echo -e "\\n----- List Info -----\\n"
 
 "${PKCS15}" --list-info
 
-echo -e "\n----- List Certificates -----\n"
+echo -e "\\n----- List Certificates -----\\n"
 
 "${PKCS15}" --list-certificates
 
-echo -e "\n----- List Slots -----\n"
+echo -e "\\n----- List Slots -----\\n"
 
 "${PKCS11}" -r --module "${MODULE}" --list-slots || true
