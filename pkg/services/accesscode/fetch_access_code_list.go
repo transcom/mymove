@@ -25,7 +25,7 @@ func (o *accessCodeListFetcher) FetchAccessCodeList(filters []services.QueryFilt
 	return accessCodes, nil
 }
 
-// NewAccessCodeListFetcher returns an implementation of OfficeUserListFetcher
+// NewAccessCodeListFetcher returns an implementation of AccessCodeListFetcher
 func NewAccessCodeListFetcher(builder accessCodeListQueryBuilder) services.AccessCodeListFetcher {
 	return &accessCodeListFetcher{builder}
 }

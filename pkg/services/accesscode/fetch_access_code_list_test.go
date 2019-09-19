@@ -99,5 +99,5 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListWithAssociation() {
 
 	suite.NoError(err)
 	suite.Len(acs, 1)
-	suite.Equal(sm.ID, *acs[0].ServiceMemberID)
+	suite.Equal(*sm.Edipi, *acs[0].ServiceMember.Edipi)
 }

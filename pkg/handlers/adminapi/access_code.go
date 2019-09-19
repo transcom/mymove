@@ -17,7 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// IndexOfficeUsersHandler returns a list of office users via GET /office_users
+// IndexAccessCodesHandler returns a list of access codes via GET /office_users
 type IndexAccessCodesHandler struct {
 	handlers.HandlerContext
 	services.AccessCodeListFetcher
@@ -39,7 +39,7 @@ func payloadForOfficeAccessCodeModel(accessCode models.AccessCode) *adminmessage
 	}
 }
 
-// Handle retrieves a list of office users
+// Handle retrieves a list of access codes
 func (h IndexAccessCodesHandler) Handle(params accesscodeop.IndexAccessCodesParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
