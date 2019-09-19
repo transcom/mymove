@@ -45,7 +45,6 @@ func (h IndexAccessCodesHandler) Handle(params accesscodeop.IndexAccessCodesPara
 
 	queryFilters := h.generateQueryFilters(params.Filter, logger)
 	queryAssociations := []services.QueryAssociation{
-		query.NewQueryAssociation("ServiceMember"),
 		query.NewQueryAssociation("ServiceMember.Orders.Moves"),
 	}
 

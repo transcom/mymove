@@ -88,7 +88,6 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListWithAssociation() {
 	testdatagen.MakeAccessCode(suite.DB(), assertions)
 	var queryFilters []services.QueryFilter
 	associations := []services.QueryAssociation{
-		query.NewQueryAssociation("ServiceMember"),
 		query.NewQueryAssociation("ServiceMember.Orders.Moves"),
 	}
 	newAssociations := query.NewQueryAssociations(associations)
