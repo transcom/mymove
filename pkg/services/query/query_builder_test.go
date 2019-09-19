@@ -356,15 +356,6 @@ func (suite *QueryBuilderSuite) TestFetchCategoricalCountsFromOneModel() {
 }
 
 func (suite *QueryBuilderSuite) TestQueryAssociations() {
-	// this should be stubbed out with a model that is agnostic to our code
-	// similar to how the pop repo tests might work
-	// create office user
-	// create service member
-	// create orders
-	// create move
-	// create access code
-	// make sure QueryAssociations will return to you the right associated data for a model
-
 	user := testdatagen.MakeDefaultUser(suite.DB())
 	selectedMoveType := models.SelectedMoveTypeHHG
 	sm := models.ServiceMember{
