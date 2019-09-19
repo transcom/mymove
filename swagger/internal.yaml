@@ -3158,6 +3158,32 @@ paths:
           description: move document not found
         500:
           description: internal server error
+    delete:
+      summary: Deletes a move document
+      description: Deletes a move document with the given information
+      operationId: deleteMoveDocument
+      tags:
+        - move_docs
+      parameters:
+        - in: path
+          name: moveDocumentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move document model
+      responses:
+        204:
+          description: deleted
+        400:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        403:
+          description: not authorized
+        404:
+          description: not found
+        500:
+          description: server error
   /moves/{moveId}/moving_expense_documents:
     post:
       summary: Creates a moving expense document
