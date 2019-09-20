@@ -118,6 +118,115 @@ describe('completing the ppm flow', function() {
   });
 });
 
+describe('completing the ppm flow with a move date that we currently do not have rates for', function() {
+  it('complete a PPM move', function() {
+    //profile@comple.te
+    cy.signInAsUserPostRequest(milmoveAppName, '3b9360a3-3304-4c60-90f4-83d687884070');
+    cy.contains('Fort Gordon (from Yuma AFB)');
+    cy.get('.whole_box > div > :nth-child(3) > span').contains('10,500 lbs');
+    cy.contains('Continue Move Setup').click();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
+    });
+    cy.get('.wizard-header').should('not.exist');
+    cy.get('input[name="original_move_date"]')
+      .first()
+      .type('9/2/2030{enter}')
+      .blur();
+    cy.get('input[name="pickup_postal_code"]')
+      .clear()
+      .type('80913');
+
+    cy.get('input[name="destination_postal_code"]')
+      .clear()
+      .type('76127');
+
+    cy.get('input[type="radio"][value="yes"]')
+      .eq(1)
+      .check('yes', { force: true });
+    cy.get('input[name="days_in_storage"]')
+      .clear()
+      .type('30');
+
+    cy.nextPage();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-size/);
+    });
+
+    cy.get('.wizard-header').should('not.exist');
+    //todo verify entitlement
+    cy.contains('moving truck').click();
+
+    cy.nextPage();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-incentive/);
+    });
+
+    cy.get('.wizard-header').should('not.exist');
+    cy.get('.rangeslider__handle').click();
+
+    cy.get('.incentive').contains('Not ready yet');
+    cy.get('[data-icon="question-circle"]').click();
+    cy.get('.tooltip2').contains(
+      'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
+    );
+    cy.nextPage();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
+    });
+    cy.get('.wizard-header').should('not.exist');
+    cy.get('td').contains('Not ready yet');
+    cy.get('[data-icon="question-circle"]').click();
+    cy.get('.tooltip2').contains(
+      'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
+    );
+
+    cy.nextPage();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/agreement/);
+    });
+    cy.get('.wizard-header').should('not.exist');
+
+    cy.get('input[name="signature"]').type('Jane Doe');
+
+    cy.nextPage();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/$/);
+    });
+
+    cy.get('.usa-alert-success').within(() => {
+      cy.contains('Congrats - your move is submitted!');
+      cy.contains('Next, wait for approval. Once approved:');
+      cy.get('a')
+        .contains('PPM info sheet')
+        .should('have.attr', 'href')
+        .and('include', '/downloads/ppm_info_sheet.pdf');
+    });
+
+    cy.contains('Incentive (est.): Not ready yet');
+    cy.get('[data-icon="question-circle"]').click();
+    cy.get('.tooltip2').contains(
+      'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
+    );
+
+    cy.get('.usa-button-secondary')
+      .contains('Edit Move')
+      .click();
+
+    cy.get('td').contains('Not ready yet');
+    cy.get('[data-icon="question-circle"]').click();
+    cy.get('.tooltip2').contains(
+      'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
+    );
+  });
+});
+
 describe('check invalid ppm inputs', () => {
   it('doesnt allow SM to progress if dont have rate data for move dates + zips"', function() {
     cy.signInAsUserPostRequest(milmoveAppName, '99360a51-8cfa-4e25-ae57-24e66077305f');
@@ -156,8 +265,6 @@ describe('check invalid ppm inputs', () => {
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
     });
-
-    cy.get('#original_move_date-error').should('exist');
   });
 
   it('doesnt allow same origin and destination zip', function() {

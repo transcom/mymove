@@ -748,4 +748,34 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Uploader: loader,
 	})
+
+	email = "profile@complete.draft"
+	uuidStr = "3b9360a3-3304-4c60-90f4-83d687884070"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("0ec71d80-ac21-45a7-88ed-2ae8de3961fd"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Move"),
+			LastName:      models.StringPointer("Draft"),
+			Edipi:         models.StringPointer("8893308161"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    true,
+			SpouseHasProGear: true,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("a5d9c7b2-0fe8-4b80-b7c5-3323a066e98c"),
+			Locator: "DFTMVE",
+		},
+		Uploader: loader,
+	})
+
 }
