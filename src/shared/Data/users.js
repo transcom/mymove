@@ -1,5 +1,5 @@
 import * as helpers from 'shared/ReduxHelpers';
-import { GetLoggedInUser, GetIsLoggedIn } from 'shared/User/api.js';
+import { GetLoggedInUser, GetIsLoggedIn } from 'shared/User/api';
 import { pick } from 'lodash';
 import { normalize } from 'normalizr';
 import { ordersArray } from 'shared/Entities/schema';
@@ -14,7 +14,7 @@ const getLoggedInActions = helpers.generateAsyncActions(getLoggedInUserType);
 export function getCurrentUserInfo() {
   return function(dispatch) {
     dispatch(getLoggedInActions.start());
-    GetIsLoggedIn()
+    return GetIsLoggedIn()
       .then(response => {
         if (response.isLoggedIn === true) {
           return GetLoggedInUser()
