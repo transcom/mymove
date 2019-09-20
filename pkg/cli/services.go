@@ -21,6 +21,8 @@ const (
 	ServePublicAPIlFlag string = "serve-api-internal"
 	// ServeAPIExternalFlag is the external api service flag
 	ServeInternalAPIFlag string = "serve-api-public"
+	// ServeGHCFlag is the GHC service flag
+	ServeGHCFlag string = "serve-ghc"
 )
 
 // InitServiceFlags initializes the service command line flags

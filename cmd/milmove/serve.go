@@ -18,10 +18,15 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/labstack/echo/v4"
+
+	"github.com/transcom/mymove/pkg/oapi"
+
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
+	oapimiddleware "github.com/deepmap/oapi-codegen/pkg/middleware"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
 	"github.com/gorilla/csrf"
@@ -673,6 +678,21 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	} else {
 		site.Handle(pat.Get("/swagger-ui/*"), http.NotFoundHandler())
 	}
+
+	//if v.GetBool(cli.ServeGHCFlag) {
+	oAPIServer := oapi.NewServer()
+	router := echo.New()
+	group := router.Group("/api/v2")
+	api2Spec, specErr := oapi.GetSwagger()
+
+	if specErr != nil {
+		logger.Fatal("could not setup openapi validator middleware", zap.Error(err))
+	}
+
+	group.Use(oapimiddleware.OapiRequestValidator(api2Spec))
+	oapi.RegisterHandlers(group, oAPIServer)
+	site.Handle(pat.Get("/api/v2/*"), router)
+	//}
 
 	if v.GetBool(cli.ServeOrdersFlag) {
 		ordersMux := goji.SubMux()
