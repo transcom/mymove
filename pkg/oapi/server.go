@@ -1,8 +1,24 @@
+//go:generate make generate_ghc_api
+
 package oapi
 
-import "github.com/labstack/echo/v4"
+import (
+	"fmt"
+
+	"github.com/labstack/echo/v4"
+)
 
 type Server struct {
+}
+
+func (s Server) CreateLineItem(ctx echo.Context, moveOrderID string) error {
+	var lineItem createLineItemJSONBody
+	err := ctx.Bind(&lineItem)
+	if err != nil {
+		// TODO need to return an error here, ideally referencing the error responses that we lost when bundling the YAML.
+	}
+	fmt.Println(lineItem)
+	return nil
 }
 
 func (s Server) GetMoveOrderIndex(ctx echo.Context) error {

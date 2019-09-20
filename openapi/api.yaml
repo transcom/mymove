@@ -27,8 +27,10 @@ paths:
     $ref: './paths/move-orders.yaml#/MoveOrderItem'
   /move-orders/{id}/status:
     $ref: './paths/move-orders.yaml#/MoveOrderStatus'
-  /move-orders/{moveOrderId}/line-items/{lineItemId}:
+  /move-orders/{moveOrderId}/line-items:
     $ref: './paths/move-orders.yaml#/MoveOrderLineItems'
+  /move-orders/{moveOrderId}/line-items/{lineItemId}:
+    $ref: './paths/move-orders.yaml#/MoveOrderLineItem'
   /move-orders/{moveOrderId}/line-items/{lineItemId}/status:
     $ref: './paths/move-orders.yaml#/LineItemStatus'
 

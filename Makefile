@@ -860,10 +860,11 @@ build_storybook: ## Build static storybook site
 
 .PHONY: generate_new_apis
 generate_new_apis: ## Generate Go code for openapi 3.0
-	swagger-cli bundle -r openapi/api.yaml > oapi.yaml
-	mkdir -p pkg/oapi
-	oapi-codegen -generate types,server,spec oapi.yaml > pkg/oapi/api.gen.go
-	rm oapi.yaml
+	swagger-cli bundle -r -t yaml openapi/api.yaml > oapi.yaml
+	oapi-codegen --generate types --package oapi -o pkg/oapi/api.gen.go oapi.yaml
+	oapi-codegen --generate server --package oapi -o pkg/oapi/server_interface.gen.go oapi.yaml
+	oapi-codegen --generate spec --package oapi -o pkg/oapi/spec.gen.go oapi.yaml
+#	rm oapi.yaml
 #
 # ----- END RANDOM TARGETS -----
 #
