@@ -225,7 +225,7 @@ type UpdatePersonallyProcuredMoveEstimateHandler struct {
 	handlers.HandlerContext
 }
 
-// Handle is the handler
+// Handle recalculates the incentive value for a given PPM move
 func (h UpdatePersonallyProcuredMoveEstimateHandler) Handle(params ppmop.UpdatePersonallyProcuredMoveEstimateParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 

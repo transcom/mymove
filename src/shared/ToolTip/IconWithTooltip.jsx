@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faQuestionCircle from '@fortawesome/fontawesome-free-solid/faQuestionCircle';
-import './index.css';
+import styles from './IconWithTooltip.module.scss';
 
 class IconWithTooltip extends Component {
   state = {
@@ -20,18 +21,27 @@ class IconWithTooltip extends Component {
       <div style={{ display: 'inline-block' }}>
         <FontAwesomeIcon
           aria-hidden
-          className={`color_blue_link ${iconClassName}`}
+          className={`${styles['color_blue_link']} ${iconClassName}`}
           icon={icon ? icon : faQuestionCircle}
           onClick={this.toggleTooltip}
         />
         {showTooltip && (
-          <div className="tooltip2" style={{ ...toolTipStyles }}>
-            <div className="arrow" />
-            <div className={`tooltiptext2 ${toolTipTextClassName}`}>{toolTipText}</div>
+          <div data-cy="tooltip" className={styles['tooltip']} style={{ ...toolTipStyles }}>
+            <div className={styles['arrow']} />
+            <div className={`${styles['tooltiptext']} ${toolTipTextClassName}`}>{toolTipText}</div>
           </div>
         )}
       </div>
     );
   }
 }
+
+IconWithTooltip.propTypes = {
+  icon: PropTypes.node,
+  iconClassName: PropTypes.string,
+  toolTipText: PropTypes.string.isRequired,
+  toolTipTextClassName: PropTypes.string,
+  toolTipStyles: PropTypes.object,
+};
+
 export default IconWithTooltip;

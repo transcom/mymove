@@ -2786,11 +2786,6 @@ paths:
           format: uuid
           required: true
           description: UUID of the PPM being patched
-        # - in: body
-        #   name: updatePersonallyProcuredMovePayload
-        #   required: false
-        #   schema:
-        #     $ref: '#/definitions/PatchPersonallyProcuredMovePayload'
       responses:
         200:
           description: updated instance of personally_procured_move

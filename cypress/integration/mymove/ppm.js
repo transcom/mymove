@@ -72,11 +72,7 @@ describe('completing the ppm flow', function() {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review\/edit-date-and-location/);
     });
 
-    cy.get('input[name="days_in_storage"]')
-      .clear()
-      .type('30');
-
-    cy.get('.storage-estimate').contains('$2441.00');
+    cy.get('.storage-estimate').contains('$2,441.00');
 
     cy.get('input[name="days_in_storage"]')
       .clear()
@@ -124,7 +120,7 @@ describe('completing the ppm flow', function() {
 
 describe('completing the ppm flow with a move date that we currently do not have rates for', function() {
   it('complete a PPM move', function() {
-    //profile@comple.te
+    //profile@complete.draft
     cy.signInAsUserPostRequest(milmoveAppName, '3b9360a3-3304-4c60-90f4-83d687884070');
     cy.contains('Fort Gordon (from Yuma AFB)');
     cy.get('.whole_box > div > :nth-child(3) > span').contains('10,500 lbs');
@@ -174,7 +170,7 @@ describe('completing the ppm flow with a move date that we currently do not have
 
     cy.get('.incentive').contains('Not ready yet');
     cy.get('[data-icon="question-circle"]').click();
-    cy.get('.tooltip2').contains(
+    cy.get('[data-cy="tooltip"]').contains(
       'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
     );
     cy.nextPage();
@@ -185,7 +181,7 @@ describe('completing the ppm flow with a move date that we currently do not have
     cy.get('.wizard-header').should('not.exist');
     cy.get('td').contains('Not ready yet');
     cy.get('[data-icon="question-circle"]').click();
-    cy.get('.tooltip2').contains(
+    cy.get('[data-cy="tooltip"]').contains(
       'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
     );
 
@@ -215,7 +211,7 @@ describe('completing the ppm flow with a move date that we currently do not have
 
     cy.contains('Incentive (est.): Not ready yet');
     cy.get('[data-icon="question-circle"]').click();
-    cy.get('.tooltip2').contains(
+    cy.get('[data-cy="tooltip"]').contains(
       'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
     );
 
@@ -225,7 +221,7 @@ describe('completing the ppm flow with a move date that we currently do not have
 
     cy.get('td').contains('Not ready yet');
     cy.get('[data-icon="question-circle"]').click();
-    cy.get('.tooltip2').contains(
+    cy.get('[data-cy="tooltip"]').contains(
       'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
     );
   });
