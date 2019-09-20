@@ -89,3 +89,6 @@ require (
 	gopkg.in/ini.v1 v1.46.0 // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
 )
+
+// mr337/sqlx v1.2.5 is just jmoiron's 1.2.0 with custom driver fixes
+replace github.com/jmoiron/sqlx v1.2.0 => github.com/mr337/sqlx v1.2.5
