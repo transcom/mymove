@@ -18,6 +18,8 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
@@ -284,6 +286,25 @@ func indexHandler(buildDir string, logger logger) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		http.ServeContent(w, r, "index.html", stat.ModTime(), bytes.NewReader(indexHTML))
+	}
+}
+
+// isLoggedIn handles requests to is_logged_in endpoint
+func isLoggedIn(logger logger) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		data := map[string]interface{}{
+			"isLoggedIn": false,
+		}
+
+		session := auth.SessionFromRequestContext(r)
+		if session != nil && session.UserID != uuid.Nil {
+			data["isLoggedIn"] = true
+		}
+
+		newEncoderErr := json.NewEncoder(w).Encode(data)
+		if newEncoderErr != nil {
+			logger.Error("Failed encoding is_logged_in check response", zap.Error(newEncoderErr))
+		}
 	}
 }
 
@@ -585,6 +606,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	if maxBodySize := v.GetInt64(cli.MaxBodySizeFlag); maxBodySize > 0 {
 		site.Use(middleware.LimitBodySize(maxBodySize, logger))
 	}
+
+	// Stub is_logged_in check
+	site.HandleFunc(pat.Get("/internal/users/is_logged_in"), isLoggedIn(logger))
 
 	// Stub health check
 	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {
