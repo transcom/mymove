@@ -452,7 +452,7 @@ db_dev_reset: db_dev_destroy db_dev_run ## Reset Dev DB (destroy and run)
 .PHONY: db_dev_migrate_standalone ## Migrate Dev DB directly
 db_dev_migrate_standalone: bin/milmove
 	@echo "Migrating the ${DB_NAME_DEV} database..."
-	bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
+	DB_DEBUG=0 bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
 
 .PHONY: db_dev_migrate
 db_dev_migrate: server_deps db_dev_migrate_standalone ## Migrate Dev DB
@@ -507,7 +507,7 @@ db_deployed_migrations_reset: db_deployed_migrations_destroy db_deployed_migrati
 .PHONY: db_deployed_migrations_migrate_standalone
 db_deployed_migrations_migrate_standalone: bin/milmove ## Migrate Deployed Migrations DB with local migrations
 	@echo "Migrating the ${DB_NAME_DEPLOYED_MIGRATIONS} database..."
-	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
+	DB_DEBUG=0 DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
 
 .PHONY: db_deployed_migrations_migrate
 db_deployed_migrations_migrate: server_deps db_deployed_migrations_migrate_standalone ## Migrate Deployed Migrations DB
@@ -570,10 +570,10 @@ db_test_reset: db_test_destroy db_test_run ## Reset Test DB (destroy and run)
 db_test_migrate_standalone: bin/milmove ## Migrate Test DB directly
 ifndef CIRCLECI
 	@echo "Migrating the ${DB_NAME_TEST} database..."
-	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
+	DB_DEBUG=0 DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
 else
 	@echo "Migrating the ${DB_NAME_TEST} database..."
-	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_DEV) bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
+	DB_DEBUG=0 DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_DEV) bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
 endif
 
 .PHONY: db_test_migrate
