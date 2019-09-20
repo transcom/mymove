@@ -336,7 +336,7 @@ jobs:
   # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
   integration_tests:
     parallelism: 10
-    executor: mymove_medium
+    executor: mymove_medium_plus
     steps:
       - checkout
       - setup_remote_docker:
@@ -747,7 +747,7 @@ jobs:
             git --no-pager diff --ignore-all-space --color
       - run:
           name: Push changes
-          command: scripts/circleci-push-dependency-updates
+          command: scripts/circleci-push-dependency-updates golang
 
   # `update_dependencies_js` periodically updates yarn dependencies.
   # The changes are submitted as a pull request for review.
@@ -769,7 +769,7 @@ jobs:
             git --no-pager diff --ignore-all-space --color
       - run:
           name: Push changes
-          command: scripts/circleci-push-dependency-updates
+          command: scripts/circleci-push-dependency-updates js
 
   # `update_dependencies_pre_commit` periodically updates pre-commit dependencies.
   # The changes are submitted as a pull request for review.
@@ -785,7 +785,7 @@ jobs:
             git --no-pager diff --ignore-all-space --color
       - run:
           name: Push changes
-          command: scripts/circleci-push-dependency-updates
+          command: scripts/circleci-push-dependency-updates pre-commit
 
 workflows:
   version: 2
