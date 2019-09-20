@@ -56,21 +56,13 @@ PaymentRequests:
 
 PaymentRequestsItem:
   get:
-    summary: Fetches a payment request
-    description: Fetches an instance of a payment request
+    summary: Fetches a payment request by id
+    description: Fetches an instance of a payment request by id
     operationId: fetchPaymentRequest
     tags:
       - payment-requests
       - prime
       - gov
-    parameters:
-      - name: paymentRequestId
-        in: path
-        description: UUID of payment request
-        required: true
-        schema:
-          type: string
-          format: uuid
     responses:
       '200':
         description: fetched instance of payment request
@@ -89,20 +81,12 @@ PaymentRequestsItem:
       '500':
         $ref: '../shared/responses.yaml#/components/responses/ServerError'
   patch: # TODO: remove if the Prime will not be updating
-    summary: Updates a payment request
-    description: Updates a payment request
+    summary: Updates a payment request by id
+    description: Updates a payment request by id
     operationId: updatePaymentRequest
     tags:
       - payment-requests
       - prime
-    parameters:
-      - name: paymentRequestId
-        in: path
-        description: UUID of payment request
-        required: true
-        schema:
-          type: string
-          format: uuid
     requestBody:
       content:
         application/json:
@@ -126,11 +110,19 @@ PaymentRequestsItem:
         $ref: '../shared/responses.yaml#/components/responses/NotFound'
       '500':
         $ref: '../shared/responses.yaml#/components/responses/ServerError'
+  parameters:
+    - name: paymentRequestId
+      in: path
+      description: UUID of payment request
+      required: true
+      schema:
+        type: string
+        format: uuid
 
 PaymentRequestStatus:
   patch:
-    summary: Updates a payment request
-    description: Updates a payment request
+    summary: Updates status of a payment request by id
+    description: Updates status of a payment request by id
     operationId: updatePaymentRequestStatus
     tags:
       - payment-requests

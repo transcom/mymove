@@ -21,7 +21,7 @@ import {
  * GET_LIST     => GET http://my.api.url/posts?sort=['title','ASC']&range=[0, 24]
  * GET_ONE      => GET http://my.api.url/posts/123
  * GET_MANY     => GET http://my.api.url/posts?filter={ids:[123,456,789]}
- * UPDATE       => PUT http://my.api.url/posts/123
+ * UPDATE       => PATCH http://my.api.url/posts/123
  * CREATE       => POST http://my.api.url/posts
  * DELETE       => DELETE http://my.api.url/posts/123
  */
@@ -75,7 +75,7 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
       }
       case UPDATE:
         url = `${apiUrl}/${resource}/${params.id}`;
-        options.method = 'PUT';
+        options.method = 'PATCH';
         options.body = JSON.stringify(params.data);
         break;
       case CREATE:
@@ -142,7 +142,7 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
       return Promise.all(
         params.ids.map(id =>
           httpClient(`${apiUrl}/${resource}/${id}`, {
-            method: 'PUT',
+            method: 'PATCH',
             body: JSON.stringify(params.data),
           }),
         ),

@@ -70,6 +70,14 @@ repos:
         files: swagger/*
         types: [yaml]
 
+  - repo: local
+    hooks:
+      - id: swagger-cli
+        name: Swagger cli
+        entry: node_modules/.bin/swagger-cli validate
+        language: script
+        files: openapi/api.yaml
+        types: [yaml]
   # Ensure markdown files have updated table of contents
   - repo: local
     hooks:

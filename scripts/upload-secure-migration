@@ -18,7 +18,7 @@ readonly usage="usage: $0 <production_migration_file>"
 
 function proceed() {
   proceed_message=${1:-"proceed"}
-  echo -en "\e[31m${proceed_message} (y/N) \e[39m"
+  echo -en "\\e[31m${proceed_message} (y/N) \\e[39m"
   read -r proceed
   if [[ "$proceed" =~ ^[^yY]*$ ]]; then
     echo "exiting"

@@ -8,6 +8,10 @@ import (
 	"path"
 	"testing"
 
+	"github.com/stretchr/testify/mock"
+
+	"github.com/transcom/mymove/pkg/storage/mocks"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/suite"
@@ -108,7 +112,7 @@ func (suite *UploaderSuite) TestUploadFromLocalFile() {
 	suite.NoError(err)
 	file := suite.fixture("test.pdf")
 
-	upload, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesPDF)
+	upload, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.Nil(err, "failed to create upload")
 	suite.False(verrs.HasAny(), "failed to validate upload", verrs)
 	suite.Equal(upload.ContentType, "application/pdf")
@@ -124,7 +128,7 @@ func (suite *UploaderSuite) TestUploadFromLocalFileZeroLength() {
 	suite.Nil(err, "failed to create upload")
 	defer cleanup()
 
-	upload, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesAny)
+	upload, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesAny)
 	suite.Equal(uploader.ErrZeroLengthFile, err)
 	suite.False(verrs.HasAny(), "failed to validate upload")
 	suite.Nil(upload, "returned an upload when erroring")
@@ -139,7 +143,7 @@ func (suite *UploaderSuite) TestUploadFromLocalFileWrongContentType() {
 	suite.Nil(err, "failed to create upload")
 	defer cleanup()
 
-	upload, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesPDF)
+	upload, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.NoError(err)
 	suite.True(verrs.HasAny(), "invalid content type for upload")
 	suite.Nil(upload, "returned an upload when erroring")
@@ -154,9 +158,32 @@ func (suite *UploaderSuite) TestTooLargeUploadFromLocalFile() {
 	suite.NoError(err)
 	defer cleanup()
 
-	_, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, f, uploader.AllowedTypesAny)
+	_, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, uploader.File{File: f}, uploader.AllowedTypesAny)
 	suite.Error(err)
 	suite.IsType(uploader.ErrTooLarge{}, err)
+	suite.False(verrs.HasAny(), "failed to validate upload")
+}
+
+func (suite *UploaderSuite) TestStorerCalledWithTags() {
+	document := testdatagen.MakeDefaultDocument(suite.DB())
+
+	fakeS3 := &mocks.FileStorer{}
+	up, err := uploader.NewUploader(suite.DB(), suite.logger, fakeS3, 25*uploader.MB)
+	suite.NoError(err)
+	f, cleanup, err := suite.createFileOfArbitrarySize(uint64(5 * uploader.MB))
+	suite.NoError(err)
+	defer cleanup()
+
+	tags := "metaDataTag=value"
+	fakeS3.On("Store",
+		mock.Anything,
+		mock.Anything,
+		mock.Anything,
+		&tags).Return(&storage.StoreResult{}, nil)
+	// assert tags are passed along to storer
+	_, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, uploader.File{File: f, Tags: &tags}, uploader.AllowedTypesAny)
+
+	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate upload")
 }
 
@@ -201,7 +228,7 @@ func (suite *UploaderSuite) TestCreateUploadNoDocument() {
 	suite.NoError(err)
 
 	// Create file and upload
-	upload, verrs, err := up.CreateUpload(userID, &file, uploader.AllowedTypesPDF)
+	upload, verrs, err := up.CreateUpload(userID, uploader.File{File: file}, uploader.AllowedTypesPDF)
 	suite.Nil(err, "failed to create upload")
 	suite.Empty(verrs.Error(), "verrs returned error")
 	suite.NotNil(upload, "failed to create upload structure")
