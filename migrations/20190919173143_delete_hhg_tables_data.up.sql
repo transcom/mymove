@@ -64,6 +64,7 @@ DELETE FROM notifications WHERE service_member_id IN (select service_member_id f
 DELETE FROM service_members WHERE id IN (select service_member_id from tempsom);
 
 -- delete distance calcs
+DELETE FROM distance_calculations where id IN (select storage_in_transit_distance_id from tempsit);
 DELETE FROM distance_calculations where id IN (select shipping_distance_id from tempshipment);
 
 -- delete addresses
