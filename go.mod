@@ -80,7 +80,7 @@ require (
 	golang.org/x/net v0.0.0-20190912160710-24e19bdeb0f2
 	golang.org/x/sys v0.0.0-20190913121621-c3b328c6e5a7 // indirect
 	golang.org/x/text v0.3.2
-	golang.org/x/tools v0.0.0-20190916034716-92af9d69eff2
+	golang.org/x/tools v0.0.0-20190916034716-92af9d69eff2 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.29.1
