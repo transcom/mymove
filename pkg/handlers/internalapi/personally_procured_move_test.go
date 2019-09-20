@@ -302,7 +302,6 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 }
 
 func (suite *HandlerSuite) TestPatchPPMHandler() {
-	scenario.RunRateEngineScenario1(suite.DB())
 	suite.setupPersonallyProcuredMoveTest()
 	initialSize := internalmessages.TShirtSize("S")
 	newSize := internalmessages.TShirtSize("L")
@@ -385,7 +384,6 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	suite.Equal(patchPPMPayload.DestinationPostalCode, newDestinationPostalCode, "DestinationPostalCode should have been updated.")
 	suite.Nil(patchPPMPayload.AdditionalPickupPostalCode, "AdditionalPickupPostalCode should have been updated to nil.")
 	suite.Equal(*(*time.Time)(patchPPMPayload.OriginalMoveDate), newMoveDate, "MoveDate should have been updated.")
-	suite.Equal(*patchPPMPayload.Mileage, int64(900), "Mileage should have been set to 900")
 }
 
 func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {

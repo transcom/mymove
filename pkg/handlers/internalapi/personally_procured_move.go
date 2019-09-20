@@ -286,16 +286,7 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 		return ppmop.NewPatchPersonallyProcuredMoveBadRequest()
 	}
 
-	// needsEstimatesRecalculated := h.ppmNeedsEstimatesRecalculated(ppm, params.PatchPersonallyProcuredMovePayload, logger)
-
 	patchPPMWithPayload(ppm, params.PatchPersonallyProcuredMovePayload)
-	// if needsEstimatesRecalculated {
-	// 	err = h.updateEstimates(ppm, logger)
-	// 	if err != nil {
-	// 		logger.Error("Unable to set calculated fields on PPM", zap.Error(err))
-	// 		return handlers.ResponseForError(logger, err)
-	// 	}
-	// }
 
 	verrs, err := models.SavePersonallyProcuredMove(h.DB(), ppm)
 	if err != nil || verrs.HasAny() {
