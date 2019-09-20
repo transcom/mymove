@@ -45,8 +45,6 @@ DELETE FROM moves WHERE orders_id in (select id from orders WHERE service_member
 
 
 -- service members
-ALTER TABLE service_members DROP CONSTRAINT IF EXISTS service_members_residential_address_id_fkey;
-
 DELETE FROM access_codes WHERE service_member_id IN (select service_member_id from tempsom);
 DELETE FROM backup_contacts WHERE service_member_id IN (select service_member_id from tempsom);
 DELETE FROM orders WHERE service_member_id IN (select service_member_id from tempsom);
