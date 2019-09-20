@@ -847,11 +847,11 @@ clean: ## Clean all generated files
 
 .PHONY: spellcheck
 spellcheck: .client_deps.stamp ## Run interactive spellchecker
-	node_modules/.bin/mdspell --ignore-numbers --ignore-acronyms --en-us \
+	node_modules/.bin/mdspell --ignore-numbers --ignore-acronyms --en-us --no-suggestions \
 		`find . -type f -name "*.md" \
 			-not -path "./node_modules/*" \
 			-not -path "./vendor/*" \
-			-not -path "./docs/adr/index.md"`
+			-not -path "./docs/adr/index.md" | sort`
 
 .PHONY: storybook
 storybook: ## Start the storybook server
