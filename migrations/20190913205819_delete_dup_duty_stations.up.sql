@@ -50,12 +50,12 @@ DELETE FROM duty_stations WHERE name = 'USCG Mobile'
 DELETE FROM addresses WHERE id = 'be84b14a-f836-4821-af13-fdbe8530386d'
 	AND NOT EXISTS (SELECT id FROM duty_stations WHERE name = 'USCG Mobile');
 
--- Fort Eustis -> Joint Base Langley-Eustis
+-- Fort Eustis -> JB Langley-Eustis
 UPDATE service_members
-	SET duty_station_id = (select id from duty_stations where name = 'Joint Base Langley-Eustis')
+	SET duty_station_id = (select id from duty_stations where name = 'JB Langley-Eustis')
 	WHERE duty_station_id = (select id from duty_stations where name = 'Fort Eustis');
 UPDATE orders
-	SET new_duty_station_id = (select id from duty_stations where name = 'Joint Base Langley-Eustis')
+	SET new_duty_station_id = (select id from duty_stations where name = 'JB Langley-Eustis')
 	WHERE new_duty_station_id = (select id from duty_stations where name = 'Fort Eustis');
 DELETE FROM duty_stations WHERE name = 'Fort Eustis'
 	AND NOT EXISTS (SELECT id FROM orders WHERE new_duty_station_id = (select id from duty_stations where name = 'Fort Eustis'))
