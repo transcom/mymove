@@ -117,8 +117,18 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 	}
 
 	createdOfficeUser, verrs, err := h.OfficeUserCreator.CreateOfficeUser(&officeUser, transportationIDFilter)
-	if err != nil || verrs != nil {
-		logger.Error("Error saving user", zap.Error(err))
+	if verrs != nil {
+		payload := &adminmessages.ValidationError{
+			InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors,
+		}
+
+		payload.Title = handlers.FmtString(handlers.ValidationErrMessage)
+		payload.Detail = handlers.FmtString("The information you provided is invalid.")
+
+		return officeuserop.NewCreateOfficeUserUnprocessableEntity().WithPayload(payload)
+	}
+
+	if err != nil {
 		return officeuserop.NewCreateOfficeUserInternalServerError()
 	}
 

@@ -31,6 +31,7 @@ If you are looking to understand choices made in this project, see the list of [
 * [Deploy to Experimental](how-to/deploy-to-experimental.md#how-to-deploy-to-experimental)
 * [display dates and times](how-to/display-dates-and-times.md#how-to-display-dates-and-times)
 * [Generate Mocks with Mockery](how-to/generate-mocks-with-mockery.md#how-to-generate-mocks-with-mockery)
+* [handle back-end errors](how-to/handle-backend-errors.md#how-to-handle-back-end-errors)
 * [Manage Dependencies With go mod](how-to/manage-dependencies-with-go-mod.md#how-to-manage-dependencies-with-go-mod)
 * [Manage Docker Locally](how-to/manage-docker-locally.md#how-to-manage-docker-locally)
 * [Migrate the Database](how-to/migrate-the-database.md#how-to-migrate-the-database)
