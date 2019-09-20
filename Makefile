@@ -736,6 +736,7 @@ run_prod_migrations: server_deps bin/milmove db_deployed_migrations_reset ## Run
 	DB_HOST=localhost \
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
+	DB_DEBUG=0 \
 	bin/milmove migrate
 
 .PHONY: run_staging_migrations
@@ -745,6 +746,7 @@ run_staging_migrations: server_deps bin/milmove db_deployed_migrations_reset ## 
 	DB_HOST=localhost \
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
+	DB_DEBUG=0 \
 	bin/milmove migrate
 
 .PHONY: run_experimental_migrations
@@ -754,6 +756,7 @@ run_experimental_migrations: server_deps bin/milmove db_deployed_migrations_rese
 	DB_HOST=localhost \
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
+	DB_DEBUG=0 \
 	bin/milmove migrate
 
 #
