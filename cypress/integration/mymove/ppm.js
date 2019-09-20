@@ -72,6 +72,10 @@ describe('completing the ppm flow', function() {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review\/edit-date-and-location/);
     });
 
+    cy.get('input[name="days_in_storage"]')
+      .clear()
+      .type('30');
+
     cy.get('.storage-estimate').contains('$2441.00');
 
     cy.get('input[name="days_in_storage"]')
@@ -228,7 +232,28 @@ describe('completing the ppm flow with a move date that we currently do not have
 });
 
 describe('check invalid ppm inputs', () => {
-  it('doesnt allow SM to progress if dont have rate data for move dates + zips"', function() {
+  it('doesnt allow same origin and destination zip', function() {
+    cy.signInAsUserPostRequest(milmoveAppName, '99360a51-8cfa-4e25-ae57-24e66077305f');
+    cy.contains('Continue Move Setup').click();
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
+    });
+    cy.get('.wizard-header').should('not.exist');
+    cy.get('input[name="original_move_date"]')
+      .first()
+      .type('9/2/2018{enter}')
+      .blur();
+    cy.get('input[name="pickup_postal_code"]')
+      .clear()
+      .type('80913');
+    cy.get('input[name="destination_postal_code"]')
+      .type('80913')
+      .blur();
+
+    cy.get('#destination_postal_code-error').should('exist');
+  });
+
+  it('doesnt allow SM to progress if dont have rate data for zips"', function() {
     cy.signInAsUserPostRequest(milmoveAppName, '99360a51-8cfa-4e25-ae57-24e66077305f');
 
     cy.contains('Continue Move Setup').click();
@@ -265,27 +290,6 @@ describe('check invalid ppm inputs', () => {
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
     });
-  });
-
-  it('doesnt allow same origin and destination zip', function() {
-    cy.signInAsUserPostRequest(milmoveAppName, '99360a51-8cfa-4e25-ae57-24e66077305f');
-    cy.contains('Continue Move Setup').click();
-    cy.location().should(loc => {
-      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
-    });
-    cy.get('.wizard-header').should('not.exist');
-    cy.get('input[name="original_move_date"]')
-      .first()
-      .type('9/2/2018{enter}')
-      .blur();
-    cy.get('input[name="pickup_postal_code"]')
-      .clear()
-      .type('80913');
-    cy.get('input[name="destination_postal_code"]')
-      .type('80913')
-      .blur();
-
-    cy.get('#destination_postal_code-error').should('exist');
   });
 });
 

@@ -386,6 +386,109 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	suite.Equal(*(*time.Time)(patchPPMPayload.OriginalMoveDate), newMoveDate, "MoveDate should have been updated.")
 }
 
+func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
+	scenario.RunRateEngineScenario1(suite.DB())
+	suite.setupPersonallyProcuredMoveTest()
+	initialSize := internalmessages.TShirtSize("S")
+	newSize := internalmessages.TShirtSize("L")
+
+	initialWeight := unit.Pound(4100)
+	newWeight := swag.Int64(4105)
+
+	// Date picked essentialy at random, but needs to be within TestYear
+	newMoveDate := time.Date(testdatagen.TestYear, time.November, 10, 23, 0, 0, 0, time.UTC)
+	initialMoveDate := newMoveDate.Add(-2 * 24 * time.Hour)
+
+	hasAdditionalPostalCode := swag.Bool(true)
+	newHasAdditionalPostalCode := swag.Bool(false)
+	additionalPickupPostalCode := swag.String("90210")
+
+	hasSit := swag.Bool(true)
+	newHasSit := swag.Bool(false)
+	daysInStorage := swag.Int64(3)
+	newPickupPostalCode := swag.String("32168")
+	newDestinationPostalCode := swag.String("29401")
+	newSitCost := swag.Int64(60)
+
+	move := testdatagen.MakeDefaultMove(suite.DB())
+
+	newAdvanceWorksheet := models.Document{
+		ServiceMember:   move.Orders.ServiceMember,
+		ServiceMemberID: move.Orders.ServiceMemberID,
+	}
+	suite.MustSave(&newAdvanceWorksheet)
+
+	ppm1 := models.PersonallyProcuredMove{
+		MoveID:                     move.ID,
+		Move:                       move,
+		Size:                       &initialSize,
+		WeightEstimate:             &initialWeight,
+		OriginalMoveDate:           &initialMoveDate,
+		HasAdditionalPostalCode:    hasAdditionalPostalCode,
+		AdditionalPickupPostalCode: additionalPickupPostalCode,
+		HasSit:                     hasSit,
+		DaysInStorage:              daysInStorage,
+		Status:                     models.PPMStatusDRAFT,
+		AdvanceWorksheet:           newAdvanceWorksheet,
+		AdvanceWorksheetID:         &newAdvanceWorksheet.ID,
+	}
+	suite.MustSave(&ppm1)
+
+	req := httptest.NewRequest("GET", "/fake/path", nil)
+	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+
+	payload := internalmessages.PatchPersonallyProcuredMovePayload{
+		Size:                    &newSize,
+		WeightEstimate:          newWeight,
+		OriginalMoveDate:        handlers.FmtDatePtr(&newMoveDate),
+		HasAdditionalPostalCode: newHasAdditionalPostalCode,
+		PickupPostalCode:        newPickupPostalCode,
+		DestinationPostalCode:   newDestinationPostalCode,
+		HasSit:                  newHasSit,
+		TotalSitCost:            newSitCost,
+	}
+
+	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
+		HTTPRequest:                        req,
+		MoveID:                             strfmt.UUID(move.ID.String()),
+		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
+		PatchPersonallyProcuredMovePayload: &payload,
+	}
+
+	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler.SetPlanner(route.NewTestingPlanner(900))
+	response := handler.Handle(patchPPMParams)
+
+	// assert we got back the 201 response
+	okResponse := response.(*ppmop.PatchPersonallyProcuredMoveOK)
+	patchPPMPayload := okResponse.Payload
+
+	suite.Equal(*patchPPMPayload.Size, newSize, "Size should have been updated.")
+	suite.Equal(patchPPMPayload.WeightEstimate, newWeight, "Weight should have been updated.")
+	suite.Equal(patchPPMPayload.TotalSitCost, newSitCost, "Total sit cost should have been updated.")
+	suite.Equal(patchPPMPayload.PickupPostalCode, newPickupPostalCode, "PickupPostalCode should have been updated.")
+	suite.Equal(patchPPMPayload.DestinationPostalCode, newDestinationPostalCode, "DestinationPostalCode should have been updated.")
+	suite.Nil(patchPPMPayload.AdditionalPickupPostalCode, "AdditionalPickupPostalCode should have been updated to nil.")
+	suite.Equal(*(*time.Time)(patchPPMPayload.OriginalMoveDate), newMoveDate, "MoveDate should have been updated.")
+
+	updatePPMEstimateParams := ppmop.UpdatePersonallyProcuredMoveEstimateParams{
+		HTTPRequest:              req,
+		MoveID:                   strfmt.UUID(move.ID.String()),
+		PersonallyProcuredMoveID: strfmt.UUID(ppm1.ID.String()),
+	}
+
+	updatePPMEstimateHandler := UpdatePersonallyProcuredMoveEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	updatePPMEstimateHandler.SetPlanner(route.NewTestingPlanner(900))
+	updatePPMEstimateResponse := updatePPMEstimateHandler.Handle(updatePPMEstimateParams)
+
+	// assert we got back the 201 response
+	updatePPMEstimateOkResponse := updatePPMEstimateResponse.(*ppmop.UpdatePersonallyProcuredMoveEstimateOK)
+	updatePPMEstimatePayload := updatePPMEstimateOkResponse.Payload
+
+	suite.Assertions.Equal(int64(242246), *updatePPMEstimatePayload.IncentiveEstimateMin)
+	suite.Assertions.Equal(int64(267746), *updatePPMEstimatePayload.IncentiveEstimateMax)
+}
+
 func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	scenario.RunRateEngineScenario1(suite.DB())
 
@@ -439,12 +542,6 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	patchPPMPayload := okResponse.Payload
 
 	suite.Assertions.Equal(int64(*weight), *patchPPMPayload.WeightEstimate)
-	suite.Assertions.Equal(int64(900), *patchPPMPayload.Mileage)
-	suite.Assertions.Equal(int64(242246), *patchPPMPayload.IncentiveEstimateMin)
-	suite.Assertions.Equal(int64(267746), *patchPPMPayload.IncentiveEstimateMax)
-	suite.Assertions.Nil(patchPPMPayload.EstimatedStorageReimbursement)
-	suite.Assertions.Equal(int64(0), *patchPPMPayload.PlannedSitMax)
-	suite.Assertions.Equal(int64(157015), *patchPPMPayload.SitMax)
 
 	// Now check that SIT values update when days in storage is set
 	hasSit := swag.Bool(true)
@@ -458,9 +555,6 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	// assert we got back the 201 response
 	okResponse = response.(*ppmop.PatchPersonallyProcuredMoveOK)
 	patchPPMPayload = okResponse.Payload
-
-	suite.Assertions.Equal("$624.89", *patchPPMPayload.EstimatedStorageReimbursement)
-	suite.Assertions.Equal(int64(62489), *patchPPMPayload.PlannedSitMax)
 }
 
 func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
