@@ -25,7 +25,6 @@ ALTER TABLE invoices DROP COLUMN IF EXISTS shipment_id;
 ALTER TABLE signed_certifications DROP COLUMN IF EXISTS shipment_id;
 
 -- remove tsp_users table and disable associated tsp_users in users table
-ALTER TABLE tsp_users DROP CONSTRAINT IF EXISTS tsp_users_transportation_service_provider_id_fkey;
 UPDATE USERS SET disabled = TRUE WHERE id IN (SELECT user_id FROM tsp_users);
 DROP TABLE tsp_users;
 
