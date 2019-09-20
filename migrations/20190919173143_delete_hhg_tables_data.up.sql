@@ -58,6 +58,9 @@ DELETE FROM orders WHERE service_member_id IN (select service_member_id from tem
 DELETE FROM uploads WHERE document_id IN (select id from documents where service_member_id in (select service_member_id from tempsom));
 DELETE FROM documents WHERE service_member_id IN (select service_member_id from tempsom);
 
+-- delete notifications before service member
+DELETE FROM notifications WHERE service_member_id IN (select service_member_id from tempsom);
+-- finally delete service members
 DELETE FROM service_members WHERE id IN (select service_member_id from tempsom);
 
 -- delete distance calcs
