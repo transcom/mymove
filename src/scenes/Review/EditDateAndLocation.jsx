@@ -12,6 +12,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { createOrUpdatePpm, getPpmSitEstimate } from 'scenes/Moves/Ppm/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
+import { selectPPMForMove } from 'shared/Entities/modules/ppms';
 import 'scenes/Moves/Ppm/DateAndLocation.css';
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
@@ -59,7 +60,7 @@ let EditDateAndLocationForm = props => {
           />{' '}
           <span className="grey">You can choose up to 90 days.</span>
           {sitReimbursement && (
-            <div className="storage-estimate">
+            <div data-cy="storage-estimate" className="storage-estimate">
               You can spend up to {sitReimbursement} on private storage. Save your receipts to submit with your PPM
               paperwork.
             </div>
@@ -124,7 +125,15 @@ class EditDateAndLocation extends Component {
   }
 
   render() {
-    const { initialValues, schema, formValues, sitReimbursement, currentOrders, error } = this.props;
+    const {
+      initialValues,
+      schema,
+      formValues,
+      sitReimbursement,
+      currentOrders,
+      error,
+      entitiesSitReimbursement,
+    } = this.props;
     return (
       <div className="usa-grid">
         {error && (
@@ -141,7 +150,11 @@ class EditDateAndLocation extends Component {
             initialValues={initialValues}
             schema={schema}
             formValues={formValues}
-            sitReimbursement={sitReimbursement}
+            sitReimbursement={
+              sitReimbursement !== entitiesSitReimbursement && sitReimbursement
+                ? sitReimbursement
+                : entitiesSitReimbursement
+            }
             currentOrders={currentOrders}
             onCancel={this.returnToReview}
             createOrUpdatePpm={createOrUpdatePpm}
@@ -168,6 +181,11 @@ function mapStateToProps(state) {
     entitlement: loadEntitlementsFromState(state),
     error: get(state, 'ppm.error'),
     hasSubmitError: get(state, 'ppm.hasSubmitError'),
+    entitiesSitReimbursement: get(
+      selectPPMForMove(state, get(state, 'moves.currentMove.id')),
+      'estimated_storage_reimbursement',
+      '',
+    ),
   };
   const defaultPickupZip = get(state.serviceMember, 'currentServiceMember.residential_address.postal_code');
   props.initialValues = props.currentPpm

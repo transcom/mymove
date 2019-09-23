@@ -217,14 +217,13 @@ export function ppmReducer(state = initialState, action) {
     case CREATE_OR_UPDATE_PPM.success:
       return Object.assign({}, state, {
         currentPpm: action.payload,
-        incentive_estimate_min: get(action.payload, 'incentive_estimate_min', null),
-        incentive_estimate_max: get(action.payload, 'incentive_estimate_max', null),
         sitReimbursement: get(action.payload, 'estimated_storage_reimbursement', null),
         pendingPpmSize: null,
         pendingPpmWeight: null,
         hasSubmitSuccess: true,
         hasSubmitError: false,
         hasSubmitInProgress: false,
+        ...action.payload,
       });
     case CREATE_OR_UPDATE_PPM.failure:
       return Object.assign({}, state, {
