@@ -619,40 +619,11 @@ jobs:
           compare_host: "" # leave blank since we want experimental to be able to roll back
           health_check_hosts: gex.experimental.move.mil,dps.experimental.move.mil,orders.experimental.move.mil
 
-  # `acceptance_tests_rd` runs acceptance tests for the webserver against the rd environment.
-  acceptance_tests_rd:
-    executor: mymove_medium
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}
-      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
-      - run:
-          name: Run make server_generate mocks_generate
-          command: make server_generate mocks_generate
-      - run:
-          name: Build Chamber
-          command: make bin/chamber
-      - run:
-          name: Run acceptance tests
-          command: make webserver_test
-          environment:
-            ENV: test
-            ENVIRONMENT: rd
-            CHAMBER_RETRIES: 20
-            PWD: /home/circleci/transcom/mymove
-            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
-            TEST_ACC_ENV: rd
-            NO_TLS_ENABLED: true
-            DB_REGION: us-west-2
-      - announce_failure
-
   # `deploy_rd_migrations` deploys migrations to the rd environment
   deploy_rd_migrations:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: 'ed'
+      - APP_ENVIRONMENT: 'rd'
     steps:
       - deploy_migrations_steps
 
@@ -894,33 +865,33 @@ workflows:
             - build_migrations
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+            branches:
+              ignore: rd-app-rd
 
       - client_test:
           requires:
             - pre_deps_yarn
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+            branches:
+              ignore: rd-app-rd
 
       - server_test:
           requires:
             - pre_deps_golang
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+            branches:
+              ignore: rd-app-rd
 
       - server_test_coverage:
           requires:
             - pre_deps_golang
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+            branches:
+              ignore: rd-app-rd
 
       - build_app:
           requires:
@@ -978,6 +949,43 @@ workflows:
           filters:
             branches:
               only: placeholder_branch_name
+
+      # rd environment
+      - deploy_rd_migrations:
+          requires:
+            - pre_test
+            - client_test
+            - server_test
+            - acceptance_tests_local
+            - acceptance_tests_experimental
+            - build_app
+            - build_tools
+            - build_tasks
+            - build_migrations
+          filters:
+            branches:
+              only: rd-app-rd
+
+      - deploy_rd_tasks:
+          requires:
+            - deploy_rd_migrations
+          filters:
+            branches:
+              only: rd-app-rd
+
+      - deploy_rd_app:
+          requires:
+            - deploy_rd_migrations
+          filters:
+            branches:
+              only: rd-app-rd
+
+      - deploy_rd_app_client_tls:
+          requires:
+            - deploy_rd_migrations
+          filters:
+            branches:
+              only: rd-app-rd
 
       - check_circle_against_staging_sha:
           requires:
