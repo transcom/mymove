@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { string, number } from 'prop-types';
+import { string, number, bool } from 'prop-types';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import carImg from 'shared/images/car_mobile.png';
@@ -44,6 +44,7 @@ class WeightTicketListItem extends Component {
       vehicle_options,
       showDelete,
       deleteDocumentListItem,
+      isWeightTicketSet,
     } = this.props;
     const { showDeleteConfirmation } = this.state;
     return (
@@ -56,7 +57,12 @@ class WeightTicketListItem extends Component {
         <div style={{ flex: 1 }}>
           <div className="weight-li-item-container">
             <h4>
-              {vehicle_nickname} ({formatToOrdinal(num + 1)} set)
+              {isWeightTicketSet && (
+                <>
+                  {vehicle_nickname}
+                  {formatToOrdinal(num + 1)} set
+                </>
+              )}
             </h4>
             {showDelete && (
               <img
@@ -109,6 +115,7 @@ class WeightTicketListItem extends Component {
 WeightTicketListItem.propTypes = {
   id: string.isRequired,
   num: number.isRequired,
+  isWeightTicketSet: bool.isRequired,
 };
 
 WeightTicketListItem.defaultProps = {

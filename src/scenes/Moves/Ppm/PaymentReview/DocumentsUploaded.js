@@ -96,6 +96,7 @@ export class DocumentsUploaded extends Component {
                       num={index}
                       showDelete={inReviewPage}
                       deleteDocumentListItem={deleteMoveDocument}
+                      isWeightTicketSet={false}
                       {...ticket}
                     />
                   ))}
@@ -111,6 +112,7 @@ export class DocumentsUploaded extends Component {
                   num={index}
                   showDelete={inReviewPage}
                   deleteDocumentListItem={deleteMoveDocument}
+                  isWeightTicketSet={true}
                   {...ticket}
                 />
               ))}
