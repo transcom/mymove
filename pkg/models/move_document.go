@@ -325,29 +325,6 @@ func FetchMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UU
 	return moveDocuments, nil
 }
 
-// FetchMoveDocumentsByTypeForShipment fetches move documents for shipment and move document type
-func FetchMoveDocumentsByTypeForShipment(db *pop.Connection, session *auth.Session, moveDocumentType MoveDocumentType, shipmentID uuid.UUID, includedDeletedMoveDocuments bool) (MoveDocuments, error) {
-
-	// Allow all logged in office users to fetch move docs
-	if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
-		return nil, ErrFetchForbidden
-	}
-
-	var moveDocuments MoveDocuments
-	query := db.Q()
-
-	if !includedDeletedMoveDocuments {
-		query = db.Where("deleted_at is null")
-	}
-	err := query.Where("move_document_type = $1", string(moveDocumentType)).Where("shipment_id = $2", shipmentID.String()).All(&moveDocuments)
-	if err != nil {
-		if errors.Cause(err).Error() != RecordNotFoundErrorString {
-			return nil, err
-		}
-	}
-	return moveDocuments, nil
-}
-
 // SaveMoveDocument saves a move document
 func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveExpenseAction MoveExpenseDocumentSaveAction, saveWeightTicketSetAction MoveWeightTicketSetDocumentSaveAction) (*validate.Errors, error) {
 	var responseError error

@@ -138,6 +138,7 @@ class WeightTicket extends Component {
 
     const uploaderKeys = this.nonEmptyUploaderKeys();
     const uploadIds = [];
+    // eslint-disable-next-line no-unused-vars
     for (const key of uploaderKeys) {
       // eslint-disable-next-line security/detect-object-injection
       let files = this.uploaders[key].uploaderRef.getFiles();
@@ -176,6 +177,7 @@ class WeightTicket extends Component {
     const { reset } = this.props;
     const uploaders = this.uploaders;
     const uploaderKeys = this.nonEmptyUploaderKeys();
+    // eslint-disable-next-line no-unused-vars
     for (const key of uploaderKeys) {
       // eslint-disable-next-line security/detect-object-injection
       uploaders[key].uploaderRef.clearFiles();
