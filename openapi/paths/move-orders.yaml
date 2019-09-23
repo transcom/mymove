@@ -145,6 +145,67 @@ MoveTaskOrderStatus:
           type: string
 
 ServiceItems:
+  post:
+    summary: Creates a service item for a move order by id
+    description: Creates a service item for a move order by id
+    operationId: createServiceItem
+    tags:
+      - serviceItem
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/move-orders.yaml#/ServiceItem'
+    responses:
+      '201':
+        description: Successfully created line item for move task order
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/move-orders.yaml#/ServiceItem'
+      '400':
+        $ref: '../shared/responses.yaml#/components/responses/InvalidRequest'
+      '401':
+        $ref: '../shared/responses.yaml#/components/responses/PermissionDenied'
+      '403':
+        $ref: '../shared/responses.yaml#/components/responses/PermissionDenied'
+      '404':
+        $ref: '../shared/responses.yaml#/components/responses/NotFound'
+      '500':
+        $ref: '../shared/responses.yaml#/components/responses/ServerError'
+  get:
+    summary: Gets all line items for a move order
+    description: Gets all line items for a move orders
+    operationId: listServiceItems
+    tags:
+      - serviceItem
+    responses:
+      '200':
+        description: Successfully retrieved all line items for a move task order
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/move-orders.yaml#/ServiceItem'
+      '400':
+        $ref: '../shared/responses.yaml#/components/responses/InvalidRequest'
+      '401':
+        $ref: '../shared/responses.yaml#/components/responses/PermissionDenied'
+      '403':
+        $ref: '../shared/responses.yaml#/components/responses/PermissionDenied'
+      '404':
+        $ref: '../shared/responses.yaml#/components/responses/NotFound'
+      '500':
+        $ref: '../shared/responses.yaml#/components/responses/ServerError'
+  parameters:
+    - name: moveTaskOrderID
+      in: path
+      description: ID of move order for service item to use
+      required: true
+      schema:
+        type: string
+
+ServiceItem:
   get:
     summary: Gets a line item by ID for a move order by ID
     description: Gets a line item by ID for a move order by ID
@@ -169,11 +230,17 @@ ServiceItems:
       '500':
         $ref: '../shared/responses.yaml#/components/responses/ServerError'
   patch:
-    summary: Updates a line item by ID for a move order by ID
-    description: Updates a line item by ID for a move order by ID
+    summary: Updates a service item by ID for a move order by ID
+    description: Updates a service item by ID for a move order by ID
     operationId: updateServiceItem
     tags:
       - ServiceItem
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/move-orders.yaml#/ServiceItem'
     responses:
       '200':
         description: Successfully updated move task order status

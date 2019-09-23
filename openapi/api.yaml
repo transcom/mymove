@@ -20,16 +20,18 @@ servers:
     description: Experimental server
 
 paths:
-  # Move Orders Endpoints
+  # Move Task Orders Endpoints
   /move-orders:
     $ref: './paths/move-orders.yaml#/MoveTaskOrders'
-  /move-orders/{MoveTaskOrderID}:
+  /move-orders/{moveTaskOrderID}:
     $ref: './paths/move-orders.yaml#/MoveTaskOrder'
-  /move-orders/{MoveTaskOrderID}/status:
+  /move-orders/{moveTaskOrderID}/status:
     $ref: './paths/move-orders.yaml#/MoveTaskOrderStatus'
-  /move-orders/{MoveTaskOrderID}/line-items/{ServiceItemID}:
+  /move-orders/{moveTaskOrderID}/service-items:
     $ref: './paths/move-orders.yaml#/ServiceItems'
-  /move-orders/{MoveTaskOrderID}/line-items/{ServiceItemID}/status:
+  /move-orders/{moveTaskOrderID}/service-items/{serviceItemID}:
+    $ref: './paths/move-orders.yaml#/ServiceItem'
+  /move-orders/{moveTaskOrderID}/service-items/{serviceItemID}/status:
     $ref: './paths/move-orders.yaml#/ServiceItemStatus'
 
   # Payment Request Endpoints
