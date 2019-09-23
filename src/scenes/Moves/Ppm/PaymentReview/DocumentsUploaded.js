@@ -86,19 +86,23 @@ export class DocumentsUploaded extends Component {
         </div>
         {expandedDocumentList && (
           <>
-            <h4>{weightTicketDocs.length} weight tickets</h4>
-            <div className="tickets">
-              {weightTicketDocs.map((ticket, index) => (
-                <WeightTicketListItem
-                  key={ticket.id}
-                  num={index}
-                  showDelete={inReviewPage}
-                  deleteDocumentListItem={deleteMoveDocument}
-                  {...ticket}
-                />
-              ))}
-            </div>
-            <hr id="doc-summary-separator" />
+            {weightTicketDocs.length > 0 && (
+              <>
+                <h4>{weightTicketDocs.length} weight tickets</h4>
+                <div className="tickets">
+                  {weightTicketDocs.map((ticket, index) => (
+                    <WeightTicketListItem
+                      key={ticket.id}
+                      num={index}
+                      showDelete={inReviewPage}
+                      deleteDocumentListItem={deleteMoveDocument}
+                      {...ticket}
+                    />
+                  ))}
+                </div>
+                <hr id="doc-summary-separator" />
+              </>
+            )}
             <h4>{weightTicketSetDocs.length} sets of weight tickets</h4>
             <div className="tickets">
               {weightTicketSetDocs.map((ticket, index) => (

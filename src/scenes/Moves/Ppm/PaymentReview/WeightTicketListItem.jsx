@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { string, number, bool } from 'prop-types';
+import { string, number } from 'prop-types';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import carImg from 'shared/images/car_mobile.png';
@@ -108,14 +108,7 @@ class WeightTicketListItem extends Component {
 
 WeightTicketListItem.propTypes = {
   id: string.isRequired,
-  empty_weight_ticket_missing: bool.isRequired,
-  empty_weight: number.isRequired,
-  full_weight_ticket_missing: bool.isRequired,
-  full_weight: number.isRequired,
   num: number.isRequired,
-  trailer_ownership_missing: bool.isRequired,
-  vehicle_nickname: string.isRequired,
-  vehicle_options: string.isRequired,
 };
 
 WeightTicketListItem.defaultProps = {
