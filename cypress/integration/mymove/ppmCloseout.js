@@ -92,6 +92,35 @@ describe('allows a SM to request a payment', function() {
     serviceMemberUploadsExpenses();
     serviceMemberSkipsStep();
   });
+
+  it('service member with old weight tickets can see and delete them', () => {
+    cy.signInAsUserPostRequest(milmoveAppName, '1842091b-b9a0-4d4a-ba22-1e2f38f26317');
+    cy.get('[data-cy="edit-payment-request"]')
+      .contains('Edit Payment Request')
+      .should('exist')
+      .click();
+
+    cy.get('.ticket-item')
+      .first()
+      .should('not.contain', 'set');
+    cy.get('[data-cy=weight-ticket-link]')
+      .should('exist')
+      .click();
+    serviceMemberSubmitsWeightTicket('CAR', true);
+    serviceMemberSubmitsWeightTicket('CAR', true);
+    serviceMemberSkipsStep();
+    serviceMemberViewsExpensesLandingPage();
+    serviceMemberUploadsExpenses();
+    serviceMemberSkipsStep();
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
+    });
+    serviceMemberDeletesDocuments();
+    cy.get('.ticket-item')
+      .first()
+      .contains('set')
+      .should('exist');
+  });
 });
 
 function serviceMemberSkipsStep() {
