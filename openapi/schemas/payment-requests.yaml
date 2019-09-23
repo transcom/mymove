@@ -12,7 +12,7 @@ PaymentRequest:
       type: string
       format: uuid
       example: c56a4180-65aa-42ec-a945-5fd21dec0538
-    moveOrderLineItemIDs:
+    serviceItemIDs:
       type: array
       items:
         type: string
@@ -37,7 +37,7 @@ CreatePaymentRequestPayload:
       type: string
       format: uuid
       example: c56a4180-65aa-42ec-a945-5fd21dec0538
-    moveOrderLineItemIDs:
+    serviceItemIDs:
       type: array
       items:
         type: string
@@ -50,7 +50,7 @@ CreatePaymentRequestPayload:
 UpdatePaymentRequestPayload: # TODO: remove if we Prime will not be updating payment request
   type: object
   properties:
-    moveOrderLineItemIDs:
+    serviceItemIDs:
       type: array
       items:
         type: string

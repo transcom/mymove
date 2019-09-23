@@ -1,17 +1,17 @@
-MoveOrders:
+MoveTaskOrders:
   get:
     summary: Gets all move orders
     description: Gets all move orders
-    operationId: listMoveOrders
+    operationId: listMoveTaskOrders
     tags:
-      - moveOrder
+      - MoveTaskOrder
     responses:
       '200':
         description: Successfully retrieved all move task orders
         content:
           application/json:
             schema:
-              $ref: '../schemas/move-orders.yaml#/MoveOrders'
+              $ref: '../schemas/move-orders.yaml#/MoveTaskOrders'
       '400':
         $ref: '../shared/responses.yaml#/components/responses/InvalidRequest'
       '401':
@@ -22,20 +22,20 @@ MoveOrders:
         $ref: '../shared/responses.yaml#/components/responses/NotFound'
       '500':
         $ref: '../shared/responses.yaml#/components/responses/ServerError'
-MoveOrder:
+MoveTaskOrder:
   get:
     summary: Gets a move order by ID
     description: Gets a move order
-    operationId: getMoveOrder
+    operationId: getMoveTaskOrder
     tags:
-      - moveOrder
+      - MoveTaskOrder
     responses:
       '200':
         description: Successfully retrieved move task order
         content:
           application/json:
             schema:
-              $ref: '../schemas/move-orders.yaml#/MoveOrder'
+              $ref: '../schemas/move-orders.yaml#/MoveTaskOrder'
       '400':
         $ref: '../shared/responses.yaml#/components/responses/InvalidRequest'
       '401':
@@ -49,22 +49,22 @@ MoveOrder:
   patch:
     summary: Updates a move order by ID
     description: Updates a move order by ID
-    operationId: updateMoveOrder
+    operationId: updateMoveTaskOrder
     tags:
-      - moveOrder
+      - MoveTaskOrder
     requestBody:
       required: true
       content:
         application/json:
           schema:
-            $ref: '../schemas/move-orders.yaml#/MoveOrder'
+            $ref: '../schemas/move-orders.yaml#/MoveTaskOrder'
     responses:
       '200':
         description: Successfully retrieved move task order
         content:
           application/json:
             schema:
-              $ref: '../schemas/move-orders.yaml#/MoveOrder'
+              $ref: '../schemas/move-orders.yaml#/MoveTaskOrder'
       '400':
         $ref: '../shared/responses.yaml#/components/responses/InvalidRequest'
       '401':
@@ -78,16 +78,16 @@ MoveOrder:
   delete:
     summary: Deletes a move order by ID
     description: Deletes a move order by ID
-    operationId: deleteMoveOrder
+    operationId: deleteMoveTaskOrder
     tags:
-      - moveOrder
+      - MoveTaskOrder
     responses:
       '200':
         description: Successfully deleted move task order
         content:
           application/json:
             schema:
-              $ref: '../schemas/move-orders.yaml#/MoveOrder'
+              $ref: '../schemas/move-orders.yaml#/MoveTaskOrder'
       '400':
         $ref: '../shared/responses.yaml#/components/responses/InvalidRequest'
       '401':
@@ -106,26 +106,26 @@ MoveOrder:
       schema:
         type: string
 
-MoveOrderStatus:
+MoveTaskOrderStatus:
   patch:
     summary: Change the status of a move order
     description: Changes move order status
-    operationId: updateMoveOrderStatus
+    operationId: updateMoveTaskOrderStatus
     tags:
-      - moveOrder
+      - MoveTaskOrder
     requestBody:
       required: true
       content:
         application/json:
           schema:
-            $ref: '../schemas/move-orders.yaml#/MoveOrderStatus'
+            $ref: '../schemas/move-orders.yaml#/MoveTaskOrderStatus'
     responses:
       '200':
         description: Successfully updated move task order status
         content:
           application/json:
             schema:
-              $ref: '../schemas/move-orders.yaml#/MoveOrder'
+              $ref: '../schemas/move-orders.yaml#/MoveTaskOrder'
       '400':
         $ref: '../shared/responses.yaml#/components/responses/InvalidRequest'
       '401':
@@ -144,20 +144,20 @@ MoveOrderStatus:
         schema:
           type: string
 
-MoveOrderLineItems:
+ServiceItems:
   get:
     summary: Gets a line item by ID for a move order by ID
     description: Gets a line item by ID for a move order by ID
-    operationId: listLineItems
+    operationId: listServiceItems
     tags:
-      - lineItem
+      - ServiceItem
     responses:
       '200':
         description: Successfully retrieved a line item for a move task order by ID
         content:
           application/json:
             schema:
-              $ref: '../schemas/move-orders.yaml#/MoveOrderLineItem'
+              $ref: '../schemas/move-orders.yaml#/ServiceItem'
       '400':
         $ref: '../shared/responses.yaml#/components/responses/InvalidRequest'
       '401':
@@ -171,16 +171,16 @@ MoveOrderLineItems:
   patch:
     summary: Updates a line item by ID for a move order by ID
     description: Updates a line item by ID for a move order by ID
-    operationId: updateLineItem
+    operationId: updateServiceItem
     tags:
-      - lineItem
+      - ServiceItem
     responses:
       '200':
         description: Successfully updated move task order status
         content:
           application/json:
             schema:
-              $ref: '../schemas/move-orders.yaml#/MoveOrder'
+              $ref: '../schemas/move-orders.yaml#/MoveTaskOrder'
       '400':
         $ref: '../shared/responses.yaml#/components/responses/InvalidRequest'
       '401':
@@ -194,16 +194,16 @@ MoveOrderLineItems:
   delete:
     summary: Deletes a line item by ID for a move order by ID
     description: Delets a line item by ID for a move order by ID
-    operationId: deleteLineItem
+    operationId: deleteServiceItem
     tags:
-      - lineItem
+      - ServiceItem
     responses:
       '200':
         description: Successfully deleted move task order
         content:
           application/json:
             schema:
-              $ref: '../schemas/move-orders.yaml#/MoveOrder'
+              $ref: '../schemas/move-orders.yaml#/MoveTaskOrder'
       '400':
         $ref: '../shared/responses.yaml#/components/responses/InvalidRequest'
       '401':
@@ -215,39 +215,39 @@ MoveOrderLineItems:
       '500':
         $ref: '../shared/responses.yaml#/components/responses/ServerError'
   parameters:
-    - name: moveOrderID
+    - name: MoveTaskOrderID
       in: path
       description: ID of move order to use
       required: true
       schema:
         type: string
-    - name: lineItemId
+    - name: ServiceItemID
       in: path
       description: ID of line item to use
       required: true
       schema:
         type: string
 
-LineItemStatus:
+ServiceItemStatus:
   patch:
     summary: Change the status of a line item for a move order by ID
     description: Changes the status of a line item for a move order by ID
-    operationId: updateLineItemStatus
+    operationId: updateServiceItemStatus
     tags:
-      - lineItem
+      - ServiceItem
     requestBody:
       required: true
       content:
         application/json:
           schema:
-            $ref: '../schemas/move-orders.yaml#/LineItemStatus'
+            $ref: '../schemas/move-orders.yaml#/ServiceItemStatus'
     responses:
       '200':
         description: Successfully updated status for a line item for a move task order by ID
         content:
           application/json:
             schema:
-              $ref: '../schemas/move-orders.yaml#/MoveOrderLineItem'
+              $ref: '../schemas/move-orders.yaml#/ServiceItem'
       '400':
         $ref: '../shared/responses.yaml#/components/responses/InvalidRequest'
       '401':
@@ -259,13 +259,13 @@ LineItemStatus:
       '500':
         $ref: '../shared/responses.yaml#/components/responses/ServerError'
   parameters:
-    - name: moveOrderID
+    - name: MoveTaskOrderID
       in: path
       description: ID of move order to use
       required: true
       schema:
         type: string
-    - name: lineItemId
+    - name: ServiceItemID
       in: path
       description: ID of line item to use
       required: true

@@ -1,4 +1,4 @@
-MoveOrder:
+MoveTaskOrder:
   type: object
   properties:
     id:
@@ -63,12 +63,12 @@ MoveOrder:
       type: string
       format: date
 
-MoveOrders:
+MoveTaskOrders:
   type: array
   items:
-    $ref: '#/MoveOrder'
+    $ref: '#/MoveTaskOrder'
 
-MoveOrderStatus:
+MoveTaskOrderStatus:
   type: object
   properties:
     status:
@@ -78,14 +78,14 @@ MoveOrderStatus:
         - SUBMITTED
         - REJECTED
 
-MoveOrderLineItem:
+ServiceItem:
   type: object
   properties:
     id:
       type: string
       format: uuid
       example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-    moveOrderID:
+    MoveTaskOrderID:
       type: string
       format: uuid
       example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -130,7 +130,7 @@ MoveOrderLineItem:
       type: string
       format: date
 
-LineItemStatus:
+ServiceItemStatus:
   type: object
   properties:
     status:
