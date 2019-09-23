@@ -619,6 +619,71 @@ jobs:
           compare_host: "" # leave blank since we want experimental to be able to roll back
           health_check_hosts: gex.experimental.move.mil,dps.experimental.move.mil,orders.experimental.move.mil
 
+  # `acceptance_tests_rd` runs acceptance tests for the webserver against the rd environment.
+  acceptance_tests_rd:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run:
+          name: Run make server_generate mocks_generate
+          command: make server_generate mocks_generate
+      - run:
+          name: Build Chamber
+          command: make bin/chamber
+      - run:
+          name: Run acceptance tests
+          command: make webserver_test
+          environment:
+            ENV: test
+            ENVIRONMENT: rd
+            CHAMBER_RETRIES: 20
+            PWD: /home/circleci/transcom/mymove
+            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
+            TEST_ACC_ENV: rd
+            NO_TLS_ENABLED: true
+            DB_REGION: us-west-2
+      - announce_failure
+
+  # `deploy_rd_migrations` deploys migrations to the rd environment
+  deploy_rd_migrations:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'ed'
+    steps:
+      - deploy_migrations_steps
+
+  # `deploy_experimental_tasks` deploys scheduled tasks to the rd environment
+  deploy_rd_tasks:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'rd'
+    steps:
+      - deploy_tasks_steps
+
+  # `deploy_rd_app` updates the server-TLS app service in the rd environment
+  deploy_rd_app:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'rd'
+    steps:
+      - deploy_app_steps:
+          compare_host: "" # leave blank since we want rd to be able to roll back
+          health_check_hosts: my.rd.move.mil,office.experimental.move.mil,tsp.rd.move.mil
+
+  # `deploy_experimental_app_client_tls` updates the mutual-TLS service in the experimental environment
+  deploy_rd_app_client_tls:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'rd'
+    steps:
+      - deploy_app_client_tls_steps:
+          compare_host: "" # leave blank since we want experimental to be able to roll back
+          health_check_hosts: gex.rd.move.mil,dps.rd.move.mil,orders.rd.move.mil
+
   check_circle_against_staging_sha:
     executor: mymove_small
     steps:
