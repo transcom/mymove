@@ -309,20 +309,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Uploader: loader,
 	})
-	docAssertions := testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
-			MoveID:                   ppm2.Move.ID,
-			Move:                     ppm2.Move,
-			PersonallyProcuredMoveID: &ppm2.ID,
-			Status:                   "AWAITING_REVIEW",
-			MoveDocumentType:         "WEIGHT_TICKET",
-		},
-		Document: models.Document{
-			ServiceMemberID: ppm2.Move.Orders.ServiceMember.ID,
-			ServiceMember:   ppm2.Move.Orders.ServiceMember,
-		},
-	}
-	testdatagen.MakeMoveDocument(db, docAssertions)
 	ppm2.Move.Submit(time.Now())
 	ppm2.Move.Approve()
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
@@ -342,7 +328,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			LoginGovEmail: email,
 		},
 	})
-	// Date picked essentialy at random, but needs to be within TestYear
+	// Date picked essentially at random, but needs to be within TestYear
 	originalMoveDate := time.Date(testdatagen.TestYear, time.November, 10, 23, 0, 0, 0, time.UTC)
 	actualMoveDate := time.Date(testdatagen.TestYear, time.November, 11, 10, 0, 0, 0, time.UTC)
 	moveTypeDetail := internalmessages.OrdersTypeDetailPCSTDY
@@ -372,6 +358,20 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Uploader: loader,
 	})
+	docAssertions := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm3.Move.ID,
+			Move:                     ppm3.Move,
+			PersonallyProcuredMoveID: &ppm3.ID,
+			Status:                   "AWAITING_REVIEW",
+			MoveDocumentType:         "WEIGHT_TICKET",
+		},
+		Document: models.Document{
+			ServiceMemberID: ppm3.Move.Orders.ServiceMember.ID,
+			ServiceMember:   ppm3.Move.Orders.ServiceMember,
+		},
+	}
+	testdatagen.MakeMoveDocument(db, docAssertions)
 	ppm3.Move.Submit(time.Now())
 	ppm3.Move.Approve()
 	// This is the same PPM model as ppm3, but this is the one that will be saved by SaveMoveDependencies

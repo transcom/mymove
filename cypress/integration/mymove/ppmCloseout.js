@@ -94,7 +94,7 @@ describe('allows a SM to request a payment', function() {
   });
 
   it('service member with old weight tickets can see and delete them', () => {
-    cy.signInAsUserPostRequest(milmoveAppName, '1842091b-b9a0-4d4a-ba22-1e2f38f26317');
+    cy.signInAsUserPostRequest(milmoveAppName, 'beccca28-6e15-40cc-8692-261cae0d4b14');
     cy.get('[data-cy="edit-payment-request"]')
       .contains('Edit Payment Request')
       .should('exist')
