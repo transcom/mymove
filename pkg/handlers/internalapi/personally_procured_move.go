@@ -300,47 +300,6 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 	return ppmop.NewPatchPersonallyProcuredMoveOK().WithPayload(ppmPayload)
 }
 
-// ppmNeedsEstimatesRecalculated determines whether the fields that comprise
-// the PPM incentive and SIT estimate calculations have changed, necessitating a recalculation
-func (h PatchPersonallyProcuredMoveHandler) ppmNeedsEstimatesRecalculated(ppm *models.PersonallyProcuredMove, patch *internalmessages.PatchPersonallyProcuredMovePayload, logger Logger) bool {
-	originPtr := patch.PickupPostalCode
-	destinationPtr := patch.DestinationPostalCode
-	weightPtr := patch.WeightEstimate
-	datePtr := patch.OriginalMoveDate
-	daysPtr := patch.DaysInStorage
-
-	// Figure out if we have values to compare and, if so, whether the new or old value
-	// should be used in the calculation
-	origin, originChanged, originOK := stringForComparison(ppm.PickupPostalCode, originPtr)
-	destination, destinationChanged, destinationOK := stringForComparison(ppm.DestinationPostalCode, destinationPtr)
-	var prevWeightEstimate *int64
-	if ppm.WeightEstimate != nil {
-		tmp := int64(*ppm.WeightEstimate)
-		prevWeightEstimate = &tmp
-	}
-	weight, weightChanged, weightOK := int64ForComparison(prevWeightEstimate, weightPtr)
-	date, dateChanged, dateOK := dateForComparison(ppm.OriginalMoveDate, (*time.Time)(datePtr))
-	daysInStorage, daysChanged, _ := int64ForComparison(ppm.DaysInStorage, daysPtr)
-
-	// We don't care if daysInStorage is OK, since we just want to meet the minimum bar to recalculate
-	valuesOK := originOK && destinationOK && weightOK && dateOK
-	valuesChanged := originChanged || destinationChanged || weightChanged || dateChanged || daysChanged
-
-	needsUpdate := valuesOK && valuesChanged
-
-	if needsUpdate {
-		logger.Info("updating PPM calculated fields",
-			zap.String("originZip", origin),
-			zap.String("destinationZip", destination),
-			zap.Int64("weight", weight),
-			zap.Time("date", date),
-			zap.Int64("daysInStorage", daysInStorage),
-		)
-	}
-
-	return needsUpdate
-}
-
 // SubmitPersonallyProcuredMoveHandler Submits a PPM
 type SubmitPersonallyProcuredMoveHandler struct {
 	handlers.HandlerContext
@@ -380,48 +339,6 @@ func (h SubmitPersonallyProcuredMoveHandler) Handle(params ppmop.SubmitPersonall
 	}
 
 	return ppmop.NewSubmitPersonallyProcuredMoveOK().WithPayload(ppmPayload)
-}
-
-func stringForComparison(previousValue, newValue *string) (value string, valueChanged bool, canCompare bool) {
-	if newValue != nil {
-		if previousValue != nil {
-			return *newValue, *previousValue != *newValue, true
-		}
-		return *newValue, true, true
-	}
-	if previousValue != nil {
-		return *previousValue, false, true
-	}
-
-	return "", false, false
-}
-
-func int64ForComparison(previousValue, newValue *int64) (value int64, valueChanged bool, canCompare bool) {
-	if newValue != nil {
-		if previousValue != nil {
-			return *newValue, *previousValue != *newValue, true
-		}
-		return *newValue, true, true
-	}
-	if previousValue != nil {
-		return *previousValue, false, true
-	}
-
-	return 0, false, false
-}
-
-func dateForComparison(previousValue, newValue *time.Time) (value time.Time, valueChanged bool, canCompare bool) {
-	if newValue != nil {
-		if previousValue != nil {
-			return *newValue, previousValue.Equal(*newValue), true
-		}
-		return *newValue, true, true
-	}
-	if previousValue != nil {
-		return *previousValue, false, true
-	}
-
-	return value, false, false
 }
 
 func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models.PersonallyProcuredMove, logger Logger) error {
