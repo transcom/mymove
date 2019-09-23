@@ -19,10 +19,10 @@ const AccountingDisplay = props => {
       <div className="editable-panel-column">
         <PanelSwaggerField title="Department indicator" fieldName="department_indicator" required {...fieldProps} />
 
-        <PanelSwaggerField title="SAC" required fieldName="sac" {...fieldProps} />
+        <PanelSwaggerField title="SAC / MDC" required fieldName="sac" {...fieldProps} />
       </div>
       <div className="editable-panel-column">
-        <PanelSwaggerField title="TAC" required fieldName="tac" {...fieldProps} />
+        <PanelSwaggerField title="TAC / SDN" required fieldName="tac" {...fieldProps} />
       </div>
     </React.Fragment>
   );
@@ -36,10 +36,10 @@ const AccountingEdit = props => {
         <SwaggerField title="Department indicator" fieldName="department_indicator" swagger={ordersSchema} required />
       </div>
       <div className="editable-panel-column">
-        <SwaggerField title="TAC" fieldName="tac" swagger={ordersSchema} required />
+        <SwaggerField title="TAC / SDN" fieldName="tac" swagger={ordersSchema} required />
       </div>
       <div className="editable-panel-column">
-        <SwaggerField title="SAC" fieldName="sac" swagger={ordersSchema} required />
+        <SwaggerField title="SAC / MDC" fieldName="sac" swagger={ordersSchema} required />
       </div>
     </React.Fragment>
   );
