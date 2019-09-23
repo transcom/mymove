@@ -79,8 +79,6 @@ func TestSplitStatementsLoop(t *testing.T) {
 	go SplitStatements(lines, statements, wait)
 
 	expectedStmt := []string{
-		"CREATE TABLE IF NOT EXISTS shipments (id serial PRIMARY KEY);",
-		"ALTER TABLE invoices ADD COLUMN IF NOT EXISTS shipment_id uuid NULL;",
 		"LOCK TABLE invoice_number_trackers, invoices IN SHARE MODE;",
 		"DELETE\nFROM invoice_number_trackers;",
 		`DO $do$
@@ -146,8 +144,6 @@ invoice_count := invoice_count + 1;
 END LOOP;
 END LOOP;
 END $do$;`,
-		"ALTER TABLE invoices DROP COLUMN IF EXISTS shipment_id;",
-		"DROP TABLE IF EXISTS shipments;",
 	}
 
 	i := 0
@@ -155,5 +151,5 @@ END $do$;`,
 		require.Equal(t, expectedStmt[i], stmt)
 		i++
 	}
-	require.Equal(t, i, 7)
+	require.Equal(t, i, 3)
 }
