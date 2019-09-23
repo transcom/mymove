@@ -23,19 +23,19 @@ paths:
   # Move Orders Endpoints
   /move-orders:
     $ref: './paths/move-orders.yaml#/MoveOrders'
-  /move-orders/{id}:
+  /move-orders/{moveOrderID}:
     $ref: './paths/move-orders.yaml#/MoveOrder'
-  /move-orders/{id}/status:
+  /move-orders/{moveOrderID}/status:
     $ref: './paths/move-orders.yaml#/MoveOrderStatus'
-  /move-orders/{moveOrderId}/line-items/{lineItemId}:
+  /move-orders/{moveOrderID}/line-items/{lineItemID}:
     $ref: './paths/move-orders.yaml#/MoveOrderLineItems'
-  /move-orders/{moveOrderId}/line-items/{lineItemId}/status:
+  /move-orders/{moveOrderID}/line-items/{lineItemID}/status:
     $ref: './paths/move-orders.yaml#/LineItemStatus'
 
   # Payment Request Endpoints
   /payment-requests:
     $ref: './paths/payment-requests.yaml#/PaymentRequests'
-  /payment-requests/{paymentRequestId}:
+  /payment-requests/{paymentRequestID}:
     $ref: './paths/payment-requests.yaml#/PaymentRequest'
-  /payment-requests/{paymentRequestId}/status:
+  /payment-requests/{paymentRequestID}/status:
     $ref: './paths/payment-requests.yaml#/PaymentRequestStatus'

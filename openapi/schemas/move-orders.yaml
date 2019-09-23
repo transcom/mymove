@@ -5,7 +5,7 @@ MoveOrder:
       type: string
       format: uuid
       example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-    payment_method:
+    paymentMethod:
       type: string
     status:
       type: string
@@ -13,53 +13,53 @@ MoveOrder:
         - APPROVED
         - REJECTED
         - SUBMITTED
-    move_date:
+    moveDate:
       type: string
       format: date
-    origin_duty_station:
+    originDutyStation:
       type: string
       format: uuid
       example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-    origin_ppso:
+    originPPSO:
       type: string
       format: uuid
       example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-    destination_duty_station:
+    destinationDutyStation:
       type: string
       format: uuid
       example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-    destination_ppso:
+    destinationPPSO:
       type: string
       format: uuid
       example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-    orders_type:
+    ordersType:
       type: string
       enum:
         - PERMANENT_CHANGE_OF_STATION
-    travel_authorization_name:
+    travelAuthorizationName:
       type: string
-    travel_authorization_date:
+    travelAuthorizationDate:
       type: string
       format: date
-    travel_authorization_issuing_hq:
+    travelAuthorizationIssuingHQ:
       type: string
       format: uuid
       example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-    line_of_accounting:
+    lineOfAccounting:
       type: string
     tac:
       type: string
-    electronic_copy_of_orders:
+    electronicCopyOfOrders:
       type: string
       format: uuid
       example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-    created_at:
+    createdAt:
       type: string
       format: date
-    updated_at:
+    updatedAt:
       type: string
       format: date
-    deleted_at:
+    deletedAt:
       type: string
       format: date
 
@@ -85,7 +85,7 @@ MoveOrderLineItem:
       type: string
       format: uuid
       example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-    move_order_id:
+    moveOrderID:
       type: string
       format: uuid
       example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -95,7 +95,7 @@ MoveOrderLineItem:
         - APPROVED
         - SUBMITTED
         - REJECTED
-    fee_type:
+    feeType:
       type: string
       enum:
         - COUNSELING
@@ -111,22 +111,22 @@ MoveOrderLineItem:
       type: integer
     description:
       type: string
-    submitted_at:
+    submittedAt:
       type: string
       format: date
-    approved_at:
+    approvedAt:
       type: string
       format: date
-    rejected_at:
+    rejectedAt:
       type: string
       format: date
-    created_at:
+    createdAt:
       type: string
       format: date
-    updated_at:
+    updatedAt:
       type: string
       format: date
-    deleted_at:
+    deletedAt:
       type: string
       format: date
 

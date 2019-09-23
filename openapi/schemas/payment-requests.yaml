@@ -8,11 +8,11 @@ PaymentRequest:
       readOnly: true
     documentPackage:
       $ref: '#/ProofOfServicePackage'
-    moveOrderId:
+    moveOrderID:
       type: string
       format: uuid
       example: c56a4180-65aa-42ec-a945-5fd21dec0538
-    moveOrderLineItemIds:
+    moveOrderLineItemIDs:
       type: array
       items:
         type: string
@@ -33,11 +33,11 @@ CreatePaymentRequestPayload:
   properties:
     proofOfServicePackage:
       $ref: '#/ProofOfServicePackage'
-    moveOrderId:
+    moveOrderID:
       type: string
       format: uuid
       example: c56a4180-65aa-42ec-a945-5fd21dec0538
-    moveOrderLineItemIds:
+    moveOrderLineItemIDs:
       type: array
       items:
         type: string
@@ -50,7 +50,7 @@ CreatePaymentRequestPayload:
 UpdatePaymentRequestPayload: # TODO: remove if we Prime will not be updating payment request
   type: object
   properties:
-    moveOrderLineItemIds:
+    moveOrderLineItemIDs:
       type: array
       items:
         type: string

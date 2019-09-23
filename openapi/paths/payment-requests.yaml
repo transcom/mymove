@@ -111,7 +111,7 @@ PaymentRequest:
       '500':
         $ref: '../shared/responses.yaml#/components/responses/ServerError'
   parameters:
-    - name: paymentRequestId
+    - name: paymentRequestID
       in: path
       description: UUID of payment request
       required: true
@@ -128,7 +128,7 @@ PaymentRequestStatus:
       - payment-requests
       - gov
     parameters:
-      - name: paymentRequestId
+      - name: paymentRequestID
         in: path
         description: UUID of payment request
         required: true
