@@ -31,7 +31,7 @@ PaymentRequests:
   get: # TODO add filters when we know what we are filtering
     summary: Gets payment requests
     description: Gets a list of payment requests
-    operationId: getPaymentRequests
+    operationId: listPaymentRequests
     tags:
       - payment-requests
       - prime
@@ -54,11 +54,11 @@ PaymentRequests:
       '500':
         $ref: '../shared/responses.yaml#/components/responses/ServerError'
 
-PaymentRequestsItem:
+PaymentRequest:
   get:
     summary: Fetches a payment request by id
     description: Fetches an instance of a payment request by id
-    operationId: fetchPaymentRequest
+    operationId: getPaymentRequest
     tags:
       - payment-requests
       - prime

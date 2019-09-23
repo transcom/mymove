@@ -31,7 +31,7 @@ MoveOrders:
   get:
     summary: Gets all move orders
     description: Gets all move orders
-    operationId: getMoveOrderIndex
+    operationId: listMoveOrders
     tags:
       - moveOrder
     responses:
@@ -51,7 +51,7 @@ MoveOrders:
         $ref: '../shared/responses.yaml#/components/responses/NotFound'
       '500':
         $ref: '../shared/responses.yaml#/components/responses/ServerError'
-MoveOrderItem:
+MoveOrder:
   get:
     summary: Gets a move order by ID
     description: Gets a move order
@@ -177,7 +177,7 @@ MoveOrderLineItems:
   get:
     summary: Gets a line item by ID for a move order by ID
     description: Gets a line item by ID for a move order by ID
-    operationId: getLineItemIndex
+    operationId: listLineItems
     tags:
       - lineItem
     responses:

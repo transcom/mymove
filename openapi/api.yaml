@@ -24,7 +24,7 @@ paths:
   /move-orders:
     $ref: './paths/move-orders.yaml#/MoveOrders'
   /move-orders/{id}:
-    $ref: './paths/move-orders.yaml#/MoveOrderItem'
+    $ref: './paths/move-orders.yaml#/MoveOrder'
   /move-orders/{id}/status:
     $ref: './paths/move-orders.yaml#/MoveOrderStatus'
   /move-orders/{moveOrderId}/line-items/{lineItemId}:
@@ -36,6 +36,6 @@ paths:
   /payment-requests:
     $ref: './paths/payment-requests.yaml#/PaymentRequests'
   /payment-requests/{paymentRequestId}:
-    $ref: './paths/payment-requests.yaml#/PaymentRequestsItem'
+    $ref: './paths/payment-requests.yaml#/PaymentRequest'
   /payment-requests/{paymentRequestId}/status:
     $ref: './paths/payment-requests.yaml#/PaymentRequestStatus'
