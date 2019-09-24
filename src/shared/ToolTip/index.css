@@ -4,7 +4,6 @@
 
 .tooltip .tooltiptext {
   box-sizing: border-box;
-  visibility: hidden;
   background-color: #4d4d4d;
   font-size: 1.3rem;
   color: #fff;
