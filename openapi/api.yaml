@@ -21,18 +21,18 @@ servers:
 
 paths:
   # Move Task Orders Endpoints
-  /move-orders:
-    $ref: './paths/move-orders.yaml#/MoveTaskOrders'
-  /move-orders/{moveTaskOrderID}:
-    $ref: './paths/move-orders.yaml#/MoveTaskOrder'
-  /move-orders/{moveTaskOrderID}/status:
-    $ref: './paths/move-orders.yaml#/MoveTaskOrderStatus'
-  /move-orders/{moveTaskOrderID}/service-items:
-    $ref: './paths/move-orders.yaml#/ServiceItems'
-  /move-orders/{moveTaskOrderID}/service-items/{serviceItemID}:
-    $ref: './paths/move-orders.yaml#/ServiceItem'
-  /move-orders/{moveTaskOrderID}/service-items/{serviceItemID}/status:
-    $ref: './paths/move-orders.yaml#/ServiceItemStatus'
+  /move-task-orders:
+    $ref: './paths/move-task-orders.yaml#/MoveTaskOrders'
+  /move-task-orders/{moveTaskOrderID}:
+    $ref: './paths/move-task-orders.yaml#/MoveTaskOrder'
+  /move-task-orders/{moveTaskOrderID}/status:
+    $ref: './paths/move-task-orders.yaml#/MoveTaskOrderStatus'
+  /move-task-orders/{moveTaskOrderID}/service-items:
+    $ref: './paths/move-task-orders.yaml#/ServiceItems'
+  /move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}:
+    $ref: './paths/move-task-orders.yaml#/ServiceItem'
+  /move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}/status:
+    $ref: './paths/move-task-orders.yaml#/ServiceItemStatus'
 
   # Payment Request Endpoints
   /payment-requests:
