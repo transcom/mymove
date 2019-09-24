@@ -607,9 +607,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		site.Use(middleware.LimitBodySize(maxBodySize, logger))
 	}
 
-	// Stub is_logged_in check
-	site.HandleFunc(pat.Get("/internal/users/is_logged_in"), isLoggedIn(logger))
-
 	// Stub health check
 	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {
 
@@ -789,6 +786,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 		// Mux for internal API that enforces auth
 		internalAPIMux := goji.SubMux()
+		internalMux.HandleFunc(pat.Get("/users/is_logged_in"), isLoggedIn(logger))
 		internalMux.Handle(pat.New("/*"), internalAPIMux)
 		internalAPIMux.Use(userAuthMiddleware)
 		internalAPIMux.Use(middleware.NoCache(logger))
