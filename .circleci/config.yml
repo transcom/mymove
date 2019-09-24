@@ -643,7 +643,7 @@ jobs:
     steps:
       - deploy_app_steps:
           compare_host: "" # leave blank since we want rd to be able to roll back
-          health_check_hosts: my.rd.move.mil,office.experimental.move.mil,tsp.rd.move.mil
+          health_check_hosts: my.rd.move.mil,office.rd.move.mil,tsp.rd.move.mil
 
   # `deploy_experimental_app_client_tls` updates the mutual-TLS service in the experimental environment
   deploy_rd_app_client_tls:
