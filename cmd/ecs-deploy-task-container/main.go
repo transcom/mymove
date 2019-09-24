@@ -23,7 +23,7 @@ import (
 )
 
 var services = []string{"app"}
-var environments = []string{"prod", "staging", "experimental"}
+var environments = []string{"prod", "staging", "experimental", "rd"}
 
 // Commands should be the name of the binary found in the /bin directory in the container
 var commands = []string{"milmove-tasks save-fuel-price-data", "milmove-tasks send-post-move-survey"}
