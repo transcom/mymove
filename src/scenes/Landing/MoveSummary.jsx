@@ -52,22 +52,24 @@ const getPPMStatus = (moveStatus, ppm) => {
 
 export class MoveSummaryComponent extends React.Component {
   componentDidMount() {
-    this.props.getMoveDocumentsForMove(this.props.move.id).then(({ obj: documents }) => {
-      const weightTicketNetWeight = calcNetWeight(documents);
-      let netWeight =
-        weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
+    if (this.props.move.id) {
+      this.props.getMoveDocumentsForMove(this.props.move.id).then(({ obj: documents }) => {
+        const weightTicketNetWeight = calcNetWeight(documents);
+        let netWeight =
+          weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
 
-      if (netWeight === 0) {
-        netWeight = this.props.ppm.weight_estimate;
-      }
-      this.props.getPpmWeightEstimate(
-        this.props.ppm.actual_move_date || this.props.ppm.original_move_date,
-        this.props.ppm.pickup_postal_code,
-        this.props.originDutyStationZip,
-        this.props.ppm.destination_postal_code,
-        netWeight,
-      );
-    });
+        if (netWeight === 0) {
+          netWeight = this.props.ppm.weight_estimate;
+        }
+        this.props.getPpmWeightEstimate(
+          this.props.ppm.actual_move_date || this.props.ppm.original_move_date,
+          this.props.ppm.pickup_postal_code,
+          this.props.originDutyStationZip,
+          this.props.ppm.destination_postal_code,
+          netWeight,
+        );
+      });
+    }
   }
   render() {
     const {
