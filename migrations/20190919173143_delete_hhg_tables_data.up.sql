@@ -1,12 +1,18 @@
 select * into temp tempsit from storage_in_transits;
 select * into temp tempshipment from shipments;
 select * into temp tempsli from shipment_line_items;
-select m.id as move_id, o.id as order_id, o.uploaded_orders_id, sm.id as service_member_id, sm.residential_address_id, sm.backup_mailing_address_id into temp tempsom
+-- Select all service members, orders and moves that are not in personally_procured_moves table and HHG move type
+-- and make sure that we exclude service members that have combo moves or PPMs
+select sm.id as service_member_id, o.id as order_id, m.id as move_id, o.uploaded_orders_id, sm.residential_address_id, sm.backup_mailing_address_id into temp tempsom
 	from service_members sm
 		inner join orders o on sm.id = o.service_member_id
 		inner join moves m on m.orders_id = o.id
 		WHERE m.selected_move_type = 'HHG'
-		and m.id NOT IN (SELECT move_id FROM personally_procured_moves);
+			and m.id NOT IN (SELECT move_id FROM personally_procured_moves)
+			and sm.id NOT IN (select sm.id as service_member_id from service_members sm
+					inner join orders o on sm.id = o.service_member_id
+					inner join moves m on m.orders_id = o.id
+					WHERE m.selected_move_type <> 'HHG');
 select * into temp tempdc from distance_calculations where id IN (select shipping_distance_id from tempshipment);
 
 DROP TABLE IF EXISTS shipment_line_items;
@@ -34,24 +40,24 @@ DROP TABLE tsp_users;
 
 -- removing hhg moves
 -- documents
-DELETE FROM weight_ticket_set_documents WHERE move_document_id IN (SELECT md.id FROM move_documents md INNER JOIN moves m ON m.id = md.move_id AND m.selected_move_type = 'HHG');
-DELETE FROM moving_expense_documents WHERE move_document_id IN (SELECT md.id FROM move_documents md INNER JOIN moves m ON m.id = md.move_id AND m.selected_move_type = 'HHG');
+DELETE FROM weight_ticket_set_documents WHERE move_document_id IN (SELECT md.id FROM move_documents md INNER JOIN tempsom m ON m.move_id = md.move_id);
+DELETE FROM moving_expense_documents WHERE move_document_id IN (SELECT md.id FROM move_documents md INNER JOIN tempsom m ON m.move_id = md.move_id);
 
-DELETE FROM move_documents WHERE move_id IN (SELECT id FROM moves where selected_move_type = 'HHG');
-DELETE FROM signed_certifications WHERE move_id IN (SELECT id FROM moves where selected_move_type = 'HHG');
+-- TODO: need to refactor this part
+DELETE FROM move_documents WHERE move_id IN (SELECT move_id FROM tempsom);
+DELETE FROM signed_certifications WHERE move_id IN (SELECT move_id FROM tempsom);
 
 -- finally dropping the shipments
 DROP TABLE IF EXISTS shipments;
 
 -- Dropping moves that are select HHG
 -- make sure that the moves don't have PPMs previously
-DELETE FROM moves WHERE orders_id in (select id from orders WHERE service_member_id IN (select service_member_id from tempsom));
-
+DELETE FROM moves WHERE id in (select move_id from tempsom);
 
 -- service members
 DELETE FROM access_codes WHERE service_member_id IN (select service_member_id from tempsom);
 DELETE FROM backup_contacts WHERE service_member_id IN (select service_member_id from tempsom);
-DELETE FROM orders WHERE service_member_id IN (select service_member_id from tempsom);
+DELETE FROM orders WHERE id IN (select order_id from tempsom);
 
 -- delete service member order document
 -- might be some data left from the service member so delete based on service member id
