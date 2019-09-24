@@ -270,7 +270,7 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger)
 	}
 
 	if v.GetBool(DbIamFlag) {
-		// Set password holder for IAMPostgres to easily repalce with temp password
+		// Set a bogus password holder. It will be replaced with an RDS auth token as the password.
 		passHolder := "*****"
 
 		iampg.EnableIAM(dbConnectionDetails.Host,
