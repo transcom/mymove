@@ -352,6 +352,5 @@
 20190905183034_disable_truss_tsp_user.up.sql
 20190906223934_remove_oia_pn.up.fizz
 20190912202709_update-duty-station-names.up.sql
-20190919173143_delete_hhg_tables_data.up.sql
 20190913205819_delete_dup_duty_stations.up.sql
 20190917162117_update_duty_station_names.up.sql
