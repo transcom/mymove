@@ -62,6 +62,8 @@ const (
 	flagTasks                  string = "tasks"
 	flagLimit                  string = "limit"
 	flagStatus                 string = "status"
+	flagStartTime              string = "start-time"
+	flagEndTime                string = "end-time"
 	flagVerbose                string = "verbose"
 
 	defaultAWSRegion string = "us-west-2"
@@ -158,6 +160,15 @@ func (e *errInvalidService) Error() string {
 	return fmt.Sprintf("invalid service %q", e.Service)
 }
 
+type errInvalidTimeRange struct {
+	StartTime string
+	EndTime   string
+}
+
+func (e *errInvalidTimeRange) Error() string {
+	return fmt.Sprintf("invalid time range, must provide both start (%q) and end (%q) times in order", e.StartTime, e.EndTime)
+}
+
 func initFlags(flag *pflag.FlagSet) {
 	flag.String(flagAWSRegion, defaultAWSRegion, "The AWS Region")
 	flag.String(flagAWSProfile, "", "The aws-vault profile")
@@ -174,6 +185,8 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.IntP(flagPageSize, "p", -1, "The page size or maximum number of log events to return during each API call.  The default is 10,000 log events.")
 	flag.IntP(flagLimit, "n", -1, "If 1 or above, the maximum number of log events to print to stdout.")
 	flag.IntP(flagTasks, "t", 10, "If 1 or above, the maximum number of log streams (aka tasks) to print to stdout.")
+	flag.String(flagStartTime, "", "The start time for events")
+	flag.String(flagEndTime, "", "The end time for events")
 	flag.BoolP(flagVerbose, "v", false, "Print section lines")
 }
 
@@ -258,6 +271,12 @@ func checkConfig(v *viper.Viper) error {
 		if serviceName := v.GetString(flagService); len(serviceName) == 0 {
 			return &errInvalidService{Service: serviceName}
 		}
+	}
+
+	startTime := v.GetString(flagStartTime)
+	endTime := v.GetString(flagEndTime)
+	if (len(startTime) > 0 && len(endTime) == 0) || (len(startTime) == 0 && len(endTime) > 0) {
+		return &errInvalidTimeRange{StartTime: startTime, EndTime: endTime}
 	}
 
 	return nil
@@ -429,10 +448,25 @@ func showFunction(cmd *cobra.Command, args []string) error {
 
 	// This adds a time range we can use to filter events
 	// TODO: Not fully implemented, needs flags and ability to not specify
-	startTime, _ := time.Parse(time.RFC3339, "2019-09-16T23:43:00Z")
-	endTime, _ := time.Parse(time.RFC3339, "2019-09-16T23:43:20Z")
-	startTimeUnix := startTime.Unix() * 1000 // milliseconds
-	endTimeUnix := endTime.Unix() * 1000     // milliseconds
+	startTimeString := v.GetString(flagStartTime)
+	endTimeString := v.GetString(flagEndTime)
+	var startTimeUnix, endTimeUnix *int64
+	if len(startTimeString) > 0 && len(endTimeString) > 0 {
+		startTime, errStartTime := time.Parse(time.RFC3339, startTimeString)
+		if errStartTime != nil {
+			return errStartTime
+		}
+
+		endTime, errEndTime := time.Parse(time.RFC3339, endTimeString)
+		if errEndTime != nil {
+			return errEndTime
+		}
+
+		startTimeUnixTmp := startTime.Unix() * 1000 // milliseconds
+		endTimeUnixTmp := endTime.Unix() * 1000     // milliseconds
+		startTimeUnix = &startTimeUnixTmp
+		endTimeUnix = &endTimeUnixTmp
+	}
 
 	jobs := make([]Job, 0)
 
@@ -606,8 +640,10 @@ func showFunction(cmd *cobra.Command, args []string) error {
 				logStreamName := aws.StringValue(logStream.LogStreamName)
 				if strings.HasPrefix(logStreamName, logStreamPrefix) {
 					// If the time ranges do not overlap then don't add the task
-					if !(math.Max(float64(*logStream.FirstEventTimestamp), float64(startTimeUnix)) < math.Min(float64(*logStream.LastEventTimestamp), float64(endTimeUnix))) {
-						continue
+					if startTimeUnix != nil && endTimeUnix != nil {
+						if !(math.Max(float64(*logStream.FirstEventTimestamp), float64(*startTimeUnix)) < math.Min(float64(*logStream.LastEventTimestamp), float64(*endTimeUnix))) {
+							continue
+						}
 					}
 					job := Job{
 						TaskID:        logStreamName[len(logStreamPrefix):],
@@ -746,8 +782,10 @@ func showFunction(cmd *cobra.Command, args []string) error {
 				LogGroupName:   aws.String(job.LogGroupName),
 				LogStreamNames: []*string{aws.String(job.LogStreamName)},
 				NextToken:      nextToken,
-				StartTime:      aws.Int64(startTimeUnix),
-				EndTime:        aws.Int64(endTimeUnix),
+			}
+			if startTimeUnix != nil && endTimeUnix != nil {
+				filterLogEventsInput.StartTime = startTimeUnix
+				filterLogEventsInput.EndTime = endTimeUnix
 			}
 			if job.Limit >= 0 {
 				if (limit > 0) && ((limit - count) < job.Limit) {
