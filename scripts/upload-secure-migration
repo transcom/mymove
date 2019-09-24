@@ -50,11 +50,11 @@ readonly production_migration_file="$1"
 # to the migration container.
 FILESIZE=$(stat -f%z "${1}")
 # 250MB in bytes
-MAX_FILESIZE=262144000
+BYTES_IN_MB=1048576
+MAX_FILESIZE=$((250 * "${BYTES_IN_MB}" ))
 if [[ ${FILESIZE} > ${MAX_FILESIZE} ]]; then
-  BYTES_IN_MB=1048576
   FILESIZE_MB=$(( "${FILESIZE}" / "${BYTES_IN_MB}" ))
-  echo "error: Max file size for upload is 250MB, this file is too large for anti-virus to work."
+  echo "error: Max file size for upload is 250 MB, this file is too large for anti-virus to work."
   echo "Your file is ${FILESIZE_MB} MB, please reduce or split before uploading."
   exit 1
 fi
