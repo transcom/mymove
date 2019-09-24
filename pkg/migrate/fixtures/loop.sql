@@ -1,9 +1,3 @@
--- Shipment table no longer exists
--- Creating the table here as a workaround for now
--- Will re-visit to squash migrations
-CREATE TABLE IF NOT EXISTS shipments (id serial PRIMARY KEY);
-ALTER TABLE invoices ADD COLUMN IF NOT EXISTS shipment_id uuid NULL;
-
 -- Lock both the invoice_number_trackers and invoices tables to prevent concurrent updates.  Just
 -- trying to prevent another invoice number from landing in the middle of this transaction.
 LOCK TABLE invoice_number_trackers, invoices IN SHARE MODE;
@@ -92,10 +86,3 @@ DO $do$
           END LOOP;
       END LOOP;
   END $do$;
-
--- Shipment table no longer exists
--- Creating the table at the top as a workaround for now
--- Removing the table and column after we're done
--- Will re-visit to squash migrations
-ALTER TABLE invoices DROP COLUMN IF EXISTS shipment_id;
-DROP TABLE IF EXISTS shipments;
