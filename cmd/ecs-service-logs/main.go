@@ -173,7 +173,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.StringP(flagTaskDefinitionRevision, "r", "", "The ECS task definition revision.")
 	flag.IntP(flagPageSize, "p", -1, "The page size or maximum number of log events to return during each API call.  The default is 10,000 log events.")
 	flag.IntP(flagLimit, "n", -1, "If 1 or above, the maximum number of log events to print to stdout.")
-	flag.IntP(flagTasks, "t", 1000, "If 1 or above, the maximum number of log streams (aka tasks) to print to stdout.")
+	flag.IntP(flagTasks, "t", 10, "If 1 or above, the maximum number of log streams (aka tasks) to print to stdout.")
 	flag.BoolP(flagVerbose, "v", false, "Print section lines")
 }
 
@@ -635,6 +635,9 @@ func showFunction(cmd *cobra.Command, args []string) error {
 			if describeLogStreamsOutput.NextToken == nil {
 				break
 			}
+
+			// To prevent throttling sleep. DescribeLogStreams has a cap at 5 per second so 200ms ought to work.
+			time.Sleep(200 * time.Millisecond)
 
 			nextToken = describeLogStreamsOutput.NextToken
 		}
