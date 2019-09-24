@@ -10,9 +10,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math"
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/99designs/aws-vault/prompt"
 	"github.com/99designs/aws-vault/vault"
@@ -171,7 +173,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.StringP(flagTaskDefinitionRevision, "r", "", "The ECS task definition revision.")
 	flag.IntP(flagPageSize, "p", -1, "The page size or maximum number of log events to return during each API call.  The default is 10,000 log events.")
 	flag.IntP(flagLimit, "n", -1, "If 1 or above, the maximum number of log events to print to stdout.")
-	flag.IntP(flagTasks, "t", 10, "If 1 or above, the maximum number of log streams (aka tasks) to print to stdout.")
+	flag.IntP(flagTasks, "t", 1000, "If 1 or above, the maximum number of log streams (aka tasks) to print to stdout.")
 	flag.BoolP(flagVerbose, "v", false, "Print section lines")
 }
 
@@ -425,6 +427,13 @@ func showFunction(cmd *cobra.Command, args []string) error {
 	pageSize := v.GetInt(flagPageSize)
 	environment := v.GetString(flagEnvironment)
 
+	// This adds a time range we can use to filter events
+	// TODO: Not fully implemented, needs flags and ability to not specify
+	startTime, _ := time.Parse(time.RFC3339, "2019-09-16T23:43:00Z")
+	endTime, _ := time.Parse(time.RFC3339, "2019-09-16T23:43:20Z")
+	startTimeUnix := startTime.Unix() * 1000 // milliseconds
+	endTimeUnix := endTime.Unix() * 1000     // milliseconds
+
 	jobs := make([]Job, 0)
 
 	maxTasks := v.GetInt(flagTasks)
@@ -596,6 +605,10 @@ func showFunction(cmd *cobra.Command, args []string) error {
 			for _, logStream := range describeLogStreamsOutput.LogStreams {
 				logStreamName := aws.StringValue(logStream.LogStreamName)
 				if strings.HasPrefix(logStreamName, logStreamPrefix) {
+					// If the time ranges do not overlap then don't add the task
+					if !(math.Max(float64(*logStream.FirstEventTimestamp), float64(startTimeUnix)) < math.Min(float64(*logStream.LastEventTimestamp), float64(endTimeUnix))) {
+						continue
+					}
 					job := Job{
 						TaskID:        logStreamName[len(logStreamPrefix):],
 						LogGroupName:  logGroupName,
@@ -730,6 +743,8 @@ func showFunction(cmd *cobra.Command, args []string) error {
 				LogGroupName:   aws.String(job.LogGroupName),
 				LogStreamNames: []*string{aws.String(job.LogStreamName)},
 				NextToken:      nextToken,
+				StartTime:      aws.Int64(startTimeUnix),
+				EndTime:        aws.Int64(endTimeUnix),
 			}
 			if job.Limit >= 0 {
 				if (limit > 0) && ((limit - count) < job.Limit) {
