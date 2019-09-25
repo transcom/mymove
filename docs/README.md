@@ -19,6 +19,10 @@ If you are looking to understand choices made in this project, see the list of [
 
 * [Metrics](metrics.md). Documentation for application metrics.
 
+## Security
+
+* [Anti-Virus](anti_virus.md). Documentation for the anti-virus solutions employed.
+
 <!--index-->
 
 ## HOWTOs
