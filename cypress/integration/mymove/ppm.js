@@ -88,10 +88,9 @@ describe('completing the ppm flow', function() {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
     });
 
-    // TODO: Fix this
-    // cy.get('[data-cy="sit-display"]')
-    //   .contains('35 days')
-    //   .contains('$2538.68');
+    cy.get('[data-cy="sit-display"]')
+      .contains('35 days')
+      .contains('$2538.68');
 
     cy.nextPage();
 
