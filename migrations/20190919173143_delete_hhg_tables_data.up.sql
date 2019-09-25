@@ -72,16 +72,3 @@ DELETE FROM service_members WHERE id IN (select service_member_id from tempsom);
 -- delete distance calcs
 DELETE FROM distance_calculations where id IN (select storage_in_transit_distance_id from tempsit);
 DELETE FROM distance_calculations where id IN (select shipping_distance_id from tempshipment);
-
--- delete addresses
-DELETE FROM addresses where id IN (select warehouse_address_id from tempsit);
-DELETE FROM addresses where id IN (select pickup_address_id from tempshipment);
-DELETE FROM addresses where id IN (select secondary_pickup_address_id from tempshipment);
-DELETE FROM addresses where id IN (select delivery_address_id from tempshipment);
-DELETE FROM addresses where id IN (select partial_sit_delivery_address_id from tempshipment);
-DELETE FROM addresses where id IN (select destination_address_on_acceptance_id from tempshipment);
-DELETE FROM addresses where id IN (select address_id from tempsli);
-DELETE FROM addresses where id IN (select residential_address_id from tempsom);
-DELETE FROM addresses where id IN (select backup_mailing_address_id from tempsom);
-DELETE FROM addresses where id IN (select dc.origin_address_id from tempdc dc right join duty_stations ds on dc.origin_address_id = ds.address_id where ds.address_id is null);
-DELETE FROM addresses where id IN (select dc.destination_address_id from tempdc dc right join duty_stations ds on dc.destination_address_id = ds.address_id where ds.address_id is null);
