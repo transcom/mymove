@@ -1,1 +1,0 @@
-exec("./apply-secure-migration.sh 20190925190920_disable_liz.up.sql")
