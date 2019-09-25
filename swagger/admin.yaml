@@ -12,6 +12,29 @@ consumes:
 produces:
   - application/json
 definitions:
+  AccessCode:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      code:
+        type: string
+        example: CODE456
+      move_type:
+        type: string
+        title: Selected Move Type
+        enum:
+          - HHG
+          - PPM
+      locator:
+        type: string
+        example: '11232'
+  AccessCodes:
+    type: array
+    items:
+      $ref: '#/definitions/AccessCode'
   OfficeUser:
     type: object
     properties:
@@ -347,6 +370,40 @@ definitions:
     items:
       $ref: '#/definitions/ElectronicOrdersTotal'
 paths:
+  /access_codes:
+    get:
+      summary: List access codes
+      description: Returns a list of access codes
+      operationId: indexAccessCodes
+      tags:
+        - office
+      parameters:
+        - in: query
+          name: filter
+          type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
+      responses:
+        200:
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
+          schema:
+            $ref: '#/definitions/AccessCodes'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: access codes not found
+        500:
+          description: server error
   /office_users:
     get:
       summary: List office users
@@ -567,5 +624,3 @@ paths:
           description: not found
         500:
           description: server error
-
-

@@ -535,13 +535,52 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	/*
-	* Creates a valid, unclaimed access code
+	* Creates two valid, unclaimed access codes
 	 */
-	accessCodeMoveType := models.SelectedMoveTypePPM
+	accessCodePPMMoveType := models.SelectedMoveTypeHHG
 	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
 		AccessCode: models.AccessCode{
 			Code:     "X3FQJK",
-			MoveType: &accessCodeMoveType,
+			MoveType: &accessCodePPMMoveType,
+		},
+	})
+	accessCodeHHGMoveType := models.SelectedMoveTypePPM
+	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
+		AccessCode: models.AccessCode{
+			Code:     "ABC123",
+			MoveType: &accessCodeHHGMoveType,
+		},
+	})
+	email = "accesscode@mail.com"
+	uuidStr = "1dc93d47-0f3e-4686-9dcf-5d940d0d3ed9"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+	sm := models.ServiceMember{
+		ID:            uuid.FromStringOrNil("09229b74-6da8-47d0-86b7-7c91e991b970"),
+		UserID:        uuid.FromStringOrNil(uuidStr),
+		FirstName:     models.StringPointer("Claimed"),
+		LastName:      models.StringPointer("Access Code"),
+		Edipi:         models.StringPointer("163105198"),
+		PersonalEmail: models.StringPointer(email),
+	}
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: sm,
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("7201788b-92f4-430b-8541-6430b2cc7f3e"),
+			Locator: "CLAIMD",
+		},
+		Uploader: loader,
+	})
+	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
+		AccessCode: models.AccessCode{
+			Code:            "ZYX321",
+			MoveType:        &accessCodeHHGMoveType,
+			ServiceMember:   sm,
+			ServiceMemberID: &sm.ID,
 		},
 	})
 
