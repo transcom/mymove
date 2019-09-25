@@ -354,3 +354,4 @@
 20190912202709_update-duty-station-names.up.sql
 20190913205819_delete_dup_duty_stations.up.sql
 20190917162117_update_duty_station_names.up.sql
+20190925190920_disable_liz.up.fizz
