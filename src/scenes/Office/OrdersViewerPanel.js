@@ -55,9 +55,9 @@ const OrdersViewerDisplay = props => {
 
         <PanelSwaggerField title="Dept. Indicator" fieldName="department_indicator" required {...ordersFieldsProps} />
 
-        <PanelSwaggerField title="TAC" fieldName="tac" required {...ordersFieldsProps} />
+        <PanelSwaggerField title="TAC / MDC" fieldName="tac" required {...ordersFieldsProps} />
 
-        <PanelSwaggerField title="SAC" fieldName="sac" {...ordersFieldsProps} required />
+        <PanelSwaggerField title="SAC / SDN" fieldName="sac" {...ordersFieldsProps} required />
       </div>
     </React.Fragment>
   );
@@ -99,8 +99,8 @@ const OrdersViewerEdit = props => {
           </div>
           <SwaggerField fieldName="has_dependents" swagger={schema} title="Dependents authorized" />
           <SwaggerField title="Dept. Indicator" fieldName="department_indicator" swagger={schema} required />
-          <SwaggerField title="TAC" fieldName="tac" swagger={schema} required />
-          <SwaggerField title="SAC" fieldName="sac" swagger={schema} required />
+          <SwaggerField title="TAC / MDC" fieldName="tac" swagger={schema} required />
+          <SwaggerField title="SAC / SDN" fieldName="sac" swagger={schema} required />
         </FormSection>
       </div>
     </React.Fragment>

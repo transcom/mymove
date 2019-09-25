@@ -87,8 +87,19 @@ commands:
       - attach_workspace:
           at: bin
       - deploy:
-          name: Deploy task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command save-fuel-price-data --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2"
+          name: Deploy fuel price data task service
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command "milmove-tasks save-fuel-price-data" --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2"
+          environment:
+            DB_PORT: 5432
+            DB_USER: ecs_user
+            DB_NAME: app
+            DB_SSL_MODE: verify-full
+            DB_SSL_ROOT_CERT: /bin/rds-combined-ca-bundle.pem
+          no_output_timeout: 20m
+      - announce_failure
+      - deploy:
+          name: Deploy post move email survey task service
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command "milmove-tasks send-post-move-survey" --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2 --email-backend=ses --offset-days 15"
           environment:
             DB_PORT: 5432
             DB_USER: ecs_user
@@ -274,7 +285,6 @@ jobs:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: echo 'export GOLANGCI_LINT_CONCURRENCY=1' >> $BASH_ENV
-      - run: make bin/callgraph
       - run: make server_generate mocks_generate
       # this is so we can avoid go mod downloading and resulting in an error on a false positive
       - run: scripts/pre-commit-go-mod || exit 0
@@ -326,7 +336,7 @@ jobs:
   # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
   integration_tests:
     parallelism: 10
-    executor: mymove_medium
+    executor: mymove_medium_plus
     steps:
       - checkout
       - setup_remote_docker:
@@ -737,7 +747,7 @@ jobs:
             git --no-pager diff --ignore-all-space --color
       - run:
           name: Push changes
-          command: scripts/circleci-push-dependency-updates
+          command: scripts/circleci-push-dependency-updates golang
 
   # `update_dependencies_js` periodically updates yarn dependencies.
   # The changes are submitted as a pull request for review.
@@ -759,7 +769,7 @@ jobs:
             git --no-pager diff --ignore-all-space --color
       - run:
           name: Push changes
-          command: scripts/circleci-push-dependency-updates
+          command: scripts/circleci-push-dependency-updates js
 
   # `update_dependencies_pre_commit` periodically updates pre-commit dependencies.
   # The changes are submitted as a pull request for review.
@@ -775,7 +785,7 @@ jobs:
             git --no-pager diff --ignore-all-space --color
       - run:
           name: Push changes
-          command: scripts/circleci-push-dependency-updates
+          command: scripts/circleci-push-dependency-updates pre-commit
 
 workflows:
   version: 2

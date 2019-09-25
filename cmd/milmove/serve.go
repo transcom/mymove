@@ -487,7 +487,10 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	handlerContext.SetAppNames(appnames)
 
 	// Email
-	notificationSender := notifications.InitEmail(v, session, logger)
+	notificationSender, notificationSenderErr := notifications.InitEmail(v, session, logger)
+	if notificationSenderErr != nil {
+		logger.Fatal("notification sender sending not enabled", zap.Error(notificationSenderErr))
+	}
 	handlerContext.SetNotificationSender(notificationSender)
 
 	build := v.GetString(cli.BuildRootFlag)

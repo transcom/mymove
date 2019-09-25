@@ -6,6 +6,7 @@ import moment from 'moment';
 
 import { ppmInfoPacket } from 'shared/constants';
 import Alert from 'shared/Alert';
+import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { formatCents, formatCentsRange } from 'shared/formatters';
 import TransportationOfficeContactInfo from 'shared/TransportationOffices/TransportationOfficeContactInfo';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -386,22 +387,29 @@ const NewPPMMoveDetailsPanel = ({ advance, ppm, isMissingWeightTicketDocuments }
         Payment request
       </div>
       <div>Estimated payment: </div>
-      {isMissingWeightTicketDocuments ? (
-        <>
-          <div className="missing-label">
-            Unknown
-            <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
-          </div>
-          <div style={{ fontSize: '0.90em', color: '#767676' }}>
-            <em>Estimated payment will be given after resolving missing weight tickets.</em>
-          </div>
-        </>
+      {ppm.incentive_estimate_min ? (
+        isMissingWeightTicketDocuments ? (
+          <>
+            <div className="missing-label">
+              Unknown
+              <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
+            </div>
+            <div style={{ fontSize: '0.90em', color: '#767676' }}>
+              <em>Estimated payment will be given after resolving missing weight tickets.</em>
+            </div>
+          </>
+        ) : (
+          <>
+            <div>${formatCents(ppm.incentive_estimate_min)}</div>
+            <div style={{ fontSize: '0.90em', color: '#767676' }}>
+              <em>Actual payment may vary, subject to Finance review.</em>
+            </div>
+          </>
+        )
       ) : (
         <>
-          <div>${formatCents(ppm.incentive_estimate_min)}</div>
-          <div style={{ fontSize: '0.90em', color: '#767676' }}>
-            <em>Actual payment may vary, subject to Finance review.</em>
-          </div>
+          Not ready yet{' '}
+          <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
         </>
       )}
 
@@ -418,14 +426,25 @@ const PPMMoveDetailsPanel = props => {
     : '';
   const advanceString = ppm.has_requested_advance ? `Advance Requested: $${formatCents(advance.requested_amount)}` : '';
   const hasSitString = `Temp. Storage: ${ppm.days_in_storage} days ${privateStorageString}`;
-
+  const incentiveRange = formatCentsRange(ppm.currentPpm.incentive_estimate_min, ppm.currentPpm.incentive_estimate_max);
   return (
     <div className="titled_block">
       <div className="title">Details</div>
       <div>Weight (est.): {ppm.currentPpm.weight_estimate} lbs</div>
       <div>
         Incentive (est.):{' '}
-        {formatCentsRange(ppm.currentPpm.incentive_estimate_min, ppm.currentPpm.incentive_estimate_max)}
+        {ppm.hasEstimateError ? (
+          <>
+            Not ready yet{' '}
+            <IconWithTooltip
+              // without this styling the tooltip is obstructed by the status timeline and z-index does not help because they don't share the same parent container
+              toolTipStyles={{ position: 'absolute', top: '8.5em', left: '20.5em' }}
+              toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive."
+            />
+          </>
+        ) : (
+          incentiveRange
+        )}
       </div>
       {ppm.has_sit && <div>{hasSitString}</div>}
       {ppm.has_requested_advance && <div>{advanceString}</div>}
@@ -502,8 +521,12 @@ export class MoveSummaryComponent extends React.Component {
   componentDidMount() {
     this.props.getMoveDocumentsForMove(this.props.move.id).then(({ obj: documents }) => {
       const weightTicketNetWeight = calcNetWeight(documents);
-      const netWeight =
+      let netWeight =
         weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
+
+      if (netWeight === 0) {
+        netWeight = this.props.ppm.weight_estimate;
+      }
       this.props.getPpmWeightEstimate(
         this.props.ppm.actual_move_date || this.props.ppm.original_move_date,
         this.props.ppm.pickup_postal_code,

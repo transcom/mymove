@@ -158,6 +158,17 @@ function serviceMemberReviewsDocuments() {
   cy.wait('@signedCertifications');
   cy.wait('@requestPayment');
 }
+function serviceMemberDeletesDocuments() {
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
+  });
+  cy.get('.ticket-item').should('have.length', 4);
+  cy.get('[data-cy="delete-ticket"]')
+    .first()
+    .click();
+  cy.get('[data-cy="delete-confirmation-button"]').click();
+  cy.get('.ticket-item').should('have.length', 3);
+}
 function serviceMemberEditsPaymentRequest() {
   cy.get('.usa-alert-success')
     .contains('Payment request submitted')
@@ -170,6 +181,7 @@ function serviceMemberEditsPaymentRequest() {
     .should('exist')
     .click();
   serviceMemberSubmitsWeightTicket('CAR', false);
+  serviceMemberDeletesDocuments();
   serviceMemberReviewsDocuments();
 }
 function serviceMemberAddsWeightTicketSetWithMissingDocuments(hasAnother = false) {

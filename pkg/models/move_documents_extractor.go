@@ -19,7 +19,6 @@ type MoveDocumentExtractor struct {
 	Title                    string             `json:"title" db:"title"`
 	Status                   MoveDocumentStatus `json:"status" db:"status"`
 	PersonallyProcuredMoveID *uuid.UUID         `json:"personally_procured_move_id" db:"personally_procured_move_id"`
-	ShipmentID               *uuid.UUID         `json:"shipment_id" db:"shipment_id"`
 	MoveDocumentType         MoveDocumentType   `json:"move_document_type" db:"move_document_type"`
 	MovingExpenseType        *MovingExpenseType `json:"moving_expense_type" db:"moving_expense_type"`
 	RequestedAmountCents     *unit.Cents        `json:"requested_amount_cents" db:"requested_amount_cents"`
@@ -56,7 +55,17 @@ func (m *Move) FetchAllMoveDocumentsForMove(db *pop.Connection, includeAllMoveDo
 	}
 
 	sql, args := query.ToSQL(&pop.Model{Value: MoveDocument{}},
-		`move_documents.*,
+		`move_documents.id,
+	  move_documents.move_id,
+	  move_documents.document_id,
+	  move_documents.move_document_type,
+	  move_documents.status,
+	  move_documents.notes,
+	  move_documents.created_at,
+	  move_documents.updated_at,
+	  move_documents.title,
+	  move_documents.personally_procured_move_id,
+	  move_documents.deleted_at,
 	  ed.moving_expense_type,
 	  ed.requested_amount_cents,
 	  ed.payment_method,

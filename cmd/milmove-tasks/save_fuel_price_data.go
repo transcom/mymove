@@ -1,16 +1,16 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
-	"os"
 	"strings"
-	"time"
+
+	"github.com/spf13/cobra"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
+	"github.com/facebookgo/clock"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -18,18 +18,19 @@ import (
 
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
-	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/services/fuelprice"
 )
 
-const (
-	offsetFlag string = "offset-days"
-)
-
-func checkConfig(v *viper.Viper, logger logger) error {
+func checkSaveFuelPriceConfig(v *viper.Viper, logger logger) error {
 
 	logger.Debug("checking config")
 
-	err := cli.CheckDatabase(v, logger)
+	err := cli.CheckEIA(v)
+	if err != nil {
+		return err
+	}
+
+	err = cli.CheckDatabase(v, logger)
 	if err != nil {
 		return err
 	}
@@ -37,36 +38,38 @@ func checkConfig(v *viper.Viper, logger logger) error {
 	return nil
 }
 
-func initFlags(flag *pflag.FlagSet) {
+func initSaveFuelPriceFlags(flag *pflag.FlagSet) {
 
 	// DB Config
 	cli.InitDatabaseFlags(flag)
 
+	// EIA Open Data API
+	cli.InitEIAFlags(flag)
+
 	// Verbose
 	cli.InitVerboseFlags(flag)
-
-	// Email
-	cli.InitEmailFlags(flag)
-
-	flag.Int(offsetFlag, 15, "Number of days ago moves had their payment request reviewed")
 
 	// Don't sort flags
 	flag.SortFlags = false
 }
 
-// Command: go run github.com/transcom/mymove/cmd/send_post_move_survey_email
-func main() {
+// Command: go run github.com/transcom/mymove/cmd/save_fuel_price_data
+func saveFuelPriceData(cmd *cobra.Command, args []string) error {
 
-	flag := pflag.CommandLine
-	initFlags(flag)
-	flag.Parse(os.Args[1:])
+	err := cmd.ParseFlags(args)
+	if err != nil {
+		return errors.Wrap(err, "Could not parse args")
+	}
+	flags := cmd.Flags()
 	v := viper.New()
-	v.BindPFlags(flag)
+	err = v.BindPFlags(flags)
+	if err != nil {
+		return errors.Wrap(err, "Could not bind flags")
+	}
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
 	dbEnv := v.GetString(cli.DbEnvFlag)
-	offsetDays := v.GetInt(offsetFlag)
 
 	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
 	if err != nil {
@@ -74,13 +77,13 @@ func main() {
 	}
 	zap.ReplaceGlobals(logger)
 
-	err = checkConfig(v, logger)
+	err = checkSaveFuelPriceConfig(v, logger)
 	if err != nil {
 		logger.Fatal("invalid configuration", zap.Error(err))
 	}
 
 	var session *awssession.Session
-	if v.GetBool(cli.DbIamFlag) || (v.GetString(cli.EmailBackendFlag) == "ses") {
+	if v.GetBool(cli.DbIamFlag) {
 		c, errorConfig := cli.GetAWSConfig(v, v.GetBool(cli.VerboseFlag))
 		if errorConfig != nil {
 			logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())
@@ -113,16 +116,22 @@ func main() {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	ctx := context.TODO()
-	targetDate := time.Now().AddDate(0, 0, -offsetDays)
-	notificationSender := notifications.InitEmail(v, session, logger)
+	clock := clock.New()
+	eiaKey := v.GetString(cli.EIAKeyFlag)
+	eiaURL := v.GetString(cli.EIAURLFlag)
+	fuelPrices := fuelprice.NewDieselFuelPriceStorer(
+		dbConnection,
+		logger,
+		clock,
+		fuelprice.FetchFuelPriceData,
+		eiaKey,
+		eiaURL,
+	)
 
-	moveReviewedNotifier, err := notifications.NewMoveReviewed(dbConnection, logger, targetDate)
-	if err != nil {
-		logger.Fatal("initializing MoveReviewed", zap.Error(err))
+	verrs, err := fuelPrices.StoreFuelPrices(12)
+	if err != nil || verrs.HasAny() {
+		log.Fatal(err, verrs)
 	}
-	err = notificationSender.SendNotification(ctx, moveReviewedNotifier)
-	if err != nil {
-		logger.Fatal("Emails failed to send", zap.Error(err))
-	}
+
+	return nil
 }
