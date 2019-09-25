@@ -10,6 +10,7 @@ import (
 type officeUserQueryBuilder interface {
 	FetchOne(model interface{}, filters []services.QueryFilter) error
 	CreateOne(model interface{}) (*validate.Errors, error)
+	UpdateOne(model interface{}) (*validate.Errors, error)
 }
 
 type officeUserFetcher struct {

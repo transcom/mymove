@@ -1295,10 +1295,6 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      shipment_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       status:
         $ref: '#/definitions/InvoiceStatus'
       approver_first_name:
@@ -1479,10 +1475,6 @@ definitions:
         type: string
         format: uuid
         x-nullable: true
-      shipment_id:
-        type: string
-        format: uuid
-        x-nullable: true
       certification_type:
         $ref: '#/definitions/SignedCertificationType'
         x-nullable: true
@@ -1507,10 +1499,6 @@ definitions:
       certification_text:
         type: string
       personally_procured_move_id:
-        type: string
-        format: uuid
-        x-nullable: true
-      shipment_id:
         type: string
         format: uuid
         x-nullable: true
@@ -2778,6 +2766,43 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
+  /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}/estimate:
+    patch:
+      summary: Calculates the estimated incentive of a PPM
+      description: This request calculates the estimated incentive of a PPM and attaches this range to the PPM
+      operationId: updatePersonallyProcuredMoveEstimate
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+        - in: path
+          name: personallyProcuredMoveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the PPM being patched
+      responses:
+        200:
+          description: updated instance of personally_procured_move
+          schema:
+            $ref: '#/definitions/PersonallyProcuredMovePayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: ppm is not found or ppm discount not found for provided postal codes and original move date
+        422:
+          description: cannot process request with given information
+        500:
+          description: internal server error
   /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}:
     put:
       summary: Updates the PPM
@@ -2979,39 +3004,6 @@ paths:
           description: move not found
         500:
           description: server error
-  /shipments/{shipmentId}/invoice:
-    post:
-      summary: Creates an invoice to send to Syncada through GEX
-      description: Generates an EDI from the shipment and rate engine costs and sends an invoice.
-      operationId: createAndSendHHGInvoice
-      tags:
-        - shipments
-      parameters:
-        - name: shipmentId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the shipment
-      responses:
-        200:
-          description: invoice was submitted successfully
-          schema:
-            $ref: '#/definitions/Invoice'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to send this invoice
-        409:
-          description: the shipment is in process or has already been submitted successfully
-          schema:
-            $ref: '#/definitions/Invoice'
-        412:
-          description: the shipment status not in delivered state
-        500:
-          description: server error
   /reimbursement/{reimbursementId}/approve:
     post:
       summary: Approves the reimbursement
@@ -3158,6 +3150,32 @@ paths:
           description: move document not found
         500:
           description: internal server error
+    delete:
+      summary: Deletes a move document
+      description: Deletes a move document with the given information
+      operationId: deleteMoveDocument
+      tags:
+        - move_docs
+      parameters:
+        - in: path
+          name: moveDocumentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move document model
+      responses:
+        204:
+          description: deleted
+        400:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        403:
+          description: not authorized
+        404:
+          description: not found
+        500:
+          description: server error
   /moves/{moveId}/moving_expense_documents:
     post:
       summary: Creates a moving expense document

@@ -340,3 +340,34 @@ func (suite *ModelSuite) TestMoveDocumentStatuses() {
 	suite.Equal(moveDocument.Status, MoveDocumentStatusOK)
 
 }
+
+func (suite *ModelSuite) TestDeleteMoveDocument() {
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	sm := ppm.Move.Orders.ServiceMember
+
+	assertions := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm.Move.ID,
+			Move:                     ppm.Move,
+			PersonallyProcuredMoveID: &ppm.ID,
+			Status:                   "OK",
+			MoveDocumentType:         "EXPENSE",
+		},
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+		},
+	}
+
+	expenseDoc := testdatagen.MakeMovingExpenseDocument(suite.DB(), assertions)
+	moveDocument := expenseDoc.MoveDocument
+	suite.Nil(expenseDoc.DeletedAt)
+	suite.Nil(moveDocument.DeletedAt)
+
+	err := DeleteMoveDocument(suite.DB(), &moveDocument)
+
+	if suite.NoError(err) {
+		suite.NotNil(moveDocument.DeletedAt)
+		suite.NotNil(moveDocument.MovingExpenseDocument.DeletedAt)
+	}
+}

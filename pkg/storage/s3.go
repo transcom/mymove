@@ -37,7 +37,7 @@ func NewS3(bucket string, keyNamespace string, logger Logger, session *session.S
 }
 
 // Store stores the content from an io.ReadSeeker at the specified key.
-func (s *S3) Store(key string, data io.ReadSeeker, checksum string) (*StoreResult, error) {
+func (s *S3) Store(key string, data io.ReadSeeker, checksum string, tags *string) (*StoreResult, error) {
 	if key == "" {
 		return nil, errors.New("A valid StorageKey must be set before data can be uploaded")
 	}
@@ -49,6 +49,9 @@ func (s *S3) Store(key string, data io.ReadSeeker, checksum string) (*StoreResul
 		Key:        &namespacedKey,
 		Body:       data,
 		ContentMD5: &checksum,
+	}
+	if tags != nil {
+		input.Tagging = tags
 	}
 
 	if _, err := s.client.PutObject(input); err != nil {

@@ -17,12 +17,15 @@ import (
 
 func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 	return &adminmessages.OfficeUser{
-		ID:        handlers.FmtUUID(o.ID),
-		FirstName: handlers.FmtString(o.FirstName),
-		LastName:  handlers.FmtString(o.LastName),
-		Telephone: handlers.FmtString(o.Telephone),
-		Email:     handlers.FmtString(o.Email),
-		Disabled:  handlers.FmtBool(o.Disabled),
+		ID:             handlers.FmtUUID(o.ID),
+		FirstName:      handlers.FmtString(o.FirstName),
+		MiddleInitials: handlers.FmtStringPtr(o.MiddleInitials),
+		LastName:       handlers.FmtString(o.LastName),
+		Telephone:      handlers.FmtString(o.Telephone),
+		Email:          handlers.FmtString(o.Email),
+		Disabled:       handlers.FmtBool(o.Disabled),
+		CreatedAt:      handlers.FmtDateTime(o.CreatedAt),
+		UpdatedAt:      handlers.FmtDateTime(o.UpdatedAt),
 	}
 }
 
@@ -122,4 +125,39 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 	logger.Info("Create Office User", zap.String("office_user_id", createdOfficeUser.ID.String()), zap.String("responsible_user_id", session.UserID.String()), zap.String("event_type", "create_office_user"))
 	returnPayload := payloadForOfficeUserModel(*createdOfficeUser)
 	return officeuserop.NewCreateOfficeUserCreated().WithPayload(returnPayload)
+}
+
+type UpdateOfficeUserHandler struct {
+	handlers.HandlerContext
+	services.OfficeUserUpdater
+	services.NewQueryFilter
+}
+
+func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserParams) middleware.Responder {
+	payload := params.OfficeUser
+	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	officeUserID, err := uuid.FromString(params.OfficeUserID.String())
+	if err != nil {
+		logger.Error(fmt.Sprintf("UUID Parsing for %s", params.OfficeUserID.String()), zap.Error(err))
+	}
+
+	officeUser := models.OfficeUser{
+		ID:             officeUserID,
+		MiddleInitials: handlers.FmtStringPtr(payload.MiddleInitials),
+		LastName:       payload.LastName,
+		FirstName:      payload.FirstName,
+		Telephone:      payload.Telephone,
+	}
+
+	updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(&officeUser)
+	if err != nil || verrs != nil {
+		fmt.Printf("%#v", verrs)
+		logger.Error("Error saving user", zap.Error(err))
+		return officeuserop.NewUpdateOfficeUserInternalServerError()
+	}
+
+	returnPayload := payloadForOfficeUserModel(*updatedOfficeUser)
+
+	return officeuserop.NewUpdateOfficeUserOK().WithPayload(returnPayload)
 }

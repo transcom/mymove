@@ -1,7 +1,9 @@
 package unit
 
-import "golang.org/x/text/language"
-import "golang.org/x/text/message"
+import (
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
+)
 
 // Miles represents mile value in int
 type Miles int
