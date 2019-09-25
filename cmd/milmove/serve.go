@@ -18,8 +18,6 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/gofrs/uuid"
-
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
@@ -289,25 +287,6 @@ func indexHandler(buildDir string, logger logger) http.HandlerFunc {
 	}
 }
 
-// isLoggedIn handles requests to is_logged_in endpoint
-func isLoggedIn(logger logger) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		data := map[string]interface{}{
-			"isLoggedIn": false,
-		}
-
-		session := auth.SessionFromRequestContext(r)
-		if session != nil && session.UserID != uuid.Nil {
-			data["isLoggedIn"] = true
-		}
-
-		newEncoderErr := json.NewEncoder(w).Encode(data)
-		if newEncoderErr != nil {
-			logger.Error("Failed encoding is_logged_in check response", zap.Error(newEncoderErr))
-		}
-	}
-}
-
 func serveFunction(cmd *cobra.Command, args []string) error {
 
 	var logger *zap.Logger
@@ -495,6 +474,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, clientAuthSecretKey, noSessionTimeout, appnames, useSecureCookie)
 	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, useSecureCookie)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
+	isLoggedInMiddleware := authentication.IsLoggedInMiddleware(logger)
 	clientCertMiddleware := authentication.ClientCertMiddleware(logger, dbConnection)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
@@ -786,7 +766,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 		// Mux for internal API that enforces auth
 		internalAPIMux := goji.SubMux()
-		internalMux.HandleFunc(pat.Get("/users/is_logged_in"), isLoggedIn(logger))
+		internalMux.HandleFunc(pat.Get("/users/is_logged_in"), isLoggedInMiddleware)
 		internalMux.Handle(pat.New("/*"), internalAPIMux)
 		internalAPIMux.Use(userAuthMiddleware)
 		internalAPIMux.Use(middleware.NoCache(logger))
