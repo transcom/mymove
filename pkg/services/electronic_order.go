@@ -7,3 +7,9 @@ import "github.com/transcom/mymove/pkg/models"
 type ElectronicOrderListFetcher interface {
 	FetchElectronicOrderList(filters []QueryFilter, pagination Pagination) (models.ElectronicOrders, error)
 }
+
+// ElectronicOrderCategoryCountFetcher is the exported interface for fetching counts of Electronic orders based on provided category QueryFilters.
+//go:generate mockery -name ElectronicOrderCategoryCountFetcher
+type ElectronicOrderCategoryCountFetcher interface {
+	FetchElectronicOrderCategoricalCounts(filters []QueryFilter, andFilters *[]QueryFilter) (map[interface{}]int, error)
+}

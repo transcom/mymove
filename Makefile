@@ -168,9 +168,6 @@ admin_client_run: .client_deps.stamp ## Run MilMove Admin client
 
 ### Go Tool Targets
 
-bin/callgraph: .check_go_version.stamp .check_gopath.stamp
-	go build -o bin/callgraph golang.org/x/tools/cmd/callgraph
-
 bin/chamber: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
 
@@ -205,9 +202,6 @@ bin/ecs-deploy-task-container: server_deps server_generate
 
 bin/ecs-service-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
-
-bin/generate-1203-form: .server_generate.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
 
 bin/generate-access-codes: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-access-codes ./cmd/generate_access_codes
@@ -250,17 +244,11 @@ bin/renderer:
 	# throws errors loadinternal: cannot find runtime/cgo
 	go build -o bin/renderer ./cmd/renderer
 
-bin/save-fuel-price-data: .server_generate.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/save-fuel-price-data ./cmd/save_fuel_price_data
+bin/milmove-tasks: .server_generate.stamp pkg/assets/assets.go
+	go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove-tasks ./cmd/milmove-tasks
 
-bin_linux/save-fuel-price-data: .server_generate_linux.stamp
-	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/save-fuel-price-data ./cmd/save_fuel_price_data
-
-bin/send-post-move-survey-email: .server_generate.stamp pkg/assets/assets.go
-	go build -ldflags "$(LDFLAGS)" -o bin/send-post-move-survey-email ./cmd/send_post_move_survey_email
-
-bin_linux/send-post-move-survey-email: .server_generate_linux.stamp pkg/assets/assets.go
-	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/send-post-move-survey-email ./cmd/send_post_move_survey_email
+bin_linux/milmove-tasks: .server_generate_linux.stamp pkg/assets/assets.go
+	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin_linux/milmove-tasks ./cmd/milmove-tasks
 
 bin/send-to-gex: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
@@ -281,7 +269,7 @@ go_deps_update: server_deps server_generate mocks_generate ## Update golang depe
 	go run cmd/update_deps/main.go
 
 .PHONY: server_deps
-server_deps: .check_gopath.stamp bin/callgraph bin/chamber bin/gin bin/swagger bin/mockery bin/rds-combined-ca-bundle.pem ## Install or Build server dependencies
+server_deps: .check_gopath.stamp bin/chamber bin/gin bin/swagger bin/mockery bin/rds-combined-ca-bundle.pem ## Install or Build server dependencies
 
 .PHONY: server_generate
 server_generate: .check_go_version.stamp .check_gopath.stamp .server_generate.stamp ## Generate golang server code from Swagger files
@@ -329,14 +317,13 @@ server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.sta
 
 .PHONY: server_run_debug
 server_run_debug: ## Debug the server
-	$(AWS_VAULT) dlv debug cmd/milmove/main.go cmd/milmove/logger.go -- serve
+	$(AWS_VAULT) dlv debug cmd/milmove/*.go -- serve
 
 .PHONY: build_tools
 build_tools: server_deps \
 	bin/compare-secure-migrations \
 	bin/ecs-deploy-task-container \
 	bin/ecs-service-logs \
-	bin/generate-1203-form \
 	bin/generate-access-codes \
 	bin/generate-test-data \
 	bin/health-checker \
@@ -346,8 +333,7 @@ build_tools: server_deps \
 	bin/make-dps-user \
 	bin/make-office-user \
 	bin/renderer \
-	bin/save-fuel-price-data \
-	bin/send-post-move-survey-email \
+	bin/milmove-tasks \
 	bin/send-to-gex ## Build all tools
 
 .PHONY: build
@@ -360,20 +346,18 @@ webserver_test: bin/rds-combined-ca-bundle.pem server_generate mocks_generate bi
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
-	TEST_ACC_HONEYCOMB=0 \
 	TEST_ACC_CWD=$(PWD) \
 	SERVE_ADMIN=true \
-  SERVE_SDDC=true \
-  SERVE_ORDERS=true \
-  SERVE_DPS=true \
-  SERVE_API_INTERNAL=true \
-  SERVE_API_PUBLIC=true \
-  MUTUAL_TLS_ENABLED=true \
+	SERVE_SDDC=true \
+	SERVE_ORDERS=true \
+	SERVE_DPS=true \
+	SERVE_API_INTERNAL=true \
+	SERVE_API_PUBLIC=true \
+	MUTUAL_TLS_ENABLED=true \
 	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 else
 ifndef CIRCLECI
 	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
-	TEST_ACC_HONEYCOMB=0 \
 	TEST_ACC_CWD=$(PWD) \
 	DISABLE_AWS_VAULT_WRAPPER=1 \
 	aws-vault exec $(AWS_PROFILE) -- \
@@ -381,7 +365,6 @@ ifndef CIRCLECI
 	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 else
 	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
-	TEST_ACC_HONEYCOMB=0 \
 	TEST_ACC_CWD=$(PWD) \
 	bin/chamber -r $(CHAMBER_RETRIES) exec app-$(TEST_ACC_ENV) -- \
 	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
@@ -466,7 +449,7 @@ db_dev_reset: db_dev_destroy db_dev_run ## Reset Dev DB (destroy and run)
 .PHONY: db_dev_migrate_standalone ## Migrate Dev DB directly
 db_dev_migrate_standalone: bin/milmove
 	@echo "Migrating the ${DB_NAME_DEV} database..."
-	bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
+	DB_DEBUG=0 bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
 
 .PHONY: db_dev_migrate
 db_dev_migrate: server_deps db_dev_migrate_standalone ## Migrate Dev DB
@@ -521,7 +504,7 @@ db_deployed_migrations_reset: db_deployed_migrations_destroy db_deployed_migrati
 .PHONY: db_deployed_migrations_migrate_standalone
 db_deployed_migrations_migrate_standalone: bin/milmove ## Migrate Deployed Migrations DB with local migrations
 	@echo "Migrating the ${DB_NAME_DEPLOYED_MIGRATIONS} database..."
-	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
+	DB_DEBUG=0 DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
 
 .PHONY: db_deployed_migrations_migrate
 db_deployed_migrations_migrate: server_deps db_deployed_migrations_migrate_standalone ## Migrate Deployed Migrations DB
@@ -584,10 +567,10 @@ db_test_reset: db_test_destroy db_test_run ## Reset Test DB (destroy and run)
 db_test_migrate_standalone: bin/milmove ## Migrate Test DB directly
 ifndef CIRCLECI
 	@echo "Migrating the ${DB_NAME_TEST} database..."
-	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
+	DB_DEBUG=0 DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
 else
 	@echo "Migrating the ${DB_NAME_TEST} database..."
-	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_DEV) bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
+	DB_DEBUG=0 DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_DEV) bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
 endif
 
 .PHONY: db_test_migrate
@@ -690,15 +673,15 @@ tasks_clean: ## Clean Scheduled Task files and docker images
 	docker rm -f tasks || true
 
 .PHONY: tasks_build
-tasks_build: server_generate bin/save-fuel-price-data bin/send-post-move-survey-email ## Build Scheduled Task dependencies
+tasks_build: server_generate bin/milmove-tasks ## Build Scheduled Task dependencies
 
 .PHONY: tasks_build_docker
-tasks_build_docker: bin/chamber server_generate bin/save-fuel-price-data bin/send-post-move-survey-email ## Build Scheduled Task dependencies and Docker image
+tasks_build_docker: bin/chamber server_generate bin/milmove-tasks ## Build Scheduled Task dependencies and Docker image
 	@echo "Build the docker scheduled tasks container..."
 	docker build -f Dockerfile.tasks --tag $(TASKS_DOCKER_CONTAINER):latest .
 
 .PHONY: tasks_build_linux_docker
-tasks_build_linux_docker: bin_linux/save-fuel-price-data bin_linux/send-post-move-survey-email ## Build Scheduled Task binaries (linux) and Docker image (local)
+tasks_build_linux_docker: bin_linux/milmove-tasks ## Build Scheduled Task binaries (linux) and Docker image (local)
 	@echo "Build the docker scheduled tasks container..."
 	docker build -f Dockerfile.tasks_local --tag $(TASKS_DOCKER_CONTAINER):latest .
 
@@ -718,7 +701,7 @@ tasks_save_fuel_price_data: tasks_build_linux_docker ## Run save-fuel-price-data
 		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
 		--rm \
 		$(TASKS_DOCKER_CONTAINER):latest \
-		save-fuel-price-data
+		milmove-tasks save-fuel-price-data
 
 tasks_send_post_move_survey: tasks_build_linux_docker ## Run send-post-move-survey from inside docker container
 	@echo "sending post move survey with docker command..."
@@ -733,7 +716,7 @@ tasks_send_post_move_survey: tasks_build_linux_docker ## Run send-post-move-surv
 		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
 		--rm \
 		$(TASKS_DOCKER_CONTAINER):latest \
-		send-post-move-survey-email
+		milmove-tasks send-post-move-survey
 
 #
 # ----- END SCHEDULED TASK TARGETS -----
@@ -750,6 +733,7 @@ run_prod_migrations: server_deps bin/milmove db_deployed_migrations_reset ## Run
 	DB_HOST=localhost \
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
+	DB_DEBUG=0 \
 	bin/milmove migrate
 
 .PHONY: run_staging_migrations
@@ -759,6 +743,7 @@ run_staging_migrations: server_deps bin/milmove db_deployed_migrations_reset ## 
 	DB_HOST=localhost \
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
+	DB_DEBUG=0 \
 	bin/milmove migrate
 
 .PHONY: run_experimental_migrations
@@ -768,6 +753,7 @@ run_experimental_migrations: server_deps bin/milmove db_deployed_migrations_rese
 	DB_HOST=localhost \
 	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
 	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
+	DB_DEBUG=0 \
 	bin/milmove migrate
 
 #
@@ -858,11 +844,11 @@ clean: ## Clean all generated files
 
 .PHONY: spellcheck
 spellcheck: .client_deps.stamp ## Run interactive spellchecker
-	node_modules/.bin/mdspell --ignore-numbers --ignore-acronyms --en-us \
+	node_modules/.bin/mdspell --ignore-numbers --ignore-acronyms --en-us --no-suggestions \
 		`find . -type f -name "*.md" \
 			-not -path "./node_modules/*" \
 			-not -path "./vendor/*" \
-			-not -path "./docs/adr/index.md"`
+			-not -path "./docs/adr/index.md" | sort`
 
 .PHONY: storybook
 storybook: ## Start the storybook server

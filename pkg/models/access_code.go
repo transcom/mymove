@@ -14,11 +14,14 @@ import (
 type AccessCode struct {
 	ID              uuid.UUID         `json:"id" db:"id"`
 	ServiceMemberID *uuid.UUID        `json:"service_member_id" db:"service_member_id"`
+	ServiceMember   ServiceMember     `belongs_to:"service_members"`
 	Code            string            `json:"code" db:"code"`
 	MoveType        *SelectedMoveType `json:"move_type" db:"move_type"`
 	CreatedAt       time.Time         `json:"created_at" db:"created_at"`
 	ClaimedAt       *time.Time        `json:"claimed_at" db:"claimed_at"`
 }
+
+type AccessCodes []AccessCode
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.

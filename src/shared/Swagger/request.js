@@ -46,6 +46,7 @@ function successfulReturnType(routeDefinition, status) {
 export function swaggerRequest(getClient, operationPath, params, options = {}) {
   return async function(dispatch, getState, { schema }) {
     const client = await getClient();
+    const state = await getState();
     const operation = get(client, 'apis.' + operationPath);
 
     if (!operation) {
@@ -110,7 +111,11 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
           label,
         };
 
-        let schemaKey = successfulReturnType(routeDefinition, response.status);
+        let schemaKey = options.schemaKey;
+        if (!schemaKey) {
+          schemaKey = successfulReturnType(routeDefinition, response.status);
+        }
+
         if (!schemaKey) {
           throw new Error(`Could not find schemaKey for ${operationPath} status ${response.status}`);
         }
@@ -128,7 +133,14 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
         if (!payloadSchema) {
           throw new Error(`Could not find a schema for ${schemaKey}`);
         }
-        action.entities = normalizePayload(response.body, payloadSchema).entities;
+
+        if (options.deleteId) {
+          // eslint-disable-next-line security/detect-object-injection
+          var oldEntity = state.entities[schemaKey][options.deleteId];
+          action.entities = normalizePayload([oldEntity], payloadSchema).entities;
+        } else {
+          action.entities = normalizePayload(response.body, payloadSchema).entities;
+        }
         dispatch(action);
         return action;
       })

@@ -6,7 +6,7 @@ const WizardHeader = ({ icon, right, title }) => (
   <div className="wizard-header">
     <div className="usa-grid">
       <div className="wizard-left">
-        <img className="icon" src={icon} alt="" />
+        {icon && <img className="icon" src={icon} alt="" />}
         <h3>{title}</h3>
       </div>
       <div className="wizard-right">{right}</div>

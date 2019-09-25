@@ -138,6 +138,7 @@ class WeightTicket extends Component {
 
     const uploaderKeys = this.nonEmptyUploaderKeys();
     const uploadIds = [];
+    // eslint-disable-next-line no-unused-vars
     for (const key of uploaderKeys) {
       // eslint-disable-next-line security/detect-object-injection
       let files = this.uploaders[key].uploaderRef.getFiles();
@@ -176,6 +177,7 @@ class WeightTicket extends Component {
     const { reset } = this.props;
     const uploaders = this.uploaders;
     const uploaderKeys = this.nonEmptyUploaderKeys();
+    // eslint-disable-next-line no-unused-vars
     for (const key of uploaderKeys) {
       // eslint-disable-next-line security/detect-object-injection
       uploaders[key].uploaderRef.clearFiles();
@@ -387,14 +389,14 @@ class WeightTicket extends Component {
                   </div>
 
                   <div className="usa-width-two-thirds uploader-wrapper">
-                    <span data-cy="full-weight-upload">
+                    <div data-cy="full-weight-upload">
                       <Uploader
                         options={{ labelIdle: uploadFullTicketLabel }}
                         onRef={ref => (this.uploaders.fullWeight.uploaderRef = ref)}
                         onChange={this.onUploadChange('fullWeight')}
                         onAddFile={this.onAddFile('fullWeight')}
                       />
-                    </span>
+                    </div>
                     <Checkbox
                       label="I'm missing this weight ticket"
                       name="missingFullWeightTicket"
@@ -403,12 +405,12 @@ class WeightTicket extends Component {
                       normalizeLabel
                     />
                     {missingFullWeightTicket && (
-                      <span data-cy="full-warning">
+                      <div data-cy="full-warning">
                         <Alert type="warning">
                           Contact your local Transportation Office (PPPO) to let them know you’re missing this weight
                           ticket. For now, keep going and enter the info you do have.
                         </Alert>
-                      </span>
+                      </div>
                     )}
                   </div>
                 </div>

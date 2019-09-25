@@ -16,13 +16,3 @@ type TspsIndexTSPsHandler struct {
 func (h TspsIndexTSPsHandler) Handle(params tspsop.IndexTSPsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .indexTSPs has not yet been implemented")
 }
-
-// TspsGetTspShipmentsHandler lists all the shipments that belong to a tsp
-type TspsGetTspShipmentsHandler struct {
-	handlers.HandlerContext
-}
-
-// TspsGetTspBlackoutsHandler lists all the shipments that belong to a tsp
-type TspsGetTspBlackoutsHandler struct {
-	handlers.HandlerContext
-}
