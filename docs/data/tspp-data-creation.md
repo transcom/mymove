@@ -143,6 +143,8 @@ CREATE TABLE tdl_scores_and_discounts AS
     s.scac = dr.scac;
 ```
 
+### Add column to hold TDL IDs
+
 Add a TDL ID column to fill with this next update:
 
 ```sql
@@ -180,6 +182,8 @@ Check for null TDL IDs:
 ```sql
 SELECT count(DISTINCT scac) FROM tdl_scores_and_discounts WHERE tdl_id IS NULL;
 ```
+
+#### If TDL ID is still null
 
 If count returns anything but 0, you'll need to add new TDL entries.
 Check for new entries on the
@@ -225,6 +229,8 @@ Not your locally inserted time.
 
 Once this migration is written, run it and rejoin the TDLs as above.
 
+### Add column to hold TSP IDs
+
 Make room for TSP IDs:
 
 ```sql
@@ -255,6 +261,8 @@ Check for missing TSP IDs:
 SELECT count(DISTINCT scac) FROM tdl_scores_and_discounts WHERE tsp_id IS NULL;
 ```
 
+#### If TSP ID is still null
+
 If this is not 0, add the TSPs:
 
 ```sql
@@ -281,6 +289,8 @@ echo -e "INSERT INTO transportation_service_providers (id, standard_carrier_alph
 ```
 
 Run this migration and rejoin the TSP IDs as above.
+
+### Generate data for production import
 
 Now we're ready to combine the datasets together into one table. First, be sure to clear out the `transportation_service_provider_performances` table in case it already contains data:
 
