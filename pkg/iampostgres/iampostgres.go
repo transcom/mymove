@@ -12,7 +12,6 @@ import (
 	"database/sql/driver"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/service/rds/rdsutils"
 	"go.uber.org/zap"
 
 	pg "github.com/lib/pq"
@@ -51,13 +50,13 @@ func updateDSN(dsn string) string {
 }
 
 // EnableIAM enables the use of IAM and pulls first credential set as a sanity check
-func EnableIAM(host string, port string, region string, user string, passTemplate string, creds *credentials.Credentials, logger Logger) {
+// Note: Ensure the timer is on an interval lower than 15 minutes (AWS RDS IAM auth limit)
+func EnableIAM(host string, port string, region string, user string, passTemplate string, creds *credentials.Credentials, rus RDSUtilService, ticker *time.Ticker, logger Logger) {
 	// Lets enable and configure the DSN settings
 	iamConfig.useIAM = true
 	iamConfig.passHolder = passTemplate
 
 	// GoRoutine to continually refresh the RDS IAM auth on a 10m interval.
-	ticker := time.NewTicker(10 * time.Minute)
 	go func() {
 		// This for loop immediately runs the first tick then on interval
 		for ; true; <-ticker.C {
@@ -66,7 +65,7 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 				return
 			}
 			logger.Info("Using IAM Authentication")
-			authToken, err := rdsutils.BuildAuthToken(host+":"+port, region, user, creds)
+			authToken, err := rus.GetToken(host+":"+port, region, user, creds)
 			if err != nil {
 				logger.Error("Error building auth token", zap.Error(err))
 				return
@@ -75,7 +74,6 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 			logger.Info("Successfully generated new IAM token")
 		}
 	}()
-
 }
 
 // Open wrapper around postgres Open func

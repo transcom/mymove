@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/rds"
@@ -279,6 +280,8 @@ func InitDatabase(v *viper.Viper, creds *credentials.Credentials, logger Logger)
 			dbConnectionDetails.User,
 			passHolder,
 			creds,
+			iampg.RDSU{},
+			time.NewTicker(10*time.Minute),
 			logger)
 
 		dbConnectionDetails.Password = passHolder
