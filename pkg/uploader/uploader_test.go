@@ -100,7 +100,7 @@ func TestUploaderSuite(t *testing.T) {
 }
 
 func (suite *UploaderSuite) TestUploaderExceedsFileSizeLimit() {
-	_, err := uploader.NewUploader(suite.DB(), suite.logger, suite.storer, 361*uploader.MB)
+	_, err := uploader.NewUploader(suite.DB(), suite.logger, suite.storer, 251*uploader.MB)
 	suite.Error(err)
 	suite.Equal(uploader.ErrFileSizeLimitExceedsMax, err)
 }

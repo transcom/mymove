@@ -14,6 +14,8 @@ import (
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/services/user"
+
+	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 )
 
 // NewAdminAPIHandler returns a handler for the admin API
@@ -73,5 +75,11 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		query.NewQueryFilter,
 	}
 
+	adminAPI.OfficeIndexAccessCodesHandler = IndexAccessCodesHandler{
+		context,
+		accesscodeservice.NewAccessCodeListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
 	return adminAPI.Serve(nil)
 }

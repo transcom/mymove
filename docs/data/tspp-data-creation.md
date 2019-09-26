@@ -323,6 +323,8 @@ as opposed to a series of `INSERT` statements.  Using `COPY` can be dramatically
 faster in some cases.  We generally [prefer `INSERT`](https://github.com/transcom/mymove/pull/2670/files#r322981353)
 but the amount of data being loaded may make using it simply too expensive for a migration.
 
+**WARNING:** If the generated file is larger than 250 MB then you will not be able to upload the file. This size limit is in place so that the anti-virus software can scan the file. In the case where a file has been generated that is larger than this size you'll need to split the migration file into multiple migration files each with a size smaller than 250 MB.
+
 ## Data Validation
 
 The following SQL statements can be used to verify that the above process has been completed successfully. Some numbers may be slightly off

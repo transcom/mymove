@@ -3,6 +3,7 @@ import { fetchUtils, Admin, Resource, Layout } from 'react-admin';
 import { createBrowserHistory } from 'history';
 import React from 'react';
 import Menu from './Menu';
+import AccessCodeList from './AccessCodeList';
 import UserList from './UserList';
 import UserCreate from './UserCreate';
 import UserEdit from './UserEdit';
@@ -44,6 +45,7 @@ const Home = props => (
       />
       <Resource name="offices" options={{ label: 'Offices' }} list={OfficeList} />
       <Resource name="electronic_orders" options={{ label: 'Electronic orders' }} list={ElectronicOrderList} />
+      <Resource name="access_codes" options={{ label: 'Access codes' }} list={AccessCodeList} />
     </Admin>
   </div>
 );
