@@ -214,7 +214,7 @@ We'll now [create a new migration](../how-to/migrate-the-database.md#how-to-migr
 make bin/milmove
 milmove gen migration -n add_new_tdls
 echo -e "INSERT INTO traffic_distribution_lists (id, source_rate_area, destination_region, code_of_service, created_at, updated_at) \nVALUES\n$(
-./scripts/psql-deployed-migrations "\copy (SELECT id, source_rate_area, destination_region, code_of_service FROM temp_tdls WHERE import = true) TO stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
+./scripts/psql-dev "\copy (SELECT id, source_rate_area, destination_region, code_of_service FROM temp_tdls WHERE import = true) TO stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
   | awk '{print "  ("$0", now(), now()),"}' \
   | sed '$ s/.$//');" \
   > migrations/20190410152949_add_new_tdls.up.sql
@@ -282,7 +282,7 @@ INSERT INTO temp_tsps (standard_carrier_alpha_code, id, import)
 make bin/milmove
 milmove gen migration -n add_new_scacs
 echo -e "INSERT INTO transportation_service_providers (id, standard_carrier_alpha_code, created_at, updated_at) \nVALUES\n$(
-./scripts/psql-deployed-migrations "\copy (SELECT id, standard_carrier_alpha_code FROM temp_tsps WHERE import = true) TO stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
+./scripts/psql-dev "\copy (SELECT id, standard_carrier_alpha_code FROM temp_tsps WHERE import = true) TO stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
   | awk '{print "  ("$0", now(), now()),"}' \
   | sed '$ s/.$//');" \
   > migrations/20190409010258_add_new_scacs.up.sql
