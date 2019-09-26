@@ -1,6 +1,6 @@
 import React from 'react';
 import { List, Datagrid, TextField } from 'react-admin';
-import AdminPagination from './AdminPagination';
+import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
 const OfficeList = props => (
   <List {...props} pagination={<AdminPagination />} perPage={25}>

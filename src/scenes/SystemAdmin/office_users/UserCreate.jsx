@@ -1,5 +1,5 @@
 import React from 'react';
-import { phoneValidators } from './form_validators';
+import { phoneValidators } from 'scenes/SystemAdmin/shared/form_validators';
 import { Create, SimpleForm, TextInput, ReferenceInput, AutocompleteInput, required } from 'react-admin';
 
 const UserCreate = props => (
