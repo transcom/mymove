@@ -33,7 +33,7 @@ command -v "$aws_command" 2> /dev/null | grep "ppp-infra/scripts/aws" &> /dev/nu
 bucket="${aws_bucket_prefix}${environment}${aws_bucket_suffix}"
 
 # Find only the files that need to be renamed
-filenames=$(${aws_command} s3api list-objects --bucket "${bucket}"  --prefix "${aws_path_prefix}/" | jq -r ".Contents[].Key" | grep -E -v ".up.sql" | grep -E -v ".fizz" | grep "sql" | sort)
+filenames=$(${aws_command} s3api list-objects --bucket "${bucket}"  --prefix "${aws_path_prefix}/" | jq -r ".Contents[].Key" | grep -E -v ".up.sql" | grep "sql" | sort)
 
 # Copy to new name
 for file in $filenames; do
@@ -42,4 +42,4 @@ for file in $filenames; do
 done
 
 # Check for any missing files
-${aws_command} s3api list-objects --bucket "${bucket}"  --prefix "${aws_path_prefix}/" | jq -r ".Contents[].Key" | grep -E -v ".up.sql" | grep -E -v ".fizz" | grep "sql" | sort
+${aws_command} s3api list-objects --bucket "${bucket}"  --prefix "${aws_path_prefix}/" | jq -r ".Contents[].Key" | grep -E -v ".up.sql" | grep "sql" | sort
