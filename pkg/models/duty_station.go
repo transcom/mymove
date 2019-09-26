@@ -95,8 +95,9 @@ func FetchDutyStationByName(tx *pop.Connection, name string) (DutyStation, error
 // FindDutyStations returns all duty stations matching a search query and military affiliation
 func FindDutyStations(tx *pop.Connection, search string) (DutyStations, error) {
 	var stations DutyStations
-	queryString := "%" + search + "%"
-	query := tx.Q().Eager().Where("name ILIKE $1", queryString)
+
+	sql := "SELECT * from duty_stations order by SIMILARITY(name, $1) desc, name"
+	query := tx.Q().RawQuery(sql, search)
 
 	if err := query.All(&stations); err != nil {
 		if errors.Cause(err).Error() != RecordNotFoundErrorString {

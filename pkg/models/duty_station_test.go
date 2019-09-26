@@ -1,14 +1,14 @@
 package models_test
 
 import (
+	"fmt"
+
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestFindDutyStations() {
-	t := suite.T()
-
 	address := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
@@ -18,34 +18,44 @@ func (suite *ModelSuite) TestFindDutyStations() {
 	suite.MustSave(&address)
 
 	station1 := models.DutyStation{
-		Name:        "First Station",
+		Name:        "Fort Bragg",
 		Affiliation: internalmessages.AffiliationARMY,
 		AddressID:   address.ID,
 	}
 	suite.MustSave(&station1)
 
 	station2 := models.DutyStation{
-		Name:        "Second Station",
+		Name:        "Fort Belvoir",
 		Affiliation: internalmessages.AffiliationARMY,
 		AddressID:   address.ID,
 	}
 	suite.MustSave(&station2)
 
-	stations, err := models.FindDutyStations(suite.DB(), "first")
-	if err != nil {
-		t.Errorf("Find duty stations error: %v", err)
+	station3 := models.DutyStation{
+		Name:        "Davis Monthan AFB",
+		Affiliation: internalmessages.AffiliationARMY,
+		AddressID:   address.ID,
+	}
+	suite.MustSave(&station3)
+
+	tests := []struct {
+		query        string
+		dutyStations []string
+	}{
+		{query: "fort", dutyStations: []string{"Fort Bragg", "Fort Belvoir", "Davis Monthan AFB"}},
+		{query: "ft", dutyStations: []string{"Fort Bragg", "Fort Belvoir", "Davis Monthan AFB"}},
+		{query: "ft be", dutyStations: []string{"Fort Belvoir", "Fort Bragg", "Davis Monthan AFB"}},
+		{query: "davis-mon", dutyStations: []string{"Davis Monthan AFB", "Fort Belvoir", "Fort Bragg"}},
 	}
 
-	if len(stations) != 1 {
-		t.Errorf("Should have only got 1 response, got %v", len(stations))
-	}
+	for _, ts := range tests {
+		dutyStations, err := models.FindDutyStations(suite.DB(), ts.query)
 
-	if stations[0].Name != "First Station" {
-		t.Errorf("Station name should have been \"First Station \", got %v", stations[0].Name)
-	}
-
-	if stations[0].Address.City != "city" {
-		t.Error("Address should have been loaded")
+		suite.NoError(err)
+		suite.Equal(len(dutyStations), len(ts.dutyStations), "Wrong number of duty stations returned from query")
+		for i, dutyStation := range dutyStations {
+			suite.Equal(dutyStation.Name, ts.dutyStations[i], fmt.Sprintf("Query: %s - Duty stations don't match order", ts.query))
+		}
 	}
 }
 
