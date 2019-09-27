@@ -25,7 +25,7 @@ DROP TABLE tsp_users;
 DROP TABLE IF EXISTS shipments;
 
 -- Disable the moves
-ALTER TABLE moves SET show = FALSE WHERE selected_move_type = 'HHG';
+UPDATE moves SET show = FALSE WHERE selected_move_type = 'HHG';
 
 -- delete distance calcs
 DELETE FROM distance_calculations;
