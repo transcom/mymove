@@ -19,7 +19,7 @@ UPDATE USERS SET disabled = TRUE
 	WHERE id IN (select user_id from tsp_users where user_id is not null)
 		and id NOT IN (select user_id from office_users where user_id is not null)
 		and id NOT IN (select user_id from admin_users where user_id is not null);
-DROP TABLE tsp_users;
+DROP TABLE IF EXISTS tsp_users;
 
 -- finally dropping the shipments
 DROP TABLE IF EXISTS shipments;
