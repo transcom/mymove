@@ -1,7 +1,9 @@
 #! /usr/bin/env bash
 
 #
-# A script to rename secure migrations from all environments
+# A script to rename secure migrations from all environments to include .up.sql suffix
+#
+# This script should never need to be run more than once in each environment and can probably be removed.
 #
 
 set -u -o pipefail
