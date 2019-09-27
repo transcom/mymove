@@ -15,7 +15,7 @@ ALTER TABLE signed_certifications DROP COLUMN IF EXISTS shipment_id;
 
 -- remove tsp_users table and disable associated tsp_users in users table
 -- make sure that users that are also office users are not disabled
-UPDATE USERS SET disabled = TRUE
+UPDATE users SET disabled = TRUE
 	WHERE id IN (select user_id from tsp_users where user_id is not null)
 		and id NOT IN (select user_id from office_users where user_id is not null)
 		and id NOT IN (select user_id from admin_users where user_id is not null);
