@@ -38,7 +38,9 @@ filenames=$(${aws_command} s3api list-objects --bucket "${bucket}"  --prefix "${
 # Copy to new name
 for file in $filenames; do
   new_file="${file%.*}.up.sql"
-  ${aws_command} s3 cp --sse AES256 "s3://${bucket}/${file}" "s3://${bucket}/${new_file}"
+  if [[ ! $(aws s3 ls  "s3://${bucket}/${new_file}") ]]; then
+    ${aws_command} s3 cp --sse AES256 "s3://${bucket}/${file}" "s3://${bucket}/${new_file}"
+  fi
 done
 
 # Check for any missing files
