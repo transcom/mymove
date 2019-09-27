@@ -35,11 +35,38 @@ bucket="${aws_bucket_prefix}${environment}${aws_bucket_suffix}"
 # Find only the files that need to be renamed
 filenames=$(${aws_command} s3api list-objects --bucket "${bucket}"  --prefix "${aws_path_prefix}/" | jq -r ".Contents[].Key" | grep -E -v ".up.sql" | grep "sql" | sort)
 
+timestamp=$(date +"%Y/%m/%d %H:%M:%S UTC")
+
+cat <<EOF > tagfile
+  { "TagSet": [
+      {
+        "Key": "av-status",
+        "Value": "CLEAN"
+      },
+      {
+        "Key": "av-timestamp",
+        "Value": "${timestamp}"
+      },
+      {
+        "Key": "av-notes",
+        "Value": "MANUAL"
+      }
+    ]
+  }
+EOF
+
 # Copy to new name
 for file in $filenames; do
   new_file="${file%.*}.up.sql"
   if [[ ! $(aws s3 ls  "s3://${bucket}/${new_file}") ]]; then
-    ${aws_command} s3 cp --sse AES256 "s3://${bucket}/${file}" "s3://${bucket}/${new_file}"
+    if [[ ! $(${aws_command} s3 cp --sse AES256 "s3://${bucket}/${file}" "s3://${bucket}/${new_file}") ]]; then
+		  # Download and upload the file and re-tag it to get around size limits
+      secure_dir="./tmp/secure_migrations/${environment}/"
+      mkdir -p "${secure_dir}"
+      ${aws_command} s3 cp "s3://${bucket}/${file}" "${secure_dir}/${file}"
+      ${aws_command} s3 cp --sse AES256 "${secure_dir}/${file}" "s3://${bucket}/${new_file}"
+		  ${aws_command} s3api put-object-tagging --bucket "${bucket}" --key "${new_file}" --tagging "$(<tagfile)"
+		fi
   fi
 done
 
