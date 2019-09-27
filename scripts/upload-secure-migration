@@ -45,6 +45,12 @@ elif [[ ! -f "${1}" ]]; then
 fi
 readonly production_migration_file="$1"
 
+# Migration files need to have the suffix ".up.sql"
+if [[ "${production_migration_file#*.}" != "up.sql" ]]; then
+  echo "error: migration filename extensions must be '.up.sql'"
+  exit 1
+fi
+
 # Ensure the file is below the limit for upload of 250MB for anti-virus
 # Files larger than this size will not scan and thus will not be available for streaming download
 # to the migration container.
