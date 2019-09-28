@@ -229,6 +229,8 @@ Not your locally inserted time.
 
 Once this migration is written, run it and rejoin the TDLs as above.
 
+----
+
 ### Add column to hold TSP IDs
 
 Make room for TSP IDs:
@@ -290,6 +292,8 @@ echo -e "INSERT INTO transportation_service_providers (id, standard_carrier_alph
 
 Run this migration and rejoin the TSP IDs as above.
 
+----
+
 ### Generate data for production import
 
 Now we're ready to combine the datasets together into one table. First, be sure to clear out the `transportation_service_provider_performances` table in case it already contains data:
@@ -315,16 +319,11 @@ FROM
 
 The `/100` of the `sit_rate` and `linehaul_rate` columns accounts for the differences in representing percentages/decimals across sources. This changes integers into decimal representations that fit into our calculations of rates and reimbursements.
 
-Vacuum up now that the party's over.
-
-```SQL
-DROP TABLE tdl_scores_and_discounts;
-DROP TABLE temp_tdl_scores;
-DROP TABLE temp_tsp_discount_rates;
-```
+### Export TSPP Data
 
 Run this in your terminal to dump the contents of the `transportation_service_provider_performances` table for use elsewhere. Double-check your local db name before assuming this will work.
-`pg_dump -h localhost -U postgres -W dev_db --table transportation_service_provider_performances --data-only > tspp_data_dump.pgsql`
+
+```pg_dump -h localhost -U postgres -W dev_db --table transportation_service_provider_performances --data-only > tspp_data_dump.pgsql```
 
 Et voilà: TSPPs!
 
@@ -340,38 +339,33 @@ but the amount of data being loaded may make using it simply too expensive for a
 The following SQL statements can be used to verify that the above process has been completed successfully. Some numbers may be slightly off
 due to natural changes in the data, but any large discrepancies are a potential signal that something has gone wrong somewhere along the way.
 
+NOTE: As of the updates for 2019-10-01 we only import the BVSes for the top performer, instead of everyone. This could lead to more variation in the numbers than in past updates. The numbers below have been updated to reflect the reduced imports.
+
 ```text
 dev_db=# SELECT COUNT(id) FROM transportation_service_provider_performances;
   count
 ---------
- 1062265
+ 847
 (1 row)
 
 dev_db=# select min(best_value_score), max(best_value_score) from transportation_service_provider_performances;
    min   |  max
 ---------+--------
- 61.0964 | 99.223
+  91.0   | 100.0
 (1 row)
 
 
 dev_db=# select min(sit_rate), max(sit_rate) from transportation_service_provider_performances;
- min | max
------+------
- 0.4 | 0.65
+  min | max
+------+------
+ 0.45 | 0.63
 (1 row)
 
 dev_db=# select min(linehaul_rate), max(linehaul_rate) from transportation_service_provider_performances;
  min | max
 -----+------
- 0.4 | 0.69
+ 0.4 | 0.68
 (1 row)
-
-dev_db=# select code_of_service, count(tspp.id) from transportation_service_provider_performances tspp left join traffic_distribution_lists tdl ON tspp.traffic_distribution_list_id=tdl.id group by code_of_service;
- code_of_service | count
------------------+--------
- 2               | 496592
- D               | 565673
-(2 rows)
 
 dev_db=# SELECT min(count), max(count) FROM (
     SELECT transportation_service_provider_id, COUNT(id) FROM transportation_service_provider_performances
@@ -379,13 +373,13 @@ dev_db=# SELECT min(count), max(count) FROM (
     ) as tspp;
  min | max
 -----+------
-   1 | 1592
+   1 | 511
 (1 row)
 
 dev_db=# SELECT count(DISTINCT transportation_service_provider_id) FROM transportation_service_provider_performances;
  count
 -------
-   851
+   35
 (1 row)
 
 SELECT CONCAT(((bucket -1) * 100)::text, '-', (bucket * 100)::text) as rows, count(transportation_service_provider_id) as tsps FROM (
@@ -396,19 +390,10 @@ SELECT CONCAT(((bucket -1) * 100)::text, '-', (bucket * 100)::text) as rows, cou
 
    rows    | tsps
 -----------+-------
- 0-100     |   105
- 100-200   |     3
- 600-700   |    34
- 700-800   |    18
- 800-900   |    14
- 900-1000  |    20
- 1000-1100 |    10
- 1100-1200 |    17
- 1200-1300 |    10
- 1300-1400 |    16
- 1400-1500 |    59
- 1500-1600 |   545
-(12 rows)
+ 0-100     |   33
+ 200-300   |    1
+ 500-600   |    1
+(3 rows)
 
 -- Spot check the data by picking a row from the TDL and TSP text/CSV files and verifying the data:
 
@@ -418,11 +403,21 @@ SELECT source_rate_area, destination_region, code_of_service, performance_period
 FROM traffic_distribution_lists AS tdl
 LEFT JOIN transportation_service_provider_performances on tdl.id = transportation_service_provider_performances.traffic_distribution_list_id
 LEFT JOIN transportation_service_providers on transportation_service_provider_performances.transportation_service_provider_id = transportation_service_providers.id
-WHERE performance_period_start='2019-01-01' and performance_period_end='2019-05-14'
-  AND standard_carrier_alpha_code='ABBV'
-  AND destination_region='14' AND source_rate_area='US11'
+WHERE performance_period_start='2019-10-01' and performance_period_end='2019-12-31'
+  AND standard_carrier_alpha_code='ALBI'
+  AND destination_region='1' AND source_rate_area='US11'
   AND code_of_service='D';
 
+```
+
+## Temp Data Clean Up
+
+Vacuum up now that the party's over. Only required if you haven't reset the local database already.
+
+```SQL
+DROP TABLE tdl_scores_and_discounts;
+DROP TABLE temp_tdl_scores;
+DROP TABLE temp_tsp_discount_rates;
 ```
 
 ## Create Secure Migrations
