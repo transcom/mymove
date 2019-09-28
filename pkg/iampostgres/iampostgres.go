@@ -4,6 +4,7 @@ package iampostgres
 // - https://stackoverflow.com/questions/56355577/using-database-sql-library-and-fetching-password-from-vault-when-a-new-connectio
 
 import (
+	"errors"
 	"net/url"
 	"strings"
 	"time"
@@ -21,20 +22,22 @@ type config struct {
 	useIAM         bool
 	passHolder     string
 	currentIamPass string
+	logger         Logger
 }
 
-var iamConfig = config{false, "", ""}
+var iamConfig = config{false, "", "", nil}
 
-// RDSPostgresDriver wrapper around postgres ddiver
+// RDSPostgresDriver wrapper around postgres driver
 type RDSPostgresDriver struct {
 	*pg.Driver
 }
 
-// GetCurrentPass a helper function to get IAM password if needed outside of driver
+// GetCurrentPass gets IAM password if needed and will block till valid password is available
 func GetCurrentPass() string {
 	// Blocks until the password from the dbConnectionDetails has a non blank password
 	for {
 		if iamConfig.currentIamPass == "" {
+			iamConfig.logger.Warn("Waiting 250ms for IAM password to populate")
 			time.Sleep(time.Millisecond * 250)
 		} else {
 			break
@@ -44,9 +47,13 @@ func GetCurrentPass() string {
 	return iamConfig.currentIamPass
 }
 
-func updateDSN(dsn string) string {
+func updateDSN(dsn string) (string, error) {
+	if !strings.Contains(dsn, iamConfig.passHolder) {
+		return "", errors.New("dsn does not contain password holder")
+	}
+
 	dsn = strings.Replace(dsn, iamConfig.passHolder, GetCurrentPass(), 1)
-	return dsn
+	return dsn, nil
 }
 
 // EnableIAM enables the use of IAM and pulls first credential set as a sanity check
@@ -55,6 +62,7 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 	// Lets enable and configure the DSN settings
 	iamConfig.useIAM = true
 	iamConfig.passHolder = passTemplate
+	iamConfig.logger = logger
 
 	// GoRoutine to continually refresh the RDS IAM auth on a 10m interval.
 	go func() {
@@ -79,7 +87,10 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 // Open wrapper around postgres Open func
 func (d RDSPostgresDriver) Open(dsn string) (_ driver.Conn, err error) {
 	if iamConfig.useIAM == true {
-		dsn = updateDSN(dsn)
+		dsn, err = updateDSN(dsn)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return d.Driver.Open(dsn)
