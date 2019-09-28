@@ -58,7 +58,6 @@ require (
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/namsral/flag v1.7.4-alpha.0.20170814194028-67f268f20922
 	github.com/pdfcpu/pdfcpu v0.2.4
-	github.com/mr337/sqlx v1.2.3
 	github.com/pkg/errors v0.8.1
 	github.com/rickar/cal v1.0.1
 	github.com/rogpeppe/go-internal v1.3.2
