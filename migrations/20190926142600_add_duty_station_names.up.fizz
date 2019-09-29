@@ -1,0 +1,10 @@
+create_table("duty_station_names") {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("name", "text", {})
+	t.Column("duty_station_id", "uuid", {})
+	t.ForeignKey("duty_station_id", {"duty_stations": ["id"]})
+	t.Timestamps()
+}
+
+add_index("duty_station_names", "name", {"unique": true})
+add_index("duty_station_names", "duty_station_id", {})

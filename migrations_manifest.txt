@@ -358,3 +358,5 @@
 20190925190920_disable_liz.up.sql
 20190930152918_import_bvs_performance_period_4.up.sql
 20190924175530_add_trigram_matching_extension.up.sql
+20190926142600_add_duty_station_names.up.fizz
+20190927150748_insert_duty_station_names.up.sql
