@@ -17,7 +17,7 @@ import (
 func payloadForUploadModel(u models.Upload) *adminmessages.UploadInformation {
 	return &adminmessages.UploadInformation{
 		// Question, if a service member can have multiple orders, can this break?
-		MoveID: *handlers.FmtUUID(u.Document.ServiceMember.Orders[0].Moves[0].ID),
+		MoveLocator: *swag.String(u.Document.ServiceMember.Orders[0].Moves[0].Locator),
 		Upload: &adminmessages.Upload{
 			ContentType: *swag.String(u.ContentType),
 			CreatedAt:   *handlers.FmtDateTime(u.CreatedAt),
