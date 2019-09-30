@@ -223,7 +223,7 @@ jobs:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
       - run:
           name: Install dependencies
-          command: for i in $(seq 1 5); do go get && s=0 && break || s=$? && sleep 5; done; (exit $s)
+          command: for i in $(seq 1 5); do go get ./... && s=0 && break || s=$? && sleep 5; done; (exit $s)
       - save_cache:
           key: go-mod-sources-v2-{{ checksum "go.sum" }}
           paths:
@@ -256,6 +256,23 @@ jobs:
             - ~/transcom/mymove/node_modules
       - announce_failure
 
+  # `check_generated_code` is used to ensure generated code doesn't change
+  check_generated_code:
+    executor: mymove_small
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run: make server_generate mocks_generate
+      - run: scripts/check-generated-code
+      - save_cache:
+          key: go-mod-sources-v2-{{ checksum "go.sum" }}
+          paths:
+            - "/go/pkg/mod"
+      - announce_failure
+
   # `anti_virus` uses virus detection software to scan the source code
   anti_virus:
     executor: mymove_medium
@@ -285,7 +302,7 @@ jobs:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: echo 'export GOLANGCI_LINT_CONCURRENCY=1' >> $BASH_ENV
-      - run: make server_generate mocks_generate
+      - run: make bin/swagger
       # this is so we can avoid go mod downloading and resulting in an error on a false positive
       - run: scripts/pre-commit-go-mod || exit 0
       - run:
@@ -306,10 +323,6 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
-      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
-      - run:
-          name: Run make server_generate mocks_generate
-          command: make server_generate mocks_generate
       - run:
           name: Run acceptance tests
           command: |
@@ -562,10 +575,6 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
-      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
-      - run:
-          name: Run make server_generate mocks_generate
-          command: make server_generate mocks_generate
       - run:
           name: Build Chamber
           command: make bin/chamber
@@ -635,10 +644,6 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
-      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
-      - run:
-          name: Run make server_generate mocks_generate
-          command: make server_generate mocks_generate
       - run:
           name: Build Chamber
           command: make bin/chamber
@@ -796,6 +801,10 @@ workflows:
 
       - pre_deps_yarn
 
+      - check_generated_code:
+          requires:
+            - pre_deps_golang
+
       - anti_virus:
           filters:
             branches:
@@ -825,6 +834,7 @@ workflows:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+            - check_generated_code
             - build_app
             - build_migrations
             - acceptance_tests_local
