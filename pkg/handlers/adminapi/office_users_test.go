@@ -179,7 +179,7 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 		suite.Equal(uuidString, okResponse.Payload.ID.String())
 	})
 
-	suite.T().Run("unsuccesful response when fetch fails", func(t *testing.T) {
+	suite.T().Run("unsuccessful response when fetch fails", func(t *testing.T) {
 		params := officeuserop.GetOfficeUserParams{
 			HTTPRequest:  req,
 			OfficeUserID: strfmt.UUID(uuidString),

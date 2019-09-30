@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/office"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/services/upload"
 	"github.com/transcom/mymove/pkg/services/user"
 
 	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
@@ -80,6 +81,12 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		accesscodeservice.NewAccessCodeListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
+	}
+
+	adminAPI.UploadGetUploadHandler = GetUploadHandler{
+		context,
+		upload.NewUploadFetcher(queryBuilder),
+		query.NewQueryFilter,
 	}
 	return adminAPI.Serve(nil)
 }

@@ -170,6 +170,33 @@ func (p *Builder) FetchOne(model interface{}, filters []services.QueryFilter) er
 	return query.First(model)
 }
 
+// FetchWithAssociations fetches a single model record using pop's First method
+// Will return error if model is not pointer to struct
+func (p *Builder) FetchWithAssociations(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations) error {
+	t := reflect.TypeOf(model)
+	if t.Kind() != reflect.Ptr {
+		return errors.New(fetchOneReflectionMessage)
+	}
+	t = t.Elem()
+	if t.Kind() != reflect.Slice {
+		return errors.New(fetchManyReflectionMessage)
+	}
+	t = t.Elem()
+	if t.Kind() != reflect.Struct {
+		return errors.New(fetchManyReflectionMessage)
+	}
+	query := p.db.Q()
+	query, err := filteredQuery(query, filters, t)
+	if err != nil {
+		return err
+	}
+	err = associatedQuery(query, associations, model)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // FetchMany fetches multiple model records using pop's All method
 // Will return error if model is not pointer to slice of structs
 func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter, pagination services.Pagination) error {

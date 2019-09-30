@@ -369,6 +369,37 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/ElectronicOrdersTotal'
+  Upload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      created_at:
+        type: string
+        format: datetime
+        title: Created at
+      filename:
+        type: string
+      size:
+        type: integer
+        title: Size in Bytes
+      content_type:
+        type: string
+        enum:
+          - application/pdf
+          - image/jpeg
+          - image/png
+  UploadInformation:
+    type: object
+    properties:
+      move_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      upload:
+        $ref: '#/definitions/Upload'
 paths:
   /access_codes:
     get:
@@ -622,5 +653,31 @@ paths:
           description: request requires user authentication
         404:
           description: not found
+        500:
+          description: server error
+  /uploads/{uploadId}:
+    get:
+      summary: Get information about an upload
+      description: Returns the given upload and information about the uploader and move
+      operationId: getUpload
+      tags:
+        - upload
+      parameters:
+        - in: path
+          name: uploadId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/UploadInformation'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: upload not found
         500:
           description: server error
