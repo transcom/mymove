@@ -98,7 +98,7 @@ export class Landing extends Component {
       updateMove,
     } = this.props;
     return (
-      <div className="usa-grid">
+      <div className="grid-container">
         {loggedInUserIsLoading && <LoadingPlaceholder />}
         {!isLoggedIn && !loggedInUserIsLoading && <SignIn location={this.props.location} />}
         {loggedInUserSuccess && (

@@ -37,7 +37,9 @@ const DraftMoveSummary = props => {
               </div>
             </div>
             <div className="step-links">
-              <button onClick={resumeMove}>Continue Move Setup</button>
+              <button className="usa-button" onClick={resumeMove}>
+                Continue Move Setup
+              </button>
             </div>
           </div>
         </div>
