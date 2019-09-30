@@ -2,6 +2,7 @@ import { get } from 'lodash';
 import { GetPpmIncentive, GetExpenseSummary } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import reduceReducers from 'reduce-reducers';
+import { filter } from 'lodash';
 const GET_PPM_INCENTIVE = 'GET_PPM_INCENTIVE';
 const GET_PPM_EXPENSE_SUMMARY = 'GET_PPM_EXPENSE_SUMMARY';
 const CLEAR_PPM_INCENTIVE = 'CLEAR_PPM_INCENTIVE';
@@ -44,6 +45,21 @@ export const getTabularExpenses = (expenseData, movingExpenseSchema) => {
   });
   return expenses;
 };
+
+export const getDocsByStatusAndType = (documents, statusToExclude, typeToExclude) => {
+  return filter(documents, expense => {
+    if (!statusToExclude) {
+      return expense.move_document_type !== typeToExclude;
+    }
+
+    if (!typeToExclude) {
+      return expense.status !== statusToExclude;
+    }
+
+    return expense.status !== statusToExclude && expense.move_document_type !== typeToExclude;
+  });
+};
+
 function clearReducer(state, action) {
   if (action.type === CLEAR_PPM_INCENTIVE) return { ...state, calculation: null };
   return state;
