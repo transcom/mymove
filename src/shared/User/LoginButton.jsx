@@ -11,18 +11,23 @@ const LoginButton = props => {
     return (
       <React.Fragment>
         {props.showDevlocalButton && (
-          <a data-hook="devlocal-signin" style={{ marginRight: '2em' }} href="/devlocal-auth/login">
+          <a
+            className="usa-nav__link"
+            data-hook="devlocal-signin"
+            style={{ marginRight: '2em' }}
+            href="/devlocal-auth/login"
+          >
             Local Sign In
           </a>
         )}
-        <a data-hook="signin" href="/auth/login-gov">
+        <a className="usa-nav__link" data-hook="signin" href="/auth/login-gov">
           Sign In
         </a>
       </React.Fragment>
     );
   } else {
     return (
-      <a href="#" onClick={LogoutUser}>
+      <a className="usa-nav__link" href="#" onClick={LogoutUser}>
         Sign Out
       </a>
     );
