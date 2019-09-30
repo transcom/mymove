@@ -1,5 +1,5 @@
 import React from 'react';
-import { phoneValidators } from './form_validators';
+import { phoneValidators } from 'scenes/SystemAdmin/shared/form_validators';
 import { Edit, SimpleForm, TextInput, DisabledInput, required, Toolbar, SaveButton } from 'react-admin';
 
 const UserEditToolbar = props => (

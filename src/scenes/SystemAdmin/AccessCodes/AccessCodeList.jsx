@@ -1,7 +1,7 @@
 import React from 'react';
 import { Datagrid, Filter, List, SelectInput, TextField, TextInput } from 'react-admin';
-import AdminPagination from './AdminPagination';
-import styles from './Home.module.scss';
+import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
+import styles from 'scenes/SystemAdmin/Home.module.scss';
 
 const AccessCodeFilter = props => (
   <Filter {...props} className={styles['system-admin-filters']}>
