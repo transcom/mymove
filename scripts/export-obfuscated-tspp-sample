@@ -52,7 +52,9 @@ CREATE TABLE ${TSPP} AS
 UPDATE ${TSPP} SET
 	best_value_score = round((random() * 30 + 70)::numeric, 2),
 	linehaul_rate = round((random() * .2 + 0.4)::numeric, 2),
-	sit_rate = round((random() * .2 + 0.4)::numeric, 2);
+	sit_rate = round((random() * .2 + 0.4)::numeric, 2),
+	transportation_service_provider_id = subquery.id
+FROM (select id from transportation_service_providers order by RANDOM() limit 1) as subquery;
 SQL
 
 pg_dump -h localhost -d dev_db -U postgres -t ${TSPP} --data-only -f "${output_file}"
