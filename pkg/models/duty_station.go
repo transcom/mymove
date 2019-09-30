@@ -96,7 +96,17 @@ func FetchDutyStationByName(tx *pop.Connection, name string) (DutyStation, error
 func FindDutyStations(tx *pop.Connection, search string) (DutyStations, error) {
 	var stations DutyStations
 
-	sql := "SELECT * from duty_stations order by SIMILARITY(name, $1) desc, name"
+	sql := `
+with names as (
+select id as duty_station_id, name from duty_stations
+UNION
+select duty_station_id, name from public.duty_station_names
+)
+select ds.* from names n
+inner join duty_stations ds on n.duty_station_id = ds.id
+order by similarity(n.name, $1) desc`
+
+	pop.Debug = true
 	query := tx.Q().RawQuery(sql, search)
 
 	if err := query.All(&stations); err != nil {
@@ -104,6 +114,7 @@ func FindDutyStations(tx *pop.Connection, search string) (DutyStations, error) {
 			return stations, err
 		}
 	}
+	pop.Debug = false
 
 	return stations, nil
 }
