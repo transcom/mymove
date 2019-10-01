@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/upload"
 )
 
 //go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/admin.yaml --api-package adminoperations --model-package adminmessages --server-package adminapi --exclude-main
@@ -48,6 +49,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 	if api.OfficeGetOfficeUserHandler == nil {
 		api.OfficeGetOfficeUserHandler = office.GetOfficeUserHandlerFunc(func(params office.GetOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.GetOfficeUser has not yet been implemented")
+		})
+	}
+	if api.UploadGetUploadHandler == nil {
+		api.UploadGetUploadHandler = upload.GetUploadHandlerFunc(func(params upload.GetUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation upload.GetUpload has not yet been implemented")
 		})
 	}
 	if api.OfficeIndexAccessCodesHandler == nil {

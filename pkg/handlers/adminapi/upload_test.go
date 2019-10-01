@@ -86,7 +86,7 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 
 		suite.IsType(&uploadop.GetUploadOK{}, response)
 		okResponse := response.(*uploadop.GetUploadOK)
-		suite.Equal(*handlers.FmtUUID(uploadID), okResponse.Payload.Upload.ID)
+		suite.Equal(*handlers.FmtUUID(uploadID), okResponse.Payload.ID)
 		suite.Equal(move.Locator, okResponse.Payload.MoveLocator)
 	})
 
@@ -114,7 +114,7 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 
 		suite.IsType(&uploadop.GetUploadOK{}, response)
 		okResponse := response.(*uploadop.GetUploadOK)
-		suite.Equal(*handlers.FmtUUID(uploadID), okResponse.Payload.Upload.ID)
+		suite.Equal(*handlers.FmtUUID(uploadID), okResponse.Payload.ID)
 	})
 
 	suite.T().Run("unsuccessful response when fetch fails", func(t *testing.T) {
