@@ -355,4 +355,5 @@
 20190913205819_delete_dup_duty_stations.up.sql
 20190917162117_update_duty_station_names.up.sql
 20190919173143_delete_hhg_tables_data.up.sql
+20190925190920_disable_liz.up.sql
 20190930152918_import_bvs_performance_period_4.up.sql
