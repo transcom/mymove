@@ -48,7 +48,7 @@ readonly production_migration_file="$1"
 # Ensure the file is below the limit for upload of 250MB for anti-virus
 # Files larger than this size will not scan and thus will not be available for streaming download
 # to the migration container.
-FILESIZE=$(stat -f%z "${1}")
+FILESIZE=$(/usr/bin/stat -f%z "${1}")
 # 250MB in bytes
 BYTES_IN_MB=1048576
 MAX_FILESIZE=$((250 * "${BYTES_IN_MB}" ))

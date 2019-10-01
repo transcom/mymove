@@ -24,8 +24,8 @@ has docker "Get Docker CE for Mac from https://download.docker.com/mac/stable/Do
 has psql "brew install postgresql"
 has go-bindata "brew install go-bindata"
 has node "brew install node@10 && brew link --force node@10"
-has pkcs11-tool "brew install opensc; chmod go+w /usr/local/lib/pkcs11-tool; brew link opensc"
-has pkcs15-tool "brew install opensc; chmod go+w /usr/local/lib/pkcs15-tool; brew link opensc"
+has pkcs11-tool "brew install opensc; chmod go+w /usr/local/bin/pkcs11-tool; brew link opensc"
+has pkcs15-tool "brew install opensc; chmod go+w /usr/local/bin/pkcs15-tool; brew link opensc"
 
 # macOS only
 if [[ $(uname -s) = Darwin ]]; then
