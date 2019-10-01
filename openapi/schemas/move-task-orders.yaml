@@ -5,15 +5,32 @@ MoveTaskOrder:
       type: string
       format: uuid
       example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-    paymentMethod:
+    code:
       type: string
+      example: USMC-0001
+    moveID:
+      type: string
+      format: uuid
+      example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    moveDate:
+      type: string
+      format: date
     status:
       type: string
       enum:
         - APPROVED
         - REJECTED
         - SUBMITTED
-    moveDate:
+    entitlements:
+      $ref: '#/Entitlements'
+    moveTaskOrdersType:
+      type: string
+      enum:
+        - NTS
+        - PRIME
+    customer:
+      $ref: '#/Customer'
+    requestedPickupDate:
       type: string
       format: date
     originDutyStation:
@@ -32,27 +49,13 @@ MoveTaskOrder:
       type: string
       format: uuid
       example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-    ordersType:
+    remarks:
       type: string
-      enum:
-        - PERMANENT_CHANGE_OF_STATION
-    travelAuthorizationName:
-      type: string
-    travelAuthorizationDate:
-      type: string
-      format: date
-    travelAuthorizationIssuingHQ:
-      type: string
-      format: uuid
-      example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-    lineOfAccounting:
-      type: string
-    tac:
-      type: string
-    electronicCopyOfOrders:
-      type: string
-      format: uuid
-      example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+      example: Requires more gentle care
+    serviceItems:
+      type: array
+      items:
+        $ref: '#/ServiceItem'
     createdAt:
       type: string
       format: date
@@ -67,6 +70,38 @@ MoveTaskOrders:
   type: array
   items:
     $ref: '#/MoveTaskOrder'
+
+Entitlements:
+  type: object
+  properties:
+    totalWeightSelf:
+      type: integer
+      example: 18000
+    dependentsAuthorized:
+      type: boolean
+      example: true
+    totalDependents:
+      type: integer
+      example: 2
+    proGearWeight:
+      type: integer
+      example: 2000
+    proGearWeightSpouse:
+      type: integer
+      example: 500
+    nonTemporaryStorage:
+      type: integer
+      example: 20203
+    privatelyOwnedVehicle:
+      type: boolean
+      example: false
+    storageInTransit:
+      type: integer
+      example: 300
+
+# Rename Service Member as Customer
+Customer:
+  type: object
 
 MoveTaskOrderStatus:
   type: object
