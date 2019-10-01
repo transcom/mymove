@@ -170,8 +170,8 @@ func (p *Builder) FetchOne(model interface{}, filters []services.QueryFilter) er
 	return query.First(model)
 }
 
-// FetchWithAssociations fetches a single model record using pop's First method
-// Will return error if model is not pointer to struct
+// FetchWithAssociations fetches multiple model records using pop's All method
+// Will return error if model is not pointer to slice of struct
 func (p *Builder) FetchWithAssociations(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {

@@ -21,8 +21,8 @@ func (t *testUploadQueryBuilder) FetchWithAssociations(model interface{}, filter
 	return m
 }
 
-func (suite *UploadsServiceSuite) TestFetchUpload() {
-	suite.T().Run("if the upload is fetched, it should be returned", func(t *testing.T) {
+func (suite *UploadsServiceSuite) TestFetchUploads() {
+	suite.T().Run("if uploads are fetched, it should be returned", func(t *testing.T) {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
 		fakeFetchWithAssociations := func(model interface{}) error {
@@ -40,10 +40,10 @@ func (suite *UploadsServiceSuite) TestFetchUpload() {
 		queryAssociations := []services.QueryAssociation{}
 		associations := query.NewQueryAssociations(queryAssociations)
 
-		upload, err := fetcher.FetchUploads(filters, associations)
+		uploadRecords, err := fetcher.FetchUploads(filters, associations)
 
 		suite.NoError(err)
-		suite.Equal(id, upload[0].ID)
+		suite.Equal(id, uploadRecords[0].ID)
 	})
 
 	suite.T().Run("if there is an error, we get it with zero uploads", func(t *testing.T) {
