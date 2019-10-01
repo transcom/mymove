@@ -509,6 +509,7 @@ subcommand
 v0.11.
 ie
 deploy_tasks_steps
+up.sql
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - /usr/local
  - docs/data/tspp-data-creation.md

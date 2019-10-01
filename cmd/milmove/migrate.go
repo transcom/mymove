@@ -314,7 +314,7 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 		if len(uri) == 0 {
 			return errors.Errorf("Error finding migration for filename %q", target)
 		}
-		m, err := migrate.ParseMigrationFilename(target)
+		m, err := pop.ParseMigrationFilename(target)
 		if err != nil {
 			return errors.Wrapf(err, "error parsing migration filename %q", uri)
 		}
