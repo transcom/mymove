@@ -16,7 +16,8 @@ import (
 
 func payloadForUploadModel(u models.Upload) *adminmessages.UploadInformation {
 	return &adminmessages.UploadInformation{
-		// Question, if a service member can have multiple orders, can this break?
+		// Question, it looks like a better flow exists from upload -> document -> moveDocument -> move, but it's
+		// too recursive to use, so upload -> document -> SM -> orders[0] -> moves[0] will have to work at the moment.
 		ID:          *handlers.FmtUUID(u.ID),
 		MoveLocator: *swag.String(u.Document.ServiceMember.Orders[0].Moves[0].Locator),
 		Upload: &adminmessages.Upload{
@@ -52,10 +53,7 @@ func (h GetUploadHandler) Handle(params uploadop.GetUploadParams) middleware.Res
 		return handlers.ResponseForError(logger, err)
 	}
 
-	//fmt.Println("sm: ", uploads[0].Document.ServiceMember)
-	//runtime.Breakpoint()
 	payload := payloadForUploadModel(uploads[0])
-	//payload := payloadForUploadModel(upload, upload.Document.ServiceMemberID)
 
 	return uploadop.NewGetUploadOK().WithPayload(payload)
 }
