@@ -100,11 +100,13 @@ func FindDutyStations(tx *pop.Connection, search string) (DutyStations, error) {
 with names as (
 select id as duty_station_id, name from duty_stations
 UNION
-select duty_station_id, name from public.duty_station_names
+select duty_station_id, name from duty_station_names
 )
-select ds.* from names n
+select ds.*
+from names n
 inner join duty_stations ds on n.duty_station_id = ds.id
-order by similarity(n.name, $1) desc`
+group by ds.id, ds.name, ds.affiliation, ds.address_id, ds.created_at, ds.updated_at, ds.transportation_office_id
+order by max(similarity(n.name, $1)) desc, ds.name`
 
 	pop.Debug = true
 	query := tx.Q().RawQuery(sql, search)

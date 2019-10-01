@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"fmt"
-
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -45,24 +43,49 @@ func (suite *ModelSuite) TestFindDutyStations() {
 	}
 	suite.MustSave(&station4)
 
+	station5 := models.DutyStation{
+		Name:        "NAS Fallon",
+		Affiliation: internalmessages.AffiliationARMY,
+		AddressID:   address.ID,
+	}
+	suite.MustSave(&station5)
+
+	s5 := models.DutyStationName{
+		Name:          "Naval Air Station Fallon",
+		DutyStationID: station5.ID,
+	}
+	suite.MustSave(&s5)
+
+	station6 := models.DutyStation{
+		Name:        "NAS Fort Worth JRB",
+		Affiliation: internalmessages.AffiliationARMY,
+		AddressID:   address.ID,
+	}
+	suite.MustSave(&station6)
+	s6 := models.DutyStationName{
+		Name:          "Naval Air Station Fort Worth Joint Reserve Base",
+		DutyStationID: station6.ID,
+	}
+	suite.MustSave(&s6)
+
 	tests := []struct {
 		query        string
 		dutyStations []string
 	}{
-		// {query: "fort", dutyStations: []string{"Fort Bragg", "Fort Belvoir", "Davis Monthan AFB"}},
-		// {query: "ft", dutyStations: []string{"Fort Bragg", "Fort Belvoir", "Davis Monthan AFB"}},
-		// {query: "ft be", dutyStations: []string{"Fort Belvoir", "Fort Bragg", "Davis Monthan AFB"}},
-		// {query: "davis-mon", dutyStations: []string{"Davis Monthan AFB", "Fort Belvoir", "Fort Bragg"}},
-		{query: "jber", dutyStations: []string{"JB Elmendorf-Richardson", "Fort Bragg", "Davis Monthan AFB", "Fort Belvoir"}},
+		{query: "fort", dutyStations: []string{"Fort Bragg", "Fort Belvoir", "NAS Fort Worth JRB", "NAS Fallon", "Davis Monthan AFB", "JB Elmendorf-Richardson"}},
+		{query: "ft", dutyStations: []string{"Fort Bragg", "NAS Fallon", "Fort Belvoir", "NAS Fort Worth JRB", "Davis Monthan AFB", "JB Elmendorf-Richardson"}},
+		{query: "ft be", dutyStations: []string{"Fort Belvoir", "Fort Bragg", "NAS Fallon", "NAS Fort Worth JRB", "Davis Monthan AFB", "JB Elmendorf-Richardson"}},
+		{query: "davis-mon", dutyStations: []string{"Davis Monthan AFB", "NAS Fallon", "JB Elmendorf-Richardson", "NAS Fort Worth JRB", "Fort Belvoir", "Fort Bragg"}},
+		{query: "jber", dutyStations: []string{"JB Elmendorf-Richardson", "NAS Fort Worth JRB", "Davis Monthan AFB", "Fort Belvoir", "Fort Bragg", "NAS Fallon"}},
+		{query: "naval air", dutyStations: []string{"NAS Fallon", "NAS Fort Worth JRB", "Fort Belvoir", "Davis Monthan AFB", "Fort Bragg", "JB Elmendorf-Richardson"}},
 	}
 
 	for _, ts := range tests {
 		dutyStations, err := models.FindDutyStations(suite.DB(), ts.query)
-
 		suite.NoError(err)
 		suite.Equal(len(dutyStations), len(ts.dutyStations), "Wrong number of duty stations returned from query")
 		for i, dutyStation := range dutyStations {
-			suite.Equal(dutyStation.Name, ts.dutyStations[i], fmt.Sprintf("Query: %s - Duty stations don't match order", ts.query))
+			suite.Equal(dutyStation.Name, ts.dutyStations[i], "Query: %s - Duty stations don't match order")
 		}
 	}
 }
