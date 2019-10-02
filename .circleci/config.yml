@@ -407,9 +407,9 @@ jobs:
           command: |
             echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
             source $BASH_ENV
-            mkdir -p test-results
-            make server_test_standalone | tee test-results/go-test.out
-            go-junit-report < test-results/go-test.out > test-results/go-test-report.xml
+            mkdir -p test-results/gotest
+            make server_test_standalone | tee test-results/gotest/go-test.out
+            go-junit-report < test-results/gotest/go-test.out > test-results/gotest/go-test-report.xml
           environment:
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
