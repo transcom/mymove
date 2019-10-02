@@ -1,13 +1,16 @@
 openapi: 3.0.2
+
 info:
   title: move.mil API
   description: The API for move.mil
+#    termsOfService:
   contact:
     email: dp3@truss.works
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
   version: 0.0.1
+
 servers:
   - url: http://api.move.mil/v1
     description: Production server
@@ -15,7 +18,334 @@ servers:
     description: Staging server
   - url: http://experimental-api.move.mil/v1
     description: Experimental server
+
+components:
+  schemas:
+    MoveTaskOrder:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        code:
+          type: string
+          example: USMC-0001
+        moveID:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        moveDate:
+          type: string
+          format: date
+        status:
+          type: string
+          enum:
+            - APPROVED
+            - REJECTED
+            - SUBMITTED
+        entitlements:
+          $ref: '#/components/schemas/Entitlements'
+        moveTaskOrdersType:
+          type: string
+          enum:
+            - NON_TEMPORARY_STORAGE
+            - PRIME
+        customer:
+          $ref: '#/components/schemas/Customer'
+        requestedPickupDate:
+          type: string
+          format: date
+        originDutyStation:
+          type: string
+          format: uuid
+          example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        originPPSO:
+          type: string
+          format: uuid
+          example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        destinationDutyStation:
+          type: string
+          format: uuid
+          example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        destinationPPSO:
+          type: string
+          format: uuid
+          example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        remarks:
+          type: string
+          example: Requires more gentle care
+        serviceItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceItem'
+        createdAt:
+          type: string
+          format: date
+        updatedAt:
+          type: string
+          format: date
+        deletedAt:
+          type: string
+          format: date
+    MoveTaskOrders:
+      type: array
+      items:
+        $ref: '#/components/schemas/MoveTaskOrder'
+    Entitlements:
+      type: object
+      properties:
+        totalWeightSelf:
+          type: integer
+          example: 18000
+        dependentsAuthorized:
+          type: boolean
+          example: true
+        totalDependents:
+          type: integer
+          example: 2
+        proGearWeight:
+          type: integer
+          example: 2000
+        proGearWeightSpouse:
+          type: integer
+          example: 500
+        nonTemporaryStorage:
+          type: boolean
+          example: false
+        privatelyOwnedVehicle:
+          type: boolean
+          example: false
+        storageInTransit:
+          type: integer
+          example: 90
+    # Rename Service Member as Customer
+    Customer:
+      type: object
+    MoveTaskOrderStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - APPROVED
+            - SUBMITTED
+            - REJECTED
+    ServiceItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        MoveTaskOrderID:
+          type: string
+          format: uuid
+          example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        status:
+          type: string
+          enum:
+            - APPROVED
+            - SUBMITTED
+            - REJECTED
+        feeType:
+          type: string
+          enum:
+            - COUNSELING
+            - CRATING
+            - TRUCKING
+            - SHUTTLE
+        total:
+          type: integer
+          format: cents
+        quantity:
+          type: integer
+        rate:
+          type: integer
+        description:
+          type: string
+        submittedAt:
+          type: string
+          format: date
+        approvedAt:
+          type: string
+          format: date
+        rejectedAt:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date
+        updatedAt:
+          type: string
+          format: date
+        deletedAt:
+          type: string
+          format: date
+    ServiceItemStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - APPROVED
+            - SUBMITTED
+            - REJECTED
+    PaymentRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+          readOnly: true
+        documentPackage:
+          $ref: '#/components/schemas/ProofOfServicePackage'
+        moveOrderID:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        serviceItemIDs:
+          type: array
+          items:
+            type: string
+            format: uuid
+            example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        isFinal:
+          type: boolean
+          default: false
+        status:
+          $ref: '#/components/schemas/PaymentRequestStatus'
+        rejectionReason:
+          type: string
+          example: documentation was incomplete
+          nullable: true
+    CreatePaymentRequestPayload:
+      type: object
+      properties:
+        proofOfServicePackage:
+          $ref: '#/components/schemas/ProofOfServicePackage'
+        moveOrderID:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        serviceItemIDs:
+          type: array
+          items:
+            type: string
+            format: uuid
+            example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        isFinal:
+          type: boolean
+          default: false
+    UpdatePaymentRequestPayload: # TODO: remove if we Prime will not be updating payment request
+      type: object
+      properties:
+        serviceItemIDs:
+          type: array
+          items:
+            type: string
+            format: uuid
+            example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        proofOfServicePackage:
+          $ref: '#/components/schemas/ProofOfServicePackage'
+    UpdatePaymentRequestStatusPayload:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/PaymentRequestStatus'
+        rejectionReason:
+          type: string
+          example: documentation was incomplete
+          nullable: true
+    ProofOfServicePackage: # Need more info on what a ProofOfServicePackage is, what is in it
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        uploads:
+          type: array
+          items:
+            $ref: '#/components/schemas/Upload' # this could alternatively be a document that holds an upload
+    PaymentRequestStatus:
+      type: string
+      title: Payment Request Status
+      enum:
+        - PAYMENT_SUBMITTED
+        - APPROVED
+        - REJECTED
+    Upload: # TODO: does this need to identify which line item it is associated with?
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        url:
+          type: string
+          format: uri
+          example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+        filename:
+          type: string
+          format: binary
+          example: filename.pdf
+        contentType:
+          type: string
+          format: mime-type
+          example: application/pdf
+        bytes:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - url
+        - filename
+        - content_type
+        - bytes
+        - created_at
+        - updated_at
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+  responses:
+    InvalidRequest: #400
+      description: The request payload is invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    PermissionDenied: #401, 403
+      description: The request was denied
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound: # 404
+      description: The requested resource wasn't found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ServerError: # 500
+      description: A server error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
 paths:
+  # Move Task Orders Endpoints
   /move-task-orders:
     get:
       summary: Gets all move orders
@@ -24,200 +354,23 @@ paths:
       tags:
         - MoveTaskOrder
       responses:
-        "200":
+        '200':
           description: Successfully retrieved all move task orders
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                      format: uuid
-                      example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-                    code:
-                      type: string
-                      example: USMC-0001
-                    moveID:
-                      type: string
-                      format: uuid
-                      example: c56a4180-65aa-42ec-a945-5fd21dec0538
-                    moveDate:
-                      type: string
-                      format: date
-                    status:
-                      type: string
-                      enum:
-                        - APPROVED
-                        - REJECTED
-                        - SUBMITTED
-                    entitlements:
-                      type: object
-                      properties:
-                        totalWeightSelf:
-                          type: integer
-                          example: 18000
-                        dependentsAuthorized:
-                          type: boolean
-                          example: true
-                        totalDependents:
-                          type: integer
-                          example: 2
-                        proGearWeight:
-                          type: integer
-                          example: 2000
-                        proGearWeightSpouse:
-                          type: integer
-                          example: 500
-                        nonTemporaryStorage:
-                          type: boolean
-                          example: false
-                        privatelyOwnedVehicle:
-                          type: boolean
-                          example: false
-                        storageInTransit:
-                          type: integer
-                          example: 90
-                    moveTaskOrdersType:
-                      type: string
-                      enum:
-                        - NON_TEMPORARY_STORAGE
-                        - PRIME
-                    customer:
-                      type: object
-                    requestedPickupDate:
-                      type: string
-                      format: date
-                    originDutyStation:
-                      type: string
-                      format: uuid
-                      example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-                    originPPSO:
-                      type: string
-                      format: uuid
-                      example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-                    destinationDutyStation:
-                      type: string
-                      format: uuid
-                      example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-                    destinationPPSO:
-                      type: string
-                      format: uuid
-                      example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-                    remarks:
-                      type: string
-                      example: Requires more gentle care
-                    serviceItems:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          id:
-                            type: string
-                            format: uuid
-                            example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-                          MoveTaskOrderID:
-                            type: string
-                            format: uuid
-                            example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-                          status:
-                            type: string
-                            enum:
-                              - APPROVED
-                              - SUBMITTED
-                              - REJECTED
-                          feeType:
-                            type: string
-                            enum:
-                              - COUNSELING
-                              - CRATING
-                              - TRUCKING
-                              - SHUTTLE
-                          total:
-                            type: integer
-                            format: cents
-                          quantity:
-                            type: integer
-                          rate:
-                            type: integer
-                          description:
-                            type: string
-                          submittedAt:
-                            type: string
-                            format: date
-                          approvedAt:
-                            type: string
-                            format: date
-                          rejectedAt:
-                            type: string
-                            format: date
-                          createdAt:
-                            type: string
-                            format: date
-                          updatedAt:
-                            type: string
-                            format: date
-                          deletedAt:
-                            type: string
-                            format: date
-                    createdAt:
-                      type: string
-                      format: date
-                    updatedAt:
-                      type: string
-                      format: date
-                    deletedAt:
-                      type: string
-                      format: date
-        "400":
-          description: The request payload is invalid
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                required:
-                  - message
-        "401":
-          description: The request was denied
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                required:
-                  - message
-        "403":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "404":
-          description: The requested resource wasn't found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                required:
-                  - message
-        "500":
-          description: A server error occurred
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                required:
-                  - message
-  "/move-task-orders/{moveTaskOrderID}":
+                $ref: '#/components/schemas/MoveTaskOrders'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/PermissionDenied'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /move-task-orders/{moveTaskOrderID}:
     get:
       summary: Gets a move order by ID
       description: Gets a move order
@@ -225,161 +378,22 @@ paths:
       tags:
         - MoveTaskOrder
       responses:
-        "200":
+        '200':
           description: Successfully retrieved move task order
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    format: uuid
-                    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-                  code:
-                    type: string
-                    example: USMC-0001
-                  moveID:
-                    type: string
-                    format: uuid
-                    example: c56a4180-65aa-42ec-a945-5fd21dec0538
-                  moveDate:
-                    type: string
-                    format: date
-                  status:
-                    type: string
-                    enum:
-                      - APPROVED
-                      - REJECTED
-                      - SUBMITTED
-                  entitlements:
-                    type: object
-                    properties:
-                      totalWeightSelf:
-                        type: integer
-                        example: 18000
-                      dependentsAuthorized:
-                        type: boolean
-                        example: true
-                      totalDependents:
-                        type: integer
-                        example: 2
-                      proGearWeight:
-                        type: integer
-                        example: 2000
-                      proGearWeightSpouse:
-                        type: integer
-                        example: 500
-                      nonTemporaryStorage:
-                        type: boolean
-                        example: false
-                      privatelyOwnedVehicle:
-                        type: boolean
-                        example: false
-                      storageInTransit:
-                        type: integer
-                        example: 90
-                  moveTaskOrdersType:
-                    type: string
-                    enum:
-                      - NON_TEMPORARY_STORAGE
-                      - PRIME
-                  customer:
-                    type: object
-                  requestedPickupDate:
-                    type: string
-                    format: date
-                  originDutyStation:
-                    type: string
-                    format: uuid
-                    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-                  originPPSO:
-                    type: string
-                    format: uuid
-                    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-                  destinationDutyStation:
-                    type: string
-                    format: uuid
-                    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-                  destinationPPSO:
-                    type: string
-                    format: uuid
-                    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-                  remarks:
-                    type: string
-                    example: Requires more gentle care
-                  serviceItems:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                          format: uuid
-                          example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-                        MoveTaskOrderID:
-                          type: string
-                          format: uuid
-                          example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-                        status:
-                          type: string
-                          enum:
-                            - APPROVED
-                            - SUBMITTED
-                            - REJECTED
-                        feeType:
-                          type: string
-                          enum:
-                            - COUNSELING
-                            - CRATING
-                            - TRUCKING
-                            - SHUTTLE
-                        total:
-                          type: integer
-                          format: cents
-                        quantity:
-                          type: integer
-                        rate:
-                          type: integer
-                        description:
-                          type: string
-                        submittedAt:
-                          type: string
-                          format: date
-                        approvedAt:
-                          type: string
-                          format: date
-                        rejectedAt:
-                          type: string
-                          format: date
-                        createdAt:
-                          type: string
-                          format: date
-                        updatedAt:
-                          type: string
-                          format: date
-                        deletedAt:
-                          type: string
-                          format: date
-                  createdAt:
-                    type: string
-                    format: date
-                  updatedAt:
-                    type: string
-                    format: date
-                  deletedAt:
-                    type: string
-                    format: date
-        "400":
-          $ref: "#/paths/~1move-task-orders/get/responses/400"
-        "401":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "403":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "404":
-          $ref: "#/paths/~1move-task-orders/get/responses/404"
-        "500":
-          $ref: "#/paths/~1move-task-orders/get/responses/500"
+                $ref: '#/components/schemas/MoveTaskOrder'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/PermissionDenied'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
     patch:
       summary: Updates a move order by ID
       description: Updates a move order by ID
@@ -391,26 +405,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/paths/~1move-task-orders~1%7BmoveTaskOrderID%7D/get/response\
-                s/200/content/application~1json/schema"
+              $ref: '#/components/schemas/MoveTaskOrder'
       responses:
-        "200":
+        '200':
           description: Successfully retrieved move task order
           content:
             application/json:
               schema:
-                $ref: "#/paths/~1move-task-orders~1%7BmoveTaskOrderID%7D/get/respon\
-                  ses/200/content/application~1json/schema"
-        "400":
-          $ref: "#/paths/~1move-task-orders/get/responses/400"
-        "401":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "403":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "404":
-          $ref: "#/paths/~1move-task-orders/get/responses/404"
-        "500":
-          $ref: "#/paths/~1move-task-orders/get/responses/500"
+                $ref: '#/components/schemas/MoveTaskOrder'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/PermissionDenied'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
     delete:
       summary: Deletes a move order by ID
       description: Deletes a move order by ID
@@ -418,23 +430,22 @@ paths:
       tags:
         - MoveTaskOrder
       responses:
-        "200":
+        '200':
           description: Successfully deleted move task order
           content:
             application/json:
               schema:
-                $ref: "#/paths/~1move-task-orders~1%7BmoveTaskOrderID%7D/get/respon\
-                  ses/200/content/application~1json/schema"
-        "400":
-          $ref: "#/paths/~1move-task-orders/get/responses/400"
-        "401":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "403":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "404":
-          $ref: "#/paths/~1move-task-orders/get/responses/404"
-        "500":
-          $ref: "#/paths/~1move-task-orders/get/responses/500"
+                $ref: '#/components/schemas/MoveTaskOrder'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/PermissionDenied'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
     parameters:
       - name: id
         in: path
@@ -442,7 +453,7 @@ paths:
         required: true
         schema:
           type: string
-  "/move-task-orders/{moveTaskOrderID}/status":
+  /move-task-orders/{moveTaskOrderID}/status:
     patch:
       summary: Change the status of a move order
       description: Changes move order status
@@ -454,32 +465,24 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                status:
-                  type: string
-                  enum:
-                    - APPROVED
-                    - SUBMITTED
-                    - REJECTED
+              $ref: '#/components/schemas/MoveTaskOrderStatus'
       responses:
-        "200":
+        '200':
           description: Successfully updated move task order status
           content:
             application/json:
               schema:
-                $ref: "#/paths/~1move-task-orders~1%7BmoveTaskOrderID%7D/get/respon\
-                  ses/200/content/application~1json/schema"
-        "400":
-          $ref: "#/paths/~1move-task-orders/get/responses/400"
-        "401":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "403":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "404":
-          $ref: "#/paths/~1move-task-orders/get/responses/404"
-        "500":
-          $ref: "#/paths/~1move-task-orders/get/responses/500"
+                $ref: '#/components/schemas/MoveTaskOrder'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/PermissionDenied'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
       parameters:
         - name: id
           in: path
@@ -487,7 +490,7 @@ paths:
           required: true
           schema:
             type: string
-  "/move-task-orders/{moveTaskOrderID}/service-items":
+  /move-task-orders/{moveTaskOrderID}/service-items:
     post:
       summary: Creates a service item for a move order by id
       description: Creates a service item for a move order by id
@@ -499,74 +502,24 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                id:
-                  type: string
-                  format: uuid
-                  example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-                MoveTaskOrderID:
-                  type: string
-                  format: uuid
-                  example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-                status:
-                  type: string
-                  enum:
-                    - APPROVED
-                    - SUBMITTED
-                    - REJECTED
-                feeType:
-                  type: string
-                  enum:
-                    - COUNSELING
-                    - CRATING
-                    - TRUCKING
-                    - SHUTTLE
-                total:
-                  type: integer
-                  format: cents
-                quantity:
-                  type: integer
-                rate:
-                  type: integer
-                description:
-                  type: string
-                submittedAt:
-                  type: string
-                  format: date
-                approvedAt:
-                  type: string
-                  format: date
-                rejectedAt:
-                  type: string
-                  format: date
-                createdAt:
-                  type: string
-                  format: date
-                updatedAt:
-                  type: string
-                  format: date
-                deletedAt:
-                  type: string
-                  format: date
+              $ref: '#/components/schemas/ServiceItem'
       responses:
-        "201":
+        '201':
           description: Successfully created line item for move task order
           content:
             application/json:
               schema:
-                $ref: "#/paths/~1move-task-orders~1%7BmoveTaskOrderID%7D~1service-i\
-                  tems/post/requestBody/content/application~1json/schema"
-        "400":
-          $ref: "#/paths/~1move-task-orders/get/responses/400"
-        "401":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "403":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "404":
-          $ref: "#/paths/~1move-task-orders/get/responses/404"
-        "500":
-          $ref: "#/paths/~1move-task-orders/get/responses/500"
+                $ref: '#/components/schemas/ServiceItem'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/PermissionDenied'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
     get:
       summary: Gets all line items for a move order
       description: Gets all line items for a move orders
@@ -574,23 +527,22 @@ paths:
       tags:
         - serviceItem
       responses:
-        "200":
+        '200':
           description: Successfully retrieved all line items for a move task order
           content:
             application/json:
               schema:
-                $ref: "#/paths/~1move-task-orders~1%7BmoveTaskOrderID%7D~1service-i\
-                  tems/post/requestBody/content/application~1json/schema"
-        "400":
-          $ref: "#/paths/~1move-task-orders/get/responses/400"
-        "401":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "403":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "404":
-          $ref: "#/paths/~1move-task-orders/get/responses/404"
-        "500":
-          $ref: "#/paths/~1move-task-orders/get/responses/500"
+                $ref: '#/components/schemas/ServiceItem'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/PermissionDenied'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
     parameters:
       - name: moveTaskOrderID
         in: path
@@ -598,7 +550,7 @@ paths:
         required: true
         schema:
           type: string
-  "/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}":
+  /move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}:
     get:
       summary: Gets a line item by ID for a move order by ID
       description: Gets a line item by ID for a move order by ID
@@ -606,23 +558,22 @@ paths:
       tags:
         - ServiceItem
       responses:
-        "200":
+        '200':
           description: Successfully retrieved a line item for a move task order by ID
           content:
             application/json:
               schema:
-                $ref: "#/paths/~1move-task-orders~1%7BmoveTaskOrderID%7D~1service-i\
-                  tems/post/requestBody/content/application~1json/schema"
-        "400":
-          $ref: "#/paths/~1move-task-orders/get/responses/400"
-        "401":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "403":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "404":
-          $ref: "#/paths/~1move-task-orders/get/responses/404"
-        "500":
-          $ref: "#/paths/~1move-task-orders/get/responses/500"
+                $ref: '#/components/schemas/ServiceItem'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/PermissionDenied'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
     patch:
       summary: Updates a service item by ID for a move order by ID
       description: Updates a service item by ID for a move order by ID
@@ -634,26 +585,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/paths/~1move-task-orders~1%7BmoveTaskOrderID%7D~1service-ite\
-                ms/post/requestBody/content/application~1json/schema"
+              $ref: '#/components/schemas/ServiceItem'
       responses:
-        "200":
+        '200':
           description: Successfully updated move task order status
           content:
             application/json:
               schema:
-                $ref: "#/paths/~1move-task-orders~1%7BmoveTaskOrderID%7D/get/respon\
-                  ses/200/content/application~1json/schema"
-        "400":
-          $ref: "#/paths/~1move-task-orders/get/responses/400"
-        "401":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "403":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "404":
-          $ref: "#/paths/~1move-task-orders/get/responses/404"
-        "500":
-          $ref: "#/paths/~1move-task-orders/get/responses/500"
+                $ref: '#/components/schemas/MoveTaskOrder'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/PermissionDenied'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
     delete:
       summary: Deletes a line item by ID for a move order by ID
       description: Delets a line item by ID for a move order by ID
@@ -661,23 +610,22 @@ paths:
       tags:
         - ServiceItem
       responses:
-        "200":
+        '200':
           description: Successfully deleted move task order
           content:
             application/json:
               schema:
-                $ref: "#/paths/~1move-task-orders~1%7BmoveTaskOrderID%7D/get/respon\
-                  ses/200/content/application~1json/schema"
-        "400":
-          $ref: "#/paths/~1move-task-orders/get/responses/400"
-        "401":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "403":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "404":
-          $ref: "#/paths/~1move-task-orders/get/responses/404"
-        "500":
-          $ref: "#/paths/~1move-task-orders/get/responses/500"
+                $ref: '#/components/schemas/MoveTaskOrder'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/PermissionDenied'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
     parameters:
       - name: MoveTaskOrderID
         in: path
@@ -691,7 +639,8 @@ paths:
         required: true
         schema:
           type: string
-  "/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}/status":
+
+  /move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}/status:
     patch:
       summary: Change the status of a line item for a move order by ID
       description: Changes the status of a line item for a move order by ID
@@ -703,33 +652,24 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                status:
-                  type: string
-                  enum:
-                    - APPROVED
-                    - SUBMITTED
-                    - REJECTED
+              $ref: '#/components/schemas/ServiceItemStatus'
       responses:
-        "200":
-          description: Successfully updated status for a line item for a move task order by
-            ID
+        '200':
+          description: Successfully updated status for a line item for a move task order by ID
           content:
             application/json:
               schema:
-                $ref: "#/paths/~1move-task-orders~1%7BmoveTaskOrderID%7D~1service-i\
-                  tems/post/requestBody/content/application~1json/schema"
-        "400":
-          $ref: "#/paths/~1move-task-orders/get/responses/400"
-        "401":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "403":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "404":
-          $ref: "#/paths/~1move-task-orders/get/responses/404"
-        "500":
-          $ref: "#/paths/~1move-task-orders/get/responses/500"
+                $ref: '#/components/schemas/ServiceItem'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/PermissionDenied'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
     parameters:
       - name: MoveTaskOrderID
         in: path
@@ -743,6 +683,7 @@ paths:
         required: true
         schema:
           type: string
+  # Payment Request Endpoints
   /payment-requests:
     post:
       summary: Creates a payment request
@@ -755,157 +696,25 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                proofOfServicePackage:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                      format: uuid
-                      example: c56a4180-65aa-42ec-a945-5fd21dec0538
-                    uploads:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          id:
-                            type: string
-                            format: uuid
-                            example: c56a4180-65aa-42ec-a945-5fd21dec0538
-                          url:
-                            type: string
-                            format: uri
-                            example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
-                          filename:
-                            type: string
-                            format: binary
-                            example: filename.pdf
-                          contentType:
-                            type: string
-                            format: mime-type
-                            example: application/pdf
-                          bytes:
-                            type: integer
-                          createdAt:
-                            type: string
-                            format: date-time
-                          updatedAt:
-                            type: string
-                            format: date-time
-                        required:
-                          - id
-                          - url
-                          - filename
-                          - content_type
-                          - bytes
-                          - created_at
-                          - updated_at
-                moveOrderID:
-                  type: string
-                  format: uuid
-                  example: c56a4180-65aa-42ec-a945-5fd21dec0538
-                serviceItemIDs:
-                  type: array
-                  items:
-                    type: string
-                    format: uuid
-                    example: c56a4180-65aa-42ec-a945-5fd21dec0538
-                isFinal:
-                  type: boolean
-                  default: false
+              $ref: '#/components/schemas/CreatePaymentRequestPayload'
       responses:
-        "201":
+        '201':
           description: created instance of payment request
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    format: uuid
-                    example: c56a4180-65aa-42ec-a945-5fd21dec0538
-                    readOnly: true
-                  documentPackage:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                        format: uuid
-                        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-                      uploads:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            id:
-                              type: string
-                              format: uuid
-                              example: c56a4180-65aa-42ec-a945-5fd21dec0538
-                            url:
-                              type: string
-                              format: uri
-                              example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
-                            filename:
-                              type: string
-                              format: binary
-                              example: filename.pdf
-                            contentType:
-                              type: string
-                              format: mime-type
-                              example: application/pdf
-                            bytes:
-                              type: integer
-                            createdAt:
-                              type: string
-                              format: date-time
-                            updatedAt:
-                              type: string
-                              format: date-time
-                          required:
-                            - id
-                            - url
-                            - filename
-                            - content_type
-                            - bytes
-                            - created_at
-                            - updated_at
-                  moveOrderID:
-                    type: string
-                    format: uuid
-                    example: c56a4180-65aa-42ec-a945-5fd21dec0538
-                  serviceItemIDs:
-                    type: array
-                    items:
-                      type: string
-                      format: uuid
-                      example: c56a4180-65aa-42ec-a945-5fd21dec0538
-                  isFinal:
-                    type: boolean
-                    default: false
-                  status:
-                    type: string
-                    title: Payment Request Status
-                    enum:
-                      - PAYMENT_SUBMITTED
-                      - APPROVED
-                      - REJECTED
-                  rejectionReason:
-                    type: string
-                    example: documentation was incomplete
-                    nullable: true
-        "400":
-          $ref: "#/paths/~1move-task-orders/get/responses/400"
-        "401":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "403":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "404":
-          $ref: "#/paths/~1move-task-orders/get/responses/404"
-        "500":
-          $ref: "#/paths/~1move-task-orders/get/responses/500"
-    get:
+                $ref: '#/components/schemas/PaymentRequest'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/PermissionDenied'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    get: # TODO add filters when we know what we are filtering
       summary: Gets payment requests
       description: Gets a list of payment requests
       operationId: listPaymentRequests
@@ -914,23 +723,23 @@ paths:
         - prime
         - gov
       responses:
-        "200":
+        '200':
           description: fetched list of payment requests
           content:
             application/json:
               schema:
-                type: object
-        "400":
-          $ref: "#/paths/~1move-task-orders/get/responses/400"
-        "401":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "403":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "404":
-          $ref: "#/paths/~1move-task-orders/get/responses/404"
-        "500":
-          $ref: "#/paths/~1move-task-orders/get/responses/500"
-  "/payment-requests/{paymentRequestID}":
+                type: object # in order to include meta data, plus list
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/PermissionDenied'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /payment-requests/{paymentRequestID}:
     get:
       summary: Fetches a payment request by id
       description: Fetches an instance of a payment request by id
@@ -940,24 +749,23 @@ paths:
         - prime
         - gov
       responses:
-        "200":
+        '200':
           description: fetched instance of payment request
           content:
             application/json:
               schema:
-                $ref: "#/paths/~1payment-requests/post/responses/201/content/applic\
-                  ation~1json/schema"
-        "400":
-          $ref: "#/paths/~1move-task-orders/get/responses/400"
-        "401":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "403":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "404":
-          $ref: "#/paths/~1move-task-orders/get/responses/404"
-        "500":
-          $ref: "#/paths/~1move-task-orders/get/responses/500"
-    patch:
+                $ref: '#/components/schemas/PaymentRequest'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/PermissionDenied'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    patch: # TODO: remove if the Prime will not be updating
       summary: Updates a payment request by id
       description: Updates a payment request by id
       operationId: updatePaymentRequest
@@ -968,77 +776,25 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                serviceItemIDs:
-                  type: array
-                  items:
-                    type: string
-                    format: uuid
-                    example: c56a4180-65aa-42ec-a945-5fd21dec0538
-                proofOfServicePackage:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                      format: uuid
-                      example: c56a4180-65aa-42ec-a945-5fd21dec0538
-                    uploads:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          id:
-                            type: string
-                            format: uuid
-                            example: c56a4180-65aa-42ec-a945-5fd21dec0538
-                          url:
-                            type: string
-                            format: uri
-                            example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
-                          filename:
-                            type: string
-                            format: binary
-                            example: filename.pdf
-                          contentType:
-                            type: string
-                            format: mime-type
-                            example: application/pdf
-                          bytes:
-                            type: integer
-                          createdAt:
-                            type: string
-                            format: date-time
-                          updatedAt:
-                            type: string
-                            format: date-time
-                        required:
-                          - id
-                          - url
-                          - filename
-                          - content_type
-                          - bytes
-                          - created_at
-                          - updated_at
+              $ref: '#/components/schemas/UpdatePaymentRequestPayload'
         required: true
       responses:
-        "200":
+        '200':
           description: updated payment request
           content:
             application/json:
               schema:
-                $ref: "#/paths/~1payment-requests/post/responses/201/content/applic\
-                  ation~1json/schema"
-        "400":
-          $ref: "#/paths/~1move-task-orders/get/responses/400"
-        "401":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "403":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "404":
-          $ref: "#/paths/~1move-task-orders/get/responses/404"
-        "500":
-          $ref: "#/paths/~1move-task-orders/get/responses/500"
+                $ref: '#/components/schemas/PaymentRequest'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/PermissionDenied'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
     parameters:
       - name: paymentRequestID
         in: path
@@ -1047,7 +803,7 @@ paths:
         schema:
           type: string
           format: uuid
-  "/payment-requests/{paymentRequestID}/status":
+  /payment-requests/{paymentRequestID}/status:
     patch:
       summary: Updates status of a payment request by id
       description: Updates status of a payment request by id
@@ -1067,35 +823,22 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                status:
-                  type: string
-                  title: Payment Request Status
-                  enum:
-                    - PAYMENT_SUBMITTED
-                    - APPROVED
-                    - REJECTED
-                rejectionReason:
-                  type: string
-                  example: documentation was incomplete
-                  nullable: true
+              $ref: '#/components/schemas/UpdatePaymentRequestStatusPayload'
         required: true
       responses:
-        "200":
+        '200':
           description: updated payment request
           content:
             application/json:
               schema:
-                $ref: "#/paths/~1payment-requests/post/responses/201/content/applic\
-                  ation~1json/schema"
-        "400":
-          $ref: "#/paths/~1move-task-orders/get/responses/400"
-        "401":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "403":
-          $ref: "#/paths/~1move-task-orders/get/responses/401"
-        "404":
-          $ref: "#/paths/~1move-task-orders/get/responses/404"
-        "500":
-          $ref: "#/paths/~1move-task-orders/get/responses/500"
+                $ref: '#/components/schemas/PaymentRequest'
+        '400':
+          $ref: '#/components/responses/InvalidRequest'
+        '401':
+          $ref: '#/components/responses/PermissionDenied'
+        '403':
+          $ref: '#/components/responses/PermissionDenied'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
