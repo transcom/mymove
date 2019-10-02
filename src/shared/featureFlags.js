@@ -14,11 +14,10 @@ const defaultFlags = {
   moveInfoComboButton: true,
   sitPanel: true,
   ppmPaymentRequest: true,
-  createAdminUser: false,
 };
 
 const environmentFlags = {
-  development: Object.assign({}, defaultFlags, { createAdminUser: true }),
+  development: Object.assign({}, defaultFlags),
 
   test: Object.assign({}, defaultFlags),
 
