@@ -203,7 +203,7 @@ func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter, p
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return errors.New(fetchManyReflectionMessage)
-	}pkg/assets/assets.go
+	}
 	t = t.Elem()
 	if t.Kind() != reflect.Slice {
 		return errors.New(fetchManyReflectionMessage)
