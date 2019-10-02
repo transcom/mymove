@@ -2,6 +2,7 @@ package query
 
 import (
 	"testing"
+	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
@@ -352,4 +353,74 @@ func (suite *QueryBuilderSuite) TestFetchCategoricalCountsFromOneModel() {
 		suite.NotNil(err)
 
 	})
+}
+
+func (suite *QueryBuilderSuite) TestQueryAssociations() {
+	user := testdatagen.MakeDefaultUser(suite.DB())
+	selectedMoveType := models.SelectedMoveTypeHHG
+	sm := models.ServiceMember{
+		User:      user,
+		UserID:    user.ID,
+		FirstName: models.StringPointer("Travis"),
+		LastName:  models.StringPointer("Wayfarer"),
+	}
+	suite.MustSave(&sm)
+	// creates access code
+	code := "TEST2"
+	claimedTime := time.Now()
+	invalidAccessCode := models.AccessCode{
+		Code:            code,
+		MoveType:        &selectedMoveType,
+		ServiceMemberID: &sm.ID,
+		ClaimedAt:       &claimedTime,
+	}
+	suite.MustSave(&invalidAccessCode)
+	code2 := "TEST10"
+	accessCode2 := models.AccessCode{
+		Code:     code2,
+		MoveType: &selectedMoveType,
+	}
+	suite.MustSave(&accessCode2)
+
+	builder := NewQueryBuilder(suite.DB())
+
+	suite.T().Run("fetches associated data", func(t *testing.T) {
+
+		var accessCodes models.AccessCodes
+		var filters []services.QueryFilter
+		queryAssociations := []services.QueryAssociation{
+			NewQueryAssociation("ServiceMember"),
+		}
+		associations := NewQueryAssociations(queryAssociations)
+
+		err := builder.QueryForAssociations(&accessCodes, associations, filters, defaultPagination())
+
+		suite.NoError(err)
+		suite.Len(accessCodes, 2)
+		var names []string
+		for _, v := range accessCodes {
+			if v.ServiceMember.FirstName != nil {
+				names = append(names, *v.ServiceMember.FirstName)
+			}
+		}
+		suite.Contains(names, *sm.FirstName)
+	})
+
+	suite.T().Run("fetches associated data with filter", func(t *testing.T) {
+
+		var filters []services.QueryFilter
+		var accessCodes models.AccessCodes
+		queryFilters := append(filters, NewQueryFilter("code", "=", code))
+		queryAssociations := []services.QueryAssociation{
+			NewQueryAssociation("ServiceMember"),
+		}
+		associations := NewQueryAssociations(queryAssociations)
+
+		err := builder.QueryForAssociations(&accessCodes, associations, queryFilters, defaultPagination())
+
+		suite.NoError(err)
+		suite.Len(accessCodes, 1)
+		suite.Equal(accessCodes[0].ServiceMember.FirstName, sm.FirstName)
+	})
+
 }

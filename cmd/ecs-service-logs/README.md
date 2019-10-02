@@ -65,3 +65,12 @@ Filter by url is defined and the number of headers is greater than 14.
 ```shell
 ecs-service-logs show -s app -e experimental url=* "headers>14"
 ```
+
+Search for requests with an event type, status, and specified time range
+
+```shell
+ecs-service-logs show -s app -e experimental event_type="create_office_user" --status=ALL --start-time=2019-09-16T23:43:00Z --end-time=2019-09-16T23:43:20Z
+```
+
+**Note:** `event_type` will follow the convention of
+`{ACTION}_{SINGULAR_RECORD_TYPE}` where `ACTION` can be one of `create`, `update`, or `delete`

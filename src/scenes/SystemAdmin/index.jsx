@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 
-import { no_op } from 'shared/utils';
+import { no_op } from 'shared/utils.js';
 import { get } from 'lodash';
-import Home from 'scenes/SystemAdmin/Home';
-import SignIn from './SignIn';
+import Home from './Home';
+import SignIn from 'scenes/SystemAdmin/shared/SignIn';
 import { isDevelopment } from 'shared/constants';
-import { LoginButton } from './LoginButton';
+import { LoginButton } from 'scenes/SystemAdmin/shared/LoginButton';
 import { GetLoggedInUser } from 'shared/User/api.js';
 
 class AdminWrapper extends Component {

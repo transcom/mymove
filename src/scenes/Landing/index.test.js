@@ -7,7 +7,8 @@ import configureStore from 'redux-mock-store';
 import { shallow, mount } from 'enzyme';
 
 import { Landing } from '.';
-import { MoveSummary, PPMAlert } from './MoveSummary';
+import { MoveSummary } from './MoveSummary';
+import PpmAlert from './PpmAlert';
 
 describe('HomePage tests', () => {
   let wrapper;
@@ -95,7 +96,7 @@ describe('HomePage tests', () => {
               isProfileComplete={true}
             />,
           );
-          const ppmAlert = wrapper.find(PPMAlert).shallow();
+          const ppmAlert = wrapper.find(PpmAlert).shallow();
 
           expect(ppmAlert.length).toEqual(1);
           expect(ppmAlert.props().heading).toEqual('Congrats - your move is submitted!');

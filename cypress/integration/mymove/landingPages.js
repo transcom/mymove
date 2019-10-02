@@ -62,8 +62,8 @@ function ppmPaymentRequested(userId) {
   cy.signInAsUserPostRequest(milmoveAppName, userId);
   cy.setFeatureFlag('ppmPaymentRequest=false', '/');
   cy.contains('Move your own stuff (PPM)');
-  cy.contains('Your payment is in review');
-  cy.contains('You will receive a notification from your destination PPPO office when it has been reviewed.');
+  cy.contains('Edit Payment Request');
+  cy.contains('Estimated payment');
   cy.logout();
 }
 

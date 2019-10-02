@@ -45,6 +45,20 @@ elif [[ ! -f "${1}" ]]; then
 fi
 readonly production_migration_file="$1"
 
+# Ensure the file is below the limit for upload of 250MB for anti-virus
+# Files larger than this size will not scan and thus will not be available for streaming download
+# to the migration container.
+FILESIZE=$(/usr/bin/stat -f%z "${1}")
+# 250MB in bytes
+BYTES_IN_MB=1048576
+MAX_FILESIZE=$((250 * "${BYTES_IN_MB}" ))
+if [[ ${FILESIZE} > ${MAX_FILESIZE} ]]; then
+  FILESIZE_MB=$(( "${FILESIZE}" / "${BYTES_IN_MB}" ))
+  echo "error: Max file size for upload is 250 MB, this file is too large for anti-virus to work."
+  echo "Your file is ${FILESIZE_MB} MB, please reduce or split before uploading."
+  exit 1
+fi
+
 # Ensure our `aws` command is the one infra has wrapped with aws-vault
 command -v "$aws_command" 2> /dev/null | grep "ppp-infra/scripts/aws" &> /dev/null || \
   ( echo "error: aws command not pointing to 'ppp-infra/scripts/aws"

@@ -535,13 +535,52 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	/*
-	* Creates a valid, unclaimed access code
+	* Creates two valid, unclaimed access codes
 	 */
-	accessCodeMoveType := models.SelectedMoveTypePPM
+	accessCodePPMMoveType := models.SelectedMoveTypeHHG
 	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
 		AccessCode: models.AccessCode{
 			Code:     "X3FQJK",
-			MoveType: &accessCodeMoveType,
+			MoveType: &accessCodePPMMoveType,
+		},
+	})
+	accessCodeHHGMoveType := models.SelectedMoveTypePPM
+	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
+		AccessCode: models.AccessCode{
+			Code:     "ABC123",
+			MoveType: &accessCodeHHGMoveType,
+		},
+	})
+	email = "accesscode@mail.com"
+	uuidStr = "1dc93d47-0f3e-4686-9dcf-5d940d0d3ed9"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+	sm := models.ServiceMember{
+		ID:            uuid.FromStringOrNil("09229b74-6da8-47d0-86b7-7c91e991b970"),
+		UserID:        uuid.FromStringOrNil(uuidStr),
+		FirstName:     models.StringPointer("Claimed"),
+		LastName:      models.StringPointer("Access Code"),
+		Edipi:         models.StringPointer("163105198"),
+		PersonalEmail: models.StringPointer(email),
+	}
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: sm,
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("7201788b-92f4-430b-8541-6430b2cc7f3e"),
+			Locator: "CLAIMD",
+		},
+		Uploader: loader,
+	})
+	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
+		AccessCode: models.AccessCode{
+			Code:            "ZYX321",
+			MoveType:        &accessCodeHHGMoveType,
+			ServiceMember:   sm,
+			ServiceMemberID: &sm.ID,
 		},
 	})
 
@@ -748,4 +787,34 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Uploader: loader,
 	})
+
+	email = "profile@complete.draft"
+	uuidStr = "3b9360a3-3304-4c60-90f4-83d687884070"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("0ec71d80-ac21-45a7-88ed-2ae8de3961fd"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Move"),
+			LastName:      models.StringPointer("Draft"),
+			Edipi:         models.StringPointer("8893308161"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    true,
+			SpouseHasProGear: true,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("a5d9c7b2-0fe8-4b80-b7c5-3323a066e98c"),
+			Locator: "DFTMVE",
+		},
+		Uploader: loader,
+	})
+
 }

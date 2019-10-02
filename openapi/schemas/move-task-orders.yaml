@@ -26,7 +26,7 @@ MoveTaskOrder:
     moveTaskOrdersType:
       type: string
       enum:
-        - NTS
+        - NON_TEMPORARY_STORAGE
         - PRIME
     customer:
       $ref: '#/Customer'
@@ -90,14 +90,14 @@ Entitlements:
       type: integer
       example: 500
     nonTemporaryStorage:
-      type: integer
-      example: 20203
+      type: boolean
+      example: false
     privatelyOwnedVehicle:
       type: boolean
       example: false
     storageInTransit:
       type: integer
-      example: 300
+      example: 90
 
 # Rename Service Member as Customer
 Customer:

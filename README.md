@@ -76,10 +76,9 @@ There are a number of things you'll need at a minimum to be able to check out, d
 
 * Install [Homebrew](https://brew.sh)
   * Use the following command `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
-* We always use the latest version of Go unless there's a known conflict (which will be announced by the team).
-  * Install it with Homebrew: `brew install go`
-  * Pin it, so that you don't accidentally upgrade before we upgrade the project: `brew pin go`
-  * When we upgrade the project's go version, unpin, upgrade, and then re-pin: `brew unpin go; brew upgrade go; brew pin go`
+* We normally use the latest version of Go unless there's a known conflict (which will be announced by the team) or if we're in the time period just after a new version has been released.
+  * We are still using go 1.12 for now; we will be migrating to go 1.13 soon (the trigger is when we update Go in our baseline CircleCI Docker container).
+  * Install it with Homebrew: `brew install go@1.12 && brew link --force go@1.12`
   * **Note**: If you have previously modified your PATH to point to a specific version of go, make sure to remove that. This would be either in your `.bash_profile` or `.bashrc`, and might look something like `PATH=$PATH:/usr/local/opt/go@1.12/bin`.
 * Ensure you are using the latest version of bash for this project:
   * Install it with Homebrew: `brew install bash`
