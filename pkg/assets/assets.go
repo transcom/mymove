@@ -95,7 +95,7 @@ func pkgPaperworkFormtemplatesForm1203templatePng() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/paperwork/formtemplates/form1203template.png", size: 217605, mode: os.FileMode(0644), modTime: time.Unix(1541698780, 0)}
+	info := bindataFileInfo{name: "pkg/paperwork/formtemplates/form1203template.png", size: 217605, mode: os.FileMode(0644), modTime: time.Unix(1569961560, 0)}
 	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0xc4, 0x2b, 0x83, 0x5d, 0xac, 0xc9, 0x6c, 0xe7, 0x64, 0xdd, 0x96, 0x46, 0x9, 0xc8, 0xb6, 0x38, 0x2e, 0x7e, 0x41, 0xd6, 0x24, 0xee, 0xc, 0x27, 0x94, 0xc6, 0xc6, 0x3f, 0x24, 0x62, 0x26, 0xa4}}
 	return a, nil
 }
@@ -115,7 +115,7 @@ func pkgPaperworkFormtemplatesShipment_summary_worksheet_page1Png() (*asset, err
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/paperwork/formtemplates/shipment_summary_worksheet_page1.png", size: 158755, mode: os.FileMode(0644), modTime: time.Unix(1568228114, 0)}
+	info := bindataFileInfo{name: "pkg/paperwork/formtemplates/shipment_summary_worksheet_page1.png", size: 158755, mode: os.FileMode(0644), modTime: time.Unix(1569961560, 0)}
 	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0x6e, 0xa1, 0xba, 0xe9, 0x16, 0xf8, 0xec, 0xb1, 0xdf, 0x64, 0x78, 0x90, 0xe9, 0xcf, 0x41, 0xf0, 0x10, 0x52, 0x88, 0xae, 0x14, 0x55, 0x3, 0x45, 0x89, 0x6a, 0x45, 0x9a, 0x6e, 0x91, 0x9a, 0x5e}}
 	return a, nil
 }
@@ -135,7 +135,7 @@ func pkgPaperworkFormtemplatesShipment_summary_worksheet_page2Png() (*asset, err
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/paperwork/formtemplates/shipment_summary_worksheet_page2.png", size: 128629, mode: os.FileMode(0644), modTime: time.Unix(1569882892, 0)}
+	info := bindataFileInfo{name: "pkg/paperwork/formtemplates/shipment_summary_worksheet_page2.png", size: 128629, mode: os.FileMode(0644), modTime: time.Unix(1569961560, 0)}
 	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0x65, 0x80, 0x9e, 0x7b, 0x31, 0xfc, 0x8, 0x1, 0xac, 0xab, 0xb3, 0x61, 0x3, 0xe8, 0x3c, 0x6a, 0xb3, 0x77, 0x11, 0x2d, 0xd1, 0xcb, 0x8c, 0x88, 0x8a, 0xba, 0x4, 0x74, 0x6b, 0x4f, 0xf4, 0xbd}}
 	return a, nil
 }
@@ -155,7 +155,7 @@ func pkgPaperworkFormtemplatesShipment_summary_worksheet_page3Png() (*asset, err
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/paperwork/formtemplates/shipment_summary_worksheet_page3.png", size: 124905, mode: os.FileMode(0644), modTime: time.Unix(1568228114, 0)}
+	info := bindataFileInfo{name: "pkg/paperwork/formtemplates/shipment_summary_worksheet_page3.png", size: 124905, mode: os.FileMode(0644), modTime: time.Unix(1569961560, 0)}
 	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0x80, 0xd2, 0xf7, 0x43, 0x97, 0x17, 0x58, 0x1f, 0xc3, 0x35, 0x94, 0x1b, 0x3, 0x14, 0x83, 0xd4, 0xb8, 0x9a, 0x66, 0x8f, 0x64, 0xc, 0xde, 0xb3, 0x2c, 0xe8, 0x54, 0x9d, 0x37, 0x64, 0x9a, 0x5d}}
 	return a, nil
 }
@@ -175,7 +175,7 @@ func pkgNotificationsTemplatesMove_approved_templateHtml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/notifications/templates/move_approved_template.html", size: 857, mode: os.FileMode(0644), modTime: time.Unix(1569371096, 0)}
+	info := bindataFileInfo{name: "pkg/notifications/templates/move_approved_template.html", size: 857, mode: os.FileMode(0644), modTime: time.Unix(1569961560, 0)}
 	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0xa2, 0x9, 0xa7, 0x83, 0xd0, 0xf0, 0xdb, 0x82, 0x1c, 0xf, 0x94, 0x6e, 0xec, 0x14, 0xdf, 0xc5, 0x61, 0xff, 0x8e, 0xfb, 0x10, 0xca, 0xd7, 0xd9, 0x59, 0x34, 0x9a, 0xba, 0x12, 0x2b, 0x35, 0x89}}
 	return a, nil
 }
@@ -195,7 +195,7 @@ func pkgNotificationsTemplatesMove_approved_templateTxt() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/notifications/templates/move_approved_template.txt", size: 648, mode: os.FileMode(0644), modTime: time.Unix(1569371096, 0)}
+	info := bindataFileInfo{name: "pkg/notifications/templates/move_approved_template.txt", size: 648, mode: os.FileMode(0644), modTime: time.Unix(1569961560, 0)}
 	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0x7a, 0xbd, 0x29, 0x30, 0x5c, 0x6b, 0x5f, 0xf1, 0xf1, 0x4a, 0xd7, 0x4a, 0xca, 0x97, 0xc3, 0xb4, 0x89, 0x97, 0x8a, 0x4e, 0x8c, 0xad, 0x86, 0x75, 0xb9, 0xb2, 0x2c, 0x6f, 0xab, 0x27, 0x53, 0xd9}}
 	return a, nil
 }
@@ -215,7 +215,7 @@ func pkgNotificationsTemplatesMove_canceled_templateHtml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/notifications/templates/move_canceled_template.html", size: 415, mode: os.FileMode(0644), modTime: time.Unix(1569371096, 0)}
+	info := bindataFileInfo{name: "pkg/notifications/templates/move_canceled_template.html", size: 415, mode: os.FileMode(0644), modTime: time.Unix(1569961560, 0)}
 	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0xc2, 0x7f, 0x9e, 0xf7, 0x1c, 0x8b, 0x7, 0xcf, 0xb5, 0xf5, 0xe3, 0xa8, 0xe0, 0xe4, 0x84, 0x97, 0x60, 0x49, 0x28, 0x9, 0xae, 0xe5, 0xf8, 0xbb, 0xce, 0xe4, 0x22, 0x50, 0x5a, 0xed, 0x30, 0x71}}
 	return a, nil
 }
@@ -235,7 +235,7 @@ func pkgNotificationsTemplatesMove_canceled_templateTxt() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/notifications/templates/move_canceled_template.txt", size: 387, mode: os.FileMode(0644), modTime: time.Unix(1569371096, 0)}
+	info := bindataFileInfo{name: "pkg/notifications/templates/move_canceled_template.txt", size: 387, mode: os.FileMode(0644), modTime: time.Unix(1569961560, 0)}
 	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0x6f, 0x7, 0x88, 0x8d, 0xda, 0x3f, 0xa9, 0x30, 0xdb, 0x28, 0xf4, 0xb8, 0x9b, 0x4, 0xc2, 0x25, 0xc7, 0x1e, 0xa1, 0xbb, 0xc4, 0x16, 0xd0, 0x72, 0x2, 0x8f, 0xc2, 0x4, 0x5d, 0x44, 0x3f, 0x3}}
 	return a, nil
 }
@@ -255,7 +255,7 @@ func pkgNotificationsTemplatesMove_reviewed_templateHtml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/notifications/templates/move_reviewed_template.html", size: 439, mode: os.FileMode(0644), modTime: time.Unix(1568228114, 0)}
+	info := bindataFileInfo{name: "pkg/notifications/templates/move_reviewed_template.html", size: 439, mode: os.FileMode(0644), modTime: time.Unix(1569961560, 0)}
 	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0x81, 0x33, 0x52, 0x69, 0x30, 0x15, 0xdb, 0x35, 0x59, 0x42, 0x79, 0x64, 0xe, 0xc9, 0x59, 0xea, 0x71, 0x54, 0x24, 0x13, 0xab, 0xf3, 0x31, 0xe8, 0xd1, 0xbb, 0xd7, 0x68, 0xd3, 0x71, 0xc3, 0xf3}}
 	return a, nil
 }
@@ -275,7 +275,7 @@ func pkgNotificationsTemplatesMove_reviewed_templateTxt() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/notifications/templates/move_reviewed_template.txt", size: 365, mode: os.FileMode(0644), modTime: time.Unix(1568228114, 0)}
+	info := bindataFileInfo{name: "pkg/notifications/templates/move_reviewed_template.txt", size: 365, mode: os.FileMode(0644), modTime: time.Unix(1569961560, 0)}
 	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0x89, 0x4e, 0xdb, 0x7, 0x11, 0xeb, 0x49, 0x86, 0x93, 0x7a, 0x1d, 0xe8, 0x6c, 0x60, 0xd2, 0x94, 0x41, 0xe5, 0xb, 0x1e, 0xb5, 0x5f, 0xc2, 0x74, 0x2e, 0x9b, 0xac, 0xf7, 0xc1, 0x14, 0x97, 0x2f}}
 	return a, nil
 }
@@ -295,7 +295,7 @@ func pkgNotificationsTemplatesMove_submitted_templateHtml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/notifications/templates/move_submitted_template.html", size: 672, mode: os.FileMode(0644), modTime: time.Unix(1569371096, 0)}
+	info := bindataFileInfo{name: "pkg/notifications/templates/move_submitted_template.html", size: 672, mode: os.FileMode(0644), modTime: time.Unix(1569961560, 0)}
 	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0x11, 0xa6, 0xa1, 0x9c, 0x9f, 0xc3, 0xcd, 0xbd, 0xe, 0x3b, 0x5c, 0x27, 0x1d, 0xe, 0x1a, 0xbc, 0xb4, 0x63, 0xd4, 0x9b, 0x5d, 0xb7, 0xad, 0xe0, 0xb6, 0xb3, 0x5d, 0x72, 0x99, 0xcb, 0xb0, 0x0}}
 	return a, nil
 }
@@ -315,7 +315,7 @@ func pkgNotificationsTemplatesMove_submitted_templateTxt() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/notifications/templates/move_submitted_template.txt", size: 577, mode: os.FileMode(0644), modTime: time.Unix(1569371096, 0)}
+	info := bindataFileInfo{name: "pkg/notifications/templates/move_submitted_template.txt", size: 577, mode: os.FileMode(0644), modTime: time.Unix(1569961560, 0)}
 	a := &asset{bytes: bytes, info: info, digest: [32]uint8{0xfb, 0x36, 0x9f, 0x73, 0x8a, 0xcb, 0x9c, 0xdb, 0xd7, 0xe8, 0x1d, 0x87, 0x1f, 0x31, 0x99, 0xc2, 0x17, 0x36, 0x6c, 0xb1, 0xf, 0x34, 0xd6, 0x27, 0x96, 0xd6, 0x89, 0xad, 0x8c, 0xf, 0xb5, 0x77}}
 	return a, nil
 }
