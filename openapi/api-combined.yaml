@@ -1,0 +1,1101 @@
+openapi: 3.0.2
+info:
+  title: move.mil API
+  description: The API for move.mil
+  contact:
+    email: dp3@truss.works
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 0.0.1
+servers:
+  - url: http://api.move.mil/v1
+    description: Production server
+  - url: http://staging-api.move.mil/v1
+    description: Staging server
+  - url: http://experimental-api.move.mil/v1
+    description: Experimental server
+paths:
+  /move-task-orders:
+    get:
+      summary: Gets all move orders
+      description: Gets all move orders
+      operationId: listMoveTaskOrders
+      tags:
+        - MoveTaskOrder
+      responses:
+        "200":
+          description: Successfully retrieved all move task orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                      example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+                    code:
+                      type: string
+                      example: USMC-0001
+                    moveID:
+                      type: string
+                      format: uuid
+                      example: c56a4180-65aa-42ec-a945-5fd21dec0538
+                    moveDate:
+                      type: string
+                      format: date
+                    status:
+                      type: string
+                      enum:
+                        - APPROVED
+                        - REJECTED
+                        - SUBMITTED
+                    entitlements:
+                      type: object
+                      properties:
+                        totalWeightSelf:
+                          type: integer
+                          example: 18000
+                        dependentsAuthorized:
+                          type: boolean
+                          example: true
+                        totalDependents:
+                          type: integer
+                          example: 2
+                        proGearWeight:
+                          type: integer
+                          example: 2000
+                        proGearWeightSpouse:
+                          type: integer
+                          example: 500
+                        nonTemporaryStorage:
+                          type: boolean
+                          example: false
+                        privatelyOwnedVehicle:
+                          type: boolean
+                          example: false
+                        storageInTransit:
+                          type: integer
+                          example: 90
+                    moveTaskOrdersType:
+                      type: string
+                      enum:
+                        - NON_TEMPORARY_STORAGE
+                        - PRIME
+                    customer:
+                      type: object
+                    requestedPickupDate:
+                      type: string
+                      format: date
+                    originDutyStation:
+                      type: string
+                      format: uuid
+                      example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+                    originPPSO:
+                      type: string
+                      format: uuid
+                      example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+                    destinationDutyStation:
+                      type: string
+                      format: uuid
+                      example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+                    destinationPPSO:
+                      type: string
+                      format: uuid
+                      example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+                    remarks:
+                      type: string
+                      example: Requires more gentle care
+                    serviceItems:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                            example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+                          MoveTaskOrderID:
+                            type: string
+                            format: uuid
+                            example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+                          status:
+                            type: string
+                            enum:
+                              - APPROVED
+                              - SUBMITTED
+                              - REJECTED
+                          feeType:
+                            type: string
+                            enum:
+                              - COUNSELING
+                              - CRATING
+                              - TRUCKING
+                              - SHUTTLE
+                          total:
+                            type: integer
+                            format: cents
+                          quantity:
+                            type: integer
+                          rate:
+                            type: integer
+                          description:
+                            type: string
+                          submittedAt:
+                            type: string
+                            format: date
+                          approvedAt:
+                            type: string
+                            format: date
+                          rejectedAt:
+                            type: string
+                            format: date
+                          createdAt:
+                            type: string
+                            format: date
+                          updatedAt:
+                            type: string
+                            format: date
+                          deletedAt:
+                            type: string
+                            format: date
+                    createdAt:
+                      type: string
+                      format: date
+                    updatedAt:
+                      type: string
+                      format: date
+                    deletedAt:
+                      type: string
+                      format: date
+        "400":
+          description: The request payload is invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
+        "401":
+          description: The request was denied
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
+        "403":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "404":
+          description: The requested resource wasn't found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
+        "500":
+          description: A server error occurred
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
+  "/move-task-orders/{moveTaskOrderID}":
+    get:
+      summary: Gets a move order by ID
+      description: Gets a move order
+      operationId: getMoveTaskOrder
+      tags:
+        - MoveTaskOrder
+      responses:
+        "200":
+          description: Successfully retrieved move task order
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+                  code:
+                    type: string
+                    example: USMC-0001
+                  moveID:
+                    type: string
+                    format: uuid
+                    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+                  moveDate:
+                    type: string
+                    format: date
+                  status:
+                    type: string
+                    enum:
+                      - APPROVED
+                      - REJECTED
+                      - SUBMITTED
+                  entitlements:
+                    type: object
+                    properties:
+                      totalWeightSelf:
+                        type: integer
+                        example: 18000
+                      dependentsAuthorized:
+                        type: boolean
+                        example: true
+                      totalDependents:
+                        type: integer
+                        example: 2
+                      proGearWeight:
+                        type: integer
+                        example: 2000
+                      proGearWeightSpouse:
+                        type: integer
+                        example: 500
+                      nonTemporaryStorage:
+                        type: boolean
+                        example: false
+                      privatelyOwnedVehicle:
+                        type: boolean
+                        example: false
+                      storageInTransit:
+                        type: integer
+                        example: 90
+                  moveTaskOrdersType:
+                    type: string
+                    enum:
+                      - NON_TEMPORARY_STORAGE
+                      - PRIME
+                  customer:
+                    type: object
+                  requestedPickupDate:
+                    type: string
+                    format: date
+                  originDutyStation:
+                    type: string
+                    format: uuid
+                    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+                  originPPSO:
+                    type: string
+                    format: uuid
+                    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+                  destinationDutyStation:
+                    type: string
+                    format: uuid
+                    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+                  destinationPPSO:
+                    type: string
+                    format: uuid
+                    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+                  remarks:
+                    type: string
+                    example: Requires more gentle care
+                  serviceItems:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                          example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+                        MoveTaskOrderID:
+                          type: string
+                          format: uuid
+                          example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+                        status:
+                          type: string
+                          enum:
+                            - APPROVED
+                            - SUBMITTED
+                            - REJECTED
+                        feeType:
+                          type: string
+                          enum:
+                            - COUNSELING
+                            - CRATING
+                            - TRUCKING
+                            - SHUTTLE
+                        total:
+                          type: integer
+                          format: cents
+                        quantity:
+                          type: integer
+                        rate:
+                          type: integer
+                        description:
+                          type: string
+                        submittedAt:
+                          type: string
+                          format: date
+                        approvedAt:
+                          type: string
+                          format: date
+                        rejectedAt:
+                          type: string
+                          format: date
+                        createdAt:
+                          type: string
+                          format: date
+                        updatedAt:
+                          type: string
+                          format: date
+                        deletedAt:
+                          type: string
+                          format: date
+                  createdAt:
+                    type: string
+                    format: date
+                  updatedAt:
+                    type: string
+                    format: date
+                  deletedAt:
+                    type: string
+                    format: date
+        "400":
+          $ref: "#/paths/~1move-task-orders/get/responses/400"
+        "401":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "403":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "404":
+          $ref: "#/paths/~1move-task-orders/get/responses/404"
+        "500":
+          $ref: "#/paths/~1move-task-orders/get/responses/500"
+    patch:
+      summary: Updates a move order by ID
+      description: Updates a move order by ID
+      operationId: updateMoveTaskOrder
+      tags:
+        - MoveTaskOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/paths/~1move-task-orders~1%7BmoveTaskOrderID%7D/get/response\
+                s/200/content/application~1json/schema"
+      responses:
+        "200":
+          description: Successfully retrieved move task order
+          content:
+            application/json:
+              schema:
+                $ref: "#/paths/~1move-task-orders~1%7BmoveTaskOrderID%7D/get/respon\
+                  ses/200/content/application~1json/schema"
+        "400":
+          $ref: "#/paths/~1move-task-orders/get/responses/400"
+        "401":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "403":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "404":
+          $ref: "#/paths/~1move-task-orders/get/responses/404"
+        "500":
+          $ref: "#/paths/~1move-task-orders/get/responses/500"
+    delete:
+      summary: Deletes a move order by ID
+      description: Deletes a move order by ID
+      operationId: deleteMoveTaskOrder
+      tags:
+        - MoveTaskOrder
+      responses:
+        "200":
+          description: Successfully deleted move task order
+          content:
+            application/json:
+              schema:
+                $ref: "#/paths/~1move-task-orders~1%7BmoveTaskOrderID%7D/get/respon\
+                  ses/200/content/application~1json/schema"
+        "400":
+          $ref: "#/paths/~1move-task-orders/get/responses/400"
+        "401":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "403":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "404":
+          $ref: "#/paths/~1move-task-orders/get/responses/404"
+        "500":
+          $ref: "#/paths/~1move-task-orders/get/responses/500"
+    parameters:
+      - name: id
+        in: path
+        description: ID of move order to use
+        required: true
+        schema:
+          type: string
+  "/move-task-orders/{moveTaskOrderID}/status":
+    patch:
+      summary: Change the status of a move order
+      description: Changes move order status
+      operationId: updateMoveTaskOrderStatus
+      tags:
+        - MoveTaskOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - APPROVED
+                    - SUBMITTED
+                    - REJECTED
+      responses:
+        "200":
+          description: Successfully updated move task order status
+          content:
+            application/json:
+              schema:
+                $ref: "#/paths/~1move-task-orders~1%7BmoveTaskOrderID%7D/get/respon\
+                  ses/200/content/application~1json/schema"
+        "400":
+          $ref: "#/paths/~1move-task-orders/get/responses/400"
+        "401":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "403":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "404":
+          $ref: "#/paths/~1move-task-orders/get/responses/404"
+        "500":
+          $ref: "#/paths/~1move-task-orders/get/responses/500"
+      parameters:
+        - name: id
+          in: path
+          description: ID of move order to use
+          required: true
+          schema:
+            type: string
+  "/move-task-orders/{moveTaskOrderID}/service-items":
+    post:
+      summary: Creates a service item for a move order by id
+      description: Creates a service item for a move order by id
+      operationId: createServiceItem
+      tags:
+        - serviceItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+                MoveTaskOrderID:
+                  type: string
+                  format: uuid
+                  example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+                status:
+                  type: string
+                  enum:
+                    - APPROVED
+                    - SUBMITTED
+                    - REJECTED
+                feeType:
+                  type: string
+                  enum:
+                    - COUNSELING
+                    - CRATING
+                    - TRUCKING
+                    - SHUTTLE
+                total:
+                  type: integer
+                  format: cents
+                quantity:
+                  type: integer
+                rate:
+                  type: integer
+                description:
+                  type: string
+                submittedAt:
+                  type: string
+                  format: date
+                approvedAt:
+                  type: string
+                  format: date
+                rejectedAt:
+                  type: string
+                  format: date
+                createdAt:
+                  type: string
+                  format: date
+                updatedAt:
+                  type: string
+                  format: date
+                deletedAt:
+                  type: string
+                  format: date
+      responses:
+        "201":
+          description: Successfully created line item for move task order
+          content:
+            application/json:
+              schema:
+                $ref: "#/paths/~1move-task-orders~1%7BmoveTaskOrderID%7D~1service-i\
+                  tems/post/requestBody/content/application~1json/schema"
+        "400":
+          $ref: "#/paths/~1move-task-orders/get/responses/400"
+        "401":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "403":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "404":
+          $ref: "#/paths/~1move-task-orders/get/responses/404"
+        "500":
+          $ref: "#/paths/~1move-task-orders/get/responses/500"
+    get:
+      summary: Gets all line items for a move order
+      description: Gets all line items for a move orders
+      operationId: listServiceItems
+      tags:
+        - serviceItem
+      responses:
+        "200":
+          description: Successfully retrieved all line items for a move task order
+          content:
+            application/json:
+              schema:
+                $ref: "#/paths/~1move-task-orders~1%7BmoveTaskOrderID%7D~1service-i\
+                  tems/post/requestBody/content/application~1json/schema"
+        "400":
+          $ref: "#/paths/~1move-task-orders/get/responses/400"
+        "401":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "403":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "404":
+          $ref: "#/paths/~1move-task-orders/get/responses/404"
+        "500":
+          $ref: "#/paths/~1move-task-orders/get/responses/500"
+    parameters:
+      - name: moveTaskOrderID
+        in: path
+        description: ID of move order for service item to use
+        required: true
+        schema:
+          type: string
+  "/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}":
+    get:
+      summary: Gets a line item by ID for a move order by ID
+      description: Gets a line item by ID for a move order by ID
+      operationId: listServiceItems
+      tags:
+        - ServiceItem
+      responses:
+        "200":
+          description: Successfully retrieved a line item for a move task order by ID
+          content:
+            application/json:
+              schema:
+                $ref: "#/paths/~1move-task-orders~1%7BmoveTaskOrderID%7D~1service-i\
+                  tems/post/requestBody/content/application~1json/schema"
+        "400":
+          $ref: "#/paths/~1move-task-orders/get/responses/400"
+        "401":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "403":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "404":
+          $ref: "#/paths/~1move-task-orders/get/responses/404"
+        "500":
+          $ref: "#/paths/~1move-task-orders/get/responses/500"
+    patch:
+      summary: Updates a service item by ID for a move order by ID
+      description: Updates a service item by ID for a move order by ID
+      operationId: updateServiceItem
+      tags:
+        - ServiceItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/paths/~1move-task-orders~1%7BmoveTaskOrderID%7D~1service-ite\
+                ms/post/requestBody/content/application~1json/schema"
+      responses:
+        "200":
+          description: Successfully updated move task order status
+          content:
+            application/json:
+              schema:
+                $ref: "#/paths/~1move-task-orders~1%7BmoveTaskOrderID%7D/get/respon\
+                  ses/200/content/application~1json/schema"
+        "400":
+          $ref: "#/paths/~1move-task-orders/get/responses/400"
+        "401":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "403":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "404":
+          $ref: "#/paths/~1move-task-orders/get/responses/404"
+        "500":
+          $ref: "#/paths/~1move-task-orders/get/responses/500"
+    delete:
+      summary: Deletes a line item by ID for a move order by ID
+      description: Delets a line item by ID for a move order by ID
+      operationId: deleteServiceItem
+      tags:
+        - ServiceItem
+      responses:
+        "200":
+          description: Successfully deleted move task order
+          content:
+            application/json:
+              schema:
+                $ref: "#/paths/~1move-task-orders~1%7BmoveTaskOrderID%7D/get/respon\
+                  ses/200/content/application~1json/schema"
+        "400":
+          $ref: "#/paths/~1move-task-orders/get/responses/400"
+        "401":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "403":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "404":
+          $ref: "#/paths/~1move-task-orders/get/responses/404"
+        "500":
+          $ref: "#/paths/~1move-task-orders/get/responses/500"
+    parameters:
+      - name: MoveTaskOrderID
+        in: path
+        description: ID of move order to use
+        required: true
+        schema:
+          type: string
+      - name: ServiceItemID
+        in: path
+        description: ID of line item to use
+        required: true
+        schema:
+          type: string
+  "/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}/status":
+    patch:
+      summary: Change the status of a line item for a move order by ID
+      description: Changes the status of a line item for a move order by ID
+      operationId: updateServiceItemStatus
+      tags:
+        - ServiceItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - APPROVED
+                    - SUBMITTED
+                    - REJECTED
+      responses:
+        "200":
+          description: Successfully updated status for a line item for a move task order by
+            ID
+          content:
+            application/json:
+              schema:
+                $ref: "#/paths/~1move-task-orders~1%7BmoveTaskOrderID%7D~1service-i\
+                  tems/post/requestBody/content/application~1json/schema"
+        "400":
+          $ref: "#/paths/~1move-task-orders/get/responses/400"
+        "401":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "403":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "404":
+          $ref: "#/paths/~1move-task-orders/get/responses/404"
+        "500":
+          $ref: "#/paths/~1move-task-orders/get/responses/500"
+    parameters:
+      - name: MoveTaskOrderID
+        in: path
+        description: ID of move order to use
+        required: true
+        schema:
+          type: string
+      - name: ServiceItemID
+        in: path
+        description: ID of line item to use
+        required: true
+        schema:
+          type: string
+  /payment-requests:
+    post:
+      summary: Creates a payment request
+      description: Creates a payment request
+      operationId: createPaymentRequest
+      tags:
+        - payment-requests
+        - prime
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                proofOfServicePackage:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                      example: c56a4180-65aa-42ec-a945-5fd21dec0538
+                    uploads:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                            example: c56a4180-65aa-42ec-a945-5fd21dec0538
+                          url:
+                            type: string
+                            format: uri
+                            example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+                          filename:
+                            type: string
+                            format: binary
+                            example: filename.pdf
+                          contentType:
+                            type: string
+                            format: mime-type
+                            example: application/pdf
+                          bytes:
+                            type: integer
+                          createdAt:
+                            type: string
+                            format: date-time
+                          updatedAt:
+                            type: string
+                            format: date-time
+                        required:
+                          - id
+                          - url
+                          - filename
+                          - content_type
+                          - bytes
+                          - created_at
+                          - updated_at
+                moveOrderID:
+                  type: string
+                  format: uuid
+                  example: c56a4180-65aa-42ec-a945-5fd21dec0538
+                serviceItemIDs:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+                isFinal:
+                  type: boolean
+                  default: false
+      responses:
+        "201":
+          description: created instance of payment request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+                    readOnly: true
+                  documentPackage:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+                      uploads:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                              example: c56a4180-65aa-42ec-a945-5fd21dec0538
+                            url:
+                              type: string
+                              format: uri
+                              example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+                            filename:
+                              type: string
+                              format: binary
+                              example: filename.pdf
+                            contentType:
+                              type: string
+                              format: mime-type
+                              example: application/pdf
+                            bytes:
+                              type: integer
+                            createdAt:
+                              type: string
+                              format: date-time
+                            updatedAt:
+                              type: string
+                              format: date-time
+                          required:
+                            - id
+                            - url
+                            - filename
+                            - content_type
+                            - bytes
+                            - created_at
+                            - updated_at
+                  moveOrderID:
+                    type: string
+                    format: uuid
+                    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+                  serviceItemIDs:
+                    type: array
+                    items:
+                      type: string
+                      format: uuid
+                      example: c56a4180-65aa-42ec-a945-5fd21dec0538
+                  isFinal:
+                    type: boolean
+                    default: false
+                  status:
+                    type: string
+                    title: Payment Request Status
+                    enum:
+                      - PAYMENT_SUBMITTED
+                      - APPROVED
+                      - REJECTED
+                  rejectionReason:
+                    type: string
+                    example: documentation was incomplete
+                    nullable: true
+        "400":
+          $ref: "#/paths/~1move-task-orders/get/responses/400"
+        "401":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "403":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "404":
+          $ref: "#/paths/~1move-task-orders/get/responses/404"
+        "500":
+          $ref: "#/paths/~1move-task-orders/get/responses/500"
+    get:
+      summary: Gets payment requests
+      description: Gets a list of payment requests
+      operationId: listPaymentRequests
+      tags:
+        - payment-requests
+        - prime
+        - gov
+      responses:
+        "200":
+          description: fetched list of payment requests
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          $ref: "#/paths/~1move-task-orders/get/responses/400"
+        "401":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "403":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "404":
+          $ref: "#/paths/~1move-task-orders/get/responses/404"
+        "500":
+          $ref: "#/paths/~1move-task-orders/get/responses/500"
+  "/payment-requests/{paymentRequestID}":
+    get:
+      summary: Fetches a payment request by id
+      description: Fetches an instance of a payment request by id
+      operationId: getPaymentRequest
+      tags:
+        - payment-requests
+        - prime
+        - gov
+      responses:
+        "200":
+          description: fetched instance of payment request
+          content:
+            application/json:
+              schema:
+                $ref: "#/paths/~1payment-requests/post/responses/201/content/applic\
+                  ation~1json/schema"
+        "400":
+          $ref: "#/paths/~1move-task-orders/get/responses/400"
+        "401":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "403":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "404":
+          $ref: "#/paths/~1move-task-orders/get/responses/404"
+        "500":
+          $ref: "#/paths/~1move-task-orders/get/responses/500"
+    patch:
+      summary: Updates a payment request by id
+      description: Updates a payment request by id
+      operationId: updatePaymentRequest
+      tags:
+        - payment-requests
+        - prime
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                serviceItemIDs:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+                proofOfServicePackage:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                      example: c56a4180-65aa-42ec-a945-5fd21dec0538
+                    uploads:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                            example: c56a4180-65aa-42ec-a945-5fd21dec0538
+                          url:
+                            type: string
+                            format: uri
+                            example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+                          filename:
+                            type: string
+                            format: binary
+                            example: filename.pdf
+                          contentType:
+                            type: string
+                            format: mime-type
+                            example: application/pdf
+                          bytes:
+                            type: integer
+                          createdAt:
+                            type: string
+                            format: date-time
+                          updatedAt:
+                            type: string
+                            format: date-time
+                        required:
+                          - id
+                          - url
+                          - filename
+                          - content_type
+                          - bytes
+                          - created_at
+                          - updated_at
+        required: true
+      responses:
+        "200":
+          description: updated payment request
+          content:
+            application/json:
+              schema:
+                $ref: "#/paths/~1payment-requests/post/responses/201/content/applic\
+                  ation~1json/schema"
+        "400":
+          $ref: "#/paths/~1move-task-orders/get/responses/400"
+        "401":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "403":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "404":
+          $ref: "#/paths/~1move-task-orders/get/responses/404"
+        "500":
+          $ref: "#/paths/~1move-task-orders/get/responses/500"
+    parameters:
+      - name: paymentRequestID
+        in: path
+        description: UUID of payment request
+        required: true
+        schema:
+          type: string
+          format: uuid
+  "/payment-requests/{paymentRequestID}/status":
+    patch:
+      summary: Updates status of a payment request by id
+      description: Updates status of a payment request by id
+      operationId: updatePaymentRequestStatus
+      tags:
+        - payment-requests
+        - gov
+      parameters:
+        - name: paymentRequestID
+          in: path
+          description: UUID of payment request
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  title: Payment Request Status
+                  enum:
+                    - PAYMENT_SUBMITTED
+                    - APPROVED
+                    - REJECTED
+                rejectionReason:
+                  type: string
+                  example: documentation was incomplete
+                  nullable: true
+        required: true
+      responses:
+        "200":
+          description: updated payment request
+          content:
+            application/json:
+              schema:
+                $ref: "#/paths/~1payment-requests/post/responses/201/content/applic\
+                  ation~1json/schema"
+        "400":
+          $ref: "#/paths/~1move-task-orders/get/responses/400"
+        "401":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "403":
+          $ref: "#/paths/~1move-task-orders/get/responses/401"
+        "404":
+          $ref: "#/paths/~1move-task-orders/get/responses/404"
+        "500":
+          $ref: "#/paths/~1move-task-orders/get/responses/500"
