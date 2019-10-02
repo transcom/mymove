@@ -50,9 +50,16 @@ CREATE TABLE ${TSPP} AS
     WHERE row_number < 3;
 
 UPDATE ${TSPP} SET
-	best_value_score = round((random() * 30 + 70)::numeric, 2),
-	linehaul_rate = round((random() * .2 + 0.4)::numeric, 2),
-	sit_rate = round((random() * .2 + 0.4)::numeric, 2);
+    best_value_score = round((random() * 30 + 70)::numeric, 2),
+    linehaul_rate = round((random() * .2 + 0.4)::numeric, 2),
+    sit_rate = round((random() * .2 + 0.4)::numeric, 2),
+    -- select random tsp_id
+    transportation_service_provider_id = (
+        SELECT id FROM transportation_service_providers tsp
+        WHERE tsp.id <> ${TSPP}.id  -- This where is required to get a different random tsp for each row, otherwise they are all the same
+        ORDER BY RANDOM()
+        LIMIT 1
+    );
 SQL
 
 pg_dump -h localhost -d dev_db -U postgres -t ${TSPP} --data-only -f "${output_file}"

@@ -474,6 +474,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, clientAuthSecretKey, noSessionTimeout, appnames, useSecureCookie)
 	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, useSecureCookie)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
+	isLoggedInMiddleware := authentication.IsLoggedInMiddleware(logger)
 	clientCertMiddleware := authentication.ClientCertMiddleware(logger, dbConnection)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
@@ -768,6 +769,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 		// Mux for internal API that enforces auth
 		internalAPIMux := goji.SubMux()
+		internalMux.HandleFunc(pat.Get("/users/is_logged_in"), isLoggedInMiddleware)
 		internalMux.Handle(pat.New("/*"), internalAPIMux)
 		internalAPIMux.Use(userAuthMiddleware)
 		internalAPIMux.Use(middleware.NoCache(logger))

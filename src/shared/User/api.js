@@ -9,6 +9,13 @@ export async function GetLoggedInUser() {
   return response.body;
 }
 
+export async function GetIsLoggedIn() {
+  const client = await getClient();
+  const response = await client.apis.users.isLoggedInUser({});
+  checkResponse(response, 'failed to get user due to server error');
+  return response.body;
+}
+
 export async function LogoutUser() {
   const logoutEndpoint = '/auth/logout';
   const req = {

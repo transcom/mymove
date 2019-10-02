@@ -37,7 +37,17 @@ let EditProfileForm = props => {
   const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
   return (
     <form onSubmit={handleSubmit}>
-      <img src={profileImage} alt="" /> Profile
+      <img src={profileImage} alt="" />{' '}
+      <h2
+        style={{
+          display: 'inline-block',
+          marginLeft: 10,
+          marginBottom: 0,
+          marginTop: 20,
+        }}
+      >
+        Profile
+      </h2>
       <hr />
       <h3 className="sm-heading">Edit Profile:</h3>
       <SwaggerField fieldName="first_name" swagger={schema} required />

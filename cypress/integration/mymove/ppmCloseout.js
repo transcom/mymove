@@ -411,9 +411,7 @@ function serviceMemberSubmitsWeightsTicketsWithoutReceipts() {
     'Contact your local Transportation Office (PPPO) to let them know you’re missing this weight ticket. For now, keep going and enter the info you do have.',
   );
   cy.get('input[name="missingFullWeightTicket"]+label').click();
-  cy.get('[data-cy=full-warning]').contains(
-    'Contact your local Transportation Office (PPPO) to let them know you’re missing this weight ticket. For now, keep going and enter the info you do have.',
-  );
+  cy.get('[data-cy=full-warning]').contains('You can’t get paid without a full weight ticket.');
   cy.get('input[name="weight_ticket_date"]')
     .type('6/2/2018{enter}')
     .blur();

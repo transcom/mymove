@@ -1,14 +1,15 @@
-import restProvider from './rest_provider';
+import restProvider from './shared/rest_provider';
 import { fetchUtils, Admin, Resource, Layout } from 'react-admin';
 import { createBrowserHistory } from 'history';
 import React from 'react';
-import Menu from './Menu';
-import UserList from './UserList';
-import UserCreate from './UserCreate';
-import UserEdit from './UserEdit';
-import OfficeList from './OfficeList';
-import ElectronicOrderList from './ElectronicOrderList';
-import UserShow from './UserShow';
+import Menu from './shared/Menu';
+import AccessCodeList from './AccessCodes/AccessCodeList';
+import UserList from './OfficeUsers/UserList';
+import UserCreate from './OfficeUsers/UserCreate';
+import UserEdit from './OfficeUsers/UserEdit';
+import UserShow from './OfficeUsers/UserShow';
+import OfficeList from './Offices/OfficeList';
+import ElectronicOrderList from './ElectronicOrders/ElectronicOrderList';
 import styles from './Home.module.scss';
 import { withContext } from 'shared/AppContext';
 import * as Cookies from 'js-cookie';
@@ -44,6 +45,7 @@ const Home = props => (
       />
       <Resource name="offices" options={{ label: 'Offices' }} list={OfficeList} />
       <Resource name="electronic_orders" options={{ label: 'Electronic orders' }} list={ElectronicOrderList} />
+      <Resource name="access_codes" options={{ label: 'Access codes' }} list={AccessCodeList} />
     </Admin>
   </div>
 );

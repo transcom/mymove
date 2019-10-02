@@ -7,9 +7,10 @@ import Slider from 'react-rangeslider'; //todo: pull from node_modules, override
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Alert from 'shared/Alert';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { formatCentsRange, formatNumber } from 'shared/formatters';
 import { getPpmWeightEstimate, createOrUpdatePpm, getSelectedWeightInfo } from './ducks';
-
+import { updatePPMEstimate } from 'shared/Entities/modules/ppms';
 import 'react-rangeslider/lib/index.css';
 import './Weight.css';
 
@@ -64,33 +65,35 @@ export class PpmWeight extends Component {
   // affect it
   updateIncentive() {
     const { currentWeight, currentPpm, originDutyStationZip } = this.props;
-    const weight_estimate = get(this.props, 'currentPpm.weight_estimate');
-    if (![this.state.pendingPpmWeight, weight_estimate].includes(currentWeight) || !currentWeight) {
-      const newWeight = currentWeight && currentWeight !== 0 ? currentWeight : this.state.pendingPpmWeight;
-      this.onWeightSelecting(newWeight);
-      this.props.getPpmWeightEstimate(
-        currentPpm.original_move_date,
-        currentPpm.pickup_postal_code,
-        originDutyStationZip,
-        currentPpm.destination_postal_code,
-        newWeight,
-      );
-    }
+    const newWeight = currentWeight && currentWeight !== 0 ? currentWeight : this.state.pendingPpmWeight;
+    this.onWeightSelecting(newWeight);
+    this.props.getPpmWeightEstimate(
+      currentPpm.original_move_date,
+      currentPpm.pickup_postal_code,
+      originDutyStationZip,
+      currentPpm.destination_postal_code,
+      newWeight,
+    );
   }
+
   handleSubmit = () => {
-    const { createOrUpdatePpm } = this.props;
     const moveId = this.props.match.params.moveId;
     const ppmBody = {
       weight_estimate: this.state.pendingPpmWeight,
       has_requested_advance: false,
     };
-    return createOrUpdatePpm(moveId, ppmBody);
+    return this.props
+      .createOrUpdatePpm(moveId, ppmBody)
+      .then(({ payload }) => this.props.updatePPMEstimate(moveId, payload.id).catch(err => err));
+    // catch block returns error so that the wizard can continue on with its flow
   };
+
   onWeightSelecting = value => {
     this.setState({
       pendingPpmWeight: value,
     });
   };
+
   onWeightSelected() {
     const { currentPpm, originDutyStationZip } = this.props;
     this.props.getPpmWeightEstimate(
@@ -168,7 +171,14 @@ export class PpmWeight extends Component {
                   </tr>
                   <tr>
                     <th>Your PPM Incentive:</th>
-                    <td className="incentive">{formatCentsRange(incentive_estimate_min, incentive_estimate_max)}</td>
+                    {hasEstimateError ? (
+                      <td className="incentive">
+                        Not ready yet{' '}
+                        <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
+                      </td>
+                    ) : (
+                      <td className="incentive">{formatCentsRange(incentive_estimate_min, incentive_estimate_max)}</td>
+                    )}
                   </tr>
                 </tbody>
               </table>
@@ -215,7 +225,7 @@ function mapStateToProps(state) {
     selectedWeightInfo: getSelectedWeightInfo(state),
     currentWeight: get(state, 'ppm.currentPpm.weight_estimate'),
     schema: schema,
-    originDutyStationZip: originDutyStationZip,
+    originDutyStationZip,
   };
 
   return props;
@@ -226,6 +236,7 @@ function mapDispatchToProps(dispatch) {
     {
       getPpmWeightEstimate,
       createOrUpdatePpm,
+      updatePPMEstimate,
     },
     dispatch,
   );
