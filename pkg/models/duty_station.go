@@ -106,17 +106,16 @@ select ds.*
 from names n
 inner join duty_stations ds on n.duty_station_id = ds.id
 group by ds.id, ds.name, ds.affiliation, ds.address_id, ds.created_at, ds.updated_at, ds.transportation_office_id
-order by max(similarity(n.name, $1)) desc, ds.name`
+order by max(similarity(n.name, $1)) desc, ds.name
+limit 10`
 
-	pop.Debug = true
-	query := tx.Q().RawQuery(sql, search)
+	query := tx.Q().Eager().RawQuery(sql, search)
 
 	if err := query.All(&stations); err != nil {
 		if errors.Cause(err).Error() != RecordNotFoundErrorString {
 			return stations, err
 		}
 	}
-	pop.Debug = false
 
 	return stations, nil
 }
