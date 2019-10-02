@@ -72,20 +72,21 @@ func (suite *ModelSuite) TestFindDutyStations() {
 		query        string
 		dutyStations []string
 	}{
-		{query: "fort", dutyStations: []string{"Fort Bragg", "Fort Belvoir", "NAS Fort Worth JRB", "NAS Fallon", "Davis Monthan AFB", "JB Elmendorf-Richardson"}},
-		{query: "ft", dutyStations: []string{"Fort Bragg", "NAS Fallon", "Fort Belvoir", "NAS Fort Worth JRB", "Davis Monthan AFB", "JB Elmendorf-Richardson"}},
-		{query: "ft be", dutyStations: []string{"Fort Belvoir", "Fort Bragg", "NAS Fallon", "NAS Fort Worth JRB", "Davis Monthan AFB", "JB Elmendorf-Richardson"}},
-		{query: "davis-mon", dutyStations: []string{"Davis Monthan AFB", "NAS Fallon", "JB Elmendorf-Richardson", "NAS Fort Worth JRB", "Fort Belvoir", "Fort Bragg"}},
-		{query: "jber", dutyStations: []string{"JB Elmendorf-Richardson", "NAS Fort Worth JRB", "Davis Monthan AFB", "Fort Belvoir", "Fort Bragg", "NAS Fallon"}},
-		{query: "naval air", dutyStations: []string{"NAS Fallon", "NAS Fort Worth JRB", "Fort Belvoir", "Davis Monthan AFB", "Fort Bragg", "JB Elmendorf-Richardson"}},
+		{query: "fort", dutyStations: []string{"Fort Bragg", "Fort Belvoir", "NAS Fort Worth JRB", "NAS Fallon"}},
+		{query: "ft", dutyStations: []string{"Fort Bragg", "NAS Fallon", "Fort Belvoir", "NAS Fort Worth JRB"}},
+		{query: "ft be", dutyStations: []string{"Fort Belvoir", "Fort Bragg", "NAS Fallon", "NAS Fort Worth JRB"}},
+		{query: "davis-mon", dutyStations: []string{"Davis Monthan AFB", "NAS Fallon", "JB Elmendorf-Richardson"}},
+		{query: "jber", dutyStations: []string{"JB Elmendorf-Richardson", "NAS Fort Worth JRB"}},
+		{query: "naval air", dutyStations: []string{"NAS Fallon", "NAS Fort Worth JRB", "Fort Belvoir", "Davis Monthan AFB"}},
 	}
 
 	for _, ts := range tests {
 		dutyStations, err := models.FindDutyStations(suite.DB(), ts.query)
 		suite.NoError(err)
-		suite.Equal(len(dutyStations), len(ts.dutyStations), "Wrong number of duty stations returned from query")
+		suite.Equal(len(dutyStations), len(ts.dutyStations), "Wrong number of duty stations returned from query: %s", ts.query)
 		for i, dutyStation := range dutyStations {
-			suite.Equal(dutyStation.Name, ts.dutyStations[i], "Query: %s - Duty stations don't match order")
+			suite.Equal(dutyStation.Name, ts.dutyStations[i], "Duty stations don't match order: %s", ts.query)
+			suite.Equal(dutyStation.Address.City, "city", "Duty station doesn't have an address")
 		}
 	}
 }

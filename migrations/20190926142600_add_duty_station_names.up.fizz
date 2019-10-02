@@ -8,3 +8,6 @@ create_table("duty_station_names") {
 
 add_index("duty_station_names", "name", {"unique": true})
 add_index("duty_station_names", "duty_station_id", {})
+
+
+sql("CREATE INDEX duty_station_names_name_trgm_idx ON duty_station_names USING gin(name gin_trgm_ops);")
