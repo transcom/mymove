@@ -99,27 +99,14 @@ describe('allows a SM to request a payment', function() {
       .contains('Edit Payment Request')
       .should('exist')
       .click();
-
     cy.get('.ticket-item')
       .first()
       .should('not.contain', 'set');
-    cy.get('[data-cy=weight-ticket-link]')
-      .should('exist')
-      .click();
-    serviceMemberSubmitsWeightTicket('CAR', true);
-    serviceMemberSubmitsWeightTicket('CAR', true);
-    serviceMemberSkipsStep();
-    serviceMemberViewsExpensesLandingPage();
-    serviceMemberUploadsExpenses();
-    serviceMemberSkipsStep();
-    cy.location().should(loc => {
-      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
-    });
-    serviceMemberDeletesDocuments();
-    cy.get('.ticket-item')
+    cy.get('[data-cy="delete-ticket"]')
       .first()
-      .contains('set')
-      .should('exist');
+      .click();
+    cy.get('[data-cy="delete-confirmation-button"]').click();
+    cy.get('.ticket-item').should('not.exist');
   });
 });
 
