@@ -1,4 +1,4 @@
-package user
+package adminuser
 
 import (
 	"errors"
@@ -13,11 +13,11 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
-type testOfficeUserListQueryBuilder struct {
+type testAdminUserListQueryBuilder struct {
 	fakeFetchMany func(model interface{}) error
 }
 
-func (t *testOfficeUserListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, pagination services.Pagination) error {
+func (t *testAdminUserListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, pagination services.Pagination) error {
 	m := t.fakeFetchMany(model)
 	return m
 }
@@ -27,44 +27,44 @@ func defaultPagination() services.Pagination {
 	return pagination.NewPagination(&page, &perPage)
 }
 
-func (suite *UserServiceSuite) TestFetchOfficeUserList() {
-	suite.T().Run("if the user is fetched, it should be returned", func(t *testing.T) {
+func (suite *AdminUserServiceSuite) TestFetchAdminUserList() {
+	suite.T().Run("if the users are successfully fetched, they should be returned", func(t *testing.T) {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
 		fakeFetchMany := func(model interface{}) error {
 			value := reflect.ValueOf(model).Elem()
-			value.Set(reflect.Append(value, reflect.ValueOf(models.OfficeUser{ID: id})))
+			value.Set(reflect.Append(value, reflect.ValueOf(models.AdminUser{ID: id})))
 			return nil
 		}
-		builder := &testOfficeUserListQueryBuilder{
+		builder := &testAdminUserListQueryBuilder{
 			fakeFetchMany: fakeFetchMany,
 		}
 
-		fetcher := NewOfficeUserListFetcher(builder)
+		fetcher := NewAdminUserListFetcher(builder)
 		filters := []services.QueryFilter{
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		officeUsers, err := fetcher.FetchOfficeUserList(filters, defaultPagination())
+		adminUsers, err := fetcher.FetchAdminUserList(filters, defaultPagination())
 
 		suite.NoError(err)
-		suite.Equal(id, officeUsers[0].ID)
+		suite.Equal(id, adminUsers[0].ID)
 	})
 
-	suite.T().Run("if there is an error, we get it with no office users", func(t *testing.T) {
+	suite.T().Run("if there is an error, we get it with no admin users", func(t *testing.T) {
 		fakeFetchMany := func(model interface{}) error {
 			return errors.New("Fetch error")
 		}
-		builder := &testOfficeUserListQueryBuilder{
+		builder := &testAdminUserListQueryBuilder{
 			fakeFetchMany: fakeFetchMany,
 		}
 
-		fetcher := NewOfficeUserListFetcher(builder)
+		fetcher := NewAdminUserListFetcher(builder)
 
-		officeUsers, err := fetcher.FetchOfficeUserList([]services.QueryFilter{}, defaultPagination())
+		adminUsers, err := fetcher.FetchAdminUserList([]services.QueryFilter{}, defaultPagination())
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")
-		suite.Equal(models.OfficeUsers(nil), officeUsers)
+		suite.Equal(models.AdminUsers(nil), adminUsers)
 	})
 }

@@ -11,6 +11,7 @@ import (
 	middleware "github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/admin_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
 )
@@ -53,6 +54,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 	if api.OfficeIndexAccessCodesHandler == nil {
 		api.OfficeIndexAccessCodesHandler = office.IndexAccessCodesHandlerFunc(func(params office.IndexAccessCodesParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.IndexAccessCodes has not yet been implemented")
+		})
+	}
+	if api.AdminUsersIndexAdminUsersHandler == nil {
+		api.AdminUsersIndexAdminUsersHandler = admin_users.IndexAdminUsersHandlerFunc(func(params admin_users.IndexAdminUsersParams) middleware.Responder {
+			return middleware.NotImplemented("operation admin_users.IndexAdminUsers has not yet been implemented")
 		})
 	}
 	if api.ElectronicOrderIndexElectronicOrdersHandler == nil {

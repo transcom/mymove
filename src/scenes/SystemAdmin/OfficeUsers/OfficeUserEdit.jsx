@@ -2,15 +2,15 @@ import React from 'react';
 import { phoneValidators } from 'scenes/SystemAdmin/shared/form_validators';
 import { Edit, SimpleForm, TextInput, DisabledInput, required, Toolbar, SaveButton } from 'react-admin';
 
-const UserEditToolbar = props => (
+const OfficeUserEditToolbar = props => (
   <Toolbar {...props}>
     <SaveButton />
   </Toolbar>
 );
 
-const UserEdit = props => (
+const OfficeUserEdit = props => (
   <Edit {...props}>
-    <SimpleForm toolbar={<UserEditToolbar />}>
+    <SimpleForm toolbar={<OfficeUserEditToolbar />}>
       <DisabledInput source="id" />
       <DisabledInput source="email" />
       <TextInput source="first_name" validate={required()} />
@@ -24,4 +24,4 @@ const UserEdit = props => (
   </Edit>
 );
 
-export default UserEdit;
+export default OfficeUserEdit;

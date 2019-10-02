@@ -89,6 +89,62 @@ func init() {
         }
       }
     },
+    "/admin_users": {
+      "get": {
+        "description": "Returns a list of admin users",
+        "tags": [
+          "admin_users"
+        ],
+        "summary": "List admin users",
+        "operationId": "indexAdminUsers",
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/AdminUsers"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "office not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/electronic_orders": {
       "get": {
         "description": "Returns a list of electronic orders",
@@ -616,6 +672,63 @@ func init() {
           "x-nullable": true,
           "example": "Montmârtre"
         }
+      }
+    },
+    "AdminUser": {
+      "type": "object",
+      "required": [
+        "id",
+        "first_name",
+        "last_name",
+        "email",
+        "user_id",
+        "organization_id",
+        "disabled",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "disabled": {
+          "type": "boolean"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "organization_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "user_id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
+    "AdminUsers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/AdminUser"
       }
     },
     "ElectronicOrder": {
@@ -938,6 +1051,62 @@ func init() {
         }
       }
     },
+    "/admin_users": {
+      "get": {
+        "description": "Returns a list of admin users",
+        "tags": [
+          "admin_users"
+        ],
+        "summary": "List admin users",
+        "operationId": "indexAdminUsers",
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/AdminUsers"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "office not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/electronic_orders": {
       "get": {
         "description": "Returns a list of electronic orders",
@@ -1465,6 +1634,63 @@ func init() {
           "x-nullable": true,
           "example": "Montmârtre"
         }
+      }
+    },
+    "AdminUser": {
+      "type": "object",
+      "required": [
+        "id",
+        "first_name",
+        "last_name",
+        "email",
+        "user_id",
+        "organization_id",
+        "disabled",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "disabled": {
+          "type": "boolean"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "organization_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "user_id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
+    "AdminUsers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/AdminUser"
       }
     },
     "ElectronicOrder": {

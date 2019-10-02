@@ -1,4 +1,4 @@
-package user
+package officeuser
 
 import (
 	"github.com/gobuffalo/validate"

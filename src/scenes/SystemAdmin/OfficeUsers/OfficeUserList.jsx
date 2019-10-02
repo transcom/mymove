@@ -2,7 +2,7 @@ import React from 'react';
 import { List, Datagrid, TextField, BooleanField } from 'react-admin';
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
-const UserList = props => (
+const OfficeUserList = props => (
   <List {...props} pagination={<AdminPagination />} perPage={25} bulkActionButtons={false}>
     <Datagrid rowClick="show">
       <TextField source="id" />
@@ -14,4 +14,4 @@ const UserList = props => (
   </List>
 );
 
-export default UserList;
+export default OfficeUserList;

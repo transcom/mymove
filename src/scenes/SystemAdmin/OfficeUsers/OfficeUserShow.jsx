@@ -1,13 +1,13 @@
 import React from 'react';
 import { Show, SimpleShowLayout, TextField, BooleanField, DateField } from 'react-admin';
 
-const UserShowTitle = ({ record }) => {
+const OfficeUserShowTitle = ({ record }) => {
   return <span>{`${record.first_name} ${record.last_name}`}</span>;
 };
 
-const UserShow = props => {
+const OfficeUserShow = props => {
   return (
-    <Show {...props} title={<UserShowTitle />}>
+    <Show {...props} title={<OfficeUserShowTitle />}>
       <SimpleShowLayout>
         <TextField source="id" />
         <TextField source="email" />
@@ -23,4 +23,4 @@ const UserShow = props => {
   );
 };
 
-export default UserShow;
+export default OfficeUserShow;

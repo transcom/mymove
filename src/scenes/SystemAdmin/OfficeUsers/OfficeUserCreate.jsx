@@ -2,7 +2,7 @@ import React from 'react';
 import { phoneValidators } from 'scenes/SystemAdmin/shared/form_validators';
 import { Create, SimpleForm, TextInput, ReferenceInput, AutocompleteInput, required } from 'react-admin';
 
-const UserCreate = props => (
+const OfficeUserCreate = props => (
   <Create {...props}>
     <SimpleForm>
       <TextInput source="first_name" validate={required()} />
@@ -17,4 +17,4 @@ const UserCreate = props => (
   </Create>
 );
 
-export default UserCreate;
+export default OfficeUserCreate;

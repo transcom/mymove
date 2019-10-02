@@ -1,4 +1,4 @@
-package user
+package adminuser
 
 import (
 	"testing"
@@ -9,18 +9,18 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-type UserServiceSuite struct {
+type AdminUserServiceSuite struct {
 	testingsuite.PopTestSuite
 	logger Logger
 }
 
-func (suite *UserServiceSuite) SetupTest() {
+func (suite *AdminUserServiceSuite) SetupTest() {
 	suite.DB().TruncateAll()
 }
 
 func TestUserSuite(t *testing.T) {
 
-	hs := &UserServiceSuite{
+	hs := &AdminUserServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}

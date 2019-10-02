@@ -1,4 +1,4 @@
-package user
+package officeuser
 
 import (
 	"testing"
@@ -10,7 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *UserServiceSuite) TestUpdateOfficeUser() {
+func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{})
 
 	newUUID, _ := uuid.NewV4()

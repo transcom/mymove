@@ -118,7 +118,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 
 	createdOfficeUser, verrs, err := h.OfficeUserCreator.CreateOfficeUser(&officeUser, transportationIDFilter)
 	if err != nil || verrs != nil {
-		logger.Error("Error saving user", zap.Error(err))
+		logger.Error("Error saving user", zap.Error(verrs))
 		return officeuserop.NewCreateOfficeUserInternalServerError()
 	}
 

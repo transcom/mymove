@@ -18,9 +18,9 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/services/user"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -50,7 +50,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		handler := IndexOfficeUsersHandler{
 			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:        query.NewQueryFilter,
-			OfficeUserListFetcher: user.NewOfficeUserListFetcher(queryBuilder),
+			OfficeUserListFetcher: officeuser.NewOfficeUserListFetcher(queryBuilder),
 			NewPagination:         pagination.NewPagination,
 		}
 
@@ -142,7 +142,7 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		handler := GetOfficeUserHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			user.NewOfficeUserFetcher(queryBuilder),
+			officeuser.NewOfficeUserFetcher(queryBuilder),
 			query.NewQueryFilter,
 		}
 
@@ -259,23 +259,6 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 		response := handler.Handle(params)
 		suite.IsType(&officeuserop.CreateOfficeUserCreated{}, response)
 	})
-
-	officeUserCreator := &mocks.OfficeUserCreator{}
-	err := validate.NewErrors()
-
-	officeUserCreator.On("CreateOfficeUser",
-		&officeUser,
-		mock.Anything).Return(nil, err, nil).Once()
-
-	handler := CreateOfficeUserHandler{
-		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-		officeUserCreator,
-		newQueryFilter,
-	}
-
-	handler.Handle(params)
-	suite.Error(err, "Error saving user")
-
 }
 
 func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {

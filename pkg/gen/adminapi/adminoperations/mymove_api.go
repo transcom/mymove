@@ -19,6 +19,7 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/admin_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
 )
@@ -51,6 +52,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		OfficeIndexAccessCodesHandler: office.IndexAccessCodesHandlerFunc(func(params office.IndexAccessCodesParams) middleware.Responder {
 			return middleware.NotImplemented("operation OfficeIndexAccessCodes has not yet been implemented")
+		}),
+		AdminUsersIndexAdminUsersHandler: admin_users.IndexAdminUsersHandlerFunc(func(params admin_users.IndexAdminUsersParams) middleware.Responder {
+			return middleware.NotImplemented("operation AdminUsersIndexAdminUsers has not yet been implemented")
 		}),
 		ElectronicOrderIndexElectronicOrdersHandler: electronic_order.IndexElectronicOrdersHandlerFunc(func(params electronic_order.IndexElectronicOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation ElectronicOrderIndexElectronicOrders has not yet been implemented")
@@ -103,6 +107,8 @@ type MymoveAPI struct {
 	OfficeGetOfficeUserHandler office.GetOfficeUserHandler
 	// OfficeIndexAccessCodesHandler sets the operation handler for the index access codes operation
 	OfficeIndexAccessCodesHandler office.IndexAccessCodesHandler
+	// AdminUsersIndexAdminUsersHandler sets the operation handler for the index admin users operation
+	AdminUsersIndexAdminUsersHandler admin_users.IndexAdminUsersHandler
 	// ElectronicOrderIndexElectronicOrdersHandler sets the operation handler for the index electronic orders operation
 	ElectronicOrderIndexElectronicOrdersHandler electronic_order.IndexElectronicOrdersHandler
 	// OfficeIndexOfficeUsersHandler sets the operation handler for the index office users operation
@@ -188,6 +194,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.OfficeIndexAccessCodesHandler == nil {
 		unregistered = append(unregistered, "office.IndexAccessCodesHandler")
+	}
+
+	if o.AdminUsersIndexAdminUsersHandler == nil {
+		unregistered = append(unregistered, "admin_users.IndexAdminUsersHandler")
 	}
 
 	if o.ElectronicOrderIndexElectronicOrdersHandler == nil {
@@ -323,6 +333,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/access_codes"] = office.NewIndexAccessCodes(o.context, o.OfficeIndexAccessCodesHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/admin_users"] = admin_users.NewIndexAdminUsers(o.context, o.AdminUsersIndexAdminUsersHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

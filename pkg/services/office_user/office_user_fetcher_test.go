@@ -1,4 +1,4 @@
-package user
+package officeuser
 
 import (
 	"errors"
@@ -33,7 +33,7 @@ func (t *testOfficeUserQueryBuilder) UpdateOne(model interface{}) (*validate.Err
 	return nil, nil
 }
 
-func (suite *UserServiceSuite) TestFetchOfficeUser() {
+func (suite *OfficeUserServiceSuite) TestFetchOfficeUser() {
 	suite.T().Run("if the user is fetched, it should be returned", func(t *testing.T) {
 		id, err := uuid.NewV4()
 		suite.NoError(err)

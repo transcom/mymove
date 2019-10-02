@@ -1,4 +1,4 @@
-package user
+package officeuser
 
 import (
 	"reflect"
@@ -12,7 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *UserServiceSuite) TestCreateOfficeUser() {
+func (suite *OfficeUserServiceSuite) TestCreateOfficeUser() {
 	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{})
 	userInfo := models.OfficeUser{
 		LastName:               "Spaceman",

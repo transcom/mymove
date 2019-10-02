@@ -9,11 +9,12 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi"
 	adminops "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations"
 	"github.com/transcom/mymove/pkg/handlers"
+	adminuser "github.com/transcom/mymove/pkg/services/admin_user"
 	electronicorder "github.com/transcom/mymove/pkg/services/electronic_order"
 	"github.com/transcom/mymove/pkg/services/office"
+	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/services/user"
 
 	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 )
@@ -32,26 +33,26 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	adminAPI.OfficeIndexOfficeUsersHandler = IndexOfficeUsersHandler{
 		context,
-		user.NewOfficeUserListFetcher(queryBuilder),
+		officeuser.NewOfficeUserListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
 	adminAPI.OfficeGetOfficeUserHandler = GetOfficeUserHandler{
 		context,
-		user.NewOfficeUserFetcher(queryBuilder),
+		officeuser.NewOfficeUserFetcher(queryBuilder),
 		query.NewQueryFilter,
 	}
 
 	adminAPI.OfficeCreateOfficeUserHandler = CreateOfficeUserHandler{
 		context,
-		user.NewOfficeUserCreator(queryBuilder),
+		officeuser.NewOfficeUserCreator(queryBuilder),
 		query.NewQueryFilter,
 	}
 
 	adminAPI.OfficeUpdateOfficeUserHandler = UpdateOfficeUserHandler{
 		context,
-		user.NewOfficeUserUpdater(queryBuilder),
+		officeuser.NewOfficeUserUpdater(queryBuilder),
 		query.NewQueryFilter,
 	}
 
@@ -81,5 +82,13 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
+
+	adminAPI.AdminUsersIndexAdminUsersHandler = IndexAdminUsersHandler{
+		context,
+		adminuser.NewAdminUserListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
+
 	return adminAPI.Serve(nil)
 }

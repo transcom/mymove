@@ -1,4 +1,4 @@
-package user
+package officeuser
 
 import (
 	"go.uber.org/zap"
