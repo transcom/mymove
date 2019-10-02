@@ -4,10 +4,10 @@ import (
 	"flag"
 	"fmt"
 	"strconv"
-)
-import "go.uber.org/zap"
-import "github.com/tealeg/xlsx"
+	"strings"
 
+	"github.com/tealeg/xlsx"
+)
 
 /*************************************************************************
 
@@ -78,20 +78,15 @@ import "github.com/tealeg/xlsx"
 
 
 
-func help() {
+func showHelp() {
 
 }
 
 
 
 func main() {
-	logger, err := zap.NewDevelopment()
+	//logger, err := zap.NewDevelopment()
 
-	/*
-	config := flag.String("config-dir", "config", "The location of server config files")
-	env := flag.String("env", "development", "The environment to run in, which configures the database.")
-	test := flag.Bool("test", false, "Whether to generate testy mcTest emails")
-	*/
 	help := flag.Bool("help", false, "Display help/usage info")
 	all := flag.Bool("all", false, "True, if parsing entire Rate Engine GHC XLSX")
 	display := flag.Bool("display", false, "True, if display output of parsed info")
@@ -99,11 +94,21 @@ func main() {
 
 	flag.Parse()
 
-	//fmt.Printf("File written to %s\n", path)
-	fmt.Printf("Importing file %s\n", filename)
+
+
+	if help != nil && *help == true {
+		showHelp()
+		return
+	}
+
+	if all != nil && *all == true {
+		// TODO parse everything
+	}
 
 	if filename != nil {
-		parseDomesticLinehaulPrices(*filename)
+		fmt.Printf("Importing file %s\n", *filename)
+
+		parseDomesticLinehaulPrices(*filename, display)
 	}
 
 }
@@ -118,19 +123,30 @@ func getCell(cells []*xlsx.Cell, i int) string {
 }
 
 func getInt(from string) int  {
-	if from == "" {
-		return 0
-	}
 	i, err := strconv.Atoi(from)
 	if err != nil {
+		if strings.HasSuffix(err.Error(), ": invalid syntax") {
+			fmt.Printf("WARNING: getInt() invalid int syntax checking string <%s> for float string\n", from)
+			f, err := strconv.ParseFloat(from, 32)
+			if err != nil {
+				fmt.Printf("ERROR: getInt() ParseFloat error %s\n", err.Error())
+				return 0
+			}
+			if f != 0.0 {
+				fmt.Printf("SUCCESS: getInt() converting string <%s> from float to int <%d>\n", from, int(f))
+				return int(f)
+			}
+		}
+		fmt.Printf("ERROR: getInt() Atoi error %s\n", err.Error())
 		return 0
 	}
+
 	return i
 }
 
 
 
-func parseDomesticLinehaulPrices(parseFile string) error {
+func parseDomesticLinehaulPrices(parseFile string, display *bool) error {
 
 	/*
 	weightBands
@@ -252,7 +268,7 @@ func parseDomesticLinehaulPrices(parseFile string) error {
 		weightBand weightBand
 		milesRange milesRange
 		optionPeriodYearCount int //the escalation type
-		rate string
+		rate string //TODO should this be a float or string? Proabably string  stripping out the $
 	}
 
 
@@ -270,14 +286,23 @@ func parseDomesticLinehaulPrices(parseFile string) error {
 		return err
 	}
 
+	xlsxDataSheetNum := 6 // 2a) Domestic Linehaul Prices
+
 	feeColIndexStart := 6 // start at column 6 to get the rates
 	colIndex := feeColIndexStart
 
-	dataRows := xlFile.Sheets[6].Rows[14:]
+	feeRowIndexStart := 14 // start at row 14 to get the rates
+
+	serviceAreaNumberColumn := 2
+	originServiceAreaColumn := 3
+	serviceScheduleColumn  := 4
+
+
+	dataRows := xlFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
 	for _, row := range dataRows {
 		// For number of baseline + escalation years
 		colIndex = feeColIndexStart
-		numEscalationYears := 5
+		numEscalationYears := 1
 		for escalation := 0; escalation < numEscalationYears; escalation++ {
 			// For each rate season
 			for _, r := range rateTypes {
@@ -286,9 +311,9 @@ func parseDomesticLinehaulPrices(parseFile string) error {
 					// For each milage range
 					for _, m := range milesRanges {
 						domesticLineHaulPrice := domesticLineHaulPrice{
-							serviceAreaNumber: getInt(getCell(row.Cells, 2)),
-							originServiceArea: getCell(row.Cells, 3),
-							serviceSchedule: getInt(getCell(row.Cells, 4)),
+							serviceAreaNumber: getInt(getCell(row.Cells, serviceAreaNumberColumn)),
+							originServiceArea: getCell(row.Cells, originServiceAreaColumn),
+							serviceSchedule: getInt(getCell(row.Cells, serviceScheduleColumn)),
 							season: r,
 							weightBand: w,
 							milesRange: m,
@@ -296,8 +321,10 @@ func parseDomesticLinehaulPrices(parseFile string) error {
 							rate: getCell(row.Cells, colIndex),
 						}
 						colIndex++
-						fmt.Printf("%v ", domesticLineHaulPrice)
+						fmt.Printf("%v\n", domesticLineHaulPrice)
 					}
+					//TODO DEBUG REMOVE return
+					return nil
 				}
 				colIndex++ // skip 1 column (empty column) before starting next rate type
 
