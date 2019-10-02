@@ -75,14 +75,9 @@ import (
 
  *************************************************************************/
 
-
-
-
 func showHelp() {
 
 }
-
-
 
 func main() {
 	//logger, err := zap.NewDevelopment()
@@ -93,8 +88,6 @@ func main() {
 	filename := flag.String("filename", "", "Filename including path of the XLSX to parse for Rate Engine GHC import")
 
 	flag.Parse()
-
-
 
 	if help != nil && *help == true {
 		showHelp()
@@ -122,7 +115,7 @@ func getCell(cells []*xlsx.Cell, i int) string {
 	return ""
 }
 
-func getInt(from string) int  {
+func getInt(from string) int {
 	i, err := strconv.Atoi(from)
 	if err != nil {
 		if strings.HasSuffix(err.Error(), ": invalid syntax") {
@@ -144,29 +137,27 @@ func getInt(from string) int  {
 	return i
 }
 
-
-
 func parseDomesticLinehaulPrices(parseFile string, display *bool) error {
 
 	/*
-	weightBands
-	peak and non-peak
-	milage bands
-	services area -> origin service -> service schedule
-	base period year
+		weightBands
+		peak and non-peak
+		milage bands
+		services area -> origin service -> service schedule
+		base period year
 
-	available functions:
-		ColIndexToLetters
-		ColLettersToIndex
+		available functions:
+			ColIndexToLetters
+			ColLettersToIndex
 	*/
 
 	rateTypes := []string{"NonPeak", "Peak"}
 
 	weightBandNumCellsExpected := 10 //cells per band verify against weightBandNumCells
-	weightBandCountExpected := 3 //expected number of weight bands verify against weightBandCount
+	weightBandCountExpected := 3     //expected number of weight bands verify against weightBandCount
 
 	type weightBand struct {
-		band int
+		band     int
 		lowerLbs int
 		upperLbs int
 		lowerCwt float32
@@ -175,102 +166,99 @@ func parseDomesticLinehaulPrices(parseFile string, display *bool) error {
 
 	weightBands := []weightBand{
 		{
-			band: 1,
+			band:     1,
 			lowerLbs: 500,
 			upperLbs: 4999,
 			lowerCwt: 5,
 			upperCwt: 49.99,
 		},
 		{
-			band: 2,
+			band:     2,
 			lowerLbs: 5000,
 			upperLbs: 9999,
 			lowerCwt: 50,
 			upperCwt: 99.99,
 		},
 		{
-			band: 3,
+			band:     3,
 			lowerLbs: 10000,
 			upperLbs: 999999,
 			lowerCwt: 100,
 			upperCwt: 9999.99,
 		},
-
 	}
 	weightBandCount := len(weightBands) //number of bands and then repeats
 
 	type milesRange struct {
 		rangeNumber int
-		lower int
-		upper int
+		lower       int
+		upper       int
 	}
 
-	milesRanges := []milesRange {
+	milesRanges := []milesRange{
 		{
 			rangeNumber: 1,
-			lower: 0,
-			upper: 250,
+			lower:       0,
+			upper:       250,
 		},
 		{
 			rangeNumber: 2,
-			lower: 251,
-			upper: 500,
+			lower:       251,
+			upper:       500,
 		},
 		{
 			rangeNumber: 3,
-			lower: 501,
-			upper: 1000,
+			lower:       501,
+			upper:       1000,
 		},
 		{
 			rangeNumber: 4,
-			lower: 1001,
-			upper: 1500,
+			lower:       1001,
+			upper:       1500,
 		},
 		{
 			rangeNumber: 5,
-			lower: 1501,
-			upper: 2000,
+			lower:       1501,
+			upper:       2000,
 		},
 		{
 			rangeNumber: 6,
-			lower: 2001,
-			upper: 2500,
+			lower:       2001,
+			upper:       2500,
 		},
 		{
 			rangeNumber: 7,
-			lower: 2501,
-			upper: 3000,
+			lower:       2501,
+			upper:       3000,
 		},
 		{
 			rangeNumber: 8,
-			lower: 3001,
-			upper: 3500,
+			lower:       3001,
+			upper:       3500,
 		},
 		{
 			rangeNumber: 9,
-			lower: 3501,
-			upper: 4000,
+			lower:       3501,
+			upper:       4000,
 		},
 		{
 			rangeNumber: 10,
-			lower: 4001,
-			upper: 999999,
+			lower:       4001,
+			upper:       999999,
 		},
 	}
 	weightBandNumCells := len(milesRanges) //
 
-
 	type domesticLineHaulPrice struct {
-		serviceAreaNumber int
-		originServiceArea string
-		serviceSchedule int
-		season string
-		weightBand weightBand
-		milesRange milesRange
-		optionPeriodYearCount int //the escalation type
-		rate string //TODO should this be a float or string? Proabably string  stripping out the $
+		serviceAreaNumber     int
+		originServiceArea     string
+		serviceSchedule       int
+		season                string
+		weightBand            weightBand
+		milesRange            milesRange
+		optionPeriodYearCount int    //the escalation type
+		rate                  string //TODO should this be a float or string? Proabably string  stripping out the $
 	}
-
 
 	if weightBandNumCells != weightBandNumCellsExpected {
 		fmt.Errorf("Exepected %d columns per weight band, found %d defined in golang parser\n", weightBandNumCellsExpected, weightBandNumCells)
@@ -279,7 +267,6 @@ func parseDomesticLinehaulPrices(parseFile string, display *bool) error {
 	if weightBandCount != weightBandCountExpected {
 		fmt.Errorf("Exepected %d weight bands, found %d defined in golang parser\n", weightBandCountExpected, weightBandCount)
 	}
-
 
 	xlFile, err := xlsx.OpenFile(parseFile)
 	if err != nil {
@@ -295,8 +282,7 @@ func parseDomesticLinehaulPrices(parseFile string, display *bool) error {
 
 	serviceAreaNumberColumn := 2
 	originServiceAreaColumn := 3
-	serviceScheduleColumn  := 4
-
+	serviceScheduleColumn := 4
 
 	dataRows := xlFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
 	for _, row := range dataRows {
@@ -311,14 +297,14 @@ func parseDomesticLinehaulPrices(parseFile string, display *bool) error {
 					// For each milage range
 					for _, m := range milesRanges {
 						domesticLineHaulPrice := domesticLineHaulPrice{
-							serviceAreaNumber: getInt(getCell(row.Cells, serviceAreaNumberColumn)),
-							originServiceArea: getCell(row.Cells, originServiceAreaColumn),
-							serviceSchedule: getInt(getCell(row.Cells, serviceScheduleColumn)),
-							season: r,
-							weightBand: w,
-							milesRange: m,
+							serviceAreaNumber:     getInt(getCell(row.Cells, serviceAreaNumberColumn)),
+							originServiceArea:     getCell(row.Cells, originServiceAreaColumn),
+							serviceSchedule:       getInt(getCell(row.Cells, serviceScheduleColumn)),
+							season:                r,
+							weightBand:            w,
+							milesRange:            m,
 							optionPeriodYearCount: escalation,
-							rate: getCell(row.Cells, colIndex),
+							rate:                  getCell(row.Cells, colIndex),
 						}
 						colIndex++
 						fmt.Printf("%v\n", domesticLineHaulPrice)
@@ -336,5 +322,3 @@ func parseDomesticLinehaulPrices(parseFile string, display *bool) error {
 
 	return nil
 }
-
-
