@@ -66,8 +66,8 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 	searchResponse := response.(*stationop.SearchDutyStationsOK)
 	stationPayloads := searchResponse.Payload
 
-	if len(stationPayloads) != 2 {
-		t.Errorf("Should have 2 responses, got %v", len(stationPayloads))
+	if len(stationPayloads) != 1 {
+		t.Errorf("Should have 1 responses, got %v", len(stationPayloads))
 	}
 
 	if *stationPayloads[0].Name != "First Station" {
@@ -76,10 +76,6 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 
 	if *stationPayloads[0].Address.City != "city" {
 		t.Error("Address should have been loaded")
-	}
-
-	if *stationPayloads[1].Name != "Second Station" {
-		t.Errorf("Station name should have been \"Second Station \", got %v", stationPayloads[1].Name)
 	}
 
 }

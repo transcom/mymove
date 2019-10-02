@@ -102,19 +102,20 @@ with names as (
 from duty_stations
 where similarity(name, $1) > 0.03
 order by sim desc
-limit 10)
+limit 5)
 union
 (select duty_station_id, name, similarity(name, $1) as sim
 from duty_station_names
 where similarity(name, $1) > 0.03
 order by sim desc
-limit 10)
+limit 5)
 )
 select ds.*
 from names n
 inner join duty_stations ds on n.duty_station_id = ds.id
 group by ds.id, ds.name, ds.affiliation, ds.address_id, ds.created_at, ds.updated_at, ds.transportation_office_id
-order by max(n.sim) desc, ds.name`
+order by max(n.sim) desc, ds.name
+limit 7`
 
 	query := tx.Q().Eager("Address").RawQuery(sql, search)
 	if err := query.All(&stations); err != nil {
