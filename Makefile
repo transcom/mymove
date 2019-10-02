@@ -389,6 +389,7 @@ server_test_standalone: ## Run server unit tests with no deps
 	# Don't run tests in /cmd or /pkg/gen/ & pass `-short` to exclude long running tests
 	# Disable test caching with `-count 1` - caching was masking local test failures
 	# Limit the maximum number of tests to run in parallel to 8.
+	# Add verbose (-v) so go-junit-report can parse it for CircleCI results
 	DB_PORT=$(DB_PORT_TEST) go test -parallel 8 -v -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 server_test_build:
