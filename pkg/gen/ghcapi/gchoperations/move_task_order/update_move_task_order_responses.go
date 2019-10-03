@@ -69,7 +69,7 @@ type UpdateMoveTaskOrderBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.Error `json:"body,omitempty"`
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewUpdateMoveTaskOrderBadRequest creates UpdateMoveTaskOrderBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewUpdateMoveTaskOrderBadRequest() *UpdateMoveTaskOrderBadRequest {
 }
 
 // WithPayload adds the payload to the update move task order bad request response
-func (o *UpdateMoveTaskOrderBadRequest) WithPayload(payload *ghcmessages.Error) *UpdateMoveTaskOrderBadRequest {
+func (o *UpdateMoveTaskOrderBadRequest) WithPayload(payload interface{}) *UpdateMoveTaskOrderBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update move task order bad request response
-func (o *UpdateMoveTaskOrderBadRequest) SetPayload(payload *ghcmessages.Error) {
+func (o *UpdateMoveTaskOrderBadRequest) SetPayload(payload interface{}) {
 	o.Payload = payload
 }
 
@@ -93,11 +93,9 @@ func (o *UpdateMoveTaskOrderBadRequest) SetPayload(payload *ghcmessages.Error) {
 func (o *UpdateMoveTaskOrderBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(400)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }
 
@@ -113,7 +111,7 @@ type UpdateMoveTaskOrderUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.Error `json:"body,omitempty"`
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewUpdateMoveTaskOrderUnauthorized creates UpdateMoveTaskOrderUnauthorized with default headers values
@@ -123,13 +121,13 @@ func NewUpdateMoveTaskOrderUnauthorized() *UpdateMoveTaskOrderUnauthorized {
 }
 
 // WithPayload adds the payload to the update move task order unauthorized response
-func (o *UpdateMoveTaskOrderUnauthorized) WithPayload(payload *ghcmessages.Error) *UpdateMoveTaskOrderUnauthorized {
+func (o *UpdateMoveTaskOrderUnauthorized) WithPayload(payload interface{}) *UpdateMoveTaskOrderUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update move task order unauthorized response
-func (o *UpdateMoveTaskOrderUnauthorized) SetPayload(payload *ghcmessages.Error) {
+func (o *UpdateMoveTaskOrderUnauthorized) SetPayload(payload interface{}) {
 	o.Payload = payload
 }
 
@@ -137,11 +135,9 @@ func (o *UpdateMoveTaskOrderUnauthorized) SetPayload(payload *ghcmessages.Error)
 func (o *UpdateMoveTaskOrderUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(401)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }
 
@@ -157,7 +153,7 @@ type UpdateMoveTaskOrderForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.Error `json:"body,omitempty"`
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewUpdateMoveTaskOrderForbidden creates UpdateMoveTaskOrderForbidden with default headers values
@@ -167,13 +163,13 @@ func NewUpdateMoveTaskOrderForbidden() *UpdateMoveTaskOrderForbidden {
 }
 
 // WithPayload adds the payload to the update move task order forbidden response
-func (o *UpdateMoveTaskOrderForbidden) WithPayload(payload *ghcmessages.Error) *UpdateMoveTaskOrderForbidden {
+func (o *UpdateMoveTaskOrderForbidden) WithPayload(payload interface{}) *UpdateMoveTaskOrderForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update move task order forbidden response
-func (o *UpdateMoveTaskOrderForbidden) SetPayload(payload *ghcmessages.Error) {
+func (o *UpdateMoveTaskOrderForbidden) SetPayload(payload interface{}) {
 	o.Payload = payload
 }
 
@@ -181,11 +177,9 @@ func (o *UpdateMoveTaskOrderForbidden) SetPayload(payload *ghcmessages.Error) {
 func (o *UpdateMoveTaskOrderForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }
 
@@ -201,7 +195,7 @@ type UpdateMoveTaskOrderNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.Error `json:"body,omitempty"`
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewUpdateMoveTaskOrderNotFound creates UpdateMoveTaskOrderNotFound with default headers values
@@ -211,13 +205,13 @@ func NewUpdateMoveTaskOrderNotFound() *UpdateMoveTaskOrderNotFound {
 }
 
 // WithPayload adds the payload to the update move task order not found response
-func (o *UpdateMoveTaskOrderNotFound) WithPayload(payload *ghcmessages.Error) *UpdateMoveTaskOrderNotFound {
+func (o *UpdateMoveTaskOrderNotFound) WithPayload(payload interface{}) *UpdateMoveTaskOrderNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update move task order not found response
-func (o *UpdateMoveTaskOrderNotFound) SetPayload(payload *ghcmessages.Error) {
+func (o *UpdateMoveTaskOrderNotFound) SetPayload(payload interface{}) {
 	o.Payload = payload
 }
 
@@ -225,11 +219,9 @@ func (o *UpdateMoveTaskOrderNotFound) SetPayload(payload *ghcmessages.Error) {
 func (o *UpdateMoveTaskOrderNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }
 
@@ -245,7 +237,7 @@ type UpdateMoveTaskOrderInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.Error `json:"body,omitempty"`
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewUpdateMoveTaskOrderInternalServerError creates UpdateMoveTaskOrderInternalServerError with default headers values
@@ -255,13 +247,13 @@ func NewUpdateMoveTaskOrderInternalServerError() *UpdateMoveTaskOrderInternalSer
 }
 
 // WithPayload adds the payload to the update move task order internal server error response
-func (o *UpdateMoveTaskOrderInternalServerError) WithPayload(payload *ghcmessages.Error) *UpdateMoveTaskOrderInternalServerError {
+func (o *UpdateMoveTaskOrderInternalServerError) WithPayload(payload interface{}) *UpdateMoveTaskOrderInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update move task order internal server error response
-func (o *UpdateMoveTaskOrderInternalServerError) SetPayload(payload *ghcmessages.Error) {
+func (o *UpdateMoveTaskOrderInternalServerError) SetPayload(payload interface{}) {
 	o.Payload = payload
 }
 
@@ -269,10 +261,8 @@ func (o *UpdateMoveTaskOrderInternalServerError) SetPayload(payload *ghcmessages
 func (o *UpdateMoveTaskOrderInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }

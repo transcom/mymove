@@ -26,23 +26,23 @@ paths:
         '400':
           description: The request payload is invalid
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/InvalidRequest'
         '401':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '403':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '404':
           description: The requested resource wasn't found
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/NotFound'
         '500':
           description: A server error occurred
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/ServerError'
       tags:
         - MoveTaskOrder
       description: Gets all move orders
@@ -67,23 +67,23 @@ paths:
         '400':
           description: The request payload is invalid
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/InvalidRequest'
         '401':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '403':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '404':
           description: The requested resource wasn't found
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/NotFound'
         '500':
           description: A server error occurred
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/ServerError'
       tags:
         - MoveTaskOrder
       description: Deletes a move order by ID
@@ -101,23 +101,23 @@ paths:
         '400':
           description: The request payload is invalid
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/InvalidRequest'
         '401':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '403':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '404':
           description: The requested resource wasn't found
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/NotFound'
         '500':
           description: A server error occurred
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/ServerError'
       tags:
         - MoveTaskOrder
       description: Gets a move order
@@ -142,23 +142,23 @@ paths:
         '400':
           description: The request payload is invalid
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/InvalidRequest'
         '401':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '403':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '404':
           description: The requested resource wasn't found
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/NotFound'
         '500':
           description: A server error occurred
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/ServerError'
       tags:
         - MoveTaskOrder
       description: Updates a move order by ID
@@ -183,23 +183,23 @@ paths:
         '400':
           description: The request payload is invalid
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/InvalidRequest'
         '401':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '403':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '404':
           description: The requested resource wasn't found
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/NotFound'
         '500':
           description: A server error occurred
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/ServerError'
       tags:
         - serviceItem
       description: Gets all line items for a move orders
@@ -224,23 +224,23 @@ paths:
         '400':
           description: The request payload is invalid
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/InvalidRequest'
         '401':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '403':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '404':
           description: The requested resource wasn't found
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/NotFound'
         '500':
           description: A server error occurred
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/ServerError'
       tags:
         - serviceItem
       description: Creates a service item for a move order by id
@@ -270,23 +270,23 @@ paths:
         '400':
           description: The request payload is invalid
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/InvalidRequest'
         '401':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '403':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '404':
           description: The requested resource wasn't found
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/NotFound'
         '500':
           description: A server error occurred
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/ServerError'
       tags:
         - ServiceItem
       description: Delets a line item by ID for a move order by ID
@@ -304,23 +304,23 @@ paths:
         '400':
           description: The request payload is invalid
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/InvalidRequest'
         '401':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '403':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '404':
           description: The requested resource wasn't found
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/NotFound'
         '500':
           description: A server error occurred
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/ServerError'
       tags:
         - ServiceItem
       description: Gets a line item by ID for a move order by ID
@@ -345,23 +345,23 @@ paths:
         '400':
           description: The request payload is invalid
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/InvalidRequest'
         '401':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '403':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '404':
           description: The requested resource wasn't found
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/NotFound'
         '500':
           description: A server error occurred
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/ServerError'
       tags:
         - ServiceItem
       description: Updates a service item by ID for a move order by ID
@@ -400,23 +400,23 @@ paths:
         '400':
           description: The request payload is invalid
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/InvalidRequest'
         '401':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '403':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '404':
           description: The requested resource wasn't found
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/NotFound'
         '500':
           description: A server error occurred
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/ServerError'
       tags:
         - ServiceItem
       description: Changes the status of a line item for a move order by ID
@@ -447,23 +447,23 @@ paths:
         '400':
           description: The request payload is invalid
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/InvalidRequest'
         '401':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '403':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '404':
           description: The requested resource wasn't found
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/NotFound'
         '500':
           description: A server error occurred
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/ServerError'
       tags:
         - MoveTaskOrder
       description: Changes move order status
@@ -524,23 +524,23 @@ paths:
         '400':
           description: The request payload is invalid
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/InvalidRequest'
         '401':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '403':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '404':
           description: The requested resource wasn't found
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/NotFound'
         '500':
           description: A server error occurred
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/ServerError'
       tags:
         - payment-requests
         - prime
@@ -567,23 +567,23 @@ paths:
         '400':
           description: The request payload is invalid
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/InvalidRequest'
         '401':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '403':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '404':
           description: The requested resource wasn't found
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/NotFound'
         '500':
           description: A server error occurred
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/ServerError'
       tags:
         - payment-requests
         - prime
@@ -610,23 +610,23 @@ paths:
         '400':
           description: The request payload is invalid
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/InvalidRequest'
         '401':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '403':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '404':
           description: The requested resource wasn't found
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/NotFound'
         '500':
           description: A server error occurred
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/ServerError'
       tags:
         - payment-requests
         - prime
@@ -659,23 +659,23 @@ paths:
         '400':
           description: The request payload is invalid
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/InvalidRequest'
         '401':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '403':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '404':
           description: The requested resource wasn't found
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/NotFound'
         '500':
           description: A server error occurred
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/ServerError'
       tags:
         - payment-requests
         - gov
@@ -979,22 +979,21 @@ definitions:
       - createdAt
       - updatedAt
     type: object
-x-components:
-  responses:
-    InvalidRequest:
-      description: The request payload is invalid
-      schema:
-        $ref: '#/definitions/Error'
-    NotFound:
-      description: The requested resource wasn't found
-      schema:
-        $ref: '#/definitions/Error'
-    PermissionDenied:
-      description: The request was denied
-      schema:
-        $ref: '#/definitions/Error'
-    ServerError:
-      description: A server error occurred
-      schema:
-        $ref: '#/definitions/Error'
+responses:
+  InvalidRequest:
+    description: The request payload is invalid
+    schema:
+      $ref: '#/definitions/Error'
+  NotFound:
+    description: The requested resource wasn't found
+    schema:
+      $ref: '#/definitions/Error'
+  PermissionDenied:
+    description: The request was denied
+    schema:
+      $ref: '#/definitions/Error'
+  ServerError:
+    description: A server error occurred
+    schema:
+      $ref: '#/definitions/Error'
 
