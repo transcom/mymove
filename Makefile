@@ -99,7 +99,7 @@ endif
 	touch .check_bash_version.stamp
 
 .PHONY: deps
-deps: prereqs check_hosts check_go_version check_gopath check_bash_version ensure_pre_commit client_deps server_deps ## Run all checks and install all depdendencies
+deps: prereqs check_hosts check_go_version check_gopath check_bash_version ensure_pre_commit client_deps bin/rds-combined-ca-bundle.pem ## Run all checks and install all depdendencies
 
 .PHONY: test
 test: client_test server_test e2e_test ## Run all tests
@@ -192,25 +192,25 @@ bin/rds-combined-ca-bundle.pem:
 
 ### MilMove Targets
 
-bin/compare-secure-migrations: pkg/gen/
+bin/compare-secure-migrations:
 	go build -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare-secure-migrations
 
-bin/ecs-deploy-task-container: pkg/gen/
+bin/ecs-deploy-task-container:
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy-task-container ./cmd/ecs-deploy-task-container
 
 bin/ecs-service-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
 
-bin/generate-access-codes: pkg/gen/
+bin/generate-access-codes:
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-access-codes ./cmd/generate_access_codes
 
-bin/generate-shipment-summary: pkg/gen/
+bin/generate-shipment-summary:
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
 
-bin/generate-test-data: pkg/assets/assets.go pkg/gen/
+bin/generate-test-data:
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate-test-data
 
-bin_linux/generate-test-data: pkg/assets/assets.go .server_generate_linux.stamp
+bin_linux/generate-test-data:
 	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate-test-data
 
 bin/health-checker:
@@ -219,22 +219,22 @@ bin/health-checker:
 bin/iws:
 	go build -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/iws/iws.go
 
-bin/load-office-data: pkg/gen/
+bin/load-office-data:
 	go build -ldflags "$(LDFLAGS)" -o bin/load-office-data ./cmd/load_office_data
 
-bin/load-user-gen: pkg/gen/
+bin/load-user-gen:
 	go build -ldflags "$(LDFLAGS)" -o bin/load-user-gen ./cmd/load_user_gen
 
-bin/make-dps-user: pkg/gen/
+bin/make-dps-user:
 	go build -ldflags "$(LDFLAGS)" -o bin/make-dps-user ./cmd/make_dps_user
 
-bin/make-office-user: pkg/gen/
+bin/make-office-user:
 	go build -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
 
-bin/milmove: pkg/gen/ pkg/assets/assets.go
+bin/milmove:
 	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
-bin_linux/milmove: .server_generate_linux.stamp
+bin_linux/milmove:
 	GOOS=linux GOARCH=amd64 go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin_linux/milmove ./cmd/milmove
 
 bin/renderer:
@@ -242,10 +242,10 @@ bin/renderer:
 	# throws errors loadinternal: cannot find runtime/cgo
 	go build -o bin/renderer ./cmd/renderer
 
-bin/milmove-tasks: pkg/gen/ pkg/assets/assets.go
+bin/milmove-tasks:
 	go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove-tasks ./cmd/milmove-tasks
 
-bin_linux/milmove-tasks: .server_generate_linux.stamp pkg/assets/assets.go
+bin_linux/milmove-tasks:
 	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin_linux/milmove-tasks ./cmd/milmove-tasks
 
 bin/send-to-gex: pkg/gen/
@@ -264,28 +264,19 @@ pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
 #
 
 .PHONY: go_deps_update
-go_deps_update: server_deps server_generate mocks_generate ## Update golang dependencies
+go_deps_update: .check_gopath.stamp server_generate mocks_generate ## Update golang dependencies
 	go run cmd/update_deps/main.go
-
-.PHONY: server_deps
-server_deps: .check_gopath.stamp bin/chamber bin/gin bin/swagger bin/mockery bin/rds-combined-ca-bundle.pem ## Install or Build server dependencies
 
 .PHONY: server_generate
 server_generate: .check_go_version.stamp .check_gopath.stamp pkg/gen/ ## Generate golang server code from Swagger files
 pkg/gen/: pkg/assets/assets.go bin/swagger $(shell find swagger -type f -name *.yaml)
 	scripts/gen-server
 
-.PHONY: server_generate_linux
-server_generate_linux: .check_go_version.stamp .check_gopath.stamp pkg/assets/assets.go bin/swagger .server_generate_linux.stamp ## Generate golang server code from Swagger files (linux)
-.server_generate_linux.stamp: pkg/assets/assets.go bin/swagger $(shell find swagger -type f -name *.yaml)
-	scripts/gen-server
-	touch .server_generate_linux.stamp
-
 .PHONY: server_build
-server_build: server_deps server_generate bin/milmove ## Build the server
+server_build: bin/milmove ## Build the server
 
 .PHONY: server_build_linux
-server_build_linux: server_generate_linux ## Build the server (linux)
+server_build_linux: ## Build the server (linux)
 	# These don't need to go in bin_linux/ because local devs don't use them
 	# Additionally it would not work with the default Dockerfile
 	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/chamber github.com/segmentio/chamber
@@ -318,7 +309,11 @@ server_run_debug: ## Debug the server
 	$(AWS_VAULT) dlv debug cmd/milmove/*.go -- serve
 
 .PHONY: build_tools
-build_tools: server_deps \
+build_tools: bin/chamber \
+	bin/gin \
+	bin/swagger \
+	bin/mockery \
+	bin/rds-combined-ca-bundle.pem \
 	bin/compare-secure-migrations \
 	bin/ecs-deploy-task-container \
 	bin/ecs-service-logs \
@@ -374,23 +369,26 @@ mocks_generate: bin/mockery ## Generate mockery mocks for tests
 	go generate $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test
-server_test: server_deps db_test_reset db_test_migrate ## Run server unit tests
+server_test: db_test_reset db_test_migrate server_test_standalone ## Run server unit tests
+
+.PHONY: server_test_standalone
+server_test_standalone: ## Run server unit tests with no deps
 	# Don't run tests in /cmd or /pkg/gen/ & pass `-short` to exclude long running tests
 	# Disable test caching with `-count 1` - caching was masking local test failures
 	# Limit the maximum number of tests to run in parallel to 8.
-	DB_PORT=$(DB_PORT_TEST) go test -parallel 8 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
+	DB_PORT=$(DB_PORT_TEST) go test -parallel 8 -v -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 server_test_build:
 	# Try to compile tests, but don't run them.
 	go test -run=nope -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test_all
-server_test_all: server_deps db_dev_reset db_dev_migrate ## Run all server unit tests
+server_test_all: db_dev_reset db_dev_migrate ## Run all server unit tests
 	# Like server_test but runs extended tests that may hit external services.
-	DB_PORT=$(DB_PORT_TEST) go test -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
+	DB_PORT=$(DB_PORT_TEST) go test -parallel 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test_coverage_generate
-server_test_coverage_generate: server_deps db_test_reset db_test_migrate ## Run server unit test coverage
+server_test_coverage_generate: db_test_reset db_test_migrate ## Run server unit test coverage
 	# Don't run tests in /cmd or /pkg/gen
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
@@ -398,7 +396,7 @@ server_test_coverage_generate: server_deps db_test_reset db_test_migrate ## Run 
 	DB_PORT=$(DB_PORT_TEST) go test -coverprofile=coverage.out -covermode=count -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test_coverage
-server_test_coverage: server_deps db_test_reset db_test_migrate server_test_coverage_generate ## Run server unit test coverage with html output
+server_test_coverage: db_test_reset db_test_migrate server_test_coverage_generate ## Run server unit test coverage with html output
 	DB_PORT=$(DB_PORT_TEST) go tool cover -html=coverage.out
 
 #
@@ -449,7 +447,7 @@ db_dev_migrate_standalone: bin/milmove
 	DB_DEBUG=0 bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
 
 .PHONY: db_dev_migrate
-db_dev_migrate: server_deps db_dev_migrate_standalone ## Migrate Dev DB
+db_dev_migrate: db_dev_migrate_standalone ## Migrate Dev DB
 
 .PHONY: db_dev_psql
 db_dev_psql: ## Open PostgreSQL shell for Dev DB
@@ -504,7 +502,7 @@ db_deployed_migrations_migrate_standalone: bin/milmove ## Migrate Deployed Migra
 	DB_DEBUG=0 DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
 
 .PHONY: db_deployed_migrations_migrate
-db_deployed_migrations_migrate: server_deps db_deployed_migrations_migrate_standalone ## Migrate Deployed Migrations DB
+db_deployed_migrations_migrate: db_deployed_migrations_migrate_standalone ## Migrate Deployed Migrations DB
 
 .PHONY: db_deployed_psql
 db_deployed_psql: ## Open PostgreSQL shell for Deployed Migrations DB
@@ -571,11 +569,11 @@ else
 endif
 
 .PHONY: db_test_migrate
-db_test_migrate: server_deps db_test_migrate_standalone ## Migrate Test DB
+db_test_migrate: db_test_migrate_standalone ## Migrate Test DB
 
 .PHONY: db_test_migrations_build
 db_test_migrations_build: .db_test_migrations_build.stamp ## Build Test DB Migrations Docker Image
-.db_test_migrations_build.stamp: server_generate_linux bin_linux/milmove bin_linux/generate-test-data
+.db_test_migrations_build.stamp: bin_linux/milmove bin_linux/generate-test-data
 	@echo "Build the docker migration container..."
 	docker build -f Dockerfile.migrations_local --tag e2e_migrations:latest .
 
@@ -724,7 +722,7 @@ tasks_send_post_move_survey: tasks_build_linux_docker ## Run send-post-move-surv
 #
 
 .PHONY: run_prod_migrations
-run_prod_migrations: server_deps bin/milmove db_deployed_migrations_reset ## Run Prod migrations against Deployed Migrations DB
+run_prod_migrations: bin/milmove db_deployed_migrations_reset ## Run Prod migrations against Deployed Migrations DB
 	@echo "Migrating the prod-migrations database with prod migrations..."
 	MIGRATION_PATH="s3://transcom-ppp-app-prod-us-west-2/secure-migrations;file://migrations" \
 	DB_HOST=localhost \
@@ -734,7 +732,7 @@ run_prod_migrations: server_deps bin/milmove db_deployed_migrations_reset ## Run
 	bin/milmove migrate
 
 .PHONY: run_staging_migrations
-run_staging_migrations: server_deps bin/milmove db_deployed_migrations_reset ## Run Staging migrations against Deployed Migrations DB
+run_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run Staging migrations against Deployed Migrations DB
 	@echo "Migrating the prod-migrations database with staging migrations..."
 	MIGRATION_PATH="s3://transcom-ppp-app-staging-us-west-2/secure-migrations;file://migrations" \
 	DB_HOST=localhost \
@@ -744,7 +742,7 @@ run_staging_migrations: server_deps bin/milmove db_deployed_migrations_reset ## 
 	bin/milmove migrate
 
 .PHONY: run_experimental_migrations
-run_experimental_migrations: server_deps bin/milmove db_deployed_migrations_reset ## Run Experimental migrations against Deployed Migrations DB
+run_experimental_migrations: bin/milmove db_deployed_migrations_reset ## Run Experimental migrations against Deployed Migrations DB
 	@echo "Migrating the prod-migrations database with experimental migrations..."
 	MIGRATION_PATH="s3://transcom-ppp-app-experimental-us-west-2/secure-migrations;file://migrations" \
 	DB_HOST=localhost \
