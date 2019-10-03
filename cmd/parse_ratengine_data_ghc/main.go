@@ -3,8 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
+	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/tealeg/xlsx"
 )
@@ -54,7 +57,7 @@ import (
 16: 4a) Mgmt., Coun., Trans. Prices
 17: 5a) Access. and Add. Prices
 18: 5b) Price Escalation Discount
-19: Domestic  Linehaul Data
+19: Domestic Linehaul Data
 20: Domestic Move Count
 21: Domestic Avg Weight
 22: Domestic Avg Milage
@@ -74,36 +77,157 @@ import (
 
 
  *************************************************************************/
+const xlsxSheetsCountMax int = 35
+type processXlsxSheet func(config, int) error
+type verifyXlsxSheet func(config, int) error
 
-func showHelp() {
-
+type xlsxDataSheetInfo struct {
+	description *string
+	process *processXlsxSheet
+	verify *verifyXlsxSheet
+	outputFilename *string //<id>_<outputFilename>_<time.Now().Format("20060102150405")>.csv
 }
 
+func (x *xlsxDataSheetInfo) generateOutputFilename(index int, runTime time.Time) string {
+	var name string
+	if x.outputFilename != nil {
+		name = *x.outputFilename
+	}
+
+	name = string(index) + "_" + name + "_" + runTime.Format("20060102150405") + ".csv"
+
+	return name
+}
+
+var xlsxDataSheets []xlsxDataSheetInfo
+
+func initDataSheetInfo()  {
+	xlsxDataSheets := make([]xlsxDataSheetInfo, xlsxSheetsCountMax, xlsxSheetsCountMax)
+
+	// 6: 	2a) Domestic Linehaul Prices
+	xlsxDataSheets[6] = xlsxDataSheetInfo {
+		description: stringPointer("2a) Domestic Linehaul Prices"),
+		outputFilename: stringPointer("2b_domestic_linehaul_prices"),
+		process: &parseDomesticLinehaulPrices,
+		verify: &verifyDomesticLinehaulPrices,
+	}
+}
+
+type config struct {
+	displayHelp bool
+	processAll bool
+	showOutput bool
+	xlsxFilename *string
+	xlsxSheet *int
+	saveToFile bool
+	runTime time.Time
+}
+
+func usage() {
+	fmt.Printf(`%s: -f=<CSV Input File> -o=<XLSX Output File> -d=<Delimiter>
+`,
+		os.Args[0])
+}
+
+
 func main() {
-	//logger, err := zap.NewDevelopment()
+
+	initDataSheetInfo()
+	config := config{}
+	config.runTime = time.Now()
 
 	help := flag.Bool("help", false, "Display help/usage info")
-	all := flag.Bool("all", false, "True, if parsing entire Rate Engine GHC XLSX")
-	display := flag.Bool("display", false, "True, if display output of parsed info")
+	all := flag.Bool("all", false, "true, if parsing entire Rate Engine GHC XLSX")
+	display := flag.Bool("display", false, "true, if displaying output of parsed info")
 	filename := flag.String("filename", "", "Filename including path of the XLSX to parse for Rate Engine GHC import")
+	saveToFile := flag.Bool("save", false, "true, if saving output to file")
+	//TODO change xlsxSheet to a string and name to xlsxSheets
+	config.xlsxSheet = flag.Int("xlsxSheet", 99, "Sequential sheet index number starting with 0")
+
+	/**
+	TODO: - implement xlsxSheets (string of indexes to process)
+	TODO: - implement help!!!
+	TODO: - implement print out availalble indices for processing xlsxDataSheets
+	TODO: - implement verification perSheet of expected filled in cells (add verify function xlsxDataSheetInfo
+	 */
 
 	flag.Parse()
 
+	config.displayHelp = false
 	if help != nil && *help == true {
-		showHelp()
+		config.displayHelp = true
+		usage()
 		return
 	}
 
+	config.processAll = false
 	if all != nil && *all == true {
+		config.processAll = true
 		// TODO parse everything
 	}
 
+	config.xlsxFilename = filename
 	if filename != nil {
-		fmt.Printf("Importing file %s\n", *filename)
-
-		parseDomesticLinehaulPrices(*filename, display)
+		log.Printf("Importing file %s\n", *filename)
 	}
 
+	config.showOutput = false
+	if display != nil && *display == true {
+		config.showOutput = true
+	}
+
+	config.saveToFile = false
+	if saveToFile != nil && *saveToFile == true {
+		config.saveToFile = true
+	}
+
+	// TODO process config.xlsxSheets
+
+	// TODO properly call the process function
+	err := process(config, 6)
+	if err != nil {
+		log.Fatalf("Error processing %v\n", err)
+	}
+
+}
+
+func process(config config, sheetIndex int) error {
+	xlsxInfo := xlsxDataSheets[sheetIndex]
+	var description string
+	if xlsxInfo.description != nil {
+		description = *xlsxInfo.description
+		log.Printf("Processing sheet index %d with description %s\n", sheetIndex, description)
+	} else {
+		log.Printf("Processing sheet index %d with missing description\n", sheetIndex)
+	}
+
+	// Call verify function
+	if xlsxInfo.verify != nil {
+		var callFunc verifyXlsxSheet
+		callFunc = *xlsxInfo.verify
+		err := callFunc(config, sheetIndex)
+		if err != nil {
+			log.Printf("%s verify error: %v\n", description, err)
+		}
+	} else {
+		log.Printf("No verify function for sheet index %d with description %s\n", sheetIndex, description)
+	}
+
+	// Call process function
+	if xlsxInfo.process != nil {
+		var callFunc processXlsxSheet
+		callFunc = *xlsxInfo.process
+		err := callFunc(config, sheetIndex)
+		if err != nil {
+			log.Printf("%s process error: %v\n", description, err)
+		}
+	} else {
+		log.Fatalf("Missing process function for sheet index %d with description %s\n", sheetIndex, description)
+	}
+
+	// Verification and Process completed
+	log.Printf("Completed processing sheet index %d with description %s\n", sheetIndex, description)
+	return nil
 }
 
 // A safe way to get a cell from a slice of cells, returning empty string if not found
@@ -113,6 +237,15 @@ func getCell(cells []*xlsx.Cell, i int) string {
 	}
 
 	return ""
+}
+
+// Gotta have a stringPointer function. Returns nil if empty string
+func stringPointer(s string) *string {
+	if s == "" {
+		return nil
+	}
+
+	return &s
 }
 
 func getInt(from string) int {
@@ -137,11 +270,22 @@ func getInt(from string) int {
 	return i
 }
 
-func parseDomesticLinehaulPrices(parseFile string, display *bool) error {
+func checkError(message string, err error) {
+	if err != nil {
+		log.Fatal(message, err)
+	}
+}
+
+var verifyDomesticLinehaulPrices verifyXlsxSheet = func (params config, sheetIndex int) error {
+	log.Println("TODO verifyDomesticLinehaulPrices() not implemented")
+	return nil
+}
+
+var parseDomesticLinehaulPrices processXlsxSheet = func (params config, sheetIndex int) error {
 
 	/*
-		weightBands
 		peak and non-peak
+		weightBands
 		milage bands
 		services area -> origin service -> service schedule
 		base period year
@@ -151,138 +295,42 @@ func parseDomesticLinehaulPrices(parseFile string, display *bool) error {
 			ColLettersToIndex
 	*/
 
-	rateTypes := []string{"NonPeak", "Peak"}
-
-	weightBandNumCellsExpected := 10 //cells per band verify against weightBandNumCells
-	weightBandCountExpected := 3     //expected number of weight bands verify against weightBandCount
-
-	type weightBand struct {
-		band     int
-		lowerLbs int
-		upperLbs int
-		lowerCwt float32
-		upperCwt float32
-	}
-
-	weightBands := []weightBand{
-		{
-			band:     1,
-			lowerLbs: 500,
-			upperLbs: 4999,
-			lowerCwt: 5,
-			upperCwt: 49.99,
-		},
-		{
-			band:     2,
-			lowerLbs: 5000,
-			upperLbs: 9999,
-			lowerCwt: 50,
-			upperCwt: 99.99,
-		},
-		{
-			band:     3,
-			lowerLbs: 10000,
-			upperLbs: 999999,
-			lowerCwt: 100,
-			upperCwt: 9999.99,
-		},
-	}
-	weightBandCount := len(weightBands) //number of bands and then repeats
-
-	type milesRange struct {
-		rangeNumber int
-		lower       int
-		upper       int
-	}
-
-	milesRanges := []milesRange{
-		{
-			rangeNumber: 1,
-			lower:       0,
-			upper:       250,
-		},
-		{
-			rangeNumber: 2,
-			lower:       251,
-			upper:       500,
-		},
-		{
-			rangeNumber: 3,
-			lower:       501,
-			upper:       1000,
-		},
-		{
-			rangeNumber: 4,
-			lower:       1001,
-			upper:       1500,
-		},
-		{
-			rangeNumber: 5,
-			lower:       1501,
-			upper:       2000,
-		},
-		{
-			rangeNumber: 6,
-			lower:       2001,
-			upper:       2500,
-		},
-		{
-			rangeNumber: 7,
-			lower:       2501,
-			upper:       3000,
-		},
-		{
-			rangeNumber: 8,
-			lower:       3001,
-			upper:       3500,
-		},
-		{
-			rangeNumber: 9,
-			lower:       3501,
-			upper:       4000,
-		},
-		{
-			rangeNumber: 10,
-			lower:       4001,
-			upper:       999999,
-		},
-	}
-	weightBandNumCells := len(milesRanges) //
-
-	type domesticLineHaulPrice struct {
-		serviceAreaNumber     int
-		originServiceArea     string
-		serviceSchedule       int
-		season                string
-		weightBand            weightBand
-		milesRange            milesRange
-		optionPeriodYearCount int    //the escalation type
-		rate                  string //TODO should this be a float or string? Proabably string  stripping out the $
-	}
-
 	if weightBandNumCells != weightBandNumCellsExpected {
-		fmt.Errorf("Exepected %d columns per weight band, found %d defined in golang parser\n", weightBandNumCellsExpected, weightBandNumCells)
+		return fmt.Errorf("parseDomesticLinehaulPrices(): Exepected %d columns per weight band, found %d defined in golang parser\n", weightBandNumCellsExpected, weightBandNumCells)
 	}
 
-	if weightBandCount != weightBandCountExpected {
-		fmt.Errorf("Exepected %d weight bands, found %d defined in golang parser\n", weightBandCountExpected, weightBandCount)
+	if len(weightBands) != weightBandCountExpected {
+		return fmt.Errorf("parseDomesticLinehaulPrices(): Exepected %d weight bands, found %d defined in golang parser\n", weightBandCountExpected, len(weightBands))
 	}
 
-	xlFile, err := xlsx.OpenFile(parseFile)
+	// TODO can this be a function? I think yes
+	// TODO return point, write to file if point is not nil
+	var createCsv createCsvHelper
+	if params.saveToFile == true {
+		err := createCsv.createCsvWriter(xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime))
+		checkError("Failed to create CSV writer", err)
+		defer createCsv.close()
+	}
+
+	if params.xlsxFilename == nil {
+		return fmt.Errorf("parseDomesticLinehaulPrices(): did not receive an XLSX filename to parse")
+	}
+	xlFile, err := xlsx.OpenFile(*params.xlsxFilename)
 	if err != nil {
 		return err
 	}
 
-	xlsxDataSheetNum := 6 // 2a) Domestic Linehaul Prices
-
-	feeColIndexStart := 6 // start at column 6 to get the rates
+	const xlsxDataSheetNum int = 6 // 2a) Domestic Linehaul Prices
+	const feeColIndexStart int = 6 // start at column 6 to get the rates
 	colIndex := feeColIndexStart
+	const feeRowIndexStart int = 14 // start at row 14 to get the rates
+	const serviceAreaNumberColumn int = 2
+	const originServiceAreaColumn int = 3
+	const serviceScheduleColumn int = 4
 
-	feeRowIndexStart := 14 // start at row 14 to get the rates
-
-	serviceAreaNumberColumn := 2
-	originServiceAreaColumn := 3
-	serviceScheduleColumn := 4
+	if xlsxDataSheetNum != sheetIndex {
+		return fmt.Errorf("parseDomesticLinehaulPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
+	}
 
 	dataRows := xlFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
 	for _, row := range dataRows {
@@ -307,18 +355,20 @@ func parseDomesticLinehaulPrices(parseFile string, display *bool) error {
 							rate:                  getCell(row.Cells, colIndex),
 						}
 						colIndex++
-						fmt.Printf("%v\n", domesticLineHaulPrice)
+						if params.showOutput == true {
+							log.Println(domesticLineHaulPrice.toSlice())
+						}
+						if params.saveToFile == true {
+							createCsv.write(domesticLineHaulPrice.toSlice())
+						}
 					}
 					//TODO DEBUG REMOVE return
 					return nil
 				}
 				colIndex++ // skip 1 column (empty column) before starting next rate type
-
 			}
 		}
 	}
-
-	//
 
 	return nil
 }
