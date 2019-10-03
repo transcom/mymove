@@ -212,3 +212,50 @@ func (dLh *domesticLineHaulPrice) toSlice() []string {
 
 	return values
 }
+
+type domesticServiceAreaPrice struct {
+	serviceAreaNumber                     int
+	originServiceArea                     string
+	serviceSchedule                       int
+	sITPickupDeliverySchedule             int
+	season                                string
+	escalation                            int
+	shorthaulPrice                        string
+	originDestinationPrice                string
+	originDestinationSITFirstDayWarehouse string
+	originDestinationSITAddlDays          string
+}
+
+func (dSA *domesticServiceAreaPrice) csvHeader() []string {
+	header := []string{
+		"Service Area Number",
+		"Origin Serivce Area",
+		"Service Schedule",
+		"SIT Pickup Delivery Schedule",
+		"Season",
+		"Escalation Number",
+		"Shorthaul Price",
+		"Origin/Destination Price",
+		"Origin/Destination SIT First Day & Warehouse",
+		"Origin/Destination SIT Addtl Days",
+	}
+
+	return header
+}
+
+func (dSA *domesticServiceAreaPrice) toSlice() []string {
+	var values []string
+
+	values = append(values, strconv.Itoa(dSA.serviceAreaNumber))
+	values = append(values, dSA.originServiceArea)
+	values = append(values, strconv.Itoa(dSA.serviceSchedule))
+	values = append(values, strconv.Itoa(dSA.sITPickupDeliverySchedule))
+	values = append(values, dSA.season)
+	values = append(values, strconv.Itoa(dSA.escalation))
+	values = append(values, dSA.shorthaulPrice)
+	values = append(values, dSA.originDestinationPrice)
+	values = append(values, dSA.originDestinationSITFirstDayWarehouse)
+	values = append(values, dSA.originDestinationSITAddlDays)
+
+	return values
+}

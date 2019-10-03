@@ -139,10 +139,19 @@ func initDataSheetInfo() {
 	// 6: 	2a) Domestic Linehaul Prices
 	xlsxDataSheets[6] = xlsxDataSheetInfo{
 		description:    stringPointer("2a) Domestic Linehaul Prices"),
-		outputFilename: stringPointer("2b_domestic_linehaul_prices"),
+		outputFilename: stringPointer("2a_domestic_linehaul_prices"),
 		process:        &parseDomesticLinehaulPrices,
 		verify:         &verifyDomesticLinehaulPrices,
 	}
+
+	// 7: 	2b) Dom. Service Area Prices
+	xlsxDataSheets[7] = xlsxDataSheetInfo{
+		description:    stringPointer("2b) Dom. Service Area Prices"),
+		outputFilename: stringPointer("2b_domestic_service_area_prices"),
+		process:        &parseDomesticServiceAreaPrices,
+		verify:         &verifyDomesticServiceAreaPrices,
+	}
+
 }
 
 type paramConfig struct {
@@ -286,6 +295,10 @@ func process(params paramConfig, sheetIndex int) error {
 	return nil
 }
 
+/*************************************************************************/
+// Shared Helper functions
+/*************************************************************************/
+
 // A safe way to get a cell from a slice of cells, returning empty string if not found
 func getCell(cells []*xlsx.Cell, i int) string {
 	if len(cells) > i {
@@ -332,6 +345,10 @@ func checkError(message string, err error) {
 	}
 }
 
+func removeFirstDollarSign(s string) string {
+	return strings.Replace(s, "$", "", 1)
+}
+
 func createCsvWriter(create bool, sheetIndex int, runTime time.Time) *createCsvHelper {
 	var createCsv createCsvHelper
 
@@ -341,6 +358,10 @@ func createCsvWriter(create bool, sheetIndex int, runTime time.Time) *createCsvH
 	}
 	return &createCsv
 }
+
+/*************************************************************************/
+// GHC Rate Engine XLSX Verification and Process functions
+/*************************************************************************/
 
 // verifyDomesticLinehaulPrices: verification for 2a) Domestic Linehaul Prices
 var verifyDomesticLinehaulPrices verifyXlsxSheet = func(params paramConfig, sheetIndex int) error {
@@ -369,6 +390,7 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 		csvWriter.write(dp.csvHeader())
 	}
 
+	// Verify that we have a filename and try to open it for reading
 	if params.xlsxFilename == nil {
 		return fmt.Errorf("parseDomesticLinehaulPrices(): did not receive an XLSX filename to parse")
 	}
@@ -422,6 +444,90 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 				}
 				colIndex++ // skip 1 column (empty column) before starting next rate type
 			}
+		}
+	}
+
+	return nil
+}
+
+// verifyDomesticServiceAreaPrices: verification 2b) Dom. Service Area Prices
+var verifyDomesticServiceAreaPrices verifyXlsxSheet = func(params paramConfig, sheetIndex int) error {
+	log.Println("TODO verifyDomesticServiceAreaPrices() not implemented")
+	return nil
+}
+
+// parseDomesticServiceAreaPrices: parser for: 2b) Dom. Service Area Prices
+var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, sheetIndex int) error {
+	// Create CSV writer to save data to CSV file, returns nil if params.saveToFile=false
+	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime)
+	if csvWriter != nil {
+		defer csvWriter.close()
+
+		// Write header to CSV
+		dp := domesticServiceAreaPrice{}
+		csvWriter.write(dp.csvHeader())
+	}
+
+	// Verify that we have a filename and try to open it for reading
+	if params.xlsxFilename == nil {
+		return fmt.Errorf("parseDomesticServiceAreaPrices(): did not receive an XLSX filename to parse")
+	}
+	xlFile, err := xlsx.OpenFile(*params.xlsxFilename)
+	if err != nil {
+		return err
+	}
+
+	// XLSX Sheet consts
+	const xlsxDataSheetNum int = 7  // 2a) Domestic Linehaul Prices
+	const feeColIndexStart int = 6  // start at column 6 to get the rates
+	const feeRowIndexStart int = 10 // start at row 10 to get the rates
+	const serviceAreaNumberColumn int = 2
+	const originServiceAreaColumn int = 3
+	const serviceScheduleColumn int = 4
+	const sITPickupDeliveryScheduleColumn int = 5
+	const numEscalationYearsToProcess int = 4
+
+	if xlsxDataSheetNum != sheetIndex {
+		return fmt.Errorf("parseDomesticServiceAreaPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
+	}
+
+	dataRows := xlFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
+	for _, row := range dataRows {
+		colIndex := feeColIndexStart
+		// For number of baseline + escalation years
+		for escalation := 0; escalation < numEscalationYearsToProcess; escalation++ {
+			// For each rate season
+			for _, r := range rateTypes {
+				domPrice := domesticServiceAreaPrice{
+					serviceAreaNumber:         getInt(getCell(row.Cells, serviceAreaNumberColumn)),
+					originServiceArea:         getCell(row.Cells, originServiceAreaColumn),
+					serviceSchedule:           getInt(getCell(row.Cells, serviceScheduleColumn)),
+					sITPickupDeliverySchedule: getInt(getCell(row.Cells, sITPickupDeliveryScheduleColumn)),
+					season:                    r,
+					escalation:                escalation,
+				}
+
+				domPrice.shorthaulPrice = removeFirstDollarSign(getCell(row.Cells, colIndex))
+				colIndex++
+				domPrice.originDestinationPrice = removeFirstDollarSign(getCell(row.Cells, colIndex))
+				colIndex += 3 // skip 2 columns pack and unpack
+				domPrice.originDestinationSITFirstDayWarehouse = removeFirstDollarSign(getCell(row.Cells, colIndex))
+				colIndex++
+				domPrice.originDestinationSITAddlDays = removeFirstDollarSign(getCell(row.Cells, colIndex))
+				colIndex++ // skip column SIT Pickup / Delivery ≤50 miles (per cwt)
+
+				if params.showOutput == true {
+					log.Println(domPrice.toSlice())
+				}
+				if csvWriter != nil {
+					csvWriter.write(domPrice.toSlice())
+				}
+
+				colIndex += 2 // skip 1 column (empty column) before starting next rate type
+			}
+
+			// TODO DEBUG
+			//return nil
 		}
 	}
 
