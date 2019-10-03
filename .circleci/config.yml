@@ -534,7 +534,7 @@ jobs:
           repo: app
       - announce_failure
 
-  # `build_app` builds the application container and pushes to the container repository
+  # `build_storybook_app` builds the storybook application container and pushes to the container repository
   build_storybook_app:
     executor: mymove_medium
     steps:
@@ -896,6 +896,13 @@ workflows:
           #     ignore: placeholder_branch_name
 
       - build_app:
+          requires:
+            - anti_virus
+            - pre_deps_golang
+            - pre_deps_yarn
+            - acceptance_tests_local # don't bother building and pushing the application if it won't even start properly
+
+      - build_storybook_app:
           requires:
             - anti_virus
             - pre_deps_golang
