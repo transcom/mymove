@@ -38,8 +38,8 @@ export class DocumentsUploaded extends Component {
   };
 
   renderHeader = () => {
-    const { expenseDocs, weightTicketDocs, inReviewPage } = this.props;
-    const totalDocs = expenseDocs.length + weightTicketDocs.length;
+    const { expenseDocs, weightTicketSetDocs, weightTicketDocs, inReviewPage } = this.props;
+    const totalDocs = expenseDocs.length + weightTicketSetDocs.length + weightTicketDocs.length;
     const documentLabel = `document${totalDocs > 1 ? 's' : ''}`;
 
     return <h3>{inReviewPage ? `Document Summary - ${totalDocs} total` : `${totalDocs} ${documentLabel} added`}</h3>;
@@ -47,8 +47,16 @@ export class DocumentsUploaded extends Component {
 
   render() {
     const { showDocs } = this.state;
-    const { expenseDocs, weightTicketDocs, moveId, showLinks, inReviewPage, deleteMoveDocument } = this.props;
-    const totalDocs = expenseDocs.length + weightTicketDocs.length;
+    const {
+      expenseDocs,
+      weightTicketSetDocs,
+      weightTicketDocs,
+      moveId,
+      showLinks,
+      inReviewPage,
+      deleteMoveDocument,
+    } = this.props;
+    const totalDocs = expenseDocs.length + weightTicketSetDocs.length + weightTicketDocs.length;
     const expandedDocumentList = showDocs || inReviewPage;
     const hiddenDocumentList = !inReviewPage && !showDocs;
 
@@ -78,14 +86,33 @@ export class DocumentsUploaded extends Component {
         </div>
         {expandedDocumentList && (
           <>
-            <h4>{weightTicketDocs.length} sets of weight tickets</h4>
+            {weightTicketDocs.length > 0 && (
+              <>
+                <h4>{weightTicketDocs.length} weight tickets</h4>
+                <div className="tickets">
+                  {weightTicketDocs.map((ticket, index) => (
+                    <WeightTicketListItem
+                      key={ticket.id}
+                      num={index}
+                      showDelete={inReviewPage}
+                      deleteDocumentListItem={deleteMoveDocument}
+                      isWeightTicketSet={false}
+                      {...ticket}
+                    />
+                  ))}
+                </div>
+                <hr id="doc-summary-separator" />
+              </>
+            )}
+            <h4>{weightTicketSetDocs.length} sets of weight tickets</h4>
             <div className="tickets">
-              {weightTicketDocs.map((ticket, index) => (
+              {weightTicketSetDocs.map((ticket, index) => (
                 <WeightTicketListItem
                   key={ticket.id}
                   num={index}
                   showDelete={inReviewPage}
                   deleteDocumentListItem={deleteMoveDocument}
+                  isWeightTicketSet={true}
                   {...ticket}
                 />
               ))}
@@ -127,7 +154,8 @@ function mapStateToProps(state, { moveId }) {
   return {
     moveId,
     expenseDocs: selectPPMCloseoutDocumentsForMove(state, moveId, ['EXPENSE']),
-    weightTicketDocs: selectPPMCloseoutDocumentsForMove(state, moveId, ['WEIGHT_TICKET_SET']),
+    weightTicketSetDocs: selectPPMCloseoutDocumentsForMove(state, moveId, ['WEIGHT_TICKET_SET']),
+    weightTicketDocs: selectPPMCloseoutDocumentsForMove(state, moveId, ['WEIGHT_TICKET']),
   };
 }
 

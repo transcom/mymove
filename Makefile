@@ -252,7 +252,8 @@ bin/send-to-gex: pkg/gen/
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
 
 pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
-	go-bindata -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/ pkg/notifications/templates/
+	# Fix the modtime to prevent diffs when generating on different machines
+	go-bindata -modtime 1569961560 -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/ pkg/notifications/templates/
 
 #
 # ----- END BIN TARGETS -----
