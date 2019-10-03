@@ -12,6 +12,6 @@ if [[ -z $(git status -uno --porcelain pkg/gen/ ${pkg_list_mocks} ) ]]; then
   exit 0
 else
   echo "generated code was modified!"
-  git diff
+  git --no-pager diff
   exit 1
 fi
