@@ -526,8 +526,6 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 				colIndex += 2 // skip 1 column (empty column) before starting next rate type
 			}
 
-			// TODO DEBUG
-			//return nil
 		}
 	}
 
