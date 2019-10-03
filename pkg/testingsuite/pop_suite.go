@@ -4,15 +4,32 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"math/rand"
 	"os/exec"
 	"runtime"
 	"strings"
+	"time"
 
 	envy "github.com/codegangsta/envy/lib"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/pkg/errors"
 )
+
+const charset = "abcdefghijklmnopqrstuvwxyz" +
+	"0123456789"
+
+var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
+
+// StringWithCharset returns a random string
+// https://www.calhoun.io/creating-random-strings-in-go/
+func StringWithCharset(length int, charset string) string {
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = charset[seededRand.Intn(len(charset))]
+	}
+	return string(b)
+}
 
 // PopTestSuite is a suite for testing
 type PopTestSuite struct {
@@ -104,7 +121,8 @@ func CurrentPackage() PackageName {
 
 // NewPopTestSuite returns a new PopTestSuite
 func NewPopTestSuite(packageName PackageName) PopTestSuite {
-	dbName := fmt.Sprintf("test_%s", strings.Replace(packageName.String(), "/", "_", -1))
+	uniq := StringWithCharset(6, charset)
+	dbName := fmt.Sprintf("test_%s_%s", strings.Replace(packageName.String(), "/", "_", -1), uniq)
 	log.Printf("package %s is attempting to connect to database %s", packageName.String(), dbName)
 
 	fmt.Printf("attempting to clone database %s to %s... ", "test_db", dbName)
