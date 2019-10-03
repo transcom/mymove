@@ -176,7 +176,7 @@ func xlsxSheetsUsage() string {
 			if v.description != nil {
 				description = *v.description
 			}
-			message += fmt.Sprintf("%d:  %s", i, description)
+			message += fmt.Sprintf("%d:  %s\n", i, description)
 		}
 	}
 
