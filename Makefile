@@ -369,14 +369,10 @@ mocks_generate: bin/mockery ## Generate mockery mocks for tests
 	go generate $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test
-server_test: db_test_reset db_test_migrate ## Run server unit tests
-	# Don't run tests in /cmd or /pkg/gen/ & pass `-short` to exclude long running tests
-	# Disable test caching with `-count 1` - caching was masking local test failures
-	# Limit the maximum number of tests to run in parallel to 8.
-	DB_PORT=$(DB_PORT_TEST) go test -parallel 8 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
+server_test: db_test_reset db_test_migrate server_test_standalone ## Run server unit tests
 
-.PHONY: server_test_circle
-server_test_circle: ## Run server unit tests with no deps for CircleCI
+.PHONY: server_test_standalone
+server_test_standalone: ## Run server unit tests with no deps
 	# Don't run tests in /cmd or /pkg/gen/ & pass `-short` to exclude long running tests
 	# Disable test caching with `-count 1` - caching was masking local test failures
 	# Limit the maximum number of tests to run in parallel to 8.
@@ -389,7 +385,7 @@ server_test_build:
 .PHONY: server_test_all
 server_test_all: db_dev_reset db_dev_migrate ## Run all server unit tests
 	# Like server_test but runs extended tests that may hit external services.
-	DB_PORT=$(DB_PORT_TEST) go test -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
+	DB_PORT=$(DB_PORT_TEST) go test -parallel 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test_coverage_generate
 server_test_coverage_generate: db_test_reset db_test_migrate ## Run server unit test coverage
