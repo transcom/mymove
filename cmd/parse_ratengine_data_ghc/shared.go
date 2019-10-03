@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 )
 
 var rateTypes = []string{"NonPeak", "Peak"}
@@ -123,31 +124,31 @@ func (dLh *domesticLineHaulPrice) toCsv() error {
 func (dLh *domesticLineHaulPrice) toSlice() []string {
 	var values []string
 
-	values = append(values, string(dLh.serviceAreaNumber))
+	values = append(values, strconv.Itoa(dLh.serviceAreaNumber))
 	values = append(values, dLh.originServiceArea)
-	values = append(values, string(dLh.serviceSchedule))
+	values = append(values, strconv.Itoa(dLh.serviceSchedule))
 	values = append(values, dLh.season)
-	values = append(values, string(dLh.weightBand.band))
-	values = append(values, string(dLh.weightBand.lowerLbs))
-	values = append(values, string(dLh.weightBand.upperLbs))
-	values = append(values, fmt.Sprintf("%f", dLh.weightBand.lowerCwt))
-	values = append(values, fmt.Sprintf("%f", dLh.weightBand.upperCwt))
-	values = append(values, string(dLh.milesRange.rangeNumber))
-	values = append(values, string(dLh.milesRange.lower))
-	values = append(values, string(dLh.milesRange.upper))
-	values = append(values, string(dLh.optionPeriodYearCount))
-	values = append(values, fmt.Sprintf("%f", dLh.rate))
+	values = append(values, strconv.Itoa(dLh.weightBand.band))
+	values = append(values, strconv.Itoa(dLh.weightBand.lowerLbs))
+	values = append(values, strconv.Itoa(dLh.weightBand.upperLbs))
+	values = append(values, fmt.Sprintf("%.2f", dLh.weightBand.lowerCwt))
+	values = append(values, fmt.Sprintf("%.2f", dLh.weightBand.upperCwt))
+	values = append(values, strconv.Itoa(dLh.milesRange.rangeNumber))
+	values = append(values, strconv.Itoa(dLh.milesRange.lower))
+	values = append(values, strconv.Itoa(dLh.milesRange.upper))
+	values = append(values, strconv.Itoa(dLh.optionPeriodYearCount))
+	values = append(values, dLh.rate)
 
 	return values
 }
 
 type createCsvHelper struct {
 	csvFilename string
-	csvFile *os.File
-	csvWriter *csv.Writer
+	csvFile     *os.File
+	csvWriter   *csv.Writer
 }
 
-func (cCH *createCsvHelper) createCsvWriter (filename string) error {
+func (cCH *createCsvHelper) createCsvWriter(filename string) error {
 
 	cCH.csvFilename = filename
 	file, err := os.Create(cCH.csvFilename)
@@ -162,10 +163,16 @@ func (cCH *createCsvHelper) createCsvWriter (filename string) error {
 }
 
 func (cCH *createCsvHelper) write(record []string) {
+	if cCH.csvWriter == nil {
+		log.Fatalln("createCsvHelper.createCsvWriter() was not called to initialize cCH.csvWriter")
+	}
+	log.Println("calling createCsvHelper.write")
+	log.Printf(" createCsvHelper.write %v\n", record)
 	err := cCH.csvWriter.Write(record)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+	cCH.csvWriter.Flush()
 }
 
 func (cCH *createCsvHelper) close() {
