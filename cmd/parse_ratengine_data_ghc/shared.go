@@ -112,7 +112,7 @@ type domesticLineHaulPrice struct {
 	season                string
 	weightBand            weightBand
 	milesRange            milesRange
-	optionPeriodYearCount int    //the escalation type
+	optionPeriodYearCount int    //TODO change name to escalationNum 0 will be baseline
 	rate                  string //TODO should this be a float or string? Probably string  stripping out the $
 }
 
