@@ -387,9 +387,8 @@ jobs:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
       - run:
-          # This will eventually need to move to the base circleci image, but for now it is here for testing
-          name: Install go-junit-report
-          command: go get -u github.com/jstemmer/go-junit-report
+          name: Build Go Junit Report
+          command: make bin/go-junit-report
       - run:
           # This is needed to use `psql` to clone the DB for parallel server tests
           name: Install postgres client
@@ -409,7 +408,7 @@ jobs:
             source $BASH_ENV
             mkdir -p tmp/test-results/gotest
             # setup a trap incase the tests fail, we still want to generate the report
-            trap "go-junit-report < tmp/test-results/gotest/go-test.out >  tmp/test-results/gotest/go-test-report.xml" EXIT
+            trap "bin/go-junit-report < tmp/test-results/gotest/go-test.out >  tmp/test-results/gotest/go-test-report.xml" EXIT
             make server_test_standalone | tee tmp/test-results/gotest/go-test.out
           environment:
             DB_PASSWORD: mysecretpassword
