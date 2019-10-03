@@ -50,4 +50,7 @@ func TestInvoiceSuite(t *testing.T) {
 	hs.icnSequencer = sequence.NewDatabaseSequencer(hs.DB(), ediinvoice.ICNSequenceName)
 
 	suite.Run(t, hs)
+	if err := hs.PopTestSuite.TearDown(); err != nil {
+		panic(err)
+	}
 }

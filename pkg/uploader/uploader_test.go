@@ -97,6 +97,9 @@ func TestUploaderSuite(t *testing.T) {
 	}
 
 	suite.Run(t, hs)
+	if err := hs.PopTestSuite.TearDown(); err != nil {
+		panic(err)
+	}
 }
 
 func (suite *UploaderSuite) TestUploaderExceedsFileSizeLimit() {

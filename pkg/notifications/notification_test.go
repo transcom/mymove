@@ -94,9 +94,12 @@ func (suite *NotificationSuite) getTestEmailContent() emailContent {
 func TestNotificationSuite(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 
-	s := &NotificationSuite{
+	ns := &NotificationSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 	}
-	suite.Run(t, s)
+	suite.Run(t, ns)
+	if err := ns.PopTestSuite.TearDown(); err != nil {
+		panic(err)
+	}
 }

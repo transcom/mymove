@@ -33,6 +33,9 @@ func TestMigrateSuite(t *testing.T) {
 		logger:       logger,
 	}
 	suite.Run(t, ms)
+	if err := ms.PopTestSuite.TearDown(); err != nil {
+		panic(err)
+	}
 }
 
 func TestCopyStdinPattern(t *testing.T) {

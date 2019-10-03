@@ -18,7 +18,8 @@ import (
 type PopTestSuite struct {
 	BaseTestSuite
 	PackageName
-	db *pop.Connection
+	db     *pop.Connection
+	dbName string
 }
 
 func commandWithDefaults(command string, args ...string) *exec.Cmd {
@@ -41,9 +42,16 @@ func runCommand(cmd *exec.Cmd, desc string) ([]byte, error) {
 	return out, nil
 }
 
-func cloneDatabase(source, destination string) error {
+func dropDB(destination string) error {
 	drop := commandWithDefaults("dropdb", "--if-exists", destination)
 	if _, err := runCommand(drop, "drop the database"); err != nil {
+		return err
+	}
+	return nil
+}
+
+func cloneDatabase(source, destination string) error {
+	if err := dropDB(destination); err != nil {
 		return err
 	}
 
@@ -121,7 +129,7 @@ func NewPopTestSuite(packageName PackageName) PopTestSuite {
 		log.Panic(err)
 	}
 
-	return PopTestSuite{db: conn, PackageName: packageName}
+	return PopTestSuite{db: conn, dbName: dbName, PackageName: packageName}
 }
 
 // DB returns a db connection
@@ -175,4 +183,16 @@ func (suite *PopTestSuite) NoVerrs(verrs *validate.Errors) bool {
 		return false
 	}
 	return true
+}
+
+// TearDown runs the teardown for step for the suite
+func (suite *PopTestSuite) TearDown() error {
+	// disconnect other users
+	if err := suite.db.Close(); err != nil {
+		return err
+	}
+	if err := dropDB(suite.dbName); err != nil {
+		return err
+	}
+	return nil
 }

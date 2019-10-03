@@ -23,10 +23,13 @@ func (suite *InvoiceServiceSuite) SetupTest() {
 
 func TestInvoiceSuite(t *testing.T) {
 
-	hs := &InvoiceServiceSuite{
+	ts := &InvoiceServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("invoice_service")),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 		storer:       storageTest.NewFakeS3Storage(true),
 	}
-	suite.Run(t, hs)
+	suite.Run(t, ts)
+	if err := ts.PopTestSuite.TearDown(); err != nil {
+		panic(err)
+	}
 }

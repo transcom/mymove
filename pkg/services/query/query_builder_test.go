@@ -26,11 +26,14 @@ func (suite *QueryBuilderSuite) SetupTest() {
 
 func TestUserSuite(t *testing.T) {
 
-	hs := &QueryBuilderSuite{
+	ts := &QueryBuilderSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
-	suite.Run(t, hs)
+	suite.Run(t, ts)
+	if err := ts.PopTestSuite.TearDown(); err != nil {
+		panic(err)
+	}
 }
 
 func defaultPagination() services.Pagination {

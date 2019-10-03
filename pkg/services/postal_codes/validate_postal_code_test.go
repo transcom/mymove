@@ -22,6 +22,9 @@ func TestValidatePostalCodeTestSuite(t *testing.T) {
 		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 	}
 	suite.Run(t, ts)
+	if err := ts.PopTestSuite.TearDown(); err != nil {
+		panic(err)
+	}
 }
 
 func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode_ValidPostalCode() {

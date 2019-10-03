@@ -22,11 +22,14 @@ func (suite *GexSuite) SetupTest() {
 
 func TestGexSuite(t *testing.T) {
 
-	hs := &GexSuite{
+	ts := &GexSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("gex")),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
-	suite.Run(t, hs)
+	suite.Run(t, ts)
+	if err := ts.PopTestSuite.TearDown(); err != nil {
+		panic(err)
+	}
 }
 
 func (suite *GexSuite) TestSendToGexHTTP_Call() {
