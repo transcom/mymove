@@ -408,8 +408,9 @@ jobs:
             echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
             source $BASH_ENV
             mkdir -p tmp/test-results/gotest
+            # setup a trap incase the tests fail, we still want to generate the report
+            trap "go-junit-report < tmp/test-results/gotest/go-test.out >  tmp/test-results/gotest/go-test-report.xml" EXIT
             make server_test_standalone | tee tmp/test-results/gotest/go-test.out
-            go-junit-report < tmp/test-results/gotest/go-test.out > tmp/test-results/gotest/go-test-report.xml
           environment:
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
