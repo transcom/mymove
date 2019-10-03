@@ -534,6 +534,32 @@ jobs:
           repo: app
       - announce_failure
 
+  # `build_app` builds the application container and pushes to the container repository
+  build_storybook_app:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}
+      - restore_cache:
+          keys:
+            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - run: make bin/chamber
+      - run: make bin/rds-combined-ca-bundle.pem
+      - run: make client_build
+      - run: make storybook_build
+      - build_tag_push:
+          dockerfile: Dockerfile
+          tag: ppp:web-dev
+          repo: app
+      - announce_failure
+
   # `build_migrations` builds the migrations container and pushes to the container repository
   build_migrations:
     executor: mymove_small
