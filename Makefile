@@ -99,7 +99,7 @@ endif
 	touch .check_bash_version.stamp
 
 .PHONY: deps
-deps: prereqs check_hosts check_go_version check_gopath check_bash_version ensure_pre_commit client_deps server_deps ## Run all checks and install all depdendencies
+deps: prereqs check_hosts check_go_version check_gopath check_bash_version ensure_pre_commit client_deps bin/rds-combined-ca-bundle.pem ## Run all checks and install all depdendencies
 
 .PHONY: test
 test: client_test server_test e2e_test ## Run all tests
@@ -264,11 +264,8 @@ pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
 #
 
 .PHONY: go_deps_update
-go_deps_update: server_deps server_generate mocks_generate ## Update golang dependencies
+go_deps_update: .check_gopath.stamp server_generate mocks_generate ## Update golang dependencies
 	go run cmd/update_deps/main.go
-
-.PHONY: server_deps
-server_deps: .check_gopath.stamp bin/chamber bin/gin bin/swagger bin/mockery bin/rds-combined-ca-bundle.pem ## Install or Build server dependencies
 
 .PHONY: server_generate
 server_generate: .check_go_version.stamp .check_gopath.stamp pkg/gen/ ## Generate golang server code from Swagger files
@@ -282,7 +279,7 @@ server_generate_linux: .check_go_version.stamp .check_gopath.stamp pkg/assets/as
 	touch .server_generate_linux.stamp
 
 .PHONY: server_build
-server_build: server_deps server_generate bin/milmove ## Build the server
+server_build: bin/milmove ## Build the server
 
 .PHONY: server_build_linux
 server_build_linux: server_generate_linux ## Build the server (linux)
@@ -318,7 +315,11 @@ server_run_debug: ## Debug the server
 	$(AWS_VAULT) dlv debug cmd/milmove/*.go -- serve
 
 .PHONY: build_tools
-build_tools: server_deps \
+build_tools: bin/chamber \
+	bin/gin \
+	bin/swagger \
+	bin/mockery \
+	bin/rds-combined-ca-bundle.pem \
 	bin/compare-secure-migrations \
 	bin/ecs-deploy-task-container \
 	bin/ecs-service-logs \
@@ -374,7 +375,7 @@ mocks_generate: bin/mockery ## Generate mockery mocks for tests
 	go generate $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test
-server_test: server_deps db_test_reset db_test_migrate ## Run server unit tests
+server_test: db_test_reset db_test_migrate ## Run server unit tests
 	# Don't run tests in /cmd or /pkg/gen/ & pass `-short` to exclude long running tests
 	# Disable test caching with `-count 1` - caching was masking local test failures
 	# Limit the maximum number of tests to run in parallel to 8.
@@ -392,12 +393,12 @@ server_test_build:
 	go test -run=nope -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test_all
-server_test_all: server_deps db_dev_reset db_dev_migrate ## Run all server unit tests
+server_test_all: db_dev_reset db_dev_migrate ## Run all server unit tests
 	# Like server_test but runs extended tests that may hit external services.
 	DB_PORT=$(DB_PORT_TEST) go test -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test_coverage_generate
-server_test_coverage_generate: server_deps db_test_reset db_test_migrate ## Run server unit test coverage
+server_test_coverage_generate: db_test_reset db_test_migrate ## Run server unit test coverage
 	# Don't run tests in /cmd or /pkg/gen
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
@@ -405,7 +406,7 @@ server_test_coverage_generate: server_deps db_test_reset db_test_migrate ## Run 
 	DB_PORT=$(DB_PORT_TEST) go test -coverprofile=coverage.out -covermode=count -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test_coverage
-server_test_coverage: server_deps db_test_reset db_test_migrate server_test_coverage_generate ## Run server unit test coverage with html output
+server_test_coverage: db_test_reset db_test_migrate server_test_coverage_generate ## Run server unit test coverage with html output
 	DB_PORT=$(DB_PORT_TEST) go tool cover -html=coverage.out
 
 #
@@ -456,7 +457,7 @@ db_dev_migrate_standalone: bin/milmove
 	DB_DEBUG=0 bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
 
 .PHONY: db_dev_migrate
-db_dev_migrate: server_deps db_dev_migrate_standalone ## Migrate Dev DB
+db_dev_migrate: db_dev_migrate_standalone ## Migrate Dev DB
 
 .PHONY: db_dev_psql
 db_dev_psql: ## Open PostgreSQL shell for Dev DB
@@ -511,7 +512,7 @@ db_deployed_migrations_migrate_standalone: bin/milmove ## Migrate Deployed Migra
 	DB_DEBUG=0 DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) bin/milmove migrate -p "file://migrations;file://local_migrations" -m migrations_manifest.txt
 
 .PHONY: db_deployed_migrations_migrate
-db_deployed_migrations_migrate: server_deps db_deployed_migrations_migrate_standalone ## Migrate Deployed Migrations DB
+db_deployed_migrations_migrate: db_deployed_migrations_migrate_standalone ## Migrate Deployed Migrations DB
 
 .PHONY: db_deployed_psql
 db_deployed_psql: ## Open PostgreSQL shell for Deployed Migrations DB
@@ -578,7 +579,7 @@ else
 endif
 
 .PHONY: db_test_migrate
-db_test_migrate: server_deps db_test_migrate_standalone ## Migrate Test DB
+db_test_migrate: db_test_migrate_standalone ## Migrate Test DB
 
 .PHONY: db_test_migrations_build
 db_test_migrations_build: .db_test_migrations_build.stamp ## Build Test DB Migrations Docker Image
@@ -731,7 +732,7 @@ tasks_send_post_move_survey: tasks_build_linux_docker ## Run send-post-move-surv
 #
 
 .PHONY: run_prod_migrations
-run_prod_migrations: server_deps bin/milmove db_deployed_migrations_reset ## Run Prod migrations against Deployed Migrations DB
+run_prod_migrations: bin/milmove db_deployed_migrations_reset ## Run Prod migrations against Deployed Migrations DB
 	@echo "Migrating the prod-migrations database with prod migrations..."
 	MIGRATION_PATH="s3://transcom-ppp-app-prod-us-west-2/secure-migrations;file://migrations" \
 	DB_HOST=localhost \
@@ -741,7 +742,7 @@ run_prod_migrations: server_deps bin/milmove db_deployed_migrations_reset ## Run
 	bin/milmove migrate
 
 .PHONY: run_staging_migrations
-run_staging_migrations: server_deps bin/milmove db_deployed_migrations_reset ## Run Staging migrations against Deployed Migrations DB
+run_staging_migrations: bin/milmove db_deployed_migrations_reset ## Run Staging migrations against Deployed Migrations DB
 	@echo "Migrating the prod-migrations database with staging migrations..."
 	MIGRATION_PATH="s3://transcom-ppp-app-staging-us-west-2/secure-migrations;file://migrations" \
 	DB_HOST=localhost \
@@ -751,7 +752,7 @@ run_staging_migrations: server_deps bin/milmove db_deployed_migrations_reset ## 
 	bin/milmove migrate
 
 .PHONY: run_experimental_migrations
-run_experimental_migrations: server_deps bin/milmove db_deployed_migrations_reset ## Run Experimental migrations against Deployed Migrations DB
+run_experimental_migrations: bin/milmove db_deployed_migrations_reset ## Run Experimental migrations against Deployed Migrations DB
 	@echo "Migrating the prod-migrations database with experimental migrations..."
 	MIGRATION_PATH="s3://transcom-ppp-app-experimental-us-west-2/secure-migrations;file://migrations" \
 	DB_HOST=localhost \
