@@ -9,14 +9,15 @@ set -eu -o pipefail
 # Location of the reserved docker disk space
 DOCKER_RAW=~/Library/Containers/com.docker.docker/Data/vms/0/Docker.raw
 
-# Listing the logical size reserved by docker requires stat
-SIZE_RESERVED=$(/usr/bin/stat -f%z "${DOCKER_RAW}")
-
 # Listing the actual used size by docker requires du
 SIZE_ACTUAL=$(/usr/bin/du "${DOCKER_RAW}" | cut -f1)
 
+# Listing the logical size reserved by docker requires stat
+SIZE_RESERVED=$(/usr/bin/stat -f%z "${DOCKER_RAW}")
+
 # Compare the size to get percentage used
-PERCENT_USED=$(/usr/bin/bc <<< "scale=2; $SIZE_ACTUAL/$SIZE_RESERVED * 100")
+# Give an integer number so the if-statement will work in bash
+PERCENT_USED=$(python -c "print('{0:.0f}'.format((${SIZE_ACTUAL} / (1024 * 1024 * 2)) / (${SIZE_RESERVED} / (1024 * 1024 * 1024)) * 100))")
 echo "Docker is using $PERCENT_USED% of its available disk space!"
 if [[ ${PERCENT_USED} -gt 90 ]]; then
   echo "Consider running 'docker system prune --volumes' to free up space"
