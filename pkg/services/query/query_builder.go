@@ -217,7 +217,12 @@ func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter, a
 	if err != nil {
 		return err
 	}
-	return query.All(model)
+
+	err = associatedQuery(query, associations, model)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (p *Builder) CreateOne(model interface{}) (*validate.Errors, error) {
