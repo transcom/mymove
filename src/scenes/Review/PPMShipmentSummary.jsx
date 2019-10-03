@@ -29,15 +29,17 @@ class PPMShipmentSummary extends Component {
     }
   }
   render() {
-    const { advance, movePath, ppm, ppmEstimate } = this.props;
+    const { advance, movePath, ppm, ppmEstimate, estimated_storage_reimbursement } = this.props;
     const editDateAndLocationAddress = movePath + '/edit-date-and-location';
     const editWeightAddress = movePath + '/edit-weight';
 
     const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
-      ? `(spend up to ${ppm.estimated_storage_reimbursement} on private storage)`
+      ? `= ${estimated_storage_reimbursement} estimated reimbursement`
       : '';
     const sitDisplay = get(ppm, 'has_sit', false)
-      ? `${ppm.days_in_storage} days ${privateStorageString}`
+      ? `${ppm.weight_estimate && ppm.weight_estimate.toLocaleString()} lbs for ${
+          ppm.days_in_storage
+        } days ${privateStorageString}`
       : 'Not requested';
 
     return (
@@ -144,7 +146,10 @@ PPMShipmentSummary.propTypes = {
 function mapStateToProps(state, ownProps) {
   const { ppm } = ownProps;
   const advance = selectReimbursement(state, ppm.advance);
-  const { incentive_estimate_min, incentive_estimate_max } = selectPPMForMove(state, ppm.move_id);
+  const { incentive_estimate_min, incentive_estimate_max, estimated_storage_reimbursement } = selectPPMForMove(
+    state,
+    ppm.move_id,
+  );
   return {
     ...ownProps,
     advance,
@@ -156,6 +161,7 @@ function mapStateToProps(state, ownProps) {
       incentive_estimate_min,
       incentive_estimate_max,
     },
+    estimated_storage_reimbursement,
   };
 }
 

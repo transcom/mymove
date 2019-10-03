@@ -25,7 +25,10 @@ type ErrTooLarge struct {
 
 var ErrFileSizeLimitExceedsMax = errors.Errorf("FileSizeLimit exceeds max of %d bytes", MaxFileSizeLimit)
 
-const MaxFileSizeLimit = 350 * MB
+// Anti-Virus scanning won't be able to scan files larger than 250MB
+// Any unscanned files will not be available for download so while we can upload a larger
+// file of any size the file will be locked from downloading forever.
+const MaxFileSizeLimit = 250 * MB
 
 func (e ErrTooLarge) Error() string {
 	return fmt.Sprintf("file is too large: %d > %d filesize limit", e.FileSize, e.FileSizeLimit)

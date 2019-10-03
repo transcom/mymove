@@ -88,3 +88,9 @@ require (
 	gopkg.in/ini.v1 v1.46.0 // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
 )
+
+// transcom/sqlx v1.2.1 is just jmoiron's 1.2.0 with custom driver fixes
+// This is a temporary solution till https://github.com/jmoiron/sqlx/pull/560
+// is merged or a better solution is completed as mentioned in
+// https://github.com/jmoiron/sqlx/pull/520
+replace github.com/jmoiron/sqlx v1.2.0 => github.com/transcom/sqlx v1.2.1

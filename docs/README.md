@@ -19,6 +19,10 @@ If you are looking to understand choices made in this project, see the list of [
 
 * [Metrics](metrics.md). Documentation for application metrics.
 
+## Security
+
+* [Anti-Virus](anti_virus.md). Documentation for the anti-virus solutions employed.
+
 <!--index-->
 
 ## HOWTOs
@@ -27,6 +31,7 @@ If you are looking to understand choices made in this project, see the list of [
 * [Call Swagger Endpoints from React](how-to/access-swagger-endpoints-from-react.md#how-to-call-swagger-endpoints-from-react)
 * [Add Application Logging](how-to/add-application-logging.md#how-to-add-application-logging)
 * [Backup and Restore the Development Database](how-to/backup-and-restore-dev-database.md#how-to-backup-and-restore-the-development-database)
+* [Create An ECS Scheduled Task](how-to/create-an-ecs-scheduled-task.md#how-to-create-an-ecs-scheduled-task)
 * [Create or Disable Users](how-to/create-or-disable-users.md#how-to-create-or-disable-users)
 * [Deploy to Experimental](how-to/deploy-to-experimental.md#how-to-deploy-to-experimental)
 * [display dates and times](how-to/display-dates-and-times.md#how-to-display-dates-and-times)

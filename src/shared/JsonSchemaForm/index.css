@@ -55,12 +55,11 @@ h2.sm-heading-2 {
 }
 
 .usa-input-error-message {
-  position: absolute;
   max-width: 460px;
 }
 
 .usa-input-error-long-message {
-  padding-bottom: 4rem;
+  padding-bottom: 1.8rem;
 }
 
 @media only screen and (max-width: 419px) {

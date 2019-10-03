@@ -26,6 +26,25 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
+// IsLoggedInMiddleware handles requests to is_logged_in endpoint by returning true if someone is logged in
+func IsLoggedInMiddleware(logger Logger) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		data := map[string]interface{}{
+			"isLoggedIn": false,
+		}
+
+		session := auth.SessionFromRequestContext(r)
+		if session != nil && session.UserID != uuid.Nil {
+			data["isLoggedIn"] = true
+		}
+
+		newEncoderErr := json.NewEncoder(w).Encode(data)
+		if newEncoderErr != nil {
+			logger.Error("Failed encoding is_logged_in check response", zap.Error(newEncoderErr))
+		}
+	}
+}
+
 // UserAuthMiddleware enforces that the incoming request is tied to a user session
 func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
