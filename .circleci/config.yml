@@ -543,21 +543,11 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}
-      - restore_cache:
-          keys:
             - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
       - restore_cache:
           keys:
             - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - run: make bin/chamber
-      - run: make bin/rds-combined-ca-bundle.pem
-      - run: make client_build
       - run: make storybook_build
-      - build_tag_push:
-          dockerfile: Dockerfile
-          tag: ppp:web-dev-storybook
-          repo: app-storybook
       - announce_failure
 
   # `build_migrations` builds the migrations container and pushes to the container repository
