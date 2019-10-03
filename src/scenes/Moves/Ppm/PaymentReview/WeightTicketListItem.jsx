@@ -44,6 +44,7 @@ class WeightTicketListItem extends Component {
       vehicle_options,
       showDelete,
       deleteDocumentListItem,
+      isWeightTicketSet,
     } = this.props;
     const { showDeleteConfirmation } = this.state;
     return (
@@ -56,7 +57,12 @@ class WeightTicketListItem extends Component {
         <div style={{ flex: 1 }}>
           <div className="weight-li-item-container">
             <h4>
-              {vehicle_nickname} ({formatToOrdinal(num + 1)} set)
+              {isWeightTicketSet && (
+                <>
+                  {vehicle_nickname}
+                  {formatToOrdinal(num + 1)} set
+                </>
+              )}
             </h4>
             {showDelete && (
               <img
@@ -108,14 +114,8 @@ class WeightTicketListItem extends Component {
 
 WeightTicketListItem.propTypes = {
   id: string.isRequired,
-  empty_weight_ticket_missing: bool.isRequired,
-  empty_weight: number.isRequired,
-  full_weight_ticket_missing: bool.isRequired,
-  full_weight: number.isRequired,
   num: number.isRequired,
-  trailer_ownership_missing: bool.isRequired,
-  vehicle_nickname: string.isRequired,
-  vehicle_options: string.isRequired,
+  isWeightTicketSet: bool.isRequired,
 };
 
 WeightTicketListItem.defaultProps = {
