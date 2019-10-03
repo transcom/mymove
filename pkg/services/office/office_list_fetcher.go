@@ -6,7 +6,7 @@ import (
 )
 
 type officeListQueryBuilder interface {
-	FetchMany(model interface{}, filters []services.QueryFilter, pagination services.Pagination) error
+	FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) error
 }
 
 type officeListFetcher struct {
@@ -14,9 +14,9 @@ type officeListFetcher struct {
 }
 
 // FetchOfficeUserList uses the passed query builder to fetch a list of transportation offices
-func (o *officeListFetcher) FetchOfficeList(filters []services.QueryFilter, pagination services.Pagination) (models.TransportationOffices, error) {
+func (o *officeListFetcher) FetchOfficeList(filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) (models.TransportationOffices, error) {
 	var offices models.TransportationOffices
-	error := o.builder.FetchMany(&offices, filters, pagination)
+	error := o.builder.FetchMany(&offices, filters, associations, pagination)
 	return offices, error
 }
 

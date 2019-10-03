@@ -199,7 +199,7 @@ func (p *Builder) FetchWithAssociations(model interface{}, filters []services.Qu
 
 // FetchMany fetches multiple model records using pop's All method
 // Will return error if model is not pointer to slice of structs
-func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter, pagination services.Pagination) error {
+func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return errors.New(fetchManyReflectionMessage)
