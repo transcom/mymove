@@ -33,4 +33,7 @@ import (
 	_ "github.com/stretchr/objx"
 	_ "github.com/tealeg/xlsx"
 	_ "gopkg.in/go-playground/validator.v9"
+
+	// Install go-junit-report for CirclCI test result report generation
+	_ "github.com/jstemmer/go-junit-report"
 )
