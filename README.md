@@ -1,6 +1,6 @@
 # Personal Property Prototype
 
-[![CircleCI](https://circleci.com/gh/transcom/mymove/tree/master.svg?style=svg&circle-token=8782cc55afd824ba48e89fc4e49b466c5e2ce7b1)](https://circleci.com/gh/transcom/mymove/tree/master)
+[![CircleCI](https://circleci.com/gh/transcom/mymove/tree/master.svg?style=shield&circle-token=8782cc55afd824ba48e89fc4e49b466c5e2ce7b1)](https://circleci.com/gh/transcom/mymove/tree/master)
 
 [![GoDoc](https://godoc.org/github.com/transcom/mymove?status.svg)](https://godoc.org/github.com/transcom/mymove)
 
