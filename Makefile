@@ -192,25 +192,25 @@ bin/rds-combined-ca-bundle.pem:
 
 ### MilMove Targets
 
-bin/compare-secure-migrations: pkg/gen/
+bin/compare-secure-migrations:
 	go build -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare-secure-migrations
 
-bin/ecs-deploy-task-container: pkg/gen/
+bin/ecs-deploy-task-container:
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy-task-container ./cmd/ecs-deploy-task-container
 
 bin/ecs-service-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
 
-bin/generate-access-codes: pkg/gen/
+bin/generate-access-codes:
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-access-codes ./cmd/generate_access_codes
 
-bin/generate-shipment-summary: pkg/gen/
+bin/generate-shipment-summary:
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
 
-bin/generate-test-data: pkg/assets/assets.go pkg/gen/
+bin/generate-test-data:
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate-test-data
 
-bin_linux/generate-test-data: pkg/assets/assets.go .server_generate_linux.stamp
+bin_linux/generate-test-data:
 	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate-test-data
 
 bin/health-checker:
@@ -219,22 +219,22 @@ bin/health-checker:
 bin/iws:
 	go build -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/iws/iws.go
 
-bin/load-office-data: pkg/gen/
+bin/load-office-data:
 	go build -ldflags "$(LDFLAGS)" -o bin/load-office-data ./cmd/load_office_data
 
-bin/load-user-gen: pkg/gen/
+bin/load-user-gen:
 	go build -ldflags "$(LDFLAGS)" -o bin/load-user-gen ./cmd/load_user_gen
 
-bin/make-dps-user: pkg/gen/
+bin/make-dps-user:
 	go build -ldflags "$(LDFLAGS)" -o bin/make-dps-user ./cmd/make_dps_user
 
-bin/make-office-user: pkg/gen/
+bin/make-office-user:
 	go build -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
 
-bin/milmove: pkg/gen/ pkg/assets/assets.go
+bin/milmove:
 	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
-bin_linux/milmove: .server_generate_linux.stamp
+bin_linux/milmove:
 	GOOS=linux GOARCH=amd64 go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin_linux/milmove ./cmd/milmove
 
 bin/renderer:
@@ -242,10 +242,10 @@ bin/renderer:
 	# throws errors loadinternal: cannot find runtime/cgo
 	go build -o bin/renderer ./cmd/renderer
 
-bin/milmove-tasks: pkg/gen/ pkg/assets/assets.go
+bin/milmove-tasks:
 	go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove-tasks ./cmd/milmove-tasks
 
-bin_linux/milmove-tasks: .server_generate_linux.stamp pkg/assets/assets.go
+bin_linux/milmove-tasks:
 	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin_linux/milmove-tasks ./cmd/milmove-tasks
 
 bin/send-to-gex: pkg/gen/
@@ -272,17 +272,11 @@ server_generate: .check_go_version.stamp .check_gopath.stamp pkg/gen/ ## Generat
 pkg/gen/: pkg/assets/assets.go bin/swagger $(shell find swagger -type f -name *.yaml)
 	scripts/gen-server
 
-.PHONY: server_generate_linux
-server_generate_linux: .check_go_version.stamp .check_gopath.stamp pkg/assets/assets.go bin/swagger .server_generate_linux.stamp ## Generate golang server code from Swagger files (linux)
-.server_generate_linux.stamp: pkg/assets/assets.go bin/swagger $(shell find swagger -type f -name *.yaml)
-	scripts/gen-server
-	touch .server_generate_linux.stamp
-
 .PHONY: server_build
 server_build: bin/milmove ## Build the server
 
 .PHONY: server_build_linux
-server_build_linux: server_generate_linux ## Build the server (linux)
+server_build_linux: ## Build the server (linux)
 	# These don't need to go in bin_linux/ because local devs don't use them
 	# Additionally it would not work with the default Dockerfile
 	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/chamber github.com/segmentio/chamber
@@ -382,7 +376,7 @@ server_test: db_test_reset db_test_migrate ## Run server unit tests
 	DB_PORT=$(DB_PORT_TEST) go test -parallel 8 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test_circle
-server_test_circle: db_test_reset db_test_migrate ## Run server unit tests with minimal deps for CircleCI
+server_test_circle: ## Run server unit tests with no deps for CircleCI
 	# Don't run tests in /cmd or /pkg/gen/ & pass `-short` to exclude long running tests
 	# Disable test caching with `-count 1` - caching was masking local test failures
 	# Limit the maximum number of tests to run in parallel to 8.
@@ -583,7 +577,7 @@ db_test_migrate: db_test_migrate_standalone ## Migrate Test DB
 
 .PHONY: db_test_migrations_build
 db_test_migrations_build: .db_test_migrations_build.stamp ## Build Test DB Migrations Docker Image
-.db_test_migrations_build.stamp: server_generate_linux bin_linux/milmove bin_linux/generate-test-data
+.db_test_migrations_build.stamp: bin_linux/milmove bin_linux/generate-test-data
 	@echo "Build the docker migration container..."
 	docker build -f Dockerfile.migrations_local --tag e2e_migrations:latest .
 
