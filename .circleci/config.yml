@@ -556,8 +556,8 @@ jobs:
       - run: make storybook_build
       - build_tag_push:
           dockerfile: Dockerfile
-          tag: ppp:web-dev
-          repo: app
+          tag: ppp:web-dev-storybook
+          repo: app-storybook
       - announce_failure
 
   # `build_migrations` builds the migrations container and pushes to the container repository
