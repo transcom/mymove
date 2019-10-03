@@ -43,25 +43,33 @@ An RDS instance must be configured with IAM authentication before connecting. Al
 
 ### ECS Task connecting to RDS using IAM authentication
 
-ECS tasks such as `app` and `app-client-tls` use RDS IAM authentication to securely connect without a username or passwords to rotate. This is accomplished by ECS assigning a role to the container that is allowed to connect to a specific database via IAM.
+ECS tasks such use RDS IAM authentication to securely connect without a username or passwords to rotate. This is accomplished by ECS assigning a role to the container that is allowed to connect to a specific database via IAM.
 
 The MilMove server through the use of environment variables will use reach out to IAM to generate a temporary connection token, almost similar to a password. This token/password is valid for only 15 minutes. To enable IAM authentication ensure these environment variables are present for `app`, `app-client-tls`, and `migration` containers. Here is a snippet of the required environment [variables](https://github.com/transcom/mymove/blob/6426a37eaf0219323aef997deed5a43e0e1a824b/config/app.container-definition.json#L32-L39) for the [app.container-definition.json](https://github.com/transcom/mymove/blob/master/config/app.container-definition.json) that is deployed.
 
 ```json
-    {
-      "name": "DB_IAM",
-      "value": "{{ .DB_IAM }}"
-    },
-    {
-      "name": "DB_IAM_ROLE",
-      "value": "{{ .DB_IAM_ROLE }}"
-    },
+{
+  "name": "DB_IAM",
+  "value": "{{ .DB_IAM }}"
+},
+{
+  "name": "DB_IAM_ROLE",
+  "value": "{{ .DB_IAM_ROLE }}"
+},
+{
+  "name": "DB_REGION",
+  "value": "us-west-2"
+},
+{
+  "name": "DB_USER",
+  "value": "{{ .DB_USER }}"
+},
 ```
 
 Update the related environment configuration to match. Note that the database user is normally different than `master` as additional configuration is needed to allow a database user to login via IAM. MilMove convention for IAM enabled user is `ecs_user`. Below is a snippet of the [experimental environment config](https://github.com/transcom/mymove/blob/master/config/env/experimental.env):
 
 ```ini
-DB_USER=YOUR_DB_USER_HERE OR "ecs_user"
+DB_USER=ecs_user
 DB_IAM=true
 DB_IAM_ROLE=YOUR_CONTAINER_ROLE_ARN_HERE
 ```
@@ -70,9 +78,7 @@ DB_IAM_ROLE=YOUR_CONTAINER_ROLE_ARN_HERE
 
 In the event of a IAM failure it may be desired to revert back to conventional username and password authentication.
 
-1. Generate new database password
-
-1. Update the RDS with the new password
+1. Get password from Infra from the admin vault in DP3 1Password.
 
 1. Update the Parameter store with the new password
 
@@ -80,7 +86,7 @@ In the event of a IAM failure it may be desired to revert back to conventional u
    chamber write app-YOURENV db_password NEW_PASSWORD
    ```
 
-1. Update the environment configuration files to disable IAM authentication. Keep in mind the database user may need to change.
+1. Update the environment configuration files to disable IAM authentication. Keep in mind the database `user` will need to be set to `master`.
 
 1. ```ini
    DB_USER=master
