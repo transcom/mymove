@@ -92,12 +92,32 @@ func FetchDutyStationByName(tx *pop.Connection, name string) (DutyStation, error
 	return station, err
 }
 
-// FindDutyStations returns all duty stations matching a search query and military affiliation
+// FindDutyStations returns all duty stations matching a search query
 func FindDutyStations(tx *pop.Connection, search string) (DutyStations, error) {
 	var stations DutyStations
-	queryString := "%" + search + "%"
-	query := tx.Q().Eager().Where("name ILIKE $1", queryString)
 
+	sql := `
+with names as (
+(select id as duty_station_id, name, similarity(name, $1) as sim
+from duty_stations
+where similarity(name, $1) > 0.03
+order by sim desc
+limit 5)
+union
+(select duty_station_id, name, similarity(name, $1) as sim
+from duty_station_names
+where similarity(name, $1) > 0.03
+order by sim desc
+limit 5)
+)
+select ds.*
+from names n
+inner join duty_stations ds on n.duty_station_id = ds.id
+group by ds.id, ds.name, ds.affiliation, ds.address_id, ds.created_at, ds.updated_at, ds.transportation_office_id
+order by max(n.sim) desc, ds.name
+limit 7`
+
+	query := tx.Q().Eager("Address").RawQuery(sql, search)
 	if err := query.All(&stations); err != nil {
 		if errors.Cause(err).Error() != RecordNotFoundErrorString {
 			return stations, err
