@@ -98,11 +98,24 @@ else
 endif
 	touch .check_bash_version.stamp
 
+.PHONY: check_node_version
+check_node_version: .check_node_version.stamp ## Check that the correct Node version is installed
+.check_node_version.stamp: scripts/check-node-version
+	scripts/check-node-version
+	touch .check_node_version.stamp
+
+.PHONY: check_docker_size
+check_docker_size: ## Check the amount of disk space used by docker
+	scripts/check-docker-size
+
 .PHONY: deps
 deps: prereqs check_hosts check_go_version check_gopath check_bash_version ensure_pre_commit client_deps bin/rds-combined-ca-bundle.pem ## Run all checks and install all depdendencies
 
 .PHONY: test
 test: client_test server_test e2e_test ## Run all tests
+
+.PHONY: diagnostic
+diagnostic: prereqs check_hosts check_go_version check_gopath check_bash_version check_node_version check_docker_size ## Run diagnostic scripts on environment
 
 #
 # ----- END CHECK TARGETS -----
@@ -113,17 +126,17 @@ test: client_test server_test e2e_test ## Run all tests
 #
 
 .PHONY: client_deps_update
-client_deps_update: ## Update client dependencies
+client_deps_update: .check_node_version.stamp ## Update client dependencies
 	yarn upgrade
 
 .PHONY: client_deps
-client_deps: .check_hosts.stamp .client_deps.stamp ## Install client dependencies
+client_deps: .check_hosts.stamp .check_node_version.stamp .client_deps.stamp ## Install client dependencies
 .client_deps.stamp: yarn.lock
 	yarn install
 	scripts/copy-swagger-ui
 	touch .client_deps.stamp
 
-.client_build.stamp: $(shell find src -type f)
+.client_build.stamp: .check_node_version.stamp $(shell find src -type f)
 	yarn build
 	touch .client_build.stamp
 
@@ -293,7 +306,7 @@ server_run:
 # This command runs the server behind gin, a hot-reload server
 # Note: Gin is not being used as a proxy so assigning odd port and laddr to keep in IPv4 space.
 # Note: The INTERFACE envar is set to configure the gin build, milmove_gin, local IP4 space with default port 8080.
-server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp bin/gin build/index.html server_generate db_dev_run
+server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp bin/gin build/index.html server_generate db_dev_run
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) ./bin/gin \
 		--build ./cmd/milmove \
