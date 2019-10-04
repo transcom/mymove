@@ -396,6 +396,7 @@ jobs:
             sudo apt-get -qq update
             sudo apt-get -qq -y install postgresql-client-10
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run: make bin/milmove
       - run: make db_test_reset
       - run: make db_test_migrate
       - run:
