@@ -39,6 +39,16 @@ func (suite *BaseHandlerTestSuite) TestLogger() Logger {
 	return suite.logger
 }
 
+// TestFilesToClose returns the list of files needed to close at the end of tests
+func (suite *BaseHandlerTestSuite) TestFilesToClose() []*runtime.File {
+	return suite.filesToClose
+}
+
+// SetTestFilesToClose sets the list of files needed to close at the end of tests
+func (suite *BaseHandlerTestSuite) SetTestFilesToClose(filesToClose []*runtime.File) {
+	suite.filesToClose = filesToClose
+}
+
 // CloseFile adds a single file to close at the end of tests to the list of files
 func (suite *BaseHandlerTestSuite) CloseFile(file *runtime.File) {
 	suite.filesToClose = append(suite.filesToClose, file)

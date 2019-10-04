@@ -25,6 +25,9 @@ func (suite *HandlerSuite) SetupTest() {
 
 // AfterTest completes test cleanup
 func (suite *HandlerSuite) AfterTest() {
+	for _, file := range suite.TestFilesToClose() {
+		file.Data.Close()
+	}
 }
 
 // TestHandlerSuite creates our test suite
