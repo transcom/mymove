@@ -78,8 +78,8 @@ func dropDB(destination string) error {
 }
 
 func cloneDatabase(source, destination string) error {
-	// Try to obtain the lock in this method within 5 minutes
-	lockCtx, cancel := context.WithTimeout(context.Background(), 300*time.Second)
+	// Try to obtain the lock in this method within 10 minutes
+	lockCtx, cancel := context.WithTimeout(context.Background(), 600*time.Second)
 	defer cancel()
 
 	// Continually check if the lock is available
