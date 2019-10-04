@@ -864,8 +864,8 @@ spellcheck: .client_deps.stamp ## Run interactive spellchecker
 storybook: ## Start the storybook server
 	yarn run storybook
 
-.PHONY: build_storybook
-build_storybook: ## Build static storybook site
+.PHONY: storybook_build
+storybook_build: ## Build static storybook site
 	yarn run build-storybook
 
 #
