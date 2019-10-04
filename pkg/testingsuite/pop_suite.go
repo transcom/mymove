@@ -229,10 +229,10 @@ func (suite *PopTestSuite) NoVerrs(verrs *validate.Errors) bool {
 func (suite *PopTestSuite) TearDown() error {
 	// disconnect other users
 	if err := suite.db.Close(); err != nil {
-		return err
+		log.Panic(err)
 	}
 	if err := dropDB(suite.dbName); err != nil {
-		return err
+		log.Panic(err)
 	}
 	return nil
 }
