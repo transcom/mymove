@@ -6,6 +6,7 @@ const initialProps = {
   moveId: 0,
   expenseDocs: [],
   weightTicketDocs: [],
+  weightTicketSetDocs: [],
   getMoveDocumentsForMove: jest.fn(),
 };
 function generateWrapper(props) {
@@ -39,7 +40,7 @@ describe('DocumentsUploaded Alert', () => {
       const wrapper = generateWrapper({
         getMoveDocumentsForMove: mockGetMoveDocumentsForMove,
         expenseDocs: [{}],
-        weightTicketDocs: [{}],
+        weightTicketSetDocs: [{}],
       });
 
       expect(mockGetMoveDocumentsForMove).toHaveBeenCalled();
