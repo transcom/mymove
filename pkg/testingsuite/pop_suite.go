@@ -114,7 +114,7 @@ func (pn PackageName) Suffix(suffix string) PackageName {
 // CurrentPackage returns the project-relative name of the caller's package.
 //
 // "github.com/transcom/mymove/pkg/" is removed from the beginning of the absolute package name, so
-// the return value will be e.g. "handlers/publicapi".
+// the return value will be e.g. "handlers/internalapi".
 func CurrentPackage() PackageName {
 	pc, _, _, _ := runtime.Caller(1)
 	caller := runtime.FuncForPC(pc)
