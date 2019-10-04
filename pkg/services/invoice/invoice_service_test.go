@@ -29,7 +29,5 @@ func TestInvoiceSuite(t *testing.T) {
 		storer:       storageTest.NewFakeS3Storage(true),
 	}
 	suite.Run(t, ts)
-	if err := ts.PopTestSuite.TearDown(); err != nil {
-		panic(err)
-	}
+	ts.PopTestSuite.TearDown()
 }

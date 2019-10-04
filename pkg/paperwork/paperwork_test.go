@@ -77,7 +77,5 @@ func TestPaperworkSuite(t *testing.T) {
 	}
 
 	suite.Run(t, hs)
-	if err := hs.PopTestSuite.TearDown(); err != nil {
-		panic(err)
-	}
+	hs.PopTestSuite.TearDown()
 }

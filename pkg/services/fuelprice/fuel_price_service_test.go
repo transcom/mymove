@@ -33,7 +33,5 @@ func TestFuelPriceSuite(t *testing.T) {
 		storer:       fakeS3,
 	}
 	suite.Run(t, ts)
-	if err := ts.PopTestSuite.TearDown(); err != nil {
-		panic(err)
-	}
+	ts.PopTestSuite.TearDown()
 }

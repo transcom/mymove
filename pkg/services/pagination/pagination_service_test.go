@@ -25,7 +25,5 @@ func TestPaginationSuite(t *testing.T) {
 	}
 
 	suite.Run(t, ts)
-	if err := ts.PopTestSuite.TearDown(); err != nil {
-		panic(err)
-	}
+	ts.PopTestSuite.TearDown()
 }

@@ -226,13 +226,13 @@ func (suite *PopTestSuite) NoVerrs(verrs *validate.Errors) bool {
 }
 
 // TearDown runs the teardown for step for the suite
-func (suite *PopTestSuite) TearDown() error {
+func (suite *PopTestSuite) TearDown() {
 	// disconnect other users
 	if err := suite.db.Close(); err != nil {
 		log.Panic(err)
 	}
+	// Remove the test DB
 	if err := dropDB(suite.dbName); err != nil {
 		log.Panic(err)
 	}
-	return nil
 }

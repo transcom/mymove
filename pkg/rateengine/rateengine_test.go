@@ -363,7 +363,5 @@ func TestRateEngineSuite(t *testing.T) {
 		logger:       logger,
 	}
 	suite.Run(t, hs)
-	if err := hs.PopTestSuite.TearDown(); err != nil {
-		panic(err)
-	}
+	hs.PopTestSuite.TearDown()
 }

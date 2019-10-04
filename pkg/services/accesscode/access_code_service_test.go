@@ -21,7 +21,5 @@ func TestAccessCodeServiceSuite(t *testing.T) {
 		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 	}
 	suite.Run(t, ts)
-	if err := ts.PopTestSuite.TearDown(); err != nil {
-		panic(err)
-	}
+	ts.PopTestSuite.TearDown()
 }

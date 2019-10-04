@@ -25,7 +25,5 @@ func TestUserSuite(t *testing.T) {
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, ts)
-	if err := ts.PopTestSuite.TearDown(); err != nil {
-		panic(err)
-	}
+	ts.PopTestSuite.TearDown()
 }

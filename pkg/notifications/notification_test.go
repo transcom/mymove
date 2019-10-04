@@ -99,7 +99,5 @@ func TestNotificationSuite(t *testing.T) {
 		logger:       logger,
 	}
 	suite.Run(t, ns)
-	if err := ns.PopTestSuite.TearDown(); err != nil {
-		panic(err)
-	}
+	ns.PopTestSuite.TearDown()
 }
