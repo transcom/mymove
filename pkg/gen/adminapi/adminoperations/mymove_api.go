@@ -24,6 +24,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/upload"
 )
 
 // NewMymoveAPI creates a new Mymove instance
@@ -51,6 +52,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		OfficeUsersGetOfficeUserHandler: office_users.GetOfficeUserHandlerFunc(func(params office_users.GetOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation OfficeUsersGetOfficeUser has not yet been implemented")
+		}),
+		UploadGetUploadHandler: upload.GetUploadHandlerFunc(func(params upload.GetUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation UploadGetUpload has not yet been implemented")
 		}),
 		AccessCodesIndexAccessCodesHandler: access_codes.IndexAccessCodesHandlerFunc(func(params access_codes.IndexAccessCodesParams) middleware.Responder {
 			return middleware.NotImplemented("operation AccessCodesIndexAccessCodes has not yet been implemented")
@@ -107,6 +111,8 @@ type MymoveAPI struct {
 	ElectronicOrderGetElectronicOrdersTotalsHandler electronic_order.GetElectronicOrdersTotalsHandler
 	// OfficeUsersGetOfficeUserHandler sets the operation handler for the get office user operation
 	OfficeUsersGetOfficeUserHandler office_users.GetOfficeUserHandler
+	// UploadGetUploadHandler sets the operation handler for the get upload operation
+	UploadGetUploadHandler upload.GetUploadHandler
 	// AccessCodesIndexAccessCodesHandler sets the operation handler for the index access codes operation
 	AccessCodesIndexAccessCodesHandler access_codes.IndexAccessCodesHandler
 	// AdminUsersIndexAdminUsersHandler sets the operation handler for the index admin users operation
@@ -192,6 +198,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.OfficeUsersGetOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.GetOfficeUserHandler")
+	}
+
+	if o.UploadGetUploadHandler == nil {
+		unregistered = append(unregistered, "upload.GetUploadHandler")
 	}
 
 	if o.AccessCodesIndexAccessCodesHandler == nil {
@@ -330,6 +340,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/office_users/{officeUserId}"] = office_users.NewGetOfficeUser(o.context, o.OfficeUsersGetOfficeUserHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/uploads/{uploadId}"] = upload.NewGetUpload(o.context, o.UploadGetUploadHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

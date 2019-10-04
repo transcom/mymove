@@ -7,5 +7,5 @@ import (
 // AdminUserListFetcher is the exported interface for fetching multiple office users
 //go:generate mockery -name AdminUserListFetcher
 type AdminUserListFetcher interface {
-	FetchAdminUserList(filters []QueryFilter, pagination Pagination) (models.AdminUsers, error)
+	FetchAdminUserList(filters []QueryFilter, associations QueryAssociations, pagination Pagination) (models.AdminUsers, error)
 }

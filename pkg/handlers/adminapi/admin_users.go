@@ -3,6 +3,8 @@ package adminapi
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/services/query"
+
 	"github.com/go-openapi/runtime/middleware"
 
 	adminuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/admin_users"
@@ -40,9 +42,10 @@ func (h IndexAdminUsersHandler) Handle(params adminuserop.IndexAdminUsersParams)
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
 	queryFilters := []services.QueryFilter{}
 
+	associations := query.NewQueryAssociations([]services.QueryAssociation{})
 	pagination := h.NewPagination(params.Page, params.PerPage)
 
-	adminUsers, err := h.AdminUserListFetcher.FetchAdminUserList(queryFilters, pagination)
+	adminUsers, err := h.AdminUserListFetcher.FetchAdminUserList(queryFilters, associations, pagination)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

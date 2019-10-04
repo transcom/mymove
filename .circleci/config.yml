@@ -868,33 +868,33 @@ workflows:
             - build_migrations
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+              branches:
+                  ignore: placeholder_branch_name
 
       - client_test:
           requires:
             - pre_deps_yarn
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+              branches:
+                ignore: placeholder_branch_name
 
       - server_test:
           requires:
             - pre_deps_golang
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+              branches:
+                ignore: placeholder_branch_name
 
       - server_test_coverage:
           requires:
             - pre_deps_golang
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+              branches:
+                  ignore: placeholder_branch_name
 
       - build_app:
           requires:
