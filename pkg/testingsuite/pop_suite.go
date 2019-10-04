@@ -78,7 +78,7 @@ func dropDB(destination string) error {
 }
 
 func cloneDatabase(source, destination string) error {
-	lockCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	lockCtx, cancel := context.WithTimeout(context.Background(), 300*time.Second)
 	defer cancel()
 
 	_, lockErr := fileLock.TryLockContext(lockCtx, 678*time.Millisecond)
