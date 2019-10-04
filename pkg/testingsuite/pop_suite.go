@@ -40,8 +40,13 @@ type PopTestSuite struct {
 }
 
 func commandWithDefaults(command string, args ...string) *exec.Cmd {
+	host := envy.MustGet("DB_HOST")
 	port := envy.MustGet("DB_PORT_TEST")
-	defaults := []string{"-U", "postgres", "-h", "localhost", "-p", port}
+	user := envy.MustGet("DB_USER")
+	// Get password to ensure it is set in the environment, otherwise commands won't work
+	envy.MustGet("DB_PASSWORD")
+
+	defaults := []string{"-U", user, "-h", host, "-p", port}
 
 	arguments := append(defaults, args...)
 
