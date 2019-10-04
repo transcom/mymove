@@ -24,13 +24,16 @@ func (suite *GHCRateEngineSuite) Test_CalculateDomesticLinehaul() {
 		MoveDate:      time.Date(2019, time.February, 18, 0, 0, 0, 0, time.UTC),
 		ServiceAreaID: serviceAreaID,
 		Distance:      456,
-		Weight:        2580,
+		CalcCWTWeight: 25.80,
+		ContractCode:  "ABC",
 	}
 
 	actual := engine.CalculateDomesticLinehaul(pricingData)
 	// 272700*2580
-	var weight unit.Pound = 2580
-	expected := unit.Millicents(272700 * weight.ToCWT())
+	weight := pricingData.CalcCWTWeight
+	escalation := 1.02
+	var rate unit.Millicents = 272700
+	expected := rate.MultiplyFloat64(escalation).MultiplyFloat64(float64(weight))
 	suite.Assertions.Equal(expected, actual)
 }
 

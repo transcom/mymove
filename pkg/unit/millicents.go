@@ -41,6 +41,5 @@ func (m Millicents) ToDollarFloat() float64 {
 
 // Multiply returns the value of self multiplied by multiplier
 func (m Millicents) Multiply(i int) Millicents {
-	fmt.Printf("millicents Multiply %v \n", m)
 	return Millicents(i * m.Int())
 }

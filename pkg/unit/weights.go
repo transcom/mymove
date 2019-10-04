@@ -8,6 +8,9 @@ import (
 // CWT represents a value that is a multiple of 100 pounds
 type CWT int
 
+// CWTFloat represents wt/100lbs up to two decimals
+type CWTFloat float64
+
 // Pound represents a value that is a multiple of 1 pound
 type Pound int
 
@@ -44,4 +47,9 @@ func (pounds Pound) Int64() int64 {
 // Float64 returns a float representation of this weight
 func (pounds Pound) Float64() float64 {
 	return float64(pounds)
+}
+
+//ToCWTFloat converts pounds to a float rounded to 2 decimals as type CWTFloat
+func (pounds Pound) ToCWTFloat() CWTFloat {
+	return CWTFloat(math.Round(float64(pounds)*100) / 100 / 100)
 }
