@@ -34,9 +34,6 @@ func (suite *HandlerSuite) SetupTest() {
 
 // AfterTest completes tests by trying to close open files
 func (suite *HandlerSuite) AfterTest() {
-	for _, file := range suite.TestFilesToClose() {
-		file.Data.Close()
-	}
 }
 
 // TestHandlerSuite creates our test suite
