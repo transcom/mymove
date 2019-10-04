@@ -1,0 +1,15 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+VERSION="v10.16"
+
+NODE_VERSION=$(node --version)
+if [[ $NODE_VERSION = *$VERSION* ]]; then
+  echo "Node $NODE_VERSION installed"
+else
+  echo "Node $VERSION is required to run this project! Found $NODE_VERSION"
+  echo "Run 'brew install node@10 && brew link --force node@10' to install"
+  exit 1
+fi
+

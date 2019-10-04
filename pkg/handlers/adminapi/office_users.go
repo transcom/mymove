@@ -7,7 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
+	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -118,7 +118,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 
 	createdOfficeUser, verrs, err := h.OfficeUserCreator.CreateOfficeUser(&officeUser, transportationIDFilter)
 	if err != nil || verrs != nil {
-		logger.Error("Error saving user", zap.Error(err))
+		logger.Error("Error saving user", zap.Error(verrs))
 		return officeuserop.NewCreateOfficeUserInternalServerError()
 	}
 
