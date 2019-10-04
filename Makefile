@@ -193,6 +193,10 @@ bin/soda: .check_go_version.stamp .check_gopath.stamp
 bin/swagger: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 
+# No static linking / $(LDFLAGS) because go-junit-report is only used for building the CirlceCi test report
+bin/go-junit-report: .check_go_version.stamp .check_gopath.stamp
+	go build -o bin/go-junit-report github.com/jstemmer/go-junit-report
+
 # No static linking / $(LDFLAGS) because mockery is only used for testing
 bin/mockery: .check_go_version.stamp .check_gopath.stamp
 	go build -o bin/mockery github.com/vektra/mockery/cmd/mockery
@@ -389,6 +393,7 @@ server_test_standalone: ## Run server unit tests with no deps
 	# Don't run tests in /cmd or /pkg/gen/ & pass `-short` to exclude long running tests
 	# Disable test caching with `-count 1` - caching was masking local test failures
 	# Limit the maximum number of tests to run in parallel to 8.
+	# Add verbose (-v) so go-junit-report can parse it for CircleCI results
 	DB_PORT=$(DB_PORT_TEST) go test -parallel 8 -v -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 server_test_build:
