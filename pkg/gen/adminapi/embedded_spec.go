@@ -40,7 +40,7 @@ func init() {
       "get": {
         "description": "Returns a list of access codes",
         "tags": [
-          "office"
+          "access_codes"
         ],
         "summary": "List access codes",
         "operationId": "indexAccessCodes",
@@ -253,7 +253,7 @@ func init() {
       "get": {
         "description": "Returns a list of office users",
         "tags": [
-          "office"
+          "office_users"
         ],
         "summary": "List office users",
         "operationId": "indexOfficeUsers",
@@ -307,7 +307,7 @@ func init() {
       "post": {
         "description": "creates and returns an office user record",
         "tags": [
-          "office"
+          "office_users"
         ],
         "summary": "create an office user",
         "operationId": "createOfficeUser",
@@ -347,7 +347,7 @@ func init() {
       "get": {
         "description": "Returns the given office user",
         "tags": [
-          "office"
+          "office_users"
         ],
         "summary": "Get an office user",
         "operationId": "getOfficeUser",
@@ -383,7 +383,7 @@ func init() {
       },
       "patch": {
         "tags": [
-          "office"
+          "office_users"
         ],
         "summary": "Updates an office user",
         "operationId": "updateOfficeUser",
@@ -1002,7 +1002,7 @@ func init() {
       "get": {
         "description": "Returns a list of access codes",
         "tags": [
-          "office"
+          "access_codes"
         ],
         "summary": "List access codes",
         "operationId": "indexAccessCodes",
@@ -1215,7 +1215,7 @@ func init() {
       "get": {
         "description": "Returns a list of office users",
         "tags": [
-          "office"
+          "office_users"
         ],
         "summary": "List office users",
         "operationId": "indexOfficeUsers",
@@ -1269,7 +1269,7 @@ func init() {
       "post": {
         "description": "creates and returns an office user record",
         "tags": [
-          "office"
+          "office_users"
         ],
         "summary": "create an office user",
         "operationId": "createOfficeUser",
@@ -1309,7 +1309,7 @@ func init() {
       "get": {
         "description": "Returns the given office user",
         "tags": [
-          "office"
+          "office_users"
         ],
         "summary": "Get an office user",
         "operationId": "getOfficeUser",
@@ -1345,7 +1345,7 @@ func init() {
       },
       "patch": {
         "tags": [
-          "office"
+          "office_users"
         ],
         "summary": "Updates an office user",
         "operationId": "updateOfficeUser",

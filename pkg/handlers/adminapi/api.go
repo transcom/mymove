@@ -31,26 +31,26 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 	adminAPI := adminops.NewMymoveAPI(adminSpec)
 	queryBuilder := query.NewQueryBuilder(context.DB())
 
-	adminAPI.OfficeIndexOfficeUsersHandler = IndexOfficeUsersHandler{
+	adminAPI.OfficeUsersIndexOfficeUsersHandler = IndexOfficeUsersHandler{
 		context,
 		officeuser.NewOfficeUserListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
 
-	adminAPI.OfficeGetOfficeUserHandler = GetOfficeUserHandler{
+	adminAPI.OfficeUsersGetOfficeUserHandler = GetOfficeUserHandler{
 		context,
 		officeuser.NewOfficeUserFetcher(queryBuilder),
 		query.NewQueryFilter,
 	}
 
-	adminAPI.OfficeCreateOfficeUserHandler = CreateOfficeUserHandler{
+	adminAPI.OfficeUsersCreateOfficeUserHandler = CreateOfficeUserHandler{
 		context,
 		officeuser.NewOfficeUserCreator(queryBuilder),
 		query.NewQueryFilter,
 	}
 
-	adminAPI.OfficeUpdateOfficeUserHandler = UpdateOfficeUserHandler{
+	adminAPI.OfficeUsersUpdateOfficeUserHandler = UpdateOfficeUserHandler{
 		context,
 		officeuser.NewOfficeUserUpdater(queryBuilder),
 		query.NewQueryFilter,
@@ -76,7 +76,7 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		query.NewQueryFilter,
 	}
 
-	adminAPI.OfficeIndexAccessCodesHandler = IndexAccessCodesHandler{
+	adminAPI.AccessCodesIndexAccessCodesHandler = IndexAccessCodesHandler{
 		context,
 		accesscodeservice.NewAccessCodeListFetcher(queryBuilder),
 		query.NewQueryFilter,
