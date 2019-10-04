@@ -44,7 +44,7 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - MoveTaskOrder
+        - moveTaskOrder
       description: Gets all move orders
       operationId: listMoveTaskOrders
       summary: Gets all move orders
@@ -85,7 +85,7 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - MoveTaskOrder
+        - moveTaskOrder
       description: Deletes a move order by ID
       operationId: deleteMoveTaskOrder
       summary: Deletes a move order by ID
@@ -119,7 +119,7 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - MoveTaskOrder
+        - moveTaskOrder
       description: Gets a move order
       operationId: getMoveTaskOrder
       summary: Gets a move order by ID
@@ -160,7 +160,7 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - MoveTaskOrder
+        - moveTaskOrder
       description: Updates a move order by ID
       operationId: updateMoveTaskOrder
       summary: Updates a move order by ID
@@ -288,8 +288,8 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - ServiceItem
-      description: Delets a line item by ID for a move order by ID
+        - serviceItem
+      description: Deletes a line item by ID for a move order by ID
       operationId: deleteServiceItem
       summary: Deletes a line item by ID for a move order by ID
     get:
@@ -322,7 +322,7 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - ServiceItem
+        - serviceItem
       description: Gets a line item by ID for a move order by ID
       operationId: getServiceItem
       summary: Gets a line item by ID for a move order by ID
@@ -363,7 +363,7 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - ServiceItem
+        - serviceItem
       description: Updates a service item by ID for a move order by ID
       operationId: updateServiceItem
       summary: Updates a service item by ID for a move order by ID
@@ -418,7 +418,7 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - ServiceItem
+        - serviceItem
       description: Changes the status of a line item for a move order by ID
       operationId: updateServiceItemStatus
       summary: Change the status of a line item for a move order by ID
@@ -465,7 +465,7 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - MoveTaskOrder
+        - moveTaskOrder
       description: Changes move order status
       operationId: updateMoveTaskOrderStatus
       summary: Change the status of a move order
@@ -500,7 +500,7 @@ paths:
           schema:
             $ref: '#/definitions/Error'
       tags:
-        - payment-requests
+        - paymentRequests
         - prime
         - gov
       description: Gets a list of payment requests
@@ -542,7 +542,7 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - payment-requests
+        - paymentRequests
         - prime
       description: Creates a payment request
       operationId: createPaymentRequest
@@ -585,7 +585,7 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - payment-requests
+        - paymentRequests
         - prime
         - gov
       description: Fetches an instance of a payment request by id
@@ -628,7 +628,7 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - payment-requests
+        - paymentRequests
         - prime
       description: Updates a payment request by id
       operationId: updatePaymentRequest
@@ -677,7 +677,7 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - payment-requests
+        - paymentRequests
         - gov
       description: Updates status of a payment request by id
       operationId: updatePaymentRequestStatus
