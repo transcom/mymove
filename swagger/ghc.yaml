@@ -717,9 +717,11 @@ definitions:
       proGearWeight:
         example: 2000
         type: integer
+        x-formatting: weight
       proGearWeightSpouse:
         example: 500
         type: integer
+        x-formatting: weight
       storageInTransit:
         example: 90
         type: integer
@@ -729,6 +731,7 @@ definitions:
       totalWeightSelf:
         example: 18000
         type: integer
+        x-formatting: weight
     type: object
   Error:
     properties:
