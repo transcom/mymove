@@ -80,6 +80,49 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/OfficeUser'
+  AdminUser:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      first_name:
+        type: string
+      last_name:
+        type: string
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+      user_id:
+        type: string
+        format: uuid
+      organization_id:
+        type: string
+        format: uuid
+      disabled:
+        type: boolean
+      created_at:
+        type: string
+        format: datetime
+      updated_at:
+        type: string
+        format: datetime
+    required:
+      - id
+      - first_name
+      - last_name
+      - email
+      - user_id
+      - organization_id
+      - disabled
+      - created_at
+      - updated_at
+  AdminUsers:
+    type: array
+    items:
+      $ref: '#/definitions/AdminUser'
   TransportationOffice:
     type: object
     properties:
@@ -406,7 +449,7 @@ paths:
       description: Returns a list of access codes
       operationId: indexAccessCodes
       tags:
-        - office
+        - access_codes
       parameters:
         - in: query
           name: filter
@@ -440,7 +483,7 @@ paths:
       description: Returns a list of office users
       operationId: indexOfficeUsers
       tags:
-        - office
+        - office_users
       parameters:
         - in: query
           name: filter
@@ -475,7 +518,7 @@ paths:
       description: creates and returns an office user record
       operationId: createOfficeUser
       tags:
-        - office
+        - office_users
       parameters:
         - in: body
           name: officeUser
@@ -501,7 +544,7 @@ paths:
       description: Returns the given office user
       operationId: getOfficeUser
       tags:
-        - office
+        - office_users
       parameters:
         - in: path
           name: officeUserId
@@ -525,7 +568,7 @@ paths:
       summary: Updates an office user
       operationId: updateOfficeUser
       tags:
-        - office
+        - office_users
       parameters:
         - in: path
           name: officeUserId
@@ -551,6 +594,42 @@ paths:
           description: Not authorized to create an office user
         500:
           description: Server error
+  /admin_users:
+    get:
+      summary: List admin users
+      description: Returns a list of admin users
+      operationId: indexAdminUsers
+      tags:
+        - admin_users
+      parameters:
+        - in: query
+          name: filter
+          type: array
+          items:
+            type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
+      responses:
+        200:
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
+          schema:
+            $ref: '#/definitions/AdminUsers'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: office not found
+        500:
+          description: server error
   /offices:
     get:
       summary: List transportation offices

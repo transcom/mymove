@@ -15,7 +15,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	accesscodeop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
+	accesscodeop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/access_codes"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/accesscode"

@@ -48,6 +48,7 @@ require (
 	github.com/jackc/pgx v3.6.0+incompatible // indirect
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jmoiron/sqlx v1.2.0
+	github.com/jstemmer/go-junit-report v0.0.0-20190106144839-af01ea7f8024
 	github.com/jung-kurt/gofpdf v1.12.1
 	github.com/leodido/go-urn v1.1.0
 	github.com/lib/pq v1.2.0

@@ -11,7 +11,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 
-	accesscodeop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
+	accesscodeop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/access_codes"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/services"
