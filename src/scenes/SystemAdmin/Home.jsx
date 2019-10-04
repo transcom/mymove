@@ -12,7 +12,6 @@ import AdminUserList from './AdminUsers/AdminUserList';
 import OfficeList from './Offices/OfficeList';
 import ElectronicOrderList from './ElectronicOrders/ElectronicOrderList';
 import styles from './Home.module.scss';
-import { withContext } from 'shared/AppContext';
 import * as Cookies from 'js-cookie';
 
 const httpClient = (url, options = {}) => {
@@ -33,7 +32,7 @@ const dataProvider = restProvider('/admin/v1', httpClient);
 const AdminLayout = props => <Layout {...props} menu={Menu} />;
 const history = createBrowserHistory({ basename: '/system' });
 
-const Home = props => (
+const Home = () => (
   <div className={styles['admin-system-wrapper']}>
     <Admin dataProvider={dataProvider} history={history} appLayout={AdminLayout}>
       <Resource
@@ -41,8 +40,8 @@ const Home = props => (
         options={{ label: 'Office users' }}
         list={OfficeUserList}
         show={OfficeUserShow}
-        create={props.context.flags.createAdminUser && OfficeUserCreate}
-        edit={props.context.flags.createAdminUser && OfficeUserEdit}
+        create={OfficeUserCreate}
+        edit={OfficeUserEdit}
       />
       <Resource name="offices" options={{ label: 'Offices' }} list={OfficeList} />
       <Resource name="admin_users" options={{ label: 'Admin Users' }} list={AdminUserList} />
@@ -52,5 +51,4 @@ const Home = props => (
   </div>
 );
 
-const homeWithContext = withContext(Home);
-export default homeWithContext;
+export default Home;

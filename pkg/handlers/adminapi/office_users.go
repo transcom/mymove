@@ -135,7 +135,7 @@ type UpdateOfficeUserHandler struct {
 
 func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserParams) middleware.Responder {
 	payload := params.OfficeUser
-	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	officeUserID, err := uuid.FromString(params.OfficeUserID.String())
 	if err != nil {
@@ -157,6 +157,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 		return officeuserop.NewUpdateOfficeUserInternalServerError()
 	}
 
+	logger.Info("Update Office User", zap.String("office_user_id", updatedOfficeUser.ID.String()), zap.String("responsible_user_id", session.UserID.String()), zap.String("event_type", "update_office_user"))
 	returnPayload := payloadForOfficeUserModel(*updatedOfficeUser)
 
 	return officeuserop.NewUpdateOfficeUserOK().WithPayload(returnPayload)
