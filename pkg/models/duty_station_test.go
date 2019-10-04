@@ -78,6 +78,7 @@ func (suite *ModelSuite) TestFindDutyStations() {
 		{query: "davis-mon", dutyStations: []string{"Davis Monthan AFB", "NAS Fallon", "JB Elmendorf-Richardson"}},
 		{query: "jber", dutyStations: []string{"JB Elmendorf-Richardson", "NAS Fort Worth JRB"}},
 		{query: "naval air", dutyStations: []string{"NAS Fallon", "NAS Fort Worth JRB", "Fort Belvoir", "Davis Monthan AFB"}},
+		{query: "zzzzz", dutyStations: []string{}},
 	}
 
 	for _, ts := range tests {
