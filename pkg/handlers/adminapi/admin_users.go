@@ -26,7 +26,7 @@ func payloadForAdminUser(o models.AdminUser) *adminmessages.AdminUser {
 	}
 }
 
-// IndexAdminUsersHandler returns a list of office users via GET /admin_users
+// IndexAdminUsersHandler returns a list of admin users via GET /admin_users
 type IndexAdminUsersHandler struct {
 	handlers.HandlerContext
 	services.AdminUserListFetcher
@@ -34,7 +34,7 @@ type IndexAdminUsersHandler struct {
 	services.NewPagination
 }
 
-// Handle retrieves a list of office users
+// Handle retrieves a list of admin users
 func (h IndexAdminUsersHandler) Handle(params adminuserop.IndexAdminUsersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
@@ -42,7 +42,7 @@ func (h IndexAdminUsersHandler) Handle(params adminuserop.IndexAdminUsersParams)
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
 
-	officeUsers, err := h.AdminUserListFetcher.FetchAdminUserList(queryFilters, pagination)
+	adminUsers, err := h.AdminUserListFetcher.FetchAdminUserList(queryFilters, pagination)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -52,11 +52,11 @@ func (h IndexAdminUsersHandler) Handle(params adminuserop.IndexAdminUsersParams)
 		return handlers.ResponseForError(logger, err)
 	}
 
-	queriedAdminUsersCount := len(officeUsers)
+	queriedAdminUsersCount := len(adminUsers)
 
 	payload := make(adminmessages.AdminUsers, queriedAdminUsersCount)
 
-	for i, s := range officeUsers {
+	for i, s := range adminUsers {
 		payload[i] = payloadForAdminUser(s)
 	}
 
