@@ -29,7 +29,7 @@ func NewGetPaymentRequest(ctx *middleware.Context, handler GetPaymentRequestHand
 	return &GetPaymentRequest{Context: ctx, Handler: handler}
 }
 
-/*GetPaymentRequest swagger:route GET /payment-requests/{paymentRequestID} payment-requests prime gov getPaymentRequest
+/*GetPaymentRequest swagger:route GET /payment-requests/{paymentRequestID} paymentRequests prime gov getPaymentRequest
 
 Fetches a payment request by id
 

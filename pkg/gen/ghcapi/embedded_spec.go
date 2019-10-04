@@ -44,7 +44,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "MoveTaskOrder"
+          "moveTaskOrder"
         ],
         "summary": "Gets all move orders",
         "operationId": "listMoveTaskOrders",
@@ -95,7 +95,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "MoveTaskOrder"
+          "moveTaskOrder"
         ],
         "summary": "Gets a move order by ID",
         "operationId": "getMoveTaskOrder",
@@ -144,7 +144,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "MoveTaskOrder"
+          "moveTaskOrder"
         ],
         "summary": "Deletes a move order by ID",
         "operationId": "deleteMoveTaskOrder",
@@ -196,7 +196,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "MoveTaskOrder"
+          "moveTaskOrder"
         ],
         "summary": "Updates a move order by ID",
         "operationId": "updateMoveTaskOrder",
@@ -388,7 +388,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "ServiceItem"
+          "serviceItem"
         ],
         "summary": "Gets a line item by ID for a move order by ID",
         "operationId": "getServiceItem",
@@ -432,12 +432,12 @@ func init() {
         }
       },
       "delete": {
-        "description": "Delets a line item by ID for a move order by ID",
+        "description": "Deletes a line item by ID for a move order by ID",
         "produces": [
           "application/json"
         ],
         "tags": [
-          "ServiceItem"
+          "serviceItem"
         ],
         "summary": "Deletes a line item by ID for a move order by ID",
         "operationId": "deleteServiceItem",
@@ -489,7 +489,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "ServiceItem"
+          "serviceItem"
         ],
         "summary": "Updates a service item by ID for a move order by ID",
         "operationId": "updateServiceItem",
@@ -569,7 +569,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "ServiceItem"
+          "serviceItem"
         ],
         "summary": "Change the status of a line item for a move order by ID",
         "operationId": "updateServiceItemStatus",
@@ -649,7 +649,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "MoveTaskOrder"
+          "moveTaskOrder"
         ],
         "summary": "Change the status of a move order",
         "operationId": "updateMoveTaskOrderStatus",
@@ -717,7 +717,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "payment-requests",
+          "paymentRequests",
           "prime",
           "gov"
         ],
@@ -771,7 +771,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "payment-requests",
+          "paymentRequests",
           "prime"
         ],
         "summary": "Creates a payment request",
@@ -832,7 +832,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "payment-requests",
+          "paymentRequests",
           "prime",
           "gov"
         ],
@@ -886,7 +886,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "payment-requests",
+          "paymentRequests",
           "prime"
         ],
         "summary": "Updates a payment request by id",
@@ -961,7 +961,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "payment-requests",
+          "paymentRequests",
           "gov"
         ],
         "summary": "Updates status of a payment request by id",
@@ -1071,10 +1071,12 @@ func init() {
         },
         "proGearWeight": {
           "type": "integer",
+          "x-formatting": "weight",
           "example": 2000
         },
         "proGearWeightSpouse": {
           "type": "integer",
+          "x-formatting": "weight",
           "example": 500
         },
         "storageInTransit": {
@@ -1087,6 +1089,7 @@ func init() {
         },
         "totalWeightSelf": {
           "type": "integer",
+          "x-formatting": "weight",
           "example": 18000
         }
       }
@@ -1486,7 +1489,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "MoveTaskOrder"
+          "moveTaskOrder"
         ],
         "summary": "Gets all move orders",
         "operationId": "listMoveTaskOrders",
@@ -1552,7 +1555,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "MoveTaskOrder"
+          "moveTaskOrder"
         ],
         "summary": "Gets a move order by ID",
         "operationId": "getMoveTaskOrder",
@@ -1616,7 +1619,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "MoveTaskOrder"
+          "moveTaskOrder"
         ],
         "summary": "Deletes a move order by ID",
         "operationId": "deleteMoveTaskOrder",
@@ -1683,7 +1686,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "MoveTaskOrder"
+          "moveTaskOrder"
         ],
         "summary": "Updates a move order by ID",
         "operationId": "updateMoveTaskOrder",
@@ -1920,7 +1923,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "ServiceItem"
+          "serviceItem"
         ],
         "summary": "Gets a line item by ID for a move order by ID",
         "operationId": "getServiceItem",
@@ -1979,12 +1982,12 @@ func init() {
         }
       },
       "delete": {
-        "description": "Delets a line item by ID for a move order by ID",
+        "description": "Deletes a line item by ID for a move order by ID",
         "produces": [
           "application/json"
         ],
         "tags": [
-          "ServiceItem"
+          "serviceItem"
         ],
         "summary": "Deletes a line item by ID for a move order by ID",
         "operationId": "deleteServiceItem",
@@ -2051,7 +2054,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "ServiceItem"
+          "serviceItem"
         ],
         "summary": "Updates a service item by ID for a move order by ID",
         "operationId": "updateServiceItem",
@@ -2146,7 +2149,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "ServiceItem"
+          "serviceItem"
         ],
         "summary": "Change the status of a line item for a move order by ID",
         "operationId": "updateServiceItemStatus",
@@ -2241,7 +2244,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "MoveTaskOrder"
+          "moveTaskOrder"
         ],
         "summary": "Change the status of a move order",
         "operationId": "updateMoveTaskOrderStatus",
@@ -2324,7 +2327,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "payment-requests",
+          "paymentRequests",
           "prime",
           "gov"
         ],
@@ -2378,7 +2381,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "payment-requests",
+          "paymentRequests",
           "prime"
         ],
         "summary": "Creates a payment request",
@@ -2454,7 +2457,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "payment-requests",
+          "paymentRequests",
           "prime",
           "gov"
         ],
@@ -2523,7 +2526,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "payment-requests",
+          "paymentRequests",
           "prime"
         ],
         "summary": "Updates a payment request by id",
@@ -2613,7 +2616,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "payment-requests",
+          "paymentRequests",
           "gov"
         ],
         "summary": "Updates status of a payment request by id",
@@ -2738,10 +2741,12 @@ func init() {
         },
         "proGearWeight": {
           "type": "integer",
+          "x-formatting": "weight",
           "example": 2000
         },
         "proGearWeightSpouse": {
           "type": "integer",
+          "x-formatting": "weight",
           "example": 500
         },
         "storageInTransit": {
@@ -2754,6 +2759,7 @@ func init() {
         },
         "totalWeightSelf": {
           "type": "integer",
+          "x-formatting": "weight",
           "example": 18000
         }
       }

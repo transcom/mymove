@@ -29,7 +29,7 @@ func NewGetServiceItem(ctx *middleware.Context, handler GetServiceItemHandler) *
 	return &GetServiceItem{Context: ctx, Handler: handler}
 }
 
-/*GetServiceItem swagger:route GET /move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID} ServiceItem getServiceItem
+/*GetServiceItem swagger:route GET /move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID} serviceItem getServiceItem
 
 Gets a line item by ID for a move order by ID
 

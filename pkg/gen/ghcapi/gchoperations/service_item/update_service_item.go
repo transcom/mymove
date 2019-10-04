@@ -29,7 +29,7 @@ func NewUpdateServiceItem(ctx *middleware.Context, handler UpdateServiceItemHand
 	return &UpdateServiceItem{Context: ctx, Handler: handler}
 }
 
-/*UpdateServiceItem swagger:route PATCH /move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID} ServiceItem updateServiceItem
+/*UpdateServiceItem swagger:route PATCH /move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID} serviceItem updateServiceItem
 
 Updates a service item by ID for a move order by ID
 

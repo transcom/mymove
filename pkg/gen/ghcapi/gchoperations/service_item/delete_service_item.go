@@ -29,11 +29,11 @@ func NewDeleteServiceItem(ctx *middleware.Context, handler DeleteServiceItemHand
 	return &DeleteServiceItem{Context: ctx, Handler: handler}
 }
 
-/*DeleteServiceItem swagger:route DELETE /move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID} ServiceItem deleteServiceItem
+/*DeleteServiceItem swagger:route DELETE /move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID} serviceItem deleteServiceItem
 
 Deletes a line item by ID for a move order by ID
 
-Delets a line item by ID for a move order by ID
+Deletes a line item by ID for a move order by ID
 
 */
 type DeleteServiceItem struct {

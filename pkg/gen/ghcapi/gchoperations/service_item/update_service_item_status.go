@@ -29,7 +29,7 @@ func NewUpdateServiceItemStatus(ctx *middleware.Context, handler UpdateServiceIt
 	return &UpdateServiceItemStatus{Context: ctx, Handler: handler}
 }
 
-/*UpdateServiceItemStatus swagger:route PATCH /move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}/status ServiceItem updateServiceItemStatus
+/*UpdateServiceItemStatus swagger:route PATCH /move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}/status serviceItem updateServiceItemStatus
 
 Change the status of a line item for a move order by ID
 

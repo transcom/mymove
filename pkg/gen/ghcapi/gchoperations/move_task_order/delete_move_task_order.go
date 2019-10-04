@@ -29,7 +29,7 @@ func NewDeleteMoveTaskOrder(ctx *middleware.Context, handler DeleteMoveTaskOrder
 	return &DeleteMoveTaskOrder{Context: ctx, Handler: handler}
 }
 
-/*DeleteMoveTaskOrder swagger:route DELETE /move-task-orders/{moveTaskOrderID} MoveTaskOrder deleteMoveTaskOrder
+/*DeleteMoveTaskOrder swagger:route DELETE /move-task-orders/{moveTaskOrderID} moveTaskOrder deleteMoveTaskOrder
 
 Deletes a move order by ID
 

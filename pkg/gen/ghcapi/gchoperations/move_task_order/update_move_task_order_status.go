@@ -29,7 +29,7 @@ func NewUpdateMoveTaskOrderStatus(ctx *middleware.Context, handler UpdateMoveTas
 	return &UpdateMoveTaskOrderStatus{Context: ctx, Handler: handler}
 }
 
-/*UpdateMoveTaskOrderStatus swagger:route PATCH /move-task-orders/{moveTaskOrderID}/status MoveTaskOrder updateMoveTaskOrderStatus
+/*UpdateMoveTaskOrderStatus swagger:route PATCH /move-task-orders/{moveTaskOrderID}/status moveTaskOrder updateMoveTaskOrderStatus
 
 Change the status of a move order
 

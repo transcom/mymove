@@ -29,7 +29,7 @@ func NewListPaymentRequests(ctx *middleware.Context, handler ListPaymentRequests
 	return &ListPaymentRequests{Context: ctx, Handler: handler}
 }
 
-/*ListPaymentRequests swagger:route GET /payment-requests payment-requests prime gov listPaymentRequests
+/*ListPaymentRequests swagger:route GET /payment-requests paymentRequests prime gov listPaymentRequests
 
 Gets payment requests
 
