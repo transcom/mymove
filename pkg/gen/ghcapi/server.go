@@ -25,7 +25,7 @@ import (
 	flags "github.com/jessevdk/go-flags"
 	"golang.org/x/net/netutil"
 
-	"github.com/transcom/mymove/pkg/gen/ghcapi/gchoperations"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
 )
 
 const (
@@ -43,7 +43,7 @@ func init() {
 }
 
 // NewServer creates a new api mymove server but does not configure it
-func NewServer(api *gchoperations.MymoveAPI) *Server {
+func NewServer(api *ghcoperations.MymoveAPI) *Server {
 	s := new(Server)
 
 	s.shutdown = make(chan struct{})
@@ -95,7 +95,7 @@ type Server struct {
 	TLSWriteTimeout   time.Duration  `long:"tls-write-timeout" description:"maximum duration before timing out write of the response"`
 	httpsServerL      net.Listener
 
-	api          *gchoperations.MymoveAPI
+	api          *ghcoperations.MymoveAPI
 	handler      http.Handler
 	hasListeners bool
 	shutdown     chan struct{}
@@ -125,7 +125,7 @@ func (s *Server) Fatalf(f string, args ...interface{}) {
 }
 
 // SetAPI configures the server with the specified API. Needs to be called before Serve
-func (s *Server) SetAPI(api *gchoperations.MymoveAPI) {
+func (s *Server) SetAPI(api *ghcoperations.MymoveAPI) {
 	if api == nil {
 		s.api = nil
 		s.handler = nil

@@ -10,19 +10,19 @@ import (
 	runtime "github.com/go-openapi/runtime"
 	middleware "github.com/go-openapi/runtime/middleware"
 
-	"github.com/transcom/mymove/pkg/gen/ghcapi/gchoperations"
-	"github.com/transcom/mymove/pkg/gen/ghcapi/gchoperations/move_task_order"
-	"github.com/transcom/mymove/pkg/gen/ghcapi/gchoperations/payment_requests"
-	"github.com/transcom/mymove/pkg/gen/ghcapi/gchoperations/service_item"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/service_item"
 )
 
-//go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/ghc.yaml --api-package gchoperations --model-package ghcmessages --server-package ghcapi --exclude-main
+//go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/ghc.yaml --api-package ghcoperations --model-package ghcmessages --server-package ghcapi --exclude-main
 
-func configureFlags(api *gchoperations.MymoveAPI) {
+func configureFlags(api *ghcoperations.MymoveAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
 }
 
-func configureAPI(api *gchoperations.MymoveAPI) http.Handler {
+func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	// configure the api here
 	api.ServeError = errors.ServeError
 
