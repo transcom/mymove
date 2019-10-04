@@ -427,7 +427,7 @@ jobs:
           path: ~/transcom/mymove/tmp/test-results
           destination: test-results
       - store_test_results:
-          path: test-results
+          path: ~/transcom/mymove/tmp/test-results
       - announce_failure
 
   # `server_test_coverage` runs code coverage and submits it to CodeClimate
