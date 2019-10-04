@@ -25,7 +25,7 @@ func (suite *HandlerSuite) SetupTest() {
 	suite.DB().TruncateAll()
 }
 
-// AfterTest completes tests by trying to close open files
+// AfterTest completes test cleanup
 func (suite *HandlerSuite) AfterTest() {
 }
 
