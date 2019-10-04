@@ -2,9 +2,11 @@ package testingsuite
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"log"
 	"math/rand"
+	"os"
 	"os/exec"
 	"runtime"
 	"strings"
@@ -13,6 +15,7 @@ import (
 	envy "github.com/codegangsta/envy/lib"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
+	"github.com/gofrs/flock"
 	"github.com/pkg/errors"
 )
 
@@ -20,6 +23,8 @@ const charset = "abcdefghijklmnopqrstuvwxyz" +
 	"0123456789"
 
 var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
+
+var fileLock = flock.New(os.TempDir() + "/server-test-lock.lock")
 
 // StringWithCharset returns a random string
 // https://www.calhoun.io/creating-random-strings-in-go/
@@ -73,6 +78,14 @@ func dropDB(destination string) error {
 }
 
 func cloneDatabase(source, destination string) error {
+	lockCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	_, lockErr := fileLock.TryLockContext(lockCtx, 678*time.Millisecond)
+	if lockErr != nil {
+		return lockErr
+	}
+
 	if err := dropDB(destination); err != nil {
 		return err
 	}
@@ -93,6 +106,10 @@ func cloneDatabase(source, destination string) error {
 
 	if _, err := runCommand(restore, "import the dump with psql"); err != nil {
 		return dumpErr
+	}
+
+	if err := fileLock.Unlock(); err != nil {
+		return err
 	}
 
 	return nil

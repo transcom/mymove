@@ -40,6 +40,7 @@ require (
 	github.com/gobuffalo/pop v4.11.6+incompatible
 	github.com/gobuffalo/validate v2.0.3+incompatible
 	github.com/godbus/dbus v4.1.0+incompatible // indirect
+	github.com/gofrs/flock v0.7.1
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/gopherjs/gopherjs v0.0.0-20190915194858-d3ddacdb130f // indirect
 	github.com/gorilla/csrf v1.6.1
