@@ -17,6 +17,10 @@ func NewGHCRateEngine(db *pop.Connection, logger Logger) GHCRateEngine {
 	}
 }
 
+const MinDomesticPerWeightPounds = 500
+const MinInternationalServiceWeightPounds = 500
+const MinUBservicesWeightPounds = 300
+
 //const PeakRateCycleStartMonth = time.May
 //const PeakRateCycleStartDay = 15
 //const PeakRateCycleEndMonth = time.September
