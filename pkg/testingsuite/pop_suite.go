@@ -78,14 +78,17 @@ func dropDB(destination string) error {
 }
 
 func cloneDatabase(source, destination string) error {
+	// Try to obtain the lock in this method within 5 minutes
 	lockCtx, cancel := context.WithTimeout(context.Background(), 300*time.Second)
 	defer cancel()
 
+	// Continually check if the lock is available
 	_, lockErr := fileLock.TryLockContext(lockCtx, 678*time.Millisecond)
 	if lockErr != nil {
 		return lockErr
 	}
 
+	// Now that the lock is available clone the DB
 	if err := dropDB(destination); err != nil {
 		return err
 	}
@@ -108,6 +111,7 @@ func cloneDatabase(source, destination string) error {
 		return dumpErr
 	}
 
+	// Release the lock so other tests can clone the DB
 	if err := fileLock.Unlock(); err != nil {
 		return err
 	}
@@ -226,6 +230,7 @@ func (suite *PopTestSuite) NoVerrs(verrs *validate.Errors) bool {
 }
 
 // TearDown runs the teardown for step for the suite
+// Important steps are to close open DB connections and drop the DB
 func (suite *PopTestSuite) TearDown() {
 	// disconnect other users
 	if err := suite.db.Close(); err != nil {
