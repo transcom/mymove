@@ -193,6 +193,10 @@ bin/soda: .check_go_version.stamp .check_gopath.stamp
 bin/swagger: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 
+# No static linking / $(LDFLAGS) because go-junit-report is only used for building the CirlceCi test report
+bin/go-junit-report: .check_go_version.stamp .check_gopath.stamp
+	go build -o bin/go-junit-report github.com/jstemmer/go-junit-report
+
 # No static linking / $(LDFLAGS) because mockery is only used for testing
 bin/mockery: .check_go_version.stamp .check_gopath.stamp
 	go build -o bin/mockery github.com/vektra/mockery/cmd/mockery
@@ -393,7 +397,8 @@ ifndef CIRCLECI
 	DB_PORT=$(DB_PORT_TEST) go test -v -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
 else
 	# Limit the maximum number of tests to run in parallel to 8 for CircleCI due to memory constraints.
-	DB_PORT=$(DB_PORT_TEST) go test -v -parallel 4 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
+	# Add verbose (-v) so go-junit-report can parse it for CircleCI results
+	DB_PORT=$(DB_PORT_TEST) go test -v -parallel 8 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
 endif
 
 server_test_build:

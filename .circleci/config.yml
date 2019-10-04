@@ -387,6 +387,9 @@ jobs:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
       - run:
+          name: Build Go Junit Report
+          command: make bin/go-junit-report
+      - run:
           # This is needed to use `psql` to clone the DB for parallel server tests
           name: Install postgres client
           command: |
@@ -404,7 +407,10 @@ jobs:
           command: |
             echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
             source $BASH_ENV
-            make server_test_standalone
+            mkdir -p tmp/test-results/gotest
+            # setup a trap incase the tests fail, we still want to generate the report
+            trap "bin/go-junit-report < tmp/test-results/gotest/go-test.out >  tmp/test-results/gotest/go-test-report.xml" EXIT
+            make server_test_standalone | tee tmp/test-results/gotest/go-test.out
           environment:
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
@@ -418,6 +424,11 @@ jobs:
             MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
             MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
             SERVE_API_INTERNAL: true
+      - store_artifacts:
+          path: ~/transcom/mymove/tmp/test-results
+          destination: test-results
+      - store_test_results:
+          path: ~/transcom/mymove/tmp/test-results
       - announce_failure
 
   # `server_test_coverage` runs code coverage and submits it to CodeClimate
