@@ -87,6 +87,7 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		upload.NewUploadFetcher(queryBuilder),
 		query.NewQueryFilter,
+		pagination.NewPagination,
 	}
 	return adminAPI.Serve(nil)
 }

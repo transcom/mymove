@@ -4,7 +4,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 
-	//"runtime"
+	"github.com/transcom/mymove/pkg/services/pagination"
 
 	uploadop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/upload"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
@@ -34,6 +34,7 @@ type GetUploadHandler struct {
 	handlers.HandlerContext
 	services.UploadFetcher
 	services.NewQueryFilter
+	services.NewPagination
 }
 
 // Handle retrieves a specific upload
@@ -48,7 +49,7 @@ func (h GetUploadHandler) Handle(params uploadop.GetUploadParams) middleware.Res
 		query.NewQueryAssociation("Document.ServiceMember.Orders.Moves"),
 	}
 	associations := query.NewQueryAssociations(queryAssociations)
-	uploads, err := h.UploadFetcher.FetchUploads(queryFilters, associations)
+	uploads, err := h.UploadFetcher.FetchUploads(queryFilters, associations, pagination.NewPagination(nil, nil))
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

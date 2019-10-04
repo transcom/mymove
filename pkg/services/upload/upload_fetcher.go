@@ -6,7 +6,7 @@ import (
 )
 
 type uploadQueryBuilder interface {
-	FetchWithAssociations(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations) error
+	FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) error
 }
 
 type uploadFetcher struct {
@@ -14,9 +14,9 @@ type uploadFetcher struct {
 }
 
 // FetchUploads fetches an office user given a slice of filters
-func (o *uploadFetcher) FetchUploads(filters []services.QueryFilter, associations services.QueryAssociations) (models.Uploads, error) {
+func (o *uploadFetcher) FetchUploads(filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) (models.Uploads, error) {
 	var uploads models.Uploads
-	err := o.builder.FetchWithAssociations(&uploads, filters, associations)
+	err := o.builder.FetchMany(&uploads, filters, associations, pagination)
 	if err != nil {
 		return models.Uploads{}, err
 	}

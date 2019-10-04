@@ -14,13 +14,13 @@ type UploadFetcher struct {
 	mock.Mock
 }
 
-// FetchUploads provides a mock function with given fields: filters, associations
-func (_m *UploadFetcher) FetchUploads(filters []services.QueryFilter, associations services.QueryAssociations) (models.Uploads, error) {
-	ret := _m.Called(filters, associations)
+// FetchUploads provides a mock function with given fields: filters, associations, pagination
+func (_m *UploadFetcher) FetchUploads(filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) (models.Uploads, error) {
+	ret := _m.Called(filters, associations, pagination)
 
 	var r0 models.Uploads
-	if rf, ok := ret.Get(0).(func([]services.QueryFilter, services.QueryAssociations) models.Uploads); ok {
-		r0 = rf(filters, associations)
+	if rf, ok := ret.Get(0).(func([]services.QueryFilter, services.QueryAssociations, services.Pagination) models.Uploads); ok {
+		r0 = rf(filters, associations, pagination)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(models.Uploads)
@@ -28,8 +28,8 @@ func (_m *UploadFetcher) FetchUploads(filters []services.QueryFilter, associatio
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func([]services.QueryFilter, services.QueryAssociations) error); ok {
-		r1 = rf(filters, associations)
+	if rf, ok := ret.Get(1).(func([]services.QueryFilter, services.QueryAssociations, services.Pagination) error); ok {
+		r1 = rf(filters, associations, pagination)
 	} else {
 		r1 = ret.Error(1)
 	}

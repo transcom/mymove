@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services/pagination"
+
 	"github.com/stretchr/testify/mock"
 
 	"github.com/gofrs/uuid"
@@ -80,6 +82,7 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter: query.NewQueryFilter,
 			UploadFetcher:  upload.NewUploadFetcher(queryBuilder),
+			NewPagination:  pagination.NewPagination,
 		}
 
 		response := handler.Handle(params)
@@ -103,11 +106,13 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 		uploadFetcher.On("FetchUploads",
 			mock.Anything,
 			mock.Anything,
+			mock.Anything,
 		).Return(uploaded, nil).Once()
 		handler := GetUploadHandler{
 			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter: newQueryFilter,
 			UploadFetcher:  upload.NewUploadFetcher(queryBuilder),
+			NewPagination:  pagination.NewPagination,
 		}
 
 		response := handler.Handle(params)
@@ -127,11 +132,13 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 		uploadFetcher.On("FetchUploads",
 			mock.Anything,
 			mock.Anything,
+			mock.Anything,
 		).Return(nil, expectedError).Once()
 		handler := GetUploadHandler{
 			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter: newQueryFilter,
 			UploadFetcher:  uploadFetcher,
+			NewPagination:  pagination.NewPagination,
 		}
 
 		response := handler.Handle(params)

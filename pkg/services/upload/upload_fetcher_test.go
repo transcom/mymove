@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/services/pagination"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -13,26 +15,31 @@ import (
 )
 
 type testUploadQueryBuilder struct {
-	fakeFetchWithAssociations func(model interface{}) error
+	fakeFetchMany func(model interface{}) error
 }
 
-func (t *testUploadQueryBuilder) FetchWithAssociations(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations) error {
-	m := t.fakeFetchWithAssociations(model)
+func (t *testUploadQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) error {
+	m := t.fakeFetchMany(model)
 	return m
+}
+
+func defaultPagination() services.Pagination {
+	page, perPage := pagination.DefaultPage(), pagination.DefaultPerPage()
+	return pagination.NewPagination(&page, &perPage)
 }
 
 func (suite *UploadsServiceSuite) TestFetchUploads() {
 	suite.T().Run("if uploads are fetched, it should be returned", func(t *testing.T) {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
-		fakeFetchWithAssociations := func(model interface{}) error {
+		fakeFetchMany := func(model interface{}) error {
 			listOfUploads := reflect.ValueOf(model).Elem()
 			listOfUploads.Set(reflect.Append(listOfUploads, reflect.ValueOf(models.Upload{ID: id})))
 			return nil
 		}
 
 		builder := &testUploadQueryBuilder{
-			fakeFetchWithAssociations: fakeFetchWithAssociations,
+			fakeFetchMany: fakeFetchMany,
 		}
 
 		fetcher := NewUploadFetcher(builder)
@@ -40,7 +47,7 @@ func (suite *UploadsServiceSuite) TestFetchUploads() {
 		queryAssociations := []services.QueryAssociation{}
 		associations := query.NewQueryAssociations(queryAssociations)
 
-		uploadRecords, err := fetcher.FetchUploads(filters, associations)
+		uploadRecords, err := fetcher.FetchUploads(filters, associations, defaultPagination())
 
 		suite.NoError(err)
 		suite.Equal(id, uploadRecords[0].ID)
@@ -51,13 +58,13 @@ func (suite *UploadsServiceSuite) TestFetchUploads() {
 			return errors.New("Fetch error")
 		}
 		builder := &testUploadQueryBuilder{
-			fakeFetchWithAssociations: fakeFetchWithAssociations,
+			fakeFetchMany: fakeFetchWithAssociations,
 		}
 		fetcher := NewUploadFetcher(builder)
 		queryAssociations := []services.QueryAssociation{}
 		associations := query.NewQueryAssociations(queryAssociations)
 
-		uploads, err := fetcher.FetchUploads([]services.QueryFilter{}, associations)
+		uploads, err := fetcher.FetchUploads([]services.QueryFilter{}, associations, defaultPagination())
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")
