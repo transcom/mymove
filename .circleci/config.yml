@@ -534,6 +534,22 @@ jobs:
           repo: app
       - announce_failure
 
+  # `build_storybook_app` builds the storybook application container and pushes to the container repository
+  build_storybook_app:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          keys:
+            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - run: make storybook_build
+      - announce_failure
+
   # `build_migrations` builds the migrations container and pushes to the container repository
   build_migrations:
     executor: mymove_small
@@ -875,6 +891,11 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
             - acceptance_tests_local # don't bother building and pushing the application if it won't even start properly
+
+      - build_storybook_app:
+          requires:
+            - anti_virus
+            - pre_deps_yarn
 
       - build_tools:
           requires:
