@@ -390,10 +390,10 @@ server_test_standalone: ## Run server unit tests with no deps
 	# Pass `-short` to exclude long running tests
 	# Disable test caching with `-count 1` - caching was masking local test failures
 ifndef CIRCLECI
-	DB_PORT=$(DB_PORT_TEST) go test -race -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
+	DB_PORT=$(DB_PORT_TEST) go test -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
 else
 	# Limit the maximum number of tests to run in parallel to 8 for CircleCI due to memory constraints.
-	DB_PORT=$(DB_PORT_TEST) go test -race -parallel 8 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
+	DB_PORT=$(DB_PORT_TEST) go test -parallel 8 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
 endif
 
 server_test_build:
