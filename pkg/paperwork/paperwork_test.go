@@ -23,10 +23,6 @@ type PaperworkSuite struct {
 	filesToClose []afero.File
 }
 
-func (suite *PaperworkSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func (suite *PaperworkSuite) AfterTest() {
 	for _, file := range suite.filesToClose {
 		file.Close()

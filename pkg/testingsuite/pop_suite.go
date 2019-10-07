@@ -147,33 +147,64 @@ func CurrentPackage() PackageName {
 
 // NewPopTestSuite returns a new PopTestSuite
 func NewPopTestSuite(packageName PackageName) PopTestSuite {
-	uniq := StringWithCharset(6, charset)
-	dbName := fmt.Sprintf("test_%s_%s", strings.Replace(packageName.String(), "/", "_", -1), uniq)
-	log.Printf("package %s is attempting to connect to database %s", packageName.String(), dbName)
+	dbDialect := "postgres"
+	dbNameTest := envy.MustGet("DB_NAME_TEST")
+	dbHost := envy.MustGet("DB_HOST")
+	dbPort := envy.MustGet("DB_PORT_TEST")
+	dbUser := envy.MustGet("DB_USER")
+	dbPassword := envy.MustGet("DB_PASSWORD")
 
-	fmt.Printf("attempting to clone database %s to %s... ", "test_db", dbName)
-	if err := cloneDatabase("test_db", dbName); err != nil {
-		log.Panicf("failed to clone database '%s' to '%s': %#v", "testdb", dbName, err)
+	log.Printf("package %s is attempting to connect to database %s", packageName.String(), dbNameTest)
+	conn, connErr := pop.NewConnection(&pop.ConnectionDetails{
+		Dialect:  dbDialect,
+		Database: dbNameTest,
+		Host:     dbHost,
+		Port:     dbPort,
+		User:     dbUser,
+		Password: dbPassword,
+	})
+	if connErr != nil {
+		log.Panic(connErr)
+	}
+	if openErr := conn.Open(); openErr != nil {
+		log.Panic(openErr)
+	}
+
+	// Doing this before cloning should pre-clean the DB for all tests
+	log.Printf("attempting to truncate the database %s", dbNameTest)
+	conn.TruncateAll()
+
+	if closeErr := conn.Close(); closeErr != nil {
+		log.Panic(closeErr)
+	}
+
+	uniq := StringWithCharset(6, charset)
+	dbNamePackage := fmt.Sprintf("%s_%s_%s", dbNameTest, strings.Replace(packageName.String(), "/", "_", -1), uniq)
+	fmt.Printf("attempting to clone database %s to %s... ", dbNameTest, dbNamePackage)
+	if err := cloneDatabase(dbNameTest, dbNamePackage); err != nil {
+		log.Panicf("failed to clone database '%s' to '%s': %#v", dbNameTest, dbNamePackage, err)
 	}
 	fmt.Println("success")
 
-	conn, err := pop.NewConnection(&pop.ConnectionDetails{
-		Dialect:  "postgres",
-		Database: dbName,
-		Host:     envy.MustGet("DB_HOST"),
-		Port:     envy.MustGet("DB_PORT_TEST"),
-		User:     envy.MustGet("DB_USER"),
-		Password: envy.MustGet("DB_PASSWORD"),
+	log.Printf("package %s is attempting to connect to database %s", packageName.String(), dbNamePackage)
+
+	conn, connErr = pop.NewConnection(&pop.ConnectionDetails{
+		Dialect:  dbDialect,
+		Database: dbNamePackage,
+		Host:     dbHost,
+		Port:     dbPort,
+		User:     dbUser,
+		Password: dbPassword,
 	})
-	if err != nil {
-		log.Panic(err)
+	if connErr != nil {
+		log.Panic(connErr)
 	}
 
-	if err := conn.Open(); err != nil {
-		log.Panic(err)
+	if openErr := conn.Open(); openErr != nil {
+		log.Panic(openErr)
 	}
 
-	return PopTestSuite{db: conn, dbName: dbName, PackageName: packageName}
+	return PopTestSuite{db: conn, dbName: dbNamePackage, PackageName: packageName}
 }
 
 // DB returns a db connection
