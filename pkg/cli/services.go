@@ -18,9 +18,7 @@ const (
 	// ServeDPSFlag is the DPS service flag
 	ServeDPSFlag string = "serve-dps"
 	// ServeAPIInternalFlag is the internal api service flag
-	ServePublicAPIlFlag string = "serve-api-internal"
-	// ServeAPIExternalFlag is the external api service flag
-	ServeInternalAPIFlag string = "serve-api-public"
+	ServeAPIInternalFlag string = "serve-api-internal"
 )
 
 // InitServiceFlags initializes the service command line flags
@@ -29,8 +27,7 @@ func InitServiceFlags(flag *pflag.FlagSet) {
 	flag.Bool(ServeSDDCFlag, false, "Enable the SDDC Service.")
 	flag.Bool(ServeOrdersFlag, false, "Enable the Orders Service.")
 	flag.Bool(ServeDPSFlag, false, "Enable the DPS Service.")
-	flag.Bool(ServePublicAPIlFlag, false, "Enable the Public API Service.")
-	flag.Bool(ServeInternalAPIFlag, false, "Enable the Internal API Service.")
+	flag.Bool(ServeAPIInternalFlag, false, "Enable the Internal API Service.")
 }
 
 // CheckServices validates these lovely service flags
@@ -39,15 +36,13 @@ func CheckServices(v *viper.Viper) error {
 	sddcEnabled := v.GetBool(ServeSDDCFlag)
 	ordersEnabled := v.GetBool(ServeOrdersFlag)
 	dpsEnabled := v.GetBool(ServeDPSFlag)
-	publicAPIEnabled := v.GetBool(ServePublicAPIlFlag)
-	internalAPIEnabled := v.GetBool(ServeInternalAPIFlag)
+	internalAPIEnabled := v.GetBool(ServeAPIInternalFlag)
 
 	// Oops none of the flags used
 	if (!adminEnabled) &&
 		(!sddcEnabled) &&
 		(!ordersEnabled) &&
 		(!dpsEnabled) &&
-		(!publicAPIEnabled) &&
 		(!internalAPIEnabled) {
 		return errors.New("no service was enabled")
 	}

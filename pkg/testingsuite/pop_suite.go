@@ -2,28 +2,56 @@ package testingsuite
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"log"
+	"math/rand"
+	"os"
 	"os/exec"
 	"runtime"
 	"strings"
+	"time"
 
 	envy "github.com/codegangsta/envy/lib"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
+	"github.com/gofrs/flock"
 	"github.com/pkg/errors"
 )
+
+const charset = "abcdefghijklmnopqrstuvwxyz" +
+	"0123456789"
+
+var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
+
+var fileLock = flock.New(os.TempDir() + "/server-test-lock.lock")
+
+// StringWithCharset returns a random string
+// https://www.calhoun.io/creating-random-strings-in-go/
+func StringWithCharset(length int, charset string) string {
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = charset[seededRand.Intn(len(charset))]
+	}
+	return string(b)
+}
 
 // PopTestSuite is a suite for testing
 type PopTestSuite struct {
 	BaseTestSuite
 	PackageName
-	db *pop.Connection
+	db     *pop.Connection
+	dbName string
 }
 
 func commandWithDefaults(command string, args ...string) *exec.Cmd {
+	host := envy.MustGet("DB_HOST")
 	port := envy.MustGet("DB_PORT_TEST")
-	defaults := []string{"-U", "postgres", "-h", "localhost", "-p", port}
+	user := envy.MustGet("DB_USER")
+	// Get password to ensure it is set in the environment, otherwise commands won't work
+	envy.MustGet("DB_PASSWORD")
+
+	defaults := []string{"-U", user, "-h", host, "-p", port}
 
 	arguments := append(defaults, args...)
 
@@ -41,9 +69,27 @@ func runCommand(cmd *exec.Cmd, desc string) ([]byte, error) {
 	return out, nil
 }
 
-func cloneDatabase(source, destination string) error {
+func dropDB(destination string) error {
 	drop := commandWithDefaults("dropdb", "--if-exists", destination)
 	if _, err := runCommand(drop, "drop the database"); err != nil {
+		return err
+	}
+	return nil
+}
+
+func cloneDatabase(source, destination string) error {
+	// Try to obtain the lock in this method within 10 minutes
+	lockCtx, cancel := context.WithTimeout(context.Background(), 600*time.Second)
+	defer cancel()
+
+	// Continually check if the lock is available
+	_, lockErr := fileLock.TryLockContext(lockCtx, 678*time.Millisecond)
+	if lockErr != nil {
+		return lockErr
+	}
+
+	// Now that the lock is available clone the DB
+	if err := dropDB(destination); err != nil {
 		return err
 	}
 
@@ -65,6 +111,11 @@ func cloneDatabase(source, destination string) error {
 		return dumpErr
 	}
 
+	// Release the lock so other tests can clone the DB
+	if err := fileLock.Unlock(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -84,7 +135,7 @@ func (pn PackageName) Suffix(suffix string) PackageName {
 // CurrentPackage returns the project-relative name of the caller's package.
 //
 // "github.com/transcom/mymove/pkg/" is removed from the beginning of the absolute package name, so
-// the return value will be e.g. "handlers/publicapi".
+// the return value will be e.g. "handlers/internalapi".
 func CurrentPackage() PackageName {
 	pc, _, _, _ := runtime.Caller(1)
 	caller := runtime.FuncForPC(pc)
@@ -96,7 +147,8 @@ func CurrentPackage() PackageName {
 
 // NewPopTestSuite returns a new PopTestSuite
 func NewPopTestSuite(packageName PackageName) PopTestSuite {
-	dbName := fmt.Sprintf("test_%s", strings.Replace(packageName.String(), "/", "_", -1))
+	uniq := StringWithCharset(6, charset)
+	dbName := fmt.Sprintf("test_%s_%s", strings.Replace(packageName.String(), "/", "_", -1), uniq)
 	log.Printf("package %s is attempting to connect to database %s", packageName.String(), dbName)
 
 	fmt.Printf("attempting to clone database %s to %s... ", "test_db", dbName)
@@ -121,7 +173,7 @@ func NewPopTestSuite(packageName PackageName) PopTestSuite {
 		log.Panic(err)
 	}
 
-	return PopTestSuite{db: conn, PackageName: packageName}
+	return PopTestSuite{db: conn, dbName: dbName, PackageName: packageName}
 }
 
 // DB returns a db connection
@@ -175,4 +227,17 @@ func (suite *PopTestSuite) NoVerrs(verrs *validate.Errors) bool {
 		return false
 	}
 	return true
+}
+
+// TearDown runs the teardown for step for the suite
+// Important steps are to close open DB connections and drop the DB
+func (suite *PopTestSuite) TearDown() {
+	// disconnect other users
+	if err := suite.db.Close(); err != nil {
+		log.Panic(err)
+	}
+	// Remove the test DB
+	if err := dropDB(suite.dbName); err != nil {
+		log.Panic(err)
+	}
 }

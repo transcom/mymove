@@ -33,6 +33,7 @@ func TestMigrateSuite(t *testing.T) {
 		logger:       logger,
 	}
 	suite.Run(t, ms)
+	ms.PopTestSuite.TearDown()
 }
 
 func TestCopyStdinPattern(t *testing.T) {

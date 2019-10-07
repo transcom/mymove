@@ -135,4 +135,5 @@ func TestDatesSuite(t *testing.T) {
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 	}
 	suite.Run(t, hs)
+	hs.PopTestSuite.TearDown()
 }
