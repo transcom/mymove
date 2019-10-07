@@ -21,12 +21,3 @@ func (suite *ModelSuite) Test_ReShipmentTypeValidation() {
 	}
 	suite.verifyValidationErrors(&invalidReShipmentType, expErrors)
 }
-
-func (suite *ModelSuite) Test_ReShipmentTypeCreateAndSave() {
-	validReShipmentType := ReShipmentType{
-		Code: "123abc",
-		Name: "California",
-	}
-
-	suite.MustSave(&validReShipmentType)
-}

@@ -22,13 +22,3 @@ func (suite *ModelSuite) Test_ReRateAreaValidation() {
 	}
 	suite.verifyValidationErrors(&invalidReRateArea, expErrors)
 }
-
-func (suite *ModelSuite) Test_RateAreaCreateAndSave() {
-	validReRateArea := ReRateArea{
-		IsOconus: true,
-		Code:     "123abc",
-		Name:     "California",
-	}
-
-	suite.MustSave(&validReRateArea)
-}

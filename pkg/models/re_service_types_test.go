@@ -21,12 +21,3 @@ func (suite *ModelSuite) Test_ReServiceTypeValidation() {
 	}
 	suite.verifyValidationErrors(&invalidReServiceType, expErrors)
 }
-
-func (suite *ModelSuite) Test_ReServiceTypeCreateAndSave() {
-	validReServiceType := ReServiceType{
-		Code: "123abc",
-		Name: "California",
-	}
-
-	suite.MustSave(&validReServiceType)
-}
