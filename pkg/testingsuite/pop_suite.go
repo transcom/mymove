@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	envy "github.com/codegangsta/envy/lib"
+	"github.com/gobuffalo/envy"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/flock"
@@ -105,18 +105,35 @@ func NewPopTestSuite(packageName PackageName) PopTestSuite {
 	}
 
 	dbDialect := "postgres"
-	dbNameTest := envy.MustGet("DB_NAME")
-	dbHost := envy.MustGet("DB_HOST")
-	dbPort := envy.MustGet("DB_PORT_TEST")
-	dbUser := envy.MustGet("DB_USER")
-	dbPassword := envy.MustGet("DB_PASSWORD")
+	dbName, dbNameErr := envy.MustGet("DB_NAME")
+	if dbNameErr != nil {
+		log.Panic(dbNameErr)
+	}
+	dbNameTest := envy.Get("DB_NAME_TEST", dbName)
+	dbHost, dbHostErr := envy.MustGet("DB_HOST")
+	if dbHostErr != nil {
+		log.Panic(dbHostErr)
+	}
+	dbPort, dbPortErr := envy.MustGet("DB_PORT")
+	if dbPortErr != nil {
+		log.Panic(dbPortErr)
+	}
+	dbPortTest := envy.Get("DB_PORT_TEST", dbPort)
+	dbUser, dbUserErr := envy.MustGet("DB_USER")
+	if dbUserErr != nil {
+		log.Panic(dbUserErr)
+	}
+	dbPassword, dbPasswordErr := envy.MustGet("DB_PASSWORD")
+	if dbPasswordErr != nil {
+		log.Panic(dbPasswordErr)
+	}
 
 	log.Printf("package %s is attempting to connect to database %s", packageName.String(), dbNameTest)
 	primaryConnDetails := pop.ConnectionDetails{
 		Dialect:  dbDialect,
 		Database: dbNameTest,
 		Host:     dbHost,
-		Port:     dbPort,
+		Port:     dbPortTest,
 		User:     dbUser,
 		Password: dbPassword,
 	}
@@ -156,7 +173,7 @@ func NewPopTestSuite(packageName PackageName) PopTestSuite {
 		Dialect:  dbDialect,
 		Database: dbNamePackage,
 		Host:     dbHost,
-		Port:     dbPort,
+		Port:     dbPortTest,
 		User:     dbUser,
 		Password: dbPassword,
 	}
