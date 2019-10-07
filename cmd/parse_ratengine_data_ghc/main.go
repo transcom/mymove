@@ -355,6 +355,8 @@ func createCsvWriter(create bool, sheetIndex int, runTime time.Time) *createCsvH
 	if create == true {
 		err := createCsv.createCsvWriter(xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, runTime))
 		checkError("Failed to create CSV writer", err)
+	} else {
+		return nil
 	}
 	return &createCsv
 }
