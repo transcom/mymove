@@ -4,6 +4,10 @@ import (
 	"github.com/gobuffalo/pop"
 )
 
+const MinDomesticPerWeightPounds = 500
+const MinInternationalServicesWeightPounds = 500
+const MinUBServicesWeightPounds = 300
+
 // RateEngine encapsulates the TSP rate engine process
 type GHCRateEngine struct {
 	db     *pop.Connection
@@ -16,10 +20,6 @@ func NewGHCRateEngine(db *pop.Connection, logger Logger) GHCRateEngine {
 		logger: logger,
 	}
 }
-
-const MinDomesticPerWeightPounds = 500
-const MinInternationalServiceWeightPounds = 500
-const MinUBservicesWeightPounds = 300
 
 // Use this function to apply the escalation rate
 // when all sub-costs have been calculated

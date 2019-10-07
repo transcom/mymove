@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -48,6 +49,18 @@ func lookupDomesticLinehaulRate(db *pop.Connection, d DomesticServicePricingData
 // CalculateBaseDomesticLinehaul calculates the cost domestic linehaul and returns the cost in millicents
 func (gre *GHCRateEngine) CalculateBaseDomesticLinehaul(d DomesticServicePricingData) unit.Millicents {
 	rate := lookupDomesticLinehaulRate(gre.db, d)
+	cost := rate.MultiplyFloat64(float64(d.Weight))
 
-	return rate.MultiplyFloat64(float64(d.Weight))
+	gre.logger.Info("Base domestic linehaul calculated",
+		zap.Time("move date", d.MoveDate),
+		zap.String("service area ID", d.ServiceAreaID.String()),
+		zap.String("distance in miles", d.Distance.String()),
+		zap.Float64("centiweight", float64(d.Weight)),
+		zap.Bool("is peak period", d.IsPeakPeriod),
+		zap.String("contract code", d.ContractCode),
+		zap.Int("base rate (millicents)", rate.Int()),
+		zap.Int("calculated cost (millicents)", cost.Int()),
+	)
+
+	return cost
 }
