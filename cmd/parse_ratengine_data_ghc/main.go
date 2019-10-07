@@ -119,6 +119,8 @@ func (x *xlsxDataSheetInfo) generateOutputFilename(index int, runTime time.Time)
 	var name string
 	if x.outputFilename != nil {
 		name = *x.outputFilename
+	} else {
+		name = "rate_engine_ghc_parse"
 	}
 
 	name = strconv.Itoa(index) + "_" + name + "_" + runTime.Format("20060102150405") + ".csv"
@@ -161,6 +163,7 @@ type paramConfig struct {
 	xlsxSheets   []string
 	saveToFile   bool
 	runTime      time.Time
+	xlsxFile     *xlsx.File
 }
 
 func xlsxSheetsUsage() string {
@@ -212,6 +215,14 @@ func main() {
 	params.xlsxFilename = filename
 	if filename != nil {
 		log.Printf("Importing file %s\n", *filename)
+	} else {
+		log.Fatalf("Did not receive an XLSX filename to parse, missing -filename\n")
+	}
+
+	xlsxFile, err := xlsx.OpenFile(*params.xlsxFilename)
+	params.xlsxFile = xlsxFile
+	if err != nil {
+		log.Fatalf("Failed to open file %s with error %v\n", *params.xlsxFilename, err)
 	}
 
 	params.showOutput = false
@@ -392,15 +403,6 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 		csvWriter.write(dp.csvHeader())
 	}
 
-	// Verify that we have a filename and try to open it for reading
-	if params.xlsxFilename == nil {
-		return fmt.Errorf("parseDomesticLinehaulPrices(): did not receive an XLSX filename to parse")
-	}
-	xlFile, err := xlsx.OpenFile(*params.xlsxFilename)
-	if err != nil {
-		return err
-	}
-
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 6  // 2a) Domestic Linehaul Prices
 	const feeColIndexStart int = 6  // start at column 6 to get the rates
@@ -414,7 +416,7 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 		return fmt.Errorf("parseDomesticLinehaulPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	dataRows := xlFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
+	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
 	for _, row := range dataRows {
 		colIndex := feeColIndexStart
 		// For number of baseline + escalation years
@@ -470,15 +472,6 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 		csvWriter.write(dp.csvHeader())
 	}
 
-	// Verify that we have a filename and try to open it for reading
-	if params.xlsxFilename == nil {
-		return fmt.Errorf("parseDomesticServiceAreaPrices(): did not receive an XLSX filename to parse")
-	}
-	xlFile, err := xlsx.OpenFile(*params.xlsxFilename)
-	if err != nil {
-		return err
-	}
-
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 7  // 2a) Domestic Linehaul Prices
 	const feeColIndexStart int = 6  // start at column 6 to get the rates
@@ -493,7 +486,7 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 		return fmt.Errorf("parseDomesticServiceAreaPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	dataRows := xlFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
+	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
 	for _, row := range dataRows {
 		colIndex := feeColIndexStart
 		// For number of baseline + escalation years

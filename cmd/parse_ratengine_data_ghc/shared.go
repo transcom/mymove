@@ -38,8 +38,6 @@ func (cCH *createCsvHelper) write(record []string) {
 	if cCH.csvWriter == nil {
 		log.Fatalln("createCsvHelper.createCsvWriter() was not called to initialize cCH.csvWriter")
 	}
-	log.Println("calling createCsvHelper.write")
-	log.Printf(" createCsvHelper.write %v\n", record)
 	err := cCH.csvWriter.Write(record)
 	if err != nil {
 		log.Fatal(err.Error())
