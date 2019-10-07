@@ -4,14 +4,17 @@ import { createBrowserHistory } from 'history';
 import React from 'react';
 import Menu from './shared/Menu';
 import AccessCodeList from './AccessCodes/AccessCodeList';
-import UserList from './OfficeUsers/UserList';
-import UserCreate from './OfficeUsers/UserCreate';
-import UserEdit from './OfficeUsers/UserEdit';
-import UserShow from './OfficeUsers/UserShow';
+import UploadShow from './Uploads/UploadShow';
+import OfficeUserList from './OfficeUsers/OfficeUserList';
+import OfficeUserCreate from './OfficeUsers/OfficeUserCreate';
+import OfficeUserEdit from './OfficeUsers/OfficeUserEdit';
+import OfficeUserShow from './OfficeUsers/OfficeUserShow';
+import AdminUserList from './AdminUsers/AdminUserList';
 import OfficeList from './Offices/OfficeList';
 import ElectronicOrderList from './ElectronicOrders/ElectronicOrderList';
 import styles from './Home.module.scss';
 import * as Cookies from 'js-cookie';
+import customRoutes from './CustomRoutes';
 
 const httpClient = (url, options = {}) => {
   const token = Cookies.get('masked_gorilla_csrf');
@@ -33,18 +36,20 @@ const history = createBrowserHistory({ basename: '/system' });
 
 const Home = () => (
   <div className={styles['admin-system-wrapper']}>
-    <Admin dataProvider={dataProvider} history={history} appLayout={AdminLayout}>
+    <Admin dataProvider={dataProvider} history={history} appLayout={AdminLayout} customRoutes={customRoutes}>
       <Resource
         name="office_users"
         options={{ label: 'Office users' }}
-        list={UserList}
-        show={UserShow}
-        create={UserCreate}
-        edit={UserEdit}
+        list={OfficeUserList}
+        show={OfficeUserShow}
+        create={OfficeUserCreate}
+        edit={OfficeUserEdit}
       />
       <Resource name="offices" options={{ label: 'Offices' }} list={OfficeList} />
+      <Resource name="admin_users" options={{ label: 'Admin Users' }} list={AdminUserList} />
       <Resource name="electronic_orders" options={{ label: 'Electronic orders' }} list={ElectronicOrderList} />
       <Resource name="access_codes" options={{ label: 'Access codes' }} list={AccessCodeList} />
+      <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
     </Admin>
   </div>
 );

@@ -27,8 +27,8 @@ require (
 	github.com/go-openapi/strfmt v0.19.3
 	github.com/go-openapi/swag v0.19.5
 	github.com/go-openapi/validate v0.19.3
-	github.com/go-playground/locales v0.12.1 // indirect
-	github.com/go-playground/universal-translator v0.16.0 // indirect
+	github.com/go-playground/locales v0.12.1
+	github.com/go-playground/universal-translator v0.16.0
 	github.com/go-swagger/go-swagger v0.20.2-0.20190910212040-c49ea4ca2112
 	github.com/gobuffalo/envy v1.7.1 // indirect
 	github.com/gobuffalo/fizz v1.9.5
@@ -48,8 +48,9 @@ require (
 	github.com/jackc/pgx v3.6.0+incompatible // indirect
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jmoiron/sqlx v1.2.0
+	github.com/jstemmer/go-junit-report v0.0.0-20190106144839-af01ea7f8024
 	github.com/jung-kurt/gofpdf v1.12.1
-	github.com/leodido/go-urn v1.1.0 // indirect
+	github.com/leodido/go-urn v1.1.0
 	github.com/lib/pq v1.2.0
 	github.com/markbates/goth v1.56.0
 	github.com/mattn/go-colorable v0.1.2 // indirect
@@ -69,6 +70,7 @@ require (
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/pflag v1.0.4-0.20190814001055-972238283c06
 	github.com/spf13/viper v1.4.1-0.20190911140308-99520c81d86e
+	github.com/stretchr/objx v0.2.0
 	github.com/stretchr/testify v1.4.1-0.20190904163530-85f2b59c4459
 	github.com/tealeg/xlsx v1.0.3
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5

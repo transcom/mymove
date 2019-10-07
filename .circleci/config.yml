@@ -387,8 +387,10 @@ jobs:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
       - run:
-          # This is needed to use `psql` to test DB connectivity, until the app
-          # itself starts making database connections.
+          name: Build Go Junit Report
+          command: make bin/go-junit-report
+      - run:
+          # This is needed to use `psql` to clone the DB for parallel server tests
           name: Install postgres client
           command: |
             # Debian stretch only supports 9.6 client, so add the Postgresql apt repository for 10.x
@@ -397,12 +399,17 @@ jobs:
             sudo apt-get -qq update
             sudo apt-get -qq -y install postgresql-client-10
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run: make db_test_reset
+      - run: make db_test_migrate
       - run:
-          name: make server_test
+          name: make server_test_standalone
           command: |
             echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
             source $BASH_ENV
-            make server_test
+            mkdir -p tmp/test-results/gotest
+            # setup a trap incase the tests fail, we still want to generate the report
+            trap "bin/go-junit-report < tmp/test-results/gotest/go-test.out >  tmp/test-results/gotest/go-test-report.xml" EXIT
+            make server_test_standalone | tee tmp/test-results/gotest/go-test.out
           environment:
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
@@ -416,7 +423,11 @@ jobs:
             MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
             MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
             SERVE_API_INTERNAL: true
-
+      - store_artifacts:
+          path: ~/transcom/mymove/tmp/test-results
+          destination: test-results
+      - store_test_results:
+          path: ~/transcom/mymove/tmp/test-results
       - announce_failure
 
   # `server_test_coverage` runs code coverage and submits it to CodeClimate
@@ -532,6 +543,22 @@ jobs:
           dockerfile: Dockerfile
           tag: ppp:web-dev
           repo: app
+      - announce_failure
+
+  # `build_storybook_app` builds the storybook application container and pushes to the container repository
+  build_storybook_app:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          keys:
+            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - run: make storybook_build
       - announce_failure
 
   # `build_migrations` builds the migrations container and pushes to the container repository
@@ -841,33 +868,33 @@ workflows:
             - build_migrations
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+              branches:
+                  ignore: placeholder_branch_name
 
       - client_test:
           requires:
             - pre_deps_yarn
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+              branches:
+                ignore: placeholder_branch_name
 
       - server_test:
           requires:
             - pre_deps_golang
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+              branches:
+                ignore: placeholder_branch_name
 
       - server_test_coverage:
           requires:
             - pre_deps_golang
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+              branches:
+                  ignore: placeholder_branch_name
 
       - build_app:
           requires:
@@ -875,6 +902,11 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
             - acceptance_tests_local # don't bother building and pushing the application if it won't even start properly
+
+      - build_storybook_app:
+          requires:
+            - anti_virus
+            - pre_deps_yarn
 
       - build_tools:
           requires:
