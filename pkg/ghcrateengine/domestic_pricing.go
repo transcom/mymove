@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/unit"
@@ -19,7 +20,7 @@ type DomesticServicePricingData struct {
 	ContractCode  string
 }
 
-func lookupDomesticLinehaulRate(db *pop.Connection, d DomesticServicePricingData) unit.Millicents {
+func lookupDomesticLinehaulRate(db *pop.Connection, d DomesticServicePricingData) (rate unit.Millicents, err error) {
 	// TODO: check/correct syntax && implement when models are created
 	// query := db.Where(
 	// 	"is_peak_period = d.IsPeakPeriod").Join(
@@ -41,15 +42,21 @@ func lookupDomesticLinehaulRate(db *pop.Connection, d DomesticServicePricingData
 	// 	return err
 	// }
 
-	var stubPrice unit.Millicents = 272700
-	return stubPrice
+	rate = 272700 // stubbed
+
+	return rate, err
 }
 
 // Calculation Functions
 // CalculateBaseDomesticLinehaul calculates the cost domestic linehaul and returns the cost in millicents
-func (gre *GHCRateEngine) CalculateBaseDomesticLinehaul(d DomesticServicePricingData) unit.Millicents {
-	rate := lookupDomesticLinehaulRate(gre.db, d)
-	cost := rate.MultiplyFloat64(float64(d.Weight))
+func (gre *GHCRateEngine) CalculateBaseDomesticLinehaul(d DomesticServicePricingData) (cost unit.Millicents, err error) {
+	rate, err := lookupDomesticLinehaulRate(gre.db, d)
+
+	if err != nil {
+		return cost, errors.Wrap(err, "Lookup of domestic linehaul rate failed")
+	}
+
+	cost = rate.MultiplyFloat64(float64(d.Weight))
 
 	gre.logger.Info("Base domestic linehaul calculated",
 		zap.Time("move date", d.MoveDate),
@@ -62,5 +69,5 @@ func (gre *GHCRateEngine) CalculateBaseDomesticLinehaul(d DomesticServicePricing
 		zap.Int("calculated cost (millicents)", cost.Int()),
 	)
 
-	return cost
+	return cost, err
 }

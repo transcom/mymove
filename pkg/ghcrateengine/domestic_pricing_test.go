@@ -1,7 +1,6 @@
 package ghcrateengine
 
 import (
-	"log"
 	"testing"
 	"time"
 
@@ -18,7 +17,7 @@ func (suite *GHCRateEngineSuite) Test_CalculateBaseDomesticLinehaul() {
 
 	serviceAreaID, err := uuid.FromString("9dda4dec-4dac-4aeb-b6ba-6736d689da8e")
 	if err != nil {
-		log.Fatal("Error creating uuid")
+		suite.logger.Fatal("Error creating uuid", zap.Error(err))
 	}
 	pricingData := DomesticServicePricingData{
 		MoveDate:      time.Date(2019, time.February, 18, 0, 0, 0, 0, time.UTC),
@@ -29,7 +28,10 @@ func (suite *GHCRateEngineSuite) Test_CalculateBaseDomesticLinehaul() {
 		ContractCode:  "ABC",
 	}
 
-	actual := engine.CalculateBaseDomesticLinehaul(pricingData)
+	actual, err := engine.CalculateBaseDomesticLinehaul(pricingData)
+	if err != nil {
+		suite.logger.Fatal("Could not calculate domestic linehaul", zap.Error(err))
+	}
 	weight := pricingData.Weight
 	var rate unit.Millicents = 272700
 	expected := rate.MultiplyFloat64(float64(weight))
