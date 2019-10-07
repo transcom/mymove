@@ -17,7 +17,7 @@ type testElectronicOrderListQueryBuilder struct {
 	fakeFetchMany func(model interface{}) error
 }
 
-func (t *testElectronicOrderListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, pagination services.Pagination) error {
+func (t *testElectronicOrderListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) error {
 	m := t.fakeFetchMany(model)
 	return m
 }
@@ -25,6 +25,10 @@ func (t *testElectronicOrderListQueryBuilder) FetchMany(model interface{}, filte
 func defaultPagination() services.Pagination {
 	page, perPage := pagination.DefaultPage(), pagination.DefaultPerPage()
 	return pagination.NewPagination(&page, &perPage)
+}
+
+func defaultAssociations() services.QueryAssociations {
+	return query.NewQueryAssociations([]services.QueryAssociation{})
 }
 
 func (suite *ElectronicOrderServiceSuite) TestFetchElectronicOrderList() {
@@ -45,7 +49,7 @@ func (suite *ElectronicOrderServiceSuite) TestFetchElectronicOrderList() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		electronicOrders, err := fetcher.FetchElectronicOrderList(filters, defaultPagination())
+		electronicOrders, err := fetcher.FetchElectronicOrderList(filters, defaultAssociations(), defaultPagination())
 
 		suite.NoError(err)
 		suite.Equal(id, electronicOrders[0].ID)
@@ -61,7 +65,7 @@ func (suite *ElectronicOrderServiceSuite) TestFetchElectronicOrderList() {
 
 		fetcher := NewElectronicOrderListFetcher(builder)
 
-		electronicOrders, err := fetcher.FetchElectronicOrderList([]services.QueryFilter{}, defaultPagination())
+		electronicOrders, err := fetcher.FetchElectronicOrderList([]services.QueryFilter{}, defaultAssociations(), defaultPagination())
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

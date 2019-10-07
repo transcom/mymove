@@ -7,8 +7,6 @@ import (
 )
 
 func (suite *ModelSuite) TestFindDutyStations() {
-	t := suite.T()
-
 	address := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
@@ -18,34 +16,79 @@ func (suite *ModelSuite) TestFindDutyStations() {
 	suite.MustSave(&address)
 
 	station1 := models.DutyStation{
-		Name:        "First Station",
+		Name:        "Fort Bragg",
 		Affiliation: internalmessages.AffiliationARMY,
 		AddressID:   address.ID,
 	}
 	suite.MustSave(&station1)
 
 	station2 := models.DutyStation{
-		Name:        "Second Station",
+		Name:        "Fort Belvoir",
 		Affiliation: internalmessages.AffiliationARMY,
 		AddressID:   address.ID,
 	}
 	suite.MustSave(&station2)
 
-	stations, err := models.FindDutyStations(suite.DB(), "first")
-	if err != nil {
-		t.Errorf("Find duty stations error: %v", err)
+	station3 := models.DutyStation{
+		Name:        "Davis Monthan AFB",
+		Affiliation: internalmessages.AffiliationARMY,
+		AddressID:   address.ID,
+	}
+	suite.MustSave(&station3)
+
+	station4 := models.DutyStation{
+		Name:        "JB Elmendorf-Richardson",
+		Affiliation: internalmessages.AffiliationARMY,
+		AddressID:   address.ID,
+	}
+	suite.MustSave(&station4)
+
+	station5 := models.DutyStation{
+		Name:        "NAS Fallon",
+		Affiliation: internalmessages.AffiliationARMY,
+		AddressID:   address.ID,
+	}
+	suite.MustSave(&station5)
+
+	s5 := models.DutyStationName{
+		Name:          "Naval Air Station Fallon",
+		DutyStationID: station5.ID,
+	}
+	suite.MustSave(&s5)
+
+	station6 := models.DutyStation{
+		Name:        "NAS Fort Worth JRB",
+		Affiliation: internalmessages.AffiliationARMY,
+		AddressID:   address.ID,
+	}
+	suite.MustSave(&station6)
+	s6 := models.DutyStationName{
+		Name:          "Naval Air Station Fort Worth Joint Reserve Base",
+		DutyStationID: station6.ID,
+	}
+	suite.MustSave(&s6)
+
+	tests := []struct {
+		query        string
+		dutyStations []string
+	}{
+		{query: "fort", dutyStations: []string{"Fort Bragg", "Fort Belvoir", "NAS Fort Worth JRB", "NAS Fallon"}},
+		{query: "ft", dutyStations: []string{"Fort Bragg", "NAS Fallon", "Fort Belvoir", "NAS Fort Worth JRB"}},
+		{query: "ft be", dutyStations: []string{"Fort Belvoir", "Fort Bragg", "NAS Fallon", "NAS Fort Worth JRB"}},
+		{query: "davis-mon", dutyStations: []string{"Davis Monthan AFB", "NAS Fallon", "JB Elmendorf-Richardson"}},
+		{query: "jber", dutyStations: []string{"JB Elmendorf-Richardson", "NAS Fort Worth JRB"}},
+		{query: "naval air", dutyStations: []string{"NAS Fallon", "NAS Fort Worth JRB", "Fort Belvoir", "Davis Monthan AFB"}},
+		{query: "zzzzz", dutyStations: []string{}},
 	}
 
-	if len(stations) != 1 {
-		t.Errorf("Should have only got 1 response, got %v", len(stations))
-	}
-
-	if stations[0].Name != "First Station" {
-		t.Errorf("Station name should have been \"First Station \", got %v", stations[0].Name)
-	}
-
-	if stations[0].Address.City != "city" {
-		t.Error("Address should have been loaded")
+	for _, ts := range tests {
+		dutyStations, err := models.FindDutyStations(suite.DB(), ts.query)
+		suite.NoError(err)
+		suite.Equal(len(dutyStations), len(ts.dutyStations), "Wrong number of duty stations returned from query: %s", ts.query)
+		for i, dutyStation := range dutyStations {
+			suite.Equal(dutyStation.Name, ts.dutyStations[i], "Duty stations don't match order: %s", ts.query)
+			suite.Equal(dutyStation.Address.City, "city", "Duty station doesn't have an address")
+		}
 	}
 }
 

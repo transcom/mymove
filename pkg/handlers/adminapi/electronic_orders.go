@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/transcom/mymove/pkg/services/query"
+
 	"github.com/go-openapi/runtime/middleware"
 
 	electronicorderop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
@@ -34,8 +36,9 @@ func (h IndexElectronicOrdersHandler) Handle(params electronicorderop.IndexElect
 	queryFilters := []services.QueryFilter{}
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
+	associations := query.NewQueryAssociations([]services.QueryAssociation{})
 
-	electronicOrders, err := h.ElectronicOrderListFetcher.FetchElectronicOrderList(queryFilters, pagination)
+	electronicOrders, err := h.ElectronicOrderListFetcher.FetchElectronicOrderList(queryFilters, associations, pagination)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

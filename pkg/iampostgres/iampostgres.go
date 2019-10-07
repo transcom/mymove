@@ -7,6 +7,7 @@ import (
 	"errors"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
 	"database/sql"
@@ -19,13 +20,14 @@ import (
 )
 
 type config struct {
-	useIAM         bool
-	passHolder     string
-	currentIamPass string
-	logger         Logger
+	useIAM           bool
+	passHolder       string
+	currentIamPass   string
+	currentPassMutex sync.Mutex
+	logger           Logger
 }
 
-var iamConfig = config{false, "", "", nil}
+var iamConfig = config{false, "", "", sync.Mutex{}, nil}
 
 // RDSPostgresDriver wrapper around postgres driver
 type RDSPostgresDriver struct {
@@ -35,16 +37,23 @@ type RDSPostgresDriver struct {
 // GetCurrentPass gets IAM password if needed and will block till valid password is available
 func GetCurrentPass() string {
 	// Blocks until the password from the dbConnectionDetails has a non blank password
+	currentPass := ""
+
 	for {
-		if iamConfig.currentIamPass == "" {
+		iamConfig.currentPassMutex.Lock()
+		currentPass = iamConfig.currentIamPass
+		iamConfig.currentPassMutex.Unlock()
+
+		if currentPass == "" {
 			iamConfig.logger.Warn("Waiting 250ms for IAM password to populate")
-			time.Sleep(time.Millisecond * 250)
 		} else {
 			break
 		}
+
+		time.Sleep(time.Millisecond * 250)
 	}
 
-	return iamConfig.currentIamPass
+	return currentPass
 }
 
 func updateDSN(dsn string) (string, error) {
@@ -78,7 +87,10 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 				logger.Error("Error building auth token", zap.Error(err))
 				return
 			}
+
+			iamConfig.currentPassMutex.Lock()
 			iamConfig.currentIamPass = url.QueryEscape(authToken)
+			iamConfig.currentPassMutex.Unlock()
 			logger.Info("Successfully generated new IAM token")
 		}
 	}()

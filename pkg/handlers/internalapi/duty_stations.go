@@ -27,9 +27,7 @@ func payloadForDutyStationModel(station models.DutyStation) *internalmessages.Du
 		Address:     payloadForAddressModel(&station.Address),
 	}
 
-	if station.TransportationOfficeID != nil {
-		payload.TransportationOffice = payloadForTransportationOfficeModel(station.TransportationOffice)
-	}
+	payload.TransportationOffice = payloadForTransportationOfficeModel(station.TransportationOffice)
 
 	return &payload
 }
