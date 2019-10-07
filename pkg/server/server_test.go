@@ -260,5 +260,54 @@ func (suite *serverSuite) TestTLSConfigWithRequest() {
 	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", host, port), &config)
 	defer conn.Close()
 	suite.NoError(err)
+}
 
+func (suite *serverSuite) TestTLSConfigWithRequestNoClientAuth() {
+
+	keyPair, err := tls.X509KeyPair(
+		suite.readFile("localhost.pem"),
+		suite.readFile("localhost.key"))
+	suite.NoError(err)
+	certificates := []tls.Certificate{keyPair}
+
+	caFile := suite.readFile("ca.pem")
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caFile)
+
+	// A handler that we can test with
+	httpHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		panic("This handler should have never fired")
+	})
+
+	host := "localhost"
+	port := 7443
+	srv, err := CreateNamedServer(&CreateNamedServerInput{
+		Host:         host,
+		Port:         port,
+		HTTPHandler:  httpHandler,
+		Logger:       suite.logger,
+		ClientAuth:   tls.RequireAndVerifyClientCert,
+		Certificates: certificates,
+		ClientCAs:    caCertPool,
+	})
+	defer srv.Close()
+	suite.NoError(err)
+
+	// Start the Server
+	go srv.ListenAndServeTLS()
+
+	// Send a request without TLS client side cert configuration, should return error
+	client := &http.Client{
+		Transport: &http.Transport{},
+	}
+	res, err := client.Get(fmt.Sprintf("https://%s:%d", host, port))
+	suite.Nil(res)
+	suite.Error(err)
+
+	// Check the TLS connection directly
+	// This should fail and conn should be nil
+	config := tls.Config{}
+	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", host, port), &config)
+	suite.Nil(conn)
+	suite.Error(err)
 }
