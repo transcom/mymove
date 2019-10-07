@@ -105,7 +105,7 @@ func NewPopTestSuite(packageName PackageName) PopTestSuite {
 	}
 
 	dbDialect := "postgres"
-	dbNameTest := envy.MustGet("DB_NAME_TEST")
+	dbNameTest := envy.MustGet("DB_NAME")
 	dbHost := envy.MustGet("DB_HOST")
 	dbPort := envy.MustGet("DB_PORT_TEST")
 	dbUser := envy.MustGet("DB_USER")
