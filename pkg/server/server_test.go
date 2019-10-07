@@ -311,3 +311,67 @@ func (suite *serverSuite) TestTLSConfigWithRequestNoClientAuth() {
 	suite.Nil(conn)
 	suite.Error(err)
 }
+
+func (suite *serverSuite) TestTLSConfigWithInvalidAuth() {
+
+	keyPair, err := tls.X509KeyPair(
+		suite.readFile("localhost.pem"),
+		suite.readFile("localhost.key"))
+	suite.NoError(err)
+	certificates := []tls.Certificate{keyPair}
+
+	caFile := suite.readFile("ca.pem")
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caFile)
+
+	// A handler that we can test with
+	httpHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		panic("This handler should have never fired")
+	})
+
+	host := "localhost"
+	port := 7443
+	srv, err := CreateNamedServer(&CreateNamedServerInput{
+		Host:         host,
+		Port:         port,
+		HTTPHandler:  httpHandler,
+		Logger:       suite.logger,
+		ClientAuth:   tls.RequireAndVerifyClientCert,
+		Certificates: certificates,
+		ClientCAs:    caCertPool,
+	})
+	defer srv.Close()
+	suite.NoError(err)
+
+	// Start the Server
+	go srv.ListenAndServeTLS()
+
+	// Send a request with self signed cert and CA, but doesn't match server used CA
+	invalidKeyPair, err := tls.X509KeyPair(
+		suite.readFile("localhost-invalid.pem"),
+		suite.readFile("localhost-invalid.key"))
+	suite.NoError(err)
+	invalidCertificates := []tls.Certificate{invalidKeyPair}
+
+	invalidCaFile := suite.readFile("invalid-ca.pem")
+	invalidCaCertPool := x509.NewCertPool()
+	invalidCaCertPool.AppendCertsFromPEM(invalidCaFile)
+
+	config := tls.Config{
+		RootCAs:      invalidCaCertPool,
+		Certificates: invalidCertificates,
+	}
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &config,
+		},
+	}
+	res, err := client.Get(fmt.Sprintf("https://%s:%d", host, port))
+	suite.Nil(res)
+	suite.Error(err)
+
+	// Check the TLS connection directly
+	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", host, port), &config)
+	suite.Nil(conn)
+	suite.Error(err)
+}
