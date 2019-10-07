@@ -62,7 +62,7 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/rickar/cal v1.0.1
 	github.com/rogpeppe/go-internal v1.3.2
-	github.com/segmentio/chamber v0.0.0-20190904181813-e6c04494a555
+	github.com/segmentio/chamber/v2 v2.7.2
 	github.com/shopspring/decimal v0.0.0-20190905144223-a36b5d85f337 // indirect
 	github.com/smartystreets/assertions v1.0.1 // indirect
 	github.com/smartystreets/goconvey v0.0.0-20190731233626-505e41936337 // indirect
