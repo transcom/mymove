@@ -1,13 +1,11 @@
 package testingsuite
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"log"
 	"math/rand"
 	"os"
-	"os/exec"
 	"runtime"
 	"strings"
 	"time"
@@ -16,7 +14,6 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/flock"
-	"github.com/pkg/errors"
 )
 
 const charset = "abcdefghijklmnopqrstuvwxyz" +
@@ -40,80 +37,30 @@ func StringWithCharset(length int, charset string) string {
 type PopTestSuite struct {
 	BaseTestSuite
 	PackageName
-	db     *pop.Connection
-	dbName string
+	db                 *pop.Connection
+	dbConnDetails      *pop.ConnectionDetails
+	primaryConnDetails *pop.ConnectionDetails
 }
 
-func commandWithDefaults(command string, args ...string) *exec.Cmd {
-	host := envy.MustGet("DB_HOST")
-	port := envy.MustGet("DB_PORT_TEST")
-	user := envy.MustGet("DB_USER")
-	// Get password to ensure it is set in the environment, otherwise commands won't work
-	envy.MustGet("DB_PASSWORD")
-
-	defaults := []string{"-U", user, "-h", host, "-p", port}
-
-	arguments := append(defaults, args...)
-
-	// #nosec G204
-	return exec.Command(command, arguments...)
-}
-
-func runCommand(cmd *exec.Cmd, desc string) ([]byte, error) {
-	cmdErr := bytes.Buffer{}
-	cmd.Stderr = &cmdErr
-	out, err := cmd.Output()
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to %s: ran %s; got %s", desc, string(out), cmdErr.String())
-	}
-	return out, nil
-}
-
-func dropDB(destination string) error {
-	drop := commandWithDefaults("dropdb", "--if-exists", destination)
-	if _, err := runCommand(drop, "drop the database"); err != nil {
-		return err
+func dropDB(conn *pop.Connection, destination string) error {
+	dropQuery := fmt.Sprintf("DROP DATABASE IF EXISTS %s;", destination)
+	dropErr := conn.RawQuery(dropQuery).Exec()
+	if dropErr != nil {
+		return dropErr
 	}
 	return nil
 }
 
-func cloneDatabase(source, destination string) error {
-	// Try to obtain the lock in this method within 10 minutes
-	lockCtx, cancel := context.WithTimeout(context.Background(), 600*time.Second)
-	defer cancel()
-
-	// Continually check if the lock is available
-	_, lockErr := fileLock.TryLockContext(lockCtx, 678*time.Millisecond)
-	if lockErr != nil {
-		return lockErr
-	}
+func cloneDatabase(conn *pop.Connection, source, destination string) error {
 
 	// Now that the lock is available clone the DB
-	if err := dropDB(destination); err != nil {
-		return err
+	// Drop and then Create the DB
+	if dropErr := dropDB(conn, destination); dropErr != nil {
+		return dropErr
 	}
-
-	create := commandWithDefaults("createdb", destination)
-	if _, err := runCommand(create, "create the database"); err != nil {
-		return err
-	}
-
-	dump := commandWithDefaults("pg_dump", source)
-	out, dumpErr := runCommand(dump, "dump the database")
-	if dumpErr != nil {
-		return dumpErr
-	}
-
-	restore := commandWithDefaults("psql", "-q", destination)
-	restore.Stdin = bytes.NewReader(out)
-
-	if _, err := runCommand(restore, "import the dump with psql"); err != nil {
-		return dumpErr
-	}
-
-	// Release the lock so other tests can clone the DB
-	if err := fileLock.Unlock(); err != nil {
-		return err
+	createErr := conn.RawQuery(fmt.Sprintf("CREATE DATABASE %s WITH TEMPLATE %s;", destination, source)).Exec()
+	if createErr != nil {
+		return createErr
 	}
 
 	return nil
@@ -147,6 +94,16 @@ func CurrentPackage() PackageName {
 
 // NewPopTestSuite returns a new PopTestSuite
 func NewPopTestSuite(packageName PackageName) PopTestSuite {
+	// Try to obtain the lock in this method within 10 minutes
+	lockCtx, cancel := context.WithTimeout(context.Background(), 600*time.Second)
+	defer cancel()
+
+	// Continually check if the lock is available
+	_, lockErr := fileLock.TryLockContext(lockCtx, 678*time.Millisecond)
+	if lockErr != nil {
+		log.Panic(lockErr)
+	}
+
 	dbDialect := "postgres"
 	dbNameTest := envy.MustGet("DB_NAME_TEST")
 	dbHost := envy.MustGet("DB_HOST")
@@ -155,56 +112,68 @@ func NewPopTestSuite(packageName PackageName) PopTestSuite {
 	dbPassword := envy.MustGet("DB_PASSWORD")
 
 	log.Printf("package %s is attempting to connect to database %s", packageName.String(), dbNameTest)
-	conn, connErr := pop.NewConnection(&pop.ConnectionDetails{
+	primaryConnDetails := pop.ConnectionDetails{
 		Dialect:  dbDialect,
 		Database: dbNameTest,
 		Host:     dbHost,
 		Port:     dbPort,
 		User:     dbUser,
 		Password: dbPassword,
-	})
-	if connErr != nil {
-		log.Panic(connErr)
 	}
-	if openErr := conn.Open(); openErr != nil {
+	primaryConn, primaryConnErr := pop.NewConnection(&primaryConnDetails)
+	if primaryConnErr != nil {
+		log.Panic(primaryConnErr)
+	}
+	if openErr := primaryConn.Open(); openErr != nil {
 		log.Panic(openErr)
 	}
 
 	// Doing this before cloning should pre-clean the DB for all tests
 	log.Printf("attempting to truncate the database %s", dbNameTest)
-	conn.TruncateAll()
-
-	if closeErr := conn.Close(); closeErr != nil {
-		log.Panic(closeErr)
-	}
+	primaryConn.TruncateAll()
 
 	uniq := StringWithCharset(6, charset)
 	dbNamePackage := fmt.Sprintf("%s_%s_%s", dbNameTest, strings.Replace(packageName.String(), "/", "_", -1), uniq)
 	fmt.Printf("attempting to clone database %s to %s... ", dbNameTest, dbNamePackage)
-	if err := cloneDatabase(dbNameTest, dbNamePackage); err != nil {
+	if err := cloneDatabase(primaryConn, dbNameTest, dbNamePackage); err != nil {
 		log.Panicf("failed to clone database '%s' to '%s': %#v", dbNameTest, dbNamePackage, err)
 	}
 	fmt.Println("success")
 
+	// disconnect from the primary DB
+	if err := primaryConn.Close(); err != nil {
+		log.Panic(err)
+	}
+
+	// Release the lock so other tests can clone the DB
+	if err := fileLock.Unlock(); err != nil {
+		log.Panic(err)
+	}
+
 	log.Printf("package %s is attempting to connect to database %s", packageName.String(), dbNamePackage)
 
-	conn, connErr = pop.NewConnection(&pop.ConnectionDetails{
+	packageConnDetails := pop.ConnectionDetails{
 		Dialect:  dbDialect,
 		Database: dbNamePackage,
 		Host:     dbHost,
 		Port:     dbPort,
 		User:     dbUser,
 		Password: dbPassword,
-	})
-	if connErr != nil {
-		log.Panic(connErr)
+	}
+	packageConn, packageConnErr := pop.NewConnection(&packageConnDetails)
+	if packageConnErr != nil {
+		log.Panic(packageConnErr)
 	}
 
-	if openErr := conn.Open(); openErr != nil {
+	if openErr := packageConn.Open(); openErr != nil {
 		log.Panic(openErr)
 	}
 
-	return PopTestSuite{db: conn, dbName: dbNamePackage, PackageName: packageName}
+	return PopTestSuite{
+		db:                 packageConn,
+		dbConnDetails:      &packageConnDetails,
+		primaryConnDetails: &primaryConnDetails,
+		PackageName:        packageName}
 }
 
 // DB returns a db connection
@@ -263,12 +232,40 @@ func (suite *PopTestSuite) NoVerrs(verrs *validate.Errors) bool {
 // TearDown runs the teardown for step for the suite
 // Important steps are to close open DB connections and drop the DB
 func (suite *PopTestSuite) TearDown() {
-	// disconnect other users
-	if err := suite.db.Close(); err != nil {
+	// disconnect from the package DB conn
+	if err := suite.DB().Close(); err != nil {
 		log.Panic(err)
 	}
-	// Remove the test DB
-	if err := dropDB(suite.dbName); err != nil {
+
+	// Try to obtain the lock in this method within 10 minutes
+	lockCtx, cancel := context.WithTimeout(context.Background(), 600*time.Second)
+	defer cancel()
+
+	// Continually check if the lock is available
+	_, lockErr := fileLock.TryLockContext(lockCtx, 678*time.Millisecond)
+	if lockErr != nil {
+		log.Panic(lockErr)
+	}
+
+	// reconnect to the primary DB
+	primaryConn, primaryConnErr := pop.NewConnection(suite.primaryConnDetails)
+	if primaryConnErr != nil {
+		log.Panic(primaryConnErr)
+	}
+	if openErr := primaryConn.Open(); openErr != nil {
+		log.Panic(openErr)
+	}
+	// Remove the package DB
+	if err := dropDB(primaryConn, (*suite.dbConnDetails).Database); err != nil {
+		log.Panic(err)
+	}
+	// disconnect from the primary DB
+	if err := primaryConn.Close(); err != nil {
+		log.Panic(err)
+	}
+
+	// Release the lock so other tests can clone the DB
+	if err := fileLock.Unlock(); err != nil {
 		log.Panic(err)
 	}
 }
