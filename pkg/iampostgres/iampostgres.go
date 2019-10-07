@@ -5,6 +5,8 @@ package iampostgres
 
 import (
 	"errors"
+	"fmt"
+	"math/rand"
 	"net/url"
 	"strings"
 	"sync"
@@ -39,18 +41,23 @@ func GetCurrentPass() string {
 	// Blocks until the password from the dbConnectionDetails has a non blank password
 	currentPass := ""
 
+	// Add some entropy to this value so all instances don't fire at the same time
+	minDur := 250
+	maxDur := 750
+	wait := rand.Intn(maxDur-minDur) + minDur
+
 	for {
 		iamConfig.currentPassMutex.Lock()
 		currentPass = iamConfig.currentIamPass
 		iamConfig.currentPassMutex.Unlock()
 
 		if currentPass == "" {
-			iamConfig.logger.Warn("Waiting 250ms for IAM password to populate")
+			iamConfig.logger.Warn(fmt.Sprintf("Waiting %dms for IAM password to populate", wait))
 		} else {
 			break
 		}
 
-		time.Sleep(time.Millisecond * 250)
+		time.Sleep(time.Millisecond * time.Duration(wait))
 	}
 
 	return currentPass
