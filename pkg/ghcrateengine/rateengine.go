@@ -21,6 +21,16 @@ const MinDomesticPerWeightPounds = 500
 const MinInternationalServiceWeightPounds = 500
 const MinUBservicesWeightPounds = 300
 
+// Use this function to apply the escalation rate
+// when all sub-costs have been calculated
+// func lookupContractYearEscalation(db *pop.Connection, moveDate time.Time, contractCode string) float64 {
+// 	// TODO: look up contract using contractCode and move Date
+// 	// select escalation from re_contracts innerjoin re_contract_years on re_contract_years.id = re_contract_years.contract_id
+// 	// where contract_code = contractCode and moveDate is between contract_years.start_date and contract_years.end_date
+// 	stubEscalation := 1.02
+// 	return stubEscalation
+// }
+
 //const PeakRateCycleStartMonth = time.May
 //const PeakRateCycleStartDay = 15
 //const PeakRateCycleEndMonth = time.September

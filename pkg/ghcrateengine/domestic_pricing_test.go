@@ -13,7 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *GHCRateEngineSuite) Test_CalculateDomesticLinehaul() {
+func (suite *GHCRateEngineSuite) Test_CalculateBaseDomesticLinehaul() {
 	engine := NewGHCRateEngine(suite.DB(), suite.logger)
 
 	serviceAreaID, err := uuid.FromString("9dda4dec-4dac-4aeb-b6ba-6736d689da8e")
@@ -24,16 +24,15 @@ func (suite *GHCRateEngineSuite) Test_CalculateDomesticLinehaul() {
 		MoveDate:      time.Date(2019, time.February, 18, 0, 0, 0, 0, time.UTC),
 		ServiceAreaID: serviceAreaID,
 		Distance:      456,
-		CalcCWTWeight: 25.80,
+		Weight:        25.80,
+		IsPeakPeriod:  false,
 		ContractCode:  "ABC",
 	}
 
-	actual := engine.CalculateDomesticLinehaul(pricingData)
-	// 272700*2580
-	weight := pricingData.CalcCWTWeight
-	escalation := 1.02
+	actual := engine.CalculateBaseDomesticLinehaul(pricingData)
+	weight := pricingData.Weight
 	var rate unit.Millicents = 272700
-	expected := rate.MultiplyFloat64(escalation).MultiplyFloat64(float64(weight))
+	expected := rate.MultiplyFloat64(float64(weight))
 	suite.Assertions.Equal(expected, actual)
 }
 
