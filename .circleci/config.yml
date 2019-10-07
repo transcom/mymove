@@ -389,15 +389,6 @@ jobs:
       - run:
           name: Build Go Junit Report
           command: make bin/go-junit-report
-      - run:
-          # This is needed to use `psql` to clone the DB for parallel server tests
-          name: Install postgres client
-          command: |
-            # Debian stretch only supports 9.6 client, so add the Postgresql apt repository for 10.x
-            echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" | sudo tee -a /etc/apt/sources.list.d/pgdg.list
-            wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-            sudo apt-get -qq update
-            sudo apt-get -qq -y install postgresql-client-10
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: make bin/milmove
       - run: make db_test_reset
@@ -442,16 +433,6 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
-      - run:
-          # This is needed to use `psql` to test DB connectivity, until the app
-          # itself starts making database connections.
-          name: Install postgres client
-          command: |
-            # Debian stretch only supports 9.6 client, so add the Postgresql apt repository for 10.x
-            echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" | sudo tee -a /etc/apt/sources.list.d/pgdg.list
-            wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-            sudo apt-get -qq update
-            sudo apt-get -qq -y install postgresql-client-10
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: Setup Code Climate test-reporter
