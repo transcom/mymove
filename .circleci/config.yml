@@ -215,7 +215,7 @@ commands:
 jobs:
   # `pre_deps_golang` is used for caching Go module sources
   pre_deps_golang:
-    executor: mymove_small
+    executor: mymove_medium
     steps:
       - checkout
       - restore_cache:
@@ -234,7 +234,7 @@ jobs:
 
   # `pre_deps_yarn` is used to cache yarn sources and installed node modules.
   pre_deps_yarn:
-    executor: mymove_small
+    executor: mymove_medium
     steps:
       - checkout
       - restore_cache:
@@ -399,6 +399,7 @@ jobs:
             sudo apt-get -qq update
             sudo apt-get -qq -y install postgresql-client-10
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run: make bin/milmove
       - run: make db_test_reset
       - run: make db_test_migrate
       - run:
@@ -502,7 +503,7 @@ jobs:
 
   # `build_tools` builds the mymove-specific CLI tools in `mymove/cmd`
   build_tools:
-    executor: mymove_small
+    executor: mymove_medium_plus
     steps:
       - checkout
       - restore_cache:
@@ -563,7 +564,7 @@ jobs:
 
   # `build_migrations` builds the migrations container and pushes to the container repository
   build_migrations:
-    executor: mymove_small
+    executor: mymove_medium
     steps:
       - checkout
       - setup_remote_docker:
@@ -579,7 +580,7 @@ jobs:
 
   # `build_tasks` builds the tasks containers and pushes them to the container repository
   build_tasks:
-    executor: mymove_small
+    executor: mymove_medium
     steps:
       - checkout
       - setup_remote_docker:

@@ -25,4 +25,5 @@ func TestPaginationSuite(t *testing.T) {
 	}
 
 	suite.Run(t, ts)
+	ts.PopTestSuite.TearDown()
 }

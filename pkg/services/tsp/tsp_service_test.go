@@ -20,9 +20,10 @@ func (suite *TSPServiceSuite) SetupTest() {
 
 func TestTSPServiceSuite(t *testing.T) {
 
-	hs := &TSPServiceSuite{
+	ts := &TSPServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
-	suite.Run(t, hs)
+	suite.Run(t, ts)
+	ts.PopTestSuite.TearDown()
 }

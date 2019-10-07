@@ -163,4 +163,5 @@ func TestAwardQueueSuite(t *testing.T) {
 		logger:       logger,
 	}
 	suite.Run(t, hs)
+	hs.PopTestSuite.TearDown()
 }

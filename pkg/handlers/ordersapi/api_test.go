@@ -51,8 +51,7 @@ func TestHandlerSuite(t *testing.T) {
 	}
 
 	suite.Run(t, hs)
-	// clean up whatever the last test added to the DB
-	hs.DB().TruncateAll()
+	hs.PopTestSuite.TearDown()
 }
 
 func makeAllPowerfulClientCert() *models.ClientCert {
