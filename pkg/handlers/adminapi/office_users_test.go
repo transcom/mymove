@@ -74,6 +74,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		officeUserListFetcher.On("FetchOfficeUserList",
 			mock.Anything,
 			mock.Anything,
+			mock.Anything,
 		).Return(models.OfficeUsers{officeUser}, nil).Once()
 		handler := IndexOfficeUsersHandler{
 			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -97,6 +98,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		expectedError := models.ErrFetchNotFound
 		officeUserListFetcher := &mocks.OfficeUserListFetcher{}
 		officeUserListFetcher.On("FetchOfficeUserList",
+			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, expectedError).Once()
@@ -179,7 +181,7 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 		suite.Equal(uuidString, okResponse.Payload.ID.String())
 	})
 
-	suite.T().Run("unsuccesful response when fetch fails", func(t *testing.T) {
+	suite.T().Run("unsuccessful response when fetch fails", func(t *testing.T) {
 		params := officeuserop.GetOfficeUserParams{
 			HTTPRequest:  req,
 			OfficeUserID: strfmt.UUID(uuidString),

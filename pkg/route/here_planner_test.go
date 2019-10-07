@@ -231,4 +231,5 @@ func TestHereTestSuite(t *testing.T) {
 		logger,
 	}
 	suite.Run(t, hs)
+	hs.PopTestSuite.TearDown()
 }

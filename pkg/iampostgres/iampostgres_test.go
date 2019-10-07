@@ -33,8 +33,11 @@ func TestEnableIamNilCreds(t *testing.T) {
 		time.NewTicker(1*time.Second),
 		logger)
 	time.Sleep(2 * time.Second)
+
+	iamConfig.currentPassMutex.Lock()
 	t.Logf("Current password: %s", iamConfig.currentIamPass)
 	assert.Equal(iamConfig.currentIamPass, "")
+	iamConfig.currentPassMutex.Unlock()
 
 }
 
@@ -76,20 +79,28 @@ func TestEnableIAMNormal(t *testing.T) {
 		logger)
 
 	time.Sleep(time.Second)
+	iamConfig.currentPassMutex.Lock()
 	assert.Equal(iamConfig.currentIamPass, "abc")
 	t.Logf("Current password: %s", iamConfig.currentIamPass)
+	iamConfig.currentPassMutex.Unlock()
 
 	time.Sleep(2 * time.Second)
+	iamConfig.currentPassMutex.Lock()
 	t.Logf("Current password: %s", iamConfig.currentIamPass)
 	assert.Equal(iamConfig.currentIamPass, "123")
+	iamConfig.currentPassMutex.Unlock()
 
 	time.Sleep(2 * time.Second)
+	iamConfig.currentPassMutex.Lock()
 	t.Logf("Current password: %s", iamConfig.currentIamPass)
 	assert.Equal(iamConfig.currentIamPass, "xyz")
+	iamConfig.currentPassMutex.Unlock()
 
 	time.Sleep(2 * time.Second)
+	iamConfig.currentPassMutex.Lock()
 	t.Logf("Current password: %s", iamConfig.currentIamPass)
 	assert.Equal(iamConfig.currentIamPass, "999")
+	iamConfig.currentPassMutex.Unlock()
 
 }
 

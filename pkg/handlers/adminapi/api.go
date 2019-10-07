@@ -9,14 +9,14 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi"
 	adminops "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations"
 	"github.com/transcom/mymove/pkg/handlers"
+	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	adminuser "github.com/transcom/mymove/pkg/services/admin_user"
 	electronicorder "github.com/transcom/mymove/pkg/services/electronic_order"
 	"github.com/transcom/mymove/pkg/services/office"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
-
-	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
+	"github.com/transcom/mymove/pkg/services/upload"
 )
 
 // NewAdminAPIHandler returns a handler for the admin API
@@ -86,6 +86,13 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 	adminAPI.AdminUsersIndexAdminUsersHandler = IndexAdminUsersHandler{
 		context,
 		adminuser.NewAdminUserListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
+
+	adminAPI.UploadGetUploadHandler = GetUploadHandler{
+		context,
+		upload.NewUploadFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}

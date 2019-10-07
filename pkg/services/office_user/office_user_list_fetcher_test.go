@@ -17,7 +17,7 @@ type testOfficeUserListQueryBuilder struct {
 	fakeFetchMany func(model interface{}) error
 }
 
-func (t *testOfficeUserListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, pagination services.Pagination) error {
+func (t *testOfficeUserListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) error {
 	m := t.fakeFetchMany(model)
 	return m
 }
@@ -25,6 +25,10 @@ func (t *testOfficeUserListQueryBuilder) FetchMany(model interface{}, filters []
 func defaultPagination() services.Pagination {
 	page, perPage := pagination.DefaultPage(), pagination.DefaultPerPage()
 	return pagination.NewPagination(&page, &perPage)
+}
+
+func defaultAssociations() services.QueryAssociations {
+	return query.NewQueryAssociations([]services.QueryAssociation{})
 }
 
 func (suite *OfficeUserServiceSuite) TestFetchOfficeUserList() {
@@ -45,7 +49,7 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUserList() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		officeUsers, err := fetcher.FetchOfficeUserList(filters, defaultPagination())
+		officeUsers, err := fetcher.FetchOfficeUserList(filters, defaultAssociations(), defaultPagination())
 
 		suite.NoError(err)
 		suite.Equal(id, officeUsers[0].ID)
@@ -61,7 +65,7 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUserList() {
 
 		fetcher := NewOfficeUserListFetcher(builder)
 
-		officeUsers, err := fetcher.FetchOfficeUserList([]services.QueryFilter{}, defaultPagination())
+		officeUsers, err := fetcher.FetchOfficeUserList([]services.QueryFilter{}, defaultAssociations(), defaultPagination())
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

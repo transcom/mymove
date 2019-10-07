@@ -92,10 +92,12 @@ class WeightTicket extends Component {
   };
 
   uploaderWithInvalidState = () => {
+    // Validation for the vehicle type
     if (this.state.isValidTrailer === 'Yes' && (this.isCarTrailer && this.invalidState(this.uploaders.trailer))) {
       return true;
     }
-    return this.invalidState(this.uploaders.emptyWeight) || this.invalidState(this.uploaders.fullWeight);
+    // Full weight must be in a valid state to proceed.
+    return this.invalidState(this.uploaders.fullWeight);
   };
 
   //  handleChange for vehicleType and additionalWeightTickets

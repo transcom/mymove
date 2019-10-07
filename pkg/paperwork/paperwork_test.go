@@ -77,4 +77,5 @@ func TestPaperworkSuite(t *testing.T) {
 	}
 
 	suite.Run(t, hs)
+	hs.PopTestSuite.TearDown()
 }

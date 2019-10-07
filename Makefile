@@ -390,20 +390,25 @@ server_test: db_test_reset db_test_migrate server_test_standalone ## Run server 
 
 .PHONY: server_test_standalone
 server_test_standalone: ## Run server unit tests with no deps
-	# Don't run tests in /cmd or /pkg/gen/ & pass `-short` to exclude long running tests
+	# Don't run tests in /cmd or /pkg/gen/ or mocks
+	# Pass `-short` to exclude long running tests
 	# Disable test caching with `-count 1` - caching was masking local test failures
-	# Limit the maximum number of tests to run in parallel to 8.
+ifndef CIRCLECI
+	DB_PORT=$(DB_PORT_TEST) go test -v -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
+else
+	# Limit the maximum number of tests to run in parallel to 8 for CircleCI due to memory constraints.
 	# Add verbose (-v) so go-junit-report can parse it for CircleCI results
-	DB_PORT=$(DB_PORT_TEST) go test -parallel 8 -v -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
+	DB_PORT=$(DB_PORT_TEST) go test -v -parallel 8 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
+endif
 
 server_test_build:
 	# Try to compile tests, but don't run them.
-	go test -run=nope -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
+	go test -run=nope -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
 
 .PHONY: server_test_all
 server_test_all: db_dev_reset db_dev_migrate ## Run all server unit tests
 	# Like server_test but runs extended tests that may hit external services.
-	DB_PORT=$(DB_PORT_TEST) go test -parallel 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
+	DB_PORT=$(DB_PORT_TEST) go test -parallel 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
 
 .PHONY: server_test_coverage_generate
 server_test_coverage_generate: db_test_reset db_test_migrate ## Run server unit test coverage
@@ -411,7 +416,7 @@ server_test_coverage_generate: db_test_reset db_test_migrate ## Run server unit 
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
 	# Add coverage tracker via go cover
-	DB_PORT=$(DB_PORT_TEST) go test -coverprofile=coverage.out -covermode=count -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
+	DB_PORT=$(DB_PORT_TEST) go test -coverprofile=coverage.out -covermode=count -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
 
 .PHONY: server_test_coverage
 server_test_coverage: db_test_reset db_test_migrate server_test_coverage_generate ## Run server unit test coverage with html output

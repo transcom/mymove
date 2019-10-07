@@ -38,6 +38,7 @@ func TestErrorsSuite(t *testing.T) {
 		logger:       logger,
 	}
 	suite.Run(t, hs)
+	hs.PopTestSuite.TearDown()
 }
 
 func (suite *ErrorsSuite) TestResponseForErrorWhenASQLErrorIsEncountered() {

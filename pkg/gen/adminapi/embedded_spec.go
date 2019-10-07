@@ -482,6 +482,45 @@ func init() {
           }
         }
       }
+    },
+    "/uploads/{uploadId}": {
+      "get": {
+        "description": "Returns the given upload and information about the uploader and move",
+        "tags": [
+          "upload"
+        ],
+        "summary": "Get information about an upload",
+        "operationId": "getUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "uploadId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/UploadInformation"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "upload not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -976,6 +1015,48 @@ func init() {
       "items": {
         "$ref": "#/definitions/TransportationOffice"
       }
+    },
+    "Upload": {
+      "type": "object",
+      "properties": {
+        "content_type": {
+          "type": "string",
+          "enum": [
+            "application/pdf",
+            "image/jpeg",
+            "image/png"
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "datetime",
+          "title": "Created at"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "size": {
+          "type": "integer",
+          "title": "Size in Bytes"
+        }
+      }
+    },
+    "UploadInformation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "move_locator": {
+          "type": "string",
+          "example": "12432"
+        },
+        "upload": {
+          "$ref": "#/definitions/Upload"
+        }
+      }
     }
   }
 }`))
@@ -1438,6 +1519,45 @@ func init() {
           },
           "404": {
             "description": "office not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/uploads/{uploadId}": {
+      "get": {
+        "description": "Returns the given upload and information about the uploader and move",
+        "tags": [
+          "upload"
+        ],
+        "summary": "Get information about an upload",
+        "operationId": "getUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "uploadId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/UploadInformation"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "upload not found"
           },
           "500": {
             "description": "server error"
@@ -1938,6 +2058,48 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/TransportationOffice"
+      }
+    },
+    "Upload": {
+      "type": "object",
+      "properties": {
+        "content_type": {
+          "type": "string",
+          "enum": [
+            "application/pdf",
+            "image/jpeg",
+            "image/png"
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "datetime",
+          "title": "Created at"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "size": {
+          "type": "integer",
+          "title": "Size in Bytes"
+        }
+      }
+    },
+    "UploadInformation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "move_locator": {
+          "type": "string",
+          "example": "12432"
+        },
+        "upload": {
+          "$ref": "#/definitions/Upload"
+        }
       }
     }
   }

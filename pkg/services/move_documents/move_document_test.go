@@ -20,9 +20,10 @@ func (suite *MoveDocumentServiceSuite) SetupTest() {
 }
 
 func TestMoveDocumentUpdaterServiceSuite(t *testing.T) {
-	hs := &MoveDocumentServiceSuite{
+	ts := &MoveDocumentServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("move_document_service")),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
-	suite.Run(t, hs)
+	suite.Run(t, ts)
+	ts.PopTestSuite.TearDown()
 }

@@ -101,6 +101,7 @@ func TestAuthSuite(t *testing.T) {
 		logger:       logger,
 	}
 	suite.Run(t, hs)
+	hs.PopTestSuite.TearDown()
 }
 
 func fakeLoginGovProvider(logger Logger) LoginGovProvider {

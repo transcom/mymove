@@ -20,9 +20,10 @@ func (suite *AdminUserServiceSuite) SetupTest() {
 
 func TestUserSuite(t *testing.T) {
 
-	hs := &AdminUserServiceSuite{
+	ts := &AdminUserServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
-	suite.Run(t, hs)
+	suite.Run(t, ts)
+	ts.PopTestSuite.TearDown()
 }
