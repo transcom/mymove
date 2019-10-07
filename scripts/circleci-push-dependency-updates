@@ -10,33 +10,38 @@ readonly github_repo="transcom/mymove"
 
 # Capture the dependency name that is being updated
 deps_name="$1"
+# Cant override CIRCLECI using circle ci buidl -e CIRCICI
+# Instead add -e LOCAL_CIRCLECI=true to circleci for local build
+local_build=${LOCAL_CIRCLECI-}
 
 if [[ -z "$(git status --short)" ]]; then
     echo No updates to push.
     exit 0
 fi
 
-# Setup deploy key with write access.
-ssh_key=$(mktemp -p /dev/shm)
-readonly ssh_key
-shred_key() { shred -v "${ssh_key}"; }
-trap shred_key EXIT
-aws ssm get-parameters \
-    --names ssh-key-mymove-dependency-updater \
-    --with-decryption \
-    --query 'Parameters[0].Value' \
-    --output text \
-    > "${ssh_key}"
-cat >>~/.ssh/config <<EOF
+if [[ -n "$CIRCLECI" && -z "$local_build" ]]; then
+  # Setup deploy key with write access.
+  ssh_key=$(mktemp -p /dev/shm)
+  readonly ssh_key
+  shred_key() { shred -v "${ssh_key}"; }
+  trap shred_key EXIT
+  aws ssm get-parameters \
+      --names ssh-key-mymove-dependency-updater \
+      --with-decryption \
+      --query 'Parameters[0].Value' \
+      --output text \
+      > "${ssh_key}"
+  cat >>~/.ssh/config << EOF
 Host github.com
   IdentitiesOnly yes
   IdentityFile ${ssh_key}
 EOF
 
-# Configure git
-git config push.default simple
-git config user.email "noreply@move.mil"
-git config user.name "Dependency Updater"
+  # Configure git
+  git config push.default simple
+  git config user.email "noreply@move.mil"
+  git config user.name "Dependency Updater"
+fi
 
 # Push changes to a branch
 branch=dependency-updates-$(date +%s)
@@ -48,4 +53,4 @@ pr_url=$(hub pull-request -l dependencies automerge -m "Automated ${deps_name} d
 
 # Announce changes
 text="<${pr_url}|Pull request> created in ${github_repo} for $(date +'%m-%d-%Y') ${deps_name} dependency update"
-curl -X POST --data-urlencode 'payload={"text":"'"${text}"'"}' "${SLACK_WEBHOOK_URL}"
+echo -X POST --data-urlencode 'payload={"text":"'"${text}"'"}' "${SLACK_WEBHOOK_URL}"
