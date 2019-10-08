@@ -1,7 +1,7 @@
 import { shallow } from 'enzyme/build';
 import { OfficeWrapper } from 'scenes/Office/index';
 import React from 'react';
-import TOO from './too';
+import { TOO } from './too';
 import { detectFlags } from 'shared/featureFlags';
 
 describe('OfficeWrapper', () => {
