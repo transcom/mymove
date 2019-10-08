@@ -5,7 +5,6 @@ package iampostgres
 
 import (
 	"errors"
-	"fmt"
 	"math/rand"
 	"net/url"
 	"strings"
@@ -41,18 +40,17 @@ func GetCurrentPass() string {
 	// Blocks until the password from the dbConnectionDetails has a non blank password
 	currentPass := ""
 
-	sleep := 250 * time.Millisecond
 	for {
 		iamConfig.currentPassMutex.Lock()
 		currentPass = iamConfig.currentIamPass
 		iamConfig.currentPassMutex.Unlock()
 
 		if currentPass == "" {
-			iamConfig.logger.Warn(fmt.Sprintf("Waiting %dms for IAM password to populate", sleep))
+			iamConfig.logger.Warn("Waiting 250ms for IAM password to populate")
 		} else {
 			break
 		}
-		time.Sleep(sleep)
+		time.Sleep(time.Millisecond * 250)
 	}
 
 	return currentPass
