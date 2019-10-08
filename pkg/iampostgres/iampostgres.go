@@ -5,6 +5,7 @@ package iampostgres
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 	"net/url"
 	"strings"
@@ -50,6 +51,7 @@ func GetCurrentPass() string {
 		} else {
 			break
 		}
+
 		time.Sleep(time.Millisecond * 250)
 	}
 
@@ -76,8 +78,9 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 	// Add some entropy to this value so all instances don't fire at the same time
 	minDur := 100
 	maxDur := 5000
-	wait := rand.Intn(maxDur-minDur) + minDur
-	time.Sleep(time.Millisecond * time.Duration(wait))
+	wait := time.Millisecond * time.Duration(rand.Intn(maxDur-minDur)+minDur)
+	logger.Info(fmt.Sprintf("Waiting %v before enabling IAM access", wait))
+	time.Sleep(wait)
 
 	// GoRoutine to continually refresh the RDS IAM auth on a 10m interval.
 	go func() {
