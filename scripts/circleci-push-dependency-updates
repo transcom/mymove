@@ -13,11 +13,19 @@ deps_name="$1"
 # Cant override CIRCLECI using circle ci buidl -e CIRCICI
 # Instead add -e LOCAL_CIRCLECI=true to circleci for local build
 local_build=${LOCAL_CIRCLECI-}
+local_git_email=${GIT_EMAIL-}
+local_git_user=${GIT_USER-}
 
 if [[ -z "$(git status --short)" ]]; then
     echo No updates to push.
     exit 0
 fi
+
+# TODO this will likely get rolled into default image
+curl -sSLO https://github.com/github/hub/releases/download/v2.12.8/hub-linux-arm64-2.12.8.tgz \
+&& tar xzf hub-linux-arm64-2.12.8.tgz \
+&& sudo hub-linux-arm64-2.12.8/install \
+&& rm -rf hub-linux-arm64-2.12.8
 
 if [[ -n "$CIRCLECI" && -z "$local_build" ]]; then
   # Setup deploy key with write access.
@@ -41,16 +49,22 @@ EOF
   git config push.default simple
   git config user.email "noreply@move.mil"
   git config user.name "Dependency Updater"
+else
+  git config push.default simple
+  git config user.email "$local_git_email"
+  git config user.name "$local_git_user"
 fi
 
 # Push changes to a branch
 branch=dependency-updates-$(date +%s)
 readonly branch
 git checkout -b "${branch}"
+pre-commit run
 git commit -am "Automated dependency updates ${deps_name} | $(date -R)"
 git push -v --set-upstream origin "${branch}"
 pr_url=$(hub pull-request -l dependencies automerge -m "Automated ${deps_name} dependency update | $(date -R)")
 
 # Announce changes
 text="<${pr_url}|Pull request> created in ${github_repo} for $(date +'%m-%d-%Y') ${deps_name} dependency update"
+# TODO change back to curl command
 echo -X POST --data-urlencode 'payload={"text":"'"${text}"'"}' "${SLACK_WEBHOOK_URL}"
