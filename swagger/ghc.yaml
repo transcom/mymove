@@ -469,6 +469,47 @@ paths:
       description: Changes move order status
       operationId: updateMoveTaskOrderStatus
       summary: Change the status of a move order
+  '/move-task-orders/{moveTaskOrderID}/entitlements':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      tags:
+        - Entitlements
+      responses:
+        '200':
+          description: Successfully retrieved move task order
+          schema:
+            $ref: '#/definitions/Entitlements'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/definitions/Error'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/definitions/Error'
+      description: Gets entitlements
+      operationId: getEntitlements
+      summary: Gets entitlements for a move order by ID
   /payment-requests:
     get:
       produces:
@@ -999,4 +1040,3 @@ responses:
     description: A server error occurred
     schema:
       $ref: '#/definitions/Error'
-
