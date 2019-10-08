@@ -31,7 +31,6 @@ commands will not work as intended the second time. Please reach out to engineer
   ```sh
   echo "127.0.0.1 milmovelocal" | sudo tee -a /etc/hosts
   echo "127.0.0.1 officelocal" | sudo tee -a /etc/hosts
-  echo "127.0.0.1 tsplocal" | sudo tee -a /etc/hosts
   echo "127.0.0.1 orderslocal" | sudo tee -a /etc/hosts
   echo "127.0.0.1 adminlocal" | sudo tee -a /etc/hosts
   ```
@@ -67,7 +66,6 @@ To log into the server you must browse to one of these websites:
 
 * [Service Member login](http://milmovelocal:4000/devlocal-auth/login)
 * [Office login](http://officelocal:4000/devlocal-auth/login)
-* [TSP login](http://tsplocal:4000/devlocal-auth/login)
 * [Admin login](http://adminlocal:4000/devlocal-auth/login)
 
 **NOTE:** Unlike in development there is no `Local Sign In` button. This is because the production builds are

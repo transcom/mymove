@@ -163,10 +163,6 @@ client_test_coverage : .client_deps.stamp ## Run client unit test coverage
 office_client_run: .client_deps.stamp ## Run MilMove Office client
 	HOST=officelocal yarn start
 
-.PHONY: tsp_client_run
-tsp_client_run: .client_deps.stamp ## Run MilMove TSP client
-	HOST=tsplocal yarn start
-
 .PHONY: admin_client_run
 admin_client_run: .client_deps.stamp ## Run MilMove Admin client
 	HOST=adminlocal yarn start
@@ -362,7 +358,6 @@ ifndef TEST_ACC_ENV
 	SERVE_ORDERS=true \
 	SERVE_DPS=true \
 	SERVE_API_INTERNAL=true \
-	SERVE_API_PUBLIC=true \
 	MUTUAL_TLS_ENABLED=true \
 	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 else

@@ -19,7 +19,6 @@ import (
 type ApplicationServername struct {
 	MilServername    string
 	OfficeServername string
-	TspServername    string
 	AdminServername  string
 	OrdersServername string
 	DpsServername    string
@@ -30,12 +29,11 @@ type errInvalidHostname struct {
 	Hostname  string
 	MilApp    string
 	OfficeApp string
-	TspApp    string
 	AdminApp  string
 }
 
 func (e *errInvalidHostname) Error() string {
-	return fmt.Sprintf("invalid hostname %s, must be one of %s, %s, %s, or %s", e.Hostname, e.MilApp, e.OfficeApp, e.TspApp, e.AdminApp)
+	return fmt.Sprintf("invalid hostname %s, must be one of %s, %s, or %s", e.Hostname, e.MilApp, e.OfficeApp, e.AdminApp)
 }
 
 // UserSessionCookieName is the key suffix at which we're storing our token cookie
@@ -221,8 +219,6 @@ func ApplicationName(hostname string, appnames ApplicationServername) (Applicati
 		return MilApp, nil
 	} else if strings.EqualFold(hostname, appnames.OfficeServername) {
 		return OfficeApp, nil
-	} else if strings.EqualFold(hostname, appnames.TspServername) {
-		return TspApp, nil
 	} else if strings.EqualFold(hostname, appnames.AdminServername) {
 		return AdminApp, nil
 	}
@@ -231,7 +227,6 @@ func ApplicationName(hostname string, appnames ApplicationServername) (Applicati
 			Hostname:  hostname,
 			MilApp:    appnames.MilServername,
 			OfficeApp: appnames.OfficeServername,
-			TspApp:    appnames.TspServername,
 			AdminApp:  appnames.AdminServername,
 		}, fmt.Sprintf("%s is invalid", hostname))
 }
@@ -241,7 +236,6 @@ func SessionCookieMiddleware(serverLogger Logger, secret string, noSessionTimeou
 	serverLogger.Info("Creating session",
 		zap.String("milServername", appnames.MilServername),
 		zap.String("officeServername", appnames.OfficeServername),
-		zap.String("tspServername", appnames.TspServername),
 		zap.String("adminServername", appnames.AdminServername))
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
