@@ -4,16 +4,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestReContractValidations() {
 	suite.T().Run("test valid ReContract", func(t *testing.T) {
-		newID, _ := uuid.NewV4()
 		validReContract := models.ReContract{
-			ID:        newID,
 			Code:      "ABC",
 			Name:      "ABC, Inc.",
 			CreatedAt: time.Now(),

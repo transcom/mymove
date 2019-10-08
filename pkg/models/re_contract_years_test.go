@@ -12,7 +12,6 @@ import (
 func (suite *ModelSuite) TestReContractYearValidations() {
 	suite.T().Run("test valid ReContractYear", func(t *testing.T) {
 		validReContractYear := models.ReContractYear{
-			ID:         uuid.Must(uuid.NewV4()),
 			ContractID: uuid.Must(uuid.NewV4()),
 			Name:       "Base Period Year 1",
 			StartDate:  time.Date(2019, time.October, 1, 0, 0, 0, 0, time.UTC),
@@ -38,7 +37,6 @@ func (suite *ModelSuite) TestReContractYearValidations() {
 
 	suite.T().Run("test end date after start date for ReContractYear", func(t *testing.T) {
 		badDatesReContractYear := models.ReContractYear{
-			ID:         uuid.Must(uuid.NewV4()),
 			ContractID: uuid.Must(uuid.NewV4()),
 			Name:       "Base Period Year 2",
 			StartDate:  time.Date(2021, time.September, 30, 0, 0, 0, 0, time.UTC),

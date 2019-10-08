@@ -8,8 +8,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *ModelSuite) Test_ReZip3Validations() {
-	suite.T().Run("test valid Zip3", func(t *testing.T) {
+func (suite *ModelSuite) TestReZip3Validations() {
+	suite.T().Run("test valid ReZip3", func(t *testing.T) {
 		validReZip3 := models.ReZip3{
 			DomesticServiceAreaID: uuid.Must(uuid.NewV4()),
 			Zip3:                  "606",
