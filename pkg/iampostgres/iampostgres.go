@@ -42,22 +42,23 @@ func GetCurrentPass() string {
 	currentPass := ""
 
 	// Add some entropy to this value so all instances don't fire at the same time
-	minDur := 250
-	maxDur := 750
+	minDur := 1000
+	maxDur := 5000
 	wait := rand.Intn(maxDur-minDur) + minDur
+	time.Sleep(time.Millisecond * time.Duration(wait))
 
+	sleep := 250 * time.Millisecond
 	for {
 		iamConfig.currentPassMutex.Lock()
 		currentPass = iamConfig.currentIamPass
 		iamConfig.currentPassMutex.Unlock()
 
 		if currentPass == "" {
-			iamConfig.logger.Warn(fmt.Sprintf("Waiting %dms for IAM password to populate", wait))
+			iamConfig.logger.Warn(fmt.Sprintf("Waiting %dms for IAM password to populate", sleep))
 		} else {
 			break
 		}
-
-		time.Sleep(time.Millisecond * time.Duration(wait))
+		time.Sleep(sleep)
 	}
 
 	return currentPass
