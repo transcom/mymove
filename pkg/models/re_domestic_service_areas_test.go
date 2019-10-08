@@ -25,8 +25,8 @@ func (suite *ModelSuite) TestReDomesticServiceAreaValidation() {
 			"base_point_city":    {"BasePointCity can not be blank."},
 			"state":              {"State can not be blank."},
 			"service_area":       {"ServiceArea can not be blank."},
-			"service_schedule":   {"0 is not greater than 0.", "ServiceSchedule can not be blank."},
-			"s_i_t_p_d_schedule": {"0 is not greater than 0.", "SITPDSchedule can not be blank."},
+			"service_schedule":   {"0 is not greater than 0."},
+			"s_i_t_p_d_schedule": {"0 is not greater than 0."},
 		}
 		suite.verifyValidationErrors(&invalidReDomesticServiceArea, expErrors)
 	})

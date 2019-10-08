@@ -22,7 +22,7 @@ func (suite *ModelSuite) TestReZip3Validations() {
 		invalidReZip3 := &models.ReZip3{}
 		expErrors := map[string][]string{
 			"domestic_service_area_id": {"DomesticServiceAreaID can not be blank."},
-			"zip3":                     {"Zip3 can not be blank.", "Zip3 not in range(3, 3)"},
+			"zip3":                     {"Zip3 not in range(3, 3)"},
 		}
 		suite.verifyValidationErrors(invalidReZip3, expErrors)
 	})

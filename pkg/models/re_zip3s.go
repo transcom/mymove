@@ -29,7 +29,6 @@ type ReZip3s []ReZip3
 func (r *ReZip3) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: r.DomesticServiceAreaID, Name: "DomesticServiceAreaID"},
-		&validators.StringIsPresent{Field: r.Zip3, Name: "Zip3"},
 		&validators.StringLengthInRange{Field: r.Zip3, Name: "Zip3", Min: 3, Max: 3},
 	), nil
 }
