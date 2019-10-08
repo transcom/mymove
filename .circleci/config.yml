@@ -1055,7 +1055,7 @@ workflows:
 #         TODO revert
           # Monday at 4am/7am PST/EST
 #          cron: '0 12 * * 1'
-          cron: '09 * * * *'
+          cron: '20 * * * *'
           filters:
             branches:
               # TODO revert
