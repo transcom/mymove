@@ -9,7 +9,4 @@ function TOORoute() {
   return <PrivateRoute path="/ghc/too" component={TOO} />;
 }
 
-// exported individually for testing purposes
-export { TOO };
-
 export default TOORoute;
