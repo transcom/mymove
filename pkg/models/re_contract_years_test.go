@@ -31,6 +31,7 @@ func (suite *ModelSuite) TestReContractYearValidations() {
 			"name":        {"Name can not be blank."},
 			"start_date":  {"StartDate can not be blank."},
 			"end_date":    {"EndDate can not be blank."},
+			"escalation":  {"0.000000 is not greater than 0.000000."},
 		}
 		suite.verifyValidationErrors(emptyReContractYear, expErrors)
 	})

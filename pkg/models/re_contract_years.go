@@ -36,6 +36,6 @@ func (r *ReContractYear) Validate(tx *pop.Connection) (*validate.Errors, error) 
 		&validators.TimeIsPresent{Field: r.StartDate, Name: "StartDate"},
 		&validators.TimeIsPresent{Field: r.EndDate, Name: "EndDate"},
 		&validators.TimeAfterTime{FirstTime: r.EndDate, FirstName: "EndDate", SecondTime: r.StartDate, SecondName: "StartDate"},
-		// TODO: Add a FloatIsPositive validation for Escalation?
+		&Float64IsGreaterThan{Field: r.Escalation, Name: "Escalation", Compared: 0},
 	), nil
 }

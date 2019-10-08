@@ -298,6 +298,28 @@ func (v *OptionalRegexMatch) IsValid(errors *validate.Errors) {
 	regexMatch.IsValid(errors)
 }
 
+// Float64IsGreaterThan validates that a float64 is greater than a given value
+type Float64IsGreaterThan struct {
+	Name     string
+	Field    float64
+	Compared float64
+	Message  string
+}
+
+// IsValid adds an error if the field is not greater than the compared value.
+func (v *Float64IsGreaterThan) IsValid(errors *validate.Errors) {
+	if v.Field > v.Compared {
+		return
+	}
+
+	if len(v.Message) > 0 {
+		errors.Add(validators.GenerateKey(v.Name), v.Message)
+		return
+	}
+
+	errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%f is not greater than %f.", v.Field, v.Compared))
+}
+
 // ValidateableModel is here simply because `validateable` is private to `pop`
 type ValidateableModel interface {
 	Validate(*pop.Connection) (*validate.Errors, error)
