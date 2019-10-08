@@ -41,12 +41,6 @@ func GetCurrentPass() string {
 	// Blocks until the password from the dbConnectionDetails has a non blank password
 	currentPass := ""
 
-	// Add some entropy to this value so all instances don't fire at the same time
-	minDur := 1000
-	maxDur := 5000
-	wait := rand.Intn(maxDur-minDur) + minDur
-	time.Sleep(time.Millisecond * time.Duration(wait))
-
 	sleep := 250 * time.Millisecond
 	for {
 		iamConfig.currentPassMutex.Lock()
@@ -80,6 +74,12 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 	iamConfig.useIAM = true
 	iamConfig.passHolder = passTemplate
 	iamConfig.logger = logger
+
+	// Add some entropy to this value so all instances don't fire at the same time
+	minDur := 100
+	maxDur := 5000
+	wait := rand.Intn(maxDur-minDur) + minDur
+	time.Sleep(time.Millisecond * time.Duration(wait))
 
 	// GoRoutine to continually refresh the RDS IAM auth on a 10m interval.
 	go func() {
