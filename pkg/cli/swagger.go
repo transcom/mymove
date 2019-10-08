@@ -18,7 +18,7 @@ const (
 	// AdminSwaggerFlag is the Admin Swagger Flag
 	AdminSwaggerFlag string = "admin-swagger"
 	// GHCSwaggerFlag is the GHC Swagger Flag
-	GHCSwaggerFlag string = "admin-swagger"
+	GHCSwaggerFlag string = "ghc-swagger"
 	// ServeSwaggerUIFlag is the Serve Swagger UI Flag
 	ServeSwaggerUIFlag string = "serve-swagger-ui"
 )
