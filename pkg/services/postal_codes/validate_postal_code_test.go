@@ -13,10 +13,6 @@ type ValidatePostalCodeTestSuite struct {
 	testingsuite.PopTestSuite
 }
 
-func (suite *ValidatePostalCodeTestSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func TestValidatePostalCodeTestSuite(t *testing.T) {
 	ts := &ValidatePostalCodeTestSuite{
 		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),

@@ -21,10 +21,6 @@ type InvoiceSuite struct {
 	icnSequencer sequence.Sequencer
 }
 
-func (suite *InvoiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func TestInvoiceSuite(t *testing.T) {
 	// Use a no-op logger during testing
 	logger := zap.NewNop()

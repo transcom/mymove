@@ -14,10 +14,6 @@ type TSPServiceSuite struct {
 	logger Logger
 }
 
-func (suite *TSPServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func TestTSPServiceSuite(t *testing.T) {
 
 	ts := &TSPServiceSuite{

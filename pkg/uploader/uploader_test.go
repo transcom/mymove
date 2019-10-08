@@ -35,7 +35,6 @@ type UploaderSuite struct {
 func (suite *UploaderSuite) SetupTest() {
 	var fs = afero.NewMemMapFs()
 	suite.fs = &afero.Afero{Fs: fs}
-	suite.DB().TruncateAll()
 }
 
 func (suite *UploaderSuite) openLocalFile(path string) (afero.File, error) {
