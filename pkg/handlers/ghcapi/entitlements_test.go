@@ -30,7 +30,7 @@ func (suite *HandlerSuite) TestGetEntitlementsHandler_Success() {
 	suite.Equal(getEntitlementsPayload.PrivatelyOwnedVehicle, true)
 	suite.Equal(int(getEntitlementsPayload.ProGearWeight), 200)
 	suite.Equal(int(getEntitlementsPayload.ProGearWeightSpouse), 100)
-	suite.Equal(int(getEntitlementsPayload.StorageInTransit), 1000)
+	suite.Equal(int(getEntitlementsPayload.StorageInTransit), 90)
 	suite.Equal(int(getEntitlementsPayload.TotalDependents), 3)
 	suite.Equal(int(getEntitlementsPayload.TotalWeightSelf), 1300)
 }

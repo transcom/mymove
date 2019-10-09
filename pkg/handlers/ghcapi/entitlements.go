@@ -22,7 +22,7 @@ func (h GetEntitlementsHandler) Handle(params entitlementscodeop.GetEntitlements
 		PrivatelyOwnedVehicle: true,
 		ProGearWeight:         200,
 		ProGearWeightSpouse:   100,
-		StorageInTransit:      1000,
+		StorageInTransit:      90,
 		TotalDependents:       3,
 		TotalWeightSelf:       1300,
 	}
