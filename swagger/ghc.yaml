@@ -8,7 +8,6 @@ info:
     url: 'https://opensource.org/licenses/MIT'
   title: move.mil API
   version: 0.0.1
-host: api.move.mil
 basePath: /ghc/v1
 schemes:
   - http

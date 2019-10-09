@@ -3,7 +3,7 @@ import { getGHCClient } from 'shared/Swagger/api';
 
 const getEntitlementsLabel = 'Entitlements.getEntitlements';
 
-export function getEntitlements(moveTaskOrderId, label = getEntitlementsLabel) {
-  const swaggerTag = 'entitlements.getEntitlements';
-  return swaggerRequest(getGHCClient, swaggerTag, { moveTaskOrderId }, { label });
+export function getEntitlements(moveTaskOrderID, label = getEntitlementsLabel) {
+  const swaggerTag = 'Entitlements.getEntitlements';
+  return swaggerRequest(getGHCClient, swaggerTag, { moveTaskOrderID }, { label });
 }

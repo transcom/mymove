@@ -78,7 +78,6 @@ export class OfficeWrapper extends Component {
     const { context: { flags: { too } } = { flags: { too: null } } } = this.props;
     const DivOrMainTag = detectIE11() ? 'div' : 'main';
     const { userIsLoggedIn } = this.props;
-    console.log(too);
     return (
       <ConnectedRouter history={history}>
         <div className="Office site">
@@ -155,7 +154,7 @@ export class OfficeWrapper extends Component {
                     )}
                   />
                 )}
-                {too && <PrivateRoute path="/ghc/too" component={TOO} />}
+                {too && <PrivateRoute path="/too" component={TOO} />}
               </Switch>
             )}
           </ConditionalWrap>
