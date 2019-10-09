@@ -1,3 +1,5 @@
+-- Include btree_gist extension to allow a uuid in the gist below.
+-- https://stackoverflow.com/q/22720130
 create extension if not exists btree_gist;
 
 create table re_contracts
