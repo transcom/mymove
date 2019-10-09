@@ -55,6 +55,10 @@ func checkConfig(v *viper.Viper, logger logger) error {
 	if err != nil {
 		return err
 	}
+	err = cli.CheckVerbose(v)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
