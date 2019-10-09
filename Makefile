@@ -411,7 +411,7 @@ server_test_coverage_generate: db_test_reset db_test_migrate ## Run server unit 
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
 	# Add coverage tracker via go cover
-	DB_PORT=$(DB_PORT_TEST) go test -coverprofile=coverage.out -covermode=count -parallel 4 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
+	DB_PORT=$(DB_PORT_TEST) go test -coverprofile=coverage.out -covermode=count -parallel 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
 
 .PHONY: server_test_coverage
 server_test_coverage: db_test_reset db_test_migrate server_test_coverage_generate ## Run server unit test coverage with html output
