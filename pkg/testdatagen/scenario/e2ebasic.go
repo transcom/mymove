@@ -328,7 +328,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			LoginGovEmail: email,
 		},
 	})
-	// Date picked essentialy at random, but needs to be within TestYear
+	// Date picked essentially at random, but needs to be within TestYear
 	originalMoveDate := time.Date(testdatagen.TestYear, time.November, 10, 23, 0, 0, 0, time.UTC)
 	actualMoveDate := time.Date(testdatagen.TestYear, time.November, 11, 10, 0, 0, 0, time.UTC)
 	moveTypeDetail := internalmessages.OrdersTypeDetailPCSTDY
@@ -358,6 +358,20 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Uploader: loader,
 	})
+	docAssertions := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm3.Move.ID,
+			Move:                     ppm3.Move,
+			PersonallyProcuredMoveID: &ppm3.ID,
+			Status:                   "AWAITING_REVIEW",
+			MoveDocumentType:         "WEIGHT_TICKET",
+		},
+		Document: models.Document{
+			ServiceMemberID: ppm3.Move.Orders.ServiceMember.ID,
+			ServiceMember:   ppm3.Move.Orders.ServiceMember,
+		},
+	}
+	testdatagen.MakeMoveDocument(db, docAssertions)
 	ppm3.Move.Submit(time.Now())
 	ppm3.Move.Approve()
 	// This is the same PPM model as ppm3, but this is the one that will be saved by SaveMoveDependencies
@@ -535,13 +549,52 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	/*
-	* Creates a valid, unclaimed access code
+	* Creates two valid, unclaimed access codes
 	 */
-	accessCodeMoveType := models.SelectedMoveTypePPM
+	accessCodePPMMoveType := models.SelectedMoveTypeHHG
 	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
 		AccessCode: models.AccessCode{
 			Code:     "X3FQJK",
-			MoveType: &accessCodeMoveType,
+			MoveType: &accessCodePPMMoveType,
+		},
+	})
+	accessCodeHHGMoveType := models.SelectedMoveTypePPM
+	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
+		AccessCode: models.AccessCode{
+			Code:     "ABC123",
+			MoveType: &accessCodeHHGMoveType,
+		},
+	})
+	email = "accesscode@mail.com"
+	uuidStr = "1dc93d47-0f3e-4686-9dcf-5d940d0d3ed9"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+	sm := models.ServiceMember{
+		ID:            uuid.FromStringOrNil("09229b74-6da8-47d0-86b7-7c91e991b970"),
+		UserID:        uuid.FromStringOrNil(uuidStr),
+		FirstName:     models.StringPointer("Claimed"),
+		LastName:      models.StringPointer("Access Code"),
+		Edipi:         models.StringPointer("163105198"),
+		PersonalEmail: models.StringPointer(email),
+	}
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: sm,
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("7201788b-92f4-430b-8541-6430b2cc7f3e"),
+			Locator: "CLAIMD",
+		},
+		Uploader: loader,
+	})
+	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
+		AccessCode: models.AccessCode{
+			Code:            "ZYX321",
+			MoveType:        &accessCodeHHGMoveType,
+			ServiceMember:   sm,
+			ServiceMemberID: &sm.ID,
 		},
 	})
 
@@ -748,91 +801,34 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Uploader: loader,
 	})
-}
 
-var selectedMoveTypeHHG = models.SelectedMoveTypeHHG
-var nextValidMoveDatePlusOne = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, 1), cal)
-var nextValidMoveDatePlusFive = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, 5), cal)
-
-// MakeHhgFromAwardedToAcceptedGBLReady creates a scenario for an approved shipment ready for GBL generation		models.SaveMoveDependencies(db, &ppm7.Move)
-func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.TspUser) models.Shipment {
-	/*
-	 * Service member with uploaded orders and an approved shipment to be accepted, able to generate GBL
-	 */
-	email := "hhg@govbilloflading.ready"
-	ordersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
-	weightEstimate := unit.Pound(5000)
-	sourceOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
-		TransportationOffice: models.TransportationOffice{
-			Gbloc: "ABCD",
-		},
-	})
-	destOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
-		TransportationOffice: models.TransportationOffice{
-			Gbloc: "QRED",
-		},
-	})
-	GBLNumber := destOffice.Gbloc + "001234"
-	offer9 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+	email = "profile@complete.draft"
+	uuidStr = "3b9360a3-3304-4c60-90f4-83d687884070"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
-			ID:            uuid.Must(uuid.FromString("658f3a78-b3a9-47f4-a820-af673103d62d")),
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
 		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("658f3a78-b3a9-47f4-a820-af673103d62d"),
-			FirstName:     models.StringPointer("HHG"),
-			LastName:      models.StringPointer("ReadyForGBL"),
-			Edipi:         models.StringPointer("4444567890"),
+			ID:            uuid.FromStringOrNil("0ec71d80-ac21-45a7-88ed-2ae8de3961fd"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Move"),
+			LastName:      models.StringPointer("Draft"),
+			Edipi:         models.StringPointer("8893308161"),
 			PersonalEmail: models.StringPointer(email),
 		},
 		Order: models.Order{
-			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
-			TAC:                 models.StringPointer("NTA4"),
-			SAC:                 models.StringPointer("1234567890 9876543210"),
-			OrdersTypeDetail:    &ordersTypeDetail,
+			HasDependents:    true,
+			SpouseHasProGear: true,
 		},
 		Move: models.Move{
-			ID:               uuid.FromStringOrNil("05a58b2e-07da-4b41-b4f8-d18ab68dddd5"),
-			Locator:          "GBLGBL",
-			SelectedMoveType: &selectedMoveTypeHHG,
-			Status:           models.MoveStatusAPPROVED,
+			ID:      uuid.FromStringOrNil("a5d9c7b2-0fe8-4b80-b7c5-3323a066e98c"),
+			Locator: "DFTMVE",
 		},
-		TrafficDistributionList: models.TrafficDistributionList{
-			ID:                uuid.FromStringOrNil("b15fdc2b-52cd-4b3e-91ba-a36d6ab94a16"),
-			SourceRateArea:    "US62",
-			DestinationRegion: "11",
-			CodeOfService:     "D",
-		},
-
-		Shipment: models.Shipment{
-			ID:                          uuid.FromStringOrNil("a4013cee-aa0a-41a3-b5f5-b9eed0758e1d 0xc42022c070"),
-			Status:                      models.ShipmentStatusAPPROVED,
-			PmSurveyMethod:              "PHONE",
-			PmSurveyPlannedPackDate:     &nextValidMoveDatePlusOne,
-			PmSurveyPlannedPickupDate:   &nextValidMoveDatePlusFive,
-			PmSurveyCompletedAt:         &nextValidMoveDatePlusOne,
-			PmSurveyPlannedDeliveryDate: &nextValidMoveDatePlusTen,
-			PmSurveyWeightEstimate:      &weightEstimate,
-			SourceGBLOC:                 &sourceOffice.Gbloc,
-			DestinationGBLOC:            &destOffice.Gbloc,
-			GBLNumber:                   &GBLNumber,
-		},
-		ShipmentOffer: models.ShipmentOffer{
-			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
-			TransportationServiceProvider:   tspUser.TransportationServiceProvider,
-			Accepted:                        models.BoolPointer(true),
-		},
+		Uploader: loader,
 	})
 
-	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
-		ServiceAgent: models.ServiceAgent{
-			Shipment:   &offer9.Shipment,
-			ShipmentID: offer9.ShipmentID,
-		},
-	})
-
-	hhg2 := offer9.Shipment
-	hhg2.Move.Submit(time.Now())
-	models.SaveMoveDependencies(db, &hhg2.Move)
-	return offer9.Shipment
 }

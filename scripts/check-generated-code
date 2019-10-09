@@ -1,0 +1,17 @@
+#! /usr/bin/env bash
+#
+#   check-generated-code checks that the generated code has not changed
+#
+set -eu -o pipefail
+
+pkg_list_mocks=$(find . -type d -name "mocks" -exec echo -n '{} ' \;)
+
+# shellcheck disable=2086
+if [[ -z $(git status -uno --porcelain pkg/gen/ ${pkg_list_mocks} ) ]]; then
+  echo "generated code hasn't changed"
+  exit 0
+else
+  echo "generated code was modified!"
+  git --no-pager diff
+  exit 1
+fi

@@ -1,13 +1,10 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import {
-  MoveSummaryComponent as MoveSummary,
-  CanceledMoveSummary,
-  ApprovedMoveSummary,
-  SubmittedPpmMoveSummary,
-  DraftMoveSummary,
-} from './MoveSummary';
+import { MoveSummaryComponent as MoveSummary } from './MoveSummary';
 import moment from 'moment';
+import CanceledMoveSummary from 'scenes/Landing/MoveSummary/CanceledMoveSummary';
+import DraftMoveSummary from 'scenes/Landing/MoveSummary/DraftMoveSummary';
+import SubmittedPpmMoveSummary from 'scenes/Landing/MoveSummary/SubmittedPpmMoveSummary';
 
 describe('MoveSummary', () => {
   const editMoveFn = jest.fn();
@@ -17,17 +14,7 @@ describe('MoveSummary', () => {
   const ordersObj = {};
   const getMoveDocumentsForMove = jest.fn(() => ({ then: () => {} }));
   const getPpmWeightEstimate = jest.fn();
-  const getShallowRender = (
-    entitlementObj,
-    serviceMember,
-    ordersObj,
-    moveObj,
-    ppmObj,
-    hhgObj,
-    editMoveFn,
-    resumeMoveFn,
-    addPPMShipmentFn,
-  ) => {
+  const getShallowRender = (entitlementObj, serviceMember, ordersObj, moveObj, ppmObj, editMoveFn, resumeMoveFn) => {
     return shallow(
       <MoveSummary
         entitlement={entitlementObj}
@@ -35,11 +22,9 @@ describe('MoveSummary', () => {
         orders={ordersObj}
         move={moveObj}
         ppm={ppmObj}
-        shipment={hhgObj}
         editMove={editMoveFn}
         moveSubmitSuccess={moveObj.moveSubmitSuccess}
         resumeMove={resumeMoveFn}
-        addPPMShipment={addPPMShipmentFn}
         getMoveDocumentsForMove={getMoveDocumentsForMove}
         getPpmWeightEstimate={getPpmWeightEstimate}
       />,
@@ -56,14 +41,12 @@ describe('MoveSummary', () => {
         estimated_incentive: '$24665.59 - 27261.97',
         status: 'CANCELED',
       };
-      const hhgObj = {};
       const subComponent = getShallowRender(
         entitlementObj,
         serviceMember,
         ordersObj,
         moveObj,
         ppmObj,
-        hhgObj,
         editMoveFn,
         resumeMoveFn,
       );
@@ -89,14 +72,12 @@ describe('MoveSummary', () => {
         estimated_incentive: '$24665.59 - 27261.97',
         status: 'CANCELED',
       };
-      const hhgObj = {};
       const subComponent = getShallowRender(
         entitlementObj,
         serviceMember,
         ordersObj,
         moveObj,
         ppmObj,
-        hhgObj,
         editMoveFn,
         resumeMoveFn,
       );
@@ -119,14 +100,12 @@ describe('MoveSummary', () => {
         weight_estimate: '10000',
         estimated_incentive: '$24665.59 - 27261.97',
       };
-      const hhgObj = {};
       const subComponent = getShallowRender(
         entitlementObj,
         serviceMember,
         ordersObj,
         moveObj,
         ppmObj,
-        hhgObj,
         editMoveFn,
         resumeMoveFn,
       ).find(SubmittedPpmMoveSummary);
@@ -153,14 +132,12 @@ describe('MoveSummary', () => {
         estimated_incentive: '$24665.59 - 27261.97',
         status: 'SUBMITTED',
       };
-      const hhgObj = {};
       const subComponent = getShallowRender(
         entitlementObj,
         serviceMember,
         ordersObj,
         moveObj,
         ppmObj,
-        hhgObj,
         editMoveFn,
         resumeMoveFn,
       ).find(SubmittedPpmMoveSummary);
@@ -186,26 +163,17 @@ describe('MoveSummary', () => {
         estimated_incentive: '$24665.59 - 27261.97',
         status: 'APPROVED',
       };
-      const hhgObj = {};
-      const subComponent = getShallowRender(
+      const component = getShallowRender(
         entitlementObj,
         serviceMember,
         ordersObj,
         moveObj,
         ppmObj,
-        hhgObj,
         editMoveFn,
         resumeMoveFn,
-      ).find(ApprovedMoveSummary);
-      expect(subComponent).not.toBeNull();
-      // expect(
-      //   subComponent
-      //     .dive()
-      //     .find('.step')
-      //     .find('div.title')
-      //     .first()
-      //     .html(),
-      // ).toEqual('<div class="title">Next Step: Get ready to move</div>');
+      );
+      const ppmSummary = component.find('Connect(ApprovedMoveSummary)');
+      expect(ppmSummary.exists()).toBe(true);
     });
   });
   describe('when a move with a ppm is in in progress state', () => {
@@ -217,26 +185,17 @@ describe('MoveSummary', () => {
         weight_estimate: '10000',
         estimated_incentive: '$24665.59 - 27261.97',
       };
-      const hhgObj = {};
-      const subComponent = getShallowRender(
+      const component = getShallowRender(
         entitlementObj,
         serviceMember,
         ordersObj,
         moveObj,
         ppmObj,
-        hhgObj,
         editMoveFn,
         resumeMoveFn,
-      ).find(ApprovedMoveSummary);
-      expect(subComponent).not.toBeNull();
-      //   expect(
-      //     subComponent
-      //       .dive()
-      //       .find('.step')
-      //       .find('div.title')
-      //       .first()
-      //       .html(),
-      //   ).toEqual('<div class="title">Next Step: Request payment</div>');
+      );
+      const ppmSummary = component.find(SubmittedPpmMoveSummary);
+      expect(ppmSummary.exists()).toBe(true);
     });
   });
 });

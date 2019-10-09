@@ -70,7 +70,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   //duty station
   cy.get('button.next').should('be.disabled');
-  cy.selectDutyStation('Ft Carson', 'current_station');
+  cy.selectDutyStation('Fort Carson', 'current_station');
 
   cy.nextPage();
   cy.location().should(loc => {

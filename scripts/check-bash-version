@@ -23,9 +23,9 @@ check_shell /usr/local/bin/bash
 # Knocks off everything after the last decimal
 SHORT_VERSION=${BASH_VERSION%.*}
 if [[ $SHORT_VERSION = *$VERSION* ]]; then
-  echo "$BASH_VERSION installed"
+  echo "Bash $BASH_VERSION installed"
 else
-  echo "$VERSION.x is required to run this project! Found $BASH_VERSION"
+  echo "Bash $VERSION.x is required to run this project! Found $BASH_VERSION"
   echo "Run 'brew install bash', add '/usr/local/bin/bash' to your /etc/shells file, and restart your terminal"
   exit 1
 fi

@@ -18,6 +18,10 @@ type NotificationSuite struct {
 	logger Logger
 }
 
+func (suite *NotificationSuite) SetupTest() {
+	suite.DB().TruncateAll()
+}
+
 type testNotification struct {
 	email emailContent
 }
@@ -32,16 +36,10 @@ func (suite *NotificationSuite) TestMoveApproved() {
 
 	approver := testdatagen.MakeDefaultUser(suite.DB())
 	move := testdatagen.MakeDefaultMove(suite.DB())
-	notification := MoveApproved{
-		db:     suite.DB(),
-		logger: suite.logger,
-		host:   "milmovelocal",
-		moveID: move.ID,
-		session: &auth.Session{
-			UserID:          approver.ID,
-			ApplicationName: auth.OfficeApp,
-		},
-	}
+	notification := NewMoveApproved(suite.DB(), suite.logger, &auth.Session{
+		UserID:          approver.ID,
+		ApplicationName: auth.OfficeApp,
+	}, "milmovelocal", move.ID)
 
 	emails, err := notification.emails(ctx)
 	if err != nil {
@@ -64,15 +62,10 @@ func (suite *NotificationSuite) TestMoveSubmitted() {
 	t := suite.T()
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
-	notification := MoveSubmitted{
-		db:     suite.DB(),
-		logger: suite.logger,
-		moveID: move.ID,
-		session: &auth.Session{
-			ServiceMemberID: move.Orders.ServiceMember.ID,
-			ApplicationName: auth.MilApp,
-		},
-	}
+	notification := NewMoveSubmitted(suite.DB(), suite.logger, &auth.Session{
+		ServiceMemberID: move.Orders.ServiceMember.ID,
+		ApplicationName: auth.MilApp,
+	}, move.ID)
 
 	emails, err := notification.emails(ctx)
 	if err != nil {
@@ -101,9 +94,10 @@ func (suite *NotificationSuite) getTestEmailContent() emailContent {
 func TestNotificationSuite(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 
-	s := &NotificationSuite{
+	ns := &NotificationSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 	}
-	suite.Run(t, s)
+	suite.Run(t, ns)
+	ns.PopTestSuite.TearDown()
 }

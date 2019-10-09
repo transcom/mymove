@@ -58,8 +58,12 @@ update_service() {
 
     echo "* Waiting for service to be stable before updating"
     time aws ecs wait services-stable --services "$name" --cluster "$cluster"
+    echo "* Currently running ECS tasks:"
+    aws ecs list-tasks --service app --cluster app-experimental --desired-status=RUNNING
     echo "* Updating $name service to use $arn"
     aws ecs update-service --cluster "$cluster" --service "$name" --task-definition "$arn" --query 'service.deployments' --network-configuration "$network_config" || return 1
+    echo "* Newly started ECS tasks:"
+    aws ecs list-tasks --service app --cluster app-experimental --desired-status=PENDING
     echo "* Waiting for service to stabilize (this takes a while)"
     time aws ecs wait services-stable --services "$name" --cluster "$cluster"
     local exit_code=$?
@@ -120,7 +124,7 @@ put_metric DeployFail "${name}-${environment}"
 
 echo
 echo "Showing logs from recently stopped tasks:"
-"$DIR"/ecs-show-service-stopped-logs "$name" "$environment" || true
+"$DIR"/ecs-service-logs show --cluster "app-${environment}" --service "${name}" --environment "${environment}" --status "STOPPED" --verbose
 echo
 
 echo "* Rolling back to $blue_task_def_arn"

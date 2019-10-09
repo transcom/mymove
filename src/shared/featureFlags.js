@@ -10,21 +10,21 @@ import { forEach } from 'lodash';
 
 const defaultFlags = {
   ppm: true,
-  hhg: true,
   documentViewer: true,
   moveInfoComboButton: true,
   sitPanel: true,
   ppmPaymentRequest: true,
+  too: false,
 };
 
 const environmentFlags = {
-  development: Object.assign({}, defaultFlags),
+  development: Object.assign({}, defaultFlags, { too: true }),
 
   test: Object.assign({}, defaultFlags),
 
-  experimental: Object.assign({}, defaultFlags),
+  experimental: Object.assign({}, defaultFlags, { too: true }),
 
-  staging: Object.assign({}, defaultFlags, {}),
+  staging: Object.assign({}, defaultFlags, { too: true }),
 
   production: Object.assign({}, defaultFlags, {
     sitPanel: false,
@@ -56,19 +56,21 @@ export function detectEnvironment(nodeEnv, host) {
 
   // If we've built the app, then use the hostname to determine what the
   // environment is.
-  const domain = host;
-  switch (domain) {
+  switch (host) {
     case 'tsp.move.mil':
     case 'office.move.mil':
     case 'my.move.mil':
+    case 'admin.move.mil:':
       return 'production';
     case 'tsp.staging.move.mil':
     case 'office.staging.move.mil':
     case 'my.staging.move.mil':
+    case 'admin.staging.move.mil':
       return 'staging';
     case 'my.experimental.move.mil':
     case 'office.experimental.move.mil':
     case 'tsp.experimental.move.mil':
+    case 'admin.experimental.move.mil':
       return 'experimental';
     default:
       return 'development';

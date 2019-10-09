@@ -23,10 +23,6 @@ type PaperworkSuite struct {
 	filesToClose []afero.File
 }
 
-func (suite *PaperworkSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func (suite *PaperworkSuite) AfterTest() {
 	for _, file := range suite.filesToClose {
 		file.Close()
@@ -66,11 +62,16 @@ func TestPaperworkSuite(t *testing.T) {
 	storer := storageTest.NewFakeS3Storage(true)
 
 	popSuite := testingsuite.NewPopTestSuite(testingsuite.CurrentPackage())
+	newUploader, err := uploader.NewUploader(popSuite.DB(), logger, storer, 25*uploader.MB)
+	if err != nil {
+		log.Panic(err)
+	}
 	hs := &PaperworkSuite{
 		PopTestSuite: popSuite,
 		logger:       logger,
-		uploader:     uploader.NewUploader(popSuite.DB(), logger, storer),
+		uploader:     newUploader,
 	}
 
 	suite.Run(t, hs)
+	hs.PopTestSuite.TearDown()
 }

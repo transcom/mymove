@@ -22,6 +22,7 @@ import faQuestionCircle from '@fortawesome/fontawesome-free-solid/faQuestionCirc
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { withContext } from 'shared/AppContext';
+import { loadDutyStationTransportationOffice } from 'shared/TransportationOffices/ducks';
 
 import { getNextPage } from './utility';
 import DocumentsUploaded from './PaymentReview/DocumentsUploaded';
@@ -75,6 +76,7 @@ class WeightTicket extends Component {
   componentDidMount() {
     const { moveId } = this.props;
     this.props.getMoveDocumentsForMove(moveId);
+    this.props.loadDutyStationTransportationOffice(this.props.dutyStationId);
   }
 
   get isCarTrailer() {
@@ -90,10 +92,12 @@ class WeightTicket extends Component {
   };
 
   uploaderWithInvalidState = () => {
+    // Validation for the vehicle type
     if (this.state.isValidTrailer === 'Yes' && (this.isCarTrailer && this.invalidState(this.uploaders.trailer))) {
       return true;
     }
-    return this.invalidState(this.uploaders.emptyWeight) || this.invalidState(this.uploaders.fullWeight);
+    // Full weight must be in a valid state to proceed.
+    return this.invalidState(this.uploaders.fullWeight);
   };
 
   //  handleChange for vehicleType and additionalWeightTickets
@@ -138,6 +142,7 @@ class WeightTicket extends Component {
 
     const uploaderKeys = this.nonEmptyUploaderKeys();
     const uploadIds = [];
+    // eslint-disable-next-line no-unused-vars
     for (const key of uploaderKeys) {
       // eslint-disable-next-line security/detect-object-injection
       let files = this.uploaders[key].uploaderRef.getFiles();
@@ -176,6 +181,7 @@ class WeightTicket extends Component {
     const { reset } = this.props;
     const uploaders = this.uploaders;
     const uploaderKeys = this.nonEmptyUploaderKeys();
+    // eslint-disable-next-line no-unused-vars
     for (const key of uploaderKeys) {
       // eslint-disable-next-line security/detect-object-injection
       uploaders[key].uploaderRef.clearFiles();
@@ -193,7 +199,7 @@ class WeightTicket extends Component {
       missingDocumentation,
       isValidTrailer,
     } = this.state;
-    const { handleSubmit, submitting, schema, weightTicketSets, invalid, moveId } = this.props;
+    const { handleSubmit, submitting, schema, weightTicketSets, invalid, moveId, transportationOffice } = this.props;
     const nextBtnLabel =
       additionalWeightTickets === 'Yes' ? nextBtnLabels.SaveAndAddAnother : nextBtnLabels.SaveAndContinue;
     const weightTicketSetOrdinal = formatToOrdinal(weightTicketSets.length + 1);
@@ -387,14 +393,14 @@ class WeightTicket extends Component {
                   </div>
 
                   <div className="usa-width-two-thirds uploader-wrapper">
-                    <span data-cy="full-weight-upload">
+                    <div data-cy="full-weight-upload">
                       <Uploader
                         options={{ labelIdle: uploadFullTicketLabel }}
                         onRef={ref => (this.uploaders.fullWeight.uploaderRef = ref)}
                         onChange={this.onUploadChange('fullWeight')}
                         onAddFile={this.onAddFile('fullWeight')}
                       />
-                    </span>
+                    </div>
                     <Checkbox
                       label="I'm missing this weight ticket"
                       name="missingFullWeightTicket"
@@ -403,12 +409,14 @@ class WeightTicket extends Component {
                       normalizeLabel
                     />
                     {missingFullWeightTicket && (
-                      <span data-cy="full-warning">
+                      <div data-cy="full-warning">
                         <Alert type="warning">
-                          Contact your local Transportation Office (PPPO) to let them know you’re missing this weight
-                          ticket. For now, keep going and enter the info you do have.
+                          <b>You can’t get paid without a full weight ticket.</b> See what you can do to find it,
+                          because without certified documentation of the weight of your belongings, we can’t pay you
+                          your incentive. Call the {transportationOffice.name} Transportation Office at{' '}
+                          {transportationOffice.phone_lines[0]} if you have any questions.
                         </Alert>
-                      </span>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -473,6 +481,9 @@ WeightTicket.propTypes = {
 
 function mapStateToProps(state, ownProps) {
   const moveId = ownProps.match.params.moveId;
+  const dutyStationId = get(state, 'serviceMember.currentServiceMember.current_station.id');
+  const officeId = get(state, `transportationOffices.byDutyStationId[${dutyStationId}]`);
+
   return {
     moveId: moveId,
     formValues: getFormValues(formName)(state),
@@ -481,12 +492,15 @@ function mapStateToProps(state, ownProps) {
     schema: get(state, 'swaggerInternal.spec.definitions.CreateWeightTicketDocumentsPayload', {}),
     currentPpm: get(state, 'ppm.currentPpm'),
     weightTicketSets: selectPPMCloseoutDocumentsForMove(state, moveId, ['WEIGHT_TICKET_SET']),
+    transportationOffice: get(state, `transportationOffices.byId.${officeId}`),
+    dutyStationId: dutyStationId,
   };
 }
 
 const mapDispatchToProps = {
   getMoveDocumentsForMove,
   createWeightTicketSetDocument,
+  loadDutyStationTransportationOffice,
 };
 
 export default withContext(

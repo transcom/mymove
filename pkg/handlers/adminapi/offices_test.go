@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/office"
+	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -42,6 +43,7 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 			HandlerContext:    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:    query.NewQueryFilter,
 			OfficeListFetcher: office.NewOfficeListFetcher(queryBuilder),
+			NewPagination:     pagination.NewPagination,
 		}
 
 		response := handler.Handle(params)
@@ -63,11 +65,14 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 		officeListFetcher := &mocks.OfficeListFetcher{}
 		officeListFetcher.On("FetchOfficeList",
 			mock.Anything,
+			mock.Anything,
+			mock.Anything,
 		).Return(models.TransportationOffices{office}, nil).Once()
 		handler := IndexOfficesHandler{
 			HandlerContext:    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:    newQueryFilter,
 			OfficeListFetcher: officeListFetcher,
+			NewPagination:     pagination.NewPagination,
 		}
 
 		response := handler.Handle(params)
@@ -86,11 +91,14 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 		officeListFetcher := &mocks.OfficeListFetcher{}
 		officeListFetcher.On("FetchOfficeList",
 			mock.Anything,
+			mock.Anything,
+			mock.Anything,
 		).Return(nil, expectedError).Once()
 		handler := IndexOfficesHandler{
 			HandlerContext:    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:    newQueryFilter,
 			OfficeListFetcher: officeListFetcher,
+			NewPagination:     pagination.NewPagination,
 		}
 
 		response := handler.Handle(params)

@@ -3,9 +3,6 @@ package rateengine
 import (
 	"time"
 
-	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
-
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/gobuffalo/pop"
@@ -35,7 +32,6 @@ type CostComputation struct {
 	LHDiscount  unit.DiscountRate
 	SITDiscount unit.DiscountRate
 	Weight      unit.Pound
-	ShipmentID  uuid.UUID
 }
 
 // Scale scales a cost computation by a multiplicative factor
@@ -70,7 +66,6 @@ func (c CostComputation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	encoder.AddFloat64("SITDiscount", float64(c.SITDiscount))
 	encoder.AddInt("Miles", c.Mileage)
 	encoder.AddInt("Weight", c.Weight.Int())
-	encoder.AddString("ShipmentID", c.ShipmentID.String())
 
 	return nil
 }
@@ -233,184 +228,7 @@ func (re *RateEngine) ComputeLowestCostPPMMove(weight unit.Pound, originPickupZi
 	}
 
 	re.logger.Info("Origin zip code information", zap.String("originZipLocation", originZipLocation), zap.String("originZipCode", originZipCode))
-
 	return cost, nil
-}
-
-// ComputeShipment Calculates the cost of an HHG move.
-func (re *RateEngine) ComputeShipment(
-	shipment models.Shipment,
-	distanceCalculation models.DistanceCalculation,
-	daysInSIT int,
-	lhDiscount unit.DiscountRate,
-	sitDiscount unit.DiscountRate) (cost CostComputation, err error) {
-
-	// Weights below 1000lbs are prorated to the 1000lb rate
-	prorateFactor := 1.0
-	weight := *shipment.NetWeight
-	if weight.Int() < 1000 {
-		prorateFactor = weight.Float64() / 1000.0
-		weight = unit.Pound(1000)
-	}
-
-	pickupDate := time.Time(*shipment.ActualPickupDate)
-	bookDate := time.Time(*shipment.BookDate)
-
-	originZip := distanceCalculation.OriginAddress.PostalCode
-	destinationZip := distanceCalculation.DestinationAddress.PostalCode
-	distanceMiles := distanceCalculation.DistanceMiles
-
-	// Linehaul charges
-	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip, destinationZip, distanceMiles, pickupDate)
-	if err != nil {
-		re.logger.Error("Failed to compute linehaul cost", zap.Error(err))
-		return
-	}
-
-	// Non linehaul charges
-	nonLinehaulCostComputation, err := re.nonLinehaulChargeComputation(weight, originZip, destinationZip, pickupDate)
-	if err != nil {
-		re.logger.Error("Failed to compute non-linehaul cost", zap.Error(err))
-		return
-	}
-
-	// Apply linehaul discounts to fee
-	linehaulCostComputation.LinehaulChargeTotal = lhDiscount.Apply(linehaulCostComputation.LinehaulChargeTotal)
-	nonLinehaulCostComputation.OriginService.Fee = lhDiscount.Apply(nonLinehaulCostComputation.OriginService.Fee)
-	nonLinehaulCostComputation.DestinationService.Fee = lhDiscount.Apply(nonLinehaulCostComputation.DestinationService.Fee)
-	nonLinehaulCostComputation.Pack.Fee = lhDiscount.Apply(nonLinehaulCostComputation.Pack.Fee)
-	nonLinehaulCostComputation.Unpack.Fee = lhDiscount.Apply(nonLinehaulCostComputation.Unpack.Fee)
-
-	// Apply linehaul discount to rate
-	// For rates with retrieved tariff rates in cents, must use ApplyToMillicents by dividing by 1000 to maintain cent level accuracy (and avoid millicent accuracy)
-	nonLinehaulCostComputation.OriginService.Rate = lhDiscount.ApplyToMillicents(nonLinehaulCostComputation.OriginService.Rate/1000) * 1000
-	nonLinehaulCostComputation.DestinationService.Rate = lhDiscount.ApplyToMillicents(nonLinehaulCostComputation.DestinationService.Rate/1000) * 1000
-	nonLinehaulCostComputation.Pack.Rate = lhDiscount.ApplyToMillicents(nonLinehaulCostComputation.Pack.Rate/1000) * 1000
-	nonLinehaulCostComputation.Unpack.Rate = lhDiscount.ApplyToMillicents(nonLinehaulCostComputation.Unpack.Rate)
-
-	// Calculate FuelSurcharge (FeeAndRate struct) and log it.
-	// We've applied the linehaul discount to the linehaulCostComputation.LinehaulChargeTotal object, so we don't need
-	// to worry about applying it again here.
-	linehaulCostComputation.FuelSurcharge, err = re.fuelSurchargeComputation(linehaulCostComputation.LinehaulChargeTotal, bookDate)
-	if err != nil {
-		return cost, errors.Wrap(err, "Failed to calculate fuel surcharge")
-	}
-	re.logger.Info("Fuel Surcharge Calculated",
-		zap.Any("Fee and Rate", linehaulCostComputation.FuelSurcharge))
-
-	// SIT
-	// Note that SIT has a different discount rate than [non]linehaul charges
-	destinationZip3 := Zip5ToZip3(distanceCalculation.DestinationAddress.PostalCode)
-	sitComputation, err := re.SitCharge(weight.ToCWT(), daysInSIT, destinationZip3, pickupDate, true)
-	if err != nil {
-		re.logger.Info("Can't calculate sit")
-		return
-	}
-	sitFee := sitDiscount.Apply(sitComputation.SITPart) + lhDiscount.Apply(sitComputation.LinehaulPart)
-
-	/// Max SIT
-	maxSITComputation, err := re.SitCharge(weight.ToCWT(), MaxSITDays, destinationZip3, pickupDate, true)
-	if err != nil {
-		re.logger.Info("Can't calculate max sit")
-		return
-	}
-	// Note that SIT has a different discount rate than [non]linehaul charges
-	maxSITFee := sitDiscount.Apply(maxSITComputation.SITPart) + lhDiscount.Apply(maxSITComputation.LinehaulPart)
-
-	// Totals
-	gcc := linehaulCostComputation.LinehaulChargeTotal +
-		nonLinehaulCostComputation.OriginService.Fee +
-		nonLinehaulCostComputation.DestinationService.Fee +
-		nonLinehaulCostComputation.Pack.Fee +
-		nonLinehaulCostComputation.Unpack.Fee
-
-	shipmentID := shipment.ID
-
-	cost = CostComputation{
-		LinehaulCostComputation:    linehaulCostComputation,
-		NonLinehaulCostComputation: nonLinehaulCostComputation,
-		SITFee:                     sitFee,
-		SITMax:                     maxSITFee,
-		GCC:                        gcc,
-		LHDiscount:                 lhDiscount,
-		SITDiscount:                sitDiscount,
-		Weight:                     weight,
-		ShipmentID:                 shipmentID,
-	}
-
-	// Finally, scale by prorate factor
-	cost.Scale(prorateFactor)
-
-	re.logger.Info("ComputeShipment() cost computation", zap.Object("cost", cost))
-
-	return cost, nil
-}
-
-// CostByShipment struct containing shipment and cost
-type CostByShipment struct {
-	Shipment models.Shipment
-	Cost     CostComputation
-}
-
-// HandleRunOnShipment runs the rate engine on a shipment and returns the shipment and cost.
-// Assumptions: Shipment model passed in has eagerly fetched PickupAddress,
-// Move.Orders.NewDutyStation.Address, and ShipmentOffers.TransportationServiceProviderPerformance.
-func (re *RateEngine) HandleRunOnShipment(shipment models.Shipment, distanceCalculation models.DistanceCalculation) (CostByShipment, error) {
-	// Validate expected model relationships are available.
-	if shipment.PickupAddress == nil {
-		return CostByShipment{}, errors.New("PickupAddress is nil")
-	}
-
-	// NewDutyStation's address/postal code is required per model/schema, so no nil check needed.
-
-	if shipment.ShipmentOffers == nil {
-		return CostByShipment{}, errors.New("ShipmentOffers is nil")
-	}
-
-	acceptedOffer, err := shipment.AcceptedShipmentOffer()
-	if err != nil || acceptedOffer == nil {
-		return CostByShipment{}, errors.Wrap(err, "Error retrieving ACCEPTED ShipmentOffer in rateengine")
-	}
-
-	if acceptedOffer.TransportationServiceProviderPerformance.ID == uuid.Nil {
-		return CostByShipment{}, errors.New("TransportationServiceProviderPerformance is nil")
-	}
-
-	if shipment.NetWeight == nil {
-		return CostByShipment{}, errors.New("NetWeight is nil")
-	}
-
-	if shipment.ActualPickupDate == nil {
-		return CostByShipment{}, errors.New("ActualPickupDate is nil")
-	}
-
-	if shipment.PickupAddress.PostalCode[0:5] == shipment.Move.Orders.NewDutyStation.Address.PostalCode[0:5] {
-		return CostByShipment{}, errors.New("PickupAddress cannot have the same PostalCode as the NewDutyStation PostalCode")
-	}
-
-	// All required relationships should exist at this point.
-	daysInSIT := 0
-	sitDiscount := unit.DiscountRate(0.0)
-
-	lhDiscount := acceptedOffer.TransportationServiceProviderPerformance.LinehaulRate
-
-	// Apply rate engine to shipment
-	var shipmentCost CostByShipment
-	cost, err := re.ComputeShipment(shipment,
-		distanceCalculation,
-		daysInSIT, // We don't want any SIT charges
-		lhDiscount,
-		sitDiscount,
-	)
-	if err != nil {
-		return CostByShipment{}, err
-	}
-
-	shipmentCost = CostByShipment{
-		Shipment: shipment,
-		Cost:     cost,
-	}
-	return shipmentCost, err
 }
 
 // NewRateEngine creates a new RateEngine

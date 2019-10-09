@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -21,6 +22,9 @@ func initGenMigrationFlags(flag *pflag.FlagSet) {
 	// Migration File Config
 	cli.InitMigrationFileFlags(flag)
 
+	// Migration Gen Path Config
+	cli.InitMigrationGenPathFlags(flag)
+
 	// Sort command line flags
 	flag.SortFlags = true
 }
@@ -35,6 +39,10 @@ func checkGenMigrationConfig(v *viper.Viper) error {
 		return err
 	}
 
+	if err := cli.CheckMigrationGenPath(v); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -42,15 +50,19 @@ func genMigrationFunction(cmd *cobra.Command, args []string) error {
 
 	err := cmd.ParseFlags(args)
 	if err != nil {
-		return errors.Wrap(err, "Could not parse flags")
+		return errors.Wrap(err, "could not ParseFlags on args")
 	}
 
 	flag := cmd.Flags()
+	err = flag.Parse(os.Args[1:])
+	if err != nil {
+		return errors.Wrap(err, "could not parse flags")
+	}
 
 	v := viper.New()
 	err = v.BindPFlags(flag)
 	if err != nil {
-		return errors.Wrap(err, "Could not bind flags")
+		return errors.Wrap(err, "could not bind flags")
 	}
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
@@ -60,7 +72,7 @@ func genMigrationFunction(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	migrationPath := v.GetString(cli.MigrationPathFlag)
+	migrationPath := v.GetString(cli.MigrationGenPathFlag)
 	migrationManifest := v.GetString(cli.MigrationManifestFlag)
 	migrationVersion := v.GetString(cli.MigrationVersionFlag)
 	migrationName := v.GetString(cli.MigrationNameFlag)

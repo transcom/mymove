@@ -27,10 +27,11 @@ func TestFuelPriceSuite(t *testing.T) {
 
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 
-	hs := &FuelPriceServiceSuite{
+	ts := &FuelPriceServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 		storer:       fakeS3,
 	}
-	suite.Run(t, hs)
+	suite.Run(t, ts)
+	ts.PopTestSuite.TearDown()
 }

@@ -196,6 +196,22 @@
     {
       "name": "DEBUG_PPROF",
       "value": "{{ .DEBUG_PPROF }}"
+    },
+    {
+      "name": "SERVE_ADMIN",
+      "value": "{{ .SERVE_ADMIN }}"
+    },
+    {
+      "name": "SERVE_SDDC",
+      "value": "{{ .SERVE_SDDC }}"
+    },
+    {
+      "name": "SERVE_DPS",
+      "value": "{{ .SERVE_DPS }}"
+    },
+    {
+      "name": "SERVE_API_INTERNAL",
+      "value": "{{ .SERVE_API_INTERNAL }}"
     }
   ],
   "logConfiguration": {

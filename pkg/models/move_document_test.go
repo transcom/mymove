@@ -26,77 +26,6 @@ func (suite *ModelSuite) TestBasicMoveDocumentInstantiation() {
 	suite.verifyValidationErrors(moveDoc, expErrors)
 }
 
-func (suite *ModelSuite) TestFetchMoveDocumentsByTypeForShipment() {
-	// When: There is a move, shipment, and move document of type GBL
-	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
-	shipment := testdatagen.MakeDefaultShipment(suite.DB())
-
-	sm := shipment.Move.Orders.ServiceMember
-
-	assertions := testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
-			MoveID:           shipment.Move.ID,
-			Move:             shipment.Move,
-			ShipmentID:       &shipment.ID,
-			Status:           "OK",
-			MoveDocumentType: "GOV_BILL_OF_LADING",
-		},
-		Document: models.Document{
-			ServiceMemberID: sm.ID,
-			ServiceMember:   sm,
-		},
-		TransportationServiceProvider: models.TransportationServiceProvider{
-			ID: tspUser.TransportationServiceProvider.ID,
-		},
-		Shipment: models.Shipment{
-			ID: shipment.ID,
-		},
-		ShipmentOffer: models.ShipmentOffer{
-			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
-			Shipment:                        shipment,
-			ShipmentID:                      shipment.ID,
-		},
-	}
-
-	testdatagen.MakeMoveDocument(suite.DB(), assertions)
-	testdatagen.MakeMoveDocument(suite.DB(), assertions)
-	testdatagen.MakeShipmentOffer(suite.DB(), assertions)
-	// When: the logged in user is a TSP user
-	session := &auth.Session{
-		ApplicationName: auth.TspApp,
-		UserID:          *tspUser.UserID,
-		TspUserID:       tspUser.ID,
-	}
-
-	moveDocs, err := FetchMoveDocumentsByTypeForShipment(suite.DB(), session, MoveDocumentTypeGOVBILLOFLADING, shipment.ID)
-
-	if suite.NoError(err) {
-		suite.Equal(2, len(moveDocs))
-		for _, moveDoc := range moveDocs {
-			suite.Equal(moveDoc.MoveDocumentType, MoveDocumentTypeGOVBILLOFLADING)
-			suite.Equal(moveDoc.Status, MoveDocumentStatusOK)
-			suite.Equal(*moveDoc.ShipmentID, shipment.ID)
-			suite.Equal(moveDoc.MoveID, shipment.Move.ID)
-		}
-	}
-
-	// When: a document doesn't exist
-	nonExistantDocs, err := FetchMoveDocumentsByTypeForShipment(suite.DB(), session, MoveDocumentTypeSHIPMENTSUMMARY, shipment.ID)
-	// Then: No docs should be returned
-	if suite.NoError(err) {
-		suite.Equal(0, len(nonExistantDocs))
-	}
-	// When: a user without authority is logged in
-	session = &auth.Session{
-		ApplicationName: auth.TspApp,
-		UserID:          sm.UserID,
-		TspUserID:       sm.ID,
-	}
-	_, err = FetchMoveDocumentsByTypeForShipment(suite.DB(), session, MoveDocumentTypeSHIPMENTSUMMARY, shipment.ID)
-	// Then: FetchForbiddenError should be returned
-	suite.Equal("FETCH_NOT_FOUND", err.Error())
-}
-
 func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 	// When: There is a move, ppm, move document and 2 expense docs
 	ppm := testdatagen.MakeDefaultPPM(suite.DB())
@@ -119,6 +48,24 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 	testdatagen.MakeMovingExpenseDocument(suite.DB(), assertions)
 	testdatagen.MakeMovingExpenseDocument(suite.DB(), assertions)
 
+	deletedAt := time.Date(2019, 8, 7, 0, 0, 0, 0, time.UTC)
+	deleteAssertions := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm.Move.ID,
+			Move:                     ppm.Move,
+			PersonallyProcuredMoveID: &ppm.ID,
+			Status:                   "OK",
+			MoveDocumentType:         "EXPENSE",
+			DeletedAt:                &deletedAt,
+		},
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+			DeletedAt:       &deletedAt,
+		},
+	}
+	testdatagen.MakeMovingExpenseDocument(suite.DB(), deleteAssertions)
+
 	// User is authorized to fetch move doc
 	session := &auth.Session{
 		ApplicationName: auth.MilApp,
@@ -127,7 +74,7 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 	}
 
 	status := MoveDocumentStatusOK
-	moveDocs, err := FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status, MoveDocumentTypeEXPENSE)
+	moveDocs, err := FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status, MoveDocumentTypeEXPENSE, false)
 
 	if suite.NoError(err) {
 		suite.Equal(2, len(moveDocs))
@@ -139,10 +86,14 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 		}
 	}
 
+	allMoveDocs, err2 := FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status, MoveDocumentTypeEXPENSE, true)
+	if suite.NoError(err2) {
+		suite.Equal(3, len(allMoveDocs))
+	}
 	// When: the user is not authorized to fetch movedocs
 	session.UserID = uuid.Must(uuid.NewV4())
 	session.ServiceMemberID = uuid.Must(uuid.NewV4())
-	_, err = FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status, MoveDocumentTypeEXPENSE)
+	_, err = FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status, MoveDocumentTypeEXPENSE, false)
 	if suite.Error(err) {
 		suite.Equal(ErrFetchForbidden, err)
 	}
@@ -153,7 +104,7 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 	session.OfficeUserID = officeUser.ID
 	session.ApplicationName = auth.OfficeApp
 
-	moveDocsOffice, err := FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status, MoveDocumentTypeEXPENSE)
+	moveDocsOffice, err := FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status, MoveDocumentTypeEXPENSE, false)
 	if suite.NoError(err) {
 		for _, moveDoc := range moveDocsOffice {
 			suite.Equal(moveDoc.MoveID, ppm.Move.ID)
@@ -192,7 +143,7 @@ func (suite *ModelSuite) TestFetchMovingExpenseDocumentsStorageExpense() {
 		ServiceMemberID: sm.ID,
 	}
 
-	expenses, err := FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, nil, MoveDocumentTypeEXPENSE)
+	expenses, err := FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, nil, MoveDocumentTypeEXPENSE, false)
 
 	if suite.NoError(err) {
 		suite.Equal(1, len(expenses))
@@ -243,7 +194,7 @@ func (suite *ModelSuite) TestFetchMovingExpenseDocuments() {
 		ServiceMemberID: sm.ID,
 	}
 
-	allExpenses, err := FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, nil, MoveDocumentTypeEXPENSE)
+	allExpenses, err := FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, nil, MoveDocumentTypeEXPENSE, false)
 	if suite.NoError(err) {
 		suite.Equal(2, len(allExpenses))
 		for _, moveDoc := range allExpenses {
@@ -252,7 +203,7 @@ func (suite *ModelSuite) TestFetchMovingExpenseDocuments() {
 		}
 	}
 
-	approvedExpenses, err := FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status, MoveDocumentTypeEXPENSE)
+	approvedExpenses, err := FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status, MoveDocumentTypeEXPENSE, false)
 	if suite.NoError(err) {
 		suite.Equal(1, len(approvedExpenses))
 		for _, moveDoc := range approvedExpenses {
@@ -282,9 +233,9 @@ func (suite *ModelSuite) TestFetchMovingExpenseDocumentsAuth() {
 		ApplicationName: auth.MilApp,
 	}
 
-	_, err1 := FetchMoveDocuments(suite.DB(), authorizedSession, ppm.Move.PersonallyProcuredMoves[0].ID, nil, MoveDocumentTypeEXPENSE)
-	_, err2 := FetchMoveDocuments(suite.DB(), officeSession, ppm.Move.PersonallyProcuredMoves[0].ID, nil, MoveDocumentTypeEXPENSE)
-	_, err3 := FetchMoveDocuments(suite.DB(), unauthorizedSession, ppm.Move.PersonallyProcuredMoves[0].ID, nil, MoveDocumentTypeEXPENSE)
+	_, err1 := FetchMoveDocuments(suite.DB(), authorizedSession, ppm.Move.PersonallyProcuredMoves[0].ID, nil, MoveDocumentTypeEXPENSE, false)
+	_, err2 := FetchMoveDocuments(suite.DB(), officeSession, ppm.Move.PersonallyProcuredMoves[0].ID, nil, MoveDocumentTypeEXPENSE, false)
+	_, err3 := FetchMoveDocuments(suite.DB(), unauthorizedSession, ppm.Move.PersonallyProcuredMoves[0].ID, nil, MoveDocumentTypeEXPENSE, false)
 
 	suite.Nil(err1)
 	suite.Nil(err2)
@@ -313,7 +264,7 @@ func (suite *ModelSuite) TestFetchMoveDocument() {
 		ServiceMemberID: sm.ID,
 	}
 
-	moveDoc, err := FetchMoveDocument(suite.DB(), session, moveDocument.ID)
+	moveDoc, err := FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	if suite.NoError(err) {
 		suite.Equal(moveDocument.MoveID, moveDoc.MoveID)
 	}
@@ -321,7 +272,7 @@ func (suite *ModelSuite) TestFetchMoveDocument() {
 	// When: the user is not authorized to fetch movedoc
 	session.UserID = uuid.Must(uuid.NewV4())
 	session.ServiceMemberID = uuid.Must(uuid.NewV4())
-	_, err = FetchMoveDocument(suite.DB(), session, moveDocument.ID)
+	_, err = FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	if suite.Error(err) {
 		suite.Equal(ErrFetchForbidden, err)
 	}
@@ -333,7 +284,7 @@ func (suite *ModelSuite) TestFetchMoveDocument() {
 	session.ApplicationName = auth.OfficeApp
 
 	// Then: move document is returned
-	moveDocOfficeUser, err := FetchMoveDocument(suite.DB(), session, moveDocument.ID)
+	moveDocOfficeUser, err := FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
 	if suite.NoError(err) {
 		suite.Equal(moveDocOfficeUser.MoveID, moveDoc.MoveID)
 	}
@@ -388,4 +339,35 @@ func (suite *ModelSuite) TestMoveDocumentStatuses() {
 	suite.NoError(err)
 	suite.Equal(moveDocument.Status, MoveDocumentStatusOK)
 
+}
+
+func (suite *ModelSuite) TestDeleteMoveDocument() {
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	sm := ppm.Move.Orders.ServiceMember
+
+	assertions := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm.Move.ID,
+			Move:                     ppm.Move,
+			PersonallyProcuredMoveID: &ppm.ID,
+			Status:                   "OK",
+			MoveDocumentType:         "EXPENSE",
+		},
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+		},
+	}
+
+	expenseDoc := testdatagen.MakeMovingExpenseDocument(suite.DB(), assertions)
+	moveDocument := expenseDoc.MoveDocument
+	suite.Nil(expenseDoc.DeletedAt)
+	suite.Nil(moveDocument.DeletedAt)
+
+	err := DeleteMoveDocument(suite.DB(), &moveDocument)
+
+	if suite.NoError(err) {
+		suite.NotNil(moveDocument.DeletedAt)
+		suite.NotNil(moveDocument.MovingExpenseDocument.DeletedAt)
+	}
 }

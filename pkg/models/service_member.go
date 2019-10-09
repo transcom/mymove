@@ -109,25 +109,6 @@ func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session 
 	// TODO: Handle case where more than one user is authorized to modify serviceMember
 	if session.IsMilApp() && serviceMember.ID != session.ServiceMemberID {
 		return ServiceMember{}, ErrFetchForbidden
-	} else if session.IsTspApp() {
-		// A TspUser is only allowed to interact with a service member if they are associated with one of their shipments.
-		query := `
-			SELECT tsp_users.id FROM tsp_users, shipment_offers, shipments
-			WHERE
-				tsp_users.transportation_service_provider_id = shipment_offers.transportation_service_provider_id
-				AND shipment_offers.shipment_id = shipments.id
-				AND shipment_offers.accepted IS NOT FALSE
-				AND tsp_users.id = $1
-				AND shipments.service_member_id = $2
-		`
-
-		count, err := db.RawQuery(query, session.TspUserID, serviceMember.ID).Count(TspUser{})
-		if err != nil {
-			return ServiceMember{}, err
-		}
-		if count == 0 {
-			return ServiceMember{}, ErrFetchForbidden
-		}
 	}
 
 	// TODO: Remove this when Pop's eager loader stops populating blank structs into these fields
@@ -238,8 +219,6 @@ func (s ServiceMember) CreateOrder(db *pop.Connection,
 	spouseHasProGear bool,
 	newDutyStation DutyStation,
 	ordersNumber *string,
-	paragraphNumber *string,
-	ordersIssuingAgency *string,
 	tac *string,
 	sac *string,
 	departmentIndicator *string) (Order, *validate.Errors, error) {
@@ -275,8 +254,6 @@ func (s ServiceMember) CreateOrder(db *pop.Connection,
 			UploadedOrdersID:    uploadedOrders.ID,
 			Status:              OrderStatusDRAFT,
 			OrdersNumber:        ordersNumber,
-			ParagraphNumber:     paragraphNumber,
-			OrdersIssuingAgency: ordersIssuingAgency,
 			TAC:                 tac,
 			SAC:                 sac,
 			DepartmentIndicator: departmentIndicator,

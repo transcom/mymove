@@ -3,6 +3,8 @@ package adminapi
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/services/query"
+
 	"github.com/go-openapi/runtime/middleware"
 
 	officeop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
@@ -29,6 +31,7 @@ type IndexOfficesHandler struct {
 	handlers.HandlerContext
 	services.OfficeListFetcher
 	services.NewQueryFilter
+	services.NewPagination
 }
 
 // Handle retrieves a list of office users
@@ -37,16 +40,25 @@ func (h IndexOfficesHandler) Handle(params officeop.IndexOfficesParams) middlewa
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
 	queryFilters := []services.QueryFilter{}
 
-	offices, err := h.OfficeListFetcher.FetchOfficeList(queryFilters)
+	pagination := h.NewPagination(params.Page, params.PerPage)
+	associations := query.NewQueryAssociations([]services.QueryAssociation{})
+
+	offices, err := h.OfficeListFetcher.FetchOfficeList(queryFilters, associations, pagination)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	officesCount := len(offices)
-	payload := make(adminmessages.TransportationOffices, officesCount)
+	totalOfficesCount, err := h.DB().Count(&models.TransportationOffice{})
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	queriedOfficesCount := len(offices)
+
+	payload := make(adminmessages.TransportationOffices, queriedOfficesCount)
 	for i, s := range offices {
 		payload[i] = payloadForOfficeModel(s)
 	}
 
-	return officeop.NewIndexOfficesOK().WithContentRange(fmt.Sprintf("offices 0-%d/%d", officesCount, officesCount)).WithPayload(payload)
+	return officeop.NewIndexOfficesOK().WithContentRange(fmt.Sprintf("offices %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficesCount, totalOfficesCount)).WithPayload(payload)
 }

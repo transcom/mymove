@@ -22,6 +22,8 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { RetrieveMovesForOffice } from './api';
 
 import './office.scss';
+import TOO from './TOO/too';
+import { withContext } from 'shared/AppContext';
 
 export class Queues extends Component {
   render() {
@@ -73,6 +75,7 @@ export class OfficeWrapper extends Component {
 
   render() {
     const ConditionalWrap = ({ condition, wrap, children }) => (condition ? wrap(children) : <>{children}</>);
+    const { context: { flags: { too } } = { flags: { too: null } } } = this.props;
     const DivOrMainTag = detectIE11() ? 'div' : 'main';
     const { userIsLoggedIn } = this.props;
     return (
@@ -151,6 +154,7 @@ export class OfficeWrapper extends Component {
                     )}
                   />
                 )}
+                {too && <PrivateRoute path="/ghc/too" component={TOO} />}
               </Switch>
             )}
           </ConditionalWrap>
@@ -175,8 +179,9 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators({ loadInternalSchema, loadPublicSchema, getCurrentUserInfo }, dispatch);
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(OfficeWrapper);
+export default withContext(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(OfficeWrapper),
+);

@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
 	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
 
@@ -34,6 +35,7 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.PpmCreatePersonallyProcuredMoveHandler = CreatePersonallyProcuredMoveHandler{context}
 	internalAPI.PpmIndexPersonallyProcuredMovesHandler = IndexPersonallyProcuredMovesHandler{context}
 	internalAPI.PpmPatchPersonallyProcuredMoveHandler = PatchPersonallyProcuredMoveHandler{context}
+	internalAPI.PpmUpdatePersonallyProcuredMoveEstimateHandler = UpdatePersonallyProcuredMoveEstimateHandler{context}
 	internalAPI.PpmSubmitPersonallyProcuredMoveHandler = SubmitPersonallyProcuredMoveHandler{context}
 	internalAPI.PpmShowPPMEstimateHandler = ShowPPMEstimateHandler{context}
 	internalAPI.PpmShowPPMSitEstimateHandler = ShowPPMSitEstimateHandler{context}
@@ -60,6 +62,7 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 		movedocument.NewMoveDocumentUpdater(context.DB()),
 	}
 	internalAPI.MoveDocsIndexMoveDocumentsHandler = IndexMoveDocumentsHandler{context}
+	internalAPI.MoveDocsDeleteMoveDocumentHandler = DeleteMoveDocumentHandler{context}
 
 	internalAPI.MoveDocsCreateMovingExpenseDocumentHandler = CreateMovingExpenseDocumentHandler{context}
 
@@ -83,12 +86,6 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	internalAPI.QueuesShowQueueHandler = ShowQueueHandler{context}
 
-	internalAPI.ShipmentsCreateShipmentHandler = CreateShipmentHandler{context}
-	internalAPI.ShipmentsPatchShipmentHandler = PatchShipmentHandler{context}
-	internalAPI.ShipmentsGetShipmentHandler = GetShipmentHandler{context}
-	internalAPI.ShipmentsApproveHHGHandler = ApproveHHGHandler{context}
-	internalAPI.ShipmentsCreateAndSendHHGInvoiceHandler = ShipmentInvoiceHandler{context}
-
 	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler{context}
 	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler{context}
 	internalAPI.OfficeApproveReimbursementHandler = ApproveReimbursementHandler{context}
@@ -109,6 +106,11 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		postalcodeservice.NewPostalCodeValidator(context.DB()),
 	}
+
+	// Access Codes
+	internalAPI.AccesscodeFetchAccessCodeHandler = FetchAccessCodeHandler{context, accesscodeservice.NewAccessCodeFetcher(context.DB())}
+	internalAPI.AccesscodeValidateAccessCodeHandler = ValidateAccessCodeHandler{context, accesscodeservice.NewAccessCodeValidator(context.DB())}
+	internalAPI.AccesscodeClaimAccessCodeHandler = ClaimAccessCodeHandler{context, accesscodeservice.NewAccessCodeClaimer(context.DB())}
 
 	return internalAPI.Serve(nil)
 }

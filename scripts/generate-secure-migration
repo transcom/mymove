@@ -47,8 +47,9 @@ readonly prod_migration_name="${prod_migrations_temp_dir}/${secure_migration_nam
 # Create empty file for local test migration
 cat > "${local_test_migration_name}" << EOM
 -- Local test migration.
--- This will be run on development environments. It should mirror what you
--- intend to apply on production, but do not include any sensitive data.
+-- This will be run on development environments.
+-- It should mirror what you intend to apply on prod/staging/experimental
+-- DO NOT include any sensitive data.
 EOM
 
 # Create empty file for real secure migration
@@ -73,7 +74,7 @@ Next:
     3. If everything looks good, upload the migration to S3 with this utility:
        scripts/upload-secure-migration \\
           ${prod_migration_name}
-    4. Run scripts/run-prod-migrations to verify that the upload worked and that the migration can be applied successfully.
+    4. Run make run_prod_migrations to verify that the upload worked and that the migration can be applied successfully.
     5. Open a pull request for this change; when it is accepted, your migration will run on staging.
 EOM
 

@@ -43,8 +43,6 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		SpouseHasProGear:    handlers.FmtBool(order.SpouseHasProGear),
 		UploadedOrders:      documentPayload,
 		OrdersNumber:        order.OrdersNumber,
-		ParagraphNumber:     order.ParagraphNumber,
-		OrdersIssuingAgency: order.OrdersIssuingAgency,
 		Moves:               moves,
 		Tac:                 order.TAC,
 		Sac:                 order.SAC,
@@ -102,8 +100,6 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		*payload.SpouseHasProGear,
 		dutyStation,
 		payload.OrdersNumber,
-		payload.ParagraphNumber,
-		payload.OrdersIssuingAgency,
 		payload.Tac,
 		payload.Sac,
 		deptIndicator)
@@ -182,8 +178,6 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 	}
 
 	order.OrdersNumber = payload.OrdersNumber
-	order.ParagraphNumber = payload.ParagraphNumber
-	order.OrdersIssuingAgency = payload.OrdersIssuingAgency
 	order.IssueDate = time.Time(*payload.IssueDate)
 	order.ReportByDate = time.Time(*payload.ReportByDate)
 	order.OrdersType = payload.OrdersType

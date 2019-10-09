@@ -3,6 +3,7 @@ package notifications
 import (
 	"bytes"
 	"context"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
@@ -26,6 +27,7 @@ type emailContent struct {
 	subject        string
 	htmlBody       string
 	textBody       string
+	onSuccess      func(string) error
 }
 
 // NotificationSender is an interface for sending notifications
@@ -60,7 +62,7 @@ func (n NotificationSendingContext) SendNotification(ctx context.Context, notifi
 }
 
 // InitEmail initializes the email backend
-func InitEmail(v *viper.Viper, sess *awssession.Session, logger Logger) NotificationSender {
+func InitEmail(v *viper.Viper, sess *awssession.Session, logger Logger) (NotificationSender, error) {
 	if v.GetString(cli.EmailBackendFlag) == "ses" {
 		// Setup Amazon SES (email) service
 		// TODO: This might be able to be combined with the AWS Session that we're using for S3 down
@@ -71,16 +73,22 @@ func InitEmail(v *viper.Viper, sess *awssession.Session, logger Logger) Notifica
 			zap.String("region", awsSESRegion),
 			zap.String("domain", awsSESDomain))
 		sesService := ses.New(sess)
-		return NewNotificationSender(sesService, awsSESDomain, logger)
+		input := &ses.GetAccountSendingEnabledInput{}
+		result, err := sesService.GetAccountSendingEnabled(input)
+		if err != nil || result == nil || *result.Enabled != true {
+			logger.Error("email sending not enabled", zap.Error(err))
+			return NewNotificationSender(sesService, awsSESDomain, logger), err
+		}
+		return NewNotificationSender(sesService, awsSESDomain, logger), nil
 	}
 
 	domain := "milmovelocal"
 	logger.Info("Using local email backend", zap.String("domain", domain))
-	return NewStubNotificationSender(domain, logger)
+	return NewStubNotificationSender(domain, logger), nil
 }
 
 func sendEmails(emails []emailContent, svc sesiface.SESAPI, domain string, logger Logger) error {
-	for _, email := range emails {
+	for i, email := range emails {
 		rawMessage, err := formatRawEmailMessage(email, domain)
 		if err != nil {
 			return err
@@ -93,13 +101,20 @@ func sendEmails(emails []emailContent, svc sesiface.SESAPI, domain string, logge
 		}
 
 		// Returns the message ID. Should we store that somewhere?
-		_, err = svc.SendRawEmail(&input)
+		sendRawEmailOutput, err := svc.SendRawEmail(&input)
 		if err != nil {
 			return errors.Wrap(err, "Failed to send email using SES")
 		}
-
-		logger.Info("Sent email to service member",
-			zap.String("service member email address", email.recipientEmail))
+		if email.onSuccess != nil && sendRawEmailOutput.MessageId != nil {
+			err := email.onSuccess(*sendRawEmailOutput.MessageId)
+			if err != nil {
+				logger.Error("email.onSuccess error", zap.Error(err))
+			}
+		}
+		// rate limited if exceed > 80 emails / second. delay to prevent hitting the limit
+		if i > 0 {
+			time.Sleep(20 * time.Millisecond)
+		}
 	}
 
 	return nil

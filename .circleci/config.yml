@@ -87,8 +87,19 @@ commands:
       - attach_workspace:
           at: bin
       - deploy:
-          name: Deploy task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command save-fuel-price-data --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2"
+          name: Deploy fuel price data task service
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command "milmove-tasks save-fuel-price-data" --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2"
+          environment:
+            DB_PORT: 5432
+            DB_USER: ecs_user
+            DB_NAME: app
+            DB_SSL_MODE: verify-full
+            DB_SSL_ROOT_CERT: /bin/rds-combined-ca-bundle.pem
+          no_output_timeout: 20m
+      - announce_failure
+      - deploy:
+          name: Deploy post move email survey task service
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command "milmove-tasks send-post-move-survey" --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2 --email-backend=ses --offset-days 15"
           environment:
             DB_PORT: 5432
             DB_USER: ecs_user
@@ -170,8 +181,9 @@ commands:
             bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
             docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
-            docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//#}
-            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//#}
+            shopt -s extglob
+            docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
+            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
   e2e_tests:
     steps:
       - run:
@@ -203,7 +215,7 @@ commands:
 jobs:
   # `pre_deps_golang` is used for caching Go module sources
   pre_deps_golang:
-    executor: mymove_small
+    executor: mymove_medium
     steps:
       - checkout
       - restore_cache:
@@ -211,7 +223,9 @@ jobs:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
       - run:
           name: Install dependencies
-          command: for i in $(seq 1 5); do go get && s=0 && break || s=$? && sleep 5; done; (exit $s)
+          command: for i in $(seq 1 5); do go get ./... && s=0 && break || s=$? && sleep 5; done; (exit $s)
+          environment:
+            GOPROXY: https://gocenter.io
       - save_cache:
           key: go-mod-sources-v2-{{ checksum "go.sum" }}
           paths:
@@ -220,7 +234,7 @@ jobs:
 
   # `pre_deps_yarn` is used to cache yarn sources and installed node modules.
   pre_deps_yarn:
-    executor: mymove_small
+    executor: mymove_medium
     steps:
       - checkout
       - restore_cache:
@@ -244,6 +258,33 @@ jobs:
             - ~/transcom/mymove/node_modules
       - announce_failure
 
+  # `check_generated_code` is used to ensure generated code doesn't change
+  check_generated_code:
+    executor: mymove_small
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-sources-v2-{{ checksum "go.sum" }}
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run: make server_generate mocks_generate
+      - run: scripts/check-generated-code
+      - save_cache:
+          key: go-mod-sources-v2-{{ checksum "go.sum" }}
+          paths:
+            - "/go/pkg/mod"
+      - announce_failure
+
+  # `anti_virus` uses virus detection software to scan the source code
+  anti_virus:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run: make anti_virus
+      - announce_failure
+
   # `pre_test` runs pre-commit against all files.
   pre_test:
     executor: mymove_medium_plus
@@ -263,8 +304,7 @@ jobs:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: echo 'export GOLANGCI_LINT_CONCURRENCY=1' >> $BASH_ENV
-      - run: make bin/callgraph
-      - run: make server_generate mocks_generate
+      - run: make bin/swagger
       # this is so we can avoid go mod downloading and resulting in an error on a false positive
       - run: scripts/pre-commit-go-mod || exit 0
       - run:
@@ -285,10 +325,6 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
-      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
-      - run:
-          name: Run make server_generate mocks_generate
-          command: make server_generate mocks_generate
       - run:
           name: Run acceptance tests
           command: |
@@ -315,7 +351,7 @@ jobs:
   # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
   integration_tests:
     parallelism: 10
-    executor: mymove_medium
+    executor: mymove_medium_plus
     steps:
       - checkout
       - setup_remote_docker:
@@ -351,22 +387,21 @@ jobs:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
       - run:
-          # This is needed to use `psql` to test DB connectivity, until the app
-          # itself starts making database connections.
-          name: Install postgres client
-          command: |
-            # Debian stretch only supports 9.6 client, so add the Postgresql apt repository for 10.x
-            echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" | sudo tee -a /etc/apt/sources.list.d/pgdg.list
-            wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-            sudo apt-get -qq update
-            sudo apt-get -qq -y install postgresql-client-10
+          name: Build Go Junit Report
+          command: make bin/go-junit-report
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run: make bin/milmove
+      - run: make db_test_reset
+      - run: make db_test_migrate
       - run:
-          name: make server_test
+          name: make server_test_standalone
           command: |
             echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
             source $BASH_ENV
-            make server_test
+            mkdir -p tmp/test-results/gotest
+            # setup a trap incase the tests fail, we still want to generate the report
+            trap "bin/go-junit-report < tmp/test-results/gotest/go-test.out >  tmp/test-results/gotest/go-test-report.xml" EXIT
+            make server_test_standalone | tee tmp/test-results/gotest/go-test.out
           environment:
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
@@ -374,12 +409,18 @@ jobs:
             DB_PORT_TEST: 5433
             DB_PORT: 5432
             DB_NAME: test_db
+            DB_NAME_TEST: test_db
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
             MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
             MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
-
+            SERVE_API_INTERNAL: true
+      - store_artifacts:
+          path: ~/transcom/mymove/tmp/test-results
+          destination: test-results
+      - store_test_results:
+          path: ~/transcom/mymove/tmp/test-results
       - announce_failure
 
   # `server_test_coverage` runs code coverage and submits it to CodeClimate
@@ -392,16 +433,6 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
-      - run:
-          # This is needed to use `psql` to test DB connectivity, until the app
-          # itself starts making database connections.
-          name: Install postgres client
-          command: |
-            # Debian stretch only supports 9.6 client, so add the Postgresql apt repository for 10.x
-            echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" | sudo tee -a /etc/apt/sources.list.d/pgdg.list
-            wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-            sudo apt-get -qq update
-            sudo apt-get -qq -y install postgresql-client-10
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: Setup Code Climate test-reporter
@@ -428,6 +459,7 @@ jobs:
             ENVIRONMENT: test
             MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
             MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
+            SERVE_API_INTERNAL: true
       - run:
           name: upload code coverage to codecov
           command: |
@@ -453,7 +485,7 @@ jobs:
 
   # `build_tools` builds the mymove-specific CLI tools in `mymove/cmd`
   build_tools:
-    executor: mymove_small
+    executor: mymove_medium_plus
     steps:
       - checkout
       - restore_cache:
@@ -496,9 +528,25 @@ jobs:
           repo: app
       - announce_failure
 
+  # `build_storybook_app` builds the storybook application container and pushes to the container repository
+  build_storybook_app:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          keys:
+            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - run: make storybook_build
+      - announce_failure
+
   # `build_migrations` builds the migrations container and pushes to the container repository
   build_migrations:
-    executor: mymove_small
+    executor: mymove_medium
     steps:
       - checkout
       - setup_remote_docker:
@@ -514,7 +562,7 @@ jobs:
 
   # `build_tasks` builds the tasks containers and pushes them to the container repository
   build_tasks:
-    executor: mymove_small
+    executor: mymove_medium
     steps:
       - checkout
       - setup_remote_docker:
@@ -539,10 +587,6 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
-      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
-      - run:
-          name: Run make server_generate mocks_generate
-          command: make server_generate mocks_generate
       - run:
           name: Build Chamber
           command: make bin/chamber
@@ -557,6 +601,7 @@ jobs:
             DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
             TEST_ACC_ENV: experimental
             NO_TLS_ENABLED: true
+            DB_REGION: us-west-2
       - announce_failure
 
   # `deploy_experimental_migrations` deploys migrations to the experimental environment
@@ -611,10 +656,6 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
-      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
-      - run:
-          name: Run make server_generate mocks_generate
-          command: make server_generate mocks_generate
       - run:
           name: Build Chamber
           command: make bin/chamber
@@ -723,7 +764,7 @@ jobs:
             git --no-pager diff --ignore-all-space --color
       - run:
           name: Push changes
-          command: scripts/circleci-push-dependency-updates
+          command: scripts/circleci-push-dependency-updates golang
 
   # `update_dependencies_js` periodically updates yarn dependencies.
   # The changes are submitted as a pull request for review.
@@ -745,7 +786,7 @@ jobs:
             git --no-pager diff --ignore-all-space --color
       - run:
           name: Push changes
-          command: scripts/circleci-push-dependency-updates
+          command: scripts/circleci-push-dependency-updates js
 
   # `update_dependencies_pre_commit` periodically updates pre-commit dependencies.
   # The changes are submitted as a pull request for review.
@@ -761,7 +802,7 @@ jobs:
             git --no-pager diff --ignore-all-space --color
       - run:
           name: Push changes
-          command: scripts/circleci-push-dependency-updates
+          command: scripts/circleci-push-dependency-updates pre-commit
 
 workflows:
   version: 2
@@ -771,6 +812,15 @@ workflows:
       - pre_deps_golang
 
       - pre_deps_yarn
+
+      - check_generated_code:
+          requires:
+            - pre_deps_golang
+
+      - anti_virus:
+          filters:
+            branches:
+              only: master
 
       - pre_test:
           requires:
@@ -796,50 +846,59 @@ workflows:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+            - check_generated_code
             - build_app
             - build_migrations
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+              branches:
+                  ignore: placeholder_branch_name
 
       - client_test:
           requires:
             - pre_deps_yarn
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+              branches:
+                ignore: placeholder_branch_name
 
       - server_test:
           requires:
             - pre_deps_golang
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+              branches:
+                ignore: placeholder_branch_name
 
       - server_test_coverage:
           requires:
             - pre_deps_golang
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+              branches:
+                  ignore: placeholder_branch_name
 
       - build_app:
           requires:
+            - anti_virus
             - pre_deps_golang
             - pre_deps_yarn
             - acceptance_tests_local # don't bother building and pushing the application if it won't even start properly
 
+      - build_storybook_app:
+          requires:
+            - anti_virus
+            - pre_deps_yarn
+
       - build_tools:
           requires:
+            - anti_virus
             - pre_deps_golang
 
       - build_migrations:
           requires:
+            - anti_virus
             - pre_deps_golang
 
       - build_tasks:

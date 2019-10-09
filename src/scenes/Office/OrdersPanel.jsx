@@ -87,10 +87,6 @@ const OrdersDisplay = props => {
         <PanelField title="Report by" value={formatDate(orders.report_by_date)} />
         <PanelField title="Current Duty Station">{get(serviceMember, 'current_station.name', '')}</PanelField>
         <PanelField title="New Duty Station">{get(orders, 'new_duty_station.name', '')}</PanelField>
-
-        <PanelSwaggerField title="Orders Issuing Agency" fieldName="orders_issuing_agency" {...fieldProps} />
-
-        <PanelSwaggerField title="Paragraph Number" fieldName="paragraph_number" {...fieldProps} />
       </div>
       <div className="editable-panel-column">
         {renderEntitlements(entitlements, orders)}
@@ -123,12 +119,6 @@ const OrdersEdit = props => {
           <div className="usa-input duty-station">
             <Field name="new_duty_station" component={DutyStationSearchBox} props={{ title: 'New Duty Station' }} />
           </div>
-        </FormSection>
-
-        <FormSection name="orders">
-          <SwaggerField fieldName="orders_issuing_agency" swagger={schema} className="half-width" />
-
-          <SwaggerField fieldName="paragraph_number" swagger={schema} className="half-width" />
         </FormSection>
       </div>
       <div className="editable-panel-column">

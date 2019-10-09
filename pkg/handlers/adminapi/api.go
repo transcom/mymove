@@ -9,9 +9,14 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi"
 	adminops "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations"
 	"github.com/transcom/mymove/pkg/handlers"
+	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
+	adminuser "github.com/transcom/mymove/pkg/services/admin_user"
+	electronicorder "github.com/transcom/mymove/pkg/services/electronic_order"
 	"github.com/transcom/mymove/pkg/services/office"
+	officeuser "github.com/transcom/mymove/pkg/services/office_user"
+	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/services/user"
+	"github.com/transcom/mymove/pkg/services/upload"
 )
 
 // NewAdminAPIHandler returns a handler for the admin API
@@ -26,21 +31,28 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 	adminAPI := adminops.NewMymoveAPI(adminSpec)
 	queryBuilder := query.NewQueryBuilder(context.DB())
 
-	adminAPI.OfficeIndexOfficeUsersHandler = IndexOfficeUsersHandler{
+	adminAPI.OfficeUsersIndexOfficeUsersHandler = IndexOfficeUsersHandler{
 		context,
-		user.NewOfficeUserListFetcher(queryBuilder),
+		officeuser.NewOfficeUserListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
+
+	adminAPI.OfficeUsersGetOfficeUserHandler = GetOfficeUserHandler{
+		context,
+		officeuser.NewOfficeUserFetcher(queryBuilder),
 		query.NewQueryFilter,
 	}
 
-	adminAPI.OfficeGetOfficeUserHandler = GetOfficeUserHandler{
+	adminAPI.OfficeUsersCreateOfficeUserHandler = CreateOfficeUserHandler{
 		context,
-		user.NewOfficeUserFetcher(queryBuilder),
+		officeuser.NewOfficeUserCreator(queryBuilder),
 		query.NewQueryFilter,
 	}
 
-	adminAPI.OfficeCreateOfficeUserHandler = CreateOfficeUserHandler{
+	adminAPI.OfficeUsersUpdateOfficeUserHandler = UpdateOfficeUserHandler{
 		context,
-		user.NewOfficeUserCreator(queryBuilder),
+		officeuser.NewOfficeUserUpdater(queryBuilder),
 		query.NewQueryFilter,
 	}
 
@@ -48,6 +60,41 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		office.NewOfficeListFetcher(queryBuilder),
 		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
+
+	adminAPI.ElectronicOrderIndexElectronicOrdersHandler = IndexElectronicOrdersHandler{
+		context,
+		electronicorder.NewElectronicOrderListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
+
+	adminAPI.ElectronicOrderGetElectronicOrdersTotalsHandler = GetElectronicOrdersTotalsHandler{
+		context,
+		electronicorder.NewElectronicOrdersCategoricalCountsFetcher(queryBuilder),
+		query.NewQueryFilter,
+	}
+
+	adminAPI.AccessCodesIndexAccessCodesHandler = IndexAccessCodesHandler{
+		context,
+		accesscodeservice.NewAccessCodeListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
+
+	adminAPI.AdminUsersIndexAdminUsersHandler = IndexAdminUsersHandler{
+		context,
+		adminuser.NewAdminUserListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
+
+	adminAPI.UploadGetUploadHandler = GetUploadHandler{
+		context,
+		upload.NewUploadFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
 	}
 
 	return adminAPI.Serve(nil)

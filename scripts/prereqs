@@ -15,7 +15,7 @@ function has() {
     fi
 }
 
-has go "brew install go"
+has go "brew install go@1.12 && brew link --force go@1.12"
 has bash "brew install bash"
 has yarn "brew install yarn"
 has pre-commit "brew install pre-commit"
@@ -23,7 +23,9 @@ has shellcheck "brew install shellcheck"
 has docker "Get Docker CE for Mac from https://download.docker.com/mac/stable/Docker.dmg"
 has psql "brew install postgresql"
 has go-bindata "brew install go-bindata"
-has node "brew install node"
+has node "brew install node@10 && brew link --force node@10"
+has pkcs11-tool "brew install opensc; chmod go+w /usr/local/bin/pkcs11-tool; brew link opensc"
+has pkcs15-tool "brew install opensc; chmod go+w /usr/local/bin/pkcs15-tool; brew link opensc"
 
 # macOS only
 if [[ $(uname -s) = Darwin ]]; then

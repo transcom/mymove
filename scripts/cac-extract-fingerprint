@@ -1,0 +1,16 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+#
+# Get a sha256 hash of the certificate from CAC
+#
+
+readonly MODULE=/usr/local/lib/pkcs11/cackey.dylib
+readonly PKCS11=/usr/local/bin/pkcs11-tool
+
+# Check the CAC Pre-Requirements
+cac-prereqs
+
+# Fingerprint
+"${PKCS11}" -r --module "${MODULE}" -a "Identity #0" --type cert 2>/dev/null | openssl dgst -sha256| perl -ne 's/^\(stdin\)= //; print'

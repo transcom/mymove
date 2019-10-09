@@ -4,9 +4,9 @@ import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
 import { withLastLocation } from 'react-router-last-location';
-import { withContext } from 'shared/AppContext';
 
-import { MoveSummary, PPMAlert } from './MoveSummary';
+import { MoveSummary } from './MoveSummary';
+import PpmAlert from './PpmAlert';
 import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
@@ -68,12 +68,6 @@ export class Landing extends Component {
     this.props.push('profile-review');
   };
 
-  addPPMShipment = moveID => {
-    this.props.updateMove(moveID, 'HHG_PPM').then(() => {
-      this.props.push(`/moves/${moveID}/hhg-ppm-start`);
-    });
-  };
-
   getNextIncompletePage = () => {
     const { selectedMoveType, lastMoveIsCanceled, serviceMember, orders, move, ppm, backupContacts } = this.props;
     return getNextIncompletePageInternal({
@@ -88,7 +82,6 @@ export class Landing extends Component {
   };
   render() {
     const {
-      context,
       isLoggedIn,
       loggedInUserIsLoading,
       loggedInUserSuccess,
@@ -116,7 +109,7 @@ export class Landing extends Component {
                   You've submitted your move
                 </Alert>
               )}
-              {ppm && moveSubmitSuccess && <PPMAlert heading="Congrats - your move is submitted!" />}
+              {ppm && moveSubmitSuccess && <PpmAlert heading="Congrats - your move is submitted!" />}
               {loggedInUserError && (
                 <Alert type="error" heading="An error occurred">
                   There was an error loading your user information.
@@ -131,7 +124,6 @@ export class Landing extends Component {
 
             {isLoggedIn && !isEmpty(serviceMember) && isProfileComplete && (
               <MoveSummary
-                context={context}
                 entitlement={entitlement}
                 profile={serviceMember}
                 orders={orders}
@@ -143,7 +135,6 @@ export class Landing extends Component {
                 requestPaymentSuccess={requestPaymentSuccess}
                 moveSubmitSuccess={moveSubmitSuccess}
                 updateMove={updateMove}
-                addPPMShipment={this.addPPMShipment}
               />
             )}
           </Fragment>
@@ -184,11 +175,9 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ push, createServiceMember, updateMove }, dispatch);
 }
 
-export default withContext(
-  withLastLocation(
-    connect(
-      mapStateToProps,
-      mapDispatchToProps,
-    )(Landing),
-  ),
+export default withLastLocation(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(Landing),
 );

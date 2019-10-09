@@ -23,8 +23,6 @@ const (
 	MilMoveUserType string = "milmove"
 	// OfficeUserType is the type of user for an Office user
 	OfficeUserType string = "office"
-	// TspUserType is the type of user for a TSP user
-	TspUserType string = "tsp"
 	// DpsUserType is the type of user for a DPS user
 	DpsUserType string = "dps"
 	// AdminUserType is the type of user for an admin user
@@ -70,8 +68,6 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		MilMoveUserType string
 		IsOfficeApp     bool
 		OfficeUserType  string
-		IsTspApp        bool
-		TspUserType     string
 		DpsUserType     string
 		IsAdminApp      bool
 		AdminUserType   string
@@ -85,8 +81,6 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		MilMoveUserType: MilMoveUserType,
 		IsOfficeApp:     auth.OfficeApp == session.ApplicationName,
 		OfficeUserType:  OfficeUserType,
-		IsTspApp:        auth.TspApp == session.ApplicationName,
-		TspUserType:     TspUserType,
 		DpsUserType:     DpsUserType,
 		IsAdminApp:      auth.AdminApp == session.ApplicationName,
 		AdminUserType:   AdminUserType,
@@ -109,7 +103,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				<form method="post" action="/devlocal-auth/login">
 					<p>
 						<input type="hidden" name="gorilla.csrf.Token" value="{{$.CsrfToken}}">
-						<input type="hidden" name="userType" value="{{if $.IsTspApp}}{{$.TspUserType}}{{else if $.IsOfficeApp}}{{$.OfficeUserType}}{{else}}{{$.MilMoveUserType}}{{end}}">
+						<input type="hidden" name="userType" value="{{if $.IsOfficeApp}}{{$.OfficeUserType}}{{else}}{{$.MilMoveUserType}}{{end}}">
 						<label for="email">User Email</label>
 						<input type="text" name="email" size="60">
 						<button type="submit" data-hook="existing-user-login">Login</button>
@@ -127,9 +121,6 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						{{else if .DpsUserID}}
 						  ({{$.DpsUserType}})
 						  <input type="hidden" name="userType" value="{{$.DpsUserType}}">
-						{{else if .TspUserID}}
-						  ({{$.TspUserType}})
-						  <input type="hidden" name="userType" value="{{$.TspUserType}}">
 						{{else if .OfficeUserID}}
 						  ({{$.OfficeUserType}})
 						  <input type="hidden" name="userType" value="{{$.OfficeUserType}}">
@@ -177,14 +168,6 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
 				  <input type="hidden" name="userType" value="{{.OfficeUserType}}">
 				  <button type="submit" data-hook="new-user-login-{{.OfficeUserType}}">Create a New {{.OfficeUserType}} User</button>
-				</p>
-			  </form>
-			  {{else if $.IsTspApp }}
-			  <form method="post" action="/devlocal-auth/new">
-				<p>
-				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
-				  <input type="hidden" name="userType" value="{{.TspUserType}}">
-				  <button type="submit" data-hook="new-user-login-{{.TspUserType}}">Create a New {{.TspUserType}} User</button>
 				</p>
 			  </form>
 			  {{end}}
@@ -434,42 +417,6 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		if verrs.HasAny() {
 			h.logger.Error("validation errors creating office user", zap.Stringer("errors", verrs))
 		}
-	case TspUserType:
-		var tsp models.TransportationServiceProvider
-		h.db.Where("standard_carrier_alpha_code = $1", "TRS1").First(&tsp)
-		if tsp.ID == uuid.Nil {
-			// TSP not found, create one for Truss
-			tsp = models.TransportationServiceProvider{
-				StandardCarrierAlphaCode: "TRSS",
-			}
-			verrs, err := h.db.ValidateAndSave(&tsp)
-			if err != nil {
-				h.logger.Error("could not create TSP", zap.Error(err))
-			}
-			if verrs.HasAny() {
-				h.logger.Error("validation errors creating TSP", zap.Stringer("errors", verrs))
-			}
-		}
-
-		tspUser := models.TspUser{
-			FirstName:                       firstName,
-			LastName:                        lastName,
-			Telephone:                       telephone,
-			TransportationServiceProviderID: tsp.ID,
-			Email:                           email,
-			Disabled:                        false,
-		}
-		if user.ID != uuid.Nil {
-			tspUser.UserID = &user.ID
-		}
-
-		verrs, err := h.db.ValidateAndSave(&tspUser)
-		if err != nil {
-			h.logger.Error("could not create tsp user", zap.Error(err))
-		}
-		if verrs.HasAny() {
-			h.logger.Error("validation errors creating tsp user", zap.Stringer("errors", verrs))
-		}
 	case DpsUserType:
 		dpsUser := models.DpsUser{
 			LoginGovEmail: email,
@@ -535,10 +482,6 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 		session.ApplicationName = auth.OfficeApp
 		session.Hostname = h.appnames.OfficeServername
 		disabled = userIdentity.Disabled || (userIdentity.OfficeDisabled != nil && *userIdentity.OfficeDisabled)
-	case TspUserType:
-		session.ApplicationName = auth.TspApp
-		session.Hostname = h.appnames.TspServername
-		disabled = userIdentity.Disabled || (userIdentity.TspDisabled != nil && *userIdentity.TspDisabled)
 	case AdminUserType:
 		session.ApplicationName = auth.AdminApp
 		session.Hostname = h.appnames.AdminServername
@@ -567,10 +510,6 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 		session.OfficeUserID = *(userIdentity.OfficeUserID)
 	}
 
-	if userIdentity.TspUserID != nil && (session.IsTspApp() || userType == TspUserType) {
-		session.TspUserID = *(userIdentity.TspUserID)
-	}
-
 	if userIdentity.DpsUserID != nil && (userIdentity.DpsDisabled != nil && !*userIdentity.DpsDisabled) {
 		session.DpsUserID = *(userIdentity.DpsUserID)
 	}
@@ -596,10 +535,6 @@ func verifySessionWithApp(session *auth.Session) error {
 
 	if (session.OfficeUserID == uuid.UUID{}) && session.IsOfficeApp() {
 		return errors.Errorf("Non-office user %s authenticated at office site", session.Email)
-	}
-
-	if (session.TspUserID == uuid.UUID{}) && session.IsTspApp() {
-		return errors.Errorf("Non-TSP user %s authenticated at TSP site", session.Email)
 	}
 
 	if !session.IsAdminUser() && session.IsAdminApp() {
