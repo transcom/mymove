@@ -8,7 +8,7 @@ The API for move.mil
     Schemes:
       http
     Host: api.move.mil
-    BasePath: /v1
+    BasePath: /ghc/v1
     Version: 0.0.1
     License: MIT https://opensource.org/licenses/MIT
     Contact: <dp3@truss.works>

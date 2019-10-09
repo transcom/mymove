@@ -781,7 +781,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	if v.GetBool(cli.ServeGHCFlag) {
 		ghcMux := goji.SubMux()
-		root.Handle(pat.New("/v1/*"), ghcMux)
+		root.Handle(pat.New("/ghc/v1/*"), ghcMux)
 		ghcMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.GHCSwaggerFlag)))
 		if v.GetBool(cli.ServeSwaggerUIFlag) {
 			logger.Info("GHC API Swagger UI serving is enabled")
