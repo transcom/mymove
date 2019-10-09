@@ -40,7 +40,7 @@ export async function getPublicClient() {
 export async function getGHCClient() {
   if (!ghcClient) {
     ghcClient = await Swagger({
-      url: '/v1/swagger.yaml',
+      url: '/ghc/v1/swagger.yaml',
       requestInterceptor: requestInterceptor,
     });
   }
