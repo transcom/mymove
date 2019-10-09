@@ -462,6 +462,10 @@ func showFunction(cmd *cobra.Command, args []string) error {
 
 		startTimeUnix = aws.Int64(startTime.Unix() * 1000) // milliseconds
 		endTimeUnix = aws.Int64(endTime.Unix() * 1000)     // milliseconds
+
+		if *startTimeUnix > *endTimeUnix {
+			return errors.New("the time ranges you specified do not overlap")
+		}
 	}
 
 	jobs := make([]Job, 0)
@@ -635,9 +639,10 @@ func showFunction(cmd *cobra.Command, args []string) error {
 			for _, logStream := range describeLogStreamsOutput.LogStreams {
 				logStreamName := aws.StringValue(logStream.LogStreamName)
 				if strings.HasPrefix(logStreamName, logStreamPrefix) {
+					// If the time ranges do not overlap then don't add the task
 					if startTimeUnix != nil && endTimeUnix != nil {
 						if !(math.Max(float64(*logStream.FirstEventTimestamp), float64(*startTimeUnix)) < math.Min(float64(*logStream.LastEventTimestamp), float64(*endTimeUnix))) {
-							return errors.New("the time ranges you specified do not overlap")
+							continue
 						}
 					}
 					job := Job{
@@ -777,10 +782,8 @@ func showFunction(cmd *cobra.Command, args []string) error {
 				LogGroupName:   aws.String(job.LogGroupName),
 				LogStreamNames: []*string{aws.String(job.LogStreamName)},
 				NextToken:      nextToken,
-			}
-			if startTimeUnix != nil && endTimeUnix != nil {
-				filterLogEventsInput.StartTime = startTimeUnix
-				filterLogEventsInput.EndTime = endTimeUnix
+				StartTime:      startTimeUnix,
+				EndTime:        endTimeUnix,
 			}
 			if job.Limit >= 0 {
 				if (limit > 0) && ((limit - count) < job.Limit) {
