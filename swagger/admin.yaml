@@ -170,6 +170,63 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/TransportationOffice'
+  TransportationServiceProviderPerformance:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      TrafficDistributionListID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      TransportationServiceProviderID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      PerformancePeriodStart:
+        type: string
+        format: date-time
+      PerformancePeriodEnd:
+        type: string
+        format: date-time
+      RateCycleStart:
+        type: string
+        format: date-time
+      RateCycleEnd:
+        type: string
+        format: date-time
+      QualityBand:
+        type: integer
+        x-nullable: true
+        example: 29
+      BestValueScore:
+        type: number
+        example: 98.01
+      LinehaulRate:
+        type: number
+        example: 0.26085695149376985000
+      SITRate:
+        type: number
+        example: 0.26085695149376985000
+      OfferCount:
+        type: integer
+        example: 1
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - created_at
+      - updated_at
+  TransportationServiceProviderPerformances:
+    type: array
+    items:
+      $ref: '#/definitions/TransportationServiceProviderPerformance'
   Address:
     type: object
     properties:
@@ -594,6 +651,42 @@ paths:
           description: Not authorized to create an office user
         500:
           description: Server error
+  /transportation_service_provider_performances:
+    get:
+      summary: List transportation service provider performances (TSPPs)
+      description: Returns a list of transportation service provider performances (TSPPs)
+      operationId: indexTSPPs
+      tags:
+        - transportation_service_provider_performances
+      parameters:
+        - in: query
+          name: filter
+          type: array
+          items:
+            type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
+      responses:
+        200:
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
+          schema:
+            $ref: '#/definitions/TransportationServiceProviderPerformances'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: office not found
+        500:
+          description: server error
   /admin_users:
     get:
       summary: List admin users

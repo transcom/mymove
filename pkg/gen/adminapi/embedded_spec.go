@@ -483,6 +483,62 @@ func init() {
         }
       }
     },
+    "/transportation_service_provider_performances": {
+      "get": {
+        "description": "Returns a list of transportation service provider performances (TSPPs)",
+        "tags": [
+          "transportation_service_provider_performances"
+        ],
+        "summary": "List transportation service provider performances (TSPPs)",
+        "operationId": "indexTSPPs",
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/TransportationServiceProviderPerformances"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "office not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/uploads/{uploadId}": {
       "get": {
         "description": "Returns the given upload and information about the uploader and move",
@@ -1016,6 +1072,82 @@ func init() {
         "$ref": "#/definitions/TransportationOffice"
       }
     },
+    "TransportationServiceProviderPerformance": {
+      "type": "object",
+      "required": [
+        "id",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "BestValueScore": {
+          "type": "number",
+          "example": 98.01
+        },
+        "LinehaulRate": {
+          "type": "number",
+          "example": 0.26085695149376986
+        },
+        "OfferCount": {
+          "type": "integer",
+          "example": 1
+        },
+        "PerformancePeriodEnd": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "PerformancePeriodStart": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "QualityBand": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 29
+        },
+        "RateCycleEnd": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "RateCycleStart": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "SITRate": {
+          "type": "number",
+          "example": 0.26085695149376986
+        },
+        "TrafficDistributionListID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "TransportationServiceProviderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "TransportationServiceProviderPerformances": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TransportationServiceProviderPerformance"
+      }
+    },
     "Upload": {
       "type": "object",
       "properties": {
@@ -1503,6 +1635,62 @@ func init() {
             "description": "success",
             "schema": {
               "$ref": "#/definitions/TransportationOffices"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "office not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/transportation_service_provider_performances": {
+      "get": {
+        "description": "Returns a list of transportation service provider performances (TSPPs)",
+        "tags": [
+          "transportation_service_provider_performances"
+        ],
+        "summary": "List transportation service provider performances (TSPPs)",
+        "operationId": "indexTSPPs",
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/TransportationServiceProviderPerformances"
             },
             "headers": {
               "Content-Range": {
@@ -2058,6 +2246,82 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/TransportationOffice"
+      }
+    },
+    "TransportationServiceProviderPerformance": {
+      "type": "object",
+      "required": [
+        "id",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "BestValueScore": {
+          "type": "number",
+          "example": 98.01
+        },
+        "LinehaulRate": {
+          "type": "number",
+          "example": 0.26085695149376986
+        },
+        "OfferCount": {
+          "type": "integer",
+          "example": 1
+        },
+        "PerformancePeriodEnd": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "PerformancePeriodStart": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "QualityBand": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 29
+        },
+        "RateCycleEnd": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "RateCycleStart": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "SITRate": {
+          "type": "number",
+          "example": 0.26085695149376986
+        },
+        "TrafficDistributionListID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "TransportationServiceProviderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "TransportationServiceProviderPerformances": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TransportationServiceProviderPerformance"
       }
     },
     "Upload": {
