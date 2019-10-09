@@ -31,23 +31,24 @@ func (suite *ModelSuite) TestReContractYearValidations() {
 			"name":        {"Name can not be blank."},
 			"start_date":  {"StartDate can not be blank."},
 			"end_date":    {"EndDate can not be blank."},
-			"escalation":  {"0.000000 is not greater than 0.000000."},
+			"escalation":  {"Escalation can not be blank.", "0.000000 is not greater than 0.000000."},
 		}
 		suite.verifyValidationErrors(emptyReContractYear, expErrors)
 	})
 
-	suite.T().Run("test end date after start date for ReContractYear", func(t *testing.T) {
+	suite.T().Run("test end date after start date, negative escalation for ReContractYear", func(t *testing.T) {
 		badDatesReContractYear := models.ReContractYear{
 			ContractID: uuid.Must(uuid.NewV4()),
 			Name:       "Base Period Year 2",
 			StartDate:  time.Date(2021, time.September, 30, 0, 0, 0, 0, time.UTC),
 			EndDate:    time.Date(2020, time.October, 1, 0, 0, 0, 0, time.UTC),
-			Escalation: 1.025,
+			Escalation: -1,
 			CreatedAt:  time.Now(),
 			UpdatedAt:  time.Now(),
 		}
 		expErrors := map[string][]string{
-			"end_date": {"EndDate must be after StartDate."},
+			"end_date":   {"EndDate must be after StartDate."},
+			"escalation": {"-1.000000 is not greater than 0.000000."},
 		}
 		suite.verifyValidationErrors(&badDatesReContractYear, expErrors)
 	})

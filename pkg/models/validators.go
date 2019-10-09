@@ -298,6 +298,27 @@ func (v *OptionalRegexMatch) IsValid(errors *validate.Errors) {
 	regexMatch.IsValid(errors)
 }
 
+// Float64IsPresent validates that a float64 is non-zero.
+type Float64IsPresent struct {
+	Name    string
+	Field   float64
+	Message string
+}
+
+// IsValid adds an error if the field equals 0.
+func (v *Float64IsPresent) IsValid(errors *validate.Errors) {
+	if v.Field != 0 {
+		return
+	}
+
+	if len(v.Message) > 0 {
+		errors.Add(validators.GenerateKey(v.Name), v.Message)
+		return
+	}
+
+	errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
+}
+
 // Float64IsGreaterThan validates that a float64 is greater than a given value
 type Float64IsGreaterThan struct {
 	Name     string
