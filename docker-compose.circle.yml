@@ -3,24 +3,27 @@ version: '3.3'
 services:
   database:
     image: postgres:10.9
-    restart: always
-    ports:
-      - '6432:5432'
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1024M
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=mysecretpassword
-      - POSTGRES_DB=dev_db
+      - POSTGRES_DB=test_db
   server_test:
     image: trussworks/circleci-docker-primary:e5c10bf19185aa55354901106bad3ffd4c016265
     links:
       - database
     volumes:
-      - /Users/john/projects/dod/milmove:/home/circleci/transcomm/mymove
+      - ./:/home/circleci/transcom/mymove
+    working_dir: /home/circleci/transcom/mymove
     environment:
       - CIRCLECI=1
       - DB_ENV=development
       - DB_HOST=database
-      - DB_NAME=dev_db
+      - DB_NAME=test_db
       - DB_NAME_TEST=test_db
       - DB_PASSWORD=mysecretpassword
       - PGPASSWORD=mysecretpassword
@@ -34,5 +37,4 @@ services:
       - STORAGE_BACKEND=local
       - SERVE_ADMIN=true
       - SERVE_API_INTERNAL=true
-      - SERVE_API_PUBLIC=true
-    command: bash -c "cd /home/circleci/transcomm/mymove && ./scripts/run_server_test_in_circle_container"
+    command: ./scripts/run-server-test-in-circle-container
