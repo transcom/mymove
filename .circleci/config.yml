@@ -1036,16 +1036,11 @@ workflows:
   dependency_updater_js:
     triggers:
       - schedule:
-#         TODO revert
           # Monday at 4am/7am PST/EST
-#          cron: '0 12 * * 1'
-          cron: '51 * * * *'
+          cron: '0 12 * * 1'
           filters:
             branches:
-              # TODO revert
-              only:
-                - master
-                - mk-168796880-auto-merge-deps
+              only: master
     jobs:
       - update_dependencies_js
 
