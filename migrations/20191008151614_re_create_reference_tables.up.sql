@@ -23,6 +23,7 @@ create table re_contract_years
     start_date date not null,
     end_date date not null,
     escalation numeric(6, 5) not null,
+    escalation_compounded numeric(6, 5) not null,
     created_at timestamp not null,
     updated_at timestamp not null,
     constraint re_contract_years_daterange_excl exclude using gist(contract_id with =, daterange(start_date, end_date, '[]') WITH &&)
@@ -56,12 +57,12 @@ create table re_zip3s
     updated_at timestamp not null
 );
 
-create table re_service_types
+create table re_services
 (
     id uuid
-        constraint re_service_types_pkey primary key,
+        constraint re_services_pkey primary key,
     code varchar(20) not null
-        constraint re_service_types_code_key unique,
+        constraint re_services_code_key unique,
     name varchar(80) not null,
     created_at timestamp not null,
     updated_at timestamp not null
