@@ -11,14 +11,15 @@ import (
 
 // ReContractYear represents a single "year" of a contract
 type ReContractYear struct {
-	ID         uuid.UUID `json:"id" db:"id"`
-	ContractID uuid.UUID `json:"contract_id" db:"contract_id"`
-	Name       string    `json:"name" db:"name"`
-	StartDate  time.Time `json:"start_date" db:"start_date"`
-	EndDate    time.Time `json:"end_date" db:"end_date"`
-	Escalation float64   `json:"escalation" db:"escalation"`
-	CreatedAt  time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at" db:"updated_at"`
+	ID                   uuid.UUID `json:"id" db:"id"`
+	ContractID           uuid.UUID `json:"contract_id" db:"contract_id"`
+	Name                 string    `json:"name" db:"name"`
+	StartDate            time.Time `json:"start_date" db:"start_date"`
+	EndDate              time.Time `json:"end_date" db:"end_date"`
+	Escalation           float64   `json:"escalation" db:"escalation"`
+	EscalationCompounded float64   `json:"escalation_compounded" db:"escalation_compounded"`
+	CreatedAt            time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt            time.Time `json:"updated_at" db:"updated_at"`
 
 	// Associations
 	ReContract ReContract `belongs_to:"re_contract"`
@@ -38,5 +39,7 @@ func (r *ReContractYear) Validate(tx *pop.Connection) (*validate.Errors, error) 
 		&validators.TimeAfterTime{FirstTime: r.EndDate, FirstName: "EndDate", SecondTime: r.StartDate, SecondName: "StartDate"},
 		&Float64IsPresent{Field: r.Escalation, Name: "Escalation"},
 		&Float64IsGreaterThan{Field: r.Escalation, Name: "Escalation", Compared: 0},
+		&Float64IsPresent{Field: r.EscalationCompounded, Name: "EscalationCompounded"},
+		&Float64IsGreaterThan{Field: r.EscalationCompounded, Name: "EscalationCompounded", Compared: 0},
 	), nil
 }

@@ -9,8 +9,8 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-// ReServiceType model struct
-type ReServiceType struct {
+// ReService model struct
+type ReService struct {
 	ID        uuid.UUID `json:"id" db:"id"`
 	Code      string    `json:"code" db:"code"`
 	Name      string    `json:"name" db:"name"`
@@ -18,12 +18,12 @@ type ReServiceType struct {
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
 
-// ReServiceTypes is not required by pop and may be deleted
-type ReServiceTypes []ReServiceType
+// ReServices is not required by pop and may be deleted
+type ReServices []ReService
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
-func (r *ReServiceType) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (r *ReService) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: r.Code, Name: "Code"},
 		&validators.StringIsPresent{Field: r.Name, Name: "Name"},
