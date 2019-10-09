@@ -16,7 +16,7 @@ class TOO extends React.Component {
     const POV = entitlements && entitlements.privatelyOwnedVehicle ? 'Y' : 'N';
     return (
       <>
-        <h1>TOO Placeholder Page</h1>
+        <h1>Customer Deets Page</h1>
         {entitlements && (
           <>
             <h2>Customer Entitlements</h2>
