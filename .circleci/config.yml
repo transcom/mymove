@@ -386,21 +386,11 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: Build Go Junit Report
           command: make bin/go-junit-report
-      - run:
-          # This is needed to use `psql` to clone the DB for parallel server tests
-          name: Install postgres client
-          command: |
-            # Debian stretch only supports 9.6 client, so add the Postgresql apt repository for 10.x
-            echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" | sudo tee -a /etc/apt/sources.list.d/pgdg.list
-            wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-            sudo apt-get -qq update
-            sudo apt-get -qq -y install postgresql-client-10
-      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: make bin/milmove
-      - run: make db_test_reset
       - run: make db_test_migrate
       - run:
           name: make server_test_standalone
@@ -418,6 +408,7 @@ jobs:
             DB_PORT_TEST: 5433
             DB_PORT: 5432
             DB_NAME: test_db
+            DB_NAME_TEST: test_db
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
@@ -433,7 +424,7 @@ jobs:
 
   # `server_test_coverage` runs code coverage and submits it to CodeClimate
   server_test_coverage:
-    executor: mymove_and_postgres_medium
+    executor: mymove_and_postgres_large
     steps:
       - checkout
       - setup_remote_docker:
@@ -441,16 +432,6 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
-      - run:
-          # This is needed to use `psql` to test DB connectivity, until the app
-          # itself starts making database connections.
-          name: Install postgres client
-          command: |
-            # Debian stretch only supports 9.6 client, so add the Postgresql apt repository for 10.x
-            echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" | sudo tee -a /etc/apt/sources.list.d/pgdg.list
-            wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-            sudo apt-get -qq update
-            sudo apt-get -qq -y install postgresql-client-10
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: Setup Code Climate test-reporter
@@ -459,12 +440,14 @@ jobs:
             curl -L --retry 5 --retry-connrefused https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 --output /home/circleci/cc-test-reporter
             chmod +x /home/circleci/cc-test-reporter
             /home/circleci/cc-test-reporter before-build -d
+      - run: make bin/milmove
+      - run: make db_test_migrate
       - run:
-          name: make server_test_coverage_generate
+          name: make server_test_coverage_generate_standalone
           command: |
             echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
             source $BASH_ENV
-            make server_test_coverage_generate
+            make server_test_coverage_generate_standalone
           environment:
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
@@ -472,6 +455,7 @@ jobs:
             DB_PORT_TEST: 5433
             DB_PORT: 5432
             DB_NAME: test_db
+            DB_NAME_TEST: test_db
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test

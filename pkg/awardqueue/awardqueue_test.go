@@ -148,10 +148,6 @@ type AwardQueueSuite struct {
 	logger Logger
 }
 
-func (suite *AwardQueueSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func TestAwardQueueSuite(t *testing.T) {
 	logger, err := zap.NewDevelopment()
 	if err != nil {
