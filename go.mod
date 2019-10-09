@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go v1.23.21
 	github.com/cockroachdb/apd v1.1.0 // indirect
 	github.com/cockroachdb/cockroach-go v0.0.0-20181001143604-e0a95dfd547c // indirect
-	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4
+	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/disintegration/imaging v1.6.1
@@ -27,10 +27,10 @@ require (
 	github.com/go-openapi/strfmt v0.19.3
 	github.com/go-openapi/swag v0.19.5
 	github.com/go-openapi/validate v0.19.3
-	github.com/go-playground/locales v0.12.1 // indirect
-	github.com/go-playground/universal-translator v0.16.0 // indirect
+	github.com/go-playground/locales v0.12.1
+	github.com/go-playground/universal-translator v0.16.0
 	github.com/go-swagger/go-swagger v0.20.2-0.20190910212040-c49ea4ca2112
-	github.com/gobuffalo/envy v1.7.1 // indirect
+	github.com/gobuffalo/envy v1.7.1
 	github.com/gobuffalo/fizz v1.9.5
 	github.com/gobuffalo/flect v0.1.6 // indirect
 	github.com/gobuffalo/logger v1.0.1 // indirect
@@ -40,6 +40,7 @@ require (
 	github.com/gobuffalo/pop v4.11.6+incompatible
 	github.com/gobuffalo/validate v2.0.3+incompatible
 	github.com/godbus/dbus v4.1.0+incompatible // indirect
+	github.com/gofrs/flock v0.7.1
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/gopherjs/gopherjs v0.0.0-20190915194858-d3ddacdb130f // indirect
 	github.com/gorilla/csrf v1.6.1
@@ -48,8 +49,9 @@ require (
 	github.com/jackc/pgx v3.6.0+incompatible // indirect
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jmoiron/sqlx v1.2.0
+	github.com/jstemmer/go-junit-report v0.0.0-20190106144839-af01ea7f8024
 	github.com/jung-kurt/gofpdf v1.12.1
-	github.com/leodido/go-urn v1.1.0 // indirect
+	github.com/leodido/go-urn v1.1.0
 	github.com/lib/pq v1.2.0
 	github.com/markbates/goth v1.56.0
 	github.com/mattn/go-colorable v0.1.2 // indirect
@@ -61,7 +63,7 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/rickar/cal v1.0.1
 	github.com/rogpeppe/go-internal v1.3.2
-	github.com/segmentio/chamber v0.0.0-20190904181813-e6c04494a555
+	github.com/segmentio/chamber/v2 v2.7.2
 	github.com/shopspring/decimal v0.0.0-20190905144223-a36b5d85f337 // indirect
 	github.com/smartystreets/assertions v1.0.1 // indirect
 	github.com/smartystreets/goconvey v0.0.0-20190731233626-505e41936337 // indirect
@@ -69,6 +71,7 @@ require (
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/pflag v1.0.4-0.20190814001055-972238283c06
 	github.com/spf13/viper v1.4.1-0.20190911140308-99520c81d86e
+	github.com/stretchr/objx v0.2.0
 	github.com/stretchr/testify v1.4.1-0.20190904163530-85f2b59c4459
 	github.com/tealeg/xlsx v1.0.3
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5
@@ -88,3 +91,9 @@ require (
 	gopkg.in/ini.v1 v1.46.0 // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
 )
+
+// transcom/sqlx v1.2.1 is just jmoiron's 1.2.0 with custom driver fixes
+// This is a temporary solution till https://github.com/jmoiron/sqlx/pull/560
+// is merged or a better solution is completed as mentioned in
+// https://github.com/jmoiron/sqlx/pull/520
+replace github.com/jmoiron/sqlx v1.2.0 => github.com/transcom/sqlx v1.2.1

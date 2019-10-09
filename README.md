@@ -1,6 +1,6 @@
 # Personal Property Prototype
 
-[![Build status](https://img.shields.io/circleci/project/github/transcom/mymove/master.svg)](https://circleci.com/gh/transcom/mymove/tree/master)
+[![CircleCI](https://circleci.com/gh/transcom/mymove/tree/master.svg?style=shield&circle-token=8782cc55afd824ba48e89fc4e49b466c5e2ce7b1)](https://circleci.com/gh/transcom/mymove/tree/master)
 
 [![GoDoc](https://godoc.org/github.com/transcom/mymove?status.svg)](https://godoc.org/github.com/transcom/mymove)
 
@@ -76,10 +76,9 @@ There are a number of things you'll need at a minimum to be able to check out, d
 
 * Install [Homebrew](https://brew.sh)
   * Use the following command `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
-* We always use the latest version of Go unless there's a known conflict (which will be announced by the team).
-  * Install it with Homebrew: `brew install go`
-  * Pin it, so that you don't accidentally upgrade before we upgrade the project: `brew pin go`
-  * When we upgrade the project's go version, unpin, upgrade, and then re-pin: `brew unpin go; brew upgrade go; brew pin go`
+* We normally use the latest version of Go unless there's a known conflict (which will be announced by the team) or if we're in the time period just after a new version has been released.
+  * We are still using go 1.12 for now; we will be migrating to go 1.13 soon (the trigger is when we update Go in our baseline CircleCI Docker container).
+  * Install it with Homebrew: `brew install go@1.12 && brew link --force go@1.12`
   * **Note**: If you have previously modified your PATH to point to a specific version of go, make sure to remove that. This would be either in your `.bash_profile` or `.bashrc`, and might look something like `PATH=$PATH:/usr/local/opt/go@1.12/bin`.
 * Ensure you are using the latest version of bash for this project:
   * Install it with Homebrew: `brew install bash`
@@ -207,11 +206,11 @@ Run `make prereqs` and install everything it tells you to. Most of the prerequis
 
 ### Setup: Direnv
 
-For managing local environment variables, we're using [direnv](https://direnv.net/). You need to [configure your shell to use it](https://direnv.net/). For bash, add the command `eval "$(direnv hook bash)"` to whichever file loads upon opening bash (likely `~./bash_profile`, though instructions say `~/.bashrc`).
+For managing local environment variables, we're using [direnv](https://direnv.net/). You need to [configure your shell to use it](https://direnv.net/). For bash, add the command `eval "$(direnv hook bash)"` to whichever file loads upon opening bash (likely `~/.bash_profile`, though instructions say `~/.bashrc`).
 
 Run `direnv allow` to load up the `.envrc` file. It should complain that you have missing variables which you will rectify in one of the following ways.
 
-You can add a `.envrc.local` file. One way to do this is using chamber.  You must have the infra-com repo already cloned and must add the path to it in your .envrc.local (`PPP_INFRA_PATH='~/yourlocalpath/ppp-infra'`) Then run `chamber env app-devlocal >> .envrc.local`. If you don't have access to chamber you can also `touch .envrc.local` and add any values that the output from direnv asks you to define. Instructions are in the error messages.
+You can add a `.envrc.local` file. One way to do this is using the [chamber tool](https://github.com/segmentio/chamber) to read secrets from AWS vault.  You must have the infra-com repo already cloned and must add the path to it in your .envrc.local (`PPP_INFRA_PATH='~/yourlocalpath/ppp-infra'`) Then run `chamber env app-devlocal >> .envrc.local`. If you don't have access to chamber you can also `touch .envrc.local` and add any values that the output from direnv asks you to define. Instructions are in the error messages.
 
 If you wish to not maintain a `.envrc.local` you can alternatively run `cp .envrc.chamber.template .envrc.chamber` to enable getting secret values from `chamber`. **Note** that this method does not work for users of the `fish` shell unless you replace `direnv allow` with `direnv export fish | source`.
 

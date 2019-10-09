@@ -92,6 +92,22 @@ describe('allows a SM to request a payment', function() {
     serviceMemberUploadsExpenses();
     serviceMemberSkipsStep();
   });
+
+  it('service member with old weight tickets can see and delete them', () => {
+    cy.signInAsUserPostRequest(milmoveAppName, 'beccca28-6e15-40cc-8692-261cae0d4b14');
+    cy.get('[data-cy="edit-payment-request"]')
+      .contains('Edit Payment Request')
+      .should('exist')
+      .click();
+    cy.get('.ticket-item')
+      .first()
+      .should('not.contain', 'set');
+    cy.get('[data-cy="delete-ticket"]')
+      .first()
+      .click();
+    cy.get('[data-cy="delete-confirmation-button"]').click();
+    cy.get('.ticket-item').should('not.exist');
+  });
 });
 
 function serviceMemberSkipsStep() {
@@ -395,9 +411,7 @@ function serviceMemberSubmitsWeightsTicketsWithoutReceipts() {
     'Contact your local Transportation Office (PPPO) to let them know you’re missing this weight ticket. For now, keep going and enter the info you do have.',
   );
   cy.get('input[name="missingFullWeightTicket"]+label').click();
-  cy.get('[data-cy=full-warning]').contains(
-    'Contact your local Transportation Office (PPPO) to let them know you’re missing this weight ticket. For now, keep going and enter the info you do have.',
-  );
+  cy.get('[data-cy=full-warning]').contains('You can’t get paid without a full weight ticket.');
   cy.get('input[name="weight_ticket_date"]')
     .type('6/2/2018{enter}')
     .blur();

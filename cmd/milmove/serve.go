@@ -46,7 +46,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/dpsapi"
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/handlers/ordersapi"
-	"github.com/transcom/mymove/pkg/handlers/publicapi"
 	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/middleware"
@@ -474,6 +473,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, clientAuthSecretKey, noSessionTimeout, appnames, useSecureCookie)
 	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, useSecureCookie)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
+	isLoggedInMiddleware := authentication.IsLoggedInMiddleware(logger)
 	clientCertMiddleware := authentication.ClientCertMiddleware(logger, dbConnection)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
@@ -739,24 +739,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	site.Handle(pat.New("/*"), root)
 
-	if v.GetBool(cli.ServePublicAPIlFlag) {
-		apiMux := goji.SubMux()
-		root.Handle(pat.New("/api/v1/*"), apiMux)
-		apiMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.SwaggerFlag)))
-		if v.GetBool(cli.ServeSwaggerUIFlag) {
-			logger.Info("Public API Swagger UI serving is enabled")
-			apiMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "api.html")))
-		} else {
-			apiMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
-		}
-		externalAPIMux := goji.SubMux()
-		apiMux.Handle(pat.New("/*"), externalAPIMux)
-		externalAPIMux.Use(middleware.NoCache(logger))
-		externalAPIMux.Use(userAuthMiddleware)
-		externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext))
-	}
-
-	if v.GetBool(cli.ServeInternalAPIFlag) {
+	if v.GetBool(cli.ServeAPIInternalFlag) {
 		internalMux := goji.SubMux()
 		root.Handle(pat.New("/internal/*"), internalMux)
 		internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.InternalSwaggerFlag)))
@@ -768,6 +751,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 		// Mux for internal API that enforces auth
 		internalAPIMux := goji.SubMux()
+		internalMux.HandleFunc(pat.Get("/users/is_logged_in"), isLoggedInMiddleware)
 		internalMux.Handle(pat.New("/*"), internalAPIMux)
 		internalAPIMux.Use(userAuthMiddleware)
 		internalAPIMux.Use(middleware.NoCache(logger))

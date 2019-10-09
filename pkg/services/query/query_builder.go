@@ -172,7 +172,7 @@ func (p *Builder) FetchOne(model interface{}, filters []services.QueryFilter) er
 
 // FetchMany fetches multiple model records using pop's All method
 // Will return error if model is not pointer to slice of structs
-func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter, pagination services.Pagination) error {
+func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return errors.New(fetchManyReflectionMessage)
@@ -190,7 +190,12 @@ func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter, p
 	if err != nil {
 		return err
 	}
-	return query.All(model)
+
+	err = associatedQuery(query, associations, model)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (p *Builder) CreateOne(model interface{}) (*validate.Errors, error) {
@@ -228,4 +233,35 @@ func (p *Builder) FetchCategoricalCountsFromOneModel(model interface{}, filters 
 		return nil, err
 	}
 	return categoricalCounts, nil
+}
+
+func (p *Builder) QueryForAssociations(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination) error {
+	t := reflect.TypeOf(model)
+	if t.Kind() != reflect.Ptr {
+		return errors.New(fetchOneReflectionMessage)
+	}
+	t = t.Elem()
+	if t.Kind() != reflect.Slice {
+		return errors.New(fetchManyReflectionMessage)
+	}
+	t = t.Elem()
+	if t.Kind() != reflect.Struct {
+		return errors.New(fetchManyReflectionMessage)
+	}
+	query := p.db.Q()
+	query, err := buildQuery(query, filters, pagination, t)
+	if err != nil {
+		return err
+	}
+
+	err = associatedQuery(query, associations, model)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func associatedQuery(query *pop.Query, associations services.QueryAssociations, model interface{}) error {
+	query = query.Eager(associations.StringGetAssociations()...)
+	return query.All(model)
 }

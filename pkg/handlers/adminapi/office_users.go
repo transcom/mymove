@@ -7,7 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
+	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -44,8 +44,9 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 	queryFilters := []services.QueryFilter{}
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
+	associations := query.NewQueryAssociations([]services.QueryAssociation{})
 
-	officeUsers, err := h.OfficeUserListFetcher.FetchOfficeUserList(queryFilters, pagination)
+	officeUsers, err := h.OfficeUserListFetcher.FetchOfficeUserList(queryFilters, associations, pagination)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -97,7 +98,7 @@ type CreateOfficeUserHandler struct {
 
 func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserParams) middleware.Responder {
 	payload := params.OfficeUser
-	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	transportationOfficeID, err := uuid.FromString(payload.TransportationOfficeID.String())
 	if err != nil {
@@ -118,10 +119,11 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 
 	createdOfficeUser, verrs, err := h.OfficeUserCreator.CreateOfficeUser(&officeUser, transportationIDFilter)
 	if err != nil || verrs != nil {
-		logger.Error("Error saving user", zap.Error(err))
+		logger.Error("Error saving user", zap.Error(verrs))
 		return officeuserop.NewCreateOfficeUserInternalServerError()
 	}
 
+	logger.Info("Create Office User", zap.String("office_user_id", createdOfficeUser.ID.String()), zap.String("responsible_user_id", session.UserID.String()), zap.String("event_type", "create_office_user"))
 	returnPayload := payloadForOfficeUserModel(*createdOfficeUser)
 	return officeuserop.NewCreateOfficeUserCreated().WithPayload(returnPayload)
 }
@@ -134,7 +136,7 @@ type UpdateOfficeUserHandler struct {
 
 func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserParams) middleware.Responder {
 	payload := params.OfficeUser
-	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	officeUserID, err := uuid.FromString(params.OfficeUserID.String())
 	if err != nil {
@@ -156,6 +158,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 		return officeuserop.NewUpdateOfficeUserInternalServerError()
 	}
 
+	logger.Info("Update Office User", zap.String("office_user_id", updatedOfficeUser.ID.String()), zap.String("responsible_user_id", session.UserID.String()), zap.String("event_type", "update_office_user"))
 	returnPayload := payloadForOfficeUserModel(*updatedOfficeUser)
 
 	return officeuserop.NewUpdateOfficeUserOK().WithPayload(returnPayload)

@@ -101,6 +101,7 @@ func TestAuthSuite(t *testing.T) {
 		logger:       logger,
 	}
 	suite.Run(t, hs)
+	hs.PopTestSuite.TearDown()
 }
 
 func fakeLoginGovProvider(logger Logger) LoginGovProvider {
@@ -186,6 +187,51 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 	// We should be not be redirected since we're logged in
 	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
 	suite.Equal(handlerSession.UserID, user.ID, "the authenticated user is different from expected")
+}
+
+func (suite *AuthSuite) TestIsLoggedInWhenNoUserLoggedIn() {
+	req := httptest.NewRequest("GET", "/is_logged_in", nil)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(IsLoggedInMiddleware(suite.logger))
+
+	handler.ServeHTTP(rr, req)
+
+	// expects to return 200 OK
+	suite.Equal(http.StatusOK, rr.Code, "handler returned the wrong status code")
+
+	// expects to return that no one is logged in
+	expected := "{\"isLoggedIn\":false}\n"
+	suite.Equal(expected, rr.Body.String(), "handler returned wrong body")
+}
+
+func (suite *AuthSuite) TestIsLoggedInWhenUserLoggedIn() {
+	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	user := models.User{
+		LoginGovUUID:  loginGovUUID,
+		LoginGovEmail: "email@example.com",
+		Disabled:      false,
+	}
+	suite.MustSave(&user)
+
+	req := httptest.NewRequest("GET", "/is_logged_in", nil)
+
+	// And: the context contains the auth values
+	session := auth.Session{UserID: user.ID, IDToken: "fake Token"}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	req = req.WithContext(ctx)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(IsLoggedInMiddleware(suite.logger))
+
+	handler.ServeHTTP(rr, req)
+
+	// expects to return 200 OK
+	suite.Equal(http.StatusOK, rr.Code, "handler returned the wrong status code")
+
+	// expects to return that no one is logged in
+	expected := "{\"isLoggedIn\":true}\n"
+	suite.Equal(expected, rr.Body.String(), "handler returned wrong body")
 }
 
 func (suite *AuthSuite) TestRequireAuthMiddlewareUnauthorized() {

@@ -2497,6 +2497,22 @@ paths:
           description: request requires user authentication
         500:
           description: server error
+  /users/is_logged_in:
+    get:
+      summary: Returns boolean as to whether the user is logged in
+      description: Returns boolean as to whether the user is logged in
+      operationId: isLoggedInUser
+      tags:
+        - users
+      responses:
+        200:
+          description: Currently logged in user
+          schema:
+            type: boolean
+        400:
+          description: invalid request
+        500:
+          description: server error
   /orders:
     post:
       summary: Creates an orders model for a logged-in user
@@ -3968,6 +3984,7 @@ paths:
             - all
             - ppm_approved
             - ppm_completed
+            - MBxFJqtAoWfTYJd
           required: true
           description: Queue type to show
       responses:

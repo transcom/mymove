@@ -12,6 +12,10 @@ import (
 )
 
 func payloadForTransportationOfficeModel(office models.TransportationOffice) *internalmessages.TransportationOffice {
+	if office.ID == uuid.Nil {
+		return nil
+	}
+
 	var phoneLines []string
 	for _, phoneLine := range office.PhoneLines {
 		if phoneLine.Type == "voice" {

@@ -13,6 +13,7 @@ import { bindActionCreators } from 'redux';
 import { createOrUpdatePpm, getPpmSitEstimate } from 'scenes/Moves/Ppm/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { selectPPMForMove } from 'shared/Entities/modules/ppms';
+import { updatePPMEstimate } from 'shared/Entities/modules/ppms';
 import 'scenes/Moves/Ppm/DateAndLocation.css';
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
@@ -84,15 +85,30 @@ class EditDateAndLocation extends Component {
       if (!pendingValues.has_sit) {
         pendingValues.days_in_storage = null;
       }
+
       const moveId = this.props.match.params.moveId;
-      return this.props.createOrUpdatePpm(moveId, pendingValues).then(() => {
-        // This promise resolves regardless of error.
-        if (!this.props.hasSubmitError) {
-          this.props.editSuccessful();
-          this.props.history.goBack();
-        } else {
-          scrollToTop();
-        }
+      return this.props.createOrUpdatePpm(moveId, pendingValues).then(({ payload }) => {
+        this.props
+          .updatePPMEstimate(moveId, payload.id)
+          .then(() => {
+            // This promise resolves regardless of error.
+            if (!this.props.hasSubmitError) {
+              this.props.editSuccessful();
+              this.props.history.goBack();
+            } else {
+              scrollToTop();
+            }
+          })
+          .catch(err => {
+            // This promise resolves regardless of error.
+            if (!this.props.hasSubmitError) {
+              this.props.editSuccessful();
+              this.props.history.goBack();
+            } else {
+              scrollToTop();
+            }
+            return err;
+          });
       });
     }
   };
@@ -206,6 +222,7 @@ function mapDispatchToProps(dispatch) {
       editBegin,
       editSuccessful,
       entitlementChangeBegin,
+      updatePPMEstimate,
     },
     dispatch,
   );

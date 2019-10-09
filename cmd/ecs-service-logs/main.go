@@ -711,7 +711,7 @@ func showFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Adds command line arguments as custom filters.
-	// For example: ecs-show-service-logs show [FLAGS] trace=XYZ
+	// For example: ecs-service-logs show [FLAGS] trace=XYZ
 	if len(args) > 0 {
 		for _, arg := range args {
 			for i := 1; i < len(arg); i++ {

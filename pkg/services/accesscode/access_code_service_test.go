@@ -21,4 +21,5 @@ func TestAccessCodeServiceSuite(t *testing.T) {
 		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 	}
 	suite.Run(t, ts)
+	ts.PopTestSuite.TearDown()
 }
