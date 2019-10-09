@@ -7,7 +7,7 @@ The API for move.mil
 
     Schemes:
       http
-    Host: api.move.mil
+    Host: localhost
     BasePath: /ghc/v1
     Version: 0.0.1
     License: MIT https://opensource.org/licenses/MIT
