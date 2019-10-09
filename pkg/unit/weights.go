@@ -46,7 +46,7 @@ func (pounds Pound) Int64() int64 {
 
 // Float64 returns a float representation of this weight
 func (pounds Pound) Float64() float64 {
-	return float64(pounds)
+	return float64(pounds) / 100
 }
 
 //ToCWTFloat converts pounds to 2 decimals as type CWTFloat
