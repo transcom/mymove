@@ -409,6 +409,7 @@ server_test_all: db_dev_reset db_dev_migrate ## Run all server unit tests
 server_test_coverage_generate: db_test_reset db_test_migrate server_test_coverage_generate_standalone ## Run server unit test coverage
 
 .PHONY: server_test_coverage_generate_standalone
+server_test_coverage_generate_standalone: ## Run server unit tests with coverage and no deps
 	# Don't run tests in /cmd or /pkg/gen
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
