@@ -29,8 +29,8 @@ services:
       - MIGRATION_PATH=file:///migrate/local_migrations;file:///migrate/migrations
       - MIGRATION_MANIFEST=/migrate/migrations_manifest.txt
     entrypoint:
-      - "/bin/milmove"
-      - "migrate"
+      - '/bin/milmove'
+      - 'migrate'
     volumes:
       - ./local_migrations:/migrate/local_migrations
 
@@ -85,5 +85,6 @@ services:
       - NO_TLS_PORT=4000
       - STORAGE_BACKEND=local
       - SERVE_ADMIN=true
+      - SERVE_API_GHC=false
       - SERVE_API_INTERNAL=true
       - SERVE_API_PUBLIC=true
