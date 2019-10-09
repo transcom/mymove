@@ -56,4 +56,5 @@ func TestGHCRateEngineSuite(t *testing.T) {
 		logger:       logger,
 	}
 	suite.Run(t, hs)
+	hs.PopTestSuite.TearDown()
 }

@@ -51,7 +51,6 @@ func lookupDomesticLinehaulRate(db *pop.Connection, d DomesticServicePricingData
 // CalculateBaseDomesticLinehaul calculates the cost domestic linehaul and returns the cost in millicents
 func (gre *GHCRateEngine) CalculateBaseDomesticLinehaul(d DomesticServicePricingData) (cost unit.Millicents, err error) {
 	rate, err := lookupDomesticLinehaulRate(gre.db, d)
-
 	if err != nil {
 		return cost, errors.Wrap(err, "Lookup of domestic linehaul rate failed")
 	}

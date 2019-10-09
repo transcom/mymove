@@ -49,7 +49,7 @@ func (pounds Pound) Float64() float64 {
 	return float64(pounds)
 }
 
-//ToCWTFloat converts pounds to a float rounded to 2 decimals as type CWTFloat
+//ToCWTFloat converts pounds to 2 decimals as type CWTFloat
 func (pounds Pound) ToCWTFloat() CWTFloat {
-	return CWTFloat(math.Round(float64(pounds)*100) / 100 / 100)
+	return CWTFloat(float64(pounds))
 }
