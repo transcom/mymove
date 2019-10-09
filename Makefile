@@ -406,7 +406,9 @@ server_test_all: db_dev_reset db_dev_migrate ## Run all server unit tests
 	DB_PORT=$(DB_PORT_TEST) go test -parallel 4 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
 
 .PHONY: server_test_coverage_generate
-server_test_coverage_generate: db_test_reset db_test_migrate ## Run server unit test coverage
+server_test_coverage_generate: db_test_reset db_test_migrate server_test_coverage_generate_standalone ## Run server unit test coverage
+
+.PHONY: server_test_coverage_generate_standalone
 	# Don't run tests in /cmd or /pkg/gen
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
@@ -548,7 +550,6 @@ endif
 db_test_start: ## Start Test DB
 ifndef CIRCLECI
 	brew services stop postgresql 2> /dev/null || true
-endif
 	@echo "Starting the ${DB_DOCKER_CONTAINER_TEST} docker database container..."
 	docker start $(DB_DOCKER_CONTAINER_TEST) || \
 		docker run --name $(DB_DOCKER_CONTAINER_TEST) \
@@ -559,6 +560,9 @@ endif
 			$(DB_DOCKER_CONTAINER_IMAGE)\
 			-c fsync=off\
 			-c full_page_writes=off
+else
+	@echo "Relying on CircleCI's database setup to start the DB."
+endif
 
 .PHONY: db_test_create
 db_test_create: ## Create Test DB
