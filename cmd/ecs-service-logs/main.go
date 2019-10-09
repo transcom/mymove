@@ -446,8 +446,6 @@ func showFunction(cmd *cobra.Command, args []string) error {
 	pageSize := v.GetInt(flagPageSize)
 	environment := v.GetString(flagEnvironment)
 
-	// This adds a time range we can use to filter events
-	// TODO: Not fully implemented, needs flags and ability to not specify
 	startTimeString := v.GetString(flagStartTime)
 	endTimeString := v.GetString(flagEndTime)
 	var startTimeUnix, endTimeUnix *int64
@@ -462,10 +460,8 @@ func showFunction(cmd *cobra.Command, args []string) error {
 			return errEndTime
 		}
 
-		startTimeUnixTmp := startTime.Unix() * 1000 // milliseconds
-		endTimeUnixTmp := endTime.Unix() * 1000     // milliseconds
-		startTimeUnix = &startTimeUnixTmp
-		endTimeUnix = &endTimeUnixTmp
+		startTimeUnix = aws.Int64(startTime.Unix() * 1000) // milliseconds
+		endTimeUnix = aws.Int64(endTime.Unix() * 1000)     // milliseconds
 	}
 
 	jobs := make([]Job, 0)
@@ -639,10 +635,9 @@ func showFunction(cmd *cobra.Command, args []string) error {
 			for _, logStream := range describeLogStreamsOutput.LogStreams {
 				logStreamName := aws.StringValue(logStream.LogStreamName)
 				if strings.HasPrefix(logStreamName, logStreamPrefix) {
-					// If the time ranges do not overlap then don't add the task
 					if startTimeUnix != nil && endTimeUnix != nil {
 						if !(math.Max(float64(*logStream.FirstEventTimestamp), float64(*startTimeUnix)) < math.Min(float64(*logStream.LastEventTimestamp), float64(*endTimeUnix))) {
-							continue
+							return errors.New("the time ranges you specified do not overlap")
 						}
 					}
 					job := Job{
