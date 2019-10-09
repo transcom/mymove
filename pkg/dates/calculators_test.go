@@ -125,10 +125,6 @@ type DatesSuite struct {
 	testingsuite.PopTestSuite
 }
 
-func (suite *DatesSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func TestDatesSuite(t *testing.T) {
 
 	hs := &DatesSuite{

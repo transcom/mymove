@@ -12,10 +12,6 @@ type PaperworkServiceSuite struct {
 	testingsuite.PopTestSuite
 }
 
-func (suite *PaperworkServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func TestPaperworkServiceSuite(t *testing.T) {
 
 	ts := &PaperworkServiceSuite{

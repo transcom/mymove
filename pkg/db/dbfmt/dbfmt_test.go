@@ -14,10 +14,6 @@ type DBFmtSuite struct {
 	testingsuite.PopTestSuite
 }
 
-func (suite *DBFmtSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func TestDBFmtSuite(t *testing.T) {
 	hs := &DBFmtSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
