@@ -14,8 +14,6 @@ const (
 	HTTPMyServerNameFlag string = "http-my-server-name"
 	// HTTPOfficeServerNameFlag is the HTTP Office Server Name Flag
 	HTTPOfficeServerNameFlag string = "http-office-server-name"
-	// HTTPTSPServerNameFlag is the HTTP TSP Server Name Flag
-	HTTPTSPServerNameFlag string = "http-tsp-server-name"
 	// HTTPAdminServerNameFlag is the HTTP Admin Server Name Flag
 	HTTPAdminServerNameFlag string = "http-admin-server-name"
 	// HTTPOrdersServerNameFlag is the HTTP Orders Server Name Flag
@@ -25,8 +23,6 @@ const (
 	HTTPMyServerNameLocal string = "milmovelocal"
 	// HTTPOfficeServerNameLocal is the HTTP Office Server Name for Local
 	HTTPOfficeServerNameLocal string = "officelocal"
-	// HTTPTSPServerNameLocal is the HTTP TSP Server Name for Local
-	HTTPTSPServerNameLocal string = "tsplocal"
 	// HTTPAdminServerNameLocal is the HTTP Admin Server Name for Local
 	HTTPAdminServerNameLocal string = "adminlocal"
 	// HTTPOrdersServerNameLocal is the HTTP Orders Server Name for Local
@@ -45,7 +41,6 @@ func (e *errInvalidHost) Error() string {
 func InitHostFlags(flag *pflag.FlagSet) {
 	flag.String(HTTPMyServerNameFlag, HTTPMyServerNameLocal, "Hostname according to environment.")
 	flag.String(HTTPOfficeServerNameFlag, HTTPOfficeServerNameLocal, "Hostname according to environment.")
-	flag.String(HTTPTSPServerNameFlag, HTTPTSPServerNameLocal, "Hostname according to environment.")
 	flag.String(HTTPAdminServerNameFlag, HTTPAdminServerNameLocal, "Hostname according to environment.")
 	flag.String(HTTPOrdersServerNameFlag, HTTPOrdersServerNameLocal, "Hostname according to environment.")
 }
@@ -56,7 +51,6 @@ func CheckHosts(v *viper.Viper) error {
 	hostVars := []string{
 		HTTPMyServerNameFlag,
 		HTTPOfficeServerNameFlag,
-		HTTPTSPServerNameFlag,
 		HTTPAdminServerNameFlag,
 		HTTPOrdersServerNameFlag,
 	}

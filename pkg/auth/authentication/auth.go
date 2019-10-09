@@ -581,8 +581,6 @@ func InitAuth(v *viper.Viper, logger Logger, appnames auth.ApplicationServername
 		v.GetString(cli.LoginGovMyClientIDFlag),
 		appnames.OfficeServername,
 		v.GetString(cli.LoginGovOfficeClientIDFlag),
-		appnames.TspServername,
-		v.GetString(cli.LoginGovTSPClientIDFlag),
 		appnames.AdminServername,
 		v.GetString(cli.LoginGovAdminClientIDFlag),
 		loginGovCallbackProtocol,

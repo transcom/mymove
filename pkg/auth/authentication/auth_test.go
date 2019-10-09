@@ -23,8 +23,6 @@ import (
 )
 
 const (
-	// TspTestHost
-	TspTestHost string = "tsp.example.com"
 	// OfficeTestHost
 	OfficeTestHost string = "office.example.com"
 	// MilTestHost
@@ -73,7 +71,6 @@ func ApplicationTestServername() auth.ApplicationServername {
 	appnames := auth.ApplicationServername{
 		MilServername:    MilTestHost,
 		OfficeServername: OfficeTestHost,
-		TspServername:    TspTestHost,
 		OrdersServername: OrdersTestHost,
 		DpsServername:    DpsTestHost,
 		SddcServername:   SddcTestHost,

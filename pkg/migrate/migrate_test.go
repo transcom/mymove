@@ -18,10 +18,6 @@ type MigrateSuite struct {
 	logger Logger
 }
 
-func (suite *MigrateSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func TestMigrateSuite(t *testing.T) {
 	logger, err := zap.NewDevelopment()
 	if err != nil {

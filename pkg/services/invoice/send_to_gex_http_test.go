@@ -16,10 +16,6 @@ type GexSuite struct {
 	logger Logger
 }
 
-func (suite *GexSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func TestGexSuite(t *testing.T) {
 
 	ts := &GexSuite{

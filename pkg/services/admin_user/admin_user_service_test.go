@@ -14,10 +14,6 @@ type AdminUserServiceSuite struct {
 	logger Logger
 }
 
-func (suite *AdminUserServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func TestUserSuite(t *testing.T) {
 
 	ts := &AdminUserServiceSuite{

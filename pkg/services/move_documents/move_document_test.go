@@ -15,10 +15,6 @@ type MoveDocumentServiceSuite struct {
 	logger Logger
 }
 
-func (suite *MoveDocumentServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func TestMoveDocumentUpdaterServiceSuite(t *testing.T) {
 	ts := &MoveDocumentServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("move_document_service")),

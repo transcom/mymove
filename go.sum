@@ -427,8 +427,8 @@ github.com/russross/blackfriday v1.5.2/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR
 github.com/ruudk/golang-pdf417 v0.0.0-20181029194003-1af4ab5afa58/go.mod h1:6lfFZQK844Gfx8o5WFuvpxWRwnSoipWe/p622j1v06w=
 github.com/segmentio/backo-go v0.0.0-20160424052352-204274ad699c h1:rsRTAcCR5CeNLkvgBVSjQoDGRRt6kggsE6XYBqCv2KQ=
 github.com/segmentio/backo-go v0.0.0-20160424052352-204274ad699c/go.mod h1:kJ9mm9YmoWSkk+oQ+5Cj8DEoRCX2JT6As4kEtIIOp1M=
-github.com/segmentio/chamber v0.0.0-20190904181813-e6c04494a555 h1:CYo7tzodAN4fhYqG2bQ9Blmf5FDLpqECGGG6wszjK9k=
-github.com/segmentio/chamber v0.0.0-20190904181813-e6c04494a555/go.mod h1:a1awU/wOgv4yixxNpXs7vFzIA4QFbdov8uBp0wk/QLc=
+github.com/segmentio/chamber/v2 v2.7.2 h1:oHeSWwGfmNFdB+rlc/Lcwals75BZjT4eGRSP/0GOadY=
+github.com/segmentio/chamber/v2 v2.7.2/go.mod h1:jvd60H+tsSKvjyqa9iDkmcHj3O1rRdoAetqmQCnk8to=
 github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516 h1:ofR1ZdrNSkiWcMsRrubK9tb2/SlZVWttAfqUjJi6QYc=
 github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516/go.mod h1:Yow6lPLSAXx2ifx470yD/nUe22Dv5vBvxK/UK9UUTVs=
 github.com/sergi/go-diff v1.0.0 h1:Kpca3qRNrduNnOQeazBd0ysaKrUJiIuISHxogkT9RPQ=

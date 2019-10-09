@@ -14,10 +14,6 @@ type OfficeServiceSuite struct {
 	logger Logger
 }
 
-func (suite *OfficeServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func TestUserSuite(t *testing.T) {
 
 	ts := &OfficeServiceSuite{
