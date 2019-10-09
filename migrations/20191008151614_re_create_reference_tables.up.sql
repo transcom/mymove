@@ -1,3 +1,5 @@
+create extension if not exists btree_gist;
+
 create table re_contracts
 (
     id uuid
@@ -21,7 +23,7 @@ create table re_contract_years
     escalation numeric(6, 5) not null,
     created_at timestamp not null,
     updated_at timestamp not null,
-    constraint re_contract_years_daterange_excl exclude using gist(daterange(start_date, end_date, '[]') WITH &&)
+    constraint re_contract_years_daterange_excl exclude using gist(contract_id with =, daterange(start_date, end_date, '[]') WITH &&)
 );
 
 create table re_domestic_service_areas
