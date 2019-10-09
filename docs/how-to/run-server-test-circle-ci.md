@@ -16,12 +16,14 @@ The `--compatibility` flag must be used to tell docker-compose to apply the limi
 
 To adjust the memory and/or CPU constraints modify the deploy section in the `docker-compose.circle.yml` file as desired. See the [documentation](https://docs.docker.com/compose/compose-file/#resources) for more details.
 
+The defaults selected are setup to match what is used by our CircleCI configuration, 4 vCPUs and 8 GB of ram. You will need make sure that Docker can use at least 4 CPUs on your local machine, by default it is just 2. See [CircleCI large resource class specs](https://circleci.com/docs/2.0/configuration-reference/#resource_class)
+
 ```yaml
     deploy:
       resources:
         limits:
           cpus: '1.0'
-          memory: 1024M
+          memory: 8192M
 ```
 
 ## Caveat
