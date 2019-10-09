@@ -14,6 +14,11 @@ services:
       - POSTGRES_DB=test_db
   server_test:
     image: trussworks/circleci-docker-primary:e5c10bf19185aa55354901106bad3ffd4c016265
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1024M
     links:
       - database
     volumes:
