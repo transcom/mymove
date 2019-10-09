@@ -513,6 +513,7 @@ up.sql
 app.container
 definition.json
 circle.yml
+server_test
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - /usr/local
  - docs/data/tspp-data-creation.md
@@ -528,3 +529,5 @@ circle.yml
  - ./docs/how-to/run-storybook.md
  - ./docs/database.md
  - ./docs/._database.md
+ - ./docs/README.md
+ - ./docs/how-to/run-server-test-circle-ci.md

@@ -46,6 +46,7 @@ If you are looking to understand choices made in this project, see the list of [
 * [Run Go Tests](how-to/run-go-tests.md#how-to-run-go-tests)
 * [Run JavaScript (Jest) Tests](how-to/run-js-tests.md#how-to-run-javascript-jest-tests)
 * [Run and troubleshoot pre-commit hooks](how-to/run-pre-commit-hooks.md#run-and-troubleshoot-pre-commit-hooks)
+* [Run server_test job in CircleCI container locally](how-to/run-server-test-circle-ci.md#run-server-test-job-in-circleci-container-locally)
 * [Use and Run Storybook](how-to/run-storybook.md#how-to-use-and-run-storybook)
 * [Soft Delete](how-to/soft-delete.md#how-to-soft-delete)
 * [Store Data in Redux](how-to/store-data-in-redux.md#how-to-store-data-in-redux)
