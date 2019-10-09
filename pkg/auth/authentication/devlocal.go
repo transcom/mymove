@@ -528,7 +528,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 // verifySessionWithApp returns an error if the user id for a specific app is not available
 func verifySessionWithApp(session *auth.Session) error {
 
-	// TODO: Should this be a check that we do? Or will all office and tsp users also be service members?
+	// TODO: Should this be a check that we do? Or will all office users also be service members?
 	// if (session.ServiceMemberID == uuid.UUID{}) && session.IsMilApp() {
 	// 	return errors.Errorf("Non-service member user %s authenticated at service member site", session.Email)
 	// }

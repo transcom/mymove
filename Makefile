@@ -163,10 +163,6 @@ client_test_coverage : .client_deps.stamp ## Run client unit test coverage
 office_client_run: .client_deps.stamp ## Run MilMove Office client
 	HOST=officelocal yarn start
 
-.PHONY: tsp_client_run
-tsp_client_run: .client_deps.stamp ## Run MilMove TSP client
-	HOST=tsplocal yarn start
-
 .PHONY: admin_client_run
 admin_client_run: .client_deps.stamp ## Run MilMove Admin client
 	HOST=adminlocal yarn start
@@ -362,7 +358,6 @@ ifndef TEST_ACC_ENV
 	SERVE_ORDERS=true \
 	SERVE_DPS=true \
 	SERVE_API_INTERNAL=true \
-	SERVE_API_PUBLIC=true \
 	MUTUAL_TLS_ENABLED=true \
 	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 else
@@ -396,9 +391,9 @@ server_test_standalone: ## Run server unit tests with no deps
 ifndef CIRCLECI
 	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) go test -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
 else
-	# Limit the maximum number of tests to run in parallel to 8 for CircleCI due to memory constraints.
+	# Limit the maximum number of tests to run in parallel for CircleCI due to memory constraints.
 	# Add verbose (-v) so go-junit-report can parse it for CircleCI results
-	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) go test -v -parallel 8 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
+	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) go test -v -parallel 4 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
 endif
 
 server_test_build:
@@ -408,15 +403,18 @@ server_test_build:
 .PHONY: server_test_all
 server_test_all: db_dev_reset db_dev_migrate ## Run all server unit tests
 	# Like server_test but runs extended tests that may hit external services.
-	DB_PORT=$(DB_PORT_TEST) go test -parallel 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
+	DB_PORT=$(DB_PORT_TEST) go test -parallel 4 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
 
 .PHONY: server_test_coverage_generate
-server_test_coverage_generate: db_test_reset db_test_migrate ## Run server unit test coverage
+server_test_coverage_generate: db_test_reset db_test_migrate server_test_coverage_generate_standalone ## Run server unit test coverage
+
+.PHONY: server_test_coverage_generate_standalone
+server_test_coverage_generate_standalone: ## Run server unit tests with coverage and no deps
 	# Don't run tests in /cmd or /pkg/gen
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
 	# Add coverage tracker via go cover
-	DB_PORT=$(DB_PORT_TEST) go test -coverprofile=coverage.out -covermode=count -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
+	DB_PORT=$(DB_PORT_TEST) go test -coverprofile=coverage.out -covermode=count -parallel 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
 
 .PHONY: server_test_coverage
 server_test_coverage: db_test_reset db_test_migrate server_test_coverage_generate ## Run server unit test coverage with html output
@@ -553,7 +551,6 @@ endif
 db_test_start: ## Start Test DB
 ifndef CIRCLECI
 	brew services stop postgresql 2> /dev/null || true
-endif
 	@echo "Starting the ${DB_DOCKER_CONTAINER_TEST} docker database container..."
 	docker start $(DB_DOCKER_CONTAINER_TEST) || \
 		docker run --name $(DB_DOCKER_CONTAINER_TEST) \
@@ -564,6 +561,9 @@ endif
 			$(DB_DOCKER_CONTAINER_IMAGE)\
 			-c fsync=off\
 			-c full_page_writes=off
+else
+	@echo "Relying on CircleCI's database setup to start the DB."
+endif
 
 .PHONY: db_test_create
 db_test_create: ## Create Test DB
