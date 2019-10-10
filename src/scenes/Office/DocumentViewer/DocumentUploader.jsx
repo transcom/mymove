@@ -149,7 +149,7 @@ export class DocumentUploader extends Component {
             <Uploader onRef={ref => (this.uploader = ref)} onChange={this.onChange} onAddFile={this.onAddFile} />
             <div className="hint">(Each page must be clear and legible)</div>
           </div>
-          <button className="submit" disabled={!isValid}>
+          <button className="usa-button submit" disabled={!isValid}>
             Save
           </button>
         </form>

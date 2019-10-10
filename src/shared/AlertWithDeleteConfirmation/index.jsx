@@ -23,7 +23,7 @@ export function AlertWithDeleteConfirmation(props) {
             >
               Delete
             </button>
-            <button type="button" className="usa-button-secondary" onClick={props.cancelActionHandler}>
+            <button type="button" className="usa-button usa-button--outline" onClick={props.cancelActionHandler}>
               Cancel
             </button>
           </div>

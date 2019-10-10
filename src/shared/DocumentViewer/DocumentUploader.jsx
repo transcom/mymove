@@ -115,7 +115,7 @@ export class DocumentUploader extends Component {
             />
             <div className="hint">(Each page must be clear and legible)</div>
           </div>
-          <button className="submit" disabled={!isValid}>
+          <button className="usa-button submit" disabled={!isValid}>
             Save
           </button>
         </form>

@@ -55,16 +55,25 @@ class PPMPaymentRequestActionBtns extends Component {
 
         {!this.state.displayConfirmation && (
           <div className="ppm-payment-request-footer">
-            <button type="button" className="usa-button-secondary" onClick={this.showConfirmationOrFinishLater}>
+            <button
+              type="button"
+              className="usa-button usa-button--outline"
+              onClick={this.showConfirmationOrFinishLater}
+            >
               Finish Later
             </button>
             <div className="usa-width-one-thirds">
               {displaySkip && (
-                <button data-cy="skip" type="button" className="usa-button-secondary" onClick={skipHandler}>
+                <button data-cy="skip" type="button" className="usa-button usa-button--outline" onClick={skipHandler}>
                   Skip
                 </button>
               )}
-              <button type="button" onClick={saveAndAddHandler} disabled={submitButtonsAreDisabled || submitting}>
+              <button
+                type="button"
+                className="usa-button"
+                onClick={saveAndAddHandler}
+                disabled={submitButtonsAreDisabled || submitting}
+              >
                 {nextBtnLabel}
               </button>
             </div>

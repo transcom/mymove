@@ -68,22 +68,26 @@ export class WizardPage extends Component {
         <div className="usa-width-one-whole lower-nav-btns">
           {!isMobile && (
             <div className="left cancel">
-              <button className="usa-button-secondary" onClick={this.cancelFlow} disabled={false}>
+              <button className="usa-button usa-button--outline" onClick={this.cancelFlow} disabled={false}>
                 Cancel
               </button>
             </div>
           )}
           <div className="prev-next">
-            <button className="usa-button-secondary prev" onClick={this.previousPage} disabled={!canMoveBackward}>
+            <button
+              className="usa-button usa-button--outline prev"
+              onClick={this.previousPage}
+              disabled={!canMoveBackward}
+            >
               Back
             </button>
             {!isLastPage(pageList, pageKey) && (
-              <button className="usa-button-primary next" onClick={this.nextPage} disabled={!canMoveForward}>
+              <button className="usa-button next" onClick={this.nextPage} disabled={!canMoveForward}>
                 Next
               </button>
             )}
             {isLastPage(pageList, pageKey) && (
-              <button className="usa-button-primary next" onClick={handleSubmit} disabled={!canMoveForward}>
+              <button className="usa-button next" onClick={handleSubmit} disabled={!canMoveForward}>
                 Complete
               </button>
             )}

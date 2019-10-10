@@ -1,5 +1,6 @@
 import React, { Component } from 'react'; // eslint-disable-line
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import { connect } from 'react-redux';
 import windowSize from 'react-window-size';
 import { bindActionCreators } from 'redux';
@@ -117,14 +118,14 @@ export class WizardFormPage extends Component {
         <div className="usa-width-one-whole lower-nav-btns">
           {!isMobile && (
             <div className="left cancel">
-              <button className="usa-button-secondary" onClick={this.cancelFlow}>
+              <button className="usa-button usa-button--outline" onClick={this.cancelFlow}>
                 Cancel
               </button>
             </div>
           )}
           <div className="prev-next">
             <button
-              className={'usa-button-secondary prev ' + (hideBackBtn && 'hide-btn')}
+              className={classNames('usa-button', 'usa-button--outline', 'prev', { 'hide-btn': hideBackBtn })}
               onClick={hasReduxFormSubmitHandler ? handleSubmit(this.previousPage) : this.previousPage}
               disabled={!canMoveBackward}
             >
@@ -132,7 +133,7 @@ export class WizardFormPage extends Component {
             </button>
             {!isLastPage(pageList, pageKey) && (
               <button
-                className="usa-button-primary next"
+                className="usa-button next"
                 onClick={hasReduxFormSubmitHandler ? handleSubmit(this.nextPage) : this.nextPage}
                 disabled={!canMoveForward}
               >
@@ -141,7 +142,7 @@ export class WizardFormPage extends Component {
             )}
             {isLastPage(pageList, pageKey) && (
               <button
-                className="usa-button-primary next"
+                className="usa-button next"
                 onClick={hasReduxFormSubmitHandler ? handleSubmit(this.submit) : this.submit}
                 disabled={!canMoveForward}
               >

@@ -221,7 +221,11 @@ class PaymentsTable extends Component {
                     <p>Download Shipment Summary Worksheet</p>
                     <p>Download and complete the worksheet, which is a fill-in PDF form.</p>
                   </div>
-                  <button disabled={this.props.disableSSW} onClick={this.downloadShipmentSummary}>
+                  <button
+                    className="usa-button"
+                    disabled={this.props.disableSSW}
+                    onClick={this.downloadShipmentSummary}
+                  >
                     Download Worksheet (PDF)
                   </button>
                 </div>
@@ -252,6 +256,7 @@ class PaymentsTable extends Component {
                     <p>Download bundle of PPM receipts and attach it to the completed Shipment Summary Worksheet.</p>
                   </div>
                   <button
+                    className="usa-button"
                     disabled={this.state.disableDownload || this.disableDownloadAll()}
                     onClick={() =>
                       this.startDownload(['OTHER', 'WEIGHT_TICKET', 'WEIGHT_TICKET_SET', 'STORAGE_EXPENSE', 'EXPENSE'])
@@ -272,6 +277,7 @@ class PaymentsTable extends Component {
                     </p>
                   </div>
                   <button
+                    className="usa-button"
                     disabled={this.state.disableDownload}
                     onClick={() =>
                       this.startDownload(['OTHER', 'WEIGHT_TICKET', 'WEIGHT_TICKET_SET', 'STORAGE_EXPENSE'])
@@ -291,7 +297,9 @@ class PaymentsTable extends Component {
                       customer and Finance.
                     </p>
                   </div>
-                  <button onClick={this.documentUpload}>Upload Completed Packet</button>
+                  <button className="usa-button" onClick={this.documentUpload}>
+                    Upload Completed Packet
+                  </button>
                 </div>
               </div>
             </Fragment>

@@ -104,7 +104,7 @@ function AllowableExpenses(props) {
         </p>
       </section>
       <div className="usa-grid button-bar">
-        <button className="usa-button-secondary" onClick={goBack}>
+        <button className="usa-button usa-button--outline" onClick={goBack}>
           Back
         </button>
       </div>

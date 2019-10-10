@@ -3,6 +3,7 @@ import { bindActionCreators } from 'redux';
 import { getFormValues, reduxForm, SubmissionError } from 'redux-form';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
+import classNames from 'classnames';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
@@ -70,7 +71,10 @@ class AccessCode extends React.Component {
             swagger={schema}
             required
           />
-          <button className={styles['submit-access-code']} onClick={handleSubmit(this.validateAndClaimAccessCode)}>
+          <button
+            className={classNames('usa-button', styles['submit-access-code'])}
+            onClick={handleSubmit(this.validateAndClaimAccessCode)}
+          >
             Continue
           </button>
           <br />

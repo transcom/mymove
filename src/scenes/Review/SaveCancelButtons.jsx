@@ -8,10 +8,10 @@ const SaveCancelButtons = props => {
   const goBack = props.history.goBack;
   return (
     <div>
-      <button type="submit" disabled={submitting || !valid}>
+      <button className="usa-button" type="submit" disabled={submitting || !valid}>
         Save
       </button>
-      <button type="button" className="usa-button-secondary" disabled={submitting} onClick={goBack}>
+      <button type="button" className="usa-button usa-button--outline" disabled={submitting} onClick={goBack}>
         Cancel
       </button>
     </div>
