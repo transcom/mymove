@@ -5,18 +5,20 @@ import './index.css';
 
 export function AlertWithConfirmation(props) {
   return (
-    <div className={`usa-alert usa-alert-${props.type} usa-width-one-whole`}>
-      <div className="usa-alert-body usa-width-one-whole">
-        <div className="body--heading">
-          <div>{props.heading && <h3 className="usa-alert-heading">{props.heading}</h3>}</div>
-          <div className="usa-alert-text">{props.message}</div>
-          <div className="cancel-or-ok-buttons">
-            <button type="button" className="usa-button usa-button--outline" onClick={props.cancelActionHandler}>
-              Cancel
-            </button>
-            <button type="button" className="usa-button" onClick={props.okActionHandler}>
-              OK
-            </button>
+    <div className="grid-row">
+      <div className={`usa-alert usa-alert--${props.type} grid-col-12`}>
+        <div className="usa-alert__body">
+          <div className="body--heading">
+            <div>{props.heading && <h3 className="usa-alert__heading">{props.heading}</h3>}</div>
+            <div className="usa-alert__text">{props.message}</div>
+            <div className="cancel-or-ok-buttons">
+              <button type="button" className="usa-button usa-button--outline" onClick={props.cancelActionHandler}>
+                Cancel
+              </button>
+              <button type="button" className="usa-button" onClick={props.okActionHandler}>
+                OK
+              </button>
+            </div>
           </div>
         </div>
       </div>

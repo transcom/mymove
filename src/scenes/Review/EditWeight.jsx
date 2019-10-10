@@ -103,9 +103,9 @@ let EditWeightForm = props => {
           </div>
           <div>
             {!advanceError && initialValues && initialValues.incentive_estimate_min && dirty && (
-              <div className="usa-alert usa-alert-warning">
-                <div className="usa-alert-body">
-                  <p className="usa-alert-text">This update will change your incentive.</p>
+              <div className="usa-alert usa-alert--warning">
+                <div className="usa-alert__body">
+                  <p className="usa-alert__text">This update will change your incentive.</p>
                 </div>
               </div>
             )}
