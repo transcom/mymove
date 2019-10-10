@@ -30,7 +30,7 @@ func (suite *ModelSuite) TestReIntlPriceValidation() {
 			"service_id":               {"ServiceID can not be blank."},
 			"destination_rate_area_id": {"DestinationRateAreaID can not be blank."},
 			"origin_rate_area_id":      {"OriginRateAreaID can not be blank."},
-			"price_cents":              {"PriceCents can not be blank or negative."},
+			"price_cents":              {"PriceCents can not be zero or negative."},
 		}
 		suite.verifyValidationErrors(&invalidReIntlPrice, expErrors)
 	})
