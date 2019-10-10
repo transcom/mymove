@@ -63,7 +63,9 @@ export class Orders extends Component {
         <h1 className="sm-heading">Tell Us About Your Move Orders</h1>
         <SwaggerField fieldName="orders_type" swagger={this.props.schema} required />
         <SwaggerField fieldName="issue_date" swagger={this.props.schema} required />
-        <span className="grey">Date your orders were issued.</span>
+        <div style={{ marginTop: '0.5rem' }}>
+          <span className="grey">Date your orders were issued.</span>
+        </div>
         <SwaggerField fieldName="report_by_date" swagger={this.props.schema} required />
         <SwaggerField fieldName="has_dependents" swagger={this.props.schema} component={YesNoBoolean} />
         {get(this.props, 'formValues.has_dependents', false) && (
