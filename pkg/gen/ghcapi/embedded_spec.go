@@ -1120,6 +1120,11 @@ func init() {
           "type": "boolean",
           "example": true
         },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "571008b1-b0de-454d-b843-d71be9f02c04"
+        },
         "nonTemporaryStorage": {
           "type": "boolean",
           "example": false
@@ -2848,6 +2853,11 @@ func init() {
         "dependentsAuthorized": {
           "type": "boolean",
           "example": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "571008b1-b0de-454d-b843-d71be9f02c04"
         },
         "nonTemporaryStorage": {
           "type": "boolean",

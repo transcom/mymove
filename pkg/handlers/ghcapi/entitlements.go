@@ -17,6 +17,7 @@ type GetEntitlementsHandler struct {
 func (h GetEntitlementsHandler) Handle(params entitlementscodeop.GetEntitlementsParams) middleware.Responder {
 	// for now just return static data
 	entitlements := &ghcmessages.Entitlements{
+		ID:                    "571008b1-b0de-454d-b843-d71be9f02c04",
 		DependentsAuthorized:  false,
 		NonTemporaryStorage:   false,
 		PrivatelyOwnedVehicle: true,
