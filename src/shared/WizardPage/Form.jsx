@@ -1,6 +1,5 @@
 import React, { Component } from 'react'; // eslint-disable-line
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import { connect } from 'react-redux';
 import windowSize from 'react-window-size';
 import { bindActionCreators } from 'redux';
@@ -104,33 +103,37 @@ export class WizardFormPage extends Component {
     const canMoveBackward = (valid || !dirty) && !isFirstPage(pageList, pageKey);
     const hideBackBtn = isFirstPage(pageList, pageKey);
     return (
-      <div className="usa-grid">
+      <div className="grid-container">
         {serverError && (
-          <div className="usa-width-one-whole error-message">
-            <Alert type="error" heading="An error occurred">
-              {serverError.message}
-            </Alert>
+          <div className="grid-row">
+            <div className="grid-col-12 error-message">
+              <Alert type="error" heading="An error occurred">
+                {serverError.message}
+              </Alert>
+            </div>
           </div>
         )}
-        <div className="usa-width-one-whole">
-          <form className={className}>{children}</form>
+        <div className="grid-row">
+          <div className="grid-col-12">
+            <form className={className}>{children}</form>
+          </div>
         </div>
-        <div className="usa-width-one-whole lower-nav-btns">
-          {!isMobile && (
-            <div className="left cancel">
-              <button className="usa-button usa-button--outline" onClick={this.cancelFlow}>
+        <div className="grid-row">
+          <div className="grid-col-12 text-right">
+            {!isMobile && (
+              <button className="usa-button usa-button--outline cancel" onClick={this.cancelFlow}>
                 Cancel
               </button>
-            </div>
-          )}
-          <div className="prev-next">
-            <button
-              className={classNames('usa-button', 'usa-button--outline', 'prev', { 'hide-btn': hideBackBtn })}
-              onClick={hasReduxFormSubmitHandler ? handleSubmit(this.previousPage) : this.previousPage}
-              disabled={!canMoveBackward}
-            >
-              Back
-            </button>
+            )}
+            {!hideBackBtn && (
+              <button
+                className="usa-button usa-button--outline prev"
+                onClick={hasReduxFormSubmitHandler ? handleSubmit(this.previousPage) : this.previousPage}
+                disabled={!canMoveBackward}
+              >
+                Back
+              </button>
+            )}
             {!isLastPage(pageList, pageKey) && (
               <button
                 className="usa-button next"
