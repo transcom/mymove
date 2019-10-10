@@ -1080,58 +1080,58 @@ func init() {
         "updated_at"
       ],
       "properties": {
-        "BestValueScore": {
+        "best_value_score": {
           "type": "number",
           "example": 98.01
-        },
-        "LinehaulRate": {
-          "type": "number",
-          "example": 0.26085695149376986
-        },
-        "OfferCount": {
-          "type": "integer",
-          "example": 1
-        },
-        "PerformancePeriodEnd": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "PerformancePeriodStart": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "QualityBand": {
-          "type": "integer",
-          "x-nullable": true,
-          "example": 29
-        },
-        "RateCycleEnd": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "RateCycleStart": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "SITRate": {
-          "type": "number",
-          "example": 0.26085695149376986
-        },
-        "TrafficDistributionListID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "TransportationServiceProviderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "created_at": {
           "type": "string",
           "format": "date-time"
         },
         "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "linehaul_rate": {
+          "type": "number",
+          "example": 0.26085695149376986
+        },
+        "offer_count": {
+          "type": "integer",
+          "example": 1
+        },
+        "performance_period_end": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "performance_period_start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "quality_band": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 29
+        },
+        "rate_cycle_end": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "rate_cycle_start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sit_rate": {
+          "type": "number",
+          "example": 0.26085695149376986
+        },
+        "traffic_distribution_list_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "transportation_service_provider_id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -2256,58 +2256,58 @@ func init() {
         "updated_at"
       ],
       "properties": {
-        "BestValueScore": {
+        "best_value_score": {
           "type": "number",
           "example": 98.01
-        },
-        "LinehaulRate": {
-          "type": "number",
-          "example": 0.26085695149376986
-        },
-        "OfferCount": {
-          "type": "integer",
-          "example": 1
-        },
-        "PerformancePeriodEnd": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "PerformancePeriodStart": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "QualityBand": {
-          "type": "integer",
-          "x-nullable": true,
-          "example": 29
-        },
-        "RateCycleEnd": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "RateCycleStart": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "SITRate": {
-          "type": "number",
-          "example": 0.26085695149376986
-        },
-        "TrafficDistributionListID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "TransportationServiceProviderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "created_at": {
           "type": "string",
           "format": "date-time"
         },
         "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "linehaul_rate": {
+          "type": "number",
+          "example": 0.26085695149376986
+        },
+        "offer_count": {
+          "type": "integer",
+          "example": 1
+        },
+        "performance_period_end": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "performance_period_start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "quality_band": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 29
+        },
+        "rate_cycle_end": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "rate_cycle_start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sit_rate": {
+          "type": "number",
+          "example": 0.26085695149376986
+        },
+        "traffic_distribution_list_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "transportation_service_provider_id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"

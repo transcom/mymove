@@ -18,43 +18,7 @@ import (
 type TransportationServiceProviderPerformance struct {
 
 	// best value score
-	BestValueScore float64 `json:"BestValueScore,omitempty"`
-
-	// linehaul rate
-	LinehaulRate float64 `json:"LinehaulRate,omitempty"`
-
-	// offer count
-	OfferCount int64 `json:"OfferCount,omitempty"`
-
-	// performance period end
-	// Format: date-time
-	PerformancePeriodEnd strfmt.DateTime `json:"PerformancePeriodEnd,omitempty"`
-
-	// performance period start
-	// Format: date-time
-	PerformancePeriodStart strfmt.DateTime `json:"PerformancePeriodStart,omitempty"`
-
-	// quality band
-	QualityBand *int64 `json:"QualityBand,omitempty"`
-
-	// rate cycle end
-	// Format: date-time
-	RateCycleEnd strfmt.DateTime `json:"RateCycleEnd,omitempty"`
-
-	// rate cycle start
-	// Format: date-time
-	RateCycleStart strfmt.DateTime `json:"RateCycleStart,omitempty"`
-
-	// s i t rate
-	SITRate float64 `json:"SITRate,omitempty"`
-
-	// traffic distribution list ID
-	// Format: uuid
-	TrafficDistributionListID strfmt.UUID `json:"TrafficDistributionListID,omitempty"`
-
-	// transportation service provider ID
-	// Format: uuid
-	TransportationServiceProviderID strfmt.UUID `json:"TransportationServiceProviderID,omitempty"`
+	BestValueScore float64 `json:"best_value_score,omitempty"`
 
 	// created at
 	// Required: true
@@ -66,6 +30,42 @@ type TransportationServiceProviderPerformance struct {
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
 
+	// linehaul rate
+	LinehaulRate float64 `json:"linehaul_rate,omitempty"`
+
+	// offer count
+	OfferCount int64 `json:"offer_count,omitempty"`
+
+	// performance period end
+	// Format: date-time
+	PerformancePeriodEnd strfmt.DateTime `json:"performance_period_end,omitempty"`
+
+	// performance period start
+	// Format: date-time
+	PerformancePeriodStart strfmt.DateTime `json:"performance_period_start,omitempty"`
+
+	// quality band
+	QualityBand *int64 `json:"quality_band,omitempty"`
+
+	// rate cycle end
+	// Format: date-time
+	RateCycleEnd strfmt.DateTime `json:"rate_cycle_end,omitempty"`
+
+	// rate cycle start
+	// Format: date-time
+	RateCycleStart strfmt.DateTime `json:"rate_cycle_start,omitempty"`
+
+	// sit rate
+	SitRate float64 `json:"sit_rate,omitempty"`
+
+	// traffic distribution list id
+	// Format: uuid
+	TrafficDistributionListID strfmt.UUID `json:"traffic_distribution_list_id,omitempty"`
+
+	// transportation service provider id
+	// Format: uuid
+	TransportationServiceProviderID strfmt.UUID `json:"transportation_service_provider_id,omitempty"`
+
 	// updated at
 	// Required: true
 	// Format: date-time
@@ -75,6 +75,14 @@ type TransportationServiceProviderPerformance struct {
 // Validate validates this transportation service provider performance
 func (m *TransportationServiceProviderPerformance) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validatePerformancePeriodEnd(formats); err != nil {
 		res = append(res, err)
@@ -100,14 +108,6 @@ func (m *TransportationServiceProviderPerformance) Validate(formats strfmt.Regis
 		res = append(res, err)
 	}
 
-	if err := m.validateCreatedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateUpdatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -115,84 +115,6 @@ func (m *TransportationServiceProviderPerformance) Validate(formats strfmt.Regis
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *TransportationServiceProviderPerformance) validatePerformancePeriodEnd(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.PerformancePeriodEnd) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("PerformancePeriodEnd", "body", "date-time", m.PerformancePeriodEnd.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *TransportationServiceProviderPerformance) validatePerformancePeriodStart(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.PerformancePeriodStart) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("PerformancePeriodStart", "body", "date-time", m.PerformancePeriodStart.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *TransportationServiceProviderPerformance) validateRateCycleEnd(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.RateCycleEnd) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("RateCycleEnd", "body", "date-time", m.RateCycleEnd.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *TransportationServiceProviderPerformance) validateRateCycleStart(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.RateCycleStart) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("RateCycleStart", "body", "date-time", m.RateCycleStart.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *TransportationServiceProviderPerformance) validateTrafficDistributionListID(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.TrafficDistributionListID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("TrafficDistributionListID", "body", "uuid", m.TrafficDistributionListID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *TransportationServiceProviderPerformance) validateTransportationServiceProviderID(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.TransportationServiceProviderID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("TransportationServiceProviderID", "body", "uuid", m.TransportationServiceProviderID.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -216,6 +138,84 @@ func (m *TransportationServiceProviderPerformance) validateID(formats strfmt.Reg
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *TransportationServiceProviderPerformance) validatePerformancePeriodEnd(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.PerformancePeriodEnd) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("performance_period_end", "body", "date-time", m.PerformancePeriodEnd.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *TransportationServiceProviderPerformance) validatePerformancePeriodStart(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.PerformancePeriodStart) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("performance_period_start", "body", "date-time", m.PerformancePeriodStart.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *TransportationServiceProviderPerformance) validateRateCycleEnd(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.RateCycleEnd) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("rate_cycle_end", "body", "date-time", m.RateCycleEnd.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *TransportationServiceProviderPerformance) validateRateCycleStart(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.RateCycleStart) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("rate_cycle_start", "body", "date-time", m.RateCycleStart.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *TransportationServiceProviderPerformance) validateTrafficDistributionListID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.TrafficDistributionListID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("traffic_distribution_list_id", "body", "uuid", m.TrafficDistributionListID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *TransportationServiceProviderPerformance) validateTransportationServiceProviderID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.TransportationServiceProviderID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("transportation_service_provider_id", "body", "uuid", m.TransportationServiceProviderID.String(), formats); err != nil {
 		return err
 	}
 

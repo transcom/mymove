@@ -27,7 +27,7 @@ func payloadForTSPPModel(o models.TransportationServiceProviderPerformance) *adm
 		OfferCount:                      int64(o.OfferCount),
 		BestValueScore:                  o.BestValueScore,
 		LinehaulRate:                    o.LinehaulRate.Float64(),
-		SITRate:                         o.SITRate.Float64(),
+		SitRate:                         o.SITRate.Float64(),
 	}
 }
 
