@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 import { Field } from 'redux-form';
 import { normalizeSSN } from 'shared/JsonSchemaForm/reduxFieldNormalizer';
+import classNames from 'classnames';
 
 import { updateServiceMember } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
@@ -50,11 +51,17 @@ class SSNField extends Component {
 
     // This is copied from JsonSchemaField to match the styling
     return (
-      <div className={displayError ? 'usa-input-error' : 'usa-input'}>
-        <label className={displayError ? 'usa-input-error-label' : 'usa-input-label'} htmlFor={name}>
+      <div className={classNames('usa-form-group', { 'usa-form-group--error': displayError })}>
+        <label className={classNames('usa-label', { 'usa-label--error': displayError })} htmlFor={name}>
           Social security number
         </label>
-        <input {...this.props.input} onFocus={this.localOnFocus} onBlur={this.localOnBlur} value={displayedValue} />
+        <input
+          {...this.props.input}
+          className="usa-input"
+          onFocus={this.localOnFocus}
+          onBlur={this.localOnBlur}
+          value={displayedValue}
+        />
         {touched && error && (
           <span className="usa-input-error-message" id={name + '-error'} role="alert">
             {error}
