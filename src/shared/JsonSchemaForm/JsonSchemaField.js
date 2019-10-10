@@ -36,6 +36,7 @@ const createCheckbox = (fieldName, field, nameAttr, isDisabled) => {
 
 const configureDropDown = (swaggerField, props) => {
   props.componentNameOverride = 'select';
+  props.inputClassOverride = 'usa-select';
 
   return props;
 };
@@ -177,6 +178,7 @@ const renderInputField = ({
   title,
   always_required,
   componentNameOverride,
+  inputClassOverride,
   customComponent,
   meta: { touched, error, warning },
   children,
@@ -202,7 +204,8 @@ const renderInputField = ({
   const inputClasses = classNames(
     { 'usa-input--error': displayError },
     { 'usa-input-error-long-message': error && error.length > 57 },
-    'usa-input',
+    { [`${inputClassOverride}`]: inputClassOverride },
+    { 'usa-input': !inputClassOverride },
   );
 
   const FieldComponent = React.createElement(
@@ -357,7 +360,6 @@ const createSchemaField = (
   } else if (swaggerField.enum) {
     fieldProps = configureDropDown(swaggerField, fieldProps);
     children = dropDownChildren(swaggerField, filteredEnumListOverride);
-    className += ' rounded';
   } else if (['integer', 'number'].includes(swaggerField.type)) {
     if (swaggerField.format === 'cents') {
       fieldProps = configureCentsField(swaggerField, fieldProps);
