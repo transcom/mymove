@@ -23,6 +23,7 @@ import { RetrieveMovesForOffice } from './api';
 
 import './office.scss';
 import TOO from './TOO/too';
+import CustomerDetails from './TOO/customerDetails';
 import { withContext } from 'shared/AppContext';
 
 export class Queues extends Component {
@@ -154,7 +155,13 @@ export class OfficeWrapper extends Component {
                     )}
                   />
                 )}
-                {too && <PrivateRoute path="/too" component={TOO} />}
+                {too && <PrivateRoute path="/too/placeholder" component={TOO} />}
+                {too && (
+                  <PrivateRoute
+                    path="/too/customer/6ac40a00-e762-4f5f-b08d-3ea72a8e4b63/details"
+                    component={CustomerDetails}
+                  />
+                )}
               </Switch>
             )}
           </ConditionalWrap>
