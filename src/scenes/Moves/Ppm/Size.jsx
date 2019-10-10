@@ -69,10 +69,10 @@ class BigButtonGroup extends Component {
     );
     /* eslint-enable security/detect-object-injection */
     return (
-      <div>
-        <div className="usa-width-one-third">{small}</div>
-        <div className="usa-width-one-third">{medium}</div>
-        <div className="usa-width-one-third">{large}</div>
+      <div className="grid-row grid-gap">
+        <div className="grid-col-4">{small}</div>
+        <div className="grid-col-4">{medium}</div>
+        <div className="grid-col-4">{large}</div>
       </div>
     );
   }
