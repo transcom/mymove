@@ -66,8 +66,8 @@ export class WizardPage extends Component {
             </div>
           </div>
         )}
-        <div className="usa-width-one-whole">{children}</div>
-        <div className="grid-row">
+        {children}
+        <div className="grid-row" style={{ marginTop: '0.5rem' }}>
           <div className="grid-col-12 text-right">
             {!isMobile && (
               <button className="usa-button usa-button--outline cancel" onClick={this.cancelFlow} disabled={false}>
