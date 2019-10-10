@@ -11,8 +11,6 @@ import (
 )
 
 const (
-	// TspTestHost
-	TspTestHost string = "tsp.example.com"
 	// OfficeTestHost
 	OfficeTestHost string = "office.example.com"
 	// MilTestHost
@@ -32,7 +30,6 @@ func ApplicationTestServername() ApplicationServername {
 	appnames := ApplicationServername{
 		MilServername:    MilTestHost,
 		OfficeServername: OfficeTestHost,
-		TspServername:    TspTestHost,
 		AdminServername:  AdminTestHost,
 		OrdersServername: OrdersTestHost,
 		DpsServername:    DpsTestHost,
