@@ -49,10 +49,10 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - serviceItem
-      description: Get all information on a particular customer
+        - customer
+      description: Returns a given customer
       operationId: getCustomerInfo
-      summary: Gets a specific customer's information
+      summary: Returns a given customer
   /move-task-orders:
     get:
       produces:
@@ -960,7 +960,7 @@ definitions:
         title: Agency
       grade:
         type: string
-        examnple: Some Grade
+        example: Some Grade
         x-nullable: true
         title: Grade
       email:
