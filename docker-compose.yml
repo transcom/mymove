@@ -66,7 +66,6 @@ services:
       - HERE_MAPS_ROUTING_ENDPOINT
       - HTTP_MY_SERVER_NAME=milmovelocal
       - HTTP_OFFICE_SERVER_NAME=officelocal
-      - HTTP_TSP_SERVER_NAME=tsplocal
       - HTTP_ADMIN_SERVER_NAME=adminlocal
       - HTTP_ORDERS_SERVER_NAME=orderslocal
       - IWS_RBS_HOST
@@ -76,7 +75,6 @@ services:
       - LOGIN_GOV_MY_CLIENT_ID
       - LOGIN_GOV_OFFICE_CLIENT_ID
       - LOGIN_GOV_SECRET_KEY
-      - LOGIN_GOV_TSP_CLIENT_ID
       - LOGIN_GOV_ADMIN_CLIENT_ID
       - MOVE_MIL_DOD_CA_CERT
       - MOVE_MIL_DOD_TLS_CERT
@@ -87,4 +85,3 @@ services:
       - SERVE_ADMIN=true
       - SERVE_API_GHC=false
       - SERVE_API_INTERNAL=true
-      - SERVE_API_PUBLIC=true
