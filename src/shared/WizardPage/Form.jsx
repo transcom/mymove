@@ -113,12 +113,8 @@ export class WizardFormPage extends Component {
             </div>
           </div>
         )}
-        <div className="grid-row">
-          <div className="grid-col-12">
-            <form className={className}>{children}</form>
-          </div>
-        </div>
-        <div className="grid-row">
+        <form className={className}>{children}</form>
+        <div className="grid-row" style={{ marginTop: '0.5rem' }}>
           <div className="grid-col-12 text-right">
             {!isMobile && (
               <button className="usa-button usa-button--outline cancel" onClick={this.cancelFlow}>

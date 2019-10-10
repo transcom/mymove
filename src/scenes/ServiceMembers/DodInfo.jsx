@@ -125,12 +125,21 @@ export class DodInfo extends Component {
         initialValues={initialValues}
         ssnOnServer={ssnOnServer}
       >
-        <h1 className="sm-heading">Create your profile</h1>
-        <p>Before we can schedule your move, we need to know a little more about you.</p>
-        <SwaggerField fieldName="affiliation" swagger={schema} required />
-        <SwaggerField fieldName="edipi" swagger={schema} required />
-        <Field name="social_security_number" component={SSNField} ssnOnServer={ssnOnServer} normalize={normalizeSSN} />
-        <SwaggerField fieldName="rank" swagger={schema} required />
+        <div className="grid-row">
+          <div className="grid-col-12">
+            <h1 className="sm-heading">Create your profile</h1>
+            <p>Before we can schedule your move, we need to know a little more about you.</p>
+            <SwaggerField fieldName="affiliation" swagger={schema} required />
+            <SwaggerField fieldName="edipi" swagger={schema} required />
+            <Field
+              name="social_security_number"
+              component={SSNField}
+              ssnOnServer={ssnOnServer}
+              normalize={normalizeSSN}
+            />
+            <SwaggerField fieldName="rank" swagger={schema} required />
+          </div>
+        </div>
       </DodWizardForm>
     );
   }

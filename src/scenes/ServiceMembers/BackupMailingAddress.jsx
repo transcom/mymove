@@ -33,19 +33,29 @@ export class BackupMailingAddress extends Component {
         initialValues={initialValues}
         additionalParams={{ serviceMemberId }}
       >
-        <h1 className="sm-heading">Backup mailing address</h1>
-        <p>
-          Enter the address where mail will reach you if we can’t reach you at your primary address, such as your
-          parents’ address.
-        </p>
+        <div className="grid-row">
+          <div className="grid-col-12">
+            <h1 className="sm-heading">Backup mailing address</h1>
+            <p>
+              Enter the address where mail will reach you if we can’t reach you at your primary address, such as your
+              parents’ address.
+            </p>
 
-        <SwaggerField fieldName="street_address_1" swagger={this.props.schema} required />
-        <SwaggerField fieldName="street_address_2" swagger={this.props.schema} />
+            <SwaggerField fieldName="street_address_1" swagger={this.props.schema} required />
+            <SwaggerField fieldName="street_address_2" swagger={this.props.schema} />
+          </div>
+        </div>
 
-        <div className="address_inline">
-          <SwaggerField fieldName="city" swagger={this.props.schema} className="city_state_zip" required />
-          <SwaggerField fieldName="state" swagger={this.props.schema} className="city_state_zip" required />
-          <SwaggerField fieldName="postal_code" swagger={this.props.schema} className="city_state_zip" required />
+        <div className="grid-row grid-gap">
+          <div className="grid-col-2">
+            <SwaggerField fieldName="city" swagger={this.props.schema} required />
+          </div>
+          <div className="grid-col-2">
+            <SwaggerField fieldName="state" swagger={this.props.schema} required />
+          </div>
+          <div className="grid-col-2">
+            <SwaggerField fieldName="postal_code" swagger={this.props.schema} required />
+          </div>
         </div>
       </BackupMailingWizardForm>
     );
