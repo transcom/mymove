@@ -56,24 +56,24 @@ export class WizardPage extends Component {
     const canMoveForward = pageIsValid;
     const canMoveBackward = (pageIsValid || !dirty) && !isFirstPage(pageList, pageKey);
     return (
-      <div className="usa-grid">
+      <div className="grid-container">
         {error && (
-          <div className="usa-width-one-whole error-message">
-            <Alert type="error" heading="An error occurred">
-              {error.message}
-            </Alert>
+          <div className="grid-row">
+            <div className="grid-col-12 error-message">
+              <Alert type="error" heading="An error occurred">
+                {error.message}
+              </Alert>
+            </div>
           </div>
         )}
         <div className="usa-width-one-whole">{children}</div>
-        <div className="usa-width-one-whole lower-nav-btns">
-          {!isMobile && (
-            <div className="left cancel">
-              <button className="usa-button usa-button--outline" onClick={this.cancelFlow} disabled={false}>
+        <div className="grid-row">
+          <div className="grid-col-12 text-right">
+            {!isMobile && (
+              <button className="usa-button usa-button--outline cancel" onClick={this.cancelFlow} disabled={false}>
                 Cancel
               </button>
-            </div>
-          )}
-          <div className="prev-next">
+            )}
             <button
               className="usa-button usa-button--outline prev"
               onClick={this.previousPage}
