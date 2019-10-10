@@ -43,87 +43,93 @@ class PPMShipmentSummary extends Component {
       : 'Not requested';
 
     return (
-      <div className="usa-grid-full ppm-container">
-        <h3>
-          <img src={ppmBlack} alt="PPM shipment" /> Shipment - You move your stuff (PPM)
-        </h3>
-        <div className="usa-width-one-half review-section ppm-review-section">
-          <p className="heading">
-            Dates & Locations
-            <span className="edit-section-link">
-              <Link data-cy="edit-ppm-dates" to={editDateAndLocationAddress}>
-                Edit
-              </Link>
-            </span>
-          </p>
-
-          <table>
-            <tbody>
-              <tr>
-                <td> Move Date: </td>
-                <td>{formatDateSM(get(ppm, 'original_move_date'))}</td>
-              </tr>
-              <tr>
-                <td> Pickup ZIP Code: </td>
-                <td> {ppm && ppm.pickup_postal_code}</td>
-              </tr>
-              {ppm.has_additional_postal_code && (
-                <tr>
-                  <td> Additional Pickup: </td>
-                  <td> {ppm.additional_pickup_postal_code}</td>
-                </tr>
-              )}
-              <tr>
-                <td> Delivery ZIP Code: </td>
-                <td> {ppm && ppm.destination_postal_code}</td>
-              </tr>
-              <tr>
-                <td> Storage: </td>
-                <td data-cy="sit-display">{sitDisplay}</td>
-              </tr>
-            </tbody>
-          </table>
+      <div className="ppm-container">
+        <div className="grid-row">
+          <div className="grid-col-12">
+            <h3>
+              <img src={ppmBlack} alt="PPM shipment" /> Shipment - You move your stuff (PPM)
+            </h3>
+          </div>
         </div>
+        <div className="grid-row grid-gap">
+          <div className="grid-col-6 review-section ppm-review-section">
+            <p className="heading">
+              Dates & Locations
+              <span className="edit-section-link">
+                <Link data-cy="edit-ppm-dates" to={editDateAndLocationAddress}>
+                  Edit
+                </Link>
+              </span>
+            </p>
 
-        <div className="usa-width-one-half review-section ppm-review-section">
-          <p className="heading">
-            Weight
-            <span className="edit-section-link">
-              <Link data-cy="edit-ppm-weight" to={editWeightAddress}>
-                Edit
-              </Link>
-            </span>
-          </p>
-
-          <table>
-            <tbody>
-              <tr>
-                <td> Estimated Weight: </td>
-                <td> {ppm.weight_estimate && ppm.weight_estimate.toLocaleString()} lbs</td>
-              </tr>
-              <tr>
-                <td> Estimated PPM Incentive: </td>
-                {ppmEstimate.hasEstimateError ? (
-                  <td>
-                    Not ready yet{' '}
-                    <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
-                  </td>
-                ) : (
-                  <td>
-                    {' '}
-                    {ppmEstimate &&
-                      formatCentsRange(ppmEstimate.incentive_estimate_min, ppmEstimate.incentive_estimate_max)}
-                  </td>
-                )}
-              </tr>
-              {ppm.has_requested_advance && (
+            <table>
+              <tbody>
                 <tr>
-                  <td> Advance: </td>
-                  <td> ${formatCents(advance.requested_amount)}</td>
+                  <td> Move Date: </td>
+                  <td>{formatDateSM(get(ppm, 'original_move_date'))}</td>
                 </tr>
-              )}
-            </tbody>
-          </table>
+                <tr>
+                  <td> Pickup ZIP Code: </td>
+                  <td> {ppm && ppm.pickup_postal_code}</td>
+                </tr>
+                {ppm.has_additional_postal_code && (
+                  <tr>
+                    <td> Additional Pickup: </td>
+                    <td> {ppm.additional_pickup_postal_code}</td>
+                  </tr>
+                )}
+                <tr>
+                  <td> Delivery ZIP Code: </td>
+                  <td> {ppm && ppm.destination_postal_code}</td>
+                </tr>
+                <tr>
+                  <td> Storage: </td>
+                  <td data-cy="sit-display">{sitDisplay}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="grid-col-6 review-section ppm-review-section">
+            <p className="heading">
+              Weight
+              <span className="edit-section-link">
+                <Link data-cy="edit-ppm-weight" to={editWeightAddress}>
+                  Edit
+                </Link>
+              </span>
+            </p>
+
+            <table>
+              <tbody>
+                <tr>
+                  <td> Estimated Weight: </td>
+                  <td> {ppm.weight_estimate && ppm.weight_estimate.toLocaleString()} lbs</td>
+                </tr>
+                <tr>
+                  <td> Estimated PPM Incentive: </td>
+                  {ppmEstimate.hasEstimateError ? (
+                    <td>
+                      Not ready yet{' '}
+                      <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
+                    </td>
+                  ) : (
+                    <td>
+                      {' '}
+                      {ppmEstimate &&
+                        formatCentsRange(ppmEstimate.incentive_estimate_min, ppmEstimate.incentive_estimate_max)}
+                    </td>
+                  )}
+                </tr>
+                {ppm.has_requested_advance && (
+                  <tr>
+                    <td> Advance: </td>
+                    <td> ${formatCents(advance.requested_amount)}</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     );

@@ -65,8 +65,8 @@ function ServiceMemberSummary(props) {
   return (
     <div className="service-member-summary">
       <h3>Profile and Orders</h3>
-      <div className="usa-grid-full review-content">
-        <div className="usa-width-one-half review-section">
+      <div className="grid-row review-content">
+        <div className="grid-col-6 review-section">
           <p className="heading">
             Profile
             <span className="edit-section-link">
@@ -146,7 +146,7 @@ function ServiceMemberSummary(props) {
           )}
         </div>
 
-        <div className="usa-width-one-half review-section">
+        <div className="grid-col-6 review-section">
           <p className="heading">
             Contact Info
             <span className="edit-section-link">
