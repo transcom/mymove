@@ -14,10 +14,6 @@ type ElectronicOrderServiceSuite struct {
 	logger Logger
 }
 
-func (suite *ElectronicOrderServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func TestUserSuite(t *testing.T) {
 
 	ts := &ElectronicOrderServiceSuite{

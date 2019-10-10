@@ -15,8 +15,8 @@ type Organization struct {
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 	Name      string    `json:"name" db:"name"`
-	PocEmail  string    `json:"poc_email" db:"poc_email"`
-	PocPhone  string    `json:"poc_phone" db:"poc_phone"`
+	PocEmail  *string   `json:"poc_email" db:"poc_email"`
+	PocPhone  *string   `json:"poc_phone" db:"poc_phone"`
 }
 
 // String is not required by pop and may be deleted
@@ -39,8 +39,6 @@ func (o Organizations) String() string {
 func (o *Organization) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: o.Name, Name: "Name"},
-		&validators.StringIsPresent{Field: o.PocEmail, Name: "PocEmail"},
-		&validators.StringIsPresent{Field: o.PocPhone, Name: "PocPhone"},
 	), nil
 }
 

@@ -19,6 +19,8 @@ const (
 	ServeDPSFlag string = "serve-dps"
 	// ServeAPIInternalFlag is the internal api service flag
 	ServeAPIInternalFlag string = "serve-api-internal"
+	// ServeGHCAPIFlag is the ghc api service flag
+	ServeGHCFlag string = "serve-api-ghc"
 )
 
 // InitServiceFlags initializes the service command line flags
@@ -28,6 +30,7 @@ func InitServiceFlags(flag *pflag.FlagSet) {
 	flag.Bool(ServeOrdersFlag, false, "Enable the Orders Service.")
 	flag.Bool(ServeDPSFlag, false, "Enable the DPS Service.")
 	flag.Bool(ServeAPIInternalFlag, false, "Enable the Internal API Service.")
+	flag.Bool(ServeGHCFlag, false, "Enable the GHC API Service.")
 }
 
 // CheckServices validates these lovely service flags
@@ -37,13 +40,15 @@ func CheckServices(v *viper.Viper) error {
 	ordersEnabled := v.GetBool(ServeOrdersFlag)
 	dpsEnabled := v.GetBool(ServeDPSFlag)
 	internalAPIEnabled := v.GetBool(ServeAPIInternalFlag)
+	ghcAPIEnabled := v.GetBool(ServeGHCFlag)
 
 	// Oops none of the flags used
 	if (!adminEnabled) &&
 		(!sddcEnabled) &&
 		(!ordersEnabled) &&
 		(!dpsEnabled) &&
-		(!internalAPIEnabled) {
+		(!internalAPIEnabled) &&
+		(!ghcAPIEnabled) {
 		return errors.New("no service was enabled")
 	}
 

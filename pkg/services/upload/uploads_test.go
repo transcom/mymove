@@ -14,10 +14,6 @@ type UploadsServiceSuite struct {
 	logger Logger
 }
 
-func (suite *UploadsServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func TestUploadsServiceSuite(t *testing.T) {
 
 	hs := &UploadsServiceSuite{

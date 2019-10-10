@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go v1.23.21
 	github.com/cockroachdb/apd v1.1.0 // indirect
 	github.com/cockroachdb/cockroach-go v0.0.0-20181001143604-e0a95dfd547c // indirect
-	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4
+	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/disintegration/imaging v1.6.1
@@ -30,7 +30,7 @@ require (
 	github.com/go-playground/locales v0.12.1
 	github.com/go-playground/universal-translator v0.16.0
 	github.com/go-swagger/go-swagger v0.20.2-0.20190910212040-c49ea4ca2112
-	github.com/gobuffalo/envy v1.7.1 // indirect
+	github.com/gobuffalo/envy v1.7.1
 	github.com/gobuffalo/fizz v1.9.5
 	github.com/gobuffalo/flect v0.1.6 // indirect
 	github.com/gobuffalo/logger v1.0.1 // indirect
