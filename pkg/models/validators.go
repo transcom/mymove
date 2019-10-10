@@ -131,7 +131,7 @@ type UnitCentsIsPositive struct {
 // Is Valid adds an error if the value is not zero
 func (v *UnitCentsIsPositive) IsValid(errors *validate.Errors) {
 	if v.Field == 0 {
-		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank or negative.", v.Name))
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be 0 or negative.", v.Name))
 	}
 }
 
