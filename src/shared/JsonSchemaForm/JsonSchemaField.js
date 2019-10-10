@@ -22,7 +22,16 @@ const parseNumberField = value => {
 
 // ----- Field configuration -----
 const createCheckbox = (fieldName, field, nameAttr, isDisabled) => {
-  return <Field id={fieldName} name={nameAttr} component="input" type="checkbox" disabled={isDisabled} />;
+  return (
+    <Field
+      id={fieldName}
+      name={nameAttr}
+      component="input"
+      type="checkbox"
+      className="usa-checkbox__input"
+      disabled={isDisabled}
+    />
+  );
 };
 
 const configureDropDown = (swaggerField, props) => {
@@ -309,14 +318,14 @@ const createSchemaField = (
   const nameAttr = nameSpace ? `${nameSpace}.${fieldName}` : fieldName;
   if (swaggerField.type === 'boolean' && !component) {
     return (
-      <Fragment key={fieldName}>
+      <div key={fieldName} className="usa-checkbox">
         {createCheckbox(fieldName, swaggerField, nameAttr, disabled)}
         {hideLabel || (
-          <label htmlFor={fieldName} className="usa-input-label">
+          <label htmlFor={fieldName} className="usa-checkbox__label">
             {title || swaggerField.title || fieldName}
           </label>
         )}
-      </Fragment>
+      </div>
     );
   }
 
