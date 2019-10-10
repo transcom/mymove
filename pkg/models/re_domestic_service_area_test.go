@@ -31,29 +31,31 @@ func (suite *ModelSuite) TestReDomesticServiceAreaValidation() {
 		suite.verifyValidationErrors(&invalidReDomesticServiceArea, expErrors)
 	})
 
-	suite.T().Run("test service schedule over 3 for ReDomesticServiceArea", func(t *testing.T) {
+	suite.T().Run("test schedules over 3 for ReDomesticServiceArea", func(t *testing.T) {
 		invalidReDomesticServiceArea := models.ReDomesticServiceArea{
 			BasePointCity:   "New York",
 			State:           "NY",
 			ServiceArea:     9,
 			ServiceSchedule: 4,
-			SITPDSchedule:   2,
+			SITPDSchedule:   5,
 		}
 		expErrors := map[string][]string{
-			"service_schedule": {"4 is not less than 4."},
+			"service_schedule":   {"4 is not less than 4."},
+			"s_i_t_p_d_schedule": {"5 is not less than 4."},
 		}
 		suite.verifyValidationErrors(&invalidReDomesticServiceArea, expErrors)
 	})
 
-	suite.T().Run("test sit pd schedule less than 1 for ReDomesticServiceArea", func(t *testing.T) {
+	suite.T().Run("test schedules less than 1 for ReDomesticServiceArea", func(t *testing.T) {
 		invalidReDomesticServiceArea := models.ReDomesticServiceArea{
 			BasePointCity:   "New York",
 			State:           "NY",
 			ServiceArea:     9,
-			ServiceSchedule: 2,
+			ServiceSchedule: -3,
 			SITPDSchedule:   -1,
 		}
 		expErrors := map[string][]string{
+			"service_schedule":   {"-3 is not greater than 0."},
 			"s_i_t_p_d_schedule": {"-1 is not greater than 0."},
 		}
 		suite.verifyValidationErrors(&invalidReDomesticServiceArea, expErrors)
