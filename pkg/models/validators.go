@@ -122,6 +122,19 @@ func (v *Int64IsPresent) IsValid(errors *validate.Errors) {
 	}
 }
 
+// UnitCentsIsPresent validates that there is a non-zero value for cents
+type UnitCentsIsPositive struct {
+	Name  string
+	Field unit.Cents
+}
+
+// Is Valid adds an error if the value is not zero
+func (v *UnitCentsIsPositive) IsValid(errors *validate.Errors) {
+	if v.Field == 0 {
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank or negative.", v.Name))
+	}
+}
+
 // DiscountRateIsValid validates that a DiscountRate contains a value between 0 and 1.
 type DiscountRateIsValid struct {
 	Name  string
