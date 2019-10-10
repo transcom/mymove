@@ -2,19 +2,19 @@ form.default {
   padding: 2rem;
 }
 
-form.default fieldset {
-  margin-top: 1em;
-  margin-bottom: 2em;
-  background-color: #ffffff;
-  padding-left: 3rem;
-  padding-bottom: 2em;
-  border: 1px solid #eeeeee;
-}
+/* form.default fieldset { */
+  /* margin-top: 1em; */
+  /* margin-bottom: 2em; */
+  /* background-color: #ffffff; */
+  /* padding-left: 3rem; */
+  /* padding-bottom: 2em; */
+  /* border: 1px solid #eeeeee; */
+/* } */
 
-form.default legend {
-  font-size: 2rem;
-  font-weight: 700;
-}
+/* form.default legend { */
+  /* font-size: 2rem; */
+  /* font-weight: 700; */
+/* } */
 
 h1.sm-heading {
   font-size: 3rem;
