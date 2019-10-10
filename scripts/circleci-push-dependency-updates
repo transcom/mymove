@@ -16,7 +16,7 @@ if [[ -z "$(git status --short)" ]]; then
     exit 0
 fi
 
-# TODO this will likely get rolled into default image
+# TODO consider updating circleci-docker-primary to include hub
 curl -sSLO https://github.com/github/hub/releases/download/v2.12.8/hub-linux-amd64-2.12.8.tgz \
 && tar xzf hub-linux-amd64-2.12.8.tgz \
 && sudo hub-linux-amd64-2.12.8/install \
@@ -61,9 +61,6 @@ git commit -am "Automated dependency updates ${deps_name} | $(date -R)"
 git push -v --set-upstream origin "${branch}"
 pr_url=$(hub pull-request -l dependencies automerge -m "Automated ${deps_name} dependency update | $(date -R)")
 
-## Announce changes
-echo "${github_repo}"
-echo "${deps_name}"
+# Announce changes
 text="<${pr_url}|Pull request> created in ${github_repo} for $(date +'%m-%d-%Y') ${deps_name} dependency update"
-#TODO revert echo to curl
-echo -X POST --data-urlencode 'payload={"text":"'"${text}"'"}' "${SLACK_WEBHOOK_URL}"
+curl -X POST --data-urlencode 'payload={"text":"'"${text}"'"}' "${SLACK_WEBHOOK_URL}"
