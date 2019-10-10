@@ -9,10 +9,13 @@ import (
 func (suite *ModelSuite) TestOrganizationCreation() {
 	t := suite.T()
 
+	email := "test@truss.works"
+	phone := "9144825484"
+
 	newOrganization := Organization{
 		Name:     "Truss",
-		PocEmail: "test@truss.works",
-		PocPhone: "9144825484",
+		PocEmail: &email,
+		PocPhone: &phone,
 	}
 
 	if verrs, err := suite.DB().ValidateAndCreate(&newOrganization); err != nil || verrs.HasAny() {
@@ -28,9 +31,7 @@ func (suite *ModelSuite) TestOrganizationCreationWithoutValues() {
 	newOrganization := &Organization{}
 
 	expErrors := map[string][]string{
-		"name":      {"Name can not be blank."},
-		"poc_email": {"PocEmail can not be blank."},
-		"poc_phone": {"PocPhone can not be blank."},
+		"name": {"Name can not be blank."},
 	}
 
 	suite.verifyValidationErrors(newOrganization, expErrors)

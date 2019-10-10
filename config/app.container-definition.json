@@ -90,10 +90,6 @@
       "value": "office.{{ .domain }}"
     },
     {
-      "name": "HTTP_TSP_SERVER_NAME",
-      "value": "tsp.{{ .domain }}"
-    },
-    {
       "name": "HTTP_ADMIN_SERVER_NAME",
       "value": "admin.{{ .domain }}"
     },

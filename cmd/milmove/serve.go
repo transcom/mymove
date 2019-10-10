@@ -455,7 +455,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	appnames := auth.ApplicationServername{
 		MilServername:    v.GetString(cli.HTTPMyServerNameFlag),
 		OfficeServername: v.GetString(cli.HTTPOfficeServerNameFlag),
-		TspServername:    v.GetString(cli.HTTPTSPServerNameFlag),
 		AdminServername:  v.GetString(cli.HTTPAdminServerNameFlag),
 		OrdersServername: v.GetString(cli.HTTPOrdersServerNameFlag),
 		DpsServername:    v.GetString(cli.HTTPDPSServerNameFlag),
