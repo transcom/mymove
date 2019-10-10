@@ -24,7 +24,7 @@ import { RetrieveMovesForOffice } from './api';
 import './office.scss';
 import { withContext } from 'shared/AppContext';
 
-const TOOPrivateRoute = Loadable({
+const TOO = Loadable({
   loader: () => import('./TOO/too'),
   loading: () => <LoadingPlaceholder />,
 });
@@ -158,7 +158,7 @@ export class OfficeWrapper extends Component {
                     )}
                   />
                 )}
-                {too && <TOOPrivateRoute />}
+                {too && <PrivateRoute path="/ghc/too" component={TOO} />}
               </Switch>
             )}
           </ConditionalWrap>
