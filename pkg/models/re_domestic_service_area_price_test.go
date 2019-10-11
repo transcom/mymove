@@ -26,13 +26,13 @@ func (suite *ModelSuite) TestReDomesticServiceAreaPriceValidations() {
 	})
 
 	suite.T().Run("test empty ReDomesticServiceAreaPrice", func(t *testing.T) {
-		emptyReDomesticServiceAreaPrice := &models.ReDomesticServiceAreaPrice{}
+		emptyReDomesticServiceAreaPrice := models.ReDomesticServiceAreaPrice{}
 		expErrors := map[string][]string{
 			"contract_id":              {"ContractID can not be blank."},
 			"service_id":               {"ServiceID can not be blank."},
 			"domestic_service_area_id": {"DomesticServiceAreaID can not be blank."},
 			"price_cents":              {"PriceCents can not be blank.", "0 is not greater than 0."},
 		}
-		suite.verifyValidationErrors(emptyReDomesticServiceAreaPrice, expErrors)
+		suite.verifyValidationErrors(&emptyReDomesticServiceAreaPrice, expErrors)
 	})
 }
