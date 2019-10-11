@@ -390,8 +390,26 @@ jobs:
       - run:
           name: Build Go Junit Report
           command: make bin/go-junit-report
-      - run: make bin/milmove
-      - run: make db_test_migrate
+          environment:
+            GOPROXY: https://gocenter.io
+      - run:
+          name: make bin/milmove
+          command: make bin/milmove
+          environment:
+            GOPROXY: https://gocenter.io
+      - run:
+          name: make db_test_migrate
+          command: make db_test_migrate
+          environment:
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
+            MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
       - run:
           name: make server_test_standalone
           command: |
@@ -412,6 +430,7 @@ jobs:
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
+            GOPROXY: https://gocenter.io
             MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
             MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
             SERVE_API_INTERNAL: true
@@ -440,8 +459,24 @@ jobs:
             curl -L --retry 5 --retry-connrefused https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 --output /home/circleci/cc-test-reporter
             chmod +x /home/circleci/cc-test-reporter
             /home/circleci/cc-test-reporter before-build -d
-      - run: make bin/milmove
-      - run: make db_test_migrate
+      - run:
+          name: make bin/milmove
+          command: make bin/milmove
+          environment:
+            GOPROXY: https://gocenter.io
+      - run:
+          name: make db_test_migrate
+          command: make db_test_migrate
+          environment:
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
+            MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
       - run:
           name: make server_test_coverage_generate_standalone
           command: |
@@ -459,6 +494,7 @@ jobs:
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
+            GOPROXY: https://gocenter.io
             MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
             MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
             SERVE_API_INTERNAL: true
