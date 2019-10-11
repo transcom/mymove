@@ -15,19 +15,22 @@ import (
 )
 
 func payloadForTSPPModel(o models.TransportationServiceProviderPerformance) *adminmessages.TransportationServiceProviderPerformance {
+	lhRate := o.LinehaulRate.Float64()
+	sitRate := o.SITRate.Float64()
+
 	return &adminmessages.TransportationServiceProviderPerformance{
 		ID:                              handlers.FmtUUID(o.ID),
-		TrafficDistributionListID:       *handlers.FmtUUID(o.TrafficDistributionListID),
-		TransportationServiceProviderID: *handlers.FmtUUID(o.TransportationServiceProviderID),
-		PerformancePeriodStart:          *handlers.FmtDateTime(o.PerformancePeriodStart),
-		PerformancePeriodEnd:            *handlers.FmtDateTime(o.PerformancePeriodEnd),
-		RateCycleStart:                  *handlers.FmtDateTime(o.RateCycleStart),
-		RateCycleEnd:                    *handlers.FmtDateTime(o.RateCycleEnd),
+		TrafficDistributionListID:       handlers.FmtUUID(o.TrafficDistributionListID),
+		TransportationServiceProviderID: handlers.FmtUUID(o.TransportationServiceProviderID),
+		PerformancePeriodStart:          handlers.FmtDateTime(o.PerformancePeriodStart),
+		PerformancePeriodEnd:            handlers.FmtDateTime(o.PerformancePeriodEnd),
+		RateCycleStart:                  handlers.FmtDateTime(o.RateCycleStart),
+		RateCycleEnd:                    handlers.FmtDateTime(o.RateCycleEnd),
 		QualityBand:                     handlers.FmtIntPtrToInt64(o.QualityBand),
-		OfferCount:                      int64(o.OfferCount),
-		BestValueScore:                  o.BestValueScore,
-		LinehaulRate:                    o.LinehaulRate.Float64(),
-		SitRate:                         o.SITRate.Float64(),
+		OfferCount:                      handlers.FmtIntPtrToInt64(&o.OfferCount),
+		BestValueScore:                  &o.BestValueScore,
+		LinehaulRate:                    &lhRate,
+		SitRate:                         &sitRate,
 	}
 }
 
