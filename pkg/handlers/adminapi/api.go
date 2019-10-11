@@ -90,6 +90,12 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		pagination.NewPagination,
 	}
 
+	adminAPI.AdminUsersGetAdminUserHandler = GetAdminUserHandler{
+		context,
+		adminuser.NewAdminUserFetcher(queryBuilder),
+		query.NewQueryFilter,
+	}
+
 	adminAPI.UploadGetUploadHandler = GetUploadHandler{
 		context,
 		upload.NewUploadFetcher(queryBuilder),

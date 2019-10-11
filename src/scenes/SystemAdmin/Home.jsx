@@ -10,6 +10,7 @@ import OfficeUserCreate from './OfficeUsers/OfficeUserCreate';
 import OfficeUserEdit from './OfficeUsers/OfficeUserEdit';
 import OfficeUserShow from './OfficeUsers/OfficeUserShow';
 import AdminUserList from './AdminUsers/AdminUserList';
+import AdminUserShow from './AdminUsers/AdminUserShow';
 import OfficeList from './Offices/OfficeList';
 import ElectronicOrderList from './ElectronicOrders/ElectronicOrderList';
 import styles from './Home.module.scss';
@@ -46,7 +47,7 @@ const Home = () => (
         edit={OfficeUserEdit}
       />
       <Resource name="offices" options={{ label: 'Offices' }} list={OfficeList} />
-      <Resource name="admin_users" options={{ label: 'Admin Users' }} list={AdminUserList} />
+      <Resource name="admin_users" options={{ label: 'Admin Users' }} list={AdminUserList} show={AdminUserShow} />
       <Resource name="electronic_orders" options={{ label: 'Electronic orders' }} list={ElectronicOrderList} />
       <Resource name="access_codes" options={{ label: 'Access codes' }} list={AccessCodeList} />
       <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />

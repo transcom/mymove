@@ -145,6 +145,45 @@ func init() {
         }
       }
     },
+    "/admin_users/{adminUserId}": {
+      "get": {
+        "description": "Returns a single admin user",
+        "tags": [
+          "admin_users"
+        ],
+        "summary": "Fetch a specific admin user",
+        "operationId": "getAdminUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "adminUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/AdminUser"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "office not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/electronic_orders": {
       "get": {
         "description": "Returns a list of electronic orders",
@@ -1171,6 +1210,45 @@ func init() {
                 "type": "string",
                 "description": "Used for pagination"
               }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "office not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/admin_users/{adminUserId}": {
+      "get": {
+        "description": "Returns a single admin user",
+        "tags": [
+          "admin_users"
+        ],
+        "summary": "Fetch a specific admin user",
+        "operationId": "getAdminUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "adminUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/AdminUser"
             }
           },
           "400": {
