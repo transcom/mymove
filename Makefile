@@ -393,7 +393,8 @@ ifndef CIRCLECI
 else
 	# Limit the maximum number of tests to run in parallel for CircleCI due to memory constraints.
 	# Add verbose (-v) so go-junit-report can parse it for CircleCI results
-	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) go test -v -parallel 4 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
+	@echo "Maximum parallel tests is set to 4"
+	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) go test -parallel 4 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
 endif
 
 server_test_build:
@@ -419,6 +420,10 @@ server_test_coverage_generate_standalone: ## Run server unit tests with coverage
 .PHONY: server_test_coverage
 server_test_coverage: db_test_reset db_test_migrate server_test_coverage_generate ## Run server unit test coverage with html output
 	DB_PORT=$(DB_PORT_TEST) go tool cover -html=coverage.out
+
+.PHONY: server_test_docker
+server_test_docker:
+	docker-compose -f docker-compose.circle.yml --compatibility up server_test
 
 #
 # ----- END SERVER TARGETS -----

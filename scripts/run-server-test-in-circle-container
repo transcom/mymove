@@ -8,6 +8,8 @@ set -eu -o pipefail
 
 make clean
 
+go get ./...
+
 make bin/go-junit-report
 
 make bin/milmove
