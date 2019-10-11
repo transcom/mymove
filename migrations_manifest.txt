@@ -361,3 +361,4 @@
 20190927150748_insert_duty_station_names.up.sql
 20190930152918_import_bvs_performance_period_4.up.sql
 20191008151614_re_create_reference_tables.up.sql
+20191010165703_re_create_misc_pricing_tables.up.sql

@@ -1,0 +1,40 @@
+package models
+
+import (
+	"time"
+
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/validators"
+	"github.com/gofrs/uuid"
+)
+
+// ReDomesticAccessorialPrice model struct
+type ReDomesticAccessorialPrice struct {
+	ID              uuid.UUID `json:"id" db:"id"`
+	ContractID      uuid.UUID `json:"contract_id" db:"contract_id"`
+	ServiceID       uuid.UUID `json:"service_id" db:"service_id"`
+	ServiceSchedule int       `json:"service_schedule" db:"service_schedule"`
+	PerUnitCents    int       `json:"per_unit_cents" db:"per_unit_cents"`
+	CreatedAt       time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at" db:"updated_at"`
+
+	//associations
+	Contract ReContract `belongs_to:"re_contract"`
+	Service  ReService  `belongs_to:"re_service"`
+}
+
+// ReDomesticAccessorialPrices is not required by pop and may be deleted
+type ReDomesticAccessorialPrices []ReDomesticAccessorialPrice
+
+// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
+// This method is not required and may be deleted.
+func (r *ReDomesticAccessorialPrice) Validate(tx *pop.Connection) (*validate.Errors, error) {
+	return validate.Validate(
+		&validators.UUIDIsPresent{Field: r.ContractID, Name: "ContractID"},
+		&validators.UUIDIsPresent{Field: r.ServiceID, Name: "ServiceTypeID"},
+		&validators.IntIsGreaterThan{Field: r.ServiceSchedule, Name: "ServiceSchedule", Compared: 0},
+		&validators.IntIsLessThan{Field: r.ServiceSchedule, Name: "ServiceSchedule", Compared: 4},
+		&validators.IntIsPresent{Field: r.PerUnitCents, Name: "PerUnitCents"},
+	), nil
+}
