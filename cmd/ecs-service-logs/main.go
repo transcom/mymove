@@ -464,7 +464,7 @@ func showFunction(cmd *cobra.Command, args []string) error {
 		endTimeUnix = aws.Int64(endTime.Unix() * 1000)     // milliseconds
 
 		if *startTimeUnix > *endTimeUnix {
-			return &errInvalidTimeRange{StartTime: startTime, EndTime: endTime}
+			return &errInvalidTimeRange{StartTime: startTime.String(), EndTime: endTime.String()}
 		}
 	}
 
