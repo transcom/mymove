@@ -57,9 +57,10 @@ func (suite *TSPServiceSuite) TestFetchTSPPList() {
 
 	suite.T().Run("if TSPPs are fetched, it should be returned", func(t *testing.T) {
 		id, err := uuid.NewV4()
-		id2, err := uuid.NewV4()
+		id2, err2 := uuid.NewV4()
 
 		suite.NoError(err)
+		suite.NoError(err2)
 		fakeFetchMany := func(model interface{}) error {
 			value := reflect.ValueOf(model).Elem()
 			value.Set(reflect.Append(value, reflect.ValueOf(models.TransportationServiceProviderPerformance{ID: id})))
