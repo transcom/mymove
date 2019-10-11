@@ -220,3 +220,95 @@ func TestOptionalStringInclusion_IsValid(t *testing.T) {
 		}
 	})
 }
+
+func TestFloat64IsPresent_IsValid(t *testing.T) {
+	fieldName := "number"
+
+	t.Run("Float64 is non-zero", func(t *testing.T) {
+		validator := models.Float64IsPresent{Name: fieldName, Field: 3.14}
+		errs := validate.NewErrors()
+		validator.IsValid(errs)
+
+		if errs.Count() != 0 {
+			t.Fatal("There should be no errors")
+		}
+	})
+
+	t.Run("Float64 is not provided", func(t *testing.T) {
+		validator := models.Float64IsPresent{Name: fieldName}
+		errs := validate.NewErrors()
+		validator.IsValid(errs)
+
+		if errs.Count() != 1 {
+			t.Fatal("There should be one error")
+		}
+
+		testErrors := errs.Get(fieldName)
+		expected := fmt.Sprintf("%s can not be blank.", validator.Name)
+		if testErrors[0] != expected {
+			t.Fatalf("wrong validation message; expected %s, got %s", expected, testErrors[0])
+		}
+	})
+
+	t.Run("Float64 is set to 0; has custom error message", func(t *testing.T) {
+		customMessage := "Validation failed"
+		validator := models.Float64IsPresent{Name: fieldName, Field: 0, Message: customMessage}
+		errs := validate.NewErrors()
+		validator.IsValid(errs)
+
+		if errs.Count() != 1 {
+			t.Fatal("There should be one error")
+		}
+
+		testErrors := errs.Get(fieldName)
+		if testErrors[0] != customMessage {
+			t.Fatalf("wrong validation message; expected %s, got %s", customMessage, testErrors[0])
+		}
+	})
+}
+
+func TestFloat64IsGreaterThan_IsValid(t *testing.T) {
+	fieldName := "number"
+
+	t.Run("Float64 is greater than compared", func(t *testing.T) {
+		validator := models.Float64IsGreaterThan{Name: fieldName, Field: 2, Compared: 1}
+		errs := validate.NewErrors()
+		validator.IsValid(errs)
+
+		if errs.Count() != 0 {
+			t.Fatal("There should be no errors")
+		}
+	})
+
+	t.Run("Float64 is less than compared", func(t *testing.T) {
+		validator := models.Float64IsGreaterThan{Name: fieldName, Field: 1, Compared: 2}
+		errs := validate.NewErrors()
+		validator.IsValid(errs)
+
+		if errs.Count() != 1 {
+			t.Fatal("There should be one error")
+		}
+
+		testErrors := errs.Get(fieldName)
+		expected := fmt.Sprintf("%f is not greater than %f.", validator.Field, validator.Compared)
+		if testErrors[0] != expected {
+			t.Fatalf("wrong validation message; expected %s, got %s", expected, testErrors[0])
+		}
+	})
+
+	t.Run("Float64 is equal to compared; has custom error message", func(t *testing.T) {
+		customMessage := "Validation failed"
+		validator := models.Float64IsGreaterThan{Name: fieldName, Field: 0, Compared: 0, Message: customMessage}
+		errs := validate.NewErrors()
+		validator.IsValid(errs)
+
+		if errs.Count() != 1 {
+			t.Fatal("There should be one error")
+		}
+
+		testErrors := errs.Get(fieldName)
+		if testErrors[0] != customMessage {
+			t.Fatalf("wrong validation message; expected %s, got %s", customMessage, testErrors[0])
+		}
+	})
+}
