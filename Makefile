@@ -825,7 +825,7 @@ gofmt:  ## Run go fmt over all Go files
 	go fmt $$(go list ./...) >> /dev/null
 
 .PHONY: pre_commit_tests
-pre_commit_tests: .client_deps.stamp ## Run pre-commit tests
+pre_commit_tests: .client_deps.stamp bin/swagger ## Run pre-commit tests
 	pre-commit run --all-files
 
 .PHONY: pretty

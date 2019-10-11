@@ -7,7 +7,7 @@ The server_test job seems to fail in some cases only when running on the build s
 To run the job execute the following command:
 
 ```sh
-docker-compose -f docker-compose.circle.yml --compatibility up server_test
+make server_test_docker
 ```
 
 The `--compatibility` flag must be used to tell docker-compose to apply the limits to the local containers even though we are not running in a docker swarm. As of version 3 of docker-compose these settings are only applied to swarm containers. See [Upgrading Version 2 to 3](https://docs.docker.com/compose/compose-file/compose-versioning/#upgrading)

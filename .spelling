@@ -531,5 +531,3 @@ vCPUs
  - ./docs/how-to/run-storybook.md
  - ./docs/database.md
  - ./docs/._database.md
- - ./docs/README.md
- - ./docs/how-to/run-server-test-circle-ci.md
