@@ -224,8 +224,6 @@ jobs:
       - run:
           name: Install dependencies
           command: for i in $(seq 1 5); do go get ./... && s=0 && break || s=$? && sleep 5; done; (exit $s)
-          environment:
-            GOPROXY: https://gocenter.io
       - save_cache:
           key: go-mod-sources-v2-{{ checksum "go.sum" }}
           paths:
@@ -387,16 +385,8 @@ jobs:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
-      - run:
-          name: Build Go Junit Report
-          command: make bin/go-junit-report
-          environment:
-            GOPROXY: https://gocenter.io
-      - run:
-          name: make bin/milmove
-          command: make bin/milmove
-          environment:
-            GOPROXY: https://gocenter.io
+      - run: make bin/go-junit-report
+      - run: make bin/milmove
       - run:
           name: make db_test_migrate
           command: make db_test_migrate
@@ -430,7 +420,6 @@ jobs:
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
-            GOPROXY: https://gocenter.io
             MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
             MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
             SERVE_API_INTERNAL: true
@@ -459,11 +448,7 @@ jobs:
             curl -L --retry 5 --retry-connrefused https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 --output /home/circleci/cc-test-reporter
             chmod +x /home/circleci/cc-test-reporter
             /home/circleci/cc-test-reporter before-build -d
-      - run:
-          name: make bin/milmove
-          command: make bin/milmove
-          environment:
-            GOPROXY: https://gocenter.io
+      - run: make bin/milmove
       - run:
           name: make db_test_migrate
           command: make db_test_migrate
@@ -494,7 +479,6 @@ jobs:
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
-            GOPROXY: https://gocenter.io
             MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
             MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
             SERVE_API_INTERNAL: true
