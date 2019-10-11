@@ -10,9 +10,9 @@ var securityHeaders = map[string]string{
 	"strict-transport-security": "max-age=31536000; includeSubdomains; preload",
 	// Sets headers to prevent rendering our page in an iframe, prevents clickjacking
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
-	"X-Frame-Options": "deny",
+	"X-Frame-Options": "sameorigin",
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
-	"Content-Security-Policy": "frame-ancestors 'none'",
+	"Content-Security-Policy": `frame-ancestors 'self'`,
 	// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection
 	"X-XSS-Protection": "1; mode=block",
 }
