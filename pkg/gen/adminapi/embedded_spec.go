@@ -1076,6 +1076,16 @@ func init() {
       "type": "object",
       "required": [
         "id",
+        "traffic_distribution_list_id",
+        "transportation_service_provider_id",
+        "performance_period_start",
+        "performance_period_end",
+        "rate_cycle_start",
+        "rate_cycle_end",
+        "best_value_score",
+        "linehaul_rate",
+        "sit_rate",
+        "offer_count",
         "created_at",
         "updated_at"
       ],
@@ -2252,6 +2262,16 @@ func init() {
       "type": "object",
       "required": [
         "id",
+        "traffic_distribution_list_id",
+        "transportation_service_provider_id",
+        "performance_period_start",
+        "performance_period_end",
+        "rate_cycle_start",
+        "rate_cycle_end",
+        "best_value_score",
+        "linehaul_rate",
+        "sit_rate",
+        "offer_count",
         "created_at",
         "updated_at"
       ],
