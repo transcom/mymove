@@ -11,7 +11,7 @@ func (suite *ModelSuite) TestReDomesticServiceAreaValidation() {
 		validReDomesticServiceArea := models.ReDomesticServiceArea{
 			BasePointCity:   "New York",
 			State:           "NY",
-			ServiceArea:     9,
+			ServiceArea:     "009",
 			ServiceSchedule: 2,
 			SITPDSchedule:   2,
 		}
@@ -35,7 +35,7 @@ func (suite *ModelSuite) TestReDomesticServiceAreaValidation() {
 		invalidReDomesticServiceArea := models.ReDomesticServiceArea{
 			BasePointCity:   "New York",
 			State:           "NY",
-			ServiceArea:     9,
+			ServiceArea:     "009",
 			ServiceSchedule: 4,
 			SITPDSchedule:   5,
 		}
@@ -50,7 +50,7 @@ func (suite *ModelSuite) TestReDomesticServiceAreaValidation() {
 		invalidReDomesticServiceArea := models.ReDomesticServiceArea{
 			BasePointCity:   "New York",
 			State:           "NY",
-			ServiceArea:     9,
+			ServiceArea:     "009",
 			ServiceSchedule: -3,
 			SITPDSchedule:   -1,
 		}
