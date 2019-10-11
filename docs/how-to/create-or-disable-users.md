@@ -1,14 +1,20 @@
+```
+Most if not all of this functionality is now available in the admin console.
+Please consider getting an admin to create or disable users before creating a
+secure migration to do this work
+```
+
 # How To Create or Disable Users
 
-For all users you will [create a secure migration](./migrate-the-database.md#secure-migrations). Please
+For all users you can [create a secure migration](./migrate-the-database.md#secure-migrations). Please
 only create a migration corresponding to the environment where you intend to add or disable users. For instance,
 please only add a `staging` secure migration if you intend to add staging users and leave the `prod`
 and `experimental` migrations empty.
 
 ## Creating Users
 
-The only users for which Truss is responsible to create are the users of the Office and TSP apps. These
-users are usually team members in the staging environment and and actual JPPSO and TSP personnel in the
+The only users for which Truss is responsible to create are the users of the Office and Admin apps. These
+users are usually team members in the staging environment and and actual JPPSO and transcom personnel in the
 production environment.
 
 ### A note about `uuid_generate_v4()`
@@ -94,79 +100,8 @@ data above will add the migration to the `migrations_manifest.txt` and create th
 
 * An empty `.sql` file in the `local_migrations` folder to use for local development / testing.
 
-### Creating TSP Users
-
-For creating users let's assume that the new user's email is username@example.com.
-
-For Truss TSP users in the staging environment please use these values:
-
-| User Email | `transportation_service_provider_id` |
-| --- | --- |
-| `username+pyvl@example.com` | `c71bdb14-ed86-4c92-bf06-93c0865f5070` |
-| `username+dlxm@example.com` | `b98d3deb-abe9-4609-8d6e-36b2c50873c0` |
-| `username+ssow@example.com` | `b6f06674-1b6b-4b93-9ec6-293d5d846876` |
-
-Here is an example migration to create a TSP user (please edit as needed):
-
-```sql
-INSERT INTO public.tsp_users
-    (id, user_id,
-     last_name, first_name, middle_initials,
-     email, telephone,
-     transportation_service_provider_id,
-     created_at, updated_at, disabled)
-    VALUES (
-        GENERATED_UUID4_VAL, NULL,
-        'Jones', 'Alice', NULL,
-        'username@example.com', '(415) 891-0828',
-        'c71bdb14-ed86-4c92-bf06-93c0865f5070',
-        now(), now(), false
-    );
-```
-
-However, if you are creating Truss TSP users in the staging environment then you'll want this instead:
-
-```sql
-INSERT INTO public.tsp_users
-    (id, user_id,
-     last_name, first_name, middle_initials,
-     email, telephone,
-     transportation_service_provider_id,
-     created_at, updated_at, disabled)
-    VALUES (
-        GENERATED_UUID4_VAL, NULL,
-        'Jones', 'Alice', NULL,
-        'username+pyvl@example.com', '(415) 891-0828',
-        'c71bdb14-ed86-4c92-bf06-93c0865f5070',
-        now(), now(), false
-    );
-INSERT INTO public.tsp_users
-    (id, user_id,
-     last_name, first_name, middle_initials,
-     email, telephone,
-     transportation_service_provider_id,
-     created_at, updated_at, disabled)
-    VALUES (
-        GENERATED_UUID4_VAL, NULL,
-        'Jones', 'Alice', NULL,
-        'username+dlxm@example.com', '(415) 891-0828',
-        'b98d3deb-abe9-4609-8d6e-36b2c50873c0',
-        now(), now(), false
-    );
-INSERT INTO public.tsp_users
-    (id, user_id,
-     last_name, first_name, middle_initials,
-     email, telephone,
-     transportation_service_provider_id,
-     created_at, updated_at, disabled)
-    VALUES (
-        GENERATED_UUID4_VAL, NULL,
-        'Jones', 'Alice', NULL,
-        'username+ssow@example.com', '(415) 891-0828',
-        'b6f06674-1b6b-4b93-9ec6-293d5d846876',
-        now(), now(), false
-    );
-```
+### Creating Admin Users
+TBD
 
 ### Creating DPS Users
 
@@ -213,12 +148,12 @@ An example of disabling an Office user by email:
 UPDATE office_users SET disabled = true WHERE email = 'username@example.com';
 ```
 
-### Disabling TSP Users
+### Disabling Admin Users
 
 An example of disabling a TSP user by email:
 
 ```sql
-UPDATE tsp_users SET disabled = true WHERE email = 'username@example.com';
+UPDATE admin_users SET disabled = true WHERE email = 'username@example.com';
 ```
 
 ### Disabling DPS Users
