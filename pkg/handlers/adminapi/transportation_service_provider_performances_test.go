@@ -8,12 +8,13 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
-	tsppop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_service_provider_performance"
+	tsppop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_service_provider_performances"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/services/tsp"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -41,7 +42,7 @@ func (suite *HandlerSuite) TestIndexTSPPsHandler() {
 		handler := IndexTSPPsHandler{
 			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter: query.NewQueryFilter,
-			TransportationServiceProviderPerformanceListFetcher: tsppop.NewTransportationServiceProviderPerformanceListFetcher(queryBuilder),
+			TransportationServiceProviderPerformanceListFetcher: tsp.NewTransportationServiceProviderPerformanceListFetcher(queryBuilder),
 			NewPagination: pagination.NewPagination,
 		}
 
@@ -58,10 +59,10 @@ func (suite *HandlerSuite) TestIndexTSPPsHandler() {
 
 	suite.T().Run("successful response", func(t *testing.T) {
 		tspp := models.TransportationServiceProviderPerformance{ID: id}
-		params := tsppop.IndexTSPPsHandler{
+		params := tsppop.IndexTSPPsParams{
 			HTTPRequest: req,
 		}
-		ListFetcher := &mocks.TransportationServiceProviderPerformanceFetcher{}
+		ListFetcher := &mocks.TransportationServiceProviderPerformanceListFetcher{}
 		ListFetcher.On("FetchTransportationServiceProviderPerformanceList",
 			mock.Anything,
 			mock.Anything,
@@ -83,11 +84,11 @@ func (suite *HandlerSuite) TestIndexTSPPsHandler() {
 	})
 
 	suite.T().Run("unsuccesful response when fetch fails", func(t *testing.T) {
-		params := tsppop.IndexTSPPsOK{
+		params := tsppop.IndexTSPPsParams{
 			HTTPRequest: req,
 		}
 		expectedError := models.ErrFetchNotFound
-		ListFetcher := &mocks.TransportationServiceProviderPerformanceFetcher{}
+		ListFetcher := &mocks.TransportationServiceProviderPerformanceListFetcher{}
 		ListFetcher.On("FetchTransportationServiceProviderPerformanceList",
 			mock.Anything,
 			mock.Anything,
