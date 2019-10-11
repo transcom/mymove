@@ -16,7 +16,7 @@ func (suite *ModelSuite) TestReIntlPriceValidation() {
 			ServiceID:             uuid.Must(uuid.NewV4()),
 			OriginRateAreaID:      uuid.Must(uuid.NewV4()),
 			DestinationRateAreaID: uuid.Must(uuid.NewV4()),
-			PriceCents:            1342,
+			PerUnitCents:          1342,
 		}
 
 		expErrors := map[string][]string{}
@@ -30,7 +30,7 @@ func (suite *ModelSuite) TestReIntlPriceValidation() {
 			"service_id":               {"ServiceID can not be blank."},
 			"destination_rate_area_id": {"DestinationRateAreaID can not be blank."},
 			"origin_rate_area_id":      {"OriginRateAreaID can not be blank."},
-			"price_cents":              {"PriceCents can not be 0 or negative."},
+			"per_unit_cents":           {"PerUnitCents can not be 0 or negative."},
 		}
 		suite.verifyValidationErrors(&invalidReIntlPrice, expErrors)
 	})

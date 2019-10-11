@@ -19,7 +19,7 @@ type ReIntlPrice struct {
 	OriginRateAreaID      uuid.UUID  `json:"origin_rate_area_id" db:"origin_rate_area_id"`
 	DestinationRateAreaID uuid.UUID  `json:"destination_rate_area_id" db:"destination_rate_area_id"`
 	IsPeakPeriod          bool       `json:"is_peak_period" db:"is_peak_period"`
-	PriceCents            unit.Cents `json:"price_cents" db:"price_cents"`
+	PerUnitCents          unit.Cents `json:"per_unit_cents" db:"per_unit_cents"`
 	CreatedAt             time.Time  `json:"created_at" db:"created_at"`
 	UpdatedAt             time.Time  `json:"updated_at" db:"updated_at"`
 }
@@ -34,6 +34,6 @@ func (p *ReIntlPrice) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.UUIDIsPresent{Field: p.ServiceID, Name: "ServiceID"},
 		&validators.UUIDIsPresent{Field: p.OriginRateAreaID, Name: "OriginRateAreaID"},
 		&validators.UUIDIsPresent{Field: p.DestinationRateAreaID, Name: "DestinationRateAreaID"},
-		&UnitCentsIsPositive{Field: p.PriceCents, Name: "PriceCents"},
+		&UnitCentsIsPositive{Field: p.PerUnitCents, Name: "PerUnitCents"},
 	), nil
 }
