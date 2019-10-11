@@ -3,7 +3,7 @@ import { Datagrid, List, TextField } from 'react-admin';
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 
 const TSPPList = props => (
-  <List {...props} classes={{ card: 'testing' }} pagination={<AdminPagination />} perPage={25}>
+  <List {...props} pagination={<AdminPagination />} perPage={25} bulkActionButtons={false}>
     <Datagrid>
       <TextField source="id" reference="transportation_service_provider_performances" />
       <TextField source="traffic_distribution_list_id" reference="transportation_service_provider_performances" />
