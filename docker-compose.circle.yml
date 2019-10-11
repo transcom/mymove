@@ -6,8 +6,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '4.0'
-          memory: 8192M
+          cpus: '2.0'
+          memory: 4096M
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=mysecretpassword
