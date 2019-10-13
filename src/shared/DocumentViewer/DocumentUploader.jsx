@@ -87,8 +87,8 @@ export class DocumentUploader extends Component {
     return (
       <Fragment>
         {this.state.moveDocumentCreateError && (
-          <div className="usa-grid">
-            <div className="usa-width-one-whole error-message">
+          <div className="grid-row">
+            <div className="grid-col-12 error-message">
               <Alert type="error" heading="An error occurred">
                 Something went wrong contacting the server.
               </Alert>
