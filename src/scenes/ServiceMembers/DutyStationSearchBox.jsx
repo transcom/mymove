@@ -98,8 +98,7 @@ export class DutyStationSearchBox extends Component {
     const defaultTitle = 'Name of Duty Station:';
     const inputContainerClasses = classNames({ 'usa-input-error': errorMsg });
     const searchBoxHeaderClasses = classNames({ 'duty-station-header': errorMsg });
-    const dutyInputClasses = classNames({
-      'duty-input-box': true,
+    const dutyInputClasses = classNames('duty-input-box', 'usa-input', {
       [this.props.input.name]: true,
       'duty-input-box-error': errorMsg,
     });
@@ -110,7 +109,7 @@ export class DutyStationSearchBox extends Component {
     const title = this.props.title || defaultTitle;
     return (
       <Fragment>
-        <div className="duty-station-search">
+        <div className="duty-station-search usa-form-group">
           {this.state.error && (
             <div className="usa-width-one-whole error-message">
               <Alert type="error" heading="An error occurred">
@@ -119,7 +118,9 @@ export class DutyStationSearchBox extends Component {
             </div>
           )}
           <div className={inputContainerClasses}>
-            <p className={`${styles.title} ${searchBoxHeaderClasses}`}>{errorMsg ? <strong>{title}</strong> : title}</p>
+            <label className={`${styles.title} ${searchBoxHeaderClasses} usa-label`}>
+              {errorMsg ? <strong>{title}</strong> : title}
+            </label>
             <AsyncSelect
               className={dutyInputClasses}
               cacheOptions
@@ -139,7 +140,7 @@ export class DutyStationSearchBox extends Component {
                 {this.props.input.value.address.postal_code}
               </p>
             )}
-            {this.props.errorMsg && <span className="usa-input-error-message">{this.props.errorMsg}</span>}
+            {this.props.errorMsg && <span className="usa-error-message">{this.props.errorMsg}</span>}
           </div>
         </div>
       </Fragment>
