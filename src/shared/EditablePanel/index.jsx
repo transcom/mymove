@@ -151,9 +151,9 @@ export class EditablePanel extends Component {
     return (
       <div className={classes}>
         <div className="editable-panel-header">
-          <div className="title">{this.props.title}</div>
+          <h4>{this.props.title}</h4>
           {!this.props.isEditable && this.props.editEnabled && (
-            <a className="editable-panel-edit" onClick={this.handleEditClick}>
+            <a className="usa-link editable-panel-edit" onClick={this.handleEditClick}>
               Edit
             </a>
           )}
