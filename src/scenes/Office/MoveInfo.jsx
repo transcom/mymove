@@ -229,29 +229,31 @@ class MoveInfo extends Component {
     if (!this.props.loadDependenciesHasSuccess && !this.props.loadDependenciesHasError) return <LoadingPlaceholder />;
     if (this.props.loadDependenciesHasError)
       return (
-        <div className="usa-grid">
-          <div className="usa-width-one-whole error-message">
-            <Alert type="error" heading="An error occurred">
-              Something went wrong contacting the server.
-            </Alert>
+        <div className="grid-container">
+          <div className="grid-row">
+            <div className="grid-col-12 error-message">
+              <Alert type="error" heading="An error occurred">
+                Something went wrong contacting the server.
+              </Alert>
+            </div>
           </div>
         </div>
       );
 
     return (
-      <div>
-        <div className="usa-grid grid-wide">
-          <div className="usa-width-two-thirds">
+      <div className="grid-container">
+        <div className="grid-row grid-gap">
+          <div className="grid-col-8">
             <h1>
               Move Info: {serviceMember.last_name}, {serviceMember.first_name}
             </h1>
           </div>
-          <div className="usa-width-one-third nav-controls">
+          <div className="grid-col-4 nav-controls">
             <ReferrerQueueLink history={this.props.history} />
           </div>
         </div>
-        <div className="usa-grid grid-wide">
-          <div className="usa-width-one-whole">
+        <div className="grid-row">
+          <div className="grid-col-12">
             <ul className="move-info-header-meta">
               <li>ID# {serviceMember.edipi}&nbsp;</li>
               <li>
@@ -268,8 +270,8 @@ class MoveInfo extends Component {
           </div>
         </div>
 
-        <div className="usa-grid grid-wide tabs">
-          <div className="usa-width-three-fourths">
+        <div className="grid-row grid-gap tabs">
+          <div className="grid-col-9">
             <RoutedTabs startPathWith={this.props.match.url}>
               <NavTab to="/basics">
                 <span className="title" data-cy="basics-tab">
@@ -316,7 +318,7 @@ class MoveInfo extends Component {
               </Switch>
             </div>
           </div>
-          <div className="usa-width-one-fourth">
+          <div className="grid-col-3">
             <div>
               {this.props.approveMoveHasError && (
                 <Alert type="warning" heading="Unable to approve">
