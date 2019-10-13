@@ -122,68 +122,72 @@ class DocumentViewer extends Component {
     if (!this.props.loadDependenciesHasSuccess && !this.props.loadDependenciesHasError) return <LoadingPlaceholder />;
     if (this.props.loadDependenciesHasError)
       return (
-        <div className="usa-grid">
-          <div className="usa-width-one-whole error-message">
-            <Alert type="error" heading="An error occurred">
-              Something went wrong contacting the server.
-            </Alert>
+        <div className="grid-container">
+          <div className="grid-row">
+            <div className="grid-col-12 error-message">
+              <Alert type="error" heading="An error occurred">
+                Something went wrong contacting the server.
+              </Alert>
+            </div>
           </div>
         </div>
       );
     return (
-      <div className="usa-grid doc-viewer">
-        <div className="usa-width-two-thirds">
-          <div className="tab-content">
-            <Switch>
-              <PrivateRoute exact path={defaultPath} render={() => <Redirect replace to={newUrl} />} />
-              <PrivateRoute
-                path={newPath}
-                moveId={moveId}
-                render={() => {
-                  return <DocumentUploader {...this.getDocumentUploaderProps} />;
-                }}
-              />
-              <PrivateRoute path={documentPath} component={DocumentUploadViewer} />
-              <PrivateRoute path={defaultUrl} render={() => <div> document viewer coming soon</div>} />
-            </Switch>
+      <div className="grid-container">
+        <div className="grid-row grid-gap doc-viewer">
+          <div className="grid-col-8">
+            <div className="tab-content">
+              <Switch>
+                <PrivateRoute exact path={defaultPath} render={() => <Redirect replace to={newUrl} />} />
+                <PrivateRoute
+                  path={newPath}
+                  moveId={moveId}
+                  render={() => {
+                    return <DocumentUploader {...this.getDocumentUploaderProps} />;
+                  }}
+                />
+                <PrivateRoute path={documentPath} component={DocumentUploadViewer} />
+                <PrivateRoute path={defaultUrl} render={() => <div> document viewer coming soon</div>} />
+              </Switch>
+            </div>
           </div>
-        </div>
-        <div className="usa-width-one-third">
-          <h3>{name}</h3>
-          <PanelField title="Move Locator">{moveLocator}</PanelField>
-          <PanelField title="DoD ID">{serviceMember.edipi}</PanelField>
-          <div className="tab-content">
-            <Tabs defaultIndex={defaultTabIndex}>
-              <TabList className="doc-viewer-tabs">
-                <Tab className="title nav-tab">All Documents ({numMoveDocs})</Tab>
-                {/* TODO: Handle routing of /new route better */}
-                {moveDocumentId && moveDocumentId !== 'new' && <Tab className="title nav-tab">Details</Tab>}
-              </TabList>
+          <div className="grid-col-4">
+            <h3>{name}</h3>
+            <PanelField title="Move Locator">{moveLocator}</PanelField>
+            <PanelField title="DoD ID">{serviceMember.edipi}</PanelField>
+            <div className="tab-content">
+              <Tabs defaultIndex={defaultTabIndex}>
+                <TabList className="doc-viewer-tabs">
+                  <Tab className="title nav-tab">All Documents ({numMoveDocs})</Tab>
+                  {/* TODO: Handle routing of /new route better */}
+                  {moveDocumentId && moveDocumentId !== 'new' && <Tab className="title nav-tab">Details</Tab>}
+                </TabList>
 
-              <TabPanel>
-                <div>
-                  {' '}
-                  <DocumentList
-                    currentMoveDocumentId={moveDocumentId}
-                    detailUrlPrefix={`/moves/${moveId}/documents`}
-                    moveDocuments={moveDocuments}
-                    uploadDocumentUrl={newUrl}
-                    moveId={moveId}
-                  />
-                </div>
-              </TabPanel>
-
-              {!isEmpty(moveDocuments) && moveDocumentId && moveDocumentId !== 'new' && (
                 <TabPanel>
-                  <DocumentDetailPanel
-                    className="document-viewer"
-                    moveDocumentId={moveDocumentId}
-                    moveId={moveId}
-                    title=""
-                  />
+                  <div>
+                    {' '}
+                    <DocumentList
+                      currentMoveDocumentId={moveDocumentId}
+                      detailUrlPrefix={`/moves/${moveId}/documents`}
+                      moveDocuments={moveDocuments}
+                      uploadDocumentUrl={newUrl}
+                      moveId={moveId}
+                    />
+                  </div>
                 </TabPanel>
-              )}
-            </Tabs>
+
+                {!isEmpty(moveDocuments) && moveDocumentId && moveDocumentId !== 'new' && (
+                  <TabPanel>
+                    <DocumentDetailPanel
+                      className="document-viewer"
+                      moveDocumentId={moveDocumentId}
+                      moveId={moveId}
+                      title=""
+                    />
+                  </TabPanel>
+                )}
+              </Tabs>
+            </div>
           </div>
         </div>
       </div>
