@@ -89,12 +89,12 @@ const OrdersViewerEdit = props => {
           <SwaggerField title="Report by" fieldName="report_by_date" swagger={schema} />
         </FormSection>
         <FormSection name="serviceMember">
-          <div className="usa-input duty-station">
+          <div className="duty-station">
             <Field name="current_station" component={DutyStationSearchBox} props={{ title: 'Current Duty Station' }} />
           </div>
         </FormSection>
         <FormSection name="orders">
-          <div className="usa-input duty-station">
+          <div className="duty-station">
             <Field name="new_duty_station" component={DutyStationSearchBox} props={{ title: 'New Duty Station' }} />
           </div>
           <SwaggerField fieldName="has_dependents" swagger={schema} title="Dependents authorized" />
