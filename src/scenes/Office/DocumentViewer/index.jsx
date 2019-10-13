@@ -122,7 +122,7 @@ class DocumentViewer extends Component {
     if (!this.props.loadDependenciesHasSuccess && !this.props.loadDependenciesHasError) return <LoadingPlaceholder />;
     if (this.props.loadDependenciesHasError)
       return (
-        <div className="grid-container">
+        <div className="grid-container-widescreen">
           <div className="grid-row">
             <div className="grid-col-12 error-message">
               <Alert type="error" heading="An error occurred">
@@ -133,7 +133,7 @@ class DocumentViewer extends Component {
         </div>
       );
     return (
-      <div className="grid-container">
+      <div className="grid-container-widescreen">
         <div className="grid-row grid-gap doc-viewer">
           <div className="grid-col-8">
             <div className="tab-content">
