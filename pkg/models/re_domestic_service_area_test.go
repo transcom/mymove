@@ -11,7 +11,7 @@ func (suite *ModelSuite) TestReDomesticServiceAreaValidation() {
 		validReDomesticServiceArea := models.ReDomesticServiceArea{
 			BasePointCity:   "New York",
 			State:           "NY",
-			ServiceArea:     9,
+			ServiceArea:     "009",
 			ServiceSchedule: 2,
 			SITPDSchedule:   2,
 		}
@@ -20,7 +20,7 @@ func (suite *ModelSuite) TestReDomesticServiceAreaValidation() {
 	})
 
 	suite.T().Run("test invalid ReDomesticServiceArea", func(t *testing.T) {
-		invalidReDomesticServiceArea := models.ReDomesticServiceArea{}
+		emptyReDomesticServiceArea := models.ReDomesticServiceArea{}
 		expErrors := map[string][]string{
 			"base_point_city":    {"BasePointCity can not be blank."},
 			"state":              {"State can not be blank."},
@@ -28,14 +28,14 @@ func (suite *ModelSuite) TestReDomesticServiceAreaValidation() {
 			"service_schedule":   {"0 is not greater than 0."},
 			"s_i_t_p_d_schedule": {"0 is not greater than 0."},
 		}
-		suite.verifyValidationErrors(&invalidReDomesticServiceArea, expErrors)
+		suite.verifyValidationErrors(&emptyReDomesticServiceArea, expErrors)
 	})
 
 	suite.T().Run("test schedules over 3 for ReDomesticServiceArea", func(t *testing.T) {
 		invalidReDomesticServiceArea := models.ReDomesticServiceArea{
 			BasePointCity:   "New York",
 			State:           "NY",
-			ServiceArea:     9,
+			ServiceArea:     "009",
 			ServiceSchedule: 4,
 			SITPDSchedule:   5,
 		}
@@ -50,7 +50,7 @@ func (suite *ModelSuite) TestReDomesticServiceAreaValidation() {
 		invalidReDomesticServiceArea := models.ReDomesticServiceArea{
 			BasePointCity:   "New York",
 			State:           "NY",
-			ServiceArea:     9,
+			ServiceArea:     "009",
 			ServiceSchedule: -3,
 			SITPDSchedule:   -1,
 		}

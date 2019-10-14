@@ -17,11 +17,11 @@ func (suite *ModelSuite) TestReServiceValidation() {
 	})
 
 	suite.T().Run("test empty ReService", func(t *testing.T) {
-		invalidReService := models.ReService{}
+		emptyReService := models.ReService{}
 		expErrors := map[string][]string{
 			"code": {"Code can not be blank."},
 			"name": {"Name can not be blank."},
 		}
-		suite.verifyValidationErrors(&invalidReService, expErrors)
+		suite.verifyValidationErrors(&emptyReService, expErrors)
 	})
 }

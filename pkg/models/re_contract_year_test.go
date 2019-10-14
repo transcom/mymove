@@ -26,7 +26,7 @@ func (suite *ModelSuite) TestReContractYearValidations() {
 	})
 
 	suite.T().Run("test empty ReContractYear", func(t *testing.T) {
-		emptyReContractYear := &models.ReContractYear{}
+		emptyReContractYear := models.ReContractYear{}
 		expErrors := map[string][]string{
 			"contract_id":           {"ContractID can not be blank."},
 			"name":                  {"Name can not be blank."},
@@ -35,7 +35,7 @@ func (suite *ModelSuite) TestReContractYearValidations() {
 			"escalation":            {"Escalation can not be blank.", "0.000000 is not greater than 0.000000."},
 			"escalation_compounded": {"EscalationCompounded can not be blank.", "0.000000 is not greater than 0.000000."},
 		}
-		suite.verifyValidationErrors(emptyReContractYear, expErrors)
+		suite.verifyValidationErrors(&emptyReContractYear, expErrors)
 	})
 
 	suite.T().Run("test end date after start date, negative escalation, negative escalation compounded for ReContractYear", func(t *testing.T) {
