@@ -673,9 +673,7 @@ paths:
       parameters:
         - in: query
           name: filter
-          type: array
-          items:
-            type: string
+          type: string
         - in: query
           name: page
           type: integer

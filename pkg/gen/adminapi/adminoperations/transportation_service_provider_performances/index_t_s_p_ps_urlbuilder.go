@@ -15,7 +15,7 @@ import (
 
 // IndexTSPPsURL generates an URL for the index t s p ps operation
 type IndexTSPPsURL struct {
-	Filter  []string
+	Filter  *string
 	Page    *int64
 	PerPage *int64
 
@@ -53,21 +53,12 @@ func (o *IndexTSPPsURL) Build() (*url.URL, error) {
 
 	qs := make(url.Values)
 
-	var filterIR []string
-	for _, filterI := range o.Filter {
-		filterIS := filterI
-		if filterIS != "" {
-			filterIR = append(filterIR, filterIS)
-		}
+	var filterQ string
+	if o.Filter != nil {
+		filterQ = *o.Filter
 	}
-
-	filter := swag.JoinByFormat(filterIR, "")
-
-	if len(filter) > 0 {
-		qsv := filter[0]
-		if qsv != "" {
-			qs.Set("filter", qsv)
-		}
+	if filterQ != "" {
+		qs.Set("filter", filterQ)
 	}
 
 	var pageQ string

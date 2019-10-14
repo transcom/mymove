@@ -493,10 +493,7 @@ func init() {
         "operationId": "indexTSPPs",
         "parameters": [
           {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
+            "type": "string",
             "name": "filter",
             "in": "query"
           },
@@ -1681,10 +1678,7 @@ func init() {
         "operationId": "indexTSPPs",
         "parameters": [
           {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
+            "type": "string",
             "name": "filter",
             "in": "query"
           },
