@@ -13,3 +13,7 @@ func (miles Miles) String() string {
 	p := message.NewPrinter(language.English)
 	return p.Sprintf("%d", int(miles))
 }
+
+func (miles Miles) Int() int {
+	return int(miles)
+}

@@ -14,6 +14,16 @@ func (c Cents) Multiply(i int) Cents {
 	return Cents(i * c.Int())
 }
 
+// MultiplyCWTFloat returns the value of self multiplied by multiplier
+func (c Cents) MultiplyCWTFloat(weight CWTFloat) Cents {
+	return c.MultiplyFloat64(float64(weight))
+}
+
+// MultiplyMiles returns the value of self multiplied by multiplier
+func (c Cents) MultiplyMiles(d Miles) Cents {
+	return c.Multiply(d.Int())
+}
+
 // AddCents returns the value of self added with the parameter
 func (c Cents) AddCents(a Cents) Cents {
 	return Cents(c.Int() + a.Int())

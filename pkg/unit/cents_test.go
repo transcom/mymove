@@ -14,6 +14,26 @@ func TestCents_Multiply(t *testing.T) {
 	}
 }
 
+func TestCents_MultiplyCWTFloat(t *testing.T) {
+	cents := Cents(25)
+	result := cents.MultiplyCWTFloat(7)
+
+	expected := Cents(175)
+	if result != expected {
+		t.Errorf("wrong number of Cents: expected %d, got %d", expected, result)
+	}
+}
+
+func TestCents_MultiplyMiles(t *testing.T) {
+	cents := Cents(25)
+	result := cents.MultiplyMiles(6)
+
+	expected := Cents(150)
+	if result != expected {
+		t.Errorf("wrong number of Cents: expected %d, got %d", expected, result)
+	}
+}
+
 func TestCents_AddCents(t *testing.T) {
 	cents := Cents(25)
 	result := cents.AddCents(5)
