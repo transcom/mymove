@@ -50,7 +50,8 @@ type CreateNamedServerInput struct {
 // NamedServer wraps *http.Server to override the definition of ListenAndServeTLS, but bypasses some restrictions.
 type NamedServer struct {
 	*http.Server
-	Name string
+	Name    string
+	IsReady bool
 }
 
 // Port returns the port the server binds to.  Returns -1 if any error.
@@ -71,6 +72,7 @@ func (s *NamedServer) ListenAndServeTLS() error {
 	if err != nil {
 		return err
 	}
+	s.IsReady = true
 	defer listener.Close()
 	return s.Serve(listener)
 }
