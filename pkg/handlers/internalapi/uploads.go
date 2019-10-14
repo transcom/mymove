@@ -1,7 +1,6 @@
 package internalapi
 
 import (
-	"fmt"
 	"io"
 
 	"github.com/go-openapi/runtime"
@@ -175,7 +174,6 @@ type IsUploadInfectedHandler struct {
 func (h IsUploadInfectedHandler) Handle(params uploadop.IsUploadInfectedParams) middleware.Responder {
 	ctx := params.HTTPRequest.Context()
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-
 	uploadID, _ := uuid.FromString(params.UploadID.String())
 	upload, err := models.FetchUpload(ctx, h.DB(), session, uploadID)
 	if err != nil {
@@ -185,6 +183,10 @@ func (h IsUploadInfectedHandler) Handle(params uploadop.IsUploadInfectedParams) 
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-	fmt.Println(tags)
-	return uploadop.NewIsUploadInfectedOK()
+	if status, ok := tags["av-status"]; ok {
+		if status == "INFECTED" {
+			return uploadop.NewIsUploadInfectedOK().WithPayload(true)
+		}
+	}
+	return uploadop.NewIsUploadInfectedOK().WithPayload(false)
 }
