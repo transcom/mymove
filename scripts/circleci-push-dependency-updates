@@ -16,12 +16,6 @@ if [[ -z "$(git status --short)" ]]; then
     exit 0
 fi
 
-# TODO consider updating circleci-docker-primary to include hub
-curl -sSLO https://github.com/github/hub/releases/download/v2.12.8/hub-linux-amd64-2.12.8.tgz \
-&& tar xzf hub-linux-amd64-2.12.8.tgz \
-&& sudo hub-linux-amd64-2.12.8/install \
-&& rm -rf hub-linux-amd64-2.12.8
-
 # Setup deploy key with write access.
 ssh_key=$(mktemp -p /dev/shm)
 readonly ssh_key

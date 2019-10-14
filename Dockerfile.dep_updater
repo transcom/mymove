@@ -1,13 +1,5 @@
 FROM trussworks/circleci-docker-primary:9b7bfbf6bfae544566ade0c896f8aacbd16281e5
 
-# TODO consider updating circleci-docker-primary to include hub
-USER root
-RUN curl -sSLO https://github.com/github/hub/releases/download/v2.12.8/hub-linux-arm64-2.12.8.tgz \
-&& tar xzf hub-linux-arm64-2.12.8.tgz \
-&& hub-linux-arm64-2.12.8/install \
-&& rm -rf hub-linux-arm64-2.12.8
-
-USER circleci
 ENV GOPATH=/home/circleci/go
 ENV GOBIN=$GOPATH/bin
 ENV PATH=$GOBIN:$PATH
