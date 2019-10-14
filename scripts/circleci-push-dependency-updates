@@ -6,10 +6,10 @@
 
 set -euxo pipefail
 
-readonly github_repo="transcom/mymove"
+#readonly github_repo="transcom/mymove"
 
 # Capture the dependency name that is being updated
-deps_name="$1"
+#deps_name="$1"
 
 if [[ -z "$(git status --short)" ]]; then
     echo No updates to push.
@@ -47,14 +47,15 @@ git config user.email "noreply@move.mil"
 git config user.name "Dependency Updater"
 
 # Push changes to a branch
-branch=dependency-updates-$(date +%s)
-readonly branch
-git checkout -b "${branch}"
-pre-commit run
-git commit -am "Automated dependency updates ${deps_name} | $(date -R)"
-git push -v --set-upstream origin "${branch}"
-pr_url=$(hub pull-request -l dependencies automerge -m "Automated ${deps_name} dependency update | $(date -R)")
-
-# Announce changes
-text="<${pr_url}|Pull request> created in ${github_repo} for $(date +'%m-%d-%Y') ${deps_name} dependency update"
-curl -X POST --data-urlencode 'payload={"text":"'"${text}"'"}' "${SLACK_WEBHOOK_URL}"
+hub version
+#branch=dependency-updates-$(date +%s)
+#readonly branch
+#git checkout -b "${branch}"
+#pre-commit run
+#git commit -am "Automated dependency updates ${deps_name} | $(date -R)"
+#git push -v --set-upstream origin "${branch}"
+#pr_url=$(hub pull-request -l dependencies automerge -m "Automated ${deps_name} dependency update | $(date -R)")
+#
+## Announce changes
+#text="<${pr_url}|Pull request> created in ${github_repo} for $(date +'%m-%d-%Y') ${deps_name} dependency update"
+#curl -X POST --data-urlencode 'payload={"text":"'"${text}"'"}' "${SLACK_WEBHOOK_URL}"
