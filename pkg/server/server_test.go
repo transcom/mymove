@@ -188,7 +188,7 @@ func (suite *serverSuite) TestHTTPServerConfig() {
 	suite.Equal(suite.httpHandler, httpsServer.Handler)
 }
 
-func (suite *serverSuite) TestTLSConfigWithRequest() {
+func (suite *serverSuite) testTLSConfigWithRequest(tlsVersion uint16) {
 
 	keyPair, err := tls.X509KeyPair(
 		suite.readFile("localhost.pem"),
@@ -205,7 +205,7 @@ func (suite *serverSuite) TestTLSConfigWithRequest() {
 	httpHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Check the TLS connection from inside the request
 		connState := r.TLS
-		suite.Equal(tls.VersionTLS12, int(connState.Version))
+		suite.Equal(tlsVersion, connState.Version)
 		suite.True(connState.HandshakeComplete)
 		suite.False(connState.DidResume)
 		suite.Equal("", connState.NegotiatedProtocol)
@@ -236,13 +236,15 @@ func (suite *serverSuite) TestTLSConfigWithRequest() {
 	go srv.ListenAndServeTLS()
 
 	// Send a request
-	config := tls.Config{
+	clientTLSConfig := tls.Config{
 		RootCAs:      caCertPool,
 		Certificates: certificates,
+		MinVersion:   tlsVersion,
+		MaxVersion:   tlsVersion,
 	}
 	client := &http.Client{
 		Transport: &http.Transport{
-			TLSClientConfig: &config,
+			TLSClientConfig: &clientTLSConfig,
 		},
 	}
 	res, err := client.Get(fmt.Sprintf("https://%s:%d", host, port))
@@ -257,9 +259,18 @@ func (suite *serverSuite) TestTLSConfigWithRequest() {
 	}
 
 	// Check the TLS connection directly
-	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", host, port), &config)
+	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", host, port), &clientTLSConfig)
 	defer conn.Close()
 	suite.NoError(err)
+}
+
+func (suite *serverSuite) TestTLSConfigWithRequest() {
+	var versions = map[string]uint16{"1.2": tls.VersionTLS12, "1.3": tls.VersionTLS13}
+	for name, version := range versions {
+		suite.T().Run(fmt.Sprintf("TLS version %s", name), func(t *testing.T) {
+			suite.testTLSConfigWithRequest(version)
+		})
+	}
 }
 
 func (suite *serverSuite) TestTLSConfigWithRequestNoClientAuth() {
