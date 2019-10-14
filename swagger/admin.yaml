@@ -428,6 +428,8 @@ definitions:
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
+      disabled:
+        type: boolean
   ElectronicOrder:
     type: object
     required:

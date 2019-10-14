@@ -149,9 +149,11 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 		LastName:       payload.LastName,
 		FirstName:      payload.FirstName,
 		Telephone:      payload.Telephone,
+		Disabled:       payload.Disabled,
 	}
 
 	updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(&officeUser)
+
 	if err != nil || verrs != nil {
 		fmt.Printf("%#v", verrs)
 		logger.Error("Error saving user", zap.Error(err))

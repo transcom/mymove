@@ -5,7 +5,6 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/gobuffalo/validate"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -48,18 +47,6 @@ func (suite *ModelSuite) verifyValidationErrors(model models.ValidateableModel, 
 			t.Errorf("unexpected validation errors on %s: %v", key, errors)
 		}
 	}
-}
-
-func (suite *ModelSuite) noValidationErrors(verrs *validate.Errors, err error) bool {
-	noVerr := true
-	if !suite.False(verrs.HasAny()) {
-		noVerr = false
-		for _, k := range verrs.Keys() {
-			suite.Empty(verrs.Get(k))
-		}
-	}
-
-	return suite.NoError(err) && noVerr
 }
 
 func TestModelSuite(t *testing.T) {

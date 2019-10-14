@@ -982,6 +982,9 @@ func init() {
     "OfficeUserUpdatePayload": {
       "type": "object",
       "properties": {
+        "disabled": {
+          "type": "boolean"
+        },
         "first_name": {
           "type": "string",
           "title": "First Name"
@@ -2168,6 +2171,9 @@ func init() {
     "OfficeUserUpdatePayload": {
       "type": "object",
       "properties": {
+        "disabled": {
+          "type": "boolean"
+        },
         "first_name": {
           "type": "string",
           "title": "First Name"

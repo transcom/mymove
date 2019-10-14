@@ -1,4 +1,4 @@
-FROM trussworks/circleci-docker-primary:9b7bfbf6bfae544566ade0c896f8aacbd16281e5
+FROM trussworks/circleci-docker-primary:0a7bcc19642337bcfb16d5d1a1f05da646b7ec27
 
 ENV GOPATH=/home/circleci/go
 ENV GOBIN=$GOPATH/bin
