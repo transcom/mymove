@@ -49,17 +49,46 @@ func lookupDomesticLinehaulRate(db *pop.Connection, d DomesticServicePricingData
 	return rate, err
 }
 
-func lookupDomesticCostByWeight (db *pop.Connection, pricingData DomesticServicePricingData) (cost unit.Cents, err error) {
+func lookupDomesticServiceAreaPrice (db *pop.Connection, pricingData DomesticServicePricingData) (cost unit.Cents, err error) {
 	// select cost from re_domestic_rate_area_prices
 		// joined with re_service_area, re_contracts, re_contract_years, re_services
 		// where:
+			// re_service_area.id = pricingData.ServiceAreaID
 			// re_services.code = pricingData.ServiceCode
 			// re_contracts.code = pricingData.ContractCode
 			// is_peak_period = pricingData.IsPeakPeriod
 			// move date is between start and end dates of contract year
 
-	stubbedCost, err := unit.Cents(689), nil
-	return stubbedCost, err
+	stubbedRate, err := unit.Cents(689), nil
+	return stubbedRate, err
+}
+
+func lookupDomesticOtherPrice (db *pop.Connection, pricingData DomesticServicePricingData) (cost unit.Cents, err error) {
+	serviceCode := "DSIT" // stubbed service code
+	var stubbedRate unit.Cents = 0
+	if pricingData.ServiceCode == serviceCode {
+		// select cost from re_domestic_other_prices
+		// joined with re_service_area, re_contracts, re_contract_years, re_services
+		// where:
+		// re_domestic_service_areas.s_i_t_p_d_schedule = schedule
+		// re_services.code = pricingData.ServiceCode
+		// re_contracts.code = pricingData.ContractCode
+		// is_peak_period = pricingData.IsPeakPeriod
+		// move date is between start and end dates of contract year
+		stubbedRate, err = 21796, nil
+	} else {
+		// select cost from re_domestic_other_prices
+		// joined with re_service_area, re_contracts, re_contract_years, re_services
+		// where:
+		// re_domestic_service_areas.services_schedule = schedule
+		// re_services.code = pricingData.ServiceCode
+		// re_contracts.code = pricingData.ContractCode
+		// is_peak_period = pricingData.IsPeakPeriod
+		// move date is between start and end dates of contract year
+		stubbedRate, err = 6333, nil
+	}
+
+	return stubbedRate, err
 }
 
 // Calculation Functions
@@ -80,20 +109,56 @@ func (gre *GHCRateEngine) CalculateBaseDomesticLinehaul(d DomesticServicePricing
 		zap.Bool("is peak period", d.IsPeakPeriod),
 		zap.String("contract code", d.ContractCode),
 		zap.Int("base rate (millicents)", rate.Int()),
-		zap.Int("calculated cost (millicents)", cost.Int()),
+		zap.Int("calculated base cost (millicents)", cost.Int()),
 	)
 
 	return cost, err
 }
 
-//CalculateDomesticPerWeightCost calculates the cost based on service performed and returns the cost in cents
-// This function is used to calculate origin and destination service area, pack, and unpack costs
-func (gre *GHCRateEngine) CalculateDomesticPerWeightServiceCost (d DomesticServicePricingData) (cost unit.Cents, err error) {
-	rate, err := lookupDomesticCostByWeight(gre.db, d)
+// CalculateBaseDomesticPerWeightCost calculates the cost based on service performed and returns the cost in cents
+// This function is used to calculate origin and destination service area, pack, unpack, and sit costs
+func (gre *GHCRateEngine) CalculateBaseDomesticPerWeightServiceCost (d DomesticServicePricingData) (cost unit.Cents, err error) {
+	domesticPack := "DPK" // stubbed
+	domesticUnpack := "DUPK" // stubbed
+	domesticSit := "DSIT" //
+	var rate unit.Cents
+	if d.ServiceCode == domesticPack || d.ServiceCode == domesticUnpack || d.ServiceCode == domesticSit {
+		rate, err = lookupDomesticOtherPrice(gre.db, d)
+		if err != nil {
+			return cost, errors.Wrap(err, fmt.Sprintf("Lookup of domestic service %s failed", d.ServiceCode))
+		}
+	} else {
+		rate, err = lookupDomesticServiceAreaPrice(gre.db, d)
+		if err != nil {
+			return cost, errors.Wrap(err, fmt.Sprintf("Lookup of domestic service %s failed", d.ServiceCode))
+		}
+	}
+
+	cost = rate.MultiplyCWTFloat(d.Weight)
+
+	gre.logger.Info(fmt.Sprintf("%s calculated", d.ServiceCode), // May change to use ServiceName
+		zap.String("service code", d.ServiceCode),
+		zap.Time("move date", d.MoveDate),
+		zap.String("service area ID", d.ServiceAreaID.String()),
+		zap.Float64("centiweight", float64(d.Weight)),
+		zap.Bool("is peak period", d.IsPeakPeriod),
+		zap.String("contract code", d.ContractCode),
+		zap.Int("base rate (cents)", rate.Int()),
+		zap.Int("calculated base cost (cents)", cost.Int()),
+	)
+
+	return cost, err
+}
+
+
+// CalculateBaseDomesticShorthaulCost calculates the cost based on service performed and returns the cost in cents
+func (gre *GHCRateEngine) CalculateBaseDomesticShorthaulCost (d DomesticServicePricingData) (cost unit.Cents, err error) {
+	rate, err := lookupDomesticServiceAreaPrice(gre.db, d)
 	if err != nil {
 		return cost, errors.Wrap(err, fmt.Sprintf("Lookup of domestic service %s failed", d.ServiceCode))
 	}
-	cost = rate.MultiplyCWTFloat(d.Weight)
+	costPerWeight := rate.MultiplyCWTFloat(d.Weight)
+	cost = costPerWeight.MultiplyMiles(d.Distance)
 
 	gre.logger.Info(fmt.Sprintf("%s calculated", d.ServiceCode), // May change to use ServiceName
 		zap.String("service code", d.ServiceCode),
@@ -109,9 +174,3 @@ func (gre *GHCRateEngine) CalculateDomesticPerWeightServiceCost (d DomesticServi
 
 	return cost, err
 }
-
-
-//CalculateDomesticPerWeightPerMileServiceCost calculates the cost based on service performed and returns the cost in cents
-//func (gre *GHCRateEngine) CalculateDomesticPerWeightPerMileServiceCost (d DomesticServicePricingData) (cost unit.Cents, err error) {
-//
-//}
