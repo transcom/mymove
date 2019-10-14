@@ -90,10 +90,6 @@
       "value": "office.{{ .domain }}"
     },
     {
-      "name": "HTTP_TSP_SERVER_NAME",
-      "value": "tsp.{{ .domain }}"
-    },
-    {
       "name": "HTTP_ADMIN_SERVER_NAME",
       "value": "admin.{{ .domain }}"
     },
@@ -208,6 +204,10 @@
     {
       "name": "SERVE_API_INTERNAL",
       "value": "{{ .SERVE_API_INTERNAL }}"
+    },
+    {
+      "name": "SERVE_API_GHC",
+      "value": "{{ .SERVE_API_GHC }}"
     }
   ],
   "logConfiguration": {

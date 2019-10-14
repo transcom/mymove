@@ -35,7 +35,6 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Setup: Server](#setup-server)
   * [Setup: MilMoveLocal Client](#setup-milmovelocal-client)
   * [Setup: OfficeLocal client](#setup-officelocal-client)
-  * [Setup: TSPLocal client](#setup-tsplocal-client)
   * [Setup: AdminLocal client](#setup-adminlocal-client)
   * [Setup: DPS user](#setup-dps-user)
   * [Setup: Orders Gateway](#setup-orders-gateway)
@@ -233,7 +232,6 @@ Here are the steps:
   ```bash
   echo "127.0.0.1 milmovelocal" | sudo tee -a /etc/hosts
   echo "127.0.0.1 officelocal" | sudo tee -a /etc/hosts
-  echo "127.0.0.1 tsplocal" | sudo tee -a /etc/hosts
   echo "127.0.0.1 orderslocal" | sudo tee -a /etc/hosts
   echo "127.0.0.1 adminlocal" | sudo tee -a /etc/hosts
   ```
@@ -252,7 +250,6 @@ Check that the file looks correct with `cat /etc/hosts`:
   127.0.0.1   localhost
   127.0.0.1   milmovelocal
   127.0.0.1   officelocal
-  127.0.0.1   tsplocal
   127.0.0.1   orderslocal
   127.0.0.1   adminlocal
   ```
@@ -309,14 +306,6 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
     * Log into "Local Sign In" and either select a pre-made user or use the button to create a new user
 2. `make office_client_run`
 3. Login with the email used above to access the office
-
-### Setup: TSPLocal client
-
-1. Ensure that you have a test account which can log into the TSP site...
-    * run `generate-test-data --named-scenario e2e_basic` to load test data
-    * Log into "Local Sign In" and either select a pre-made user or use the button to create a new user
-2. `make tsp_client_run`
-3. Login with the email used above to access the TSP
 
 ### Setup: AdminLocal client
 

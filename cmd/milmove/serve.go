@@ -44,6 +44,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/adminapi"
 	"github.com/transcom/mymove/pkg/handlers/dpsapi"
+	"github.com/transcom/mymove/pkg/handlers/ghcapi"
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/handlers/ordersapi"
 	"github.com/transcom/mymove/pkg/iws"
@@ -454,7 +455,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	appnames := auth.ApplicationServername{
 		MilServername:    v.GetString(cli.HTTPMyServerNameFlag),
 		OfficeServername: v.GetString(cli.HTTPOfficeServerNameFlag),
-		TspServername:    v.GetString(cli.HTTPTSPServerNameFlag),
 		AdminServername:  v.GetString(cli.HTTPAdminServerNameFlag),
 		OrdersServername: v.GetString(cli.HTTPOrdersServerNameFlag),
 		DpsServername:    v.GetString(cli.HTTPDPSServerNameFlag),
@@ -776,6 +776,25 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		adminAPIMux.Use(authentication.AdminAuthMiddleware(logger))
 		adminAPIMux.Use(middleware.NoCache(logger))
 		adminAPIMux.Handle(pat.New("/*"), adminapi.NewAdminAPIHandler(handlerContext))
+	}
+
+	if v.GetBool(cli.ServeGHCFlag) {
+		ghcMux := goji.SubMux()
+		root.Handle(pat.New("/ghc/v1/*"), ghcMux)
+		ghcMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.GHCSwaggerFlag)))
+		if v.GetBool(cli.ServeSwaggerUIFlag) {
+			logger.Info("GHC API Swagger UI serving is enabled")
+			ghcMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "ghc.html")))
+		} else {
+			ghcMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+		}
+
+		// Mux for GHC API that enforces auth
+		ghcAPIMux := goji.SubMux()
+		ghcMux.Handle(pat.New("/*"), ghcAPIMux)
+		ghcAPIMux.Use(userAuthMiddleware)
+		ghcAPIMux.Use(middleware.NoCache(logger))
+		ghcAPIMux.Handle(pat.New("/*"), ghcapi.NewGhcAPIHandler(handlerContext))
 	}
 
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)

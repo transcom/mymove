@@ -25,10 +25,6 @@ type ErrorsSuite struct {
 	logger Logger
 }
 
-func (suite *ErrorsSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func TestErrorsSuite(t *testing.T) {
 	logger := zaptest.NewLogger(t)
 	zap.ReplaceGlobals(logger)

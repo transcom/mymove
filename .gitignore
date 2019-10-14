@@ -60,6 +60,7 @@ public/swagger-ui/*
 !public/swagger-ui/api.html
 !public/swagger-ui/internal.html
 !public/swagger-ui/admin.html
+!public/swagger-ui/ghc.html
 
 # Cypress integration tests
 cypress/videos

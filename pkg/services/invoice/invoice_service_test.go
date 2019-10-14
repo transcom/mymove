@@ -17,10 +17,6 @@ type InvoiceServiceSuite struct {
 	storer storage.FileStorer
 }
 
-func (suite *InvoiceServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func TestInvoiceSuite(t *testing.T) {
 
 	ts := &InvoiceServiceSuite{

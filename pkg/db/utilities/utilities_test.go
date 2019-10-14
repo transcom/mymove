@@ -17,10 +17,6 @@ type UtilitiesSuite struct {
 	testingsuite.PopTestSuite
 }
 
-func (suite *UtilitiesSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func TestUtilitiesSuite(t *testing.T) {
 	hs := &UtilitiesSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),

@@ -12,7 +12,6 @@ CONTAINER_CYPRESS=cypress
 # Set hostnames
 MILMOVEHOST=milmovelocal
 OFFICEHOST=officelocal
-TSPHOST=tsplocal
 ADMINHOST=adminlocal
 ORDERSHOST=orderslocal
 
@@ -140,7 +139,6 @@ $DOCKER_RUN \
   -e CYPRESS_baseUrl="http://${MILMOVEHOST}:${HTTP_PORT}" \
   --add-host "${MILMOVEHOST}:${E2E_IP}" \
   --add-host "${OFFICEHOST}:${E2E_IP}" \
-  --add-host "${TSPHOST}:${E2E_IP}" \
   --add-host "${ADMINHOST}:${E2E_IP}" \
   --add-host "${ORDERSHOST}:${E2E_IP}" \
   --name="${CONTAINER_CYPRESS}" \
