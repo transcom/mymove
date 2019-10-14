@@ -45,7 +45,7 @@ type IndexTSPPsHandler struct {
 	services.NewPagination
 }
 
-// Handle retrieves a list of office users
+// Handle retrieves a list of transportation service provider performance
 func (h IndexTSPPsHandler) Handle(params tsppop.IndexTSPPsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
