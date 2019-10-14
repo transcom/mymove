@@ -3442,7 +3442,6 @@ paths:
           description: no files to be processed into attachments PDF
         500:
           description: server error
-
   /personally_procured_moves/{personallyProcuredMoveId}/approve:
     post:
       summary: Approves the PPM
@@ -3599,6 +3598,29 @@ paths:
           description: not authorized
         404:
           description: not found
+        500:
+          description: server error
+  /uploads/{uploadId}/is_infected:
+    get:
+      summary: Returns boolean as to whether the upload is infected
+      description: Returns boolean as to whether the upload is infected
+      operationId: isUploadInfected
+      tags:
+        - uploads
+      parameters:
+        - in: path
+          name: uploadId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the upload to be deleted
+      responses:
+        200:
+          description: Upload is infected
+          schema:
+            type: boolean
+        400:
+          description: invalid request
         500:
           description: server error
   /uploads:

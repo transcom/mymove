@@ -2737,6 +2737,40 @@ func init() {
         }
       }
     },
+    "/uploads/{uploadId}/is_infected": {
+      "get": {
+        "description": "Returns boolean as to whether the upload is infected",
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Returns boolean as to whether the upload is infected",
+        "operationId": "isUploadInfected",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to be deleted",
+            "name": "uploadId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Upload is infected",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/users/is_logged_in": {
       "get": {
         "description": "Returns boolean as to whether the user is logged in",
@@ -8477,6 +8511,40 @@ func init() {
           },
           "404": {
             "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/uploads/{uploadId}/is_infected": {
+      "get": {
+        "description": "Returns boolean as to whether the upload is infected",
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Returns boolean as to whether the upload is infected",
+        "operationId": "isUploadInfected",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to be deleted",
+            "name": "uploadId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Upload is infected",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "400": {
+            "description": "invalid request"
           },
           "500": {
             "description": "server error"

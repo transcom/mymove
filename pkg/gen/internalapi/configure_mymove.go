@@ -194,6 +194,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation users.IsLoggedInUser has not yet been implemented")
 		})
 	}
+	if api.UploadsIsUploadInfectedHandler == nil {
+		api.UploadsIsUploadInfectedHandler = uploads.IsUploadInfectedHandlerFunc(func(params uploads.IsUploadInfectedParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.IsUploadInfected has not yet been implemented")
+		})
+	}
 	if api.MovesPatchMoveHandler == nil {
 		api.MovesPatchMoveHandler = moves.PatchMoveHandlerFunc(func(params moves.PatchMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation moves.PatchMove has not yet been implemented")

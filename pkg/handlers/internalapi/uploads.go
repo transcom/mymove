@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"fmt"
 	"io"
 
 	"github.com/go-openapi/runtime"
@@ -163,4 +164,27 @@ func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middle
 	}
 
 	return uploadop.NewDeleteUploadsNoContent()
+}
+
+// IsUploadInfectedHandler checks if an upload has been infected
+type IsUploadInfectedHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle inspects if an upload is infected
+func (h IsUploadInfectedHandler) Handle(params uploadop.IsUploadInfectedParams) middleware.Responder {
+	ctx := params.HTTPRequest.Context()
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	uploadID, _ := uuid.FromString(params.UploadID.String())
+	upload, err := models.FetchUpload(ctx, h.DB(), session, uploadID)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+	tags, err := h.FileStorer().Tags(upload.StorageKey)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+	fmt.Println(tags)
+	return uploadop.NewIsUploadInfectedOK()
 }
