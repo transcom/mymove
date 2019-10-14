@@ -57,13 +57,14 @@ services:
       - DB_PORT=5432
       - DB_SSL_MODE=disable
       - DB_USER=postgres
-      - DEVLOCAL_CA=/config/tls/devlocal-ca.pem
       - DEVLOCAL_AUTH=true
+      - DEVLOCAL_CA=/config/tls/devlocal-ca.pem
       - DOD_CA_PACKAGE=/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
       - DPS_AUTH_COOKIE_SECRET_KEY
       - DPS_COOKIE_EXPIRES_IN_MINUTES
       - ENVIRONMENT=test
       - FEATURE_FLAG_ACCESS_CODE=false
+      - GOPROXY=https://gocenter.io
       - HERE_MAPS_APP_CODE
       - HERE_MAPS_APP_ID
       - HERE_MAPS_GEOCODE_ENDPOINT
@@ -85,6 +86,7 @@ services:
       - MOVE_MIL_DOD_TLS_KEY
       - NO_TLS_ENABLED=1
       - NO_TLS_PORT=4000
+      - PGPASSWORD=mysecretpassword
       - SERVE_ADMIN=true
       - SERVE_API_GHC=false
       - SERVE_API_INTERNAL=true

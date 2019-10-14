@@ -187,7 +187,9 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 		pop.Debug = true
 	}
 
-	migrationPaths := expandPaths(strings.Split(v.GetString(cli.MigrationPathFlag), ";"))
+	// Remove any extra quotes around path
+	trimmedMigrationPaths := strings.Trim(v.GetString(cli.MigrationPathFlag), "\"")
+	migrationPaths := expandPaths(strings.Split(trimmedMigrationPaths, ";"))
 	logger.Info(fmt.Sprintf("using migration paths %q", migrationPaths))
 
 	s3Migrations := false

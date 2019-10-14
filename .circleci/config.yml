@@ -15,28 +15,28 @@ executors:
     resource_class: small
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:0a7bcc19642337bcfb16d5d1a1f05da646b7ec27
+      - image: trussworks/circleci-docker-primary:782c370a89564e10e7ee00f6a6ad5c32309c11d5
   mymove_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:0a7bcc19642337bcfb16d5d1a1f05da646b7ec27
+      - image: trussworks/circleci-docker-primary:782c370a89564e10e7ee00f6a6ad5c32309c11d5
   mymove_medium_plus:
     resource_class: medium+
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:0a7bcc19642337bcfb16d5d1a1f05da646b7ec27
+      - image: trussworks/circleci-docker-primary:782c370a89564e10e7ee00f6a6ad5c32309c11d5
   mymove_large:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:0a7bcc19642337bcfb16d5d1a1f05da646b7ec27
+      - image: trussworks/circleci-docker-primary:782c370a89564e10e7ee00f6a6ad5c32309c11d5
   # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
   mymove_and_postgres_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:0a7bcc19642337bcfb16d5d1a1f05da646b7ec27
+      - image: trussworks/circleci-docker-primary:782c370a89564e10e7ee00f6a6ad5c32309c11d5
       - image: postgres:10.9
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -46,7 +46,7 @@ executors:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:0a7bcc19642337bcfb16d5d1a1f05da646b7ec27
+      - image: trussworks/circleci-docker-primary:782c370a89564e10e7ee00f6a6ad5c32309c11d5
       - image: postgres:10.9
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -385,11 +385,21 @@ jobs:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
-      - run:
-          name: Build Go Junit Report
-          command: make bin/go-junit-report
+      - run: make bin/go-junit-report
       - run: make bin/milmove
-      - run: make db_test_migrate
+      - run:
+          name: make db_test_migrate
+          command: make db_test_migrate
+          environment:
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
+            MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
       - run:
           name: make server_test_standalone
           command: |
@@ -439,7 +449,19 @@ jobs:
             chmod +x /home/circleci/cc-test-reporter
             /home/circleci/cc-test-reporter before-build -d
       - run: make bin/milmove
-      - run: make db_test_migrate
+      - run:
+          name: make db_test_migrate
+          command: make db_test_migrate
+          environment:
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
+            MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
       - run:
           name: make server_test_coverage_generate_standalone
           command: |
@@ -628,7 +650,7 @@ jobs:
     steps:
       - deploy_app_steps:
           compare_host: "" # leave blank since we want experimental to be able to roll back
-          health_check_hosts: my.experimental.move.mil,office.experimental.move.mil,tsp.experimental.move.mil
+          health_check_hosts: my.experimental.move.mil,office.experimental.move.mil,admin.experimental.move.mil
 
   # `deploy_experimental_app_client_tls` updates the mutual-TLS service in the experimental environment
   deploy_experimental_app_client_tls:
@@ -696,7 +718,7 @@ jobs:
     steps:
       - deploy_app_steps:
           compare_host: my.staging.move.mil
-          health_check_hosts: my.staging.move.mil,office.staging.move.mil,tsp.staging.move.mil
+          health_check_hosts: my.staging.move.mil,office.staging.move.mil,admin.staging.move.mil
 
   # `deploy_staging_app_client_tls` updates the mutual-TLS service in the staging environment
   deploy_staging_app_client_tls:
@@ -732,7 +754,7 @@ jobs:
     steps:
       - deploy_app_steps:
           compare_host: my.move.mil
-          health_check_hosts: my.move.mil,office.move.mil,tsp.move.mil
+          health_check_hosts: my.move.mil,office.move.mil,admin.move.mil
 
   # `deploy_prod_app_client_tls` updates the mutual-TLS service in the prod environment
   deploy_prod_app_client_tls:
