@@ -360,4 +360,8 @@
 20190926142600_add_duty_station_names.up.fizz
 20190927150748_insert_duty_station_names.up.sql
 20190930152918_import_bvs_performance_period_4.up.sql
+20191008151614_re_create_reference_tables.up.sql
 20191010155457_create_intl_prices_tables.up.sql
+20191011162818_add-admin-users.up.sql
+20191011183006_alter_column_type_to_string_.up.sql
+20191011191842_re_create_domestic_tables.up.sql
