@@ -22,7 +22,7 @@ type ReContractYear struct {
 	UpdatedAt            time.Time `json:"updated_at" db:"updated_at"`
 
 	// Associations
-	ReContract ReContract `belongs_to:"re_contract"`
+	Contract ReContract `belongs_to:"re_contract"`
 }
 
 // ReContractYears is not required by pop and may be deleted

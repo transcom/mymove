@@ -8,20 +8,20 @@ import (
 
 func (suite *ModelSuite) TestReServiceValidation() {
 	suite.T().Run("test valid ReService", func(t *testing.T) {
-		validReServiceType := models.ReService{
+		validReService := models.ReService{
 			Code: "123abc",
 			Name: "California",
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validReServiceType, expErrors)
+		suite.verifyValidationErrors(&validReService, expErrors)
 	})
 
 	suite.T().Run("test empty ReService", func(t *testing.T) {
-		invalidReService := models.ReService{}
+		emptyReService := models.ReService{}
 		expErrors := map[string][]string{
 			"code": {"Code can not be blank."},
 			"name": {"Name can not be blank."},
 		}
-		suite.verifyValidationErrors(&invalidReService, expErrors)
+		suite.verifyValidationErrors(&emptyReService, expErrors)
 	})
 }

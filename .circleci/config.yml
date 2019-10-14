@@ -15,28 +15,28 @@ executors:
     resource_class: small
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:e5c10bf19185aa55354901106bad3ffd4c016265
+      - image: trussworks/circleci-docker-primary:0a7bcc19642337bcfb16d5d1a1f05da646b7ec27
   mymove_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:e5c10bf19185aa55354901106bad3ffd4c016265
+      - image: trussworks/circleci-docker-primary:0a7bcc19642337bcfb16d5d1a1f05da646b7ec27
   mymove_medium_plus:
     resource_class: medium+
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:e5c10bf19185aa55354901106bad3ffd4c016265
+      - image: trussworks/circleci-docker-primary:0a7bcc19642337bcfb16d5d1a1f05da646b7ec27
   mymove_large:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:e5c10bf19185aa55354901106bad3ffd4c016265
+      - image: trussworks/circleci-docker-primary:0a7bcc19642337bcfb16d5d1a1f05da646b7ec27
   # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
   mymove_and_postgres_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:e5c10bf19185aa55354901106bad3ffd4c016265
+      - image: trussworks/circleci-docker-primary:0a7bcc19642337bcfb16d5d1a1f05da646b7ec27
       - image: postgres:10.9
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -46,7 +46,7 @@ executors:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:e5c10bf19185aa55354901106bad3ffd4c016265
+      - image: trussworks/circleci-docker-primary:0a7bcc19642337bcfb16d5d1a1f05da646b7ec27
       - image: postgres:10.9
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -83,7 +83,7 @@ commands:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
       - attach_workspace:
           at: bin
       - deploy:
@@ -122,7 +122,7 @@ commands:
             [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - attach_workspace:
           at: bin
       - deploy:
@@ -150,7 +150,7 @@ commands:
             [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1 ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA}
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - attach_workspace:
           at: bin
       - deploy:
@@ -220,14 +220,12 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run:
           name: Install dependencies
           command: for i in $(seq 1 5); do go get ./... && s=0 && break || s=$? && sleep 5; done; (exit $s)
-          environment:
-            GOPROXY: https://gocenter.io
       - save_cache:
-          key: go-mod-sources-v2-{{ checksum "go.sum" }}
+          key: go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
           paths:
             - "/go/pkg/mod"
       - announce_failure
@@ -265,12 +263,12 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: make server_generate mocks_generate
       - run: scripts/check-generated-code
       - save_cache:
-          key: go-mod-sources-v2-{{ checksum "go.sum" }}
+          key: go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
           paths:
             - "/go/pkg/mod"
       - announce_failure
@@ -292,7 +290,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
       - restore_cache:
           keys:
             - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
@@ -324,7 +322,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run:
           name: Run acceptance tests
           command: |
@@ -358,7 +356,7 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - restore_cache:
           keys:
             - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
@@ -385,7 +383,7 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: Build Go Junit Report
@@ -431,7 +429,7 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: Setup Code Climate test-reporter
@@ -492,7 +490,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run: make build_tools
       - persist_to_workspace:
           root: bin
@@ -513,7 +511,7 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - restore_cache:
           keys:
             - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
@@ -571,7 +569,7 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
       - run: make bin/chamber
       - run: make bin/rds-combined-ca-bundle.pem
       - run: make tasks_build
@@ -588,7 +586,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run:
           name: Build Chamber
           command: make bin/chamber
@@ -657,7 +655,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run:
           name: Build Chamber
           command: make bin/chamber
@@ -754,7 +752,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}
+            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run:
           name: Add ~/go/bin to path for golint
           command: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
