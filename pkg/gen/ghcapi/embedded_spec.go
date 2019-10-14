@@ -34,8 +34,7 @@ func init() {
     },
     "version": "0.0.1"
   },
-  "host": "api.move.mil",
-  "basePath": "/v1",
+  "basePath": "/ghc/v1",
   "paths": {
     "/move-task-orders": {
       "get": {
@@ -1479,8 +1478,7 @@ func init() {
     },
     "version": "0.0.1"
   },
-  "host": "api.move.mil",
-  "basePath": "/v1",
+  "basePath": "/ghc/v1",
   "paths": {
     "/move-task-orders": {
       "get": {
