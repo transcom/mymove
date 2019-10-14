@@ -122,7 +122,7 @@ func (v *Int64IsPresent) IsValid(errors *validate.Errors) {
 	}
 }
 
-// UnitCentsIsPresent validates that there is a non-zero value for cents
+// UnitCentsIsPositive validates that there is a non-zero value for cents
 type UnitCentsIsPositive struct {
 	Name  string
 	Field unit.Cents
