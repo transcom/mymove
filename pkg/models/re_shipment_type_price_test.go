@@ -25,7 +25,7 @@ func (suite *ModelSuite) TestReShipmentTypePriceValidation() {
 		expErrors := map[string][]string{
 			"contract_id":       {"ContractID can not be blank."},
 			"shipment_type_id":  {"ShipmentTypeID can not be blank."},
-			"market":            {"Market can not be blank. Market is not in the list [C, O]."},
+			"market":            {"Market can not be blank.", "Market is not in the list [C, O]."},
 			"factor_hundredths": {"FactorHundredths can not be blank."},
 		}
 		suite.verifyValidationErrors(&invalidReShipmentTypePrice, expErrors)

@@ -55,7 +55,7 @@ func (suite *ModelSuite) TestReDomesticServiceAreaValidation() {
 			SITPDSchedule:    -1,
 		}
 		expErrors := map[string][]string{
-			"service_schedule":   {"-3 is not greater than 0."},
+			"services_schedule":   {"-3 is not greater than 0."},
 			"s_i_t_p_d_schedule": {"-1 is not greater than 0."},
 		}
 		suite.verifyValidationErrors(&invalidReDomesticServiceArea, expErrors)

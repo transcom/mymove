@@ -25,7 +25,7 @@ func (suite *ModelSuite) TestReIntlAccessorialPriceValidation() {
 		expErrors := map[string][]string{
 			"contract_id":    {"ContractID can not be blank."},
 			"service_id":     {"ServiceID can not be blank."},
-			"market":         {"Market can not be blank. Market is not in the list [C, O]."},
+			"market":         {"Market can not be blank.", "Market is not in the list [C, O]."},
 			"per_unit_cents": {"PerUnitCents can not be blank."},
 		}
 		suite.verifyValidationErrors(&invalidReIntlAccessorialPrice, expErrors)
