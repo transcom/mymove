@@ -1,8 +1,10 @@
 package storage
 
 import (
+	"fmt"
 	"io"
 	"path"
+	"reflect"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -122,4 +124,25 @@ func (s *S3) PresignedURL(key string, contentType string) (string, error) {
 		return "", errors.Wrap(err, "could not generate presigned URL")
 	}
 	return url, nil
+}
+
+// Tags returns the tags for a specified key
+func (s *S3) Tags(key string) {
+	namespacedKey := path.Join(s.keyNamespace, key)
+	input := &s3.GetObjectTaggingInput{
+		Bucket: &s.bucket,
+		Key:    &namespacedKey,
+	}
+
+	result, err := s.client.GetObjectTagging(input)
+	if err != nil {
+		//return "", errors.Wrap(err, "get object tagging on s3 failed")
+		fmt.Println("bad things happened")
+	}
+	//return result, nil
+	fmt.Println(reflect.TypeOf(result))
+	fmt.Println(result)
+	fmt.Println(result.TagSet)
+
+	//' return a map (convert the tagset into the map)
 }
