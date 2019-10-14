@@ -25,10 +25,6 @@ WHERE login_gov_email='{{.EmailPrefix}}@{{.EmailDomain}}';
 UPDATE admin_users
 SET disabled=true
 WHERE email='{{.EmailPrefix}}@{{.EmailDomain}}';
-
-UPDATE office_users
-SET disabled=true
-WHERE email='{{.EmailPrefix}}@{{.EmailDomain}}';
 `
 )
 

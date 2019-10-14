@@ -358,6 +358,7 @@ ifndef TEST_ACC_ENV
 	SERVE_ORDERS=true \
 	SERVE_DPS=true \
 	SERVE_API_INTERNAL=true \
+	SERVE_API_GHC=false \
 	MUTUAL_TLS_ENABLED=true \
 	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 else
@@ -419,6 +420,10 @@ server_test_coverage_generate_standalone: ## Run server unit tests with coverage
 .PHONY: server_test_coverage
 server_test_coverage: db_test_reset db_test_migrate server_test_coverage_generate ## Run server unit test coverage with html output
 	DB_PORT=$(DB_PORT_TEST) go tool cover -html=coverage.out
+
+.PHONY: server_test_docker
+server_test_docker:
+	docker-compose -f docker-compose.circle.yml --compatibility up server_test
 
 #
 # ----- END SERVER TARGETS -----
@@ -820,7 +825,7 @@ gofmt:  ## Run go fmt over all Go files
 	go fmt $$(go list ./...) >> /dev/null
 
 .PHONY: pre_commit_tests
-pre_commit_tests: .client_deps.stamp ## Run pre-commit tests
+pre_commit_tests: .client_deps.stamp bin/swagger ## Run pre-commit tests
 	pre-commit run --all-files
 
 .PHONY: pretty

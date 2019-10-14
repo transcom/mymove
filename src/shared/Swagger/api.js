@@ -3,6 +3,7 @@ import * as Cookies from 'js-cookie';
 
 let client = null;
 let publicClient = null;
+let ghcClient = null;
 
 export const requestInterceptor = req => {
   if (!req.loadSpec) {
@@ -34,6 +35,16 @@ export async function getPublicClient() {
     });
   }
   return publicClient;
+}
+
+export async function getGHCClient() {
+  if (!ghcClient) {
+    ghcClient = await Swagger({
+      url: '/ghc/v1/swagger.yaml',
+      requestInterceptor: requestInterceptor,
+    });
+  }
+  return ghcClient;
 }
 
 export async function getSpec() {
