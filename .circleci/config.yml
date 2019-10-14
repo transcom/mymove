@@ -1057,7 +1057,7 @@ workflows:
     triggers:
       - schedule:
           # Monday at 4am/7am PST/EST
-          cron: '27 0 * * *'
+          cron: '33 * * * *'
           filters:
             branches:
               only:
