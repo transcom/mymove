@@ -20,11 +20,11 @@ func (suite *ModelSuite) TestReContractValidations() {
 	})
 
 	suite.T().Run("test empty ReContract", func(t *testing.T) {
-		emptyReContract := &models.ReContract{}
+		emptyReContract := models.ReContract{}
 		expErrors := map[string][]string{
 			"code": {"Code can not be blank."},
 			"name": {"Name can not be blank."},
 		}
-		suite.verifyValidationErrors(emptyReContract, expErrors)
+		suite.verifyValidationErrors(&emptyReContract, expErrors)
 	})
 }

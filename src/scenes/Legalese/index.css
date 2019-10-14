@@ -78,4 +78,6 @@ div.signature-date {
   }
 }
 
-
+.usa-input-error.signature {
+  margin-top: 2rem;
+}
