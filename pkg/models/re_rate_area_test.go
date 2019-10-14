@@ -18,11 +18,11 @@ func (suite *ModelSuite) TestReRateAreaValidation() {
 	})
 
 	suite.T().Run("test empty ReRateArea", func(t *testing.T) {
-		invalidReRateArea := models.ReRateArea{}
+		emptyReRateArea := models.ReRateArea{}
 		expErrors := map[string][]string{
 			"code": {"Code can not be blank."},
 			"name": {"Name can not be blank."},
 		}
-		suite.verifyValidationErrors(&invalidReRateArea, expErrors)
+		suite.verifyValidationErrors(&emptyReRateArea, expErrors)
 	})
 }
