@@ -11,6 +11,7 @@ import (
 	tsppop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_service_provider_performances"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -108,5 +109,42 @@ func (suite *HandlerSuite) TestIndexTSPPsHandler() {
 			Err:  expectedError,
 		}
 		suite.Equal(expectedResponse, response)
+	})
+}
+
+func (suite *HandlerSuite) TestIndexTSPPsHandlerHelpers() {
+	queryBuilder := query.NewQueryBuilder(suite.DB())
+	handler := IndexTSPPsHandler{
+		HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		NewQueryFilter: query.NewQueryFilter,
+		TransportationServiceProviderPerformanceListFetcher: tsp.NewTransportationServiceProviderPerformanceListFetcher(queryBuilder),
+		NewPagination: pagination.NewPagination,
+	}
+
+	suite.T().Run("test both filters present", func(t *testing.T) {
+
+		s := `{"traffic_distribution_list_id":"001a4a1b-8b04-4621-b9ec-711d828f67e3", "transportation_service_provider_id":"8f166861-b8c4-4a8f-a43e-77ed5e745086"}`
+		qfs := handler.generateQueryFilters(&s, suite.TestLogger())
+		expectedFilters := []services.QueryFilter{
+			query.NewQueryFilter("traffic_distribution_list_id", "=", "001a4a1b-8b04-4621-b9ec-711d828f67e3"),
+			query.NewQueryFilter("transportation_service_provider_id", "=", "8f166861-b8c4-4a8f-a43e-77ed5e745086"),
+		}
+		suite.Equal(expectedFilters, qfs)
+	})
+	suite.T().Run("test only traffic_distribution_list_id present", func(t *testing.T) {
+		s := `{"traffic_distribution_list_id":"001a4a1b-8b04-4621-b9ec-711d828f67e3"}`
+		qfs := handler.generateQueryFilters(&s, suite.TestLogger())
+		expectedFilters := []services.QueryFilter{
+			query.NewQueryFilter("traffic_distribution_list_id", "=", "001a4a1b-8b04-4621-b9ec-711d828f67e3"),
+		}
+		suite.Equal(expectedFilters, qfs)
+	})
+	suite.T().Run("test only transportation_service_provider_id present", func(t *testing.T) {
+		s := `{"transportation_service_provider_id":"8f166861-b8c4-4a8f-a43e-77ed5e745086"}`
+		qfs := handler.generateQueryFilters(&s, suite.TestLogger())
+		expectedFilters := []services.QueryFilter{
+			query.NewQueryFilter("transportation_service_provider_id", "=", "8f166861-b8c4-4a8f-a43e-77ed5e745086"),
+		}
+		suite.Equal(expectedFilters, qfs)
 	})
 }
