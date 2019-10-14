@@ -1,44 +1,34 @@
-import React, { Component } from 'react';
+import React, { Component, lazy, Suspense } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
 import { history } from 'shared/store';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import QueueHeader from 'shared/Header/Office';
-import QueueList from './QueueList';
-import QueueTable from './QueueTable';
-import MoveInfo from './MoveInfo';
-import OrdersInfo from './OrdersInfo';
-import DocumentViewer from './DocumentViewer';
 import { getCurrentUserInfo, selectCurrentUser } from 'shared/Data/users';
 import { loadInternalSchema, loadPublicSchema } from 'shared/Swagger/ducks';
 import { detectIE11, no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
-import ScratchPad from 'shared/ScratchPad';
 import { isProduction } from 'shared/constants';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { RetrieveMovesForOffice } from './api';
 
 import './office.scss';
 import TOO from './TOO/too';
 import { withContext } from 'shared/AppContext';
 
-export class Queues extends Component {
-  render() {
-    return (
-      <div className="usa-grid grid-wide queue-columns">
-        <div className="queue-menu-column">
-          <QueueList />
-        </div>
-        <div className="queue-list-column">
-          <QueueTable queueType={this.props.match.params.queueType} retrieveMoves={RetrieveMovesForOffice} />
-        </div>
-      </div>
-    );
-  }
-}
+// Lazy load these dependencies
+const MoveInfo = lazy(() => import('./MoveInfo'));
+const Queues = lazy(() => import('./Queues'));
+const OrdersInfo = lazy(() => import('./OrdersInfo'));
+const DocumentViewer = lazy(() => import('./DocumentViewer'));
+const ScratchPad = lazy(() => import('shared/ScratchPad'));
+const QueueHeader = lazy(() => import('shared/Header/Office'));
+
+
+
+
+
 
 export class RenderWithOrWithoutHeader extends Component {
   render() {
@@ -46,10 +36,12 @@ export class RenderWithOrWithoutHeader extends Component {
     const Component = this.props.component;
     return (
       <>
+        <Suspense fallback={<div>Loading...</div>}>
         {this.props.withHeader && <QueueHeader />}
         <Tag role="main" className="site__content">
           <Component {...this.props} />
         </Tag>
+        </Suspense>
       </>
     );
   }
@@ -81,7 +73,9 @@ export class OfficeWrapper extends Component {
     return (
       <ConnectedRouter history={history}>
         <div className="Office site">
-          {!userIsLoggedIn && <QueueHeader />}
+          <Suspense fallback={<div>Loading...</div>}>
+           {!userIsLoggedIn && <QueueHeader />}
+          </Suspense>
           <ConditionalWrap
             condition={!userIsLoggedIn}
             wrap={children => (
@@ -110,47 +104,57 @@ export class OfficeWrapper extends Component {
                 <PrivateRoute
                   path="/queues/:queueType/moves/:moveId"
                   component={props => (
-                    <RenderWithOrWithoutHeader component={MoveInfo} withHeader={true} tag={DivOrMainTag} {...props} />
+                    <Suspense fallback={<div>Loading...</div>}>
+                     <RenderWithOrWithoutHeader component={MoveInfo} withHeader={true} tag={DivOrMainTag} {...props} />
+                    </Suspense>
                   )}
                 />
                 <PrivateRoute
                   path="/queues/:queueType"
                   component={props => (
-                    <RenderWithOrWithoutHeader component={Queues} withHeader={true} tag={DivOrMainTag} {...props} />
+                    <Suspense fallback={<div>Loading...</div>}>
+                      <RenderWithOrWithoutHeader component={Queues} withHeader={true} tag={DivOrMainTag} {...props} />
+                    </Suspense>
                   )}
                 />
                 <PrivateRoute
                   path="/moves/:moveId/orders"
                   component={props => (
-                    <RenderWithOrWithoutHeader
-                      component={OrdersInfo}
-                      withHeader={false}
-                      tag={DivOrMainTag}
-                      {...props}
-                    />
+                    <Suspense fallback={<div>Loading...</div>}>
+                      <RenderWithOrWithoutHeader
+                        component={OrdersInfo}
+                        withHeader={false}
+                        tag={DivOrMainTag}
+                        {...props}
+                      />
+                    </Suspense>
                   )}
                 />
                 <PrivateRoute
                   path="/moves/:moveId/documents/:moveDocumentId?"
                   component={props => (
-                    <RenderWithOrWithoutHeader
-                      component={DocumentViewer}
-                      withHeader={false}
-                      tag={DivOrMainTag}
-                      {...props}
-                    />
+                    <Suspense fallback={<div>Loading...</div>}>
+                      <RenderWithOrWithoutHeader
+                        component={DocumentViewer}
+                        withHeader={false}
+                        tag={DivOrMainTag}
+                        {...props}
+                      />
+                    </Suspense>
                   )}
                 />
                 {!isProduction && (
                   <PrivateRoute
                     path="/playground"
                     component={props => (
-                      <RenderWithOrWithoutHeader
-                        component={ScratchPad}
-                        withHeader={true}
-                        tag={DivOrMainTag}
-                        {...props}
-                      />
+                      <Suspense fallback={<div>Loading...</div>}>
+                        <RenderWithOrWithoutHeader
+                          component={ScratchPad}
+                          withHeader={true}
+                          tag={DivOrMainTag}
+                          {...props}
+                        />
+                      </Suspense>
                     )}
                   />
                 )}
