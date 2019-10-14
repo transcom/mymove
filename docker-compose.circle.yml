@@ -14,7 +14,7 @@ services:
       - POSTGRES_DB=test_db
 
   server_test:
-    image: trussworks/circleci-docker-primary:e5c10bf19185aa55354901106bad3ffd4c016265
+    image: trussworks/circleci-docker-primary:0a7bcc19642337bcfb16d5d1a1f05da646b7ec27
     deploy:
       resources:
         limits:
