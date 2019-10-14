@@ -8,8 +8,7 @@ info:
     url: 'https://opensource.org/licenses/MIT'
   title: move.mil API
   version: 0.0.1
-host: api.move.mil
-basePath: /v1
+basePath: /ghc/v1
 schemes:
   - http
 paths:
@@ -999,4 +998,3 @@ responses:
     description: A server error occurred
     schema:
       $ref: '#/definitions/Error'
-
