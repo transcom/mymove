@@ -25,11 +25,6 @@ const DocumentViewer = lazy(() => import('./DocumentViewer'));
 const ScratchPad = lazy(() => import('shared/ScratchPad'));
 const QueueHeader = lazy(() => import('shared/Header/Office'));
 
-
-
-
-
-
 export class RenderWithOrWithoutHeader extends Component {
   render() {
     const Tag = this.props.tag;
