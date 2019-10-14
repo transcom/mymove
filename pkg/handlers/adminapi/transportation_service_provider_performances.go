@@ -1,9 +1,11 @@
 package adminapi
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/transcom/mymove/pkg/services/query"
+	"go.uber.org/zap"
 
 	"github.com/go-openapi/runtime/middleware"
 
@@ -46,7 +48,7 @@ type IndexTSPPsHandler struct {
 func (h IndexTSPPsHandler) Handle(params tsppop.IndexTSPPsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
-	queryFilters := []services.QueryFilter{}
+	queryFilters := h.generateQueryFilters(params.Filter, logger)
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
 	associations := query.NewQueryAssociations([]services.QueryAssociation{})
@@ -69,4 +71,33 @@ func (h IndexTSPPsHandler) Handle(params tsppop.IndexTSPPsParams) middleware.Res
 	}
 
 	return tsppop.NewIndexTSPPsOK().WithContentRange(fmt.Sprintf("tspps %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedTSPPsCount, totalTSPPsCount)).WithPayload(payload)
+}
+
+// generateQueryFilters is helper to convert filter params from a json string
+// of the form `{"traffic_distribution_list_id": "8e4b3caf-98dc-462a-bbcc-1977d08a08eb" "transportation_service_provider_id": "8e4b3caf-98dc-462a-bbcc-1977d08a08eb"}`
+// to an array of services.QueryFilter
+func (h IndexTSPPsHandler) generateQueryFilters(filters *string, logger handlers.Logger) []services.QueryFilter {
+	type Filter struct {
+		TdlID string `json:"traffic_distribution_list_id"`
+		TspID string `json:"transportation_service_provider_id"`
+	}
+	f := Filter{}
+	var queryFilters []services.QueryFilter
+	if filters == nil {
+		return queryFilters
+	}
+	b := []byte(*filters)
+	err := json.Unmarshal(b, &f)
+	if err != nil {
+		fs := fmt.Sprintf("%v", filters)
+		logger.Warn("unable to decode param", zap.Error(err),
+			zap.String("filters", fs))
+	}
+	if f.TdlID != "" {
+		queryFilters = append(queryFilters, query.NewQueryFilter("traffic_distribution_list_id", "=", f.TdlID))
+	}
+	if f.TspID != "" {
+		queryFilters = append(queryFilters, query.NewQueryFilter("transportation_service_provider_id", "=", f.TspID))
+	}
+	return queryFilters
 }
