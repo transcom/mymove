@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -236,10 +235,7 @@ func (suite *serverSuite) testTLSConfigWithRequest(tlsVersion uint16) {
 	// Start the Server
 	go srv.ListenAndServeTLS()
 
-	// Wait for server to be ready
-	for srv.IsReady != true {
-		time.Sleep(500 * time.Millisecond)
-	}
+	srv.WaitUntilReady()
 
 	// Send a request
 	clientTLSConfig := tls.Config{
@@ -313,10 +309,7 @@ func (suite *serverSuite) TestTLSConfigWithRequestNoClientAuth() {
 	// Start the Server
 	go srv.ListenAndServeTLS()
 
-	// Wait for server to be ready
-	for srv.IsReady != true {
-		time.Sleep(500 * time.Millisecond)
-	}
+	srv.WaitUntilReady()
 
 	// Send a request without TLS client side cert configuration, should return error
 	client := &http.Client{
@@ -368,10 +361,7 @@ func (suite *serverSuite) TestTLSConfigWithInvalidAuth() {
 	// Start the Server
 	go srv.ListenAndServeTLS()
 
-	// Wait for server to be ready
-	for srv.IsReady != true {
-		time.Sleep(500 * time.Millisecond)
-	}
+	srv.WaitUntilReady()
 
 	// Send a request with self signed cert and CA, but doesn't match server used CA
 	invalidKeyPair, err := tls.X509KeyPair(
