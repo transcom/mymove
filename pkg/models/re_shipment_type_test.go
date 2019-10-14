@@ -17,11 +17,11 @@ func (suite *ModelSuite) TestReShipmentTypeValidation() {
 	})
 
 	suite.T().Run("test empty ReShipmentType", func(t *testing.T) {
-		invalidReShipmentType := models.ReShipmentType{}
+		emptyReShipmentType := models.ReShipmentType{}
 		expErrors := map[string][]string{
 			"code": {"Code can not be blank."},
 			"name": {"Name can not be blank."},
 		}
-		suite.verifyValidationErrors(&invalidReShipmentType, expErrors)
+		suite.verifyValidationErrors(&emptyReShipmentType, expErrors)
 	})
 }

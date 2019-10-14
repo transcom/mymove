@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+#
+# This script is used inside docker-compose.circle.yml to run the server_test task
+#
+
+set -eu -o pipefail
+
+make clean
+
+go get ./...
+
+make bin/go-junit-report
+
+make bin/milmove
+
+make db_test_migrate
+
+mkdir -p tmp/test-results/gotest
+
+## setup a trap incase the tests fail, we still want to generate the report
+trap "bin/go-junit-report < tmp/test-results/gotest/go-test.out >  tmp/test-results/gotest/go-test-report.xml" EXIT
+make server_test_standalone | tee tmp/test-results/gotest/go-test.out
+
