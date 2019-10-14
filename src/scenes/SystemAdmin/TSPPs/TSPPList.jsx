@@ -12,11 +12,6 @@ const TSPPList = props => (
       <TextField source="performance_period_end" reference="transportation_service_provider_performances" />
       <TextField source="rate_cycle_start" reference="transportation_service_provider_performances" />
       <TextField source="rate_cycle_end" reference="transportation_service_provider_performances" />
-      <TextField source="quality_band" reference="transportation_service_provider_performances" />
-      <TextField source="offer_count" reference="transportation_service_provider_performances" />
-      <TextField source="best_value_score" reference="transportation_service_provider_performances" />
-      <TextField source="linehaul_rate" reference="transportation_service_provider_performances" />
-      <TextField source="sit_rate" reference="transportation_service_provider_performances" />
     </Datagrid>
   </List>
 );
