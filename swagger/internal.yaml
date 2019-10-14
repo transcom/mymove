@@ -1546,6 +1546,19 @@ definitions:
         type: string
         format: uuid
         title: The service member this document belongs to
+  Tags:
+    type: array
+    items:
+      $ref: '#/definitions/Tag'
+  Tag:
+    type: object
+    properties:
+      key:
+        type: string
+        example: alma mater
+      value:
+        type: string
+        example: smith college
   UploadPayload:
     type: object
     properties:
@@ -3600,11 +3613,11 @@ paths:
           description: not found
         500:
           description: server error
-  /uploads/{uploadId}/is_infected:
+  /uploads/{uploadId}/tags:
     get:
-      summary: Returns boolean as to whether the upload is infected
-      description: Returns boolean as to whether the upload is infected
-      operationId: isUploadInfected
+      summary: Returns tags associated with the upload
+      description: Returns tags associated with the upload
+      operationId: getUploadTags
       tags:
         - uploads
       parameters:
@@ -3613,14 +3626,20 @@ paths:
           type: string
           format: uuid
           required: true
-          description: UUID of the upload to be deleted
+          description: UUID of the upload to fetch tags for
       responses:
         200:
-          description: Upload is infected
+          description: the requested tags
           schema:
-            type: boolean
+            $ref: '#/definitions/Tags'
         400:
           description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        403:
+          description: not authorized
+        404:
+          description: not found
         500:
           description: server error
   /uploads:

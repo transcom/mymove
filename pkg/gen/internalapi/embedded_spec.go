@@ -2737,19 +2737,19 @@ func init() {
         }
       }
     },
-    "/uploads/{uploadId}/is_infected": {
+    "/uploads/{uploadId}/tags": {
       "get": {
-        "description": "Returns boolean as to whether the upload is infected",
+        "description": "Returns tags associated with the upload",
         "tags": [
           "uploads"
         ],
-        "summary": "Returns boolean as to whether the upload is infected",
-        "operationId": "isUploadInfected",
+        "summary": "Returns tags associated with the upload",
+        "operationId": "getUploadTags",
         "parameters": [
           {
             "type": "string",
             "format": "uuid",
-            "description": "UUID of the upload to be deleted",
+            "description": "UUID of the upload to fetch tags for",
             "name": "uploadId",
             "in": "path",
             "required": true
@@ -2757,13 +2757,22 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Upload is infected",
+            "description": "the requested tags",
             "schema": {
-              "type": "boolean"
+              "$ref": "#/definitions/Tags"
             }
           },
           "400": {
-            "description": "invalid request"
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
           },
           "500": {
             "description": "server error"
@@ -5526,6 +5535,25 @@ func init() {
         "L"
       ],
       "x-nullable": true
+    },
+    "Tag": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "example": "alma mater"
+        },
+        "value": {
+          "type": "string",
+          "example": "smith college"
+        }
+      }
+    },
+    "Tags": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Tag"
+      }
     },
     "TransportationOffice": {
       "type": "object",
@@ -8518,19 +8546,19 @@ func init() {
         }
       }
     },
-    "/uploads/{uploadId}/is_infected": {
+    "/uploads/{uploadId}/tags": {
       "get": {
-        "description": "Returns boolean as to whether the upload is infected",
+        "description": "Returns tags associated with the upload",
         "tags": [
           "uploads"
         ],
-        "summary": "Returns boolean as to whether the upload is infected",
-        "operationId": "isUploadInfected",
+        "summary": "Returns tags associated with the upload",
+        "operationId": "getUploadTags",
         "parameters": [
           {
             "type": "string",
             "format": "uuid",
-            "description": "UUID of the upload to be deleted",
+            "description": "UUID of the upload to fetch tags for",
             "name": "uploadId",
             "in": "path",
             "required": true
@@ -8538,13 +8566,22 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Upload is infected",
+            "description": "the requested tags",
             "schema": {
-              "type": "boolean"
+              "$ref": "#/definitions/Tags"
             }
           },
           "400": {
-            "description": "invalid request"
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
           },
           "500": {
             "description": "server error"
@@ -11317,6 +11354,25 @@ func init() {
         "L"
       ],
       "x-nullable": true
+    },
+    "Tag": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "example": "alma mater"
+        },
+        "value": {
+          "type": "string",
+          "example": "smith college"
+        }
+      }
+    },
+    "Tags": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Tag"
+      }
     },
     "TransportationOffice": {
       "type": "object",

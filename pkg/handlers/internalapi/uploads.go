@@ -165,13 +165,13 @@ func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middle
 	return uploadop.NewDeleteUploadsNoContent()
 }
 
-// IsUploadInfectedHandler checks if an upload has been infected
-type IsUploadInfectedHandler struct {
+// GetUploadTagsHandler gets the tags for a specific upload
+type GetUploadTagsHandler struct {
 	handlers.HandlerContext
 }
 
-// Handle inspects if an upload is infected
-func (h IsUploadInfectedHandler) Handle(params uploadop.IsUploadInfectedParams) middleware.Responder {
+// Handle gets the tags for an upload
+func (h GetUploadTagsHandler) Handle(params uploadop.GetUploadTagsParams) middleware.Responder {
 	ctx := params.HTTPRequest.Context()
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	uploadID, _ := uuid.FromString(params.UploadID.String())
@@ -183,10 +183,16 @@ func (h IsUploadInfectedHandler) Handle(params uploadop.IsUploadInfectedParams) 
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-	if status, ok := tags["av-status"]; ok {
-		if status == "INFECTED" {
-			return uploadop.NewIsUploadInfectedOK().WithPayload(true)
+
+	index := 0
+	tagsPayload := make(internalmessages.Tags, len(tags))
+	for k, v := range tags {
+		tag := &internalmessages.Tag{
+			Key:   k,
+			Value: v,
 		}
+		tagsPayload[index] = tag
+		index++
 	}
-	return uploadop.NewIsUploadInfectedOK().WithPayload(false)
+	return uploadop.NewGetUploadTagsOK().WithPayload(tagsPayload)
 }

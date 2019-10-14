@@ -125,6 +125,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		DpsAuthGetCookieURLHandler: dps_auth.GetCookieURLHandlerFunc(func(params dps_auth.GetCookieURLParams) middleware.Responder {
 			return middleware.NotImplemented("operation DpsAuthGetCookieURL has not yet been implemented")
 		}),
+		UploadsGetUploadTagsHandler: uploads.GetUploadTagsHandlerFunc(func(params uploads.GetUploadTagsParams) middleware.Responder {
+			return middleware.NotImplemented("operation UploadsGetUploadTags has not yet been implemented")
+		}),
 		EntitlementsIndexEntitlementsHandler: entitlements.IndexEntitlementsHandlerFunc(func(params entitlements.IndexEntitlementsParams) middleware.Responder {
 			return middleware.NotImplemented("operation EntitlementsIndexEntitlements has not yet been implemented")
 		}),
@@ -142,9 +145,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		UsersIsLoggedInUserHandler: users.IsLoggedInUserHandlerFunc(func(params users.IsLoggedInUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation UsersIsLoggedInUser has not yet been implemented")
-		}),
-		UploadsIsUploadInfectedHandler: uploads.IsUploadInfectedHandlerFunc(func(params uploads.IsUploadInfectedParams) middleware.Responder {
-			return middleware.NotImplemented("operation UploadsIsUploadInfected has not yet been implemented")
 		}),
 		MovesPatchMoveHandler: moves.PatchMoveHandlerFunc(func(params moves.PatchMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation MovesPatchMove has not yet been implemented")
@@ -322,6 +322,8 @@ type MymoveAPI struct {
 	AccesscodeFetchAccessCodeHandler accesscode.FetchAccessCodeHandler
 	// DpsAuthGetCookieURLHandler sets the operation handler for the get cookie URL operation
 	DpsAuthGetCookieURLHandler dps_auth.GetCookieURLHandler
+	// UploadsGetUploadTagsHandler sets the operation handler for the get upload tags operation
+	UploadsGetUploadTagsHandler uploads.GetUploadTagsHandler
 	// EntitlementsIndexEntitlementsHandler sets the operation handler for the index entitlements operation
 	EntitlementsIndexEntitlementsHandler entitlements.IndexEntitlementsHandler
 	// MoveDocsIndexMoveDocumentsHandler sets the operation handler for the index move documents operation
@@ -334,8 +336,6 @@ type MymoveAPI struct {
 	CertificationIndexSignedCertificationHandler certification.IndexSignedCertificationHandler
 	// UsersIsLoggedInUserHandler sets the operation handler for the is logged in user operation
 	UsersIsLoggedInUserHandler users.IsLoggedInUserHandler
-	// UploadsIsUploadInfectedHandler sets the operation handler for the is upload infected operation
-	UploadsIsUploadInfectedHandler uploads.IsUploadInfectedHandler
 	// MovesPatchMoveHandler sets the operation handler for the patch move operation
 	MovesPatchMoveHandler moves.PatchMoveHandler
 	// PpmPatchPersonallyProcuredMoveHandler sets the operation handler for the patch personally procured move operation
@@ -557,6 +557,10 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "dps_auth.GetCookieURLHandler")
 	}
 
+	if o.UploadsGetUploadTagsHandler == nil {
+		unregistered = append(unregistered, "uploads.GetUploadTagsHandler")
+	}
+
 	if o.EntitlementsIndexEntitlementsHandler == nil {
 		unregistered = append(unregistered, "entitlements.IndexEntitlementsHandler")
 	}
@@ -579,10 +583,6 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.UsersIsLoggedInUserHandler == nil {
 		unregistered = append(unregistered, "users.IsLoggedInUserHandler")
-	}
-
-	if o.UploadsIsUploadInfectedHandler == nil {
-		unregistered = append(unregistered, "uploads.IsUploadInfectedHandler")
 	}
 
 	if o.MovesPatchMoveHandler == nil {
@@ -929,6 +929,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/uploads/{uploadId}/tags"] = uploads.NewGetUploadTags(o.context, o.UploadsGetUploadTagsHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/entitlements"] = entitlements.NewIndexEntitlements(o.context, o.EntitlementsIndexEntitlementsHandler)
 
 	if o.handlers["GET"] == nil {
@@ -955,11 +960,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/users/is_logged_in"] = users.NewIsLoggedInUser(o.context, o.UsersIsLoggedInUserHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/uploads/{uploadId}/is_infected"] = uploads.NewIsUploadInfected(o.context, o.UploadsIsUploadInfectedHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)

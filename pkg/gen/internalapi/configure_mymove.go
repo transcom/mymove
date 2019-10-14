@@ -164,6 +164,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation dps_auth.GetCookieURL has not yet been implemented")
 		})
 	}
+	if api.UploadsGetUploadTagsHandler == nil {
+		api.UploadsGetUploadTagsHandler = uploads.GetUploadTagsHandlerFunc(func(params uploads.GetUploadTagsParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.GetUploadTags has not yet been implemented")
+		})
+	}
 	if api.EntitlementsIndexEntitlementsHandler == nil {
 		api.EntitlementsIndexEntitlementsHandler = entitlements.IndexEntitlementsHandlerFunc(func(params entitlements.IndexEntitlementsParams) middleware.Responder {
 			return middleware.NotImplemented("operation entitlements.IndexEntitlements has not yet been implemented")
@@ -192,11 +197,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.UsersIsLoggedInUserHandler == nil {
 		api.UsersIsLoggedInUserHandler = users.IsLoggedInUserHandlerFunc(func(params users.IsLoggedInUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation users.IsLoggedInUser has not yet been implemented")
-		})
-	}
-	if api.UploadsIsUploadInfectedHandler == nil {
-		api.UploadsIsUploadInfectedHandler = uploads.IsUploadInfectedHandlerFunc(func(params uploads.IsUploadInfectedParams) middleware.Responder {
-			return middleware.NotImplemented("operation uploads.IsUploadInfected has not yet been implemented")
 		})
 	}
 	if api.MovesPatchMoveHandler == nil {

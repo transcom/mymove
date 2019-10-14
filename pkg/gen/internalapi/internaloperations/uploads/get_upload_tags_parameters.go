@@ -15,23 +15,23 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 )
 
-// NewIsUploadInfectedParams creates a new IsUploadInfectedParams object
+// NewGetUploadTagsParams creates a new GetUploadTagsParams object
 // no default values defined in spec.
-func NewIsUploadInfectedParams() IsUploadInfectedParams {
+func NewGetUploadTagsParams() GetUploadTagsParams {
 
-	return IsUploadInfectedParams{}
+	return GetUploadTagsParams{}
 }
 
-// IsUploadInfectedParams contains all the bound params for the is upload infected operation
+// GetUploadTagsParams contains all the bound params for the get upload tags operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters isUploadInfected
-type IsUploadInfectedParams struct {
+// swagger:parameters getUploadTags
+type GetUploadTagsParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*UUID of the upload to be deleted
+	/*UUID of the upload to fetch tags for
 	  Required: true
 	  In: path
 	*/
@@ -41,8 +41,8 @@ type IsUploadInfectedParams struct {
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewIsUploadInfectedParams() beforehand.
-func (o *IsUploadInfectedParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewGetUploadTagsParams() beforehand.
+func (o *GetUploadTagsParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
@@ -59,7 +59,7 @@ func (o *IsUploadInfectedParams) BindRequest(r *http.Request, route *middleware.
 }
 
 // bindUploadID binds and validates parameter UploadID from path.
-func (o *IsUploadInfectedParams) bindUploadID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *GetUploadTagsParams) bindUploadID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -83,7 +83,7 @@ func (o *IsUploadInfectedParams) bindUploadID(rawData []string, hasKey bool, for
 }
 
 // validateUploadID carries on validations for parameter UploadID
-func (o *IsUploadInfectedParams) validateUploadID(formats strfmt.Registry) error {
+func (o *GetUploadTagsParams) validateUploadID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("uploadId", "path", "uuid", o.UploadID.String(), formats); err != nil {
 		return err
