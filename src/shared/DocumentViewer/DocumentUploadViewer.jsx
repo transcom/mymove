@@ -18,8 +18,8 @@ class DocumentUploadViewer extends Component {
   render() {
     const { moveDocument } = this.props;
     const uploadModels = get(moveDocument, 'document.uploads', []);
-    return uploadModels.map(({ url, filename, content_type }) => (
-      <DocumentContent key={url} url={url} filename={filename} contentType={content_type} />
+    return uploadModels.map(({ url, filename, content_type, tags }) => (
+      <DocumentContent key={url} url={url} filename={filename} contentType={content_type} tags={tags} />
     ));
   }
 }

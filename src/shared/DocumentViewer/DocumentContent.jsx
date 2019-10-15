@@ -6,7 +6,8 @@ import styles from './DocumentContent.module.scss';
 import { RotationBar } from 'shared/RotationBar/RotationBar';
 
 const DocumentContent = props => {
-  let { contentType, filename, url } = props;
+  let { contentType, filename, url, tags } = props;
+  console.log(tags);
   if (contentType === 'application/pdf') {
     return <PDFImage filename={filename} url={url} />;
   }
