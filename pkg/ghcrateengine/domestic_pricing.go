@@ -116,13 +116,12 @@ func (gre *GHCRateEngine) CalculateBaseDomesticLinehaul(d DomesticServicePricing
 }
 
 // CalculateBaseDomesticPerWeightCost calculates the cost based on service performed and returns the cost in cents
-// This function is used to calculate origin and destination service area, pack, unpack, and sit costs
-func (gre *GHCRateEngine) CalculateBaseDomesticPerWeightServiceCost (d DomesticServicePricingData) (cost unit.Cents, err error) {
-	domesticPack := "DPK" // stubbed
-	domesticUnpack := "DUPK" // stubbed
-	domesticSit := "DSIT" //
+// This function is used to calculate
+	// domestic prices: origin and destination service area, SIT day 1, SIT days-1,
+	// domestic other prices: pack, unpack, and sit p/d costs
+func (gre *GHCRateEngine) CalculateBaseDomesticPerWeightServiceCost (d DomesticServicePricingData, isDomesticOtherService bool) (cost unit.Cents, err error) {
 	var rate unit.Cents
-	if d.ServiceCode == domesticPack || d.ServiceCode == domesticUnpack || d.ServiceCode == domesticSit {
+	if isDomesticOtherService {
 		rate, err = lookupDomesticOtherPrice(gre.db, d)
 		if err != nil {
 			return cost, errors.Wrap(err, fmt.Sprintf("Lookup of domestic service %s failed", d.ServiceCode))
