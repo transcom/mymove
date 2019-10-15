@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/go-openapi/runtime/security"
+
 	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
 	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
@@ -26,6 +28,7 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 		log.Fatalln(err)
 	}
 	internalAPI := internalops.NewMymoveAPI(internalSpec)
+	internalAPI.BasicAuthenticator = security.BasicAuth
 
 	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{context}
 

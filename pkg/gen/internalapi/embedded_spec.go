@@ -614,7 +614,10 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "samplerole"
+        ]
       }
     },
     "/estimates/ppm_sit": {
@@ -5761,6 +5764,11 @@ func init() {
         }
       }
     }
+  },
+  "securityDefinitions": {
+    "Roles": {
+      "type": "basic"
+    }
   }
 }`))
 	FlatSwaggerJSON = json.RawMessage([]byte(`{
@@ -6360,7 +6368,10 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "samplerole"
+        ]
       }
     },
     "/estimates/ppm_sit": {
@@ -11519,6 +11530,11 @@ func init() {
           "example": 18000
         }
       }
+    }
+  },
+  "securityDefinitions": {
+    "Roles": {
+      "type": "basic"
     }
   }
 }`))

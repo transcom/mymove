@@ -486,6 +486,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	handlerContext.SetAppNames(appnames)
 
+	userAuthMiddleware2 := authentication.UserAuthMiddleware2(logger, handlerContext)
+
 	// Email
 	notificationSender, notificationSenderErr := notifications.InitEmail(v, session, logger)
 	if notificationSenderErr != nil {
@@ -759,6 +761,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	if v.GetBool(cli.ServeInternalAPIFlag) {
 		internalMux := goji.SubMux()
+
 		root.Handle(pat.New("/internal/*"), internalMux)
 		internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.InternalSwaggerFlag)))
 		if v.GetBool(cli.ServeSwaggerUIFlag) {
@@ -773,6 +776,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		internalMux.Handle(pat.New("/*"), internalAPIMux)
 		internalAPIMux.Use(userAuthMiddleware)
 		internalAPIMux.Use(middleware.NoCache(logger))
+		internalAPIMux.Use(userAuthMiddleware2)
 		internalAPIMux.Handle(pat.New("/*"), internalapi.NewInternalAPIHandler(handlerContext))
 	}
 
@@ -823,7 +827,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			}
 		}
 	}
-
 	storageBackend := v.GetString(cli.StorageBackendFlag)
 	if storageBackend == "local" {
 		localStorageRoot := v.GetString(cli.LocalStorageRootFlag)

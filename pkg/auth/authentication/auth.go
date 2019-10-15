@@ -11,6 +11,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-openapi/loads"
+
+	"github.com/transcom/mymove/pkg/gen/internalapi"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
+	"github.com/transcom/mymove/pkg/handlers"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/markbates/goth"
@@ -69,6 +75,25 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 				return
 			}
 
+			next.ServeHTTP(w, r)
+		}
+		return http.HandlerFunc(mw)
+	}
+}
+
+// UserAuthMiddleware enforces that the incoming request is tied to a user session
+func UserAuthMiddleware2(logger Logger, ctx handlers.HandlerContext) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+
+			//session := auth.SessionFromRequestContext(r)
+			// We must have a logged in session and a user
+
+			internalSpec, _ := loads.Analyzed(internalapi.SwaggerJSON, "")
+			internalAPI := internaloperations.NewMymoveAPI(internalSpec)
+			route, r, _ := internalAPI.Context().RouteInfo(r)
+			roles := route.Operation.VendorExtensible.Extensions["x-swagger-roles"]
+			fmt.Println(roles)
 			next.ServeHTTP(w, r)
 		}
 		return http.HandlerFunc(mw)
