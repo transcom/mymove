@@ -68,6 +68,7 @@ func updateDSN(dsn string) (string, error) {
 }
 
 // EnableIAM enables the use of IAM and pulls first credential set as a sanity check
+// Note: This method is intended to be non-blocking, so please add any changes to the goroutine
 // Note: Ensure the timer is on an interval lower than 15 minutes (AWS RDS IAM auth limit)
 func EnableIAM(host string, port string, region string, user string, passTemplate string, creds *credentials.Credentials, rus RDSUtilService, ticker *time.Ticker, logger Logger) {
 	// Lets enable and configure the DSN settings
@@ -75,15 +76,16 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 	iamConfig.passHolder = passTemplate
 	iamConfig.logger = logger
 
-	// Add some entropy to this value so all instances don't fire at the same time
-	minDur := 100
-	maxDur := 5000
-	wait := time.Millisecond * time.Duration(rand.Intn(maxDur-minDur)+minDur)
-	logger.Info(fmt.Sprintf("Waiting %v before enabling IAM access", wait))
-	time.Sleep(wait)
-
 	// GoRoutine to continually refresh the RDS IAM auth on a 10m interval.
 	go func() {
+
+		// Add some entropy to this value so all instances don't fire at the same time
+		minDur := 100
+		maxDur := 5000
+		wait := time.Millisecond * time.Duration(rand.Intn(maxDur-minDur)+minDur)
+		logger.Info(fmt.Sprintf("Waiting %v before enabling IAM access", wait))
+		time.Sleep(wait)
+
 		// This for loop immediately runs the first tick then on interval
 		for ; true; <-ticker.C {
 			if creds == nil {
