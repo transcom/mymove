@@ -27,4 +27,5 @@ pull_request_rules:
       - "status-success=ci/circleci: server_test_coverage"
     actions:
       merge:
+        method: merge
         strict: true
