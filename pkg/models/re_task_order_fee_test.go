@@ -23,8 +23,8 @@ func (suite *ModelSuite) TestReTaskOrderFeeValidation() {
 		invalidReTaskOrderFee := models.ReTaskOrderFee{}
 		expErrors := map[string][]string{
 			"contract_year_id": {"ContractYearID can not be blank."},
-			"service_type_id":  {"ServiceTypeID can not be blank."},
-			"price_cents":      {"PriceCents can not be blank."},
+			"service_id":       {"ServiceID can not be blank."},
+			"price_cents":      {"PriceCents can not be blank.", "0 is not greater than 0."},
 		}
 		suite.verifyValidationErrors(&invalidReTaskOrderFee, expErrors)
 	})

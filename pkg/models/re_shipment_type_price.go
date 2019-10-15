@@ -30,15 +30,12 @@ type ReShipmentTypePrices []ReShipmentTypePrice
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
 func (r *ReShipmentTypePrice) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	validMarkets := []string{
-		string(SelectedMarketConus),
-		string(SelectedMarketOconus),
-	}
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: r.ContractID, Name: "ContractID"},
 		&validators.UUIDIsPresent{Field: r.ShipmentTypeID, Name: "ShipmentTypeID"},
 		&validators.StringIsPresent{Field: string(r.Market), Name: "Market"},
-		&validators.StringInclusion{Field: string(r.Market), Name: "Market", List: validMarkets},
+		&validators.StringInclusion{Field: string(r.Market), Name: "Market", List: new(Market).String()},
 		&validators.IntIsPresent{Field: r.FactorHundredths, Name: "FactorHundredths"},
+		&validators.IntIsGreaterThan{Field: r.FactorHundredths, Name: "FactorHundredths", Compared: 0},
 	), nil
 }

@@ -38,6 +38,6 @@ func (r *ReDomesticAccessorialPrice) Validate(tx *pop.Connection) (*validate.Err
 		&validators.IntIsGreaterThan{Field: r.ServicesSchedule, Name: "ServicesSchedule", Compared: 0},
 		&validators.IntIsLessThan{Field: r.ServicesSchedule, Name: "ServicesSchedule", Compared: 4},
 		&validators.IntIsPresent{Field: r.PerUnitCents.Int(), Name: "PerUnitCents"},
-		&validators.IntIsGreaterThan{Field: r.PerUnitCents.Int(), Name: "PerUnitCents", Compared: -1},
+		&validators.IntIsGreaterThan{Field: r.PerUnitCents.Int(), Name: "PerUnitCents", Compared: 0},
 	), nil
 }
