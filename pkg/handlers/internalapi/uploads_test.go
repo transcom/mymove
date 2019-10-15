@@ -225,3 +225,30 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	suite.Nil(err)
 	suite.NotNil(queriedUpload.DeletedAt)
 }
+
+func (suite *HandlerSuite) TestGetUploadTagsHandlerSuccess() {
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+
+	upload1 := testdatagen.MakeDefaultUpload(suite.DB())
+
+	file := suite.Fixture("test.pdf")
+	fakeS3.Store(upload1.StorageKey, file.Data, "somehash", nil)
+
+	params := uploadop.NewGetUploadTagsParams()
+	params.UploadID = strfmt.UUID(upload1.ID.String())
+
+	req := &http.Request{}
+	req = suite.AuthenticateRequest(req, upload1.Document.ServiceMember)
+	params.HTTPRequest = req
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	context.SetFileStorer(fakeS3)
+	handler := GetUploadTagsHandler{context}
+	response := handler.Handle(params)
+
+	getUploadTagsResponse := response.(*uploadop.GetUploadTagsOK)
+	getUploadTagsPayload := getUploadTagsResponse.Payload
+	tag := getUploadTagsPayload[0]
+	suite.Equal(tag.Key, "tagName")
+	suite.Equal(tag.Value, "tagValue")
+}
