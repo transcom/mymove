@@ -104,14 +104,16 @@ $DOCKER_RUN \
 
 # Generate Test Data
 $DOCKER_RUN \
-  -t \
   -e DB_NAME=dev_db \
   -e DB_HOST=database \
   -e DB_PORT=5432 \
   -e DB_USER=postgres \
   -e DB_PASSWORD=mysecretpassword \
+  -e LOCAL_STORAGE_ROOT=/tmp \
+  -e LOCAL_STORAGE_WEB_ROOT=storage \
   --link="database" \
   --net "${NETWORK}" \
+  -v ./tmp:/tmp \
   --rm \
   --entrypoint generate-test-data \
   tools:latest \
