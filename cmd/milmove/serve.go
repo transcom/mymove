@@ -578,7 +578,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	dpsAuthParams := dpsauth.InitDPSAuthParams(v, appnames)
 	handlerContext.SetDPSAuthParams(dpsAuthParams)
 
-	// Base routes
+	// bare is the base muxer. Not intended to have any middleware attached.
 	bare := goji.NewMux()
 	storageBackend := v.GetString(cli.StorageBackendFlag)
 	if storageBackend == "local" {
@@ -588,6 +588,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		fs := storage.NewFilesystemHandler(localStorageRoot)
 		bare.Handle(pat.Get(path.Join("/", localStorageWebRoot, "/*")), fs)
 	}
+	// Base routes
 	site := goji.SubMux()
 	bare.Handle(pat.New("/*"), site)
 	// Add middleware: they are evaluated in the reverse order in which they
