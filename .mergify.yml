@@ -1,5 +1,5 @@
 pull_request_rules:
-  - name: Automatic merge
+  - name: Auto merge dependency updates
     conditions:
       - base=master
       # has both labels dependencies and automerge
