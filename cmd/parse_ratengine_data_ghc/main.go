@@ -394,7 +394,70 @@ var verifyDomesticLinehaulPrices verifyXlsxSheet = func(params paramConfig, shee
 		return fmt.Errorf("parseDomesticLinehaulPrices(): Exepected %d weight bands, found %d defined in golang parser", dLhWeightBandCountExpected, len(dLhWeightBands))
 	}
 
-	log.Println("TODO verifyDomesticLinehaulPrices() not implemented")
+	// XLSX Sheet consts
+	const xlsxDataSheetNum int = 6  // 2a) Domestic Linehaul Prices
+	const feeColIndexStart int = 6  // start at column 6 to get the rates
+	const feeRowIndexStart int = 14 // start at row 14 to get the rates
+	const serviceAreaNumberColumn int = 2
+	const originServiceAreaColumn int = 3
+	const serviceScheduleColumn int = 4
+	const numEscalationYearsToProcess int = 2
+
+	// Check headers
+	const feeRowMilageHeaderIndexStart int = (feeRowIndexStart - 3)
+	const verifyHeaderIndexEnd int = (feeRowMilageHeaderIndexStart + 2)
+
+	if xlsxDataSheetNum != sheetIndex {
+		return fmt.Errorf("verifyDomesticLinehaulPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
+	}
+
+	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowMilageHeaderIndexStart:verifyHeaderIndexEnd]
+	for dataRowsIndex, row := range dataRows {
+		colIndex := feeColIndexStart
+		// For number of baseline + escalation years
+		for escalation := 0; escalation < numEscalationYearsToProcess; escalation++ {
+			// For each rate season
+			for _, r := range rateTypes {
+				// For each weight band
+				for _, w := range dLhWeightBands {
+					// For each milage range
+					for dLhMilesRangesIndex, m := range dLhMilesRanges {
+						// skip the last index because the text is not easily checked
+						if dLhMilesRangesIndex == len(dLhMilesRanges)-1 {
+							continue
+						}
+						verificationLog := fmt.Sprintf(" , verfication for row index: %d, escalation: %d, rateTypes %v, dLhWeightBands %v",
+							dataRowsIndex, escalation, r, w)
+						if dataRowsIndex == 0 {
+							if m.lower != getInt(getCell(row.Cells, colIndex)) {
+								return fmt.Errorf("format error: From Miles --> does not match expected number expected %d got %s\n%s", m.lower, getCell(row.Cells, colIndex), verificationLog)
+							}
+							if "Service Area Number" != getCell(row.Cells, serviceAreaNumberColumn) {
+								return fmt.Errorf("format error: Header <Service Area Number> is missing got <%s> instead\n%s", getCell(row.Cells, serviceAreaNumberColumn), verificationLog)
+							}
+							if "Origin Service Area" != getCell(row.Cells, originServiceAreaColumn) {
+								return fmt.Errorf("format error: Header <Origin Service Area> is missing got <%s> instead\n%s", getCell(row.Cells, originServiceAreaColumn), verificationLog)
+							}
+							if "Services Schedule" != getCell(row.Cells, serviceScheduleColumn) {
+								return fmt.Errorf("format error: Header <Services Schedule> is missing got <%s> instead\n%s", getCell(row.Cells, serviceScheduleColumn), verificationLog)
+							}
+						} else if dataRowsIndex == 1 {
+							if m.upper != getInt(getCell(row.Cells, colIndex)) {
+								return fmt.Errorf("format error: To Miles --> does not match expected number expected %d got %s\n%s", m.upper, getCell(row.Cells, colIndex), verificationLog)
+							}
+						} else if dataRowsIndex == 2 {
+							if "EXAMPLE" != getCell(row.Cells, originServiceAreaColumn) {
+								return fmt.Errorf("format error: Filler text <EXAMPLE> is missing got <%s> instead\n%s", getCell(row.Cells, originServiceAreaColumn), verificationLog)
+							}
+						}
+						colIndex++
+					}
+				}
+				colIndex++ // skip 1 column (empty column) before starting next rate type
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -463,7 +526,76 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 
 // verifyDomesticServiceAreaPrices: verification 2b) Dom. Service Area Prices
 var verifyDomesticServiceAreaPrices verifyXlsxSheet = func(params paramConfig, sheetIndex int) error {
-	log.Println("TODO verifyDomesticServiceAreaPrices() not implemented")
+	// XLSX Sheet consts
+	const xlsxDataSheetNum int = 7  // 2a) Domestic Linehaul Prices
+	const feeColIndexStart int = 6  // start at column 6 to get the rates
+	const feeRowIndexStart int = 10 // start at row 10 to get the rates
+	const serviceAreaNumberColumn int = 2
+	const originServiceAreaColumn int = 3
+	const serviceScheduleColumn int = 4
+	const sITPickupDeliveryScheduleColumn int = 5
+	const numEscalationYearsToProcess int = 4
+
+	// Check headers
+	const feeRowMilageHeaderIndexStart int = (feeRowIndexStart - 3)
+	const verifyHeaderIndexEnd int = (feeRowMilageHeaderIndexStart + 2)
+
+	if xlsxDataSheetNum != sheetIndex {
+		return fmt.Errorf("verifyDomesticServiceAreaPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
+	}
+
+	// Verify header strings
+	repeatingHeaders := []string{
+		"Shorthaul Price",
+		"Origin / Destination Price",
+		"Origin Pack Price",
+		"Destination Unpack Price",
+		"Origin / Destination SIT First Day & Warehouse",
+		"Origin / Destination SIT Add'l Days",
+		"SIT Pickup / Delivery ≤50 miles",
+	}
+
+	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowMilageHeaderIndexStart:verifyHeaderIndexEnd]
+	for dataRowsIndex, row := range dataRows {
+		colIndex := feeColIndexStart
+		// For number of baseline + escalation years
+		for escalation := 0; escalation < numEscalationYearsToProcess; escalation++ {
+			// For each rate season
+			for _, r := range rateTypes {
+				verificationLog := fmt.Sprintf(" , verfication for row index: %d, escalation: %d, rateTypes %v",
+					dataRowsIndex, escalation, r)
+
+				if dataRowsIndex == 0 {
+					if "Service Area Number" != getCell(row.Cells, serviceAreaNumberColumn) {
+						return fmt.Errorf("format error: Header <Service Area Number> is missing got <%s> instead\n%s", getCell(row.Cells, serviceAreaNumberColumn), verificationLog)
+					}
+					if "Origin Service Area" != getCell(row.Cells, originServiceAreaColumn) {
+						return fmt.Errorf("format error: Header <Origin Service Area> is missing got <%s> instead\n%s", getCell(row.Cells, originServiceAreaColumn), verificationLog)
+					}
+					if "Services Schedule" != getCell(row.Cells, serviceScheduleColumn) {
+						return fmt.Errorf("format error: Header <Services Schedule> is missing got <%s> instead\n%s", getCell(row.Cells, serviceScheduleColumn), verificationLog)
+					}
+					if strings.ContainsAny(getCell(row.Cells, sITPickupDeliveryScheduleColumn), "SIT Pickup / Delivery") == false {
+						return fmt.Errorf("format error: Header <SIT Pickup / Delivery> is missing got <%s> instead\n%s", getCell(row.Cells, sITPickupDeliveryScheduleColumn), verificationLog)
+					}
+
+					for _, repeatingHeader := range repeatingHeaders {
+						if strings.ContainsAny(getCell(row.Cells, colIndex), repeatingHeader) == false {
+							return fmt.Errorf("format error: Header contains <%s> is missing got <%s> instead\n%s", repeatingHeader, getCell(row.Cells, sITPickupDeliveryScheduleColumn), verificationLog)
+						}
+						colIndex++
+					}
+					colIndex++ // skip 1 column (empty column) before starting next rate type
+				} else if dataRowsIndex == 1 {
+					if "EXAMPLE" != getCell(row.Cells, originServiceAreaColumn) {
+						return fmt.Errorf("format error: Filler text <EXAMPLE> is missing got <%s> instead\n%s", getCell(row.Cells, originServiceAreaColumn), verificationLog)
+					}
+				}
+
+			}
+
+		}
+	}
 	return nil
 }
 
