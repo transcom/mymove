@@ -24,7 +24,6 @@ pull_request_rules:
       - "status-success=ci/circleci: pre_deps_yarn"
       - "status-success=ci/circleci: pre_test"
       - "status-success=ci/circleci: server_test"
-      - "status-success=ci/circleci: server_test_coverage"
     actions:
       merge:
         method: merge
