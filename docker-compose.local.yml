@@ -35,7 +35,6 @@ services:
       - 'migrate'
     volumes:
       - ./local_migrations:/migrate/local_migrations
-      - ./tmp:/tmp
 
   milmove:
     depends_on:
@@ -92,3 +91,7 @@ services:
       - SERVE_API_GHC=false
       - SERVE_API_INTERNAL=true
       - STORAGE_BACKEND=local
+      - LOCAL_STORAGE_ROOT=/tmp
+      - LOCAL_STORAGE_WEB_ROOT=storage
+    volumes:
+      - ./tmp:/tmp
