@@ -250,9 +250,13 @@ func main() {
 			if err != nil {
 				log.Fatalf("Bad xlsxSheets index provided %v\n", err)
 			}
-			err = process(params, index)
-			if err != nil {
-				log.Fatalf("Error processing %v\n", err)
+			if index < len(xlsxDataSheets) {
+				err = process(params, index)
+				if err != nil {
+					log.Fatalf("Error processing %v\n", err)
+				}
+			} else {
+				log.Fatalf("Error processing index %d, not in range of slice xlsxDataSheets\n", index)
 			}
 		}
 	}
@@ -328,6 +332,9 @@ func stringPointer(s string) *string {
 	return &s
 }
 
+// TODO: should this return error or 0 when failing to convert to an int???
+// TODO: if something fails, then it should probably fail the program... why would
+// TODO: keep going???
 func getInt(from string) int {
 	i, err := strconv.Atoi(from)
 	if err != nil {
