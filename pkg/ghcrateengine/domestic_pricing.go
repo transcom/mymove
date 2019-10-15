@@ -49,24 +49,26 @@ func lookupDomesticLinehaulRate(db *pop.Connection, d DomesticServicePricingData
 	return rate, err
 }
 
-func lookupDomesticServiceAreaPrice (db *pop.Connection, pricingData DomesticServicePricingData) (cost unit.Cents, err error) {
+func lookupDomesticServiceAreaPrice(db *pop.Connection, pricingData DomesticServicePricingData) (cost unit.Cents, err error) {
 	// select cost from re_domestic_rate_area_prices
-		// joined with re_service_area, re_contracts, re_contract_years, re_services
-		// where:
-			// re_service_area.id = pricingData.ServiceAreaID
-			// re_services.code = pricingData.ServiceCode
-			// re_contracts.code = pricingData.ContractCode
-			// is_peak_period = pricingData.IsPeakPeriod
-			// move date is between start and end dates of contract year
+	// joined with re_service_area, re_contracts, re_contract_years, re_services
+	// where:
+	// re_service_area.id = pricingData.ServiceAreaID
+	// re_services.code = pricingData.ServiceCode
+	// re_contracts.code = pricingData.ContractCode
+	// is_peak_period = pricingData.IsPeakPeriod
+	// move date is between start and end dates of contract year
 
 	stubbedRate, err := unit.Cents(689), nil
 	return stubbedRate, err
 }
 
-func lookupDomesticOtherPrice (db *pop.Connection, pricingData DomesticServicePricingData) (cost unit.Cents, err error) {
-	serviceCode := "DSIT" // stubbed service code
-	var stubbedRate unit.Cents = 0
+func lookupDomesticOtherPrice(db *pop.Connection, pricingData DomesticServicePricingData) (cost unit.Cents, err error) {
+	serviceCode := "SITPD" // stubbed service code
+	var stubbedRate unit.Cents
+
 	if pricingData.ServiceCode == serviceCode {
+		//SIT PD Schedule
 		// select cost from re_domestic_other_prices
 		// joined with re_service_area, re_contracts, re_contract_years, re_services
 		// where:
@@ -75,8 +77,9 @@ func lookupDomesticOtherPrice (db *pop.Connection, pricingData DomesticServicePr
 		// re_contracts.code = pricingData.ContractCode
 		// is_peak_period = pricingData.IsPeakPeriod
 		// move date is between start and end dates of contract year
-		stubbedRate, err = 21796, nil
+		stubbedRate, err = 23440, nil
 	} else {
+		// PACK AND UNPACK
 		// select cost from re_domestic_other_prices
 		// joined with re_service_area, re_contracts, re_contract_years, re_services
 		// where:
@@ -117,9 +120,9 @@ func (gre *GHCRateEngine) CalculateBaseDomesticLinehaul(d DomesticServicePricing
 
 // CalculateBaseDomesticPerWeightCost calculates the cost based on service performed and returns the cost in cents
 // This function is used to calculate
-	// domestic prices: origin and destination service area, SIT day 1, SIT days-1,
-	// domestic other prices: pack, unpack, and sit p/d costs
-func (gre *GHCRateEngine) CalculateBaseDomesticPerWeightServiceCost (d DomesticServicePricingData, isDomesticOtherService bool) (cost unit.Cents, err error) {
+// domestic prices: origin and destination service area, SIT day 1, SIT days-1,
+// domestic other prices: pack, unpack, and sit p/d costs
+func (gre *GHCRateEngine) CalculateBaseDomesticPerWeightServiceCost(d DomesticServicePricingData, isDomesticOtherService bool) (cost unit.Cents, err error) {
 	var rate unit.Cents
 	if isDomesticOtherService {
 		rate, err = lookupDomesticOtherPrice(gre.db, d)
@@ -149,9 +152,8 @@ func (gre *GHCRateEngine) CalculateBaseDomesticPerWeightServiceCost (d DomesticS
 	return cost, err
 }
 
-
 // CalculateBaseDomesticShorthaulCost calculates the cost based on service performed and returns the cost in cents
-func (gre *GHCRateEngine) CalculateBaseDomesticShorthaulCost (d DomesticServicePricingData) (cost unit.Cents, err error) {
+func (gre *GHCRateEngine) CalculateBaseDomesticShorthaulCost(d DomesticServicePricingData) (cost unit.Cents, err error) {
 	rate, err := lookupDomesticServiceAreaPrice(gre.db, d)
 	if err != nil {
 		return cost, errors.Wrap(err, fmt.Sprintf("Lookup of domestic service %s failed", d.ServiceCode))
