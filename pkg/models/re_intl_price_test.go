@@ -44,7 +44,7 @@ func (suite *ModelSuite) TestReIntlPriceValidation() {
 			PerUnitCents:          -1342,
 		}
 		expErrors := map[string][]string{
-			"per_unit_cents":           {"-1342 is not greater than 0."},
+			"per_unit_cents": {"-1342 is not greater than 0."},
 		}
 		suite.verifyValidationErrors(&reIntlPrice, expErrors)
 	})

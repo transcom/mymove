@@ -25,10 +25,10 @@ func (suite *ModelSuite) TestReIntlOtherPriceValidation() {
 	suite.T().Run("test empty ReIntlOtherPrice", func(t *testing.T) {
 		invalidReIntlOtherPrice := models.ReIntlOtherPrice{}
 		expErrors := map[string][]string{
-			"contract_id":              {"ContractID can not be blank."},
-			"service_id":               {"ServiceID can not be blank."},
-			"rate_area_id": 			{"RateAreaID can not be blank."},
-			"per_unit_cents":           {"0 is not greater than 0."},
+			"contract_id":    {"ContractID can not be blank."},
+			"service_id":     {"ServiceID can not be blank."},
+			"rate_area_id":   {"RateAreaID can not be blank."},
+			"per_unit_cents": {"0 is not greater than 0."},
 		}
 		suite.verifyValidationErrors(&invalidReIntlOtherPrice, expErrors)
 	})
@@ -41,7 +41,7 @@ func (suite *ModelSuite) TestReIntlOtherPriceValidation() {
 			PerUnitCents: -1523,
 		}
 		expErrors := map[string][]string{
-			"per_unit_cents":           {"-1523 is not greater than 0."},
+			"per_unit_cents": {"-1523 is not greater than 0."},
 		}
 		suite.verifyValidationErrors(&intlOtherPrice, expErrors)
 	})

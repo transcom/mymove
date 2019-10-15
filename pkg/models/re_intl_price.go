@@ -24,10 +24,10 @@ type ReIntlPrice struct {
 	UpdatedAt             time.Time  `json:"updated_at" db:"updated_at"`
 
 	// Associations
-	Contract            ReContract   `belongs_to:"re_contract"`
-	Service				ReService	 `belongs_to:"re_service"`
-	OriginRateArea 		ReRateArea 	 `belongs_to:"re_rate_area"`
-	DestinationRateArea ReRateArea 	 `belongs_to:"re_rate_area"`
+	Contract            ReContract `belongs_to:"re_contract"`
+	Service             ReService  `belongs_to:"re_service"`
+	OriginRateArea      ReRateArea `belongs_to:"re_rate_area"`
+	DestinationRateArea ReRateArea `belongs_to:"re_rate_area"`
 }
 
 // ReIntlPrices
