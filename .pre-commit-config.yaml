@@ -121,15 +121,6 @@ repos:
       files: '[.]circleci/config.yml$'
       pass_filenames: false
 
-  - repo: local
-    hooks:
-    - id: codecov-validate
-      name: codecov validate
-      entry: scripts/pre-commit-codecov-validate
-      language: script
-      files: .codecov.yml
-      pass_filenames: false
-
   - repo: https://github.com/pryorda/dockerfilelint-precommit-hooks
     rev: v0.1.0
     hooks:
