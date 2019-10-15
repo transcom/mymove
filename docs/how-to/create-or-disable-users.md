@@ -207,11 +207,12 @@ This is the only way to disable Service Members.
 
 ### Disabling Office Users
 
-An example of disabling an Office user by email:
+This can now be done in the admin user application:
 
-```sql
-UPDATE office_users SET disabled = true WHERE email = 'username@example.com';
-```
+1. Navigate to the admin app and log in
+2. Click on "Office Users" in the sidebar
+3. Select the user you would like to disable and click "Edit" in the top right
+   corner. Here, you'll be able to choose whether or not that user is disabled.
 
 ### Disabling TSP Users
 
