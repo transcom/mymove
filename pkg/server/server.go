@@ -51,8 +51,8 @@ type CreateNamedServerInput struct {
 // NamedServer wraps *http.Server to override the definition of ListenAndServeTLS, but bypasses some restrictions.
 type NamedServer struct {
 	*http.Server
-	Name    string
-	IsServerReady bool
+	Name               string
+	IsServerReady      bool
 	IsServerReadyMutex sync.Mutex
 }
 
