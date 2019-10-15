@@ -43,4 +43,17 @@ func (suite *ModelSuite) TestReShipmentTypePriceValidation() {
 		}
 		suite.verifyValidationErrors(&invalidShipmentTypePrice, expErrors)
 	})
+
+	suite.T().Run("test factor hundredths less than 1 for ReDomesticServiceArea", func(t *testing.T) {
+		invalidShipmentTypePrice := models.ReShipmentTypePrice{
+			ContractID:       uuid.Must(uuid.NewV4()),
+			ShipmentTypeID:   uuid.Must(uuid.NewV4()),
+			Market:           "C",
+			FactorHundredths: -3,
+		}
+		expErrors := map[string][]string{
+			"factor_hundredths": {"-3 is not greater than 0."},
+		}
+		suite.verifyValidationErrors(&invalidShipmentTypePrice, expErrors)
+	})
 }

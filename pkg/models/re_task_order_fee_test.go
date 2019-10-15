@@ -28,4 +28,16 @@ func (suite *ModelSuite) TestReTaskOrderFeeValidation() {
 		}
 		suite.verifyValidationErrors(&invalidReTaskOrderFee, expErrors)
 	})
+
+	suite.T().Run("test price cents less than 1 for ReDomesticServiceArea", func(t *testing.T) {
+		invalidReTaskOrderFee := models.ReTaskOrderFee{
+			ContractYearID: uuid.Must(uuid.NewV4()),
+			ServiceID:      uuid.Must(uuid.NewV4()),
+			PriceCents:     -3,
+		}
+		expErrors := map[string][]string{
+			"price_cents": {"-3 is not greater than 0."},
+		}
+		suite.verifyValidationErrors(&invalidReTaskOrderFee, expErrors)
+	})
 }

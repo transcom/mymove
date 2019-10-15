@@ -43,4 +43,17 @@ func (suite *ModelSuite) TestReIntlAccessorialPriceValidation() {
 		}
 		suite.verifyValidationErrors(&invalidReIntlAccessorialPrice, expErrors)
 	})
+
+	suite.T().Run("test per unit cents less than 1 for ReDomesticServiceArea", func(t *testing.T) {
+		invalidReIntlAccessorialPrice := models.ReIntlAccessorialPrice{
+			ContractID:   uuid.Must(uuid.NewV4()),
+			ServiceID:    uuid.Must(uuid.NewV4()),
+			Market:       "C",
+			PerUnitCents: -3,
+		}
+		expErrors := map[string][]string{
+			"per_unit_cents": {"-3 is not greater than 0."},
+		}
+		suite.verifyValidationErrors(&invalidReIntlAccessorialPrice, expErrors)
+	})
 }
