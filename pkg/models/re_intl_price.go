@@ -22,6 +22,12 @@ type ReIntlPrice struct {
 	PerUnitCents          unit.Cents `json:"per_unit_cents" db:"per_unit_cents"`
 	CreatedAt             time.Time  `json:"created_at" db:"created_at"`
 	UpdatedAt             time.Time  `json:"updated_at" db:"updated_at"`
+
+	// Associations
+	Contract            ReContract   `belongs_to:"re_contract"`
+	Service				ReService	 `belongs_to:"re_service"`
+	OriginRateArea 		ReRateArea 	 `belongs_to:"re_rate_area"`
+	DestinationRateArea ReRateArea 	 `belongs_to:"re_rate_area"`
 }
 
 // ReIntlPrices
@@ -34,6 +40,6 @@ func (p *ReIntlPrice) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.UUIDIsPresent{Field: p.ServiceID, Name: "ServiceID"},
 		&validators.UUIDIsPresent{Field: p.OriginRateAreaID, Name: "OriginRateAreaID"},
 		&validators.UUIDIsPresent{Field: p.DestinationRateAreaID, Name: "DestinationRateAreaID"},
-		&UnitCentsIsPositive{Field: p.PerUnitCents, Name: "PerUnitCents"},
+		&validators.IntIsGreaterThan{Field: p.PerUnitCents.Int(), Name: "PerUnitCents", Compared: 0},
 	), nil
 }
