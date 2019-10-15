@@ -155,7 +155,7 @@ func main() {
 		}
 
 		// Initialize storage and uploader
-		zap.L().Info("Using memory storage backend")
+		zap.L().Info("Using local storage backend")
 		localStorageRoot := v.GetString(cli.LocalStorageRootFlag)
 		localStorageWebRoot := v.GetString(cli.LocalStorageWebRootFlag)
 		fsParams := storage.NewFilesystemParams(localStorageRoot, localStorageWebRoot, logger)

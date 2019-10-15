@@ -35,6 +35,7 @@ services:
       - 'migrate'
     volumes:
       - ./local_migrations:/migrate/local_migrations
+      - ./tmp:/tmp
 
   milmove:
     depends_on:
