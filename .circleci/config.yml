@@ -15,28 +15,28 @@ executors:
     resource_class: small
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:0a7bcc19642337bcfb16d5d1a1f05da646b7ec27
+      - image: trussworks/circleci-docker-primary:782c370a89564e10e7ee00f6a6ad5c32309c11d5
   mymove_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:0a7bcc19642337bcfb16d5d1a1f05da646b7ec27
+      - image: trussworks/circleci-docker-primary:782c370a89564e10e7ee00f6a6ad5c32309c11d5
   mymove_medium_plus:
     resource_class: medium+
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:0a7bcc19642337bcfb16d5d1a1f05da646b7ec27
+      - image: trussworks/circleci-docker-primary:782c370a89564e10e7ee00f6a6ad5c32309c11d5
   mymove_large:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:0a7bcc19642337bcfb16d5d1a1f05da646b7ec27
+      - image: trussworks/circleci-docker-primary:782c370a89564e10e7ee00f6a6ad5c32309c11d5
   # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
   mymove_and_postgres_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:0a7bcc19642337bcfb16d5d1a1f05da646b7ec27
+      - image: trussworks/circleci-docker-primary:782c370a89564e10e7ee00f6a6ad5c32309c11d5
       - image: postgres:10.9
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -46,7 +46,7 @@ executors:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:0a7bcc19642337bcfb16d5d1a1f05da646b7ec27
+      - image: trussworks/circleci-docker-primary:782c370a89564e10e7ee00f6a6ad5c32309c11d5
       - image: postgres:10.9
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -224,8 +224,6 @@ jobs:
       - run:
           name: Install dependencies
           command: for i in $(seq 1 5); do go get ./... && s=0 && break || s=$? && sleep 5; done; (exit $s)
-          environment:
-            GOPROXY: https://gocenter.io
       - save_cache:
           key: go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
           paths:
@@ -387,11 +385,21 @@ jobs:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
-      - run:
-          name: Build Go Junit Report
-          command: make bin/go-junit-report
+      - run: make bin/go-junit-report
       - run: make bin/milmove
-      - run: make db_test_migrate
+      - run:
+          name: make db_test_migrate
+          command: make db_test_migrate
+          environment:
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT_TEST: 5433
+            DB_PORT: 5432
+            DB_NAME: test_db
+            DB_NAME_TEST: test_db
+            MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
+            MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
       - run:
           name: make server_test_standalone
           command: |
@@ -421,55 +429,6 @@ jobs:
       - store_test_results:
           path: ~/transcom/mymove/tmp/test-results
       - announce_failure
-
-  # `server_test_coverage` runs code coverage and submits it to CodeClimate
-  server_test_coverage:
-    executor: mymove_and_postgres_large
-    steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - restore_cache:
-          keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
-      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
-      - run:
-          name: Setup Code Climate test-reporter
-          command: |
-            # download test reporter as a static binary
-            curl -L --retry 5 --retry-connrefused https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 --output /home/circleci/cc-test-reporter
-            chmod +x /home/circleci/cc-test-reporter
-            /home/circleci/cc-test-reporter before-build -d
-      - run: make bin/milmove
-      - run: make db_test_migrate
-      - run:
-          name: make server_test_coverage_generate_standalone
-          command: |
-            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
-            source $BASH_ENV
-            make server_test_coverage_generate_standalone
-          environment:
-            DB_PASSWORD: mysecretpassword
-            DB_USER: postgres
-            DB_HOST: localhost
-            DB_PORT_TEST: 5433
-            DB_PORT: 5432
-            DB_NAME: test_db
-            DB_NAME_TEST: test_db
-            EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
-            ENV: test
-            ENVIRONMENT: test
-            MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
-            MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
-            SERVE_API_INTERNAL: true
-      - run:
-          name: upload code coverage to codecov
-          command: |
-            curl -L --retry 5 --retry-connrefused https://codecov.io/bash --output /home/circleci/codecov || exit 0
-            chmod +x /home/circleci/codecov
-            /home/circleci/codecov -F go -f coverage.out
-      - store_artifacts:
-          path: ~/transcom/mymove/coverage.out
 
   # `client_test` runs the client side Javascript tests
   client_test:
@@ -630,7 +589,7 @@ jobs:
     steps:
       - deploy_app_steps:
           compare_host: "" # leave blank since we want experimental to be able to roll back
-          health_check_hosts: my.experimental.move.mil,office.experimental.move.mil,tsp.experimental.move.mil
+          health_check_hosts: my.experimental.move.mil,office.experimental.move.mil,admin.experimental.move.mil
 
   # `deploy_experimental_app_client_tls` updates the mutual-TLS service in the experimental environment
   deploy_experimental_app_client_tls:
@@ -698,7 +657,7 @@ jobs:
     steps:
       - deploy_app_steps:
           compare_host: my.staging.move.mil
-          health_check_hosts: my.staging.move.mil,office.staging.move.mil,tsp.staging.move.mil
+          health_check_hosts: my.staging.move.mil,office.staging.move.mil,admin.staging.move.mil
 
   # `deploy_staging_app_client_tls` updates the mutual-TLS service in the staging environment
   deploy_staging_app_client_tls:
@@ -734,7 +693,7 @@ jobs:
     steps:
       - deploy_app_steps:
           compare_host: my.move.mil
-          health_check_hosts: my.move.mil,office.move.mil,tsp.move.mil
+          health_check_hosts: my.move.mil,office.move.mil,admin.move.mil
 
   # `deploy_prod_app_client_tls` updates the mutual-TLS service in the prod environment
   deploy_prod_app_client_tls:
@@ -872,14 +831,6 @@ workflows:
           filters:
               branches:
                 ignore: placeholder_branch_name
-
-      - server_test_coverage:
-          requires:
-            - pre_deps_golang
-          # if testing on experimental, you can disable these tests by using the commented block below.
-          filters:
-              branches:
-                  ignore: placeholder_branch_name
 
       - build_app:
           requires:

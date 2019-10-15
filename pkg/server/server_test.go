@@ -235,6 +235,8 @@ func (suite *serverSuite) testTLSConfigWithRequest(tlsVersion uint16) {
 	// Start the Server
 	go srv.ListenAndServeTLS()
 
+	srv.WaitUntilReady()
+
 	// Send a request
 	clientTLSConfig := tls.Config{
 		RootCAs:      caCertPool,
@@ -307,6 +309,8 @@ func (suite *serverSuite) TestTLSConfigWithRequestNoClientAuth() {
 	// Start the Server
 	go srv.ListenAndServeTLS()
 
+	srv.WaitUntilReady()
+
 	// Send a request without TLS client side cert configuration, should return error
 	client := &http.Client{
 		Transport: &http.Transport{},
@@ -356,6 +360,8 @@ func (suite *serverSuite) TestTLSConfigWithInvalidAuth() {
 
 	// Start the Server
 	go srv.ListenAndServeTLS()
+
+	srv.WaitUntilReady()
 
 	// Send a request with self signed cert and CA, but doesn't match server used CA
 	invalidKeyPair, err := tls.X509KeyPair(

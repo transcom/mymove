@@ -26,7 +26,6 @@ committing.
 | `gen-docs-index` | generate index for documents |
 | `generate-md-toc` |  Wrapper script to generate table of contents on Markdown files. |
 | `pre-commit-circleci-validate` | validate CircleCI `config.yml` file |
-| `pre-commit-codecov-validate` | validate Codecov `.codecov.yml` file |
 | `pre-commit-go-imports` | modify imports in go files |
 | `pre-commit-go-lint` | modify go files with linting rules |
 | `pre-commit-go-mod` | modify `go.mod` and `go.sum` to match whats in the project |
@@ -80,6 +79,7 @@ This subset of development scripts is used for testing
 | --- | --- |
 | `run-e2e-test` | Runs cypress tests with interactive GUI |
 | `run-e2e-test-docker` | Runs cypress tests entirely inside docker containers like in CircleCI |
+| `run-server-test-in-circle-container` | Executed in docker-compose.circle.yml to run the `make server_test` task in a CircleCI container |
 
 ### Secure Migrations
 

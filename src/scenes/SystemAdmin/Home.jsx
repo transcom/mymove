@@ -11,6 +11,7 @@ import OfficeUserEdit from './OfficeUsers/OfficeUserEdit';
 import OfficeUserShow from './OfficeUsers/OfficeUserShow';
 import AdminUserList from './AdminUsers/AdminUserList';
 import OfficeList from './Offices/OfficeList';
+import TSPPList from './TSPPs/TSPPList';
 import ElectronicOrderList from './ElectronicOrders/ElectronicOrderList';
 import styles from './Home.module.scss';
 import * as Cookies from 'js-cookie';
@@ -46,6 +47,7 @@ const Home = () => (
         edit={OfficeUserEdit}
       />
       <Resource name="offices" options={{ label: 'Offices' }} list={OfficeList} />
+      <Resource name="transportation_service_provider_performances" options={{ label: 'TSPPs' }} list={TSPPList} />
       <Resource name="admin_users" options={{ label: 'Admin Users' }} list={AdminUserList} />
       <Resource name="electronic_orders" options={{ label: 'Electronic orders' }} list={ElectronicOrderList} />
       <Resource name="access_codes" options={{ label: 'Access codes' }} list={AccessCodeList} />
