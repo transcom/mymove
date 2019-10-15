@@ -97,6 +97,15 @@ func FmtURI(uri string) *strfmt.URI {
 	return &fmtURI
 }
 
+// FmtIntPtrToInt64 converts pop type to go-swagger type
+func FmtIntPtrToInt64(i *int) *int64 {
+	if i == nil {
+		return nil
+	}
+	value := int64(*i)
+	return &value
+}
+
 // FmtInt64 converts pop type to go-swagger type
 func FmtInt64(i int64) *int64 {
 	return &i
