@@ -83,7 +83,6 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.UploadsCreateUploadHandler = CreateUploadHandler{context}
 	internalAPI.UploadsDeleteUploadHandler = DeleteUploadHandler{context}
 	internalAPI.UploadsDeleteUploadsHandler = DeleteUploadsHandler{context}
-	internalAPI.UploadsGetUploadTagsHandler = GetUploadTagsHandler{context}
 
 	internalAPI.QueuesShowQueueHandler = ShowQueueHandler{context}
 

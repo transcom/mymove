@@ -164,11 +164,6 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation dps_auth.GetCookieURL has not yet been implemented")
 		})
 	}
-	if api.UploadsGetUploadTagsHandler == nil {
-		api.UploadsGetUploadTagsHandler = uploads.GetUploadTagsHandlerFunc(func(params uploads.GetUploadTagsParams) middleware.Responder {
-			return middleware.NotImplemented("operation uploads.GetUploadTags has not yet been implemented")
-		})
-	}
 	if api.EntitlementsIndexEntitlementsHandler == nil {
 		api.EntitlementsIndexEntitlementsHandler = entitlements.IndexEntitlementsHandlerFunc(func(params entitlements.IndexEntitlementsParams) middleware.Responder {
 			return middleware.NotImplemented("operation entitlements.IndexEntitlements has not yet been implemented")

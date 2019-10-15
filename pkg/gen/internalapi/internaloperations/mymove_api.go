@@ -125,9 +125,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		DpsAuthGetCookieURLHandler: dps_auth.GetCookieURLHandlerFunc(func(params dps_auth.GetCookieURLParams) middleware.Responder {
 			return middleware.NotImplemented("operation DpsAuthGetCookieURL has not yet been implemented")
 		}),
-		UploadsGetUploadTagsHandler: uploads.GetUploadTagsHandlerFunc(func(params uploads.GetUploadTagsParams) middleware.Responder {
-			return middleware.NotImplemented("operation UploadsGetUploadTags has not yet been implemented")
-		}),
 		EntitlementsIndexEntitlementsHandler: entitlements.IndexEntitlementsHandlerFunc(func(params entitlements.IndexEntitlementsParams) middleware.Responder {
 			return middleware.NotImplemented("operation EntitlementsIndexEntitlements has not yet been implemented")
 		}),
@@ -322,8 +319,6 @@ type MymoveAPI struct {
 	AccesscodeFetchAccessCodeHandler accesscode.FetchAccessCodeHandler
 	// DpsAuthGetCookieURLHandler sets the operation handler for the get cookie URL operation
 	DpsAuthGetCookieURLHandler dps_auth.GetCookieURLHandler
-	// UploadsGetUploadTagsHandler sets the operation handler for the get upload tags operation
-	UploadsGetUploadTagsHandler uploads.GetUploadTagsHandler
 	// EntitlementsIndexEntitlementsHandler sets the operation handler for the index entitlements operation
 	EntitlementsIndexEntitlementsHandler entitlements.IndexEntitlementsHandler
 	// MoveDocsIndexMoveDocumentsHandler sets the operation handler for the index move documents operation
@@ -555,10 +550,6 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.DpsAuthGetCookieURLHandler == nil {
 		unregistered = append(unregistered, "dps_auth.GetCookieURLHandler")
-	}
-
-	if o.UploadsGetUploadTagsHandler == nil {
-		unregistered = append(unregistered, "uploads.GetUploadTagsHandler")
 	}
 
 	if o.EntitlementsIndexEntitlementsHandler == nil {
@@ -925,11 +916,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/dps_auth/cookie_url"] = dps_auth.NewGetCookieURL(o.context, o.DpsAuthGetCookieURLHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/uploads/{uploadId}/tags"] = uploads.NewGetUploadTags(o.context, o.UploadsGetUploadTagsHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

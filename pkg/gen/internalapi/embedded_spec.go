@@ -2737,49 +2737,6 @@ func init() {
         }
       }
     },
-    "/uploads/{uploadId}/tags": {
-      "get": {
-        "description": "Returns tags associated with the upload",
-        "tags": [
-          "uploads"
-        ],
-        "summary": "Returns tags associated with the upload",
-        "operationId": "getUploadTags",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the upload to fetch tags for",
-            "name": "uploadId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "the requested tags",
-            "schema": {
-              "$ref": "#/definitions/Tags"
-            }
-          },
-          "400": {
-            "description": "invalid request",
-            "schema": {
-              "$ref": "#/definitions/InvalidRequestResponsePayload"
-            }
-          },
-          "403": {
-            "description": "not authorized"
-          },
-          "404": {
-            "description": "not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
     "/users/is_logged_in": {
       "get": {
         "description": "Returns boolean as to whether the user is logged in",
@@ -5771,6 +5728,9 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "tags": {
+          "$ref": "#/definitions/Tags"
+        },
         "updated_at": {
           "type": "string",
           "format": "date-time"
@@ -8527,49 +8487,6 @@ func init() {
         "responses": {
           "204": {
             "description": "deleted"
-          },
-          "400": {
-            "description": "invalid request",
-            "schema": {
-              "$ref": "#/definitions/InvalidRequestResponsePayload"
-            }
-          },
-          "403": {
-            "description": "not authorized"
-          },
-          "404": {
-            "description": "not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
-    "/uploads/{uploadId}/tags": {
-      "get": {
-        "description": "Returns tags associated with the upload",
-        "tags": [
-          "uploads"
-        ],
-        "summary": "Returns tags associated with the upload",
-        "operationId": "getUploadTags",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the upload to fetch tags for",
-            "name": "uploadId",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "the requested tags",
-            "schema": {
-              "$ref": "#/definitions/Tags"
-            }
           },
           "400": {
             "description": "invalid request",
@@ -11592,6 +11509,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "tags": {
+          "$ref": "#/definitions/Tags"
         },
         "updated_at": {
           "type": "string",

@@ -1579,6 +1579,8 @@ definitions:
         example: application/pdf
       bytes:
         type: integer
+      tags:
+        $ref: '#/definitions/Tags'
       created_at:
         type: string
         format: date-time
@@ -3603,35 +3605,6 @@ paths:
       responses:
         204:
           description: deleted
-        400:
-          description: invalid request
-          schema:
-            $ref: '#/definitions/InvalidRequestResponsePayload'
-        403:
-          description: not authorized
-        404:
-          description: not found
-        500:
-          description: server error
-  /uploads/{uploadId}/tags:
-    get:
-      summary: Returns tags associated with the upload
-      description: Returns tags associated with the upload
-      operationId: getUploadTags
-      tags:
-        - uploads
-      parameters:
-        - in: path
-          name: uploadId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the upload to fetch tags for
-      responses:
-        200:
-          description: the requested tags
-          schema:
-            $ref: '#/definitions/Tags'
         400:
           description: invalid request
           schema:
