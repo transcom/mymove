@@ -1057,12 +1057,10 @@ workflows:
     triggers:
       - schedule:
           # Monday at 4am/7am PST/EST
-          cron: '57 * * * *'
+          cron: '0 12 * * 1'
           filters:
             branches:
-              only:
-                - master
-                - mk-168796880-auto-merge-deps
+              only: master
     jobs:
       - update_dependencies_js
 
