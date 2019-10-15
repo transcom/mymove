@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -50,7 +51,9 @@ type CreateNamedServerInput struct {
 // NamedServer wraps *http.Server to override the definition of ListenAndServeTLS, but bypasses some restrictions.
 type NamedServer struct {
 	*http.Server
-	Name string
+	Name               string
+	IsServerReady      bool
+	IsServerReadyMutex sync.Mutex
 }
 
 // Port returns the port the server binds to.  Returns -1 if any error.
@@ -71,8 +74,26 @@ func (s *NamedServer) ListenAndServeTLS() error {
 	if err != nil {
 		return err
 	}
+	s.IsServerReadyMutex.Lock()
+	s.IsServerReady = true
+	s.IsServerReadyMutex.Unlock()
 	defer listener.Close()
 	return s.Serve(listener)
+}
+
+func (s *NamedServer) IsReady() bool {
+	s.IsServerReadyMutex.Lock()
+	defer s.IsServerReadyMutex.Unlock()
+	return s.IsServerReady
+}
+
+func (s *NamedServer) WaitUntilReady() {
+	times := 0
+	// Wait for server to be ready
+	for s.IsReady() != true && times < 4 {
+		times++
+		time.Sleep(500 * time.Millisecond)
+	}
 }
 
 // CreateNamedServer returns a no-tls, tls, or mutual-tls Server based on the input given and an error, if any.
