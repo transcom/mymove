@@ -17,16 +17,13 @@ type InvoiceServiceSuite struct {
 	storer storage.FileStorer
 }
 
-func (suite *InvoiceServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func TestInvoiceSuite(t *testing.T) {
 
-	hs := &InvoiceServiceSuite{
+	ts := &InvoiceServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("invoice_service")),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 		storer:       storageTest.NewFakeS3Storage(true),
 	}
-	suite.Run(t, hs)
+	suite.Run(t, ts)
+	ts.PopTestSuite.TearDown()
 }

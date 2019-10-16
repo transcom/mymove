@@ -3991,6 +3991,7 @@ paths:
             - all
             - ppm_approved
             - ppm_completed
+            - MBxFJqtAoWfTYJd
           required: true
           description: Queue type to show
       responses:

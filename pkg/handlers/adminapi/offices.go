@@ -3,6 +3,8 @@ package adminapi
 import (
 	"fmt"
 
+	"github.com/transcom/mymove/pkg/services/query"
+
 	"github.com/go-openapi/runtime/middleware"
 
 	officeop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
@@ -39,8 +41,9 @@ func (h IndexOfficesHandler) Handle(params officeop.IndexOfficesParams) middlewa
 	queryFilters := []services.QueryFilter{}
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
+	associations := query.NewQueryAssociations([]services.QueryAssociation{})
 
-	offices, err := h.OfficeListFetcher.FetchOfficeList(queryFilters, pagination)
+	offices, err := h.OfficeListFetcher.FetchOfficeList(queryFilters, associations, pagination)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

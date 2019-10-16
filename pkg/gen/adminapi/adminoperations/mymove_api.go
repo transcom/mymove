@@ -19,8 +19,13 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/access_codes"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/admin_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_service_provider_performances"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/upload"
 )
 
 // NewMymoveAPI creates a new Mymove instance
@@ -40,29 +45,41 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		BearerAuthenticator: security.BearerAuth,
 		JSONConsumer:        runtime.JSONConsumer(),
 		JSONProducer:        runtime.JSONProducer(),
-		OfficeCreateOfficeUserHandler: office.CreateOfficeUserHandlerFunc(func(params office.CreateOfficeUserParams) middleware.Responder {
-			return middleware.NotImplemented("operation OfficeCreateOfficeUser has not yet been implemented")
+		OfficeUsersCreateOfficeUserHandler: office_users.CreateOfficeUserHandlerFunc(func(params office_users.CreateOfficeUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation OfficeUsersCreateOfficeUser has not yet been implemented")
+		}),
+		AdminUsersGetAdminUserHandler: admin_users.GetAdminUserHandlerFunc(func(params admin_users.GetAdminUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation AdminUsersGetAdminUser has not yet been implemented")
 		}),
 		ElectronicOrderGetElectronicOrdersTotalsHandler: electronic_order.GetElectronicOrdersTotalsHandlerFunc(func(params electronic_order.GetElectronicOrdersTotalsParams) middleware.Responder {
 			return middleware.NotImplemented("operation ElectronicOrderGetElectronicOrdersTotals has not yet been implemented")
 		}),
-		OfficeGetOfficeUserHandler: office.GetOfficeUserHandlerFunc(func(params office.GetOfficeUserParams) middleware.Responder {
-			return middleware.NotImplemented("operation OfficeGetOfficeUser has not yet been implemented")
+		OfficeUsersGetOfficeUserHandler: office_users.GetOfficeUserHandlerFunc(func(params office_users.GetOfficeUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation OfficeUsersGetOfficeUser has not yet been implemented")
 		}),
-		OfficeIndexAccessCodesHandler: office.IndexAccessCodesHandlerFunc(func(params office.IndexAccessCodesParams) middleware.Responder {
-			return middleware.NotImplemented("operation OfficeIndexAccessCodes has not yet been implemented")
+		UploadGetUploadHandler: upload.GetUploadHandlerFunc(func(params upload.GetUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation UploadGetUpload has not yet been implemented")
+		}),
+		AccessCodesIndexAccessCodesHandler: access_codes.IndexAccessCodesHandlerFunc(func(params access_codes.IndexAccessCodesParams) middleware.Responder {
+			return middleware.NotImplemented("operation AccessCodesIndexAccessCodes has not yet been implemented")
+		}),
+		AdminUsersIndexAdminUsersHandler: admin_users.IndexAdminUsersHandlerFunc(func(params admin_users.IndexAdminUsersParams) middleware.Responder {
+			return middleware.NotImplemented("operation AdminUsersIndexAdminUsers has not yet been implemented")
 		}),
 		ElectronicOrderIndexElectronicOrdersHandler: electronic_order.IndexElectronicOrdersHandlerFunc(func(params electronic_order.IndexElectronicOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation ElectronicOrderIndexElectronicOrders has not yet been implemented")
 		}),
-		OfficeIndexOfficeUsersHandler: office.IndexOfficeUsersHandlerFunc(func(params office.IndexOfficeUsersParams) middleware.Responder {
-			return middleware.NotImplemented("operation OfficeIndexOfficeUsers has not yet been implemented")
+		OfficeUsersIndexOfficeUsersHandler: office_users.IndexOfficeUsersHandlerFunc(func(params office_users.IndexOfficeUsersParams) middleware.Responder {
+			return middleware.NotImplemented("operation OfficeUsersIndexOfficeUsers has not yet been implemented")
 		}),
 		OfficeIndexOfficesHandler: office.IndexOfficesHandlerFunc(func(params office.IndexOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation OfficeIndexOffices has not yet been implemented")
 		}),
-		OfficeUpdateOfficeUserHandler: office.UpdateOfficeUserHandlerFunc(func(params office.UpdateOfficeUserParams) middleware.Responder {
-			return middleware.NotImplemented("operation OfficeUpdateOfficeUser has not yet been implemented")
+		TransportationServiceProviderPerformancesIndexTSPPsHandler: transportation_service_provider_performances.IndexTSPPsHandlerFunc(func(params transportation_service_provider_performances.IndexTSPPsParams) middleware.Responder {
+			return middleware.NotImplemented("operation TransportationServiceProviderPerformancesIndexTSPPs has not yet been implemented")
+		}),
+		OfficeUsersUpdateOfficeUserHandler: office_users.UpdateOfficeUserHandlerFunc(func(params office_users.UpdateOfficeUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation OfficeUsersUpdateOfficeUser has not yet been implemented")
 		}),
 	}
 }
@@ -95,22 +112,30 @@ type MymoveAPI struct {
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
-	// OfficeCreateOfficeUserHandler sets the operation handler for the create office user operation
-	OfficeCreateOfficeUserHandler office.CreateOfficeUserHandler
+	// OfficeUsersCreateOfficeUserHandler sets the operation handler for the create office user operation
+	OfficeUsersCreateOfficeUserHandler office_users.CreateOfficeUserHandler
+	// AdminUsersGetAdminUserHandler sets the operation handler for the get admin user operation
+	AdminUsersGetAdminUserHandler admin_users.GetAdminUserHandler
 	// ElectronicOrderGetElectronicOrdersTotalsHandler sets the operation handler for the get electronic orders totals operation
 	ElectronicOrderGetElectronicOrdersTotalsHandler electronic_order.GetElectronicOrdersTotalsHandler
-	// OfficeGetOfficeUserHandler sets the operation handler for the get office user operation
-	OfficeGetOfficeUserHandler office.GetOfficeUserHandler
-	// OfficeIndexAccessCodesHandler sets the operation handler for the index access codes operation
-	OfficeIndexAccessCodesHandler office.IndexAccessCodesHandler
+	// OfficeUsersGetOfficeUserHandler sets the operation handler for the get office user operation
+	OfficeUsersGetOfficeUserHandler office_users.GetOfficeUserHandler
+	// UploadGetUploadHandler sets the operation handler for the get upload operation
+	UploadGetUploadHandler upload.GetUploadHandler
+	// AccessCodesIndexAccessCodesHandler sets the operation handler for the index access codes operation
+	AccessCodesIndexAccessCodesHandler access_codes.IndexAccessCodesHandler
+	// AdminUsersIndexAdminUsersHandler sets the operation handler for the index admin users operation
+	AdminUsersIndexAdminUsersHandler admin_users.IndexAdminUsersHandler
 	// ElectronicOrderIndexElectronicOrdersHandler sets the operation handler for the index electronic orders operation
 	ElectronicOrderIndexElectronicOrdersHandler electronic_order.IndexElectronicOrdersHandler
-	// OfficeIndexOfficeUsersHandler sets the operation handler for the index office users operation
-	OfficeIndexOfficeUsersHandler office.IndexOfficeUsersHandler
+	// OfficeUsersIndexOfficeUsersHandler sets the operation handler for the index office users operation
+	OfficeUsersIndexOfficeUsersHandler office_users.IndexOfficeUsersHandler
 	// OfficeIndexOfficesHandler sets the operation handler for the index offices operation
 	OfficeIndexOfficesHandler office.IndexOfficesHandler
-	// OfficeUpdateOfficeUserHandler sets the operation handler for the update office user operation
-	OfficeUpdateOfficeUserHandler office.UpdateOfficeUserHandler
+	// TransportationServiceProviderPerformancesIndexTSPPsHandler sets the operation handler for the index t s p ps operation
+	TransportationServiceProviderPerformancesIndexTSPPsHandler transportation_service_provider_performances.IndexTSPPsHandler
+	// OfficeUsersUpdateOfficeUserHandler sets the operation handler for the update office user operation
+	OfficeUsersUpdateOfficeUserHandler office_users.UpdateOfficeUserHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -174,36 +199,52 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
-	if o.OfficeCreateOfficeUserHandler == nil {
-		unregistered = append(unregistered, "office.CreateOfficeUserHandler")
+	if o.OfficeUsersCreateOfficeUserHandler == nil {
+		unregistered = append(unregistered, "office_users.CreateOfficeUserHandler")
+	}
+
+	if o.AdminUsersGetAdminUserHandler == nil {
+		unregistered = append(unregistered, "admin_users.GetAdminUserHandler")
 	}
 
 	if o.ElectronicOrderGetElectronicOrdersTotalsHandler == nil {
 		unregistered = append(unregistered, "electronic_order.GetElectronicOrdersTotalsHandler")
 	}
 
-	if o.OfficeGetOfficeUserHandler == nil {
-		unregistered = append(unregistered, "office.GetOfficeUserHandler")
+	if o.OfficeUsersGetOfficeUserHandler == nil {
+		unregistered = append(unregistered, "office_users.GetOfficeUserHandler")
 	}
 
-	if o.OfficeIndexAccessCodesHandler == nil {
-		unregistered = append(unregistered, "office.IndexAccessCodesHandler")
+	if o.UploadGetUploadHandler == nil {
+		unregistered = append(unregistered, "upload.GetUploadHandler")
+	}
+
+	if o.AccessCodesIndexAccessCodesHandler == nil {
+		unregistered = append(unregistered, "access_codes.IndexAccessCodesHandler")
+	}
+
+	if o.AdminUsersIndexAdminUsersHandler == nil {
+		unregistered = append(unregistered, "admin_users.IndexAdminUsersHandler")
 	}
 
 	if o.ElectronicOrderIndexElectronicOrdersHandler == nil {
 		unregistered = append(unregistered, "electronic_order.IndexElectronicOrdersHandler")
 	}
 
-	if o.OfficeIndexOfficeUsersHandler == nil {
-		unregistered = append(unregistered, "office.IndexOfficeUsersHandler")
+	if o.OfficeUsersIndexOfficeUsersHandler == nil {
+		unregistered = append(unregistered, "office_users.IndexOfficeUsersHandler")
 	}
 
 	if o.OfficeIndexOfficesHandler == nil {
 		unregistered = append(unregistered, "office.IndexOfficesHandler")
 	}
 
-	if o.OfficeUpdateOfficeUserHandler == nil {
-		unregistered = append(unregistered, "office.UpdateOfficeUserHandler")
+	if o.TransportationServiceProviderPerformancesIndexTSPPsHandler == nil {
+		unregistered = append(unregistered, "transportation_service_provider_performances.IndexTSPPsHandler")
+	}
+
+	if o.OfficeUsersUpdateOfficeUserHandler == nil {
+		unregistered = append(unregistered, "office_users.UpdateOfficeUserHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -307,7 +348,12 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/office_users"] = office.NewCreateOfficeUser(o.context, o.OfficeCreateOfficeUserHandler)
+	o.handlers["POST"]["/office_users"] = office_users.NewCreateOfficeUser(o.context, o.OfficeUsersCreateOfficeUserHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/admin_users/{adminUserId}"] = admin_users.NewGetAdminUser(o.context, o.AdminUsersGetAdminUserHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -317,12 +363,22 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/office_users/{officeUserId}"] = office.NewGetOfficeUser(o.context, o.OfficeGetOfficeUserHandler)
+	o.handlers["GET"]["/office_users/{officeUserId}"] = office_users.NewGetOfficeUser(o.context, o.OfficeUsersGetOfficeUserHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/access_codes"] = office.NewIndexAccessCodes(o.context, o.OfficeIndexAccessCodesHandler)
+	o.handlers["GET"]["/uploads/{uploadId}"] = upload.NewGetUpload(o.context, o.UploadGetUploadHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/access_codes"] = access_codes.NewIndexAccessCodes(o.context, o.AccessCodesIndexAccessCodesHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/admin_users"] = admin_users.NewIndexAdminUsers(o.context, o.AdminUsersIndexAdminUsersHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -332,17 +388,22 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/office_users"] = office.NewIndexOfficeUsers(o.context, o.OfficeIndexOfficeUsersHandler)
+	o.handlers["GET"]["/office_users"] = office_users.NewIndexOfficeUsers(o.context, o.OfficeUsersIndexOfficeUsersHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/offices"] = office.NewIndexOffices(o.context, o.OfficeIndexOfficesHandler)
 
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/transportation_service_provider_performances"] = transportation_service_provider_performances.NewIndexTSPPs(o.context, o.TransportationServiceProviderPerformancesIndexTSPPsHandler)
+
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/office_users/{officeUserId}"] = office.NewUpdateOfficeUser(o.context, o.OfficeUpdateOfficeUserHandler)
+	o.handlers["PATCH"]["/office_users/{officeUserId}"] = office_users.NewUpdateOfficeUser(o.context, o.OfficeUsersUpdateOfficeUserHandler)
 
 }
 

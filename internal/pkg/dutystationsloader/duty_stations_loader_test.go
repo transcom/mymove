@@ -38,6 +38,7 @@ func TestDutyStationsLoaderSuite(t *testing.T) {
 	}
 
 	suite.Run(t, hs)
+	hs.PopTestSuite.TearDown()
 }
 
 func (suite *DutyStationsLoaderSuite) TestParsingFunctions() {

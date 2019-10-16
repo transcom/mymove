@@ -14,15 +14,12 @@ type OfficeServiceSuite struct {
 	logger Logger
 }
 
-func (suite *OfficeServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func TestUserSuite(t *testing.T) {
 
-	hs := &OfficeServiceSuite{
+	ts := &OfficeServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
-	suite.Run(t, hs)
+	suite.Run(t, ts)
+	ts.PopTestSuite.TearDown()
 }

@@ -40,7 +40,7 @@ func init() {
       "get": {
         "description": "Returns a list of access codes",
         "tags": [
-          "office"
+          "access_codes"
         ],
         "summary": "List access codes",
         "operationId": "indexAccessCodes",
@@ -82,6 +82,101 @@ func init() {
           },
           "404": {
             "description": "access codes not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/admin_users": {
+      "get": {
+        "description": "Returns a list of admin users",
+        "tags": [
+          "admin_users"
+        ],
+        "summary": "List admin users",
+        "operationId": "indexAdminUsers",
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/AdminUsers"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "admin users not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/admin_users/{adminUserId}": {
+      "get": {
+        "description": "Returns a single admin user",
+        "tags": [
+          "admin_users"
+        ],
+        "summary": "Fetch a specific admin user",
+        "operationId": "getAdminUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "adminUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/AdminUser"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "admin user not found"
           },
           "500": {
             "description": "server error"
@@ -197,7 +292,7 @@ func init() {
       "get": {
         "description": "Returns a list of office users",
         "tags": [
-          "office"
+          "office_users"
         ],
         "summary": "List office users",
         "operationId": "indexOfficeUsers",
@@ -251,7 +346,7 @@ func init() {
       "post": {
         "description": "creates and returns an office user record",
         "tags": [
-          "office"
+          "office_users"
         ],
         "summary": "create an office user",
         "operationId": "createOfficeUser",
@@ -291,7 +386,7 @@ func init() {
       "get": {
         "description": "Returns the given office user",
         "tags": [
-          "office"
+          "office_users"
         ],
         "summary": "Get an office user",
         "operationId": "getOfficeUser",
@@ -327,7 +422,7 @@ func init() {
       },
       "patch": {
         "tags": [
-          "office"
+          "office_users"
         ],
         "summary": "Updates an office user",
         "operationId": "updateOfficeUser",
@@ -420,6 +515,98 @@ func init() {
           },
           "404": {
             "description": "office not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/transportation_service_provider_performances": {
+      "get": {
+        "description": "Returns a list of transportation service provider performances (TSPPs)",
+        "tags": [
+          "transportation_service_provider_performances"
+        ],
+        "summary": "List transportation service provider performances (TSPPs)",
+        "operationId": "indexTSPPs",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/TransportationServiceProviderPerformances"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "office not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/uploads/{uploadId}": {
+      "get": {
+        "description": "Returns the given upload and information about the uploader and move",
+        "tags": [
+          "upload"
+        ],
+        "summary": "Get information about an upload",
+        "operationId": "getUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "uploadId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/UploadInformation"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "upload not found"
           },
           "500": {
             "description": "server error"
@@ -616,6 +803,63 @@ func init() {
           "x-nullable": true,
           "example": "Montmârtre"
         }
+      }
+    },
+    "AdminUser": {
+      "type": "object",
+      "required": [
+        "id",
+        "first_name",
+        "last_name",
+        "email",
+        "user_id",
+        "organization_id",
+        "disabled",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "disabled": {
+          "type": "boolean"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "organization_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "user_id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
+    "AdminUsers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/AdminUser"
       }
     },
     "ElectronicOrder": {
@@ -774,6 +1018,9 @@ func init() {
     "OfficeUserUpdatePayload": {
       "type": "object",
       "properties": {
+        "disabled": {
+          "type": "boolean"
+        },
         "first_name": {
           "type": "string",
           "title": "First Name"
@@ -863,6 +1110,134 @@ func init() {
       "items": {
         "$ref": "#/definitions/TransportationOffice"
       }
+    },
+    "TransportationServiceProviderPerformance": {
+      "type": "object",
+      "required": [
+        "id",
+        "traffic_distribution_list_id",
+        "transportation_service_provider_id",
+        "performance_period_start",
+        "performance_period_end",
+        "rate_cycle_start",
+        "rate_cycle_end",
+        "best_value_score",
+        "linehaul_rate",
+        "sit_rate",
+        "offer_count",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "best_value_score": {
+          "type": "number",
+          "example": 98.01
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "linehaul_rate": {
+          "type": "number",
+          "example": 0.26085695149376986
+        },
+        "offer_count": {
+          "type": "integer",
+          "example": 1
+        },
+        "performance_period_end": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "performance_period_start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "quality_band": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 29
+        },
+        "rate_cycle_end": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "rate_cycle_start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sit_rate": {
+          "type": "number",
+          "example": 0.26085695149376986
+        },
+        "traffic_distribution_list_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "transportation_service_provider_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "TransportationServiceProviderPerformances": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TransportationServiceProviderPerformance"
+      }
+    },
+    "Upload": {
+      "type": "object",
+      "properties": {
+        "content_type": {
+          "type": "string",
+          "enum": [
+            "application/pdf",
+            "image/jpeg",
+            "image/png"
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "datetime",
+          "title": "Created at"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "size": {
+          "type": "integer",
+          "title": "Size in Bytes"
+        }
+      }
+    },
+    "UploadInformation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "move_locator": {
+          "type": "string",
+          "example": "12432"
+        },
+        "upload": {
+          "$ref": "#/definitions/Upload"
+        }
+      }
     }
   }
 }`))
@@ -889,7 +1264,7 @@ func init() {
       "get": {
         "description": "Returns a list of access codes",
         "tags": [
-          "office"
+          "access_codes"
         ],
         "summary": "List access codes",
         "operationId": "indexAccessCodes",
@@ -931,6 +1306,101 @@ func init() {
           },
           "404": {
             "description": "access codes not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/admin_users": {
+      "get": {
+        "description": "Returns a list of admin users",
+        "tags": [
+          "admin_users"
+        ],
+        "summary": "List admin users",
+        "operationId": "indexAdminUsers",
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/AdminUsers"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "admin users not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/admin_users/{adminUserId}": {
+      "get": {
+        "description": "Returns a single admin user",
+        "tags": [
+          "admin_users"
+        ],
+        "summary": "Fetch a specific admin user",
+        "operationId": "getAdminUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "adminUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/AdminUser"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "admin user not found"
           },
           "500": {
             "description": "server error"
@@ -1046,7 +1516,7 @@ func init() {
       "get": {
         "description": "Returns a list of office users",
         "tags": [
-          "office"
+          "office_users"
         ],
         "summary": "List office users",
         "operationId": "indexOfficeUsers",
@@ -1100,7 +1570,7 @@ func init() {
       "post": {
         "description": "creates and returns an office user record",
         "tags": [
-          "office"
+          "office_users"
         ],
         "summary": "create an office user",
         "operationId": "createOfficeUser",
@@ -1140,7 +1610,7 @@ func init() {
       "get": {
         "description": "Returns the given office user",
         "tags": [
-          "office"
+          "office_users"
         ],
         "summary": "Get an office user",
         "operationId": "getOfficeUser",
@@ -1176,7 +1646,7 @@ func init() {
       },
       "patch": {
         "tags": [
-          "office"
+          "office_users"
         ],
         "summary": "Updates an office user",
         "operationId": "updateOfficeUser",
@@ -1269,6 +1739,98 @@ func init() {
           },
           "404": {
             "description": "office not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/transportation_service_provider_performances": {
+      "get": {
+        "description": "Returns a list of transportation service provider performances (TSPPs)",
+        "tags": [
+          "transportation_service_provider_performances"
+        ],
+        "summary": "List transportation service provider performances (TSPPs)",
+        "operationId": "indexTSPPs",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/TransportationServiceProviderPerformances"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "office not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/uploads/{uploadId}": {
+      "get": {
+        "description": "Returns the given upload and information about the uploader and move",
+        "tags": [
+          "upload"
+        ],
+        "summary": "Get information about an upload",
+        "operationId": "getUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "uploadId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/UploadInformation"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "upload not found"
           },
           "500": {
             "description": "server error"
@@ -1465,6 +2027,63 @@ func init() {
           "x-nullable": true,
           "example": "Montmârtre"
         }
+      }
+    },
+    "AdminUser": {
+      "type": "object",
+      "required": [
+        "id",
+        "first_name",
+        "last_name",
+        "email",
+        "user_id",
+        "organization_id",
+        "disabled",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "disabled": {
+          "type": "boolean"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "organization_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "user_id": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
+    "AdminUsers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/AdminUser"
       }
     },
     "ElectronicOrder": {
@@ -1624,6 +2243,9 @@ func init() {
     "OfficeUserUpdatePayload": {
       "type": "object",
       "properties": {
+        "disabled": {
+          "type": "boolean"
+        },
         "first_name": {
           "type": "string",
           "title": "First Name"
@@ -1712,6 +2334,134 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/TransportationOffice"
+      }
+    },
+    "TransportationServiceProviderPerformance": {
+      "type": "object",
+      "required": [
+        "id",
+        "traffic_distribution_list_id",
+        "transportation_service_provider_id",
+        "performance_period_start",
+        "performance_period_end",
+        "rate_cycle_start",
+        "rate_cycle_end",
+        "best_value_score",
+        "linehaul_rate",
+        "sit_rate",
+        "offer_count",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "best_value_score": {
+          "type": "number",
+          "example": 98.01
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "linehaul_rate": {
+          "type": "number",
+          "example": 0.26085695149376986
+        },
+        "offer_count": {
+          "type": "integer",
+          "example": 1
+        },
+        "performance_period_end": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "performance_period_start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "quality_band": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 29
+        },
+        "rate_cycle_end": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "rate_cycle_start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sit_rate": {
+          "type": "number",
+          "example": 0.26085695149376986
+        },
+        "traffic_distribution_list_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "transportation_service_provider_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "TransportationServiceProviderPerformances": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TransportationServiceProviderPerformance"
+      }
+    },
+    "Upload": {
+      "type": "object",
+      "properties": {
+        "content_type": {
+          "type": "string",
+          "enum": [
+            "application/pdf",
+            "image/jpeg",
+            "image/png"
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "format": "datetime",
+          "title": "Created at"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "size": {
+          "type": "integer",
+          "title": "Size in Bytes"
+        }
+      }
+    },
+    "UploadInformation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "move_locator": {
+          "type": "string",
+          "example": "12432"
+        },
+        "upload": {
+          "$ref": "#/definitions/Upload"
+        }
       }
     }
   }

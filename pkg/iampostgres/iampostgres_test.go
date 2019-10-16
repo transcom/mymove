@@ -33,8 +33,11 @@ func TestEnableIamNilCreds(t *testing.T) {
 		time.NewTicker(1*time.Second),
 		logger)
 	time.Sleep(2 * time.Second)
+
+	iamConfig.currentPassMutex.Lock()
 	t.Logf("Current password: %s", iamConfig.currentIamPass)
 	assert.Equal(iamConfig.currentIamPass, "")
+	iamConfig.currentPassMutex.Unlock()
 
 }
 
@@ -61,11 +64,9 @@ func TestGetCurrentPass(t *testing.T) {
 func TestEnableIAMNormal(t *testing.T) {
 	assert := assert.New(t)
 
+	testData := []string{"abc", "123", "xyz", "999"}
 	rdsu := RDSUTest{}
-	rdsu.passes = append(rdsu.passes, "abc")
-	rdsu.passes = append(rdsu.passes, "123")
-	rdsu.passes = append(rdsu.passes, "xyz")
-	rdsu.passes = append(rdsu.passes, "999")
+	rdsu.passes = append(rdsu.passes, testData...)
 	logger, _ := zap.NewProduction()
 
 	// We use 2 second timer since that builds in a buffer so we have stable tests
@@ -75,22 +76,38 @@ func TestEnableIAMNormal(t *testing.T) {
 		time.NewTicker(2*time.Second),
 		logger)
 
-	time.Sleep(time.Second)
-	assert.Equal(iamConfig.currentIamPass, "abc")
-	t.Logf("Current password: %s", iamConfig.currentIamPass)
+	lenTestData := len(testData) - 1
+	counter := 0
+	expectedPass := testData[counter]
+	for {
+		// Poll for the password change
+		time.Sleep(250 * time.Millisecond)
 
-	time.Sleep(2 * time.Second)
-	t.Logf("Current password: %s", iamConfig.currentIamPass)
-	assert.Equal(iamConfig.currentIamPass, "123")
+		// If the current pass does not match the last known password
+		// then we should check the next password in the slice
+		pass := GetCurrentPass()
+		if pass != expectedPass {
+			t.Logf("Counter %d, Current/expected password: %s, %s", counter, pass, expectedPass)
+			counter++
+			// Don't allow looking items that don't exist
+			if counter > lenTestData {
+				break
+			}
+			expectedPass = testData[counter]
+		}
 
-	time.Sleep(2 * time.Second)
-	t.Logf("Current password: %s", iamConfig.currentIamPass)
-	assert.Equal(iamConfig.currentIamPass, "xyz")
+		// Check that the expected password is what we want
+		t.Logf("Counter %d, Current/expected password: %s, %s", counter, pass, expectedPass)
+		assert.Equal(expectedPass, pass)
 
-	time.Sleep(2 * time.Second)
-	t.Logf("Current password: %s", iamConfig.currentIamPass)
-	assert.Equal(iamConfig.currentIamPass, "999")
+		// Once the end has been reached then end the test
+		if counter == lenTestData && expectedPass == testData[lenTestData] {
+			break
+		}
+	}
 
+	// Check that all the passwords have been checked
+	assert.Equal(3, counter)
 }
 
 func TestUpdateDSN(t *testing.T) {

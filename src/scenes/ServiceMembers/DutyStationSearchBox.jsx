@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { debounce, sortBy, get } from 'lodash';
+import { debounce, get } from 'lodash';
 import AsyncSelect from 'react-select/lib/Async';
 import Alert from 'shared/Alert';
 import { components } from 'react-select';
@@ -40,8 +40,7 @@ export class DutyStationSearchBox extends Component {
           this.setState({
             error: null,
           });
-          const sorted = sortBy(item, 'name');
-          callback(sorted);
+          callback(item);
         })
         .catch(err => {
           this.setState({

@@ -35,7 +35,6 @@ type UploaderSuite struct {
 func (suite *UploaderSuite) SetupTest() {
 	var fs = afero.NewMemMapFs()
 	suite.fs = &afero.Afero{Fs: fs}
-	suite.DB().TruncateAll()
 }
 
 func (suite *UploaderSuite) openLocalFile(path string) (afero.File, error) {
@@ -97,6 +96,7 @@ func TestUploaderSuite(t *testing.T) {
 	}
 
 	suite.Run(t, hs)
+	hs.PopTestSuite.TearDown()
 }
 
 func (suite *UploaderSuite) TestUploaderExceedsFileSizeLimit() {
