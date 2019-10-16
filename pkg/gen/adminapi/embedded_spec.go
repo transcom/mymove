@@ -137,7 +137,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "office not found"
+            "description": "admin users not found"
           },
           "500": {
             "description": "server error"
@@ -176,7 +176,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "office not found"
+            "description": "admin user not found"
           },
           "500": {
             "description": "server error"
@@ -1361,7 +1361,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "office not found"
+            "description": "admin users not found"
           },
           "500": {
             "description": "server error"
@@ -1400,7 +1400,7 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "office not found"
+            "description": "admin user not found"
           },
           "500": {
             "description": "server error"
