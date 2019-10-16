@@ -7,7 +7,7 @@ const SaveCancelButtons = props => {
   const { submitting, valid } = props;
   const goBack = props.history.goBack;
   return (
-    <div>
+    <div className="align-right">
       <button className="usa-button" type="submit" disabled={submitting || !valid}>
         Save
       </button>

@@ -81,90 +81,96 @@ let EditWeightForm = props => {
 
   const fullFieldClass = `weight-estimate-input ${fieldClass}`;
   return (
-    <form onSubmit={handleSubmit}>
-      <img src={profileImage} alt="" /> Profile
-      <hr />
-      <h3 className="sm-heading">Edit PPM Weight:</h3>
-      <p>Changes could impact your move, including the estimated PPM incentive.</p>
-      <EntitlementBar entitlement={entitlement} />
-      <div className="edit-weight-container">
-        <div className="usa-width-one-half">
-          <h4 className="sm-heading">Move estimate</h4>
-          <div>
-            <SwaggerField
-              className={fullFieldClass}
-              fieldName="weight_estimate"
-              swagger={schema}
-              onChange={onWeightChange}
-              validate={validateWeight}
-              required
-            />
-            <span> lbs</span>
-          </div>
-          <div>
-            {!advanceError && initialValues && initialValues.incentive_estimate_min && dirty && (
-              <div className="usa-alert usa-alert--warning">
-                <div className="usa-alert__body">
-                  <p className="usa-alert__text">This update will change your incentive.</p>
+    <div className="grid-container">
+      <div className="grid-row">
+        <div className="grid-col-12">
+          <form onSubmit={handleSubmit}>
+            <img src={profileImage} alt="" /> Profile
+            <hr />
+            <h3 className="sm-heading">Edit PPM Weight:</h3>
+            <p>Changes could impact your move, including the estimated PPM incentive.</p>
+            <EntitlementBar entitlement={entitlement} />
+            <div className="edit-weight-container">
+              <div className="usa-width-one-half">
+                <h4 className="sm-heading">Move estimate</h4>
+                <div>
+                  <SwaggerField
+                    className={fullFieldClass}
+                    fieldName="weight_estimate"
+                    swagger={schema}
+                    onChange={onWeightChange}
+                    validate={validateWeight}
+                    required
+                  />
+                  <span> lbs</span>
                 </div>
+                <div>
+                  {!advanceError && initialValues && initialValues.incentive_estimate_min && dirty && (
+                    <div className="usa-alert usa-alert--warning">
+                      <div className="usa-alert__body">
+                        <p className="usa-alert__text">This update will change your incentive.</p>
+                      </div>
+                    </div>
+                  )}
+                  {advanceError && (
+                    <p className="advance-error">Weight is too low and will require paying back the advance.</p>
+                  )}
+                </div>
+
+                <div className="display-value">
+                  <p>Estimated Incentive</p>
+                  <p className={incentiveClass}>
+                    <strong>
+                      {formatCentsRange(incentive_estimate_min, incentive_estimate_max) || 'Unable to Calculate'}
+                    </strong>
+                  </p>
+                  {initialValues &&
+                    initialValues.incentive_estimate_min &&
+                    initialValues.incentive_estimate_min !== incentive_estimate_min && (
+                      <p className="subtext">
+                        Originally{' '}
+                        {formatCentsRange(initialValues.incentive_estimate_min, initialValues.incentive_estimate_max)}
+                      </p>
+                    )}
+                </div>
+
+                {get(initialValues, 'has_requested_advance') && (
+                  <div className="display-value">
+                    <p>Advance</p>
+                    <p>
+                      <strong>${formatCents(initialValues.advance.requested_amount)}</strong>
+                    </p>
+                  </div>
+                )}
               </div>
-            )}
-            {advanceError && (
-              <p className="advance-error">Weight is too low and will require paying back the advance.</p>
-            )}
-          </div>
 
-          <div className="display-value">
-            <p>Estimated Incentive</p>
-            <p className={incentiveClass}>
-              <strong>
-                {formatCentsRange(incentive_estimate_min, incentive_estimate_max) || 'Unable to Calculate'}
-              </strong>
-            </p>
-            {initialValues &&
-              initialValues.incentive_estimate_min &&
-              initialValues.incentive_estimate_min !== incentive_estimate_min && (
-                <p className="subtext">
-                  Originally{' '}
-                  {formatCentsRange(initialValues.incentive_estimate_min, initialValues.incentive_estimate_max)}
-                </p>
-              )}
-          </div>
-
-          {get(initialValues, 'has_requested_advance') && (
-            <div className="display-value">
-              <p>Advance</p>
-              <p>
-                <strong>${formatCents(initialValues.advance.requested_amount)}</strong>
-              </p>
+              <div className="usa-width-one-half">
+                <h4 className="sm-heading">Examples</h4>
+                <table className="examples-table">
+                  <thead>
+                    <tr>
+                      <th>Weight</th>
+                      <th>Incentive</th>
+                      <th />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {examples.map(ex => (
+                      <tr key={ex.weight}>
+                        <td>{ex.weight.toLocaleString()}</td>
+                        <td>{ex.incentive}</td>
+                        <td>{ex.description || ''}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          )}
-        </div>
-
-        <div className="usa-width-one-half">
-          <h4 className="sm-heading">Examples</h4>
-          <table className="examples-table">
-            <thead>
-              <tr>
-                <th>Weight</th>
-                <th>Incentive</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {examples.map(ex => (
-                <tr key={ex.weight}>
-                  <td>{ex.weight.toLocaleString()}</td>
-                  <td>{ex.incentive}</td>
-                  <td>{ex.description || ''}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            <SaveCancelButtons valid={valid} submitting={submitting} />
+          </form>
         </div>
       </div>
-      <SaveCancelButtons valid={valid} submitting={submitting} />
-    </form>
+    </div>
   );
 };
 EditWeightForm = reduxForm({

@@ -14,14 +14,16 @@ export class Edit extends React.Component {
 
   render() {
     return (
-      <div className="usa-grid">
-        <div className="usa-width-one-whole">
-          <a className="back-to-home" onClick={this.goHome}>
-            &lt; BACK TO HOME
-          </a>
-          <h1 className="edit-title">Edit Move</h1>
-          <p>Changes to your orders or shipments could impact your move, including the estimated PPM incentive.</p>
-          <Summary />
+      <div className="grid-container">
+        <div className="grid-row">
+          <div className="grid-col-12">
+            <a className="back-to-home" onClick={this.goHome}>
+              &lt; BACK TO HOME
+            </a>
+            <h1 className="edit-title">Edit Move</h1>
+            <p>Changes to your orders or shipments could impact your move, including the estimated PPM incentive.</p>
+            <Summary />
+          </div>
         </div>
       </div>
     );

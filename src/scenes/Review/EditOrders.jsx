@@ -41,40 +41,46 @@ let EditOrdersForm = props => {
     return includes(deleteQueue, upload.id);
   });
   return (
-    <form onSubmit={handleSubmit}>
-      <img src={profileImage} alt="" /> Orders
-      <hr />
-      <h3 className="sm-heading">Edit Orders:</h3>
-      <SwaggerField fieldName="orders_type" swagger={schema} required />
-      <SwaggerField fieldName="issue_date" swagger={schema} required />
-      <SwaggerField fieldName="report_by_date" swagger={schema} required />
-      <SwaggerField fieldName="has_dependents" swagger={schema} component={YesNoBoolean} />
-      {get(props, 'formValues.has_dependents', false) && (
-        <Fragment>
-          <SwaggerField
-            fieldName="spouse_has_pro_gear"
-            swagger={props.schema}
-            component={YesNoBoolean}
-            className="wider-label"
-          />
-        </Fragment>
-      )}
-      <br />
-      <Field name="new_duty_station" component={DutyStationSearchBox} />
-      <p>Uploads:</p>
-      {Boolean(visibleUploads.length) && <UploadsTable uploads={visibleUploads} onDelete={onDelete} />}
-      {Boolean(get(initialValues, 'uploaded_orders')) && (
-        <div>
-          <p>{documentSizeLimitMsg}</p>
-          <Uploader
-            document={initialValues.uploaded_orders}
-            onChange={onUpload}
-            options={{ labelIdle: uploaderLabelIdle }}
-          />
+    <div className="grid-container">
+      <div className="grid-row">
+        <div className="grid-col-12">
+          <form onSubmit={handleSubmit}>
+            <img src={profileImage} alt="" /> Orders
+            <hr />
+            <h3 className="sm-heading">Edit Orders:</h3>
+            <SwaggerField fieldName="orders_type" swagger={schema} required />
+            <SwaggerField fieldName="issue_date" swagger={schema} required />
+            <SwaggerField fieldName="report_by_date" swagger={schema} required />
+            <SwaggerField fieldName="has_dependents" swagger={schema} component={YesNoBoolean} />
+            {get(props, 'formValues.has_dependents', false) && (
+              <Fragment>
+                <SwaggerField
+                  fieldName="spouse_has_pro_gear"
+                  swagger={props.schema}
+                  component={YesNoBoolean}
+                  className="wider-label"
+                />
+              </Fragment>
+            )}
+            <br />
+            <Field name="new_duty_station" component={DutyStationSearchBox} />
+            <p>Uploads:</p>
+            {Boolean(visibleUploads.length) && <UploadsTable uploads={visibleUploads} onDelete={onDelete} />}
+            {Boolean(get(initialValues, 'uploaded_orders')) && (
+              <div>
+                <p>{documentSizeLimitMsg}</p>
+                <Uploader
+                  document={initialValues.uploaded_orders}
+                  onChange={onUpload}
+                  options={{ labelIdle: uploaderLabelIdle }}
+                />
+              </div>
+            )}
+            <SaveCancelButtons valid={valid} submitting={submitting} />
+          </form>
         </div>
-      )}
-      <SaveCancelButtons valid={valid} submitting={submitting} />
-    </form>
+      </div>
+    </div>
   );
 };
 
