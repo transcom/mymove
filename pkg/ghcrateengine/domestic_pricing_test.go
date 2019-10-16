@@ -69,7 +69,7 @@ func (suite *GHCRateEngineSuite) TestCalculateBaseDomesticPerWeightServiceCost()
 			testName:        "test pack calculation",
 			isDomesticOther: true,
 			//expectedRate:	7250, // actual test data rate to use when connected to db
-			expectedRate:  6333, // stubbed rate
+			expectedRate:  23440, // stubbed rate
 			moveDate:      time.Date(2019, time.February, 18, 0, 0, 0, 0, time.UTC),
 			serviceAreaID: uuid.Must(uuid.NewV4()),
 			weight:        25.80,
@@ -81,7 +81,7 @@ func (suite *GHCRateEngineSuite) TestCalculateBaseDomesticPerWeightServiceCost()
 			testName:        "test unpack calculation",
 			isDomesticOther: true,
 			//expectedRate:  597, // actual test data rate to use when connected to db
-			expectedRate:  6333, // stubbed rate
+			expectedRate:  23440, // stubbed rate
 			moveDate:      time.Date(2019, time.February, 18, 0, 0, 0, 0, time.UTC),
 			serviceAreaID: uuid.Must(uuid.NewV4()),
 			weight:        25.80,
