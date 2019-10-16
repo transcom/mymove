@@ -48,6 +48,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OfficeUsersCreateOfficeUserHandler: office_users.CreateOfficeUserHandlerFunc(func(params office_users.CreateOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation OfficeUsersCreateOfficeUser has not yet been implemented")
 		}),
+		AdminUsersGetAdminUserHandler: admin_users.GetAdminUserHandlerFunc(func(params admin_users.GetAdminUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation AdminUsersGetAdminUser has not yet been implemented")
+		}),
 		ElectronicOrderGetElectronicOrdersTotalsHandler: electronic_order.GetElectronicOrdersTotalsHandlerFunc(func(params electronic_order.GetElectronicOrdersTotalsParams) middleware.Responder {
 			return middleware.NotImplemented("operation ElectronicOrderGetElectronicOrdersTotals has not yet been implemented")
 		}),
@@ -111,6 +114,8 @@ type MymoveAPI struct {
 
 	// OfficeUsersCreateOfficeUserHandler sets the operation handler for the create office user operation
 	OfficeUsersCreateOfficeUserHandler office_users.CreateOfficeUserHandler
+	// AdminUsersGetAdminUserHandler sets the operation handler for the get admin user operation
+	AdminUsersGetAdminUserHandler admin_users.GetAdminUserHandler
 	// ElectronicOrderGetElectronicOrdersTotalsHandler sets the operation handler for the get electronic orders totals operation
 	ElectronicOrderGetElectronicOrdersTotalsHandler electronic_order.GetElectronicOrdersTotalsHandler
 	// OfficeUsersGetOfficeUserHandler sets the operation handler for the get office user operation
@@ -196,6 +201,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.OfficeUsersCreateOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.CreateOfficeUserHandler")
+	}
+
+	if o.AdminUsersGetAdminUserHandler == nil {
+		unregistered = append(unregistered, "admin_users.GetAdminUserHandler")
 	}
 
 	if o.ElectronicOrderGetElectronicOrdersTotalsHandler == nil {
@@ -340,6 +349,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/office_users"] = office_users.NewCreateOfficeUser(o.context, o.OfficeUsersCreateOfficeUserHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/admin_users/{adminUserId}"] = admin_users.NewGetAdminUser(o.context, o.AdminUsersGetAdminUserHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
