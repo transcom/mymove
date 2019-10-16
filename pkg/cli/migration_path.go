@@ -34,7 +34,8 @@ func InitMigrationPathFlags(flag *pflag.FlagSet) {
 
 // CheckMigration validates migration command line flags
 func CheckMigrationPath(v *viper.Viper) error {
-	migrationPath := v.GetString(MigrationPathFlag)
+	// Remove any extra quotes around path
+	migrationPath := strings.Trim(v.GetString(MigrationPathFlag), "\"")
 	if len(migrationPath) == 0 {
 		return errMissingMigrationPath
 	}
