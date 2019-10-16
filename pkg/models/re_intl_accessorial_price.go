@@ -14,17 +14,19 @@ import (
 //Market represents the market for an international move
 type Market string
 
+func (m Market) String() string {
+	return string(m)
+}
+
 //This lists available markets for international accessorial pricing
 const (
 	MarketConus  Market = "C"
 	MarketOconus Market = "O"
 )
 
-func (m *Market) String() []string {
-	return []string{
-		string(MarketConus),
-		string(MarketOconus),
-	}
+var validMarkets = []string{
+	string(MarketConus),
+	string(MarketOconus),
 }
 
 // ReIntlAccessorialPrice model struct
@@ -51,8 +53,8 @@ func (r *ReIntlAccessorialPrice) Validate(tx *pop.Connection) (*validate.Errors,
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: r.ContractID, Name: "ContractID"},
 		&validators.UUIDIsPresent{Field: r.ServiceID, Name: "ServiceID"},
-		&validators.StringIsPresent{Field: string(r.Market), Name: "Market"},
-		&validators.StringInclusion{Field: string(r.Market), Name: "Market", List: new(Market).String()},
+		&validators.StringIsPresent{Field: r.Market.String(), Name: "Market"},
+		&validators.StringInclusion{Field: r.Market.String(), Name: "Market", List: validMarkets},
 		&validators.IntIsPresent{Field: r.PerUnitCents.Int(), Name: "PerUnitCents"},
 		&validators.IntIsGreaterThan{Field: r.PerUnitCents.Int(), Name: "PerUnitCents", Compared: 0},
 	), nil

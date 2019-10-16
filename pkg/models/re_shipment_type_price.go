@@ -33,8 +33,8 @@ func (r *ReShipmentTypePrice) Validate(tx *pop.Connection) (*validate.Errors, er
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: r.ContractID, Name: "ContractID"},
 		&validators.UUIDIsPresent{Field: r.ShipmentTypeID, Name: "ShipmentTypeID"},
-		&validators.StringIsPresent{Field: string(r.Market), Name: "Market"},
-		&validators.StringInclusion{Field: string(r.Market), Name: "Market", List: new(Market).String()},
+		&validators.StringIsPresent{Field: r.Market.String(), Name: "Market"},
+		&validators.StringInclusion{Field: r.Market.String(), Name: "Market", List: validMarkets},
 		&validators.IntIsPresent{Field: r.FactorHundredths, Name: "FactorHundredths"},
 		&validators.IntIsGreaterThan{Field: r.FactorHundredths, Name: "FactorHundredths", Compared: 0},
 	), nil
