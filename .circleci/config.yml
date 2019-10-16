@@ -726,6 +726,7 @@ jobs:
       - run:
           name: Push changes
           command: scripts/circleci-push-dependency-updates golang
+      - announce_failure
 
   # `update_dependencies_js` periodically updates yarn dependencies.
   # The changes are submitted as a pull request for review.
@@ -748,6 +749,7 @@ jobs:
       - run:
           name: Push changes
           command: scripts/circleci-push-dependency-updates js
+      - announce_failure
 
   # `update_dependencies_pre_commit` periodically updates pre-commit dependencies.
   # The changes are submitted as a pull request for review.
@@ -764,6 +766,7 @@ jobs:
       - run:
           name: Push changes
           command: scripts/circleci-push-dependency-updates pre-commit
+      - announce_failure
 
 workflows:
   version: 2
