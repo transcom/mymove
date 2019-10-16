@@ -58,7 +58,7 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
       transportation_office:
         $ref: '#/definitions/TransportationOffice'
-      disabled:
+      deactivated:
         type: boolean
       created_at:
         type: string
@@ -73,7 +73,7 @@ definitions:
       - last_name
       - email
       - telephone
-      - disabled
+      - deactivated
       - created_at
       - updated_at
   OfficeUsers:
@@ -101,7 +101,7 @@ definitions:
       organization_id:
         type: string
         format: uuid
-      disabled:
+      deactivated:
         type: boolean
       created_at:
         type: string
@@ -116,7 +116,7 @@ definitions:
       - email
       - user_id
       - organization_id
-      - disabled
+      - deactivated
       - created_at
       - updated_at
   AdminUsers:
@@ -428,7 +428,7 @@ definitions:
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
-      disabled:
+      deactivated:
         type: boolean
   ElectronicOrder:
     type: object

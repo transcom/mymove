@@ -349,8 +349,8 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
 
-	if userIdentity.Disabled {
-		h.logger.Error("Disabled user requesting authentication",
+	if userIdentity.Deactivated {
+		h.logger.Error("Deactivated user requesting authentication",
 			zap.String("application_name", string(session.ApplicationName)),
 			zap.String("hostname", session.Hostname),
 			zap.String("user_id", session.UserID.String()),
@@ -365,13 +365,13 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
 	}
 
-	if userIdentity.DpsUserID != nil && (userIdentity.DpsDisabled != nil && !*userIdentity.DpsDisabled) {
+	if userIdentity.DpsUserID != nil && (userIdentity.DpsDeactivated != nil && !*userIdentity.DpsDeactivated) {
 		session.DpsUserID = *(userIdentity.DpsUserID)
 	}
 
 	if session.IsOfficeApp() {
-		if userIdentity.OfficeDisabled != nil && *userIdentity.OfficeDisabled {
-			h.logger.Error("Office user is disabled", zap.String("email", session.Email))
+		if userIdentity.OfficeDeactivated != nil && *userIdentity.OfficeDeactivated {
+			h.logger.Error("Office user is deactivated", zap.String("email", session.Email))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		}
@@ -401,8 +401,8 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 	}
 
 	if session.IsAdminApp() {
-		if userIdentity.AdminUserDisabled != nil && *userIdentity.AdminUserDisabled {
-			h.logger.Error("Admin user is disabled", zap.String("email", session.Email))
+		if userIdentity.AdminUserDeactivated != nil && *userIdentity.AdminUserDeactivated {
+			h.logger.Error("Admin user is deactivated", zap.String("email", session.Email))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		}
@@ -468,8 +468,8 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
-		if officeUser.Disabled {
-			h.logger.Error("Office user is disabled", zap.String("email", session.Email))
+		if officeUser.Deactivated {
+			h.logger.Error("Office user is deactivated", zap.String("email", session.Email))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		}
@@ -492,8 +492,8 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
-		if adminUser.Disabled {
-			h.logger.Error("Admin user is disabled", zap.String("email", session.Email))
+		if adminUser.Deactivated {
+			h.logger.Error("Admin user is deactivated", zap.String("email", session.Email))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		}
