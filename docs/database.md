@@ -28,3 +28,67 @@ When looking up objects that have a one-to-many relationship, ORMs such as Pop c
 
 * [The Dangerous Subtleties of LEFT JOIN and COUNT() in SQL](https://www.xaprb.com/blog/2009/04/08/the-dangerous-subtleties-of-left-join-and-count-in-sql/)
 * [More Dangerous Subtleties of JOINs in SQL](https://alexpetralia.com/posts/2017/7/19/more-dangerous-subtleties-of-joins-in-sql)
+
+## Using RDS IAM for database authentication
+
+RDS IAM authentication is the method of connecting to the database using IAM as the authentication mechanism as opposed to a conventional username and password. More information can be found [here](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.IAMDBAuth.html).
+
+### Locally connecting to RDS using IAM authentication
+
+An RDS instance must be configured with IAM authentication before connecting. All RDS in the MilMove environment has this enabled. If wishing to connect to a RDS instance first prepare the infrastructure to allow this with this [guide](https://github.com/transcom/ppp-infra/blob/master/docs/runbook/0009-accessing-the-db-with-iam.md). Once complete locally milmove server can be ran with the following
+
+```bash
+/path/to/milmove serve --db-iam --db-iam-role arn:aws:iam::AWSACCOUNT:role/CONNECTROLE  --db-region us-east-2 --db-host RDSURL  --db-ssl-mode verify-full --db-ssl-root-cert bin/rds-combined-ca-bundle.pem  --db-user db_user
+```
+
+### ECS Task connecting to RDS using IAM authentication
+
+ECS tasks such use RDS IAM authentication to securely connect without a username or passwords to rotate. This is accomplished by ECS assigning a role to the container that is allowed to connect to a specific database via IAM.
+
+The MilMove server through the use of environment variables will use reach out to IAM to generate a temporary connection token, almost similar to a password. This token/password is valid for only 15 minutes. To enable IAM authentication ensure these environment variables are present for `app`, `app-client-tls`, and `migration` containers. Here is a snippet of the required environment [variables](https://github.com/transcom/mymove/blob/6426a37eaf0219323aef997deed5a43e0e1a824b/config/app.container-definition.json#L32-L39) for the [app.container-definition.json](https://github.com/transcom/mymove/blob/master/config/app.container-definition.json) that is deployed.
+
+```json
+{
+  "name": "DB_IAM",
+  "value": "{{ .DB_IAM }}"
+},
+{
+  "name": "DB_IAM_ROLE",
+  "value": "{{ .DB_IAM_ROLE }}"
+},
+{
+  "name": "DB_REGION",
+  "value": "us-west-2"
+},
+{
+  "name": "DB_USER",
+  "value": "{{ .DB_USER }}"
+},
+```
+
+Update the related environment configuration to match. Note that the database user is normally different than `master` as additional configuration is needed to allow a database user to login via IAM. MilMove convention for IAM enabled user is `ecs_user`. Below is a snippet of the [experimental environment config](https://github.com/transcom/mymove/blob/master/config/env/experimental.env):
+
+```ini
+DB_USER=ecs_user
+DB_IAM=true
+DB_IAM_ROLE=YOUR_CONTAINER_ROLE_ARN_HERE
+```
+
+### Reverting Task to use password authentication
+
+In the event of a IAM failure it may be desired to revert back to conventional username and password authentication.
+
+1. Get password from Infra from the admin vault in DP3 1Password.
+
+1. Update the Parameter store with the new password
+
+1. ```bash
+   chamber write app-YOURENV db_password NEW_PASSWORD
+   ```
+
+1. Update the environment configuration files to disable IAM authentication. Keep in mind the database `user` will need to be set to `master`.
+
+1. ```ini
+   DB_USER=master
+   DB_IAM=false
+   ```

@@ -44,9 +44,9 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/adminapi"
 	"github.com/transcom/mymove/pkg/handlers/dpsapi"
+	"github.com/transcom/mymove/pkg/handlers/ghcapi"
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/handlers/ordersapi"
-	"github.com/transcom/mymove/pkg/handlers/publicapi"
 	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/middleware"
@@ -455,7 +455,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	appnames := auth.ApplicationServername{
 		MilServername:    v.GetString(cli.HTTPMyServerNameFlag),
 		OfficeServername: v.GetString(cli.HTTPOfficeServerNameFlag),
-		TspServername:    v.GetString(cli.HTTPTSPServerNameFlag),
 		AdminServername:  v.GetString(cli.HTTPAdminServerNameFlag),
 		OrdersServername: v.GetString(cli.HTTPOrdersServerNameFlag),
 		DpsServername:    v.GetString(cli.HTTPDPSServerNameFlag),
@@ -579,8 +578,19 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	dpsAuthParams := dpsauth.InitDPSAuthParams(v, appnames)
 	handlerContext.SetDPSAuthParams(dpsAuthParams)
 
+	// bare is the base muxer. Not intended to have any middleware attached.
+	bare := goji.NewMux()
+	storageBackend := v.GetString(cli.StorageBackendFlag)
+	if storageBackend == "local" {
+		localStorageRoot := v.GetString(cli.LocalStorageRootFlag)
+		localStorageWebRoot := v.GetString(cli.LocalStorageWebRootFlag)
+		//Add a file handler to provide access to files uploaded in development
+		fs := storage.NewFilesystemHandler(localStorageRoot)
+		bare.Handle(pat.Get(path.Join("/", localStorageWebRoot, "/*")), fs)
+	}
 	// Base routes
-	site := goji.NewMux()
+	site := goji.SubMux()
+	bare.Handle(pat.New("/*"), site)
 	// Add middleware: they are evaluated in the reverse order in which they
 	// are added, but the resulting http.Handlers execute in "normal" order
 	// (i.e., the http.Handler returned by the first Middleware added gets
@@ -740,24 +750,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	site.Handle(pat.New("/*"), root)
 
-	if v.GetBool(cli.ServePublicAPIlFlag) {
-		apiMux := goji.SubMux()
-		root.Handle(pat.New("/api/v1/*"), apiMux)
-		apiMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.SwaggerFlag)))
-		if v.GetBool(cli.ServeSwaggerUIFlag) {
-			logger.Info("Public API Swagger UI serving is enabled")
-			apiMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "api.html")))
-		} else {
-			apiMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
-		}
-		externalAPIMux := goji.SubMux()
-		apiMux.Handle(pat.New("/*"), externalAPIMux)
-		externalAPIMux.Use(middleware.NoCache(logger))
-		externalAPIMux.Use(userAuthMiddleware)
-		externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext))
-	}
-
-	if v.GetBool(cli.ServeInternalAPIFlag) {
+	if v.GetBool(cli.ServeAPIInternalFlag) {
 		internalMux := goji.SubMux()
 		root.Handle(pat.New("/internal/*"), internalMux)
 		internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.InternalSwaggerFlag)))
@@ -796,6 +789,25 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		adminAPIMux.Handle(pat.New("/*"), adminapi.NewAdminAPIHandler(handlerContext))
 	}
 
+	if v.GetBool(cli.ServeGHCFlag) {
+		ghcMux := goji.SubMux()
+		root.Handle(pat.New("/ghc/v1/*"), ghcMux)
+		ghcMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.GHCSwaggerFlag)))
+		if v.GetBool(cli.ServeSwaggerUIFlag) {
+			logger.Info("GHC API Swagger UI serving is enabled")
+			ghcMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "ghc.html")))
+		} else {
+			ghcMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+		}
+
+		// Mux for GHC API that enforces auth
+		ghcAPIMux := goji.SubMux()
+		ghcMux.Handle(pat.New("/*"), ghcAPIMux)
+		ghcAPIMux.Use(userAuthMiddleware)
+		ghcAPIMux.Use(middleware.NoCache(logger))
+		ghcAPIMux.Handle(pat.New("/*"), ghcapi.NewGhcAPIHandler(handlerContext))
+	}
+
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
 	authMux := goji.SubMux()
 	root.Handle(pat.New("/auth/*"), authMux)
@@ -824,16 +836,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	storageBackend := v.GetString(cli.StorageBackendFlag)
-	if storageBackend == "local" {
-		localStorageRoot := v.GetString(cli.LocalStorageRootFlag)
-		localStorageWebRoot := v.GetString(cli.LocalStorageWebRootFlag)
-
-		// Add a file handler to provide access to files uploaded in development
-		fs := storage.NewFilesystemHandler(localStorageRoot)
-		root.Handle(pat.Get(path.Join("/", localStorageWebRoot, "/*")), fs)
-	}
-
 	// Serve index.html to all requests that haven't matches a previous route,
 	root.HandleFunc(pat.Get("/*"), indexHandler(build, logger))
 
@@ -847,7 +849,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			Host:        listenInterface,
 			Port:        v.GetInt(cli.NoTLSPortFlag),
 			Logger:      logger,
-			HTTPHandler: site,
+			HTTPHandler: bare,
 		})
 		if err != nil {
 			logger.Fatal("error creating no-tls server", zap.Error(err))
@@ -863,7 +865,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			Host:         listenInterface,
 			Port:         v.GetInt(cli.TLSPortFlag),
 			Logger:       logger,
-			HTTPHandler:  site,
+			HTTPHandler:  bare,
 			ClientAuth:   tls.NoClientCert,
 			Certificates: certificates,
 		})
@@ -881,7 +883,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			Host:         listenInterface,
 			Port:         v.GetInt(cli.MutualTLSPortFlag),
 			Logger:       logger,
-			HTTPHandler:  site,
+			HTTPHandler:  bare,
 			ClientAuth:   tls.RequireAndVerifyClientCert,
 			Certificates: certificates,
 			ClientCAs:    rootCAs,

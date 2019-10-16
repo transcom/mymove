@@ -273,7 +273,6 @@ func (suite *authSuite) TestMiddlewareMilApp() {
 		session := SessionFromRequestContext(r)
 		suite.True(session.IsMilApp(), "first should be milmove app")
 		suite.False(session.IsOfficeApp(), "first should not be office app")
-		suite.False(session.IsTspApp(), "first should not be tsp app")
 		suite.False(session.IsAdminApp(), "first should not be admin app")
 		suite.Equal(appnames.MilServername, session.Hostname)
 	})
@@ -297,7 +296,6 @@ func (suite *authSuite) TestMiddlwareOfficeApp() {
 		session := SessionFromRequestContext(r)
 		suite.False(session.IsMilApp(), "should not be milmove app")
 		suite.True(session.IsOfficeApp(), "should be office app")
-		suite.False(session.IsTspApp(), "should not be tsp app")
 		suite.False(session.IsAdminApp(), "should not be admin app")
 		suite.Equal(appnames.OfficeServername, session.Hostname)
 	})
@@ -313,30 +311,6 @@ func (suite *authSuite) TestMiddlwareOfficeApp() {
 	officeMiddleware.ServeHTTP(rr, req)
 }
 
-func (suite *authSuite) TestMiddlwareTspApp() {
-	rr := httptest.NewRecorder()
-
-	appnames := ApplicationTestServername()
-	tspTestHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		session := SessionFromRequestContext(r)
-		suite.False(session.IsMilApp(), "should not be milmove app")
-		suite.False(session.IsOfficeApp(), "should not be office app")
-		suite.True(session.IsTspApp(), "should be tsp app")
-		suite.False(session.IsAdminApp(), "should not be admin app")
-		suite.Equal(appnames.TspServername, session.Hostname)
-	})
-	tspMiddleware := SessionCookieMiddleware(suite.logger, "secret", false, appnames, false)(tspTestHandler)
-
-	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/some_url", appnames.TspServername), nil)
-	tspMiddleware.ServeHTTP(rr, req)
-
-	req, _ = http.NewRequest("GET", fmt.Sprintf("http://%s:8080/some_url", appnames.TspServername), nil)
-	tspMiddleware.ServeHTTP(rr, req)
-
-	req, _ = http.NewRequest("GET", fmt.Sprintf("http://%s:8080/some_url", strings.ToUpper(appnames.TspServername)), nil)
-	tspMiddleware.ServeHTTP(rr, req)
-}
-
 func (suite *authSuite) TestMiddlwareAdminApp() {
 	rr := httptest.NewRecorder()
 
@@ -345,7 +319,6 @@ func (suite *authSuite) TestMiddlwareAdminApp() {
 		session := SessionFromRequestContext(r)
 		suite.False(session.IsMilApp(), "should not be milmove app")
 		suite.False(session.IsOfficeApp(), "should not be office app")
-		suite.False(session.IsTspApp(), "should not be tsp app")
 		suite.True(session.IsAdminApp(), "should be admin app")
 		suite.Equal(AdminTestHost, session.Hostname)
 	})

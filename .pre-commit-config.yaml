@@ -20,6 +20,7 @@ repos:
           (?x)^(
             config/tls/devlocal-.+\.key$|
             pkg/server/testdata/localhost.key$|
+            pkg/server/testdata/localhost-invalid.key$|
             pkg/server/testdata/officelocal.key$|
             pkg/auth/authentication/auth_test.go$|
             pkg/cli/auth.go$|
@@ -28,7 +29,7 @@ repos:
         exclude: public/swagger-ui/*
 
   - repo: git://github.com/golangci/golangci-lint
-    rev: v1.18.0
+    rev: v1.20.0
     hooks:
       - id: golangci-lint
         entry: bash -c 'exec golangci-lint run -j=${GOLANGCI_LINT_CONCURRENCY:-1}' # custom bash so we can override concurrency for faster dev runs
@@ -118,15 +119,6 @@ repos:
       entry: scripts/pre-commit-circleci-validate
       language: script
       files: '[.]circleci/config.yml$'
-      pass_filenames: false
-
-  - repo: local
-    hooks:
-    - id: codecov-validate
-      name: codecov validate
-      entry: scripts/pre-commit-codecov-validate
-      language: script
-      files: .codecov.yml
       pass_filenames: false
 
   - repo: https://github.com/pryorda/dockerfilelint-precommit-hooks

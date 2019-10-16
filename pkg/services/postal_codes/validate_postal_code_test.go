@@ -13,15 +13,12 @@ type ValidatePostalCodeTestSuite struct {
 	testingsuite.PopTestSuite
 }
 
-func (suite *ValidatePostalCodeTestSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func TestValidatePostalCodeTestSuite(t *testing.T) {
 	ts := &ValidatePostalCodeTestSuite{
 		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 	}
 	suite.Run(t, ts)
+	ts.PopTestSuite.TearDown()
 }
 
 func (suite *ValidatePostalCodeTestSuite) TestValidatePostalCode_ValidPostalCode() {

@@ -34,10 +34,12 @@ class PPMShipmentSummary extends Component {
     const editWeightAddress = movePath + '/edit-weight';
 
     const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
-      ? `(spend up to ${estimated_storage_reimbursement} on private storage)`
+      ? `= ${estimated_storage_reimbursement} estimated reimbursement`
       : '';
     const sitDisplay = get(ppm, 'has_sit', false)
-      ? `${ppm.days_in_storage} days ${privateStorageString}`
+      ? `${ppm.weight_estimate && ppm.weight_estimate.toLocaleString()} lbs for ${
+          ppm.days_in_storage
+        } days ${privateStorageString}`
       : 'Not requested';
 
     return (

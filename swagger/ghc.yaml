@@ -1,0 +1,1000 @@
+swagger: '2.0'
+info:
+  contact:
+    email: dp3@truss.works
+  description: The API for move.mil
+  license:
+    name: MIT
+    url: 'https://opensource.org/licenses/MIT'
+  title: move.mil API
+  version: 0.0.1
+basePath: /ghc/v1
+schemes:
+  - http
+paths:
+  /move-task-orders:
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved all move task orders
+          schema:
+            $ref: '#/definitions/MoveTaskOrders'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+      description: Gets all move orders
+      operationId: listMoveTaskOrders
+      summary: Gets all move orders
+  '/move-task-orders/{moveTaskOrderID}':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    delete:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully deleted move task order
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+      description: Deletes a move order by ID
+      operationId: deleteMoveTaskOrder
+      summary: Deletes a move order by ID
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved move task order
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+      description: Gets a move order
+      operationId: getMoveTaskOrder
+      summary: Gets a move order by ID
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+      responses:
+        '200':
+          description: Successfully retrieved move task order
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+      description: Updates a move order by ID
+      operationId: updateMoveTaskOrder
+      summary: Updates a move order by ID
+  '/move-task-orders/{moveTaskOrderID}/service-items':
+    parameters:
+      - description: ID of move order for service item to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved all line items for a move task order
+          schema:
+            $ref: '#/definitions/ServiceItem'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - serviceItem
+      description: Gets all line items for a move orders
+      operationId: listServiceItems
+      summary: Gets all line items for a move order
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/ServiceItem'
+      responses:
+        '201':
+          description: Successfully created line item for move task order
+          schema:
+            $ref: '#/definitions/ServiceItem'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - serviceItem
+      description: Creates a service item for a move order by id
+      operationId: createServiceItem
+      summary: Creates a service item for a move order by id
+  '/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+      - description: ID of line item to use
+        in: path
+        name: serviceItemID
+        required: true
+        type: string
+    delete:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully deleted move task order
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - serviceItem
+      description: Deletes a line item by ID for a move order by ID
+      operationId: deleteServiceItem
+      summary: Deletes a line item by ID for a move order by ID
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved a line item for a move task order by ID
+          schema:
+            $ref: '#/definitions/ServiceItem'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - serviceItem
+      description: Gets a line item by ID for a move order by ID
+      operationId: getServiceItem
+      summary: Gets a line item by ID for a move order by ID
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/ServiceItem'
+      responses:
+        '200':
+          description: Successfully updated move task order status
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - serviceItem
+      description: Updates a service item by ID for a move order by ID
+      operationId: updateServiceItem
+      summary: Updates a service item by ID for a move order by ID
+  '/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}/status':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+      - description: ID of line item to use
+        in: path
+        name: serviceItemID
+        required: true
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/ServiceItemStatus'
+      responses:
+        '200':
+          description: >-
+            Successfully updated status for a line item for a move task order by
+            ID
+          schema:
+            $ref: '#/definitions/ServiceItem'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - serviceItem
+      description: Changes the status of a line item for a move order by ID
+      operationId: updateServiceItemStatus
+      summary: Change the status of a line item for a move order by ID
+  '/move-task-orders/{moveTaskOrderID}/status':
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - description: ID of move order to use
+          in: path
+          name: moveTaskOrderID
+          required: true
+          type: string
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/MoveTaskOrderStatus'
+      responses:
+        '200':
+          description: Successfully updated move task order status
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+      description: Changes move order status
+      operationId: updateMoveTaskOrderStatus
+      summary: Change the status of a move order
+  /payment-requests:
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: fetched list of payment requests
+          schema:
+            type: object
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/definitions/Error'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/definitions/Error'
+      tags:
+        - paymentRequests
+        - prime
+        - gov
+      description: Gets a list of payment requests
+      operationId: listPaymentRequests
+      summary: Gets payment requests
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreatePaymentRequestPayload'
+      responses:
+        '201':
+          description: created instance of payment request
+          schema:
+            $ref: '#/definitions/PaymentRequest'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - paymentRequests
+        - prime
+      description: Creates a payment request
+      operationId: createPaymentRequest
+      summary: Creates a payment request
+  '/payment-requests/{paymentRequestID}':
+    parameters:
+      - description: UUID of payment request
+        format: uuid
+        in: path
+        name: paymentRequestID
+        required: true
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: fetched instance of payment request
+          schema:
+            $ref: '#/definitions/PaymentRequest'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - paymentRequests
+        - prime
+        - gov
+      description: Fetches an instance of a payment request by id
+      operationId: getPaymentRequest
+      summary: Fetches a payment request by id
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdatePaymentRequestPayload'
+      responses:
+        '200':
+          description: updated payment request
+          schema:
+            $ref: '#/definitions/PaymentRequest'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - paymentRequests
+        - prime
+      description: Updates a payment request by id
+      operationId: updatePaymentRequest
+      summary: Updates a payment request by id
+  '/payment-requests/{paymentRequestID}/status':
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - description: UUID of payment request
+          format: uuid
+          in: path
+          name: paymentRequestID
+          required: true
+          type: string
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/UpdatePaymentRequestStatusPayload'
+      responses:
+        '200':
+          description: updated payment request
+          schema:
+            $ref: '#/definitions/PaymentRequest'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - paymentRequests
+        - gov
+      description: Updates status of a payment request by id
+      operationId: updatePaymentRequestStatus
+      summary: Updates status of a payment request by id
+definitions:
+  CreatePaymentRequestPayload:
+    properties:
+      isFinal:
+        default: false
+        type: boolean
+      moveOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      proofOfServicePackage:
+        $ref: '#/definitions/ProofOfServicePackage'
+      serviceItemIDs:
+        items:
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+          format: uuid
+          type: string
+        type: array
+    type: object
+  Customer:
+    type: object
+  Entitlements:
+    properties:
+      dependentsAuthorized:
+        example: true
+        type: boolean
+      nonTemporaryStorage:
+        example: false
+        type: boolean
+      privatelyOwnedVehicle:
+        example: false
+        type: boolean
+      proGearWeight:
+        example: 2000
+        type: integer
+        x-formatting: weight
+      proGearWeightSpouse:
+        example: 500
+        type: integer
+        x-formatting: weight
+      storageInTransit:
+        example: 90
+        type: integer
+      totalDependents:
+        example: 2
+        type: integer
+      totalWeightSelf:
+        example: 18000
+        type: integer
+        x-formatting: weight
+    type: object
+  Error:
+    properties:
+      message:
+        type: string
+    required:
+      - message
+    type: object
+  MoveTaskOrder:
+    properties:
+      code:
+        example: USMC-0001
+        type: string
+      createdAt:
+        format: date
+        type: string
+      customer:
+        $ref: '#/definitions/Customer'
+      deletedAt:
+        format: date
+        type: string
+      destinationDutyStation:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      destinationPPSO:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      entitlements:
+        $ref: '#/definitions/Entitlements'
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      moveDate:
+        format: date
+        type: string
+      moveID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      moveTaskOrdersType:
+        enum:
+          - NON_TEMPORARY_STORAGE
+          - PRIME
+        type: string
+      originDutyStation:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      originPPSO:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      remarks:
+        example: Requires more gentle care
+        type: string
+      requestedPickupDate:
+        format: date
+        type: string
+      serviceItems:
+        items:
+          $ref: '#/definitions/ServiceItem'
+        type: array
+      status:
+        enum:
+          - APPROVED
+          - REJECTED
+          - SUBMITTED
+        type: string
+      updatedAt:
+        format: date
+        type: string
+    type: object
+  MoveTaskOrderStatus:
+    properties:
+      status:
+        enum:
+          - APPROVED
+          - SUBMITTED
+          - REJECTED
+        type: string
+    type: object
+  MoveTaskOrders:
+    items:
+      $ref: '#/definitions/MoveTaskOrder'
+    type: array
+  PaymentRequest:
+    properties:
+      documentPackage:
+        $ref: '#/definitions/ProofOfServicePackage'
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        readOnly: true
+        type: string
+      isFinal:
+        default: false
+        type: boolean
+      moveOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      rejectionReason:
+        example: documentation was incomplete
+        type: string
+        x-nullable: true
+      serviceItemIDs:
+        items:
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+          format: uuid
+          type: string
+        type: array
+      status:
+        $ref: '#/definitions/PaymentRequestStatus'
+    type: object
+  PaymentRequestStatus:
+    enum:
+      - PAYMENT_SUBMITTED
+      - APPROVED
+      - REJECTED
+    title: Payment Request Status
+    type: string
+  ProofOfServicePackage:
+    properties:
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      uploads:
+        items:
+          $ref: '#/definitions/Upload'
+        type: array
+    type: object
+  ServiceItem:
+    properties:
+      MoveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      approvedAt:
+        format: date
+        type: string
+      createdAt:
+        format: date
+        type: string
+      deletedAt:
+        format: date
+        type: string
+      description:
+        type: string
+      feeType:
+        enum:
+          - COUNSELING
+          - CRATING
+          - TRUCKING
+          - SHUTTLE
+        type: string
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      quantity:
+        type: integer
+      rate:
+        type: integer
+      rejectedAt:
+        format: date
+        type: string
+      status:
+        enum:
+          - APPROVED
+          - SUBMITTED
+          - REJECTED
+        type: string
+      submittedAt:
+        format: date
+        type: string
+      total:
+        format: cents
+        type: integer
+      updatedAt:
+        format: date
+        type: string
+    type: object
+  ServiceItemStatus:
+    properties:
+      status:
+        enum:
+          - APPROVED
+          - SUBMITTED
+          - REJECTED
+        type: string
+    type: object
+  UpdatePaymentRequestPayload:
+    properties:
+      proofOfServicePackage:
+        $ref: '#/definitions/ProofOfServicePackage'
+      serviceItemIDs:
+        items:
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+          format: uuid
+          type: string
+        type: array
+    type: object
+  UpdatePaymentRequestStatusPayload:
+    properties:
+      rejectionReason:
+        example: documentation was incomplete
+        type: string
+        x-nullable: true
+      status:
+        $ref: '#/definitions/PaymentRequestStatus'
+    type: object
+  Upload:
+    properties:
+      bytes:
+        type: integer
+      contentType:
+        example: application/pdf
+        format: mime-type
+        type: string
+      createdAt:
+        format: date-time
+        type: string
+      filename:
+        example: filename.pdf
+        format: binary
+        type: string
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      updatedAt:
+        format: date-time
+        type: string
+      url:
+        example: 'https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538'
+        format: uri
+        type: string
+    required:
+      - id
+      - url
+      - filename
+      - contentType
+      - bytes
+      - createdAt
+      - updatedAt
+    type: object
+responses:
+  InvalidRequest:
+    description: The request payload is invalid
+    schema:
+      $ref: '#/definitions/Error'
+  NotFound:
+    description: The requested resource wasn't found
+    schema:
+      $ref: '#/definitions/Error'
+  PermissionDenied:
+    description: The request was denied
+    schema:
+      $ref: '#/definitions/Error'
+  ServerError:
+    description: A server error occurred
+    schema:
+      $ref: '#/definitions/Error'

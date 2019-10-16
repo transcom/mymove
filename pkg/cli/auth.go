@@ -27,8 +27,6 @@ const (
 	LoginGovMyClientIDFlag string = "login-gov-my-client-id"
 	// LoginGovOfficeClientIDFlag is the Login.gov Office Client ID Flag
 	LoginGovOfficeClientIDFlag string = "login-gov-office-client-id"
-	// LoginGovTSPClientIDFlag is the Login.gov TSP Client ID Flag
-	LoginGovTSPClientIDFlag string = "login-gov-tsp-client-id"
 	// LoginGovAdminClientIDFlag is the Login.gov Admin Client ID Flag
 	LoginGovAdminClientIDFlag string = "login-gov-admin-client-id"
 	// LoginGovHostnameFlag is the Login.gov Hostname Flag
@@ -54,7 +52,6 @@ func InitAuthFlags(flag *pflag.FlagSet) {
 	flag.String(LoginGovSecretKeyFlag, "", "Login.gov auth secret JWT key.")
 	flag.String(LoginGovMyClientIDFlag, "", "Client ID registered with login gov.")
 	flag.String(LoginGovOfficeClientIDFlag, "", "Client ID registered with login gov.")
-	flag.String(LoginGovTSPClientIDFlag, "", "Client ID registered with login gov.")
 	flag.String(LoginGovAdminClientIDFlag, "", "Client ID registered with login gov.")
 	flag.String(LoginGovHostnameFlag, "secure.login.gov", "Hostname for communicating with login gov.")
 }
@@ -83,7 +80,6 @@ func CheckAuth(v *viper.Viper) error {
 	clientIDVars := []string{
 		LoginGovMyClientIDFlag,
 		LoginGovOfficeClientIDFlag,
-		LoginGovTSPClientIDFlag,
 		LoginGovAdminClientIDFlag,
 	}
 

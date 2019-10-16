@@ -22,6 +22,8 @@ For more details read the following sections.
 
 - `brew upgrade go`
   - If you've done some PATH sorcery to point to a specific Go version (as detailed [here](https://github.com/transcom/mymove#setup-prerequisites)), you'll have to update that as well
+  - If you've previously installed a version-specific go formula (e.g., go@1.12), you will need to uninstall it with
+    `brew uninstall go@1.12` and then `brew install go` to get the current go version.
 - `go version` to check it worked
 
 ## Update `transcom/mymove` Repo

@@ -4,7 +4,7 @@ import { ConnectedRouter } from 'react-router-redux';
 import { history } from 'shared/store';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
+import Loadable from 'react-loadable';
 import QueueHeader from 'shared/Header/Office';
 import QueueList from './QueueList';
 import QueueTable from './QueueTable';
@@ -19,9 +19,15 @@ import PrivateRoute from 'shared/User/PrivateRoute';
 import ScratchPad from 'shared/ScratchPad';
 import { isProduction } from 'shared/constants';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { RetrieveMovesForOffice } from './api';
-
 import './office.scss';
+import { withContext } from 'shared/AppContext';
+
+const TOO = Loadable({
+  loader: () => import('./TOO/too'),
+  loading: () => <LoadingPlaceholder />,
+});
 
 export class Queues extends Component {
   render() {
@@ -73,6 +79,7 @@ export class OfficeWrapper extends Component {
 
   render() {
     const ConditionalWrap = ({ condition, wrap, children }) => (condition ? wrap(children) : <>{children}</>);
+    const { context: { flags: { too } } = { flags: { too: null } } } = this.props;
     const DivOrMainTag = detectIE11() ? 'div' : 'main';
     const { userIsLoggedIn } = this.props;
     return (
@@ -151,6 +158,7 @@ export class OfficeWrapper extends Component {
                     )}
                   />
                 )}
+                {too && <PrivateRoute path="/ghc/too" component={TOO} />}
               </Switch>
             )}
           </ConditionalWrap>
@@ -175,8 +183,9 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators({ loadInternalSchema, loadPublicSchema, getCurrentUserInfo }, dispatch);
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(OfficeWrapper);
+export default withContext(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(OfficeWrapper),
+);

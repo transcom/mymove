@@ -16,17 +16,14 @@ type GexSuite struct {
 	logger Logger
 }
 
-func (suite *GexSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func TestGexSuite(t *testing.T) {
 
-	hs := &GexSuite{
+	ts := &GexSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("gex")),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
-	suite.Run(t, hs)
+	suite.Run(t, ts)
+	ts.PopTestSuite.TearDown()
 }
 
 func (suite *GexSuite) TestSendToGexHTTP_Call() {

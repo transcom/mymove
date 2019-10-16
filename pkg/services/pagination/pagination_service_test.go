@@ -14,10 +14,6 @@ type PaginationServiceSuite struct {
 	logger Logger
 }
 
-func (suite *PaginationServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func TestPaginationSuite(t *testing.T) {
 	ts := &PaginationServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
@@ -25,4 +21,5 @@ func TestPaginationSuite(t *testing.T) {
 	}
 
 	suite.Run(t, ts)
+	ts.PopTestSuite.TearDown()
 }

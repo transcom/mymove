@@ -205,8 +205,8 @@ func (m *MoveDocument) ValidateUpdate(tx *pop.Connection) (*validate.Errors, err
 func DeleteMoveDocument(db *pop.Connection, moveDoc *MoveDocument) error {
 	docType := moveDoc.MoveDocumentType
 
-	// only delete weight ticket set and expense documents at this time
-	if docType != MoveDocumentTypeEXPENSE && docType != MoveDocumentTypeWEIGHTTICKETSET {
+	// only delete weight tickets, weight ticket sets, and expense documents at this time
+	if !(docType == MoveDocumentTypeEXPENSE || docType == MoveDocumentTypeWEIGHTTICKETSET || docType == MoveDocumentTypeWEIGHTTICKET) {
 		return errors.New("Can only delete weight ticket set and expense documents")
 	}
 
