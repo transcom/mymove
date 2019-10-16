@@ -9,7 +9,6 @@ import Alert from 'shared/Alert';
 
 const DocumentContent = props => {
   let { contentType, filename, url, tags } = props;
-  console.log(tags);
   let isInfected = false;
   forEach(tags, function(tag) {
     if (tag.key === 'av-status' && tag.value === 'INFECTED') {
