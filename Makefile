@@ -256,6 +256,9 @@ bin/milmove-tasks:
 bin_linux/milmove-tasks:
 	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin_linux/milmove-tasks ./cmd/milmove-tasks
 
+bin/query-cloudwatch-logs: .check_go_version.stamp .check_gopath.stamp
+	go build -ldflags "$(LDFLAGS)" -o bin/query-cloudwatch-logs ./cmd/query-cloudwatch-logs
+
 bin/query-lb-logs: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/query-lb-logs ./cmd/query-lb-logs
 
@@ -345,6 +348,7 @@ build_tools: bin/chamber \
 	bin/make-dps-user \
 	bin/make-office-user \
 	bin/milmove-tasks \
+	bin/query-cloudwatch-logs \
 	bin/query-lb-logs \
 	bin/renderer \
 	bin/report-ecs \
