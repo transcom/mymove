@@ -45,14 +45,15 @@ export class BackupMailingAddress extends Component {
             <SwaggerField fieldName="street_address_2" swagger={this.props.schema} />
           </div>
         </div>
-
         <div className="grid-row grid-gap">
-          <div className="grid-col-2">
+          <div className="grid-col-4">
             <SwaggerField fieldName="city" swagger={this.props.schema} required />
           </div>
           <div className="grid-col-2">
             <SwaggerField fieldName="state" swagger={this.props.schema} required />
           </div>
+        </div>
+        <div className="grid-row grid-gap">
           <div className="grid-col-2">
             <SwaggerField fieldName="postal_code" swagger={this.props.schema} required />
           </div>
