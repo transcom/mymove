@@ -5,7 +5,6 @@ import { get } from 'lodash';
 import { object, string, shape, bool, number } from 'prop-types';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
-import ppmBlack from 'shared/icon/ppm-black.svg';
 import { formatCentsRange, formatCents } from 'shared/formatters';
 import { formatDateSM } from 'shared/formatters';
 import { getPpmWeightEstimate } from 'scenes/Moves/Ppm/ducks';
@@ -43,15 +42,9 @@ class PPMShipmentSummary extends Component {
       : 'Not requested';
 
     return (
-      <div className="ppm-container">
-        <div className="grid-row">
-          <div className="grid-col-12">
-            <h3>
-              <img src={ppmBlack} alt="PPM shipment" /> Shipment - You move your stuff (PPM)
-            </h3>
-          </div>
-        </div>
-        <div className="grid-row grid-gap">
+      <div>
+        <h3>Shipment - You move your stuff (PPM)</h3>
+        <div className="grid-row grid-gap review-content">
           <div className="grid-col-6 review-section ppm-review-section">
             <p className="heading">
               Dates & Locations
