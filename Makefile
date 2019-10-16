@@ -205,6 +205,9 @@ bin/rds-combined-ca-bundle.pem:
 
 ### MilMove Targets
 
+bin/big-cat:
+	go build -ldflags "$(LDFLAGS)" -o bin/big-cat ./cmd/big-cat
+
 bin/compare-secure-migrations:
 	go build -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare-secure-migrations
 
@@ -264,6 +267,9 @@ bin/query-cloudwatch-logs:
 
 bin/query-lb-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/query-lb-logs ./cmd/query-lb-logs
+
+bin/read-alb-logs:
+	go build -ldflags "$(LDFLAGS)" -o bin/read-alb-logs ./cmd/read-alb-logs
 
 bin/renderer:
 	# do not build with LDFLAGS since errors on alpine and dynamic linking is fine
@@ -339,6 +345,7 @@ build_tools: bin/chamber \
 	bin/swagger \
 	bin/mockery \
 	bin/rds-combined-ca-bundle.pem \
+	bin/big-cat \
 	bin/compare-secure-migrations \
 	bin/ecs-deploy-task-container \
 	bin/ecs-service-logs \
@@ -354,6 +361,7 @@ build_tools: bin/chamber \
 	bin/milmove-tasks \
 	bin/query-cloudwatch-logs \
 	bin/query-lb-logs \
+	bin/read-alb-logs \
 	bin/renderer \
 	bin/report-ecs \
 	bin/send-to-gex ## Build all tools
