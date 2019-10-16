@@ -1,5 +1,4 @@
-import React, { Component } from 'react';
-import { bindActionCreators } from 'redux';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { get } from 'lodash';
 import { connect } from 'react-redux';
@@ -7,22 +6,12 @@ import { connect } from 'react-redux';
 import { selectMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import DocumentContent from './DocumentContent';
 
-// export const DocumentUploadViewer = ({ moveDocument }) => {
-//   const uploadModels = get(moveDocument, 'document.uploads', []);
-//   return uploadModels.map(({ url, filename, content_type }) => (
-//     <DocumentContent key={url} url={url} filename={filename} contentType={content_type} />
-//   ));
-// };
-
-class DocumentUploadViewer extends Component {
-  render() {
-    const { moveDocument } = this.props;
-    const uploadModels = get(moveDocument, 'document.uploads', []);
-    return uploadModels.map(({ url, filename, content_type, tags }) => (
-      <DocumentContent key={url} url={url} filename={filename} contentType={content_type} tags={tags} />
-    ));
-  }
-}
+export const DocumentUploadViewer = ({ moveDocument }) => {
+  const uploadModels = get(moveDocument, 'document.uploads', []);
+  return uploadModels.map(({ url, filename, content_type, tags }) => (
+    <DocumentContent key={url} url={url} filename={filename} contentType={content_type} tags={tags} />
+  ));
+};
 
 const { shape, string, number, arrayOf } = PropTypes;
 
@@ -59,11 +48,4 @@ function mapStateToProps(state, props) {
     moveDocument: selectMoveDocument(state, moveDocumentId),
   };
 }
-
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({}, dispatch);
-}
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(DocumentUploadViewer);
+export default connect(mapStateToProps)(DocumentUploadViewer);

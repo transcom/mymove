@@ -129,6 +129,7 @@ func (s *S3) Tags(key string) (map[string]string, error) {
 	tags := make(map[string]string)
 
 	namespacedKey := path.Join(s.keyNamespace, key)
+
 	input := &s3.GetObjectTaggingInput{
 		Bucket: &s.bucket,
 		Key:    &namespacedKey,

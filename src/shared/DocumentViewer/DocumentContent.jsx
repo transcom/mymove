@@ -1,13 +1,30 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { detectFirefox } from 'shared/utils';
+import { forEach } from 'lodash';
 import './index.css';
 import styles from './DocumentContent.module.scss';
 import { RotationBar } from 'shared/RotationBar/RotationBar';
+import Alert from 'shared/Alert';
 
 const DocumentContent = props => {
   let { contentType, filename, url, tags } = props;
   console.log(tags);
+  let isInfected = false;
+  forEach(tags, function(tag) {
+    if (tag.key === 'av-status' && tag.value === 'INFECTED') {
+      isInfected = true;
+    }
+  });
+
+  if (isInfected) {
+    return (
+      <Alert type="error" className="usa-width-one-whole" heading="Ask for a new file">
+        Our antivirus software flagged this file as a security risk. Contact the service member. Ask them to upload a
+        photo of the original document instead.
+      </Alert>
+    );
+  }
   if (contentType === 'application/pdf') {
     return <PDFImage filename={filename} url={url} />;
   }
