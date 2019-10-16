@@ -50,6 +50,8 @@ fi
 
 # Now check versions are correct for prereqs
 echo
+check-hosts
 check-bash-version
 check-go-version
+check-gopath
 check-node-version
