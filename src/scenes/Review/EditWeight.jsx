@@ -243,32 +243,38 @@ class EditWeight extends Component {
     } = this.props;
 
     return (
-      <div className="usa-grid">
+      <div className="grid-container">
         {error && (
-          <div className="usa-width-one-whole error-message">
-            <Alert type="error" heading="An error occurred">
-              {error.message}
-            </Alert>
+          <div className="grid-row">
+            <div className="grid-col-12 error-message">
+              <Alert type="error" heading="An error occurred">
+                {error.message}
+              </Alert>
+            </div>
           </div>
         )}
         {hasEstimateError && (
-          <div className="usa-width-one-whole error-message">
-            <Alert type="warning" heading="Could not retrieve estimate">
-              There was an issue retrieving an estimate for your incentive. You still qualify but may need to talk with
-              your local PPPO.
-            </Alert>
+          <div className="grid-row">
+            <div className="usa-width-one-whole error-message">
+              <Alert type="warning" heading="Could not retrieve estimate">
+                There was an issue retrieving an estimate for your incentive. You still qualify but may need to talk
+                with your local PPPO.
+              </Alert>
+            </div>
           </div>
         )}
-        <div className="usa-width-one-whole">
-          <EditWeightForm
-            initialValues={currentPpm}
-            incentive_estimate_min={incentive_estimate_min}
-            incentive_estimate_max={incentive_estimate_max}
-            onSubmit={this.updatePpm}
-            onWeightChange={this.onWeightChange}
-            entitlement={entitlement}
-            schema={schema}
-          />
+        <div className="grid-row">
+          <div className="grid-col-12">
+            <EditWeightForm
+              initialValues={currentPpm}
+              incentive_estimate_min={incentive_estimate_min}
+              incentive_estimate_max={incentive_estimate_max}
+              onSubmit={this.updatePpm}
+              onWeightChange={this.onWeightChange}
+              entitlement={entitlement}
+              schema={schema}
+            />
+          </div>
         </div>
       </div>
     );
