@@ -158,6 +158,46 @@ func init() {
         }
       }
     },
+    "/address/{addressId}": {
+      "get": {
+        "description": "Returns an address",
+        "tags": [
+          "addresses"
+        ],
+        "summary": "Returns an address",
+        "operationId": "showAddress",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the address to return",
+            "name": "addressId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the requested address",
+            "schema": {
+              "$ref": "#/definitions/Address"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/backup_contacts/{backupContactId}": {
       "get": {
         "description": "Returns the given service member backup contact",
@@ -5919,6 +5959,46 @@ func init() {
           },
           "404": {
             "description": "access code not found in system"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/address/{addressId}": {
+      "get": {
+        "description": "Returns an address",
+        "tags": [
+          "addresses"
+        ],
+        "summary": "Returns an address",
+        "operationId": "showAddress",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the address to return",
+            "name": "addressId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the requested address",
+            "schema": {
+              "$ref": "#/definitions/Address"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
           },
           "500": {
             "description": "server error"

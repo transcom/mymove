@@ -4249,3 +4249,30 @@ paths:
           description: access code not found in system
         500:
           description: server error
+  /address/{addressId}:
+    get:
+      summary: Returns an address
+      description: Returns an address
+      operationId: showAddress
+      tags:
+        - addresses
+      parameters:
+        - in: path
+          name: addressId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the address to return
+      responses:
+        200:
+          description: the requested address
+          schema:
+            $ref: '#/definitions/Address'
+        400:
+          description: invalid request
+        403:
+          description: not authorized
+        404:
+          description: not found
+        500:
+          description: server error

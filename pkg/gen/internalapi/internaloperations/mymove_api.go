@@ -21,6 +21,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/accesscode"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/addresses"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/backup_contacts"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/calendar"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
@@ -160,6 +161,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		DutyStationsSearchDutyStationsHandler: duty_stations.SearchDutyStationsHandlerFunc(func(params duty_stations.SearchDutyStationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation DutyStationsSearchDutyStations has not yet been implemented")
+		}),
+		AddressesShowAddressHandler: addresses.ShowAddressHandlerFunc(func(params addresses.ShowAddressParams) middleware.Responder {
+			return middleware.NotImplemented("operation AddressesShowAddress has not yet been implemented")
 		}),
 		CalendarShowAvailableMoveDatesHandler: calendar.ShowAvailableMoveDatesHandlerFunc(func(params calendar.ShowAvailableMoveDatesParams) middleware.Responder {
 			return middleware.NotImplemented("operation CalendarShowAvailableMoveDates has not yet been implemented")
@@ -343,6 +347,8 @@ type MymoveAPI struct {
 	PpmRequestPPMPaymentHandler ppm.RequestPPMPaymentHandler
 	// DutyStationsSearchDutyStationsHandler sets the operation handler for the search duty stations operation
 	DutyStationsSearchDutyStationsHandler duty_stations.SearchDutyStationsHandler
+	// AddressesShowAddressHandler sets the operation handler for the show address operation
+	AddressesShowAddressHandler addresses.ShowAddressHandler
 	// CalendarShowAvailableMoveDatesHandler sets the operation handler for the show available move dates operation
 	CalendarShowAvailableMoveDatesHandler calendar.ShowAvailableMoveDatesHandler
 	// DocumentsShowDocumentHandler sets the operation handler for the show document operation
@@ -598,6 +604,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.DutyStationsSearchDutyStationsHandler == nil {
 		unregistered = append(unregistered, "duty_stations.SearchDutyStationsHandler")
+	}
+
+	if o.AddressesShowAddressHandler == nil {
+		unregistered = append(unregistered, "addresses.ShowAddressHandler")
 	}
 
 	if o.CalendarShowAvailableMoveDatesHandler == nil {
@@ -976,6 +986,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/duty_stations"] = duty_stations.NewSearchDutyStations(o.context, o.DutyStationsSearchDutyStationsHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/address/{addressId}"] = addresses.NewShowAddress(o.context, o.AddressesShowAddressHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
