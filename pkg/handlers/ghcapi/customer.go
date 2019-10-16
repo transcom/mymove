@@ -18,7 +18,6 @@ type GetCustomerInfoHandler struct {
 func (h GetCustomerInfoHandler) Handle(params customercodeop.GetCustomerInfoParams) middleware.Responder {
 	// for now just return static data
 	customer := &ghcmessages.Customer{
-		DependentsAuthorized:   true,
 		FirstName:              models.StringPointer("First"),
 		MiddleName:             models.StringPointer("Middle"),
 		LastName:               models.StringPointer("Last"),
@@ -28,7 +27,7 @@ func (h GetCustomerInfoHandler) Handle(params customercodeop.GetCustomerInfoPara
 		Telephone:              models.StringPointer("213-213-3232"),
 		OriginDutyStation:      models.StringPointer("Origin Station"),
 		DestinationDutyStation: models.StringPointer("Destination Station"),
-		//   PickupAddress:
+		DependentsAuthorized:   true,
 	}
 	return customercodeop.NewGetCustomerInfoOK().WithPayload(customer)
 }
