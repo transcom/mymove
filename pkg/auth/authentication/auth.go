@@ -11,12 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-openapi/loads"
-
-	"github.com/transcom/mymove/pkg/gen/internalapi"
-	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
-	"github.com/transcom/mymove/pkg/handlers"
-
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/markbates/goth"
@@ -24,6 +18,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
@@ -82,22 +78,43 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 }
 
 // UserAuthMiddleware enforces that the incoming request is tied to a user session
-func UserAuthMiddleware2(logger Logger, ctx handlers.HandlerContext) func(next http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		mw := func(w http.ResponseWriter, r *http.Request) {
+func UserAuthMiddleware2(logger Logger) func(api *internaloperations.MymoveAPI) func(handler http.Handler) http.Handler {
 
-			//session := auth.SessionFromRequestContext(r)
-			// We must have a logged in session and a user
+	return func(api *internaloperations.MymoveAPI) func(http.Handler) http.Handler {
+		return func(next http.Handler) http.Handler {
+			mw := func(w http.ResponseWriter, r *http.Request) {
 
-			internalSpec, _ := loads.Analyzed(internalapi.SwaggerJSON, "")
-			internalAPI := internaloperations.NewMymoveAPI(internalSpec)
-			route, r, _ := internalAPI.Context().RouteInfo(r)
-			roles := route.Operation.VendorExtensible.Extensions["x-swagger-roles"]
-			fmt.Println(roles)
-			next.ServeHTTP(w, r)
+				session := auth.SessionFromRequestContext(r)
+				session.Roles = append(session.Roles, "samplerole")
+				session.Roles = append(session.Roles, "wrongrole")
+				userRoles := session.Roles
+				// We must have a logged in session and a user
+
+				route, r, _ := api.Context().RouteInfo(r)
+				endpointRoles, exists := route.Operation.VendorExtensible.Extensions["x-swagger-roles"]
+				if !exists {
+					next.ServeHTTP(w, r)
+					return
+				}
+				endpointRolesAsStringArray, ok := endpointRoles.([]string)
+				if !ok {
+					http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+					return
+				}
+				for _, userRole := range userRoles {
+					for _, endpointRole := range endpointRolesAsStringArray {
+						if userRole == endpointRole {
+
+						}
+					}
+				}
+				http.Error(w, http.StatusText(403), http.StatusForbidden)
+				return
+			}
+			return http.HandlerFunc(mw)
 		}
-		return http.HandlerFunc(mw)
 	}
+
 }
 
 func AdminAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {

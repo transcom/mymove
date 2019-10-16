@@ -3,7 +3,6 @@ package internalapi
 import (
 	"io"
 	"log"
-	"net/http"
 
 	"github.com/go-openapi/runtime/security"
 
@@ -21,7 +20,7 @@ import (
 )
 
 // NewInternalAPIHandler returns a handler for the internal API
-func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
+func NewInternalAPIHandler(context handlers.HandlerContext) *internalops.MymoveAPI {
 
 	internalSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")
 	if err != nil {
@@ -115,7 +114,7 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.AccesscodeValidateAccessCodeHandler = ValidateAccessCodeHandler{context, accesscodeservice.NewAccessCodeValidator(context.DB())}
 	internalAPI.AccesscodeClaimAccessCodeHandler = ClaimAccessCodeHandler{context, accesscodeservice.NewAccessCodeClaimer(context.DB())}
 
-	return internalAPI.Serve(nil)
+	return internalAPI
 }
 
 // PDFProducer creates a new PDF producer

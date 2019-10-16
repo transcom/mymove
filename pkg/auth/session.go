@@ -53,6 +53,7 @@ type Session struct {
 	AdminUserID     uuid.UUID
 	AdminUserRole   string
 	DpsUserID       uuid.UUID
+	Roles           []string
 }
 
 // SetSessionInRequestContext modifies the request's Context() to add the session data

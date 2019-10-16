@@ -473,6 +473,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, clientAuthSecretKey, noSessionTimeout, appnames, useSecureCookie)
 	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, useSecureCookie)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
+	userAuthMiddleware2 := authentication.UserAuthMiddleware2(logger)
 	isLoggedInMiddleware := authentication.IsLoggedInMiddleware(logger)
 	clientCertMiddleware := authentication.ClientCertMiddleware(logger, dbConnection)
 
@@ -484,8 +485,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	handlerContext.SetAppNames(appnames)
-
-	userAuthMiddleware2 := authentication.UserAuthMiddleware2(logger, handlerContext)
 
 	// Email
 	notificationSender, notificationSenderErr := notifications.InitEmail(v, session, logger)
@@ -768,8 +767,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		internalMux.Handle(pat.New("/*"), internalAPIMux)
 		internalAPIMux.Use(userAuthMiddleware)
 		internalAPIMux.Use(middleware.NoCache(logger))
-		internalAPIMux.Use(userAuthMiddleware2)
-		internalAPIMux.Handle(pat.New("/*"), internalapi.NewInternalAPIHandler(handlerContext))
+
+		api := internalapi.NewInternalAPIHandler(handlerContext)
+
+		internalAPIMux.Use(userAuthMiddleware2(api))
+		internalAPIMux.Handle(pat.New("/*"), api.Serve(nil))
 	}
 
 	if v.GetBool(cli.ServeAdminFlag) {
