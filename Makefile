@@ -214,6 +214,9 @@ bin/ecs-deploy-task-container:
 bin/ecs-service-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
 
+bin/find-guardduty-user:
+	go build -ldflags "$(LDFLAGS)" -o bin/find-guardduty-user ./cmd/find-guardduty-user
+
 bin/generate-access-codes:
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-access-codes ./cmd/generate_access_codes
 
@@ -256,10 +259,10 @@ bin/milmove-tasks:
 bin_linux/milmove-tasks:
 	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin_linux/milmove-tasks ./cmd/milmove-tasks
 
-bin/query-cloudwatch-logs: .check_go_version.stamp .check_gopath.stamp
+bin/query-cloudwatch-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/query-cloudwatch-logs ./cmd/query-cloudwatch-logs
 
-bin/query-lb-logs: .check_go_version.stamp .check_gopath.stamp
+bin/query-lb-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/query-lb-logs ./cmd/query-lb-logs
 
 bin/renderer:
@@ -267,7 +270,7 @@ bin/renderer:
 	# throws errors loadinternal: cannot find runtime/cgo
 	go build -o bin/renderer ./cmd/renderer
 
-bin/report-ecs: .check_go_version.stamp .check_gopath.stamp
+bin/report-ecs:
 	go build -ldflags "$(LDFLAGS)" -o bin/report-ecs ./cmd/report-ecs
 
 bin/send-to-gex: pkg/gen/
@@ -339,6 +342,7 @@ build_tools: bin/chamber \
 	bin/compare-secure-migrations \
 	bin/ecs-deploy-task-container \
 	bin/ecs-service-logs \
+	bin/find-guardduty-user \
 	bin/generate-access-codes \
 	bin/generate-test-data \
 	bin/health-checker \
