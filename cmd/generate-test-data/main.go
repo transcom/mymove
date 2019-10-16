@@ -85,6 +85,9 @@ func initFlags(flag *pflag.FlagSet) {
 	// Verbose
 	cli.InitVerboseFlags(flag)
 
+	// Storage
+	cli.InitStorageFlags(flag)
+
 	// Don't sort flags
 	flag.SortFlags = false
 }
