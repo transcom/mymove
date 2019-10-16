@@ -87,6 +87,7 @@ func TestEnableIAMNormal(t *testing.T) {
 		// then we should check the next password in the slice
 		pass := GetCurrentPass()
 		if pass != expectedPass {
+			t.Logf("Counter %d, Current/expected password: %s, %s", counter, pass, expectedPass)
 			counter++
 			// Don't allow looking items that don't exist
 			if counter > lenTestData {
