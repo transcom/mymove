@@ -1,4 +1,8 @@
 .admin-system-wrapper {
+  // overflowing entire content for now until bug is fixed
+  // https://github.com/marmelab/admin-on-rest/issues/2
+  overflow: auto;
+
   a, p, span {
     font-size: 1.5rem !important;
   }
@@ -38,4 +42,9 @@
     padding: 0;
     margin: 1.5em 0 0 0;
   }
+}
+
+div[class^="MuiSelect-root-"] {
+  padding: 4rem 0 1rem 0;
+  font-size: 1.5rem;
 }

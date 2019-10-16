@@ -133,7 +133,7 @@ func (o *IndexAdminUsersUnauthorized) WriteResponse(rw http.ResponseWriter, prod
 // IndexAdminUsersNotFoundCode is the HTTP code returned for type IndexAdminUsersNotFound
 const IndexAdminUsersNotFoundCode int = 404
 
-/*IndexAdminUsersNotFound office not found
+/*IndexAdminUsersNotFound admin users not found
 
 swagger:response indexAdminUsersNotFound
 */
