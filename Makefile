@@ -250,16 +250,19 @@ bin/milmove:
 bin_linux/milmove:
 	GOOS=linux GOARCH=amd64 go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin_linux/milmove ./cmd/milmove
 
-bin/renderer:
-	# do not build with LDFLAGS since errors on alpine and dynamic linking is fine
-	# throws errors loadinternal: cannot find runtime/cgo
-	go build -o bin/renderer ./cmd/renderer
-
 bin/milmove-tasks:
 	go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove-tasks ./cmd/milmove-tasks
 
 bin_linux/milmove-tasks:
 	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin_linux/milmove-tasks ./cmd/milmove-tasks
+
+bin/renderer:
+	# do not build with LDFLAGS since errors on alpine and dynamic linking is fine
+	# throws errors loadinternal: cannot find runtime/cgo
+	go build -o bin/renderer ./cmd/renderer
+
+bin/report-ecs: .check_go_version.stamp .check_gopath.stamp
+	go build -ldflags "$(LDFLAGS)" -o bin/report-ecs ./cmd/report-ecs
 
 bin/send-to-gex: pkg/gen/
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
@@ -338,8 +341,9 @@ build_tools: bin/chamber \
 	bin/load-user-gen \
 	bin/make-dps-user \
 	bin/make-office-user \
-	bin/renderer \
 	bin/milmove-tasks \
+	bin/renderer \
+	bin/report-ecs \
 	bin/send-to-gex ## Build all tools
 
 .PHONY: build
