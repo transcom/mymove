@@ -2,7 +2,7 @@ import React from 'react';
 import { TextField, DateField, NumberField, Show, SimpleShowLayout } from 'react-admin';
 
 const TSPPShowTitle = ({ record }) => {
-  return <span>{`${record.id}`}</span>;
+  return <span>{`TSPP ID: ${record.id}`}</span>;
 };
 
 const TSPPShow = props => {
