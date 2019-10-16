@@ -1,0 +1,32 @@
+swagger: '2.0'
+info:
+  contact:
+    email: dp3@truss.works
+  description: The API for move.mil
+  license:
+    name: MIT
+    url: 'https://opensource.org/licenses/MIT'
+  title: move.mil API
+  version: 0.0.1
+basePath: /ghc/v1
+schemes:
+  - http
+paths:
+  /move-task-orders:
+    $ref: './paths/move-task-orders.yaml#/MoveTaskOrders'
+  /move-task-orders/{moveTaskOrderID}:
+    $ref: './paths/move-task-orders.yaml#/MoveTaskOrder'
+  /move-task-orders/{moveTaskOrderID}/service-items:
+    $ref: './paths/move-task-orders.yaml#/MoveTaskOrderStatus'
+  /move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}:
+    $ref: './paths/move-task-orders.yaml#/ServiceItems'
+  /move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}/status:
+    $ref: './paths/move-task-orders.yaml#/ServiceItem'
+  /move-task-orders/{moveTaskOrderID}/status:
+    $ref: './paths/move-task-orders.yaml#/ServiceItemStatus'
+  /payment-requests:
+    $ref: './paths/payment-requests.yaml#/PaymentRequests'
+  /payment-requests/{paymentRequestID}:
+    $ref: './paths/payment-requests.yaml#/PaymentRequest'
+  /payment-requests/{paymentRequestID}/status:
+    $ref: './paths/payment-requests.yaml#/PaymentRequestStatus'

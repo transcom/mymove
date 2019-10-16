@@ -1,0 +1,346 @@
+MoveTaskOrders:
+  get:
+    produces:
+      - application/json
+    parameters: []
+    responses:
+      '200':
+        description: Successfully retrieved all move task orders
+        schema:
+          $ref: '../definitions/move-task-orders.yaml#/MoveTaskOrders'
+      '400':
+        $ref: '../responses/errors.yaml#/InvalidRequest'
+      '401':
+        $ref: '../responses/errors.yaml#/PermissionDenied'
+      '403':
+        $ref: '../responses/errors.yaml#/PermissionDenied'
+      '404':
+        $ref: '../responses/errors.yaml#/NotFound'
+      '500':
+        $ref: '../responses/errors.yaml#/ServerError'
+    tags:
+      - moveTaskOrder
+    description: Gets all move orders
+    operationId: listMoveTaskOrders
+    summary: Gets all move orders
+MoveTaskOrder:
+  parameters:
+    - description: ID of move order to use
+      in: path
+      name: moveTaskOrderID
+      required: true
+      type: string
+  delete:
+    produces:
+      - application/json
+    parameters: []
+    responses:
+      '200':
+        description: Successfully deleted move task order
+        schema:
+          $ref: '../definitions/move-task-orders.yaml#/MoveTaskOrder'
+      '400':
+        $ref: '../responses/errors.yaml#/InvalidRequest'
+      '401':
+        $ref: '../responses/errors.yaml#/PermissionDenied'
+      '403':
+        $ref: '../responses/errors.yaml#/PermissionDenied'
+      '404':
+        $ref: '../responses/errors.yaml#/NotFound'
+      '500':
+        $ref: '../responses/errors.yaml#/ServerError'
+    tags:
+      - moveTaskOrder
+    description: Deletes a move order by ID
+    operationId: deleteMoveTaskOrder
+    summary: Deletes a move order by ID
+  get:
+    produces:
+      - application/json
+    parameters: []
+    responses:
+      '200':
+        description: Successfully retrieved move task order
+        schema:
+          $ref: '../definitions/move-task-orders.yaml#/MoveTaskOrder'
+      '400':
+        $ref: '../responses/errors.yaml#/InvalidRequest'
+      '401':
+        $ref: '../responses/errors.yaml#/PermissionDenied'
+      '403':
+        $ref: '../responses/errors.yaml#/PermissionDenied'
+      '404':
+        $ref: '../responses/errors.yaml#/NotFound'
+      '500':
+        $ref: '../responses/errors.yaml#/ServerError'
+    tags:
+      - moveTaskOrder
+    description: Gets a move order
+    operationId: getMoveTaskOrder
+    summary: Gets a move order by ID
+  patch:
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '../definitions/move-task-orders.yaml#/MoveTaskOrder'
+    responses:
+      '200':
+        description: Successfully retrieved move task order
+        schema:
+          $ref: '../definitions/move-task-orders.yaml#/MoveTaskOrder'
+      '400':
+        $ref: '../responses/errors.yaml#/InvalidRequest'
+      '401':
+        $ref: '../responses/errors.yaml#/PermissionDenied'
+      '403':
+        $ref: '../responses/errors.yaml#/PermissionDenied'
+      '404':
+        $ref: '../responses/errors.yaml#/NotFound'
+      '500':
+        $ref: '../responses/errors.yaml#/ServerError'
+    tags:
+      - moveTaskOrder
+    description: Updates a move order by ID
+    operationId: updateMoveTaskOrder
+    summary: Updates a move order by ID
+MoveTaskOrderStatus:
+  parameters:
+    - description: ID of move order for service item to use
+      in: path
+      name: moveTaskOrderID
+      required: true
+      type: string
+  get:
+    produces:
+      - application/json
+    parameters: []
+    responses:
+      '200':
+        description: Successfully retrieved all line items for a move task order
+        schema:
+          $ref: '../definitions/move-task-orders.yaml#/ServiceItem'
+      '400':
+        $ref: '../responses/errors.yaml#/InvalidRequest'
+      '401':
+        $ref: '../responses/errors.yaml#/PermissionDenied'
+      '403':
+        $ref: '../responses/errors.yaml#/PermissionDenied'
+      '404':
+        $ref: '../responses/errors.yaml#/NotFound'
+      '500':
+        $ref: '../responses/errors.yaml#/ServerError'
+    tags:
+      - serviceItem
+    description: Gets all line items for a move orders
+    operationId: listServiceItems
+    summary: Gets all line items for a move order
+  post:
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '../definitions/move-task-orders.yaml#/ServiceItem'
+    responses:
+      '201':
+        description: Successfully created line item for move task order
+        schema:
+          $ref: '../definitions/move-task-orders.yaml#/ServiceItem'
+      '400':
+        $ref: '../responses/errors.yaml#/InvalidRequest'
+      '401':
+        $ref: '../responses/errors.yaml#/PermissionDenied'
+      '403':
+        $ref: '../responses/errors.yaml#/PermissionDenied'
+      '404':
+        $ref: '../responses/errors.yaml#/NotFound'
+      '500':
+        $ref: '../responses/errors.yaml#/ServerError'
+    tags:
+      - serviceItem
+    description: Creates a service item for a move order by id
+    operationId: createServiceItem
+    summary: Creates a service item for a move order by id
+ServiceItems:
+  parameters:
+    - description: ID of move order to use
+      in: path
+      name: moveTaskOrderID
+      required: true
+      type: string
+    - description: ID of line item to use
+      in: path
+      name: serviceItemID
+      required: true
+      type: string
+  delete:
+    produces:
+      - application/json
+    parameters: []
+    responses:
+      '200':
+        description: Successfully deleted move task order
+        schema:
+          $ref: '../definitions/move-task-orders.yaml#/MoveTaskOrder'
+      '400':
+        $ref: '../responses/errors.yaml#/InvalidRequest'
+      '401':
+        $ref: '../responses/errors.yaml#/PermissionDenied'
+      '403':
+        $ref: '../responses/errors.yaml#/PermissionDenied'
+      '404':
+        $ref: '../responses/errors.yaml#/NotFound'
+      '500':
+        $ref: '../responses/errors.yaml#/ServerError'
+    tags:
+      - serviceItem
+    description: Deletes a line item by ID for a move order by ID
+    operationId: deleteServiceItem
+    summary: Deletes a line item by ID for a move order by ID
+  get:
+    produces:
+      - application/json
+    parameters: []
+    responses:
+      '200':
+        description: Successfully retrieved a line item for a move task order by ID
+        schema:
+          $ref: '../definitions/move-task-orders.yaml#/ServiceItem'
+      '400':
+        $ref: '../responses/errors.yaml#/InvalidRequest'
+      '401':
+        $ref: '../responses/errors.yaml#/PermissionDenied'
+      '403':
+        $ref: '../responses/errors.yaml#/PermissionDenied'
+      '404':
+        $ref: '../responses/errors.yaml#/NotFound'
+      '500':
+        $ref: '../responses/errors.yaml#/ServerError'
+    tags:
+      - serviceItem
+    description: Gets a line item by ID for a move order by ID
+    operationId: getServiceItem
+    summary: Gets a line item by ID for a move order by ID
+  patch:
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '../definitions/move-task-orders.yaml#/ServiceItem'
+    responses:
+      '200':
+        description: Successfully updated move task order status
+        schema:
+          $ref: '../definitions/move-task-orders.yaml#/MoveTaskOrder'
+      '400':
+        $ref: '../responses/errors.yaml#/InvalidRequest'
+      '401':
+        $ref: '../responses/errors.yaml#/PermissionDenied'
+      '403':
+        $ref: '../responses/errors.yaml#/PermissionDenied'
+      '404':
+        $ref: '../responses/errors.yaml#/NotFound'
+      '500':
+        $ref: '../responses/errors.yaml#/ServerError'
+    tags:
+      - serviceItem
+    description: Updates a service item by ID for a move order by ID
+    operationId: updateServiceItem
+    summary: Updates a service item by ID for a move order by ID
+ServiceItem:
+  parameters:
+    - description: ID of move order to use
+      in: path
+      name: moveTaskOrderID
+      required: true
+      type: string
+    - description: ID of line item to use
+      in: path
+      name: serviceItemID
+      required: true
+      type: string
+  patch:
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '../definitions/move-task-orders.yaml#/ServiceItemStatus'
+    responses:
+      '200':
+        description: >-
+          Successfully updated status for a line item for a move task order by
+          ID
+        schema:
+          $ref: '../definitions/move-task-orders.yaml#/ServiceItem'
+      '400':
+        $ref: '../responses/errors.yaml#/InvalidRequest'
+      '401':
+        $ref: '../responses/errors.yaml#/PermissionDenied'
+      '403':
+        $ref: '../responses/errors.yaml#/PermissionDenied'
+      '404':
+        $ref: '../responses/errors.yaml#/NotFound'
+      '500':
+        $ref: '../responses/errors.yaml#/ServerError'
+    tags:
+      - serviceItem
+    description: Changes the status of a line item for a move order by ID
+    operationId: updateServiceItemStatus
+    summary: Change the status of a line item for a move order by ID
+ServiceItemStatus:
+  patch:
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '../definitions/move-task-orders.yaml#/MoveTaskOrderStatus'
+    responses:
+      '200':
+        description: Successfully updated move task order status
+        schema:
+          $ref: '../definitions/move-task-orders.yaml#/MoveTaskOrder'
+      '400':
+        $ref: '../responses/errors.yaml#/InvalidRequest'
+      '401':
+        $ref: '../responses/errors.yaml#/PermissionDenied'
+      '403':
+        $ref: '../responses/errors.yaml#/PermissionDenied'
+      '404':
+        $ref: '../responses/errors.yaml#/NotFound'
+      '500':
+        $ref: '../responses/errors.yaml#/ServerError'
+    tags:
+      - moveTaskOrder
+    description: Changes move order status
+    operationId: updateMoveTaskOrderStatus
+    summary: Change the status of a move order
