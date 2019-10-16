@@ -47,6 +47,7 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
   return async function(dispatch, getState, { schema }) {
     const client = await getClient();
     const state = await getState();
+    console.log('what is this', client);
     const operation = get(client, 'apis.' + operationPath);
 
     if (!operation) {

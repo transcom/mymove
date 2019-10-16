@@ -43,7 +43,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "customer"
+          "Customer"
         ],
         "summary": "Returns a given customer",
         "operationId": "getCustomerInfo",
@@ -1846,7 +1846,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "customer"
+          "Customer"
         ],
         "summary": "Returns a given customer",
         "operationId": "getCustomerInfo",

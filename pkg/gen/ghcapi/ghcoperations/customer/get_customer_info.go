@@ -29,7 +29,7 @@ func NewGetCustomerInfo(ctx *middleware.Context, handler GetCustomerInfoHandler)
 	return &GetCustomerInfo{Context: ctx, Handler: handler}
 }
 
-/*GetCustomerInfo swagger:route GET /customer/{customerID} customer getCustomerInfo
+/*GetCustomerInfo swagger:route GET /customer/{customerID} Customer getCustomerInfo
 
 Returns a given customer
 

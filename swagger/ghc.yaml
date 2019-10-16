@@ -49,7 +49,7 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - customer
+        - Customer
       description: Returns a given customer
       operationId: getCustomerInfo
       summary: Returns a given customer

@@ -3,28 +3,32 @@ package ghcapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 
-	customercodeop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/entitlements"
+	customercodeop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
 )
 
-// GetEntitlementsHandler fetches the entitlements for a move task order
-type GetEntitlementsHandler struct {
+// GetCustomerInfoHandler fetches the information of a specific customer
+type GetCustomerInfoHandler struct {
 	handlers.HandlerContext
 }
 
-// Handle getting the entitlements for a move task order
-func (h GetEntitlementsHandler) Handle(params customercodeop.GetEntitlementsParams) middleware.Responder {
+// Handle getting the information of a specific customer
+func (h GetCustomerInfoHandler) Handle(params customercodeop.GetCustomerInfoParams) middleware.Responder {
 	// for now just return static data
-	entitlements := &ghcmessages.Entitlements{
-		DependentsAuthorized:  false,
-		NonTemporaryStorage:   false,
-		PrivatelyOwnedVehicle: true,
-		ProGearWeight:         200,
-		ProGearWeightSpouse:   100,
-		StorageInTransit:      90,
-		TotalDependents:       3,
-		TotalWeightSelf:       1300,
+	customer := &ghcmessages.Customer{
+		DependentsAuthorized:   true,
+		FirstName:              models.StringPointer("First"),
+		MiddleName:             models.StringPointer("Middle"),
+		LastName:               models.StringPointer("Last"),
+		Agency:                 models.StringPointer("Agency"),
+		Grade:                  models.StringPointer("Grade"),
+		Email:                  models.StringPointer("Example@example.com"),
+		Telephone:              models.StringPointer("213-213-3232"),
+		OriginDutyStation:      models.StringPointer("Origin Station"),
+		DestinationDutyStation: models.StringPointer("Destination Station"),
+		//   PickupAddress:
 	}
-	return customercodeop.NewGetEntitlementsOK().WithPayload(entitlements)
+	return customercodeop.NewGetCustomerInfoOK().WithPayload(customer)
 }
