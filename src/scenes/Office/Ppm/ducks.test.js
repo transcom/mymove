@@ -1,4 +1,4 @@
-import reducer, { getIncentiveActionType, getTabularExpenses } from './ducks';
+import reducer, { getDocsByStatusAndType, getIncentiveActionType, getTabularExpenses } from './ducks';
 describe('office ppm reducer', () => {
   describe('GET_PPM_INCENTIVE', () => {
     it('handles SUCCESS', () => {
@@ -166,6 +166,99 @@ describe('getTabularExpenses', () => {
         { GTCC: null, other: null, total: null, type: 'Oil' },
         { GTCC: null, other: null, total: null, type: 'Other' },
         { GTCC: 600, other: 1000, total: 1600, type: 'Total' },
+      ]);
+    });
+  });
+  describe('getDocsByStatusAndType', () => {
+    it('should filter documents by status and type to exclude', () => {
+      const documents = [
+        {
+          move_document_type: 'EXPENSE',
+          status: 'AWAITING_REVIEW',
+        },
+        {
+          move_document_type: 'STORAGE',
+          status: 'HAS_ISSUE',
+        },
+        {
+          move_document_type: 'EXPENSE',
+          status: 'OK',
+        },
+        {
+          move_document_type: 'STORAGE',
+          status: 'OK',
+        },
+      ];
+      const filteredDocs = getDocsByStatusAndType(documents, 'OK', 'STORAGE');
+      expect(filteredDocs).toEqual([
+        {
+          move_document_type: 'EXPENSE',
+          status: 'AWAITING_REVIEW',
+        },
+      ]);
+    });
+
+    it('should filter documents by status to exclude when a type is missing', () => {
+      const documents = [
+        {
+          move_document_type: 'EXPENSE',
+          status: 'AWAITING_REVIEW',
+        },
+        {
+          move_document_type: 'STORAGE',
+          status: 'HAS_ISSUE',
+        },
+        {
+          move_document_type: 'EXPENSE',
+          status: 'OK',
+        },
+        {
+          move_document_type: 'STORAGE',
+          status: 'OK',
+        },
+      ];
+      const filteredDocs = getDocsByStatusAndType(documents, 'OK');
+      expect(filteredDocs).toEqual([
+        {
+          move_document_type: 'EXPENSE',
+          status: 'AWAITING_REVIEW',
+        },
+        {
+          move_document_type: 'STORAGE',
+          status: 'HAS_ISSUE',
+        },
+      ]);
+    });
+
+    it('should filter documents by type to exclude when a status is missing', () => {
+      const documents = [
+        {
+          move_document_type: 'EXPENSE',
+          status: 'AWAITING_REVIEW',
+        },
+        {
+          move_document_type: 'STORAGE',
+          status: 'HAS_ISSUE',
+        },
+        {
+          move_document_type: 'EXPENSE',
+          status: 'OK',
+        },
+        {
+          move_document_type: 'STORAGE',
+          status: 'OK',
+        },
+      ];
+      const filteredDocs = getDocsByStatusAndType(documents, null, 'STORAGE');
+      expect(filteredDocs).toEqual([
+        {
+          move_document_type: 'EXPENSE',
+          status: 'AWAITING_REVIEW',
+        },
+        {
+          move_document_type: 'EXPENSE',
+          status: 'OK',
+        },
       ]);
     });
   });
