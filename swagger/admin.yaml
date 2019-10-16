@@ -730,7 +730,7 @@ paths:
         401:
           description: request requires user authentication
         404:
-          description: office not found
+          description: admin users not found
         500:
           description: server error
   /admin_users/{adminUserId}:
@@ -756,7 +756,7 @@ paths:
         401:
           description: request requires user authentication
         404:
-          description: office not found
+          description: admin user not found
         500:
           description: server error
   /offices:
