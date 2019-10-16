@@ -115,7 +115,7 @@ deps: prereqs ensure_pre_commit client_deps bin/rds-combined-ca-bundle.pem ## Ru
 test: client_test server_test e2e_test ## Run all tests
 
 .PHONY: diagnostic
-diagnostic: prereqs check_docker_size ## Run diagnostic scripts on environment
+diagnostic: .prereqs.stamp check_docker_size ## Run diagnostic scripts on environment
 
 #
 # ----- END CHECK TARGETS -----
