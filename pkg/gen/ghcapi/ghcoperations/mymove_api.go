@@ -70,6 +70,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ServiceItemGetServiceItemHandler: service_item.GetServiceItemHandlerFunc(func(params service_item.GetServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation ServiceItemGetServiceItem has not yet been implemented")
 		}),
+		CustomerListCustomersHandler: customer.ListCustomersHandlerFunc(func(params customer.ListCustomersParams) middleware.Responder {
+			return middleware.NotImplemented("operation CustomerListCustomers has not yet been implemented")
+		}),
 		MoveTaskOrderListMoveTaskOrdersHandler: move_task_order.ListMoveTaskOrdersHandlerFunc(func(params move_task_order.ListMoveTaskOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderListMoveTaskOrders has not yet been implemented")
 		}),
@@ -146,6 +149,8 @@ type MymoveAPI struct {
 	PaymentRequestsGetPaymentRequestHandler payment_requests.GetPaymentRequestHandler
 	// ServiceItemGetServiceItemHandler sets the operation handler for the get service item operation
 	ServiceItemGetServiceItemHandler service_item.GetServiceItemHandler
+	// CustomerListCustomersHandler sets the operation handler for the list customers operation
+	CustomerListCustomersHandler customer.ListCustomersHandler
 	// MoveTaskOrderListMoveTaskOrdersHandler sets the operation handler for the list move task orders operation
 	MoveTaskOrderListMoveTaskOrdersHandler move_task_order.ListMoveTaskOrdersHandler
 	// PaymentRequestsListPaymentRequestsHandler sets the operation handler for the list payment requests operation
@@ -261,6 +266,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.ServiceItemGetServiceItemHandler == nil {
 		unregistered = append(unregistered, "service_item.GetServiceItemHandler")
+	}
+
+	if o.CustomerListCustomersHandler == nil {
+		unregistered = append(unregistered, "customer.ListCustomersHandler")
 	}
 
 	if o.MoveTaskOrderListMoveTaskOrdersHandler == nil {
@@ -441,6 +450,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}"] = service_item.NewGetServiceItem(o.context, o.ServiceItemGetServiceItemHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/customer"] = customer.NewListCustomers(o.context, o.CustomerListCustomersHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

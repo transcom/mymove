@@ -2,6 +2,9 @@ package ghcapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
+	"go.uber.org/zap"
 
 	customercodeop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -30,4 +33,43 @@ func (h GetCustomerInfoHandler) Handle(params customercodeop.GetCustomerInfoPara
 		DependentsAuthorized:   true,
 	}
 	return customercodeop.NewGetCustomerInfoOK().WithPayload(customer)
+}
+
+func payloadForCustomerMoveItem(CustomerMoveItem models.CustomerMoveItem) *ghcmessages.CustomerMoveItem {
+	CustomerMoveItemPayload := ghcmessages.CustomerMoveItem{
+		CreatedAt:             strfmt.DateTime(CustomerMoveItem.CreatedAt),
+		CustomerName:          swag.String(CustomerMoveItem.CustomerName),
+		ConfirmationNumber:    CustomerMoveItem.ConfirmationNumber,
+		BranchOfService:       CustomerMoveItem.BranchOfService,
+		OriginDutyStationName: models.StringPointer(CustomerMoveItem.OriginDutyStationName),
+	}
+	return &CustomerMoveItemPayload
+}
+
+// ListCustomersHandler fetches the information of a specific customer
+type ListCustomersHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle getting the information of all customers
+func (h ListCustomersHandler) Handle(params customercodeop.ListCustomersParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	if !session.IsOfficeUser() {
+		return customercodeop.NewListCustomersForbidden()
+	}
+
+	CustomerMoveItems, err := models.GetCustomerMoveItems(h.DB())
+
+	if err != nil {
+		logger.Error("Loading Customer Moves", zap.Error(err))
+		return handlers.ResponseForError(logger, err)
+	}
+
+	CustomerMoveItemPayloads := make([]*ghcmessages.CustomerMoveItem, len(CustomerMoveItems))
+	for i, MoveQueueItem := range CustomerMoveItems {
+		MoveQueueItemPayload := payloadForCustomerMoveItem(MoveQueueItem)
+		CustomerMoveItemPayloads[i] = MoveQueueItemPayload
+	}
+	return customercodeop.NewListCustomersOK().WithPayload(CustomerMoveItemPayloads)
 }

@@ -36,6 +36,60 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
+    "/customer": {
+      "get": {
+        "description": "Gets all customers",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Gets all customers",
+        "operationId": "listCustomers",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved information on all customer",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/CustomerMoveItem"
+              }
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
+    },
     "/customer/{customerID}": {
       "get": {
         "description": "Returns a given customer",
@@ -1394,6 +1448,44 @@ func init() {
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true,
           "example": "212-555-5555"
+        }
+      }
+    },
+    "CustomerMoveItem": {
+      "type": "object",
+      "properties": {
+        "branch_of_service": {
+          "type": "string",
+          "title": "Branch of service / Agency",
+          "x-nullable": null,
+          "example": "Agency"
+        },
+        "confirmation_number": {
+          "type": "string",
+          "example": "12432"
+        },
+        "created_at": {
+          "description": "when the access code was created",
+          "type": "string",
+          "format": "datetime",
+          "example": "2018-04-12T23:20:50.52Z"
+        },
+        "customer_name": {
+          "type": "string",
+          "title": "Customer Name",
+          "x-nullable": true,
+          "example": "Mickey Mouse"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "origin_duty_station_name": {
+          "type": "string",
+          "title": "Origin Duty Station Name",
+          "x-nullable": true,
+          "example": "Fort Knox"
         }
       }
     },
@@ -1838,6 +1930,75 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
+    "/customer": {
+      "get": {
+        "description": "Gets all customers",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Gets all customers",
+        "operationId": "listCustomers",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved information on all customer",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/CustomerMoveItem"
+              }
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
     "/customer/{customerID}": {
       "get": {
         "description": "Returns a given customer",
@@ -3436,6 +3597,44 @@ func init() {
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "x-nullable": true,
           "example": "212-555-5555"
+        }
+      }
+    },
+    "CustomerMoveItem": {
+      "type": "object",
+      "properties": {
+        "branch_of_service": {
+          "type": "string",
+          "title": "Branch of service / Agency",
+          "x-nullable": null,
+          "example": "Agency"
+        },
+        "confirmation_number": {
+          "type": "string",
+          "example": "12432"
+        },
+        "created_at": {
+          "description": "when the access code was created",
+          "type": "string",
+          "format": "datetime",
+          "example": "2018-04-12T23:20:50.52Z"
+        },
+        "customer_name": {
+          "type": "string",
+          "title": "Customer Name",
+          "x-nullable": true,
+          "example": "Mickey Mouse"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "origin_duty_station_name": {
+          "type": "string",
+          "title": "Origin Duty Station Name",
+          "x-nullable": true,
+          "example": "Fort Knox"
         }
       }
     },
