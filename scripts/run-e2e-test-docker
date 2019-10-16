@@ -113,7 +113,7 @@ $DOCKER_RUN \
   -e LOCAL_STORAGE_WEB_ROOT=storage \
   --link="database" \
   --net "${NETWORK}" \
-  -v ./tmp:/tmp \
+  -v "$(pwd)"/tmp:/tmp \
   --rm \
   --entrypoint generate-test-data \
   tools:latest \
