@@ -133,7 +133,6 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
         if (!payloadSchema) {
           throw new Error(`Could not find a schema for ${schemaKey}`);
         }
-
         if (options.deleteId) {
           // eslint-disable-next-line security/detect-object-injection
           var oldEntity = state.entities[schemaKey][options.deleteId];
