@@ -730,7 +730,33 @@ paths:
         401:
           description: request requires user authentication
         404:
-          description: office not found
+          description: admin users not found
+        500:
+          description: server error
+  /admin_users/{adminUserId}:
+    get:
+      summary: Fetch a specific admin user
+      description: Returns a single admin user
+      operationId: getAdminUser
+      tags:
+        - admin_users
+      parameters:
+        - in: path
+          name: adminUserId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/AdminUser'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: admin user not found
         500:
           description: server error
   /offices:

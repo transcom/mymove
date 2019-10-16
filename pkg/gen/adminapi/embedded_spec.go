@@ -137,7 +137,46 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "office not found"
+            "description": "admin users not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/admin_users/{adminUserId}": {
+      "get": {
+        "description": "Returns a single admin user",
+        "tags": [
+          "admin_users"
+        ],
+        "summary": "Fetch a specific admin user",
+        "operationId": "getAdminUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "adminUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/AdminUser"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "admin user not found"
           },
           "500": {
             "description": "server error"
@@ -1322,7 +1361,46 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "office not found"
+            "description": "admin users not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/admin_users/{adminUserId}": {
+      "get": {
+        "description": "Returns a single admin user",
+        "tags": [
+          "admin_users"
+        ],
+        "summary": "Fetch a specific admin user",
+        "operationId": "getAdminUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "adminUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/AdminUser"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "admin user not found"
           },
           "500": {
             "description": "server error"
