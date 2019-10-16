@@ -92,7 +92,7 @@ func lookupDomesticOtherPrice(db *pop.Connection, pd DomesticServicePricingData)
 	//if pd.ServiceCode == sitPDServiceCode {
 	//	schedule = domesticServiceArea.SITPDSchedule
 	//} else if pd.ServiceCode == packServiceCode || pd.ServiceCode == unpackServiceCode {
-	//	schedule = domesticServiceArea.ServiceSchedule
+	//	schedule = domesticServiceArea.ServicesSchedule
 	//} else {
 	//	// throw error??
 	//	return rate, errors.Wrap(err, "must be pack, unpack, or SIT P/D service")
@@ -158,7 +158,7 @@ func (gre *GHCRateEngine) CalculateBaseDomesticPerWeightServiceCost(d DomesticSe
 	if isDomesticOtherService {
 		rate, err = lookupDomesticOtherPrice(gre.db, d)
 		if err != nil {
-			return cost, errors.Wrap(err, fmt.Sprintf("Lookup of domestic service %s failed", d.ServiceCode))
+			return cost, errors.Wrap(err, fmt.Sprintf("Lookup of domestic other service %s failed", d.ServiceCode))
 		}
 	} else {
 		rate, err = lookupDomesticServiceAreaPrice(gre.db, d)
@@ -187,7 +187,7 @@ func (gre *GHCRateEngine) CalculateBaseDomesticPerWeightServiceCost(d DomesticSe
 func (gre *GHCRateEngine) CalculateBaseDomesticShorthaulCost(d DomesticServicePricingData) (cost unit.Cents, err error) {
 	rate, err := lookupDomesticServiceAreaPrice(gre.db, d)
 	if err != nil {
-		return cost, errors.Wrap(err, fmt.Sprintf("Lookup of domestic service %s failed", d.ServiceCode))
+		return cost, errors.Wrap(err, fmt.Sprintf("Lookup of domestic shorthaul %s failed", d.ServiceCode))
 	}
 	costPerWeight := rate.MultiplyCWTFloat(d.Weight)
 	cost = costPerWeight.MultiplyMiles(d.Distance)
