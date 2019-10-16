@@ -1,6 +1,6 @@
 module github.com/transcom/mymove
 
-go 1.12
+go 1.13
 
 require (
 	github.com/0xAX/notificator v0.0.0-20181105090803-d81462e38c21 // indirect

@@ -12,7 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *GHCRateEngineSuite) Test_CalculateBaseDomesticLinehaul() {
+func (suite *GHCRateEngineSuite) TestCalculateBaseDomesticLinehaul() {
 	engine := NewGHCRateEngine(suite.DB(), suite.logger)
 
 	serviceAreaID, err := uuid.FromString("9dda4dec-4dac-4aeb-b6ba-6736d689da8e")
