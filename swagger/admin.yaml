@@ -697,6 +697,32 @@ paths:
           description: office not found
         500:
           description: server error
+  /transportation_service_provider_performances/{tsppId}:
+    get:
+      summary: Fetch a specific tspp
+      description: Returns a single tspp
+      operationId: getTSPP
+      tags:
+        - transportation_service_provider_performances
+      parameters:
+        - in: path
+          name: tsppId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/TransportationServiceProviderPerformance'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: tspp not found
+        500:
+          description: server error
   /admin_users:
     get:
       summary: List admin users
