@@ -7,6 +7,7 @@ import { getTabularExpenses, getPpmExpenseSummary } from 'scenes/Office/Ppm/duck
 import { connect } from 'react-redux';
 
 import Alert from 'shared/Alert';
+import { getDocsByStatusAndType } from './ducks';
 
 const dollar = cents => (cents ? '$' + formatCents(cents) : null);
 
@@ -18,10 +19,7 @@ class ExpensesPanel extends Component {
     if (this.props.ppmId && this.props.ppmId !== prevProps.ppmId) this.props.getPpmExpenseSummary(this.props.ppmId);
   }
   render() {
-    const { schemaMovingExpenseType, expenseData, expenseDocuments } = this.props;
-    const awaitingStorageExpenses = filter(expenseDocuments, function(expense) {
-      return expense.status !== 'OK' && expense.move_document_type !== 'STORAGE';
-    });
+    const { schemaMovingExpenseType, expenseData, awaitingStorageExpenses } = this.props;
 
     const tabularData = getTabularExpenses(expenseData, schemaMovingExpenseType);
     return (
@@ -78,11 +76,12 @@ class ExpensesPanel extends Component {
   }
 }
 function mapStateToProps(state, ownProps) {
+  const expenseDocuments = filter(ownProps.moveDocuments, ['move_document_type', 'EXPENSE']);
   return {
     ppmId: selectPPMForMove(state, ownProps.moveId).id,
     schemaMovingExpenseType: get(state, 'swaggerInternal.spec.definitions.MovingExpenseType', {}),
     expenseData: get(state, 'ppmIncentive.summary'),
-    expenseDocuments: filter(ownProps.moveDocuments, ['move_document_type', 'EXPENSE']),
+    awaitingStorageExpenses: getDocsByStatusAndType(expenseDocuments, 'OK', 'STORAGE'),
   };
 }
 

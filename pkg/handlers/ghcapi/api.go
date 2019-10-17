@@ -20,5 +20,7 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 	}
 	ghcAPI := ghcops.NewMymoveAPI(ghcSpec)
 
+	ghcAPI.EntitlementsGetEntitlementsHandler = GetEntitlementsHandler{context}
+
 	return ghcAPI.Serve(nil)
 }

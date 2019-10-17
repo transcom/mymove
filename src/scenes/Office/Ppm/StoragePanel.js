@@ -11,13 +11,11 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { selectPPMForMove, updatePPM } from 'shared/Entities/modules/ppms';
 import { formatCents } from '../../../shared/formatters';
 import { convertDollarsToCents } from '../../../shared/utils';
+import { getDocsByStatusAndType } from './ducks';
 
 const StorageDisplay = props => {
   const cost = props.ppm && props.ppm.total_sit_cost ? formatCents(props.ppm.total_sit_cost) : 0;
   const days = props.ppm && props.ppm.days_in_storage ? props.ppm.days_in_storage : 0;
-  const awaitingStorageExpenses = filter(props.storageExpenses, function(expense) {
-    return expense.status !== 'OK';
-  });
 
   const fieldProps = {
     schema: {
@@ -42,7 +40,7 @@ const StorageDisplay = props => {
 
   return (
     <div className="editable-panel-column">
-      {awaitingStorageExpenses.length > 0 && (
+      {props.awaitingStorageExpenses.length > 0 && (
         <div className="awaiting-storage-expenses-warning">
           <Alert type="warning">There are more storage receipts awaiting review</Alert>
         </div>
@@ -85,6 +83,7 @@ StoragePanel = reduxForm({
 function mapStateToProps(state, props) {
   const formValues = getFormValues(formName)(state);
   const ppm = selectPPMForMove(state, props.moveId);
+  const storageExpenses = filter(props.moveDocuments, ['moving_expense_type', 'STORAGE']);
 
   return {
     // reduxForm
@@ -93,13 +92,14 @@ function mapStateToProps(state, props) {
       total_sit_cost: formatCents(ppm.total_sit_cost),
       days_in_storage: ppm.days_in_storage,
     },
-    storageExpenses: filter(props.moveDocuments, ['moving_expense_type', 'STORAGE']),
+
     ppmSchema: get(state, 'swaggerInternal.spec.definitions.PersonallyProcuredMovePayload'),
     ppm,
 
     hasError: !!props.error,
     errorMessage: get(state, 'office.error'),
     isUpdating: false,
+    awaitingStorageExpenses: getDocsByStatusAndType(storageExpenses, 'OK'),
 
     // editablePanelify
     getUpdateArgs: function() {
