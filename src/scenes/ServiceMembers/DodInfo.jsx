@@ -55,6 +55,11 @@ class SSNField extends Component {
         <label className={classNames('usa-label', { 'usa-label--error': displayError })} htmlFor={name}>
           Social security number
         </label>
+        {touched && error && (
+          <span className="usa-error-message" id={name + '-error'} role="alert">
+            {error}
+          </span>
+        )}
         <input
           {...this.props.input}
           className="usa-input"
@@ -62,11 +67,6 @@ class SSNField extends Component {
           onBlur={this.localOnBlur}
           value={displayedValue}
         />
-        {touched && error && (
-          <span className="usa-input-error-message" id={name + '-error'} role="alert">
-            {error}
-          </span>
-        )}
       </div>
     );
   }
