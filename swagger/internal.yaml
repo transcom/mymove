@@ -2387,8 +2387,6 @@ paths:
   /estimates/ppm:
     get:
       summary: Return a PPM cost estimate
-#      security:
-#        - Roles: [samplerole]
       x-swagger-roles:
         - sampleRole
       description: Calculates a reimbursement range for a PPM move (excluding SIT)
