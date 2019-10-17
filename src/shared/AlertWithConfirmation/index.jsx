@@ -6,18 +6,30 @@ import './index.css';
 export function AlertWithConfirmation(props) {
   return (
     <div className="grid-row">
-      <div className={`usa-alert usa-alert--${props.type} grid-col-12`}>
-        <div className="usa-alert__body">
-          <div className="body--heading">
-            <div>{props.heading && <h3 className="usa-alert__heading">{props.heading}</h3>}</div>
-            <div className="usa-alert__text">{props.message}</div>
-            <div className="cancel-or-ok-buttons">
-              <button type="button" className="usa-button usa-button--outline" onClick={props.cancelActionHandler}>
-                Cancel
-              </button>
-              <button type="button" className="usa-button" onClick={props.okActionHandler}>
-                OK
-              </button>
+      <div className="grid-col-12">
+        <div className={`usa-alert usa-alert--${props.type}`}>
+          <div className="usa-alert__body">
+            <div className="body--heading">
+              <div>{props.heading && <h3 className="usa-alert__heading">{props.heading}</h3>}</div>
+              <div className="grid-row grid-gap">
+                <div classNme="grid-col-9">
+                  <div className="usa-alert__text">{props.message}</div>
+                </div>
+                <div classNme="grid-col-3 text-right">
+                  <div className="cancel-or-ok-buttons">
+                    <button
+                      type="button"
+                      className="usa-button usa-button--outline"
+                      onClick={props.cancelActionHandler}
+                    >
+                      Cancel
+                    </button>
+                    <button type="button" className="usa-button" onClick={props.okActionHandler}>
+                      OK
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
