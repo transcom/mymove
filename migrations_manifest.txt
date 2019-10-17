@@ -366,7 +366,7 @@
 20191011162818_add-admin-users.up.sql
 20191011183006_alter_column_type_to_string_.up.sql
 20191011191842_re_create_domestic_tables.up.sql
-20191015215845_add_truss_user.up.sql
-20191015230212_disable-truss-user.up.sql
 20191016153532_replace_disabled.up.sql
 20191016214136_remove_disabled_column.up.sql
+20191017215845_add_truss_user.up.sql
+20191017230212_deactivate-truss-user.up.sql
