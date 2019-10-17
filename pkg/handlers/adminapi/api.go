@@ -72,6 +72,12 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		pagination.NewPagination,
 	}
 
+	adminAPI.TransportationServiceProviderPerformancesGetTSPPHandler = GetTSPPHandler{
+		context,
+		tspop.NewTransportationServiceProviderPerformanceFetcher(queryBuilder),
+		query.NewQueryFilter,
+	}
+
 	adminAPI.ElectronicOrderIndexElectronicOrdersHandler = IndexElectronicOrdersHandler{
 		context,
 		electronicorder.NewElectronicOrderListFetcher(queryBuilder),
@@ -97,6 +103,12 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		adminuser.NewAdminUserListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
+	}
+
+	adminAPI.AdminUsersGetAdminUserHandler = GetAdminUserHandler{
+		context,
+		adminuser.NewAdminUserFetcher(queryBuilder),
+		query.NewQueryFilter,
 	}
 
 	adminAPI.UploadGetUploadHandler = GetUploadHandler{

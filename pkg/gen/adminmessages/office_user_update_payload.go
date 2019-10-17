@@ -17,8 +17,8 @@ import (
 // swagger:model OfficeUserUpdatePayload
 type OfficeUserUpdatePayload struct {
 
-	// disabled
-	Disabled bool `json:"disabled,omitempty"`
+	// deactivated
+	Deactivated bool `json:"deactivated,omitempty"`
 
 	// First Name
 	FirstName string `json:"first_name,omitempty"`

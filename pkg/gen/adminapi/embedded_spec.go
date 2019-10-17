@@ -137,7 +137,46 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "office not found"
+            "description": "admin users not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/admin_users/{adminUserId}": {
+      "get": {
+        "description": "Returns a single admin user",
+        "tags": [
+          "admin_users"
+        ],
+        "summary": "Fetch a specific admin user",
+        "operationId": "getAdminUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "adminUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/AdminUser"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "admin user not found"
           },
           "500": {
             "description": "server error"
@@ -536,6 +575,45 @@ func init() {
         }
       }
     },
+    "/transportation_service_provider_performances/{tsppId}": {
+      "get": {
+        "description": "Returns a single tspp",
+        "tags": [
+          "transportation_service_provider_performances"
+        ],
+        "summary": "Fetch a specific tspp",
+        "operationId": "getTSPP",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "tsppId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/TransportationServiceProviderPerformance"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "tspp not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/uploads/{uploadId}": {
       "get": {
         "description": "Returns the given upload and information about the uploader and move",
@@ -775,7 +853,7 @@ func init() {
         "email",
         "user_id",
         "organization_id",
-        "disabled",
+        "deactivated",
         "created_at",
         "updated_at"
       ],
@@ -784,7 +862,7 @@ func init() {
           "type": "string",
           "format": "datetime"
         },
-        "disabled": {
+        "deactivated": {
           "type": "boolean"
         },
         "email": {
@@ -896,7 +974,7 @@ func init() {
         "last_name",
         "email",
         "telephone",
-        "disabled",
+        "deactivated",
         "created_at",
         "updated_at"
       ],
@@ -905,7 +983,7 @@ func init() {
           "type": "string",
           "format": "datetime"
         },
-        "disabled": {
+        "deactivated": {
           "type": "boolean"
         },
         "email": {
@@ -979,7 +1057,7 @@ func init() {
     "OfficeUserUpdatePayload": {
       "type": "object",
       "properties": {
-        "disabled": {
+        "deactivated": {
           "type": "boolean"
         },
         "first_name": {
@@ -1322,7 +1400,46 @@ func init() {
             "description": "request requires user authentication"
           },
           "404": {
-            "description": "office not found"
+            "description": "admin users not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/admin_users/{adminUserId}": {
+      "get": {
+        "description": "Returns a single admin user",
+        "tags": [
+          "admin_users"
+        ],
+        "summary": "Fetch a specific admin user",
+        "operationId": "getAdminUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "adminUserId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/AdminUser"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "admin user not found"
           },
           "500": {
             "description": "server error"
@@ -1721,6 +1838,45 @@ func init() {
         }
       }
     },
+    "/transportation_service_provider_performances/{tsppId}": {
+      "get": {
+        "description": "Returns a single tspp",
+        "tags": [
+          "transportation_service_provider_performances"
+        ],
+        "summary": "Fetch a specific tspp",
+        "operationId": "getTSPP",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "tsppId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/TransportationServiceProviderPerformance"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "tspp not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/uploads/{uploadId}": {
       "get": {
         "description": "Returns the given upload and information about the uploader and move",
@@ -1960,7 +2116,7 @@ func init() {
         "email",
         "user_id",
         "organization_id",
-        "disabled",
+        "deactivated",
         "created_at",
         "updated_at"
       ],
@@ -1969,7 +2125,7 @@ func init() {
           "type": "string",
           "format": "datetime"
         },
-        "disabled": {
+        "deactivated": {
           "type": "boolean"
         },
         "email": {
@@ -2082,7 +2238,7 @@ func init() {
         "last_name",
         "email",
         "telephone",
-        "disabled",
+        "deactivated",
         "created_at",
         "updated_at"
       ],
@@ -2091,7 +2247,7 @@ func init() {
           "type": "string",
           "format": "datetime"
         },
-        "disabled": {
+        "deactivated": {
           "type": "boolean"
         },
         "email": {
@@ -2165,7 +2321,7 @@ func init() {
     "OfficeUserUpdatePayload": {
       "type": "object",
       "properties": {
-        "disabled": {
+        "deactivated": {
           "type": "boolean"
         },
         "first_name": {

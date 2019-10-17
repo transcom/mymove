@@ -578,8 +578,19 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	dpsAuthParams := dpsauth.InitDPSAuthParams(v, appnames)
 	handlerContext.SetDPSAuthParams(dpsAuthParams)
 
+	// bare is the base muxer. Not intended to have any middleware attached.
+	bare := goji.NewMux()
+	storageBackend := v.GetString(cli.StorageBackendFlag)
+	if storageBackend == "local" {
+		localStorageRoot := v.GetString(cli.LocalStorageRootFlag)
+		localStorageWebRoot := v.GetString(cli.LocalStorageWebRootFlag)
+		//Add a file handler to provide access to files uploaded in development
+		fs := storage.NewFilesystemHandler(localStorageRoot)
+		bare.Handle(pat.Get(path.Join("/", localStorageWebRoot, "/*")), fs)
+	}
 	// Base routes
-	site := goji.NewMux()
+	site := goji.SubMux()
+	bare.Handle(pat.New("/*"), site)
 	// Add middleware: they are evaluated in the reverse order in which they
 	// are added, but the resulting http.Handlers execute in "normal" order
 	// (i.e., the http.Handler returned by the first Middleware added gets
@@ -825,16 +836,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	storageBackend := v.GetString(cli.StorageBackendFlag)
-	if storageBackend == "local" {
-		localStorageRoot := v.GetString(cli.LocalStorageRootFlag)
-		localStorageWebRoot := v.GetString(cli.LocalStorageWebRootFlag)
-
-		// Add a file handler to provide access to files uploaded in development
-		fs := storage.NewFilesystemHandler(localStorageRoot)
-		root.Handle(pat.Get(path.Join("/", localStorageWebRoot, "/*")), fs)
-	}
-
 	// Serve index.html to all requests that haven't matches a previous route,
 	root.HandleFunc(pat.Get("/*"), indexHandler(build, logger))
 
@@ -848,7 +849,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			Host:        listenInterface,
 			Port:        v.GetInt(cli.NoTLSPortFlag),
 			Logger:      logger,
-			HTTPHandler: site,
+			HTTPHandler: bare,
 		})
 		if err != nil {
 			logger.Fatal("error creating no-tls server", zap.Error(err))
@@ -864,7 +865,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			Host:         listenInterface,
 			Port:         v.GetInt(cli.TLSPortFlag),
 			Logger:       logger,
-			HTTPHandler:  site,
+			HTTPHandler:  bare,
 			ClientAuth:   tls.NoClientCert,
 			Certificates: certificates,
 		})
@@ -882,7 +883,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			Host:         listenInterface,
 			Port:         v.GetInt(cli.MutualTLSPortFlag),
 			Logger:       logger,
-			HTTPHandler:  site,
+			HTTPHandler:  bare,
 			ClientAuth:   tls.RequireAndVerifyClientCert,
 			Certificates: certificates,
 			ClientCAs:    rootCAs,
