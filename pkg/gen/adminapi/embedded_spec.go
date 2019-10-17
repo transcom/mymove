@@ -814,7 +814,7 @@ func init() {
         "email",
         "user_id",
         "organization_id",
-        "disabled",
+        "deactivated",
         "created_at",
         "updated_at"
       ],
@@ -823,7 +823,7 @@ func init() {
           "type": "string",
           "format": "datetime"
         },
-        "disabled": {
+        "deactivated": {
           "type": "boolean"
         },
         "email": {
@@ -935,7 +935,7 @@ func init() {
         "last_name",
         "email",
         "telephone",
-        "disabled",
+        "deactivated",
         "created_at",
         "updated_at"
       ],
@@ -944,7 +944,7 @@ func init() {
           "type": "string",
           "format": "datetime"
         },
-        "disabled": {
+        "deactivated": {
           "type": "boolean"
         },
         "email": {
@@ -1018,7 +1018,7 @@ func init() {
     "OfficeUserUpdatePayload": {
       "type": "object",
       "properties": {
-        "disabled": {
+        "deactivated": {
           "type": "boolean"
         },
         "first_name": {
@@ -2038,7 +2038,7 @@ func init() {
         "email",
         "user_id",
         "organization_id",
-        "disabled",
+        "deactivated",
         "created_at",
         "updated_at"
       ],
@@ -2047,7 +2047,7 @@ func init() {
           "type": "string",
           "format": "datetime"
         },
-        "disabled": {
+        "deactivated": {
           "type": "boolean"
         },
         "email": {
@@ -2160,7 +2160,7 @@ func init() {
         "last_name",
         "email",
         "telephone",
-        "disabled",
+        "deactivated",
         "created_at",
         "updated_at"
       ],
@@ -2169,7 +2169,7 @@ func init() {
           "type": "string",
           "format": "datetime"
         },
-        "disabled": {
+        "deactivated": {
           "type": "boolean"
         },
         "email": {
@@ -2243,7 +2243,7 @@ func init() {
     "OfficeUserUpdatePayload": {
       "type": "object",
       "properties": {
-        "disabled": {
+        "deactivated": {
           "type": "boolean"
         },
         "first_name": {

@@ -9,7 +9,7 @@ const OfficeUserList = props => (
       <TextField source="email" />
       <TextField source="first_name" />
       <TextField source="last_name" />
-      <BooleanField source="disabled" label="Deactivated" />
+      <BooleanField source="deactivated" />
     </Datagrid>
   </List>
 );
