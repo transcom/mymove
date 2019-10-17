@@ -751,6 +751,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	debug.Use(userAuthMiddleware)
 	root.Handle(pat.New("/debug/pprof/*"), debug)
 	if v.GetBool(cli.DebugPProfFlag) {
+		logger.Info("Enabling pprof routes")
 		debug.HandleFunc(pat.Get("/"), pprof.Index)
 		debug.Handle(pat.Get("/allocs"), pprof.Handler("allocs"))
 		debug.Handle(pat.Get("/block"), pprof.Handler("block"))
