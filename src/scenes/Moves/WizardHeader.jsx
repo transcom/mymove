@@ -5,11 +5,11 @@ import './WizardHeader.css';
 const WizardHeader = ({ icon, right, title }) => (
   <div className="wizard-header">
     <div className="grid-row grid-gap">
-      <div className="grid-col-8 wizard-left">
+      <div className="tablet:grid-col-6 desktop:grid-col-8 wizard-left">
         {icon && <img className="icon" src={icon} alt="" />}
-        <h3>{title}</h3>
+        <h1>{title}</h1>
       </div>
-      <div className="grid-col-4 wizard-right">{right}</div>
+      <div className="tablet:grid-col-6 desktop:grid-col-4 wizard-right">{right}</div>
     </div>
     <div className="grid-row">
       <div className="grid-row-12">
