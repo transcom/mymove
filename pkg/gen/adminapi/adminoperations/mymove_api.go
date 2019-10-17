@@ -24,6 +24,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_service_provider_performances"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/upload"
 )
 
@@ -46,6 +47,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		JSONProducer:        runtime.JSONProducer(),
 		OfficeUsersCreateOfficeUserHandler: office_users.CreateOfficeUserHandlerFunc(func(params office_users.CreateOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation OfficeUsersCreateOfficeUser has not yet been implemented")
+		}),
+		AdminUsersGetAdminUserHandler: admin_users.GetAdminUserHandlerFunc(func(params admin_users.GetAdminUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation AdminUsersGetAdminUser has not yet been implemented")
 		}),
 		ElectronicOrderGetElectronicOrdersTotalsHandler: electronic_order.GetElectronicOrdersTotalsHandlerFunc(func(params electronic_order.GetElectronicOrdersTotalsParams) middleware.Responder {
 			return middleware.NotImplemented("operation ElectronicOrderGetElectronicOrdersTotals has not yet been implemented")
@@ -70,6 +74,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		OfficeIndexOfficesHandler: office.IndexOfficesHandlerFunc(func(params office.IndexOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation OfficeIndexOffices has not yet been implemented")
+		}),
+		TransportationServiceProviderPerformancesIndexTSPPsHandler: transportation_service_provider_performances.IndexTSPPsHandlerFunc(func(params transportation_service_provider_performances.IndexTSPPsParams) middleware.Responder {
+			return middleware.NotImplemented("operation TransportationServiceProviderPerformancesIndexTSPPs has not yet been implemented")
 		}),
 		OfficeUsersUpdateOfficeUserHandler: office_users.UpdateOfficeUserHandlerFunc(func(params office_users.UpdateOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation OfficeUsersUpdateOfficeUser has not yet been implemented")
@@ -107,6 +114,8 @@ type MymoveAPI struct {
 
 	// OfficeUsersCreateOfficeUserHandler sets the operation handler for the create office user operation
 	OfficeUsersCreateOfficeUserHandler office_users.CreateOfficeUserHandler
+	// AdminUsersGetAdminUserHandler sets the operation handler for the get admin user operation
+	AdminUsersGetAdminUserHandler admin_users.GetAdminUserHandler
 	// ElectronicOrderGetElectronicOrdersTotalsHandler sets the operation handler for the get electronic orders totals operation
 	ElectronicOrderGetElectronicOrdersTotalsHandler electronic_order.GetElectronicOrdersTotalsHandler
 	// OfficeUsersGetOfficeUserHandler sets the operation handler for the get office user operation
@@ -123,6 +132,8 @@ type MymoveAPI struct {
 	OfficeUsersIndexOfficeUsersHandler office_users.IndexOfficeUsersHandler
 	// OfficeIndexOfficesHandler sets the operation handler for the index offices operation
 	OfficeIndexOfficesHandler office.IndexOfficesHandler
+	// TransportationServiceProviderPerformancesIndexTSPPsHandler sets the operation handler for the index t s p ps operation
+	TransportationServiceProviderPerformancesIndexTSPPsHandler transportation_service_provider_performances.IndexTSPPsHandler
 	// OfficeUsersUpdateOfficeUserHandler sets the operation handler for the update office user operation
 	OfficeUsersUpdateOfficeUserHandler office_users.UpdateOfficeUserHandler
 
@@ -192,6 +203,10 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "office_users.CreateOfficeUserHandler")
 	}
 
+	if o.AdminUsersGetAdminUserHandler == nil {
+		unregistered = append(unregistered, "admin_users.GetAdminUserHandler")
+	}
+
 	if o.ElectronicOrderGetElectronicOrdersTotalsHandler == nil {
 		unregistered = append(unregistered, "electronic_order.GetElectronicOrdersTotalsHandler")
 	}
@@ -222,6 +237,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.OfficeIndexOfficesHandler == nil {
 		unregistered = append(unregistered, "office.IndexOfficesHandler")
+	}
+
+	if o.TransportationServiceProviderPerformancesIndexTSPPsHandler == nil {
+		unregistered = append(unregistered, "transportation_service_provider_performances.IndexTSPPsHandler")
 	}
 
 	if o.OfficeUsersUpdateOfficeUserHandler == nil {
@@ -334,6 +353,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/admin_users/{adminUserId}"] = admin_users.NewGetAdminUser(o.context, o.AdminUsersGetAdminUserHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/electronic_orders/totals"] = electronic_order.NewGetElectronicOrdersTotals(o.context, o.ElectronicOrderGetElectronicOrdersTotalsHandler)
 
 	if o.handlers["GET"] == nil {
@@ -370,6 +394,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/offices"] = office.NewIndexOffices(o.context, o.OfficeIndexOfficesHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/transportation_service_provider_performances"] = transportation_service_provider_performances.NewIndexTSPPs(o.context, o.TransportationServiceProviderPerformancesIndexTSPPsHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)

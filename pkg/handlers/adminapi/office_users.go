@@ -23,7 +23,7 @@ func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 		LastName:       handlers.FmtString(o.LastName),
 		Telephone:      handlers.FmtString(o.Telephone),
 		Email:          handlers.FmtString(o.Email),
-		Disabled:       handlers.FmtBool(o.Disabled),
+		Deactivated:    handlers.FmtBool(o.Deactivated),
 		CreatedAt:      handlers.FmtDateTime(o.CreatedAt),
 		UpdatedAt:      handlers.FmtDateTime(o.UpdatedAt),
 	}
@@ -149,9 +149,11 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 		LastName:       payload.LastName,
 		FirstName:      payload.FirstName,
 		Telephone:      payload.Telephone,
+		Deactivated:    payload.Deactivated,
 	}
 
 	updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(&officeUser)
+
 	if err != nil || verrs != nil {
 		fmt.Printf("%#v", verrs)
 		logger.Error("Error saving user", zap.Error(err))

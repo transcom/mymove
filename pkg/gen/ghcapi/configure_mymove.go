@@ -11,6 +11,7 @@ import (
 	middleware "github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/entitlements"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/service_item"
@@ -54,6 +55,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.ServiceItemDeleteServiceItemHandler == nil {
 		api.ServiceItemDeleteServiceItemHandler = service_item.DeleteServiceItemHandlerFunc(func(params service_item.DeleteServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation service_item.DeleteServiceItem has not yet been implemented")
+		})
+	}
+	if api.EntitlementsGetEntitlementsHandler == nil {
+		api.EntitlementsGetEntitlementsHandler = entitlements.GetEntitlementsHandlerFunc(func(params entitlements.GetEntitlementsParams) middleware.Responder {
+			return middleware.NotImplemented("operation entitlements.GetEntitlements has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderGetMoveTaskOrderHandler == nil {

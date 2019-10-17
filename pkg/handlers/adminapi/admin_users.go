@@ -22,7 +22,7 @@ func payloadForAdminUser(o models.AdminUser) *adminmessages.AdminUser {
 		Email:          handlers.FmtString(o.Email),
 		UserID:         handlers.FmtUUIDPtr(o.UserID),
 		OrganizationID: handlers.FmtUUIDPtr(o.OrganizationID),
-		Disabled:       handlers.FmtBool(o.Disabled),
+		Deactivated:    handlers.FmtBool(o.Deactivated),
 		CreatedAt:      handlers.FmtDateTime(o.CreatedAt),
 		UpdatedAt:      handlers.FmtDateTime(o.UpdatedAt),
 	}
@@ -64,4 +64,27 @@ func (h IndexAdminUsersHandler) Handle(params adminuserop.IndexAdminUsersParams)
 	}
 
 	return adminuserop.NewIndexAdminUsersOK().WithContentRange(fmt.Sprintf("admin users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedAdminUsersCount, totalAdminUsersCount)).WithPayload(payload)
+}
+
+type GetAdminUserHandler struct {
+	handlers.HandlerContext
+	services.AdminUserFetcher
+	services.NewQueryFilter
+}
+
+func (h GetAdminUserHandler) Handle(params adminuserop.GetAdminUserParams) middleware.Responder {
+	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	adminUserID := params.AdminUserID
+
+	queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", adminUserID)}
+
+	adminUser, err := h.AdminUserFetcher.FetchAdminUser(queryFilters)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	payload := payloadForAdminUser(adminUser)
+
+	return adminuserop.NewGetAdminUserOK().WithPayload(payload)
 }

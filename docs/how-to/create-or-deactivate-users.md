@@ -1,7 +1,7 @@
-# How To Create or Disable Users
+# How To Create or Deactivate Users
 
 For all users you will [create a secure migration](./migrate-the-database.md#secure-migrations). Please
-only create a migration corresponding to the environment where you intend to add or disable users. For instance,
+only create a migration corresponding to the environment where you intend to add or deactivate users. For instance,
 please only add a `staging` secure migration if you intend to add staging users and leave the `prod`
 and `experimental` migrations empty.
 
@@ -38,7 +38,7 @@ INSERT INTO public.office_users
      last_name, first_name, middle_initials,
      email, telephone,
      transportation_office_id,
-     created_at, updated_at, disabled)
+     created_at, updated_at, deactivated)
     VALUES (
            GENERATED_UUID4_VAL, NULL,
            'Jones', 'Alice', NULL,
@@ -114,7 +114,7 @@ INSERT INTO public.tsp_users
      last_name, first_name, middle_initials,
      email, telephone,
      transportation_service_provider_id,
-     created_at, updated_at, disabled)
+     created_at, updated_at, deactivated)
     VALUES (
         GENERATED_UUID4_VAL, NULL,
         'Jones', 'Alice', NULL,
@@ -132,7 +132,7 @@ INSERT INTO public.tsp_users
      last_name, first_name, middle_initials,
      email, telephone,
      transportation_service_provider_id,
-     created_at, updated_at, disabled)
+     created_at, updated_at, deactivated)
     VALUES (
         GENERATED_UUID4_VAL, NULL,
         'Jones', 'Alice', NULL,
@@ -145,7 +145,7 @@ INSERT INTO public.tsp_users
      last_name, first_name, middle_initials,
      email, telephone,
      transportation_service_provider_id,
-     created_at, updated_at, disabled)
+     created_at, updated_at, deactivated)
     VALUES (
         GENERATED_UUID4_VAL, NULL,
         'Jones', 'Alice', NULL,
@@ -158,7 +158,7 @@ INSERT INTO public.tsp_users
      last_name, first_name, middle_initials,
      email, telephone,
      transportation_service_provider_id,
-     created_at, updated_at, disabled)
+     created_at, updated_at, deactivated)
     VALUES (
         GENERATED_UUID4_VAL, NULL,
         'Jones', 'Alice', NULL,
@@ -177,60 +177,65 @@ Here is an example migration to create a DPS user (please edit as needed):
 ```sql
 INSERT INTO public.dps_users
     (id, login_gov_email,
-     created_at, updated_at, disabled)
+     created_at, updated_at, deactivated)
     VALUES (
         GENERATED_UUID4_VAL, 'username@example.com',
         now(), now(), false
     );
 ```
 
-## Disabling Users
+## Deactivating Users
 
 MilMove doesn't delete users because of both auditing concerns and CASCADE DELETE failures. Instead each
-user table has a `disabled` boolean column that can be used to disable a user. Disabling a user means the
+user table has a `deactivated` boolean column that can be used to deactivate a user. Deactivating a user means the
 person with valid credentials to Login.gov may not be permitted to get a session in MilMove.
 
-There are several places you can disable a user, at the global level and at each application level. It's important
-to disable users at the application level if you are concerned that a user entry was made for the user in that
+There are several places you can deactivate a user, at the global level and at each application level. It's important
+to deactivate users at the application level if you are concerned that a user entry was made for the user in that
 table but they have not yet claimed the user entry by logging in.  This is an issue to be aware of for both Office
 and TSP users.
 
-### Disabling Users Globally
+### Deactivating Users Globally
 
-An example of disabling a user by email:
-
-```sql
-UPDATE users SET disabled = true WHERE email = 'username@example.com';
-```
-
-This is the only way to disable Service Members.
-
-### Disabling Office Users
-
-An example of disabling an Office user by email:
+An example of deactivating a user by email:
 
 ```sql
-UPDATE office_users SET disabled = true WHERE email = 'username@example.com';
+UPDATE users SET deactivated = true WHERE email = 'username@example.com';
 ```
 
-### Disabling TSP Users
+This is the only way to deactivate Service Members.
 
-An example of disabling a TSP user by email:
+### Deactivating Office Users
+
+This can now be done in the admin user application:
+
+1. Navigate to the admin app and log in
+2. Click on "Office Users" in the sidebar
+3. Select the user you would like to deactivate and click "Edit" in the top right
+   corner. Here, you'll be able to choose whether or not that user is deactivated.
+
+### Deactivating TSP Users
+
+**Note**: if we revive this table after the HHG mothball work, we will need to
+change the `disabled` column to `deactivated`, as well as replace references to
+`disabled` throughout the TSP app.
+
+An example of deactivating a TSP user by email:
 
 ```sql
-UPDATE tsp_users SET disabled = true WHERE email = 'username@example.com';
+UPDATE tsp_users SET deactivated = true WHERE email = 'username@example.com';
 ```
 
-### Disabling DPS Users
+### Deactivating DPS Users
 
-An example of disabling a DPS user by email:
+An example of deactivating a DPS user by email:
 
 ```sql
-UPDATE dps_users SET disabled = true WHERE email = 'username@example.com';
+UPDATE dps_users SET deactivated = true WHERE email = 'username@example.com';
 ```
 
-### Generating a migration to disable a specific user
+### Generating a migration to deactivate a specific user
 
 You can use the following `milmove` sub-command:
 
-`milmove gen disable-user-migration -e EMAIL`
+`milmove gen deactivate-user-migration -e EMAIL`
