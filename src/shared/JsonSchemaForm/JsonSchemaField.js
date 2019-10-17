@@ -228,9 +228,7 @@ const renderInputField = ({
       {hideLabel || (
         <label className={classNames('usa-label', { 'usa-label--error': displayError })} htmlFor={input.name}>
           {title}
-          {!always_required && type !== 'boolean' && !customComponent && (
-            <span className="label-optional">Optional</span>
-          )}
+          {!always_required && type !== 'boolean' && !customComponent && <span className="usa-hint"> (optional)</span>}
         </label>
       )}
       {touched && error && (

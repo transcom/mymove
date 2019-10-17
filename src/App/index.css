@@ -29,13 +29,6 @@ img._fix-ie-11-height {
   background-color: yellow;
 }
 
-.label-optional {
-  /* TODO: talk to design about light gray and accessibility*/
-  /* color: rgb(153, 153, 153); */
-  font-size: 0.9em;
-  float: right;
-}
-
 .align-center {
   text-align: center;
 }
