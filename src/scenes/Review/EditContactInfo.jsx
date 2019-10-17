@@ -31,7 +31,7 @@ let EditContactForm = props => {
               <SwaggerField fieldName="secondary_telephone" swagger={serviceMemberSchema} />
               <SwaggerField fieldName="personal_email" swagger={serviceMemberSchema} required />
               <fieldset key="contact_preferences">
-                <legend htmlFor="contact_preferences">Preferred contact method(s) during your move:</legend>
+                <p htmlFor="contact_preferences">Preferred contact method(s) during your move:</p>
                 <SwaggerField fieldName="phone_is_preferred" swagger={serviceMemberSchema} />
                 <SwaggerField fieldName="email_is_preferred" swagger={serviceMemberSchema} />
               </fieldset>

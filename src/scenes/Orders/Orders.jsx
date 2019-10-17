@@ -14,8 +14,6 @@ import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 
-import './Orders.css';
-
 const validateOrdersForm = validateAdditionalFields(['new_duty_station']);
 
 const formName = 'orders_info';
