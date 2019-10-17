@@ -47,7 +47,7 @@
   color: #205493;
 }
 
-.usa-width-one-whole .ppm-payment-request-footer {
+.ppm-payment-request-footer {
   border-top: 1px solid black;
   display: flex;
   justify-content: space-between;
@@ -126,11 +126,7 @@
 }
 
 .uploader-wrapper {
-  padding-top: 1em;
-}
-
-.uploader-wrapper:nth-child(2) {
-  padding-top: 2em;
+  padding-bottom: 2em;
 }
 
 .uploader-label {

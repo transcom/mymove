@@ -105,7 +105,7 @@ class PaymentReview extends Component {
     );
 
     return (
-      <>
+      <div className="grid-container">
         <WizardHeader
           title="Review"
           right={
@@ -177,7 +177,7 @@ class PaymentReview extends Component {
             submitting={submitting}
           />
         </div>
-      </>
+      </div>
     );
   }
 }

@@ -171,7 +171,7 @@ class ExpensesUpload extends Component {
     const isStorageExpense = this.isStorageExpense(formValues);
     const expenseNumber = expenses.length + 1;
     return (
-      <>
+      <div className="grid-container">
         <WizardHeader
           title="Expenses"
           right={
@@ -323,7 +323,7 @@ class ExpensesUpload extends Component {
             />
           </form>
         </div>
-      </>
+      </div>
     );
   }
 }
