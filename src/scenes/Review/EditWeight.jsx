@@ -81,7 +81,7 @@ let EditWeightForm = props => {
 
   const fullFieldClass = `weight-estimate-input ${fieldClass}`;
   return (
-    <div className="grid-container">
+    <div className="grid-container usa-prose site-prose">
       <div className="grid-row">
         <div className="grid-col-12">
           <form onSubmit={handleSubmit}>
@@ -243,7 +243,7 @@ class EditWeight extends Component {
     } = this.props;
 
     return (
-      <div className="grid-container">
+      <div className="grid-container usa-prose site-prose">
         {error && (
           <div className="grid-row">
             <div className="grid-col-12 error-message">

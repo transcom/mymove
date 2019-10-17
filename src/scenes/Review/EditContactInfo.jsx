@@ -21,7 +21,7 @@ const editContactFormName = 'edit_contact_info';
 let EditContactForm = props => {
   const { serviceMemberSchema, addressSchema, handleSubmit, submitting, valid } = props;
   return (
-    <div className="grid-container">
+    <div className="grid-container usa-prose site-prose">
       <div className="grid-row">
         <div className="grid-col-12">
           <form className="service_member_contact_info" onSubmit={handleSubmit}>

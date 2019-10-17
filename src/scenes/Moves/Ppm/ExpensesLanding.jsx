@@ -38,7 +38,7 @@ class ExpensesLanding extends Component {
     const { hasExpenses } = this.state;
     const { history, moveId } = this.props;
     return (
-      <div className="grid-container">
+      <div className="grid-container usa-prose site-prose">
         <WizardHeader
           title="Expenses"
           right={

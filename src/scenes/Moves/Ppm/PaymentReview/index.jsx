@@ -105,7 +105,7 @@ class PaymentReview extends Component {
     );
 
     return (
-      <div className="grid-container">
+      <div className="grid-container usa-prose site-prose">
         <WizardHeader
           title="Review"
           right={

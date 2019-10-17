@@ -117,7 +117,7 @@ export class PpmWeight extends Component {
       selectedWeightInfo,
     } = this.props;
     return (
-      <div className="grid-container">
+      <div className="grid-container usa-prose site-prose">
         <WeightWizardForm
           handleSubmit={this.handleSubmit}
           pageList={pages}

@@ -41,7 +41,7 @@ let EditOrdersForm = props => {
     return includes(deleteQueue, upload.id);
   });
   return (
-    <div className="grid-container">
+    <div className="grid-container usa-prose site-prose">
       <div className="grid-row">
         <div className="grid-col-12">
           <form onSubmit={handleSubmit}>
