@@ -2,7 +2,6 @@
 .payment-review-container h4,
 .payment-review-container h5,
 .payment-review-container p {
-  font-family: 'Source Sans Pro', 'Helvetica Neue', 'Helvetica', 'Roboto', Arial, 'sans-serif';
   line-height: normal;
   margin: 0;
 }
@@ -26,7 +25,6 @@
   margin-left: 0px;
   margin-bottom: 0px;
   margin-right: 0px;
-  font-family: "Source Sans Pro", "Helvetica Neue", "Helvetica", "Roboto", "Arial", sans-serif;
 }
 
 .doc-summary-container h3 {

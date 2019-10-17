@@ -1,13 +1,4 @@
-@import 'shared/styles/fonts.scss';
 @import 'shared/styles/colors.scss';
-
-h1,
-h2,
-h3,
-h4,
-h5 {
-  font-family: $font-stack-primary;
-}
 
 .queue-heading {
   margin-top: 0;
@@ -152,12 +143,10 @@ h5 {
 .extras.usa-heading {
   margin-top: 0;
   font-size: 2rem;
-  font-family: sans-serif;
 }
 
 .extras.content {
   margin-top: 2rem;
-  font-family: sans-serif;
 }
 
 .extras.options {

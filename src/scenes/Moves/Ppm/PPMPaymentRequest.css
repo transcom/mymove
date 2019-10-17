@@ -2,7 +2,6 @@
 .allowable-expenses-container .title,
 .weight-ticket-example-container .title {
   font-size: 2.2rem;
-  font-family: sans-serif;
 }
 
 .weight-ticket-example-container .subheader {
@@ -16,7 +15,6 @@
 
 .trailer-criteria-container .title {
   font-size: 2.2rem;
-  font-family: sans-serif;
   margin-bottom: 0;
 }
 
