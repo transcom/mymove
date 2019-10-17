@@ -35,7 +35,6 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Setup: Server](#setup-server)
   * [Setup: MilMoveLocal Client](#setup-milmovelocal-client)
   * [Setup: OfficeLocal client](#setup-officelocal-client)
-  * [Setup: TSPLocal client](#setup-tsplocal-client)
   * [Setup: AdminLocal client](#setup-adminlocal-client)
   * [Setup: DPS user](#setup-dps-user)
   * [Setup: Orders Gateway](#setup-orders-gateway)
@@ -77,8 +76,7 @@ There are a number of things you'll need at a minimum to be able to check out, d
 * Install [Homebrew](https://brew.sh)
   * Use the following command `/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
 * We normally use the latest version of Go unless there's a known conflict (which will be announced by the team) or if we're in the time period just after a new version has been released.
-  * We are still using go 1.12 for now; we will be migrating to go 1.13 soon (the trigger is when we update Go in our baseline CircleCI Docker container).
-  * Install it with Homebrew: `brew install go@1.12 && brew link --force go@1.12`
+  * Install it with Homebrew: `brew install go`
   * **Note**: If you have previously modified your PATH to point to a specific version of go, make sure to remove that. This would be either in your `.bash_profile` or `.bashrc`, and might look something like `PATH=$PATH:/usr/local/opt/go@1.12/bin`.
 * Ensure you are using the latest version of bash for this project:
   * Install it with Homebrew: `brew install bash`
@@ -233,7 +231,6 @@ Here are the steps:
   ```bash
   echo "127.0.0.1 milmovelocal" | sudo tee -a /etc/hosts
   echo "127.0.0.1 officelocal" | sudo tee -a /etc/hosts
-  echo "127.0.0.1 tsplocal" | sudo tee -a /etc/hosts
   echo "127.0.0.1 orderslocal" | sudo tee -a /etc/hosts
   echo "127.0.0.1 adminlocal" | sudo tee -a /etc/hosts
   ```
@@ -252,7 +249,6 @@ Check that the file looks correct with `cat /etc/hosts`:
   127.0.0.1   localhost
   127.0.0.1   milmovelocal
   127.0.0.1   officelocal
-  127.0.0.1   tsplocal
   127.0.0.1   orderslocal
   127.0.0.1   adminlocal
   ```
@@ -309,14 +305,6 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
     * Log into "Local Sign In" and either select a pre-made user or use the button to create a new user
 2. `make office_client_run`
 3. Login with the email used above to access the office
-
-### Setup: TSPLocal client
-
-1. Ensure that you have a test account which can log into the TSP site...
-    * run `generate-test-data --named-scenario e2e_basic` to load test data
-    * Log into "Local Sign In" and either select a pre-made user or use the button to create a new user
-2. `make tsp_client_run`
-3. Login with the email used above to access the TSP
 
 ### Setup: AdminLocal client
 

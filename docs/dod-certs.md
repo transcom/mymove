@@ -10,9 +10,9 @@ Here are the current DoD-signed certificates and how they are used:
 
 | Subject | X509v3 Alternative Names | Environment | CA | Expires | Inbound | Outbound |
 | ------- | ------------------------ | ----------- | -- | ------- | ------- | -------- |
-| C=US, O=U.S. Government, OU=DoD, OU=PKI, OU=USTRANSCOM, CN=my.move.mil | `my.move.mil, api.move.mil, dps.move.mil, gex.move.mil, office.move.mil, orders.move.mil, tsp.move.mil` | Production | DOD SW CA-54 | Sep 13 14:14:27 2021 GMT | <https://orders.move.mil> | DMDC Identity Web Services (prod) |
-| C=US, O=U.S. Government, OU=DoD, OU=PKI, OU=USTRANSCOM, CN=my.staging.move.mil | `my.staging.move.mil, api.staging.move.mil, dps.staging.move.mil, gex.staging.move.mil, office.staging.move.mil, orders.staging.move.mil, tsp.staging.move.mil` | Staging | DOD SW CA-54 | Sep 13 14:20:04 2021 GMT | <https://orders.staging.move.mil> | DMDC Identity Web Services (Contractor Test) |
-| C=US, O=U.S. Government, OU=DoD, OU=PKI, OU=USTRANSCOM, CN=my.experimental.move.mil | `my.experimental.move.mil, api.experimental.move.mil, dps.experimental.move.mil, gex.experimental.move.mil, office.experimental.move.mil, orders.experimental.move.mil, tsp.experimental.move.mil` | Experimental | DOD SW CA-54 | Sep 13 14:22:14 2021 GMT | <https://orders.experimental.move.mil> | DMDC Identity Web Services (Contractor Test) |
+| C=US, O=U.S. Government, OU=DoD, OU=PKI, OU=USTRANSCOM, CN=my.move.mil | `my.move.mil, api.move.mil, dps.move.mil, gex.move.mil, office.move.mil, orders.move.mil` | Production | DOD SW CA-54 | Sep 13 14:14:27 2021 GMT | <https://orders.move.mil> | DMDC Identity Web Services (prod) |
+| C=US, O=U.S. Government, OU=DoD, OU=PKI, OU=USTRANSCOM, CN=my.staging.move.mil | `my.staging.move.mil, api.staging.move.mil, dps.staging.move.mil, gex.staging.move.mil, office.staging.move.mil, orders.staging.move.mil` | Staging | DOD SW CA-54 | Sep 13 14:20:04 2021 GMT | <https://orders.staging.move.mil> | DMDC Identity Web Services (Contractor Test) |
+| C=US, O=U.S. Government, OU=DoD, OU=PKI, OU=USTRANSCOM, CN=my.experimental.move.mil | `my.experimental.move.mil, api.experimental.move.mil, dps.experimental.move.mil, gex.experimental.move.mil, office.experimental.move.mil, orders.experimental.move.mil` | Experimental | DOD SW CA-54 | Sep 13 14:22:14 2021 GMT | <https://orders.experimental.move.mil> | DMDC Identity Web Services (Contractor Test) |
 | C=US, O=U.S. Government, OU=DoD, OU=PKI, OU=USAF, CN=mymove.sddc.army.mil | `mymove.sddc.army.mil` | Production | DOD SW CA-54 | Sep 11 16:28:48 2021 GMT | <https://mymove.sddc.army.mil> | |
 | C=US, O=U.S. Government, OU=DoD, OU=PKI, OU=USAF, CN=mymove-staging.sddc.army.mil | `mymove-staging.sddc.army.mil` | Staging | DOD SW CA-54 | Sep 11 16:30:10 2021 GMT | <https://mymove-staging.sddc.army.mil> | |
 | C=US, O=U.S. Government, OU=DoD, OU=PKI, OU=USAF, CN=mymove-experimental.sddc.army.mil | `mymove-experimental.sddc.army.mil` | Experimental | DOD SW CA-54 | Sep 11 16:31:02 2021 GMT | <https://mymove-experimental.sddc.army.mil> | |
@@ -52,7 +52,6 @@ DNS.3 = dps.move.mil
 DNS.4 = gex.move.mil
 DNS.5 = office.move.mil
 DNS.6 = orders.move.mil
-DNS.7 = tsp.move.mil
 ```
 
 Absent other guidance, I used the same C, ST, L, O, and OU values as the cert presented by <https://www.ustranscom.mil/>.

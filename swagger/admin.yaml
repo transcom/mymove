@@ -79,7 +79,7 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
       transportation_office:
         $ref: '#/definitions/TransportationOffice'
-      disabled:
+      deactivated:
         type: boolean
       created_at:
         type: string
@@ -94,13 +94,56 @@ definitions:
       - last_name
       - email
       - telephone
-      - disabled
+      - deactivated
       - created_at
       - updated_at
   OfficeUsers:
     type: array
     items:
       $ref: '#/definitions/OfficeUser'
+  AdminUser:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      first_name:
+        type: string
+      last_name:
+        type: string
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+      user_id:
+        type: string
+        format: uuid
+      organization_id:
+        type: string
+        format: uuid
+      deactivated:
+        type: boolean
+      created_at:
+        type: string
+        format: datetime
+      updated_at:
+        type: string
+        format: datetime
+    required:
+      - id
+      - first_name
+      - last_name
+      - email
+      - user_id
+      - organization_id
+      - deactivated
+      - created_at
+      - updated_at
+  AdminUsers:
+    type: array
+    items:
+      $ref: '#/definitions/AdminUser'
   TransportationOffice:
     type: object
     properties:
@@ -148,6 +191,73 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/TransportationOffice'
+  TransportationServiceProviderPerformance:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      traffic_distribution_list_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      transportation_service_provider_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      performance_period_start:
+        type: string
+        format: date-time
+      performance_period_end:
+        type: string
+        format: date-time
+      rate_cycle_start:
+        type: string
+        format: date-time
+      rate_cycle_end:
+        type: string
+        format: date-time
+      quality_band:
+        type: integer
+        x-nullable: true
+        example: 29
+      best_value_score:
+        type: number
+        example: 98.01
+      linehaul_rate:
+        type: number
+        example: 0.26085695149376985000
+      sit_rate:
+        type: number
+        example: 0.26085695149376985000
+      offer_count:
+        type: integer
+        example: 1
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - traffic_distribution_list_id
+      - transportation_service_provider_id
+      - performance_period_start
+      - performance_period_end
+      - rate_cycle_start
+      - rate_cycle_end
+      - best_value_score
+      - linehaul_rate
+      - sit_rate
+      - offer_count
+      - created_at
+      - updated_at
+  TransportationServiceProviderPerformances:
+    type: array
+    items:
+      $ref: '#/definitions/TransportationServiceProviderPerformance'
   Address:
     type: object
     properties:
@@ -339,6 +449,8 @@ definitions:
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
+      deactivated:
+        type: boolean
   ElectronicOrder:
     type: object
     required:
@@ -390,6 +502,36 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/ElectronicOrdersTotal'
+  Upload:
+    type: object
+    properties:
+      created_at:
+        type: string
+        format: datetime
+        title: Created at
+      filename:
+        type: string
+      size:
+        type: integer
+        title: Size in Bytes
+      content_type:
+        type: string
+        enum:
+          - application/pdf
+          - image/jpeg
+          - image/png
+  UploadInformation:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      move_locator:
+        type: string
+        example: '12432'
+      upload:
+        $ref: '#/definitions/Upload'
 paths:
   /access_codes:
     get:
@@ -397,7 +539,7 @@ paths:
       description: Returns a list of access codes
       operationId: indexAccessCodes
       tags:
-        - office
+        - access_codes
       parameters:
         - in: query
           name: filter
@@ -431,7 +573,7 @@ paths:
       description: Returns a list of office users
       operationId: indexOfficeUsers
       tags:
-        - office
+        - office_users
       parameters:
         - in: query
           name: filter
@@ -466,7 +608,7 @@ paths:
       description: creates and returns an office user record
       operationId: createOfficeUser
       tags:
-        - office
+        - office_users
       parameters:
         - in: body
           name: officeUser
@@ -490,7 +632,7 @@ paths:
       description: Returns the given office user
       operationId: getOfficeUser
       tags:
-        - office
+        - office_users
       parameters:
         - in: path
           name: officeUserId
@@ -514,7 +656,7 @@ paths:
       summary: Updates an office user
       operationId: updateOfficeUser
       tags:
-        - office
+        - office_users
       parameters:
         - in: path
           name: officeUserId
@@ -540,6 +682,128 @@ paths:
           description: Not authorized to create an office user
         500:
           description: Server error
+  /transportation_service_provider_performances:
+    get:
+      summary: List transportation service provider performances (TSPPs)
+      description: Returns a list of transportation service provider performances (TSPPs)
+      operationId: indexTSPPs
+      tags:
+        - transportation_service_provider_performances
+      parameters:
+        - in: query
+          name: filter
+          type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
+      responses:
+        200:
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
+          schema:
+            $ref: '#/definitions/TransportationServiceProviderPerformances'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: office not found
+        500:
+          description: server error
+  /transportation_service_provider_performances/{tsppId}:
+    get:
+      summary: Fetch a specific tspp
+      description: Returns a single tspp
+      operationId: getTSPP
+      tags:
+        - transportation_service_provider_performances
+      parameters:
+        - in: path
+          name: tsppId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/TransportationServiceProviderPerformance'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: tspp not found
+        500:
+          description: server error
+  /admin_users:
+    get:
+      summary: List admin users
+      description: Returns a list of admin users
+      operationId: indexAdminUsers
+      tags:
+        - admin_users
+      parameters:
+        - in: query
+          name: filter
+          type: array
+          items:
+            type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
+      responses:
+        200:
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
+          schema:
+            $ref: '#/definitions/AdminUsers'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: admin users not found
+        500:
+          description: server error
+  /admin_users/{adminUserId}:
+    get:
+      summary: Fetch a specific admin user
+      description: Returns a single admin user
+      operationId: getAdminUser
+      tags:
+        - admin_users
+      parameters:
+        - in: path
+          name: adminUserId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/AdminUser'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: admin user not found
+        500:
+          description: server error
   /offices:
     get:
       summary: List transportation offices
@@ -641,5 +905,31 @@ paths:
           description: request requires user authentication
         404:
           description: not found
+        500:
+          description: server error
+  /uploads/{uploadId}:
+    get:
+      summary: Get information about an upload
+      description: Returns the given upload and information about the uploader and move
+      operationId: getUpload
+      tags:
+        - upload
+      parameters:
+        - in: path
+          name: uploadId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/UploadInformation'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: upload not found
         500:
           description: server error

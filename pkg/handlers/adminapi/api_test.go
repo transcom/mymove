@@ -44,6 +44,7 @@ func TestHandlerSuite(t *testing.T) {
 	}
 
 	suite.Run(t, hs)
+	hs.PopTestSuite.TearDown()
 }
 
 func newMockQueryFilterBuilder(filter *mocks.QueryFilter) services.NewQueryFilter {

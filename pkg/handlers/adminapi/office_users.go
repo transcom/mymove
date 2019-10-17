@@ -7,7 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
+	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -23,7 +23,7 @@ func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 		LastName:       handlers.FmtString(o.LastName),
 		Telephone:      handlers.FmtString(o.Telephone),
 		Email:          handlers.FmtString(o.Email),
-		Disabled:       handlers.FmtBool(o.Disabled),
+		Deactivated:    handlers.FmtBool(o.Deactivated),
 		CreatedAt:      handlers.FmtDateTime(o.CreatedAt),
 		UpdatedAt:      handlers.FmtDateTime(o.UpdatedAt),
 	}
@@ -44,8 +44,9 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 	queryFilters := []services.QueryFilter{}
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
+	associations := query.NewQueryAssociations([]services.QueryAssociation{})
 
-	officeUsers, err := h.OfficeUserListFetcher.FetchOfficeUserList(queryFilters, pagination)
+	officeUsers, err := h.OfficeUserListFetcher.FetchOfficeUserList(queryFilters, associations, pagination)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -129,6 +130,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 	}
 
 	if err != nil {
+		logger.Error("Error saving user", zap.Error(err))
 		return officeuserop.NewCreateOfficeUserInternalServerError()
 	}
 
@@ -158,9 +160,11 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 		LastName:       payload.LastName,
 		FirstName:      payload.FirstName,
 		Telephone:      payload.Telephone,
+		Deactivated:    payload.Deactivated,
 	}
 
 	updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(&officeUser)
+
 	if err != nil || verrs != nil {
 		fmt.Printf("%#v", verrs)
 		logger.Error("Error saving user", zap.Error(err))

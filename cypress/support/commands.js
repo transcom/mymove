@@ -283,6 +283,7 @@ function genericSelect(inputData, fieldName, classSelector) {
   // Click on the first presented option
   cy.get(classSelector)
     .find('div[class*="option"]')
+    .first()
     .click();
 }
 

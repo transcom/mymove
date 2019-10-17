@@ -510,6 +510,12 @@ v0.11.
 ie
 deploy_tasks_steps
 up.sql
+app.container
+definition.json
+circle.yml
+server_test
+CPUs
+vCPUs
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - /usr/local
  - docs/data/tspp-data-creation.md
@@ -524,3 +530,4 @@ up.sql
  - ./scripts/README.md
  - ./docs/how-to/run-storybook.md
  - ./docs/database.md
+ - ./docs/._database.md

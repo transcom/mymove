@@ -83,10 +83,6 @@ func (t *testClient) Get(getURL string) (*http.Response, error) {
 	return recorder.Result(), err
 }
 
-func (suite *HereTestSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func (suite *HereTestSuite) checkErrorCode(err error, c ErrorCode) bool {
 	if suite.Error(err) && suite.Implements((*Error)(nil), err) {
 		r := err.(Error)
@@ -231,4 +227,5 @@ func TestHereTestSuite(t *testing.T) {
 		logger,
 	}
 	suite.Run(t, hs)
+	hs.PopTestSuite.TearDown()
 }
