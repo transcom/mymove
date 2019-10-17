@@ -1273,6 +1273,22 @@ func init() {
           "type": "string",
           "example": "12432"
         },
+        "office_user_email": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "office_user_id": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "upload": {
           "$ref": "#/definitions/Upload"
         }
@@ -2536,6 +2552,22 @@ func init() {
         "move_locator": {
           "type": "string",
           "example": "12432"
+        },
+        "office_user_email": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "office_user_id": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "upload": {
           "$ref": "#/definitions/Upload"

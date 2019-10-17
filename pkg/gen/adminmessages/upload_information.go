@@ -24,6 +24,17 @@ type UploadInformation struct {
 	// move locator
 	MoveLocator string `json:"move_locator,omitempty"`
 
+	// office user email
+	OfficeUserEmail *string `json:"office_user_email,omitempty"`
+
+	// office user id
+	// Format: uuid
+	OfficeUserID *strfmt.UUID `json:"office_user_id,omitempty"`
+
+	// service member id
+	// Format: uuid
+	ServiceMemberID *strfmt.UUID `json:"service_member_id,omitempty"`
+
 	// upload
 	Upload *Upload `json:"upload,omitempty"`
 }
@@ -33,6 +44,14 @@ func (m *UploadInformation) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOfficeUserID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateServiceMemberID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -53,6 +72,32 @@ func (m *UploadInformation) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *UploadInformation) validateOfficeUserID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.OfficeUserID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("office_user_id", "body", "uuid", m.OfficeUserID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *UploadInformation) validateServiceMemberID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ServiceMemberID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("service_member_id", "body", "uuid", m.ServiceMemberID.String(), formats); err != nil {
 		return err
 	}
 
