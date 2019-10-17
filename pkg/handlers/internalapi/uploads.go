@@ -47,11 +47,7 @@ func payloadForUploadModel(storer storage.FileStorer, upload models.Upload, url 
 		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
 	}
 	tagsPayload, err := payloadForTags(storer, upload)
-	if err != nil {
-		return nil, err
-	}
-
-	if tagsPayload != nil {
+	if err == nil {
 		uploadPayload.Tags = *tagsPayload
 	}
 	return uploadPayload, nil
