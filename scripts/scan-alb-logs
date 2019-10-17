@@ -1,0 +1,49 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+#
+# Scan alb logs for specific http codes.
+#
+# Requires a environment and http code but can also include a date.
+# When a date is not given the current UTC date is used.
+#
+# Example with no date (uses current UTC date):
+#	../scripts/scan-alb-logs prod 403
+#
+# Example for single code 504:
+#	../scripts/scan-alb-logs prod 504 2019/02/14,2019/02/16
+#
+# Example with Pattern matching all 5XX codes:
+#	 ../scripts/scan-alb-logs prod "5" 2019/02/22
+#
+# Note: Must run from transcom-ppp/ directory
+#
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly DIR
+
+if [[  $# -lt 2 ]]  || [[ $# -gt 3 ]]; then
+    echo "Usage: scan-alb-logs <environment:prod|staging|experimental> <http-code> [<day:YYYY/mm/dd>[,<day:YYYY/mm/dd>]]"
+    exit 1
+fi
+
+readonly environment=${1:-}
+readonly http_code=${2:-}
+day=${3:-$(date -u "+%Y/%m/%d")}
+
+if ! command -v big-cat > /dev/null; then
+  echo "big-cat tool is required."
+  echo "Build with make bin/big-cat"
+  exit 1
+fi
+
+if ! command -v read-alb-logs > /dev/null; then
+  echo "read-alb-logs tool is required."
+  echo "Build with make bin/read-alb-logs"
+  exit 1
+fi
+
+rm -rf tmp
+"${DIR}/download-alb-logs" tmp "${environment}" "${day}"
+big-cat "./tmp/*.app-${environment}.*.log.gz" | gunzip | read-alb-logs | jq -c ". | select( .elbStatusCode | startswith(\"${http_code}\")) | {timestamp, clientPort, elbStatusCode, targetStatusCode, request, actionsExecuted}"
