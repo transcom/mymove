@@ -7,11 +7,11 @@ import './Checkbox.css';
 
 const Checkbox = ({ name, label, onChange, value, checked, inputClassName, labelClassName, normalizeLabel }) => {
   const checkboxId = uniqueId(label);
-  const labelClasses = classNames({ 'normalize-label': normalizeLabel }, labelClassName);
+  const labelClasses = classNames({ 'normalize-label': normalizeLabel }, labelClassName, 'usa-checkbox__label');
   return (
     <>
       <input
-        className={inputClassName}
+        className={classNames(inputClassName, 'usa-checkbox__input')}
         id={checkboxId}
         type="checkbox"
         name={name}
