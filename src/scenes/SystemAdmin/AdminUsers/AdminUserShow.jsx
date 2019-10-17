@@ -14,7 +14,7 @@ const OfficeUserShow = props => {
         <TextField source="first_name" />
         <TextField source="last_name" />
         <TextField source="organization_id" />
-        <BooleanField source="disabled" label="Deactivated" />
+        <BooleanField source="deactivated" />
         <DateField source="created_at" showTime />
         <DateField source="updated_at" showTime />
       </SimpleShowLayout>

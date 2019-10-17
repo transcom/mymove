@@ -22,7 +22,7 @@ func payloadForAdminUser(o models.AdminUser) *adminmessages.AdminUser {
 		Email:          handlers.FmtString(o.Email),
 		UserID:         handlers.FmtUUIDPtr(o.UserID),
 		OrganizationID: handlers.FmtUUIDPtr(o.OrganizationID),
-		Disabled:       handlers.FmtBool(o.Disabled),
+		Deactivated:    handlers.FmtBool(o.Deactivated),
 		CreatedAt:      handlers.FmtDateTime(o.CreatedAt),
 		UpdatedAt:      handlers.FmtDateTime(o.UpdatedAt),
 	}
