@@ -575,6 +575,45 @@ func init() {
         }
       }
     },
+    "/transportation_service_provider_performances/{tsppId}": {
+      "get": {
+        "description": "Returns a single tspp",
+        "tags": [
+          "transportation_service_provider_performances"
+        ],
+        "summary": "Fetch a specific tspp",
+        "operationId": "getTSPP",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "tsppId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/TransportationServiceProviderPerformance"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "tspp not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/uploads/{uploadId}": {
       "get": {
         "description": "Returns the given upload and information about the uploader and move",
@@ -1792,6 +1831,45 @@ func init() {
           },
           "404": {
             "description": "office not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/transportation_service_provider_performances/{tsppId}": {
+      "get": {
+        "description": "Returns a single tspp",
+        "tags": [
+          "transportation_service_provider_performances"
+        ],
+        "summary": "Fetch a specific tspp",
+        "operationId": "getTSPP",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "tsppId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/TransportationServiceProviderPerformance"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "tspp not found"
           },
           "500": {
             "description": "server error"

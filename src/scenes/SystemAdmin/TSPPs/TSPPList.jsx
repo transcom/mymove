@@ -20,7 +20,7 @@ const TSPPFilter = props => (
 
 const TSPPList = props => (
   <List {...props} pagination={<AdminPagination />} perPage={25} filters={<TSPPFilter />} bulkActionButtons={false}>
-    <Datagrid>
+    <Datagrid rowClick="show">
       <TextField source="id" reference="transportation_service_provider_performances" />
       <TextField source="traffic_distribution_list_id" reference="transportation_service_provider_performances" />
       <TextField source="transportation_service_provider_id" reference="transportation_service_provider_performances" />

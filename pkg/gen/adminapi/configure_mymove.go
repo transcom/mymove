@@ -60,6 +60,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation office_users.GetOfficeUser has not yet been implemented")
 		})
 	}
+	if api.TransportationServiceProviderPerformancesGetTSPPHandler == nil {
+		api.TransportationServiceProviderPerformancesGetTSPPHandler = transportation_service_provider_performances.GetTSPPHandlerFunc(func(params transportation_service_provider_performances.GetTSPPParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_service_provider_performances.GetTSPP has not yet been implemented")
+		})
+	}
 	if api.UploadGetUploadHandler == nil {
 		api.UploadGetUploadHandler = upload.GetUploadHandlerFunc(func(params upload.GetUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation upload.GetUpload has not yet been implemented")
