@@ -96,15 +96,20 @@ func UserAuthMiddleware2(logger Logger) func(api *internaloperations.MymoveAPI) 
 					next.ServeHTTP(w, r)
 					return
 				}
-				endpointRolesAsStringArray, ok := endpointRoles.([]string)
+				endpointRolesAsInterfaceArray, ok := endpointRoles.([]interface{})
 				if !ok {
 					http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 					return
 				}
+				endpointRolesAsStringArray := make([]string, len(endpointRolesAsInterfaceArray))
+				for i, v := range endpointRolesAsInterfaceArray {
+					endpointRolesAsStringArray[i] = v.(string)
+				}
 				for _, userRole := range userRoles {
 					for _, endpointRole := range endpointRolesAsStringArray {
 						if userRole == endpointRole {
-
+							next.ServeHTTP(w, r)
+							return
 						}
 					}
 				}
