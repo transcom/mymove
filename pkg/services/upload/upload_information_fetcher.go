@@ -1,11 +1,22 @@
 package upload
 
 import (
+	"database/sql"
+	"fmt"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/services"
 )
+
+type ErrNotFound struct {
+	id uuid.UUID
+}
+
+func (e ErrNotFound) Error() string {
+	return fmt.Sprintf("upload id: %s not found", e.id.String())
+}
 
 type uploadInformationFetcher struct {
 	db *pop.Connection
@@ -39,7 +50,12 @@ where uploads.id = $1`
 	ui := services.UploadInformation{}
 	err := uif.db.RawQuery(q, uploadID.String()).First(&ui)
 	if err != nil {
-		return services.UploadInformation{}, err
+		switch err {
+		case sql.ErrNoRows:
+			return services.UploadInformation{}, ErrNotFound{uploadID}
+		default:
+			return services.UploadInformation{}, err
+		}
 	}
 	return ui, nil
 }

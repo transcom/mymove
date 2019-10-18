@@ -1,6 +1,8 @@
 package adminapi
 
 import (
+	"github.com/transcom/mymove/pkg/services/upload"
+
 	"github.com/go-openapi/strfmt"
 
 	"github.com/gofrs/uuid"
@@ -44,14 +46,16 @@ type GetUploadHandler struct {
 // Handle retrieves a specific upload
 func (h GetUploadHandler) Handle(params uploadop.GetUploadParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-
 	uploadID := uuid.FromStringOrNil(params.UploadID.String())
 	uploadInformation, err := h.FetchUploadInformation(uploadID)
-	// TODO maybe handle this better...
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		switch err.(type) {
+		case upload.ErrNotFound:
+			return uploadop.NewGetUploadNotFound()
+		default:
+			return handlers.ResponseForError(logger, err)
+		}
 	}
 	payload := payloadForUploadModel(uploadInformation)
-
 	return uploadop.NewGetUploadOK().WithPayload(payload)
 }
