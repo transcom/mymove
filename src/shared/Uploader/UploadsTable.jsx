@@ -25,14 +25,14 @@ export class UploadsTable extends Component {
           {this.props.uploads.map(upload => (
             <tr key={upload.id}>
               <td>
-                <a href={upload.url} target="_blank">
+                <a href={upload.url} target="_blank" className="usa-link">
                   {upload.filename}
                 </a>
               </td>
               <td>{moment(upload.created_at).format('LLL')}</td>
               <td>{bytes(upload.bytes)}</td>
               <td>
-                <a href="" onClick={e => this.props.onDelete(e, upload.id)}>
+                <a href="" onClick={e => this.props.onDelete(e, upload.id)} className="usa-link">
                   Delete
                 </a>
               </td>

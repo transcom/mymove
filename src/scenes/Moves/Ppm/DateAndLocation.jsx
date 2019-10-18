@@ -113,7 +113,10 @@ export class DateAndLocation extends Component {
             <Fragment>
               <SwaggerField fieldName="additional_pickup_postal_code" swagger={this.props.schema} required />
               <span className="grey">
-                Making additional stops may decrease your PPM incentive. <a onClick={this.openInfo}>Why</a>
+                Making additional stops may decrease your PPM incentive.{' '}
+                <a onClick={this.openInfo} className="usa-link">
+                  Why
+                </a>
               </span>
               {this.state.showInfo && (
                 <Alert type="info" heading="">
@@ -121,7 +124,10 @@ export class DateAndLocation extends Component {
                   base rate it would cost the government to transport your household goods between your destination and
                   origin. When you add additional stops, your overall PPM incentive will change to account for any
                   deviations from the standard route and to account for the fact that not 100% of your household goods
-                  travelled the entire way from origin to destination. <a onClick={this.closeInfo}>Close</a>
+                  travelled the entire way from origin to destination.{' '}
+                  <a onClick={this.closeInfo} className="usa-link">
+                    Close
+                  </a>
                 </Alert>
               )}
             </Fragment>

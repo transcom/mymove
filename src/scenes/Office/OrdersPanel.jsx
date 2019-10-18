@@ -55,6 +55,7 @@ const OrdersDisplay = props => {
                 window,
                 defaultRelativeWindowSize,
               )}
+              className="usa-link"
             >
               <SwaggerValue fieldName="orders_number" {...fieldProps} />
               &nbsp;
@@ -74,6 +75,7 @@ const OrdersDisplay = props => {
                 window,
                 defaultRelativeWindowSize,
               )}
+              className="usa-link"
             >
               <SwaggerValue fieldName="orders_number" {...fieldProps} />
               &nbsp;

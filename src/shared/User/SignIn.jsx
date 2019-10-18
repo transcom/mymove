@@ -27,13 +27,16 @@ const SignIn = ({ context, location }) => {
           <div>
             <p>
               Right now, use of this system is by invitation only. If you haven't received an invitation, please go to{' '}
-              <a href="https://eta.sddc.army.mil/ETASSOPortal/default.aspx">DPS</a> to schedule your move.
+              <a href="https://eta.sddc.army.mil/ETASSOPortal/default.aspx" className="usa-link">
+                DPS
+              </a>{' '}
+              to schedule your move.
             </p>
             <p>Over the coming months, we'll be rolling this new tool out to more and more people. Stay tuned.</p>
           </div>
         )}
         <div className="align-center">
-          <a href="/auth/login-gov" className="usa-button  usa-button-big">
+          <a href="/auth/login-gov" className="usa-button usa-button-big">
             Sign in
           </a>
         </div>

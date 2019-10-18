@@ -9,7 +9,9 @@ function CustomerAgreementLegalese(props) {
   return (
     <div className="usa-grid customer-agreement-legalese-container">
       <div>
-        <a onClick={goBack}>{'<'} Back</a>
+        <a onClick={goBack} className="usa-link">
+          {'<'} Back
+        </a>
       </div>
       <h2>Customer Agreement</h2>
       <p style={{ marginBottom: '20px' }}>

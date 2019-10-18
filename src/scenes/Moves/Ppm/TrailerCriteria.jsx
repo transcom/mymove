@@ -7,7 +7,9 @@ function TrailerCriteria(props) {
   return (
     <div className="usa-grid trailer-criteria-container">
       <div>
-        <a onClick={goBack}>{'<'} Back</a>
+        <a onClick={goBack} className="usa-link">
+          {'<'} Back
+        </a>
       </div>
       <h3 className="title">Trailer Criteria</h3>
       <section>

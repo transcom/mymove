@@ -17,7 +17,7 @@ export class Edit extends React.Component {
       <div className="grid-container usa-prose site-prose">
         <div className="grid-row">
           <div className="grid-col-12">
-            <a className="back-to-home" onClick={this.goHome}>
+            <a className="usa-link back-to-home" onClick={this.goHome}>
               &lt; BACK TO HOME
             </a>
             <h1 className="edit-title">Edit Move</h1>

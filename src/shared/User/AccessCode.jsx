@@ -79,7 +79,11 @@ class AccessCode extends React.Component {
           </button>
           <br />
           <div className={styles['secondary-text']}>
-            No code? Go to <a href="https://eta.sddc.army.mil/ETASSOPortal/default.aspx">DPS</a> to schedule your move.
+            No code? Go to{' '}
+            <a href="https://eta.sddc.army.mil/ETASSOPortal/default.aspx" className="usa-link">
+              DPS
+            </a>{' '}
+            to schedule your move.
           </div>
         </div>
       </Fragment>

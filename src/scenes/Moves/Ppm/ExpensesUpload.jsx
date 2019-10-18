@@ -190,7 +190,7 @@ class ExpensesUpload extends Component {
           <h3 className="expenses-header">Expense {expenseNumber}</h3>
           <p>
             Upload expenses one at a time.{' '}
-            <Link to="/allowable-expenses">
+            <Link to="/allowable-expenses" className="usa-link">
               <FontAwesomeIcon aria-hidden className="color_blue_link" icon={faQuestionCircle} />
             </Link>
           </p>

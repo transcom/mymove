@@ -52,7 +52,7 @@ class PPMPaymentRequestIntro extends Component {
             <ul>
               <li>
                 <strong>Weight tickets,</strong> both empty & full, for <em>each</em> vehicle and trip{' '}
-                <Link className="weight-ticket-examples-link" to="/weight-ticket-examples">
+                <Link className="weight-ticket-examples-link usa-link" to="/weight-ticket-examples">
                   <FontAwesomeIcon aria-hidden className="color_blue_link" icon={faQuestionCircle} />
                 </Link>
               </li>
@@ -66,7 +66,9 @@ class PPMPaymentRequestIntro extends Component {
               </li>
             </ul>
             <p>
-              <Link to="/allowable-expenses">More about expenses</Link>
+              <Link to="/allowable-expenses" className="usa-link">
+                More about expenses
+              </Link>
             </p>
             <SwaggerField
               className={styles['ppm-payment-request-actual-date']}

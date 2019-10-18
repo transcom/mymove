@@ -202,7 +202,7 @@ class PaymentsTable extends Component {
         </table>
 
         <div className="paperwork">
-          <a onClick={this.togglePaperwork}>
+          <a onClick={this.togglePaperwork} className="usa-link">
             <FontAwesomeIcon aria-hidden className="icon" icon={paperworkIcon} />
             Create payment paperwork
           </a>
@@ -244,7 +244,9 @@ class PaymentsTable extends Component {
                     </ul>
                     <p>
                       After that, if the button is still inactive, contact support at{' '}
-                      <a href="tel:(628) 225-1540">(628) 225-1540</a>
+                      <a href="tel:(628) 225-1540" className="usa-link">
+                        (628) 225-1540
+                      </a>
                     </p>
                   </Alert>
                 )}

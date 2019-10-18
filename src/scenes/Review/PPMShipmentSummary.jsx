@@ -49,7 +49,7 @@ class PPMShipmentSummary extends Component {
             <p className="heading">
               Dates & Locations
               <span className="edit-section-link">
-                <Link data-cy="edit-ppm-dates" to={editDateAndLocationAddress}>
+                <Link data-cy="edit-ppm-dates" to={editDateAndLocationAddress} className="usa-link">
                   Edit
                 </Link>
               </span>
@@ -87,7 +87,7 @@ class PPMShipmentSummary extends Component {
             <p className="heading">
               Weight
               <span className="edit-section-link">
-                <Link data-cy="edit-ppm-weight" to={editWeightAddress}>
+                <Link data-cy="edit-ppm-weight" to={editWeightAddress} className="usa-link">
                   Edit
                 </Link>
               </span>

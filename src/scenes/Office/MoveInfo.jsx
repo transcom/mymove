@@ -382,6 +382,7 @@ class MoveInfo extends Component {
                           window,
                           defaultRelativeWindowSize,
                         )}
+                        className="usa-link"
                       >
                         Orders ({formatDate(upload.created_at)})
                       </a>
@@ -399,6 +400,7 @@ class MoveInfo extends Component {
                           window,
                           defaultRelativeWindowSize,
                         )}
+                        className="usa-link"
                       >
                         Orders ({formatDate(upload.created_at)})
                       </a>

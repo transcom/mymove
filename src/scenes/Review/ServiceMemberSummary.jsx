@@ -70,7 +70,9 @@ function ServiceMemberSummary(props) {
           <p className="heading">
             Profile
             <span className="edit-section-link">
-              <Link to={editProfilePath}>Edit</Link>
+              <Link to={editProfilePath} className="usa-link">
+                Edit
+              </Link>
             </span>
           </p>
           <table>
@@ -104,7 +106,9 @@ function ServiceMemberSummary(props) {
                 {moveIsApproved && '*'}
                 {!moveIsApproved && (
                   <span className="edit-section-link">
-                    <Link to={editOrdersPath}>Edit</Link>
+                    <Link to={editOrdersPath} className="usa-link">
+                      Edit
+                    </Link>
                   </span>
                 )}
               </p>
@@ -150,7 +154,9 @@ function ServiceMemberSummary(props) {
           <p className="heading">
             Contact Info
             <span className="edit-section-link">
-              <Link to={editContactInfoPath}>Edit</Link>
+              <Link to={editContactInfoPath} className="usa-link">
+                Edit
+              </Link>
             </span>
           </p>
           <table>
@@ -190,7 +196,9 @@ function ServiceMemberSummary(props) {
               <p className="heading">
                 Backup Contact Info
                 <span className="edit-section-link">
-                  <Link to={editBackupContactPath}>Edit</Link>
+                  <Link to={editBackupContactPath} className="usa-link">
+                    Edit
+                  </Link>
                 </span>
               </p>
               <table key={contact.id}>

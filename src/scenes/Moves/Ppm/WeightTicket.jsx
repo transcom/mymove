@@ -239,7 +239,7 @@ class WeightTicket extends Component {
                 <h3 className="expenses-header">Weight Tickets - {weightTicketSetOrdinal} set</h3>
                 Upload an <strong>empty</strong> & <strong>full</strong> weight ticket below for <em>only</em>{' '}
                 <strong>one</strong> vehicle or trip at a time until they're all uploaded.{' '}
-                <Link to="/weight-ticket-examples">
+                <Link to="/weight-ticket-examples" className="usa-link">
                   <FontAwesomeIcon aria-hidden className="color_blue_link" icon={faQuestionCircle} />
                 </Link>
                 <SwaggerField
@@ -306,8 +306,11 @@ class WeightTicket extends Component {
                               <Alert type="warning">
                                 If your state does not provide a registration or bill of sale for your trailer, you may
                                 write and upload a signed and dated statement certifying that you or your spouse own the
-                                trailer and meets the <Link to="/trailer-criteria">trailer criteria</Link>. Upload your
-                                statement using the proof of ownership field.
+                                trailer and meets the{' '}
+                                <Link to="/trailer-criteria" className="usa-link">
+                                  trailer criteria
+                                </Link>
+                                . Upload your statement using the proof of ownership field.
                               </Alert>
                             </div>
                           </div>
