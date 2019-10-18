@@ -3,6 +3,8 @@ package ghcapi
 import (
 	"net/http/httptest"
 
+	"github.com/transcom/mymove/pkg/models"
+
 	customercodeop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
 	"github.com/transcom/mymove/pkg/handlers"
 )
@@ -25,14 +27,14 @@ func (suite *HandlerSuite) TestGetCustomerInfoHandler_Success() {
 
 	suite.NotNil(getCustomerInfoPayload)
 
-	suite.Equal(getCustomerInfoPayload.FirstName, "First")
-	suite.Equal(getCustomerInfoPayload.MiddleName, "Middle")
-	suite.Equal(getCustomerInfoPayload.LastName, "Last")
-	suite.Equal(getCustomerInfoPayload.Agency, "Agency")
-	suite.Equal(getCustomerInfoPayload.Grade, "Grade")
-	suite.Equal(getCustomerInfoPayload.Email, "Example@example.com")
-	suite.Equal(getCustomerInfoPayload.Telephone, "213-213-3232")
-	suite.Equal(getCustomerInfoPayload.OriginDutyStation, "Origin Station")
-	suite.Equal(getCustomerInfoPayload.DestinationDutyStation, "Destination Station")
+	suite.Equal(getCustomerInfoPayload.FirstName, models.StringPointer("First"))
+	suite.Equal(getCustomerInfoPayload.MiddleName, models.StringPointer("Middle"))
+	suite.Equal(getCustomerInfoPayload.LastName, models.StringPointer("Last"))
+	suite.Equal(getCustomerInfoPayload.Agency, models.StringPointer("Agency"))
+	suite.Equal(getCustomerInfoPayload.Grade, models.StringPointer("Grade"))
+	suite.Equal(getCustomerInfoPayload.Email, models.StringPointer("Example@example.com"))
+	suite.Equal(getCustomerInfoPayload.Telephone, models.StringPointer("213-213-3232"))
+	suite.Equal(getCustomerInfoPayload.OriginDutyStation, models.StringPointer("Origin Station"))
+	suite.Equal(getCustomerInfoPayload.DestinationDutyStation, models.StringPointer("Destination Station"))
 	suite.Equal(getCustomerInfoPayload.DependentsAuthorized, true)
 }
