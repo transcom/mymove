@@ -139,7 +139,7 @@ export class PpmWeight extends Component {
           )}
           <div className="grid-row">
             <div className="grid-col-12">
-              <h2>Customize Weight</h2>
+              <h1>Customize Weight</h1>
               {!hasLoadSuccess && <LoadingPlaceholder />}
               {hasLoadSuccess && (
                 <Fragment>
