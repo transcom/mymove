@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/tealeg/xlsx"
 )
 
@@ -164,6 +165,7 @@ type paramConfig struct {
 	saveToFile   bool
 	runTime      time.Time
 	xlsxFile     *xlsx.File
+	runVerify    bool
 }
 
 func xlsxSheetsUsage() string {
@@ -196,8 +198,11 @@ func main() {
 	sheets := flag.String("xlsxSheets", "", xlsxSheetsUsage())
 	display := flag.Bool("display", false, "Display output of parsed info")
 	saveToFile := flag.Bool("save", false, "Save output to CSV file")
+	runVerify := flag.Bool("verify", true, "Default is true, if false skip sheet format verification")
 
 	flag.Parse()
+
+	// Process command line params
 
 	params.processAll = false
 	if all != nil && *all == true {
@@ -234,6 +239,14 @@ func main() {
 	if saveToFile != nil && *saveToFile == true {
 		params.saveToFile = true
 	}
+
+	params.runVerify = false
+	if runVerify != nil {
+		params.runVerify = *runVerify
+	}
+
+	// Must be after processing config param
+	// Run the process function
 
 	if params.processAll == true {
 		for i, x := range xlsxDataSheets {
@@ -282,15 +295,20 @@ func process(params paramConfig, sheetIndex int) error {
 	}
 
 	// Call verify function
-	if xlsxInfo.verify != nil {
-		var callFunc verifyXlsxSheet
-		callFunc = *xlsxInfo.verify
-		err := callFunc(params, sheetIndex)
-		if err != nil {
-			log.Printf("%s verify error: %v\n", description, err)
+	if params.runVerify == true {
+		if xlsxInfo.verify != nil {
+			var callFunc verifyXlsxSheet
+			callFunc = *xlsxInfo.verify
+			err := callFunc(params, sheetIndex)
+			if err != nil {
+				log.Printf("%s verify error: %v\n", description, err)
+				return errors.Wrapf(err, " verify error for sheet index: %d with description: %s", sheetIndex, description)
+			}
+		} else {
+			log.Printf("No verify function for sheet index %d with description %s\n", sheetIndex, description)
 		}
 	} else {
-		log.Printf("No verify function for sheet index %d with description %s\n", sheetIndex, description)
+		log.Print("Skip running the verify functions")
 	}
 
 	// Call process function
@@ -300,6 +318,7 @@ func process(params paramConfig, sheetIndex int) error {
 		err := callFunc(params, sheetIndex)
 		if err != nil {
 			log.Printf("%s process error: %v\n", description, err)
+			return errors.Wrapf(err, " process error for sheet index: %d with description: %s", sheetIndex, description)
 		}
 	} else {
 		log.Fatalf("Missing process function for sheet index %d with description %s\n", sheetIndex, description)
@@ -332,25 +351,22 @@ func stringPointer(s string) *string {
 	return &s
 }
 
-// TODO: should this return error or 0 when failing to convert to an int???
-// TODO: if something fails, then it should probably fail the program... why would
-// TODO: keep going???
 func getInt(from string) int {
 	i, err := strconv.Atoi(from)
 	if err != nil {
 		if strings.HasSuffix(err.Error(), ": invalid syntax") {
-			fmt.Printf("WARNING: getInt() invalid int syntax checking string <%s> for float string\n", from)
+			//fmt.Printf("WARNING: getInt() invalid int syntax checking string <%s> for float string\n", from)
 			f, ferr := strconv.ParseFloat(from, 32)
 			if ferr != nil {
-				fmt.Printf("ERROR: getInt() ParseFloat error %s\n", ferr.Error())
+				//fmt.Printf("ERROR: getInt() ParseFloat error %s\n", ferr.Error())
 				return 0
 			}
 			if f != 0.0 {
-				fmt.Printf("SUCCESS: getInt() converting string <%s> from float to int <%d>\n", from, int(f))
+				//fmt.Printf("SUCCESS: getInt() converting string <%s> from float to int <%d>\n", from, int(f))
 				return int(f)
 			}
 		}
-		fmt.Printf("ERROR: getInt() Atoi error %s\n", err.Error())
+		log.Fatalf("ERROR: getInt() Atoi & ParseFloat failed to convert <%s> error %s, returning 0\n", from, err.Error())
 		return 0
 	}
 
