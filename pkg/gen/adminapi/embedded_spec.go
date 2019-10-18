@@ -1271,6 +1271,7 @@ func init() {
         },
         "move_locator": {
           "type": "string",
+          "x-nullable": true,
           "example": "12432"
         },
         "office_user_email": {
@@ -2551,6 +2552,7 @@ func init() {
         },
         "move_locator": {
           "type": "string",
+          "x-nullable": true,
           "example": "12432"
         },
         "office_user_email": {

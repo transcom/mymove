@@ -509,6 +509,7 @@ definitions:
       move_locator:
         type: string
         example: '12432'
+        x-nullable: true
       upload:
         $ref: '#/definitions/Upload'
       service_member_id:

@@ -22,7 +22,7 @@ type UploadInformation struct {
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// move locator
-	MoveLocator string `json:"move_locator,omitempty"`
+	MoveLocator *string `json:"move_locator,omitempty"`
 
 	// office user email
 	OfficeUserEmail *string `json:"office_user_email,omitempty"`

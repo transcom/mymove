@@ -113,9 +113,7 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	adminAPI.UploadGetUploadHandler = GetUploadHandler{
 		context,
-		upload.NewUploadFetcher(queryBuilder),
-		query.NewQueryFilter,
-		pagination.NewPagination,
+		upload.NewUploadInformationFetcher(context.DB()),
 	}
 
 	return adminAPI.Serve(nil)
