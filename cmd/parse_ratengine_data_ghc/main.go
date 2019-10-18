@@ -473,7 +473,7 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 	}
 
 	// XLSX Sheet consts
-	const xlsxDataSheetNum int = 7  // 2a) Domestic Linehaul Prices
+	const xlsxDataSheetNum int = 7  // 2b) Domestic Service Area Prices
 	const feeColIndexStart int = 6  // start at column 6 to get the rates
 	const feeRowIndexStart int = 10 // start at row 10 to get the rates
 	const serviceAreaNumberColumn int = 2
