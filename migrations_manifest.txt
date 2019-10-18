@@ -370,3 +370,4 @@
 20191016214136_remove_disabled_column.up.sql
 20191017215845_add_truss_user.up.sql
 20191017230212_deactivate-truss-user.up.sql
+20191018211440_update_combo_moves_to_ppm.up.sql
