@@ -269,9 +269,43 @@ func (dsa *domesticServiceArea) csvHeader() []string {
 	header := []string{
 		"Base Point City",
 		"State",
-		"Service Area",
+		"Service Area Number",
 		"Zip3's",
 	}
 
 	return header
+}
+
+func (dsa *domesticServiceArea) toSlice() []string {
+	var values []string
+
+	values = append(values, dsa.BasePointCity)
+	values = append(values, dsa.State)
+	values = append(values, strconv.Itoa(dsa.ServiceAreaNumber))
+	values = append(values, "toto")
+
+	return values
+}
+
+type internationalServiceArea struct {
+	RateArea   string
+	RateAreaID string
+}
+
+func (isa *internationalServiceArea) csvHeader() []string {
+	header := []string{
+		"International Rate Area",
+		"Rate Area Id",
+	}
+
+	return header
+}
+
+func (isa *internationalServiceArea) toSlice() []string {
+	var values []string
+
+	values = append(values, isa.RateArea)
+	values = append(values, isa.RateAreaID)
+
+	return values
 }

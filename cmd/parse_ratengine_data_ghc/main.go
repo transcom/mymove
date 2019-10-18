@@ -138,7 +138,7 @@ var xlsxDataSheets []xlsxDataSheetInfo
 func initDataSheetInfo() {
 	xlsxDataSheets = make([]xlsxDataSheetInfo, xlsxSheetsCountMax, xlsxSheetsCountMax)
 
-	// 4: 	1b) Domestic Service Areas
+	// 4: 	1b) Domestic & International Service Areas
 	xlsxDataSheets[4] = xlsxDataSheetInfo{
 		description:    stringPointer("1b) Service Areas"),
 		outputFilename: stringPointer("1b_service_areas"),
@@ -544,7 +544,21 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 
 // parseServiceAreas: parser for: 1b) Service Areas
 var parseServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int) error {
-	log.Println("TODO verifyServiceAreas() not implemented")
+	// XLSX Sheet consts
+	const xlsxDataSheetNum int = 4          // 1b) Service Areas
+	const serviceAreaRowIndexStart int = 10 // start at row 10 to get the rates
+	const basePointCityColumn int = 2
+	const stateColumn int = 3
+	const serviceAreaNumberColumn int = 4
+	const zip3sColumn int = 5
+	const internationalRateAreaColumn int = 9
+	const rateAreaIDColumn int = 10
+
+	if xlsxDataSheetNum != sheetIndex {
+		return fmt.Errorf("parseServiceAreas expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
+	}
+
+	log.Println("Parsing Domestic Service Areas")
 	// Create CSV writer to save data to CSV file, returns nil if params.saveToFile=false
 	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime)
 	if csvWriter != nil {
@@ -555,19 +569,7 @@ var parseServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int
 		csvWriter.write(dsa.csvHeader())
 	}
 
-	// XLSX Sheet consts
-	const xlsxDataSheetNum int = 4                  // 1b) Service Areas
-	const domesticServiceAreaRowIndexStart int = 10 // start at row 10 to get the rates
-	const basePointCityColumn int = 2
-	const stateColumn int = 3
-	const serviceAreaNumberColumn int = 4
-	const zip3sColumn int = 5
-
-	if xlsxDataSheetNum != sheetIndex {
-		return fmt.Errorf("parseServiceAreas expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
-	}
-
-	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[domesticServiceAreaRowIndexStart:]
+	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[serviceAreaRowIndexStart:]
 	for _, row := range dataRows {
 		domServArea := domesticServiceArea{
 			BasePointCity:     getCell(row.Cells, basePointCityColumn),
@@ -578,6 +580,29 @@ var parseServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int
 		// All the rows are consecutive, if we get to a blank one we're done
 		if domServArea.BasePointCity == "" {
 			break
+		} else if csvWriter != nil {
+			csvWriter.write(domServArea.toSlice())
+		}
+	}
+
+	log.Println("Parsing International Service Areas")
+	// Create CSV writer to save data to CSV file, returns nil if params.saveToFile=false
+	if csvWriter != nil {
+		// Write header to CSV
+		isa := internationalServiceArea{}
+		csvWriter.write(isa.csvHeader())
+	}
+
+	for _, row := range dataRows {
+		intlServArea := internationalServiceArea{
+			RateArea:   getCell(row.Cells, internationalRateAreaColumn),
+			RateAreaID: getCell(row.Cells, rateAreaIDColumn),
+		}
+		// All the rows are consecutive, if we get to a blank one we're done
+		if intlServArea.RateArea == "" {
+			break
+		} else if csvWriter != nil {
+			csvWriter.write(intlServArea.toSlice())
 		}
 	}
 	return nil
