@@ -46,7 +46,7 @@ func init() {
           "Customer"
         ],
         "summary": "Gets all customers",
-        "operationId": "listCustomers",
+        "operationId": "getAllCustomerMoves",
         "responses": {
           "200": {
             "description": "Successfully retrieved information on all customer",
@@ -1940,7 +1940,7 @@ func init() {
           "Customer"
         ],
         "summary": "Gets all customers",
-        "operationId": "listCustomers",
+        "operationId": "getAllCustomerMoves",
         "responses": {
           "200": {
             "description": "Successfully retrieved information on all customer",

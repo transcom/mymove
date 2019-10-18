@@ -16,7 +16,7 @@ type CustomerMoveItem struct {
 	SubmittedDate         *time.Time `json:"submitted_date" db:"submitted_date"`
 	LastModifiedDate      time.Time  `json:"last_modified_date" db:"last_modified_date"`
 	OriginDutyStationName string     `json:"origin_duty_station_name" db:"origin_duty_station_name"`
-	BranchOfService       string     `json:"branch_of_service,omitempty"`
+	BranchOfService       string     `json:"branch_of_service" db:"branch_of_service"`
 }
 
 // GetCustomerMoveItems gets all CustomerMoveItems

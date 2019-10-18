@@ -33,6 +33,7 @@ const toCamelCase = str => str[0].toLowerCase() + str.slice(1);
 function successfulReturnType(routeDefinition, status) {
   // eslint-disable-next-line security/detect-object-injection
   const response = routeDefinition.responses[status];
+  debugger;
   const schemaKey = response.schema['$$ref'].split('/').pop();
   if (!response) {
     console.error(`No response found for operation ${routeDefinition.operationId} with status ${status}`);
@@ -97,7 +98,6 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
           end: new Date(),
           isLoading: false,
         });
-
         const routeDefinition = findMatchingRoute(client.spec.paths, operationPath);
         if (!routeDefinition) {
           throw new Error(`Could not find routeDefinition for ${operationPath}`);
@@ -115,7 +115,6 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
         if (!schemaKey) {
           schemaKey = successfulReturnType(routeDefinition, response.status);
         }
-
         if (!schemaKey) {
           throw new Error(`Could not find schemaKey for ${operationPath} status ${response.status}`);
         }

@@ -16,7 +16,7 @@ paths:
     get:
       tags:
         - Customer
-      operationId: listCustomers
+      operationId: getAllCustomerMoves
       description: Gets all customers
       summary: Gets all customers
       produces:

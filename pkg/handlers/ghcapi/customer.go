@@ -46,17 +46,17 @@ func payloadForCustomerMoveItem(CustomerMoveItem models.CustomerMoveItem) *ghcme
 	return &CustomerMoveItemPayload
 }
 
-// ListCustomersHandler fetches the information of a specific customer
-type ListCustomersHandler struct {
+// GetAllCustomerMovesHandler fetches the information of a specific customer
+type GetAllCustomerMovesHandler struct {
 	handlers.HandlerContext
 }
 
 // Handle getting the information of all customers
-func (h ListCustomersHandler) Handle(params customercodeop.ListCustomersParams) middleware.Responder {
+func (h GetAllCustomerMovesHandler) Handle(params customercodeop.GetAllCustomerMovesParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	if !session.IsOfficeUser() {
-		return customercodeop.NewListCustomersForbidden()
+		return customercodeop.NewGetAllCustomerMovesForbidden()
 	}
 
 	CustomerMoveItems, err := models.GetCustomerMoveItems(h.DB())
@@ -71,5 +71,6 @@ func (h ListCustomersHandler) Handle(params customercodeop.ListCustomersParams) 
 		MoveQueueItemPayload := payloadForCustomerMoveItem(MoveQueueItem)
 		CustomerMoveItemPayloads[i] = MoveQueueItemPayload
 	}
-	return customercodeop.NewListCustomersOK().WithPayload(CustomerMoveItemPayloads)
+
+	return customercodeop.NewGetAllCustomerMovesOK().WithPayload(CustomerMoveItemPayloads)
 }
