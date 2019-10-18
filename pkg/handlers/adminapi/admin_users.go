@@ -2,6 +2,8 @@ package adminapi
 
 import (
 	"fmt"
+	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/services/query"
 
@@ -14,7 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-func payloadForAdminUser(o models.AdminUser) *adminmessages.AdminUser {
+func payloadForAdminUserModel(o models.AdminUser) *adminmessages.AdminUser {
 	return &adminmessages.AdminUser{
 		ID:             handlers.FmtUUID(o.ID),
 		FirstName:      handlers.FmtString(o.FirstName),
@@ -60,7 +62,7 @@ func (h IndexAdminUsersHandler) Handle(params adminuserop.IndexAdminUsersParams)
 	payload := make(adminmessages.AdminUsers, queriedAdminUsersCount)
 
 	for i, s := range adminUsers {
-		payload[i] = payloadForAdminUser(s)
+		payload[i] = payloadForAdminUserModel(s)
 	}
 
 	return adminuserop.NewIndexAdminUsersOK().WithContentRange(fmt.Sprintf("admin users %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedAdminUsersCount, totalAdminUsersCount)).WithPayload(payload)
@@ -84,7 +86,45 @@ func (h GetAdminUserHandler) Handle(params adminuserop.GetAdminUserParams) middl
 		return handlers.ResponseForError(logger, err)
 	}
 
-	payload := payloadForAdminUser(adminUser)
+	payload := payloadForAdminUserModel(adminUser)
 
 	return adminuserop.NewGetAdminUserOK().WithPayload(payload)
+}
+
+type CreateAdminUserHandler struct {
+	handlers.HandlerContext
+	services.AdminUserCreator
+	services.NewQueryFilter
+}
+
+func (h CreateAdminUserHandler) Handle(params adminuserop.CreateAdminUserParams) middleware.Responder {
+	payload := params.AdminUser
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	organizationID, err := uuid.FromString(payload.OrganizationID.String())
+	if err != nil {
+		logger.Error(fmt.Sprintf("UUID Parsing for %s", payload.OrganizationID.String()), zap.Error(err))
+	}
+
+	adminUser := models.AdminUser{
+		LastName:       payload.LastName,
+		FirstName:      payload.FirstName,
+		Email:          payload.Email,
+		Role:           models.AdminRole(payload.Role),
+		OrganizationID: &organizationID,
+	}
+
+	organizationIDFilter := []services.QueryFilter{
+		h.NewQueryFilter("id", "=", organizationID),
+	}
+
+	createdAdminUser, verrs, err := h.AdminUserCreator.CreateAdminUser(&adminUser, organizationIDFilter)
+	if err != nil || verrs != nil {
+		logger.Error("Error saving user", zap.Error(verrs))
+		return adminuserop.NewCreateAdminUserInternalServerError()
+	}
+
+	logger.Info("Create Admin User", zap.String("office_user_id", createdAdminUser.ID.String()), zap.String("responsible_user_id", session.UserID.String()), zap.String("event_type", "create_admin_user"))
+	returnPayload := payloadForAdminUserModel(*createdAdminUser)
+	return adminuserop.NewCreateAdminUserCreated().WithPayload(returnPayload)
 }
