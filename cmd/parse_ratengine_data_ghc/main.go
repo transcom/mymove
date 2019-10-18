@@ -138,6 +138,14 @@ var xlsxDataSheets []xlsxDataSheetInfo
 func initDataSheetInfo() {
 	xlsxDataSheets = make([]xlsxDataSheetInfo, xlsxSheetsCountMax, xlsxSheetsCountMax)
 
+	// 4: 	1b) Domestic Service Areas
+	xlsxDataSheets[4] = xlsxDataSheetInfo{
+		description:    stringPointer("1b) Service Areas"),
+		outputFilename: stringPointer("1b_service_areas"),
+		process:        &parseServiceAreas,
+		verify:         &verifyServiceAreas,
+	}
+
 	// 6: 	2a) Domestic Linehaul Prices
 	xlsxDataSheets[6] = xlsxDataSheetInfo{
 		description:    stringPointer("2a) Domestic Linehaul Prices"),
@@ -360,6 +368,13 @@ func removeFirstDollarSign(s string) string {
 	return strings.Replace(s, "$", "", 1)
 }
 
+func splitZip3s(s string) []string {
+	if strings.Contains(s, ",") {
+		return strings.Split(s, ",")
+	}
+	return []string{strconv.Itoa(getInt(s))}
+}
+
 func createCsvWriter(create bool, sheetIndex int, runTime time.Time) *createCsvHelper {
 	var createCsv createCsvHelper
 
@@ -524,5 +539,52 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 		}
 	}
 
+	return nil
+}
+
+// parseServiceAreas: parser for: 1b) Service Areas
+var parseServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int) error {
+	log.Println("TODO verifyServiceAreas() not implemented")
+	// Create CSV writer to save data to CSV file, returns nil if params.saveToFile=false
+	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime)
+	if csvWriter != nil {
+		defer csvWriter.close()
+
+		// Write header to CSV
+		dsa := domesticServiceArea{}
+		csvWriter.write(dsa.csvHeader())
+	}
+
+	// XLSX Sheet consts
+	const xlsxDataSheetNum int = 4                  // 1b) Service Areas
+	const domesticServiceAreaRowIndexStart int = 10 // start at row 10 to get the rates
+	const basePointCityColumn int = 2
+	const stateColumn int = 3
+	const serviceAreaNumberColumn int = 4
+	const zip3sColumn int = 5
+
+	if xlsxDataSheetNum != sheetIndex {
+		return fmt.Errorf("parseServiceAreas expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
+	}
+
+	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[domesticServiceAreaRowIndexStart:]
+	for _, row := range dataRows {
+		domServArea := domesticServiceArea{
+			BasePointCity:     getCell(row.Cells, basePointCityColumn),
+			State:             getCell(row.Cells, stateColumn),
+			ServiceAreaNumber: getInt(getCell(row.Cells, serviceAreaNumberColumn)),
+			Zip3s:             splitZip3s(getCell(row.Cells, zip3sColumn)),
+		}
+		// All the rows are consecutive, if we get to a blank one we're done
+		if domServArea.BasePointCity == "" {
+			break
+		}
+	}
+	return nil
+}
+
+// verifyServiceAreas: verification for: 1b) Service Areas
+var verifyServiceAreas verifyXlsxSheet = func(params paramConfig, sheetIndex int) error {
+	log.Println("TODO verifyServiceAreas() not implemented")
 	return nil
 }

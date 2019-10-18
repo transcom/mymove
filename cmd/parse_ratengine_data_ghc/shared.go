@@ -257,3 +257,21 @@ func (dSA *domesticServiceAreaPrice) toSlice() []string {
 
 	return values
 }
+
+type domesticServiceArea struct {
+	BasePointCity     string
+	State             string
+	ServiceAreaNumber int
+	Zip3s             []string
+}
+
+func (dsa *domesticServiceArea) csvHeader() []string {
+	header := []string{
+		"Base Point City",
+		"State",
+		"Service Area",
+		"Zip3's",
+	}
+
+	return header
+}
