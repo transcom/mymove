@@ -24,6 +24,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organization"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_service_provider_performances"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/upload"
 )
@@ -77,6 +78,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		OfficeIndexOfficesHandler: office.IndexOfficesHandlerFunc(func(params office.IndexOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation OfficeIndexOffices has not yet been implemented")
+		}),
+		OrganizationIndexOrganizationsHandler: organization.IndexOrganizationsHandlerFunc(func(params organization.IndexOrganizationsParams) middleware.Responder {
+			return middleware.NotImplemented("operation OrganizationIndexOrganizations has not yet been implemented")
 		}),
 		TransportationServiceProviderPerformancesIndexTSPPsHandler: transportation_service_provider_performances.IndexTSPPsHandlerFunc(func(params transportation_service_provider_performances.IndexTSPPsParams) middleware.Responder {
 			return middleware.NotImplemented("operation TransportationServiceProviderPerformancesIndexTSPPs has not yet been implemented")
@@ -137,6 +141,8 @@ type MymoveAPI struct {
 	OfficeUsersIndexOfficeUsersHandler office_users.IndexOfficeUsersHandler
 	// OfficeIndexOfficesHandler sets the operation handler for the index offices operation
 	OfficeIndexOfficesHandler office.IndexOfficesHandler
+	// OrganizationIndexOrganizationsHandler sets the operation handler for the index organizations operation
+	OrganizationIndexOrganizationsHandler organization.IndexOrganizationsHandler
 	// TransportationServiceProviderPerformancesIndexTSPPsHandler sets the operation handler for the index t s p ps operation
 	TransportationServiceProviderPerformancesIndexTSPPsHandler transportation_service_provider_performances.IndexTSPPsHandler
 	// OfficeUsersUpdateOfficeUserHandler sets the operation handler for the update office user operation
@@ -246,6 +252,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.OfficeIndexOfficesHandler == nil {
 		unregistered = append(unregistered, "office.IndexOfficesHandler")
+	}
+
+	if o.OrganizationIndexOrganizationsHandler == nil {
+		unregistered = append(unregistered, "organization.IndexOrganizationsHandler")
 	}
 
 	if o.TransportationServiceProviderPerformancesIndexTSPPsHandler == nil {
@@ -408,6 +418,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/offices"] = office.NewIndexOffices(o.context, o.OfficeIndexOfficesHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/organizations"] = organization.NewIndexOrganizations(o.context, o.OrganizationIndexOrganizationsHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

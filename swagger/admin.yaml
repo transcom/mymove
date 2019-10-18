@@ -456,6 +456,41 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/ElectronicOrder'
+  Organization:
+    type: object
+    required:
+      - id
+      - name
+      - created_at
+      - updated_at
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        title: Name
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+      created_at:
+        type: string
+        format: datetime
+        title: Created at
+      updated_at:
+        type: string
+        format: datetime
+        title: Updated at
+  Organizations:
+    type: array
+    items:
+      $ref: '#/definitions/Organization'
   Issuer:
     type: string
     description: >-
@@ -914,3 +949,40 @@ paths:
           description: upload not found
         500:
           description: server error
+  /organizations:
+    get:
+      summary: List organizations
+      description: Returns a list of organizations
+      operationId: indexOrganizations
+      tags:
+        - organization
+      parameters:
+        - in: query
+          name: filter
+          type: array
+          items:
+            type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
+      responses:
+        200:
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
+          schema:
+            $ref: '#/definitions/Organizations'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: not found
+        500:
+          description: server error
+

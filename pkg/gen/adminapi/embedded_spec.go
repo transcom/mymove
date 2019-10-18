@@ -522,6 +522,62 @@ func init() {
         }
       }
     },
+    "/organizations": {
+      "get": {
+        "description": "Returns a list of organizations",
+        "tags": [
+          "organization"
+        ],
+        "summary": "List organizations",
+        "operationId": "indexOrganizations",
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Organizations"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/transportation_service_provider_performances": {
       "get": {
         "description": "Returns a list of transportation service provider performances (TSPPs)",
@@ -1086,6 +1142,52 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/OfficeUser"
+      }
+    },
+    "Organization": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "datetime",
+          "title": "Created at"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "title": "Name"
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "datetime",
+          "title": "Updated at"
+        }
+      }
+    },
+    "Organizations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Organization"
       }
     },
     "TransportationOffice": {
@@ -1785,6 +1887,62 @@ func init() {
         }
       }
     },
+    "/organizations": {
+      "get": {
+        "description": "Returns a list of organizations",
+        "tags": [
+          "organization"
+        ],
+        "summary": "List organizations",
+        "operationId": "indexOrganizations",
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Organizations"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/transportation_service_provider_performances": {
       "get": {
         "description": "Returns a list of transportation service provider performances (TSPPs)",
@@ -2350,6 +2508,52 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/OfficeUser"
+      }
+    },
+    "Organization": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "datetime",
+          "title": "Created at"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "title": "Name"
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "datetime",
+          "title": "Updated at"
+        }
+      }
+    },
+    "Organizations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Organization"
       }
     },
     "TransportationOffice": {

@@ -11,6 +11,7 @@ import OfficeUserEdit from './OfficeUsers/OfficeUserEdit';
 import OfficeUserShow from './OfficeUsers/OfficeUserShow';
 import AdminUserList from './AdminUsers/AdminUserList';
 import AdminUserShow from './AdminUsers/AdminUserShow';
+import AdminUserCreate from './AdminUsers/AdminUserCreate';
 import OfficeList from './Offices/OfficeList';
 import TSPPList from './TSPPs/TSPPList';
 import TSPPShow from './TSPPs/TSPPShow';
@@ -49,7 +50,13 @@ const Home = () => (
         edit={OfficeUserEdit}
       />
       <Resource name="offices" options={{ label: 'Offices' }} list={OfficeList} />
-      <Resource name="admin_users" options={{ label: 'Admin Users' }} list={AdminUserList} show={AdminUserShow} />
+      <Resource
+        name="admin_users"
+        options={{ label: 'Admin Users' }}
+        list={AdminUserList}
+        show={AdminUserShow}
+        create={AdminUserCreate}
+      />
       <Resource
         name="transportation_service_provider_performances"
         options={{ label: 'TSPPs' }}
@@ -59,6 +66,7 @@ const Home = () => (
       <Resource name="electronic_orders" options={{ label: 'Electronic orders' }} list={ElectronicOrderList} />
       <Resource name="access_codes" options={{ label: 'Access codes' }} list={AccessCodeList} />
       <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
+      <Resource name="organizations" />
     </Admin>
   </div>
 );
