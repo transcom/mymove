@@ -15,9 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-//TODO:
-// TODO update tests
-func payloadForUploadModel(u services.UploadInformation) *adminmessages.UploadInformation {
+func payloadForUpload(u services.UploadInformation) *adminmessages.UploadInformation {
 	var moveLocator *string
 	if u.MoveLocator != nil {
 		moveLocator = u.MoveLocator
@@ -56,6 +54,6 @@ func (h GetUploadHandler) Handle(params uploadop.GetUploadParams) middleware.Res
 			return handlers.ResponseForError(logger, err)
 		}
 	}
-	payload := payloadForUploadModel(uploadInformation)
+	payload := payloadForUpload(uploadInformation)
 	return uploadop.NewGetUploadOK().WithPayload(payload)
 }

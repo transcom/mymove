@@ -48,7 +48,7 @@ FROM uploads
          LEFT JOIN office_users ou ON u.id = ou.user_id
 where uploads.id = $1`
 	ui := services.UploadInformation{}
-	err := uif.db.RawQuery(q, uploadID.String()).First(&ui)
+	err := uif.db.RawQuery(q, uploadID).First(&ui)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
