@@ -496,7 +496,7 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 	const serviceAreaNumberColumn int = 2
 	const originServiceAreaColumn int = 3
 	const serviceScheduleColumn int = 4
-	const numEscalationYearsToProcess int = 4
+	const numEscalationYearsToProcess int = 1
 
 	if xlsxDataSheetNum != sheetIndex {
 		return fmt.Errorf("parseDomesticLinehaulPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
@@ -635,7 +635,7 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 	const originServiceAreaColumn int = 3
 	const serviceScheduleColumn int = 4
 	const sITPickupDeliveryScheduleColumn int = 5
-	const numEscalationYearsToProcess int = 4
+	const numEscalationYearsToProcess int = 1
 
 	if xlsxDataSheetNum != sheetIndex {
 		return fmt.Errorf("parseDomesticServiceAreaPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
