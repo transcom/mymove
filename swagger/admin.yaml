@@ -430,6 +430,29 @@ definitions:
         example: 212-555-5555
       deactivated:
         type: boolean
+  AdminUserCreatePayload:
+    type: object
+    properties:
+      email:
+        type: string
+        example: 'user@userdomain.com'
+        title: Email
+      first_name:
+        type: string
+        title: First Name
+      last_name:
+        type: string
+        title: Last Name
+      organization_id:
+        type: string
+        format: uuid
+        example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
+      role:
+        type: string
+        title: Role
+        enum:
+          - SYSTEM_ADMIN
+          - PROGRAM_ADMIN
   ElectronicOrder:
     type: object
     required:
@@ -794,6 +817,31 @@ paths:
           description: admin users not found
         500:
           description: server error
+    post:
+      summary: create an admin user
+      description: creates and returns an admin user record
+      operationId: createAdminUser
+      tags:
+        - admin_users
+      parameters:
+        - in: body
+          name: adminUser
+          description: Admin user information
+          schema:
+            $ref: '#/definitions/AdminUserCreatePayload'
+      responses:
+        201:
+          description: Successfully created Admin User
+          schema:
+            $ref: '#/definitions/AdminUser'
+        400:
+          description: Invalid Request
+        401:
+          description: Must be authenticated to use this end point
+        403:
+          description: Not authorized to create an admin user
+        500:
+          description: Server error
   /admin_users/{adminUserId}:
     get:
       summary: Fetch a specific admin user

@@ -46,6 +46,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		BearerAuthenticator: security.BearerAuth,
 		JSONConsumer:        runtime.JSONConsumer(),
 		JSONProducer:        runtime.JSONProducer(),
+		AdminUsersCreateAdminUserHandler: admin_users.CreateAdminUserHandlerFunc(func(params admin_users.CreateAdminUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation AdminUsersCreateAdminUser has not yet been implemented")
+		}),
 		OfficeUsersCreateOfficeUserHandler: office_users.CreateOfficeUserHandlerFunc(func(params office_users.CreateOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation OfficeUsersCreateOfficeUser has not yet been implemented")
 		}),
@@ -119,6 +122,8 @@ type MymoveAPI struct {
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
+	// AdminUsersCreateAdminUserHandler sets the operation handler for the create admin user operation
+	AdminUsersCreateAdminUserHandler admin_users.CreateAdminUserHandler
 	// OfficeUsersCreateOfficeUserHandler sets the operation handler for the create office user operation
 	OfficeUsersCreateOfficeUserHandler office_users.CreateOfficeUserHandler
 	// AdminUsersGetAdminUserHandler sets the operation handler for the get admin user operation
@@ -208,6 +213,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
+	}
+
+	if o.AdminUsersCreateAdminUserHandler == nil {
+		unregistered = append(unregistered, "admin_users.CreateAdminUserHandler")
 	}
 
 	if o.OfficeUsersCreateOfficeUserHandler == nil {
@@ -363,6 +372,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers == nil {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/admin_users"] = admin_users.NewCreateAdminUser(o.context, o.AdminUsersCreateAdminUserHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)

@@ -41,6 +41,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
+	if api.AdminUsersCreateAdminUserHandler == nil {
+		api.AdminUsersCreateAdminUserHandler = admin_users.CreateAdminUserHandlerFunc(func(params admin_users.CreateAdminUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation admin_users.CreateAdminUser has not yet been implemented")
+		})
+	}
 	if api.OfficeUsersCreateOfficeUserHandler == nil {
 		api.OfficeUsersCreateOfficeUserHandler = office_users.CreateOfficeUserHandlerFunc(func(params office_users.CreateOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.CreateOfficeUser has not yet been implemented")

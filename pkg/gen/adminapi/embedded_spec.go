@@ -143,6 +143,44 @@ func init() {
             "description": "server error"
           }
         }
+      },
+      "post": {
+        "description": "creates and returns an admin user record",
+        "tags": [
+          "admin_users"
+        ],
+        "summary": "create an admin user",
+        "operationId": "createAdminUser",
+        "parameters": [
+          {
+            "description": "Admin user information",
+            "name": "adminUser",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/AdminUserCreatePayload"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created Admin User",
+            "schema": {
+              "$ref": "#/definitions/AdminUser"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to create an admin user"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
       }
     },
     "/admin_users/{adminUserId}": {
@@ -948,6 +986,37 @@ func init() {
         "user_id": {
           "type": "string",
           "format": "uuid"
+        }
+      }
+    },
+    "AdminUserCreatePayload": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "title": "Email",
+          "example": "user@userdomain.com"
+        },
+        "first_name": {
+          "type": "string",
+          "title": "First Name"
+        },
+        "last_name": {
+          "type": "string",
+          "title": "Last Name"
+        },
+        "organization_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "role": {
+          "type": "string",
+          "title": "Role",
+          "enum": [
+            "SYSTEM_ADMIN",
+            "PROGRAM_ADMIN"
+          ]
         }
       }
     },
@@ -1508,6 +1577,44 @@ func init() {
             "description": "server error"
           }
         }
+      },
+      "post": {
+        "description": "creates and returns an admin user record",
+        "tags": [
+          "admin_users"
+        ],
+        "summary": "create an admin user",
+        "operationId": "createAdminUser",
+        "parameters": [
+          {
+            "description": "Admin user information",
+            "name": "adminUser",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/AdminUserCreatePayload"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created Admin User",
+            "schema": {
+              "$ref": "#/definitions/AdminUser"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to create an admin user"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
       }
     },
     "/admin_users/{adminUserId}": {
@@ -2313,6 +2420,37 @@ func init() {
         "user_id": {
           "type": "string",
           "format": "uuid"
+        }
+      }
+    },
+    "AdminUserCreatePayload": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "title": "Email",
+          "example": "user@userdomain.com"
+        },
+        "first_name": {
+          "type": "string",
+          "title": "First Name"
+        },
+        "last_name": {
+          "type": "string",
+          "title": "Last Name"
+        },
+        "organization_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "role": {
+          "type": "string",
+          "title": "Role",
+          "enum": [
+            "SYSTEM_ADMIN",
+            "PROGRAM_ADMIN"
+          ]
         }
       }
     },
