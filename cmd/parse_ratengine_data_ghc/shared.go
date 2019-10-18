@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 )
 
 /*************************************************************************************************************/
@@ -282,7 +283,7 @@ func (dsa *domesticServiceArea) toSlice() []string {
 	values = append(values, dsa.BasePointCity)
 	values = append(values, dsa.State)
 	values = append(values, strconv.Itoa(dsa.ServiceAreaNumber))
-	values = append(values, "toto")
+	values = append(values, strings.Join(dsa.Zip3s, ","))
 
 	return values
 }
