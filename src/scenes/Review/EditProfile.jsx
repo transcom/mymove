@@ -41,7 +41,7 @@ let EditProfileForm = props => {
         <div className="grid-col-12">
           <form onSubmit={handleSubmit}>
             <img src={profileImage} alt="" />{' '}
-            <h2
+            <h1
               style={{
                 display: 'inline-block',
                 marginLeft: 10,
@@ -50,7 +50,7 @@ let EditProfileForm = props => {
               }}
             >
               Profile
-            </h2>
+            </h1>
             <hr />
             <h3 className="sm-heading">Edit Profile:</h3>
             <SwaggerField fieldName="first_name" swagger={schema} required />

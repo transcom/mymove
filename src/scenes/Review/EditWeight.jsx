@@ -85,7 +85,17 @@ let EditWeightForm = props => {
       <div className="grid-row">
         <div className="grid-col-12">
           <form onSubmit={handleSubmit}>
-            <img src={profileImage} alt="" /> Profile
+            <img src={profileImage} alt="" />
+            <h1
+              style={{
+                display: 'inline-block',
+                marginLeft: 10,
+                marginBottom: 0,
+                marginTop: 20,
+              }}
+            >
+              Profile
+            </h1>
             <hr />
             <h3 className="sm-heading">Edit PPM Weight:</h3>
             <p>Changes could impact your move, including the estimated PPM incentive.</p>

@@ -26,7 +26,7 @@ let EditContactForm = props => {
         <div className="grid-col-12">
           <form className="service_member_contact_info" onSubmit={handleSubmit}>
             <FormSection name="serviceMember">
-              <h2>Edit Contact Info</h2>
+              <h1>Edit Contact Info</h1>
               <SwaggerField fieldName="telephone" swagger={serviceMemberSchema} required />
               <SwaggerField fieldName="secondary_telephone" swagger={serviceMemberSchema} />
               <SwaggerField fieldName="personal_email" swagger={serviceMemberSchema} required />
@@ -75,11 +75,7 @@ let EditContactForm = props => {
                 </div>
               </div>
             </FormSection>
-            <div className="grid-row grid-gap">
-              <div className="grid-col-3">
-                <SaveCancelButtons valid={valid} submitting={submitting} />
-              </div>
-            </div>
+            <SaveCancelButtons valid={valid} submitting={submitting} />
           </form>
         </div>
       </div>

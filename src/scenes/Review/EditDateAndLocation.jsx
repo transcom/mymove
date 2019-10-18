@@ -29,10 +29,10 @@ let EditDateAndLocationForm = props => {
           <form onSubmit={handleSubmit}>
             <h1 className="sm-heading"> Edit PPM Dates & Locations </h1>
             <p>Changes could impact your move, including the estimated PPM incentive.</p>
-            <h2 className="sm-heading-2"> Move Date </h2>
+            <h3 className="sm-heading-2"> Move Date </h3>
             <SwaggerField fieldName="original_move_date" onChange={getSitEstimate} swagger={schema} required />
             <hr className="spacer" />
-            <h2 className="sm-heading-2">Pickup Location</h2>
+            <h3 className="sm-heading-2">Pickup Location</h3>
             <SwaggerField fieldName="pickup_postal_code" onChange={getSitEstimate} swagger={schema} required />
             <SwaggerField fieldName="has_additional_postal_code" swagger={schema} component={YesNoBoolean} />
             {get(props, 'formValues.has_additional_postal_code', false) && (
@@ -42,7 +42,7 @@ let EditDateAndLocationForm = props => {
               </Fragment>
             )}
             <hr className="spacer" />
-            <h2 className="sm-heading-2">Destination Location</h2>
+            <h3 className="sm-heading-2">Destination Location</h3>
             <p>
               Enter the ZIP for your new home if you know it, or for{' '}
               {currentOrders && currentOrders.new_duty_station.name} if you don't.

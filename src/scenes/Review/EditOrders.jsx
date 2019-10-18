@@ -45,7 +45,17 @@ let EditOrdersForm = props => {
       <div className="grid-row">
         <div className="grid-col-12">
           <form onSubmit={handleSubmit}>
-            <img src={profileImage} alt="" /> Orders
+            <img src={profileImage} alt="" />
+            <h1
+              style={{
+                display: 'inline-block',
+                marginLeft: 10,
+                marginBottom: 0,
+                marginTop: 20,
+              }}
+            >
+              Orders
+            </h1>
             <hr />
             <h3 className="sm-heading">Edit Orders:</h3>
             <SwaggerField fieldName="orders_type" swagger={schema} required />
