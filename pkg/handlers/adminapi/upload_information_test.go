@@ -87,7 +87,7 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 		suite.IsType(&uploadop.GetUploadOK{}, response)
 		okResponse := response.(*uploadop.GetUploadOK)
 		suite.Equal(*handlers.FmtUUID(uploadID), okResponse.Payload.ID)
-		suite.Equal(move.Locator, okResponse.Payload.MoveLocator)
+		suite.Equal(move.Locator, *okResponse.Payload.MoveLocator)
 	})
 
 	suite.T().Run("successful response", func(t *testing.T) {
