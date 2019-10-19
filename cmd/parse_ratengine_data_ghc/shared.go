@@ -213,7 +213,7 @@ func (dLh *domesticLineHaulPrice) toSlice() []string {
 
 type domesticServiceAreaPrice struct {
 	serviceAreaNumber                     int
-	originServiceArea                     string
+	serviceAreaName                       string
 	serviceSchedule                       int
 	sITPickupDeliverySchedule             int
 	season                                string
@@ -227,7 +227,7 @@ type domesticServiceAreaPrice struct {
 func (dSA *domesticServiceAreaPrice) csvHeader() []string {
 	header := []string{
 		"Service Area Number",
-		"Origin Serivce Area",
+		"Service Area Name",
 		"Service Schedule",
 		"SIT Pickup Delivery Schedule",
 		"Season",
@@ -245,7 +245,7 @@ func (dSA *domesticServiceAreaPrice) toSlice() []string {
 	var values []string
 
 	values = append(values, strconv.Itoa(dSA.serviceAreaNumber))
-	values = append(values, dSA.originServiceArea)
+	values = append(values, dSA.serviceAreaName)
 	values = append(values, strconv.Itoa(dSA.serviceSchedule))
 	values = append(values, strconv.Itoa(dSA.sITPickupDeliverySchedule))
 	values = append(values, dSA.season)

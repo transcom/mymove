@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -395,6 +396,13 @@ func createCsvWriter(create bool, sheetIndex int, runTime time.Time) *createCsvH
 	return &createCsv
 }
 
+func removeWhiteSpace(stripString string) string {
+	space := regexp.MustCompile(`\s`)
+	s := space.ReplaceAllString(stripString	, "")
+
+	return s
+}
+
 /*************************************************************************/
 // GHC Rate Engine XLSX Verification and Process functions
 /*************************************************************************/
@@ -440,22 +448,23 @@ var verifyDomesticLinehaulPrices verifyXlsxSheet = func(params paramConfig, shee
 					for dLhMilesRangesIndex, m := range dLhMilesRanges {
 						// skip the last index because the text is not easily checked
 						if dLhMilesRangesIndex == len(dLhMilesRanges)-1 {
+							colIndex++
 							continue
 						}
-						verificationLog := fmt.Sprintf(" , verfication for row index: %d, escalation: %d, rateTypes %v, dLhWeightBands %v",
-							dataRowsIndex, escalation, r, w)
+						verificationLog := fmt.Sprintf(" , verfication for row index: %d, colIndex: %d, escalation: %d, rateTypes %v, dLhWeightBands %v",
+							dataRowsIndex, colIndex, escalation, r, w)
 						if dataRowsIndex == 0 {
 							if m.lower != getInt(getCell(row.Cells, colIndex)) {
 								return fmt.Errorf("format error: From Miles --> does not match expected number expected %d got %s\n%s", m.lower, getCell(row.Cells, colIndex), verificationLog)
 							}
-							if "Service Area Number" != getCell(row.Cells, serviceAreaNumberColumn) {
-								return fmt.Errorf("format error: Header <Service Area Number> is missing got <%s> instead\n%s", getCell(row.Cells, serviceAreaNumberColumn), verificationLog)
+							if  "ServiceAreaNumber" != removeWhiteSpace(getCell(row.Cells, serviceAreaNumberColumn)) {
+								return fmt.Errorf("format error: Header <ServiceAreaNumber> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(row.Cells, serviceAreaNumberColumn)), verificationLog)
 							}
-							if "Origin Service Area" != getCell(row.Cells, originServiceAreaColumn) {
-								return fmt.Errorf("format error: Header <Origin Service Area> is missing got <%s> instead\n%s", getCell(row.Cells, originServiceAreaColumn), verificationLog)
+							if "OriginServiceArea" != removeWhiteSpace(getCell(row.Cells, originServiceAreaColumn)) {
+								return fmt.Errorf("format error: Header <OriginServiceArea> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(row.Cells, originServiceAreaColumn)), verificationLog)
 							}
-							if "Services Schedule" != getCell(row.Cells, serviceScheduleColumn) {
-								return fmt.Errorf("format error: Header <Services Schedule> is missing got <%s> instead\n%s", getCell(row.Cells, serviceScheduleColumn), verificationLog)
+							if "ServicesSchedule" != removeWhiteSpace(getCell(row.Cells, serviceScheduleColumn)) {
+								return fmt.Errorf("format error: Header <SServicesSchedule> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(row.Cells, serviceScheduleColumn)), verificationLog)
 							}
 						} else if dataRowsIndex == 1 {
 							if m.upper != getInt(getCell(row.Cells, colIndex)) {
@@ -547,13 +556,13 @@ var verifyDomesticServiceAreaPrices verifyXlsxSheet = func(params paramConfig, s
 	const feeColIndexStart int = 6  // start at column 6 to get the rates
 	const feeRowIndexStart int = 10 // start at row 10 to get the rates
 	const serviceAreaNumberColumn int = 2
-	const originServiceAreaColumn int = 3
+	const serviceAreaNameColumn int = 3
 	const serviceScheduleColumn int = 4
 	const sITPickupDeliveryScheduleColumn int = 5
 	const numEscalationYearsToProcess int = 4
 
 	// Check headers
-	const feeRowMilageHeaderIndexStart int = (feeRowIndexStart - 3)
+	const feeRowMilageHeaderIndexStart int = (feeRowIndexStart - 2)
 	const verifyHeaderIndexEnd int = (feeRowMilageHeaderIndexStart + 2)
 
 	if xlsxDataSheetNum != sheetIndex {
@@ -562,13 +571,13 @@ var verifyDomesticServiceAreaPrices verifyXlsxSheet = func(params paramConfig, s
 
 	// Verify header strings
 	repeatingHeaders := []string{
-		"Shorthaul Price",
-		"Origin / Destination Price",
-		"Origin Pack Price",
-		"Destination Unpack Price",
-		"Origin / Destination SIT First Day & Warehouse",
-		"Origin / Destination SIT Add'l Days",
-		"SIT Pickup / Delivery ≤50 miles",
+		"Shorthaul Price (per cwt per mile)",
+		"Origin / Destination Price (per cwt)",
+		"Origin Pack Price (per cwt)",
+		"Destination Unpack Price (per cwt)",
+		"Origin / Destination SIT First Day & Warehouse Handling (per cwt)",
+		"Origin / Destination SIT Add'l Days (per cwt)",
+		"SIT Pickup / Delivery ≤50 miles (per cwt)",
 	}
 
 	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowMilageHeaderIndexStart:verifyHeaderIndexEnd]
@@ -578,33 +587,34 @@ var verifyDomesticServiceAreaPrices verifyXlsxSheet = func(params paramConfig, s
 		for escalation := 0; escalation < numEscalationYearsToProcess; escalation++ {
 			// For each rate season
 			for _, r := range rateTypes {
-				verificationLog := fmt.Sprintf(" , verfication for row index: %d, escalation: %d, rateTypes %v",
-					dataRowsIndex, escalation, r)
+				verificationLog := fmt.Sprintf(" , verfication for row index: %d, colIndex: %d, escalation: %d, rateTypes %v",
+					dataRowsIndex, colIndex, escalation, r)
 
 				if dataRowsIndex == 0 {
-					if "Service Area Number" != getCell(row.Cells, serviceAreaNumberColumn) {
-						return fmt.Errorf("format error: Header <Service Area Number> is missing got <%s> instead\n%s", getCell(row.Cells, serviceAreaNumberColumn), verificationLog)
+					if "ServiceAreaNumber" != removeWhiteSpace(getCell(row.Cells, serviceAreaNumberColumn)) {
+						return fmt.Errorf("format error: Header <ServiceAreaNumber> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(row.Cells, serviceAreaNumberColumn)), verificationLog)
 					}
-					if "Origin Service Area" != getCell(row.Cells, originServiceAreaColumn) {
-						return fmt.Errorf("format error: Header <Origin Service Area> is missing got <%s> instead\n%s", getCell(row.Cells, originServiceAreaColumn), verificationLog)
+					if "ServiceAreaName" != removeWhiteSpace(getCell(row.Cells, serviceAreaNameColumn)) {
+						return fmt.Errorf("format error: Header <ServiceAreaName> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(row.Cells, serviceAreaNameColumn)), verificationLog)
 					}
-					if "Services Schedule" != getCell(row.Cells, serviceScheduleColumn) {
-						return fmt.Errorf("format error: Header <Services Schedule> is missing got <%s> instead\n%s", getCell(row.Cells, serviceScheduleColumn), verificationLog)
+					if "ServicesSchedule" != removeWhiteSpace(getCell(row.Cells, serviceScheduleColumn)) {
+						return fmt.Errorf("format error: Header <ServicesSchedule> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(row.Cells, serviceScheduleColumn)), verificationLog)
 					}
-					if strings.ContainsAny(getCell(row.Cells, sITPickupDeliveryScheduleColumn), "SIT Pickup / Delivery") == false {
-						return fmt.Errorf("format error: Header <SIT Pickup / Delivery> is missing got <%s> instead\n%s", getCell(row.Cells, sITPickupDeliveryScheduleColumn), verificationLog)
+
+					if "SITPickup/DeliverySchedule" != removeWhiteSpace(getCell(row.Cells, sITPickupDeliveryScheduleColumn)) {
+						return fmt.Errorf("format error: Header <SIT Pickup / Delivery> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(row.Cells, sITPickupDeliveryScheduleColumn)), verificationLog)
 					}
 
 					for _, repeatingHeader := range repeatingHeaders {
-						if strings.ContainsAny(getCell(row.Cells, colIndex), repeatingHeader) == false {
-							return fmt.Errorf("format error: Header contains <%s> is missing got <%s> instead\n%s", repeatingHeader, getCell(row.Cells, sITPickupDeliveryScheduleColumn), verificationLog)
+						if removeWhiteSpace(repeatingHeader) != removeWhiteSpace(getCell(row.Cells, colIndex)) {
+							return fmt.Errorf("format error: Header contains <%s> is missing got <%s> instead\n%s", removeWhiteSpace(repeatingHeader), removeWhiteSpace(getCell(row.Cells, colIndex)), verificationLog)
 						}
 						colIndex++
 					}
 					colIndex++ // skip 1 column (empty column) before starting next rate type
 				} else if dataRowsIndex == 1 {
-					if "EXAMPLE" != getCell(row.Cells, originServiceAreaColumn) {
-						return fmt.Errorf("format error: Filler text <EXAMPLE> is missing got <%s> instead\n%s", getCell(row.Cells, originServiceAreaColumn), verificationLog)
+					if "EXAMPLE" != removeWhiteSpace(getCell(row.Cells, serviceAreaNameColumn)) {
+						return fmt.Errorf("format error: Filler text <EXAMPLE> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(row.Cells, serviceAreaNameColumn)), verificationLog)
 					}
 				}
 
@@ -632,7 +642,7 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 	const feeColIndexStart int = 6  // start at column 6 to get the rates
 	const feeRowIndexStart int = 10 // start at row 10 to get the rates
 	const serviceAreaNumberColumn int = 2
-	const originServiceAreaColumn int = 3
+	const serviceAreaNameColumn int = 3
 	const serviceScheduleColumn int = 4
 	const sITPickupDeliveryScheduleColumn int = 5
 	const numEscalationYearsToProcess int = 1
@@ -648,9 +658,9 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 		for escalation := 0; escalation < numEscalationYearsToProcess; escalation++ {
 			// For each rate season
 			for _, r := range rateTypes {
-				domPrice := domesticServiceAreaPrice{
+				domPrice := domesticServiceAreaPrice {
 					serviceAreaNumber:         getInt(getCell(row.Cells, serviceAreaNumberColumn)),
-					originServiceArea:         getCell(row.Cells, originServiceAreaColumn),
+					serviceAreaName:           getCell(row.Cells, serviceAreaNameColumn),
 					serviceSchedule:           getInt(getCell(row.Cells, serviceScheduleColumn)),
 					sITPickupDeliverySchedule: getInt(getCell(row.Cells, sITPickupDeliveryScheduleColumn)),
 					season:                    r,
