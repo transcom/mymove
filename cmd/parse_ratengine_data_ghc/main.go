@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gobuffalo/pop"
 	"github.com/tealeg/xlsx"
 )
 
@@ -103,7 +104,7 @@ intentionally are modifying the pattern of how the processing functions are call
 
 const xlsxSheetsCountMax int = 35
 
-type processXlsxSheet func(paramConfig, int) error
+type processXlsxSheet func(paramConfig, int, *pop.Connection) error
 type verifyXlsxSheet func(paramConfig, int) error
 
 type xlsxDataSheetInfo struct {
@@ -204,6 +205,8 @@ func main() {
 	sheets := flag.String("xlsxSheets", "", xlsxSheetsUsage())
 	display := flag.Bool("display", false, "Display output of parsed info")
 	saveToFile := flag.Bool("save", false, "Save output to CSV file")
+	config := flag.String("config-dir", "config", "The location of server config files")
+	env := flag.String("env", "development", "The environment to run in, which configures the database.")
 
 	flag.Parse()
 
@@ -243,26 +246,47 @@ func main() {
 		params.saveToFile = true
 	}
 
-	if params.processAll == true {
-		for i, x := range xlsxDataSheets {
-			if x.process != nil {
-				err := process(params, i)
-				if err != nil {
-					log.Fatalf("Error processing xlsxDataSheets %v\n", err.Error())
+	// Connect to the database
+	//DB connection
+	dbALPErr := pop.AddLookupPaths(*config)
+	if dbALPErr != nil {
+		log.Fatal(dbALPErr)
+	}
+	db, dbConnErr := pop.Connect(*env)
+	if dbConnErr != nil {
+		log.Fatal(dbConnErr)
+	}
+	defer db.Close()
+
+	err = db.Transaction(func(connection *pop.Connection) error {
+		if params.processAll == true {
+			for i, x := range xlsxDataSheets {
+				if x.process != nil {
+					dbErr := process(params, i, db)
+					if dbErr != nil {
+						log.Fatalf("Error processing xlsxDataSheets %v\n", dbErr.Error())
+						return dbErr
+					}
+				}
+			}
+		} else {
+			for _, v := range params.xlsxSheets {
+				index, dbErr := strconv.Atoi(v)
+				if dbErr != nil {
+					log.Fatalf("Bad xlsxSheets index provided %v\n", dbErr)
+					return dbErr
+				}
+				dbErr = process(params, index, db)
+				if dbErr != nil {
+					log.Fatalf("Error processing %v\n", dbErr)
+					return dbErr
 				}
 			}
 		}
-	} else {
-		for _, v := range params.xlsxSheets {
-			index, err := strconv.Atoi(v)
-			if err != nil {
-				log.Fatalf("Bad xlsxSheets index provided %v\n", err)
-			}
-			err = process(params, index)
-			if err != nil {
-				log.Fatalf("Error processing %v\n", err)
-			}
-		}
+		return nil
+	})
+	if err != nil {
+		log.Fatalf("Tranaction failed:- %v", err)
 	}
 }
 
@@ -275,7 +299,7 @@ func main() {
 //         a.) add new verify function for your processing
 //         b.) add new process function for your processing
 //         c.) update initDataSheetInfo() with a.) and b.)
-func process(params paramConfig, sheetIndex int) error {
+func process(params paramConfig, sheetIndex int, db *pop.Connection) error {
 	xlsxInfo := xlsxDataSheets[sheetIndex]
 	var description string
 	if xlsxInfo.description != nil {
@@ -301,7 +325,7 @@ func process(params paramConfig, sheetIndex int) error {
 	if xlsxInfo.process != nil {
 		var callFunc processXlsxSheet
 		callFunc = *xlsxInfo.process
-		err := callFunc(params, sheetIndex)
+		err := callFunc(params, sheetIndex, db)
 		if err != nil {
 			log.Printf("%s process error: %v\n", description, err)
 		}
@@ -407,7 +431,7 @@ var verifyDomesticLinehaulPrices verifyXlsxSheet = func(params paramConfig, shee
 }
 
 // parseDomesticLinehaulPrices: parser for 2a) Domestic Linehaul Prices
-var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, sheetIndex int) error {
+var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, sheetIndex int, db *pop.Connection) error {
 	// Create CSV writer to save data to CSV file, returns nil if params.saveToFile=false
 	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime)
 	if csvWriter != nil {
@@ -476,7 +500,7 @@ var verifyDomesticServiceAreaPrices verifyXlsxSheet = func(params paramConfig, s
 }
 
 // parseDomesticServiceAreaPrices: parser for: 2b) Dom. Service Area Prices
-var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, sheetIndex int) error {
+var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, sheetIndex int, db *pop.Connection) error {
 	// Create CSV writer to save data to CSV file, returns nil if params.saveToFile=false
 	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime)
 	if csvWriter != nil {
@@ -543,7 +567,7 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 }
 
 // parseServiceAreas: parser for: 1b) Service Areas
-var parseServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int) error {
+var parseServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int, db *pop.Connection) error {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 4          // 1b) Service Areas
 	const serviceAreaRowIndexStart int = 10 // start at row 10 to get the rates
