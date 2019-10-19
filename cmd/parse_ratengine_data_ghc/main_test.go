@@ -2,11 +2,14 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
+	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/suite"
+	"github.com/tealeg/xlsx"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -278,3 +281,78 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_removeFirstDollarSign() {
 		})
 	}
 }
+
+func (suite *ParseRateEngineGHCXLSXSuite) helperTestExpectedFileOutput(goldenFilename string, currentOutputFilename string) {
+	expected := filepath.Join("fixtures", goldenFilename) // relative path
+	expectedBytes, err := ioutil.ReadFile(expected)
+	suite.NoErrorf(err, "error loading expected CSV file output fixture <%s>", expected)
+
+	currentBytes, err := ioutil.ReadFile(currentOutputFilename) // relative path
+	suite.NoErrorf(err, "error loading current/new output file <%s>", currentOutputFilename)
+
+	suite.Equal(string(expectedBytes), string(currentBytes))
+
+	// TODO remove file after running
+	// Remove file generated from test after compare is finished
+	//os.Remove(currentOutputFilename)
+}
+
+func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticLinehaulPrices() {
+	initDataSheetInfo()
+	params := paramConfig {
+		processAll: false,
+		showOutput: false,
+		xlsxFilename: stringPointer("fixtures/pricing_template_2019-09-19_fake-data.xlsx"),
+		xlsxSheets: []string{"6"},
+		saveToFile: true,
+		runTime: time.Now(),
+		runVerify: true,
+	}
+
+	xlsxFile, err := xlsx.OpenFile(*params.xlsxFilename)
+	params.xlsxFile = xlsxFile
+	if err != nil {
+		log.Fatalf("Failed to open file %s with error %v\n", *params.xlsxFilename, err)
+	}
+
+	const sheetIndex int = 6
+	err = parseDomesticLinehaulPrices(params, sheetIndex)
+	suite.NoError(err, "parseDomesticLinehaulPrices function failed")
+
+	outputFilename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime)
+
+	const parseDomesticLinehaulPricesGoldenFilename string = "6_2a_domestic_linehaul_prices_20191018154126.csv"
+	suite.helperTestExpectedFileOutput(parseDomesticLinehaulPricesGoldenFilename,outputFilename)
+}
+
+func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticServiceAreaPrices() {
+
+	initDataSheetInfo()
+	params := paramConfig {
+		processAll: false,
+		showOutput: false,
+		xlsxFilename: stringPointer("fixtures/pricing_template_2019-09-19_fake-data.xlsx"),
+		xlsxSheets: []string{"7"},
+		saveToFile: true,
+		runTime: time.Now(),
+		runVerify: true,
+	}
+
+	xlsxFile, err := xlsx.OpenFile(*params.xlsxFilename)
+	params.xlsxFile = xlsxFile
+	if err != nil {
+		log.Fatalf("Failed to open file %s with error %v\n", *params.xlsxFilename, err)
+	}
+
+	const sheetIndex int = 7
+	err = parseDomesticServiceAreaPrices(params, sheetIndex)
+	suite.NoError(err, "parseDomesticServiceAreaPrices function failed")
+
+	outputFilename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime)
+
+	const parseDomesticLinehaulPricesGoldenFilename string = "7_2b_domestic_service_area_prices_20191018155638.csv"
+	suite.helperTestExpectedFileOutput(parseDomesticLinehaulPricesGoldenFilename,outputFilename)
+
+}
+
+
