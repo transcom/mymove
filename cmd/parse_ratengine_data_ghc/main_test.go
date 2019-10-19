@@ -321,8 +321,8 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticLinehaulPrices() {
 
 	outputFilename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime)
 
-	const parseDomesticLinehaulPricesGoldenFilename string = "6_2a_domestic_linehaul_prices_20191018154126.csv"
-	suite.helperTestExpectedFileOutput(parseDomesticLinehaulPricesGoldenFilename,outputFilename)
+	const goldenFilename string = "6_2a_domestic_linehaul_prices_golden.csv"
+	suite.helperTestExpectedFileOutput(goldenFilename,outputFilename)
 }
 
 func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticServiceAreaPrices() {
@@ -350,8 +350,8 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticServiceAreaPrices() 
 
 	outputFilename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime)
 
-	const parseDomesticLinehaulPricesGoldenFilename string = "7_2b_domestic_service_area_prices_20191018155638.csv"
-	suite.helperTestExpectedFileOutput(parseDomesticLinehaulPricesGoldenFilename,outputFilename)
+	const goldenFilename string = "7_2b_domestic_service_area_prices_golden.csv"
+	suite.helperTestExpectedFileOutput(goldenFilename,outputFilename)
 
 }
 
