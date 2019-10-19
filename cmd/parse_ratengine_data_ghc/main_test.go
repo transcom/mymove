@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"testing"
 	"time"
@@ -292,9 +293,8 @@ func (suite *ParseRateEngineGHCXLSXSuite) helperTestExpectedFileOutput(goldenFil
 
 	suite.Equal(string(expectedBytes), string(currentBytes))
 
-	// TODO remove file after running
 	// Remove file generated from test after compare is finished
-	//os.Remove(currentOutputFilename)
+	os.Remove(currentOutputFilename)
 }
 
 func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticLinehaulPrices() {
