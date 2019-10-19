@@ -74,6 +74,31 @@ func (h IndexTSPPsHandler) Handle(params tsppop.IndexTSPPsParams) middleware.Res
 	return tsppop.NewIndexTSPPsOK().WithContentRange(fmt.Sprintf("tspps %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedTSPPsCount, totalTSPPsCount)).WithPayload(payload)
 }
 
+// GetTSPPHandler returns a transportation service provider performance via GET /transportation_service_provider_performances/{tspId}
+type GetTSPPHandler struct {
+	handlers.HandlerContext
+	services.TransportationServiceProviderPerformanceFetcher
+	services.NewQueryFilter
+}
+
+// Handle returns the payload for TSPP
+func (h GetTSPPHandler) Handle(params tsppop.GetTSPPParams) middleware.Responder {
+	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	tsppID := params.TsppID
+
+	queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", tsppID)}
+
+	tspp, err := h.TransportationServiceProviderPerformanceFetcher.FetchTransportationServiceProviderPerformance(queryFilters)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	payload := payloadForTSPPModel(tspp)
+
+	return tsppop.NewGetTSPPOK().WithPayload(payload)
+}
+
 // generateQueryFilters is helper to convert filter params from a json string
 // of the form `{"traffic_distribution_list_id": "8e4b3caf-98dc-462a-bbcc-1977d08a08eb" "transportation_service_provider_id": "8e4b3caf-98dc-462a-bbcc-1977d08a08eb"}`
 // to an array of services.QueryFilter

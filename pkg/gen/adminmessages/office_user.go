@@ -22,9 +22,9 @@ type OfficeUser struct {
 	// Format: datetime
 	CreatedAt *strfmt.DateTime `json:"created_at"`
 
-	// disabled
+	// deactivated
 	// Required: true
-	Disabled *bool `json:"disabled"`
+	Deactivated *bool `json:"deactivated"`
 
 	// email
 	// Required: true
@@ -70,7 +70,7 @@ func (m *OfficeUser) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateDisabled(formats); err != nil {
+	if err := m.validateDeactivated(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -125,9 +125,9 @@ func (m *OfficeUser) validateCreatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *OfficeUser) validateDisabled(formats strfmt.Registry) error {
+func (m *OfficeUser) validateDeactivated(formats strfmt.Registry) error {
 
-	if err := validate.Required("disabled", "body", m.Disabled); err != nil {
+	if err := validate.Required("deactivated", "body", m.Deactivated); err != nil {
 		return err
 	}
 
