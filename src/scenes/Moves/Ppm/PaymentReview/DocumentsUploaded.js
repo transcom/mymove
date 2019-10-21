@@ -133,6 +133,7 @@ export class DocumentsUploaded extends Component {
                   key={expense.id}
                   showDelete={inReviewPage}
                   deleteDocumentListItem={deleteMoveDocument}
+                  uploads={expense.uploads}
                   {...expense}
                 />
               ))}
