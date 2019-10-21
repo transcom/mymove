@@ -19,6 +19,7 @@ import ElectronicOrderList from './ElectronicOrders/ElectronicOrderList';
 import styles from './Home.module.scss';
 import * as Cookies from 'js-cookie';
 import customRoutes from './CustomRoutes';
+import AdminUserEdit from './AdminUsers/AdminUserEdit';
 
 const httpClient = (url, options = {}) => {
   const token = Cookies.get('masked_gorilla_csrf');
@@ -56,6 +57,7 @@ const Home = () => (
         list={AdminUserList}
         show={AdminUserShow}
         create={AdminUserCreate}
+        edit={AdminUserEdit}
       />
       <Resource
         name="transportation_service_provider_performances"
