@@ -42,7 +42,7 @@ class PPMShipmentSummary extends Component {
       : 'Not requested';
 
     return (
-      <div>
+      <div data-cy="ppm-summary">
         <h3>Shipment - You move your stuff (PPM)</h3>
         <div className="grid-row grid-gap review-content">
           <div className="grid-col-6 review-section ppm-review-section">

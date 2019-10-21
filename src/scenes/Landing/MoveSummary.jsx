@@ -29,7 +29,7 @@ const MoveInfoHeader = props => {
       {get(move, 'locator') && <div>Move Locator: {get(move, 'locator')}</div>}
       {!isEmpty(entitlement) && (
         <div>
-          Weight Entitlement: <span>{entitlement.sum.toLocaleString()} lbs</span>
+          Weight Entitlement: <span data-cy="move-header-weight-estimate">{entitlement.sum.toLocaleString()} lbs</span>
         </div>
       )}
     </div>
