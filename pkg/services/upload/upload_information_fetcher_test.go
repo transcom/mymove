@@ -10,9 +10,6 @@ import (
 )
 
 func (suite *UploadsServiceSuite) TestFetchUploadInformation() {
-	suite.T().Run("fetch service member upload", func(t *testing.T) {
-
-	})
 	suite.T().Run("fetch office user upload", func(t *testing.T) {
 		email := "officeuser1@example.com"
 		ou := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{

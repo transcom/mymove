@@ -59,7 +59,7 @@ func (u *Upload) BeforeCreate(tx *pop.Connection) error {
 	return nil
 }
 
-// FetchUploadInformation returns an Upload if the user has access to that upload
+// FetchUpload returns an Upload if the user has access to that upload
 func FetchUpload(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (Upload, error) {
 
 	var upload Upload

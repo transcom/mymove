@@ -4,15 +4,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
-
-	"github.com/transcom/mymove/pkg/models"
 )
-
-// UploadFetcher is the service object interface for FetchUploads
-//go:generate mockery -name UploadFetcher
-type UploadFetcher interface {
-	FetchUploads(filters []QueryFilter, associations QueryAssociations, pagination Pagination) (models.Uploads, error)
-}
 
 type UploadInformation struct {
 	UploadID        uuid.UUID `db:"upload_id"`
@@ -26,6 +18,7 @@ type UploadInformation struct {
 	OfficeUserEmail *string    `db:"office_user_email"`
 }
 
+// UploadInformationFetcher is the service object interface for FetchUploadInformation
 //go:generate mockery -name UploadInformationFetcher
 type UploadInformationFetcher interface {
 	FetchUploadInformation(uuid uuid.UUID) (UploadInformation, error)
