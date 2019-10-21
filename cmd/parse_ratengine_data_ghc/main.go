@@ -627,7 +627,7 @@ var parseServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int
 		domServArea := domesticServiceArea{
 			BasePointCity:     getCell(row.Cells, basePointCityColumn),
 			State:             getCell(row.Cells, stateColumn),
-			ServiceAreaNumber: getInt(getCell(row.Cells, serviceAreaNumberColumn)),
+			ServiceAreaNumber: getCell(row.Cells, serviceAreaNumberColumn),
 			Zip3s:             splitZip3s(getCell(row.Cells, zip3sColumn)),
 		}
 		// All the rows are consecutive, if we get to a blank one we're done
@@ -636,6 +636,7 @@ var parseServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int
 		} else if csvWriter != nil {
 			csvWriter.write(domServArea.toSlice())
 		}
+		domServArea.saveToDatabase(db)
 	}
 
 	log.Println("Parsing International Service Areas")

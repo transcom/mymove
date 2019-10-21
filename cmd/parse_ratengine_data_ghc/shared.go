@@ -1,12 +1,16 @@
 package main
 
 import (
+	"github.com/gobuffalo/pop"
+
 	"encoding/csv"
 	"fmt"
 	"log"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/transcom/mymove/pkg/models"
 )
 
 /*************************************************************************************************************/
@@ -262,7 +266,7 @@ func (dSA *domesticServiceAreaPrice) toSlice() []string {
 type domesticServiceArea struct {
 	BasePointCity     string
 	State             string
-	ServiceAreaNumber int
+	ServiceAreaNumber string
 	Zip3s             []string
 }
 
@@ -282,10 +286,23 @@ func (dsa *domesticServiceArea) toSlice() []string {
 
 	values = append(values, dsa.BasePointCity)
 	values = append(values, dsa.State)
-	values = append(values, strconv.Itoa(dsa.ServiceAreaNumber))
+	values = append(values, dsa.ServiceAreaNumber)
 	values = append(values, strings.Join(dsa.Zip3s, ","))
 
 	return values
+}
+
+func (dsa *domesticServiceArea) saveToDatabase(db *pop.Connection) {
+	// need to turn dsa into re_zip3 and re_domestic_service_area
+	rdsa := models.ReDomesticServiceArea{
+		BasePointCity:    dsa.BasePointCity,
+		State:            dsa.State,
+		ServiceArea:      dsa.ServiceAreaNumber,
+		ServicesSchedule: 2,
+		SITPDSchedule:    2,
+	}
+	log.Printf("stuff here: %v\n", rdsa)
+	db.ValidateAndSave(&rdsa)
 }
 
 type internationalServiceArea struct {
