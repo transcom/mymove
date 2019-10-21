@@ -36,8 +36,15 @@ SELECT uploads.id as upload_id,
        uploads.bytes,
        moves.locator,
        sm.id AS service_member_id,
+       sm.first_name AS service_member_first_name,
+       sm.last_name AS service_member_last_name,
+       sm.personal_email AS service_member_email,
+       sm.telephone AS service_member_telephone,
        ou.id AS office_user_id,
-       ou.email AS office_user_email
+       ou.first_name AS office_user_first_name,
+       ou.last_name AS office_user_last_name,
+       ou.email AS office_user_email,
+       ou.telephone AS office_user_telephone
 FROM uploads
          JOIN users u ON uploads.uploader_id = u.id
          JOIN documents d ON uploads.document_id = d.id
