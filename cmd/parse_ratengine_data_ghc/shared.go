@@ -297,12 +297,39 @@ func (dsa *domesticServiceArea) saveToDatabase(db *pop.Connection) {
 	rdsa := models.ReDomesticServiceArea{
 		BasePointCity:    dsa.BasePointCity,
 		State:            dsa.State,
-		ServiceArea:      dsa.ServiceAreaNumber,
-		ServicesSchedule: 2,
-		SITPDSchedule:    2,
+		ServiceArea:      strconv.Itoa(dsa.ServiceAreaNumber),
+		ServicesSchedule: 2, // TODO Need to look up or parse out the ServicesSchedule
+		SITPDSchedule:    2, // TODO Need to look up or parse out the SITPDSchedule
 	}
-	log.Printf("stuff here: %v\n", rdsa)
-	db.ValidateAndSave(&rdsa)
+	verrs, err := db.ValidateAndSave(&rdsa)
+	if err != nil || verrs.HasAny() {
+		var dbError string
+		if err != nil {
+			dbError = err.Error()
+		}
+		if verrs.HasAny() {
+			dbError = dbError + verrs.Error()
+		}
+		log.Fatalf("Failed to save Service Area: %v\n  with error: %v\n", rdsa, dbError)
+	}
+	for _, zip3 := range dsa.Zip3s {
+		rz3 := models.ReZip3{
+			Zip3:                  zip3,
+			DomesticServiceAreaID: rdsa.ID,
+		}
+		log.Printf("stuff here: %v\n", rz3)
+		verrs, err = db.ValidateAndSave(&rz3)
+		if err != nil || verrs.HasAny() {
+			var dbError string
+			if err != nil {
+				dbError = err.Error()
+			}
+			if verrs.HasAny() {
+				dbError = dbError + verrs.Error()
+			}
+			log.Fatalf("Failed to save Zip3: %v\n  with error: %v\n", rz3, dbError)
+		}
+	}
 }
 
 type internationalServiceArea struct {
