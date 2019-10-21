@@ -123,7 +123,7 @@ function serviceMemberSubmitsPaymentRequestWithMissingDocuments() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/ppm-customer-agreement/);
   });
-  cy.get('.usa-button-secondary')
+  cy.get('.usa-button')
     .contains('Back')
     .click();
   cy.location().should(loc => {
@@ -159,7 +159,7 @@ function serviceMemberReviewsDocuments() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/ppm-customer-agreement/);
   });
-  cy.get('.usa-button-secondary')
+  cy.get('.usa-button')
     .contains('Back')
     .click();
   cy.location().should(loc => {

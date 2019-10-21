@@ -77,7 +77,9 @@ function Footer() {
                   </a>
                 </div>
               </div>
-              <h3 className="usa-footer__contact-heading">Contact Us</h3>
+              <h3 className="usa-footer__contact-heading" data-cy="contact-footer">
+                Contact Us
+              </h3>
               <address className="usa-footer__address">
                 <div className="usa-footer__contact-info grid-row grid-gap">
                   <a href="https://move.mil/customer-service">Customer service</a>

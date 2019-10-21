@@ -32,7 +32,7 @@ describe('orders entry', function() {
 
     // Choosing same current and destination duty station should block you from progressing and give an error
     cy.selectDutyStation('Yuma AFB', 'new_duty_station');
-    cy.get('.usa-input-error-message').contains(
+    cy.get('.usa-error-message').contains(
       'You entered the same duty station for your origin and destination. Please change one of them.',
     );
     cy.get('button.next').should('be.disabled');
