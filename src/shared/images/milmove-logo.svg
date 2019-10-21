@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="135px" height="27px" viewBox="0 0 135 27" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 58 (84663) - https://sketch.com -->
+    <title>logo</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="service-member/page-header" transform="translate(-10.000000, -17.000000)">
+            <g id="logo">
+                <g transform="translate(10.000000, 17.000000)">
+                    <text id="MilMove" font-family="PublicSans-Bold, Public Sans" font-size="24" font-weight="bold" line-spacing="22" fill="#FFFFFF">
+                        <tspan x="38" y="25">MilMove</tspan>
+                    </text>
+                    <polygon id="Triangle" fill="#FFBE2E" points="22.2929611 0 28 16 18 11.0332824"></polygon>
+                    <polygon id="Triangle" fill="#FFBE2E" points="28 16.6300723 14 27 15.7342156 16"></polygon>
+                    <polygon id="Triangle" fill="#FFBE2E" points="14 27 0 16.8830147 10.9410448 15"></polygon>
+                    <polygon id="Triangle" fill="#FFBE2E" points="0 17 4.88045564 0 10 10.2755597"></polygon>
+                    <polygon id="Triangle" fill="#FFBE2E" points="5 0.42815137 23 0 14.7448763 8"></polygon>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 
 import LoginButton from 'shared/User/LoginButton';
+import MilMoveLogo from 'shared/images/milmove-logo.svg';
 
 import usaFlag from 'shared/images/us-flag.png';
 import govIcon from 'shared/images/icon-dot-gov.svg';
@@ -71,7 +72,7 @@ function Header() {
               <div className="usa-logo" id="basic-logo">
                 <em className="usa-logo__text">
                   <NavLink to="/" title="my.move.mil" aria-label="my.move.mil">
-                    my.move.mil
+                    <img src={MilMoveLogo} alt="MilMove Logo" />
                   </NavLink>
                 </em>
               </div>
