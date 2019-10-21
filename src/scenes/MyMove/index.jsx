@@ -81,9 +81,15 @@ export class AppWrapper extends Component {
               <div className="usa-grid">
                 <LogoutOnInactivity />
                 {props.swaggerError && (
-                  <Alert type="error" heading="An error occurred">
-                    There was an error contacting the server.
-                  </Alert>
+                  <div className="grid-container">
+                    <div className="grid-row">
+                      <div className="grid-col-12">
+                        <Alert type="error" heading="An error occurred">
+                          There was an error contacting the server.
+                        </Alert>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
               {this.state.hasError && <SomethingWentWrong />}
