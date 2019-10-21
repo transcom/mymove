@@ -24,7 +24,7 @@ type OfficeUser struct {
 	TransportationOffice   TransportationOffice `belongs_to:"transportation_office"`
 	CreatedAt              time.Time            `json:"created_at" db:"created_at"`
 	UpdatedAt              time.Time            `json:"updated_at" db:"updated_at"`
-	Disabled               bool                 `json:"disabled" db:"disabled"`
+	Deactivated            bool                 `json:"deactivated" db:"deactivated"`
 }
 
 // OfficeUsers is not required by pop and may be deleted

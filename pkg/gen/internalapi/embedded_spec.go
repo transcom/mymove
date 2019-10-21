@@ -2206,8 +2206,7 @@ func init() {
               "ppm_payment_requested",
               "all",
               "ppm_approved",
-              "ppm_completed",
-              "MBxFJqtAoWfTYJd"
+              "ppm_completed"
             ],
             "type": "string",
             "description": "Queue type to show",
@@ -7953,8 +7952,7 @@ func init() {
               "ppm_payment_requested",
               "all",
               "ppm_approved",
-              "ppm_completed",
-              "MBxFJqtAoWfTYJd"
+              "ppm_completed"
             ],
             "type": "string",
             "description": "Queue type to show",

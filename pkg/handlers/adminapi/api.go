@@ -14,6 +14,8 @@ import (
 	electronicorder "github.com/transcom/mymove/pkg/services/electronic_order"
 	"github.com/transcom/mymove/pkg/services/office"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
+	tspop "github.com/transcom/mymove/pkg/services/tsp"
+
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/services/upload"
@@ -63,6 +65,19 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		pagination.NewPagination,
 	}
 
+	adminAPI.TransportationServiceProviderPerformancesIndexTSPPsHandler = IndexTSPPsHandler{
+		context,
+		tspop.NewTransportationServiceProviderPerformanceListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
+
+	adminAPI.TransportationServiceProviderPerformancesGetTSPPHandler = GetTSPPHandler{
+		context,
+		tspop.NewTransportationServiceProviderPerformanceFetcher(queryBuilder),
+		query.NewQueryFilter,
+	}
+
 	adminAPI.ElectronicOrderIndexElectronicOrdersHandler = IndexElectronicOrdersHandler{
 		context,
 		electronicorder.NewElectronicOrderListFetcher(queryBuilder),
@@ -88,6 +103,12 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		adminuser.NewAdminUserListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
+	}
+
+	adminAPI.AdminUsersGetAdminUserHandler = GetAdminUserHandler{
+		context,
+		adminuser.NewAdminUserFetcher(queryBuilder),
+		query.NewQueryFilter,
 	}
 
 	adminAPI.UploadGetUploadHandler = GetUploadHandler{

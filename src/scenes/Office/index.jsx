@@ -4,6 +4,7 @@ import { ConnectedRouter } from 'react-router-redux';
 import { history } from 'shared/store';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import Loadable from 'react-loadable';
 
 import { getCurrentUserInfo, selectCurrentUser } from 'shared/Data/users';
 import { loadInternalSchema, loadPublicSchema } from 'shared/Swagger/ducks';
@@ -13,8 +14,8 @@ import PrivateRoute from 'shared/User/PrivateRoute';
 import { isProduction } from 'shared/constants';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import './office.scss';
-import TOO from './TOO/too';
 import { withContext } from 'shared/AppContext';
 
 // Lazy load these dependencies
@@ -24,6 +25,12 @@ const OrdersInfo = lazy(() => import('./OrdersInfo'));
 const DocumentViewer = lazy(() => import('./DocumentViewer'));
 const ScratchPad = lazy(() => import('shared/ScratchPad'));
 const QueueHeader = lazy(() => import('shared/Header/Office'));
+const CustomerDetails = lazy(() => import('./TOO/customerDetails'));
+
+const TOO = Loadable({
+  loader: () => import('./TOO/too'),
+  loading: () => <LoadingPlaceholder />,
+});
 
 export class RenderWithOrWithoutHeader extends Component {
   render() {
@@ -32,10 +39,10 @@ export class RenderWithOrWithoutHeader extends Component {
     return (
       <>
         <Suspense fallback={<div>Loading...</div>}>
-        {this.props.withHeader && <QueueHeader />}
-        <Tag role="main" className="site__content">
-          <Component {...this.props} />
-        </Tag>
+          {this.props.withHeader && <QueueHeader />}
+          <Tag role="main" className="site__content">
+            <Component {...this.props} />
+          </Tag>
         </Suspense>
       </>
     );
@@ -68,9 +75,7 @@ export class OfficeWrapper extends Component {
     return (
       <ConnectedRouter history={history}>
         <div className="Office site">
-          <Suspense fallback={<div>Loading...</div>}>
-           {!userIsLoggedIn && <QueueHeader />}
-          </Suspense>
+          <Suspense fallback={<LoadingPlaceholder />}>{!userIsLoggedIn && <QueueHeader />}</Suspense>
           <ConditionalWrap
             condition={!userIsLoggedIn}
             wrap={children => (
@@ -99,15 +104,15 @@ export class OfficeWrapper extends Component {
                 <PrivateRoute
                   path="/queues/:queueType/moves/:moveId"
                   component={props => (
-                    <Suspense fallback={<div>Loading...</div>}>
-                     <RenderWithOrWithoutHeader component={MoveInfo} withHeader={true} tag={DivOrMainTag} {...props} />
+                    <Suspense fallback={<LoadingPlaceholder />}>
+                      <RenderWithOrWithoutHeader component={MoveInfo} withHeader={true} tag={DivOrMainTag} {...props} />
                     </Suspense>
                   )}
                 />
                 <PrivateRoute
                   path="/queues/:queueType"
                   component={props => (
-                    <Suspense fallback={<div>Loading...</div>}>
+                    <Suspense fallback={<LoadingPlaceholder />}>
                       <RenderWithOrWithoutHeader component={Queues} withHeader={true} tag={DivOrMainTag} {...props} />
                     </Suspense>
                   )}
@@ -115,7 +120,7 @@ export class OfficeWrapper extends Component {
                 <PrivateRoute
                   path="/moves/:moveId/orders"
                   component={props => (
-                    <Suspense fallback={<div>Loading...</div>}>
+                    <Suspense fallback={<LoadingPlaceholder />}>
                       <RenderWithOrWithoutHeader
                         component={OrdersInfo}
                         withHeader={false}
@@ -128,7 +133,7 @@ export class OfficeWrapper extends Component {
                 <PrivateRoute
                   path="/moves/:moveId/documents/:moveDocumentId?"
                   component={props => (
-                    <Suspense fallback={<div>Loading...</div>}>
+                    <Suspense fallback={<LoadingPlaceholder />}>
                       <RenderWithOrWithoutHeader
                         component={DocumentViewer}
                         withHeader={false}
@@ -142,7 +147,7 @@ export class OfficeWrapper extends Component {
                   <PrivateRoute
                     path="/playground"
                     component={props => (
-                      <Suspense fallback={<div>Loading...</div>}>
+                      <Suspense fallback={<LoadingPlaceholder />}>
                         <RenderWithOrWithoutHeader
                           component={ScratchPad}
                           withHeader={true}
@@ -153,7 +158,15 @@ export class OfficeWrapper extends Component {
                     )}
                   />
                 )}
-                {too && <PrivateRoute path="/ghc/too" component={TOO} />}
+                {too && <PrivateRoute path="/too/placeholder" component={TOO} />}
+                {too && (
+                  <Suspense fallback={<LoadingPlaceholder />}>
+                    <PrivateRoute
+                      path="/too/customer/6ac40a00-e762-4f5f-b08d-3ea72a8e4b63/details"
+                      component={CustomerDetails}
+                    />
+                  </Suspense>
+                )}
               </Switch>
             )}
           </ConditionalWrap>

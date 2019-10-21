@@ -109,13 +109,13 @@ check_docker_size: ## Check the amount of disk space used by docker
 	scripts/check-docker-size
 
 .PHONY: deps
-deps: prereqs check_hosts check_go_version check_gopath check_bash_version ensure_pre_commit client_deps bin/rds-combined-ca-bundle.pem ## Run all checks and install all depdendencies
+deps: prereqs ensure_pre_commit client_deps bin/rds-combined-ca-bundle.pem ## Run all checks and install all depdendencies
 
 .PHONY: test
 test: client_test server_test e2e_test ## Run all tests
 
 .PHONY: diagnostic
-diagnostic: prereqs check_hosts check_go_version check_gopath check_bash_version check_node_version check_docker_size ## Run diagnostic scripts on environment
+diagnostic: .prereqs.stamp check_docker_size ## Run diagnostic scripts on environment
 
 #
 # ----- END CHECK TARGETS -----
@@ -205,6 +205,9 @@ bin/rds-combined-ca-bundle.pem:
 
 ### MilMove Targets
 
+bin/big-cat:
+	go build -ldflags "$(LDFLAGS)" -o bin/big-cat ./cmd/big-cat
+
 bin/compare-secure-migrations:
 	go build -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare-secure-migrations
 
@@ -213,6 +216,9 @@ bin/ecs-deploy-task-container:
 
 bin/ecs-service-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
+
+bin/find-guardduty-user:
+	go build -ldflags "$(LDFLAGS)" -o bin/find-guardduty-user ./cmd/find-guardduty-user
 
 bin/generate-access-codes:
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-access-codes ./cmd/generate_access_codes
@@ -250,16 +256,28 @@ bin/milmove:
 bin_linux/milmove:
 	GOOS=linux GOARCH=amd64 go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin_linux/milmove ./cmd/milmove
 
-bin/renderer:
-	# do not build with LDFLAGS since errors on alpine and dynamic linking is fine
-	# throws errors loadinternal: cannot find runtime/cgo
-	go build -o bin/renderer ./cmd/renderer
-
 bin/milmove-tasks:
 	go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove-tasks ./cmd/milmove-tasks
 
 bin_linux/milmove-tasks:
 	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin_linux/milmove-tasks ./cmd/milmove-tasks
+
+bin/query-cloudwatch-logs:
+	go build -ldflags "$(LDFLAGS)" -o bin/query-cloudwatch-logs ./cmd/query-cloudwatch-logs
+
+bin/query-lb-logs:
+	go build -ldflags "$(LDFLAGS)" -o bin/query-lb-logs ./cmd/query-lb-logs
+
+bin/read-alb-logs:
+	go build -ldflags "$(LDFLAGS)" -o bin/read-alb-logs ./cmd/read-alb-logs
+
+bin/renderer:
+	# do not build with LDFLAGS since errors on alpine and dynamic linking is fine
+	# throws errors loadinternal: cannot find runtime/cgo
+	go build -o bin/renderer ./cmd/renderer
+
+bin/report-ecs:
+	go build -ldflags "$(LDFLAGS)" -o bin/report-ecs ./cmd/report-ecs
 
 bin/send-to-gex: pkg/gen/
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
@@ -327,9 +345,11 @@ build_tools: bin/chamber \
 	bin/swagger \
 	bin/mockery \
 	bin/rds-combined-ca-bundle.pem \
+	bin/big-cat \
 	bin/compare-secure-migrations \
 	bin/ecs-deploy-task-container \
 	bin/ecs-service-logs \
+	bin/find-guardduty-user \
 	bin/generate-access-codes \
 	bin/generate-test-data \
 	bin/health-checker \
@@ -338,8 +358,12 @@ build_tools: bin/chamber \
 	bin/load-user-gen \
 	bin/make-dps-user \
 	bin/make-office-user \
-	bin/renderer \
 	bin/milmove-tasks \
+	bin/query-cloudwatch-logs \
+	bin/query-lb-logs \
+	bin/read-alb-logs \
+	bin/renderer \
+	bin/report-ecs \
 	bin/send-to-gex ## Build all tools
 
 .PHONY: build
@@ -420,6 +444,10 @@ server_test_coverage_generate_standalone: ## Run server unit tests with coverage
 .PHONY: server_test_coverage
 server_test_coverage: db_test_reset db_test_migrate server_test_coverage_generate ## Run server unit test coverage with html output
 	DB_PORT=$(DB_PORT_TEST) go tool cover -html=coverage.out
+
+.PHONY: server_test_docker
+server_test_docker:
+	docker-compose -f docker-compose.circle.yml --compatibility up server_test
 
 #
 # ----- END SERVER TARGETS -----
@@ -821,7 +849,7 @@ gofmt:  ## Run go fmt over all Go files
 	go fmt $$(go list ./...) >> /dev/null
 
 .PHONY: pre_commit_tests
-pre_commit_tests: .client_deps.stamp ## Run pre-commit tests
+pre_commit_tests: .client_deps.stamp bin/swagger ## Run pre-commit tests
 	pre-commit run --all-files
 
 .PHONY: pretty

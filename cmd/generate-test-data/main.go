@@ -85,6 +85,9 @@ func initFlags(flag *pflag.FlagSet) {
 	// Verbose
 	cli.InitVerboseFlags(flag)
 
+	// Storage
+	cli.InitStorageFlags(flag)
+
 	// Don't sort flags
 	flag.SortFlags = false
 }
@@ -155,9 +158,11 @@ func main() {
 		}
 
 		// Initialize storage and uploader
-		zap.L().Info("Using memory storage backend")
-		fsParams := storage.NewMemoryParams("tmp", "testdata", logger)
-		storer := storage.NewMemory(fsParams)
+		zap.L().Info("Using local storage backend")
+		localStorageRoot := v.GetString(cli.LocalStorageRootFlag)
+		localStorageWebRoot := v.GetString(cli.LocalStorageWebRootFlag)
+		fsParams := storage.NewFilesystemParams(localStorageRoot, localStorageWebRoot, logger)
+		storer := storage.NewFilesystem(fsParams)
 		loader, uploaderErr := uploader.NewUploader(dbConnection, logger, storer, 25*uploader.MB)
 		if uploaderErr != nil {
 			logger.Fatal("could not instantiate uploader", zap.Error(err))

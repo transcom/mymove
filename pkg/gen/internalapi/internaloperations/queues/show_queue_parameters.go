@@ -80,7 +80,7 @@ func (o *ShowQueueParams) bindQueueType(rawData []string, hasKey bool, formats s
 // validateQueueType carries on validations for parameter QueueType
 func (o *ShowQueueParams) validateQueueType(formats strfmt.Registry) error {
 
-	if err := validate.Enum("queueType", "path", o.QueueType, []interface{}{"new", "ppm_payment_requested", "all", "ppm_approved", "ppm_completed", "MBxFJqtAoWfTYJd"}); err != nil {
+	if err := validate.Enum("queueType", "path", o.QueueType, []interface{}{"new", "ppm_payment_requested", "all", "ppm_approved", "ppm_completed"}); err != nil {
 		return err
 	}
 
