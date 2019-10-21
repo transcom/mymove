@@ -13,7 +13,7 @@ import moment from 'moment';
 export class UploadsTable extends Component {
   getUploadUrl = upload => {
     let isInfected = false;
-    console.log(upload);
+
     forEach(upload.tags, function(tag) {
       if (tag.key === 'av-status' && tag.value === 'INFECTED') {
         isInfected = true;

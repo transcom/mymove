@@ -113,6 +113,7 @@ export class DocumentsUploaded extends Component {
                   showDelete={inReviewPage}
                   deleteDocumentListItem={deleteMoveDocument}
                   isWeightTicketSet={true}
+                  uploads={ticket.document.uploads}
                   {...ticket}
                 />
               ))}
