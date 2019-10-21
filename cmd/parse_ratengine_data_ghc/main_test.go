@@ -297,6 +297,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) helperTestExpectedFileOutput(goldenFil
 	os.Remove(currentOutputFilename)
 }
 
+// Test_parseDomesticLinehaulPrices
 func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticLinehaulPrices() {
 	initDataSheetInfo()
 	params := paramConfig {
@@ -325,6 +326,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticLinehaulPrices() {
 	suite.helperTestExpectedFileOutput(goldenFilename,outputFilename)
 }
 
+// Test_parseDomesticServiceAreaPrices
 func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticServiceAreaPrices() {
 
 	initDataSheetInfo()

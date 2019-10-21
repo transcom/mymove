@@ -166,7 +166,7 @@ type domesticLineHaulPrice struct {
 	weightBand        dLhWeightBand
 	milesRange        dLhMilesRange
 	escalation        int
-	rate              string //TODO should this be a float or string? Probably string  stripping out the $
+	rate              string
 }
 
 func (dLh *domesticLineHaulPrice) csvHeader() []string {

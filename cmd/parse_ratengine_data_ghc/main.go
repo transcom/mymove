@@ -384,6 +384,13 @@ func removeFirstDollarSign(s string) string {
 	return strings.Replace(s, "$", "", 1)
 }
 
+func removeWhiteSpace(stripString string) string {
+	space := regexp.MustCompile(`\s`)
+	s := space.ReplaceAllString(stripString	, "")
+
+	return s
+}
+
 func createCsvWriter(create bool, sheetIndex int, runTime time.Time) *createCsvHelper {
 	var createCsv createCsvHelper
 
@@ -394,13 +401,6 @@ func createCsvWriter(create bool, sheetIndex int, runTime time.Time) *createCsvH
 		return nil
 	}
 	return &createCsv
-}
-
-func removeWhiteSpace(stripString string) string {
-	space := regexp.MustCompile(`\s`)
-	s := space.ReplaceAllString(stripString	, "")
-
-	return s
 }
 
 /*************************************************************************/
