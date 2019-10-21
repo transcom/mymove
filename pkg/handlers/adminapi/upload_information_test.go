@@ -7,7 +7,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/transcom/mymove/pkg/services/pagination"
+	"github.com/transcom/mymove/pkg/services"
+
+	"github.com/transcom/mymove/pkg/services/upload"
 
 	"github.com/stretchr/testify/mock"
 
@@ -17,8 +19,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/services/upload"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -69,8 +69,6 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 	req := httptest.NewRequest("GET", fmt.Sprintf("/uploads/%s", uploadID.String()), nil)
 	req = suite.AuthenticateAdminRequest(req, requestUser)
 
-	queryBuilder := query.NewQueryBuilder(suite.DB())
-
 	// test that everything is wired up
 	suite.T().Run("integration test ok response", func(t *testing.T) {
 		params := uploadop.GetUploadParams{
@@ -78,11 +76,10 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 			UploadID:    *handlers.FmtUUID(uploadID),
 		}
 
+		uploadInformationFetcher := upload.NewUploadInformationFetcher(suite.DB())
 		handler := GetUploadHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			NewQueryFilter: query.NewQueryFilter,
-			UploadFetcher:  upload.NewUploadFetcher(queryBuilder),
-			NewPagination:  pagination.NewPagination,
+			HandlerContext:           handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			UploadInformationFetcher: uploadInformationFetcher,
 		}
 
 		response := handler.Handle(params)
@@ -90,29 +87,22 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 		suite.IsType(&uploadop.GetUploadOK{}, response)
 		okResponse := response.(*uploadop.GetUploadOK)
 		suite.Equal(*handlers.FmtUUID(uploadID), okResponse.Payload.ID)
-		suite.Equal(move.Locator, okResponse.Payload.MoveLocator)
+		suite.Equal(move.Locator, *okResponse.Payload.MoveLocator)
 	})
 
-	queryFilter := mocks.QueryFilter{}
-	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
-
 	suite.T().Run("successful response", func(t *testing.T) {
-		uploaded := models.Upload{ID: uploadID}
+		uploaded := services.UploadInformation{UploadID: uploadID}
 		params := uploadop.GetUploadParams{
 			HTTPRequest: req,
 			UploadID:    *handlers.FmtUUID(uploadID),
 		}
-		uploadFetcher := &mocks.UploadFetcher{}
-		uploadFetcher.On("FetchUploads",
-			mock.Anything,
-			mock.Anything,
+		uploadInformationFetcher := &mocks.UploadInformationFetcher{}
+		uploadInformationFetcher.On("FetchUploadInformation",
 			mock.Anything,
 		).Return(uploaded, nil).Once()
 		handler := GetUploadHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			NewQueryFilter: newQueryFilter,
-			UploadFetcher:  upload.NewUploadFetcher(queryBuilder),
-			NewPagination:  pagination.NewPagination,
+			HandlerContext:           handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			UploadInformationFetcher: uploadInformationFetcher,
 		}
 
 		response := handler.Handle(params)
@@ -128,17 +118,13 @@ func (suite *HandlerSuite) TestGetUploadHandler() {
 			UploadID:    *handlers.FmtUUID(uploadID),
 		}
 		expectedError := models.ErrFetchNotFound
-		uploadFetcher := &mocks.UploadFetcher{}
-		uploadFetcher.On("FetchUploads",
+		uploadInformationFetcher := &mocks.UploadInformationFetcher{}
+		uploadInformationFetcher.On("FetchUploadInformation",
 			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-		).Return(nil, expectedError).Once()
+		).Return(services.UploadInformation{}, expectedError).Once()
 		handler := GetUploadHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			NewQueryFilter: newQueryFilter,
-			UploadFetcher:  uploadFetcher,
-			NewPagination:  pagination.NewPagination,
+			HandlerContext:           handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			UploadInformationFetcher: uploadInformationFetcher,
 		}
 
 		response := handler.Handle(params)

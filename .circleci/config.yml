@@ -980,7 +980,7 @@ workflows:
     triggers:
       - schedule:
           # Monday at 4am/7am PST/EST
-          cron: '0 12 * * 1'
+          cron: '0 20 * * 1'
           filters:
             branches:
               only: master
@@ -991,7 +991,7 @@ workflows:
     triggers:
       - schedule:
           # Monday at 4am/7am PST/EST
-          cron: '0 12 * * 1'
+          cron: '0 20 * * 1'
           filters:
             branches:
               only: master
@@ -1002,7 +1002,7 @@ workflows:
     triggers:
       - schedule:
           # Monday at 4am/7am PST/EST
-          cron: '0 12 * * 1'
+          cron: '0 20 * * 1'
           filters:
             branches:
               only: master

@@ -65,6 +65,14 @@ func (fake *FakeS3Storage) TempFileSystem() *afero.Afero {
 	return fake.tempFs
 }
 
+// Tags returns the tags for a specified key
+func (fake *FakeS3Storage) Tags(key string) (map[string]string, error) {
+	tags := map[string]string{
+		"tagName": "tagValue",
+	}
+	return tags, nil
+}
+
 // NewFakeS3Storage creates a new FakeS3Storage for testing purposes.
 func NewFakeS3Storage(willSucceed bool) *FakeS3Storage {
 	var fs = afero.NewMemMapFs()

@@ -59,6 +59,7 @@ class OrdersInfo extends Component {
                 url={upload.url}
                 filename={upload.filename}
                 contentType={upload.content_type}
+                tags={upload.tags}
               />
             ))}
           </div>

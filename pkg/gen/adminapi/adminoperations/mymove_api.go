@@ -57,6 +57,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OfficeUsersGetOfficeUserHandler: office_users.GetOfficeUserHandlerFunc(func(params office_users.GetOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation OfficeUsersGetOfficeUser has not yet been implemented")
 		}),
+		TransportationServiceProviderPerformancesGetTSPPHandler: transportation_service_provider_performances.GetTSPPHandlerFunc(func(params transportation_service_provider_performances.GetTSPPParams) middleware.Responder {
+			return middleware.NotImplemented("operation TransportationServiceProviderPerformancesGetTSPP has not yet been implemented")
+		}),
 		UploadGetUploadHandler: upload.GetUploadHandlerFunc(func(params upload.GetUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation UploadGetUpload has not yet been implemented")
 		}),
@@ -120,6 +123,8 @@ type MymoveAPI struct {
 	ElectronicOrderGetElectronicOrdersTotalsHandler electronic_order.GetElectronicOrdersTotalsHandler
 	// OfficeUsersGetOfficeUserHandler sets the operation handler for the get office user operation
 	OfficeUsersGetOfficeUserHandler office_users.GetOfficeUserHandler
+	// TransportationServiceProviderPerformancesGetTSPPHandler sets the operation handler for the get t s p p operation
+	TransportationServiceProviderPerformancesGetTSPPHandler transportation_service_provider_performances.GetTSPPHandler
 	// UploadGetUploadHandler sets the operation handler for the get upload operation
 	UploadGetUploadHandler upload.GetUploadHandler
 	// AccessCodesIndexAccessCodesHandler sets the operation handler for the index access codes operation
@@ -213,6 +218,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.OfficeUsersGetOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.GetOfficeUserHandler")
+	}
+
+	if o.TransportationServiceProviderPerformancesGetTSPPHandler == nil {
+		unregistered = append(unregistered, "transportation_service_provider_performances.GetTSPPHandler")
 	}
 
 	if o.UploadGetUploadHandler == nil {
@@ -364,6 +373,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/office_users/{officeUserId}"] = office_users.NewGetOfficeUser(o.context, o.OfficeUsersGetOfficeUserHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/transportation_service_provider_performances/{tsppId}"] = transportation_service_provider_performances.NewGetTSPP(o.context, o.TransportationServiceProviderPerformancesGetTSPPHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

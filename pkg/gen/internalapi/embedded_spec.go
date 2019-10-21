@@ -2206,8 +2206,7 @@ func init() {
               "ppm_payment_requested",
               "all",
               "ppm_approved",
-              "ppm_completed",
-              "MBxFJqtAoWfTYJd"
+              "ppm_completed"
             ],
             "type": "string",
             "description": "Queue type to show",
@@ -5493,6 +5492,25 @@ func init() {
       ],
       "x-nullable": true
     },
+    "Tag": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "example": "alma mater"
+        },
+        "value": {
+          "type": "string",
+          "example": "smith college"
+        }
+      }
+    },
+    "Tags": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Tag"
+      }
+    },
     "TransportationOffice": {
       "type": "object",
       "required": [
@@ -5708,6 +5726,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "tags": {
+          "$ref": "#/definitions/Tags"
         },
         "updated_at": {
           "type": "string",
@@ -7953,8 +7974,7 @@ func init() {
               "ppm_payment_requested",
               "all",
               "ppm_approved",
-              "ppm_completed",
-              "MBxFJqtAoWfTYJd"
+              "ppm_completed"
             ],
             "type": "string",
             "description": "Queue type to show",
@@ -11250,6 +11270,25 @@ func init() {
       ],
       "x-nullable": true
     },
+    "Tag": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "example": "alma mater"
+        },
+        "value": {
+          "type": "string",
+          "example": "smith college"
+        }
+      }
+    },
+    "Tags": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Tag"
+      }
+    },
     "TransportationOffice": {
       "type": "object",
       "required": [
@@ -11468,6 +11507,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "tags": {
+          "$ref": "#/definitions/Tags"
         },
         "updated_at": {
           "type": "string",
