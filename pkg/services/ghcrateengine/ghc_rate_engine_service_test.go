@@ -18,7 +18,7 @@ func (suite *GHCRateEngineServiceSuite) SetupTest() {
 	suite.DB().TruncateAll()
 }
 
-func TestAccessCodeServiceSuite(t *testing.T) {
+func TestGHCRateEngineServiceSuite(t *testing.T) {
 	ts := &GHCRateEngineServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
