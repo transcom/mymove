@@ -184,10 +184,10 @@ INSERT INTO public.dps_users
     );
 ```
 
-## Disabling Users
+## Deactivating Users
 
 MilMove doesn't delete users because of both auditing concerns and CASCADE DELETE failures. Instead each
-user table has a `deactivated` boolean column that can be used to deactivate a user. Disabling a user means the
+user table has a `deactivated` boolean column that can be used to deactivate a user. Deactivating a user means the
 person with valid credentials to Login.gov may not be permitted to get a session in MilMove.
 
 There are several places you can deactivate a user, at the global level and at each application level. It's important
@@ -195,9 +195,9 @@ to deactivate users at the application level if you are concerned that a user en
 table but they have not yet claimed the user entry by logging in.  This is an issue to be aware of for both Office
 and TSP users.
 
-### Disabling Users Globally
+### Deactivating Users Globally
 
-An example of disabling a user by email:
+An example of deactivating a user by email:
 
 ```sql
 UPDATE users SET deactivated = true WHERE email = 'username@example.com';
@@ -205,7 +205,7 @@ UPDATE users SET deactivated = true WHERE email = 'username@example.com';
 
 This is the only way to deactivate Service Members.
 
-### Disabling Office Users
+### Deactivating Office Users
 
 This can now be done in the admin user application:
 
@@ -214,17 +214,21 @@ This can now be done in the admin user application:
 3. Select the user you would like to deactivate and click "Edit" in the top right
    corner. Here, you'll be able to choose whether or not that user is deactivated.
 
-### Disabling TSP Users
+### Deactivating TSP Users
 
-An example of disabling a TSP user by email:
+**Note**: if we revive this table after the HHG mothball work, we will need to
+change the `disabled` column to `deactivated`, as well as replace references to
+`disabled` throughout the TSP app.
+
+An example of deactivating a TSP user by email:
 
 ```sql
 UPDATE tsp_users SET deactivated = true WHERE email = 'username@example.com';
 ```
 
-### Disabling DPS Users
+### Deactivating DPS Users
 
-An example of disabling a DPS user by email:
+An example of deactivating a DPS user by email:
 
 ```sql
 UPDATE dps_users SET deactivated = true WHERE email = 'username@example.com';

@@ -25,12 +25,12 @@ const TSPPShow = props => {
         <NumberField
           source="linehaul_rate"
           reference="transportation_service_provider_performances"
-          options={{ style: 'percent', maximumFractionDigits: 20 }}
+          options={{ style: 'percent', maximumFractionDigits: 2 }}
         />
         <NumberField
           source="sit_rate"
           reference="transportation_service_provider_performances"
-          options={{ style: 'percent', maximumFractionDigits: 20 }}
+          options={{ style: 'percent', maximumFractionDigits: 2 }}
         />
       </SimpleShowLayout>
     </Show>

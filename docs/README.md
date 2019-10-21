@@ -48,6 +48,7 @@ If you are looking to understand choices made in this project, see the list of [
 * [Run and troubleshoot pre-commit hooks](how-to/run-pre-commit-hooks.md#run-and-troubleshoot-pre-commit-hooks)
 * [Run server_test job in CircleCI container locally](how-to/run-server-test-circle-ci.md#run-server-test-job-in-circleci-container-locally)
 * [Use and Run Storybook](how-to/run-storybook.md#how-to-use-and-run-storybook)
+* [Searching for Application Errors](how-to/search-for-application-errors.md#how-to-searching-for-application-errors)
 * [Soft Delete](how-to/soft-delete.md#how-to-soft-delete)
 * [Store Data in Redux](how-to/store-data-in-redux.md#how-to-store-data-in-redux)
 * [Store UI State in Redux](how-to/store-ui-state-in-redux.md#how-to-store-ui-state-in-redux)
