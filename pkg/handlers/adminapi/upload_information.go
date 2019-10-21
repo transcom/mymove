@@ -16,13 +16,9 @@ import (
 )
 
 func payloadForUpload(u services.UploadInformation) *adminmessages.UploadInformation {
-	var moveLocator *string
-	if u.MoveLocator != nil {
-		moveLocator = u.MoveLocator
-	}
 	return &adminmessages.UploadInformation{
 		ID:          strfmt.UUID(u.UploadID.String()),
-		MoveLocator: moveLocator,
+		MoveLocator: u.MoveLocator,
 		Upload: &adminmessages.Upload{
 			ContentType: u.ContentType,
 			CreatedAt:   strfmt.DateTime(u.CreatedAt),
