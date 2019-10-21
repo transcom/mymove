@@ -1546,6 +1546,19 @@ definitions:
         type: string
         format: uuid
         title: The service member this document belongs to
+  Tags:
+    type: array
+    items:
+      $ref: '#/definitions/Tag'
+  Tag:
+    type: object
+    properties:
+      key:
+        type: string
+        example: alma mater
+      value:
+        type: string
+        example: smith college
   UploadPayload:
     type: object
     properties:
@@ -1566,6 +1579,8 @@ definitions:
         example: application/pdf
       bytes:
         type: integer
+      tags:
+        $ref: '#/definitions/Tags'
       created_at:
         type: string
         format: date-time
@@ -3442,7 +3457,6 @@ paths:
           description: no files to be processed into attachments PDF
         500:
           description: server error
-
   /personally_procured_moves/{personallyProcuredMoveId}/approve:
     post:
       summary: Approves the PPM
