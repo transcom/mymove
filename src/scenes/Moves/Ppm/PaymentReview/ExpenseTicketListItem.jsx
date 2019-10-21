@@ -13,7 +13,7 @@ class ExpenseTicketListItem extends Component {
     let isInfected = false;
     forEach(uploads, function(upload) {
       forEach(upload.tags, function(tag) {
-        if (tag.key === 'av-status' && tag.value === 'CLEAN') {
+        if (tag.key === 'av-status' && tag.value === 'INFECTED') {
           isInfected = true;
         }
       });
