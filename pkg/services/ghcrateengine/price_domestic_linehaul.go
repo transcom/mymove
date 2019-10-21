@@ -10,8 +10,8 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// minWeight is the minimum weight used in calculations (weights below this should be upgraded to the min)
-const minWeight = unit.Pound(500)
+// minDomesticWeight is the minimum weight used in domestic calculations (weights below this are upgraded to the min)
+const minDomesticWeight = unit.Pound(500)
 
 // NewDomesticLinehaulPricer is the public constructor for a DomesticLinehaulPricer using Pop
 func NewDomesticLinehaulPricer(db *pop.Connection, logger Logger, contractCode string) services.DomesticLinehaulPricer {
@@ -48,8 +48,8 @@ func (p domesticLinehaulPricer) PriceDomesticLinehaul(data services.DomesticServ
 
 	// Minimum weight is 500 pounds
 	effectiveWeight := data.Weight
-	if data.Weight < minWeight {
-		effectiveWeight = minWeight
+	if data.Weight < minDomesticWeight {
+		effectiveWeight = minDomesticWeight
 	}
 
 	isPeakPeriod := IsPeakPeriod(data.MoveDate)

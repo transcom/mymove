@@ -49,7 +49,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		pricingData := services.DomesticServicePricingData{
 			MoveDate:    time.Date(testContractYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
 			Distance:    unit.Miles(1200),
-			Weight:      minWeight / 2,
+			Weight:      minDomesticWeight / 2,
 			ServiceArea: "004",
 		}
 		totalPrice, err := domesticLinehaulPricer.PriceDomesticLinehaul(pricingData)
