@@ -2,7 +2,6 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 
 import LoginButton from 'shared/User/LoginButton';
-import UserGreeting from 'shared/User/UserGreeting';
 
 import usaFlag from 'shared/images/us-flag.png';
 import govIcon from 'shared/images/icon-dot-gov.svg';
@@ -64,24 +63,6 @@ function Header() {
           </div>
         </div>
       </div>
-
-      {/* Gov banner END */}
-
-      {/* <div className="usa-nav-container">
-        <div className="usa-accordion">
-          <header className="usa-banner-header">
-            <div className="usa-grid usa-banner-inner">
-              <button
-                className="usa-accordion__button usa-banner-button"
-                aria-expanded="false"
-                aria-controls="gov-banner"
-              >
-                <span className="usa-banner-button-text">Here's how you know</span>
-              </button>
-            </div>
-          </header>
-        </div>
-      </div>
       {/* Gov banner END */}
       <header className="usa-header usa-header--basic" role="banner">
         <div className="my-move-header">
@@ -95,20 +76,11 @@ function Header() {
                 </em>
               </div>
             </div>
-            <nav className="usa-nav my-move-login">
+            <nav className="usa-nav" aria-label="Primary navigation">
               <ul className="usa-nav__primary usa-accordion">
-                <li className="usa-nav__primary-item">
-                  <UserGreeting />
-                </li>
-                <li className="usa-nav__primary-item">
-                  <LoginButton />
-                </li>
+                <LoginButton />
               </ul>
             </nav>
-            {/*<div className="my-move-login">
-            <UserGreeting />
-            <LoginButton />
-          </div>*/}
           </div>
         </div>
       </header>
