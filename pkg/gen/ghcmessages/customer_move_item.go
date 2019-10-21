@@ -27,6 +27,10 @@ type CustomerMoveItem struct {
 	// Format: datetime
 	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
 
+	// customer id
+	// Format: uuid
+	CustomerID strfmt.UUID `json:"customer_id,omitempty"`
+
 	// Customer Name
 	CustomerName *string `json:"customer_name,omitempty"`
 
@@ -43,6 +47,10 @@ func (m *CustomerMoveItem) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateCustomerID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -63,6 +71,19 @@ func (m *CustomerMoveItem) validateCreatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("created_at", "body", "datetime", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *CustomerMoveItem) validateCustomerID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.CustomerID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("customer_id", "body", "uuid", m.CustomerID.String(), formats); err != nil {
 		return err
 	}
 

@@ -37,6 +37,8 @@ func (h GetCustomerInfoHandler) Handle(params customercodeop.GetCustomerInfoPara
 
 func payloadForCustomerMoveItem(CustomerMoveItem models.CustomerMoveItem) *ghcmessages.CustomerMoveItem {
 	CustomerMoveItemPayload := ghcmessages.CustomerMoveItem{
+		ID:                    *handlers.FmtUUID(CustomerMoveItem.ID),
+		CustomerID:				*handlers.FmtUUID(CustomerMoveItem.CustomerID),
 		CreatedAt:             strfmt.DateTime(CustomerMoveItem.CreatedAt),
 		CustomerName:          swag.String(CustomerMoveItem.CustomerName),
 		ConfirmationNumber:    CustomerMoveItem.ConfirmationNumber,

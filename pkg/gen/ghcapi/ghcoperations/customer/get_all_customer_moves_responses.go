@@ -25,7 +25,7 @@ type GetAllCustomerMovesOK struct {
 	/*
 	  In: Body
 	*/
-	Payload []*ghcmessages.CustomerMoveItem `json:"body,omitempty"`
+	Payload ghcmessages.CustomerMoveItems `json:"body,omitempty"`
 }
 
 // NewGetAllCustomerMovesOK creates GetAllCustomerMovesOK with default headers values
@@ -35,13 +35,13 @@ func NewGetAllCustomerMovesOK() *GetAllCustomerMovesOK {
 }
 
 // WithPayload adds the payload to the get all customer moves o k response
-func (o *GetAllCustomerMovesOK) WithPayload(payload []*ghcmessages.CustomerMoveItem) *GetAllCustomerMovesOK {
+func (o *GetAllCustomerMovesOK) WithPayload(payload ghcmessages.CustomerMoveItems) *GetAllCustomerMovesOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get all customer moves o k response
-func (o *GetAllCustomerMovesOK) SetPayload(payload []*ghcmessages.CustomerMoveItem) {
+func (o *GetAllCustomerMovesOK) SetPayload(payload ghcmessages.CustomerMoveItems) {
 	o.Payload = payload
 }
 
@@ -52,7 +52,7 @@ func (o *GetAllCustomerMovesOK) WriteResponse(rw http.ResponseWriter, producer r
 	payload := o.Payload
 	if payload == nil {
 		// return empty array
-		payload = make([]*ghcmessages.CustomerMoveItem, 0, 50)
+		payload = ghcmessages.CustomerMoveItems{}
 	}
 
 	if err := producer.Produce(rw, payload); err != nil {

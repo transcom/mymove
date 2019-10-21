@@ -10,6 +10,7 @@ import (
 // CustomerMoveItem represents a single move queue item within a queue.
 type CustomerMoveItem struct {
 	ID                    uuid.UUID  `json:"id" db:"id"`
+	CustomerID            uuid.UUID   `json:"customer_id" db:"customer_id"`
 	CreatedAt             time.Time  `json:"created_at" db:"created_at"`
 	CustomerName          string     `json:"customer_name" db:"customer_name"`
 	ConfirmationNumber    string     `json:"locator" db:"locator"`
@@ -29,8 +30,8 @@ func GetCustomerMoveItems(db *pop.Connection) ([]CustomerMoveItem, error) {
 		sm.affiliation AS branch_of_service,
 		moves.locator AS locator,
 		moves.created_at AS created_at,
-				moves.updated_at AS last_modified_date,
-				origin_duty_station.name AS origin_duty_station_name
+		origin_duty_station.name AS origin_duty_station_name,
+		sm.id as customer_id
 			FROM moves
 			JOIN orders AS ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
@@ -41,3 +42,4 @@ func GetCustomerMoveItems(db *pop.Connection) ([]CustomerMoveItem, error) {
 	`).All(&CustomerMoveItems)
 	return CustomerMoveItems, err
 }
+

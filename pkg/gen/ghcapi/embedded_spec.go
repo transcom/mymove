@@ -51,10 +51,7 @@ func init() {
           "200": {
             "description": "Successfully retrieved information on all customer",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/CustomerMoveItem"
-              }
+              "$ref": "#/definitions/CustomerMoveItems"
             }
           },
           "400": {
@@ -1470,6 +1467,11 @@ func init() {
           "format": "datetime",
           "example": "2018-04-12T23:20:50.52Z"
         },
+        "customer_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "customer_name": {
           "type": "string",
           "title": "Customer Name",
@@ -1487,6 +1489,12 @@ func init() {
           "x-nullable": true,
           "example": "Fort Knox"
         }
+      }
+    },
+    "CustomerMoveItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CustomerMoveItem"
       }
     },
     "Entitlements": {
@@ -1945,10 +1953,7 @@ func init() {
           "200": {
             "description": "Successfully retrieved information on all customer",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/CustomerMoveItem"
-              }
+              "$ref": "#/definitions/CustomerMoveItems"
             }
           },
           "400": {
@@ -3619,6 +3624,11 @@ func init() {
           "format": "datetime",
           "example": "2018-04-12T23:20:50.52Z"
         },
+        "customer_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "customer_name": {
           "type": "string",
           "title": "Customer Name",
@@ -3636,6 +3646,12 @@ func init() {
           "x-nullable": true,
           "example": "Fort Knox"
         }
+      }
+    },
+    "CustomerMoveItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CustomerMoveItem"
       }
     },
     "Entitlements": {

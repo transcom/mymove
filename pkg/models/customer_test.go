@@ -30,7 +30,10 @@ func (suite *ModelSuite) TestGetCustomerMoveItems() {
 	})
 
 	customerMoveItems, err := models.GetCustomerMoveItems(suite.DB())
-	// customer name
 	suite.NoError(err)
 	suite.Len(customerMoveItems, 2)
+	suite.Equal(customerMoveItems[1].CustomerName, "User 2, Test")
+	suite.Equal(customerMoveItems[1].ConfirmationNumber, "TES123")
+	suite.Equal(customerMoveItems[0].CustomerName, "User, Test")
+	suite.Equal(customerMoveItems[0].ConfirmationNumber, "DFTMVE")
 }

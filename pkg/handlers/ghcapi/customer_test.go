@@ -1,6 +1,7 @@
 package ghcapi
 
 import (
+	"github.com/transcom/mymove/pkg/models"
 	"net/http/httptest"
 
 	"github.com/transcom/mymove/pkg/models"
