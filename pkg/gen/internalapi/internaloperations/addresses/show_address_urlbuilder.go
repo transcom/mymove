@@ -42,7 +42,7 @@ func (o *ShowAddressURL) SetBasePath(bp string) {
 func (o *ShowAddressURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/address/{addressId}"
+	var _path = "/addresses/{addressId}"
 
 	addressID := o.AddressID.String()
 	if addressID != "" {

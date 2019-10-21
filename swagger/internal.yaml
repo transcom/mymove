@@ -62,6 +62,10 @@ definitions:
       name:
         type: string
         example: Fort Bragg North Station
+      address_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       address:
         $ref: '#/definitions/Address'
       affiliation:
@@ -77,6 +81,7 @@ definitions:
     required:
       - id
       - name
+      - address_id
       - address
       - affiliation
       - created_at
@@ -4249,7 +4254,7 @@ paths:
           description: access code not found in system
         500:
           description: server error
-  /address/{addressId}:
+  /addresses/{addressId}:
     get:
       summary: Returns an address
       description: Returns an address

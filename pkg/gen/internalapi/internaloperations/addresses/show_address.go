@@ -29,7 +29,7 @@ func NewShowAddress(ctx *middleware.Context, handler ShowAddressHandler) *ShowAd
 	return &ShowAddress{Context: ctx, Handler: handler}
 }
 
-/*ShowAddress swagger:route GET /address/{addressId} addresses showAddress
+/*ShowAddress swagger:route GET /addresses/{addressId} addresses showAddress
 
 Returns an address
 

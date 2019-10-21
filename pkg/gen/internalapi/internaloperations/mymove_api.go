@@ -990,7 +990,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/address/{addressId}"] = addresses.NewShowAddress(o.context, o.AddressesShowAddressHandler)
+	o.handlers["GET"]["/addresses/{addressId}"] = addresses.NewShowAddress(o.context, o.AddressesShowAddressHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

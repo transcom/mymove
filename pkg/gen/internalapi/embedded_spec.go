@@ -158,7 +158,7 @@ func init() {
         }
       }
     },
-    "/address/{addressId}": {
+    "/addresses/{addressId}": {
       "get": {
         "description": "Returns an address",
         "tags": [
@@ -3760,6 +3760,7 @@ func init() {
       "required": [
         "id",
         "name",
+        "address_id",
         "address",
         "affiliation",
         "created_at",
@@ -3768,6 +3769,11 @@ func init() {
       "properties": {
         "address": {
           "$ref": "#/definitions/Address"
+        },
+        "address_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "affiliation": {
           "$ref": "#/definitions/Affiliation"
@@ -5966,7 +5972,7 @@ func init() {
         }
       }
     },
-    "/address/{addressId}": {
+    "/addresses/{addressId}": {
       "get": {
         "description": "Returns an address",
         "tags": [
@@ -9572,6 +9578,7 @@ func init() {
       "required": [
         "id",
         "name",
+        "address_id",
         "address",
         "affiliation",
         "created_at",
@@ -9580,6 +9587,11 @@ func init() {
       "properties": {
         "address": {
           "$ref": "#/definitions/Address"
+        },
+        "address_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "affiliation": {
           "$ref": "#/definitions/Affiliation"
