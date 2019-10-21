@@ -979,8 +979,8 @@ workflows:
   dependency_updater_go:
     triggers:
       - schedule:
-          # Monday at 4am/7am PST/EST
-          cron: '0 20 * * 1'
+          # Monday at 12:00 UTC
+          cron: '0 12 * * 1'
           filters:
             branches:
               only: master
@@ -990,8 +990,8 @@ workflows:
   dependency_updater_js:
     triggers:
       - schedule:
-          # Monday at 4am/7am PST/EST
-          cron: '0 20 * * 1'
+          # Monday at 12:00 UTC
+          cron: '0 12 * * 1'
           filters:
             branches:
               only: master
@@ -1001,8 +1001,8 @@ workflows:
   dependency_updater_pre_commit:
     triggers:
       - schedule:
-          # Monday at 4am/7am PST/EST
-          cron: '0 20 * * 1'
+          # Monday at 12:00 UTC
+          cron: '0 12 * * 1'
           filters:
             branches:
               only: master
