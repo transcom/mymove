@@ -50,7 +50,16 @@ git config user.name "Dependency Updater"
 branch=dependency-updates-$(date +%s)
 readonly branch
 git checkout -b "${branch}"
-pre-commit run --all-files
+# fix fommatting changes if needed
+if [ "${deps_name}" = "golang" ]; then
+  echo "running golangci-lint"
+  pre-commit run -a golangci-lint
+elif [ "${deps_name}" = "js" ]; then
+  echo "running prettier"
+  pre-commit run -a prettier
+else
+  echo "no linting to run"
+fi
 git commit -am "Automated dependency updates ${deps_name} | $(date -R)"
 git push -v --set-upstream origin "${branch}"
 pr_url=$(hub pull-request -l dependencies,automerge -m "Automated ${deps_name} dependency update | $(date -R)")
