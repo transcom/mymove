@@ -331,7 +331,7 @@ describe('allows a SM to continue requesting a payment', function() {
       expect(loc.pathname).to.match(/^\/$/);
     });
 
-    cy.get('.usa-button--outline')
+    cy.get('.usa-button')
       .contains('Continue Requesting Payment')
       .click();
     cy.location().should(loc => {
