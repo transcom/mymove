@@ -22,7 +22,7 @@ type uploadInformationFetcher struct {
 	db *pop.Connection
 }
 
-// NewUploadInformationFetcher return an implementation of the UploadFetcher interface
+// NewUploadInformationFetcher return an implementation of the UploadInformationFetcher interface
 func NewUploadInformationFetcher(db *pop.Connection) services.UploadInformationFetcher {
 	return &uploadInformationFetcher{db}
 }
