@@ -453,6 +453,17 @@ definitions:
         enum:
           - SYSTEM_ADMIN
           - PROGRAM_ADMIN
+  AdminUserUpdatePayload:
+    type: object
+    properties:
+      first_name:
+        type: string
+        title: First Name
+      last_name:
+        type: string
+        title: Last Name
+      deactivated:
+        type: boolean
   ElectronicOrder:
     type: object
     required:
@@ -718,7 +729,7 @@ paths:
         401:
           description: Must be authenticated to use this end point
         403:
-          description: Not authorized to create an office user
+          description: Not authorized to update an office user
         500:
           description: Server error
   /transportation_service_provider_performances:
@@ -868,6 +879,36 @@ paths:
           description: admin user not found
         500:
           description: server error
+    patch:
+      summary: Updates an admin user
+      operationId: updateAdminUser
+      tags:
+        - admin_users
+      parameters:
+        - in: path
+          name: adminUserId
+          type: string
+          format: uuid
+          required: true
+        - in: body
+          name: adminUser
+          description: Admin user information
+          required: true
+          schema:
+            $ref: '#/definitions/AdminUserUpdatePayload'
+      responses:
+        200:
+          description: Successfully updated Admin User
+          schema:
+            $ref: '#/definitions/AdminUser'
+        400:
+          description: Invalid Request
+        401:
+          description: Must be authenticated to use this end point
+        403:
+          description: Not authorized to update an admin user
+        500:
+          description: Server error
   /offices:
     get:
       summary: List transportation offices

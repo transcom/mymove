@@ -1,5 +1,5 @@
 import React from 'react';
-import { Create, SimpleForm, TextInput, ReferenceInput, AutocompleteInput, required } from 'react-admin';
+import { Create, SimpleForm, TextInput, ReferenceInput, AutocompleteInput, SelectInput, required } from 'react-admin';
 
 const AdminUserCreate = props => (
   <Create {...props}>
@@ -10,6 +10,10 @@ const AdminUserCreate = props => (
       <ReferenceInput label="Organization" reference="organizations" source="organization_id" perPage={500}>
         <AutocompleteInput optionText="name" />
       </ReferenceInput>
+      <SelectInput
+        source="role"
+        choices={[{ id: 'SYSTEM_ADMIN', name: 'System Admin' }, { id: 'PROGRAM_ADMIN', name: 'Program Admin' }]}
+      />
     </SimpleForm>
   </Create>
 );

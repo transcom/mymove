@@ -124,7 +124,43 @@ func (h CreateAdminUserHandler) Handle(params adminuserop.CreateAdminUserParams)
 		return adminuserop.NewCreateAdminUserInternalServerError()
 	}
 
-	logger.Info("Create Admin User", zap.String("office_user_id", createdAdminUser.ID.String()), zap.String("responsible_user_id", session.UserID.String()), zap.String("event_type", "create_admin_user"))
+	logger.Info("Create Admin User", zap.String("admin_user_id", createdAdminUser.ID.String()), zap.String("responsible_user_id", session.UserID.String()), zap.String("event_type", "create_admin_user"))
 	returnPayload := payloadForAdminUserModel(*createdAdminUser)
 	return adminuserop.NewCreateAdminUserCreated().WithPayload(returnPayload)
+}
+
+type UpdateAdminUserHandler struct {
+	handlers.HandlerContext
+	services.AdminUserUpdater
+	services.NewQueryFilter
+}
+
+func (h UpdateAdminUserHandler) Handle(params adminuserop.UpdateAdminUserParams) middleware.Responder {
+	payload := params.AdminUser
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	adminUserID, err := uuid.FromString(params.AdminUserID.String())
+	if err != nil {
+		logger.Error(fmt.Sprintf("UUID Parsing for %s", params.AdminUserID.String()), zap.Error(err))
+	}
+
+	adminUser := models.AdminUser{
+		ID:          adminUserID,
+		LastName:    payload.LastName,
+		FirstName:   payload.FirstName,
+		Deactivated: payload.Deactivated,
+	}
+
+	updatedAdminUser, verrs, err := h.AdminUserUpdater.UpdateAdminUser(&adminUser)
+
+	if err != nil || verrs != nil {
+		fmt.Printf("%#v", verrs)
+		logger.Error("Error saving user", zap.Error(err))
+		return adminuserop.NewUpdateAdminUserInternalServerError()
+	}
+
+	logger.Info("Update admin User", zap.String("admin_user_id", updatedAdminUser.ID.String()), zap.String("responsible_user_id", session.UserID.String()), zap.String("event_type", "update_admin_user"))
+	returnPayload := payloadForAdminUserModel(*updatedAdminUser)
+
+	return adminuserop.NewUpdateAdminUserOK().WithPayload(returnPayload)
 }

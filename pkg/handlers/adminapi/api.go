@@ -120,6 +120,18 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		query.NewQueryFilter,
 	}
 
+	adminAPI.AdminUsersCreateAdminUserHandler = CreateAdminUserHandler{
+		context,
+		adminuser.NewAdminUserCreator(queryBuilder),
+		query.NewQueryFilter,
+	}
+
+	adminAPI.AdminUsersUpdateAdminUserHandler = UpdateAdminUserHandler{
+		context,
+		adminuser.NewAdminUserUpdater(queryBuilder),
+		query.NewQueryFilter,
+	}
+
 	adminAPI.UploadGetUploadHandler = GetUploadHandler{
 		context,
 		upload.NewUploadFetcher(queryBuilder),

@@ -220,6 +220,51 @@ func init() {
             "description": "server error"
           }
         }
+      },
+      "patch": {
+        "tags": [
+          "admin_users"
+        ],
+        "summary": "Updates an admin user",
+        "operationId": "updateAdminUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "adminUserId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Admin user information",
+            "name": "adminUser",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AdminUserUpdatePayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated Admin User",
+            "schema": {
+              "$ref": "#/definitions/AdminUser"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to update an admin user"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
       }
     },
     "/electronic_orders": {
@@ -496,7 +541,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to create an office user"
+            "description": "Not authorized to update an office user"
           },
           "500": {
             "description": "Server error"
@@ -1017,6 +1062,22 @@ func init() {
             "SYSTEM_ADMIN",
             "PROGRAM_ADMIN"
           ]
+        }
+      }
+    },
+    "AdminUserUpdatePayload": {
+      "type": "object",
+      "properties": {
+        "deactivated": {
+          "type": "boolean"
+        },
+        "first_name": {
+          "type": "string",
+          "title": "First Name"
+        },
+        "last_name": {
+          "type": "string",
+          "title": "Last Name"
         }
       }
     },
@@ -1654,6 +1715,51 @@ func init() {
             "description": "server error"
           }
         }
+      },
+      "patch": {
+        "tags": [
+          "admin_users"
+        ],
+        "summary": "Updates an admin user",
+        "operationId": "updateAdminUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "adminUserId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Admin user information",
+            "name": "adminUser",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AdminUserUpdatePayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated Admin User",
+            "schema": {
+              "$ref": "#/definitions/AdminUser"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to update an admin user"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
       }
     },
     "/electronic_orders": {
@@ -1930,7 +2036,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to create an office user"
+            "description": "Not authorized to update an office user"
           },
           "500": {
             "description": "Server error"
@@ -2451,6 +2557,22 @@ func init() {
             "SYSTEM_ADMIN",
             "PROGRAM_ADMIN"
           ]
+        }
+      }
+    },
+    "AdminUserUpdatePayload": {
+      "type": "object",
+      "properties": {
+        "deactivated": {
+          "type": "boolean"
+        },
+        "first_name": {
+          "type": "string",
+          "title": "First Name"
+        },
+        "last_name": {
+          "type": "string",
+          "title": "Last Name"
         }
       }
     },
