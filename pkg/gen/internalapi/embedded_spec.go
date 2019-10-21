@@ -616,7 +616,7 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "samplerole"
+          "sampleRole"
         ]
       }
     },
@@ -6371,7 +6371,7 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "samplerole"
+          "sampleRole"
         ]
       }
     },
