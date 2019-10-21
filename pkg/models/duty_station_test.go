@@ -87,7 +87,6 @@ func (suite *ModelSuite) TestFindDutyStations() {
 		suite.Equal(len(dutyStations), len(ts.dutyStations), "Wrong number of duty stations returned from query: %s", ts.query)
 		for i, dutyStation := range dutyStations {
 			suite.Equal(dutyStation.Name, ts.dutyStations[i], "Duty stations don't match order: %s", ts.query)
-			suite.Equal(dutyStation.Address.City, "city", "Duty station doesn't have an address")
 		}
 	}
 }
