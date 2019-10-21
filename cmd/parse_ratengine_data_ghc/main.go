@@ -1,15 +1,22 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
+	"go.uber.org/zap"
+
 	"github.com/gobuffalo/pop"
 	"github.com/tealeg/xlsx"
+
+	"github.com/transcom/mymove/pkg/cli"
+	"github.com/transcom/mymove/pkg/logging"
 )
 
 /*************************************************************************
@@ -200,15 +207,20 @@ func main() {
 	params := paramConfig{}
 	params.runTime = time.Now()
 
+	flag := pflag.CommandLine
 	filename := flag.String("filename", "", "Filename including path of the XLSX to parse for Rate Engine GHC import")
 	all := flag.Bool("all", true, "Parse entire Rate Engine GHC XLSX")
 	sheets := flag.String("xlsxSheets", "", xlsxSheetsUsage())
 	display := flag.Bool("display", false, "Display output of parsed info")
 	saveToFile := flag.Bool("save", false, "Save output to CSV file")
-	config := flag.String("config-dir", "config", "The location of server config files")
-	env := flag.String("env", "development", "The environment to run in, which configures the database.")
 
-	flag.Parse()
+	// DB Config
+	cli.InitDatabaseFlags(flag)
+
+	// Don't sort flags
+	flag.SortFlags = false
+
+	flag.Parse(os.Args[1:])
 
 	params.processAll = false
 	if all != nil && *all == true {
@@ -248,13 +260,30 @@ func main() {
 
 	// Connect to the database
 	//DB connection
-	dbALPErr := pop.AddLookupPaths(*config)
-	if dbALPErr != nil {
-		log.Fatal(dbALPErr)
+	v := viper.New()
+	v.BindPFlags(flag)
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+
+	dbEnv := v.GetString(cli.DbEnvFlag)
+
+	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
+	if err != nil {
+		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
-	db, dbConnErr := pop.Connect(*env)
-	if dbConnErr != nil {
-		log.Fatal(dbConnErr)
+	zap.ReplaceGlobals(logger)
+
+	err = cli.CheckDatabase(v, logger)
+	if err != nil {
+		logger.Fatal("Connecting to DB", zap.Error(err))
+	}
+
+	// Create a connection to the DB
+	db, err := cli.InitDatabase(v, nil, logger)
+	if err != nil {
+		// No connection object means that the configuraton failed to validate and we should not startup
+		// A valid connection object that still has an error indicates that the DB is not up and we should not startup
+		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 	defer db.Close()
 
