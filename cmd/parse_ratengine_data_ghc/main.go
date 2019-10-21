@@ -627,7 +627,7 @@ var parseServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int
 		domServArea := domesticServiceArea{
 			BasePointCity:     getCell(row.Cells, basePointCityColumn),
 			State:             getCell(row.Cells, stateColumn),
-			ServiceAreaNumber: getCell(row.Cells, serviceAreaNumberColumn),
+			ServiceAreaNumber: getInt(getCell(row.Cells, serviceAreaNumberColumn)),
 			Zip3s:             splitZip3s(getCell(row.Cells, zip3sColumn)),
 		}
 		// All the rows are consecutive, if we get to a blank one we're done

@@ -266,7 +266,7 @@ func (dSA *domesticServiceAreaPrice) toSlice() []string {
 type domesticServiceArea struct {
 	BasePointCity     string
 	State             string
-	ServiceAreaNumber string
+	ServiceAreaNumber int
 	Zip3s             []string
 }
 
@@ -286,7 +286,7 @@ func (dsa *domesticServiceArea) toSlice() []string {
 
 	values = append(values, dsa.BasePointCity)
 	values = append(values, dsa.State)
-	values = append(values, dsa.ServiceAreaNumber)
+	values = append(values, strconv.Itoa(dsa.ServiceAreaNumber))
 	values = append(values, strings.Join(dsa.Zip3s, ","))
 
 	return values
