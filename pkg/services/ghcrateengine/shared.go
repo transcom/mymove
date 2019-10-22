@@ -10,8 +10,8 @@ type dateInYear struct {
 	day   int
 }
 
-// Our peak start/end dates
 var (
+	// The peak start/end dates
 	peakStart = dateInYear{time.May, 15}
 	peakEnd   = dateInYear{time.September, 30}
 )

@@ -65,6 +65,39 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 
 		suite.Error(err)
 	})
+
+	suite.T().Run("validation errors", func(t *testing.T) {
+		basePricingData := services.DomesticServicePricingData{
+			MoveDate:    time.Date(testdatagen.TestYear-1, time.January, 1, 0, 0, 0, 0, time.UTC),
+			Distance:    unit.Miles(1200),
+			Weight:      unit.Pound(4000),
+			ServiceArea: "004",
+		}
+
+		noMoveDate := basePricingData
+		noMoveDate.MoveDate = time.Time{}
+		_, err := domesticLinehaulPricer.PriceDomesticLinehaul(noMoveDate)
+		suite.Error(err)
+		suite.Equal("MoveDate is required", err.Error())
+
+		noDistance := basePricingData
+		noDistance.Distance = 0
+		_, err = domesticLinehaulPricer.PriceDomesticLinehaul(noDistance)
+		suite.Error(err)
+		suite.Equal("Distance must be greater than 0", err.Error())
+
+		noWeight := basePricingData
+		noWeight.Weight = 0
+		_, err = domesticLinehaulPricer.PriceDomesticLinehaul(noWeight)
+		suite.Error(err)
+		suite.Equal("Weight must be greater than 0", err.Error())
+
+		noServiceArea := basePricingData
+		noServiceArea.ServiceArea = ""
+		_, err = domesticLinehaulPricer.PriceDomesticLinehaul(noServiceArea)
+		suite.Error(err)
+		suite.Equal("ServiceArea is required", err.Error())
+	})
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulData() {

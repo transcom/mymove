@@ -44,7 +44,19 @@ func (p priceAndEscalation) MarshalLogObject(encoder zapcore.ObjectEncoder) erro
 
 // PriceDomesticLinehaul produces the price in cents for the linehaul charge for the given move parameters
 func (p domesticLinehaulPricer) PriceDomesticLinehaul(data services.DomesticServicePricingData) (unit.Cents, error) {
-	// TODO: Validate params
+	// Validate parameters
+	if data.MoveDate.IsZero() {
+		return 0, errors.New("MoveDate is required")
+	}
+	if data.Distance <= 0 {
+		return 0, errors.New("Distance must be greater than 0")
+	}
+	if data.Weight <= 0 {
+		return 0, errors.New("Weight must be greater than 0")
+	}
+	if len(data.ServiceArea) == 0 {
+		return 0, errors.New("ServiceArea is required")
+	}
 
 	// Minimum weight is 500 pounds
 	effectiveWeight := data.Weight
