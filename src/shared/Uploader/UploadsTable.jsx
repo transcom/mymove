@@ -3,25 +3,19 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { forEach } from 'lodash';
 
 import './UploadsTable.css';
 
 import bytes from 'bytes';
 import moment from 'moment';
+import { UPLOAD_SCAN_STATUS } from 'shared/constants';
 
 export class UploadsTable extends Component {
   getUploadUrl = upload => {
-    let isInfected = false;
-
-    forEach(upload.tags, function(tag) {
-      if (tag.key === 'av-status' && tag.value === 'INFECTED') {
-        isInfected = true;
-      }
-    });
-
-    if (isInfected) {
+    if (upload.status === UPLOAD_SCAN_STATUS.INFECTED) {
       return `/infected-upload`;
+    } else if (upload.status === UPLOAD_SCAN_STATUS.PROCESSING) {
+      return `/processing-upload`;
     }
     return upload.url;
   };

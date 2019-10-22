@@ -1,26 +1,27 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { detectFirefox } from 'shared/utils';
-import { forEach } from 'lodash';
 import './index.css';
 import styles from './DocumentContent.module.scss';
 import { RotationBar } from 'shared/RotationBar/RotationBar';
 import Alert from 'shared/Alert';
+import { UPLOAD_SCAN_STATUS } from 'shared/constants';
 
 const DocumentContent = props => {
-  let { contentType, filename, url, tags } = props;
-  let isInfected = false;
-  forEach(tags, function(tag) {
-    if (tag.key === 'av-status' && tag.value === 'INFECTED') {
-      isInfected = true;
-    }
-  });
+  let { contentType, filename, url, status } = props;
 
-  if (isInfected) {
+  if (status === UPLOAD_SCAN_STATUS.INFECTED) {
     return (
       <Alert type="error" className="usa-width-one-whole" heading="Ask for a new file">
         Our antivirus software flagged this file as a security risk. Contact the service member. Ask them to upload a
         photo of the original document instead.
+      </Alert>
+    );
+  }
+  if (status === UPLOAD_SCAN_STATUS.PROCESSING) {
+    return (
+      <Alert type="info" className="usa-width-one-whole" heading="Your file is being scanned for viruses">
+        It will be available within a few minutes.
       </Alert>
     );
   }
