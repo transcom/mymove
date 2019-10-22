@@ -22,7 +22,39 @@ type UploadInformation struct {
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// move locator
-	MoveLocator string `json:"move_locator,omitempty"`
+	MoveLocator *string `json:"move_locator,omitempty"`
+
+	// office user email
+	OfficeUserEmail *string `json:"office_user_email,omitempty"`
+
+	// office user first name
+	OfficeUserFirstName *string `json:"office_user_first_name,omitempty"`
+
+	// office user id
+	// Format: uuid
+	OfficeUserID *strfmt.UUID `json:"office_user_id,omitempty"`
+
+	// office user last name
+	OfficeUserLastName *string `json:"office_user_last_name,omitempty"`
+
+	// office user phone
+	OfficeUserPhone *string `json:"office_user_phone,omitempty"`
+
+	// service member email
+	ServiceMemberEmail *string `json:"service_member_email,omitempty"`
+
+	// service member first name
+	ServiceMemberFirstName *string `json:"service_member_first_name,omitempty"`
+
+	// service member id
+	// Format: uuid
+	ServiceMemberID *strfmt.UUID `json:"service_member_id,omitempty"`
+
+	// service member last name
+	ServiceMemberLastName *string `json:"service_member_last_name,omitempty"`
+
+	// service member phone
+	ServiceMemberPhone *string `json:"service_member_phone,omitempty"`
 
 	// upload
 	Upload *Upload `json:"upload,omitempty"`
@@ -33,6 +65,14 @@ func (m *UploadInformation) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOfficeUserID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateServiceMemberID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -53,6 +93,32 @@ func (m *UploadInformation) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *UploadInformation) validateOfficeUserID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.OfficeUserID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("office_user_id", "body", "uuid", m.OfficeUserID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *UploadInformation) validateServiceMemberID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ServiceMemberID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("service_member_id", "body", "uuid", m.ServiceMemberID.String(), formats); err != nil {
 		return err
 	}
 

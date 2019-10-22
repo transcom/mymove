@@ -21,6 +21,11 @@ type DutyStationPayload struct {
 	// Required: true
 	Address *Address `json:"address"`
 
+	// address id
+	// Required: true
+	// Format: uuid
+	AddressID *strfmt.UUID `json:"address_id"`
+
 	// affiliation
 	// Required: true
 	Affiliation *Affiliation `json:"affiliation"`
@@ -53,6 +58,10 @@ func (m *DutyStationPayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateAddressID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -99,6 +108,19 @@ func (m *DutyStationPayload) validateAddress(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *DutyStationPayload) validateAddressID(formats strfmt.Registry) error {
+
+	if err := validate.Required("address_id", "body", m.AddressID); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("address_id", "body", "uuid", m.AddressID.String(), formats); err != nil {
+		return err
 	}
 
 	return nil

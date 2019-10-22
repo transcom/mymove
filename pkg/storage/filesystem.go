@@ -111,6 +111,12 @@ func (fs *Filesystem) Fetch(key string) (io.ReadCloser, error) {
 	return f, errors.Wrap(err, "could not open file")
 }
 
+// Tags returns the tags for a specified key
+func (fs *Filesystem) Tags(key string) (map[string]string, error) {
+	tags := make(map[string]string)
+	return tags, nil
+}
+
 // FileSystem returns the underlying afero filesystem
 func (fs *Filesystem) FileSystem() *afero.Afero {
 	return fs.fs
