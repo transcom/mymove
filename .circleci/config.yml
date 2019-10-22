@@ -513,6 +513,10 @@ jobs:
           keys:
             - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: make storybook_build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - storybook_static
       - announce_failure
 
   # `build_migrations` builds the migrations container and pushes to the container repository
