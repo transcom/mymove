@@ -22,9 +22,8 @@ export class UploadsTable extends Component {
 
     if (isInfected) {
       return `/infected-upload`;
-    } else {
-      return upload.url;
     }
+    return upload.url;
   };
 
   render() {

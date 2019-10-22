@@ -28,15 +28,14 @@ class WeightTicketListItem extends Component {
   };
 
   areUploadsInfected = uploads => {
-    let isInfected = false;
     forEach(uploads, function(upload) {
       forEach(upload.tags, function(tag) {
         if (tag.key === 'av-status' && tag.value === 'INFECTED') {
-          isInfected = true;
+          return true;
         }
       });
     });
-    return isInfected;
+    return false;
   };
 
   toggleShowConfirmation = () => {
