@@ -10,9 +10,9 @@ import (
 )
 
 const (
-	testServiceArea = "004"
-	testMiles       = unit.Miles(1200)
-	testDistance    = unit.Pound(4000)
+	dlhTestServiceArea = "004"
+	dlhTestDistance    = unit.Miles(1200)
+	dlhTestWeight      = unit.Pound(4000)
 )
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
@@ -22,7 +22,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 	suite.T().Run("success within peak period", func(t *testing.T) {
 		totalPrice, err := domesticLinehaulPricer.PriceDomesticLinehaul(
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
-			testMiles, testDistance, testServiceArea)
+			dlhTestDistance, dlhTestWeight, dlhTestServiceArea)
 
 		suite.NoError(err)
 		suite.Equal(249770, totalPrice.Int())
@@ -32,7 +32,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		nonPeakDate := peakStart.addDate(0, -1)
 		totalPrice, err := domesticLinehaulPricer.PriceDomesticLinehaul(
 			time.Date(testdatagen.TestYear, nonPeakDate.month, nonPeakDate.day, 0, 0, 0, 0, time.UTC),
-			testMiles, testDistance, testServiceArea)
+			dlhTestDistance, dlhTestWeight, dlhTestServiceArea)
 
 		suite.NoError(err)
 		suite.Equal(224793, totalPrice.Int())
@@ -41,7 +41,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 	suite.T().Run("weight below minimum", func(t *testing.T) {
 		totalPrice, err := domesticLinehaulPricer.PriceDomesticLinehaul(
 			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
-			testMiles, minDomesticWeight/2, testServiceArea)
+			dlhTestDistance, minDomesticWeight/2, dlhTestServiceArea)
 
 		suite.NoError(err)
 		suite.Equal(31221, totalPrice.Int())
@@ -50,7 +50,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 	suite.T().Run("date outside of valid contract year", func(t *testing.T) {
 		_, err := domesticLinehaulPricer.PriceDomesticLinehaul(
 			time.Date(testdatagen.TestYear-1, time.January, 1, 0, 0, 0, 0, time.UTC),
-			testMiles, testDistance, testServiceArea)
+			dlhTestDistance, dlhTestWeight, dlhTestServiceArea)
 
 		suite.Error(err)
 	})
@@ -59,22 +59,22 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		moveDate := time.Date(testdatagen.TestYear, time.July, 4, 0, 0, 0, 0, time.UTC)
 
 		// No move date
-		_, err := domesticLinehaulPricer.PriceDomesticLinehaul(time.Time{}, testMiles, testDistance, testServiceArea)
+		_, err := domesticLinehaulPricer.PriceDomesticLinehaul(time.Time{}, dlhTestDistance, dlhTestWeight, dlhTestServiceArea)
 		suite.Error(err)
 		suite.Equal("MoveDate is required", err.Error())
 
 		// No distance
-		_, err = domesticLinehaulPricer.PriceDomesticLinehaul(moveDate, 0, testDistance, testServiceArea)
+		_, err = domesticLinehaulPricer.PriceDomesticLinehaul(moveDate, 0, dlhTestWeight, dlhTestServiceArea)
 		suite.Error(err)
 		suite.Equal("Distance must be greater than 0", err.Error())
 
 		// No weight
-		_, err = domesticLinehaulPricer.PriceDomesticLinehaul(moveDate, testMiles, 0, testServiceArea)
+		_, err = domesticLinehaulPricer.PriceDomesticLinehaul(moveDate, dlhTestDistance, 0, dlhTestServiceArea)
 		suite.Error(err)
 		suite.Equal("Weight must be greater than 0", err.Error())
 
 		// No service area
-		_, err = domesticLinehaulPricer.PriceDomesticLinehaul(moveDate, testMiles, testDistance, "")
+		_, err = domesticLinehaulPricer.PriceDomesticLinehaul(moveDate, dlhTestDistance, dlhTestWeight, "")
 		suite.Error(err)
 		suite.Equal("ServiceArea is required", err.Error())
 	})
@@ -92,7 +92,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulData() {
 	serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
 		testdatagen.Assertions{
 			ReDomesticServiceArea: models.ReDomesticServiceArea{
-				ServiceArea: testServiceArea,
+				ServiceArea: dlhTestServiceArea,
 			},
 		})
 

@@ -6,7 +6,6 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
@@ -29,19 +28,6 @@ type domesticLinehaulPricer struct {
 	db           *pop.Connection
 	logger       Logger
 	contractCode string
-}
-
-// priceAndEscalation is used to hold data returned by the database query
-type priceAndEscalation struct {
-	PriceMillicents      unit.Millicents `db:"price_millicents"`
-	EscalationCompounded float64         `db:"escalation_compounded"`
-}
-
-// MarshalLogObject allows priceAndEscalation to be logged by zap
-func (p priceAndEscalation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
-	encoder.AddInt("PriceMillicents", p.PriceMillicents.Int())
-	encoder.AddFloat64("EscalationCompounded", p.EscalationCompounded)
-	return nil
 }
 
 // PriceDomesticLinehaul produces the price in cents for the linehaul charge for the given move parameters

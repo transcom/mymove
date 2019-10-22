@@ -2,6 +2,10 @@ package ghcrateengine
 
 import (
 	"time"
+
+	"go.uber.org/zap/zapcore"
+
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // dateInYear represents a specific date in a year (without caring what year it is)
@@ -46,4 +50,17 @@ func IsPeakPeriod(date time.Time) bool {
 
 	// Otherwise, it's non-peak
 	return false
+}
+
+// priceAndEscalation is used to hold data returned by the database query
+type priceAndEscalation struct {
+	PriceMillicents      unit.Millicents `db:"price_millicents"`
+	EscalationCompounded float64         `db:"escalation_compounded"`
+}
+
+// MarshalLogObject allows priceAndEscalation to be logged by zap
+func (p priceAndEscalation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	encoder.AddInt("PriceMillicents", p.PriceMillicents.Int())
+	encoder.AddFloat64("EscalationCompounded", p.EscalationCompounded)
+	return nil
 }
