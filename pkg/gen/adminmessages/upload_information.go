@@ -27,13 +27,34 @@ type UploadInformation struct {
 	// office user email
 	OfficeUserEmail *string `json:"office_user_email,omitempty"`
 
+	// office user first name
+	OfficeUserFirstName *string `json:"office_user_first_name,omitempty"`
+
 	// office user id
 	// Format: uuid
 	OfficeUserID *strfmt.UUID `json:"office_user_id,omitempty"`
 
+	// office user last name
+	OfficeUserLastName *string `json:"office_user_last_name,omitempty"`
+
+	// office user phone
+	OfficeUserPhone *string `json:"office_user_phone,omitempty"`
+
+	// service member email
+	ServiceMemberEmail *string `json:"service_member_email,omitempty"`
+
+	// service member first name
+	ServiceMemberFirstName *string `json:"service_member_first_name,omitempty"`
+
 	// service member id
 	// Format: uuid
 	ServiceMemberID *strfmt.UUID `json:"service_member_id,omitempty"`
+
+	// service member last name
+	ServiceMemberLastName *string `json:"service_member_last_name,omitempty"`
+
+	// service member phone
+	ServiceMemberPhone *string `json:"service_member_phone,omitempty"`
 
 	// upload
 	Upload *Upload `json:"upload,omitempty"`
