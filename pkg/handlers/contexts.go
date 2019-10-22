@@ -19,6 +19,7 @@ import (
 )
 
 // HandlerContext provides access to all the contextual references needed by individual handlers
+//go:generate mockery -name HandlerContext
 type HandlerContext interface {
 	DB() *pop.Connection
 	SessionAndLoggerFromContext(ctx context.Context) (*auth.Session, Logger)
