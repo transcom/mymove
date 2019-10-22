@@ -317,7 +317,6 @@ func (dsa *domesticServiceArea) saveToDatabase(db *pop.Connection) {
 			Zip3:                  zip3,
 			DomesticServiceAreaID: rdsa.ID,
 		}
-		log.Printf("stuff here: %v\n", rz3)
 		verrs, err = db.ValidateAndSave(&rz3)
 		if err != nil || verrs.HasAny() {
 			var dbError string
