@@ -21,6 +21,11 @@ type ClientError struct {
 	// Required: true
 	Detail *string `json:"detail"`
 
+	// instance
+	// Required: true
+	// Format: uuid
+	Instance *strfmt.UUID `json:"instance"`
+
 	// title
 	// Required: true
 	Title *string `json:"title"`
@@ -31,6 +36,10 @@ func (m *ClientError) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateDetail(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateInstance(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -47,6 +56,19 @@ func (m *ClientError) Validate(formats strfmt.Registry) error {
 func (m *ClientError) validateDetail(formats strfmt.Registry) error {
 
 	if err := validate.Required("detail", "body", m.Detail); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ClientError) validateInstance(formats strfmt.Registry) error {
+
+	if err := validate.Required("instance", "body", m.Instance); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("instance", "body", "uuid", m.Instance.String(), formats); err != nil {
 		return err
 	}
 

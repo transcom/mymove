@@ -35,9 +35,9 @@ type OfficeUsers []OfficeUser
 func (o *OfficeUser) Validate(tx *pop.Connection) (*validate.Errors, error) {
 
 	return validate.Validate(
+		&validators.EmailIsPresent{Field: o.Email, Name: "Email"},
 		&validators.StringIsPresent{Field: o.LastName, Name: "LastName"},
 		&validators.StringIsPresent{Field: o.FirstName, Name: "FirstName"},
-		&validators.StringIsPresent{Field: o.Email, Name: "Email"},
 		&validators.StringIsPresent{Field: o.Telephone, Name: "Telephone"},
 		&validators.UUIDIsPresent{Field: o.TransportationOfficeID, Name: "TransportationOfficeID"},
 	), nil

@@ -19,9 +19,13 @@ definitions:
         type: string
       detail:
         type: string
+      instance:
+        type: string
+        format: uuid
     required:
       - title
       - detail
+      - instance
   ValidationError:
     allOf:
       - $ref: '#/definitions/ClientError'

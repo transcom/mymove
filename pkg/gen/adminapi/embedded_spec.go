@@ -902,11 +902,16 @@ func init() {
       "type": "object",
       "required": [
         "title",
-        "detail"
+        "detail",
+        "instance"
       ],
       "properties": {
         "detail": {
           "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
         },
         "title": {
           "type": "string"
@@ -2243,11 +2248,16 @@ func init() {
       "type": "object",
       "required": [
         "title",
-        "detail"
+        "detail",
+        "instance"
       ],
       "properties": {
         "detail": {
           "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
         },
         "title": {
           "type": "string"
