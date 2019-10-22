@@ -4,7 +4,8 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-	services "github.com/transcom/mymove/pkg/services"
+
+	time "time"
 
 	unit "github.com/transcom/mymove/pkg/unit"
 )
@@ -14,20 +15,20 @@ type DomesticLinehaulPricer struct {
 	mock.Mock
 }
 
-// PriceDomesticLinehaul provides a mock function with given fields: _a0
-func (_m *DomesticLinehaulPricer) PriceDomesticLinehaul(_a0 services.DomesticServicePricingData) (unit.Cents, error) {
-	ret := _m.Called(_a0)
+// PriceDomesticLinehaul provides a mock function with given fields: moveDate, distance, weight, serviceArea
+func (_m *DomesticLinehaulPricer) PriceDomesticLinehaul(moveDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, error) {
+	ret := _m.Called(moveDate, distance, weight, serviceArea)
 
 	var r0 unit.Cents
-	if rf, ok := ret.Get(0).(func(services.DomesticServicePricingData) unit.Cents); ok {
-		r0 = rf(_a0)
+	if rf, ok := ret.Get(0).(func(time.Time, unit.Miles, unit.Pound, string) unit.Cents); ok {
+		r0 = rf(moveDate, distance, weight, serviceArea)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(services.DomesticServicePricingData) error); ok {
-		r1 = rf(_a0)
+	if rf, ok := ret.Get(1).(func(time.Time, unit.Miles, unit.Pound, string) error); ok {
+		r1 = rf(moveDate, distance, weight, serviceArea)
 	} else {
 		r1 = ret.Error(1)
 	}

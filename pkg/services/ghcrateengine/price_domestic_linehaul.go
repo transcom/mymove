@@ -1,6 +1,8 @@
 package ghcrateengine
 
 import (
+	"time"
+
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -43,28 +45,28 @@ func (p priceAndEscalation) MarshalLogObject(encoder zapcore.ObjectEncoder) erro
 }
 
 // PriceDomesticLinehaul produces the price in cents for the linehaul charge for the given move parameters
-func (p domesticLinehaulPricer) PriceDomesticLinehaul(data services.DomesticServicePricingData) (unit.Cents, error) {
+func (p domesticLinehaulPricer) PriceDomesticLinehaul(moveDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, error) {
 	// Validate parameters
-	if data.MoveDate.IsZero() {
+	if moveDate.IsZero() {
 		return 0, errors.New("MoveDate is required")
 	}
-	if data.Distance <= 0 {
+	if distance <= 0 {
 		return 0, errors.New("Distance must be greater than 0")
 	}
-	if data.Weight <= 0 {
+	if weight <= 0 {
 		return 0, errors.New("Weight must be greater than 0")
 	}
-	if len(data.ServiceArea) == 0 {
+	if len(serviceArea) == 0 {
 		return 0, errors.New("ServiceArea is required")
 	}
 
 	// Minimum weight is 500 pounds
-	effectiveWeight := data.Weight
-	if data.Weight < minDomesticWeight {
+	effectiveWeight := weight
+	if weight < minDomesticWeight {
 		effectiveWeight = minDomesticWeight
 	}
 
-	isPeakPeriod := IsPeakPeriod(data.MoveDate)
+	isPeakPeriod := IsPeakPeriod(moveDate)
 
 	var pe priceAndEscalation
 	query :=
@@ -82,16 +84,16 @@ func (p domesticLinehaulPricer) PriceDomesticLinehaul(data services.DomesticServ
 	err := p.db.RawQuery(
 		query,
 		p.contractCode,
-		data.MoveDate,
+		moveDate,
 		isPeakPeriod,
 		effectiveWeight,
-		data.Distance,
-		data.ServiceArea).First(&pe)
+		distance,
+		serviceArea).First(&pe)
 	if err != nil {
 		return 0, errors.Wrap(err, "Lookup of domestic linehaul rate failed")
 	}
 
-	baseTotalPrice := effectiveWeight.ToCWTFloat64() * data.Distance.Float64() * pe.PriceMillicents.Float64()
+	baseTotalPrice := effectiveWeight.ToCWTFloat64() * distance.Float64() * pe.PriceMillicents.Float64()
 	escalatedTotalPrice := pe.EscalationCompounded * baseTotalPrice
 
 	// TODO: Round or truncate?
@@ -100,7 +102,10 @@ func (p domesticLinehaulPricer) PriceDomesticLinehaul(data services.DomesticServ
 
 	p.logger.Info("Base domestic linehaul calculated",
 		zap.String("contractCode", p.contractCode),
-		zap.Object("input", data),
+		zap.Time("moveDate", moveDate),
+		zap.Int("distance", distance.Int()),
+		zap.Int("weight", weight.Int()),
+		zap.String("serviceArea", serviceArea),
 		zap.Bool("isPeakPeriod", isPeakPeriod),
 		zap.Int("effectiveWeight", effectiveWeight.Int()),
 		zap.Object("priceAndEscalation", pe),

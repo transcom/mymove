@@ -5,9 +5,14 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
+)
+
+const (
+	testServiceArea = "004"
+	testMiles       = unit.Miles(1200)
+	testDistance    = unit.Pound(4000)
 )
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
@@ -15,13 +20,9 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 	domesticLinehaulPricer := NewDomesticLinehaulPricer(suite.DB(), suite.logger, testdatagen.DefaultContractCode)
 
 	suite.T().Run("success within peak period", func(t *testing.T) {
-		pricingData := services.DomesticServicePricingData{
-			MoveDate:    time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
-			Distance:    unit.Miles(1200),
-			Weight:      unit.Pound(4000),
-			ServiceArea: "004",
-		}
-		totalPrice, err := domesticLinehaulPricer.PriceDomesticLinehaul(pricingData)
+		totalPrice, err := domesticLinehaulPricer.PriceDomesticLinehaul(
+			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
+			testMiles, testDistance, testServiceArea)
 
 		suite.NoError(err)
 		suite.Equal(249770, totalPrice.Int())
@@ -29,72 +30,51 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 
 	suite.T().Run("success within non-peak period", func(t *testing.T) {
 		nonPeakDate := peakStart.addDate(0, -1)
-		pricingData := services.DomesticServicePricingData{
-			MoveDate:    time.Date(testdatagen.TestYear, nonPeakDate.month, nonPeakDate.day, 0, 0, 0, 0, time.UTC),
-			Distance:    unit.Miles(1200),
-			Weight:      unit.Pound(4000),
-			ServiceArea: "004",
-		}
-		totalPrice, err := domesticLinehaulPricer.PriceDomesticLinehaul(pricingData)
+		totalPrice, err := domesticLinehaulPricer.PriceDomesticLinehaul(
+			time.Date(testdatagen.TestYear, nonPeakDate.month, nonPeakDate.day, 0, 0, 0, 0, time.UTC),
+			testMiles, testDistance, testServiceArea)
 
 		suite.NoError(err)
 		suite.Equal(224793, totalPrice.Int())
 	})
 
 	suite.T().Run("weight below minimum", func(t *testing.T) {
-		pricingData := services.DomesticServicePricingData{
-			MoveDate:    time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
-			Distance:    unit.Miles(1200),
-			Weight:      minDomesticWeight / 2,
-			ServiceArea: "004",
-		}
-		totalPrice, err := domesticLinehaulPricer.PriceDomesticLinehaul(pricingData)
+		totalPrice, err := domesticLinehaulPricer.PriceDomesticLinehaul(
+			time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
+			testMiles, minDomesticWeight/2, testServiceArea)
 
 		suite.NoError(err)
 		suite.Equal(31221, totalPrice.Int())
 	})
 
 	suite.T().Run("date outside of valid contract year", func(t *testing.T) {
-		pricingData := services.DomesticServicePricingData{
-			MoveDate:    time.Date(testdatagen.TestYear-1, time.January, 1, 0, 0, 0, 0, time.UTC),
-			Distance:    unit.Miles(1200),
-			Weight:      unit.Pound(4000),
-			ServiceArea: "004",
-		}
-		_, err := domesticLinehaulPricer.PriceDomesticLinehaul(pricingData)
+		_, err := domesticLinehaulPricer.PriceDomesticLinehaul(
+			time.Date(testdatagen.TestYear-1, time.January, 1, 0, 0, 0, 0, time.UTC),
+			testMiles, testDistance, testServiceArea)
 
 		suite.Error(err)
 	})
 
 	suite.T().Run("validation errors", func(t *testing.T) {
-		basePricingData := services.DomesticServicePricingData{
-			MoveDate:    time.Date(testdatagen.TestYear-1, time.January, 1, 0, 0, 0, 0, time.UTC),
-			Distance:    unit.Miles(1200),
-			Weight:      unit.Pound(4000),
-			ServiceArea: "004",
-		}
+		moveDate := time.Date(testdatagen.TestYear, time.July, 4, 0, 0, 0, 0, time.UTC)
 
-		noMoveDate := basePricingData
-		noMoveDate.MoveDate = time.Time{}
-		_, err := domesticLinehaulPricer.PriceDomesticLinehaul(noMoveDate)
+		// No move date
+		_, err := domesticLinehaulPricer.PriceDomesticLinehaul(time.Time{}, testMiles, testDistance, testServiceArea)
 		suite.Error(err)
 		suite.Equal("MoveDate is required", err.Error())
 
-		noDistance := basePricingData
-		noDistance.Distance = 0
-		_, err = domesticLinehaulPricer.PriceDomesticLinehaul(noDistance)
+		// No distance
+		_, err = domesticLinehaulPricer.PriceDomesticLinehaul(moveDate, 0, testDistance, testServiceArea)
 		suite.Error(err)
 		suite.Equal("Distance must be greater than 0", err.Error())
 
-		noWeight := basePricingData
-		noWeight.Weight = 0
-		_, err = domesticLinehaulPricer.PriceDomesticLinehaul(noWeight)
+		// No weight
+		_, err = domesticLinehaulPricer.PriceDomesticLinehaul(moveDate, testMiles, 0, testServiceArea)
 		suite.Error(err)
 		suite.Equal("Weight must be greater than 0", err.Error())
 
-		noServiceArea := basePricingData
-		noServiceArea.ServiceArea = ""
-		_, err = domesticLinehaulPricer.PriceDomesticLinehaul(noServiceArea)
+		// No service area
+		_, err = domesticLinehaulPricer.PriceDomesticLinehaul(moveDate, testMiles, testDistance, "")
 		suite.Error(err)
 		suite.Equal("ServiceArea is required", err.Error())
 	})
@@ -112,7 +92,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulData() {
 	serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
 		testdatagen.Assertions{
 			ReDomesticServiceArea: models.ReDomesticServiceArea{
-				ServiceArea: "004",
+				ServiceArea: testServiceArea,
 			},
 		})
 
