@@ -5,11 +5,12 @@
 .tooltip .tooltiptext {
   box-sizing: border-box;
   background-color: #4d4d4d;
-  font-size: 1rem;
+  font-size: 0.9rem;
+  line-height: 1rem;
   color: #fff;
   text-align: center;
   border-radius: 6px;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem;
   position: absolute;
   z-index: 1;
   top: 175%;
