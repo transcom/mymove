@@ -39,6 +39,7 @@ type Assertions struct {
 	WeightTicketSetDocument                  models.WeightTicketSetDocument
 	OfficeUser                               models.OfficeUser
 	Order                                    models.Order
+	Organization                             models.Organization
 	PersonallyProcuredMove                   models.PersonallyProcuredMove
 	Reimbursement                            models.Reimbursement
 	SignedCertification                      models.SignedCertification

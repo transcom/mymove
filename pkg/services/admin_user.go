@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/gobuffalo/validate"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 

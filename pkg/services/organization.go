@@ -9,8 +9,8 @@ type OrganizationFetcher interface {
 	FetchOrganization(filters []QueryFilter) (models.Organization, error)
 }
 
-// OrganizationListFetcher is the exported interface for fetching multiple organization
-//go:generate mockery -name OrganizationFetcher
+// OrganizationListFetcher is the exported interface for fetching multiple organizations
+//go:generate mockery -name OrganizationListFetcher
 type OrganizationListFetcher interface {
 	FetchOrganizationList(filters []QueryFilter, associations QueryAssociations, pagination Pagination) (models.Organizations, error)
 }
