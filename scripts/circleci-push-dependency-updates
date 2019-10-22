@@ -62,7 +62,7 @@ else
 fi
 git commit -am "Automated dependency updates ${deps_name} | $(date -R)"
 git push -v --set-upstream origin "${branch}"
-pr_url=$(hub pull-request -l dependencies,automerge -m "Automated ${deps_name} dependency update | $(date -R)")
+pr_url=$(hub pull-request -l dependencies,automerge -r tinyels,chrisgilmerproj -m "Automated ${deps_name} dependency update | $(date -R)")
 
 # Announce changes
 text="<${pr_url}|Pull request> created in ${github_repo} for $(date +'%m-%d-%Y') ${deps_name} dependency update"
