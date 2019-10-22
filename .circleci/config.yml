@@ -175,6 +175,18 @@ commands:
           name: Check deployed commits
           command: scripts/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1" ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA}
       - announce_failure
+  deploy_app_storybook:
+    parameters:
+      s3_bucket:
+        type: string
+    steps:
+      - attach_workspace:
+          at: /tmp/storybook
+      - deploy:
+          name: Push StoryBook build to S3
+          command: |
+            aws s3 cp --recursive /tmp/storybook/* s3://<< parameters.s3_bucket>>/
+
   build_tag_push:
     parameters:
       dockerfile:
@@ -514,9 +526,9 @@ jobs:
             - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: make storybook_build
       - persist_to_workspace:
-          root: .
+          root: /home/circleci/transcom/mymove/
           paths:
-            - storybook_static
+            - storybook-static
       - announce_failure
 
   # `build_migrations` builds the migrations container and pushes to the container repository
@@ -718,6 +730,13 @@ jobs:
       - deploy_app_client_tls_steps:
           compare_host: gex.move.mil
           health_check_hosts: gex.move.mil,dps.move.mil,orders.move.mil
+
+  deploy_prod_storybook:
+    executor: mymove_small
+    steps:
+      - deploy_app_storybook:
+          s3_bucket: storybook.move.mil
+
 
   # `update_dependencies_go` periodically updates Go dependencies.
   # The changes are submitted as a pull request for review.
@@ -992,6 +1011,14 @@ workflows:
           filters:
             branches:
               only: master
+
+      - deploy_prod_storybook:
+          requires:
+            - build_storybook_app
+          filters:
+            branches:
+              only: lh-storybook
+              #only: master
 
   dependency_updater_go:
     triggers:
