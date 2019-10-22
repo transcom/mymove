@@ -159,7 +159,7 @@ function serviceMemberReviewsDocuments() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/ppm-customer-agreement/);
   });
-  cy.get('.usa-button')
+  cy.get('[data-cy="back-button"]')
     .contains('Back')
     .click();
   cy.location().should(loc => {

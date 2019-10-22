@@ -215,7 +215,7 @@ describe('completing the ppm flow with a move date that we currently do not have
       'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
     );
 
-    cy.get('.usa-button--outline')
+    cy.get('[data-cy="edit-move"]')
       .contains('Edit Move')
       .click();
 
@@ -331,7 +331,7 @@ describe('allows a SM to continue requesting a payment', function() {
       expect(loc.pathname).to.match(/^\/$/);
     });
 
-    cy.get('.usa-button')
+    cy.get('a')
       .contains('Continue Requesting Payment')
       .click();
     cy.location().should(loc => {

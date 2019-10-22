@@ -140,6 +140,7 @@ export class MoveSummaryComponent extends React.Component {
                 className="usa-button usa-button--outline"
                 onClick={() => editMove(move)}
                 disabled={includes(['DRAFT', 'CANCELED'], move.status)}
+                data-cy="edit-move"
               >
                 Edit Move
               </button>
