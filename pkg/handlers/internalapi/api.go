@@ -46,6 +46,8 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	internalAPI.DutyStationsSearchDutyStationsHandler = SearchDutyStationsHandler{context}
 
+	internalAPI.AddressesShowAddressHandler = ShowAddressHandler{context}
+
 	internalAPI.TransportationOfficesShowDutyStationTransportationOfficeHandler = ShowDutyStationTransportationOfficeHandler{context}
 
 	internalAPI.OrdersCreateOrdersHandler = CreateOrdersHandler{context}

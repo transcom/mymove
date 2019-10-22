@@ -117,7 +117,7 @@ group by ds.id, ds.name, ds.affiliation, ds.address_id, ds.created_at, ds.update
 order by max(n.sim) desc, ds.name
 limit 7`
 
-	query := tx.Q().Eager("Address").RawQuery(sql, search)
+	query := tx.Q().RawQuery(sql, search)
 	if err := query.All(&stations); err != nil {
 		if errors.Cause(err).Error() != RecordNotFoundErrorString {
 			return stations, err

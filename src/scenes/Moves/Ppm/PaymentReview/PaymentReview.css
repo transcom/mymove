@@ -26,7 +26,7 @@
   margin-left: 0px;
   margin-bottom: 0px;
   margin-right: 0px;
-  font-family: "Source Sans Pro", "Helvetica Neue", "Helvetica", "Roboto", "Arial", sans-serif;
+  font-family: 'Source Sans Pro', 'Helvetica Neue', 'Helvetica', 'Roboto', 'Arial', sans-serif;
 }
 
 .doc-summary-container h3 {
@@ -91,6 +91,10 @@
   display: flex;
   justify-content: space-between;
   max-width: 820px;
+}
+
+.infected-indicator {
+  color: #cd3504;
 }
 
 .review-customer-agreement-container {
