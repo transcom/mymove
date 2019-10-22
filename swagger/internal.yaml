@@ -62,6 +62,10 @@ definitions:
       name:
         type: string
         example: Fort Bragg North Station
+      address_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       address:
         $ref: '#/definitions/Address'
       affiliation:
@@ -77,6 +81,7 @@ definitions:
     required:
       - id
       - name
+      - address_id
       - address
       - affiliation
       - created_at
@@ -1546,6 +1551,19 @@ definitions:
         type: string
         format: uuid
         title: The service member this document belongs to
+  Tags:
+    type: array
+    items:
+      $ref: '#/definitions/Tag'
+  Tag:
+    type: object
+    properties:
+      key:
+        type: string
+        example: alma mater
+      value:
+        type: string
+        example: smith college
   UploadPayload:
     type: object
     properties:
@@ -1566,6 +1584,8 @@ definitions:
         example: application/pdf
       bytes:
         type: integer
+      tags:
+        $ref: '#/definitions/Tags'
       created_at:
         type: string
         format: date-time
@@ -3442,7 +3462,6 @@ paths:
           description: no files to be processed into attachments PDF
         500:
           description: server error
-
   /personally_procured_moves/{personallyProcuredMoveId}/approve:
     post:
       summary: Approves the PPM
@@ -3984,7 +4003,6 @@ paths:
             - all
             - ppm_approved
             - ppm_completed
-            - MBxFJqtAoWfTYJd
           required: true
           description: Queue type to show
       responses:
@@ -4234,5 +4252,32 @@ paths:
           description: not authorized to validate access code
         404:
           description: access code not found in system
+        500:
+          description: server error
+  /addresses/{addressId}:
+    get:
+      summary: Returns an address
+      description: Returns an address
+      operationId: showAddress
+      tags:
+        - addresses
+      parameters:
+        - in: path
+          name: addressId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the address to return
+      responses:
+        200:
+          description: the requested address
+          schema:
+            $ref: '#/definitions/Address'
+        400:
+          description: invalid request
+        403:
+          description: not authorized
+        404:
+          description: not found
         500:
           description: server error

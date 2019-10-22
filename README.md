@@ -313,7 +313,7 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 ### Setup: DPS user
 
 1. Ensure that you have a login.gov test account
-2. run `make-dps-user -email <email>` to set up a DPS user associated with that email address
+2. Log into [MilMove Devlocal Auth](http://milmovelocal:3000/devlocal-auth/login) and create a new DPS user from the interface.
 
 ### Setup: Orders Gateway
 
