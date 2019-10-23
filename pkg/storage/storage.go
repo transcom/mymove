@@ -33,6 +33,7 @@ type FileStorer interface {
 	PresignedURL(string, string) (string, error)
 	FileSystem() *afero.Afero
 	TempFileSystem() *afero.Afero
+	Tags(string) (map[string]string, error)
 }
 
 // ComputeChecksum calculates the MD% checksum for the provided data. It expects that

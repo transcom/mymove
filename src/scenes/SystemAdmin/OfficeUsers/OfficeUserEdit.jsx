@@ -17,11 +17,7 @@ const OfficeUserEdit = props => (
       <TextInput source="middle_initials" />
       <TextInput source="last_name" validate={required()} />
       <TextInput source="telephone" validate={phoneValidators} />
-      <SelectInput
-        source="disabled"
-        label="Deactivated"
-        choices={[{ id: true, name: 'Yes' }, { id: false, name: 'No' }]}
-      />
+      <SelectInput source="deactivated" choices={[{ id: true, name: 'Yes' }, { id: false, name: 'No' }]} />
       <DisabledInput source="created_at" />
       <DisabledInput source="updated_at" />
     </SimpleForm>

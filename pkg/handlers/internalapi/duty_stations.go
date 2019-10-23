@@ -24,6 +24,7 @@ func payloadForDutyStationModel(station models.DutyStation) *internalmessages.Du
 		UpdatedAt:   handlers.FmtDateTime(station.UpdatedAt),
 		Name:        swag.String(station.Name),
 		Affiliation: &station.Affiliation,
+		AddressID:   handlers.FmtUUID(station.AddressID),
 		Address:     payloadForAddressModel(&station.Address),
 	}
 

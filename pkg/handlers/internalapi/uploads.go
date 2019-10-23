@@ -13,11 +13,31 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/storage"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 
-func payloadForUploadModel(upload models.Upload, url string) *internalmessages.UploadPayload {
-	return &internalmessages.UploadPayload{
+func payloadForTags(storer storage.FileStorer, upload models.Upload) (*internalmessages.Tags, error) {
+	tags, err := storer.Tags(upload.StorageKey)
+	if err != nil {
+		return nil, err
+	}
+
+	index := 0
+	tagsPayload := make(internalmessages.Tags, len(tags))
+	for k, v := range tags {
+		tag := &internalmessages.Tag{
+			Key:   k,
+			Value: v,
+		}
+		tagsPayload[index] = tag
+		index++
+	}
+	return &tagsPayload, nil
+}
+
+func payloadForUploadModel(storer storage.FileStorer, upload models.Upload, url string) (*internalmessages.UploadPayload, error) {
+	uploadPayload := &internalmessages.UploadPayload{
 		ID:          handlers.FmtUUID(upload.ID),
 		Filename:    swag.String(upload.Filename),
 		ContentType: swag.String(upload.ContentType),
@@ -26,6 +46,11 @@ func payloadForUploadModel(upload models.Upload, url string) *internalmessages.U
 		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
 		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
 	}
+	tagsPayload, err := payloadForTags(storer, upload)
+	if err == nil {
+		uploadPayload.Tags = *tagsPayload
+	}
+	return uploadPayload, nil
 }
 
 // CreateUploadHandler creates a new upload via POST /documents/{documentID}/uploads
@@ -100,7 +125,10 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		logger.Error("failed to get presigned url", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
 	}
-	uploadPayload := payloadForUploadModel(*newUpload, url)
+	uploadPayload, err := payloadForUploadModel(h.FileStorer(), *newUpload, url)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 	return uploadop.NewCreateUploadCreated().WithPayload(uploadPayload)
 }
 

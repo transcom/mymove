@@ -1,6 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import DocumentContent, { NonPDFImage, PDFImage } from './DocumentContent';
+import Alert from 'shared/Alert';
 import { mount } from 'enzyme';
 
 describe('DocumentContent', () => {
@@ -12,6 +13,17 @@ describe('DocumentContent', () => {
     it('renders a NonPDFImage when content type is not pdf', () => {
       const wrapper = shallow(<DocumentContent contentType="image/jpeg" url="www" filename="filename" />);
       expect(wrapper.find(NonPDFImage)).toHaveLength(1);
+    });
+    it('renders an Alert when tags indicate document is infected', () => {
+      const wrapper = shallow(
+        <DocumentContent
+          contentType="application/pdf"
+          url="www"
+          filename="filename"
+          tags={[{ key: 'av-status', value: 'INFECTED' }]}
+        />,
+      );
+      expect(wrapper.find(Alert)).toHaveLength(1);
     });
   });
 });

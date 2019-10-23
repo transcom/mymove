@@ -15,7 +15,7 @@ function has() {
     fi
 }
 
-has go "brew install go@1.12 && brew link --force go@1.12"
+has go "brew install go"
 has bash "brew install bash"
 has yarn "brew install yarn"
 has pre-commit "brew install pre-commit"
@@ -47,3 +47,11 @@ else
     echo "ERROR: some prereqs missing, please install them"
     exit 1
 fi
+
+# Now check versions are correct for prereqs
+echo
+check-hosts-file
+check-bash-version
+check-go-version
+check-gopath
+check-node-version

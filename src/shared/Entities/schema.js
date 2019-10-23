@@ -110,3 +110,9 @@ export const storageInTransits = new schema.Array(storageInTransit);
 
 // AccessCodes
 export const accessCode = new schema.Entity('accessCodes');
+
+// Entitlements
+export const entitlements = new schema.Entity('entitlements');
+
+// Customer
+export const customer = new schema.Entity('customer');

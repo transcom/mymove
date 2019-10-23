@@ -1,10 +1,12 @@
 package adminapi
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -101,6 +103,94 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 			NewQueryFilter:       newQueryFilter,
 			AdminUserListFetcher: adminUserListFetcher,
 			NewPagination:        pagination.NewPagination,
+		}
+
+		response := handler.Handle(params)
+
+		expectedResponse := &handlers.ErrResponse{
+			Code: http.StatusNotFound,
+			Err:  expectedError,
+		}
+		suite.Equal(expectedResponse, response)
+	})
+}
+
+func (suite *HandlerSuite) TestGetAdminUserHandler() {
+	// replace this with generated UUID when filter param is built out
+	uuidString := "d874d002-5582-4a91-97d3-786e8f66c763"
+	id, _ := uuid.FromString(uuidString)
+	assertions := testdatagen.Assertions{
+		AdminUser: models.AdminUser{
+			ID: id,
+		},
+	}
+	testdatagen.MakeAdminUser(suite.DB(), assertions)
+
+	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	req := httptest.NewRequest("GET", fmt.Sprintf("/admin_users/%s", id), nil)
+	req = suite.AuthenticateUserRequest(req, requestUser)
+
+	// test that everything is wired up
+	suite.T().Run("integration test ok response", func(t *testing.T) {
+		params := adminuserop.GetAdminUserParams{
+			HTTPRequest: req,
+			AdminUserID: strfmt.UUID(uuidString),
+		}
+
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+		handler := GetAdminUserHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			adminuser.NewAdminUserFetcher(queryBuilder),
+			query.NewQueryFilter,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&adminuserop.GetAdminUserOK{}, response)
+		okResponse := response.(*adminuserop.GetAdminUserOK)
+		suite.Equal(uuidString, okResponse.Payload.ID.String())
+	})
+
+	queryFilter := mocks.QueryFilter{}
+	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
+
+	suite.T().Run("successful response", func(t *testing.T) {
+		adminUser := models.AdminUser{ID: id}
+		params := adminuserop.GetAdminUserParams{
+			HTTPRequest: req,
+			AdminUserID: strfmt.UUID(uuidString),
+		}
+		adminUserFetcher := &mocks.AdminUserFetcher{}
+		adminUserFetcher.On("FetchAdminUser",
+			mock.Anything,
+		).Return(adminUser, nil).Once()
+		handler := GetAdminUserHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			adminUserFetcher,
+			newQueryFilter,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&adminuserop.GetAdminUserOK{}, response)
+		okResponse := response.(*adminuserop.GetAdminUserOK)
+		suite.Equal(uuidString, okResponse.Payload.ID.String())
+	})
+
+	suite.T().Run("unsuccessful response when fetch fails", func(t *testing.T) {
+		params := adminuserop.GetAdminUserParams{
+			HTTPRequest: req,
+			AdminUserID: strfmt.UUID(uuidString),
+		}
+		expectedError := models.ErrFetchNotFound
+		adminUserFetcher := &mocks.AdminUserFetcher{}
+		adminUserFetcher.On("FetchAdminUser",
+			mock.Anything,
+		).Return(models.AdminUser{}, expectedError).Once()
+		handler := GetAdminUserHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			adminUserFetcher,
+			newQueryFilter,
 		}
 
 		response := handler.Handle(params)

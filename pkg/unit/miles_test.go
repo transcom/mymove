@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestString(t *testing.T) {
+func TestMilesString(t *testing.T) {
 	miles := Miles(2500)
 	result := miles.String()
 
@@ -14,11 +14,22 @@ func TestString(t *testing.T) {
 	}
 }
 
-func TestInt(t *testing.T) {
+func TestMilesInt(t *testing.T) {
 	miles := Miles(2500)
 	result := miles.Int()
+
 	expected := 2500
 	if result != expected {
-		t.Errorf("miles not converted to Integer: expected %d, got %v", expected, result)
+		t.Errorf("wrong number of Miles: expected %v, got %v", expected, result)
+	}
+}
+
+func TestMilesFloat(t *testing.T) {
+	miles := Miles(2500)
+	result := miles.Float64()
+
+	expected := float64(2500)
+	if result != expected {
+		t.Errorf("wrong number of Miles: expected %v, got %v", expected, result)
 	}
 }

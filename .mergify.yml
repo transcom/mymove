@@ -1,0 +1,30 @@
+pull_request_rules:
+  - name: Auto merge dependency updates
+    conditions:
+      - base=master
+      # has both labels dependencies and automerge
+      - label=dependencies
+      - label=automerge
+      - author=robot-mymove
+      # check no conflicts w/ master
+      - -conflict
+      # all circle ci checks pass
+      - "status-success=ci/circleci: acceptance_tests_experimental"
+      - "status-success=ci/circleci: acceptance_tests_local"
+      - "status-success=ci/circleci: acceptance_tests_staging"
+      - "status-success=ci/circleci: build_app"
+      - "status-success=ci/circleci: build_migrations"
+      - "status-success=ci/circleci: build_storybook_app"
+      - "status-success=ci/circleci: build_tasks"
+      - "status-success=ci/circleci: build_tools"
+      - "status-success=ci/circleci: check_generated_code"
+      - "status-success=ci/circleci: client_test"
+      - "status-success=ci/circleci: integration_tests"
+      - "status-success=ci/circleci: pre_deps_golang"
+      - "status-success=ci/circleci: pre_deps_yarn"
+      - "status-success=ci/circleci: pre_test"
+      - "status-success=ci/circleci: server_test"
+    actions:
+      merge:
+        method: merge
+        strict: true
