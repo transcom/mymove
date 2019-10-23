@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import Alert from 'shared/Alert';
+import InfectedUpload from 'shared/Uploader/InfectedUpload';
 import StyleGuide from 'scenes/StyleGuide';
 import Landing from 'scenes/Landing';
 import Edit from 'scenes/Review/Edit';
@@ -115,6 +116,7 @@ export class AppWrapper extends Component {
                   <ValidatedPrivateRoute exact path="/weight-ticket-examples" component={WeightTicketExamples} />
                   <ValidatedPrivateRoute exact path="/trailer-criteria" component={TrailerCriteria} />
                   <ValidatedPrivateRoute exact path="/allowable-expenses" component={AllowableExpenses} />
+                  <ValidatedPrivateRoute exact path="/infected-upload" component={InfectedUpload} />
                   <ValidatedPrivateRoute
                     path="/moves/:moveId/ppm-payment-request-intro"
                     component={PPMPaymentRequestIntro}

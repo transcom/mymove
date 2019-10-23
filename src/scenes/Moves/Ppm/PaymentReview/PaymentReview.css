@@ -91,6 +91,10 @@
   max-width: 820px;
 }
 
+.infected-indicator {
+  color: #cd3504;
+}
+
 .review-customer-agreement-container {
   margin: 1.5em 0 4.5em 0;
 }

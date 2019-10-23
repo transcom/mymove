@@ -7,7 +7,7 @@ import Alert from 'shared/Alert';
 import { components } from 'react-select';
 import Highlighter from 'react-highlight-words';
 import { NULL_UUID } from 'shared/constants';
-import { SearchDutyStations } from './api.js';
+import { SearchDutyStations, ShowAddress } from './api.js';
 
 import './DutyStation.css';
 import styles from './DutyStationSearchBox.module.scss';
@@ -64,8 +64,11 @@ export class DutyStationSearchBox extends Component {
 
   localOnChange(value) {
     if (value && value.id) {
-      this.props.input.onChange(value);
-      return value;
+      return ShowAddress(value.address_id).then(item => {
+        value.address = item;
+        this.props.input.onChange(value);
+        return value;
+      });
     } else {
       this.props.input.onChange(null);
       return null;

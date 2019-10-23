@@ -158,6 +158,46 @@ func init() {
         }
       }
     },
+    "/addresses/{addressId}": {
+      "get": {
+        "description": "Returns an address",
+        "tags": [
+          "addresses"
+        ],
+        "summary": "Returns an address",
+        "operationId": "showAddress",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the address to return",
+            "name": "addressId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the requested address",
+            "schema": {
+              "$ref": "#/definitions/Address"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/backup_contacts/{backupContactId}": {
       "get": {
         "description": "Returns the given service member backup contact",
@@ -3720,6 +3760,7 @@ func init() {
       "required": [
         "id",
         "name",
+        "address_id",
         "address",
         "affiliation",
         "created_at",
@@ -3728,6 +3769,11 @@ func init() {
       "properties": {
         "address": {
           "$ref": "#/definitions/Address"
+        },
+        "address_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "affiliation": {
           "$ref": "#/definitions/Affiliation"
@@ -5919,6 +5965,46 @@ func init() {
           },
           "404": {
             "description": "access code not found in system"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/addresses/{addressId}": {
+      "get": {
+        "description": "Returns an address",
+        "tags": [
+          "addresses"
+        ],
+        "summary": "Returns an address",
+        "operationId": "showAddress",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the address to return",
+            "name": "addressId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the requested address",
+            "schema": {
+              "$ref": "#/definitions/Address"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
           },
           "500": {
             "description": "server error"
@@ -9492,6 +9578,7 @@ func init() {
       "required": [
         "id",
         "name",
+        "address_id",
         "address",
         "affiliation",
         "created_at",
@@ -9500,6 +9587,11 @@ func init() {
       "properties": {
         "address": {
           "$ref": "#/definitions/Address"
+        },
+        "address_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "affiliation": {
           "$ref": "#/definitions/Affiliation"
