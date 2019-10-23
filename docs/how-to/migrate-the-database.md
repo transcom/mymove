@@ -32,7 +32,76 @@ use `milmove gen`.  Those subcommands include:
 
 ### Generating a New Model
 
-If you are generating a new model, use: `gen-model model-name column-name:type column-name:type ...`. The fields `id`, `created_at`, and `updated_at` are all created automatically.
+If you are generating a new model first add a new migration file with the suffix `up.sql` or `up.fizz`.
+
+**NOTE:** You must define the `PRIMARY KEY` and any indexes you want by yourself. There is nothing in Pop, Fizz, or SQL
+that will automatically make these for you. Failure to do so may break tools or lead to inefficiencies in the API
+implementations.
+
+For `fizz` you can use this (NOTE: PLEASE USE SQL INSTEAD OF FIZZ):
+
+```text
+create_table("new_table") {
+  t.Column("id", "uuid", {primary: true})
+  t.Column("column1", "string", {"null": true})
+  t.Column("column2", "string", {})
+  t.Timestamps()
+}
+```
+
+The equivalent SQL is:
+
+```sql
+create table new_table
+(
+    id uuid
+        constraint new_table_pkey primary key,
+    column1 text not null,
+    column2 text,
+    created_at timestamp not null,
+    updated_at timestamp not null
+);
+```
+
+Next run `update-migrations-manifest` to update the `migrations_manifest.txt` file.
+
+Then create a new models file in `pkg/models/` named after your new model like `new_table.go`. The contents will look
+like:
+
+```go
+package models
+
+import (
+  "time"
+
+  "github.com/gobuffalo/pop"
+  "github.com/gobuffalo/validate"
+  "github.com/gobuffalo/validate/validators"
+  "github.com/gofrs/uuid"
+)
+
+// NewTable represents a new table
+type NewTable struct {
+  ID        uuid.UUID `json:"id" db:"id"`
+  Column1   string    `json:"column1" db:"column1"`
+  Column2   *string   `json:"column2" db:"colunn2"`
+  CreatedAt time.Time `json:"created_at" db:"created_at"`
+  UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+}
+
+// NewTables is not required by pop and may be deleted
+type NewTables []NewTable
+
+// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
+// This method is not required and may be deleted.
+func (r *NewTable) Validate(tx *pop.Connection) (*validate.Errors, error) {
+  return validate.Validate(
+    &validators.StringIsPresent{Field: r.Column1, Name: "Column1"},
+  ), nil
+}
+```
+
+Now you will want to run the migration to test it out with `make db_dev_migrate` before making your PR.
 
 ### Generating a New Migration
 
