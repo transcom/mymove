@@ -53,9 +53,13 @@ definitions:
         type: string
       detail:
         type: string
+      instance:
+        type: string
+        format: uuid
     required:
       - title
       - detail
+      - instance
   ValidationError:
     allOf:
       - $ref: '#/definitions/ClientError'
@@ -81,6 +85,11 @@ better descriptions for API errors. We will use the concepts of an error
 ### 422 vs. 400
 
 We currently return a `400 Bad Request` for validation errors. [It is recommended](https://tools.ietf.org/html/rfc4918#section-11.2) that we use `422 Unprocessable Entitity` instead.
+
+**Note**: If we choose to specify a format validation in our yaml documentation,
+Swagger will return its own `422`'s with a different format than the errors we
+return with `title`, `detail`, and `instance` fields. In these cases, we need to
+make sure the client can handle both cases.
 
 ## Example setups
 
@@ -125,6 +134,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 
     payload.Title = handlers.FmtString(handlers.ValidationErrMessage)
     payload.Detail = handlers.FmtString("The information you provided is invalid.")
+    payload.Instance = handlers.FmtUUID(h.GetTraceID())
 
     return officeuserop.NewCreateOfficeUserUnprocessableEntity().WithPayload(payload)
   }
@@ -188,8 +198,8 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
   if err != nil {
     payload := &internalmessages.ClientError{
       Title:  handlers.FmtString("This move is not in a state to be approved"),
-      Detail: handlers.FmtString("Make sure the move is in state x before
-      attempting to approve..."),
+      Detail: handlers.FmtString("Make sure the move is in state x before attempting to approve..."),
+      Instance: handlers.FmtUUID(h.GetTraceID()),
     }
 
     return moveop.NewSubmitMoveForApprovalConflict().WithPayload(payload)
