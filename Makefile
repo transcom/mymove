@@ -351,7 +351,8 @@ build_tools: bin/chamber \
 	bin/read-alb-logs \
 	bin/renderer \
 	bin/report-ecs \
-	bin/send-to-gex ## Build all tools
+	bin/send-to-gex \
+	bin/ghc-pricing-parser ## Build all tools
 
 .PHONY: build
 build: server_build build_tools client_build ## Build the server, tools, and client

@@ -12,7 +12,7 @@ import (
 // COMMON Types
 /*************************************************************************************************************/
 
-var rateTypes = []string{"NonPeak", "Peak"}
+var rateSeasons = []string{"NonPeak", "Peak"}
 
 type createCsvHelper struct {
 	csvFilename string
@@ -159,14 +159,14 @@ var dLhMilesRanges = []dLhMilesRange{
 var dLhWeightBandNumCells = len(dLhMilesRanges)
 
 type domesticLineHaulPrice struct {
-	serviceAreaNumber int
-	originServiceArea string
-	serviceSchedule   int
-	season            string
-	weightBand        dLhWeightBand
-	milesRange        dLhMilesRange
-	escalation        int
-	rate              string
+	ServiceAreaNumber int
+	OriginServiceArea string
+	ServiceSchedule   int
+	Season            string
+	WeightBand        dLhWeightBand
+	MilesRange        dLhMilesRange
+	Escalation        int
+	Rate              string
 }
 
 func (dLh *domesticLineHaulPrice) csvHeader() []string {
@@ -193,35 +193,35 @@ func (dLh *domesticLineHaulPrice) csvHeader() []string {
 func (dLh *domesticLineHaulPrice) toSlice() []string {
 	var values []string
 
-	values = append(values, strconv.Itoa(dLh.serviceAreaNumber))
-	values = append(values, dLh.originServiceArea)
-	values = append(values, strconv.Itoa(dLh.serviceSchedule))
-	values = append(values, dLh.season)
-	values = append(values, strconv.Itoa(dLh.weightBand.band))
-	values = append(values, strconv.Itoa(dLh.weightBand.lowerLbs))
-	values = append(values, strconv.Itoa(dLh.weightBand.upperLbs))
-	values = append(values, fmt.Sprintf("%.2f", dLh.weightBand.lowerCwt))
-	values = append(values, fmt.Sprintf("%.2f", dLh.weightBand.upperCwt))
-	values = append(values, strconv.Itoa(dLh.milesRange.rangeNumber))
-	values = append(values, strconv.Itoa(dLh.milesRange.lower))
-	values = append(values, strconv.Itoa(dLh.milesRange.upper))
-	values = append(values, strconv.Itoa(dLh.escalation))
-	values = append(values, dLh.rate)
+	values = append(values, strconv.Itoa(dLh.ServiceAreaNumber))
+	values = append(values, dLh.OriginServiceArea)
+	values = append(values, strconv.Itoa(dLh.ServiceSchedule))
+	values = append(values, dLh.Season)
+	values = append(values, strconv.Itoa(dLh.WeightBand.band))
+	values = append(values, strconv.Itoa(dLh.WeightBand.lowerLbs))
+	values = append(values, strconv.Itoa(dLh.WeightBand.upperLbs))
+	values = append(values, fmt.Sprintf("%.2f", dLh.WeightBand.lowerCwt))
+	values = append(values, fmt.Sprintf("%.2f", dLh.WeightBand.upperCwt))
+	values = append(values, strconv.Itoa(dLh.MilesRange.rangeNumber))
+	values = append(values, strconv.Itoa(dLh.MilesRange.lower))
+	values = append(values, strconv.Itoa(dLh.MilesRange.upper))
+	values = append(values, strconv.Itoa(dLh.Escalation))
+	values = append(values, dLh.Rate)
 
 	return values
 }
 
 type domesticServiceAreaPrice struct {
-	serviceAreaNumber                     int
-	serviceAreaName                       string
-	serviceSchedule                       int
-	sITPickupDeliverySchedule             int
-	season                                string
-	escalation                            int
-	shorthaulPrice                        string
-	originDestinationPrice                string
-	originDestinationSITFirstDayWarehouse string
-	originDestinationSITAddlDays          string
+	ServiceAreaNumber                     int
+	ServiceAreaName                       string
+	ServiceSchedule                       int
+	SITPickupDeliverySchedule             int
+	Season                                string
+	Escalation                            int
+	ShorthaulPrice                        string
+	OriginDestinationPrice                string
+	OriginDestinationSITFirstDayWarehouse string
+	OriginDestinationSITAddlDays          string
 }
 
 func (dSA *domesticServiceAreaPrice) csvHeader() []string {
@@ -244,16 +244,16 @@ func (dSA *domesticServiceAreaPrice) csvHeader() []string {
 func (dSA *domesticServiceAreaPrice) toSlice() []string {
 	var values []string
 
-	values = append(values, strconv.Itoa(dSA.serviceAreaNumber))
-	values = append(values, dSA.serviceAreaName)
-	values = append(values, strconv.Itoa(dSA.serviceSchedule))
-	values = append(values, strconv.Itoa(dSA.sITPickupDeliverySchedule))
-	values = append(values, dSA.season)
-	values = append(values, strconv.Itoa(dSA.escalation))
-	values = append(values, dSA.shorthaulPrice)
-	values = append(values, dSA.originDestinationPrice)
-	values = append(values, dSA.originDestinationSITFirstDayWarehouse)
-	values = append(values, dSA.originDestinationSITAddlDays)
+	values = append(values, strconv.Itoa(dSA.ServiceAreaNumber))
+	values = append(values, dSA.ServiceAreaName)
+	values = append(values, strconv.Itoa(dSA.ServiceSchedule))
+	values = append(values, strconv.Itoa(dSA.SITPickupDeliverySchedule))
+	values = append(values, dSA.Season)
+	values = append(values, strconv.Itoa(dSA.Escalation))
+	values = append(values, dSA.ShorthaulPrice)
+	values = append(values, dSA.OriginDestinationPrice)
+	values = append(values, dSA.OriginDestinationSITFirstDayWarehouse)
+	values = append(values, dSA.OriginDestinationSITAddlDays)
 
 	return values
 }

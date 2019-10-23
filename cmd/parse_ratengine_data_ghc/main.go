@@ -102,7 +102,7 @@ You should not have to update the main() or  process() functions. Unless you
 intentionally are modifying the pattern of how the processing functions are called.
 
  *************************************************************************/
-
+const sharedNumEscalationYearsToProcess int = 1
 const xlsxSheetsCountMax int = 35
 
 type processXlsxSheet func(paramConfig, int) error
@@ -356,19 +356,15 @@ func getInt(from string) int {
 	i, err := strconv.Atoi(from)
 	if err != nil {
 		if strings.HasSuffix(err.Error(), ": invalid syntax") {
-			//fmt.Printf("WARNING: getInt() invalid int syntax checking string <%s> for float string\n", from)
 			f, ferr := strconv.ParseFloat(from, 32)
 			if ferr != nil {
-				//fmt.Printf("ERROR: getInt() ParseFloat error %s\n", ferr.Error())
 				return 0
 			}
 			if f != 0.0 {
-				//fmt.Printf("SUCCESS: getInt() converting string <%s> from float to int <%d>\n", from, int(f))
 				return int(f)
 			}
 		}
 		log.Fatalf("ERROR: getInt() Atoi & ParseFloat failed to convert <%s> error %s, returning 0\n", from, err.Error())
-		return 0
 	}
 
 	return i
@@ -438,10 +434,10 @@ var verifyDomesticLinehaulPrices verifyXlsxSheet = func(params paramConfig, shee
 	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowMilageHeaderIndexStart:verifyHeaderIndexEnd]
 	for dataRowsIndex, row := range dataRows {
 		colIndex := feeColIndexStart
-		// For number of baseline + escalation years
+		// For number of baseline + Escalation years
 		for escalation := 0; escalation < numEscalationYearsToProcess; escalation++ {
-			// For each rate season
-			for _, r := range rateTypes {
+			// For each Rate Season
+			for _, r := range rateSeasons {
 				// For each weight band
 				for _, w := range dLhWeightBands {
 					// For each milage range
@@ -451,7 +447,7 @@ var verifyDomesticLinehaulPrices verifyXlsxSheet = func(params paramConfig, shee
 							colIndex++
 							continue
 						}
-						verificationLog := fmt.Sprintf(" , verfication for row index: %d, colIndex: %d, escalation: %d, rateTypes %v, dLhWeightBands %v",
+						verificationLog := fmt.Sprintf(" , verfication for row index: %d, colIndex: %d, Escalation: %d, rateSeasons %v, dLhWeightBands %v",
 							dataRowsIndex, colIndex, escalation, r, w)
 						if dataRowsIndex == 0 {
 							if m.lower != getInt(getCell(row.Cells, colIndex)) {
@@ -478,7 +474,7 @@ var verifyDomesticLinehaulPrices verifyXlsxSheet = func(params paramConfig, shee
 						colIndex++
 					}
 				}
-				colIndex++ // skip 1 column (empty column) before starting next rate type
+				colIndex++ // skip 1 column (empty column) before starting next Rate type
 			}
 		}
 	}
@@ -505,7 +501,7 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 	const serviceAreaNumberColumn int = 2
 	const originServiceAreaColumn int = 3
 	const serviceScheduleColumn int = 4
-	const numEscalationYearsToProcess int = 1
+	const numEscalationYearsToProcess int = sharedNumEscalationYearsToProcess
 
 	if xlsxDataSheetNum != sheetIndex {
 		return fmt.Errorf("parseDomesticLinehaulPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
@@ -514,23 +510,23 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
 	for _, row := range dataRows {
 		colIndex := feeColIndexStart
-		// For number of baseline + escalation years
+		// For number of baseline + Escalation years
 		for escalation := 0; escalation < numEscalationYearsToProcess; escalation++ {
-			// For each rate season
-			for _, r := range rateTypes {
+			// For each Rate Season
+			for _, r := range rateSeasons {
 				// For each weight band
 				for _, w := range dLhWeightBands {
 					// For each milage range
 					for _, m := range dLhMilesRanges {
 						domPrice := domesticLineHaulPrice{
-							serviceAreaNumber: getInt(getCell(row.Cells, serviceAreaNumberColumn)),
-							originServiceArea: getCell(row.Cells, originServiceAreaColumn),
-							serviceSchedule:   getInt(getCell(row.Cells, serviceScheduleColumn)),
-							season:            r,
-							weightBand:        w,
-							milesRange:        m,
-							escalation:        escalation,
-							rate:              getCell(row.Cells, colIndex),
+							ServiceAreaNumber: getInt(getCell(row.Cells, serviceAreaNumberColumn)),
+							OriginServiceArea: getCell(row.Cells, originServiceAreaColumn),
+							ServiceSchedule:   getInt(getCell(row.Cells, serviceScheduleColumn)),
+							Season:            r,
+							WeightBand:        w,
+							MilesRange:        m,
+							Escalation:        escalation,
+							Rate:              getCell(row.Cells, colIndex),
 						}
 						colIndex++
 						if params.showOutput == true {
@@ -541,7 +537,7 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 						}
 					}
 				}
-				colIndex++ // skip 1 column (empty column) before starting next rate type
+				colIndex++ // skip 1 column (empty column) before starting next Rate type
 			}
 		}
 	}
@@ -583,11 +579,11 @@ var verifyDomesticServiceAreaPrices verifyXlsxSheet = func(params paramConfig, s
 	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowMilageHeaderIndexStart:verifyHeaderIndexEnd]
 	for dataRowsIndex, row := range dataRows {
 		colIndex := feeColIndexStart
-		// For number of baseline + escalation years
+		// For number of baseline + Escalation years
 		for escalation := 0; escalation < numEscalationYearsToProcess; escalation++ {
-			// For each rate season
-			for _, r := range rateTypes {
-				verificationLog := fmt.Sprintf(" , verfication for row index: %d, colIndex: %d, escalation: %d, rateTypes %v",
+			// For each Rate Season
+			for _, r := range rateSeasons {
+				verificationLog := fmt.Sprintf(" , verfication for row index: %d, colIndex: %d, Escalation: %d, rateSeasons %v",
 					dataRowsIndex, colIndex, escalation, r)
 
 				if dataRowsIndex == 0 {
@@ -611,7 +607,7 @@ var verifyDomesticServiceAreaPrices verifyXlsxSheet = func(params paramConfig, s
 						}
 						colIndex++
 					}
-					colIndex++ // skip 1 column (empty column) before starting next rate type
+					colIndex++ // skip 1 column (empty column) before starting next Rate type
 				} else if dataRowsIndex == 1 {
 					if "EXAMPLE" != removeWhiteSpace(getCell(row.Cells, serviceAreaNameColumn)) {
 						return fmt.Errorf("format error: Filler text <EXAMPLE> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(row.Cells, serviceAreaNameColumn)), verificationLog)
@@ -645,7 +641,7 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 	const serviceAreaNameColumn int = 3
 	const serviceScheduleColumn int = 4
 	const sITPickupDeliveryScheduleColumn int = 5
-	const numEscalationYearsToProcess int = 1
+	const numEscalationYearsToProcess int = sharedNumEscalationYearsToProcess
 
 	if xlsxDataSheetNum != sheetIndex {
 		return fmt.Errorf("parseDomesticServiceAreaPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
@@ -654,26 +650,26 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
 	for _, row := range dataRows {
 		colIndex := feeColIndexStart
-		// For number of baseline + escalation years
+		// For number of baseline + Escalation years
 		for escalation := 0; escalation < numEscalationYearsToProcess; escalation++ {
-			// For each rate season
-			for _, r := range rateTypes {
+			// For each Rate Season
+			for _, r := range rateSeasons {
 				domPrice := domesticServiceAreaPrice{
-					serviceAreaNumber:         getInt(getCell(row.Cells, serviceAreaNumberColumn)),
-					serviceAreaName:           getCell(row.Cells, serviceAreaNameColumn),
-					serviceSchedule:           getInt(getCell(row.Cells, serviceScheduleColumn)),
-					sITPickupDeliverySchedule: getInt(getCell(row.Cells, sITPickupDeliveryScheduleColumn)),
-					season:                    r,
-					escalation:                escalation,
+					ServiceAreaNumber:         getInt(getCell(row.Cells, serviceAreaNumberColumn)),
+					ServiceAreaName:           getCell(row.Cells, serviceAreaNameColumn),
+					ServiceSchedule:           getInt(getCell(row.Cells, serviceScheduleColumn)),
+					SITPickupDeliverySchedule: getInt(getCell(row.Cells, sITPickupDeliveryScheduleColumn)),
+					Season:                    r,
+					Escalation:                escalation,
 				}
 
-				domPrice.shorthaulPrice = removeFirstDollarSign(getCell(row.Cells, colIndex))
+				domPrice.ShorthaulPrice = removeFirstDollarSign(getCell(row.Cells, colIndex))
 				colIndex++
-				domPrice.originDestinationPrice = removeFirstDollarSign(getCell(row.Cells, colIndex))
+				domPrice.OriginDestinationPrice = removeFirstDollarSign(getCell(row.Cells, colIndex))
 				colIndex += 3 // skip 2 columns pack and unpack
-				domPrice.originDestinationSITFirstDayWarehouse = removeFirstDollarSign(getCell(row.Cells, colIndex))
+				domPrice.OriginDestinationSITFirstDayWarehouse = removeFirstDollarSign(getCell(row.Cells, colIndex))
 				colIndex++
-				domPrice.originDestinationSITAddlDays = removeFirstDollarSign(getCell(row.Cells, colIndex))
+				domPrice.OriginDestinationSITAddlDays = removeFirstDollarSign(getCell(row.Cells, colIndex))
 				colIndex++ // skip column SIT Pickup / Delivery ≤50 miles (per cwt)
 
 				if params.showOutput == true {
@@ -683,7 +679,7 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 					csvWriter.write(domPrice.toSlice())
 				}
 
-				colIndex += 2 // skip 1 column (empty column) before starting next rate type
+				colIndex += 2 // skip 1 column (empty column) before starting next Rate type
 			}
 
 		}

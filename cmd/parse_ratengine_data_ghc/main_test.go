@@ -165,25 +165,34 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_process() {
 		wantErr bool
 	}{
 		{
-			name: "TC 1 run all test process and verify functions",
+			name: "TC 2 run fake process & verify function 1, no error",
 			args: args{
 				params: paramConfig{
-					processAll: true,
-					runTime:    time.Now(),
+					runTime: time.Now(),
 				},
+				sheetIndex: 0,
 			},
 			wantErr: false,
 		},
 		{
-			name: "TC 2 run fake process function 1 & 2, no error",
+			name: "TC 2 run fake process & verify function 2, no error",
 			args: args{
 				params: paramConfig{
-					processAll: false,
-					runTime:    time.Now(),
-					xlsxSheets: []string{"0", "1"},
+					runTime: time.Now(),
 				},
+				sheetIndex: 1,
 			},
 			wantErr: false,
+		},
+		{
+			name: "TC 3 run fake process & verify function 3, with error",
+			args: args{
+				params: paramConfig{
+					runTime: time.Now(),
+				},
+				sheetIndex: 2,
+			},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
