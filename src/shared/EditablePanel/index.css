@@ -140,13 +140,6 @@
   margin-top: 2rem;
 }
 
-.document-viewer .panel-subhead {
-  font-weight: bold;
-  margin: 2rem 0 1rem 0;
-  font-size: 1.6rem;
-  display: inline-block;
-}
-
 .panel-subhead + .usa-input .usa-input-label {
   margin-top: 1rem;
 }

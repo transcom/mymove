@@ -29,10 +29,10 @@ const OrdersViewerDisplay = props => {
       <div>
         <PanelField title="Move Locator">{props.move.locator}</PanelField>
         <PanelField title="DoD ID">{props.serviceMember.edipi}</PanelField>
-        <span className="panel-subhead">
+        <h3>
           {renderStatusIcon(orders.status)}
           Orders {orders.orders_number} ({formatDate(orders.issue_date)})
-        </span>
+        </h3>
         {uploads.length > 0 && (
           <p className="uploaded-at">Uploaded {formatDateTime(orders.uploaded_orders.uploads[0].created_at)}</p>
         )}
