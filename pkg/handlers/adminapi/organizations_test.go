@@ -21,7 +21,7 @@ import (
 
 func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
 	// replace this with generated UUID when filter param is built out
-	uuidString := "5CE7162A-8D5C-41FC-B0E7-BAE726F98FA2"
+	uuidString := "5ce7162a-8d5c-41fc-b0e7-bae726f98fa2"
 	id, _ := uuid.FromString(uuidString)
 	assertions := testdatagen.Assertions{
 		Organization: models.Organization{

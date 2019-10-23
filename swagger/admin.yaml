@@ -509,10 +509,12 @@ definitions:
         type: string
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        x-nullable: true
       telephone:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
       created_at:
         type: string
         format: datetime

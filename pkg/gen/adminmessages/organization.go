@@ -24,7 +24,7 @@ type Organization struct {
 
 	// email
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
-	Email string `json:"email,omitempty"`
+	Email *string `json:"email,omitempty"`
 
 	// id
 	// Required: true
@@ -37,7 +37,7 @@ type Organization struct {
 
 	// telephone
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
-	Telephone string `json:"telephone,omitempty"`
+	Telephone *string `json:"telephone,omitempty"`
 
 	// Updated at
 	// Required: true
@@ -98,7 +98,7 @@ func (m *Organization) validateEmail(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.Pattern("email", "body", string(m.Email), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("email", "body", string(*m.Email), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
 	}
 
@@ -133,7 +133,7 @@ func (m *Organization) validateTelephone(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.Pattern("telephone", "body", string(m.Telephone), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Pattern("telephone", "body", string(*m.Telephone), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
 		return err
 	}
 

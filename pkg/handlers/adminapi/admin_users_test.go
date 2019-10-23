@@ -284,7 +284,7 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 	suite.T().Run("Successful update", func(t *testing.T) {
 		adminUserUpdater := &mocks.AdminUserUpdater{}
 
-		adminUserUpdater.On("UpdateadminUser",
+		adminUserUpdater.On("UpdateAdminUser",
 			&adminUser,
 		).Return(&adminUser, nil, nil).Once()
 
@@ -301,7 +301,7 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 	suite.T().Run("Failed update", func(t *testing.T) {
 		adminUserUpdater := &mocks.AdminUserUpdater{}
 
-		adminUserUpdater.On("UpdateadminUser",
+		adminUserUpdater.On("UpdateAdminUser",
 			&adminUser,
 		).Return(&adminUser, nil, nil).Once()
 
@@ -318,7 +318,7 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 	adminUserUpdater := &mocks.AdminUserUpdater{}
 	err := validate.NewErrors()
 
-	adminUserUpdater.On("UpdateadminUser",
+	adminUserUpdater.On("UpdateAdminUser",
 		&adminUser,
 	).Return(nil, err, nil).Once()
 

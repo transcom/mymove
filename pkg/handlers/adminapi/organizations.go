@@ -17,8 +17,8 @@ func payloadForOrganizationModel(o models.Organization) *adminmessages.Organizat
 	return &adminmessages.Organization{
 		ID:        handlers.FmtUUID(o.ID),
 		Name:      handlers.FmtString(o.Name),
-		Email:     *o.PocEmail,
-		Telephone: *o.PocPhone,
+		Email:     o.PocEmail,
+		Telephone: o.PocPhone,
 		CreatedAt: handlers.FmtDateTime(o.CreatedAt),
 		UpdatedAt: handlers.FmtDateTime(o.UpdatedAt),
 	}
