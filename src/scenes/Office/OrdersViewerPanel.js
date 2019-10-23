@@ -8,7 +8,7 @@ import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { selectOrdersForMove, updateOrders } from 'shared/Entities/modules/orders';
 import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMembers';
 import { formatDate, formatDateTime } from 'shared/formatters';
-import { PanelSwaggerField, PanelField, editablePanelify } from 'shared/EditablePanel';
+import { PanelSwaggerField, PanelField, editablePanelify, RowBasedHeader } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import { renderStatusIcon } from 'shared/utils';
@@ -109,7 +109,8 @@ const OrdersViewerEdit = props => {
 
 const formName = 'orders_document_viewer';
 
-let OrdersViewerPanel = editablePanelify(OrdersViewerDisplay, OrdersViewerEdit);
+const editEnabled = true;
+let OrdersViewerPanel = editablePanelify(OrdersViewerDisplay, OrdersViewerEdit, editEnabled, RowBasedHeader);
 OrdersViewerPanel = reduxForm({ form: formName })(OrdersViewerPanel);
 
 function mapStateToProps(state, ownProps) {
