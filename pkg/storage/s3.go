@@ -123,3 +123,26 @@ func (s *S3) PresignedURL(key string, contentType string) (string, error) {
 	}
 	return url, nil
 }
+
+// Tags returns the tags for a specified key
+func (s *S3) Tags(key string) (map[string]string, error) {
+	tags := make(map[string]string)
+
+	namespacedKey := path.Join(s.keyNamespace, key)
+
+	input := &s3.GetObjectTaggingInput{
+		Bucket: &s.bucket,
+		Key:    &namespacedKey,
+	}
+
+	result, err := s.client.GetObjectTagging(input)
+	if err != nil {
+		return tags, errors.Wrap(err, "get object tagging on s3 failed")
+	}
+
+	for _, tag := range result.TagSet {
+		tags[*tag.Key] = *tag.Value
+	}
+
+	return tags, nil
+}

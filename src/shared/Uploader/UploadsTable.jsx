@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
+import { forEach } from 'lodash';
 
 import './UploadsTable.css';
 
@@ -10,6 +11,21 @@ import bytes from 'bytes';
 import moment from 'moment';
 
 export class UploadsTable extends Component {
+  getUploadUrl = upload => {
+    let isInfected = false;
+
+    forEach(upload.tags, function(tag) {
+      if (tag.key === 'av-status' && tag.value === 'INFECTED') {
+        isInfected = true;
+      }
+    });
+
+    if (isInfected) {
+      return `/infected-upload`;
+    }
+    return upload.url;
+  };
+
   render() {
     return (
       <table>
@@ -25,7 +41,7 @@ export class UploadsTable extends Component {
           {this.props.uploads.map(upload => (
             <tr key={upload.id}>
               <td>
-                <a href={upload.url} target="_blank">
+                <a href={this.getUploadUrl(upload)} target="_blank">
                   {upload.filename}
                 </a>
               </td>

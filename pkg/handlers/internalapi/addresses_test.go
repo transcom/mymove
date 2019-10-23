@@ -1,9 +1,17 @@
 package internalapi
 
 import (
-	"github.com/go-openapi/swag"
+	"net/http/httptest"
+	"testing"
 
+	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
+
+	addressop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/addresses"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func fakeAddressPayload() *internalmessages.Address {
@@ -15,4 +23,53 @@ func fakeAddressPayload() *internalmessages.Address {
 		State:          swag.String("AL"),
 		PostalCode:     swag.String("01234"),
 	}
+}
+
+func (suite *HandlerSuite) TestShowAddressHandler() {
+	address := models.Address{
+		StreetAddress1: "some address",
+		City:           "city",
+		State:          "state",
+		PostalCode:     "12345",
+	}
+	suite.MustSave(&address)
+
+	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+
+	fakeUUID, _ := uuid.FromString("not-valid-uuid")
+
+	tests := []struct {
+		ID        uuid.UUID
+		hasResult bool
+		resultID  string
+	}{
+		{ID: address.ID, hasResult: true, resultID: address.ID.String()},
+		{ID: fakeUUID, hasResult: false, resultID: ""},
+	}
+
+	suite.T().Run("successful lookup", func(t *testing.T) {
+		for _, ts := range tests {
+			req := httptest.NewRequest("GET", "/addresses/"+ts.ID.String(), nil)
+			req = suite.AuthenticateUserRequest(req, requestUser)
+
+			params := addressop.ShowAddressParams{
+				HTTPRequest: req,
+				AddressID:   *handlers.FmtUUID(ts.ID),
+			}
+
+			handler := ShowAddressHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+			res := handler.Handle(params)
+
+			response := res.(*addressop.ShowAddressOK)
+			payload := response.Payload
+
+			if ts.hasResult {
+				suite.NotNil(payload, "Should have address record")
+				suite.Equal(payload.ID.String(), ts.resultID, "Address ID doest match")
+			} else {
+				suite.Nil(payload, "Should not have address record")
+			}
+		}
+	})
+
 }
