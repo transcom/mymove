@@ -7,7 +7,7 @@ import MilMoveLogo from 'shared/images/milmove-logo.svg';
 import usaFlag from 'shared/images/us-flag.png';
 import govIcon from 'shared/images/icon-dot-gov.svg';
 import sslIcon from 'shared/images/icon-https.svg';
-import './index.css';
+import './index.scss';
 function Header() {
   return (
     <div>
@@ -76,6 +76,7 @@ function Header() {
                   </NavLink>
                 </em>
               </div>
+              <button class="usa-menu-btn">Menu</button>
             </div>
             <nav className="usa-nav" aria-label="Primary navigation">
               <ul className="usa-nav__primary usa-accordion">
