@@ -2,13 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { withRouter } from 'react-router-dom';
+import { margintop, marginbottom } from './SaveAndCancelButtons.module.scss';
 
 const SaveCancelButtons = props => {
   const { submitting, valid } = props;
   const goBack = props.history.goBack;
   return (
-    <div className="align-right">
-      <button className="usa-button" type="submit" disabled={submitting || !valid}>
+    <div className={margintop}>
+      <button className={`usa-button ${marginbottom}`} type="submit" disabled={submitting || !valid}>
         Save
       </button>
       <button type="button" className="usa-button usa-button--outline" disabled={submitting} onClick={goBack}>
