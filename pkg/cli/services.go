@@ -40,7 +40,7 @@ func CheckServices(v *viper.Viper) error {
 	ordersEnabled := v.GetBool(ServeOrdersFlag)
 	dpsEnabled := v.GetBool(ServeDPSFlag)
 	internalAPIEnabled := v.GetBool(ServeAPIInternalFlag)
-	ghcAPIEnabled := v.GetBool(ServeGHCFlag)
+	ghcAPIEnabled := true //v.GetBool(ServeGHCFlag)
 
 	// Oops none of the flags used
 	if (!adminEnabled) &&

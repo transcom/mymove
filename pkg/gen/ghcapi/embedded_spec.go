@@ -318,128 +318,6 @@ func init() {
         }
       ]
     },
-    "/move-task-orders/{moveTaskOrderID}/service-items": {
-      "get": {
-        "description": "Gets all line items for a move orders",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "serviceItem"
-        ],
-        "summary": "Gets all line items for a move order",
-        "operationId": "listServiceItems",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved all line items for a move task order",
-            "schema": {
-              "$ref": "#/definitions/ServiceItem"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a service item for a move order by id",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "serviceItem"
-        ],
-        "summary": "Creates a service item for a move order by id",
-        "operationId": "createServiceItem",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/ServiceItem"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Successfully created line item for move task order",
-            "schema": {
-              "$ref": "#/definitions/ServiceItem"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "ID of move order for service item to use",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}": {
       "get": {
         "description": "Gets a line item by ID for a move order by ID",
@@ -768,6 +646,128 @@ func init() {
           }
         }
       }
+    },
+    "/move_task_orders/{moveTaskOrderID}/service_items": {
+      "get": {
+        "description": "Gets all line items for a move orders",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "serviceItem"
+        ],
+        "summary": "Gets all line items for a move order",
+        "operationId": "listServiceItems",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all line items for a move task order",
+            "schema": {
+              "$ref": "#/definitions/ServiceItems"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a service item for a move order by id",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "serviceItem"
+        ],
+        "summary": "Creates a service item for a move order by id",
+        "operationId": "createServiceItem",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ServiceItem"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created line item for move task order",
+            "schema": {
+              "$ref": "#/definitions/ServiceItem"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of move order for service item to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/payment-requests": {
       "get": {
@@ -1344,6 +1344,9 @@ func init() {
     },
     "ServiceItem": {
       "type": "object",
+      "required": [
+        "id"
+      ],
       "properties": {
         "MoveTaskOrderID": {
           "type": "string",
@@ -1422,6 +1425,12 @@ func init() {
             "REJECTED"
           ]
         }
+      }
+    },
+    "ServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ServiceItem"
       }
     },
     "UpdatePaymentRequestPayload": {
@@ -1887,158 +1896,6 @@ func init() {
         }
       ]
     },
-    "/move-task-orders/{moveTaskOrderID}/service-items": {
-      "get": {
-        "description": "Gets all line items for a move orders",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "serviceItem"
-        ],
-        "summary": "Gets all line items for a move order",
-        "operationId": "listServiceItems",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved all line items for a move task order",
-            "schema": {
-              "$ref": "#/definitions/ServiceItem"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a service item for a move order by id",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "serviceItem"
-        ],
-        "summary": "Creates a service item for a move order by id",
-        "operationId": "createServiceItem",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/ServiceItem"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Successfully created line item for move task order",
-            "schema": {
-              "$ref": "#/definitions/ServiceItem"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "ID of move order for service item to use",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
     "/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}": {
       "get": {
         "description": "Gets a line item by ID for a move order by ID",
@@ -2442,6 +2299,158 @@ func init() {
           }
         }
       }
+    },
+    "/move_task_orders/{moveTaskOrderID}/service_items": {
+      "get": {
+        "description": "Gets all line items for a move orders",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "serviceItem"
+        ],
+        "summary": "Gets all line items for a move order",
+        "operationId": "listServiceItems",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all line items for a move task order",
+            "schema": {
+              "$ref": "#/definitions/ServiceItems"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a service item for a move order by id",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "serviceItem"
+        ],
+        "summary": "Creates a service item for a move order by id",
+        "operationId": "createServiceItem",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ServiceItem"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created line item for move task order",
+            "schema": {
+              "$ref": "#/definitions/ServiceItem"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of move order for service item to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/payment-requests": {
       "get": {
@@ -3078,6 +3087,9 @@ func init() {
     },
     "ServiceItem": {
       "type": "object",
+      "required": [
+        "id"
+      ],
       "properties": {
         "MoveTaskOrderID": {
           "type": "string",
@@ -3156,6 +3168,12 @@ func init() {
             "REJECTED"
           ]
         }
+      }
+    },
+    "ServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ServiceItem"
       }
     },
     "UpdatePaymentRequestPayload": {

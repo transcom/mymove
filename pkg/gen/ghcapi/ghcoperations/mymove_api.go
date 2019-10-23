@@ -395,7 +395,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/move-task-orders/{moveTaskOrderID}/service-items"] = service_item.NewCreateServiceItem(o.context, o.ServiceItemCreateServiceItemHandler)
+	o.handlers["POST"]["/move_task_orders/{moveTaskOrderID}/service_items"] = service_item.NewCreateServiceItem(o.context, o.ServiceItemCreateServiceItemHandler)
 
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
@@ -440,7 +440,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/service-items"] = service_item.NewListServiceItems(o.context, o.ServiceItemListServiceItemsHandler)
+	o.handlers["GET"]["/move_task_orders/{moveTaskOrderID}/service_items"] = service_item.NewListServiceItems(o.context, o.ServiceItemListServiceItemsHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)

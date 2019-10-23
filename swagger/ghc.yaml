@@ -163,7 +163,7 @@ paths:
       description: Updates a move order by ID
       operationId: updateMoveTaskOrder
       summary: Updates a move order by ID
-  '/move-task-orders/{moveTaskOrderID}/service-items':
+  '/move_task_orders/{moveTaskOrderID}/service_items':
     parameters:
       - description: ID of move order for service item to use
         in: path
@@ -178,7 +178,7 @@ paths:
         '200':
           description: Successfully retrieved all line items for a move task order
           schema:
-            $ref: '#/definitions/ServiceItem'
+            $ref: '#/definitions/ServiceItems'
         '400':
           description: The request payload is invalid
           schema:
@@ -961,7 +961,13 @@ definitions:
       updatedAt:
         format: date
         type: string
+    required:
+      - id
     type: object
+  ServiceItems:
+    type: array
+    items:
+      $ref: '#/definitions/ServiceItem'
   ServiceItemStatus:
     properties:
       status:
