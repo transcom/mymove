@@ -501,14 +501,14 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 					// For each milage range
 					for _, m := range dLhMilesRanges {
 						domPrice := domesticLineHaulPrice{
-							serviceAreaNumber: formatServiceAreaNumber(getCell(row.Cells, serviceAreaNumberColumn)),
-							originServiceArea: getCell(row.Cells, originServiceAreaColumn),
-							serviceSchedule:   getInt(getCell(row.Cells, serviceScheduleColumn)),
-							season:            r,
-							weightBand:        w,
-							milesRange:        m,
-							escalation:        escalation,
-							rate:              getCell(row.Cells, colIndex),
+							ServiceAreaNumber: formatServiceAreaNumber(getCell(row.Cells, serviceAreaNumberColumn)),
+							OriginServiceArea: getCell(row.Cells, originServiceAreaColumn),
+							ServiceSchedule:   getInt(getCell(row.Cells, serviceScheduleColumn)),
+							Season:            r,
+							WeightBand:        w,
+							MilesRange:        m,
+							Escalation:        escalation,
+							Rate:              getCell(row.Cells, colIndex),
 						}
 						colIndex++
 						if params.showOutput == true {
@@ -567,21 +567,21 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 			// For each rate season
 			for _, r := range rateTypes {
 				domPrice := domesticServiceAreaPrice{
-					serviceAreaNumber:         formatServiceAreaNumber(getCell(row.Cells, serviceAreaNumberColumn)),
-					originServiceArea:         getCell(row.Cells, originServiceAreaColumn),
-					serviceSchedule:           getInt(getCell(row.Cells, serviceScheduleColumn)),
-					sITPickupDeliverySchedule: getInt(getCell(row.Cells, sITPickupDeliveryScheduleColumn)),
-					season:                    r,
-					escalation:                escalation,
+					ServiceAreaNumber:         formatServiceAreaNumber(getCell(row.Cells, serviceAreaNumberColumn)),
+					OriginServiceArea:         getCell(row.Cells, originServiceAreaColumn),
+					ServiceSchedule:           getInt(getCell(row.Cells, serviceScheduleColumn)),
+					SITPickupDeliverySchedule: getInt(getCell(row.Cells, sITPickupDeliveryScheduleColumn)),
+					Season:                    r,
+					Escalation:                escalation,
 				}
 
-				domPrice.shorthaulPrice = removeFirstDollarSign(getCell(row.Cells, colIndex))
+				domPrice.ShorthaulPrice = removeFirstDollarSign(getCell(row.Cells, colIndex))
 				colIndex++
-				domPrice.originDestinationPrice = removeFirstDollarSign(getCell(row.Cells, colIndex))
+				domPrice.OriginDestinationPrice = removeFirstDollarSign(getCell(row.Cells, colIndex))
 				colIndex += 3 // skip 2 columns pack and unpack
-				domPrice.originDestinationSITFirstDayWarehouse = removeFirstDollarSign(getCell(row.Cells, colIndex))
+				domPrice.OriginDestinationSITFirstDayWarehouse = removeFirstDollarSign(getCell(row.Cells, colIndex))
 				colIndex++
-				domPrice.originDestinationSITAddlDays = removeFirstDollarSign(getCell(row.Cells, colIndex))
+				domPrice.OriginDestinationSITAddlDays = removeFirstDollarSign(getCell(row.Cells, colIndex))
 				colIndex++ // skip column SIT Pickup / Delivery ≤50 miles (per cwt)
 
 				if params.showOutput == true {
