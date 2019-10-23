@@ -119,7 +119,7 @@ export class MoveSummaryComponent extends React.Component {
           </div>
         </div>
         <div className="grid-row grid-gap">
-          <div className="grid-col-9">
+          <div className="tablet:grid-col-9 grid-col-12">
             <PPMComponent
               className="status-component"
               ppm={ppm}
@@ -134,7 +134,7 @@ export class MoveSummaryComponent extends React.Component {
             />
           </div>
 
-          <div className="sidebar grid-col-3">
+          <div className="sidebar tablet:grid-col-3 grid-col-12">
             <div>
               <button
                 className="usa-button usa-button--outline"
