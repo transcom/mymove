@@ -4,7 +4,6 @@ import { ConnectedRouter } from 'react-router-redux';
 import { history } from 'shared/store';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import Loadable from 'react-loadable';
 
 import { getCurrentUserInfo, selectCurrentUser } from 'shared/Data/users';
 import { loadInternalSchema, loadPublicSchema } from 'shared/Swagger/ducks';
@@ -13,6 +12,7 @@ import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import { isProduction } from 'shared/constants';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import QueueHeader from 'shared/Header/Office';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import './office.scss';
@@ -24,13 +24,8 @@ const Queues = lazy(() => import('./Queues'));
 const OrdersInfo = lazy(() => import('./OrdersInfo'));
 const DocumentViewer = lazy(() => import('./DocumentViewer'));
 const ScratchPad = lazy(() => import('shared/ScratchPad'));
-const QueueHeader = lazy(() => import('shared/Header/Office'));
 const CustomerDetails = lazy(() => import('./TOO/customerDetails'));
-
-const TOO = Loadable({
-  loader: () => import('./TOO/too'),
-  loading: () => <LoadingPlaceholder />,
-});
+const TOO = lazy(() => import('./TOO/too'));
 
 export class RenderWithOrWithoutHeader extends Component {
   render() {
@@ -38,7 +33,7 @@ export class RenderWithOrWithoutHeader extends Component {
     const Component = this.props.component;
     return (
       <>
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<LoadingPlaceholder />}>
           {this.props.withHeader && <QueueHeader />}
           <Tag role="main" className="site__content">
             <Component {...this.props} />
@@ -158,15 +153,15 @@ export class OfficeWrapper extends Component {
                     )}
                   />
                 )}
-                {too && <PrivateRoute path="/too/placeholder" component={TOO} />}
-                {too && (
-                  <Suspense fallback={<LoadingPlaceholder />}>
+                <Suspense fallback={<LoadingPlaceholder />}>
+                  {too && <PrivateRoute path="/too/placeholder" component={TOO} />}
+                  {too && (
                     <PrivateRoute
                       path="/too/customer/6ac40a00-e762-4f5f-b08d-3ea72a8e4b63/details"
                       component={CustomerDetails}
                     />
-                  </Suspense>
-                )}
+                  )}
+                </Suspense>
               </Switch>
             )}
           </ConditionalWrap>

@@ -1,7 +1,6 @@
 import { shallow } from 'enzyme/build';
 import { OfficeWrapper } from 'scenes/Office/index';
 import React from 'react';
-import CustomerDetails from './customerDetails';
 import { detectFlags } from 'shared/featureFlags';
 
 describe('OfficeWrapper', () => {
@@ -12,8 +11,8 @@ describe('OfficeWrapper', () => {
       officeWrapper
         .find('Connect(PrivateRouteContainer)[path="/too/customer/6ac40a00-e762-4f5f-b08d-3ea72a8e4b63/details"]')
         .first()
-        .prop('component'),
-    ).toBe(CustomerDetails);
+        .prop('component').$$typeof,
+    ).toBe(Symbol.for('react.lazy'));
   });
 
   it('does not render the /too/customer/6ac40a00-e762-4f5f-b08d-3ea72a8e4b63/details route when the too feature flag is disabled', () => {
