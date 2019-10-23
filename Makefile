@@ -343,6 +343,7 @@ build_tools: bin/chamber \
 	bin/find-guardduty-user \
 	bin/generate-access-codes \
 	bin/generate-test-data \
+	bin/ghc-pricing-parser \
 	bin/health-checker \
 	bin/iws \
 	bin/milmove-tasks \
@@ -351,8 +352,7 @@ build_tools: bin/chamber \
 	bin/read-alb-logs \
 	bin/renderer \
 	bin/report-ecs \
-	bin/send-to-gex \
-	bin/ghc-pricing-parser ## Build all tools
+	bin/send-to-gex ## Build all tools
 
 .PHONY: build
 build: server_build build_tools client_build ## Build the server, tools, and client
