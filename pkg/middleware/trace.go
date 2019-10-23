@@ -20,12 +20,10 @@ func Trace(logger Logger, handlerContext interface{}) func(next http.Handler) ht
 				logger.Error(errors.Wrap(err, "error creating trace id").Error())
 				next.ServeHTTP(w, r)
 			} else {
-				if handlerContext != nil {
-					context, ok := handlerContext.(*handlers.HandlerContext)
+				context, ok := handlerContext.(*handlers.HandlerContext)
 
-					if ok {
-						(*context).SetTraceID(id)
-					}
+				if ok {
+					(*context).SetTraceID(id)
 				}
 				next.ServeHTTP(w, r.WithContext(trace.NewContext(r.Context(), id.String())))
 			}
