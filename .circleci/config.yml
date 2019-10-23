@@ -1017,8 +1017,8 @@ workflows:
             - build_storybook_app
           filters:
             branches:
-              only: lh-storybook
-              #only: master
+              only: master
+              #only: placeholder_branch_name
 
   dependency_updater_go:
     triggers:
