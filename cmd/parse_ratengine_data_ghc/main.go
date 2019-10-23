@@ -386,7 +386,7 @@ func removeFirstDollarSign(s string) string {
 
 func removeWhiteSpace(stripString string) string {
 	space := regexp.MustCompile(`\s`)
-	s := space.ReplaceAllString(stripString	, "")
+	s := space.ReplaceAllString(stripString, "")
 
 	return s
 }
@@ -457,7 +457,7 @@ var verifyDomesticLinehaulPrices verifyXlsxSheet = func(params paramConfig, shee
 							if m.lower != getInt(getCell(row.Cells, colIndex)) {
 								return fmt.Errorf("format error: From Miles --> does not match expected number expected %d got %s\n%s", m.lower, getCell(row.Cells, colIndex), verificationLog)
 							}
-							if  "ServiceAreaNumber" != removeWhiteSpace(getCell(row.Cells, serviceAreaNumberColumn)) {
+							if "ServiceAreaNumber" != removeWhiteSpace(getCell(row.Cells, serviceAreaNumberColumn)) {
 								return fmt.Errorf("format error: Header <ServiceAreaNumber> is missing got <%s> instead\n%s", removeWhiteSpace(getCell(row.Cells, serviceAreaNumberColumn)), verificationLog)
 							}
 							if "OriginServiceArea" != removeWhiteSpace(getCell(row.Cells, originServiceAreaColumn)) {
@@ -658,7 +658,7 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 		for escalation := 0; escalation < numEscalationYearsToProcess; escalation++ {
 			// For each rate season
 			for _, r := range rateTypes {
-				domPrice := domesticServiceAreaPrice {
+				domPrice := domesticServiceAreaPrice{
 					serviceAreaNumber:         getInt(getCell(row.Cells, serviceAreaNumberColumn)),
 					serviceAreaName:           getCell(row.Cells, serviceAreaNameColumn),
 					serviceSchedule:           getInt(getCell(row.Cells, serviceScheduleColumn)),

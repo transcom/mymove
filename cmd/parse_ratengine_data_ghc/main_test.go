@@ -300,14 +300,14 @@ func (suite *ParseRateEngineGHCXLSXSuite) helperTestExpectedFileOutput(goldenFil
 // Test_parseDomesticLinehaulPrices
 func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticLinehaulPrices() {
 	initDataSheetInfo()
-	params := paramConfig {
-		processAll: false,
-		showOutput: false,
+	params := paramConfig{
+		processAll:   false,
+		showOutput:   false,
 		xlsxFilename: stringPointer("fixtures/pricing_template_2019-09-19_fake-data.xlsx"),
-		xlsxSheets: []string{"6"},
-		saveToFile: true,
-		runTime: time.Now(),
-		runVerify: true,
+		xlsxSheets:   []string{"6"},
+		saveToFile:   true,
+		runTime:      time.Now(),
+		runVerify:    true,
 	}
 
 	xlsxFile, err := xlsx.OpenFile(*params.xlsxFilename)
@@ -323,21 +323,21 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticLinehaulPrices() {
 	outputFilename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime)
 
 	const goldenFilename string = "6_2a_domestic_linehaul_prices_golden.csv"
-	suite.helperTestExpectedFileOutput(goldenFilename,outputFilename)
+	suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)
 }
 
 // Test_parseDomesticServiceAreaPrices
 func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticServiceAreaPrices() {
 
 	initDataSheetInfo()
-	params := paramConfig {
-		processAll: false,
-		showOutput: false,
+	params := paramConfig{
+		processAll:   false,
+		showOutput:   false,
 		xlsxFilename: stringPointer("fixtures/pricing_template_2019-09-19_fake-data.xlsx"),
-		xlsxSheets: []string{"7"},
-		saveToFile: true,
-		runTime: time.Now(),
-		runVerify: true,
+		xlsxSheets:   []string{"7"},
+		saveToFile:   true,
+		runTime:      time.Now(),
+		runVerify:    true,
 	}
 
 	xlsxFile, err := xlsx.OpenFile(*params.xlsxFilename)
@@ -353,8 +353,6 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticServiceAreaPrices() 
 	outputFilename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime)
 
 	const goldenFilename string = "7_2b_domestic_service_area_prices_golden.csv"
-	suite.helperTestExpectedFileOutput(goldenFilename,outputFilename)
+	suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)
 
 }
-
-
