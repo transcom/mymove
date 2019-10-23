@@ -1,7 +1,9 @@
 import React from 'react';
 
-function TOO() {
-  return <h1>TOO Placeholder Page</h1>;
+class TOO extends React.Component {
+  render() {
+    return <h2>TOO Placeholder</h2>;
+  }
 }
 
 export default TOO;
