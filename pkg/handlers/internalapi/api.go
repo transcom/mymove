@@ -19,8 +19,8 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
-// NewInternalAPIHandler returns a handler for the internal API
-func NewInternalAPIHandler(context handlers.HandlerContext) *internalops.MymoveAPI {
+// NewInternalAPI returns an internal API
+func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 
 	internalSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")
 	if err != nil {

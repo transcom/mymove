@@ -768,7 +768,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		internalAPIMux.Use(userAuthMiddleware)
 		internalAPIMux.Use(middleware.NoCache(logger))
 
-		api := internalapi.NewInternalAPIHandler(handlerContext)
+		api := internalapi.NewInternalAPI(handlerContext)
 
 		internalAPIMux.Use(userAuthMiddleware2(api))
 		internalAPIMux.Handle(pat.New("/*"), api.Serve(nil))
