@@ -164,7 +164,7 @@ var dLhMilesRanges = []dLhMilesRange{
 var dLhWeightBandNumCells = len(dLhMilesRanges)
 
 type domesticLineHaulPrice struct {
-	serviceAreaNumber int
+	serviceAreaNumber string
 	originServiceArea string
 	serviceSchedule   int
 	season            string
@@ -198,7 +198,7 @@ func (dLh *domesticLineHaulPrice) csvHeader() []string {
 func (dLh *domesticLineHaulPrice) toSlice() []string {
 	var values []string
 
-	values = append(values, strconv.Itoa(dLh.serviceAreaNumber))
+	values = append(values, dLh.serviceAreaNumber)
 	values = append(values, dLh.originServiceArea)
 	values = append(values, strconv.Itoa(dLh.serviceSchedule))
 	values = append(values, dLh.season)
@@ -217,7 +217,7 @@ func (dLh *domesticLineHaulPrice) toSlice() []string {
 }
 
 type domesticServiceAreaPrice struct {
-	serviceAreaNumber                     int
+	serviceAreaNumber                     string
 	originServiceArea                     string
 	serviceSchedule                       int
 	sITPickupDeliverySchedule             int
@@ -249,7 +249,7 @@ func (dSA *domesticServiceAreaPrice) csvHeader() []string {
 func (dSA *domesticServiceAreaPrice) toSlice() []string {
 	var values []string
 
-	values = append(values, strconv.Itoa(dSA.serviceAreaNumber))
+	values = append(values, dSA.serviceAreaNumber)
 	values = append(values, dSA.originServiceArea)
 	values = append(values, strconv.Itoa(dSA.serviceSchedule))
 	values = append(values, strconv.Itoa(dSA.sITPickupDeliverySchedule))
@@ -266,7 +266,7 @@ func (dSA *domesticServiceAreaPrice) toSlice() []string {
 type domesticServiceArea struct {
 	BasePointCity     string
 	State             string
-	ServiceAreaNumber int
+	ServiceAreaNumber string
 	Zip3s             []string
 }
 
@@ -286,7 +286,7 @@ func (dsa *domesticServiceArea) toSlice() []string {
 
 	values = append(values, dsa.BasePointCity)
 	values = append(values, dsa.State)
-	values = append(values, strconv.Itoa(dsa.ServiceAreaNumber))
+	values = append(values, dsa.ServiceAreaNumber)
 	values = append(values, strings.Join(dsa.Zip3s, ","))
 
 	return values
@@ -297,7 +297,7 @@ func (dsa *domesticServiceArea) saveToDatabase(db *pop.Connection) {
 	rdsa := models.ReDomesticServiceArea{
 		BasePointCity:    dsa.BasePointCity,
 		State:            dsa.State,
-		ServiceArea:      strconv.Itoa(dsa.ServiceAreaNumber),
+		ServiceArea:      dsa.ServiceAreaNumber,
 		ServicesSchedule: 2, // TODO Need to look up or parse out the ServicesSchedule
 		SITPDSchedule:    2, // TODO Need to look up or parse out the SITPDSchedule
 	}

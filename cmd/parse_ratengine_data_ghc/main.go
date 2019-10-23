@@ -425,7 +425,12 @@ func splitZip3s(s string) []string {
 	if strings.Contains(s, ",") {
 		return strings.Split(s, ",")
 	}
-	return []string{strconv.Itoa(getInt(s))}
+	i := fmt.Sprintf("%03d", getInt(s))
+	return []string{i}
+}
+
+func formatServiceAreaNumber(s string) string {
+	return fmt.Sprintf("%03d", getInt(s))
 }
 
 func createCsvWriter(create bool, sheetIndex int, runTime time.Time) *createCsvHelper {
@@ -496,7 +501,7 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 					// For each milage range
 					for _, m := range dLhMilesRanges {
 						domPrice := domesticLineHaulPrice{
-							serviceAreaNumber: getInt(getCell(row.Cells, serviceAreaNumberColumn)),
+							serviceAreaNumber: formatServiceAreaNumber(getCell(row.Cells, serviceAreaNumberColumn)),
 							originServiceArea: getCell(row.Cells, originServiceAreaColumn),
 							serviceSchedule:   getInt(getCell(row.Cells, serviceScheduleColumn)),
 							season:            r,
@@ -562,7 +567,7 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 			// For each rate season
 			for _, r := range rateTypes {
 				domPrice := domesticServiceAreaPrice{
-					serviceAreaNumber:         getInt(getCell(row.Cells, serviceAreaNumberColumn)),
+					serviceAreaNumber:         formatServiceAreaNumber(getCell(row.Cells, serviceAreaNumberColumn)),
 					originServiceArea:         getCell(row.Cells, originServiceAreaColumn),
 					serviceSchedule:           getInt(getCell(row.Cells, serviceScheduleColumn)),
 					sITPickupDeliverySchedule: getInt(getCell(row.Cells, sITPickupDeliveryScheduleColumn)),
@@ -627,7 +632,7 @@ var parseServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int
 		domServArea := domesticServiceArea{
 			BasePointCity:     getCell(row.Cells, basePointCityColumn),
 			State:             getCell(row.Cells, stateColumn),
-			ServiceAreaNumber: getInt(getCell(row.Cells, serviceAreaNumberColumn)),
+			ServiceAreaNumber: formatServiceAreaNumber(getCell(row.Cells, serviceAreaNumberColumn)),
 			Zip3s:             splitZip3s(getCell(row.Cells, zip3sColumn)),
 		}
 		// All the rows are consecutive, if we get to a blank one we're done
