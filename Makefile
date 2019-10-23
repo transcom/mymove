@@ -241,18 +241,6 @@ bin/health-checker:
 bin/iws:
 	go build -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/iws/iws.go
 
-bin/load-office-data:
-	go build -ldflags "$(LDFLAGS)" -o bin/load-office-data ./cmd/load_office_data
-
-bin/load-user-gen:
-	go build -ldflags "$(LDFLAGS)" -o bin/load-user-gen ./cmd/load_user_gen
-
-bin/make-dps-user:
-	go build -ldflags "$(LDFLAGS)" -o bin/make-dps-user ./cmd/make_dps_user
-
-bin/make-office-user:
-	go build -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
-
 bin/milmove:
 	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
@@ -357,10 +345,6 @@ build_tools: bin/chamber \
 	bin/generate-test-data \
 	bin/health-checker \
 	bin/iws \
-	bin/load-office-data \
-	bin/load-user-gen \
-	bin/make-dps-user \
-	bin/make-office-user \
 	bin/milmove-tasks \
 	bin/query-cloudwatch-logs \
 	bin/query-lb-logs \

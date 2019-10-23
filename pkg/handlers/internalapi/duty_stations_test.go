@@ -74,8 +74,4 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 		t.Errorf("Station name should have been \"First Station \", got %v", stationPayloads[0].Name)
 	}
 
-	if *stationPayloads[0].Address.City != "city" {
-		t.Error("Address should have been loaded")
-	}
-
 }

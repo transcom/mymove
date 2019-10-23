@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { forEach } from 'lodash';
 import { string, number, bool } from 'prop-types';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
@@ -26,6 +27,17 @@ class WeightTicketListItem extends Component {
     showDeleteConfirmation: false,
   };
 
+  areUploadsInfected = uploads => {
+    forEach(uploads, function(upload) {
+      forEach(upload.tags, function(tag) {
+        if (tag.key === 'av-status' && tag.value === 'INFECTED') {
+          return true;
+        }
+      });
+    });
+    return false;
+  };
+
   toggleShowConfirmation = () => {
     const { showDeleteConfirmation } = this.state;
     this.setState({ showDeleteConfirmation: !showDeleteConfirmation });
@@ -45,8 +57,10 @@ class WeightTicketListItem extends Component {
       showDelete,
       deleteDocumentListItem,
       isWeightTicketSet,
+      uploads,
     } = this.props;
     const { showDeleteConfirmation } = this.state;
+    const isInfected = this.areUploadsInfected(uploads);
     return (
       <div className="ticket-item" style={{ display: 'flex' }}>
         {/* size of largest of the images */}
@@ -73,6 +87,13 @@ class WeightTicketListItem extends Component {
               />
             )}
           </div>
+          {isInfected && (
+            <>
+              <div className="infected-indicator">
+                <strong>Delete this file, take a photo of the document, then upload that</strong>
+              </div>
+            </>
+          )}
           {empty_weight_ticket_missing ? (
             <MissingLabel>
               Missing empty weight ticket{' '}
@@ -96,7 +117,6 @@ class WeightTicketListItem extends Component {
             </MissingLabel>
           )}
           {vehicle_options === 'CAR_TRAILER' && !trailer_ownership_missing && <p>Ownership documentation</p>}
-
           {showDeleteConfirmation && (
             <AlertWithDeleteConfirmation
               heading="Delete this document?"

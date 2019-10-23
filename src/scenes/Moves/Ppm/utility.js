@@ -20,6 +20,7 @@ export const formatExpenseDocs = expenseDocs => {
     amount: formatCents(expense.requested_amount_cents),
     type: formatExpenseType(expense.moving_expense_type),
     paymentMethod: expense.payment_method,
+    uploads: expense.document.uploads,
   }));
 };
 
