@@ -7,6 +7,7 @@ import scrollToTop from 'shared/scrollToTop';
 import { push } from 'react-router-redux';
 import { reduxForm, FormSection } from 'redux-form';
 import Alert from 'shared/Alert'; // eslint-disable-line
+import AddressForm from 'shared/AddressForm';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { updateServiceMember } from 'scenes/ServiceMembers/ducks';
@@ -40,40 +41,12 @@ let EditContactForm = props => {
 
             <FormSection name="resAddress">
               <h3>Current Residence Address</h3>
-              <SwaggerField fieldName="street_address_1" swagger={addressSchema} required />
-              <SwaggerField fieldName="street_address_2" swagger={addressSchema} />
-              <div className="grid-row grid-gap">
-                <div className="grid-col-4">
-                  <SwaggerField fieldName="city" swagger={addressSchema} required />
-                </div>
-                <div className="grid-col-2">
-                  <SwaggerField fieldName="state" swagger={addressSchema} required />
-                </div>
-              </div>
-              <div className="grid-row grid-gap">
-                <div className="grid-col-2">
-                  <SwaggerField fieldName="postal_code" swagger={addressSchema} required />
-                </div>
-              </div>
+              <AddressForm schema={addressSchema} />
             </FormSection>
             <hr className="spacer" />
             <FormSection name="backupAddress">
               <h3>Backup Mailing Address</h3>
-              <SwaggerField fieldName="street_address_1" swagger={addressSchema} required />
-              <SwaggerField fieldName="street_address_2" swagger={addressSchema} />
-              <div className="grid-row grid-gap">
-                <div className="grid-col-4">
-                  <SwaggerField fieldName="city" swagger={addressSchema} required />
-                </div>
-                <div className="grid-col-2">
-                  <SwaggerField fieldName="state" swagger={addressSchema} required />
-                </div>
-              </div>
-              <div className="grid-row grid-gap">
-                <div className="grid-col-2">
-                  <SwaggerField fieldName="postal_code" swagger={addressSchema} required />
-                </div>
-              </div>
+              <AddressForm schema={addressSchema} />
             </FormSection>
             <SaveCancelButtons valid={valid} submitting={submitting} />
           </form>
