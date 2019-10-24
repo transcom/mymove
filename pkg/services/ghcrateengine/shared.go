@@ -56,14 +56,14 @@ func IsPeakPeriod(date time.Time) bool {
 }
 
 // priceAndEscalation is used to hold data returned by the database query
-type priceAndEscalation struct {
-	PriceMillicents      unit.Millicents `db:"price_millicents"`
+type centPriceAndEscalation struct {
+	PriceCents      unit.Cents `db:"price_cents"`
 	EscalationCompounded float64         `db:"escalation_compounded"`
 }
 
 // MarshalLogObject allows priceAndEscalation to be logged by zap
-func (p priceAndEscalation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
-	encoder.AddInt("PriceMillicents", p.PriceMillicents.Int())
+func (p centPriceAndEscalation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	encoder.AddInt("PriceCents", p.PriceCents.Int())
 	encoder.AddFloat64("EscalationCompounded", p.EscalationCompounded)
 	return nil
 }

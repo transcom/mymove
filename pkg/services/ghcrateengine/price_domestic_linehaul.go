@@ -1,6 +1,7 @@
 package ghcrateengine
 
 import (
+	"go.uber.org/zap/zapcore"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -27,6 +28,18 @@ type domesticLinehaulPricer struct {
 	contractCode string
 }
 
+// priceAndEscalation is used to hold data returned by the database query
+type milliCentPriceAndEscalation struct {
+	PriceMillicents      unit.Millicents `db:"price_millicents"`
+	EscalationCompounded float64         `db:"escalation_compounded"`
+}
+
+func (p milliCentPriceAndEscalation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	encoder.AddInt("PriceMillicents", p.PriceMillicents.Int())
+	encoder.AddFloat64("EscalationCompounded", p.EscalationCompounded)
+	return nil
+}
+
 // PriceDomesticLinehaul produces the price in cents for the linehaul charge for the given move parameters
 func (p domesticLinehaulPricer) PriceDomesticLinehaul(moveDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, error) {
 	// Validate parameters
@@ -51,7 +64,7 @@ func (p domesticLinehaulPricer) PriceDomesticLinehaul(moveDate time.Time, distan
 
 	isPeakPeriod := IsPeakPeriod(moveDate)
 
-	var pe priceAndEscalation
+	var pe milliCentPriceAndEscalation
 	query :=
 		`select price_millicents, escalation_compounded
          from re_domestic_linehaul_prices dlp
