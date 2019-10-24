@@ -6,8 +6,6 @@ package adminmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
-
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -31,10 +29,6 @@ type AdminUserCreatePayload struct {
 	// organization id
 	// Format: uuid
 	OrganizationID strfmt.UUID `json:"organization_id,omitempty"`
-
-	// Role
-	// Enum: [SYSTEM_ADMIN PROGRAM_ADMIN]
-	Role string `json:"role,omitempty"`
 }
 
 // Validate validates this admin user create payload
@@ -42,10 +36,6 @@ func (m *AdminUserCreatePayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateOrganizationID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateRole(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -62,49 +52,6 @@ func (m *AdminUserCreatePayload) validateOrganizationID(formats strfmt.Registry)
 	}
 
 	if err := validate.FormatOf("organization_id", "body", "uuid", m.OrganizationID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var adminUserCreatePayloadTypeRolePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["SYSTEM_ADMIN","PROGRAM_ADMIN"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		adminUserCreatePayloadTypeRolePropEnum = append(adminUserCreatePayloadTypeRolePropEnum, v)
-	}
-}
-
-const (
-
-	// AdminUserCreatePayloadRoleSYSTEMADMIN captures enum value "SYSTEM_ADMIN"
-	AdminUserCreatePayloadRoleSYSTEMADMIN string = "SYSTEM_ADMIN"
-
-	// AdminUserCreatePayloadRolePROGRAMADMIN captures enum value "PROGRAM_ADMIN"
-	AdminUserCreatePayloadRolePROGRAMADMIN string = "PROGRAM_ADMIN"
-)
-
-// prop value enum
-func (m *AdminUserCreatePayload) validateRoleEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, adminUserCreatePayloadTypeRolePropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *AdminUserCreatePayload) validateRole(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Role) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := m.validateRoleEnum("role", "body", m.Role); err != nil {
 		return err
 	}
 

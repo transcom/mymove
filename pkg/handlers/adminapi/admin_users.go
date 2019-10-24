@@ -111,7 +111,7 @@ func (h CreateAdminUserHandler) Handle(params adminuserop.CreateAdminUserParams)
 		LastName:       payload.LastName,
 		FirstName:      payload.FirstName,
 		Email:          payload.Email,
-		Role:           models.AdminRole(payload.Role),
+		Role:           models.SystemAdminRole,
 		OrganizationID: &organizationID,
 	}
 
