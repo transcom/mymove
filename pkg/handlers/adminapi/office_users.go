@@ -45,8 +45,10 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
 	associations := query.NewQueryAssociations([]services.QueryAssociation{})
+	// replace ordering when ready
+	ordering := query.NewQueryOrder(nil, nil)
 
-	officeUsers, err := h.OfficeUserListFetcher.FetchOfficeUserList(queryFilters, associations, pagination)
+	officeUsers, err := h.OfficeUserListFetcher.FetchOfficeUserList(queryFilters, associations, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

@@ -71,6 +71,7 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
+			mock.Anything,
 		).Return(models.AdminUsers{adminUser}, nil).Once()
 		handler := IndexAdminUsersHandler{
 			HandlerContext:       handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -94,6 +95,7 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 		expectedError := models.ErrFetchNotFound
 		adminUserListFetcher := &mocks.AdminUserListFetcher{}
 		adminUserListFetcher.On("FetchAdminUserList",
+			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
