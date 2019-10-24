@@ -32,5 +32,11 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 		query.NewQueryFilter,
 	}
 
+	ghcAPI.ServiceItemCreateServiceItemHandler = CreateServiceItemHandler{
+		context,
+		serviceitem.NewServiceItemCreator(queryBuilder),
+		query.NewQueryFilter,
+	}
+
 	return ghcAPI.Serve(nil)
 }

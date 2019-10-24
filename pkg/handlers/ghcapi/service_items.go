@@ -1,7 +1,11 @@
 package ghcapi
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	serviceitemop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -27,10 +31,7 @@ type ListServiceItemsHandler struct {
 func (h ListServiceItemsHandler) Handle(params serviceitemop.ListServiceItemsParams) middleware.Responder {
 	queryFilters := []services.QueryFilter{h.NewQueryFilter("move_task_order_id", "=", params.MoveTaskOrderID)}
 	pagination := pagination.NewPagination(nil, nil)
-	queryAssociations := []services.QueryAssociation{
-		query.NewQueryAssociation(""),
-	}
-	associations := query.NewQueryAssociations(queryAssociations)
+	associations := query.NewQueryAssociations([]services.QueryAssociation{})
 
 	serviceItems, err := h.ServiceItemListFetcher.FetchServiceItemList(queryFilters, associations, pagination)
 
@@ -45,4 +46,36 @@ func (h ListServiceItemsHandler) Handle(params serviceitemop.ListServiceItemsPar
 	}
 
 	return serviceitemop.NewListServiceItemsOK().WithPayload(payload)
+}
+
+type CreateServiceItemHandler struct {
+	handlers.HandlerContext
+	services.ServiceItemCreator
+	services.NewQueryFilter
+}
+
+func (h CreateServiceItemHandler) Handle(params serviceitemop.CreateServiceItemParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	moveTaskOrderID, err := uuid.FromString(params.MoveTaskOrderID)
+	if err != nil {
+		logger.Error(fmt.Sprintf("UUID Parsing for %s", params.MoveTaskOrderID), zap.Error(err))
+	}
+
+	serviceItem := models.ServiceItem{
+		MoveTaskOrderID: moveTaskOrderID,
+	}
+
+	transportationIDFilter := []services.QueryFilter{
+		h.NewQueryFilter("id", "=", moveTaskOrderID),
+	}
+
+	createdServiceItem, verrs, err := h.ServiceItemCreator.CreateServiceItem(&serviceItem, transportationIDFilter)
+	if err != nil || verrs != nil {
+		logger.Error("Error saving service item", zap.Error(verrs))
+		return serviceitemop.NewCreateServiceItemInternalServerError()
+	}
+
+	returnPayload := payloadForServiceItemModel(*createdServiceItem)
+	return serviceitemop.NewCreateServiceItemCreated().WithPayload(returnPayload)
 }

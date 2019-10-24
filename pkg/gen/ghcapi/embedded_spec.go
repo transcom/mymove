@@ -770,19 +770,9 @@ func init() {
         ],
         "summary": "Creates a service item for a move order by id",
         "operationId": "createServiceItem",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/ServiceItem"
-            }
-          }
-        ],
         "responses": {
           "201": {
-            "description": "Successfully created line item for move task order",
+            "description": "Successfully created service item for move task order",
             "schema": {
               "$ref": "#/definitions/ServiceItem"
             }
@@ -2747,19 +2737,9 @@ func init() {
         ],
         "summary": "Creates a service item for a move order by id",
         "operationId": "createServiceItem",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/ServiceItem"
-            }
-          }
-        ],
         "responses": {
           "201": {
-            "description": "Successfully created line item for move task order",
+            "description": "Successfully created service item for move task order",
             "schema": {
               "$ref": "#/definitions/ServiceItem"
             }
