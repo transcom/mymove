@@ -55,6 +55,7 @@ const OrdersDisplay = props => {
                 window,
                 defaultRelativeWindowSize,
               )}
+              className="usa-link"
             >
               <SwaggerValue fieldName="orders_number" {...fieldProps} />
               &nbsp;
@@ -74,6 +75,7 @@ const OrdersDisplay = props => {
                 window,
                 defaultRelativeWindowSize,
               )}
+              className="usa-link"
             >
               <SwaggerValue fieldName="orders_number" {...fieldProps} />
               &nbsp;
@@ -110,13 +112,13 @@ const OrdersEdit = props => {
         </FormSection>
 
         <FormSection name="serviceMember">
-          <div className="usa-input duty-station">
+          <div className="duty-station">
             <Field name="current_station" component={DutyStationSearchBox} props={{ title: 'Current Duty Station' }} />
           </div>
         </FormSection>
 
         <FormSection name="orders">
-          <div className="usa-input duty-station">
+          <div className="duty-station">
             <Field name="new_duty_station" component={DutyStationSearchBox} props={{ title: 'New Duty Station' }} />
           </div>
         </FormSection>

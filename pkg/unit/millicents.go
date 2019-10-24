@@ -8,7 +8,7 @@ import (
 // Millicents represents hundredthousandths of US dollars (1000 millicents/ cent)
 type Millicents int
 
-// Int64 returns the value of self as an int
+// Int64 returns the value of self as an int64
 func (m Millicents) Int64() int64 {
 	return int64(m)
 }
@@ -18,9 +18,19 @@ func (m Millicents) Int() int {
 	return int(m)
 }
 
+// Float64 returns the value of self as a float64
+func (m Millicents) Float64() float64 {
+	return float64(m)
+}
+
 // MultiplyFloat64 returns the value of self multiplied by multiplier
 func (m Millicents) MultiplyFloat64(f float64) Millicents {
 	return Millicents(math.Round(float64(m.Int()) * f))
+}
+
+// ToCents returns a Cents representation of this value
+func (m Millicents) ToCents() Cents {
+	return Cents(math.Round(float64(m) / 1000))
 }
 
 // ToDollarString returns a dollar string representation of this value
@@ -37,9 +47,4 @@ func (m Millicents) ToDollarFloat() float64 {
 	// convert cents to dollars
 	d = d / 100
 	return d
-}
-
-// Multiply returns the value of self multiplied by multiplier
-func (m Millicents) Multiply(i int) Millicents {
-	return Millicents(i * m.Int())
 }

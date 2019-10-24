@@ -13,7 +13,9 @@ function WeightTicketExamples(props) {
   return (
     <div className="usa-grid weight-ticket-example-container">
       <div>
-        <a onClick={goBack}>{'<'} Back</a>
+        <a onClick={goBack} className="usa-link">
+          {'<'} Back
+        </a>
       </div>
       <h3 className="title">Example weight ticket scenarios</h3>
       <section>
@@ -119,7 +121,7 @@ function WeightTicketExamples(props) {
         </p>
       </section>
       <div className="usa-grid button-bar">
-        <button className="usa-button-secondary" onClick={goBack}>
+        <button className="usa-button usa-button--outline" onClick={goBack}>
           Back
         </button>
       </div>

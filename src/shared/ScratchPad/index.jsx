@@ -6,7 +6,7 @@ class ScratchPad extends Component {
       <div className="usa-grid grid-wide panels-body">
         <div className="usa-width-one-whole">
           <div className="usa-width-one-third">
-            <button className="usa-button-primary">Click Me (I do nothing)</button>
+            <button className="usa-button">Click Me (I do nothing)</button>
           </div>
         </div>
       </div>

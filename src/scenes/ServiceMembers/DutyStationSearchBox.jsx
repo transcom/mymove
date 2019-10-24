@@ -101,8 +101,7 @@ export class DutyStationSearchBox extends Component {
     const defaultTitle = 'Name of Duty Station:';
     const inputContainerClasses = classNames({ 'usa-input-error': errorMsg });
     const searchBoxHeaderClasses = classNames({ 'duty-station-header': errorMsg });
-    const dutyInputClasses = classNames({
-      'duty-input-box': true,
+    const dutyInputClasses = classNames('duty-input-box', {
       [this.props.input.name]: true,
       'duty-input-box-error': errorMsg,
     });
@@ -111,9 +110,38 @@ export class DutyStationSearchBox extends Component {
     // if there is no duty station, that object will have a null uuid
     const isEmptyStation = get(this.props, 'input.value.id', NULL_UUID) === NULL_UUID;
     const title = this.props.title || defaultTitle;
+    const uswdsBlack = '#565c65';
+    const customStyles = {
+      control: provided => ({
+        ...provided,
+        borderRadius: '0px',
+        borderColor: uswdsBlack,
+        padding: '0.1rem',
+        maxWidth: '30rem',
+        ':hover': {
+          ...styles[':hover'],
+          borderColor: uswdsBlack,
+        },
+      }),
+      dropdownIndicator: provided => ({
+        ...provided,
+        color: uswdsBlack,
+        ':hover': {
+          ...styles[':hover'],
+          color: uswdsBlack,
+        },
+      }),
+      indicatorSeparator: provided => ({
+        ...provided,
+        backgroundColor: uswdsBlack,
+      }),
+      placeholder: provided => ({
+        color: uswdsBlack,
+      }),
+    };
     return (
       <Fragment>
-        <div className="duty-station-search">
+        <div className="duty-station-search usa-form-group">
           {this.state.error && (
             <div className="usa-width-one-whole error-message">
               <Alert type="error" heading="An error occurred">
@@ -122,7 +150,9 @@ export class DutyStationSearchBox extends Component {
             </div>
           )}
           <div className={inputContainerClasses}>
-            <p className={`${styles.title} ${searchBoxHeaderClasses}`}>{errorMsg ? <strong>{title}</strong> : title}</p>
+            <label className={`${styles.title} ${searchBoxHeaderClasses} usa-label`}>
+              {errorMsg ? <strong>{title}</strong> : title}
+            </label>
             <AsyncSelect
               className={dutyInputClasses}
               cacheOptions
@@ -135,6 +165,7 @@ export class DutyStationSearchBox extends Component {
               value={isEmptyStation ? null : this.props.input.value}
               noOptionsMessage={this.noOptionsMessage}
               placeholder="Start typing a duty station..."
+              styles={customStyles}
             />
             {!isEmptyStation && (
               <p className={locationClasses}>
@@ -142,7 +173,7 @@ export class DutyStationSearchBox extends Component {
                 {this.props.input.value.address.postal_code}
               </p>
             )}
-            {this.props.errorMsg && <span className="usa-input-error-message">{this.props.errorMsg}</span>}
+            {this.props.errorMsg && <span className="usa-error-message">{this.props.errorMsg}</span>}
           </div>
         </div>
       </Fragment>

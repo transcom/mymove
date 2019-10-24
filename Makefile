@@ -229,6 +229,9 @@ bin/generate-shipment-summary:
 bin/generate-test-data:
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate-test-data
 
+bin/ghc-pricing-parser:
+	go build -ldflags "$(LDFLAGS)" -o bin/ghc-pricing-parser ./cmd/parse_ratengine_data_ghc
+
 bin_linux/generate-test-data:
 	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate-test-data
 
@@ -340,6 +343,7 @@ build_tools: bin/chamber \
 	bin/find-guardduty-user \
 	bin/generate-access-codes \
 	bin/generate-test-data \
+	bin/ghc-pricing-parser \
 	bin/health-checker \
 	bin/iws \
 	bin/milmove-tasks \

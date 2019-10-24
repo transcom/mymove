@@ -6,8 +6,8 @@ import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 import { updateServiceMember } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
-import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { ValidateZipRateData } from 'shared/api';
+import AddressForm from 'shared/AddressForm';
 
 const UnsupportedZipCodeErrorMsg =
   'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.';
@@ -45,14 +45,12 @@ export class ResidentialAddress extends Component {
         initialValues={initialValues}
         additionalParams={{ serviceMemberId }}
       >
-        <h1 className="sm-heading">Current Residence Address</h1>
-        <SwaggerField fieldName="street_address_1" swagger={this.props.schema} required />
-        <SwaggerField fieldName="street_address_2" swagger={this.props.schema} />
-        <div className="address_inline">
-          <SwaggerField fieldName="city" swagger={this.props.schema} className="city_state_zip" required />
-          <SwaggerField fieldName="state" swagger={this.props.schema} className="city_state_zip" required />
-          <SwaggerField fieldName="postal_code" swagger={this.props.schema} className="city_state_zip" required />
+        <div className="grid-row grid-gap">
+          <div className="grid-col-12">
+            <h1 className="sm-heading">Current Residence Address</h1>
+          </div>
         </div>
+        <AddressForm schema={this.props.schema} />
       </ResidentalWizardForm>
     );
   }
