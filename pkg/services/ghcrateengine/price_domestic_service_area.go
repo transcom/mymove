@@ -3,6 +3,7 @@ package ghcrateengine
 import (
 	"fmt"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -83,6 +84,20 @@ func (dsa *domesticServiceAreaPricer) PriceDomesticServiceArea (moveDate time.Ti
 	baseTotalPrice := priceAndEscalation.PriceCents.Float64() * effectiveWeight.ToCWTFloat64()
 	escalatedTotalPrice := baseTotalPrice * priceAndEscalation.EscalationCompounded
 	totalCost := unit.Cents(escalatedTotalPrice)
+
+	dsa.logger.Info(fmt.Sprintf("%s calculated", serviceCode), // May change to use ServiceName
+		zap.String("contract code", dsa.contractCode),
+		zap.String("service code", serviceCode),
+		zap.Time("move date", moveDate),
+		zap.String("service area", serviceArea),
+		zap.Float64("weight lb", float64(weight)),
+		zap.Float64("effective weight lb", float64(effectiveWeight)),
+		zap.Bool("is peak period", isPeakPeriod),
+		zap.Object("centPriceAndEscalation", priceAndEscalation),
+		zap.Float64("base cost (cents)", baseTotalPrice),
+		zap.Float64("escalated cost (cents)", baseTotalPrice),
+		zap.Int("calculated cost (cents)", cost.Int()),
+	)
 
 	return totalCost, err
 }

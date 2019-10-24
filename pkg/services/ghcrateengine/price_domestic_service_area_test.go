@@ -23,6 +23,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticServiceArea() {
 		"DFSIT": "SIT 1st Day",
 		"DASIT": "SIT Add'l Days",
 	}
+
 	for serviceCode, serviceName := range services {
 		suite.T().Run(fmt.Sprintf("success %s cost within peak period", serviceName), func(t *testing.T) {
 
