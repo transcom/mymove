@@ -35,8 +35,8 @@ const PaymentRequestedSummary = props => {
                     Remember to save your weight tickets and expense receipts. For more information, read the PPM info
                     packet.
                   </div>
-                  <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
-                    <button className="usa-button-secondary">Read PPM Info Packet</button>
+                  <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer" className="usa-link">
+                    <button className="usa-button usa-button--outline">Read PPM Info Packet</button>
                   </a>
                 </div>
               )}
@@ -50,7 +50,7 @@ const PaymentRequestedSummary = props => {
               <div className="titled_block">
                 <div className="title">Documents</div>
                 <div className="details-links">
-                  <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
+                  <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer" className="usa-link">
                     PPM Info Packet
                   </a>
                 </div>

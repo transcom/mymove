@@ -17,9 +17,11 @@ class Review extends Component {
     return (
       <div>
         <WizardPage handleSubmit={no_op} pageList={pages} pageKey={pageKey} pageIsValid={true}>
-          <div className="edit-title">
-            <h2>Review Move Details</h2>
-            <p>You're almost done! Please review your details before we finalize the move.</p>
+          <div className="grid-row">
+            <div className="grid-col-12 edit-title">
+              <h2>Review Move Details</h2>
+              <p>You're almost done! Please review your details before we finalize the move.</p>
+            </div>
           </div>
           <Summary />
         </WizardPage>

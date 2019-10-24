@@ -25,9 +25,16 @@ func payloadForUpload(u services.UploadInformation) *adminmessages.UploadInforma
 			Filename:    u.Filename,
 			Size:        u.Bytes,
 		},
-		OfficeUserEmail: u.OfficeUserEmail,
-		OfficeUserID:    handlers.FmtUUIDPtr(u.OfficeUserID),
-		ServiceMemberID: handlers.FmtUUIDPtr(u.ServiceMemberID),
+		OfficeUserID:           handlers.FmtUUIDPtr(u.OfficeUserID),
+		OfficeUserEmail:        u.OfficeUserEmail,
+		OfficeUserFirstName:    u.OfficeUserFirstName,
+		OfficeUserLastName:     u.OfficeUserLastName,
+		OfficeUserPhone:        u.OfficeUserPhone,
+		ServiceMemberID:        handlers.FmtUUIDPtr(u.ServiceMemberID),
+		ServiceMemberEmail:     u.ServiceMemberEmail,
+		ServiceMemberFirstName: u.ServiceMemberFirstName,
+		ServiceMemberLastName:  u.ServiceMemberLastName,
+		ServiceMemberPhone:     u.ServiceMemberPhone,
 	}
 }
 

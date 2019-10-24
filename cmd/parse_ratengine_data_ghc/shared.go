@@ -1,23 +1,23 @@
 package main
 
 import (
-	"github.com/gobuffalo/pop"
-
 	"encoding/csv"
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
-	"github.com/transcom/mymove/pkg/models"
+	"github.com/tealeg/xlsx"
 )
 
 /*************************************************************************************************************/
 // COMMON Types
 /*************************************************************************************************************/
 
-var rateTypes = []string{"NonPeak", "Peak"}
+var rateSeasons = []string{"NonPeak", "Peak"}
 
 type createCsvHelper struct {
 	csvFilename string
@@ -55,301 +55,98 @@ func (cCH *createCsvHelper) close() {
 	cCH.csvWriter.Flush()
 }
 
-/*************************************************************************************************************/
-/* Domestic Line Haul Prices Types
+/*************************************************************************/
+// Shared Helper functions
+/*************************************************************************/
 
-Used for:
+func createCsvWriter(create bool, sheetIndex int, runTime time.Time) *createCsvHelper {
+	var createCsv createCsvHelper
 
-2) Domestic Price Tabs
-        2a) Domestic Linehaul Prices
-	    2b) Domestic Service Area Prices
-	    2c) Other Domestic Prices
-*/
-/*************************************************************************************************************/
-
-const dLhWeightBandNumCellsExpected int = 10 //cells per band verify against dLhWeightBandNumCells
-const dLhWeightBandCountExpected int = 3     //expected number of weight bands verify against weightBandCount
-
-type dLhWeightBand struct {
-	band     int
-	lowerLbs int
-	upperLbs int
-	lowerCwt float32
-	upperCwt float32
+	if create == true {
+		err := createCsv.createCsvWriter(xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, runTime))
+		checkError("Failed to create CSV writer", err)
+	} else {
+		return nil
+	}
+	return &createCsv
 }
 
-var dLhWeightBands = []dLhWeightBand{
-	{
-		band:     1,
-		lowerLbs: 500,
-		upperLbs: 4999,
-		lowerCwt: 5,
-		upperCwt: 49.99,
-	},
-	{
-		band:     2,
-		lowerLbs: 5000,
-		upperLbs: 9999,
-		lowerCwt: 50,
-		upperCwt: 99.99,
-	},
-	{
-		band:     3,
-		lowerLbs: 10000,
-		upperLbs: 999999,
-		lowerCwt: 100,
-		upperCwt: 9999.99,
-	},
-}
-
-type dLhMilesRange struct {
-	rangeNumber int
-	lower       int
-	upper       int
-}
-
-var dLhMilesRanges = []dLhMilesRange{
-	{
-		rangeNumber: 1,
-		lower:       0,
-		upper:       250,
-	},
-	{
-		rangeNumber: 2,
-		lower:       251,
-		upper:       500,
-	},
-	{
-		rangeNumber: 3,
-		lower:       501,
-		upper:       1000,
-	},
-	{
-		rangeNumber: 4,
-		lower:       1001,
-		upper:       1500,
-	},
-	{
-		rangeNumber: 5,
-		lower:       1501,
-		upper:       2000,
-	},
-	{
-		rangeNumber: 6,
-		lower:       2001,
-		upper:       2500,
-	},
-	{
-		rangeNumber: 7,
-		lower:       2501,
-		upper:       3000,
-	},
-	{
-		rangeNumber: 8,
-		lower:       3001,
-		upper:       3500,
-	},
-	{
-		rangeNumber: 9,
-		lower:       3501,
-		upper:       4000,
-	},
-	{
-		rangeNumber: 10,
-		lower:       4001,
-		upper:       999999,
-	},
-}
-
-var dLhWeightBandNumCells = len(dLhMilesRanges)
-
-type domesticLineHaulPrice struct {
-	ServiceAreaNumber string
-	OriginServiceArea string
-	ServiceSchedule   int
-	Season            string
-	WeightBand        dLhWeightBand
-	MilesRange        dLhMilesRange
-	Escalation        int
-	Rate              string //TODO should this be a float or string? Probably string  stripping out the $
-}
-
-func (dLh *domesticLineHaulPrice) csvHeader() []string {
-	header := []string{
-		"Service Area Number",
-		"Origin Serivce Area",
-		"Service Schedule",
-		"Season",
-		"Weight Band ID",
-		"Lower Lbs",
-		"Upper Lbs",
-		"Lower Cwt",
-		"Upper Cwt",
-		"Mileage Range ID",
-		"Lower Miles",
-		"Upper Miles",
-		"Escalation Number",
-		"Rate",
+// A safe way to get a cell from a slice of cells, returning empty string if not found
+func getCell(cells []*xlsx.Cell, i int) string {
+	if len(cells) > i {
+		return cells[i].String()
 	}
 
-	return header
+	return ""
 }
 
-func (dLh *domesticLineHaulPrice) toSlice() []string {
-	var values []string
-
-	values = append(values, dLh.ServiceAreaNumber)
-	values = append(values, dLh.OriginServiceArea)
-	values = append(values, strconv.Itoa(dLh.ServiceSchedule))
-	values = append(values, dLh.Season)
-	values = append(values, strconv.Itoa(dLh.WeightBand.band))
-	values = append(values, strconv.Itoa(dLh.WeightBand.lowerLbs))
-	values = append(values, strconv.Itoa(dLh.WeightBand.upperLbs))
-	values = append(values, fmt.Sprintf("%.2f", dLh.WeightBand.lowerCwt))
-	values = append(values, fmt.Sprintf("%.2f", dLh.WeightBand.upperCwt))
-	values = append(values, strconv.Itoa(dLh.MilesRange.rangeNumber))
-	values = append(values, strconv.Itoa(dLh.MilesRange.lower))
-	values = append(values, strconv.Itoa(dLh.MilesRange.upper))
-	values = append(values, strconv.Itoa(dLh.Escalation))
-	values = append(values, dLh.Rate)
-
-	return values
-}
-
-type domesticServiceAreaPrice struct {
-	ServiceAreaNumber                     string
-	OriginServiceArea                     string
-	ServiceSchedule                       int
-	SITPickupDeliverySchedule             int
-	Season                                string
-	Escalation                            int
-	ShorthaulPrice                        string
-	OriginDestinationPrice                string
-	OriginDestinationSITFirstDayWarehouse string
-	OriginDestinationSITAddlDays          string
-}
-
-func (dSA *domesticServiceAreaPrice) csvHeader() []string {
-	header := []string{
-		"Service Area Number",
-		"Origin Serivce Area",
-		"Service Schedule",
-		"SIT Pickup Delivery Schedule",
-		"Season",
-		"Escalation Number",
-		"Shorthaul Price",
-		"Origin/Destination Price",
-		"Origin/Destination SIT First Day & Warehouse",
-		"Origin/Destination SIT Addtl Days",
+// Gotta have a stringPointer function. Returns nil if empty string
+func stringPointer(s string) *string {
+	if s == "" {
+		return nil
 	}
 
-	return header
+	return &s
 }
 
-func (dSA *domesticServiceAreaPrice) toSlice() []string {
-	var values []string
-
-	values = append(values, dSA.ServiceAreaNumber)
-	values = append(values, dSA.OriginServiceArea)
-	values = append(values, strconv.Itoa(dSA.ServiceSchedule))
-	values = append(values, strconv.Itoa(dSA.SITPickupDeliverySchedule))
-	values = append(values, dSA.Season)
-	values = append(values, strconv.Itoa(dSA.Escalation))
-	values = append(values, dSA.ShorthaulPrice)
-	values = append(values, dSA.OriginDestinationPrice)
-	values = append(values, dSA.OriginDestinationSITFirstDayWarehouse)
-	values = append(values, dSA.OriginDestinationSITAddlDays)
-
-	return values
-}
-
-type domesticServiceArea struct {
-	BasePointCity     string
-	State             string
-	ServiceAreaNumber string
-	Zip3s             []string
-}
-
-func (dsa *domesticServiceArea) csvHeader() []string {
-	header := []string{
-		"Base Point City",
-		"State",
-		"Service Area Number",
-		"Zip3's",
-	}
-
-	return header
-}
-
-func (dsa *domesticServiceArea) toSlice() []string {
-	var values []string
-
-	values = append(values, dsa.BasePointCity)
-	values = append(values, dsa.State)
-	values = append(values, dsa.ServiceAreaNumber)
-	values = append(values, strings.Join(dsa.Zip3s, ","))
-
-	return values
-}
-
-func (dsa *domesticServiceArea) saveToDatabase(db *pop.Connection) {
-	// need to turn dsa into re_zip3 and re_domestic_service_area
-	rdsa := models.ReDomesticServiceArea{
-		BasePointCity:    dsa.BasePointCity,
-		State:            dsa.State,
-		ServiceArea:      dsa.ServiceAreaNumber,
-		ServicesSchedule: 2, // TODO Need to look up or parse out the ServicesSchedule
-		SITPDSchedule:    2, // TODO Need to look up or parse out the SITPDSchedule
-	}
-	verrs, err := db.ValidateAndSave(&rdsa)
-	if err != nil || verrs.HasAny() {
-		var dbError string
-		if err != nil {
-			dbError = err.Error()
-		}
-		if verrs.HasAny() {
-			dbError = dbError + verrs.Error()
-		}
-		log.Fatalf("Failed to save Service Area: %v\n  with error: %v\n", rdsa, dbError)
-	}
-	for _, zip3 := range dsa.Zip3s {
-		rz3 := models.ReZip3{
-			Zip3:                  zip3,
-			DomesticServiceAreaID: rdsa.ID,
-		}
-		verrs, err = db.ValidateAndSave(&rz3)
-		if err != nil || verrs.HasAny() {
-			var dbError string
-			if err != nil {
-				dbError = err.Error()
+func getInt(from string) int {
+	i, err := strconv.Atoi(from)
+	if err != nil {
+		if strings.HasSuffix(err.Error(), ": invalid syntax") {
+			f, ferr := strconv.ParseFloat(from, 32)
+			if ferr != nil {
+				return 0
 			}
-			if verrs.HasAny() {
-				dbError = dbError + verrs.Error()
+			if f != 0.0 {
+				return int(f)
 			}
-			log.Fatalf("Failed to save Zip3: %v\n  with error: %v\n", rz3, dbError)
 		}
+		log.Fatalf("ERROR: getInt() Atoi & ParseFloat failed to convert <%s> error %s, returning 0\n", from, err.Error())
+	}
+
+	return i
+}
+
+func checkError(message string, err error) {
+	if err != nil {
+		log.Fatal(message, err)
 	}
 }
 
-type internationalServiceArea struct {
-	RateArea   string
-	RateAreaID string
+func removeFirstDollarSign(s string) string {
+	return strings.Replace(s, "$", "", 1)
 }
 
-func (isa *internationalServiceArea) csvHeader() []string {
-	header := []string{
-		"International Rate Area",
-		"Rate Area Id",
+func removeWhiteSpace(stripString string) string {
+	space := regexp.MustCompile(`\s`)
+	s := space.ReplaceAllString(stripString, "")
+
+	return s
+}
+
+func splitZip3s(s string) []string {
+	if strings.Contains(s, ",") {
+		return strings.Split(s, ",")
+	}
+	i := fmt.Sprintf("%03d", getInt(s))
+	return []string{i}
+}
+
+func formatServiceAreaNumber(s string) string {
+	return fmt.Sprintf("%03d", getInt(s))
+}
+
+// generateOutputFilename: generates filename using xlsxDataSheetInfo.outputFilename
+// with the folling fomat -- <id>_<outputFilename>_<time.Now().Format("20060102150405")>.csv
+func (x *xlsxDataSheetInfo) generateOutputFilename(index int, runTime time.Time) string {
+	var name string
+	if x.outputFilename != nil {
+		name = *x.outputFilename
+	} else {
+		name = "rate_engine_ghc_parse"
 	}
 
-	return header
-}
+	name = strconv.Itoa(index) + "_" + name + "_" + runTime.Format("20060102150405") + ".csv"
 
-func (isa *internationalServiceArea) toSlice() []string {
-	var values []string
-
-	values = append(values, isa.RateArea)
-	values = append(values, isa.RateAreaID)
-
-	return values
+	return name
 }

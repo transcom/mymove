@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React, { Fragment } from 'react';
+import React from 'react';
 import { uniqueId } from 'lodash';
 
 const YesNoBoolean = props => {
@@ -18,16 +18,30 @@ const YesNoBoolean = props => {
   };
 
   return (
-    <Fragment>
-      <input className="inline_radio" id={yesId} type="radio" value="yes" onChange={localOnChange} checked={value} />
-      <label className="inline_radio" htmlFor={yesId}>
+    <div style={{ marginTop: '0.5rem' }}>
+      <input
+        className="usa-radio__input inline_radio"
+        id={yesId}
+        type="radio"
+        value="yes"
+        onChange={localOnChange}
+        checked={value}
+      />
+      <label className="usa-radio__label inline_radio" htmlFor={yesId}>
         Yes
       </label>
-      <input className="inline_radio" id={noId} value="no" type="radio" onChange={localOnChange} checked={!value} />
-      <label className="inline_radio" htmlFor={noId}>
+      <input
+        className="usa-radio__input inline_radio"
+        id={noId}
+        value="no"
+        type="radio"
+        onChange={localOnChange}
+        checked={!value}
+      />
+      <label className="usa-radio__label inline_radio" htmlFor={noId}>
         No
       </label>
-    </Fragment>
+    </div>
   );
 };
 YesNoBoolean.propTypes = {

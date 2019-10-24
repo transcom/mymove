@@ -12,9 +12,6 @@ describe('Office Home Page', function() {
     cy.logout();
     officeUserIsOnSignInPage();
   });
-  it('office user is properly welcomed', function() {
-    officeUserIsWelcomed();
-  });
   it('open accepted shipments queue and see moves', function() {
     cy.signIntoOffice();
     officeAllMoves();
@@ -45,11 +42,6 @@ describe('Queue staleness indicator', () => {
 function officeUserIsOnSignInPage() {
   cy.contains('office.move.mil');
   cy.contains('Sign In');
-}
-
-function officeUserIsWelcomed() {
-  cy.signIntoOffice();
-  cy.get('strong').contains('Welcome, Leo');
 }
 
 function officeAllMoves() {

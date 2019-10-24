@@ -46,7 +46,9 @@ export class DPSAuthCookie extends Component {
         <form onSubmit={this.props.handleSubmit(this.sendRequest)}>
           <SwaggerField fieldName="cookie_name" swagger={this.props.schema} />
           <SwaggerField fieldName="dps_redirect_url" swagger={this.props.schema} />
-          <button type="submit">Submit</button>
+          <button className="usa-button" type="submit">
+            Submit
+          </button>
         </form>
       </div>
     );

@@ -8,6 +8,34 @@ import Alert from 'shared/Alert';
 
 import './index.css';
 
+const DefaultHeader = ({ title, isEditable, editEnabled, handleEditClick }) => (
+  <div className="editable-panel-header">
+    <h4>{title}</h4>
+    {!isEditable && editEnabled && (
+      <a data-cy="edit-link" className="usa-link editable-panel-edit" onClick={handleEditClick}>
+        Edit
+      </a>
+    )}
+  </div>
+);
+
+export const RowBasedHeader = ({ title, isEditable, editEnabled, handleEditClick }) => (
+  <div className="grid-row">
+    <div className="grid-col-10">
+      <h1>{title}</h1>
+    </div>
+    {!isEditable && editEnabled && (
+      <div className="grid-col-2 text-right">
+        <p>
+          <a data-cy="edit-link" className="usa-link" onClick={handleEditClick}>
+            Edit
+          </a>
+        </p>
+      </div>
+    )}
+  </div>
+);
+
 export const PanelField = props => {
   const { title, value, required } = props;
   const classes = classNames('panel-field', props.className);
@@ -124,7 +152,7 @@ export class EditablePanel extends Component {
       controls = (
         <div>
           <p>
-            <button className="usa-button-secondary editable-panel-cancel" onClick={this.handleCancelClick}>
+            <button className="usa-button usa-button--outline editable-panel-cancel" onClick={this.handleCancelClick}>
               Cancel
             </button>
             <button
@@ -148,16 +176,17 @@ export class EditablePanel extends Component {
       this.props.className,
     );
 
+    const { title, isEditable, editEnabled, HeaderComponent } = this.props;
+    console.log(HeaderComponent);
+
     return (
       <div className={classes}>
-        <div className="editable-panel-header">
-          <div className="title">{this.props.title}</div>
-          {!this.props.isEditable && this.props.editEnabled && (
-            <a className="editable-panel-edit" onClick={this.handleEditClick}>
-              Edit
-            </a>
-          )}
-        </div>
+        <HeaderComponent
+          title={title}
+          isEditable={isEditable}
+          editEnabled={editEnabled}
+          handleEditClick={this.handleEditClick}
+        />
         <div className="editable-panel-content">
           {this.props.children}
           {controls}
@@ -168,7 +197,7 @@ export class EditablePanel extends Component {
 }
 
 // Convenience function for creating an editable panel given a display component and an edit component
-export function editablePanelify(DisplayComponent, EditComponent, editEnabled = true) {
+export function editablePanelify(DisplayComponent, EditComponent, editEnabled = true, HeaderComponent = DefaultHeader) {
   const Wrapper = class extends Component {
     state = {
       isEditable: false,
@@ -212,6 +241,7 @@ export function editablePanelify(DisplayComponent, EditComponent, editEnabled = 
             isEditable={isEditable}
             editEnabled={editEnabled}
             isValid={this.props.valid}
+            HeaderComponent={HeaderComponent}
           >
             <Content {...this.props} />
           </EditablePanel>

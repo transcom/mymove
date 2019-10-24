@@ -15,43 +15,43 @@ executors:
     resource_class: small
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:782c370a89564e10e7ee00f6a6ad5c32309c11d5
+      - image: trussworks/circleci-docker-primary:25d81729429ccbc79c6a7fc29cbffff68f7369fc
   mymove_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:782c370a89564e10e7ee00f6a6ad5c32309c11d5
+      - image: trussworks/circleci-docker-primary:25d81729429ccbc79c6a7fc29cbffff68f7369fc
   mymove_medium_plus:
     resource_class: medium+
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:782c370a89564e10e7ee00f6a6ad5c32309c11d5
+      - image: trussworks/circleci-docker-primary:25d81729429ccbc79c6a7fc29cbffff68f7369fc
   mymove_large:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:782c370a89564e10e7ee00f6a6ad5c32309c11d5
+      - image: trussworks/circleci-docker-primary:25d81729429ccbc79c6a7fc29cbffff68f7369fc
   # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
   mymove_and_postgres_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:782c370a89564e10e7ee00f6a6ad5c32309c11d5
+      - image: trussworks/circleci-docker-primary:25d81729429ccbc79c6a7fc29cbffff68f7369fc
       - image: postgres:10.9
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
-        command: "-c fsync=off -c full_page_writes=off -c max_connections=200"
+        command: '-c fsync=off -c full_page_writes=off -c max_connections=200'
   mymove_and_postgres_large:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:782c370a89564e10e7ee00f6a6ad5c32309c11d5
+      - image: trussworks/circleci-docker-primary:25d81729429ccbc79c6a7fc29cbffff68f7369fc
       - image: postgres:10.9
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
-        command: "-c fsync=off -c full_page_writes=off -c max_connections=200"
+        command: '-c fsync=off -c full_page_writes=off -c max_connections=200'
 
 commands:
   announce_failure:
@@ -62,6 +62,16 @@ commands:
           command: |
             [[ $CIRCLE_BRANCH = master ]] || exit 0
             scripts/circleci-announce-broken-branch
+          when: on_fail
+  dependency_update_failure:
+    parameters:
+      dependency_name:
+        type: string
+    steps:
+      - run:
+          name: Depdendency update failure
+          command: |
+            [[ -z "<< parameters.dependency_name >>" ]] || scripts/circleci-dependency-update-failure "<< parameters.dependency_name >>"
           when: on_fail
   deploy_migrations_steps:
     steps:
@@ -227,7 +237,7 @@ jobs:
       - save_cache:
           key: go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
           paths:
-            - "/go/pkg/mod"
+            - '/go/pkg/mod'
       - announce_failure
 
   # `pre_deps_yarn` is used to cache yarn sources and installed node modules.
@@ -270,7 +280,7 @@ jobs:
       - save_cache:
           key: go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
           paths:
-            - "/go/pkg/mod"
+            - '/go/pkg/mod'
       - announce_failure
 
   # `anti_virus` uses virus detection software to scan the source code
@@ -398,8 +408,8 @@ jobs:
             DB_PORT: 5432
             DB_NAME: test_db
             DB_NAME_TEST: test_db
-            MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
-            MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations'
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations_manifest.txt'
       - run:
           name: make server_test_standalone
           command: |
@@ -420,8 +430,8 @@ jobs:
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
-            MIGRATION_PATH: "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
-            MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations'
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations_manifest.txt'
             SERVE_API_INTERNAL: true
       - store_artifacts:
           path: ~/transcom/mymove/tmp/test-results
@@ -726,7 +736,8 @@ jobs:
       - run:
           name: Push changes
           command: scripts/circleci-push-dependency-updates golang
-      - announce_failure
+      - dependency_update_failure:
+          dependency_name: go
 
   # `update_dependencies_js` periodically updates yarn dependencies.
   # The changes are submitted as a pull request for review.
@@ -749,7 +760,8 @@ jobs:
       - run:
           name: Push changes
           command: scripts/circleci-push-dependency-updates js
-      - announce_failure
+      - dependency_update_failure:
+          dependency_name: js
 
   # `update_dependencies_pre_commit` periodically updates pre-commit dependencies.
   # The changes are submitted as a pull request for review.
@@ -766,7 +778,8 @@ jobs:
       - run:
           name: Push changes
           command: scripts/circleci-push-dependency-updates pre-commit
-      - announce_failure
+      - dependency_update_failure:
+          dependency_name: pre_commit
 
 workflows:
   version: 2
@@ -816,24 +829,24 @@ workflows:
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
-              branches:
-                  ignore: placeholder_branch_name
+            branches:
+              ignore: placeholder_branch_name
 
       - client_test:
           requires:
             - pre_deps_yarn
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
-              branches:
-                ignore: placeholder_branch_name
+            branches:
+              ignore: placeholder_branch_name
 
       - server_test:
           requires:
             - pre_deps_golang
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
-              branches:
-                ignore: placeholder_branch_name
+            branches:
+              ignore: placeholder_branch_name
 
       - build_app:
           requires:
