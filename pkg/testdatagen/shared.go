@@ -34,6 +34,7 @@ type Assertions struct {
 	FuelEIADieselPrice                       models.FuelEIADieselPrice
 	Invoice                                  models.Invoice
 	Move                                     models.Move
+	MoveTaskOrder                            models.MoveTaskOrder
 	MoveDocument                             models.MoveDocument
 	MovingExpenseDocument                    models.MovingExpenseDocument
 	WeightTicketSetDocument                  models.WeightTicketSetDocument
