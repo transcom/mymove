@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -32,9 +33,14 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 	moveTaskOrder := models.MoveTaskOrder{
 		MoveID:                   move.ID,
 		CustomerID:               sm.ID,
+		Customer:                 sm,
 		OriginDutyStationID:      sm.DutyStation.ID,
+		OriginDutyStation:        sm.DutyStation,
+		DestinationDutyStation:   move.Orders.NewDutyStation,
 		DestinationDutyStationID: move.Orders.NewDutyStation.ID,
+		PickupAddress:            pickupAddress,
 		PickupAddressID:          pickupAddress.ID,
+		DestinationAddress:       destinationAddress,
 		DestinationAddressID:     destinationAddress.ID,
 		RequestedPickupDates:     time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
 		CustomerRemarks:          "Park in the alley",

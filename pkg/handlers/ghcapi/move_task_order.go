@@ -1,8 +1,9 @@
 package ghcapi
 
 import (
-	"github.com/transcom/mymove/pkg/models"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/go-openapi/strfmt"
 
