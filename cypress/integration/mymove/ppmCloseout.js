@@ -123,7 +123,7 @@ function serviceMemberSubmitsPaymentRequestWithMissingDocuments() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/ppm-customer-agreement/);
   });
-  cy.get('.usa-button-secondary')
+  cy.get('.usa-button')
     .contains('Back')
     .click();
   cy.location().should(loc => {
@@ -140,8 +140,8 @@ function serviceMemberSubmitsPaymentRequestWithMissingDocuments() {
   cy.wait('@signedCertifications');
   cy.wait('@requestPayment');
 
-  cy.get('.usa-alert-warning').contains('Payment request is missing info');
-  cy.get('.usa-alert-warning').contains(
+  cy.get('.usa-alert--warning').contains('Payment request is missing info');
+  cy.get('.usa-alert--warning').contains(
     'You will need to contact your local PPPO office to resolve your missing weight ticket.',
   );
 
@@ -159,7 +159,7 @@ function serviceMemberReviewsDocuments() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/ppm-customer-agreement/);
   });
-  cy.get('.usa-button-secondary')
+  cy.get('[data-cy="back-button"]')
     .contains('Back')
     .click();
   cy.location().should(loc => {
@@ -186,7 +186,7 @@ function serviceMemberDeletesDocuments() {
   cy.get('.ticket-item').should('have.length', 3);
 }
 function serviceMemberEditsPaymentRequest() {
-  cy.get('.usa-alert-success')
+  cy.get('.usa-alert--success')
     .contains('Payment request submitted')
     .should('exist');
   cy.get('[data-cy="edit-payment-request"]')

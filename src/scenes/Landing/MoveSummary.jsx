@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { get, includes, isEmpty } from 'lodash';
 
@@ -20,19 +20,19 @@ import './MoveSummary.css';
 const MoveInfoHeader = props => {
   const { orders, profile, move, entitlement, requestPaymentSuccess } = props;
   return (
-    <Fragment>
+    <div>
       {requestPaymentSuccess && <Alert type="success" heading="Payment request submitted" />}
 
-      <h2 className="move-summary-header">
+      <h1>
         {get(orders, 'new_duty_station.name', 'New move')} (from {get(profile, 'current_station.name', '')})
-      </h2>
+      </h1>
       {get(move, 'locator') && <div>Move Locator: {get(move, 'locator')}</div>}
       {!isEmpty(entitlement) && (
         <div>
-          Weight Entitlement: <span>{entitlement.sum.toLocaleString()} lbs</span>
+          Weight Entitlement: <span data-cy="move-header-weight-estimate">{entitlement.sum.toLocaleString()} lbs</span>
         </div>
       )}
-    </Fragment>
+    </div>
   );
 };
 
@@ -89,7 +89,7 @@ export class MoveSummaryComponent extends React.Component {
     // eslint-disable-next-line security/detect-object-injection
     const PPMComponent = genPpmSummaryStatusComponents[ppmStatus];
     return (
-      <div className="move-summary">
+      <div>
         {move.status === 'CANCELED' && (
           <Alert type="info" heading="Your move was canceled">
             Your move from {get(profile, 'current_station.name')} to {get(orders, 'new_duty_station.name')} with the
@@ -97,25 +97,29 @@ export class MoveSummaryComponent extends React.Component {
           </Alert>
         )}
 
-        <div className="whole_box">
-          {move.status !== 'CANCELED' && (
-            <div>
-              <MoveInfoHeader
-                orders={orders}
-                profile={profile}
-                move={move}
-                entitlement={entitlement}
-                requestPaymentSuccess={requestPaymentSuccess}
-              />
-              <br />
-            </div>
-          )}
-          {isMissingWeightTicketDocuments && ppm.status === 'PAYMENT_REQUESTED' && (
-            <Alert type="warning" heading="Payment request is missing info">
-              You will need to contact your local PPPO office to resolve your missing weight ticket.
-            </Alert>
-          )}
-          <div className="usa-width-three-fourths">
+        <div className="grid-row grid-gap">
+          <div className="grid-col-12">
+            {move.status !== 'CANCELED' && (
+              <div>
+                <MoveInfoHeader
+                  orders={orders}
+                  profile={profile}
+                  move={move}
+                  entitlement={entitlement}
+                  requestPaymentSuccess={requestPaymentSuccess}
+                />
+                <br />
+              </div>
+            )}
+            {isMissingWeightTicketDocuments && ppm.status === 'PAYMENT_REQUESTED' && (
+              <Alert type="warning" heading="Payment request is missing info">
+                You will need to contact your local PPPO office to resolve your missing weight ticket.
+              </Alert>
+            )}
+          </div>
+        </div>
+        <div className="grid-row grid-gap">
+          <div className="tablet:grid-col-9 grid-col-12">
             <PPMComponent
               className="status-component"
               ppm={ppm}
@@ -130,18 +134,19 @@ export class MoveSummaryComponent extends React.Component {
             />
           </div>
 
-          <div className="sidebar usa-width-one-fourth">
+          <div className="sidebar tablet:grid-col-3 grid-col-12">
             <div>
               <button
-                className="usa-button-secondary"
+                className="usa-button usa-button--outline"
                 onClick={() => editMove(move)}
                 disabled={includes(['DRAFT', 'CANCELED'], move.status)}
+                data-cy="edit-move"
               >
                 Edit Move
               </button>
             </div>
             <div className="contact_block">
-              <div className="title">Contacts</div>
+              <h2>Contacts</h2>
               <TransportationOfficeContactInfo dutyStation={profile.current_station} isOrigin={true} />
             </div>
           </div>

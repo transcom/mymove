@@ -63,6 +63,16 @@ commands:
             [[ $CIRCLE_BRANCH = master ]] || exit 0
             scripts/circleci-announce-broken-branch
           when: on_fail
+  dependency_update_failure:
+    parameters:
+      dependency_name:
+        type: string
+    steps:
+      - run:
+          name: Depdendency update failure
+          command: |
+            [[ -z "<< parameters.dependency_name >>" ]] || scripts/circleci-dependency-update-failure "<< parameters.dependency_name >>"
+          when: on_fail
   deploy_migrations_steps:
     steps:
       - checkout
@@ -726,7 +736,8 @@ jobs:
       - run:
           name: Push changes
           command: scripts/circleci-push-dependency-updates golang
-      - announce_failure
+      - dependency_update_failure:
+          dependency_name: go
 
   # `update_dependencies_js` periodically updates yarn dependencies.
   # The changes are submitted as a pull request for review.
@@ -749,7 +760,8 @@ jobs:
       - run:
           name: Push changes
           command: scripts/circleci-push-dependency-updates js
-      - announce_failure
+      - dependency_update_failure:
+          dependency_name: js
 
   # `update_dependencies_pre_commit` periodically updates pre-commit dependencies.
   # The changes are submitted as a pull request for review.
@@ -766,7 +778,8 @@ jobs:
       - run:
           name: Push changes
           command: scripts/circleci-push-dependency-updates pre-commit
-      - announce_failure
+      - dependency_update_failure:
+          dependency_name: pre_commit
 
 workflows:
   version: 2
