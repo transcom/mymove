@@ -103,7 +103,7 @@ export class DateAndLocation extends Component {
           initialValues={initialValues}
           enableReinitialize={true} //this is needed as the pickup_postal_code value needs to be initialized to the users residential address
         >
-          <h2>PPM Dates & Locations</h2>
+          <h1>PPM Dates & Locations</h1>
           <h3> Move Date </h3>
           <SwaggerField fieldName="original_move_date" swagger={this.props.schema} required />
           <h3>Pickup Location</h3>
@@ -113,7 +113,10 @@ export class DateAndLocation extends Component {
             <Fragment>
               <SwaggerField fieldName="additional_pickup_postal_code" swagger={this.props.schema} required />
               <span className="grey">
-                Making additional stops may decrease your PPM incentive. <a onClick={this.openInfo}>Why</a>
+                Making additional stops may decrease your PPM incentive.{' '}
+                <a onClick={this.openInfo} className="usa-link">
+                  Why
+                </a>
               </span>
               {this.state.showInfo && (
                 <Alert type="info" heading="">
@@ -121,7 +124,10 @@ export class DateAndLocation extends Component {
                   base rate it would cost the government to transport your household goods between your destination and
                   origin. When you add additional stops, your overall PPM incentive will change to account for any
                   deviations from the standard route and to account for the fact that not 100% of your household goods
-                  travelled the entire way from origin to destination. <a onClick={this.closeInfo}>Close</a>
+                  travelled the entire way from origin to destination.{' '}
+                  <a onClick={this.closeInfo} className="usa-link">
+                    Close
+                  </a>
                 </Alert>
               )}
             </Fragment>
@@ -137,10 +143,12 @@ export class DateAndLocation extends Component {
             validate={validateDifferentZip}
             required
           />
-          <span className="grey">
-            The ZIP code for {currentOrders && currentOrders.new_duty_station.name} is{' '}
-            {currentOrders && currentOrders.new_duty_station.address.postal_code}{' '}
-          </span>
+          <div style={{ marginTop: '0.5rem' }}>
+            <span className="grey">
+              The ZIP code for {currentOrders && currentOrders.new_duty_station.name} is{' '}
+              {currentOrders && currentOrders.new_duty_station.address.postal_code}{' '}
+            </span>
+          </div>
           <SwaggerField fieldName="has_sit" swagger={this.props.schema} component={YesNoBoolean} />
           {get(this.props, 'formValues.has_sit', false) && (
             <Fragment>

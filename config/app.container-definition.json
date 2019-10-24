@@ -190,6 +190,10 @@
       "value": "{{ .FEATURE_FLAG_ACCESS_CODE }}"
     },
     {
+      "name": "DEBUG_PPROF",
+      "value": "{{ .DEBUG_PPROF }}"
+    },
+    {
       "name": "SERVE_ADMIN",
       "value": "{{ .SERVE_ADMIN }}"
     },

@@ -8,8 +8,8 @@ import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
 
 //this is taken from https://designsystem.digital.gov/components/alerts/
 const Alert = props => (
-  <div className={`usa-alert usa-alert-${props.type}`}>
-    <div className="usa-alert-body">
+  <div className={`usa-alert usa-alert--${props.type}`}>
+    <div className="usa-alert__body">
       <div className="body--heading">
         {props.type === 'loading' ? (
           <div className="heading--icon">
@@ -17,7 +17,7 @@ const Alert = props => (
           </div>
         ) : null}
         <div>
-          {props.heading && <h3 className="usa-alert-heading">{props.heading}</h3>}
+          {props.heading && <h3 className="usa-alert__heading">{props.heading}</h3>}
           {props.onRemove && (
             <FontAwesomeIcon
               className="icon remove-icon actionable actionable-secondary"
@@ -25,7 +25,7 @@ const Alert = props => (
               icon={faTimes}
             />
           )}
-          <div className="usa-alert-text">{props.children}</div>
+          <div className="usa-alert__text">{props.children}</div>
         </div>
       </div>
     </div>

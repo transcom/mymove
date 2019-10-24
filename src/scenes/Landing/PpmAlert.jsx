@@ -17,7 +17,7 @@ const PpmAlert = props => {
         <li>
           Read the{' '}
           <strong>
-            <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
+            <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer" className="usa-link">
               PPM info sheet
             </a>
           </strong>{' '}

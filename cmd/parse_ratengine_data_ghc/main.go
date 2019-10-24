@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/tealeg/xlsx"
 )
 
@@ -100,7 +101,7 @@ You should not have to update the main() or  process() functions. Unless you
 intentionally are modifying the pattern of how the processing functions are called.
 
  *************************************************************************/
-
+const sharedNumEscalationYearsToProcess int = 1
 const xlsxSheetsCountMax int = 35
 
 type processXlsxSheet func(paramConfig, int) error
@@ -110,22 +111,7 @@ type xlsxDataSheetInfo struct {
 	description    *string
 	process        *processXlsxSheet
 	verify         *verifyXlsxSheet
-	outputFilename *string //do not include suffix
-}
-
-// generateOutputFilename: generates filename using xlsxDataSheetInfo.outputFilename
-// with the folling fomat -- <id>_<outputFilename>_<time.Now().Format("20060102150405")>.csv
-func (x *xlsxDataSheetInfo) generateOutputFilename(index int, runTime time.Time) string {
-	var name string
-	if x.outputFilename != nil {
-		name = *x.outputFilename
-	} else {
-		name = "rate_engine_ghc_parse"
-	}
-
-	name = strconv.Itoa(index) + "_" + name + "_" + runTime.Format("20060102150405") + ".csv"
-
-	return name
+	outputFilename *string //do not include suffix see func generateOutputFilename for details
 }
 
 var xlsxDataSheets []xlsxDataSheetInfo
@@ -164,6 +150,7 @@ type paramConfig struct {
 	saveToFile   bool
 	runTime      time.Time
 	xlsxFile     *xlsx.File
+	runVerify    bool
 }
 
 func xlsxSheetsUsage() string {
@@ -196,8 +183,11 @@ func main() {
 	sheets := flag.String("xlsxSheets", "", xlsxSheetsUsage())
 	display := flag.Bool("display", false, "Display output of parsed info")
 	saveToFile := flag.Bool("save", false, "Save output to CSV file")
+	runVerify := flag.Bool("verify", true, "Default is true, if false skip sheet format verification")
 
 	flag.Parse()
+
+	// Process command line params
 
 	params.processAll = false
 	if all != nil && *all == true {
@@ -235,6 +225,14 @@ func main() {
 		params.saveToFile = true
 	}
 
+	params.runVerify = false
+	if runVerify != nil {
+		params.runVerify = *runVerify
+	}
+
+	// Must be after processing config param
+	// Run the process function
+
 	if params.processAll == true {
 		for i, x := range xlsxDataSheets {
 			if x.process != nil {
@@ -250,9 +248,13 @@ func main() {
 			if err != nil {
 				log.Fatalf("Bad xlsxSheets index provided %v\n", err)
 			}
-			err = process(params, index)
-			if err != nil {
-				log.Fatalf("Error processing %v\n", err)
+			if index < len(xlsxDataSheets) {
+				err = process(params, index)
+				if err != nil {
+					log.Fatalf("Error processing %v\n", err)
+				}
+			} else {
+				log.Fatalf("Error processing index %d, not in range of slice xlsxDataSheets\n", index)
 			}
 		}
 	}
@@ -278,15 +280,20 @@ func process(params paramConfig, sheetIndex int) error {
 	}
 
 	// Call verify function
-	if xlsxInfo.verify != nil {
-		var callFunc verifyXlsxSheet
-		callFunc = *xlsxInfo.verify
-		err := callFunc(params, sheetIndex)
-		if err != nil {
-			log.Printf("%s verify error: %v\n", description, err)
+	if params.runVerify == true {
+		if xlsxInfo.verify != nil {
+			var callFunc verifyXlsxSheet
+			callFunc = *xlsxInfo.verify
+			err := callFunc(params, sheetIndex)
+			if err != nil {
+				log.Printf("%s verify error: %v\n", description, err)
+				return errors.Wrapf(err, " verify error for sheet index: %d with description: %s", sheetIndex, description)
+			}
+		} else {
+			log.Printf("No verify function for sheet index %d with description %s\n", sheetIndex, description)
 		}
 	} else {
-		log.Printf("No verify function for sheet index %d with description %s\n", sheetIndex, description)
+		log.Print("Skip running the verify functions")
 	}
 
 	// Call process function
@@ -296,6 +303,7 @@ func process(params paramConfig, sheetIndex int) error {
 		err := callFunc(params, sheetIndex)
 		if err != nil {
 			log.Printf("%s process error: %v\n", description, err)
+			return errors.Wrapf(err, " process error for sheet index: %d with description: %s", sheetIndex, description)
 		}
 	} else {
 		log.Fatalf("Missing process function for sheet index %d with description %s\n", sheetIndex, description)
@@ -303,226 +311,5 @@ func process(params paramConfig, sheetIndex int) error {
 
 	// Verification and Process completed
 	log.Printf("Completed processing sheet index %d with description %s\n", sheetIndex, description)
-	return nil
-}
-
-/*************************************************************************/
-// Shared Helper functions
-/*************************************************************************/
-
-// A safe way to get a cell from a slice of cells, returning empty string if not found
-func getCell(cells []*xlsx.Cell, i int) string {
-	if len(cells) > i {
-		return cells[i].String()
-	}
-
-	return ""
-}
-
-// Gotta have a stringPointer function. Returns nil if empty string
-func stringPointer(s string) *string {
-	if s == "" {
-		return nil
-	}
-
-	return &s
-}
-
-func getInt(from string) int {
-	i, err := strconv.Atoi(from)
-	if err != nil {
-		if strings.HasSuffix(err.Error(), ": invalid syntax") {
-			fmt.Printf("WARNING: getInt() invalid int syntax checking string <%s> for float string\n", from)
-			f, ferr := strconv.ParseFloat(from, 32)
-			if ferr != nil {
-				fmt.Printf("ERROR: getInt() ParseFloat error %s\n", ferr.Error())
-				return 0
-			}
-			if f != 0.0 {
-				fmt.Printf("SUCCESS: getInt() converting string <%s> from float to int <%d>\n", from, int(f))
-				return int(f)
-			}
-		}
-		fmt.Printf("ERROR: getInt() Atoi error %s\n", err.Error())
-		return 0
-	}
-
-	return i
-}
-
-func checkError(message string, err error) {
-	if err != nil {
-		log.Fatal(message, err)
-	}
-}
-
-func removeFirstDollarSign(s string) string {
-	return strings.Replace(s, "$", "", 1)
-}
-
-func createCsvWriter(create bool, sheetIndex int, runTime time.Time) *createCsvHelper {
-	var createCsv createCsvHelper
-
-	if create == true {
-		err := createCsv.createCsvWriter(xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, runTime))
-		checkError("Failed to create CSV writer", err)
-	} else {
-		return nil
-	}
-	return &createCsv
-}
-
-/*************************************************************************/
-// GHC Rate Engine XLSX Verification and Process functions
-/*************************************************************************/
-
-// verifyDomesticLinehaulPrices: verification for 2a) Domestic Linehaul Prices
-var verifyDomesticLinehaulPrices verifyXlsxSheet = func(params paramConfig, sheetIndex int) error {
-
-	if dLhWeightBandNumCells != dLhWeightBandNumCellsExpected {
-		return fmt.Errorf("parseDomesticLinehaulPrices(): Exepected %d columns per weight band, found %d defined in golang parser", dLhWeightBandNumCellsExpected, dLhWeightBandNumCells)
-	}
-
-	if len(dLhWeightBands) != dLhWeightBandCountExpected {
-		return fmt.Errorf("parseDomesticLinehaulPrices(): Exepected %d weight bands, found %d defined in golang parser", dLhWeightBandCountExpected, len(dLhWeightBands))
-	}
-
-	log.Println("TODO verifyDomesticLinehaulPrices() not implemented")
-	return nil
-}
-
-// parseDomesticLinehaulPrices: parser for 2a) Domestic Linehaul Prices
-var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, sheetIndex int) error {
-	// Create CSV writer to save data to CSV file, returns nil if params.saveToFile=false
-	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime)
-	if csvWriter != nil {
-		defer csvWriter.close()
-
-		// Write header to CSV
-		dp := domesticLineHaulPrice{}
-		csvWriter.write(dp.csvHeader())
-	}
-
-	// XLSX Sheet consts
-	const xlsxDataSheetNum int = 6  // 2a) Domestic Linehaul Prices
-	const feeColIndexStart int = 6  // start at column 6 to get the rates
-	const feeRowIndexStart int = 14 // start at row 14 to get the rates
-	const serviceAreaNumberColumn int = 2
-	const originServiceAreaColumn int = 3
-	const serviceScheduleColumn int = 4
-	const numEscalationYearsToProcess int = 4
-
-	if xlsxDataSheetNum != sheetIndex {
-		return fmt.Errorf("parseDomesticLinehaulPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
-	}
-
-	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
-	for _, row := range dataRows {
-		colIndex := feeColIndexStart
-		// For number of baseline + escalation years
-		for escalation := 0; escalation < numEscalationYearsToProcess; escalation++ {
-			// For each rate season
-			for _, r := range rateTypes {
-				// For each weight band
-				for _, w := range dLhWeightBands {
-					// For each milage range
-					for _, m := range dLhMilesRanges {
-						domPrice := domesticLineHaulPrice{
-							serviceAreaNumber: getInt(getCell(row.Cells, serviceAreaNumberColumn)),
-							originServiceArea: getCell(row.Cells, originServiceAreaColumn),
-							serviceSchedule:   getInt(getCell(row.Cells, serviceScheduleColumn)),
-							season:            r,
-							weightBand:        w,
-							milesRange:        m,
-							escalation:        escalation,
-							rate:              getCell(row.Cells, colIndex),
-						}
-						colIndex++
-						if params.showOutput == true {
-							log.Println(domPrice.toSlice())
-						}
-						if csvWriter != nil {
-							csvWriter.write(domPrice.toSlice())
-						}
-					}
-				}
-				colIndex++ // skip 1 column (empty column) before starting next rate type
-			}
-		}
-	}
-
-	return nil
-}
-
-// verifyDomesticServiceAreaPrices: verification 2b) Dom. Service Area Prices
-var verifyDomesticServiceAreaPrices verifyXlsxSheet = func(params paramConfig, sheetIndex int) error {
-	log.Println("TODO verifyDomesticServiceAreaPrices() not implemented")
-	return nil
-}
-
-// parseDomesticServiceAreaPrices: parser for: 2b) Dom. Service Area Prices
-var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, sheetIndex int) error {
-	// Create CSV writer to save data to CSV file, returns nil if params.saveToFile=false
-	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime)
-	if csvWriter != nil {
-		defer csvWriter.close()
-
-		// Write header to CSV
-		dp := domesticServiceAreaPrice{}
-		csvWriter.write(dp.csvHeader())
-	}
-
-	// XLSX Sheet consts
-	const xlsxDataSheetNum int = 7  // 2a) Domestic Linehaul Prices
-	const feeColIndexStart int = 6  // start at column 6 to get the rates
-	const feeRowIndexStart int = 10 // start at row 10 to get the rates
-	const serviceAreaNumberColumn int = 2
-	const originServiceAreaColumn int = 3
-	const serviceScheduleColumn int = 4
-	const sITPickupDeliveryScheduleColumn int = 5
-	const numEscalationYearsToProcess int = 4
-
-	if xlsxDataSheetNum != sheetIndex {
-		return fmt.Errorf("parseDomesticServiceAreaPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
-	}
-
-	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
-	for _, row := range dataRows {
-		colIndex := feeColIndexStart
-		// For number of baseline + escalation years
-		for escalation := 0; escalation < numEscalationYearsToProcess; escalation++ {
-			// For each rate season
-			for _, r := range rateTypes {
-				domPrice := domesticServiceAreaPrice{
-					serviceAreaNumber:         getInt(getCell(row.Cells, serviceAreaNumberColumn)),
-					originServiceArea:         getCell(row.Cells, originServiceAreaColumn),
-					serviceSchedule:           getInt(getCell(row.Cells, serviceScheduleColumn)),
-					sITPickupDeliverySchedule: getInt(getCell(row.Cells, sITPickupDeliveryScheduleColumn)),
-					season:                    r,
-					escalation:                escalation,
-				}
-
-				domPrice.shorthaulPrice = removeFirstDollarSign(getCell(row.Cells, colIndex))
-				colIndex++
-				domPrice.originDestinationPrice = removeFirstDollarSign(getCell(row.Cells, colIndex))
-				colIndex += 3 // skip 2 columns pack and unpack
-				domPrice.originDestinationSITFirstDayWarehouse = removeFirstDollarSign(getCell(row.Cells, colIndex))
-				colIndex++
-				domPrice.originDestinationSITAddlDays = removeFirstDollarSign(getCell(row.Cells, colIndex))
-				colIndex++ // skip column SIT Pickup / Delivery ≤50 miles (per cwt)
-
-				if params.showOutput == true {
-					log.Println(domPrice.toSlice())
-				}
-				if csvWriter != nil {
-					csvWriter.write(domPrice.toSlice())
-				}
-
-				colIndex += 2 // skip 1 column (empty column) before starting next rate type
-			}
-
-		}
-	}
-
 	return nil
 }

@@ -21,16 +21,32 @@ const editBackupContactFormName = 'edit_backup_contact';
 let EditBackupContactForm = props => {
   const { schema, handleSubmit, submitting, valid } = props;
   return (
-    <form onSubmit={handleSubmit}>
-      <img src={profileImage} alt="" /> Backup Contact
-      <hr />
-      <h3 className="sm-heading">Edit Backup Contact:</h3>
-      <p>Any person you assign as a backup contact must be 18 years of age or older.</p>
-      <SwaggerField fieldName="name" swagger={schema} required />
-      <SwaggerField fieldName="email" swagger={schema} required />
-      <SwaggerField fieldName="telephone" swagger={schema} />
-      <SaveCancelButtons valid={valid} submitting={submitting} />
-    </form>
+    <div className="grid-container usa-prose site-prose">
+      <div className="grid-row">
+        <div className="grid-col-12">
+          <form onSubmit={handleSubmit}>
+            <img src={profileImage} alt="" />
+            <h1
+              style={{
+                display: 'inline-block',
+                marginLeft: 10,
+                marginBottom: 0,
+                marginTop: 20,
+              }}
+            >
+              Backup Contact
+            </h1>
+            <hr />
+            <h3 className="sm-heading">Edit Backup Contact:</h3>
+            <p>Any person you assign as a backup contact must be 18 years of age or older.</p>
+            <SwaggerField fieldName="name" swagger={schema} required />
+            <SwaggerField fieldName="email" swagger={schema} required />
+            <SwaggerField fieldName="telephone" swagger={schema} />
+            <SaveCancelButtons valid={valid} submitting={submitting} />
+          </form>
+        </div>
+      </div>
+    </div>
   );
 };
 EditBackupContactForm = reduxForm({

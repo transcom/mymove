@@ -88,8 +88,8 @@ describe('given a WizardPage', () => {
           buttons = wrapper.find('button');
         });
         it('it shows an error alert before its child', () => {
-          const childContainer = wrapper.find('div.usa-width-one-whole');
-          expect(childContainer.length).toBe(3);
+          const childContainer = wrapper.find('div.error-message');
+          expect(childContainer.exists()).toBe(true);
           expect(childContainer.first().text()).toBe('<Alert />');
         });
         it('it renders button for cancel, back, next', () => {
@@ -183,9 +183,12 @@ describe('given a WizardPage', () => {
       });
       afterEach(() => mockPush.mockClear());
       it('it starts on the first page', () => {
-        const childContainer = wrapper.find('div.usa-width-one-whole');
-        expect(childContainer.length).toBe(2);
-        expect(childContainer.first().text()).toBe('This is page 1');
+        expect(
+          wrapper
+            .children()
+            .first()
+            .text(),
+        ).toBe('This is page 1');
       });
       it('it renders button for cancel, back, next', () => {
         expect(buttons.length).toBe(3);
@@ -230,9 +233,12 @@ describe('given a WizardPage', () => {
         buttons = wrapper.find('button');
       });
       it('it shows its child', () => {
-        const childContainer = wrapper.find('div.usa-width-one-whole');
-        expect(childContainer.length).toBe(2);
-        expect(childContainer.first().text()).toBe('This is page 2');
+        expect(
+          wrapper
+            .children()
+            .first()
+            .text(),
+        ).toBe('This is page 2');
       });
       it('it renders button for cancel, back, next', () => {
         expect(buttons.length).toBe(3);
@@ -288,9 +294,12 @@ describe('given a WizardPage', () => {
       });
 
       it('it shows its child', () => {
-        const childContainer = wrapper.find('div.usa-width-one-whole');
-        expect(childContainer.length).toBe(2);
-        expect(childContainer.first().text()).toBe('This is page 3');
+        expect(
+          wrapper
+            .children()
+            .first()
+            .text(),
+        ).toBe('This is page 3');
       });
       it('it renders button for cancel, back, next', () => {
         expect(buttons.length).toBe(3);
