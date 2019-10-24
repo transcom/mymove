@@ -29,14 +29,22 @@ type ListServiceItemsHandler struct {
 }
 
 func (h ListServiceItemsHandler) Handle(params serviceitemop.ListServiceItemsParams) middleware.Responder {
-	queryFilters := []services.QueryFilter{h.NewQueryFilter("move_task_order_id", "=", params.MoveTaskOrderID)}
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	id, err := uuid.FromString(params.MoveTaskOrderID)
+
+	if err != nil {
+		logger.Error(fmt.Sprintf("UUID Parsing for %s", params.MoveTaskOrderID), zap.Error(err))
+	}
+
+	queryFilters := []services.QueryFilter{h.NewQueryFilter("move_task_order_id", "=", id)}
 	pagination := pagination.NewPagination(nil, nil)
 	associations := query.NewQueryAssociations([]services.QueryAssociation{})
 
 	serviceItems, err := h.ServiceItemListFetcher.FetchServiceItemList(queryFilters, associations, pagination)
 
 	if err != nil {
-		return serviceitemop.NewListServiceItemsInternalServerError()
+		logger.Error("Unable to fetch records:", zap.Error(err))
+		return handlers.ResponseForError(logger, err)
 	}
 
 	payload := make(ghcmessages.ServiceItems, len(serviceItems))
