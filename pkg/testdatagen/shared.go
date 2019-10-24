@@ -40,6 +40,9 @@ type Assertions struct {
 	OfficeUser                               models.OfficeUser
 	Order                                    models.Order
 	PersonallyProcuredMove                   models.PersonallyProcuredMove
+	ReContract                               models.ReContract
+	ReContractYear                           models.ReContractYear
+	ReDomesticServiceArea                    models.ReDomesticServiceArea
 	Reimbursement                            models.Reimbursement
 	SignedCertification                      models.SignedCertification
 	ServiceMember                            models.ServiceMember

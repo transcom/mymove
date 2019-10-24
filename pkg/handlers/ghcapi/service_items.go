@@ -2,6 +2,7 @@ package ghcapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+
 	serviceitemop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"

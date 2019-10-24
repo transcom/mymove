@@ -109,11 +109,16 @@ export class StorageReimbursementCalculator extends Component {
           <div className="usa-grid">
             <div className="usa-width-one-whole">
               <div className="buttons">
-                <button data-cy="calc" type="submit" disabled={pristine || submitting || invalid}>
+                <button
+                  className="usa-button"
+                  data-cy="calc"
+                  type="submit"
+                  disabled={pristine || submitting || invalid}
+                >
                   Calculate
                 </button>
                 <button
-                  className="usa-button-secondary"
+                  className="usa-button usa-button--outline"
                   data-cy="reset"
                   type="button"
                   disabled={pristine || submitting}

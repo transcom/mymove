@@ -1,19 +1,20 @@
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import styles from './index.module.scss';
 
 export function AlertWithDeleteConfirmation(props) {
   return (
-    <div
-      className={`usa-alert usa-alert-warning usa-width-two-thirds ${styles['delete-alert']} ${
-        styles[`${props.type}`]
-      }`}
-    >
-      <div className={`usa-alert-body ${styles['delete-alert-body']} usa-width-one-whole`}>
+    <div className={`usa-alert usa-alert--warning grid-row ${styles['delete-alert']} ${styles[`${props.type}`]}`}>
+      <div className={`usa-alert__body ${styles['delete-alert-body']} grid-col-8`}>
         <div className={styles['delete-body--heading']}>
-          <div>{props.heading && <h3 className={styles['delete-alert-heading']}>{props.heading}</h3>}</div>
-          <div className="usa-alert-text">{props.message}</div>
+          <div>
+            {props.heading && (
+              <h3 className={classNames('usa-alert__heading', styles['delete-alert-heading'])}>{props.heading}</h3>
+            )}
+          </div>
+          <div className="usa-alert__text">{props.message}</div>
           <div className={styles['delete-or-cancel-buttons']}>
             <button
               type="button"
@@ -23,7 +24,7 @@ export function AlertWithDeleteConfirmation(props) {
             >
               Delete
             </button>
-            <button type="button" className="usa-button-secondary" onClick={props.cancelActionHandler}>
+            <button type="button" className="usa-button usa-button--outline" onClick={props.cancelActionHandler}>
               Cancel
             </button>
           </div>

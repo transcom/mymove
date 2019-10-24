@@ -4,7 +4,11 @@ import classnames from 'classnames';
 
 import './index.css';
 const BigButton = ({ selected, children, onClick, className, isDisabled }) => (
-  <button className={classnames('big-button', className, { selected })} onClick={onClick} disabled={isDisabled}>
+  <button
+    className={classnames('usa-button', 'big-button', className, { selected })}
+    onClick={onClick}
+    disabled={isDisabled}
+  >
     {children}
   </button>
 );

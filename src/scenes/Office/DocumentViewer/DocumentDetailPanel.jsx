@@ -31,10 +31,10 @@ const DocumentDetailDisplay = ({
   return (
     <Fragment>
       <div>
-        <span className="panel-subhead">
+        <h3>
           {renderStatusIcon(moveDocument.status)}
           {moveDocument.title}
-        </span>
+        </h3>
         <p className="uploaded-at">Uploaded {formatDate(get(moveDocument, 'document.uploads.0.created_at'))}</p>
         <PanelSwaggerField title="Document Title" fieldName="title" required {...moveDocFieldProps} />
 

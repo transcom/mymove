@@ -19,6 +19,7 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/entitlements"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
@@ -53,6 +54,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		ServiceItemDeleteServiceItemHandler: service_item.DeleteServiceItemHandlerFunc(func(params service_item.DeleteServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation ServiceItemDeleteServiceItem has not yet been implemented")
+		}),
+		CustomerGetCustomerInfoHandler: customer.GetCustomerInfoHandlerFunc(func(params customer.GetCustomerInfoParams) middleware.Responder {
+			return middleware.NotImplemented("operation CustomerGetCustomerInfo has not yet been implemented")
 		}),
 		EntitlementsGetEntitlementsHandler: entitlements.GetEntitlementsHandlerFunc(func(params entitlements.GetEntitlementsParams) middleware.Responder {
 			return middleware.NotImplemented("operation EntitlementsGetEntitlements has not yet been implemented")
@@ -132,6 +136,8 @@ type MymoveAPI struct {
 	MoveTaskOrderDeleteMoveTaskOrderHandler move_task_order.DeleteMoveTaskOrderHandler
 	// ServiceItemDeleteServiceItemHandler sets the operation handler for the delete service item operation
 	ServiceItemDeleteServiceItemHandler service_item.DeleteServiceItemHandler
+	// CustomerGetCustomerInfoHandler sets the operation handler for the get customer info operation
+	CustomerGetCustomerInfoHandler customer.GetCustomerInfoHandler
 	// EntitlementsGetEntitlementsHandler sets the operation handler for the get entitlements operation
 	EntitlementsGetEntitlementsHandler entitlements.GetEntitlementsHandler
 	// MoveTaskOrderGetMoveTaskOrderHandler sets the operation handler for the get move task order operation
@@ -235,6 +241,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.ServiceItemDeleteServiceItemHandler == nil {
 		unregistered = append(unregistered, "service_item.DeleteServiceItemHandler")
+	}
+
+	if o.CustomerGetCustomerInfoHandler == nil {
+		unregistered = append(unregistered, "customer.GetCustomerInfoHandler")
 	}
 
 	if o.EntitlementsGetEntitlementsHandler == nil {
@@ -406,6 +416,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}"] = service_item.NewDeleteServiceItem(o.context, o.ServiceItemDeleteServiceItemHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/customer/{customerID}"] = customer.NewGetCustomerInfo(o.context, o.CustomerGetCustomerInfoHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

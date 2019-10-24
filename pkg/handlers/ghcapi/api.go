@@ -24,6 +24,8 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 	queryBuilder := query.NewQueryBuilder(context.DB())
 
 	ghcAPI.EntitlementsGetEntitlementsHandler = GetEntitlementsHandler{context}
+	ghcAPI.CustomerGetCustomerInfoHandler = GetCustomerInfoHandler{context}
+
 	ghcAPI.ServiceItemListServiceItemsHandler = ListServiceItemsHandler{
 		context,
 		serviceitem.NewServiceItemListFetcher(queryBuilder),
