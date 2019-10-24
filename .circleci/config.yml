@@ -182,10 +182,10 @@ commands:
     steps:
       - attach_workspace:
           at: /tmp/storybook
+      - checkout
       - deploy:
           name: Push StoryBook build to S3
-          command: |
-            aws s3 cp --recursive /tmp/storybook/* s3://<< parameters.s3_bucket>>/
+          command: scripts/push-storybook-assets "<< parameters.s3_bucket>>"
 
   build_tag_push:
     parameters:

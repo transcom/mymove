@@ -1,0 +1,13 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+if [ "$#" -ne 1 ]; then
+    echo "Illegal number of parameters"
+    echo "Usage: ./push-storybook-assets S3BUCKET"
+    exit 1
+fi
+
+readonly bucket=${1:-}
+
+aws s3 cp --recursive --sse AES256 /tmp/storybook/storybook-static/ s3://"${bucket}"/
