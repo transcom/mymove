@@ -145,6 +145,11 @@ func (h UpdateAdminUserHandler) Handle(params adminuserop.UpdateAdminUserParams)
 		logger.Error(fmt.Sprintf("UUID Parsing for %s", params.AdminUserID.String()), zap.Error(err))
 	}
 
+	// Don't allow Admin Users to deactivate themselves
+	if adminUserID == session.AdminUserID && payload.Deactivated {
+		return adminuserop.NewUpdateAdminUserForbidden()
+	}
+
 	adminUser := models.AdminUser{
 		ID:          adminUserID,
 		LastName:    payload.LastName,
