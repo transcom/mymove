@@ -1,0 +1,1 @@
+ALTER TABLE move_task_orders ADD COLUMN actual_weight integer;
