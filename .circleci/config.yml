@@ -1015,10 +1015,10 @@ workflows:
       - deploy_prod_storybook:
           requires:
             - build_storybook_app
+            - approve_prod_deploy
           filters:
             branches:
               only: master
-              #only: placeholder_branch_name
 
   dependency_updater_go:
     triggers:

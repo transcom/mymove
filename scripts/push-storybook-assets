@@ -1,4 +1,7 @@
 #! /usr/bin/env bash
+#
+# Pushes static build of Story Book to AWS S3 for hosting.
+#
 
 set -eu -o pipefail
 
