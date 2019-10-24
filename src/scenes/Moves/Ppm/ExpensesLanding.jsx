@@ -38,7 +38,7 @@ class ExpensesLanding extends Component {
     const { hasExpenses } = this.state;
     const { history, moveId } = this.props;
     return (
-      <>
+      <div className="grid-container usa-prose site-prose">
         <WizardHeader
           title="Expenses"
           right={
@@ -49,51 +49,57 @@ class ExpensesLanding extends Component {
             </ProgressTimeline>
           }
         />
-        <div className="usa-grid">
-          <DocumentsUploaded moveId={moveId} />
+        <div className="grid-row">
+          <div className="grid-col-12">
+            <DocumentsUploaded moveId={moveId} />
+          </div>
         </div>
 
-        <div className="usa-grid expenses-container">
-          <h3 className="expenses-header">Do you have any storage or moving expenses?</h3>
-          <ul className="expenses-list">
-            <li>
-              <strong>Storage</strong> expenses are <strong>reimbursable</strong>.
-            </li>
-            <li>
-              Claimable <strong>moving expenses</strong> (such as weighing fees, rental equipment, or tolls){' '}
-              <strong>reduce taxes</strong> on your payment.
-            </li>
-          </ul>
-          <Link to="/allowable-expenses">More about expenses</Link>
-          <div className="has-expenses-radio-group">
-            <RadioButton
-              inputClassName="inline_radio"
-              labelClassName="inline_radio"
-              label="Yes"
-              value="Yes"
-              name="hasExpenses"
-              checked={hasExpenses === 'Yes'}
-              onChange={this.handleRadioChange}
-            />
-            <RadioButton
-              inputClassName="inline_radio"
-              labelClassName="inline_radio"
-              label="No"
-              value="No"
-              name="hasExpenses"
-              checked={hasExpenses === 'No'}
-              onChange={this.handleRadioChange}
+        <div className="grid-row expenses-container">
+          <div className="grid-col-12">
+            <h3 className="expenses-header">Do you have any storage or moving expenses?</h3>
+            <ul className="expenses-list">
+              <li>
+                <strong>Storage</strong> expenses are <strong>reimbursable</strong>.
+              </li>
+              <li>
+                Claimable <strong>moving expenses</strong> (such as weighing fees, rental equipment, or tolls){' '}
+                <strong>reduce taxes</strong> on your payment.
+              </li>
+            </ul>
+            <Link to="/allowable-expenses" className="usa-link">
+              More about expenses
+            </Link>
+            <div className="has-expenses-radio-group">
+              <RadioButton
+                inputClassName="usa-radio__input inline_radio"
+                labelClassName="usa-radio__label inline_radio"
+                label="Yes"
+                value="Yes"
+                name="hasExpenses"
+                checked={hasExpenses === 'Yes'}
+                onChange={this.handleRadioChange}
+              />
+              <RadioButton
+                inputClassName="usa-radio__input inline_radio"
+                labelClassName="usa-radio__label inline_radio"
+                label="No"
+                value="No"
+                name="hasExpenses"
+                checked={hasExpenses === 'No'}
+                onChange={this.handleRadioChange}
+              />
+            </div>
+            <PPMPaymentRequestActionBtns
+              cancelHandler={() => {}}
+              nextBtnLabel="Continue"
+              saveAndAddHandler={this.saveAndAddHandler}
+              finishLaterHandler={() => history.push('/')}
+              submitButtonsAreDisabled={!hasExpenses}
             />
           </div>
-          <PPMPaymentRequestActionBtns
-            cancelHandler={() => {}}
-            nextBtnLabel="Continue"
-            saveAndAddHandler={this.saveAndAddHandler}
-            finishLaterHandler={() => history.push('/')}
-            submitButtonsAreDisabled={!hasExpenses}
-          />
         </div>
-      </>
+      </div>
     );
   }
 }

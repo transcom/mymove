@@ -139,40 +139,42 @@ export class PaymentRequest extends Component {
     const canSubmitPayment = !updatingPPM && atLeastOneMoveDoc && this.state.acceptTerms;
 
     return (
-      <div className="usa-grid payment-request">
-        <div className="usa-width-two-thirds">
-          {updateError && (
-            <div className="usa-width-one-whole error-message">
-              <Alert type="error" heading="An error occurred">
-                There was an error requesting payment, please try again.
-              </Alert>
-            </div>
-          )}
-          <h2>Request Payment</h2>
-          <div className="instructions">
-            Please upload all your weight tickets, expenses, and storage fee documents one at a time. For expenses,
-            you’ll need to enter additional details.
-          </div>
-          <DocumentUploader
-            form="payment-docs"
-            genericMoveDocSchema={this.props.genericMoveDocSchema}
-            initialValues={initialValues}
-            isPublic={false}
-            location={location}
-            moveDocSchema={this.props.moveDocSchema}
-            onSubmit={this.handleSubmit}
-          />
-          {this.renderCustomerAgreement(currentPpmStatus, canSubmitPayment)}
-        </div>
-        <div className="usa-width-one-third">
-          <h4 className="doc-list-title">All Documents ({numMoveDocs})</h4>
-          {(moveDocuments || []).map(doc => {
-            return (
-              <div className="panel-field" key={doc.id}>
-                <span>{doc.title}</span>
+      <div className="grid-container usa-prose site-prose">
+        <div className="grid-row grid-gap payment-request">
+          <div className="grid-col-8">
+            {updateError && (
+              <div className="error-message">
+                <Alert type="error" heading="An error occurred">
+                  There was an error requesting payment, please try again.
+                </Alert>
               </div>
-            );
-          })}
+            )}
+            <h2>Request Payment</h2>
+            <div className="instructions">
+              Please upload all your weight tickets, expenses, and storage fee documents one at a time. For expenses,
+              you’ll need to enter additional details.
+            </div>
+            <DocumentUploader
+              form="payment-docs"
+              genericMoveDocSchema={this.props.genericMoveDocSchema}
+              initialValues={initialValues}
+              isPublic={false}
+              location={location}
+              moveDocSchema={this.props.moveDocSchema}
+              onSubmit={this.handleSubmit}
+            />
+            {this.renderCustomerAgreement(currentPpmStatus, canSubmitPayment)}
+          </div>
+          <div className="grid-col-4">
+            <h4 className="doc-list-title">All Documents ({numMoveDocs})</h4>
+            {(moveDocuments || []).map(doc => {
+              return (
+                <div className="panel-field" key={doc.id}>
+                  <span>{doc.title}</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     );

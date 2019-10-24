@@ -1,13 +1,4 @@
-@import 'shared/styles/fonts.scss';
 @import 'shared/styles/colors.scss';
-
-h1,
-h2,
-h3,
-h4,
-h5 {
-  font-family: $font-stack-primary;
-}
 
 .queue-heading {
   margin-top: 0;
@@ -72,6 +63,11 @@ h5 {
   padding: 0 2em;
 }
 
+.header-widescreen {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 87.5rem;
+}
 .move-info-header-meta {
   list-style: none outside;
   border-top: solid 1px rgb(222, 222, 222);
@@ -152,12 +148,10 @@ h5 {
 .extras.usa-heading {
   margin-top: 0;
   font-size: 2rem;
-  font-family: sans-serif;
 }
 
 .extras.content {
   margin-top: 2rem;
-  font-family: sans-serif;
 }
 
 .extras.options {
@@ -256,10 +250,6 @@ head .panel-subhead {
   margin-bottom: 0;
 }
 
-.usa-input.duty-station .duty-input-box {
-  margin-left: 0.1em;
-}
-
 .usa-input.duty-station p.location {
   display: none;
 }
@@ -293,12 +283,16 @@ head .panel-subhead {
 }
 
 .payment-panel-title {
-  font-size: 1.7rem;
   font-weight: bold;
   background-color: #f1f1f1;
-  padding: 0.4em 1em;
+  padding: 0.5em 1em;
   border: 3px solid #f1f1f1;
   width: 100%;
+}
+
+.payment-panel-title h4 {
+  margin-block-start: 0em;
+  margin-block-end: 0em;
 }
 
 .payment-table .payment-table-column-title {

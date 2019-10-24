@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-
+import classNames from 'classnames';
 import * as normalizer from './reduxFieldNormalizer';
 import validator from './validator';
 import { Field } from 'redux-form';
@@ -22,11 +22,21 @@ const parseNumberField = value => {
 
 // ----- Field configuration -----
 const createCheckbox = (fieldName, field, nameAttr, isDisabled) => {
-  return <Field id={fieldName} name={nameAttr} component="input" type="checkbox" disabled={isDisabled} />;
+  return (
+    <Field
+      id={fieldName}
+      name={nameAttr}
+      component="input"
+      type="checkbox"
+      className="usa-checkbox__input"
+      disabled={isDisabled}
+    />
+  );
 };
 
 const configureDropDown = (swaggerField, props) => {
   props.componentNameOverride = 'select';
+  props.inputClassOverride = 'usa-select';
 
   return props;
 };
@@ -168,6 +178,7 @@ const renderInputField = ({
   title,
   always_required,
   componentNameOverride,
+  inputClassOverride,
   customComponent,
   meta: { touched, error, warning },
   children,
@@ -189,6 +200,14 @@ const renderInputField = ({
     console.error('You should not have specified a componentNameOverride as well as a customComponent. For: ', title);
   }
 
+  const displayError = touched && error;
+  const inputClasses = classNames(
+    { 'usa-input--error': displayError },
+    { 'usa-input-error-long-message': error && error.length > 57 },
+    { [`${inputClassOverride}`]: inputClassOverride },
+    { 'usa-input': !inputClassOverride },
+  );
+
   const FieldComponent = React.createElement(
     component,
     {
@@ -196,31 +215,28 @@ const renderInputField = ({
       type: type,
       step: step,
       'aria-describedby': input.name + '-error',
+      className: inputClasses,
       ...inputProps,
     },
     children,
   );
 
-  const displayError = touched && error;
-  const classes = `${
-    displayError ? `usa-input-error  ${error.length > 57 && 'usa-input-error-long-message'}` : 'usa-input'
-  } ${className}`;
+  const classes = classNames('usa-form-group', { 'usa-form-group--error': displayError }, className);
+
   return (
     <div className={classes}>
       {hideLabel || (
-        <label className={displayError ? 'usa-input-error-label' : 'usa-input-label'} htmlFor={input.name}>
+        <label className={classNames('usa-label', { 'usa-label--error': displayError })} htmlFor={input.name}>
           {title}
-          {!always_required && type !== 'boolean' && !customComponent && (
-            <span className="label-optional">Optional</span>
-          )}
+          {!always_required && type !== 'boolean' && !customComponent && <span className="usa-hint"> (optional)</span>}
         </label>
       )}
-      <span className={prefixInputClassName}>{FieldComponent}</span>
       {touched && error && (
-        <span className="usa-input-error-message" id={input.name + '-error'} role="alert">
+        <span className="usa-error-message" id={input.name + '-error'} role="alert">
           {error}
         </span>
       )}
+      <span className={prefixInputClassName}>{FieldComponent}</span>
     </div>
   );
 };
@@ -303,14 +319,14 @@ const createSchemaField = (
   const nameAttr = nameSpace ? `${nameSpace}.${fieldName}` : fieldName;
   if (swaggerField.type === 'boolean' && !component) {
     return (
-      <Fragment key={fieldName}>
+      <div key={fieldName} className="usa-checkbox">
         {createCheckbox(fieldName, swaggerField, nameAttr, disabled)}
         {hideLabel || (
-          <label htmlFor={fieldName} className="usa-input-label">
+          <label htmlFor={fieldName} className="usa-checkbox__label">
             {title || swaggerField.title || fieldName}
           </label>
         )}
-      </Fragment>
+      </div>
     );
   }
 
@@ -342,7 +358,6 @@ const createSchemaField = (
   } else if (swaggerField.enum) {
     fieldProps = configureDropDown(swaggerField, fieldProps);
     children = dropDownChildren(swaggerField, filteredEnumListOverride);
-    className += ' rounded';
   } else if (['integer', 'number'].includes(swaggerField.type)) {
     if (swaggerField.format === 'cents') {
       fieldProps = configureCentsField(swaggerField, fieldProps);
