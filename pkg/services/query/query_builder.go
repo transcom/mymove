@@ -11,6 +11,38 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
+// instanceOfBuilder.FetchOne(model, filters, associations, pagination, ...parameters)
+// instanceOfBuilder.FetchOne(model, id).WithFilters(filtes)
+// query.NewFetchMany(model interface{}).WithFilters(filters).WithPagination(pagination).WithAssociations(associations).Execute()
+
+type FetchMany struct {
+	DB      *pop.Connection
+	Model   interface{}
+	Filters []services.QueryFilter
+}
+
+func NewFetchMany(model interface{}) *FetchMany {
+	return &FetchMany{
+		Model: &model,
+	}
+}
+
+func (f *FetchMany) WithFilters(filters []services.QueryFilter) *FetchMany {
+	f.Filters = filters
+	return f
+}
+
+func (f *FetchMany) Execute() error {
+	query := f.DB.Q()
+	t := reflect.TypeOf(f.Model)
+
+	if len(f.Filters) > 0 {
+		filteredQuery(query, f.Filters, t)
+	}
+
+	return query.All(f.Model)
+}
+
 // allowed comparators for this query builder implementation
 const equals = "="
 const greaterThan = ">"

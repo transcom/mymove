@@ -46,6 +46,14 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 	pagination := h.NewPagination(params.Page, params.PerPage)
 	associations := query.NewQueryAssociations([]services.QueryAssociation{})
 
+	var users models.OfficeUsers
+	fetchMany := query.FetchMany{
+		DB:    h.DB(),
+		Model: &users,
+	}
+
+	fetchMany.WithFilters(queryFilters).Execute()
+
 	officeUsers, err := h.OfficeUserListFetcher.FetchOfficeUserList(queryFilters, associations, pagination)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
