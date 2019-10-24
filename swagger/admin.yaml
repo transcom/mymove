@@ -694,6 +694,12 @@ paths:
         - in: query
           name: perPage
           type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
       responses:
         200:
           description: success
