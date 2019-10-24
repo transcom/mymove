@@ -9,14 +9,14 @@ import (
 // Cents represents a value in hundreths of US dollars (aka cents).
 type Cents int
 
+// Float64 returns the value of self as a float64
+func (c Cents) Float64() float64 {
+	return float64(c)
+}
+
 // Multiply returns the value of self multiplied by multiplier
 func (c Cents) Multiply(i int) Cents {
 	return Cents(i * c.Int())
-}
-
-// MultiplyCWTFloat returns the value of self multiplied by multiplier
-func (c Cents) MultiplyCWTFloat(weight CWTFloat) Cents {
-	return c.MultiplyFloat64(float64(weight))
 }
 
 // MultiplyMiles returns the value of self multiplied by multiplier

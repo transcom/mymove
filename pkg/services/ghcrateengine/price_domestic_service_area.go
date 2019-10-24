@@ -1,17 +1,14 @@
 package ghcrateengine
 
 import (
-	"github.com/pkg/errors"
-	"github.com/transcom/mymove/pkg/models"
-	"time"
 	"fmt"
+	"github.com/pkg/errors"
+	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
 )
-
-
 
 // NewDomesticServiceAreaPricer is the public constructor for a DomesticRateAreaPricer using Pop
 func NewDomesticServiceAreaPricer(db *pop.Connection, logger Logger, contractCode string) services.DomesticServiceAreaPricer {
@@ -30,29 +27,28 @@ type domesticServiceAreaPricer struct {
 	contractCode string
 }
 
-func lookupDomesticServiceAreaPrice(db *pop.Connection, moveDate time.Time, serviceArea string, serviceCode string, contractCode string, isPeakPeriod bool) (rate unit.Cents, err error) {
-	domesticServiceAreaPrice := models.ReDomesticServiceAreaPrice{}
+func lookupDomesticServiceAreaPrice(db *pop.Connection, moveDate time.Time, serviceArea string, serviceCode string, contractCode string, isPeakPeriod bool) (pe centPriceAndEscalation, err error) {
+	pe = centPriceAndEscalation{}
 
 	query := `
-		select price_cents from re_domestic_service_area_prices dsap
+		select price_cents, escalation_compounded from re_domestic_service_area_prices dsap
 		inner join re_domestic_service_areas sa on sa.id = dsap.domestic_service_area_id
 		inner join re_contracts on re_contracts.id = dsap.contract_id
 		inner join re_contract_years on re_contracts.id = re_contract_years.contract_id
-		inner join re_services on re_services.id = dsap.services_id
-		where sa.serviceArea = $1
+		inner join re_services on re_services.id = dsap.service_id
+		where sa.service_area = $1
 		and re_services.code = $2
 		and re_contracts.code = $3
 		and dsap.is_peak_period = $4
-		and $5 between re_contract_year.start_date and re_contract_year.end_date;
+		and $5 between re_contract_years.start_date and re_contract_years.end_date;
 	`
 	err = db.RawQuery(
 		query, serviceArea, serviceCode, contractCode, isPeakPeriod, moveDate).First(
-		&domesticServiceAreaPrice)
+		&pe)
 	if err != nil {
-		return rate, errors.Wrap(err, "Fetch domestic service area price failed")
+		return pe, errors.Wrap(err, "Fetch domestic service area price failed")
 	}
-	rate = domesticServiceAreaPrice.PriceCents
-	return rate, err
+	return pe, err
 
 	//stubbedRate, err := unit.Cents(689), nil
 	//return stubbedRate, err
@@ -74,9 +70,9 @@ func (dsa *domesticServiceAreaPricer) PriceDomesticServiceArea (moveDate time.Ti
 	}
 
 	isPeakPeriod := IsPeakPeriod(moveDate)
-	rate ,err := lookupDomesticServiceAreaPrice(dsa.db, moveDate, serviceArea, serviceCode, dsa.contractCode, isPeakPeriod)
+	priceAndEscalation, err := lookupDomesticServiceAreaPrice(dsa.db, moveDate, serviceArea, serviceCode, dsa.contractCode, isPeakPeriod)
 	if err != nil {
-		return rate, errors.Wrap(err, fmt.Sprintf("Lookup of domestic service %s failed", serviceCode))
+		return cost, errors.Wrap(err, fmt.Sprintf("Lookup of domestic service %s failed", serviceCode))
 	}
 
 	effectiveWeight := weight
@@ -84,7 +80,9 @@ func (dsa *domesticServiceAreaPricer) PriceDomesticServiceArea (moveDate time.Ti
 		effectiveWeight = minDomesticWeight
 	}
 
-	cost = rate.MultiplyCWTFloat(effectiveWeight)
+	baseTotalPrice := priceAndEscalation.PriceCents.Float64() * effectiveWeight.ToCWTFloat64()
+	escalatedTotalPrice := baseTotalPrice * priceAndEscalation.EscalationCompounded
+	totalCost := unit.Cents(escalatedTotalPrice)
 
-	return rate, err
+	return totalCost, err
 }
