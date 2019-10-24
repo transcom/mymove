@@ -3,16 +3,16 @@
 In experimental, staging, and production we run an anti-virus scan using [ClamAV](https://www.clamav.net) to ensure that files uploaded by users
 aren't infected with viruses or malware.
 
-If you want to test this functionality on any of the deployed environments, you will need access to a
-
-The most common way to test AV software is using [EICAR test files](https://en.wikipedia.org/wiki/EICAR_test_file). Unfortunately, these files are plain text and
-as a result are rejected by Milmove for not being one of the allowed content types (JPG, PNG, or PDF).
+If you want to test this functionality on any of the deployed environments, you will need access to a file that will be marked as infected. *Ideally* this can be done without dealing with any live viruses!  The most common
+way to test AV software is using [EICAR test files](https://en.wikipedia.org/wiki/EICAR_test_file), which are text files that begin with a specific string
+and are generally recognized by AV software as being "infected" with a fake virus. Unfortunately, EICAR files are plain text and
+as a result are rejected by the Milmove uploading code for not being one of the allowed content types (JPG, PNG, or PDF).
 
 Instead, we can use one of the test files that is provided by the ClamAV project itself. These test files are generated
-when the project is built and are not installed by the `clamav` formula in homebrew. To access them without needing to build the
-entire ClamAV project we can extract them from a Debian package.
+when the project is built and are not installed by the `clamav` formula in homebrew and exhibit a similar behavior to EICAR
+files when scanned with ClamAV. To access them without needing to build the entire ClamAV project we can extract them from a Debian package.
 
-Please don't check this file into our repository as it is under the GNU license and this project is not.
+**Please don't check this file into our repository as it is under the GNU license and this project is not.**
 
 ```shell script
 $ curl http://http.us.debian.org/debian/pool/main/c/clamav/clamav-testfiles_0.101.4+dfsg-1_all.deb -o clamav-testfiles_0.101.4+dfsg-1_all.deb
