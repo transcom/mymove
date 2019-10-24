@@ -38,18 +38,7 @@ If you are generating a new model first add a new migration file with the suffix
 that will automatically make these for you. Failure to do so may break tools or lead to inefficiencies in the API
 implementations.
 
-For `fizz` you can use this (NOTE: PLEASE USE SQL INSTEAD OF FIZZ):
-
-```text
-create_table("new_table") {
-  t.Column("id", "uuid", {primary: true})
-  t.Column("column1", "string", {"null": true})
-  t.Column("column2", "string", {})
-  t.Timestamps()
-}
-```
-
-The equivalent SQL is:
+When creating the SQL you may write the migration like this:
 
 ```sql
 create table new_table
@@ -61,6 +50,19 @@ create table new_table
     created_at timestamp not null,
     updated_at timestamp not null
 );
+```
+
+**NOTE**: PLEASE USE SQL INSTEAD OF FIZZ
+
+If instead you must use `fizz`, the equivalent code is this (but **please use sql**):
+
+```text
+create_table("new_table") {
+  t.Column("id", "uuid", {primary: true})
+  t.Column("column1", "string", {"null": true})
+  t.Column("column2", "string", {})
+  t.Timestamps()
+}
 ```
 
 Next run `update-migrations-manifest` to update the `migrations_manifest.txt` file.
