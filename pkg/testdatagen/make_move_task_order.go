@@ -48,6 +48,7 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 		SitEntitlement:           200,
 		POVEntitlement:           false,
 		NTSEntitlement:           false,
+		Status:                   models.MoveTaskOrderStatusApproved,
 	}
 
 	// Overwrite values with those from assertions

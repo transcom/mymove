@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+
 	"github.com/go-openapi/loads"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi"
@@ -21,6 +23,10 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 	ghcAPI := ghcops.NewMymoveAPI(ghcSpec)
 
 	ghcAPI.EntitlementsGetEntitlementsHandler = GetEntitlementsHandler{context}
+	ghcAPI.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = UpdateMoveTaskOrderStatusHandlerFunc{
+		context,
+		movetaskorder.NewMoveTaskOrderFetcher(context.DB()),
+	}
 
 	return ghcAPI.Serve(nil)
 }

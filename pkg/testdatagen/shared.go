@@ -44,6 +44,7 @@ type Assertions struct {
 	Reimbursement                            models.Reimbursement
 	SignedCertification                      models.SignedCertification
 	ServiceMember                            models.ServiceMember
+	ServiceItem                              models.ServiceItem
 	Tariff400ngServiceArea                   models.Tariff400ngServiceArea
 	Tariff400ngItem                          models.Tariff400ngItem
 	Tariff400ngItemRate                      models.Tariff400ngItemRate

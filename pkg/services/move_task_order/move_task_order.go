@@ -1,7 +1,8 @@
 package movetaskorder
 
 import (
-	"log"
+	"database/sql"
+	"fmt"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
@@ -9,6 +10,14 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
+
+type ErrNotFound struct {
+	id uuid.UUID
+}
+
+func (e ErrNotFound) Error() string {
+	return fmt.Sprintf("upload id: %s not found", e.id.String())
+}
 
 // claimAccessCode is a service object to validate an access code.
 type fetchMoveTaskOrder struct {
@@ -23,8 +32,12 @@ func NewMoveTaskOrderFetcher(db *pop.Connection) services.MoveTaskOrderFetcher {
 func (f fetchMoveTaskOrder) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error) {
 	mto := &models.MoveTaskOrder{}
 	if err := f.db.Eager().Find(mto, moveTaskOrderID); err != nil {
-		log.Printf("err: %v", err)
-		return &models.MoveTaskOrder{}, err
+		switch err {
+		case sql.ErrNoRows:
+			return &models.MoveTaskOrder{}, ErrNotFound{moveTaskOrderID}
+		default:
+			return &models.MoveTaskOrder{}, err
+		}
 	}
 	return mto, nil
 }

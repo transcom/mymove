@@ -1,42 +1,9 @@
-CREATE TYPE affiliation AS ENUM (
-    'ARMY',
-    'COAST_GUARD',
-    'MARINES',
-    'NAVY'
-);
--- TODO maybe this should be a table with branch and rank together since some ranks aren't
--- TODO possible for some branches?
-CREATE TYPE rank AS ENUM (
-    'E_1',
-    'E_2',
-    'E_3',
-    'E_4',
-    'E_5',
-    'E_6',
-    'E_7',
-    'E_8',
-    'E_9',
-    'O_1_ACADEMY_GRADUATE',
-    'O_2',
-    'O_3',
-    'O_4',
-    'O_5',
-    'O_6',
-    'O_7',
-    'O_8',
-    'O_9',
-    'O_10',
-    'W_1',
-    'W_2',
-    'W_3',
-    'W_4',
-    'W_5',
-    'ACADEMY_CADET',
-    'AVIATION_CADET',
-    'CIVILIAN_EMPLOYEE',
-    'MIDSHIPMAN'
-);
-
+CREATE TYPE move_task_order_status AS ENUM (
+    'APPROVED',
+    'SUBMITTED',
+    'REJECTED',
+    'DRAFT'
+    );
 ALTER TABLE move_task_orders
     -- TODO will there still be a concept of a move
     -- TODO and do some of these belong there?
@@ -50,4 +17,6 @@ ALTER TABLE move_task_orders
     ADD COLUMN weight_entitlement int,
     ADD COLUMN sit_entitlement int,
     ADD COLUMN pov_entitlement bool,
-    ADD COLUMN nts_entitlement bool;
+    ADD COLUMN nts_entitlement bool,
+    ADD COLUMN status move_task_order_status;
+;

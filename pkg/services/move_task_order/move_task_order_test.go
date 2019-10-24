@@ -1,16 +1,13 @@
 package movetaskorder
 
 import (
-	"log"
-
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
-	expectedMTO := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
-	log.Println(expectedMTO)
+	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
+	expectedMTO := serviceItem.MoveTaskOrder
 	mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
-
 	actualMTO, err := mtoFetcher.FetchMoveTaskOrder(expectedMTO.ID)
 
 	suite.NoError(err)
@@ -30,5 +27,9 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 	suite.NotZero(actualMTO.PickupAddress)
 	suite.Equal(expectedMTO.RequestedPickupDates.UTC(), actualMTO.RequestedPickupDates.UTC())
 	suite.Equal(expectedMTO.SitEntitlement, actualMTO.SitEntitlement)
+	suite.Len(actualMTO.ServiceItems, 1)
+	suite.Equal(serviceItem.ID, actualMTO.ServiceItems[0].ID)
+	suite.Equal(expectedMTO.Status, actualMTO.Status)
 	suite.Equal(expectedMTO.WeightEntitlement, actualMTO.WeightEntitlement)
+
 }
