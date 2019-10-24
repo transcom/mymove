@@ -1019,6 +1019,8 @@ workflows:
           filters:
             branches:
               only: master
+              # Uncomment below if pushing a test branch. Also comment out approve_prod_deploy few lines above.
+              #only: placeholder_branch_name
 
   dependency_updater_go:
     triggers:
