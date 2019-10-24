@@ -11,9 +11,6 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// minDomesticWeight is the minimum weight used in domestic calculations (weights below this are upgraded to the min)
-const minDomesticWeight = unit.Pound(500)
-
 // NewDomesticLinehaulPricer is the public constructor for a DomesticLinehaulPricer using Pop
 func NewDomesticLinehaulPricer(db *pop.Connection, logger Logger, contractCode string) services.DomesticLinehaulPricer {
 	return &domesticLinehaulPricer{
