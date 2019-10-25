@@ -16,8 +16,10 @@ import (
 // IndexOfficeUsersURL generates an URL for the index office users operation
 type IndexOfficeUsersURL struct {
 	Filter  []string
+	Order   *bool
 	Page    *int64
 	PerPage *int64
+	Sort    *string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -70,6 +72,14 @@ func (o *IndexOfficeUsersURL) Build() (*url.URL, error) {
 		}
 	}
 
+	var orderQ string
+	if o.Order != nil {
+		orderQ = swag.FormatBool(*o.Order)
+	}
+	if orderQ != "" {
+		qs.Set("order", orderQ)
+	}
+
 	var pageQ string
 	if o.Page != nil {
 		pageQ = swag.FormatInt64(*o.Page)
@@ -84,6 +94,14 @@ func (o *IndexOfficeUsersURL) Build() (*url.URL, error) {
 	}
 	if perPageQ != "" {
 		qs.Set("perPage", perPageQ)
+	}
+
+	var sortQ string
+	if o.Sort != nil {
+		sortQ = *o.Sort
+	}
+	if sortQ != "" {
+		qs.Set("sort", sortQ)
 	}
 
 	_result.RawQuery = qs.Encode()

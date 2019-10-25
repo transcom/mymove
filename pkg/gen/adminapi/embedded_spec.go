@@ -59,6 +59,16 @@ func init() {
             "type": "integer",
             "name": "perPage",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
           }
         ],
         "responses": {
@@ -114,6 +124,16 @@ func init() {
           {
             "type": "integer",
             "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
             "in": "query"
           }
         ],
@@ -209,6 +229,16 @@ func init() {
           {
             "type": "integer",
             "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
             "in": "query"
           }
         ],
@@ -313,6 +343,16 @@ func init() {
           {
             "type": "integer",
             "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
             "in": "query"
           }
         ],
@@ -491,6 +531,16 @@ func init() {
           {
             "type": "integer",
             "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
             "in": "query"
           }
         ],
@@ -916,6 +966,7 @@ func init() {
       "required": [
         "id",
         "issuer",
+        "orders_number",
         "created_at",
         "updated_at"
       ],
@@ -932,6 +983,10 @@ func init() {
         },
         "issuer": {
           "$ref": "#/definitions/Issuer"
+        },
+        "orders_number": {
+          "type": "string",
+          "title": "Orders Number"
         },
         "updated_at": {
           "type": "string",
@@ -1349,6 +1404,16 @@ func init() {
             "type": "integer",
             "name": "perPage",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
           }
         ],
         "responses": {
@@ -1404,6 +1469,16 @@ func init() {
           {
             "type": "integer",
             "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
             "in": "query"
           }
         ],
@@ -1499,6 +1574,16 @@ func init() {
           {
             "type": "integer",
             "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
             "in": "query"
           }
         ],
@@ -1603,6 +1688,16 @@ func init() {
           {
             "type": "integer",
             "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
             "in": "query"
           }
         ],
@@ -1781,6 +1876,16 @@ func init() {
           {
             "type": "integer",
             "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
             "in": "query"
           }
         ],
@@ -2206,6 +2311,7 @@ func init() {
       "required": [
         "id",
         "issuer",
+        "orders_number",
         "created_at",
         "updated_at"
       ],
@@ -2222,6 +2328,10 @@ func init() {
         },
         "issuer": {
           "$ref": "#/definitions/Issuer"
+        },
+        "orders_number": {
+          "type": "string",
+          "title": "Orders Number"
         },
         "updated_at": {
           "type": "string",
