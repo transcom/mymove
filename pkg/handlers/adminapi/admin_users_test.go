@@ -210,7 +210,7 @@ func (suite *HandlerSuite) TestGetAdminUserHandler() {
 func (suite *HandlerSuite) TestCreateAdminUserHandler() {
 	organizationID, _ := uuid.NewV4()
 	adminUserID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
-	adminUser := models.AdminUser{ID: adminUserID, OrganizationID: &organizationID, UserID: nil}
+	adminUser := models.AdminUser{ID: adminUserID, OrganizationID: &organizationID, UserID: nil, Role: models.SystemAdminRole}
 	queryFilter := mocks.QueryFilter{}
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 
