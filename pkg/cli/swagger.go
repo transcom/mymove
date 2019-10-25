@@ -31,7 +31,7 @@ func InitSwaggerFlags(flag *pflag.FlagSet) {
 	flag.String(DPSSwaggerFlag, "swagger/dps.yaml", "The location of the DPS API swagger definition")
 	flag.String(AdminSwaggerFlag, "swagger/admin.yaml", "The location of the admin API swagger definition")
 	flag.String(GHCSwaggerFlag, "swagger/ghc.yaml", "The location of the GHC API swagger definition")
-	flag.Bool(ServeSwaggerUIFlag, true, "Whether to serve swagger UI for the APIs")
+	flag.Bool(ServeSwaggerUIFlag, false, "Whether to serve swagger UI for the APIs")
 }
 
 // CheckSwagger validates Swagger command line flags
