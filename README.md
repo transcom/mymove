@@ -15,6 +15,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
 <!-- toc -->
 
 * [Supported Browsers](#supported-browsers)
+* [Login.gov](#logingov)
 * [Application Setup](#application-setup)
   * [Setup: Developer Setup](#setup-developer-setup)
   * [Setup: Git](#setup-git)
@@ -66,6 +67,13 @@ Regenerate with "scripts/generate-md-toc"
 ## Supported Browsers
 
 As of 3/6/2018, DDS has confirmed that support for IE is limited to IE 11 and Edge or newer versions. Currently, the intention is to encourage using Chrome and Firefox instead, with specific versions TBD. Research is incomplete on mobile browsers, but we are assuming support for iOS and Android. For more information please read [ADR0016 Browser Support](./docs/adr/0016-Browser-Support.md).
+
+## Login.gov
+
+You'll need accounts for login.gov and the login.gov sandbox.  These will require two-factor authentication, so have your second factor (one of: phone, authentication app, security key, CAC) on hand.
+To create an account at login.gov, use your regular `truss.works` email and follow [the official instructions](https://login.gov/help/creating-an-account/how-to-create-an-account/).
+To create an account in the sandbox, follow the same instructions, but [in the sandbox server](https://idp.int.identitysandbox.gov/sign_up/enter_email).  Do _not_ use your regular email address in the sandbox.
+**Tip**: You can use the plus sign `+` to create a new truss email address.  `name+some_string@truss.works` will be treated as a new address, but will be routed to `name@truss.works`.
 
 ## Application Setup
 
