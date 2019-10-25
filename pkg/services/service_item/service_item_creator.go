@@ -17,7 +17,7 @@ type serviceItemCreator struct {
 }
 
 func (o *serviceItemCreator) CreateServiceItem(serviceItem *models.ServiceItem, moveTaskOrderIDFilter []services.QueryFilter) (*models.ServiceItem, *validate.Errors, error) {
-	// Use FetchOne to see if we have a transportation office that matches the provided id
+	// Use FetchOne to see if we have a move task order that matches the provided id
 	var moveTaskOrder models.MoveTaskOrder
 	err := o.builder.FetchOne(&moveTaskOrder, moveTaskOrderIDFilter)
 
