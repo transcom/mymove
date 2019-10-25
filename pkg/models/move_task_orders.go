@@ -3,6 +3,10 @@ package models
 import (
 	"time"
 
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/validators"
+
 	"github.com/gofrs/uuid"
 )
 
@@ -41,3 +45,9 @@ const (
 	MoveTaskOrderStatusRejected  MoveTaskOrderStatus = "REJECTED"
 	MoveTaskOrderStatusDraft     MoveTaskOrderStatus = "DRAFT"
 )
+
+func (m *MoveTaskOrder) Validate(tx *pop.Connection) (*validate.Errors, error) {
+	return validate.Validate(
+		&validators.StringIsPresent{Field: string(m.Status), Name: "Status"},
+	), nil
+}

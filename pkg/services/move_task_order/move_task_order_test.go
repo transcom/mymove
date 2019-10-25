@@ -1,6 +1,9 @@
 package movetaskorder
 
 import (
+	"log"
+
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -32,4 +35,28 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 	suite.Equal(expectedMTO.Status, actualMTO.Status)
 	suite.Equal(expectedMTO.WeightEntitlement, actualMTO.WeightEntitlement)
 
+}
+
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdater() {
+	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
+	originalMTO := serviceItem.MoveTaskOrder
+	// check not equal to what asserting against below
+	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusDraft)
+	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
+	updatedMTO, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, models.MoveTaskOrderStatusDraft)
+
+	suite.NoError(err)
+	suite.Equal(models.MoveTaskOrderStatusDraft, updatedMTO.Status)
+}
+
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterEmptyStatus() {
+	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
+	originalMTO := serviceItem.MoveTaskOrder
+	// check not equal to what asserting against below
+	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusDraft)
+	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
+	_, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, "")
+	log.Println(err)
+
+	suite.Error(err)
 }

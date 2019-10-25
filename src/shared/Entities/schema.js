@@ -111,5 +111,18 @@ export const storageInTransits = new schema.Array(storageInTransit);
 // AccessCodes
 export const accessCode = new schema.Entity('accessCodes');
 
+// Service Items
+export const serviceItems = new schema.Entity('serviceItems');
+
 // Entitlements
 export const entitlements = new schema.Entity('entitlements');
+
+// Move Task Orders
+export const moveTaskOrder = new schema.Entity('moveTaskOrders');
+
+moveTaskOrder.define({
+  customer: serviceMember,
+  service_item: serviceItems,
+  delivery_address: address,
+  partial_sit_delivery_address: address,
+});

@@ -16,15 +16,24 @@ type ErrNotFound struct {
 }
 
 func (e ErrNotFound) Error() string {
-	return fmt.Sprintf("upload id: %s not found", e.id.String())
+	return fmt.Sprintf("move task order id: %s not found", e.id.String())
 }
 
-// claimAccessCode is a service object to validate an access code.
+type ErrInvalidInput struct {
+	id uuid.UUID
+	error
+}
+
+func (e ErrInvalidInput) Error() string {
+	return fmt.Sprintf("invalid input for move task order id: %s. %s", e.id.String(), e.error.Error())
+}
+
+// fetchMoveTaskOrder is a service object to validate an access code.
 type fetchMoveTaskOrder struct {
 	db *pop.Connection
 }
 
-// NewAccessCodeClaimer creates a new struct with the service dependencies
+// NewMoveTaskOrderFetcher creates a new struct with the service dependencies
 func NewMoveTaskOrderFetcher(db *pop.Connection) services.MoveTaskOrderFetcher {
 	return &fetchMoveTaskOrder{db}
 }
@@ -38,6 +47,34 @@ func (f fetchMoveTaskOrder) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*mode
 		default:
 			return &models.MoveTaskOrder{}, err
 		}
+	}
+	return mto, nil
+}
+
+// fetchMoveTaskOrder is a service object to validate an access code.
+type updateMoveTaskOrderStatus struct {
+	db *pop.Connection
+	fetchMoveTaskOrder
+}
+
+// NewMoveTaskOrderFetcher creates a new struct with the service dependencies
+func NewMoveTaskOrderStatusUpdater(db *pop.Connection) services.MoveTaskOrderStatusUpdater {
+	moveTaskOrderFetcher := fetchMoveTaskOrder{db}
+	return &updateMoveTaskOrderStatus{db, moveTaskOrderFetcher}
+}
+
+func (f fetchMoveTaskOrder) UpdateMoveTaskOrderStatus(moveTaskOrderID uuid.UUID, status models.MoveTaskOrderStatus) (*models.MoveTaskOrder, error) {
+	mto, err := f.FetchMoveTaskOrder(moveTaskOrderID)
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
+	mto.Status = status
+	vErrors, err := f.db.ValidateAndUpdate(mto)
+	if vErrors.HasAny() {
+		return &models.MoveTaskOrder{}, ErrInvalidInput{moveTaskOrderID, vErrors}
+	}
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
 	}
 	return mto, nil
 }

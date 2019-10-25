@@ -11,7 +11,7 @@ func MakeServiceItem(db *pop.Connection, assertions Assertions) models.ServiceIt
 
 	// Create new Orders if not provided
 	// ID is required because it must be populated for Eager saving to work.
-	var moveTaskOrder models.MoveTaskOrder
+	moveTaskOrder := assertions.MoveTaskOrder
 	if isZeroUUID(assertions.MoveTaskOrder.ID) {
 		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
 	}

@@ -25,7 +25,7 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 	ghcAPI.EntitlementsGetEntitlementsHandler = GetEntitlementsHandler{context}
 	ghcAPI.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = UpdateMoveTaskOrderStatusHandlerFunc{
 		context,
-		movetaskorder.NewMoveTaskOrderFetcher(context.DB()),
+		movetaskorder.NewMoveTaskOrderStatusUpdater(context.DB()),
 	}
 
 	return ghcAPI.Serve(nil)

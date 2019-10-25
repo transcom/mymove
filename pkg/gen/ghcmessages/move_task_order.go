@@ -34,6 +34,9 @@ type MoveTaskOrder struct {
 	// Format: date
 	DeletedAt strfmt.Date `json:"deletedAt,omitempty"`
 
+	// destination address
+	DestinationAddress *Address `json:"destinationAddress,omitempty"`
+
 	// destination duty station
 	// Format: uuid
 	DestinationDutyStation strfmt.UUID `json:"destinationDutyStation,omitempty"`
@@ -69,6 +72,9 @@ type MoveTaskOrder struct {
 	// Format: uuid
 	OriginPPSO strfmt.UUID `json:"originPPSO,omitempty"`
 
+	// pickup address
+	PickupAddress *Address `json:"pickupAddress,omitempty"`
+
 	// remarks
 	Remarks string `json:"remarks,omitempty"`
 
@@ -97,6 +103,10 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDeletedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDestinationAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -133,6 +143,10 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateOriginPPSO(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePickupAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -179,6 +193,24 @@ func (m *MoveTaskOrder) validateDeletedAt(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("deletedAt", "body", "date", m.DeletedAt.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validateDestinationAddress(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.DestinationAddress) { // not required
+		return nil
+	}
+
+	if m.DestinationAddress != nil {
+		if err := m.DestinationAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationAddress")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -331,6 +363,24 @@ func (m *MoveTaskOrder) validateOriginPPSO(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("originPPSO", "body", "uuid", m.OriginPPSO.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validatePickupAddress(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.PickupAddress) { // not required
+		return nil
+	}
+
+	if m.PickupAddress != nil {
+		if err := m.PickupAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("pickupAddress")
+			}
+			return err
+		}
 	}
 
 	return nil

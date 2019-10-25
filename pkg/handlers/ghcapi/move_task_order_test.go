@@ -2,7 +2,6 @@ package ghcapi
 
 import (
 	"errors"
-	"log"
 	"net/http/httptest"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -34,12 +33,11 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegration() {
 
 	// make the request
 	handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
-		movetaskorder.NewMoveTaskOrderFetcher(suite.DB()),
+		movetaskorder.NewMoveTaskOrderStatusUpdater(suite.DB()),
 	}
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
-	log.Println(response)
 	moveTaskOrdersResponse := response.(*movetaskorderops.UpdateMoveTaskOrderStatusOK)
 	moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
 
@@ -59,10 +57,10 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerNotFoundError() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 
 	// make the request
-	mtoFetcher := &mocks.MoveTaskOrderFetcher{}
-	mtoFetcher.On("FetchMoveTaskOrder", moveTaskOrderID).
+	mtoStatusUpdater := &mocks.MoveTaskOrderStatusUpdater{}
+	mtoStatusUpdater.On("UpdateMoveTaskOrderStatus", moveTaskOrderID, models.MoveTaskOrderStatusDraft).
 		Return(&models.MoveTaskOrder{}, movetaskorder.ErrNotFound{})
-	handler := UpdateMoveTaskOrderStatusHandlerFunc{context, mtoFetcher}
+	handler := UpdateMoveTaskOrderStatusHandlerFunc{context, mtoStatusUpdater}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusNotFound{}, response)
@@ -79,10 +77,10 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerServerError() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 
 	// make the request
-	mtoFetcher := &mocks.MoveTaskOrderFetcher{}
-	mtoFetcher.On("FetchMoveTaskOrder", moveTaskOrderID).
+	mtoStatusUpdater := &mocks.MoveTaskOrderStatusUpdater{}
+	mtoStatusUpdater.On("UpdateMoveTaskOrderStatus", moveTaskOrderID, models.MoveTaskOrderStatusDraft).
 		Return(&models.MoveTaskOrder{}, errors.New("something bad happened"))
-	handler := UpdateMoveTaskOrderStatusHandlerFunc{context, mtoFetcher}
+	handler := UpdateMoveTaskOrderStatusHandlerFunc{context, mtoStatusUpdater}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusInternalServerError{}, response)
