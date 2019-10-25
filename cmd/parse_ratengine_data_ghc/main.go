@@ -208,7 +208,10 @@ func main() {
 	// Don't sort flags
 	flag.SortFlags = false
 
-	flag.Parse(os.Args[1:])
+	err := flag.Parse(os.Args[1:])
+	if err != nil {
+		log.Fatalf("Could not parse flags: %v\n", err)
+	}
 
 	// Process command line params
 
@@ -256,7 +259,10 @@ func main() {
 	// Connect to the database
 	//DB connection
 	v := viper.New()
-	v.BindPFlags(flag)
+	err = v.BindPFlags(flag)
+	if err != nil {
+		log.Fatalf("Could not bind flags: %v\n", err)
+	}
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
@@ -280,7 +286,11 @@ func main() {
 		// A valid connection object that still has an error indicates that the DB is not up and we should not startup
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
-	defer db.Close()
+	defer func() {
+		if closeErr := db.Close(); closeErr != nil {
+			log.Fatalf("Could not close database: %v", closeErr)
+		}
+	}()
 
 	// Must be after processing config param
 	// Run the process function
@@ -291,7 +301,7 @@ func main() {
 				if x.process != nil {
 					dbErr := process(params, i, db)
 					if dbErr != nil {
-						log.Fatalf("Error processing xlsxDataSheets %v\n", dbErr.Error())
+						log.Printf("Error processing xlsxDataSheets %v\n", dbErr.Error())
 						return dbErr
 					}
 				}
@@ -300,17 +310,17 @@ func main() {
 			for _, v := range params.xlsxSheets {
 				index, dbErr := strconv.Atoi(v)
 				if dbErr != nil {
-					log.Fatalf("Bad xlsxSheets index provided %v\n", dbErr)
+					log.Printf("Bad xlsxSheets index provided %v\n", dbErr)
 					return dbErr
 				}
 				if index < len(xlsxDataSheets) {
 					dbErr = process(params, index, db)
 					if dbErr != nil {
-						log.Fatalf("Error processing %v\n", dbErr)
+						log.Printf("Error processing %v\n", dbErr)
 						return dbErr
 					}
 				} else {
-					log.Fatalf("Error processing index %d, not in range of slice xlsxDataSheets\n", index)
+					log.Printf("Error processing index %d, not in range of slice xlsxDataSheets\n", index)
 					return errors.New("Index out of range of slice xlsxDataSheets")
 				}
 			}
@@ -318,7 +328,7 @@ func main() {
 		return nil
 	})
 	if err != nil {
-		log.Fatalf("Tranaction failed:- %v", err)
+		log.Fatalf("Transaction failed:- %v", err)
 	}
 }
 

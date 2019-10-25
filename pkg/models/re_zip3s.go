@@ -12,7 +12,7 @@ import (
 // ReZip3 model struct
 type ReZip3 struct {
 	ID                    uuid.UUID `json:"id" db:"id"`
-	Zip3                  string    `json:"zip_3" db:"zip3"`
+	Zip3                  string    `json:"zip3" db:"zip3"`
 	DomesticServiceAreaID uuid.UUID `json:"domestic_service_area_id" db:"domestic_service_area_id"`
 	CreatedAt             time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt             time.Time `json:"updated_at" db:"updated_at"`

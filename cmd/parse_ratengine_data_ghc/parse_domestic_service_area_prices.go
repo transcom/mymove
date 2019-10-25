@@ -27,7 +27,7 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 	const serviceAreaNameColumn int = 3
 	const serviceScheduleColumn int = 4
 	const sITPickupDeliveryScheduleColumn int = 5
-	const numEscalationYearsToProcess int = sharedNumEscalationYearsToProcess
+	const numEscalationYearsToProcess = sharedNumEscalationYearsToProcess
 
 	if xlsxDataSheetNum != sheetIndex {
 		return fmt.Errorf("parseDomesticServiceAreaPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
@@ -87,8 +87,8 @@ var verifyDomesticServiceAreaPrices verifyXlsxSheet = func(params paramConfig, s
 	const numEscalationYearsToProcess int = 4
 
 	// Check headers
-	const feeRowMilageHeaderIndexStart int = (feeRowIndexStart - 2)
-	const verifyHeaderIndexEnd int = (feeRowMilageHeaderIndexStart + 2)
+	const feeRowMilageHeaderIndexStart = feeRowIndexStart - 2
+	const verifyHeaderIndexEnd = feeRowMilageHeaderIndexStart + 2
 
 	if xlsxDataSheetNum != sheetIndex {
 		return fmt.Errorf("verifyDomesticServiceAreaPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
