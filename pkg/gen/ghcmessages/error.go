@@ -14,7 +14,7 @@ import (
 )
 
 // Error error
-// swagger:model Error
+// swagger:model error
 type Error struct {
 
 	// message

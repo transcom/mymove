@@ -51,37 +51,37 @@ func init() {
           "200": {
             "description": "Successfully retrieved information on an individual customer",
             "schema": {
-              "$ref": "#/definitions/Customer"
+              "$ref": "#/definitions/customer"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -111,37 +111,37 @@ func init() {
           "200": {
             "description": "Successfully retrieved all move task orders",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrders"
+              "$ref": "#/definitions/moveTaskOrders"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -162,37 +162,37 @@ func init() {
           "200": {
             "description": "Successfully retrieved move task order",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/moveTaskOrder"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -211,37 +211,37 @@ func init() {
           "200": {
             "description": "Successfully deleted move task order",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/moveTaskOrder"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -265,7 +265,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/moveTaskOrder"
             }
           }
         ],
@@ -273,37 +273,37 @@ func init() {
           "200": {
             "description": "Successfully retrieved move task order",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/moveTaskOrder"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -333,37 +333,37 @@ func init() {
           "200": {
             "description": "Successfully retrieved move task order",
             "schema": {
-              "$ref": "#/definitions/Entitlements"
+              "$ref": "#/definitions/entitlements"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           }
         }
@@ -393,37 +393,37 @@ func init() {
           "200": {
             "description": "Successfully retrieved all line items for a move task order",
             "schema": {
-              "$ref": "#/definitions/ServiceItem"
+              "$ref": "#/definitions/serviceItem"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -447,7 +447,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ServiceItem"
+              "$ref": "#/definitions/serviceItem"
             }
           }
         ],
@@ -455,37 +455,37 @@ func init() {
           "201": {
             "description": "Successfully created line item for move task order",
             "schema": {
-              "$ref": "#/definitions/ServiceItem"
+              "$ref": "#/definitions/serviceItem"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -515,37 +515,37 @@ func init() {
           "200": {
             "description": "Successfully retrieved a line item for a move task order by ID",
             "schema": {
-              "$ref": "#/definitions/ServiceItem"
+              "$ref": "#/definitions/serviceItem"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -564,37 +564,37 @@ func init() {
           "200": {
             "description": "Successfully deleted move task order",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/moveTaskOrder"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -618,7 +618,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ServiceItem"
+              "$ref": "#/definitions/serviceItem"
             }
           }
         ],
@@ -626,37 +626,37 @@ func init() {
           "200": {
             "description": "Successfully updated move task order status",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/moveTaskOrder"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -698,7 +698,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ServiceItemStatus"
+              "$ref": "#/definitions/serviceItemStatus"
             }
           }
         ],
@@ -706,37 +706,37 @@ func init() {
           "200": {
             "description": "Successfully updated status for a line item for a move task order by ID",
             "schema": {
-              "$ref": "#/definitions/ServiceItem"
+              "$ref": "#/definitions/serviceItem"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -785,7 +785,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrderStatus"
+              "$ref": "#/definitions/moveTaskOrderStatus"
             }
           }
         ],
@@ -793,37 +793,37 @@ func init() {
           "200": {
             "description": "Successfully updated move task order status",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/moveTaskOrder"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -852,31 +852,31 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           }
         }
@@ -900,7 +900,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/CreatePaymentRequestPayload"
+              "$ref": "#/definitions/createPaymentRequestPayload"
             }
           }
         ],
@@ -908,37 +908,37 @@ func init() {
           "201": {
             "description": "created instance of payment request",
             "schema": {
-              "$ref": "#/definitions/PaymentRequest"
+              "$ref": "#/definitions/paymentRequest"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -961,37 +961,37 @@ func init() {
           "200": {
             "description": "fetched instance of payment request",
             "schema": {
-              "$ref": "#/definitions/PaymentRequest"
+              "$ref": "#/definitions/paymentRequest"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -1016,7 +1016,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdatePaymentRequestPayload"
+              "$ref": "#/definitions/updatePaymentRequestPayload"
             }
           }
         ],
@@ -1024,37 +1024,37 @@ func init() {
           "200": {
             "description": "updated payment request",
             "schema": {
-              "$ref": "#/definitions/PaymentRequest"
+              "$ref": "#/definitions/paymentRequest"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -1099,7 +1099,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdatePaymentRequestStatusPayload"
+              "$ref": "#/definitions/updatePaymentRequestStatusPayload"
             }
           }
         ],
@@ -1107,37 +1107,37 @@ func init() {
           "200": {
             "description": "updated payment request",
             "schema": {
-              "$ref": "#/definitions/PaymentRequest"
+              "$ref": "#/definitions/paymentRequest"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -1145,7 +1145,7 @@ func init() {
     }
   },
   "definitions": {
-    "Address": {
+    "address": {
       "type": "object",
       "required": [
         "street_address_1",
@@ -1307,7 +1307,7 @@ func init() {
         }
       }
     },
-    "CreatePaymentRequestPayload": {
+    "createPaymentRequestPayload": {
       "type": "object",
       "properties": {
         "isFinal": {
@@ -1320,7 +1320,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "proofOfServicePackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
+          "$ref": "#/definitions/proofOfServicePackage"
         },
         "serviceItemIDs": {
           "type": "array",
@@ -1332,7 +1332,7 @@ func init() {
         }
       }
     },
-    "Customer": {
+    "customer": {
       "type": "object",
       "properties": {
         "agency": {
@@ -1395,7 +1395,7 @@ func init() {
           "example": "Dover AFB"
         },
         "pickup_address": {
-          "$ref": "#/definitions/Address"
+          "$ref": "#/definitions/address"
         },
         "telephone": {
           "type": "string",
@@ -1407,7 +1407,7 @@ func init() {
         }
       }
     },
-    "Entitlements": {
+    "entitlements": {
       "type": "object",
       "properties": {
         "dependentsAuthorized": {
@@ -1452,7 +1452,7 @@ func init() {
         }
       }
     },
-    "Error": {
+    "error": {
       "type": "object",
       "required": [
         "message"
@@ -1463,7 +1463,10 @@ func init() {
         }
       }
     },
-    "MoveTaskOrder": {
+    "invalidRequest": {
+      "$ref": "#/definitions/error"
+    },
+    "moveTaskOrder": {
       "type": "object",
       "properties": {
         "code": {
@@ -1475,7 +1478,7 @@ func init() {
           "format": "date"
         },
         "customer": {
-          "$ref": "#/definitions/Customer"
+          "$ref": "#/definitions/customer"
         },
         "deletedAt": {
           "type": "string",
@@ -1492,7 +1495,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "entitlements": {
-          "$ref": "#/definitions/Entitlements"
+          "$ref": "#/definitions/entitlements"
         },
         "id": {
           "type": "string",
@@ -1536,7 +1539,7 @@ func init() {
         "serviceItems": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/ServiceItem"
+            "$ref": "#/definitions/serviceItem"
           }
         },
         "status": {
@@ -1553,7 +1556,7 @@ func init() {
         }
       }
     },
-    "MoveTaskOrderStatus": {
+    "moveTaskOrderStatus": {
       "type": "object",
       "properties": {
         "status": {
@@ -1566,17 +1569,20 @@ func init() {
         }
       }
     },
-    "MoveTaskOrders": {
+    "moveTaskOrders": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/MoveTaskOrder"
+        "$ref": "#/definitions/moveTaskOrder"
       }
     },
-    "PaymentRequest": {
+    "notFound": {
+      "$ref": "#/definitions/error"
+    },
+    "paymentRequest": {
       "type": "object",
       "properties": {
         "documentPackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
+          "$ref": "#/definitions/proofOfServicePackage"
         },
         "id": {
           "type": "string",
@@ -1607,11 +1613,11 @@ func init() {
           }
         },
         "status": {
-          "$ref": "#/definitions/PaymentRequestStatus"
+          "$ref": "#/definitions/paymentRequestStatus"
         }
       }
     },
-    "PaymentRequestStatus": {
+    "paymentRequestStatus": {
       "type": "string",
       "title": "Payment Request Status",
       "enum": [
@@ -1620,7 +1626,10 @@ func init() {
         "REJECTED"
       ]
     },
-    "ProofOfServicePackage": {
+    "permissionDenied": {
+      "$ref": "#/definitions/error"
+    },
+    "proofOfServicePackage": {
       "type": "object",
       "properties": {
         "id": {
@@ -1631,12 +1640,15 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Upload"
+            "$ref": "#/definitions/upload"
           }
         }
       }
     },
-    "ServiceItem": {
+    "serverError": {
+      "$ref": "#/definitions/error"
+    },
+    "serviceItem": {
       "type": "object",
       "properties": {
         "MoveTaskOrderID": {
@@ -1705,7 +1717,7 @@ func init() {
         }
       }
     },
-    "ServiceItemStatus": {
+    "serviceItemStatus": {
       "type": "object",
       "properties": {
         "status": {
@@ -1718,11 +1730,11 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestPayload": {
+    "updatePaymentRequestPayload": {
       "type": "object",
       "properties": {
         "proofOfServicePackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
+          "$ref": "#/definitions/proofOfServicePackage"
         },
         "serviceItemIDs": {
           "type": "array",
@@ -1734,7 +1746,7 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestStatusPayload": {
+    "updatePaymentRequestStatusPayload": {
       "type": "object",
       "properties": {
         "rejectionReason": {
@@ -1743,11 +1755,11 @@ func init() {
           "example": "documentation was incomplete"
         },
         "status": {
-          "$ref": "#/definitions/PaymentRequestStatus"
+          "$ref": "#/definitions/paymentRequestStatus"
         }
       }
     },
-    "Upload": {
+    "upload": {
       "type": "object",
       "required": [
         "id",
@@ -1790,32 +1802,6 @@ func init() {
           "format": "uri",
           "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
-      }
-    }
-  },
-  "responses": {
-    "InvalidRequest": {
-      "description": "The request payload is invalid",
-      "schema": {
-        "$ref": "#/definitions/Error"
-      }
-    },
-    "NotFound": {
-      "description": "The requested resource wasn't found",
-      "schema": {
-        "$ref": "#/definitions/Error"
-      }
-    },
-    "PermissionDenied": {
-      "description": "The request was denied",
-      "schema": {
-        "$ref": "#/definitions/Error"
-      }
-    },
-    "ServerError": {
-      "description": "A server error occurred",
-      "schema": {
-        "$ref": "#/definitions/Error"
       }
     }
   }
@@ -1854,52 +1840,37 @@ func init() {
           "200": {
             "description": "Successfully retrieved information on an individual customer",
             "schema": {
-              "$ref": "#/definitions/Customer"
+              "$ref": "#/definitions/customer"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -1929,52 +1900,37 @@ func init() {
           "200": {
             "description": "Successfully retrieved all move task orders",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrders"
+              "$ref": "#/definitions/moveTaskOrders"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -1995,52 +1951,37 @@ func init() {
           "200": {
             "description": "Successfully retrieved move task order",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/moveTaskOrder"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -2059,52 +2000,37 @@ func init() {
           "200": {
             "description": "Successfully deleted move task order",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/moveTaskOrder"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -2128,7 +2054,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/moveTaskOrder"
             }
           }
         ],
@@ -2136,52 +2062,37 @@ func init() {
           "200": {
             "description": "Successfully retrieved move task order",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/moveTaskOrder"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -2211,37 +2122,37 @@ func init() {
           "200": {
             "description": "Successfully retrieved move task order",
             "schema": {
-              "$ref": "#/definitions/Entitlements"
+              "$ref": "#/definitions/entitlements"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           }
         }
@@ -2271,52 +2182,37 @@ func init() {
           "200": {
             "description": "Successfully retrieved all line items for a move task order",
             "schema": {
-              "$ref": "#/definitions/ServiceItem"
+              "$ref": "#/definitions/serviceItem"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -2340,7 +2236,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ServiceItem"
+              "$ref": "#/definitions/serviceItem"
             }
           }
         ],
@@ -2348,52 +2244,37 @@ func init() {
           "201": {
             "description": "Successfully created line item for move task order",
             "schema": {
-              "$ref": "#/definitions/ServiceItem"
+              "$ref": "#/definitions/serviceItem"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -2423,52 +2304,37 @@ func init() {
           "200": {
             "description": "Successfully retrieved a line item for a move task order by ID",
             "schema": {
-              "$ref": "#/definitions/ServiceItem"
+              "$ref": "#/definitions/serviceItem"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -2487,52 +2353,37 @@ func init() {
           "200": {
             "description": "Successfully deleted move task order",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/moveTaskOrder"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -2556,7 +2407,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ServiceItem"
+              "$ref": "#/definitions/serviceItem"
             }
           }
         ],
@@ -2564,52 +2415,37 @@ func init() {
           "200": {
             "description": "Successfully updated move task order status",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/moveTaskOrder"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -2651,7 +2487,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ServiceItemStatus"
+              "$ref": "#/definitions/serviceItemStatus"
             }
           }
         ],
@@ -2659,52 +2495,37 @@ func init() {
           "200": {
             "description": "Successfully updated status for a line item for a move task order by ID",
             "schema": {
-              "$ref": "#/definitions/ServiceItem"
+              "$ref": "#/definitions/serviceItem"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -2753,7 +2574,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrderStatus"
+              "$ref": "#/definitions/moveTaskOrderStatus"
             }
           }
         ],
@@ -2761,52 +2582,37 @@ func init() {
           "200": {
             "description": "Successfully updated move task order status",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/moveTaskOrder"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -2835,31 +2641,31 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           }
         }
@@ -2883,7 +2689,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/CreatePaymentRequestPayload"
+              "$ref": "#/definitions/createPaymentRequestPayload"
             }
           }
         ],
@@ -2891,52 +2697,37 @@ func init() {
           "201": {
             "description": "created instance of payment request",
             "schema": {
-              "$ref": "#/definitions/PaymentRequest"
+              "$ref": "#/definitions/paymentRequest"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -2959,52 +2750,37 @@ func init() {
           "200": {
             "description": "fetched instance of payment request",
             "schema": {
-              "$ref": "#/definitions/PaymentRequest"
+              "$ref": "#/definitions/paymentRequest"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -3029,7 +2805,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdatePaymentRequestPayload"
+              "$ref": "#/definitions/updatePaymentRequestPayload"
             }
           }
         ],
@@ -3037,52 +2813,37 @@ func init() {
           "200": {
             "description": "updated payment request",
             "schema": {
-              "$ref": "#/definitions/PaymentRequest"
+              "$ref": "#/definitions/paymentRequest"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -3127,7 +2888,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdatePaymentRequestStatusPayload"
+              "$ref": "#/definitions/updatePaymentRequestStatusPayload"
             }
           }
         ],
@@ -3135,52 +2896,37 @@ func init() {
           "200": {
             "description": "updated payment request",
             "schema": {
-              "$ref": "#/definitions/PaymentRequest"
+              "$ref": "#/definitions/paymentRequest"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -3188,7 +2934,7 @@ func init() {
     }
   },
   "definitions": {
-    "Address": {
+    "address": {
       "type": "object",
       "required": [
         "street_address_1",
@@ -3350,7 +3096,7 @@ func init() {
         }
       }
     },
-    "CreatePaymentRequestPayload": {
+    "createPaymentRequestPayload": {
       "type": "object",
       "properties": {
         "isFinal": {
@@ -3363,7 +3109,7 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "proofOfServicePackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
+          "$ref": "#/definitions/proofOfServicePackage"
         },
         "serviceItemIDs": {
           "type": "array",
@@ -3375,7 +3121,7 @@ func init() {
         }
       }
     },
-    "Customer": {
+    "customer": {
       "type": "object",
       "properties": {
         "agency": {
@@ -3438,7 +3184,7 @@ func init() {
           "example": "Dover AFB"
         },
         "pickup_address": {
-          "$ref": "#/definitions/Address"
+          "$ref": "#/definitions/address"
         },
         "telephone": {
           "type": "string",
@@ -3450,7 +3196,7 @@ func init() {
         }
       }
     },
-    "Entitlements": {
+    "entitlements": {
       "type": "object",
       "properties": {
         "dependentsAuthorized": {
@@ -3495,7 +3241,7 @@ func init() {
         }
       }
     },
-    "Error": {
+    "error": {
       "type": "object",
       "required": [
         "message"
@@ -3506,7 +3252,10 @@ func init() {
         }
       }
     },
-    "MoveTaskOrder": {
+    "invalidRequest": {
+      "$ref": "#/definitions/error"
+    },
+    "moveTaskOrder": {
       "type": "object",
       "properties": {
         "code": {
@@ -3518,7 +3267,7 @@ func init() {
           "format": "date"
         },
         "customer": {
-          "$ref": "#/definitions/Customer"
+          "$ref": "#/definitions/customer"
         },
         "deletedAt": {
           "type": "string",
@@ -3535,7 +3284,7 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "entitlements": {
-          "$ref": "#/definitions/Entitlements"
+          "$ref": "#/definitions/entitlements"
         },
         "id": {
           "type": "string",
@@ -3579,7 +3328,7 @@ func init() {
         "serviceItems": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/ServiceItem"
+            "$ref": "#/definitions/serviceItem"
           }
         },
         "status": {
@@ -3596,7 +3345,7 @@ func init() {
         }
       }
     },
-    "MoveTaskOrderStatus": {
+    "moveTaskOrderStatus": {
       "type": "object",
       "properties": {
         "status": {
@@ -3609,17 +3358,20 @@ func init() {
         }
       }
     },
-    "MoveTaskOrders": {
+    "moveTaskOrders": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/MoveTaskOrder"
+        "$ref": "#/definitions/moveTaskOrder"
       }
     },
-    "PaymentRequest": {
+    "notFound": {
+      "$ref": "#/definitions/error"
+    },
+    "paymentRequest": {
       "type": "object",
       "properties": {
         "documentPackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
+          "$ref": "#/definitions/proofOfServicePackage"
         },
         "id": {
           "type": "string",
@@ -3650,11 +3402,11 @@ func init() {
           }
         },
         "status": {
-          "$ref": "#/definitions/PaymentRequestStatus"
+          "$ref": "#/definitions/paymentRequestStatus"
         }
       }
     },
-    "PaymentRequestStatus": {
+    "paymentRequestStatus": {
       "type": "string",
       "title": "Payment Request Status",
       "enum": [
@@ -3663,7 +3415,10 @@ func init() {
         "REJECTED"
       ]
     },
-    "ProofOfServicePackage": {
+    "permissionDenied": {
+      "$ref": "#/definitions/error"
+    },
+    "proofOfServicePackage": {
       "type": "object",
       "properties": {
         "id": {
@@ -3674,12 +3429,15 @@ func init() {
         "uploads": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Upload"
+            "$ref": "#/definitions/upload"
           }
         }
       }
     },
-    "ServiceItem": {
+    "serverError": {
+      "$ref": "#/definitions/error"
+    },
+    "serviceItem": {
       "type": "object",
       "properties": {
         "MoveTaskOrderID": {
@@ -3748,7 +3506,7 @@ func init() {
         }
       }
     },
-    "ServiceItemStatus": {
+    "serviceItemStatus": {
       "type": "object",
       "properties": {
         "status": {
@@ -3761,11 +3519,11 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestPayload": {
+    "updatePaymentRequestPayload": {
       "type": "object",
       "properties": {
         "proofOfServicePackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
+          "$ref": "#/definitions/proofOfServicePackage"
         },
         "serviceItemIDs": {
           "type": "array",
@@ -3777,7 +3535,7 @@ func init() {
         }
       }
     },
-    "UpdatePaymentRequestStatusPayload": {
+    "updatePaymentRequestStatusPayload": {
       "type": "object",
       "properties": {
         "rejectionReason": {
@@ -3786,11 +3544,11 @@ func init() {
           "example": "documentation was incomplete"
         },
         "status": {
-          "$ref": "#/definitions/PaymentRequestStatus"
+          "$ref": "#/definitions/paymentRequestStatus"
         }
       }
     },
-    "Upload": {
+    "upload": {
       "type": "object",
       "required": [
         "id",
@@ -3833,32 +3591,6 @@ func init() {
           "format": "uri",
           "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
-      }
-    }
-  },
-  "responses": {
-    "InvalidRequest": {
-      "description": "The request payload is invalid",
-      "schema": {
-        "$ref": "#/definitions/Error"
-      }
-    },
-    "NotFound": {
-      "description": "The requested resource wasn't found",
-      "schema": {
-        "$ref": "#/definitions/Error"
-      }
-    },
-    "PermissionDenied": {
-      "description": "The request was denied",
-      "schema": {
-        "$ref": "#/definitions/Error"
-      }
-    },
-    "ServerError": {
-      "description": "A server error occurred",
-      "schema": {
-        "$ref": "#/definitions/Error"
       }
     }
   }
