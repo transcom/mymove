@@ -56,8 +56,9 @@ definitions:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-      transportation_office:
-        $ref: '#/definitions/TransportationOffice'
+      transportation_office_id:
+        type: string
+        format: uuid
       deactivated:
         type: boolean
       created_at:
@@ -73,6 +74,7 @@ definitions:
       - last_name
       - email
       - telephone
+      - transportation_office_id
       - deactivated
       - created_at
       - updated_at
@@ -950,9 +952,7 @@ paths:
       parameters:
         - in: query
           name: filter
-          type: array
-          items:
-            type: string
+          type: string
         - in: query
           name: page
           type: integer

@@ -559,10 +559,7 @@ func init() {
         "operationId": "indexOffices",
         "parameters": [
           {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
+            "type": "string",
             "name": "filter",
             "in": "query"
           },
@@ -1152,6 +1149,7 @@ func init() {
         "last_name",
         "email",
         "telephone",
+        "transportation_office_id",
         "deactivated",
         "created_at",
         "updated_at"
@@ -1188,8 +1186,9 @@ func init() {
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         },
-        "transportation_office": {
-          "$ref": "#/definitions/TransportationOffice"
+        "transportation_office_id": {
+          "type": "string",
+          "format": "uuid"
         },
         "updated_at": {
           "type": "string",
@@ -2093,10 +2092,7 @@ func init() {
         "operationId": "indexOffices",
         "parameters": [
           {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
+            "type": "string",
             "name": "filter",
             "in": "query"
           },
@@ -2687,6 +2683,7 @@ func init() {
         "last_name",
         "email",
         "telephone",
+        "transportation_office_id",
         "deactivated",
         "created_at",
         "updated_at"
@@ -2723,8 +2720,9 @@ func init() {
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         },
-        "transportation_office": {
-          "$ref": "#/definitions/TransportationOffice"
+        "transportation_office_id": {
+          "type": "string",
+          "format": "uuid"
         },
         "updated_at": {
           "type": "string",
