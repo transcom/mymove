@@ -12,8 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/pagination"
-	"github.com/transcom/mymove/pkg/services/query"
 )
 
 func payloadForServiceItemModel(s models.ServiceItem) *ghcmessages.ServiceItem {
@@ -30,17 +28,8 @@ type ListServiceItemsHandler struct {
 
 func (h ListServiceItemsHandler) Handle(params serviceitemop.ListServiceItemsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	id, err := uuid.FromString(params.MoveTaskOrderID)
 
-	if err != nil {
-		logger.Error(fmt.Sprintf("UUID Parsing for %s", params.MoveTaskOrderID), zap.Error(err))
-	}
-
-	queryFilters := []services.QueryFilter{h.NewQueryFilter("move_task_order_id", "=", id)}
-	pagination := pagination.NewPagination(nil, nil)
-	associations := query.NewQueryAssociations([]services.QueryAssociation{})
-
-	serviceItems, err := h.ServiceItemListFetcher.FetchServiceItemList(queryFilters, associations, pagination)
+	serviceItems, err := h.ServiceItemListFetcher.FetchServiceItemList(params)
 
 	if err != nil {
 		logger.Error("Unable to fetch records:", zap.Error(err))

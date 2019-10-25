@@ -9,7 +9,7 @@ import (
 // ServiceItemListFetcher is the exported interface for fetching multiple transportation offices
 //go:generate mockery -name ServiceItemListFetcher
 type ServiceItemListFetcher interface {
-	FetchServiceItemList(filters []QueryFilter, associations QueryAssociations, pagination Pagination) (models.ServiceItems, error)
+	FetchServiceItemList(params interface{}) (models.ServiceItems, error)
 }
 
 // ServiceItemCreator is the exported interface for fetching multiple transportation offices
