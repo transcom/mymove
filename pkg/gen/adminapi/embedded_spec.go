@@ -612,6 +612,16 @@ func init() {
             "type": "integer",
             "name": "perPage",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
           }
         ],
         "responses": {
@@ -2209,6 +2219,16 @@ func init() {
           {
             "type": "integer",
             "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
             "in": "query"
           }
         ],
