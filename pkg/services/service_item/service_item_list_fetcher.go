@@ -3,7 +3,6 @@ package serviceitem
 import (
 	"github.com/gofrs/uuid"
 
-	serviceitemop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/service_item"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/pagination"
@@ -18,17 +17,11 @@ type serviceItemListFetcher struct {
 	builder serviceItemListQueryBuilder
 }
 
-func (f *serviceItemListFetcher) FetchServiceItemList(params interface{}) (models.ServiceItems, error) {
-	parameters := params.(serviceitemop.ListServiceItemsParams)
-	id, err := uuid.FromString(parameters.MoveTaskOrderID)
-
-	if err != nil {
-		return nil, err
-	}
+func (f *serviceItemListFetcher) FetchServiceItemList(moveTaskOrderID uuid.UUID) (models.ServiceItems, error) {
 
 	pagination := pagination.NewPagination(nil, nil)
 	associations := query.NewQueryAssociations([]services.QueryAssociation{})
-	filters := []services.QueryFilter{query.NewQueryFilter("move_task_order_id", "=", id)}
+	filters := []services.QueryFilter{query.NewQueryFilter("move_task_order_id", "=", moveTaskOrderID)}
 	var serviceItems models.ServiceItems
 	error := f.builder.FetchMany(&serviceItems, filters, associations, pagination)
 	return serviceItems, error

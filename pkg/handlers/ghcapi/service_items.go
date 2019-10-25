@@ -28,8 +28,13 @@ type ListServiceItemsHandler struct {
 
 func (h ListServiceItemsHandler) Handle(params serviceitemop.ListServiceItemsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
+	id, err := uuid.FromString(params.MoveTaskOrderID)
 
-	serviceItems, err := h.ServiceItemListFetcher.FetchServiceItemList(params)
+	if err != nil {
+		logger.Error(fmt.Sprintf("UUID Parsing for %s", params.MoveTaskOrderID), zap.Error(err))
+	}
+
+	serviceItems, err := h.ServiceItemListFetcher.FetchServiceItemList(id)
 
 	if err != nil {
 		logger.Error("Unable to fetch records:", zap.Error(err))

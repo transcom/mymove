@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -9,7 +10,7 @@ import (
 // ServiceItemListFetcher is the exported interface for fetching multiple transportation offices
 //go:generate mockery -name ServiceItemListFetcher
 type ServiceItemListFetcher interface {
-	FetchServiceItemList(params interface{}) (models.ServiceItems, error)
+	FetchServiceItemList(moveTaskOrderID uuid.UUID) (models.ServiceItems, error)
 }
 
 // ServiceItemCreator is the exported interface for fetching multiple transportation offices
