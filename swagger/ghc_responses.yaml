@@ -1,0 +1,13 @@
+responses:
+  InvalidRequest:
+    description: The request payload is invalid
+    $ref: './ghc_definitions.yaml#/definitions/Error'
+  NotFound:
+    description: The requested resource wasn't found
+    $ref: './ghc_definitions.yaml#/definitions/Error'
+  PermissionDenied:
+    description: The request was denied
+    $ref: './ghc_definitions.yaml#/definitions/Error'
+  ServerError:
+    description: A server error occurred
+    $ref: './ghc_definitions.yaml#/definitions/Error'

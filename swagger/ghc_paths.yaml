@@ -1,0 +1,765 @@
+swagger: '2.0'
+info:
+  contact:
+    email: dp3@truss.works
+  description: The API for move.mil
+  license:
+    name: MIT
+    url: 'https://opensource.org/licenses/MIT'
+  title: move.mil API
+  version: 0.0.1
+basePath: /ghc/v1
+schemes:
+  - http
+paths:
+  '/customer/{customerID}':
+    parameters:
+      - description: ID of customer to use
+        in: path
+        name: customerID
+        required: true
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved information on an individual customer
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/Customer'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: './ghc_responses.yaml#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: './ghc_responses.yaml#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: './ghc_responses.yaml#/responses/ServerError'
+      tags:
+        - Customer
+      description: Returns a given customer
+      operationId: getCustomerInfo
+      summary: Returns a given customer
+  /move-task-orders:
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved all move task orders
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/MoveTaskOrders'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: './ghc_responses.yaml#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: './ghc_responses.yaml#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: './ghc_responses.yaml#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+      description: Gets all move orders
+      operationId: listMoveTaskOrders
+      summary: Gets all move orders
+  '/move-task-orders/{moveTaskOrderID}':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    delete:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully deleted move task order
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/MoveTaskOrder'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: './ghc_responses.yaml#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: './ghc_responses.yaml#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: './ghc_responses.yaml#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+      description: Deletes a move order by ID
+      operationId: deleteMoveTaskOrder
+      summary: Deletes a move order by ID
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved move task order
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/MoveTaskOrder'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: './ghc_responses.yaml#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: './ghc_responses.yaml#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: './ghc_responses.yaml#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+      description: Gets a move order
+      operationId: getMoveTaskOrder
+      summary: Gets a move order by ID
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/MoveTaskOrder'
+      responses:
+        '200':
+          description: Successfully retrieved move task order
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/MoveTaskOrder'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: './ghc_responses.yaml#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: './ghc_responses.yaml#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: './ghc_responses.yaml#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+      description: Updates a move order by ID
+      operationId: updateMoveTaskOrder
+      summary: Updates a move order by ID
+  '/move-task-orders/{moveTaskOrderID}/service-items':
+    parameters:
+      - description: ID of move order for service item to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved all line items for a move task order
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/ServiceItem'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: './ghc_responses.yaml#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: './ghc_responses.yaml#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: './ghc_responses.yaml#/responses/ServerError'
+      tags:
+        - serviceItem
+      description: Gets all line items for a move orders
+      operationId: listServiceItems
+      summary: Gets all line items for a move order
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/ServiceItem'
+      responses:
+        '201':
+          description: Successfully created line item for move task order
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/ServiceItem'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: './ghc_responses.yaml#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: './ghc_responses.yaml#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: './ghc_responses.yaml#/responses/ServerError'
+      tags:
+        - serviceItem
+      description: Creates a service item for a move order by id
+      operationId: createServiceItem
+      summary: Creates a service item for a move order by id
+  '/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+      - description: ID of line item to use
+        in: path
+        name: serviceItemID
+        required: true
+        type: string
+    delete:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully deleted move task order
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/MoveTaskOrder'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: './ghc_responses.yaml#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: './ghc_responses.yaml#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: './ghc_responses.yaml#/responses/ServerError'
+      tags:
+        - serviceItem
+      description: Deletes a line item by ID for a move order by ID
+      operationId: deleteServiceItem
+      summary: Deletes a line item by ID for a move order by ID
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved a line item for a move task order by ID
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/ServiceItem'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: './ghc_responses.yaml#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: './ghc_responses.yaml#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: './ghc_responses.yaml#/responses/ServerError'
+      tags:
+        - serviceItem
+      description: Gets a line item by ID for a move order by ID
+      operationId: getServiceItem
+      summary: Gets a line item by ID for a move order by ID
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/ServiceItem'
+      responses:
+        '200':
+          description: Successfully updated move task order status
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/MoveTaskOrder'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: './ghc_responses.yaml#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: './ghc_responses.yaml#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: './ghc_responses.yaml#/responses/ServerError'
+      tags:
+        - serviceItem
+      description: Updates a service item by ID for a move order by ID
+      operationId: updateServiceItem
+      summary: Updates a service item by ID for a move order by ID
+  '/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}/status':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+      - description: ID of line item to use
+        in: path
+        name: serviceItemID
+        required: true
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/ServiceItemStatus'
+      responses:
+        '200':
+          description: >-
+            Successfully updated status for a line item for a move task order by
+            ID
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/ServiceItem'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: './ghc_responses.yaml#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: './ghc_responses.yaml#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: './ghc_responses.yaml#/responses/ServerError'
+      tags:
+        - serviceItem
+      description: Changes the status of a line item for a move order by ID
+      operationId: updateServiceItemStatus
+      summary: Change the status of a line item for a move order by ID
+  '/move-task-orders/{moveTaskOrderID}/status':
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - description: ID of move order to use
+          in: path
+          name: moveTaskOrderID
+          required: true
+          type: string
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/MoveTaskOrderStatus'
+      responses:
+        '200':
+          description: Successfully updated move task order status
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/MoveTaskOrder'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: './ghc_responses.yaml#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: './ghc_responses.yaml#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: './ghc_responses.yaml#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+      description: Changes move order status
+      operationId: updateMoveTaskOrderStatus
+      summary: Change the status of a move order
+  '/move-task-orders/{moveTaskOrderID}/entitlements':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      tags:
+        - Entitlements
+      responses:
+        '200':
+          description: Successfully retrieved move task order
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/Entitlements'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/Error'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/Error'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/Error'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/Error'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/Error'
+      description: Gets entitlements
+      operationId: getEntitlements
+      summary: Gets entitlements for a move order by ID
+  /payment-requests:
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: fetched list of payment requests
+          schema:
+            type: object
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/Error'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/Error'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/Error'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/Error'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/Error'
+      tags:
+        - paymentRequests
+        - prime
+        - gov
+      description: Gets a list of payment requests
+      operationId: listPaymentRequests
+      summary: Gets payment requests
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/CreatePaymentRequestPayload'
+      responses:
+        '201':
+          description: created instance of payment request
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/PaymentRequest'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: './ghc_responses.yaml#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: './ghc_responses.yaml#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: './ghc_responses.yaml#/responses/ServerError'
+      tags:
+        - paymentRequests
+        - prime
+      description: Creates a payment request
+      operationId: createPaymentRequest
+      summary: Creates a payment request
+  '/payment-requests/{paymentRequestID}':
+    parameters:
+      - description: UUID of payment request
+        format: uuid
+        in: path
+        name: paymentRequestID
+        required: true
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: fetched instance of payment request
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/PaymentRequest'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: './ghc_responses.yaml#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: './ghc_responses.yaml#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: './ghc_responses.yaml#/responses/ServerError'
+      tags:
+        - paymentRequests
+        - prime
+        - gov
+      description: Fetches an instance of a payment request by id
+      operationId: getPaymentRequest
+      summary: Fetches a payment request by id
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/UpdatePaymentRequestPayload'
+      responses:
+        '200':
+          description: updated payment request
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/PaymentRequest'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: './ghc_responses.yaml#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: './ghc_responses.yaml#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: './ghc_responses.yaml#/responses/ServerError'
+      tags:
+        - paymentRequests
+        - prime
+      description: Updates a payment request by id
+      operationId: updatePaymentRequest
+      summary: Updates a payment request by id
+  '/payment-requests/{paymentRequestID}/status':
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - description: UUID of payment request
+          format: uuid
+          in: path
+          name: paymentRequestID
+          required: true
+          type: string
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/UpdatePaymentRequestStatusPayload'
+      responses:
+        '200':
+          description: updated payment request
+          schema:
+            $ref: './ghc_definitions.yaml#/definitions/PaymentRequest'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: './ghc_responses.yaml#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: './ghc_responses.yaml#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: './ghc_responses.yaml#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: './ghc_responses.yaml#/responses/ServerError'
+      tags:
+        - paymentRequests
+        - gov
+      description: Updates status of a payment request by id
+      operationId: updatePaymentRequestStatus
+      summary: Updates status of a payment request by id
