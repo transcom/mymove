@@ -1,7 +1,0 @@
-Error:
-  properties:
-    message:
-      type: string
-  required:
-    - message
-  type: object
