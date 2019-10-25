@@ -1,5 +1,5 @@
 import React from 'react';
-import { Show, SimpleShowLayout, TextField, BooleanField, DateField } from 'react-admin';
+import { Show, SimpleShowLayout, TextField, BooleanField, DateField, ReferenceField } from 'react-admin';
 
 const OfficeUserShowTitle = ({ record }) => {
   return <span>{`${record.first_name} ${record.last_name}`}</span>;
@@ -16,6 +16,9 @@ const OfficeUserShow = props => {
         <TextField source="last_name" />
         <TextField source="telephone" />
         <BooleanField source="deactivated" />
+        <ReferenceField label="Transportation Office" source="transportation_office_id" reference="offices">
+          <TextField source="name" />
+        </ReferenceField>
         <DateField source="created_at" showTime />
         <DateField source="updated_at" showTime />
       </SimpleShowLayout>

@@ -55,21 +55,12 @@ func (o *IndexOfficesURL) Build() (*url.URL, error) {
 
 	qs := make(url.Values)
 
-	var filterIR []string
-	for _, filterI := range o.Filter {
-		filterIS := filterI
-		if filterIS != "" {
-			filterIR = append(filterIR, filterIS)
-		}
+	var filterQ string
+	if o.Filter != nil {
+		filterQ = *o.Filter
 	}
-
-	filter := swag.JoinByFormat(filterIR, "")
-
-	if len(filter) > 0 {
-		qsv := filter[0]
-		if qsv != "" {
-			qs.Set("filter", qsv)
-		}
+	if filterQ != "" {
+		qs.Set("filter", filterQ)
 	}
 
 	var orderQ string

@@ -39,7 +39,11 @@ type Assertions struct {
 	WeightTicketSetDocument                  models.WeightTicketSetDocument
 	OfficeUser                               models.OfficeUser
 	Order                                    models.Order
+	Organization                             models.Organization
 	PersonallyProcuredMove                   models.PersonallyProcuredMove
+	ReContract                               models.ReContract
+	ReContractYear                           models.ReContractYear
+	ReDomesticServiceArea                    models.ReDomesticServiceArea
 	Reimbursement                            models.Reimbursement
 	SignedCertification                      models.SignedCertification
 	ServiceMember                            models.ServiceMember

@@ -17,6 +17,7 @@ function PrivacyPolicy() {
             href="https://www.access-board.gov/the-board/laws/rehabilitation-act-of-1973#508%20"
             target="_blank"
             rel="noopener noreferrer"
+            className="usa-link"
           >
             Section 508 of the Rehabilitation Act (29 U.S.C. 794d)
           </a>
@@ -29,6 +30,7 @@ function PrivacyPolicy() {
             href="http://dodcio.defense.gov/DoDSection508/Section508Form.aspx"
             target="_blank"
             rel="noopener noreferrer"
+            className="usa-link"
           >
             DoD Section 508 Form
           </a>
@@ -37,7 +39,12 @@ function PrivacyPolicy() {
         </p>
         <p>
           For more information about Section 508, please visit the{' '}
-          <a href="http://dodcio.defense.gov/DoDSection508.aspx" target="_blank" rel="noopener noreferrer">
+          <a
+            href="http://dodcio.defense.gov/DoDSection508.aspx"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="usa-link"
+          >
             {' '}
             DoD Section 508 website.
           </a>

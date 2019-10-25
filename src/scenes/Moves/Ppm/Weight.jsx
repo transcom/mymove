@@ -117,7 +117,7 @@ export class PpmWeight extends Component {
       selectedWeightInfo,
     } = this.props;
     return (
-      <div>
+      <div className="grid-container usa-prose site-prose">
         <WeightWizardForm
           handleSubmit={this.handleSubmit}
           pageList={pages}
@@ -129,77 +129,88 @@ export class PpmWeight extends Component {
           }}
         >
           {error && (
-            <div className="usa-width-one-whole error-message">
-              <Alert type="error" heading="An error occurred">
-                {error.message}
-              </Alert>
+            <div className="grid-row">
+              <div className="grid-col-12">
+                <Alert type="error" heading="An error occurred">
+                  {error.message}
+                </Alert>
+              </div>
             </div>
           )}
-          <h2>Customize Weight</h2>
-          {!hasLoadSuccess && <LoadingPlaceholder />}
-          {hasLoadSuccess && (
-            <Fragment>
-              <p>Use this slider to customize how much weight you think you’ll carry.</p>
-              <div className="slider-container">
-                <Slider
-                  min={selectedWeightInfo.min}
-                  max={selectedWeightInfo.max}
-                  value={this.state.pendingPpmWeight}
-                  onChange={this.onWeightSelecting}
-                  onChangeComplete={this.onWeightSelected}
-                  labels={{
-                    [selectedWeightInfo.min]: `${selectedWeightInfo.min} lbs`,
-                    [selectedWeightInfo.max]: `${selectedWeightInfo.max} lbs`,
-                  }}
-                />
-              </div>
-              {hasEstimateError && (
+          <div className="grid-row">
+            <div className="grid-col-12">
+              <h1>Customize Weight</h1>
+              {!hasLoadSuccess && <LoadingPlaceholder />}
+              {hasLoadSuccess && (
                 <Fragment>
-                  <div className="usa-width-one-whole error-message">
-                    <Alert type="warning" heading="Could not retrieve estimate">
-                      There was an issue retrieving an estimate for your incentive. You still qualify, but need to talk
-                      with your local transportation office which you can look up on <a href="move.mil">move.mil</a>
-                    </Alert>
+                  <p>Use this slider to customize how much weight you think you’ll carry.</p>
+                  <div className="slider-container">
+                    <Slider
+                      min={selectedWeightInfo.min}
+                      max={selectedWeightInfo.max}
+                      value={this.state.pendingPpmWeight}
+                      onChange={this.onWeightSelecting}
+                      onChangeComplete={this.onWeightSelected}
+                      labels={{
+                        [selectedWeightInfo.min]: `${selectedWeightInfo.min} lbs`,
+                        [selectedWeightInfo.max]: `${selectedWeightInfo.max} lbs`,
+                      }}
+                    />
+                  </div>
+                  {hasEstimateError && (
+                    <Fragment>
+                      <div className="error-message">
+                        <Alert type="warning" heading="Could not retrieve estimate">
+                          There was an issue retrieving an estimate for your incentive. You still qualify, but need to
+                          talk with your local transportation office which you can look up on{' '}
+                          <a href="move.mil" className="usa-link">
+                            move.mil
+                          </a>
+                        </Alert>
+                      </div>
+                    </Fragment>
+                  )}
+                  <table className="numeric-info">
+                    <tbody>
+                      <tr>
+                        <th>Your PPM Weight Estimate:</th>
+                        <td className="current-weight"> {formatNumber(this.state.pendingPpmWeight)} lbs.</td>
+                      </tr>
+                      <tr>
+                        <th>Your PPM Incentive:</th>
+                        {hasEstimateError ? (
+                          <td className="incentive">
+                            Not ready yet{' '}
+                            <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
+                          </td>
+                        ) : (
+                          <td className="incentive">
+                            {formatCentsRange(incentive_estimate_min, incentive_estimate_max)}
+                          </td>
+                        )}
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <div className="info">
+                    <h3> How is my PPM Incentive calculated?</h3>
+                    <p>
+                      The government gives you 95% of what they would pay a mover when you move your own belongings,
+                      based on weight and distance. You pay taxes on this income. You can reduce the amount taxable
+                      incentive by saving receipts for approved expenses.
+                    </p>
+
+                    <p>
+                      This estimator just presents a range of possible incentives based on your anticipated shipment
+                      weight, anticipated moving date, and the specific route that you will be traveling. During your
+                      move, you will need to weigh the stuff you’re carrying, and submit weight tickets. We’ll let you
+                      know later how to weigh the stuff you carry.
+                    </p>
                   </div>
                 </Fragment>
               )}
-              <table className="numeric-info">
-                <tbody>
-                  <tr>
-                    <th>Your PPM Weight Estimate:</th>
-                    <td className="current-weight"> {formatNumber(this.state.pendingPpmWeight)} lbs.</td>
-                  </tr>
-                  <tr>
-                    <th>Your PPM Incentive:</th>
-                    {hasEstimateError ? (
-                      <td className="incentive">
-                        Not ready yet{' '}
-                        <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
-                      </td>
-                    ) : (
-                      <td className="incentive">{formatCentsRange(incentive_estimate_min, incentive_estimate_max)}</td>
-                    )}
-                  </tr>
-                </tbody>
-              </table>
-
-              <div className="info">
-                <h3> How is my PPM Incentive calculated?</h3>
-                <p>
-                  The government gives you 95% of what they would pay a mover when you move your own belongings, based
-                  on weight and distance. You pay taxes on this income. You can reduce the amount taxable incentive by
-                  saving receipts for approved expenses.
-                </p>
-
-                <p>
-                  This estimator just presents a range of possible incentives based on your anticipated shipment weight,
-                  anticipated moving date, and the specific route that you will be traveling. During your move, you will
-                  need to weigh the stuff you’re carrying, and submit weight tickets. We’ll let you know later how to
-                  weigh the stuff you carry.
-                </p>
-              </div>
-            </Fragment>
-          )}
+            </div>
+          </div>
         </WeightWizardForm>
       </div>
     );

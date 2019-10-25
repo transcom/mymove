@@ -1,6 +1,8 @@
 package adminapi
 
 import (
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/services/upload"
 
 	"github.com/go-openapi/strfmt"
@@ -25,9 +27,16 @@ func payloadForUpload(u services.UploadInformation) *adminmessages.UploadInforma
 			Filename:    u.Filename,
 			Size:        u.Bytes,
 		},
-		OfficeUserEmail: u.OfficeUserEmail,
-		OfficeUserID:    handlers.FmtUUIDPtr(u.OfficeUserID),
-		ServiceMemberID: handlers.FmtUUIDPtr(u.ServiceMemberID),
+		OfficeUserID:           handlers.FmtUUIDPtr(u.OfficeUserID),
+		OfficeUserEmail:        u.OfficeUserEmail,
+		OfficeUserFirstName:    u.OfficeUserFirstName,
+		OfficeUserLastName:     u.OfficeUserLastName,
+		OfficeUserPhone:        u.OfficeUserPhone,
+		ServiceMemberID:        handlers.FmtUUIDPtr(u.ServiceMemberID),
+		ServiceMemberEmail:     u.ServiceMemberEmail,
+		ServiceMemberFirstName: u.ServiceMemberFirstName,
+		ServiceMemberLastName:  u.ServiceMemberLastName,
+		ServiceMemberPhone:     u.ServiceMemberPhone,
 	}
 }
 
@@ -45,8 +54,10 @@ func (h GetUploadHandler) Handle(params uploadop.GetUploadParams) middleware.Res
 	if err != nil {
 		switch err.(type) {
 		case upload.ErrNotFound:
+			logger.Error("adminapi.GetUploadHandler not found error:", zap.Error(err))
 			return uploadop.NewGetUploadNotFound()
 		default:
+			logger.Error("adminapi.GetUploadHandler error:", zap.Error(err))
 			return handlers.ResponseForError(logger, err)
 		}
 	}

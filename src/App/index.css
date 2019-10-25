@@ -29,13 +29,6 @@ img._fix-ie-11-height {
   background-color: yellow;
 }
 
-.label-optional {
-  /* TODO: talk to design about light gray and accessibility*/
-  /* color: rgb(153, 153, 153); */
-  font-size: 0.9em;
-  float: right;
-}
-
 .align-center {
   text-align: center;
 }
@@ -50,10 +43,6 @@ img._fix-ie-11-height {
 
 .usa-input-label {
   margin-bottom: 1rem;
-}
-
-.usa-input {
-  margin: 0rem 1.5rem 0rem 0rem;
 }
 
 .rounded select {

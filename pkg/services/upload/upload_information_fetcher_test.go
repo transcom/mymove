@@ -18,8 +18,11 @@ func (suite *UploadsServiceSuite) TestFetchUploadInformation() {
 				LoginGovEmail: email,
 			},
 			OfficeUser: models.OfficeUser{
-				ID:    uuid.FromStringOrNil("9c5911a7-5885-4cf4-abec-021a40692403"),
-				Email: email,
+				ID:        uuid.FromStringOrNil("9c5911a7-5885-4cf4-abec-021a40692403"),
+				Email:     email,
+				FirstName: "Office",
+				LastName:  "User",
+				Telephone: "212-312-1234",
 			},
 		})
 
@@ -32,6 +35,9 @@ func (suite *UploadsServiceSuite) TestFetchUploadInformation() {
 		suite.Nil(ui.ServiceMemberID)
 		suite.Equal(ou.ID, *ui.OfficeUserID)
 		suite.Equal(ou.Email, *ui.OfficeUserEmail)
+		suite.Equal(ou.FirstName, *ui.OfficeUserFirstName)
+		suite.Equal(ou.LastName, *ui.OfficeUserLastName)
+		suite.Equal(ou.Telephone, *ui.OfficeUserPhone)
 	})
 
 	suite.T().Run("fetch service member upload", func(t *testing.T) {
@@ -41,7 +47,12 @@ func (suite *UploadsServiceSuite) TestFetchUploadInformation() {
 
 		suite.NoError(err)
 		suite.Nil(ui.OfficeUserID)
-		suite.Equal(u.Document.ServiceMember.ID, *ui.ServiceMemberID)
+		sm := u.Document.ServiceMember
+		suite.Equal(sm.ID, *ui.ServiceMemberID)
+		suite.Equal(*sm.PersonalEmail, *ui.ServiceMemberEmail)
+		suite.Equal(*sm.FirstName, *ui.ServiceMemberFirstName)
+		suite.Equal(*sm.LastName, *ui.ServiceMemberLastName)
+		suite.Equal(*sm.Telephone, *ui.ServiceMemberPhone)
 		suite.Equal(u.ID, ui.UploadID)
 		suite.Equal(u.ContentType, ui.ContentType)
 		suite.Equal(u.Bytes, ui.Bytes)

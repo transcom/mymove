@@ -28,7 +28,7 @@ type MoveTaskOrder struct {
 	CreatedAt strfmt.Date `json:"createdAt,omitempty"`
 
 	// customer
-	Customer Customer `json:"customer,omitempty"`
+	Customer *Customer `json:"customer,omitempty"`
 
 	// deleted at
 	// Format: date
@@ -93,6 +93,10 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateCustomer(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -166,6 +170,24 @@ func (m *MoveTaskOrder) validateCreatedAt(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("createdAt", "body", "date", m.CreatedAt.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validateCustomer(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Customer) { // not required
+		return nil
+	}
+
+	if m.Customer != nil {
+		if err := m.Customer.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("customer")
+			}
+			return err
+		}
 	}
 
 	return nil

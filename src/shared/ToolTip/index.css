@@ -5,11 +5,12 @@
 .tooltip .tooltiptext {
   box-sizing: border-box;
   background-color: #4d4d4d;
-  font-size: 1.3rem;
+  font-size: 0.9rem;
+  line-height: 1rem;
   color: #fff;
   text-align: center;
   border-radius: 6px;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem;
   position: absolute;
   z-index: 1;
   top: 175%;
@@ -17,18 +18,18 @@
 }
 
 .tooltip .tooltiptext-small {
-  width: 8rem;
-  margin-left: -4rem;
+  width: 6rem;
+  margin-left: -3rem;
 }
 
 .tooltip .tooltiptext-medium {
-  width: 16rem;
-  margin-left: -8rem;
+  width: 10rem;
+  margin-left: -5rem;
 }
 
 .tooltip .tooltiptext-large {
-  width: 24rem;
-  margin-left: -12rem;
+  width: 16rem;
+  margin-left: -8rem;
 }
 
 .tooltip .tooltiptext::after {

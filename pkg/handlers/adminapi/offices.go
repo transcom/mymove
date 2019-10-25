@@ -1,7 +1,10 @@
 package adminapi
 
 import (
+	"encoding/json"
 	"fmt"
+
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/services/query"
 
@@ -38,7 +41,7 @@ type IndexOfficesHandler struct {
 func (h IndexOfficesHandler) Handle(params officeop.IndexOfficesParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
-	queryFilters := []services.QueryFilter{}
+	queryFilters := h.generateQueryFilters(params.Filter, logger)
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
 	associations := query.NewQueryAssociations([]services.QueryAssociation{})
@@ -62,4 +65,29 @@ func (h IndexOfficesHandler) Handle(params officeop.IndexOfficesParams) middlewa
 	}
 
 	return officeop.NewIndexOfficesOK().WithContentRange(fmt.Sprintf("offices %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficesCount, totalOfficesCount)).WithPayload(payload)
+}
+
+func (h IndexOfficesHandler) generateQueryFilters(filters *string, logger handlers.Logger) []services.QueryFilter {
+	type Filter struct {
+		ID string `json:"id"`
+	}
+
+	f := Filter{}
+	var queryFilters []services.QueryFilter
+	if filters == nil {
+		return queryFilters
+	}
+	b := []byte(*filters)
+	err := json.Unmarshal(b, &f)
+	if err != nil {
+		fs := fmt.Sprintf("%v", filters)
+		logger.Warn("unable to decode param", zap.Error(err),
+			zap.String("filters", fs))
+	}
+
+	if f.ID != "" {
+		queryFilters = append(queryFilters, query.NewQueryFilter("id", "=", f.ID))
+	}
+
+	return queryFilters
 }

@@ -17,15 +17,16 @@ import (
 
 func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 	return &adminmessages.OfficeUser{
-		ID:             handlers.FmtUUID(o.ID),
-		FirstName:      handlers.FmtString(o.FirstName),
-		MiddleInitials: handlers.FmtStringPtr(o.MiddleInitials),
-		LastName:       handlers.FmtString(o.LastName),
-		Telephone:      handlers.FmtString(o.Telephone),
-		Email:          handlers.FmtString(o.Email),
-		Deactivated:    handlers.FmtBool(o.Deactivated),
-		CreatedAt:      handlers.FmtDateTime(o.CreatedAt),
-		UpdatedAt:      handlers.FmtDateTime(o.UpdatedAt),
+		ID:                     handlers.FmtUUID(o.ID),
+		FirstName:              handlers.FmtString(o.FirstName),
+		MiddleInitials:         handlers.FmtStringPtr(o.MiddleInitials),
+		LastName:               handlers.FmtString(o.LastName),
+		Telephone:              handlers.FmtString(o.Telephone),
+		Email:                  handlers.FmtString(o.Email),
+		TransportationOfficeID: handlers.FmtUUID(o.TransportationOfficeID),
+		Deactivated:            handlers.FmtBool(o.Deactivated),
+		CreatedAt:              handlers.FmtDateTime(o.CreatedAt),
+		UpdatedAt:              handlers.FmtDateTime(o.UpdatedAt),
 	}
 }
 

@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organization"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_service_provider_performances"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/upload"
 )
@@ -40,6 +41,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
+	if api.AdminUsersCreateAdminUserHandler == nil {
+		api.AdminUsersCreateAdminUserHandler = admin_users.CreateAdminUserHandlerFunc(func(params admin_users.CreateAdminUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation admin_users.CreateAdminUser has not yet been implemented")
+		})
+	}
 	if api.OfficeUsersCreateOfficeUserHandler == nil {
 		api.OfficeUsersCreateOfficeUserHandler = office_users.CreateOfficeUserHandlerFunc(func(params office_users.CreateOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.CreateOfficeUser has not yet been implemented")
@@ -95,9 +101,19 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation office.IndexOffices has not yet been implemented")
 		})
 	}
+	if api.OrganizationIndexOrganizationsHandler == nil {
+		api.OrganizationIndexOrganizationsHandler = organization.IndexOrganizationsHandlerFunc(func(params organization.IndexOrganizationsParams) middleware.Responder {
+			return middleware.NotImplemented("operation organization.IndexOrganizations has not yet been implemented")
+		})
+	}
 	if api.TransportationServiceProviderPerformancesIndexTSPPsHandler == nil {
 		api.TransportationServiceProviderPerformancesIndexTSPPsHandler = transportation_service_provider_performances.IndexTSPPsHandlerFunc(func(params transportation_service_provider_performances.IndexTSPPsParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_service_provider_performances.IndexTSPPs has not yet been implemented")
+		})
+	}
+	if api.AdminUsersUpdateAdminUserHandler == nil {
+		api.AdminUsersUpdateAdminUserHandler = admin_users.UpdateAdminUserHandlerFunc(func(params admin_users.UpdateAdminUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation admin_users.UpdateAdminUser has not yet been implemented")
 		})
 	}
 	if api.OfficeUsersUpdateOfficeUserHandler == nil {

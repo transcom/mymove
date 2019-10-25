@@ -30,7 +30,9 @@ const CanceledMoveSummary = props => {
               </div>
             </div>
             <div className="step-links">
-              <button onClick={reviewProfile}>Start</button>
+              <button className="usa-button" onClick={reviewProfile}>
+                Start
+              </button>
             </div>
           </div>
         </div>

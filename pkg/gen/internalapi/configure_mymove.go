@@ -13,6 +13,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/accesscode"
+	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/addresses"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/backup_contacts"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/calendar"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
@@ -222,6 +223,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.DutyStationsSearchDutyStationsHandler == nil {
 		api.DutyStationsSearchDutyStationsHandler = duty_stations.SearchDutyStationsHandlerFunc(func(params duty_stations.SearchDutyStationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation duty_stations.SearchDutyStations has not yet been implemented")
+		})
+	}
+	if api.AddressesShowAddressHandler == nil {
+		api.AddressesShowAddressHandler = addresses.ShowAddressHandlerFunc(func(params addresses.ShowAddressParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.ShowAddress has not yet been implemented")
 		})
 	}
 	if api.CalendarShowAvailableMoveDatesHandler == nil {

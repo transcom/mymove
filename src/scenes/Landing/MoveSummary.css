@@ -13,7 +13,6 @@ h2 {
 .shipment_box {
   border: 3px solid #f1f1f1;
   overflow: hidden;
-  margin-top: 1em;
   padding-bottom: 4rem;
   position: relative;
 }
@@ -39,10 +38,6 @@ img.status_icon {
 
 .shipment_box_contents {
   padding: 0.5em;
-}
-
-.title {
-  font-weight: bolder;
 }
 
 .step {
@@ -117,8 +112,4 @@ a {
 
 .ppm-panel .shipment_box_contents {
   background-color: #F5FBFD;
-}
-
-.move-summary-header {
-  margin-top: 20px;
 }
