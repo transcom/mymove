@@ -15,40 +15,56 @@ import (
 // instanceOfBuilder.FetchOne(model, id).WithFilters(filtes)
 // query.NewFetchMany(model interface{}).WithFilters(filters).WithPagination(pagination).WithAssociations(associations).Execute()
 
-type QueryBuilder interface {
-	WithModel(model interface{}) *FetchMany
-	WithFilters(filters []services.QueryFilter) *FetchMany
+type FetchMany interface {
+	WithModel(model interface{}) *fetchMany
+	WithFilters(filters []services.QueryFilter) *fetchMany
+	WithPagination(pagination services.Pagination) *fetchMany
 	Execute() error
 }
 
-type FetchMany struct {
-	db      *pop.Connection
-	model   interface{}
-	filters []services.QueryFilter
+type fetchMany struct {
+	db         *pop.Connection
+	model      interface{}
+	filters    []services.QueryFilter
+	pagination *services.Pagination
 }
 
-func NewFetchMany(db *pop.Connection) *FetchMany {
-	return &FetchMany{
+func NewFetchMany(db *pop.Connection) *fetchMany {
+	return &fetchMany{
 		db: db,
 	}
 }
 
-func (f *FetchMany) WithFilters(filters []services.QueryFilter) *FetchMany {
+func (f *fetchMany) WithFilters(filters []services.QueryFilter) *fetchMany {
 	f.filters = filters
 	return f
 }
 
-func (f *FetchMany) WithModel(model interface{}) *FetchMany {
+func (f *fetchMany) WithModel(model interface{}) *fetchMany {
 	f.model = model
 	return f
 }
 
-func (f *FetchMany) Execute() error {
+func (f *fetchMany) WithPagination(pagination services.Pagination) *fetchMany {
+	f.pagination = &pagination
+	return f
+}
+
+func (f *fetchMany) Execute() error {
 	query := f.db.Q()
 	t := reflect.TypeOf(f.model)
+	var err error
 
 	if len(f.filters) > 0 {
-		filteredQuery(query, f.filters, t)
+		query, err = filteredQuery(query, f.filters, t)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	if f.pagination != nil {
+		query = paginatedQuery(query, *f.pagination, t)
 	}
 
 	return query.All(f.model)
@@ -104,7 +120,7 @@ func buildQuery(query *pop.Query, filters []services.QueryFilter, pagination ser
 		return nil, err
 	}
 
-	query, err = paginatedQuery(query, pagination, t)
+	query = paginatedQuery(query, pagination, t)
 
 	if err != nil {
 		return nil, err
@@ -113,8 +129,8 @@ func buildQuery(query *pop.Query, filters []services.QueryFilter, pagination ser
 	return query, nil
 }
 
-func paginatedQuery(query *pop.Query, pagination services.Pagination, t reflect.Type) (*pop.Query, error) {
-	return query.Paginate(pagination.Page(), pagination.PerPage()), nil
+func paginatedQuery(query *pop.Query, pagination services.Pagination, t reflect.Type) *pop.Query {
+	return query.Paginate(pagination.Page(), pagination.PerPage())
 }
 
 // Validate that the QueryFilter is valid using getDBColumn and getComparator

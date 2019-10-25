@@ -7,7 +7,7 @@ import (
 )
 
 type officeUserListQueryBuilder interface {
-	query.QueryBuilder
+	query.FetchMany
 }
 
 type officeUserListFetcher struct {
@@ -15,9 +15,9 @@ type officeUserListFetcher struct {
 }
 
 // FetchOfficeUserList uses the passed query builder to fetch a list of office users
-func (o *officeUserListFetcher) FetchOfficeUserList(filters []services.QueryFilter) (models.OfficeUsers, error) {
+func (o *officeUserListFetcher) FetchOfficeUserList(filters []services.QueryFilter, pagination services.Pagination) (models.OfficeUsers, error) {
 	var officeUsers models.OfficeUsers
-	err := o.builder.WithModel(&officeUsers).WithFilters(filters).Execute()
+	err := o.builder.WithModel(&officeUsers).WithFilters(filters).WithPagination(pagination).Execute()
 	return officeUsers, err
 }
 
