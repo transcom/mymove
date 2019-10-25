@@ -6,7 +6,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeMoveTaskOrder creates a single MoveTaskOrder and associated set relationships
+// MakeServiceItem creates a single ServiceItems and associated set relationships
 func MakeServiceItem(db *pop.Connection, assertions Assertions) models.ServiceItem {
 
 	// Create new Orders if not provided

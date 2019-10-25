@@ -12,20 +12,20 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 
-	//TODO why is this being named move_task_order
+	//TODO why is this being named move_task_order in generated code. maybe just rename in import?
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// FetchAccessCodeHandler fetches an access code associated with a service member
+// UpdateMoveTaskOrderStatusHandlerFunc fetches an access code associated with a service member
 type UpdateMoveTaskOrderStatusHandlerFunc struct {
 	handlers.HandlerContext
 	moveTaskOrderStatusUpdater services.MoveTaskOrderStatusUpdater
 }
 
-// NewGhcAPIHandler returns a handler for the GHC API
+// UpdateMoveTaskOrderStatusHandlerFunc updates the status of a MoveTaskOrder
 func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params move_task_order.UpdateMoveTaskOrderStatusParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 

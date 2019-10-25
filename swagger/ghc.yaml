@@ -723,6 +723,7 @@ paths:
       operationId: updatePaymentRequestStatus
       summary: Updates status of a payment request by id
 definitions:
+#  TODO this story seemed to expect some concept of address, confirm this
   Address:
     type: object
     properties:

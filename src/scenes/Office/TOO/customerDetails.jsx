@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { get, isEmpty } from 'lodash';
 import { getEntitlements, updateMoveTaskOrderStatus } from 'shared/Entities/modules/moveTaskOrders';
 import { selectServiceMember } from 'shared/Entities/modules/serviceMembers';
-import { selectMoveTaskOrder } from '../../../shared/Entities/modules/moveTaskOrders';
+import { selectMoveTaskOrder } from 'shared/Entities/modules/moveTaskOrders';
 
 class CustomerDetails extends React.Component {
   componentDidMount() {
@@ -14,8 +14,6 @@ class CustomerDetails extends React.Component {
 
   render() {
     const { entitlements, moveTaskOrder, customer } = this.props;
-    console.log('customer:', customer);
-    console.log('mto:', moveTaskOrder);
     const fakeMoveTaskOrderID = '5d4b25bb-eb04-4c03-9a81-ee0398cb779e';
     const NTS = entitlements && entitlements.nonTemporaryStorage ? 'Y' : 'N';
     const POV = entitlements && entitlements.privatelyOwnedVehicle ? 'Y' : 'N';
