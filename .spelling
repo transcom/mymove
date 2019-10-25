@@ -516,6 +516,10 @@ circle.yml
 server_test
 CPUs
 vCPUs
+Fargate
+ecs-tasks-app-staging
+Devlocal
+MacBookPro
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - /usr/local
  - docs/data/tspp-data-creation.md
@@ -531,3 +535,4 @@ vCPUs
  - ./docs/how-to/run-storybook.md
  - ./docs/database.md
  - ./docs/._database.md
+ - ./docs/how-to/test-virus-scanning.md

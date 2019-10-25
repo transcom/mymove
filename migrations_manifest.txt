@@ -361,6 +361,15 @@
 20190927150748_insert_duty_station_names.up.sql
 20190930152918_import_bvs_performance_period_4.up.sql
 20191008151614_re_create_reference_tables.up.sql
+20191010155457_create_intl_prices_tables.up.sql
+20191010165703_re_create_misc_pricing_tables.up.sql
 20191011162818_add-admin-users.up.sql
 20191011183006_alter_column_type_to_string_.up.sql
 20191011191842_re_create_domestic_tables.up.sql
+20191016153532_replace_disabled.up.sql
+20191016214136_remove_disabled_column.up.sql
+20191017215845_add_truss_user.up.sql
+20191017230212_deactivate-truss-user.up.sql
+20191018211440_update_combo_moves_to_ppm.up.sql
+20191023153000_add_missing_primary_keys.up.sql
+20191023161500_set_max_length_on_payment_methods.up.sql

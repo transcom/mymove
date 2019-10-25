@@ -11,6 +11,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"net/http/pprof"
 	"os"
 	"os/signal"
 	"path"
@@ -130,6 +131,9 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// Feature Flags
 	cli.InitFeatureFlags(flag)
 
+	// pprof flags
+	cli.InitDebugFlags(flag)
+
 	// Service Flags
 	cli.InitServiceFlags(flag)
 
@@ -230,6 +234,10 @@ func checkServeConfig(v *viper.Viper, logger logger) error {
 	}
 
 	if err := cli.CheckFeatureFlag(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckDebugFlags(v); err != nil {
 		return err
 	}
 
@@ -578,8 +586,19 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	dpsAuthParams := dpsauth.InitDPSAuthParams(v, appnames)
 	handlerContext.SetDPSAuthParams(dpsAuthParams)
 
+	// bare is the base muxer. Not intended to have any middleware attached.
+	bare := goji.NewMux()
+	storageBackend := v.GetString(cli.StorageBackendFlag)
+	if storageBackend == "local" {
+		localStorageRoot := v.GetString(cli.LocalStorageRootFlag)
+		localStorageWebRoot := v.GetString(cli.LocalStorageWebRootFlag)
+		//Add a file handler to provide access to files uploaded in development
+		fs := storage.NewFilesystemHandler(localStorageRoot)
+		bare.Handle(pat.Get(path.Join("/", localStorageWebRoot, "/*")), fs)
+	}
 	// Base routes
-	site := goji.NewMux()
+	site := goji.SubMux()
+	bare.Handle(pat.New("/*"), site)
 	// Add middleware: they are evaluated in the reverse order in which they
 	// are added, but the resulting http.Handlers execute in "normal" order
 	// (i.e., the http.Handler returned by the first Middleware added gets
@@ -728,6 +747,26 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	root.Use(sessionCookieMiddleware)
 	root.Use(middleware.RequestLogger(logger))
 
+	debug := goji.SubMux()
+	debug.Use(userAuthMiddleware)
+	root.Handle(pat.New("/debug/pprof/*"), debug)
+	if v.GetBool(cli.DebugPProfFlag) {
+		logger.Info("Enabling pprof routes")
+		debug.HandleFunc(pat.Get("/"), pprof.Index)
+		debug.Handle(pat.Get("/allocs"), pprof.Handler("allocs"))
+		debug.Handle(pat.Get("/block"), pprof.Handler("block"))
+		debug.HandleFunc(pat.Get("/cmdline"), pprof.Cmdline)
+		debug.Handle(pat.Get("/goroutine"), pprof.Handler("goroutine"))
+		debug.Handle(pat.Get("/heap"), pprof.Handler("heap"))
+		debug.Handle(pat.Get("/mutex"), pprof.Handler("mutex"))
+		debug.HandleFunc(pat.Get("/profile"), pprof.Profile)
+		debug.HandleFunc(pat.Get("/trace"), pprof.Trace)
+		debug.Handle(pat.Get("/threadcreate"), pprof.Handler("threadcreate"))
+		debug.HandleFunc(pat.Get("/symbol"), pprof.Symbol)
+	} else {
+		debug.HandleFunc(pat.Get("/*"), http.NotFound)
+	}
+
 	// CSRF path is set specifically at the root to avoid duplicate tokens from different paths
 	csrfAuthKey, err := hex.DecodeString(v.GetString(cli.CSRFAuthKeyFlag))
 	if err != nil {
@@ -825,16 +864,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	storageBackend := v.GetString(cli.StorageBackendFlag)
-	if storageBackend == "local" {
-		localStorageRoot := v.GetString(cli.LocalStorageRootFlag)
-		localStorageWebRoot := v.GetString(cli.LocalStorageWebRootFlag)
-
-		// Add a file handler to provide access to files uploaded in development
-		fs := storage.NewFilesystemHandler(localStorageRoot)
-		root.Handle(pat.Get(path.Join("/", localStorageWebRoot, "/*")), fs)
-	}
-
 	// Serve index.html to all requests that haven't matches a previous route,
 	root.HandleFunc(pat.Get("/*"), indexHandler(build, logger))
 
@@ -848,7 +877,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			Host:        listenInterface,
 			Port:        v.GetInt(cli.NoTLSPortFlag),
 			Logger:      logger,
-			HTTPHandler: site,
+			HTTPHandler: bare,
 		})
 		if err != nil {
 			logger.Fatal("error creating no-tls server", zap.Error(err))
@@ -864,7 +893,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			Host:         listenInterface,
 			Port:         v.GetInt(cli.TLSPortFlag),
 			Logger:       logger,
-			HTTPHandler:  site,
+			HTTPHandler:  bare,
 			ClientAuth:   tls.NoClientCert,
 			Certificates: certificates,
 		})
@@ -882,7 +911,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			Host:         listenInterface,
 			Port:         v.GetInt(cli.MutualTLSPortFlag),
 			Logger:       logger,
-			HTTPHandler:  site,
+			HTTPHandler:  bare,
 			ClientAuth:   tls.RequireAndVerifyClientCert,
 			Certificates: certificates,
 			ClientCAs:    rootCAs,

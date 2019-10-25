@@ -58,7 +58,7 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
       transportation_office:
         $ref: '#/definitions/TransportationOffice'
-      disabled:
+      deactivated:
         type: boolean
       created_at:
         type: string
@@ -73,7 +73,7 @@ definitions:
       - last_name
       - email
       - telephone
-      - disabled
+      - deactivated
       - created_at
       - updated_at
   OfficeUsers:
@@ -101,7 +101,7 @@ definitions:
       organization_id:
         type: string
         format: uuid
-      disabled:
+      deactivated:
         type: boolean
       created_at:
         type: string
@@ -116,7 +116,7 @@ definitions:
       - email
       - user_id
       - organization_id
-      - disabled
+      - deactivated
       - created_at
       - updated_at
   AdminUsers:
@@ -428,7 +428,7 @@ definitions:
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
-      disabled:
+      deactivated:
         type: boolean
   ElectronicOrder:
     type: object
@@ -509,8 +509,43 @@ definitions:
       move_locator:
         type: string
         example: '12432'
+        x-nullable: true
       upload:
         $ref: '#/definitions/Upload'
+      service_member_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      service_member_first_name:
+        type: string
+        x-nullable: true
+      service_member_last_name:
+        type: string
+        x-nullable: true
+      service_member_phone:
+        type: string
+        x-nullable: true
+      service_member_email:
+        type: string
+        x-nullable: true
+      office_user_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      office_user_first_name:
+        type: string
+        x-nullable: true
+      office_user_last_name:
+        type: string
+        x-nullable: true
+      office_user_phone:
+        type: string
+        x-nullable: true
+      office_user_email:
+        type: string
+        x-nullable: true
 paths:
   /access_codes:
     get:
@@ -695,6 +730,32 @@ paths:
           description: request requires user authentication
         404:
           description: office not found
+        500:
+          description: server error
+  /transportation_service_provider_performances/{tsppId}:
+    get:
+      summary: Fetch a specific tspp
+      description: Returns a single tspp
+      operationId: getTSPP
+      tags:
+        - transportation_service_provider_performances
+      parameters:
+        - in: path
+          name: tsppId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/TransportationServiceProviderPerformance'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: tspp not found
         500:
           description: server error
   /admin_users:

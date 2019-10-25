@@ -39,6 +39,9 @@ type UploadPayload struct {
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
 
+	// tags
+	Tags Tags `json:"tags,omitempty"`
+
 	// updated at
 	// Required: true
 	// Format: date-time
@@ -71,6 +74,10 @@ func (m *UploadPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTags(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -135,6 +142,22 @@ func (m *UploadPayload) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *UploadPayload) validateTags(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Tags) { // not required
+		return nil
+	}
+
+	if err := m.Tags.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("tags")
+		}
 		return err
 	}
 

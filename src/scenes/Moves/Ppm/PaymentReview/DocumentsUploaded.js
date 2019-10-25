@@ -79,7 +79,12 @@ export class DocumentsUploaded extends Component {
           )}
           {this.renderHeader()}
           {!inReviewPage && (
-            <a data-cy="toggle-documents-uploaded" style={{ paddingLeft: '1em' }} onClick={this.toggleShowDocs}>
+            <a
+              data-cy="toggle-documents-uploaded"
+              style={{ paddingLeft: '1em' }}
+              onClick={this.toggleShowDocs}
+              className="usa-link"
+            >
               {showDocs ? 'Hide' : 'Show'}
             </a>
           )}
@@ -113,12 +118,13 @@ export class DocumentsUploaded extends Component {
                   showDelete={inReviewPage}
                   deleteDocumentListItem={deleteMoveDocument}
                   isWeightTicketSet={true}
+                  uploads={ticket.document.uploads}
                   {...ticket}
                 />
               ))}
             </div>
             {showLinks && (
-              <Link data-cy="weight-ticket-link" to={`/moves/${moveId}/ppm-weight-ticket`}>
+              <Link data-cy="weight-ticket-link" to={`/moves/${moveId}/ppm-weight-ticket`} className="usa-link">
                 <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} /> Add weight ticket
               </Link>
             )}
@@ -132,13 +138,14 @@ export class DocumentsUploaded extends Component {
                   key={expense.id}
                   showDelete={inReviewPage}
                   deleteDocumentListItem={deleteMoveDocument}
+                  uploads={expense.uploads}
                   {...expense}
                 />
               ))}
             </div>
             {showLinks && (
               <div className="add-expense-link">
-                <Link data-cy="expense-link" to={`/moves/${moveId}/ppm-expenses`}>
+                <Link data-cy="expense-link" to={`/moves/${moveId}/ppm-expenses`} className="usa-link">
                   <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} /> Add expense
                 </Link>
               </div>

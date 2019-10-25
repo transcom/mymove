@@ -29,7 +29,7 @@ var nextValidMoveDatePlusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate
 var nextValidMoveDateMinusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
 
 // Run does that data load thing
-func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, logger Logger, storer *storage.Memory) {
+func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, logger Logger, storer *storage.Filesystem) {
 	/*
 	 * Basic user with office access
 	 */

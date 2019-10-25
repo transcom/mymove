@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 import { Field } from 'redux-form';
 import { normalizeSSN } from 'shared/JsonSchemaForm/reduxFieldNormalizer';
+import classNames from 'classnames';
 
 import { updateServiceMember } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
@@ -50,16 +51,22 @@ class SSNField extends Component {
 
     // This is copied from JsonSchemaField to match the styling
     return (
-      <div className={displayError ? 'usa-input-error' : 'usa-input'}>
-        <label className={displayError ? 'usa-input-error-label' : 'usa-input-label'} htmlFor={name}>
+      <div className={classNames('usa-form-group', { 'usa-form-group--error': displayError })}>
+        <label className={classNames('usa-label', { 'usa-label--error': displayError })} htmlFor={name}>
           Social security number
         </label>
-        <input {...this.props.input} onFocus={this.localOnFocus} onBlur={this.localOnBlur} value={displayedValue} />
         {touched && error && (
-          <span className="usa-input-error-message" id={name + '-error'} role="alert">
+          <span className="usa-error-message" id={name + '-error'} role="alert">
             {error}
           </span>
         )}
+        <input
+          {...this.props.input}
+          className="usa-input"
+          onFocus={this.localOnFocus}
+          onBlur={this.localOnBlur}
+          value={displayedValue}
+        />
       </div>
     );
   }
@@ -118,12 +125,21 @@ export class DodInfo extends Component {
         initialValues={initialValues}
         ssnOnServer={ssnOnServer}
       >
-        <h1 className="sm-heading">Create your profile</h1>
-        <p>Before we can schedule your move, we need to know a little more about you.</p>
-        <SwaggerField fieldName="affiliation" swagger={schema} required />
-        <SwaggerField fieldName="edipi" swagger={schema} required />
-        <Field name="social_security_number" component={SSNField} ssnOnServer={ssnOnServer} normalize={normalizeSSN} />
-        <SwaggerField fieldName="rank" swagger={schema} required />
+        <div className="grid-row">
+          <div className="grid-col-12">
+            <h1 className="sm-heading">Create your profile</h1>
+            <p>Before we can schedule your move, we need to know a little more about you.</p>
+            <SwaggerField fieldName="affiliation" swagger={schema} required />
+            <SwaggerField fieldName="edipi" swagger={schema} required />
+            <Field
+              name="social_security_number"
+              component={SSNField}
+              ssnOnServer={ssnOnServer}
+              normalize={normalizeSSN}
+            />
+            <SwaggerField fieldName="rank" swagger={schema} required />
+          </div>
+        </div>
       </DodWizardForm>
     );
   }

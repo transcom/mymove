@@ -12,13 +12,10 @@ describe('The Home Page', function() {
     cy.logout();
     milmoveUserIsOnSignInPage();
   });
-  it('milmove user is properly welcomed', function() {
-    milmoveUserIsWelcomed();
-  });
   it('contains the link to customer service', function() {
     cy.visit('/');
+    cy.get('[data-cy=contact-footer]').contains('Contact Us');
     cy.get('address').within(() => {
-      cy.contains('Contact Us');
       cy.get('a').should('have.attr', 'href', 'https://move.mil/customer-service');
     });
   });
@@ -27,9 +24,4 @@ describe('The Home Page', function() {
 function milmoveUserIsOnSignInPage() {
   cy.contains('Welcome');
   cy.contains('Sign In');
-}
-
-function milmoveUserIsWelcomed() {
-  cy.signIntoMyMoveAsUser('e10d5964-c070-49cb-9bd1-eaf9f7348eb7');
-  cy.contains('Welcome, PPM');
 }

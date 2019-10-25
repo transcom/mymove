@@ -18,7 +18,10 @@ const SomethingWentWrong = ({ error, info }) => (
       <br />
       <p>
         If you continue to receive this error, call (302) 4MY-MOVE or{' '}
-        <a href="mailto:transcom.scott.tcj5j4.mbx.ppcf@mail.mil">email us</a>.
+        <a href="mailto:transcom.scott.tcj5j4.mbx.ppcf@mail.mil" className="usa-link">
+          email us
+        </a>
+        .
       </p>
     </div>
   </div>

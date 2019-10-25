@@ -150,7 +150,6 @@ func GetAWSCredentialsFromKeyring(keychainName string, awsProfile string, sessio
 func GetAWSConfig(v *viper.Viper, verbose bool) (*aws.Config, error) {
 
 	awsRegion := v.GetString(AWSRegionFlag)
-
 	awsConfig := &aws.Config{
 		Region: aws.String(awsRegion),
 	}

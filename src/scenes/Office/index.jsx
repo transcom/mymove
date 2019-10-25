@@ -22,6 +22,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { RetrieveMovesForOffice } from './api';
 import './office.scss';
+import CustomerDetails from './TOO/customerDetails';
 import { withContext } from 'shared/AppContext';
 
 const TOO = Loadable({
@@ -158,7 +159,13 @@ export class OfficeWrapper extends Component {
                     )}
                   />
                 )}
-                {too && <PrivateRoute path="/ghc/too" component={TOO} />}
+                {too && <PrivateRoute path="/too/placeholder" component={TOO} />}
+                {too && (
+                  <PrivateRoute
+                    path="/too/customer/6ac40a00-e762-4f5f-b08d-3ea72a8e4b63/details"
+                    component={CustomerDetails}
+                  />
+                )}
               </Switch>
             )}
           </ConditionalWrap>

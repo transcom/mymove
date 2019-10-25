@@ -26,13 +26,13 @@ func MakeAdminUser(db *pop.Connection, assertions Assertions) models.AdminUser {
 	}
 
 	adminUser := models.AdminUser{
-		UserID:    &user.ID,
-		User:      user,
-		FirstName: "Leo",
-		LastName:  "Spaceman",
-		Email:     email,
-		Role:      "SYSTEM_ADMIN",
-		Disabled:  false,
+		UserID:      &user.ID,
+		User:        user,
+		FirstName:   "Leo",
+		LastName:    "Spaceman",
+		Email:       email,
+		Role:        "SYSTEM_ADMIN",
+		Deactivated: false,
 	}
 
 	mergeModels(&adminUser, assertions.AdminUser)

@@ -95,6 +95,9 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 		return ppmop.NewCreatePPMAttachmentsInternalServerError()
 	}
 
-	uploadPayload := payloadForUploadModel(*pdfUpload, url)
+	uploadPayload, err := payloadForUploadModel(h.FileStorer(), *pdfUpload, url)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 	return ppmop.NewCreatePPMAttachmentsOK().WithPayload(uploadPayload)
 }

@@ -39,6 +39,7 @@ func MakeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 		FirstName:     models.StringPointer("Leo"),
 		LastName:      models.StringPointer("Spacemen"),
 		PersonalEmail: models.StringPointer(email),
+		Telephone:     models.StringPointer("212-123-4567"),
 	}
 
 	// Overwrite values with those from assertions
