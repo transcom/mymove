@@ -15,32 +15,43 @@ import (
 // instanceOfBuilder.FetchOne(model, id).WithFilters(filtes)
 // query.NewFetchMany(model interface{}).WithFilters(filters).WithPagination(pagination).WithAssociations(associations).Execute()
 
-type FetchMany struct {
-	DB      *pop.Connection
-	Model   interface{}
-	Filters []services.QueryFilter
+type QueryBuilder interface {
+	WithModel(model interface{}) *FetchMany
+	WithFilters(filters []services.QueryFilter) *FetchMany
+	Execute() error
 }
 
-func NewFetchMany(model interface{}) *FetchMany {
+type FetchMany struct {
+	db      *pop.Connection
+	model   interface{}
+	filters []services.QueryFilter
+}
+
+func NewFetchMany(db *pop.Connection) *FetchMany {
 	return &FetchMany{
-		Model: &model,
+		db: db,
 	}
 }
 
 func (f *FetchMany) WithFilters(filters []services.QueryFilter) *FetchMany {
-	f.Filters = filters
+	f.filters = filters
+	return f
+}
+
+func (f *FetchMany) WithModel(model interface{}) *FetchMany {
+	f.model = model
 	return f
 }
 
 func (f *FetchMany) Execute() error {
-	query := f.DB.Q()
-	t := reflect.TypeOf(f.Model)
+	query := f.db.Q()
+	t := reflect.TypeOf(f.model)
 
-	if len(f.Filters) > 0 {
-		filteredQuery(query, f.Filters, t)
+	if len(f.filters) > 0 {
+		filteredQuery(query, f.filters, t)
 	}
 
-	return query.All(f.Model)
+	return query.All(f.model)
 }
 
 // allowed comparators for this query builder implementation

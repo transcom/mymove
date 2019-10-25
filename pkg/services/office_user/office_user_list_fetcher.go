@@ -3,10 +3,11 @@ package officeuser
 import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 type officeUserListQueryBuilder interface {
-	FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) error
+	query.QueryBuilder
 }
 
 type officeUserListFetcher struct {
@@ -14,10 +15,10 @@ type officeUserListFetcher struct {
 }
 
 // FetchOfficeUserList uses the passed query builder to fetch a list of office users
-func (o *officeUserListFetcher) FetchOfficeUserList(filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) (models.OfficeUsers, error) {
+func (o *officeUserListFetcher) FetchOfficeUserList(filters []services.QueryFilter) (models.OfficeUsers, error) {
 	var officeUsers models.OfficeUsers
-	error := o.builder.FetchMany(&officeUsers, filters, associations, pagination)
-	return officeUsers, error
+	err := o.builder.WithModel(&officeUsers).WithFilters(filters).Execute()
+	return officeUsers, err
 }
 
 // NewOfficeUserListFetcher returns an implementation of OfficeUserListFetcher

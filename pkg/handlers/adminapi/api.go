@@ -32,10 +32,11 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	adminAPI := adminops.NewMymoveAPI(adminSpec)
 	queryBuilder := query.NewQueryBuilder(context.DB())
+	fetchMany := query.NewFetchMany(context.DB())
 
 	adminAPI.OfficeUsersIndexOfficeUsersHandler = IndexOfficeUsersHandler{
 		context,
-		officeuser.NewOfficeUserListFetcher(queryBuilder),
+		officeuser.NewOfficeUserListFetcher(fetchMany),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
