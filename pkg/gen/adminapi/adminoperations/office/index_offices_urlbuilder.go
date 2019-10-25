@@ -15,7 +15,7 @@ import (
 
 // IndexOfficesURL generates an URL for the index offices operation
 type IndexOfficesURL struct {
-	Filter  []string
+	Filter  *string
 	Order   *bool
 	Page    *int64
 	PerPage *int64
