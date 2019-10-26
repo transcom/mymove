@@ -53,7 +53,7 @@ func initPaymentReminderFlags(flag *pflag.FlagSet) {
 	// Email
 	cli.InitEmailFlags(flag)
 
-	flag.Int(offsetFlag, 15, "Number of days ago moves had their payment request reviewed")
+	flag.Int(paymentReminderFlag, 15, "Number of days ago moves had their payment request reviewed")
 
 	// Don't sort flags
 	flag.SortFlags = false
@@ -61,8 +61,6 @@ func initPaymentReminderFlags(flag *pflag.FlagSet) {
 
 // Command: go run ./cmd/milmove-tasks send-payment-reminder
 func sendPaymentReminder(cmd *cobra.Command, args []string) error {
-	fmt.Println("sendPaymentReminder")
-
 	err := cmd.ParseFlags(args)
 	if err != nil {
 		return errors.Wrap(err, "Could not parse args")
@@ -130,19 +128,16 @@ func sendPaymentReminder(cmd *cobra.Command, args []string) error {
 	if notificationSenderErr != nil {
 		logger.Fatal("notification sender sending not enabled", zap.Error(notificationSenderErr))
 	}
-	fmt.Println(paymentReminderFlag)
-	fmt.Println(dbConnection)
-	fmt.Println(ctx)
-	fmt.Println(targetDate)
-	fmt.Println(notificationSender)
 
-	// moveReviewedNotifier, err := notifications.NewMoveReviewed(dbConnection, logger, targetDate)
-	// if err != nil {
-	// 	logger.Fatal("initializing MoveReviewed", zap.Error(err))
-	// }
-	// err = notificationSender.SendNotification(ctx, moveReviewedNotifier)
-	// if err != nil {
-	// 	logger.Fatal("Emails failed to send", zap.Error(err))
-	// }
+	movePaymentReminderNotifier, err := notifications.NewPaymentReminder(dbConnection, logger, targetDate)
+	if err != nil {
+		logger.Fatal("initializing MoveReviewed", zap.Error(err))
+	}
+	fmt.Printf("%+v\n", movePaymentReminderNotifier)
+
+	err = notificationSender.SendNotification(ctx, movePaymentReminderNotifier)
+	if err != nil {
+		logger.Fatal("Emails failed to send", zap.Error(err))
+	}
 	return nil
 }
