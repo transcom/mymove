@@ -10,8 +10,8 @@ class TOO extends Component {
     this.props.getAllCustomerMoves();
   }
 
-  handleCustomerInfoClick = () => {
-    this.props.history.push('/');
+  handleCustomerInfoClick = customerId => {
+    this.props.history.push(`/too/customer/${customerId}/details`);
   };
 
   render() {
@@ -30,8 +30,15 @@ class TOO extends Component {
           </thead>
           <tbody>
             {customerMoves.map(
-              ({ id, customer_name, confirmation_number, branch_of_service, origin_duty_station_name }) => (
-                <tr onClick={this.handleCustomerInfoClick} key={id}>
+              ({
+                id,
+                customer_name,
+                customer_id,
+                confirmation_number,
+                branch_of_service,
+                origin_duty_station_name,
+              }) => (
+                <tr onClick={() => this.handleCustomerInfoClick(customer_id)} key={id}>
                   <td>{customer_name}</td>
                   <td>{confirmation_number}</td>
                   <td>{branch_of_service}</td>

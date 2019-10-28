@@ -54,6 +54,7 @@ paths:
         name: customerID
         required: true
         type: string
+        format: uuid
     get:
       produces:
         - application/json
@@ -1006,21 +1007,11 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      first_name:
+      customer_name:
         type: string
-        example: John
+        example: George Washington
         x-nullable: true
-        title: First Name
-      middle_name:
-        type: string
-        example: L.
-        x-nullable: true
-        title: Middle Name
-      last_name:
-        type: string
-        example: Donut
-        x-nullable: true
-        title: Last Name
+        title: Customer Name
       agency:
         type: string
         example: Some Agency

@@ -140,6 +140,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
+          "format": "uuid",
           "description": "ID of customer to use",
           "name": "customerID",
           "in": "path",
@@ -1382,6 +1383,12 @@ func init() {
           "x-nullable": true,
           "example": "Some Agency"
         },
+        "customer_name": {
+          "type": "string",
+          "title": "Customer Name",
+          "x-nullable": true,
+          "example": "George Washington"
+        },
         "dependentsAuthorized": {
           "type": "boolean",
           "example": true
@@ -1400,12 +1407,6 @@ func init() {
           "x-nullable": true,
           "example": "john_bob@example.com"
         },
-        "first_name": {
-          "type": "string",
-          "title": "First Name",
-          "x-nullable": true,
-          "example": "John"
-        },
         "grade": {
           "type": "string",
           "title": "Grade",
@@ -1416,18 +1417,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "last_name": {
-          "type": "string",
-          "title": "Last Name",
-          "x-nullable": true,
-          "example": "Donut"
-        },
-        "middle_name": {
-          "type": "string",
-          "title": "Middle Name",
-          "x-nullable": true,
-          "example": "L."
         },
         "origin_duty_station": {
           "type": "string",
@@ -2072,6 +2061,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
+          "format": "uuid",
           "description": "ID of customer to use",
           "name": "customerID",
           "in": "path",
@@ -3539,6 +3529,12 @@ func init() {
           "x-nullable": true,
           "example": "Some Agency"
         },
+        "customer_name": {
+          "type": "string",
+          "title": "Customer Name",
+          "x-nullable": true,
+          "example": "George Washington"
+        },
         "dependentsAuthorized": {
           "type": "boolean",
           "example": true
@@ -3557,12 +3553,6 @@ func init() {
           "x-nullable": true,
           "example": "john_bob@example.com"
         },
-        "first_name": {
-          "type": "string",
-          "title": "First Name",
-          "x-nullable": true,
-          "example": "John"
-        },
         "grade": {
           "type": "string",
           "title": "Grade",
@@ -3573,18 +3563,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "last_name": {
-          "type": "string",
-          "title": "Last Name",
-          "x-nullable": true,
-          "example": "Donut"
-        },
-        "middle_name": {
-          "type": "string",
-          "title": "Middle Name",
-          "x-nullable": true,
-          "example": "L."
         },
         "origin_duty_station": {
           "type": "string",

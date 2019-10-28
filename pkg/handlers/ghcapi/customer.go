@@ -4,6 +4,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	customercodeop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
@@ -17,22 +18,39 @@ type GetCustomerInfoHandler struct {
 	handlers.HandlerContext
 }
 
+func payloadForCustomerInfo(Customer models.Customer) *ghcmessages.Customer {
+	CustomerInfoPayload  := ghcmessages.Customer{
+		ID:                    *handlers.FmtUUID(Customer.ID),
+		CustomerName:          swag.String(Customer.CustomerName),
+		Agency: swag.String(Customer.Agency),
+		Grade: swag.String(Customer.Grade),
+		Email: swag.String(Customer.Email),
+		Telephone: swag.String(Customer.Telephone),
+		OriginDutyStation: swag.String(Customer.OriginDutyStationName),
+		DestinationDutyStation: swag.String(Customer.DestinationDutyStationName),
+		DependentsAuthorized: Customer.DependentsAuthorized,
+	}
+	return &CustomerInfoPayload
+}
+
+
 // Handle getting the information of a specific customer
 func (h GetCustomerInfoHandler) Handle(params customercodeop.GetCustomerInfoParams) middleware.Responder {
-	// for now just return static data
-	customer := &ghcmessages.Customer{
-		FirstName:              models.StringPointer("First"),
-		MiddleName:             models.StringPointer("Middle"),
-		LastName:               models.StringPointer("Last"),
-		Agency:                 models.StringPointer("Agency"),
-		Grade:                  models.StringPointer("Grade"),
-		Email:                  models.StringPointer("Example@example.com"),
-		Telephone:              models.StringPointer("213-213-3232"),
-		OriginDutyStation:      models.StringPointer("Origin Station"),
-		DestinationDutyStation: models.StringPointer("Destination Station"),
-		DependentsAuthorized:   true,
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	if !session.IsOfficeUser() {
+		return customercodeop.NewGetCustomerInfoForbidden()
 	}
-	return customercodeop.NewGetCustomerInfoOK().WithPayload(customer)
+	customerId, _ := uuid.FromString(params.CustomerID.String())
+
+	customer, err := models.GetCustomerInfo(h.DB(), customerId)
+
+	if err != nil {
+		logger.Error("Loading Customer Info", zap.Error(err))
+		return handlers.ResponseForError(logger, err)
+	}
+	customerInfoPayload := payloadForCustomerInfo(customer)
+	return customercodeop.NewGetCustomerInfoOK().WithPayload(customerInfoPayload)
 }
 
 func payloadForCustomerMoveItem(CustomerMoveItem models.CustomerMoveItem) *ghcmessages.CustomerMoveItem {
