@@ -1,8 +1,9 @@
 package ghcrateengine
 
 import (
-	"go.uber.org/zap/zapcore"
 	"time"
+
+	"go.uber.org/zap/zapcore"
 
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"

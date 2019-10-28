@@ -2,11 +2,13 @@ package ghcrateengine
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
-	"go.uber.org/zap"
 	"time"
 
+	"github.com/pkg/errors"
+	"go.uber.org/zap"
+
 	"github.com/gobuffalo/pop"
+
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -55,7 +57,7 @@ func lookupDomesticServiceAreaPrice(db *pop.Connection, moveDate time.Time, serv
 	//return stubbedRate, err
 }
 
-func (dsa *domesticServiceAreaPricer) PriceDomesticServiceArea (moveDate time.Time, weight unit.Pound, serviceArea string, serviceCode string) (cost unit.Cents, err error) {
+func (dsa *domesticServiceAreaPricer) PriceDomesticServiceArea(moveDate time.Time, weight unit.Pound, serviceArea string, serviceCode string) (cost unit.Cents, err error) {
 	// Validate parameters
 	if moveDate.IsZero() {
 		return 0, errors.New("MoveDate is required")
