@@ -19,7 +19,7 @@ type DomesticShorthaulPricer interface {
 
 // DomesticServiceAreaPricer domestic prices: origin and destination service area, SIT day 1, SIT Addt'l days
 
-//go:generate mockery -name DomesticPerWeightPricer
+//go:generate mockery -name DomesticServiceAreaPricer
 type DomesticServiceAreaPricer interface {
 	PriceDomesticServiceArea(moveDate time.Time, weight unit.Pound, serviceArea string, servicesCode string) (unit.Cents, error)
 }
