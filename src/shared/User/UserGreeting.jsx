@@ -5,7 +5,7 @@ import { selectCurrentUser } from 'shared/Data/users';
 
 export const UserGreeting = ({ isLoggedIn, firstName, email }) =>
   isLoggedIn && (
-    <span>
+    <span className="usa-nav__link">
       <strong>{firstName ? `Welcome, ${firstName}` : email}</strong>
     </span>
   );

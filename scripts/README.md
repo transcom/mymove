@@ -47,6 +47,7 @@ These scripts are primarily used for CircleCI workflows.
 | `ecs-restart-services` | Restarted the ECS services associated with the given environment. |
 | `ecs-run-app-migrations-container` | Creates and runs a migration task using the given container definition. |
 | `rds-snapshot-app-db` | Creates a snapshot of the app database for the given environment. |
+| `push-storybook-assets` | Pushes static build of Story Book to AWS S3 for hosting. |
 
 ## Development Scripts
 

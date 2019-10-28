@@ -18,7 +18,7 @@ describe('HomePage tests', () => {
     it('renders without crashing', () => {
       const div = document.createElement('div');
       wrapper = shallow(<Landing isLoggedIn={false} />, div);
-      expect(wrapper.find('.usa-grid').length).toEqual(1);
+      expect(wrapper.find('.grid-container').length).toEqual(1);
     });
   });
   describe('When loggedIn', () => {
@@ -26,7 +26,7 @@ describe('HomePage tests', () => {
     it('renders without crashing', () => {
       const div = document.createElement('div');
       wrapper = shallow(<Landing isLoggedIn={true} />, div);
-      expect(wrapper.find('.usa-grid').length).toEqual(1);
+      expect(wrapper.find('.grid-container').length).toEqual(1);
     });
     describe('When the user has never logged in before', () => {
       it('redirects to enter profile page', () => {
@@ -62,7 +62,7 @@ describe('HomePage tests', () => {
           />,
           div,
         );
-        expect(wrapper.find('.usa-grid').length).toEqual(1);
+        expect(wrapper.find('.grid-container').length).toEqual(1);
         expect(wrapper.find(MoveSummary).length).toEqual(0);
       });
     });

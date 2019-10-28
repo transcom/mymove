@@ -40,36 +40,45 @@ class PPMPaymentRequestActionBtns extends Component {
       submitting,
     } = this.props;
     return (
-      <div className="usa-width-one-whole">
-        {hasConfirmation && this.state.displayConfirmation && (
-          <div className="ppm-payment-request-footer">
-            <AlertWithConfirmation
-              hasConfirmation={hasConfirmation}
-              type="warning"
-              cancelActionHandler={this.cancelConfirmationHandler}
-              okActionHandler={this.confirmFinishLater}
-              message="Go back to the home screen without saving current screen."
-            />
-          </div>
-        )}
+      <div className="grid-row">
+        <div className="grid-col-12">
+          {hasConfirmation && this.state.displayConfirmation && (
+            <div className="ppm-payment-request-footer">
+              <AlertWithConfirmation
+                hasConfirmation={hasConfirmation}
+                type="warning"
+                cancelActionHandler={this.cancelConfirmationHandler}
+                okActionHandler={this.confirmFinishLater}
+                message="Go back to the home screen without saving current screen."
+              />
+            </div>
+          )}
 
-        {!this.state.displayConfirmation && (
-          <div className="ppm-payment-request-footer">
-            <button type="button" className="usa-button-secondary" onClick={this.showConfirmationOrFinishLater}>
-              Finish Later
-            </button>
-            <div className="usa-width-one-thirds">
+          {!this.state.displayConfirmation && (
+            <div className="ppm-payment-request-footer align-right">
+              <button
+                type="button"
+                className="usa-button usa-button--outline"
+                onClick={this.showConfirmationOrFinishLater}
+              >
+                Finish Later
+              </button>
               {displaySkip && (
-                <button data-cy="skip" type="button" className="usa-button-secondary" onClick={skipHandler}>
+                <button data-cy="skip" type="button" className="usa-button usa-button--outline" onClick={skipHandler}>
                   Skip
                 </button>
               )}
-              <button type="button" onClick={saveAndAddHandler} disabled={submitButtonsAreDisabled || submitting}>
+              <button
+                type="button"
+                className="usa-button"
+                onClick={saveAndAddHandler}
+                disabled={submitButtonsAreDisabled || submitting}
+              >
                 {nextBtnLabel}
               </button>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     );
   }

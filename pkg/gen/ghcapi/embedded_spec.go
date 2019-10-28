@@ -36,6 +36,66 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
+    "/customer/{customerID}": {
+      "get": {
+        "description": "Returns a given customer",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Returns a given customer",
+        "operationId": "getCustomerInfo",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved information on an individual customer",
+            "schema": {
+              "$ref": "#/definitions/Customer"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of customer to use",
+          "name": "customerID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move-task-orders": {
       "get": {
         "description": "Gets all move orders",
@@ -1273,7 +1333,79 @@ func init() {
       }
     },
     "Customer": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "agency": {
+          "type": "string",
+          "title": "Agency",
+          "x-nullable": true,
+          "example": "Some Agency"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "example": true
+        },
+        "destination_duty_station": {
+          "type": "string",
+          "title": "Destination",
+          "x-nullable": true,
+          "example": "Dover AFB"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "title": "Email Address",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true,
+          "example": "john_bob@example.com"
+        },
+        "first_name": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": true,
+          "example": "John"
+        },
+        "grade": {
+          "type": "string",
+          "title": "Grade",
+          "x-nullable": true,
+          "example": "Some Grade"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "last_name": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": true,
+          "example": "Donut"
+        },
+        "middle_name": {
+          "type": "string",
+          "title": "Middle Name",
+          "x-nullable": true,
+          "example": "L."
+        },
+        "origin_duty_station": {
+          "type": "string",
+          "title": "Origin",
+          "x-nullable": true,
+          "example": "Dover AFB"
+        },
+        "pickup_address": {
+          "$ref": "#/definitions/Address"
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "title": "Best Contact Phone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true,
+          "example": "212-555-5555"
+        }
+      }
     },
     "Entitlements": {
       "type": "object",
@@ -1344,8 +1476,10 @@ func init() {
           "type": "string",
           "format": "date"
         },
-        "customer": {
-          "$ref": "#/definitions/Customer"
+        "customerId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "deletedAt": {
           "type": "string",
@@ -1717,6 +1851,81 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
+    "/customer/{customerID}": {
+      "get": {
+        "description": "Returns a given customer",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Returns a given customer",
+        "operationId": "getCustomerInfo",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved information on an individual customer",
+            "schema": {
+              "$ref": "#/definitions/Customer"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of customer to use",
+          "name": "customerID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move-task-orders": {
       "get": {
         "description": "Gets all move orders",
@@ -3179,7 +3388,79 @@ func init() {
       }
     },
     "Customer": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "agency": {
+          "type": "string",
+          "title": "Agency",
+          "x-nullable": true,
+          "example": "Some Agency"
+        },
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "example": true
+        },
+        "destination_duty_station": {
+          "type": "string",
+          "title": "Destination",
+          "x-nullable": true,
+          "example": "Dover AFB"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "title": "Email Address",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true,
+          "example": "john_bob@example.com"
+        },
+        "first_name": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": true,
+          "example": "John"
+        },
+        "grade": {
+          "type": "string",
+          "title": "Grade",
+          "x-nullable": true,
+          "example": "Some Grade"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "last_name": {
+          "type": "string",
+          "title": "Last Name",
+          "x-nullable": true,
+          "example": "Donut"
+        },
+        "middle_name": {
+          "type": "string",
+          "title": "Middle Name",
+          "x-nullable": true,
+          "example": "L."
+        },
+        "origin_duty_station": {
+          "type": "string",
+          "title": "Origin",
+          "x-nullable": true,
+          "example": "Dover AFB"
+        },
+        "pickup_address": {
+          "$ref": "#/definitions/Address"
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "title": "Best Contact Phone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true,
+          "example": "212-555-5555"
+        }
+      }
     },
     "Entitlements": {
       "type": "object",
@@ -3250,8 +3531,10 @@ func init() {
           "type": "string",
           "format": "date"
         },
-        "customer": {
-          "$ref": "#/definitions/Customer"
+        "customerId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "deletedAt": {
           "type": "string",

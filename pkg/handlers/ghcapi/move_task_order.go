@@ -59,7 +59,7 @@ func payloadForMoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *ghcmessages.Mo
 	destinationAddress := payloadForAddress(&moveTaskOrder.DestinationAddress)
 	pickupAddress := payloadForAddress(&moveTaskOrder.PickupAddress)
 	payload := &ghcmessages.MoveTaskOrder{
-		Customer:               moveTaskOrder.Customer,
+		CustomerID:             strfmt.UUID(moveTaskOrder.CustomerID.String()),
 		DestinationAddress:     destinationAddress,
 		DestinationDutyStation: strfmt.UUID(moveTaskOrder.DestinationDutyStation.ID.String()),
 		// TODO the pivotal ticket seems somewhat incomplete compared to the

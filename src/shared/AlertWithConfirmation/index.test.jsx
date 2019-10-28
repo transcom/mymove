@@ -13,8 +13,8 @@ describe('basic alert with confirmation component', () => {
     </Provider>,
   );
   it('should render children and heading', () => {
-    expect(wrapper.find('.usa-alert-heading').text()).toBe(heading);
-    expect(wrapper.find('.usa-alert-text').text()).toBe(text);
+    expect(wrapper.find('.usa-alert__heading').text()).toBe(heading);
+    expect(wrapper.find('.usa-alert__text').text()).toBe(text);
   });
   it('should not have a close button', () => {
     expect(wrapper.find('.icon.remove-icon')).toHaveLength(0);
@@ -30,8 +30,8 @@ describe('basic alert with confirmation component', () => {
       </Provider>,
     );
     it('should render cancel button', () => {
-      expect(wrapper.find('.usa-button-secondary')).toHaveLength(1);
-      wrapper.find('.usa-button-secondary').simulate('click');
+      expect(wrapper.find('.usa-button--outline')).toHaveLength(1);
+      wrapper.find('.usa-button--outline').simulate('click');
       expect(mockCancelActionHandler).toHaveBeenCalled();
     });
   });
@@ -43,8 +43,11 @@ describe('basic alert with confirmation component', () => {
       </Provider>,
     );
     it('should render cancel and ok buttons', () => {
-      expect(wrapper.find('.usa-button')).toHaveLength(1);
-      wrapper.find('.usa-button').simulate('click');
+      expect(wrapper.find('.usa-button')).toHaveLength(2);
+      wrapper
+        .find('.usa-button')
+        .at(1)
+        .simulate('click');
       expect(mockOkActionHandler).toHaveBeenCalled();
     });
   });

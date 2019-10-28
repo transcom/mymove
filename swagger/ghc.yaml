@@ -12,6 +12,47 @@ basePath: /ghc/v1
 schemes:
   - http
 paths:
+  '/customer/{customerID}':
+    parameters:
+      - description: ID of customer to use
+        in: path
+        name: customerID
+        required: true
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved information on an individual customer
+          schema:
+            $ref: '#/definitions/Customer'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - Customer
+      description: Returns a given customer
+      operationId: getCustomerInfo
+      summary: Returns a given customer
   /move-task-orders:
     get:
       produces:
@@ -723,7 +764,6 @@ paths:
       operationId: updatePaymentRequestStatus
       summary: Updates status of a payment request by id
 definitions:
-#  TODO this story seemed to expect some concept of address, confirm this
   Address:
     type: object
     properties:
@@ -893,6 +933,65 @@ definitions:
     type: object
   Customer:
     type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      first_name:
+        type: string
+        example: John
+        x-nullable: true
+        title: First Name
+      middle_name:
+        type: string
+        example: L.
+        x-nullable: true
+        title: Middle Name
+      last_name:
+        type: string
+        example: Donut
+        x-nullable: true
+        title: Last Name
+      agency:
+        type: string
+        example: Some Agency
+        x-nullable: true
+        title: Agency
+      grade:
+        type: string
+        example: Some Grade
+        x-nullable: true
+        title: Grade
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: john_bob@example.com
+        x-nullable: true
+        title: Email Address
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+        title: Best Contact Phone
+      origin_duty_station:
+        type: string
+        example: Dover AFB
+        title: Origin
+        x-nullable: true
+      destination_duty_station:
+        type: string
+        example: Dover AFB
+        title: Destination
+        x-nullable: true
+      pickup_address:
+        $ref: '#/definitions/Address'
+      dependentsAuthorized:
+        example: true
+        type: boolean
   Entitlements:
     properties:
       id:
@@ -944,8 +1043,10 @@ definitions:
       createdAt:
         format: date
         type: string
-      customer:
-        $ref: '#/definitions/Customer'
+      customerId:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
       deletedAt:
         format: date
         type: string

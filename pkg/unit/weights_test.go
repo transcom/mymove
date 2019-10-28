@@ -30,6 +30,24 @@ func Test_PoundsToCWT(t *testing.T) {
 	}
 }
 
+func Test_PoundsToCWTFloat64(t *testing.T) {
+	// Test 1050lbs -> 10.5cwt
+	pounds := Pound(1050)
+	expected := 10.5
+	result := pounds.ToCWTFloat64()
+	if result != expected {
+		t.Errorf("pounds did not convert properly: expected %v, got %v", expected, result)
+	}
+
+	// Test 1100lbs -> 11.0cwt
+	pounds = Pound(1100)
+	expected = 11.0
+	result = pounds.ToCWTFloat64()
+	if result != expected {
+		t.Errorf("pounds did not convert properly: expected %v, got %v", expected, result)
+	}
+}
+
 func Test_CWTToPounds(t *testing.T) {
 	// Test 20cwt -> 2000lbs
 	cwt := CWT(20)

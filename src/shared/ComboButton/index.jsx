@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faCaretDown from '@fortawesome/fontawesome-free-solid/faCaretDown';
@@ -40,7 +41,7 @@ class ComboButton extends Component {
     return (
       <span className="container combo-button" ref={this.container}>
         <button
-          className={allAreApproved ? 'btn__approve--green' : ''}
+          className={classNames('usa-button', { 'btn__approve--green': allAreApproved })}
           disabled={disabled}
           onClick={this.handleButtonClick}
         >

@@ -40,7 +40,7 @@ const downloadOnlyView = (filename, url) => (
   <div className="pdf-placeholder">
     {filename && <span className="filename">{filename}</span>}
     This PDF can be{' '}
-    <a target="_blank" rel="noopener noreferrer" href={url}>
+    <a target="_blank" rel="noopener noreferrer" href={url} className="usa-link">
       viewed here
     </a>
     .
