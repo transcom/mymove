@@ -1,0 +1,70 @@
+package adminuser
+
+import (
+	"testing"
+
+	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
+)
+
+func (suite *AdminUserServiceSuite) TestUpdateAdminUser() {
+	organization := testdatagen.MakeOrganization(suite.DB(), testdatagen.Assertions{})
+
+	newUUID, _ := uuid.NewV4()
+
+	userInfo := models.AdminUser{
+		ID:             newUUID,
+		LastName:       "Spaceman",
+		FirstName:      "Leo",
+		Email:          "spaceman@leo.org",
+		OrganizationID: &organization.ID,
+		Organization:   organization,
+	}
+
+	// Happy path
+	suite.T().Run("If the user is updated successfully it should be returned", func(t *testing.T) {
+		fakeUpdateOne := func(interface{}) (*validate.Errors, error) {
+			return nil, nil
+		}
+
+		fakeFetchOne := func(model interface{}) error {
+			return nil
+		}
+
+		builder := &testAdminUserQueryBuilder{
+			fakeFetchOne:  fakeFetchOne,
+			fakeUpdateOne: fakeUpdateOne,
+		}
+
+		updater := NewAdminUserUpdater(builder)
+		_, verrs, err := updater.UpdateAdminUser(&userInfo)
+		suite.NoError(err)
+		suite.Nil(verrs)
+	})
+
+	// Bad organization ID
+	suite.T().Run("If we are provided a organization that doesn't exist, the create should fail", func(t *testing.T) {
+		fakeUpdateOne := func(model interface{}) (*validate.Errors, error) {
+			return nil, nil
+		}
+
+		fakeFetchOne := func(model interface{}) error {
+			return models.ErrFetchNotFound
+		}
+
+		builder := &testAdminUserQueryBuilder{
+			fakeFetchOne:  fakeFetchOne,
+			fakeUpdateOne: fakeUpdateOne,
+		}
+
+		updater := NewAdminUserUpdater(builder)
+		_, _, err := updater.UpdateAdminUser(&userInfo)
+		suite.Error(err)
+		suite.Equal(models.ErrFetchNotFound.Error(), err.Error())
+
+	})
+
+}
