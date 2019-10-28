@@ -87,14 +87,41 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticServiceArea() {
 			suite.Equal(c.expectedMinPeakCost, cost.Int())
 		})
 
-		//suite.T().Run(fmt.Sprintf("%s date outside of valid contract year", serviceName), func(t *testing.T) {
-		//
-		//})
+		suite.T().Run(fmt.Sprintf("%s date outside of valid contract year", c.serviceName), func(t *testing.T) {
+			yearOutsideContractYear := testdatagen.TestYear + 1
+			_, err := pricer.PriceDomesticServiceArea(
+				time.Date(yearOutsideContractYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
+				450,
+				dsaTestServiceArea,
+				c.serviceCode)
+
+			suite.Error(err)
+		})
 	}
 
-	//suite.T().Run("validation errors", func(t *testing.T) {
-	//
-	//}
+	suite.T().Run("validation errors", func(t *testing.T) {
+		moveDate := time.Date(testdatagen.TestYear, time.July, 4, 0, 0, 0, 0, time.UTC)
+
+		// No move date
+		_, err := pricer.PriceDomesticServiceArea(time.Time{}, dsaTestWeight, dsaTestServiceArea, "DODP")
+		suite.Error(err)
+		suite.Equal("MoveDate is required", err.Error())
+
+		// No weight
+		_, err = pricer.PriceDomesticServiceArea(moveDate, 0, dsaTestServiceArea, "DODP")
+		suite.Error(err)
+		suite.Equal("Weight must be greater than 0", err.Error())
+
+		// No service area
+		_, err = pricer.PriceDomesticServiceArea(moveDate, dsaTestWeight, "", "DODP")
+		suite.Error(err)
+		suite.Equal("ServiceArea is required", err.Error())
+
+		// No service code
+		_, err = pricer.PriceDomesticServiceArea(moveDate, dsaTestWeight, dsaTestServiceArea, "")
+		suite.Error(err)
+		suite.Equal("ServiceCode is required", err.Error())
+	})
 }
 
 func (suite *GHCRateEngineServiceSuite) setUpDomesticServiceAreaPricesData() {

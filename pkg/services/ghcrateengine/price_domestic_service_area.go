@@ -69,7 +69,7 @@ func (dsa *domesticServiceAreaPricer) PriceDomesticServiceArea(moveDate time.Tim
 		return 0, errors.New("ServiceArea is required")
 	}
 	if len(serviceCode) == 0 {
-		return 0, errors.New("ServicesCode is required")
+		return 0, errors.New("ServiceCode is required")
 	}
 
 	isPeakPeriod := IsPeakPeriod(moveDate)
