@@ -8,21 +8,21 @@ import (
 )
 
 type Customer struct {
-	ID                    uuid.UUID  `json:"id" db:"id"`
-	CustomerName          string     `json:"customer_name" db:"customer_name"`
-	OriginDutyStationName string     `json:"origin_duty_station_name" db:"origin_duty_station_name"`
-	DestinationDutyStationName string     `json:"destination_duty_station_name" db:"destination_duty_station_name"`
-	Agency       string     `json:"agency" db:"agency"`
-	DependentsAuthorized	bool	`json:"dependents_authorized" db:"dependents_authorized"`
-	Grade		string `json:"grade" db:"grade"`
-	Email    string     `json:"email" db:"email"`
-	Telephone    string     `json:"telephone" db:"telephone"`
+	ID                         uuid.UUID `json:"id" db:"id"`
+	CustomerName               string    `json:"customer_name" db:"customer_name"`
+	OriginDutyStationName      string    `json:"origin_duty_station_name" db:"origin_duty_station_name"`
+	DestinationDutyStationName string    `json:"destination_duty_station_name" db:"destination_duty_station_name"`
+	Agency                     string    `json:"agency" db:"agency"`
+	DependentsAuthorized       bool      `json:"dependents_authorized" db:"dependents_authorized"`
+	Grade                      string    `json:"grade" db:"grade"`
+	Email                      string    `json:"email" db:"email"`
+	Telephone                  string    `json:"telephone" db:"telephone"`
 }
 
 // CustomerMoveItem represents a single move queue item within a queue.
 type CustomerMoveItem struct {
 	ID                    uuid.UUID  `json:"id" db:"id"`
-	CustomerID            uuid.UUID   `json:"customer_id" db:"customer_id"`
+	CustomerID            uuid.UUID  `json:"customer_id" db:"customer_id"`
 	CreatedAt             time.Time  `json:"created_at" db:"created_at"`
 	CustomerName          string     `json:"customer_name" db:"customer_name"`
 	ConfirmationNumber    string     `json:"locator" db:"locator"`
@@ -55,8 +55,8 @@ func GetCustomerMoveItems(db *pop.Connection) ([]CustomerMoveItem, error) {
 	return CustomerMoveItems, err
 }
 
-func GetCustomerInfo(db *pop.Connection, customerId uuid.UUID) (Customer, error) {
-	var Customer Customer
+func GetCustomerInfo(db *pop.Connection, customerID uuid.UUID) (Customer, error) {
+	var customer Customer
 	err := db.RawQuery(`
 	SELECT sm.ID,
 	   CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
@@ -74,6 +74,6 @@ func GetCustomerInfo(db *pop.Connection, customerId uuid.UUID) (Customer, error)
 			JOIN duty_stations AS origin_duty_station ON sm.duty_station_id = origin_duty_station.id
 			JOIN duty_stations AS destination_duty_station ON ord.new_duty_station_id = destination_duty_station.id
            WHERE sm.id = $1
-	`, customerId).First(&Customer)
-	return Customer, err
+	`, customerID).First(&customer)
+	return customer, err
 }

@@ -38,7 +38,7 @@ class TOO extends Component {
                 branch_of_service,
                 origin_duty_station_name,
               }) => (
-                <tr onClick={() => this.handleCustomerInfoClick(customer_id)} key={id}>
+                <tr data-cy="too-row" onClick={() => this.handleCustomerInfoClick(customer_id)} key={id}>
                   <td>{customer_name}</td>
                   <td>{confirmation_number}</td>
                   <td>{branch_of_service}</td>

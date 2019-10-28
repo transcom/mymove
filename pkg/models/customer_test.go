@@ -9,8 +9,8 @@ func (suite *ModelSuite) TestGetCustomerMoveItems() {
 	affiliation := models.AffiliationARMY
 	testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			FirstName:     models.StringPointer("Test"),
-			LastName:      models.StringPointer("User"),
+			FirstName:   models.StringPointer("Test"),
+			LastName:    models.StringPointer("User"),
 			Affiliation: &affiliation,
 		},
 		Move: models.Move{
@@ -20,8 +20,8 @@ func (suite *ModelSuite) TestGetCustomerMoveItems() {
 
 	testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			FirstName:     models.StringPointer("Test"),
-			LastName:      models.StringPointer("User 2"),
+			FirstName:   models.StringPointer("Test"),
+			LastName:    models.StringPointer("User 2"),
 			Affiliation: &affiliation,
 		},
 		Move: models.Move{
@@ -32,8 +32,8 @@ func (suite *ModelSuite) TestGetCustomerMoveItems() {
 	customerMoveItems, err := models.GetCustomerMoveItems(suite.DB())
 	suite.NoError(err)
 	suite.Len(customerMoveItems, 2)
-	suite.Equal(customerMoveItems[1].CustomerName, "User 2, Test")
-	suite.Equal(customerMoveItems[1].ConfirmationNumber, "TES123")
 	suite.Equal(customerMoveItems[0].CustomerName, "User, Test")
 	suite.Equal(customerMoveItems[0].ConfirmationNumber, "DFTMVE")
+	suite.Equal(customerMoveItems[1].CustomerName, "User 2, Test")
+	suite.Equal(customerMoveItems[1].ConfirmationNumber, "TES123")
 }

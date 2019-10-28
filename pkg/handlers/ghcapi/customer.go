@@ -19,20 +19,19 @@ type GetCustomerInfoHandler struct {
 }
 
 func payloadForCustomerInfo(Customer models.Customer) *ghcmessages.Customer {
-	CustomerInfoPayload  := ghcmessages.Customer{
-		ID:                    *handlers.FmtUUID(Customer.ID),
-		CustomerName:          swag.String(Customer.CustomerName),
-		Agency: swag.String(Customer.Agency),
-		Grade: swag.String(Customer.Grade),
-		Email: swag.String(Customer.Email),
-		Telephone: swag.String(Customer.Telephone),
-		OriginDutyStation: swag.String(Customer.OriginDutyStationName),
+	CustomerInfoPayload := ghcmessages.Customer{
+		ID:                     *handlers.FmtUUID(Customer.ID),
+		CustomerName:           swag.String(Customer.CustomerName),
+		Agency:                 swag.String(Customer.Agency),
+		Grade:                  swag.String(Customer.Grade),
+		Email:                  swag.String(Customer.Email),
+		Telephone:              swag.String(Customer.Telephone),
+		OriginDutyStation:      swag.String(Customer.OriginDutyStationName),
 		DestinationDutyStation: swag.String(Customer.DestinationDutyStationName),
-		DependentsAuthorized: Customer.DependentsAuthorized,
+		DependentsAuthorized:   Customer.DependentsAuthorized,
 	}
 	return &CustomerInfoPayload
 }
-
 
 // Handle getting the information of a specific customer
 func (h GetCustomerInfoHandler) Handle(params customercodeop.GetCustomerInfoParams) middleware.Responder {
@@ -41,9 +40,9 @@ func (h GetCustomerInfoHandler) Handle(params customercodeop.GetCustomerInfoPara
 	if !session.IsOfficeUser() {
 		return customercodeop.NewGetCustomerInfoForbidden()
 	}
-	customerId, _ := uuid.FromString(params.CustomerID.String())
+	customerID, _ := uuid.FromString(params.CustomerID.String())
 
-	customer, err := models.GetCustomerInfo(h.DB(), customerId)
+	customer, err := models.GetCustomerInfo(h.DB(), customerID)
 
 	if err != nil {
 		logger.Error("Loading Customer Info", zap.Error(err))
@@ -56,7 +55,7 @@ func (h GetCustomerInfoHandler) Handle(params customercodeop.GetCustomerInfoPara
 func payloadForCustomerMoveItem(CustomerMoveItem models.CustomerMoveItem) *ghcmessages.CustomerMoveItem {
 	CustomerMoveItemPayload := ghcmessages.CustomerMoveItem{
 		ID:                    *handlers.FmtUUID(CustomerMoveItem.ID),
-		CustomerID:				*handlers.FmtUUID(CustomerMoveItem.CustomerID),
+		CustomerID:            *handlers.FmtUUID(CustomerMoveItem.CustomerID),
 		CreatedAt:             strfmt.DateTime(CustomerMoveItem.CreatedAt),
 		CustomerName:          swag.String(CustomerMoveItem.CustomerName),
 		ConfirmationNumber:    CustomerMoveItem.ConfirmationNumber,
