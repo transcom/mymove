@@ -67,6 +67,7 @@ class CustomerDetails extends React.Component {
           <>
             <h2>Move Task Order</h2>
             <dl>
+              <dt>Origin Duty Station</dt>
               <dd>{get(moveTaskOrder, 'originDutyStation')}</dd>
               <dt>Destination Duty Station</dt>
               <dd>{get(moveTaskOrder, 'destinationDutyStation')}</dd>
@@ -83,6 +84,7 @@ class CustomerDetails extends React.Component {
               <dt>Status</dt>
               <dd>{get(moveTaskOrder, 'status')}</dd>
               <dt>Weight Entitlement</dt>
+              {/*TODO do the entitlements belong on MTO? Was thinking yes based on the ticket, but since have a separate endpoint wasn't sure*/}
               <dd>{get(moveTaskOrder, 'entitlements.totalWeightSelf')}</dd>
               <dt>SIT Entitlement</dt>
               <dd>{get(moveTaskOrder, 'entitlements.storageInTransit')}</dd>
