@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
@@ -14,6 +15,7 @@ import (
 // allowed comparators for this query builder implementation
 const equals = "="
 const greaterThan = ">"
+const ilike = "ILIKE" // Case insensitive
 
 // Error message constants
 const fetchManyReflectionMessage = "Model should be pointer to slice of structs"
@@ -49,6 +51,8 @@ func getComparator(comparator string) (string, bool) {
 		return equals, true
 	case greaterThan:
 		return greaterThan, true
+	case ilike:
+		return ilike, true
 	default:
 		return "", false
 	}
@@ -134,17 +138,41 @@ func categoricalCountsQueryOneModel(conn *pop.Connection, filters []services.Que
 
 func filteredQuery(query *pop.Query, filters []services.QueryFilter, t reflect.Type) (*pop.Query, error) {
 	invalidFields := make([]string, 0)
+	likeFilters := map[interface{}][]services.QueryFilter{}
+
 	for _, f := range filters {
 		// Validate the filter we're using is valid/safe
 		invalidField := validateFilter(f, t)
 		if invalidField != "" {
 			invalidFields = append(invalidFields, fmt.Sprintf("%s %s", f.Column(), f.Comparator()))
 		}
+
+		if f.Comparator() == ilike {
+			likeFilters[f.Value()] = append(likeFilters[f.Value()], f)
+			continue
+		}
+
 		// Column lookup should always adhere to SQL injection input validations
 		// https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.md#defense-option-3-whitelist-input-validation
 		columnQuery := fmt.Sprintf("%s %s ?", f.Column(), f.Comparator())
 		query = query.Where(columnQuery, f.Value())
 	}
+
+	// Hacky way to get ILIKE filters to work with OR instead of AND
+	for val, f := range likeFilters {
+		var queries []string
+		var vals []interface{}
+
+		for _, lf := range f {
+			vals = append(vals, val)
+			columnQuery := fmt.Sprintf("%s %s ?", lf.Column(), lf.Comparator())
+			queries = append(queries, columnQuery)
+		}
+
+		likeQuery := strings.Join(queries, " OR ")
+		query = query.Where(likeQuery, vals...)
+	}
+
 	if len(invalidFields) != 0 {
 		return query, fmt.Errorf("%v is not valid input", invalidFields)
 	}
