@@ -6,7 +6,7 @@ CREATE TYPE move_task_order_status AS ENUM (
     );
 ALTER TABLE move_task_orders
     -- TODO will there still be a concept of a move
-    -- TODO confirm all of these belong there?
+    -- TODO confirm all of these belong here?
     ADD COLUMN customer_id uuid REFERENCES service_members,
     ADD COLUMN origin_duty_station_id uuid REFERENCES duty_stations,
     ADD COLUMN destination_duty_station_id uuid REFERENCES duty_stations,

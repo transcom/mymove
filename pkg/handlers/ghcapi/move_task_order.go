@@ -29,7 +29,8 @@ type UpdateMoveTaskOrderStatusHandlerFunc struct {
 func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params move_task_order.UpdateMoveTaskOrderStatusParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	// TODO how are we going to handle auth in new api
+	// TODO how are we going to handle auth in new api? Do we need some sort of placeholder to remind us to
+	// TODO to revist?
 	moveTaskOrderID, status := requestToModels(params)
 	mto, err := h.moveTaskOrderStatusUpdater.UpdateMoveTaskOrderStatus(moveTaskOrderID, status)
 	if err != nil {

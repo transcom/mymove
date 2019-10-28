@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
+//ErrNotFound is returned when a given move task order is not found
 type ErrNotFound struct {
 	id uuid.UUID
 }
@@ -19,6 +20,7 @@ func (e ErrNotFound) Error() string {
 	return fmt.Sprintf("move task order id: %s not found", e.id.String())
 }
 
+//ErrInvalidInput is returned when an update to a move task order fails a validation rule
 type ErrInvalidInput struct {
 	id uuid.UUID
 	error
@@ -28,7 +30,6 @@ func (e ErrInvalidInput) Error() string {
 	return fmt.Sprintf("invalid input for move task order id: %s. %s", e.id.String(), e.error.Error())
 }
 
-// fetchMoveTaskOrder is a service object to validate an access code.
 type fetchMoveTaskOrder struct {
 	db *pop.Connection
 }
@@ -38,6 +39,7 @@ func NewMoveTaskOrderFetcher(db *pop.Connection) services.MoveTaskOrderFetcher {
 	return &fetchMoveTaskOrder{db}
 }
 
+//FetchMoveTaskOrder retrieves a MoveTaskOrder for a given UUID
 func (f fetchMoveTaskOrder) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error) {
 	mto := &models.MoveTaskOrder{}
 	if err := f.db.Eager().Find(mto, moveTaskOrderID); err != nil {
@@ -51,7 +53,6 @@ func (f fetchMoveTaskOrder) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*mode
 	return mto, nil
 }
 
-// fetchMoveTaskOrder is a service object to validate an access code.
 type updateMoveTaskOrderStatus struct {
 	db *pop.Connection
 	fetchMoveTaskOrder
@@ -63,6 +64,7 @@ func NewMoveTaskOrderStatusUpdater(db *pop.Connection) services.MoveTaskOrderSta
 	return &updateMoveTaskOrderStatus{db, moveTaskOrderFetcher}
 }
 
+//UpdateMoveTaskOrderStatus updates the status of a MoveTaskOrder for a given UUID
 func (f fetchMoveTaskOrder) UpdateMoveTaskOrderStatus(moveTaskOrderID uuid.UUID, status models.MoveTaskOrderStatus) (*models.MoveTaskOrder, error) {
 	mto, err := f.FetchMoveTaskOrder(moveTaskOrderID)
 	if err != nil {
