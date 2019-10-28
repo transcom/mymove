@@ -24,6 +24,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticServiceArea() {
 		serviceName         string
 		expectedPeakCost    int
 		expectedNonpeakCost int
+		expectedMinPeakCost int
 	}
 
 	testCases := []testDataStruct{
@@ -32,18 +33,21 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticServiceArea() {
 			serviceName:         "Dom. O/D Price",
 			expectedPeakCost:    28848,
 			expectedNonpeakCost: 25096,
+			expectedMinPeakCost: 4121,
 		},
 		{
 			serviceCode:         "DFSIT",
 			serviceName:         "Dom. O/D 1st Day SIT",
 			expectedPeakCost:    80898,
 			expectedNonpeakCost: 70335,
+			expectedMinPeakCost: 11556,
 		},
 		{
 			serviceCode:         "DASIT",
 			serviceName:         "Dom. O/D Add'l SIT",
 			expectedPeakCost:    2841,
 			expectedNonpeakCost: 2476,
+			expectedMinPeakCost: 405,
 		},
 	}
 
@@ -72,10 +76,17 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticServiceArea() {
 			suite.Equal(c.expectedNonpeakCost, cost.Int())
 		})
 
-		//suite.T().Run(fmt.Sprintf("%s cost weight below minimum", serviceName), func(t *testing.T) {
-		//
-		//})
-		//
+		suite.T().Run(fmt.Sprintf("%s cost weight below minimum", c.serviceName), func(t *testing.T) {
+			cost, err := pricer.PriceDomesticServiceArea(
+				time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC),
+				450,
+				dsaTestServiceArea,
+				c.serviceCode)
+
+			suite.NoError(err)
+			suite.Equal(c.expectedMinPeakCost, cost.Int())
+		})
+
 		//suite.T().Run(fmt.Sprintf("%s date outside of valid contract year", serviceName), func(t *testing.T) {
 		//
 		//})
