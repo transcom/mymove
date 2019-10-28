@@ -6,14 +6,13 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
-	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	movetaskorderservice "github.com/transcom/mymove/pkg/services/move_task_order"
 
 	"github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/runtime/middleware"
 
-	//TODO why is this being named move_task_order in generated code. maybe just rename in import?
-	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
+	movetaskorderops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/services"
@@ -26,7 +25,7 @@ type UpdateMoveTaskOrderStatusHandlerFunc struct {
 }
 
 // UpdateMoveTaskOrderStatusHandlerFunc updates the status of a MoveTaskOrder
-func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params move_task_order.UpdateMoveTaskOrderStatusParams) middleware.Responder {
+func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.UpdateMoveTaskOrderStatusParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	// TODO how are we going to handle auth in new api? Do we need some sort of placeholder to remind us to
@@ -36,19 +35,19 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params move_task_order.Upda
 	if err != nil {
 		logger.Error("ghciap.MoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {
-		case movetaskorder.ErrNotFound:
-			return move_task_order.NewUpdateMoveTaskOrderStatusNotFound()
-		case movetaskorder.ErrInvalidInput:
-			return move_task_order.NewUpdateMoveTaskOrderStatusBadRequest()
+		case movetaskorderservice.ErrNotFound:
+			return movetaskorderops.NewUpdateMoveTaskOrderStatusNotFound()
+		case movetaskorderservice.ErrInvalidInput:
+			return movetaskorderops.NewUpdateMoveTaskOrderStatusBadRequest()
 		default:
-			return move_task_order.NewUpdateMoveTaskOrderStatusInternalServerError()
+			return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError()
 		}
 	}
 	moveTaskOrderPayload := payloadForMoveTaskOrder(*mto)
-	return move_task_order.NewUpdateMoveTaskOrderStatusOK().WithPayload(moveTaskOrderPayload)
+	return movetaskorderops.NewUpdateMoveTaskOrderStatusOK().WithPayload(moveTaskOrderPayload)
 }
 
-func requestToModels(params move_task_order.UpdateMoveTaskOrderStatusParams) (uuid.UUID, models.MoveTaskOrderStatus) {
+func requestToModels(params movetaskorderops.UpdateMoveTaskOrderStatusParams) (uuid.UUID, models.MoveTaskOrderStatus) {
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 	status := models.MoveTaskOrderStatus(params.Body.Status)
 	return moveTaskOrderID, status
