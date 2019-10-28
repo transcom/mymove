@@ -85,20 +85,20 @@ func (dsa *domesticServiceAreaPricer) PriceDomesticServiceArea(moveDate time.Tim
 
 	baseTotalPrice := priceAndEscalation.PriceCents.Float64() * effectiveWeight.ToCWTFloat64()
 	escalatedTotalPrice := baseTotalPrice * priceAndEscalation.EscalationCompounded
-	totalCost := unit.Cents(escalatedTotalPrice) // truncates the price to get an integer- is that what we want?
+	totalCost := unit.Cents(escalatedTotalPrice) // TODO: truncates the price to get an integer- is that what we want?
 
 	dsa.logger.Info(fmt.Sprintf("%s calculated", serviceCode), // May change to use ServiceName
-		zap.String("contract code", dsa.contractCode),
-		zap.String("service code", serviceCode),
-		zap.Time("move date", moveDate),
-		zap.String("service area", serviceArea),
-		zap.Float64("weight lb", float64(weight)),
-		zap.Float64("effective weight lb", float64(effectiveWeight)),
-		zap.Bool("is peak period", isPeakPeriod),
-		zap.Object("centPriceAndEscalation", priceAndEscalation),
-		zap.Float64("base cost (cents)", baseTotalPrice),
-		zap.Float64("escalated cost (cents)", baseTotalPrice),
-		zap.Int("calculated cost (cents)", cost.Int()),
+		zap.String("contractCode:", dsa.contractCode),
+		zap.String("serviceCode:", serviceCode),
+		zap.Time("moveDate:", moveDate),
+		zap.String("serviceArea:", serviceArea),
+		zap.Float64("weight (lb):", float64(weight)),
+		zap.Float64("effectiveWeight (lb):", float64(effectiveWeight)),
+		zap.Bool("isPeakPeriod: ", isPeakPeriod),
+		zap.Object("centPriceAndEscalation:", priceAndEscalation),
+		zap.Float64("baseCost (cents):", baseTotalPrice),
+		zap.Float64("escalatedCost (cents):", baseTotalPrice),
+		zap.Int("totalCost (cents):", totalCost.Int()),
 	)
 
 	return totalCost, err
