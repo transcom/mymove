@@ -53,7 +53,8 @@ func requestToModels(params movetaskorderops.UpdateMoveTaskOrderStatusParams) (u
 	return moveTaskOrderID, status
 }
 
-// TODO probably could write some some tests for these mappers.
+// TODO it might make sense to create a package for these various mappers, rather than making them all private
+// TODO since some can be reused. Might also make sense to have some mapper specfic tests
 func payloadForMoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *ghcmessages.MoveTaskOrder {
 	serviceItems := payloadForServiceItems(moveTaskOrder)
 	destinationAddress := payloadForAddress(&moveTaskOrder.DestinationAddress)
@@ -63,17 +64,16 @@ func payloadForMoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *ghcmessages.Mo
 		DestinationAddress:     destinationAddress,
 		DestinationDutyStation: strfmt.UUID(moveTaskOrder.DestinationDutyStation.ID.String()),
 		// TODO the pivotal ticket seems somewhat incomplete compared to the
-		// TODO api spec double check that's right
+		// TODO api spec. Confirm these are what is needed.
 		Entitlements: &ghcmessages.Entitlements{
 			StorageInTransit:      moveTaskOrder.SitEntitlement,
 			TotalWeightSelf:       moveTaskOrder.WeightEntitlement,
 			PrivatelyOwnedVehicle: &moveTaskOrder.POVEntitlement,
 			NonTemporaryStorage:   &moveTaskOrder.NTSEntitlement,
 		},
-		ID:       strfmt.UUID(moveTaskOrder.ID.String()),
-		MoveDate: strfmt.Date(moveTaskOrder.RequestedPickupDates),
-		MoveID:   strfmt.UUID(moveTaskOrder.MoveID.String()),
-		// TODO is UUID in api should it be?
+		ID:                  strfmt.UUID(moveTaskOrder.ID.String()),
+		MoveDate:            strfmt.Date(moveTaskOrder.RequestedPickupDates),
+		MoveID:              strfmt.UUID(moveTaskOrder.MoveID.String()),
 		OriginDutyStation:   strfmt.UUID(moveTaskOrder.OriginDutyStationID.String()),
 		PickupAddress:       pickupAddress,
 		Remarks:             moveTaskOrder.CustomerRemarks,

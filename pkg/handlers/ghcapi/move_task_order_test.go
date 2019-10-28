@@ -4,6 +4,8 @@ import (
 	"errors"
 	"net/http/httptest"
 
+	"github.com/go-openapi/strfmt"
+
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/gofrs/uuid"
@@ -41,9 +43,9 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegration() {
 	moveTaskOrdersResponse := response.(*movetaskorderops.UpdateMoveTaskOrderStatusOK)
 	moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
 
-	suite.NotNil(moveTaskOrdersPayload)
-
-	suite.NotNil(moveTaskOrdersPayload.ID, false)
+	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusOK{}, response)
+	suite.Equal(moveTaskOrdersPayload.ID, strfmt.UUID(moveTaskOrder.ID.String()))
+	suite.Equal(moveTaskOrdersPayload.Status, "DRAFT")
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerNotFoundError() {

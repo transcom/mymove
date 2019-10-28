@@ -33,7 +33,7 @@ type MoveTaskOrder struct {
 	Status                   MoveTaskOrderStatus `db:"status"`
 	ServiceItems             ServiceItems        `has_many:"service_items"`
 	UpdatedAt                time.Time           `db:"updated_at"`
-	//TODO This was in ticket but looks different from API defn
+	//TODO This was in ticket but looks different from API defn. Confirm expected entitlement fields on MTO.
 	WeightEntitlement int64 `db:"weight_entitlement"`
 }
 
