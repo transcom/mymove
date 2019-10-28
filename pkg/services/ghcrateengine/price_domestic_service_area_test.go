@@ -20,30 +20,30 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticServiceArea() {
 	pricer := NewDomesticServiceAreaPricer(suite.DB(), suite.logger, testdatagen.DefaultContractCode)
 
 	type testDataStruct struct {
-		serviceCode      string
-		serviceName      string
-		expectedPeakCost int
-		//expectedNonpeakCost int
+		serviceCode         string
+		serviceName         string
+		expectedPeakCost    int
+		expectedNonpeakCost int
 	}
 
 	testCases := []testDataStruct{
 		{
-			serviceCode:      "DODP",
-			serviceName:      "Dom. O/D Price",
-			expectedPeakCost: 28848,
-			//expectedNonpeakCost: 25097,
+			serviceCode:         "DODP",
+			serviceName:         "Dom. O/D Price",
+			expectedPeakCost:    28848,
+			expectedNonpeakCost: 25096,
 		},
 		{
-			serviceCode:      "DFSIT",
-			serviceName:      "Dom. O/D 1st Day SIT",
-			expectedPeakCost: 80899,
-			//expectedNonpeakCost: 70336,
+			serviceCode:         "DFSIT",
+			serviceName:         "Dom. O/D 1st Day SIT",
+			expectedPeakCost:    80898,
+			expectedNonpeakCost: 70335,
 		},
 		{
-			serviceCode:      "DASIT",
-			serviceName:      "Dom. O/D Add'l SIT",
-			expectedPeakCost: 2841,
-			//expectedNonpeakCost: 2477,
+			serviceCode:         "DASIT",
+			serviceName:         "Dom. O/D Add'l SIT",
+			expectedPeakCost:    2841,
+			expectedNonpeakCost: 2476,
 		},
 	}
 
@@ -60,10 +60,18 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticServiceArea() {
 			suite.Equal(c.expectedPeakCost, cost.Int())
 		})
 
-		//suite.T().Run(fmt.Sprintf("success %s cost within non-peak period", serviceName), func(t *testing.T) {
-		//
-		//})
-		//
+		suite.T().Run(fmt.Sprintf("success %s cost within non-peak period", c.serviceName), func(t *testing.T) {
+			nonPeakDate := peakStart.addDate(0, -1)
+			cost, err := pricer.PriceDomesticServiceArea(
+				time.Date(testdatagen.TestYear, nonPeakDate.month, nonPeakDate.day, 0, 0, 0, 0, time.UTC),
+				dsaTestWeight,
+				dsaTestServiceArea,
+				c.serviceCode)
+
+			suite.NoError(err)
+			suite.Equal(c.expectedNonpeakCost, cost.Int())
+		})
+
 		//suite.T().Run(fmt.Sprintf("%s cost weight below minimum", serviceName), func(t *testing.T) {
 		//
 		//})

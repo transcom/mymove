@@ -85,7 +85,7 @@ func (dsa *domesticServiceAreaPricer) PriceDomesticServiceArea(moveDate time.Tim
 
 	baseTotalPrice := priceAndEscalation.PriceCents.Float64() * effectiveWeight.ToCWTFloat64()
 	escalatedTotalPrice := baseTotalPrice * priceAndEscalation.EscalationCompounded
-	totalCost := unit.Cents(escalatedTotalPrice)
+	totalCost := unit.Cents(escalatedTotalPrice) // truncates the price to get an integer- is that what we want?
 
 	dsa.logger.Info(fmt.Sprintf("%s calculated", serviceCode), // May change to use ServiceName
 		zap.String("contract code", dsa.contractCode),
