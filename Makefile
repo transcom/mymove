@@ -873,8 +873,6 @@ clean: ## Clean all generated files
 	rm -rf ./public/swagger-ui/*.{css,js,png}
 	rm -rf ./tmp/secure_migrations
 	rm -rf ./tmp/storage
-	rm -rf ./storybook-static
-	rm -rf ./coverage
 
 .PHONY: spellcheck
 spellcheck: .client_deps.stamp ## Run interactive spellchecker
