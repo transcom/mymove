@@ -52,9 +52,6 @@ func lookupDomesticServiceAreaPrice(db *pop.Connection, moveDate time.Time, serv
 		return pe, errors.Wrap(err, "Fetch domestic service area price failed")
 	}
 	return pe, err
-
-	//stubbedRate, err := unit.Cents(689), nil
-	//return stubbedRate, err
 }
 
 func (dsa *domesticServiceAreaPricer) PriceDomesticServiceArea(moveDate time.Time, weight unit.Pound, serviceArea string, serviceCode string) (cost unit.Cents, err error) {
