@@ -20,13 +20,13 @@ import (
 )
 
 var (
-	movePaymentReminderTextTemplate = string(assets.MustAsset("pkg/notifications/templates/move_reviewed_template.txt"))
-	paymentReminderTextTemplate     = text.Must(text.New("text_template").Parse(moveReviewedRawTextTemplate))
-	movePaymentReminderHTMLTemplate = string(assets.MustAsset("pkg/notifications/templates/move_reviewed_template.html"))
-	paymentReminderHTMLTemplate     = html.Must(html.New("text_template").Parse(moveReviewedRawHTMLTemplate))
+	movePaymentReminderRawText  = string(assets.MustAsset("pkg/notifications/templates/move_payment_reminder_template.txt"))
+	paymentReminderTextTemplate = text.Must(text.New("text_template").Parse(movePaymentReminderRawText))
+	movePaymentReminderRawHTML  = string(assets.MustAsset("pkg/notifications/templates/move_payment_reminder_template.html"))
+	paymentReminderHTMLTemplate = html.Must(html.New("text_template").Parse(movePaymentReminderRawHTML))
 )
 
-// paymentReminder has notification content for completed/reviewed moves
+// PaymentReminder has notification content for completed/reviewed moves
 type PaymentReminder struct {
 	db           *pop.Connection
 	logger       Logger
@@ -38,7 +38,7 @@ type PaymentReminder struct {
 // NewPaymentReminder returns a new move submitted notification
 func NewPaymentReminder(db *pop.Connection, logger Logger, date time.Time) (*PaymentReminder, error) {
 
-	return &paymentReminder{
+	return &PaymentReminder{
 		db:           db,
 		logger:       logger,
 		date:         date,
@@ -56,7 +56,7 @@ type PaymentReminderEmailInfo struct {
 	NewDutyStationName string    `db:"new_duty_station_name"`
 }
 
-func (m paymentReminder) GetEmailInfo(date time.Time) (PaymentReminderEmailInfos, error) {
+func (m PaymentReminder) GetEmailInfo(date time.Time) (PaymentReminderEmailInfos, error) {
 	// 	dateString := date.Format("2006-01-02")
 	query := `SELECT 'e7edaddf-f4f9-401f-940b-b6c3be84195d' as id, 'lindsay+test1@truss.works' as personal_email, 'abc' as duty_station_name, '123' as new_duty_station_name`
 	// 	query := `SELECT sm.id, sm.personal_email, dsn.name AS new_duty_station_name, dso.name AS duty_station_name
@@ -71,17 +71,17 @@ func (m paymentReminder) GetEmailInfo(date time.Time) (PaymentReminderEmailInfos
 	// --  send email if haven't sent them a MOVE_REVIEWED_EMAIL yet OR we haven't sent them any emails at all
 	//     AND (notification_type != 'MOVE_REVIEWED_EMAIL' OR n.service_member_id IS NULL);`
 
-	PaymentReminderEmailInfos := PaymentReminderEmailInfos{}
-	err := m.db.RawQuery(query).All(&PaymentReminderEmailInfos)
+	paymentReminderEmailInfos := PaymentReminderEmailInfos{}
+	err := m.db.RawQuery(query).All(&paymentReminderEmailInfos)
 
-	return PaymentReminderEmailInfos, err
+	return paymentReminderEmailInfos, err
 	// return PaymentReminderEmailInfos, nil
 }
 
 // NotificationSendingContext expects a `notification` with an `emails` method,
 // so we implement `email` to satisfy that interface
-func (m paymentReminder) emails(ctx context.Context) ([]emailContent, error) {
-	PaymentReminderEmailInfos, err := m.GetEmailInfo(m.date)
+func (m PaymentReminder) emails(ctx context.Context) ([]emailContent, error) {
+	paymentReminderEmailInfos, err := m.GetEmailInfo(m.date)
 	if err != nil {
 		m.logger.Error("error retrieving email info", zap.String("date", m.date.String()))
 		return []emailContent{}, err
@@ -90,11 +90,11 @@ func (m paymentReminder) emails(ctx context.Context) ([]emailContent, error) {
 		m.logger.Info("no emails to be sent", zap.String("date", m.date.String()))
 		return []emailContent{}, nil
 	}
-	return m.formatEmails(PaymentReminderEmailInfos)
+	return m.formatEmails(paymentReminderEmailInfos)
 }
 
 // formatEmails formats email data using both html and text template
-func (m paymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderEmailInfos) ([]emailContent, error) {
+func (m PaymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderEmailInfos) ([]emailContent, error) {
 	var emails []emailContent
 	for _, PaymentReminderemailInfo := range PaymentReminderEmailInfos {
 		htmlBody, textBody, err := m.renderTemplates(paymentReminderEmailData{
@@ -124,7 +124,7 @@ func (m paymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderE
 	return emails, nil
 }
 
-func (m paymentReminder) renderTemplates(data paymentReminderEmailData) (string, string, error) {
+func (m PaymentReminder) renderTemplates(data paymentReminderEmailData) (string, string, error) {
 	htmlBody, err := m.RenderHTML(data)
 	if err != nil {
 		return "", "", fmt.Errorf("error rendering html template using %#v", data)
@@ -138,7 +138,7 @@ func (m paymentReminder) renderTemplates(data paymentReminderEmailData) (string,
 
 // OnSuccess callback passed to be invoked by NewNotificationSender when an email successfully sent
 // saves the svs the email info along with the SES mail id to the notifications table
-func (m paymentReminder) OnSuccess(PaymentReminderemailInfo PaymentReminderEmailInfo) func(string) error {
+func (m PaymentReminder) OnSuccess(PaymentReminderemailInfo PaymentReminderEmailInfo) func(string) error {
 	return func(msgID string) error {
 		n := models.Notification{
 			ServiceMemberID:  PaymentReminderemailInfo.ServiceMemberID,
@@ -162,7 +162,7 @@ type paymentReminderEmailData struct {
 }
 
 // RenderHTML renders the html for the email
-func (m paymentReminder) RenderHTML(data paymentReminderEmailData) (string, error) {
+func (m PaymentReminder) RenderHTML(data paymentReminderEmailData) (string, error) {
 	var htmlBuffer bytes.Buffer
 	if err := m.htmlTemplate.Execute(&htmlBuffer, data); err != nil {
 		m.logger.Error("cant render html template ", zap.Error(err))
@@ -171,7 +171,7 @@ func (m paymentReminder) RenderHTML(data paymentReminderEmailData) (string, erro
 }
 
 // RenderText renders the text for the email
-func (m paymentReminder) RenderText(data paymentReminderEmailData) (string, error) {
+func (m PaymentReminder) RenderText(data paymentReminderEmailData) (string, error) {
 	var textBuffer bytes.Buffer
 	if err := m.textTemplate.Execute(&textBuffer, data); err != nil {
 		m.logger.Error("cant render text template ", zap.Error(err))
