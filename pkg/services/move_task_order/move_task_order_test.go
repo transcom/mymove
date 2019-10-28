@@ -1,8 +1,6 @@
 package movetaskorder
 
 import (
-	"log"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -11,6 +9,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
 	expectedMTO := serviceItem.MoveTaskOrder
 	mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
+
 	actualMTO, err := mtoFetcher.FetchMoveTaskOrder(expectedMTO.ID)
 
 	suite.NoError(err)
@@ -43,6 +42,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdater() {
 	// check not equal to what asserting against below
 	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusDraft)
 	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
+
 	updatedMTO, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, models.MoveTaskOrderStatusDraft)
 
 	suite.NoError(err)
@@ -55,8 +55,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterEmptyStatu
 	// check not equal to what asserting against below
 	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusDraft)
 	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
+
 	_, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, "")
-	log.Println(err)
 
 	suite.Error(err)
 }
