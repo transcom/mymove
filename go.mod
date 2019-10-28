@@ -32,7 +32,7 @@ require (
 	github.com/go-swagger/go-swagger v0.20.2-0.20190910212040-c49ea4ca2112
 	github.com/gobuffalo/envy v1.7.1
 	github.com/gobuffalo/fizz v1.9.5
-	github.com/gobuffalo/flect v0.1.6 // indirect
+	github.com/gobuffalo/flect v0.1.6
 	github.com/gobuffalo/logger v1.0.1 // indirect
 	github.com/gobuffalo/makr v1.2.0 // indirect
 	github.com/gobuffalo/nulls v0.1.0 // indirect
