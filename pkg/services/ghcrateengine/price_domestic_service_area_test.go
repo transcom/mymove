@@ -107,12 +107,12 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticServiceAreaPricesData() {
 		oDPrice.ServiceID = originDestinationService.ID
 
 		oDPeakPrice := oDPrice
-		oDPeakPrice.PriceCents = 68
+		oDPeakPrice.PriceCents = 792
 		suite.MustSave(&oDPeakPrice)
 
 		oDNonpeakPrice := oDPrice
 		oDNonpeakPrice.IsPeakPeriod = false
-		oDNonpeakPrice.PriceCents = 76
+		oDNonpeakPrice.PriceCents = 689
 		suite.MustSave(&oDNonpeakPrice)
 
 		// SIT Day 1
@@ -120,12 +120,12 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticServiceAreaPricesData() {
 		sit1Price.ServiceID = sit1Service.ID
 
 		sit1PeakPrice := sit1Price
-		sit1PeakPrice.PriceCents = 3400
+		sit1PeakPrice.PriceCents = 2221
 		suite.MustSave(&sit1PeakPrice)
 
 		sit1NonpeakPrice := sit1Price
 		sit1NonpeakPrice.IsPeakPeriod = false
-		sit1NonpeakPrice.PriceCents = 112
+		sit1NonpeakPrice.PriceCents = 1931
 		suite.MustSave(&sit1NonpeakPrice)
 
 		// SIT Additional Days
@@ -133,11 +133,11 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticServiceAreaPricesData() {
 		addlSITPrice.ServiceID = addlSITService.ID
 
 		addlSITPeakPrice := addlSITPrice
-		addlSITPeakPrice.PriceCents = 3400
+		addlSITPeakPrice.PriceCents = 78
 		suite.MustSave(&addlSITPeakPrice)
 
 		addlSITNonpeakPrice := addlSITPrice
 		addlSITNonpeakPrice.IsPeakPeriod = false
-		addlSITNonpeakPrice.PriceCents = 112
+		addlSITNonpeakPrice.PriceCents = 68
 		suite.MustSave(&addlSITNonpeakPrice)
 }
