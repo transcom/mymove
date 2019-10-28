@@ -212,12 +212,12 @@ func firstValue(vals ...*string) string {
 
 // FirstName gets the firstname of the user from either the ServiceMember or OfficeUser identity
 func (ui *UserIdentity) FirstName() string {
-	return firstValue(ui.ServiceMemberFirstName, ui.OfficeUserFirstName)
+	return firstValue(ui.ServiceMemberFirstName, ui.OfficeUserFirstName, ui.AdminUserFirstName)
 }
 
 // LastName gets the firstname of the user from either the ServiceMember or OfficeUser or TspUser identity
 func (ui *UserIdentity) LastName() string {
-	return firstValue(ui.ServiceMemberLastName, ui.OfficeUserLastName)
+	return firstValue(ui.ServiceMemberLastName, ui.OfficeUserLastName, ui.AdminUserLastName)
 }
 
 // Middle gets the MiddleName or Initials from the ServiceMember or OfficeUser or TspUser Identity
