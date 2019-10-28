@@ -14,6 +14,7 @@ import (
 	// "github.com/transcom/mymove/pkg/handlers"
 
 	"github.com/transcom/mymove/pkg/assets"
+	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/gobuffalo/pop"
 	"go.uber.org/zap"
@@ -50,15 +51,24 @@ func NewPaymentReminder(db *pop.Connection, logger Logger, date time.Time) (*Pay
 type PaymentReminderEmailInfos []PaymentReminderEmailInfo
 
 type PaymentReminderEmailInfo struct {
-	ServiceMemberID    uuid.UUID `db:"id"`
-	Email              *string   `db:"personal_email"`
-	DutyStationName    string    `db:"duty_station_name"`
-	NewDutyStationName string    `db:"new_duty_station_name"`
+	ServiceMemberID      uuid.UUID  `db:"id"`
+	Email                *string    `db:"personal_email"`
+	DutyStationName      string     `db:"duty_station_name"`
+	NewDutyStationName   string     `db:"new_duty_station_name"`
+	WeightEstimate       unit.Pound `db:"weight_estimate"`
+	IncentiveEstimateMin unit.Cents `db:"incentive_estimate_min"`
+	IncentiveEstimateMax unit.Cents `db:"incentive_estimate_max"`
+	TOName               string     `db:"transportation_office_name"`
+	TOPhone              string     `db:"transportation_office_phone"`
 }
 
 func (m PaymentReminder) GetEmailInfo(date time.Time) (PaymentReminderEmailInfos, error) {
 	// 	dateString := date.Format("2006-01-02")
-	query := `SELECT 'e7edaddf-f4f9-401f-940b-b6c3be84195d' as id, 'lindsay+test1@truss.works' as personal_email, 'abc' as duty_station_name, '123' as new_duty_station_name`
+	// 	query := `SELECT 'e7edaddf-f4f9-401f-940b-b6c3be84195d' as id, 'lindsay+test1@truss.works' as personal_email, 'Yuma AFB' as duty_station_name, 'Fort Gordon' as new_duty_station_name,
+	// 8000 as weight_estimate, 500 as incentive_estimate_min, 1000 as incentive_estimate_max, 'blah PPO' as transportation_office_name, '555-555-1212' as transportation_office_phone`
+	query := `SELECT 'e7edaddf-f4f9-401f-940b-b6c3be84195d' as id, 'leo_spaceman_sm@example.com' as personal_email, 'Yuma AFB' as duty_station_name, 'Fort Gordon' as new_duty_station_name,
+8000 as weight_estimate, 500 as incentive_estimate_min, 1000 as incentive_estimate_max, 'blah PPO' as transportation_office_name, '555-555-1212' as transportation_office_phone`
+	//
 	// 	query := `SELECT sm.id, sm.personal_email, dsn.name AS new_duty_station_name, dso.name AS duty_station_name
 	// FROM personally_procured_moves p
 	//          JOIN moves m ON p.move_id = m.id
@@ -75,7 +85,6 @@ func (m PaymentReminder) GetEmailInfo(date time.Time) (PaymentReminderEmailInfos
 	err := m.db.RawQuery(query).All(&paymentReminderEmailInfos)
 
 	return paymentReminderEmailInfos, err
-	// return PaymentReminderEmailInfos, nil
 }
 
 // NotificationSendingContext expects a `notification` with an `emails` method,
@@ -86,7 +95,7 @@ func (m PaymentReminder) emails(ctx context.Context) ([]emailContent, error) {
 		m.logger.Error("error retrieving email info", zap.String("date", m.date.String()))
 		return []emailContent{}, err
 	}
-	if len(PaymentReminderEmailInfos) == 0 {
+	if len(paymentReminderEmailInfos) == 0 {
 		m.logger.Info("no emails to be sent", zap.String("date", m.date.String()))
 		return []emailContent{}, nil
 	}
@@ -100,6 +109,11 @@ func (m PaymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderE
 		htmlBody, textBody, err := m.renderTemplates(paymentReminderEmailData{
 			OriginDutyStation:      PaymentReminderemailInfo.DutyStationName,
 			DestinationDutyStation: PaymentReminderemailInfo.NewDutyStationName,
+			WeightEstimate:         fmt.Sprintf("%d", PaymentReminderemailInfo.WeightEstimate),
+			IncentiveEstimateMin:   PaymentReminderemailInfo.IncentiveEstimateMin.ToDollarString(),
+			IncentiveEstimateMax:   PaymentReminderemailInfo.IncentiveEstimateMax.ToDollarString(),
+			TOName:                 PaymentReminderemailInfo.TOName,
+			TOPhone:                PaymentReminderemailInfo.TOPhone,
 		})
 		if err != nil {
 			m.logger.Error("error rendering template", zap.Error(err))
@@ -159,6 +173,11 @@ type paymentReminderEmailData struct {
 	Link                   string
 	OriginDutyStation      string
 	DestinationDutyStation string
+	WeightEstimate         string
+	IncentiveEstimateMin   string
+	IncentiveEstimateMax   string
+	TOName                 string
+	TOPhone                string
 }
 
 // RenderHTML renders the html for the email
