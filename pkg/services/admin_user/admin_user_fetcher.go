@@ -1,12 +1,16 @@
 package adminuser
 
 import (
+	"github.com/gobuffalo/validate"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 type adminUserQueryBuilder interface {
 	FetchOne(model interface{}, filters []services.QueryFilter) error
+	CreateOne(model interface{}) (*validate.Errors, error)
+	UpdateOne(model interface{}) (*validate.Errors, error)
 }
 
 type adminUserFetcher struct {
