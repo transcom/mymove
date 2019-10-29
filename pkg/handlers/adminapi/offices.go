@@ -45,8 +45,9 @@ func (h IndexOfficesHandler) Handle(params officeop.IndexOfficesParams) middlewa
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
 	associations := query.NewQueryAssociations([]services.QueryAssociation{})
+	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-	offices, err := h.OfficeListFetcher.FetchOfficeList(queryFilters, associations, pagination)
+	offices, err := h.OfficeListFetcher.FetchOfficeList(queryFilters, associations, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

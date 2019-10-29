@@ -6,7 +6,7 @@ import (
 )
 
 type organizationListQueryBuilder interface {
-	FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) error
+	FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error
 }
 
 type organizationListFetcher struct {
@@ -14,9 +14,9 @@ type organizationListFetcher struct {
 }
 
 // FetchOrganizationUserList uses the passed query builder to fetch a list of transportation offices
-func (o *organizationListFetcher) FetchOrganizationList(filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) (models.Organizations, error) {
+func (o *organizationListFetcher) FetchOrganizationList(filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.Organizations, error) {
 	var organizations models.Organizations
-	error := o.builder.FetchMany(&organizations, filters, associations, pagination)
+	error := o.builder.FetchMany(&organizations, filters, associations, pagination, ordering)
 	return organizations, error
 }
 

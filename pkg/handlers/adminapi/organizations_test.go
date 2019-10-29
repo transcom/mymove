@@ -68,6 +68,7 @@ func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
+			mock.Anything,
 		).Return(models.Organizations{org}, nil).Once()
 		handler := IndexOrganizationsHandler{
 			HandlerContext:          handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -91,6 +92,7 @@ func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
 		expectedError := models.ErrFetchNotFound
 		organizationListFetcher := &mocks.OrganizationListFetcher{}
 		organizationListFetcher.On("FetchOrganizationList",
+			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,

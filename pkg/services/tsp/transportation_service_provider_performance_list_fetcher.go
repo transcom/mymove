@@ -6,7 +6,7 @@ import (
 )
 
 type transportationServiceProviderPerformanceListQueryBuilder interface {
-	FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) error
+	FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error
 }
 
 type transportationServiceProviderPerformanceListFetcher struct {
@@ -14,9 +14,9 @@ type transportationServiceProviderPerformanceListFetcher struct {
 }
 
 // FetchTransportationServiceProviderPerformanceList fetches a transportation service provider performance given a slice of filters
-func (o *transportationServiceProviderPerformanceListFetcher) FetchTransportationServiceProviderPerformanceList(filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) (models.TransportationServiceProviderPerformances, error) {
+func (o *transportationServiceProviderPerformanceListFetcher) FetchTransportationServiceProviderPerformanceList(filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.TransportationServiceProviderPerformances, error) {
 	var tspps models.TransportationServiceProviderPerformances
-	error := o.builder.FetchMany(&tspps, filters, associations, pagination)
+	error := o.builder.FetchMany(&tspps, filters, associations, pagination, ordering)
 	return tspps, error
 }
 

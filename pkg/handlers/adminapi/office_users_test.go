@@ -75,6 +75,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
+			mock.Anything,
 		).Return(models.OfficeUsers{officeUser}, nil).Once()
 		handler := IndexOfficeUsersHandler{
 			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -98,6 +99,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		expectedError := models.ErrFetchNotFound
 		officeUserListFetcher := &mocks.OfficeUserListFetcher{}
 		officeUserListFetcher.On("FetchOfficeUserList",
+			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,

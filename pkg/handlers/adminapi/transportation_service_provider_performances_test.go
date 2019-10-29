@@ -68,6 +68,7 @@ func (suite *HandlerSuite) TestIndexTSPPsHandler() {
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
+			mock.Anything,
 		).Return(models.TransportationServiceProviderPerformances{tspp}, nil).Once()
 		handler := IndexTSPPsHandler{
 			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -91,6 +92,7 @@ func (suite *HandlerSuite) TestIndexTSPPsHandler() {
 		expectedError := models.ErrFetchNotFound
 		ListFetcher := &mocks.TransportationServiceProviderPerformanceListFetcher{}
 		ListFetcher.On("FetchTransportationServiceProviderPerformanceList",
+			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
