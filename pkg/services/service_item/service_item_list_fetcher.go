@@ -10,7 +10,7 @@ import (
 )
 
 type serviceItemListQueryBuilder interface {
-	FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) error
+	FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, order services.QueryOrder) error
 }
 
 type serviceItemListFetcher struct {
@@ -22,8 +22,9 @@ func (f *serviceItemListFetcher) FetchServiceItemList(moveTaskOrderID uuid.UUID)
 	pagination := pagination.NewPagination(nil, nil)
 	associations := query.NewQueryAssociations([]services.QueryAssociation{})
 	filters := []services.QueryFilter{query.NewQueryFilter("move_task_order_id", "=", moveTaskOrderID)}
+	order := query.NewQueryOrder(nil, nil)
 	var serviceItems models.ServiceItems
-	error := f.builder.FetchMany(&serviceItems, filters, associations, pagination)
+	error := f.builder.FetchMany(&serviceItems, filters, associations, pagination, order)
 	return serviceItems, error
 }
 
