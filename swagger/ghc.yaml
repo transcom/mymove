@@ -984,9 +984,6 @@ definitions:
         x-nullable: true
       pickup_address:
         $ref: '#/definitions/Address'
-      dependentsAuthorized:
-        example: true
-        type: boolean
   Entitlements:
     properties:
       id:

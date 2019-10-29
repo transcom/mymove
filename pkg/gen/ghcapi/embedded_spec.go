@@ -1331,10 +1331,6 @@ func init() {
           "x-nullable": true,
           "example": "Some Agency"
         },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "example": true
-        },
         "destination_duty_station": {
           "type": "string",
           "title": "Destination",
@@ -3384,10 +3380,6 @@ func init() {
           "title": "Agency",
           "x-nullable": true,
           "example": "Some Agency"
-        },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "example": true
         },
         "destination_duty_station": {
           "type": "string",

@@ -27,7 +27,6 @@ func (h GetCustomerInfoHandler) Handle(params customercodeop.GetCustomerInfoPara
 		Telephone:              models.StringPointer("213-213-3232"),
 		OriginDutyStation:      models.StringPointer("Origin Station"),
 		DestinationDutyStation: models.StringPointer("Destination Station"),
-		DependentsAuthorized:   true,
 	}
 	return customercodeop.NewGetCustomerInfoOK().WithPayload(customer)
 }

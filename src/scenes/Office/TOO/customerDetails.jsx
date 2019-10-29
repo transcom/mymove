@@ -17,6 +17,7 @@ class CustomerDetails extends React.Component {
   render() {
     const { entitlements, moveTaskOrder, customer } = this.props;
     const fakeMoveTaskOrderID = '5d4b25bb-eb04-4c03-9a81-ee0398cb779e';
+    const depsAuth = get(moveTaskOrder, 'entitlements.dependentsAuthorized') ? 'Y' : 'N';
     const NTS = entitlements && entitlements.nonTemporaryStorage ? 'Y' : 'N';
     const POV = entitlements && entitlements.privatelyOwnedVehicle ? 'Y' : 'N';
     const moveTaskOrderNonTemporaryStorage = get(moveTaskOrder, 'entitlements.nonTemporaryStorage') ? 'Y' : 'N';
@@ -46,9 +47,6 @@ class CustomerDetails extends React.Component {
               <dd>{customer.destination_duty_station}</dd>
               <dt>Pickup Address</dt>
               <dd>{customer.pickup_address}</dd>
-              {/* TODO does this belong on customer or something else?*/}
-              <dt>Dependents Authorized</dt>
-              <dd>{customer.dependents_authorized ? 'Y' : 'N'}</dd>
             </dl>
           </>
         )}
@@ -87,11 +85,16 @@ class CustomerDetails extends React.Component {
               <dd>{JSON.stringify(get(moveTaskOrder, 'serviceItems'))}</dd>
               <dt>Status</dt>
               <dd>{get(moveTaskOrder, 'status')}</dd>
-              <dt>Weight Entitlement</dt>
-              {/*TODO do the entitlements belong on MTO? Was thinking yes based on the ticket, but since have a separate endpoint wasn't sure*/}
-              <dd>{get(moveTaskOrder, 'entitlements.totalWeightSelf')}</dd>
-              <dt>SIT Entitlement</dt>
+              <dt>Dependents Authorized</dt>
+              <dd>{depsAuth}</dd>
+              <dt>Progear Weight</dt>
+              <dd>{get(moveTaskOrder, 'entitlements.proGearWeight')}</dd>
+              <dt>Progear Weight Spouse</dt>
+              <dd>{get(moveTaskOrder, 'entitlements.proGearWeightSpouse')}</dd>
+              <dt>SIT Entitlement (days)</dt>
               <dd>{get(moveTaskOrder, 'entitlements.storageInTransit')}</dd>
+              <dt>Total Dependents</dt>
+              <dd>{get(moveTaskOrder, 'entitlements.totalDependents')}</dd>
               <dt>NTS Entitlement</dt>
               <dd>{moveTaskOrderNonTemporaryStorage}</dd>
               <dt>POV Entitlement</dt>

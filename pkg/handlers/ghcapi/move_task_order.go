@@ -56,28 +56,24 @@ func requestToModels(params movetaskorderops.UpdateMoveTaskOrderStatusParams) (u
 // TODO it might make sense to create a package for these various mappers, rather than making them all private
 // TODO since some can be reused. Might also make sense to have some mapper specfic tests
 func payloadForMoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *ghcmessages.MoveTaskOrder {
-	serviceItems := payloadForServiceItems(moveTaskOrder)
+	serviceItems := payloadForServiceItems(&moveTaskOrder.ServiceItems)
 	destinationAddress := payloadForAddress(&moveTaskOrder.DestinationAddress)
 	pickupAddress := payloadForAddress(&moveTaskOrder.PickupAddress)
+	entitlements := payloadForEntitlements(&moveTaskOrder.Entitlements)
 	payload := &ghcmessages.MoveTaskOrder{
 		CustomerID:             strfmt.UUID(moveTaskOrder.CustomerID.String()),
 		DestinationAddress:     destinationAddress,
 		DestinationDutyStation: strfmt.UUID(moveTaskOrder.DestinationDutyStation.ID.String()),
 		// TODO the pivotal ticket seems somewhat incomplete compared to the
 		// TODO api spec. Confirm these are what is needed.
-		Entitlements: &ghcmessages.Entitlements{
-			StorageInTransit:      moveTaskOrder.SitEntitlement,
-			TotalWeightSelf:       moveTaskOrder.WeightEntitlement,
-			PrivatelyOwnedVehicle: &moveTaskOrder.POVEntitlement,
-			NonTemporaryStorage:   &moveTaskOrder.NTSEntitlement,
-		},
+		Entitlements:        entitlements,
 		ID:                  strfmt.UUID(moveTaskOrder.ID.String()),
-		MoveDate:            strfmt.Date(moveTaskOrder.RequestedPickupDates),
+		MoveDate:            strfmt.Date(moveTaskOrder.RequestedPickupDate),
 		MoveID:              strfmt.UUID(moveTaskOrder.MoveID.String()),
 		OriginDutyStation:   strfmt.UUID(moveTaskOrder.OriginDutyStationID.String()),
 		PickupAddress:       pickupAddress,
 		Remarks:             moveTaskOrder.CustomerRemarks,
-		RequestedPickupDate: strfmt.Date(moveTaskOrder.RequestedPickupDates),
+		RequestedPickupDate: strfmt.Date(moveTaskOrder.RequestedPickupDate),
 		ServiceItems:        serviceItems,
 		Status:              string(moveTaskOrder.Status),
 		UpdatedAt:           strfmt.Date(moveTaskOrder.UpdatedAt),
@@ -102,14 +98,34 @@ func payloadForAddress(a *models.Address) *ghcmessages.Address {
 	}
 }
 
-func payloadForServiceItems(moveTaskOrder models.MoveTaskOrder) []*ghcmessages.ServiceItem {
-	var serviceItems []*ghcmessages.ServiceItem
-	for _, si := range moveTaskOrder.ServiceItems {
-		serviceItems = append(serviceItems, &ghcmessages.ServiceItem{
+func payloadForServiceItems(serviceItems *models.ServiceItems) []*ghcmessages.ServiceItem {
+	var sis models.ServiceItems
+	if serviceItems == nil {
+		return nil
+	}
+	var serviceItemsPayload []*ghcmessages.ServiceItem
+	sis = *serviceItems
+	for _, si := range sis {
+		serviceItemsPayload = append(serviceItemsPayload, &ghcmessages.ServiceItem{
 			MoveTaskOrderID: strfmt.UUID(si.MoveTaskOrderID.String()),
 			CreatedAt:       strfmt.Date(si.CreatedAt),
 			UpdatedAt:       strfmt.Date(si.UpdatedAt),
 		})
 	}
-	return serviceItems
+	return serviceItemsPayload
+}
+
+func payloadForEntitlements(entitlement *models.GHCEntitlement) *ghcmessages.Entitlements {
+	if entitlement == nil {
+		return nil
+	}
+	return &ghcmessages.Entitlements{
+		DependentsAuthorized:  entitlement.DependentsAuthorized,
+		NonTemporaryStorage:   handlers.FmtBool(entitlement.NonTemporaryStorage),
+		PrivatelyOwnedVehicle: handlers.FmtBool(entitlement.PrivatelyOwnedVehicle),
+		ProGearWeight:         int64(entitlement.ProGearWeight),
+		ProGearWeightSpouse:   int64(entitlement.ProGearWeightSpouse),
+		StorageInTransit:      int64(entitlement.StorageInTransit),
+		TotalDependents:       int64(entitlement.TotalDependents),
+	}
 }

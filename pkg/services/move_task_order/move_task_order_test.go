@@ -6,8 +6,17 @@ import (
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
-	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
-	expectedMTO := serviceItem.MoveTaskOrder
+	expectedMTO := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+	expectedEntitlement := testdatagen.MakeEntitlement(suite.DB(), testdatagen.Assertions{
+		GHCEntitlement: models.GHCEntitlement{
+			MoveTaskOrderID: expectedMTO.ID,
+		},
+	})
+	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{
+		ServiceItem: models.ServiceItem{
+			MoveTaskOrderID: expectedMTO.ID,
+		},
+	})
 	mtoFetcher := NewMoveTaskOrderFetcher(suite.DB())
 
 	actualMTO, err := mtoFetcher.FetchMoveTaskOrder(expectedMTO.ID)
@@ -19,20 +28,17 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 	suite.NotZero(actualMTO.DestinationAddress)
 	suite.Equal(expectedMTO.DestinationDutyStationID, actualMTO.DestinationDutyStationID)
 	suite.NotZero(actualMTO.DestinationDutyStation)
+	suite.NotZero(expectedEntitlement.ID, actualMTO.Entitlements.ID)
 	suite.Equal(expectedMTO.MoveID, actualMTO.MoveID)
 	suite.NotZero(actualMTO.Move)
-	suite.Equal(expectedMTO.NTSEntitlement, actualMTO.NTSEntitlement)
 	suite.Equal(expectedMTO.OriginDutyStationID, actualMTO.OriginDutyStationID)
 	suite.NotZero(actualMTO.OriginDutyStation)
-	suite.Equal(expectedMTO.POVEntitlement, actualMTO.POVEntitlement)
 	suite.Equal(expectedMTO.PickupAddressID, actualMTO.PickupAddressID)
 	suite.NotZero(actualMTO.PickupAddress)
-	suite.Equal(expectedMTO.RequestedPickupDates.UTC(), actualMTO.RequestedPickupDates.UTC())
-	suite.Equal(expectedMTO.SitEntitlement, actualMTO.SitEntitlement)
+	suite.Equal(expectedMTO.RequestedPickupDate.UTC(), actualMTO.RequestedPickupDate.UTC())
 	suite.Len(actualMTO.ServiceItems, 1)
 	suite.Equal(serviceItem.ID, actualMTO.ServiceItems[0].ID)
 	suite.Equal(expectedMTO.Status, actualMTO.Status)
-	suite.Equal(expectedMTO.WeightEntitlement, actualMTO.WeightEntitlement)
 
 }
 

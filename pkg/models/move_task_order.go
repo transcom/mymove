@@ -20,21 +20,17 @@ type MoveTaskOrder struct {
 	DestinationAddressID     uuid.UUID           `db:"destination_address_id"`
 	DestinationDutyStation   DutyStation         `belongs_to:"duty_stations"`
 	DestinationDutyStationID uuid.UUID           `db:"destination_duty_station_id"`
+	Entitlements             GHCEntitlement      `has_one:"entitlements"`
 	Move                     Move                `belongs_to:"moves"`
 	MoveID                   uuid.UUID           `db:"move_id"`
-	NTSEntitlement           bool                `db:"nts_entitlement"`
 	OriginDutyStation        DutyStation         `belongs_to:"duty_stations"`
 	OriginDutyStationID      uuid.UUID           `db:"origin_duty_station_id"`
-	POVEntitlement           bool                `db:"pov_entitlement"`
 	PickupAddress            Address             `belongs_to:"addresses"`
 	PickupAddressID          uuid.UUID           `db:"pickup_address_id"`
-	RequestedPickupDates     time.Time           `db:"requested_pickup_dates"`
-	SitEntitlement           int64               `db:"sit_entitlement"`
+	RequestedPickupDate      time.Time           `db:"requested_pickup_date"`
 	Status                   MoveTaskOrderStatus `db:"status"`
 	ServiceItems             ServiceItems        `has_many:"service_items"`
 	UpdatedAt                time.Time           `db:"updated_at"`
-	//TODO This was in ticket but looks different from API defn. Confirm expected entitlement fields on MTO.
-	WeightEntitlement int64 `db:"weight_entitlement"`
 }
 
 type MoveTaskOrderStatus string

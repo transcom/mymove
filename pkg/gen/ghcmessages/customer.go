@@ -20,9 +20,6 @@ type Customer struct {
 	// Agency
 	Agency *string `json:"agency,omitempty"`
 
-	// dependents authorized
-	DependentsAuthorized bool `json:"dependentsAuthorized,omitempty"`
-
 	// Destination
 	DestinationDutyStation *string `json:"destination_duty_station,omitempty"`
 

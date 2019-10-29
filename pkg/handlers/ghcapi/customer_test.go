@@ -36,5 +36,4 @@ func (suite *HandlerSuite) TestGetCustomerInfoHandler_Success() {
 	suite.Equal(getCustomerInfoPayload.Telephone, models.StringPointer("213-213-3232"))
 	suite.Equal(getCustomerInfoPayload.OriginDutyStation, models.StringPointer("Origin Station"))
 	suite.Equal(getCustomerInfoPayload.DestinationDutyStation, models.StringPointer("Destination Station"))
-	suite.Equal(getCustomerInfoPayload.DependentsAuthorized, true)
 }
