@@ -53,8 +53,10 @@ type OfficeUser struct {
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
 	Telephone *string `json:"telephone"`
 
-	// transportation office
-	TransportationOffice *TransportationOffice `json:"transportation_office,omitempty"`
+	// transportation office id
+	// Required: true
+	// Format: uuid
+	TransportationOfficeID *strfmt.UUID `json:"transportation_office_id"`
 
 	// updated at
 	// Required: true
@@ -98,7 +100,7 @@ func (m *OfficeUser) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateTransportationOffice(formats); err != nil {
+	if err := m.validateTransportationOfficeID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -200,19 +202,14 @@ func (m *OfficeUser) validateTelephone(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *OfficeUser) validateTransportationOffice(formats strfmt.Registry) error {
+func (m *OfficeUser) validateTransportationOfficeID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.TransportationOffice) { // not required
-		return nil
+	if err := validate.Required("transportation_office_id", "body", m.TransportationOfficeID); err != nil {
+		return err
 	}
 
-	if m.TransportationOffice != nil {
-		if err := m.TransportationOffice.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("transportation_office")
-			}
-			return err
-		}
+	if err := validate.FormatOf("transportation_office_id", "body", "uuid", m.TransportationOfficeID.String(), formats); err != nil {
+		return err
 	}
 
 	return nil

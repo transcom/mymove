@@ -20,10 +20,7 @@ func payloadForDocumentModel(storer storage.FileStorer, document models.Document
 			return nil, err
 		}
 
-		uploadPayload, err := payloadForUploadModel(storer, upload, url)
-		if err != nil {
-			return nil, err
-		}
+		uploadPayload := payloadForUploadModel(storer, upload, url)
 		uploads[i] = uploadPayload
 	}
 

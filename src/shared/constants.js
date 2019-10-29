@@ -32,6 +32,12 @@ export const MOVE_DOC_STATUS = {
   HAS_ISSUE: 'HAS_ISSUE',
 };
 
+export const UPLOAD_SCAN_STATUS = {
+  CLEAN: 'CLEAN',
+  INFECTED: 'INFECTED',
+  PROCESSING: 'PROCESSING',
+};
+
 // These constants are used to track network requests using component state
 export const isError = 'REQUEST_ERROR';
 export const isLoading = 'REQUEST_LOADING';

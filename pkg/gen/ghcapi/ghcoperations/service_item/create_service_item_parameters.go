@@ -6,16 +6,12 @@ package service_item
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"io"
 	"net/http"
 
 	"github.com/go-openapi/errors"
-	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	ghcmessages "github.com/transcom/mymove/pkg/gen/ghcmessages"
 )
 
 // NewCreateServiceItemParams creates a new CreateServiceItemParams object
@@ -34,11 +30,6 @@ type CreateServiceItemParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*
-	  Required: true
-	  In: body
-	*/
-	Body *ghcmessages.ServiceItem
 	/*ID of move order for service item to use
 	  Required: true
 	  In: path
@@ -55,28 +46,6 @@ func (o *CreateServiceItemParams) BindRequest(r *http.Request, route *middleware
 
 	o.HTTPRequest = r
 
-	if runtime.HasBody(r) {
-		defer r.Body.Close()
-		var body ghcmessages.ServiceItem
-		if err := route.Consumer.Consume(r.Body, &body); err != nil {
-			if err == io.EOF {
-				res = append(res, errors.Required("body", "body"))
-			} else {
-				res = append(res, errors.NewParseError("body", "body", "", err))
-			}
-		} else {
-			// validate body object
-			if err := body.Validate(route.Formats); err != nil {
-				res = append(res, err)
-			}
-
-			if len(res) == 0 {
-				o.Body = &body
-			}
-		}
-	} else {
-		res = append(res, errors.Required("body", "body"))
-	}
 	rMoveTaskOrderID, rhkMoveTaskOrderID, _ := route.Params.GetOK("moveTaskOrderID")
 	if err := o.bindMoveTaskOrderID(rMoveTaskOrderID, rhkMoveTaskOrderID, route.Formats); err != nil {
 		res = append(res, err)

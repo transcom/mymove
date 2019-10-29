@@ -3,6 +3,8 @@ import { Datagrid, List, TextField, DateField, Filter, TextInput } from 'react-a
 import AdminPagination from 'scenes/SystemAdmin/shared/AdminPagination';
 import styles from 'scenes/SystemAdmin/Home.module.scss';
 
+const defaultSort = { field: 'performance_period_start', order: 'DESC' };
+
 const TSPPFilter = props => (
   <Filter {...props} className={styles['system-admin-filters']}>
     <TextInput
@@ -19,7 +21,14 @@ const TSPPFilter = props => (
 );
 
 const TSPPList = props => (
-  <List {...props} pagination={<AdminPagination />} perPage={25} filters={<TSPPFilter />} bulkActionButtons={false}>
+  <List
+    {...props}
+    pagination={<AdminPagination />}
+    perPage={25}
+    filters={<TSPPFilter />}
+    sort={defaultSort}
+    bulkActionButtons={false}
+  >
     <Datagrid rowClick="show">
       <TextField source="id" reference="transportation_service_provider_performances" />
       <TextField source="traffic_distribution_list_id" reference="transportation_service_provider_performances" />

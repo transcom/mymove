@@ -9,6 +9,7 @@ import carTrailerImg from 'shared/images/car-trailer_mobile.png';
 import { formatToOrdinal } from 'shared/formatters';
 import deleteButtonImg from 'shared/images/delete-doc-button.png';
 import AlertWithDeleteConfirmation from 'shared/AlertWithDeleteConfirmation';
+import { UPLOAD_SCAN_STATUS } from 'shared/constants';
 
 const WEIGHT_TICKET_IMAGES = {
   CAR: carImg,
@@ -28,14 +29,13 @@ class WeightTicketListItem extends Component {
   };
 
   areUploadsInfected = uploads => {
+    let isInfected = false;
     forEach(uploads, function(upload) {
-      forEach(upload.tags, function(tag) {
-        if (tag.key === 'av-status' && tag.value === 'INFECTED') {
-          return true;
-        }
-      });
+      if (upload.status === UPLOAD_SCAN_STATUS.INFECTED) {
+        isInfected = true;
+      }
     });
-    return false;
+    return isInfected;
   };
 
   toggleShowConfirmation = () => {
@@ -61,6 +61,7 @@ class WeightTicketListItem extends Component {
     } = this.props;
     const { showDeleteConfirmation } = this.state;
     const isInfected = this.areUploadsInfected(uploads);
+    console.log('end result: ', isInfected);
     return (
       <div className="ticket-item" style={{ display: 'flex' }}>
         {/* size of largest of the images */}
