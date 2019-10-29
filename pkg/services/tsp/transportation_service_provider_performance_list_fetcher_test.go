@@ -17,7 +17,7 @@ type testTransportationServiceProviderPerformanceListQueryBuilder struct {
 	fakeFetchMany func(model interface{}) error
 }
 
-func (t *testTransportationServiceProviderPerformanceListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) error {
+func (t *testTransportationServiceProviderPerformanceListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
 	m := t.fakeFetchMany(model)
 	return m
 }
@@ -29,6 +29,10 @@ func defaultPagination() services.Pagination {
 
 func defaultAssociations() services.QueryAssociations {
 	return query.NewQueryAssociations([]services.QueryAssociation{})
+}
+
+func defaultOrdering() services.QueryOrder {
+	return query.NewQueryOrder(nil, nil)
 }
 
 func (suite *TSPServiceSuite) TestFetchTSPPList() {
@@ -49,7 +53,7 @@ func (suite *TSPServiceSuite) TestFetchTSPPList() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		tspps, err := fetcher.FetchTransportationServiceProviderPerformanceList(filters, defaultAssociations(), defaultPagination())
+		tspps, err := fetcher.FetchTransportationServiceProviderPerformanceList(filters, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.NoError(err)
 		suite.Equal(id, tspps[0].ID)
@@ -76,7 +80,7 @@ func (suite *TSPServiceSuite) TestFetchTSPPList() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		tspps, err := fetcher.FetchTransportationServiceProviderPerformanceList(filters, defaultAssociations(), defaultPagination())
+		tspps, err := fetcher.FetchTransportationServiceProviderPerformanceList(filters, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.NoError(err)
 		suite.Len(tspps, 2)
@@ -92,7 +96,7 @@ func (suite *TSPServiceSuite) TestFetchTSPPList() {
 
 		fetcher := NewTransportationServiceProviderPerformanceListFetcher(builder)
 
-		tspps, err := fetcher.FetchTransportationServiceProviderPerformanceList([]services.QueryFilter{}, defaultAssociations(), defaultPagination())
+		tspps, err := fetcher.FetchTransportationServiceProviderPerformanceList([]services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

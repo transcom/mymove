@@ -49,9 +49,10 @@ func (h IndexAccessCodesHandler) Handle(params accesscodeop.IndexAccessCodesPara
 	queryAssociations := []services.QueryAssociation{
 		query.NewQueryAssociation("ServiceMember.Orders.Moves"),
 	}
+	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
 	associations := query.NewQueryAssociations(queryAssociations)
-	accessCodes, err := h.AccessCodeListFetcher.FetchAccessCodeList(queryFilters, associations, pagination)
+	accessCodes, err := h.AccessCodeListFetcher.FetchAccessCodeList(queryFilters, associations, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
