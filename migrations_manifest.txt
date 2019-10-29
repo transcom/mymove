@@ -373,3 +373,4 @@
 20191018211440_update_combo_moves_to_ppm.up.sql
 20191023153000_add_missing_primary_keys.up.sql
 20191023161500_set_max_length_on_payment_methods.up.sql
+20191028210245_hide_moves_experimental_staging.up.sql
