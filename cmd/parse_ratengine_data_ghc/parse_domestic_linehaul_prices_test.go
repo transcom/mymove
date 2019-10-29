@@ -27,7 +27,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticLinehaulPrices() {
 	}
 
 	const sheetIndex int = 6
-	err = parseDomesticLinehaulPrices(params, sheetIndex, suite.DB())
+	err = parseDomesticLinehaulPrices(params, sheetIndex, suite.tableFromSliceCreator)
 	suite.NoError(err, "parseDomesticLinehaulPrices function failed")
 
 	outputFilename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime)

@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/gobuffalo/pop"
+	"github.com/transcom/mymove/pkg/services"
 )
 
 // parseDomesticLinehaulPrices: parser for 2a) Domestic Linehaul Prices
-var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, sheetIndex int, db *pop.Connection) error {
+var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator) error {
 	// Create CSV writer to save data to CSV file, returns nil if params.saveToFile=false
 	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime)
 	if csvWriter != nil {

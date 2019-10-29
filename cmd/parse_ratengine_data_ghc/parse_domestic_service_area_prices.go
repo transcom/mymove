@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/gobuffalo/pop"
+	"github.com/transcom/mymove/pkg/services"
 )
 
 // parseDomesticServiceAreaPrices: parser for: 2b) Dom. Service Area Prices
-var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, sheetIndex int, db *pop.Connection) error {
+var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator) error {
 	// Create CSV writer to save data to CSV file, returns nil if params.saveToFile=false
 	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime)
 	if csvWriter != nil {

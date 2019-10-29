@@ -18,6 +18,8 @@ import (
 
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/dbtools"
 )
 
 /*************************************************************************
@@ -112,7 +114,7 @@ intentionally are modifying the pattern of how the processing functions are call
 const sharedNumEscalationYearsToProcess int = 1
 const xlsxSheetsCountMax int = 35
 
-type processXlsxSheet func(paramConfig, int, *pop.Connection) error
+type processXlsxSheet func(paramConfig, int, services.TableFromSliceCreator) error
 type verifyXlsxSheet func(paramConfig, int) error
 
 type xlsxDataSheetInfo struct {
@@ -292,6 +294,8 @@ func main() {
 		}
 	}()
 
+	tableFromSliceCreator := dbtools.NewTableFromSliceCreator(db, logger, true)
+
 	// Must be after processing config param
 	// Run the process function
 
@@ -299,7 +303,7 @@ func main() {
 		if params.processAll == true {
 			for i, x := range xlsxDataSheets {
 				if x.process != nil {
-					dbErr := process(params, i, db)
+					dbErr := process(params, i, tableFromSliceCreator)
 					if dbErr != nil {
 						log.Printf("Error processing xlsxDataSheets %v\n", dbErr.Error())
 						return dbErr
@@ -314,7 +318,7 @@ func main() {
 					return dbErr
 				}
 				if index < len(xlsxDataSheets) {
-					dbErr = process(params, index, db)
+					dbErr = process(params, index, tableFromSliceCreator)
 					if dbErr != nil {
 						log.Printf("Error processing %v\n", dbErr)
 						return dbErr
@@ -341,7 +345,7 @@ func main() {
 //         a.) add new verify function for your processing
 //         b.) add new process function for your processing
 //         c.) update initDataSheetInfo() with a.) and b.)
-func process(params paramConfig, sheetIndex int, db *pop.Connection) error {
+func process(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator) error {
 	xlsxInfo := xlsxDataSheets[sheetIndex]
 	var description string
 	if xlsxInfo.description != nil {
@@ -372,7 +376,7 @@ func process(params paramConfig, sheetIndex int, db *pop.Connection) error {
 	if xlsxInfo.process != nil {
 		var callFunc processXlsxSheet
 		callFunc = *xlsxInfo.process
-		err := callFunc(params, sheetIndex, db)
+		err := callFunc(params, sheetIndex, tableFromSliceCreator)
 		if err != nil {
 			log.Printf("%s process error: %v\n", description, err)
 			return errors.Wrapf(err, " process error for sheet index: %d with description: %s", sheetIndex, description)

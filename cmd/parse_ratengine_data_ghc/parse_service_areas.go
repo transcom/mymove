@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/gobuffalo/pop"
+	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 )
 
 // parseServiceAreas: parser for: 1b) Service Areas
-var parseServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int, db *pop.Connection) error {
+var parseServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator) error {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 4          // 1b) Service Areas
 	const serviceAreaRowIndexStart int = 10 // start at row 10 to get the rates
@@ -30,25 +33,31 @@ var parseServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int
 		defer csvWriter.close()
 
 		// Write header to CSV
-		dsa := domesticServiceArea{}
-		csvWriter.write(dsa.csvHeader())
+		dsa := models.StageDomesticServiceArea{}
+		csvWriter.write(dsa.CSVHeader())
 	}
 
+	var domServAreas models.StageDomesticServiceAreas
 	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[serviceAreaRowIndexStart:]
 	for _, row := range dataRows {
-		domServArea := domesticServiceArea{
+		domServArea := models.StageDomesticServiceArea{
 			BasePointCity:     getCell(row.Cells, basePointCityColumn),
 			State:             getCell(row.Cells, stateColumn),
-			ServiceAreaNumber: formatServiceAreaNumber(getCell(row.Cells, serviceAreaNumberColumn)),
-			Zip3s:             splitZip3s(getCell(row.Cells, zip3sColumn)),
+			ServiceAreaNumber: getCell(row.Cells, serviceAreaNumberColumn),
+			Zip3s:             getCell(row.Cells, zip3sColumn),
 		}
 		// All the rows are consecutive, if we get to a blank one we're done
 		if domServArea.BasePointCity == "" {
 			break
 		} else if csvWriter != nil {
-			csvWriter.write(domServArea.toSlice())
+			csvWriter.write(domServArea.ToSlice())
 		}
-		domServArea.saveToDatabase(db)
+		domServAreas = append(domServAreas, domServArea)
+		// domServArea.saveToDatabase(db)
+	}
+
+	if err := tableFromSliceCreator.CreateTableFromSlice(domServAreas); err != nil {
+		return errors.Wrap(err, "Could not create temp table for domestic service areas")
 	}
 
 	log.Println("Parsing International Service Areas")
