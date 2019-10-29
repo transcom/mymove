@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/gobuffalo/validate"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -13,12 +15,22 @@ import (
 )
 
 type testAdminUserQueryBuilder struct {
-	fakeFetchOne func(model interface{}) error
+	fakeFetchOne  func(model interface{}) error
+	fakeCreateOne func(models interface{}) (*validate.Errors, error)
+	fakeUpdateOne func(models interface{}) (*validate.Errors, error)
 }
 
 func (t *testAdminUserQueryBuilder) FetchOne(model interface{}, filters []services.QueryFilter) error {
 	m := t.fakeFetchOne(model)
 	return m
+}
+
+func (t *testAdminUserQueryBuilder) CreateOne(model interface{}) (*validate.Errors, error) {
+	return nil, nil
+}
+
+func (t *testAdminUserQueryBuilder) UpdateOne(model interface{}) (*validate.Errors, error) {
+	return nil, nil
 }
 
 func (suite *AdminUserServiceSuite) TestFetchAdminUser() {

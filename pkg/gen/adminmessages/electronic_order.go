@@ -31,6 +31,10 @@ type ElectronicOrder struct {
 	// Required: true
 	Issuer Issuer `json:"issuer"`
 
+	// Orders Number
+	// Required: true
+	OrdersNumber *string `json:"orders_number"`
+
 	// Updated at
 	// Required: true
 	// Format: datetime
@@ -50,6 +54,10 @@ func (m *ElectronicOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateIssuer(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOrdersNumber(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -95,6 +103,15 @@ func (m *ElectronicOrder) validateIssuer(formats strfmt.Registry) error {
 		if ve, ok := err.(*errors.Validation); ok {
 			return ve.ValidateName("issuer")
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *ElectronicOrder) validateOrdersNumber(formats strfmt.Registry) error {
+
+	if err := validate.Required("orders_number", "body", m.OrdersNumber); err != nil {
 		return err
 	}
 

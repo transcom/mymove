@@ -31,8 +31,8 @@ class MoveDocumentView extends Component {
         <div className="usa-width-two-thirds">
           <div className="tab-content">
             <div className="document-contents">
-              {uploads.map(({ url, filename, content_type, tags }) => (
-                <DocumentContent key={url} url={url} filename={filename} contentType={content_type} tags={tags} />
+              {uploads.map(({ url, filename, content_type, status }) => (
+                <DocumentContent key={url} url={url} filename={filename} contentType={content_type} status={status} />
               ))}
             </div>
           </div>

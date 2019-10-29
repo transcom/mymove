@@ -40,7 +40,8 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
         const { page, perPage } = params.pagination;
         const { field, order } = params.sort;
         const query = {
-          sort: JSON.stringify([field, order]),
+          sort: field,
+          order: order === 'ASC' ? true : false,
           page: page,
           perPage: perPage,
           filter: JSON.stringify(params.filter),
@@ -52,8 +53,11 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
         url = `${apiUrl}/${resource}/${params.id}`;
         break;
       case GET_MANY: {
+        if (params.ids !== undefined) {
+          params.id = params.ids[0];
+        }
         const query = {
-          filter: JSON.stringify({ id: params.ids }),
+          filter: JSON.stringify({ id: params.id }),
         };
         url = `${apiUrl}/${resource}?${stringify(query)}`;
         break;
@@ -62,7 +66,8 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
         const { page, perPage } = params.pagination;
         const { field, order } = params.sort;
         const query = {
-          sort: JSON.stringify([field, order]),
+          sort: field,
+          order: order === 'ASC' ? true : false,
           page: page,
           perPage: perPage,
           filter: JSON.stringify({

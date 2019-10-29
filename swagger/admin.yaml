@@ -56,8 +56,9 @@ definitions:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-      transportation_office:
-        $ref: '#/definitions/TransportationOffice'
+      transportation_office_id:
+        type: string
+        format: uuid
       deactivated:
         type: boolean
       created_at:
@@ -73,6 +74,7 @@ definitions:
       - last_name
       - email
       - telephone
+      - transportation_office_id
       - deactivated
       - created_at
       - updated_at
@@ -430,11 +432,40 @@ definitions:
         example: 212-555-5555
       deactivated:
         type: boolean
+  AdminUserCreatePayload:
+    type: object
+    properties:
+      email:
+        type: string
+        example: 'user@userdomain.com'
+        title: Email
+      first_name:
+        type: string
+        title: First Name
+      last_name:
+        type: string
+        title: Last Name
+      organization_id:
+        type: string
+        format: uuid
+        example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
+  AdminUserUpdatePayload:
+    type: object
+    properties:
+      first_name:
+        type: string
+        title: First Name
+      last_name:
+        type: string
+        title: Last Name
+      deactivated:
+        type: boolean
   ElectronicOrder:
     type: object
     required:
       - id
       - issuer
+      - orders_number
       - created_at
       - updated_at
     properties:
@@ -444,6 +475,9 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       issuer:
         $ref: '#/definitions/Issuer'
+      orders_number:
+        type: string
+        title: Orders Number
       created_at:
         type: string
         format: datetime
@@ -456,6 +490,43 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/ElectronicOrder'
+  Organization:
+    type: object
+    required:
+      - id
+      - name
+      - created_at
+      - updated_at
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        title: Name
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        x-nullable: true
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      created_at:
+        type: string
+        format: datetime
+        title: Created at
+      updated_at:
+        type: string
+        format: datetime
+        title: Updated at
+  Organizations:
+    type: array
+    items:
+      $ref: '#/definitions/Organization'
   Issuer:
     type: string
     description: >-
@@ -564,6 +635,12 @@ paths:
         - in: query
           name: perPage
           type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
       responses:
         200:
           description: success
@@ -600,6 +677,12 @@ paths:
         - in: query
           name: perPage
           type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
       responses:
         200:
           description: success
@@ -695,7 +778,7 @@ paths:
         401:
           description: Must be authenticated to use this end point
         403:
-          description: Not authorized to create an office user
+          description: Not authorized to update an office user
         500:
           description: Server error
   /transportation_service_provider_performances:
@@ -715,6 +798,12 @@ paths:
         - in: query
           name: perPage
           type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
       responses:
         200:
           description: success
@@ -777,6 +866,12 @@ paths:
         - in: query
           name: perPage
           type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
       responses:
         200:
           description: success
@@ -794,6 +889,31 @@ paths:
           description: admin users not found
         500:
           description: server error
+    post:
+      summary: create an admin user
+      description: creates and returns an admin user record
+      operationId: createAdminUser
+      tags:
+        - admin_users
+      parameters:
+        - in: body
+          name: adminUser
+          description: Admin user information
+          schema:
+            $ref: '#/definitions/AdminUserCreatePayload'
+      responses:
+        201:
+          description: Successfully created Admin User
+          schema:
+            $ref: '#/definitions/AdminUser'
+        400:
+          description: Invalid Request
+        401:
+          description: Must be authenticated to use this end point
+        403:
+          description: Not authorized to create an admin user
+        500:
+          description: Server error
   /admin_users/{adminUserId}:
     get:
       summary: Fetch a specific admin user
@@ -820,6 +940,36 @@ paths:
           description: admin user not found
         500:
           description: server error
+    patch:
+      summary: Updates an admin user
+      operationId: updateAdminUser
+      tags:
+        - admin_users
+      parameters:
+        - in: path
+          name: adminUserId
+          type: string
+          format: uuid
+          required: true
+        - in: body
+          name: adminUser
+          description: Admin user information
+          required: true
+          schema:
+            $ref: '#/definitions/AdminUserUpdatePayload'
+      responses:
+        200:
+          description: Successfully updated Admin User
+          schema:
+            $ref: '#/definitions/AdminUser'
+        400:
+          description: Invalid Request
+        401:
+          description: Must be authenticated to use this end point
+        403:
+          description: Not authorized to update an admin user
+        500:
+          description: Server error
   /offices:
     get:
       summary: List transportation offices
@@ -830,15 +980,19 @@ paths:
       parameters:
         - in: query
           name: filter
-          type: array
-          items:
-            type: string
+          type: string
         - in: query
           name: page
           type: integer
         - in: query
           name: perPage
           type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
       responses:
         200:
           description: success
@@ -875,6 +1029,12 @@ paths:
         - in: query
           name: perPage
           type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
       responses:
         200:
           description: success
@@ -947,5 +1107,47 @@ paths:
           description: request requires user authentication
         404:
           description: upload not found
+        500:
+          description: server error
+  /organizations:
+    get:
+      summary: List organizations
+      description: Returns a list of organizations
+      operationId: indexOrganizations
+      tags:
+        - organization
+      parameters:
+        - in: query
+          name: filter
+          type: array
+          items:
+            type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
+      responses:
+        200:
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
+          schema:
+            $ref: '#/definitions/Organizations'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: not found
         500:
           description: server error

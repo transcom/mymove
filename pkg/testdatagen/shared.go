@@ -35,16 +35,19 @@ type Assertions struct {
 	Invoice                                  models.Invoice
 	Move                                     models.Move
 	MoveDocument                             models.MoveDocument
+	MoveTaskOrder                            models.MoveTaskOrder
 	MovingExpenseDocument                    models.MovingExpenseDocument
 	WeightTicketSetDocument                  models.WeightTicketSetDocument
 	OfficeUser                               models.OfficeUser
 	Order                                    models.Order
+	Organization                             models.Organization
 	PersonallyProcuredMove                   models.PersonallyProcuredMove
 	ReContract                               models.ReContract
 	ReContractYear                           models.ReContractYear
 	ReDomesticServiceArea                    models.ReDomesticServiceArea
 	Reimbursement                            models.Reimbursement
 	SignedCertification                      models.SignedCertification
+	ServiceItem                              models.ServiceItem
 	ServiceMember                            models.ServiceMember
 	Tariff400ngServiceArea                   models.Tariff400ngServiceArea
 	Tariff400ngItem                          models.Tariff400ngItem

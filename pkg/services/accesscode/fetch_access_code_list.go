@@ -6,7 +6,7 @@ import (
 )
 
 type accessCodeListQueryBuilder interface {
-	FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) error
+	FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error
 }
 
 type accessCodeListFetcher struct {
@@ -14,10 +14,10 @@ type accessCodeListFetcher struct {
 }
 
 // FetchAccessCodeList uses the passed query builder to fetch a list of access codes
-func (o *accessCodeListFetcher) FetchAccessCodeList(filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) (models.AccessCodes, error) {
+func (o *accessCodeListFetcher) FetchAccessCodeList(filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.AccessCodes, error) {
 	var accessCodes models.AccessCodes
 
-	err := o.builder.FetchMany(&accessCodes, filters, associations, pagination)
+	err := o.builder.FetchMany(&accessCodes, filters, associations, pagination, ordering)
 	if err != nil {
 		return models.AccessCodes{}, err
 	}
