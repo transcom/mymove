@@ -40,7 +40,7 @@ func (o *ListServiceItemsURL) SetBasePath(bp string) {
 func (o *ListServiceItemsURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/move-task-orders/{moveTaskOrderID}/service-items"
+	var _path = "/move_task_orders/{moveTaskOrderID}/service_items"
 
 	moveTaskOrderID := o.MoveTaskOrderID
 	if moveTaskOrderID != "" {
