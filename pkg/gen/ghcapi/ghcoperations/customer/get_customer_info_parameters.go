@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -34,7 +35,7 @@ type GetCustomerInfoParams struct {
 	  Required: true
 	  In: path
 	*/
-	CustomerID string
+	CustomerID strfmt.UUID
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -67,7 +68,25 @@ func (o *GetCustomerInfoParams) bindCustomerID(rawData []string, hasKey bool, fo
 	// Required: true
 	// Parameter is provided by construction from the route
 
-	o.CustomerID = raw
+	// Format: uuid
+	value, err := formats.Parse("uuid", raw)
+	if err != nil {
+		return errors.InvalidType("customerID", "path", "strfmt.UUID", raw)
+	}
+	o.CustomerID = *(value.(*strfmt.UUID))
 
+	if err := o.validateCustomerID(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateCustomerID carries on validations for parameter CustomerID
+func (o *GetCustomerInfoParams) validateCustomerID(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("customerID", "path", "uuid", o.CustomerID.String(), formats); err != nil {
+		return err
+	}
 	return nil
 }

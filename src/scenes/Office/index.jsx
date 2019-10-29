@@ -160,12 +160,7 @@ export class OfficeWrapper extends Component {
                   />
                 )}
                 {too && <PrivateRoute path="/too/placeholder" component={TOO} />}
-                {too && (
-                  <PrivateRoute
-                    path="/too/customer/6ac40a00-e762-4f5f-b08d-3ea72a8e4b63/details"
-                    component={CustomerDetails}
-                  />
-                )}
+                {too && <PrivateRoute path="/too/customer/:customerId/details" component={CustomerDetails} />}
               </Switch>
             )}
           </ConditionalWrap>

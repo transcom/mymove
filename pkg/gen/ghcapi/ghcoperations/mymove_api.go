@@ -55,6 +55,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ServiceItemDeleteServiceItemHandler: service_item.DeleteServiceItemHandlerFunc(func(params service_item.DeleteServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation ServiceItemDeleteServiceItem has not yet been implemented")
 		}),
+		CustomerGetAllCustomerMovesHandler: customer.GetAllCustomerMovesHandlerFunc(func(params customer.GetAllCustomerMovesParams) middleware.Responder {
+			return middleware.NotImplemented("operation CustomerGetAllCustomerMoves has not yet been implemented")
+		}),
 		CustomerGetCustomerInfoHandler: customer.GetCustomerInfoHandlerFunc(func(params customer.GetCustomerInfoParams) middleware.Responder {
 			return middleware.NotImplemented("operation CustomerGetCustomerInfo has not yet been implemented")
 		}),
@@ -136,6 +139,8 @@ type MymoveAPI struct {
 	MoveTaskOrderDeleteMoveTaskOrderHandler move_task_order.DeleteMoveTaskOrderHandler
 	// ServiceItemDeleteServiceItemHandler sets the operation handler for the delete service item operation
 	ServiceItemDeleteServiceItemHandler service_item.DeleteServiceItemHandler
+	// CustomerGetAllCustomerMovesHandler sets the operation handler for the get all customer moves operation
+	CustomerGetAllCustomerMovesHandler customer.GetAllCustomerMovesHandler
 	// CustomerGetCustomerInfoHandler sets the operation handler for the get customer info operation
 	CustomerGetCustomerInfoHandler customer.GetCustomerInfoHandler
 	// EntitlementsGetEntitlementsHandler sets the operation handler for the get entitlements operation
@@ -241,6 +246,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.ServiceItemDeleteServiceItemHandler == nil {
 		unregistered = append(unregistered, "service_item.DeleteServiceItemHandler")
+	}
+
+	if o.CustomerGetAllCustomerMovesHandler == nil {
+		unregistered = append(unregistered, "customer.GetAllCustomerMovesHandler")
 	}
 
 	if o.CustomerGetCustomerInfoHandler == nil {
@@ -416,6 +425,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}"] = service_item.NewDeleteServiceItem(o.context, o.ServiceItemDeleteServiceItemHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/customer"] = customer.NewGetAllCustomerMoves(o.context, o.CustomerGetAllCustomerMovesHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
