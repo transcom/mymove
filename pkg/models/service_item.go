@@ -6,8 +6,6 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-type ServiceItems []ServiceItem
-
 type ServiceItem struct {
 	ID              uuid.UUID     `db:"id"`
 	CreatedAt       time.Time     `db:"created_at"`
@@ -15,3 +13,5 @@ type ServiceItem struct {
 	MoveTaskOrderID uuid.UUID     `db:"move_task_order_id"`
 	UpdatedAt       time.Time     `db:"updated_at"`
 }
+
+type ServiceItems []ServiceItem

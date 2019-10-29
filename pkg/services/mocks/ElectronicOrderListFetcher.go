@@ -14,13 +14,13 @@ type ElectronicOrderListFetcher struct {
 	mock.Mock
 }
 
-// FetchElectronicOrderList provides a mock function with given fields: filters, associations, pagination
-func (_m *ElectronicOrderListFetcher) FetchElectronicOrderList(filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) (models.ElectronicOrders, error) {
-	ret := _m.Called(filters, associations, pagination)
+// FetchElectronicOrderList provides a mock function with given fields: filters, associations, pagination, ordering
+func (_m *ElectronicOrderListFetcher) FetchElectronicOrderList(filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.ElectronicOrders, error) {
+	ret := _m.Called(filters, associations, pagination, ordering)
 
 	var r0 models.ElectronicOrders
-	if rf, ok := ret.Get(0).(func([]services.QueryFilter, services.QueryAssociations, services.Pagination) models.ElectronicOrders); ok {
-		r0 = rf(filters, associations, pagination)
+	if rf, ok := ret.Get(0).(func([]services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) models.ElectronicOrders); ok {
+		r0 = rf(filters, associations, pagination, ordering)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(models.ElectronicOrders)
@@ -28,8 +28,8 @@ func (_m *ElectronicOrderListFetcher) FetchElectronicOrderList(filters []service
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func([]services.QueryFilter, services.QueryAssociations, services.Pagination) error); ok {
-		r1 = rf(filters, associations, pagination)
+	if rf, ok := ret.Get(1).(func([]services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) error); ok {
+		r1 = rf(filters, associations, pagination, ordering)
 	} else {
 		r1 = ret.Error(1)
 	}

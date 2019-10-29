@@ -58,3 +58,8 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 
 	return moveTaskOrder
 }
+
+// MakeDefaultMoveTaskOrder makes an MoveTaskOrder with default values
+func MakeDefaultMoveTaskOrder(db *pop.Connection) models.MoveTaskOrder {
+	return MakeMoveTaskOrder(db, Assertions{})
+}

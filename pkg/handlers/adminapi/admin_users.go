@@ -47,8 +47,9 @@ func (h IndexAdminUsersHandler) Handle(params adminuserop.IndexAdminUsersParams)
 
 	associations := query.NewQueryAssociations([]services.QueryAssociation{})
 	pagination := h.NewPagination(params.Page, params.PerPage)
+	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-	adminUsers, err := h.AdminUserListFetcher.FetchAdminUserList(queryFilters, associations, pagination)
+	adminUsers, err := h.AdminUserListFetcher.FetchAdminUserList(queryFilters, associations, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -125,7 +126,7 @@ func (h CreateAdminUserHandler) Handle(params adminuserop.CreateAdminUserParams)
 		return adminuserop.NewCreateAdminUserInternalServerError()
 	}
 
-	logger.Info("Create Admin User", zap.String("admin_user_id", createdAdminUser.ID.String()), zap.String("responsible_user_id", session.UserID.String()), zap.String("event_type", "create_admin_user"))
+	logger.Info("Create Admin User", zap.String("admin_user_id", createdAdminUser.ID.String()), zap.String("responsible_user_id", session.AdminUserID.String()), zap.String("event_type", "create_admin_user"))
 	returnPayload := payloadForAdminUserModel(*createdAdminUser)
 	return adminuserop.NewCreateAdminUserCreated().WithPayload(returnPayload)
 }
@@ -165,7 +166,7 @@ func (h UpdateAdminUserHandler) Handle(params adminuserop.UpdateAdminUserParams)
 		return adminuserop.NewUpdateAdminUserInternalServerError()
 	}
 
-	logger.Info("Update admin User", zap.String("admin_user_id", updatedAdminUser.ID.String()), zap.String("responsible_user_id", session.UserID.String()), zap.String("event_type", "update_admin_user"))
+	logger.Info("Update admin User", zap.String("admin_user_id", updatedAdminUser.ID.String()), zap.String("responsible_user_id", session.AdminUserID.String()), zap.String("event_type", "update_admin_user"))
 	returnPayload := payloadForAdminUserModel(*updatedAdminUser)
 
 	return adminuserop.NewUpdateAdminUserOK().WithPayload(returnPayload)

@@ -28,3 +28,8 @@ func MakeServiceItem(db *pop.Connection, assertions Assertions) models.ServiceIt
 
 	return serviceItem
 }
+
+// MakeDefaultServiceItem makes an ServiceItem with default values
+func MakeDefaultServiceItem(db *pop.Connection) models.ServiceItem {
+	return MakeServiceItem(db, Assertions{})
+}

@@ -51,3 +51,5 @@ func (m *MoveTaskOrder) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: string(m.Status), Name: "Status"},
 	), nil
 }
+
+type MoveTaskOrders []MoveTaskOrder

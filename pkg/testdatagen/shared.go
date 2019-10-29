@@ -34,8 +34,8 @@ type Assertions struct {
 	FuelEIADieselPrice                       models.FuelEIADieselPrice
 	Invoice                                  models.Invoice
 	Move                                     models.Move
-	MoveTaskOrder                            models.MoveTaskOrder
 	MoveDocument                             models.MoveDocument
+	MoveTaskOrder                            models.MoveTaskOrder
 	MovingExpenseDocument                    models.MovingExpenseDocument
 	WeightTicketSetDocument                  models.WeightTicketSetDocument
 	OfficeUser                               models.OfficeUser
@@ -47,8 +47,8 @@ type Assertions struct {
 	ReDomesticServiceArea                    models.ReDomesticServiceArea
 	Reimbursement                            models.Reimbursement
 	SignedCertification                      models.SignedCertification
-	ServiceMember                            models.ServiceMember
 	ServiceItem                              models.ServiceItem
+	ServiceMember                            models.ServiceMember
 	Tariff400ngServiceArea                   models.Tariff400ngServiceArea
 	Tariff400ngItem                          models.Tariff400ngItem
 	Tariff400ngItemRate                      models.Tariff400ngItemRate

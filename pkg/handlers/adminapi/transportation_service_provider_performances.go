@@ -53,8 +53,9 @@ func (h IndexTSPPsHandler) Handle(params tsppop.IndexTSPPsParams) middleware.Res
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
 	associations := query.NewQueryAssociations([]services.QueryAssociation{})
+	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-	tspps, err := h.TransportationServiceProviderPerformanceListFetcher.FetchTransportationServiceProviderPerformanceList(queryFilters, associations, pagination)
+	tspps, err := h.TransportationServiceProviderPerformanceListFetcher.FetchTransportationServiceProviderPerformanceList(queryFilters, associations, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
