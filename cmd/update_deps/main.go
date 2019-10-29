@@ -19,9 +19,7 @@ const (
 )
 
 // Exclude updates to these dependencies (map is path -> reason)
-var excludes = map[string]string{
-	"gopkg.in/urfave/cli.v1": "Need upstream fix to gin: https://github.com/codegangsta/gin/pull/155",
-}
+var excludes = map[string]string{}
 
 // Use a custom branch for the following dependencies
 var customBranches = map[string]string{}
