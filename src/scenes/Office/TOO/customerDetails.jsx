@@ -1,8 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { get, isEmpty } from 'lodash';
-import { getEntitlements, updateMoveTaskOrderStatus, getCustomerInfo } from 'shared/Entities/modules/moveTaskOrders';
-import { selectMoveTaskOrder } from 'shared/Entities/modules/moveTaskOrders';
+import {
+  getEntitlements,
+  updateMoveTaskOrderStatus,
+  getCustomerInfo,
+  selectMoveTaskOrder,
+} from 'shared/Entities/modules/moveTaskOrders';
 
 class CustomerDetails extends React.Component {
   componentDidMount() {

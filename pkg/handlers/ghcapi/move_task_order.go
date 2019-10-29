@@ -18,7 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// UpdateMoveTaskOrderStatusHandlerFunc fetches an access code associated with a service member
+// UpdateMoveTaskOrderStatusHandlerFunc updates the status of a Move Task Order
 type UpdateMoveTaskOrderStatusHandlerFunc struct {
 	handlers.HandlerContext
 	moveTaskOrderStatusUpdater services.MoveTaskOrderStatusUpdater
@@ -29,7 +29,7 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	// TODO how are we going to handle auth in new api? Do we need some sort of placeholder to remind us to
-	// TODO to revist?
+	// TODO to revisit?
 	moveTaskOrderID, status := requestToModels(params)
 	mto, err := h.moveTaskOrderStatusUpdater.UpdateMoveTaskOrderStatus(moveTaskOrderID, status)
 	if err != nil {
