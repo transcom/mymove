@@ -76,26 +76,3 @@ func (dsa *domesticServiceArea) saveToDatabase(db *pop.Connection) {
 		}
 	}
 }
-
-type internationalServiceArea struct {
-	RateArea   string
-	RateAreaID string
-}
-
-func (isa *internationalServiceArea) csvHeader() []string {
-	header := []string{
-		"International Rate Area",
-		"Rate Area Id",
-	}
-
-	return header
-}
-
-func (isa *internationalServiceArea) toSlice() []string {
-	var values []string
-
-	values = append(values, isa.RateArea)
-	values = append(values, isa.RateAreaID)
-
-	return values
-}

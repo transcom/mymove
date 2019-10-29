@@ -30,3 +30,28 @@ func (dsa *StageDomesticServiceArea) ToSlice() []string {
 
 	return values
 }
+
+type StageInternationalServiceArea struct {
+	RateArea   string `db:"rate_area"`
+	RateAreaID string `db:"rate_area_id"`
+}
+
+type StageInternationalServiceAreas []StageInternationalServiceArea
+
+func (sa *StageInternationalServiceArea) CSVHeader() []string {
+	header := []string{
+		"International Rate Area",
+		"Rate Area Id",
+	}
+
+	return header
+}
+
+func (sa *StageInternationalServiceArea) ToSlice() []string {
+	var values []string
+
+	values = append(values, sa.RateArea)
+	values = append(values, sa.RateAreaID)
+
+	return values
+}

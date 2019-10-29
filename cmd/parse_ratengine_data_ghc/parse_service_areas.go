@@ -53,7 +53,6 @@ var parseServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int
 			csvWriter.write(domServArea.ToSlice())
 		}
 		domServAreas = append(domServAreas, domServArea)
-		// domServArea.saveToDatabase(db)
 	}
 
 	if err := tableFromSliceCreator.CreateTableFromSlice(domServAreas); err != nil {
@@ -64,12 +63,13 @@ var parseServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int
 	// Create CSV writer to save data to CSV file, returns nil if params.saveToFile=false
 	if csvWriter != nil {
 		// Write header to CSV
-		isa := internationalServiceArea{}
-		csvWriter.write(isa.csvHeader())
+		isa := models.StageInternationalServiceArea{}
+		csvWriter.write(isa.CSVHeader())
 	}
 
+	var intlServAreas models.StageInternationalServiceAreas
 	for _, row := range dataRows {
-		intlServArea := internationalServiceArea{
+		intlServArea := models.StageInternationalServiceArea{
 			RateArea:   getCell(row.Cells, internationalRateAreaColumn),
 			RateAreaID: getCell(row.Cells, rateAreaIDColumn),
 		}
@@ -77,9 +77,16 @@ var parseServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int
 		if intlServArea.RateArea == "" {
 			break
 		} else if csvWriter != nil {
-			csvWriter.write(intlServArea.toSlice())
+			csvWriter.write(intlServArea.ToSlice())
 		}
+
+		intlServAreas = append(intlServAreas, intlServArea)
 	}
+
+	if err := tableFromSliceCreator.CreateTableFromSlice(intlServAreas); err != nil {
+		return errors.Wrap(err, "Could not create temp table for international service areas")
+	}
+
 	return nil
 }
 
