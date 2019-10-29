@@ -177,7 +177,6 @@ export class EditablePanel extends Component {
     );
 
     const { title, isEditable, editEnabled, HeaderComponent } = this.props;
-    console.log(HeaderComponent);
 
     return (
       <div className={classes}>
