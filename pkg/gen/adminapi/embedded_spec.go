@@ -1059,17 +1059,17 @@ func init() {
         "email",
         "user_id",
         "organization_id",
-        "deactivated",
+        "active",
         "created_at",
         "updated_at"
       ],
       "properties": {
+        "active": {
+          "type": "boolean"
+        },
         "created_at": {
           "type": "string",
           "format": "datetime"
-        },
-        "deactivated": {
-          "type": "boolean"
         },
         "email": {
           "type": "string",
@@ -1127,7 +1127,7 @@ func init() {
     "AdminUserUpdatePayload": {
       "type": "object",
       "properties": {
-        "deactivated": {
+        "active": {
           "type": "boolean"
         },
         "first_name": {
@@ -1225,17 +1225,17 @@ func init() {
         "email",
         "telephone",
         "transportation_office_id",
-        "deactivated",
+        "active",
         "created_at",
         "updated_at"
       ],
       "properties": {
+        "active": {
+          "type": "boolean"
+        },
         "created_at": {
           "type": "string",
           "format": "datetime"
-        },
-        "deactivated": {
-          "type": "boolean"
         },
         "email": {
           "type": "string",
@@ -1309,7 +1309,7 @@ func init() {
     "OfficeUserUpdatePayload": {
       "type": "object",
       "properties": {
-        "deactivated": {
+        "active": {
           "type": "boolean"
         },
         "first_name": {
@@ -2667,17 +2667,17 @@ func init() {
         "email",
         "user_id",
         "organization_id",
-        "deactivated",
+        "active",
         "created_at",
         "updated_at"
       ],
       "properties": {
+        "active": {
+          "type": "boolean"
+        },
         "created_at": {
           "type": "string",
           "format": "datetime"
-        },
-        "deactivated": {
-          "type": "boolean"
         },
         "email": {
           "type": "string",
@@ -2735,7 +2735,7 @@ func init() {
     "AdminUserUpdatePayload": {
       "type": "object",
       "properties": {
-        "deactivated": {
+        "active": {
           "type": "boolean"
         },
         "first_name": {
@@ -2834,17 +2834,17 @@ func init() {
         "email",
         "telephone",
         "transportation_office_id",
-        "deactivated",
+        "active",
         "created_at",
         "updated_at"
       ],
       "properties": {
+        "active": {
+          "type": "boolean"
+        },
         "created_at": {
           "type": "string",
           "format": "datetime"
-        },
-        "deactivated": {
-          "type": "boolean"
         },
         "email": {
           "type": "string",
@@ -2918,7 +2918,7 @@ func init() {
     "OfficeUserUpdatePayload": {
       "type": "object",
       "properties": {
-        "deactivated": {
+        "active": {
           "type": "boolean"
         },
         "first_name": {

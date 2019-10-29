@@ -17,14 +17,14 @@ import (
 // swagger:model AdminUser
 type AdminUser struct {
 
+	// active
+	// Required: true
+	Active *bool `json:"active"`
+
 	// created at
 	// Required: true
 	// Format: datetime
 	CreatedAt *strfmt.DateTime `json:"created_at"`
-
-	// deactivated
-	// Required: true
-	Deactivated *bool `json:"deactivated"`
 
 	// email
 	// Required: true
@@ -64,11 +64,11 @@ type AdminUser struct {
 func (m *AdminUser) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateCreatedAt(formats); err != nil {
+	if err := m.validateActive(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateDeactivated(formats); err != nil {
+	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -106,6 +106,15 @@ func (m *AdminUser) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *AdminUser) validateActive(formats strfmt.Registry) error {
+
+	if err := validate.Required("active", "body", m.Active); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *AdminUser) validateCreatedAt(formats strfmt.Registry) error {
 
 	if err := validate.Required("created_at", "body", m.CreatedAt); err != nil {
@@ -113,15 +122,6 @@ func (m *AdminUser) validateCreatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("created_at", "body", "datetime", m.CreatedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *AdminUser) validateDeactivated(formats strfmt.Registry) error {
-
-	if err := validate.Required("deactivated", "body", m.Deactivated); err != nil {
 		return err
 	}
 

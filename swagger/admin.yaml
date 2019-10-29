@@ -59,7 +59,7 @@ definitions:
       transportation_office_id:
         type: string
         format: uuid
-      deactivated:
+      active:
         type: boolean
       created_at:
         type: string
@@ -75,7 +75,7 @@ definitions:
       - email
       - telephone
       - transportation_office_id
-      - deactivated
+      - active
       - created_at
       - updated_at
   OfficeUsers:
@@ -103,7 +103,7 @@ definitions:
       organization_id:
         type: string
         format: uuid
-      deactivated:
+      active:
         type: boolean
       created_at:
         type: string
@@ -118,7 +118,7 @@ definitions:
       - email
       - user_id
       - organization_id
-      - deactivated
+      - active
       - created_at
       - updated_at
   AdminUsers:
@@ -430,7 +430,7 @@ definitions:
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
-      deactivated:
+      active:
         type: boolean
   AdminUserCreatePayload:
     type: object
@@ -458,7 +458,7 @@ definitions:
       last_name:
         type: string
         title: Last Name
-      deactivated:
+      active:
         type: boolean
   ElectronicOrder:
     type: object

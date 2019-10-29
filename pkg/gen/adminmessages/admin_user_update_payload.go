@@ -15,8 +15,8 @@ import (
 // swagger:model AdminUserUpdatePayload
 type AdminUserUpdatePayload struct {
 
-	// deactivated
-	Deactivated bool `json:"deactivated,omitempty"`
+	// active
+	Active bool `json:"active,omitempty"`
 
 	// First Name
 	FirstName string `json:"first_name,omitempty"`

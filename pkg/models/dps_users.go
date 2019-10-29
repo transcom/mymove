@@ -17,7 +17,7 @@ type DpsUser struct {
 	CreatedAt     time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at" db:"updated_at"`
 	LoginGovEmail string    `json:"login_gov_email" db:"login_gov_email"`
-	Deactivated   bool      `json:"deactivated" db:"deactivated"`
+	Active        bool      `json:"active" db:"active"`
 }
 
 // String is not required by pop and may be deleted

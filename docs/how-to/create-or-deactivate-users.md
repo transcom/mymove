@@ -38,13 +38,13 @@ INSERT INTO public.office_users
      last_name, first_name, middle_initials,
      email, telephone,
      transportation_office_id,
-     created_at, updated_at, deactivated)
+     created_at, updated_at, active)
     VALUES (
            GENERATED_UUID4_VAL, NULL,
            'Jones', 'Alice', NULL,
            'username@example.com', '(415) 891-0828',
            '0931a9dc-c1fd-444a-b138-6e1986b1714c',
-            now(), now(), false
+            now(), now(), true
      );
 ```
 
@@ -114,13 +114,13 @@ INSERT INTO public.tsp_users
      last_name, first_name, middle_initials,
      email, telephone,
      transportation_service_provider_id,
-     created_at, updated_at, deactivated)
+     created_at, updated_at, active)
     VALUES (
         GENERATED_UUID4_VAL, NULL,
         'Jones', 'Alice', NULL,
         'username@example.com', '(415) 891-0828',
         'c71bdb14-ed86-4c92-bf06-93c0865f5070',
-        now(), now(), false
+        now(), now(), true
     );
 ```
 
@@ -132,39 +132,39 @@ INSERT INTO public.tsp_users
      last_name, first_name, middle_initials,
      email, telephone,
      transportation_service_provider_id,
-     created_at, updated_at, deactivated)
+     created_at, updated_at, active)
     VALUES (
         GENERATED_UUID4_VAL, NULL,
         'Jones', 'Alice', NULL,
         'username+pyvl@example.com', '(415) 891-0828',
         'c71bdb14-ed86-4c92-bf06-93c0865f5070',
-        now(), now(), false
+        now(), now(), true
     );
 INSERT INTO public.tsp_users
     (id, user_id,
      last_name, first_name, middle_initials,
      email, telephone,
      transportation_service_provider_id,
-     created_at, updated_at, deactivated)
+     created_at, updated_at, active)
     VALUES (
         GENERATED_UUID4_VAL, NULL,
         'Jones', 'Alice', NULL,
         'username+dlxm@example.com', '(415) 891-0828',
         'b98d3deb-abe9-4609-8d6e-36b2c50873c0',
-        now(), now(), false
+        now(), now(), true
     );
 INSERT INTO public.tsp_users
     (id, user_id,
      last_name, first_name, middle_initials,
      email, telephone,
      transportation_service_provider_id,
-     created_at, updated_at, deactivated)
+     created_at, updated_at, active)
     VALUES (
         GENERATED_UUID4_VAL, NULL,
         'Jones', 'Alice', NULL,
         'username+ssow@example.com', '(415) 891-0828',
         'b6f06674-1b6b-4b93-9ec6-293d5d846876',
-        now(), now(), false
+        now(), now(), true
     );
 ```
 
@@ -177,17 +177,17 @@ Here is an example migration to create a DPS user (please edit as needed):
 ```sql
 INSERT INTO public.dps_users
     (id, login_gov_email,
-     created_at, updated_at, deactivated)
+     created_at, updated_at, active)
     VALUES (
         GENERATED_UUID4_VAL, 'username@example.com',
-        now(), now(), false
+        now(), now(), true
     );
 ```
 
 ## Deactivating Users
 
 MilMove doesn't delete users because of both auditing concerns and CASCADE DELETE failures. Instead each
-user table has a `deactivated` boolean column that can be used to deactivate a user. Deactivating a user means the
+user table has a `active` boolean column that can be used to deactivate a user. Deactivating a user means the
 person with valid credentials to Login.gov may not be permitted to get a session in MilMove.
 
 There are several places you can deactivate a user, at the global level and at each application level. It's important
@@ -200,7 +200,7 @@ and TSP users.
 An example of deactivating a user by email:
 
 ```sql
-UPDATE users SET deactivated = true WHERE email = 'username@example.com';
+UPDATE users SET active = false WHERE email = 'username@example.com';
 ```
 
 This is the only way to deactivate Service Members.
@@ -217,13 +217,13 @@ This can now be done in the admin user application:
 ### Deactivating TSP Users
 
 **Note**: if we revive this table after the HHG mothball work, we will need to
-change the `disabled` column to `deactivated`, as well as replace references to
-`disabled` throughout the TSP app.
+change the `disabled` column to `active` and flip all of the appropriate boolean
+values, as well as replace references to `disabled` throughout the TSP app.
 
 An example of deactivating a TSP user by email:
 
 ```sql
-UPDATE tsp_users SET deactivated = true WHERE email = 'username@example.com';
+UPDATE tsp_users SET active = false WHERE email = 'username@example.com';
 ```
 
 ### Deactivating DPS Users
@@ -231,11 +231,11 @@ UPDATE tsp_users SET deactivated = true WHERE email = 'username@example.com';
 An example of deactivating a DPS user by email:
 
 ```sql
-UPDATE dps_users SET deactivated = true WHERE email = 'username@example.com';
+UPDATE dps_users SET active = false WHERE email = 'username@example.com';
 ```
 
 ### Generating a migration to deactivate a specific user
 
 You can use the following `milmove` sub-command:
 
-`milmove gen deactivate-user-migration -e EMAIL`
+`milmove gen disable-user-migration -e EMAIL`
