@@ -38,5 +38,6 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 		query.NewQueryFilter,
 	}
 
+	ghcAPI.CustomerGetAllCustomerMovesHandler = GetAllCustomerMovesHandler{context}
 	return ghcAPI.Serve(nil)
 }

@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 import { getEntitlements, getCustomerInfo } from 'shared/Entities/modules/moveTaskOrders';
+import { selectCustomer } from 'shared/Entities/modules/customer';
 
-class CustomerDetails extends React.Component {
+class CustomerDetails extends Component {
   componentDidMount() {
     this.props.getEntitlements('fake_move_task_order_id');
-    this.props.getCustomerInfo('fake id');
+    this.props.getCustomerInfo(this.props.match.params.customerId);
   }
 
   render() {
@@ -21,9 +22,7 @@ class CustomerDetails extends React.Component {
             <h2>Customer Info</h2>
             <dl>
               <dt>Full Name</dt>
-              <dd>
-                {customer.first_name} {customer.middle_name} {customer.last_name}
-              </dd>
+              <dd>{customer.customer_name}</dd>
               <dt>Service Branch / Agency</dt>
               <dd>{customer.agency}</dd>
               <dt>Rank / Grade</dt>
@@ -62,12 +61,12 @@ class CustomerDetails extends React.Component {
     );
   }
 }
-const mapStateToProps = state => {
+
+const mapStateToProps = (state, ownProps) => {
   const entitlements = get(state, 'entities.entitlements');
-  const customer = get(state, 'entities.customer', {});
   return {
     entitlements: entitlements && Object.values(entitlements).length > 0 ? Object.values(entitlements)[0] : null,
-    customer: Object.values(customer)[0] || null,
+    customer: selectCustomer(state, ownProps.match.params.customerId),
   };
 };
 const mapDispatchToProps = { getEntitlements, getCustomerInfo };
