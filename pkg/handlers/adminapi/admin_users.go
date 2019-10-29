@@ -47,8 +47,9 @@ func (h IndexAdminUsersHandler) Handle(params adminuserop.IndexAdminUsersParams)
 
 	associations := query.NewQueryAssociations([]services.QueryAssociation{})
 	pagination := h.NewPagination(params.Page, params.PerPage)
+	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-	adminUsers, err := h.AdminUserListFetcher.FetchAdminUserList(queryFilters, associations, pagination)
+	adminUsers, err := h.AdminUserListFetcher.FetchAdminUserList(queryFilters, associations, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

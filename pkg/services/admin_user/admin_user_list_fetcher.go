@@ -6,7 +6,7 @@ import (
 )
 
 type adminUserListQueryBuilder interface {
-	FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) error
+	FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error
 }
 
 type adminUserListFetcher struct {
@@ -14,9 +14,9 @@ type adminUserListFetcher struct {
 }
 
 // FetchAdminUserList uses the passed query builder to fetch a list of office users
-func (o *adminUserListFetcher) FetchAdminUserList(filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) (models.AdminUsers, error) {
+func (o *adminUserListFetcher) FetchAdminUserList(filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.AdminUsers, error) {
 	var adminUsers models.AdminUsers
-	error := o.builder.FetchMany(&adminUsers, filters, associations, pagination)
+	error := o.builder.FetchMany(&adminUsers, filters, associations, pagination, ordering)
 	return adminUsers, error
 }
 
