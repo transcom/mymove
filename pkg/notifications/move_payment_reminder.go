@@ -51,35 +51,41 @@ func NewPaymentReminder(db *pop.Connection, logger Logger, date time.Time) (*Pay
 type PaymentReminderEmailInfos []PaymentReminderEmailInfo
 
 type PaymentReminderEmailInfo struct {
-	ServiceMemberID      uuid.UUID  `db:"id"`
-	Email                *string    `db:"personal_email"`
-	DutyStationName      string     `db:"duty_station_name"`
-	NewDutyStationName   string     `db:"new_duty_station_name"`
-	WeightEstimate       unit.Pound `db:"weight_estimate"`
-	IncentiveEstimateMin unit.Cents `db:"incentive_estimate_min"`
-	IncentiveEstimateMax unit.Cents `db:"incentive_estimate_max"`
-	TOName               string     `db:"transportation_office_name"`
-	TOPhone              string     `db:"transportation_office_phone"`
+	ServiceMemberID      uuid.UUID   `db:"id"`
+	Email                *string     `db:"personal_email"`
+	DutyStationName      string      `db:"duty_station_name"`
+	NewDutyStationName   string      `db:"new_duty_station_name"`
+	WeightEstimate       *unit.Pound `db:"weight_estimate"`
+	IncentiveEstimateMin *unit.Cents `db:"incentive_estimate_min"`
+	IncentiveEstimateMax *unit.Cents `db:"incentive_estimate_max"`
+	TOName               string      `db:"transportation_office_name"`
+	TOPhone              string      `db:"transportation_office_phone"`
+	ReviewedDate         string      `db:"reviewed_date"`
 }
 
 func (m PaymentReminder) GetEmailInfo(date time.Time) (PaymentReminderEmailInfos, error) {
-	// 	dateString := date.Format("2006-01-02")
+	fmt.Println(date)
+	dateString := date.Format("2006-01-02")
+	fmt.Println(dateString)
 	// 	query := `SELECT 'e7edaddf-f4f9-401f-940b-b6c3be84195d' as id, 'lindsay+test1@truss.works' as personal_email, 'Yuma AFB' as duty_station_name, 'Fort Gordon' as new_duty_station_name,
 	// 8000 as weight_estimate, 500 as incentive_estimate_min, 1000 as incentive_estimate_max, 'blah PPO' as transportation_office_name, '555-555-1212' as transportation_office_phone`
-	query := `SELECT 'e7edaddf-f4f9-401f-940b-b6c3be84195d' as id, 'leo_spaceman_sm@example.com' as personal_email, 'Yuma AFB' as duty_station_name, 'Fort Gordon' as new_duty_station_name,
-8000 as weight_estimate, 500 as incentive_estimate_min, 1000 as incentive_estimate_max, 'blah PPO' as transportation_office_name, '555-555-1212' as transportation_office_phone`
-	//
-	// 	query := `SELECT sm.id, sm.personal_email, dsn.name AS new_duty_station_name, dso.name AS duty_station_name
-	// FROM personally_procured_moves p
-	//          JOIN moves m ON p.move_id = m.id
-	//          JOIN orders o ON m.orders_id = o.id
-	//          JOIN service_members sm ON o.service_member_id = sm.id
-	//          JOIN duty_stations dso ON sm.duty_station_id = dso.id
-	//          JOIN duty_stations dsn ON o.new_duty_station_id = dsn.id
-	//          LEFT JOIN notifications n ON sm.id = n.service_member_id
-	// WHERE CAST(reviewed_date AS date) = $1
-	// --  send email if haven't sent them a MOVE_REVIEWED_EMAIL yet OR we haven't sent them any emails at all
-	//     AND (notification_type != 'MOVE_REVIEWED_EMAIL' OR n.service_member_id IS NULL);`
+	query := `SELECT sm.id as id, sm.personal_email as personal_email,
+                     ppm.weight_estimate, ppm.incentive_estimate_min, ppm.incentive_estimate_max,
+                     ppm.reviewed_date as reviewed_date,
+                     dsn.name AS new_duty_station_name,
+                     toff.name AS transportation_office_name,
+                     opl.number AS transportation_office_phone
+	FROM personally_procured_moves ppm
+	         JOIN moves m ON ppm.move_id = m.id
+	         JOIN orders o ON m.orders_id = o.id
+	         JOIN service_members sm ON o.service_member_id = sm.id
+	         JOIN duty_stations dsn ON o.new_duty_station_id = dsn.id
+	         JOIN transportation_offices toff ON toff.id = dsn.transportation_office_id
+	         JOIN office_phone_lines opl on toff.id = opl.transportation_office_id
+	         LEFT JOIN notifications n ON sm.id = n.service_member_id
+	where ppm.reviewed_date <= now() - INTERVAL '10 DAYS'
+	      AND ppm.reviewed_date >= '2019-10-01'
+`
 
 	paymentReminderEmailInfos := PaymentReminderEmailInfos{}
 	err := m.db.RawQuery(query).All(&paymentReminderEmailInfos)

@@ -1,7 +1,6 @@
 package notifications
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -20,51 +19,56 @@ func (suite *NotificationSuite) createPPMMoves1(assertions []testdatagen.Asserti
 
 func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 	db := suite.DB()
-	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
-	onDate := startDate.AddDate(0, 0, -6)
-	offDate := startDate.AddDate(0, 0, -7)
+	currentDatetime := time.Now()
+	paymentReminderDate := currentDatetime.AddDate(0, 0, -10)
+	noPaymentReminderDate := currentDatetime.AddDate(0, 0, -9)
 	estimateMin := unit.Cents(1000)
 	estimateMax := unit.Cents(2000)
 
 	moves := []testdatagen.Assertions{
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &onDate, IncentiveEstimateMin: &estimateMin, IncentiveEstimateMax: &estimateMax}},
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &offDate, IncentiveEstimateMin: &estimateMin, IncentiveEstimateMax: &estimateMax}},
+		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &paymentReminderDate, IncentiveEstimateMin: &estimateMin, IncentiveEstimateMax: &estimateMax}},
+		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &noPaymentReminderDate, IncentiveEstimateMin: &estimateMin, IncentiveEstimateMax: &estimateMax}},
 	}
 	ppms := suite.createPPMMoves1(moves)
 
-	PaymentReminder, err := NewPaymentReminder(db, suite.logger, onDate)
+	PaymentReminder, err := NewPaymentReminder(db, suite.logger, paymentReminderDate)
 	suite.NoError(err)
-	emailInfo, err := PaymentReminder.GetEmailInfo(onDate)
+	emailInfo, err := PaymentReminder.GetEmailInfo(paymentReminderDate)
+	suite.NoError(err)
 
-	suite.NoError(err)
 	suite.NotNil(emailInfo)
-	suite.Len(emailInfo, 1)
-	fmt.Printf("aaa %+v bbb\n", *ppms[0].WeightEstimate)
-	fmt.Printf("aaa %+v bbb\n", ppms[0].IncentiveEstimateMin)
-	fmt.Printf("aaa %+v bbb\n", ppms[0].IncentiveEstimateMax)
+	suite.Len(emailInfo, 1, "Wrong number of rows returned")
 	suite.Equal(ppms[0].Move.Orders.NewDutyStation.Name, emailInfo[0].NewDutyStationName)
 	suite.NotNil(emailInfo[0].Email)
 	suite.Equal(*ppms[0].Move.Orders.ServiceMember.PersonalEmail, *emailInfo[0].Email)
-	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.Name, emailInfo[0].DutyStationName)
+	suite.Equal(ppms[0].WeightEstimate, emailInfo[0].WeightEstimate)
+	suite.Equal(ppms[0].IncentiveEstimateMin, emailInfo[0].IncentiveEstimateMin)
+	suite.Equal(ppms[0].IncentiveEstimateMax, emailInfo[0].IncentiveEstimateMax)
+	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.TransportationOffice.Name, emailInfo[0].TOName)
+	suite.Equal(ppms[0].Move.Orders.ServiceMember.DutyStation.TransportationOffice.PhoneLines[0].Number, emailInfo[0].TOPhone)
 }
 
-// func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
-// 	db := suite.DB()
-// 	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
-// 	offDate := startDate.AddDate(0, 0, -7)
-// 	moves := []testdatagen.Assertions{
-// 		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &offDate}},
-// 		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &offDate}},
-// 	}
-// 	suite.createPPMMoves(moves)
+func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
+	db := suite.DB()
+	currentDatetime := time.Now()
+	paymentReminderDateTooNew, _ := time.Parse("2019-01-01", "2019-10-01") // cutoff date for sending payment reminders (don't send if older than this...
+	paymentReminderDateTooOld := currentDatetime.AddDate(0, 0, -9)
+	estimateMin := unit.Cents(1000)
+	estimateMax := unit.Cents(2000)
+	startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
+	moves := []testdatagen.Assertions{
+		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &paymentReminderDateTooNew, IncentiveEstimateMin: &estimateMin, IncentiveEstimateMax: &estimateMax}},
+		{PersonallyProcuredMove: models.PersonallyProcuredMove{Status: models.PPMStatusAPPROVED, ReviewedDate: &paymentReminderDateTooOld, IncentiveEstimateMin: &estimateMin, IncentiveEstimateMax: &estimateMax}},
+	}
+	suite.createPPMMoves(moves)
 
-// 	PaymentReminder, err := NewPaymentReminder(db, suite.logger, startDate)
-// 	suite.NoError(err)
-// 	emailInfo, err := PaymentReminder.GetEmailInfo(startDate)
+	PaymentReminder, err := NewPaymentReminder(db, suite.logger, startDate)
+	suite.NoError(err)
+	emailInfo, err := PaymentReminder.GetEmailInfo(startDate)
 
-// 	suite.NoError(err)
-// 	suite.Len(emailInfo, 0)
-// }
+	suite.NoError(err)
+	suite.Len(emailInfo, 0)
+}
 
 // func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
 // 	db := suite.DB()
