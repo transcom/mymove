@@ -124,14 +124,6 @@ func removeWhiteSpace(stripString string) string {
 	return s
 }
 
-func splitZip3s(s string) []string {
-	if strings.Contains(s, ",") {
-		return strings.Split(s, ",")
-	}
-	i := fmt.Sprintf("%03d", getInt(s))
-	return []string{i}
-}
-
 func formatServiceAreaNumber(s string) string {
 	return fmt.Sprintf("%03d", getInt(s))
 }

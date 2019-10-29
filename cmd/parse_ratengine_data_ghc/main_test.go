@@ -9,7 +9,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -115,15 +114,15 @@ var testVerifyFunc3 verifyXlsxSheet = func(params paramConfig, sheetIndex int) e
 	return fmt.Errorf("forced test error from function testVerifyFunc3 with index %d", sheetIndex)
 }
 
-var testProcessFunc1 processXlsxSheet = func(params paramConfig, sheetIndex int, db *pop.Connection) error {
+var testProcessFunc1 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator) error {
 	return nil
 }
 
-var testProcessFunc2 processXlsxSheet = func(params paramConfig, sheetIndex int, db *pop.Connection) error {
+var testProcessFunc2 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator) error {
 	return nil
 }
 
-var testProcessFunc3 processXlsxSheet = func(params paramConfig, sheetIndex int, db *pop.Connection) error {
+var testProcessFunc3 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator) error {
 	return fmt.Errorf("forced test error from function testProcessFunc3 with index %d", sheetIndex)
 }
 
