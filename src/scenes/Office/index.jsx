@@ -154,8 +154,10 @@ export class OfficeWrapper extends Component {
                   />
                 )}
                 <Suspense fallback={<LoadingPlaceholder />}>
-                  {too && <PrivateRoute path="/too/placeholder" component={TOO} />}
-                  {too && <PrivateRoute path="/too/customer/:customerId/details" component={CustomerDetails} />}
+                  <Switch>
+                    {too && <PrivateRoute path="/too/placeholder" component={TOO} />}
+                    {too && <PrivateRoute path="/too/customer/:customerId/details" component={CustomerDetails} />}
+                  </Switch>
                 </Suspense>
               </Switch>
             )}

@@ -60,11 +60,8 @@ func payloadForMoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *ghcmessages.Mo
 	destinationAddress := payloadForAddress(&moveTaskOrder.DestinationAddress)
 	pickupAddress := payloadForAddress(&moveTaskOrder.PickupAddress)
 	entitlements := payloadForEntitlements(&moveTaskOrder.Entitlements)
-	//TODO leaving customer empty for now. We need to resolve what refers to what, since entitlements
-	//TODO directly references service member while models.Customer is effectively aliasing service members table
-	customer := &ghcmessages.Customer{}
 	payload := &ghcmessages.MoveTaskOrder{
-		Customer:               customer,
+		CustomerID:             strfmt.UUID(moveTaskOrder.CustomerID.String()),
 		DestinationAddress:     destinationAddress,
 		DestinationDutyStation: strfmt.UUID(moveTaskOrder.DestinationDutyStation.ID.String()),
 		// TODO the pivotal ticket seems somewhat incomplete compared to the

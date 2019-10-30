@@ -22,8 +22,9 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 	actualMTO, err := mtoFetcher.FetchMoveTaskOrder(expectedMTO.ID)
 
 	suite.NoError(err)
-	suite.Equal(expectedMTO.CustomerID, actualMTO.CustomerID)
 	suite.NotZero(actualMTO.Customer)
+	suite.Equal(expectedMTO.CustomerID, actualMTO.CustomerID)
+	suite.Equal(expectedMTO.CustomerRemarks, actualMTO.CustomerRemarks)
 	suite.Equal(expectedMTO.DestinationAddressID, actualMTO.DestinationAddressID)
 	suite.NotZero(actualMTO.DestinationAddress)
 	suite.Equal(expectedMTO.DestinationDutyStationID, actualMTO.DestinationDutyStationID)
