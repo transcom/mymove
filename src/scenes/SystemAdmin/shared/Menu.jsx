@@ -9,13 +9,15 @@ const Menu = props => {
   const resources = props.resources;
   return (
     <div>
-      {resources.map(resource => (
-        <MenuItemLink
-          key={resource.name}
-          to={`/${resource.name}`}
-          primaryText={(resource.options && resource.options.label) || resource.name}
-        />
-      ))}
+      {resources
+        .filter(resource => resource.hasList || resource.hasShow)
+        .map(resource => (
+          <MenuItemLink
+            key={resource.name}
+            to={`/${resource.name}`}
+            primaryText={(resource.options && resource.options.label) || resource.name}
+          />
+        ))}
       <MenuItemLink
         to="/"
         primaryText="Logout"

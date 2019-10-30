@@ -16,7 +16,7 @@ import (
 // CreateServiceItemCreatedCode is the HTTP code returned for type CreateServiceItemCreated
 const CreateServiceItemCreatedCode int = 201
 
-/*CreateServiceItemCreated Successfully created line item for move task order
+/*CreateServiceItemCreated Successfully created service item for move task order
 
 swagger:response createServiceItemCreated
 */

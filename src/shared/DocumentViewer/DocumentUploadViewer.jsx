@@ -8,8 +8,8 @@ import DocumentContent from './DocumentContent';
 
 export const DocumentUploadViewer = ({ moveDocument }) => {
   const uploadModels = get(moveDocument, 'document.uploads', []);
-  return uploadModels.map(({ url, filename, content_type, tags }) => (
-    <DocumentContent key={url} url={url} filename={filename} contentType={content_type} tags={tags} />
+  return uploadModels.map(({ url, filename, content_type, status }) => (
+    <DocumentContent key={url} url={url} filename={filename} contentType={content_type} status={status} />
   ));
 };
 

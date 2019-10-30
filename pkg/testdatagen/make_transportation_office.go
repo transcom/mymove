@@ -7,7 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeTransportationOffice creates a single ServiceMember and associated User.
+// MakeTransportationOffice creates a single TransportationOffice.
 func MakeTransportationOffice(db *pop.Connection, assertions Assertions) models.TransportationOffice {
 
 	transportationOfficeID := assertions.TransportationOffice.ID

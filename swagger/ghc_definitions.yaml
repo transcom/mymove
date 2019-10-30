@@ -227,6 +227,44 @@ definitions:
       dependentsAuthorized:
         example: true
         type: boolean
+  CustomerMoveItem:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      customer_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      created_at:
+        type: string
+        format: datetime
+        example: 2018-04-12T23:20:50.52Z
+        description: when the access code was created
+      customer_name:
+        type: string
+        example: Mickey Mouse
+        x-nullable: true
+        title: Customer Name
+      branch_of_service:
+        type: string
+        example: Agency
+        x-nullable:
+        title: Branch of service / Agency
+      confirmation_number:
+        type: string
+        example: '12432'
+      origin_duty_station_name:
+        type: string
+        example: Fort Knox
+        title: Origin Duty Station Name
+        x-nullable: true
+  CustomerMoveItems:
+    type: array
+    items:
+      $ref: '#/definitions/CustomerMoveItem'
   Entitlements:
     properties:
       id:
