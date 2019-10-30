@@ -1,7 +1,11 @@
 package ghcrateengine
 
 import (
+	"fmt"
+	"go.uber.org/zap"
 	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/gobuffalo/pop"
 
@@ -25,7 +29,7 @@ type domesticShorthaulPricer struct {
 	contractCode string
 }
 
-func (d *domesticShorthaulPricer) PriceDomesticShorthaul(moveDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (totalCost unit.Cents, err error) {
+func (dsh *domesticShorthaulPricer) PriceDomesticShorthaul(moveDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (totalCost unit.Cents, err error) {
 
 	pe := centPriceAndEscalation{}
 	isPeakPeriod := IsPeakPeriod(moveDate)
@@ -43,8 +47,8 @@ func (d *domesticShorthaulPricer) PriceDomesticShorthaul(moveDate time.Time, dis
 		and dsap.is_peak_period = $4
 		and $5 between re_contract_years.start_date and re_contract_years.end_date;
 	`
-	err = d.db.RawQuery(
-		query, serviceArea, shorthaulServiceCode, d.contractCode, isPeakPeriod, moveDate).First(
+	err = dsh.db.RawQuery(
+		query, serviceArea, shorthaulServiceCode, dsh.contractCode, isPeakPeriod, moveDate).First(
 		&pe)
 
 	effectiveWeight := weight
@@ -56,5 +60,19 @@ func (d *domesticShorthaulPricer) PriceDomesticShorthaul(moveDate time.Time, dis
 	escalatedPrice := basePrice * pe.EscalationCompounded
 	totalCost = unit.Cents(escalatedPrice) // TODO: truncates the price to get an integer- is that what we want?
 
+	dsh.logger.Info(fmt.Sprintf("%s calculated", shorthaulServiceCode), // May change to use ServiceName
+		zap.String("contractCode:", dsh.contractCode),
+		zap.String("serviceCode:", shorthaulServiceCode),
+		zap.Time("moveDate:", moveDate),
+		zap.String("serviceArea:", serviceArea),
+		zap.Float64("distance (mi):", float64(distance)),
+		zap.Float64("weight (lb):", float64(weight)),
+		zap.Float64("effectiveWeight (lb):", float64(effectiveWeight)),
+		zap.Bool("isPeakPeriod: ", isPeakPeriod),
+		zap.Object("centPriceAndEscalation:", pe),
+		zap.Float64("baseCost (cents):", basePrice),
+		zap.Float64("escalatedCost (cents):", escalatedPrice),
+		zap.Int("totalCost (cents):", totalCost.Int()),
+	)
 	return totalCost, err
 }

@@ -93,7 +93,7 @@ func (dsa *domesticServiceAreaPricer) PriceDomesticServiceArea(moveDate time.Tim
 		zap.Bool("isPeakPeriod: ", isPeakPeriod),
 		zap.Object("centPriceAndEscalation:", priceAndEscalation),
 		zap.Float64("baseCost (cents):", baseTotalPrice),
-		zap.Float64("escalatedCost (cents):", baseTotalPrice),
+		zap.Float64("escalatedCost (cents):", escalatedTotalPrice),
 		zap.Int("totalCost (cents):", totalCost.Int()),
 	)
 
