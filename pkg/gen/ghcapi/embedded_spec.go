@@ -761,7 +761,7 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/service_items": {
       "get": {
-        "description": "Gets all line items for a move orders",
+        "description": "Gets all service items for a move task order",
         "produces": [
           "application/json"
         ],
@@ -772,9 +772,9 @@ func init() {
         "operationId": "listServiceItems",
         "responses": {
           "200": {
-            "description": "Successfully retrieved all line items for a move task order",
+            "description": "Successfully retrieved all service items for a move task order",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/ServiceItem"
+              "$ref": "./ghc_definitions.yaml#/definitions/ServiceItems"
             }
           },
           "400": {
@@ -1941,7 +1941,7 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/service_items": {
       "get": {
-        "description": "Gets all line items for a move orders",
+        "description": "Gets all service items for a move task order",
         "produces": [
           "application/json"
         ],
@@ -1952,9 +1952,9 @@ func init() {
         "operationId": "listServiceItems",
         "responses": {
           "200": {
-            "description": "Successfully retrieved all line items for a move task order",
+            "description": "Successfully retrieved all service items for a move task order",
             "schema": {
-              "$ref": "#/definitions/serviceItem"
+              "$ref": "#/definitions/serviceItems"
             }
           },
           "400": {
@@ -3008,6 +3008,12 @@ func init() {
             "REJECTED"
           ]
         }
+      }
+    },
+    "serviceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/serviceItem"
       }
     },
     "updatePaymentRequestPayload": {

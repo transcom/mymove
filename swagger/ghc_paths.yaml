@@ -253,9 +253,9 @@ paths:
       parameters: []
       responses:
         '200':
-          description: Successfully retrieved all line items for a move task order
+          description: Successfully retrieved all service items for a move task order
           schema:
-            $ref: './ghc_definitions.yaml#/definitions/ServiceItem'
+            $ref: './ghc_definitions.yaml#/definitions/ServiceItems'
         '400':
           description: The request payload is invalid
           schema:
@@ -278,7 +278,7 @@ paths:
             $ref: './ghc_responses.yaml#/responses/ServerError'
       tags:
         - serviceItem
-      description: Gets all line items for a move orders
+      description: Gets all service items for a move task order
       operationId: listServiceItems
       summary: Gets all line items for a move order
     post:
