@@ -55,3 +55,52 @@ func (sa *StageInternationalServiceArea) ToSlice() []string {
 
 	return values
 }
+
+type StageDomesticLinehaulPrice struct {
+	ServiceAreaNumber string `db:"service_area_number"`
+	OriginServiceArea string `db:"origin_service_area"`
+	ServicesSchedule  string `db:"services_schedule"`
+	Season            string `db:"season"`
+	WeightLower       string `db:"weight_lower"`
+	WeightUpper       string `db:"weight_upper"`
+	MilesLower        string `db:"miles_lower"`
+	MilesUpper        string `db:"miles_upper"`
+	EscalationNumber  string `db:"escalation_number"`
+	Rate              string `db:"rate"`
+}
+
+type StageDomesticLinehaulPrices []StageDomesticLinehaulPrice
+
+func (dLh *StageDomesticLinehaulPrice) CSVHeader() []string {
+	header := []string{
+		"Service Area Number",
+		"Origin Service Area",
+		"Services Schedule",
+		"Season",
+		"Weight Lower",
+		"Weight Upper",
+		"Miles Lower",
+		"Miles Upper",
+		"Escalation Number",
+		"Rate",
+	}
+
+	return header
+}
+
+func (dLh *StageDomesticLinehaulPrice) ToSlice() []string {
+	var values []string
+
+	values = append(values, dLh.ServiceAreaNumber)
+	values = append(values, dLh.OriginServiceArea)
+	values = append(values, dLh.ServicesSchedule)
+	values = append(values, dLh.Season)
+	values = append(values, dLh.WeightLower)
+	values = append(values, dLh.WeightUpper)
+	values = append(values, dLh.MilesLower)
+	values = append(values, dLh.MilesUpper)
+	values = append(values, dLh.EscalationNumber)
+	values = append(values, dLh.Rate)
+
+	return values
+}

@@ -3,7 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
+	"strconv"
 
+	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -15,8 +19,8 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 		defer csvWriter.close()
 
 		// Write header to CSV
-		dp := domesticLineHaulPrice{}
-		csvWriter.write(dp.csvHeader())
+		dp := models.StageDomesticLinehaulPrice{}
+		csvWriter.write(dp.CSVHeader())
 	}
 
 	// XLSX Sheet consts
@@ -32,6 +36,7 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 		return fmt.Errorf("parseDomesticLinehaulPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
+	var domPrices models.StageDomesticLinehaulPrices
 	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
 	for _, row := range dataRows {
 		colIndex := feeColIndexStart
@@ -41,30 +46,37 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 			for _, r := range rateSeasons {
 				// For each weight band
 				for _, w := range dLhWeightBands {
-					// For each milage range
+					// For each mileage range
 					for _, m := range dLhMilesRanges {
-						domPrice := domesticLineHaulPrice{
-							ServiceAreaNumber: formatServiceAreaNumber(getCell(row.Cells, serviceAreaNumberColumn)),
+						domPrice := models.StageDomesticLinehaulPrice{
+							ServiceAreaNumber: getCell(row.Cells, serviceAreaNumberColumn),
 							OriginServiceArea: getCell(row.Cells, originServiceAreaColumn),
-							ServiceSchedule:   getInt(getCell(row.Cells, serviceScheduleColumn)),
+							ServicesSchedule:  getCell(row.Cells, serviceScheduleColumn),
 							Season:            r,
-							WeightBand:        w,
-							MilesRange:        m,
-							Escalation:        escalation,
+							WeightLower:       strconv.Itoa(w.lowerLbs),
+							WeightUpper:       strconv.Itoa(w.upperLbs),
+							MilesLower:        strconv.Itoa(m.lower),
+							MilesUpper:        strconv.Itoa(m.upper),
+							EscalationNumber:  strconv.Itoa(escalation),
 							Rate:              getCell(row.Cells, colIndex),
 						}
 						colIndex++
 						if params.showOutput == true {
-							log.Println(domPrice.toSlice())
+							log.Println(domPrice.ToSlice())
 						}
 						if csvWriter != nil {
-							csvWriter.write(domPrice.toSlice())
+							csvWriter.write(domPrice.ToSlice())
 						}
+						domPrices = append(domPrices, domPrice)
 					}
 				}
 				colIndex++ // skip 1 column (empty column) before starting next Rate type
 			}
 		}
+	}
+
+	if err := tableFromSliceCreator.CreateTableFromSlice(domPrices); err != nil {
+		return errors.Wrap(err, "Could not create temp table for domestic linehaul prices")
 	}
 
 	return nil

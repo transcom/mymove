@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strconv"
 )
 
@@ -21,150 +20,74 @@ const dLhWeightBandNumCellsExpected int = 10 //cells per band verify against dLh
 const dLhWeightBandCountExpected int = 3     //expected number of weight bands verify against weightBandCount
 
 type dLhWeightBand struct {
-	band     int
 	lowerLbs int
 	upperLbs int
-	lowerCwt float32
-	upperCwt float32
 }
 
 var dLhWeightBands = []dLhWeightBand{
 	{
-		band:     1,
 		lowerLbs: 500,
 		upperLbs: 4999,
-		lowerCwt: 5,
-		upperCwt: 49.99,
 	},
 	{
-		band:     2,
 		lowerLbs: 5000,
 		upperLbs: 9999,
-		lowerCwt: 50,
-		upperCwt: 99.99,
 	},
 	{
-		band:     3,
 		lowerLbs: 10000,
 		upperLbs: 999999,
-		lowerCwt: 100,
-		upperCwt: 9999.99,
 	},
 }
 
 type dLhMilesRange struct {
-	rangeNumber int
-	lower       int
-	upper       int
+	lower int
+	upper int
 }
 
 var dLhMilesRanges = []dLhMilesRange{
 	{
-		rangeNumber: 1,
-		lower:       0,
-		upper:       250,
+		lower: 0,
+		upper: 250,
 	},
 	{
-		rangeNumber: 2,
-		lower:       251,
-		upper:       500,
+		lower: 251,
+		upper: 500,
 	},
 	{
-		rangeNumber: 3,
-		lower:       501,
-		upper:       1000,
+		lower: 501,
+		upper: 1000,
 	},
 	{
-		rangeNumber: 4,
-		lower:       1001,
-		upper:       1500,
+		lower: 1001,
+		upper: 1500,
 	},
 	{
-		rangeNumber: 5,
-		lower:       1501,
-		upper:       2000,
+		lower: 1501,
+		upper: 2000,
 	},
 	{
-		rangeNumber: 6,
-		lower:       2001,
-		upper:       2500,
+		lower: 2001,
+		upper: 2500,
 	},
 	{
-		rangeNumber: 7,
-		lower:       2501,
-		upper:       3000,
+		lower: 2501,
+		upper: 3000,
 	},
 	{
-		rangeNumber: 8,
-		lower:       3001,
-		upper:       3500,
+		lower: 3001,
+		upper: 3500,
 	},
 	{
-		rangeNumber: 9,
-		lower:       3501,
-		upper:       4000,
+		lower: 3501,
+		upper: 4000,
 	},
 	{
-		rangeNumber: 10,
-		lower:       4001,
-		upper:       999999,
+		lower: 4001,
+		upper: 999999,
 	},
 }
 
 var dLhWeightBandNumCells = len(dLhMilesRanges)
-
-type domesticLineHaulPrice struct {
-	ServiceAreaNumber string
-	OriginServiceArea string
-	ServiceSchedule   int
-	Season            string
-	WeightBand        dLhWeightBand
-	MilesRange        dLhMilesRange
-	Escalation        int
-	Rate              string
-}
-
-func (dLh *domesticLineHaulPrice) csvHeader() []string {
-	header := []string{
-		"Service Area Number",
-		"Origin Serivce Area",
-		"Service Schedule",
-		"Season",
-		"Weight Band ID",
-		"Lower Lbs",
-		"Upper Lbs",
-		"Lower Cwt",
-		"Upper Cwt",
-		"Mileage Range ID",
-		"Lower Miles",
-		"Upper Miles",
-		"Escalation Number",
-		"Rate",
-	}
-
-	return header
-}
-
-func (dLh *domesticLineHaulPrice) toSlice() []string {
-	var values []string
-
-	values = append(values, dLh.ServiceAreaNumber)
-	values = append(values, dLh.OriginServiceArea)
-	values = append(values, strconv.Itoa(dLh.ServiceSchedule))
-	values = append(values, dLh.Season)
-	values = append(values, strconv.Itoa(dLh.WeightBand.band))
-	values = append(values, strconv.Itoa(dLh.WeightBand.lowerLbs))
-	values = append(values, strconv.Itoa(dLh.WeightBand.upperLbs))
-	values = append(values, fmt.Sprintf("%.2f", dLh.WeightBand.lowerCwt))
-	values = append(values, fmt.Sprintf("%.2f", dLh.WeightBand.upperCwt))
-	values = append(values, strconv.Itoa(dLh.MilesRange.rangeNumber))
-	values = append(values, strconv.Itoa(dLh.MilesRange.lower))
-	values = append(values, strconv.Itoa(dLh.MilesRange.upper))
-	values = append(values, strconv.Itoa(dLh.Escalation))
-	values = append(values, dLh.Rate)
-
-	return values
-}
 
 type domesticServiceAreaPrice struct {
 	ServiceAreaNumber                     string
