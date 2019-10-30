@@ -10,11 +10,13 @@ import (
 	"net/url"
 	golangswaggerpaths "path"
 	"strings"
+
+	"github.com/go-openapi/strfmt"
 )
 
 // GetCustomerInfoURL generates an URL for the get customer info operation
 type GetCustomerInfoURL struct {
-	CustomerID string
+	CustomerID strfmt.UUID
 
 	_basePath string
 	// avoid unkeyed usage
@@ -42,7 +44,7 @@ func (o *GetCustomerInfoURL) Build() (*url.URL, error) {
 
 	var _path = "/customer/{customerID}"
 
-	customerID := o.CustomerID
+	customerID := o.CustomerID.String()
 	if customerID != "" {
 		_path = strings.Replace(_path, "{customerID}", customerID, -1)
 	} else {

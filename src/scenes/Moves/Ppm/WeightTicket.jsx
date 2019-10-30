@@ -88,7 +88,9 @@ class WeightTicket extends Component {
   };
 
   invalidState = uploader => {
-    return this.hasWeightTicket(uploader.uploaderRef) === uploader.isMissingChecked();
+    if (uploader.isMissingChecked()) {
+      return true;
+    } else return !this.hasWeightTicket(uploader.uploaderRef);
   };
 
   uploaderWithInvalidState = () => {

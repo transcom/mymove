@@ -20,6 +20,12 @@ type Customer struct {
 	// Agency
 	Agency *string `json:"agency,omitempty"`
 
+	// Customer Name
+	CustomerName *string `json:"customer_name,omitempty"`
+
+	// dependents authorized
+	DependentsAuthorized bool `json:"dependentsAuthorized,omitempty"`
+
 	// Destination
 	DestinationDutyStation *string `json:"destination_duty_station,omitempty"`
 
@@ -27,21 +33,12 @@ type Customer struct {
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
 	Email *string `json:"email,omitempty"`
 
-	// First Name
-	FirstName *string `json:"first_name,omitempty"`
-
 	// Grade
 	Grade *string `json:"grade,omitempty"`
 
 	// id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
-
-	// Last Name
-	LastName *string `json:"last_name,omitempty"`
-
-	// Middle Name
-	MiddleName *string `json:"middle_name,omitempty"`
 
 	// Origin
 	OriginDutyStation *string `json:"origin_duty_station,omitempty"`

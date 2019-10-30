@@ -128,3 +128,7 @@ moveTaskOrder.define({
 
 // Customer
 export const customer = new schema.Entity('customer');
+
+export const customerMoveItem = new schema.Entity('customerMoveItem');
+
+export const customerMoveItems = new schema.Array(customerMoveItem);
