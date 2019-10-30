@@ -16,7 +16,7 @@ import (
 )
 
 // PaymentRequest payment request
-// swagger:model PaymentRequest
+// swagger:model paymentRequest
 type PaymentRequest struct {
 
 	// document package
