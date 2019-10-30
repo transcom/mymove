@@ -26,8 +26,8 @@ func (suite *HandlerSuite) TestGetEntitlementsHandler_Success() {
 	suite.NotNil(getEntitlementsPayload)
 
 	suite.Equal(getEntitlementsPayload.DependentsAuthorized, false)
-	suite.Equal(getEntitlementsPayload.NonTemporaryStorage, false)
-	suite.Equal(getEntitlementsPayload.PrivatelyOwnedVehicle, true)
+	suite.Equal(*getEntitlementsPayload.NonTemporaryStorage, false)
+	suite.Equal(*getEntitlementsPayload.PrivatelyOwnedVehicle, true)
 	suite.Equal(int(getEntitlementsPayload.ProGearWeight), 200)
 	suite.Equal(int(getEntitlementsPayload.ProGearWeightSpouse), 100)
 	suite.Equal(int(getEntitlementsPayload.StorageInTransit), 90)

@@ -16,7 +16,7 @@ import (
 )
 
 // CreatePaymentRequestPayload create payment request payload
-// swagger:model CreatePaymentRequestPayload
+// swagger:model createPaymentRequestPayload
 type CreatePaymentRequestPayload struct {
 
 	// is final

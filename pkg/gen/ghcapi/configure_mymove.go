@@ -18,7 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/service_item"
 )
 
-//go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/ghc.yaml --api-package ghcoperations --model-package ghcmessages --server-package ghcapi --exclude-main
+//go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/ghc_paths.yaml --api-package ghcoperations --model-package ghcmessages --server-package ghcapi --exclude-main
 
 func configureFlags(api *ghcoperations.MymoveAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
@@ -56,6 +56,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.ServiceItemDeleteServiceItemHandler == nil {
 		api.ServiceItemDeleteServiceItemHandler = service_item.DeleteServiceItemHandlerFunc(func(params service_item.DeleteServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation service_item.DeleteServiceItem has not yet been implemented")
+		})
+	}
+	if api.CustomerGetAllCustomerMovesHandler == nil {
+		api.CustomerGetAllCustomerMovesHandler = customer.GetAllCustomerMovesHandlerFunc(func(params customer.GetAllCustomerMovesParams) middleware.Responder {
+			return middleware.NotImplemented("operation customer.GetAllCustomerMoves has not yet been implemented")
 		})
 	}
 	if api.CustomerGetCustomerInfoHandler == nil {

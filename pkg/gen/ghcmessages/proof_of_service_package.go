@@ -16,7 +16,7 @@ import (
 )
 
 // ProofOfServicePackage proof of service package
-// swagger:model ProofOfServicePackage
+// swagger:model proofOfServicePackage
 type ProofOfServicePackage struct {
 
 	// id

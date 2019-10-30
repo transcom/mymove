@@ -16,11 +16,11 @@ import (
 )
 
 // MoveTaskOrderStatus move task order status
-// swagger:model MoveTaskOrderStatus
+// swagger:model moveTaskOrderStatus
 type MoveTaskOrderStatus struct {
 
 	// status
-	// Enum: [APPROVED SUBMITTED REJECTED]
+	// Enum: [APPROVED DRAFT SUBMITTED REJECTED]
 	Status string `json:"status,omitempty"`
 }
 
@@ -42,7 +42,7 @@ var moveTaskOrderStatusTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["APPROVED","SUBMITTED","REJECTED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["APPROVED","DRAFT","SUBMITTED","REJECTED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -54,6 +54,9 @@ const (
 
 	// MoveTaskOrderStatusStatusAPPROVED captures enum value "APPROVED"
 	MoveTaskOrderStatusStatusAPPROVED string = "APPROVED"
+
+	// MoveTaskOrderStatusStatusDRAFT captures enum value "DRAFT"
+	MoveTaskOrderStatusStatusDRAFT string = "DRAFT"
 
 	// MoveTaskOrderStatusStatusSUBMITTED captures enum value "SUBMITTED"
 	MoveTaskOrderStatusStatusSUBMITTED string = "SUBMITTED"

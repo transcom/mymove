@@ -16,7 +16,7 @@ import (
 )
 
 // Address address
-// swagger:model Address
+// swagger:model address
 type Address struct {
 
 	// City

@@ -1,6 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import { OfficeWrapper, RenderWithOrWithoutHeader, Queues } from '.';
+import { OfficeWrapper, RenderWithOrWithoutHeader } from '.';
+import { Queues } from './Queues';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 describe('OfficeWrapper tests', () => {
