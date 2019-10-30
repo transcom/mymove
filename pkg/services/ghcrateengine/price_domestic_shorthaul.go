@@ -46,10 +46,15 @@ func (d *domesticShorthaulPricer) PriceDomesticShorthaul(moveDate time.Time, dis
 	err = d.db.RawQuery(
 		query, serviceArea, shorthaulServiceCode, d.contractCode, isPeakPeriod, moveDate).First(
 		&pe)
-	// multiply by distance and rate and weight
-	basePrice := pe.PriceCents.Float64() * distance.Float64() * weight.ToCWTFloat64()
+
+	effectiveWeight := weight
+	if weight <= minDomesticWeight {
+		effectiveWeight = minDomesticWeight
+	}
+
+	basePrice := pe.PriceCents.Float64() * distance.Float64() * effectiveWeight.ToCWTFloat64()
 	escalatedPrice := basePrice * pe.EscalationCompounded
-	totalCost = unit.Cents(escalatedPrice)
+	totalCost = unit.Cents(escalatedPrice) // TODO: truncates the price to get an integer- is that what we want?
 
 	return totalCost, err
 }
