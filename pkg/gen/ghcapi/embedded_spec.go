@@ -1389,10 +1389,6 @@ func init() {
           "x-nullable": true,
           "example": "George Washington"
         },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "example": true
-        },
         "destination_duty_station": {
           "type": "string",
           "title": "Destination",
@@ -1555,10 +1551,8 @@ func init() {
           "type": "string",
           "format": "date"
         },
-        "customerId": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        "customer": {
+          "$ref": "#/definitions/Customer"
         },
         "deletedAt": {
           "type": "string",
@@ -3547,10 +3541,6 @@ func init() {
           "x-nullable": true,
           "example": "George Washington"
         },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "example": true
-        },
         "destination_duty_station": {
           "type": "string",
           "title": "Destination",
@@ -3713,10 +3703,8 @@ func init() {
           "type": "string",
           "format": "date"
         },
-        "customerId": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        "customer": {
+          "$ref": "#/definitions/Customer"
         },
         "deletedAt": {
           "type": "string",
