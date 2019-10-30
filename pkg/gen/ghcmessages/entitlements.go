@@ -14,7 +14,7 @@ import (
 )
 
 // Entitlements entitlements
-// swagger:model entitlements
+// swagger:model Entitlements
 type Entitlements struct {
 
 	// dependents authorized

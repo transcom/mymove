@@ -69,7 +69,7 @@ type UpdatePaymentRequestBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.InvalidRequest `json:"body,omitempty"`
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewUpdatePaymentRequestBadRequest creates UpdatePaymentRequestBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewUpdatePaymentRequestBadRequest() *UpdatePaymentRequestBadRequest {
 }
 
 // WithPayload adds the payload to the update payment request bad request response
-func (o *UpdatePaymentRequestBadRequest) WithPayload(payload *ghcmessages.InvalidRequest) *UpdatePaymentRequestBadRequest {
+func (o *UpdatePaymentRequestBadRequest) WithPayload(payload interface{}) *UpdatePaymentRequestBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update payment request bad request response
-func (o *UpdatePaymentRequestBadRequest) SetPayload(payload *ghcmessages.InvalidRequest) {
+func (o *UpdatePaymentRequestBadRequest) SetPayload(payload interface{}) {
 	o.Payload = payload
 }
 
@@ -93,11 +93,9 @@ func (o *UpdatePaymentRequestBadRequest) SetPayload(payload *ghcmessages.Invalid
 func (o *UpdatePaymentRequestBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(400)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }
 
@@ -113,7 +111,7 @@ type UpdatePaymentRequestUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.PermissionDenied `json:"body,omitempty"`
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewUpdatePaymentRequestUnauthorized creates UpdatePaymentRequestUnauthorized with default headers values
@@ -123,13 +121,13 @@ func NewUpdatePaymentRequestUnauthorized() *UpdatePaymentRequestUnauthorized {
 }
 
 // WithPayload adds the payload to the update payment request unauthorized response
-func (o *UpdatePaymentRequestUnauthorized) WithPayload(payload *ghcmessages.PermissionDenied) *UpdatePaymentRequestUnauthorized {
+func (o *UpdatePaymentRequestUnauthorized) WithPayload(payload interface{}) *UpdatePaymentRequestUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update payment request unauthorized response
-func (o *UpdatePaymentRequestUnauthorized) SetPayload(payload *ghcmessages.PermissionDenied) {
+func (o *UpdatePaymentRequestUnauthorized) SetPayload(payload interface{}) {
 	o.Payload = payload
 }
 
@@ -137,11 +135,9 @@ func (o *UpdatePaymentRequestUnauthorized) SetPayload(payload *ghcmessages.Permi
 func (o *UpdatePaymentRequestUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(401)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }
 
@@ -157,7 +153,7 @@ type UpdatePaymentRequestForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.PermissionDenied `json:"body,omitempty"`
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewUpdatePaymentRequestForbidden creates UpdatePaymentRequestForbidden with default headers values
@@ -167,13 +163,13 @@ func NewUpdatePaymentRequestForbidden() *UpdatePaymentRequestForbidden {
 }
 
 // WithPayload adds the payload to the update payment request forbidden response
-func (o *UpdatePaymentRequestForbidden) WithPayload(payload *ghcmessages.PermissionDenied) *UpdatePaymentRequestForbidden {
+func (o *UpdatePaymentRequestForbidden) WithPayload(payload interface{}) *UpdatePaymentRequestForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update payment request forbidden response
-func (o *UpdatePaymentRequestForbidden) SetPayload(payload *ghcmessages.PermissionDenied) {
+func (o *UpdatePaymentRequestForbidden) SetPayload(payload interface{}) {
 	o.Payload = payload
 }
 
@@ -181,11 +177,9 @@ func (o *UpdatePaymentRequestForbidden) SetPayload(payload *ghcmessages.Permissi
 func (o *UpdatePaymentRequestForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }
 
@@ -201,7 +195,7 @@ type UpdatePaymentRequestNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.NotFound `json:"body,omitempty"`
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewUpdatePaymentRequestNotFound creates UpdatePaymentRequestNotFound with default headers values
@@ -211,13 +205,13 @@ func NewUpdatePaymentRequestNotFound() *UpdatePaymentRequestNotFound {
 }
 
 // WithPayload adds the payload to the update payment request not found response
-func (o *UpdatePaymentRequestNotFound) WithPayload(payload *ghcmessages.NotFound) *UpdatePaymentRequestNotFound {
+func (o *UpdatePaymentRequestNotFound) WithPayload(payload interface{}) *UpdatePaymentRequestNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update payment request not found response
-func (o *UpdatePaymentRequestNotFound) SetPayload(payload *ghcmessages.NotFound) {
+func (o *UpdatePaymentRequestNotFound) SetPayload(payload interface{}) {
 	o.Payload = payload
 }
 
@@ -225,11 +219,9 @@ func (o *UpdatePaymentRequestNotFound) SetPayload(payload *ghcmessages.NotFound)
 func (o *UpdatePaymentRequestNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }
 
@@ -245,7 +237,7 @@ type UpdatePaymentRequestInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.ServerError `json:"body,omitempty"`
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewUpdatePaymentRequestInternalServerError creates UpdatePaymentRequestInternalServerError with default headers values
@@ -255,13 +247,13 @@ func NewUpdatePaymentRequestInternalServerError() *UpdatePaymentRequestInternalS
 }
 
 // WithPayload adds the payload to the update payment request internal server error response
-func (o *UpdatePaymentRequestInternalServerError) WithPayload(payload *ghcmessages.ServerError) *UpdatePaymentRequestInternalServerError {
+func (o *UpdatePaymentRequestInternalServerError) WithPayload(payload interface{}) *UpdatePaymentRequestInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update payment request internal server error response
-func (o *UpdatePaymentRequestInternalServerError) SetPayload(payload *ghcmessages.ServerError) {
+func (o *UpdatePaymentRequestInternalServerError) SetPayload(payload interface{}) {
 	o.Payload = payload
 }
 
@@ -269,10 +261,8 @@ func (o *UpdatePaymentRequestInternalServerError) SetPayload(payload *ghcmessage
 func (o *UpdatePaymentRequestInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }

@@ -69,7 +69,6 @@ repos:
         entry: bin/swagger validate
         language: script
         files: swagger/*
-        exclude: swagger/ghc_*
         types: [yaml]
 
   # Ensure markdown files have updated table of contents

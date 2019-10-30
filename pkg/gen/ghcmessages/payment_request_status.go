@@ -15,7 +15,7 @@ import (
 )
 
 // PaymentRequestStatus Payment Request Status
-// swagger:model paymentRequestStatus
+// swagger:model PaymentRequestStatus
 type PaymentRequestStatus string
 
 const (

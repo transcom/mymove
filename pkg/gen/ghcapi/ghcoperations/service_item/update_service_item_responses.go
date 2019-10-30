@@ -69,7 +69,7 @@ type UpdateServiceItemBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.InvalidRequest `json:"body,omitempty"`
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewUpdateServiceItemBadRequest creates UpdateServiceItemBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewUpdateServiceItemBadRequest() *UpdateServiceItemBadRequest {
 }
 
 // WithPayload adds the payload to the update service item bad request response
-func (o *UpdateServiceItemBadRequest) WithPayload(payload *ghcmessages.InvalidRequest) *UpdateServiceItemBadRequest {
+func (o *UpdateServiceItemBadRequest) WithPayload(payload interface{}) *UpdateServiceItemBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update service item bad request response
-func (o *UpdateServiceItemBadRequest) SetPayload(payload *ghcmessages.InvalidRequest) {
+func (o *UpdateServiceItemBadRequest) SetPayload(payload interface{}) {
 	o.Payload = payload
 }
 
@@ -93,11 +93,9 @@ func (o *UpdateServiceItemBadRequest) SetPayload(payload *ghcmessages.InvalidReq
 func (o *UpdateServiceItemBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(400)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }
 
@@ -113,7 +111,7 @@ type UpdateServiceItemUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.PermissionDenied `json:"body,omitempty"`
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewUpdateServiceItemUnauthorized creates UpdateServiceItemUnauthorized with default headers values
@@ -123,13 +121,13 @@ func NewUpdateServiceItemUnauthorized() *UpdateServiceItemUnauthorized {
 }
 
 // WithPayload adds the payload to the update service item unauthorized response
-func (o *UpdateServiceItemUnauthorized) WithPayload(payload *ghcmessages.PermissionDenied) *UpdateServiceItemUnauthorized {
+func (o *UpdateServiceItemUnauthorized) WithPayload(payload interface{}) *UpdateServiceItemUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update service item unauthorized response
-func (o *UpdateServiceItemUnauthorized) SetPayload(payload *ghcmessages.PermissionDenied) {
+func (o *UpdateServiceItemUnauthorized) SetPayload(payload interface{}) {
 	o.Payload = payload
 }
 
@@ -137,11 +135,9 @@ func (o *UpdateServiceItemUnauthorized) SetPayload(payload *ghcmessages.Permissi
 func (o *UpdateServiceItemUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(401)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }
 
@@ -157,7 +153,7 @@ type UpdateServiceItemForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.PermissionDenied `json:"body,omitempty"`
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewUpdateServiceItemForbidden creates UpdateServiceItemForbidden with default headers values
@@ -167,13 +163,13 @@ func NewUpdateServiceItemForbidden() *UpdateServiceItemForbidden {
 }
 
 // WithPayload adds the payload to the update service item forbidden response
-func (o *UpdateServiceItemForbidden) WithPayload(payload *ghcmessages.PermissionDenied) *UpdateServiceItemForbidden {
+func (o *UpdateServiceItemForbidden) WithPayload(payload interface{}) *UpdateServiceItemForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update service item forbidden response
-func (o *UpdateServiceItemForbidden) SetPayload(payload *ghcmessages.PermissionDenied) {
+func (o *UpdateServiceItemForbidden) SetPayload(payload interface{}) {
 	o.Payload = payload
 }
 
@@ -181,11 +177,9 @@ func (o *UpdateServiceItemForbidden) SetPayload(payload *ghcmessages.PermissionD
 func (o *UpdateServiceItemForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }
 
@@ -201,7 +195,7 @@ type UpdateServiceItemNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.NotFound `json:"body,omitempty"`
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewUpdateServiceItemNotFound creates UpdateServiceItemNotFound with default headers values
@@ -211,13 +205,13 @@ func NewUpdateServiceItemNotFound() *UpdateServiceItemNotFound {
 }
 
 // WithPayload adds the payload to the update service item not found response
-func (o *UpdateServiceItemNotFound) WithPayload(payload *ghcmessages.NotFound) *UpdateServiceItemNotFound {
+func (o *UpdateServiceItemNotFound) WithPayload(payload interface{}) *UpdateServiceItemNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update service item not found response
-func (o *UpdateServiceItemNotFound) SetPayload(payload *ghcmessages.NotFound) {
+func (o *UpdateServiceItemNotFound) SetPayload(payload interface{}) {
 	o.Payload = payload
 }
 
@@ -225,11 +219,9 @@ func (o *UpdateServiceItemNotFound) SetPayload(payload *ghcmessages.NotFound) {
 func (o *UpdateServiceItemNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }
 
@@ -245,7 +237,7 @@ type UpdateServiceItemInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.ServerError `json:"body,omitempty"`
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewUpdateServiceItemInternalServerError creates UpdateServiceItemInternalServerError with default headers values
@@ -255,13 +247,13 @@ func NewUpdateServiceItemInternalServerError() *UpdateServiceItemInternalServerE
 }
 
 // WithPayload adds the payload to the update service item internal server error response
-func (o *UpdateServiceItemInternalServerError) WithPayload(payload *ghcmessages.ServerError) *UpdateServiceItemInternalServerError {
+func (o *UpdateServiceItemInternalServerError) WithPayload(payload interface{}) *UpdateServiceItemInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update service item internal server error response
-func (o *UpdateServiceItemInternalServerError) SetPayload(payload *ghcmessages.ServerError) {
+func (o *UpdateServiceItemInternalServerError) SetPayload(payload interface{}) {
 	o.Payload = payload
 }
 
@@ -269,10 +261,8 @@ func (o *UpdateServiceItemInternalServerError) SetPayload(payload *ghcmessages.S
 func (o *UpdateServiceItemInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }

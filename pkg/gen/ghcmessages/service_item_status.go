@@ -16,7 +16,7 @@ import (
 )
 
 // ServiceItemStatus service item status
-// swagger:model serviceItemStatus
+// swagger:model ServiceItemStatus
 type ServiceItemStatus struct {
 
 	// status

@@ -56,8 +56,6 @@ yarn-error.log*
 
 *.stamp
 
-swagger/ghc.yaml
-
 public/swagger-ui/*
 !public/swagger-ui/api.html
 !public/swagger-ui/internal.html

@@ -15,7 +15,7 @@ import (
 )
 
 // ServiceItems service items
-// swagger:model serviceItems
+// swagger:model ServiceItems
 type ServiceItems []*ServiceItem
 
 // Validate validates this service items

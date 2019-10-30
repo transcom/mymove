@@ -16,7 +16,7 @@ import (
 )
 
 // MoveTaskOrderStatus move task order status
-// swagger:model moveTaskOrderStatus
+// swagger:model MoveTaskOrderStatus
 type MoveTaskOrderStatus struct {
 
 	// status

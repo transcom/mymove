@@ -13,7 +13,7 @@ import (
 )
 
 // UpdatePaymentRequestStatusPayload update payment request status payload
-// swagger:model updatePaymentRequestStatusPayload
+// swagger:model UpdatePaymentRequestStatusPayload
 type UpdatePaymentRequestStatusPayload struct {
 
 	// rejection reason

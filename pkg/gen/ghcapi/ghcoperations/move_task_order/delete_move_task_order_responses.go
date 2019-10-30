@@ -69,7 +69,7 @@ type DeleteMoveTaskOrderBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.InvalidRequest `json:"body,omitempty"`
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewDeleteMoveTaskOrderBadRequest creates DeleteMoveTaskOrderBadRequest with default headers values
@@ -79,13 +79,13 @@ func NewDeleteMoveTaskOrderBadRequest() *DeleteMoveTaskOrderBadRequest {
 }
 
 // WithPayload adds the payload to the delete move task order bad request response
-func (o *DeleteMoveTaskOrderBadRequest) WithPayload(payload *ghcmessages.InvalidRequest) *DeleteMoveTaskOrderBadRequest {
+func (o *DeleteMoveTaskOrderBadRequest) WithPayload(payload interface{}) *DeleteMoveTaskOrderBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the delete move task order bad request response
-func (o *DeleteMoveTaskOrderBadRequest) SetPayload(payload *ghcmessages.InvalidRequest) {
+func (o *DeleteMoveTaskOrderBadRequest) SetPayload(payload interface{}) {
 	o.Payload = payload
 }
 
@@ -93,11 +93,9 @@ func (o *DeleteMoveTaskOrderBadRequest) SetPayload(payload *ghcmessages.InvalidR
 func (o *DeleteMoveTaskOrderBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(400)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }
 
@@ -113,7 +111,7 @@ type DeleteMoveTaskOrderUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.PermissionDenied `json:"body,omitempty"`
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewDeleteMoveTaskOrderUnauthorized creates DeleteMoveTaskOrderUnauthorized with default headers values
@@ -123,13 +121,13 @@ func NewDeleteMoveTaskOrderUnauthorized() *DeleteMoveTaskOrderUnauthorized {
 }
 
 // WithPayload adds the payload to the delete move task order unauthorized response
-func (o *DeleteMoveTaskOrderUnauthorized) WithPayload(payload *ghcmessages.PermissionDenied) *DeleteMoveTaskOrderUnauthorized {
+func (o *DeleteMoveTaskOrderUnauthorized) WithPayload(payload interface{}) *DeleteMoveTaskOrderUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the delete move task order unauthorized response
-func (o *DeleteMoveTaskOrderUnauthorized) SetPayload(payload *ghcmessages.PermissionDenied) {
+func (o *DeleteMoveTaskOrderUnauthorized) SetPayload(payload interface{}) {
 	o.Payload = payload
 }
 
@@ -137,11 +135,9 @@ func (o *DeleteMoveTaskOrderUnauthorized) SetPayload(payload *ghcmessages.Permis
 func (o *DeleteMoveTaskOrderUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(401)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }
 
@@ -157,7 +153,7 @@ type DeleteMoveTaskOrderForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.PermissionDenied `json:"body,omitempty"`
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewDeleteMoveTaskOrderForbidden creates DeleteMoveTaskOrderForbidden with default headers values
@@ -167,13 +163,13 @@ func NewDeleteMoveTaskOrderForbidden() *DeleteMoveTaskOrderForbidden {
 }
 
 // WithPayload adds the payload to the delete move task order forbidden response
-func (o *DeleteMoveTaskOrderForbidden) WithPayload(payload *ghcmessages.PermissionDenied) *DeleteMoveTaskOrderForbidden {
+func (o *DeleteMoveTaskOrderForbidden) WithPayload(payload interface{}) *DeleteMoveTaskOrderForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the delete move task order forbidden response
-func (o *DeleteMoveTaskOrderForbidden) SetPayload(payload *ghcmessages.PermissionDenied) {
+func (o *DeleteMoveTaskOrderForbidden) SetPayload(payload interface{}) {
 	o.Payload = payload
 }
 
@@ -181,11 +177,9 @@ func (o *DeleteMoveTaskOrderForbidden) SetPayload(payload *ghcmessages.Permissio
 func (o *DeleteMoveTaskOrderForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }
 
@@ -201,7 +195,7 @@ type DeleteMoveTaskOrderNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.NotFound `json:"body,omitempty"`
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewDeleteMoveTaskOrderNotFound creates DeleteMoveTaskOrderNotFound with default headers values
@@ -211,13 +205,13 @@ func NewDeleteMoveTaskOrderNotFound() *DeleteMoveTaskOrderNotFound {
 }
 
 // WithPayload adds the payload to the delete move task order not found response
-func (o *DeleteMoveTaskOrderNotFound) WithPayload(payload *ghcmessages.NotFound) *DeleteMoveTaskOrderNotFound {
+func (o *DeleteMoveTaskOrderNotFound) WithPayload(payload interface{}) *DeleteMoveTaskOrderNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the delete move task order not found response
-func (o *DeleteMoveTaskOrderNotFound) SetPayload(payload *ghcmessages.NotFound) {
+func (o *DeleteMoveTaskOrderNotFound) SetPayload(payload interface{}) {
 	o.Payload = payload
 }
 
@@ -225,11 +219,9 @@ func (o *DeleteMoveTaskOrderNotFound) SetPayload(payload *ghcmessages.NotFound) 
 func (o *DeleteMoveTaskOrderNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }
 
@@ -245,7 +237,7 @@ type DeleteMoveTaskOrderInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.ServerError `json:"body,omitempty"`
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewDeleteMoveTaskOrderInternalServerError creates DeleteMoveTaskOrderInternalServerError with default headers values
@@ -255,13 +247,13 @@ func NewDeleteMoveTaskOrderInternalServerError() *DeleteMoveTaskOrderInternalSer
 }
 
 // WithPayload adds the payload to the delete move task order internal server error response
-func (o *DeleteMoveTaskOrderInternalServerError) WithPayload(payload *ghcmessages.ServerError) *DeleteMoveTaskOrderInternalServerError {
+func (o *DeleteMoveTaskOrderInternalServerError) WithPayload(payload interface{}) *DeleteMoveTaskOrderInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the delete move task order internal server error response
-func (o *DeleteMoveTaskOrderInternalServerError) SetPayload(payload *ghcmessages.ServerError) {
+func (o *DeleteMoveTaskOrderInternalServerError) SetPayload(payload interface{}) {
 	o.Payload = payload
 }
 
@@ -269,10 +261,8 @@ func (o *DeleteMoveTaskOrderInternalServerError) SetPayload(payload *ghcmessages
 func (o *DeleteMoveTaskOrderInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }
