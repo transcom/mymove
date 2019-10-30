@@ -68,7 +68,6 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 		expectedCost := unit.Cents(911653)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
-
 	})
 
 	suite.T().Run("validation errors", func(t *testing.T) {
