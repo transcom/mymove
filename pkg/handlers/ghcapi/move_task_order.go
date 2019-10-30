@@ -64,19 +64,17 @@ func payloadForMoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *ghcmessages.Mo
 		CustomerID:             strfmt.UUID(moveTaskOrder.CustomerID.String()),
 		DestinationAddress:     destinationAddress,
 		DestinationDutyStation: strfmt.UUID(moveTaskOrder.DestinationDutyStation.ID.String()),
-		// TODO the pivotal ticket seems somewhat incomplete compared to the
-		// TODO api spec. Confirm these are what is needed.
-		Entitlements:        entitlements,
-		ID:                  strfmt.UUID(moveTaskOrder.ID.String()),
-		MoveDate:            strfmt.Date(moveTaskOrder.RequestedPickupDate),
-		MoveID:              strfmt.UUID(moveTaskOrder.MoveID.String()),
-		OriginDutyStation:   strfmt.UUID(moveTaskOrder.OriginDutyStationID.String()),
-		PickupAddress:       pickupAddress,
-		Remarks:             moveTaskOrder.CustomerRemarks,
-		RequestedPickupDate: strfmt.Date(moveTaskOrder.RequestedPickupDate),
-		ServiceItems:        serviceItems,
-		Status:              string(moveTaskOrder.Status),
-		UpdatedAt:           strfmt.Date(moveTaskOrder.UpdatedAt),
+		Entitlements:           entitlements,
+		ID:                     strfmt.UUID(moveTaskOrder.ID.String()),
+		MoveDate:               strfmt.Date(moveTaskOrder.RequestedPickupDate),
+		MoveID:                 strfmt.UUID(moveTaskOrder.MoveID.String()),
+		OriginDutyStation:      strfmt.UUID(moveTaskOrder.OriginDutyStationID.String()),
+		PickupAddress:          pickupAddress,
+		Remarks:                moveTaskOrder.CustomerRemarks,
+		RequestedPickupDate:    strfmt.Date(moveTaskOrder.RequestedPickupDate),
+		ServiceItems:           serviceItems,
+		Status:                 string(moveTaskOrder.Status),
+		UpdatedAt:              strfmt.Date(moveTaskOrder.UpdatedAt),
 	}
 	return payload
 }
