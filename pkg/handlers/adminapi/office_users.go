@@ -113,6 +113,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 		Telephone:              payload.Telephone,
 		Email:                  payload.Email,
 		TransportationOfficeID: transportationOfficeID,
+		Active:                 true,
 	}
 
 	transportationIDFilter := []services.QueryFilter{

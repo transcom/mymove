@@ -114,6 +114,7 @@ func (h CreateAdminUserHandler) Handle(params adminuserop.CreateAdminUserParams)
 		Email:          payload.Email,
 		Role:           models.SystemAdminRole,
 		OrganizationID: &organizationID,
+		Active:         true,
 	}
 
 	organizationIDFilter := []services.QueryFilter{
