@@ -2,9 +2,9 @@ package ghcrateengine
 
 import (
 	"fmt"
-	"go.uber.org/zap"
 	"time"
 
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/gobuffalo/pop"
@@ -30,6 +30,19 @@ type domesticShorthaulPricer struct {
 }
 
 func (dsh *domesticShorthaulPricer) PriceDomesticShorthaul(moveDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (totalCost unit.Cents, err error) {
+	// Validate parameters
+	if moveDate.IsZero() {
+		return 0, errors.New("MoveDate is required")
+	}
+	if weight <= 0 {
+		return 0, errors.New("Weight must be greater than 0")
+	}
+	if distance <= 0 {
+		return 0, errors.New("Distance must be greater than 0")
+	}
+	if len(serviceArea) == 0 {
+		return 0, errors.New("ServiceArea is required")
+	}
 
 	pe := centPriceAndEscalation{}
 	isPeakPeriod := IsPeakPeriod(moveDate)
