@@ -61,8 +61,6 @@ type PaymentReminderEmailInfo struct {
 }
 
 func (m PaymentReminder) GetEmailInfo() (PaymentReminderEmailInfos, error) {
-	// 	query := `SELECT 'e7edaddf-f4f9-401f-940b-b6c3be84195d' as id, 'lindsay+test1@truss.works' as personal_email, 'Yuma AFB' as duty_station_name, 'Fort Gordon' as new_duty_station_name,
-	// 8000 as weight_estimate, 500 as incentive_estimate_min, 1000 as incentive_estimate_max, 'blah PPO' as transportation_office_name, '555-555-1212' as transportation_office_phone`
 	query := `SELECT sm.id as id, sm.personal_email as personal_email,
 	ppm.weight_estimate, ppm.incentive_estimate_min, ppm.incentive_estimate_max,
 	ppm.reviewed_date as reviewed_date,
@@ -111,33 +109,33 @@ func (m PaymentReminder) emails(ctx context.Context) ([]emailContent, error) {
 // formatEmails formats email data using both html and text template
 func (m PaymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderEmailInfos) ([]emailContent, error) {
 	var emails []emailContent
-	for _, PaymentReminderemailInfo := range PaymentReminderEmailInfos {
+	for _, PaymentReminderEmailInfo := range PaymentReminderEmailInfos {
 		htmlBody, textBody, err := m.renderTemplates(PaymentReminderEmailData{
-			DestinationDutyStation: PaymentReminderemailInfo.NewDutyStationName,
-			WeightEstimate:         fmt.Sprintf("%d", PaymentReminderemailInfo.WeightEstimate),
-			IncentiveEstimateMin:   PaymentReminderemailInfo.IncentiveEstimateMin.ToDollarString(),
-			IncentiveEstimateMax:   PaymentReminderemailInfo.IncentiveEstimateMax.ToDollarString(),
-			TOName:                 PaymentReminderemailInfo.TOName,
-			TOPhone:                PaymentReminderemailInfo.TOPhone,
+			DestinationDutyStation: PaymentReminderEmailInfo.NewDutyStationName,
+			WeightEstimate:         fmt.Sprintf("%d", PaymentReminderEmailInfo.WeightEstimate.Int()),
+			IncentiveEstimateMin:   PaymentReminderEmailInfo.IncentiveEstimateMin.ToDollarString(),
+			IncentiveEstimateMax:   PaymentReminderEmailInfo.IncentiveEstimateMax.ToDollarString(),
+			TOName:                 PaymentReminderEmailInfo.TOName,
+			TOPhone:                PaymentReminderEmailInfo.TOPhone,
 		})
 		if err != nil {
 			m.logger.Error("error rendering template", zap.Error(err))
 			continue
 		}
-		if PaymentReminderemailInfo.Email == nil {
+		if PaymentReminderEmailInfo.Email == nil {
 			m.logger.Info("no email found for service member",
-				zap.String("service member uuid", PaymentReminderemailInfo.ServiceMemberID.String()))
+				zap.String("service member uuid", PaymentReminderEmailInfo.ServiceMemberID.String()))
 			continue
 		}
 		smEmail := emailContent{
-			recipientEmail: *PaymentReminderemailInfo.Email,
-			subject:        fmt.Sprintf("[MilMove] Reminder: request payment for your move to %s", PaymentReminderemailInfo.NewDutyStationName),
+			recipientEmail: *PaymentReminderEmailInfo.Email,
+			subject:        fmt.Sprintf("[MilMove] Reminder: request payment for your move to %s", PaymentReminderEmailInfo.NewDutyStationName),
 			htmlBody:       htmlBody,
 			textBody:       textBody,
-			onSuccess:      m.OnSuccess(PaymentReminderemailInfo),
+			onSuccess:      m.OnSuccess(PaymentReminderEmailInfo),
 		}
 		m.logger.Info("generated move reviewed email to service member",
-			zap.String("service member uuid", PaymentReminderemailInfo.ServiceMemberID.String()))
+			zap.String("service member uuid", PaymentReminderEmailInfo.ServiceMemberID.String()))
 		emails = append(emails, smEmail)
 	}
 	return emails, nil
@@ -157,10 +155,10 @@ func (m PaymentReminder) renderTemplates(data PaymentReminderEmailData) (string,
 
 // OnSuccess callback passed to be invoked by NewNotificationSender when an email successfully sent
 // saves the svs the email info along with the SES mail id to the notifications table
-func (m PaymentReminder) OnSuccess(PaymentReminderemailInfo PaymentReminderEmailInfo) func(string) error {
+func (m PaymentReminder) OnSuccess(PaymentReminderEmailInfo PaymentReminderEmailInfo) func(string) error {
 	return func(msgID string) error {
 		n := models.Notification{
-			ServiceMemberID:  PaymentReminderemailInfo.ServiceMemberID,
+			ServiceMemberID:  PaymentReminderEmailInfo.ServiceMemberID,
 			SESMessageID:     msgID,
 			NotificationType: models.MovePaymentReminderEmail,
 		}
