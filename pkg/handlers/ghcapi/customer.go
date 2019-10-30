@@ -28,7 +28,6 @@ func payloadForCustomerInfo(Customer models.Customer) *ghcmessages.Customer {
 		Telephone:              swag.String(Customer.Telephone),
 		OriginDutyStation:      swag.String(Customer.OriginDutyStationName),
 		DestinationDutyStation: swag.String(Customer.DestinationDutyStationName),
-		DependentsAuthorized:   Customer.DependentsAuthorized,
 	}
 	return &CustomerInfoPayload
 }

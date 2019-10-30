@@ -32,6 +32,7 @@ type Assertions struct {
 	ElectronicOrder                          models.ElectronicOrder
 	ElectronicOrdersRevision                 models.ElectronicOrdersRevision
 	FuelEIADieselPrice                       models.FuelEIADieselPrice
+	GHCEntitlement                           models.GHCEntitlement
 	Invoice                                  models.Invoice
 	Move                                     models.Move
 	MoveDocument                             models.MoveDocument

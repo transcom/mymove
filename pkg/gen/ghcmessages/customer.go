@@ -23,9 +23,6 @@ type Customer struct {
 	// Customer Name
 	CustomerName *string `json:"customer_name,omitempty"`
 
-	// dependents authorized
-	DependentsAuthorized bool `json:"dependentsAuthorized,omitempty"`
-
 	// Destination
 	DestinationDutyStation *string `json:"destination_duty_station,omitempty"`
 
