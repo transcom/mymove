@@ -15,4 +15,4 @@ mkdir -p $gendir
 # This file is for compatibility with other tools that require a single Swaggerfile.
 ./bin/swagger flatten swagger/ghc_paths.yaml --format=yaml --with-flatten=full -o ./swagger/ghc.yaml
 
-./bin/swagger generate server -q -f swagger/ghc_paths.yaml -t $gendir --model-package ghcmessages --server-package ghcapi --api-package ghcoperations --exclude-main -A mymove --with-flatten=full
+./bin/swagger generate server -q -f swagger/ghc.yaml -t $gendir --model-package ghcmessages --server-package ghcapi --api-package ghcoperations --exclude-main -A mymove
