@@ -72,7 +72,7 @@ type GetAllCustomerMovesBadRequest struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.InvalidRequest `json:"body,omitempty"`
 }
 
 // NewGetAllCustomerMovesBadRequest creates GetAllCustomerMovesBadRequest with default headers values
@@ -82,13 +82,13 @@ func NewGetAllCustomerMovesBadRequest() *GetAllCustomerMovesBadRequest {
 }
 
 // WithPayload adds the payload to the get all customer moves bad request response
-func (o *GetAllCustomerMovesBadRequest) WithPayload(payload interface{}) *GetAllCustomerMovesBadRequest {
+func (o *GetAllCustomerMovesBadRequest) WithPayload(payload *ghcmessages.InvalidRequest) *GetAllCustomerMovesBadRequest {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get all customer moves bad request response
-func (o *GetAllCustomerMovesBadRequest) SetPayload(payload interface{}) {
+func (o *GetAllCustomerMovesBadRequest) SetPayload(payload *ghcmessages.InvalidRequest) {
 	o.Payload = payload
 }
 
@@ -96,9 +96,11 @@ func (o *GetAllCustomerMovesBadRequest) SetPayload(payload interface{}) {
 func (o *GetAllCustomerMovesBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -114,7 +116,7 @@ type GetAllCustomerMovesUnauthorized struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.PermissionDenied `json:"body,omitempty"`
 }
 
 // NewGetAllCustomerMovesUnauthorized creates GetAllCustomerMovesUnauthorized with default headers values
@@ -124,13 +126,13 @@ func NewGetAllCustomerMovesUnauthorized() *GetAllCustomerMovesUnauthorized {
 }
 
 // WithPayload adds the payload to the get all customer moves unauthorized response
-func (o *GetAllCustomerMovesUnauthorized) WithPayload(payload interface{}) *GetAllCustomerMovesUnauthorized {
+func (o *GetAllCustomerMovesUnauthorized) WithPayload(payload *ghcmessages.PermissionDenied) *GetAllCustomerMovesUnauthorized {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get all customer moves unauthorized response
-func (o *GetAllCustomerMovesUnauthorized) SetPayload(payload interface{}) {
+func (o *GetAllCustomerMovesUnauthorized) SetPayload(payload *ghcmessages.PermissionDenied) {
 	o.Payload = payload
 }
 
@@ -138,9 +140,11 @@ func (o *GetAllCustomerMovesUnauthorized) SetPayload(payload interface{}) {
 func (o *GetAllCustomerMovesUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(401)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -156,7 +160,7 @@ type GetAllCustomerMovesForbidden struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.PermissionDenied `json:"body,omitempty"`
 }
 
 // NewGetAllCustomerMovesForbidden creates GetAllCustomerMovesForbidden with default headers values
@@ -166,13 +170,13 @@ func NewGetAllCustomerMovesForbidden() *GetAllCustomerMovesForbidden {
 }
 
 // WithPayload adds the payload to the get all customer moves forbidden response
-func (o *GetAllCustomerMovesForbidden) WithPayload(payload interface{}) *GetAllCustomerMovesForbidden {
+func (o *GetAllCustomerMovesForbidden) WithPayload(payload *ghcmessages.PermissionDenied) *GetAllCustomerMovesForbidden {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get all customer moves forbidden response
-func (o *GetAllCustomerMovesForbidden) SetPayload(payload interface{}) {
+func (o *GetAllCustomerMovesForbidden) SetPayload(payload *ghcmessages.PermissionDenied) {
 	o.Payload = payload
 }
 
@@ -180,9 +184,11 @@ func (o *GetAllCustomerMovesForbidden) SetPayload(payload interface{}) {
 func (o *GetAllCustomerMovesForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -198,7 +204,7 @@ type GetAllCustomerMovesNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.NotFound `json:"body,omitempty"`
 }
 
 // NewGetAllCustomerMovesNotFound creates GetAllCustomerMovesNotFound with default headers values
@@ -208,13 +214,13 @@ func NewGetAllCustomerMovesNotFound() *GetAllCustomerMovesNotFound {
 }
 
 // WithPayload adds the payload to the get all customer moves not found response
-func (o *GetAllCustomerMovesNotFound) WithPayload(payload interface{}) *GetAllCustomerMovesNotFound {
+func (o *GetAllCustomerMovesNotFound) WithPayload(payload *ghcmessages.NotFound) *GetAllCustomerMovesNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get all customer moves not found response
-func (o *GetAllCustomerMovesNotFound) SetPayload(payload interface{}) {
+func (o *GetAllCustomerMovesNotFound) SetPayload(payload *ghcmessages.NotFound) {
 	o.Payload = payload
 }
 
@@ -222,9 +228,11 @@ func (o *GetAllCustomerMovesNotFound) SetPayload(payload interface{}) {
 func (o *GetAllCustomerMovesNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 
@@ -240,7 +248,7 @@ type GetAllCustomerMovesInternalServerError struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.ServerError `json:"body,omitempty"`
 }
 
 // NewGetAllCustomerMovesInternalServerError creates GetAllCustomerMovesInternalServerError with default headers values
@@ -250,13 +258,13 @@ func NewGetAllCustomerMovesInternalServerError() *GetAllCustomerMovesInternalSer
 }
 
 // WithPayload adds the payload to the get all customer moves internal server error response
-func (o *GetAllCustomerMovesInternalServerError) WithPayload(payload interface{}) *GetAllCustomerMovesInternalServerError {
+func (o *GetAllCustomerMovesInternalServerError) WithPayload(payload *ghcmessages.ServerError) *GetAllCustomerMovesInternalServerError {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get all customer moves internal server error response
-func (o *GetAllCustomerMovesInternalServerError) SetPayload(payload interface{}) {
+func (o *GetAllCustomerMovesInternalServerError) SetPayload(payload *ghcmessages.ServerError) {
 	o.Payload = payload
 }
 
@@ -264,8 +272,10 @@ func (o *GetAllCustomerMovesInternalServerError) SetPayload(payload interface{})
 func (o *GetAllCustomerMovesInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(500)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }

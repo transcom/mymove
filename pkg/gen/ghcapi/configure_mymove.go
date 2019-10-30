@@ -18,7 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/service_item"
 )
 
-//go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/ghc.yaml --api-package ghcoperations --model-package ghcmessages --server-package ghcapi --exclude-main
+//go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/ghc_paths.yaml --api-package ghcoperations --model-package ghcmessages --server-package ghcapi --exclude-main
 
 func configureFlags(api *ghcoperations.MymoveAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }

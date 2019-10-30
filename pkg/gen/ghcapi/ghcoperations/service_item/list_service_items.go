@@ -33,7 +33,7 @@ func NewListServiceItems(ctx *middleware.Context, handler ListServiceItemsHandle
 
 Gets all line items for a move order
 
-Gets all line items for a move orders
+Gets all service items for a move task order
 
 */
 type ListServiceItems struct {

@@ -16,7 +16,7 @@ import (
 )
 
 // UpdatePaymentRequestPayload update payment request payload
-// swagger:model UpdatePaymentRequestPayload
+// swagger:model updatePaymentRequestPayload
 type UpdatePaymentRequestPayload struct {
 
 	// proof of service package

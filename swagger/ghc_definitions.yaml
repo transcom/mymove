@@ -1,0 +1,554 @@
+definitions:
+  Address:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      street_address_1:
+        type: string
+        example: 123 Main Ave
+        title: Street address 1
+      street_address_2:
+        type: string
+        example: Apartment 9000
+        x-nullable: true
+        title: Street address 2
+      street_address_3:
+        type: string
+        example: Montmârtre
+        x-nullable: true
+        title: Address Line 3
+      city:
+        type: string
+        example: Anytown
+        title: City
+      state:
+        title: State
+        type: string
+        x-display-value:
+          AL: AL
+          AK: AK
+          AR: AR
+          AZ: AZ
+          CA: CA
+          CO: CO
+          CT: CT
+          DC: DC
+          DE: DE
+          FL: FL
+          GA: GA
+          HI: HI
+          IA: IA
+          ID: ID
+          IL: IL
+          IN: IN
+          KS: KS
+          KY: KY
+          LA: LA
+          MA: MA
+          MD: MD
+          ME: ME
+          MI: MI
+          MN: MN
+          MO: MO
+          MS: MS
+          MT: MT
+          NC: NC
+          ND: ND
+          NE: NE
+          NH: NH
+          NJ: NJ
+          NM: NM
+          NV: NV
+          NY: NY
+          OH: OH
+          OK: OK
+          OR: OR
+          PA: PA
+          RI: RI
+          SC: SC
+          SD: SD
+          TN: TN
+          TX: TX
+          UT: UT
+          VA: VA
+          VT: VT
+          WA: WA
+          WI: WI
+          WV: WV
+          WY: WY
+        enum:
+          - AL
+          - AK
+          - AR
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VA
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
+      postal_code:
+        type: string
+        format: zip
+        title: ZIP
+        example: '90210'
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+      country:
+        type: string
+        title: Country
+        x-nullable: true
+        example: 'USA'
+        default: USA
+    required:
+      - street_address_1
+      - city
+      - state
+      - postal_code
+  CreatePaymentRequestPayload:
+    properties:
+      isFinal:
+        default: false
+        type: boolean
+      moveOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      proofOfServicePackage:
+        $ref: '#/definitions/ProofOfServicePackage'
+      serviceItemIDs:
+        items:
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+          format: uuid
+          type: string
+        type: array
+    type: object
+  CustomerMoveItem:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      customer_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      created_at:
+        type: string
+        format: datetime
+        example: 2018-04-12T23:20:50.52Z
+        description: when the access code was created
+      customer_name:
+        type: string
+        example: Mickey Mouse
+        x-nullable: true
+        title: Customer Name
+      branch_of_service:
+        type: string
+        example: Agency
+        x-nullable:
+        title: Branch of service / Agency
+      confirmation_number:
+        type: string
+        example: '12432'
+      origin_duty_station_name:
+        type: string
+        example: Fort Knox
+        title: Origin Duty Station Name
+        x-nullable: true
+  CustomerMoveItems:
+    type: array
+    items:
+      $ref: '#/definitions/CustomerMoveItem'
+  Customer:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      customer_name:
+        type: string
+        example: George Washington
+        x-nullable: true
+        title: Customer Name
+      agency:
+        type: string
+        example: Some Agency
+        x-nullable: true
+        title: Agency
+      grade:
+        type: string
+        example: Some Grade
+        x-nullable: true
+        title: Grade
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: john_bob@example.com
+        x-nullable: true
+        title: Email Address
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+        title: Best Contact Phone
+      origin_duty_station:
+        type: string
+        example: Dover AFB
+        title: Origin
+        x-nullable: true
+      destination_duty_station:
+        type: string
+        example: Dover AFB
+        title: Destination
+        x-nullable: true
+      pickup_address:
+        $ref: '#/definitions/Address'
+  Entitlements:
+    properties:
+      id:
+        example: 571008b1-b0de-454d-b843-d71be9f02c04
+        format: uuid
+        type: string
+      dependentsAuthorized:
+        example: true
+        type: boolean
+      nonTemporaryStorage:
+        example: false
+        type: boolean
+        x-nullable: true
+      privatelyOwnedVehicle:
+        example: false
+        type: boolean
+        x-nullable: true
+      proGearWeight:
+        example: 2000
+        type: integer
+        x-formatting: weight
+      proGearWeightSpouse:
+        example: 500
+        type: integer
+        x-formatting: weight
+      storageInTransit:
+        example: 90
+        type: integer
+      totalDependents:
+        example: 2
+        type: integer
+      totalWeightSelf:
+        example: 18000
+        type: integer
+        x-formatting: weight
+    type: object
+  Error:
+    properties:
+      message:
+        type: string
+    required:
+      - message
+    type: object
+  MoveTaskOrder:
+    properties:
+      code:
+        example: USMC-0001
+        type: string
+      createdAt:
+        format: date
+        type: string
+      customerId:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      deletedAt:
+        format: date
+        type: string
+      destinationAddress:
+        $ref: '#/definitions/Address'
+      destinationDutyStation:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      destinationPPSO:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      entitlements:
+        $ref: '#/definitions/Entitlements'
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      moveDate:
+        format: date
+        type: string
+      moveID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      moveTaskOrdersType:
+        enum:
+          - NON_TEMPORARY_STORAGE
+          - PRIME
+        type: string
+      originDutyStation:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      originPPSO:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      pickupAddress:
+        $ref: '#/definitions/Address'
+      remarks:
+        example: Requires more gentle care
+        type: string
+      requestedPickupDate:
+        format: date
+        type: string
+      serviceItems:
+        items:
+          $ref: '#/definitions/ServiceItem'
+        type: array
+      status:
+        enum:
+          - DRAFT  #TODO this is to represent visible to PRIME not sure if this is the right name for this?
+          - APPROVED
+          - REJECTED
+          - SUBMITTED
+        type: string
+      updatedAt:
+        format: date
+        type: string
+    type: object
+  MoveTaskOrderStatus:
+    properties:
+      status:
+        enum:
+          - APPROVED
+          - DRAFT
+          - SUBMITTED
+          - REJECTED
+        type: string
+    type: object
+  MoveTaskOrders:
+    items:
+      $ref: '#/definitions/MoveTaskOrder'
+    type: array
+  PaymentRequest:
+    properties:
+      documentPackage:
+        $ref: '#/definitions/ProofOfServicePackage'
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        readOnly: true
+        type: string
+      isFinal:
+        default: false
+        type: boolean
+      moveOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      rejectionReason:
+        example: documentation was incomplete
+        type: string
+        x-nullable: true
+      serviceItemIDs:
+        items:
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+          format: uuid
+          type: string
+        type: array
+      status:
+        $ref: '#/definitions/PaymentRequestStatus'
+    type: object
+  PaymentRequestStatus:
+    enum:
+      - PAYMENT_SUBMITTED
+      - APPROVED
+      - REJECTED
+    title: Payment Request Status
+    type: string
+  ProofOfServicePackage:
+    properties:
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      uploads:
+        items:
+          $ref: '#/definitions/Upload'
+        type: array
+    type: object
+  ServiceItem:
+    properties:
+      MoveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      approvedAt:
+        format: date
+        type: string
+      createdAt:
+        format: date
+        type: string
+      deletedAt:
+        format: date
+        type: string
+      description:
+        type: string
+      feeType:
+        enum:
+          - COUNSELING
+          - CRATING
+          - TRUCKING
+          - SHUTTLE
+        type: string
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      quantity:
+        type: integer
+      rate:
+        type: integer
+      rejectedAt:
+        format: date
+        type: string
+      status:
+        enum:
+          - APPROVED
+          - SUBMITTED
+          - REJECTED
+        type: string
+      submittedAt:
+        format: date
+        type: string
+      total:
+        format: cents
+        type: integer
+      updatedAt:
+        format: date
+        type: string
+    required:
+      - id
+    type: object
+  ServiceItems:
+    type: array
+    items:
+      $ref: '#/definitions/ServiceItem'
+  ServiceItemStatus:
+    properties:
+      status:
+        enum:
+          - APPROVED
+          - SUBMITTED
+          - REJECTED
+        type: string
+    type: object
+  UpdatePaymentRequestPayload:
+    properties:
+      proofOfServicePackage:
+        $ref: '#/definitions/ProofOfServicePackage'
+      serviceItemIDs:
+        items:
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+          format: uuid
+          type: string
+        type: array
+    type: object
+  UpdatePaymentRequestStatusPayload:
+    properties:
+      rejectionReason:
+        example: documentation was incomplete
+        type: string
+        x-nullable: true
+      status:
+        $ref: '#/definitions/PaymentRequestStatus'
+    type: object
+  Upload:
+    properties:
+      bytes:
+        type: integer
+      contentType:
+        example: application/pdf
+        format: mime-type
+        type: string
+      createdAt:
+        format: date-time
+        type: string
+      filename:
+        example: filename.pdf
+        format: binary
+        type: string
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      updatedAt:
+        format: date-time
+        type: string
+      url:
+        example: 'https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538'
+        format: uri
+        type: string
+    required:
+      - id
+      - url
+      - filename
+      - contentType
+      - bytes
+      - createdAt
+      - updatedAt
+    type: object
+
