@@ -51,37 +51,37 @@ func init() {
           "200": {
             "description": "Successfully retrieved information on all customer",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/CustomerMoveItems"
+              "$ref": "#/definitions/customerMoveItems"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -102,37 +102,37 @@ func init() {
           "200": {
             "description": "Successfully retrieved information on an individual customer",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/Customer"
+              "$ref": "#/definitions/customer"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -163,37 +163,37 @@ func init() {
           "200": {
             "description": "Successfully retrieved all move task orders",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/MoveTaskOrders"
+              "$ref": "#/definitions/moveTaskOrders"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -214,37 +214,37 @@ func init() {
           "200": {
             "description": "Successfully retrieved move task order",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/moveTaskOrder"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -263,37 +263,37 @@ func init() {
           "200": {
             "description": "Successfully deleted move task order",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/moveTaskOrder"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -317,7 +317,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/moveTaskOrder"
             }
           }
         ],
@@ -325,37 +325,37 @@ func init() {
           "200": {
             "description": "Successfully retrieved move task order",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/moveTaskOrder"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -385,37 +385,37 @@ func init() {
           "200": {
             "description": "Successfully retrieved move task order",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/Entitlements"
+              "$ref": "#/definitions/entitlements"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           }
         }
@@ -445,37 +445,37 @@ func init() {
           "200": {
             "description": "Successfully retrieved a line item for a move task order by ID",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/ServiceItem"
+              "$ref": "#/definitions/serviceItem"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -494,37 +494,37 @@ func init() {
           "200": {
             "description": "Successfully deleted move task order",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/moveTaskOrder"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -548,7 +548,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/ServiceItem"
+              "$ref": "#/definitions/serviceItem"
             }
           }
         ],
@@ -556,37 +556,37 @@ func init() {
           "200": {
             "description": "Successfully updated move task order status",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/moveTaskOrder"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -628,7 +628,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/ServiceItemStatus"
+              "$ref": "#/definitions/serviceItemStatus"
             }
           }
         ],
@@ -636,37 +636,37 @@ func init() {
           "200": {
             "description": "Successfully updated status for a line item for a move task order by ID",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/ServiceItem"
+              "$ref": "#/definitions/serviceItem"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -715,7 +715,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/MoveTaskOrderStatus"
+              "$ref": "#/definitions/moveTaskOrderStatus"
             }
           }
         ],
@@ -723,37 +723,37 @@ func init() {
           "200": {
             "description": "Successfully updated move task order status",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/MoveTaskOrder"
+              "$ref": "#/definitions/moveTaskOrder"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -774,37 +774,37 @@ func init() {
           "200": {
             "description": "Successfully retrieved all service items for a move task order",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/ServiceItems"
+              "$ref": "#/definitions/serviceItems"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -828,7 +828,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/ServiceItem"
+              "$ref": "#/definitions/serviceItem"
             }
           }
         ],
@@ -836,37 +836,37 @@ func init() {
           "201": {
             "description": "Successfully created service item for move task order",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/ServiceItem"
+              "$ref": "#/definitions/serviceItem"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -904,31 +904,31 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/Error"
+              "$ref": "#/definitions/error"
             }
           }
         }
@@ -952,7 +952,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/CreatePaymentRequestPayload"
+              "$ref": "#/definitions/createPaymentRequestPayload"
             }
           }
         ],
@@ -960,37 +960,37 @@ func init() {
           "201": {
             "description": "created instance of payment request",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/PaymentRequest"
+              "$ref": "#/definitions/paymentRequest"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -1013,37 +1013,37 @@ func init() {
           "200": {
             "description": "fetched instance of payment request",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/PaymentRequest"
+              "$ref": "#/definitions/paymentRequest"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -1068,7 +1068,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/UpdatePaymentRequestPayload"
+              "$ref": "#/definitions/updatePaymentRequestPayload"
             }
           }
         ],
@@ -1076,37 +1076,37 @@ func init() {
           "200": {
             "description": "updated payment request",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/PaymentRequest"
+              "$ref": "#/definitions/paymentRequest"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
         }
@@ -1151,7 +1151,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/UpdatePaymentRequestStatusPayload"
+              "$ref": "#/definitions/updatePaymentRequestStatusPayload"
             }
           }
         ],
@@ -1159,39 +1159,754 @@ func init() {
           "200": {
             "description": "updated payment request",
             "schema": {
-              "$ref": "./ghc_definitions.yaml#/definitions/PaymentRequest"
+              "$ref": "#/definitions/paymentRequest"
             }
           },
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/InvalidRequest"
+              "$ref": "#/definitions/invalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/PermissionDenied"
+              "$ref": "#/definitions/permissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/NotFound"
+              "$ref": "#/definitions/notFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "./ghc_responses.yaml#/responses/ServerError"
+              "$ref": "#/definitions/serverError"
             }
           }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "address": {
+      "type": "object",
+      "required": [
+        "street_address_1",
+        "city",
+        "state",
+        "postal_code"
+      ],
+      "properties": {
+        "city": {
+          "type": "string",
+          "title": "City",
+          "example": "Anytown"
+        },
+        "country": {
+          "type": "string",
+          "title": "Country",
+          "default": "USA",
+          "x-nullable": true,
+          "example": "USA"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "postal_code": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "example": "90210"
+        },
+        "state": {
+          "type": "string",
+          "title": "State",
+          "enum": [
+            "AL",
+            "AK",
+            "AR",
+            "AZ",
+            "CA",
+            "CO",
+            "CT",
+            "DC",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "IA",
+            "ID",
+            "IL",
+            "IN",
+            "KS",
+            "KY",
+            "LA",
+            "MA",
+            "MD",
+            "ME",
+            "MI",
+            "MN",
+            "MO",
+            "MS",
+            "MT",
+            "NC",
+            "ND",
+            "NE",
+            "NH",
+            "NJ",
+            "NM",
+            "NV",
+            "NY",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VA",
+            "VT",
+            "WA",
+            "WI",
+            "WV",
+            "WY"
+          ],
+          "x-display-value": {
+            "AK": "AK",
+            "AL": "AL",
+            "AR": "AR",
+            "AZ": "AZ",
+            "CA": "CA",
+            "CO": "CO",
+            "CT": "CT",
+            "DC": "DC",
+            "DE": "DE",
+            "FL": "FL",
+            "GA": "GA",
+            "HI": "HI",
+            "IA": "IA",
+            "ID": "ID",
+            "IL": "IL",
+            "IN": "IN",
+            "KS": "KS",
+            "KY": "KY",
+            "LA": "LA",
+            "MA": "MA",
+            "MD": "MD",
+            "ME": "ME",
+            "MI": "MI",
+            "MN": "MN",
+            "MO": "MO",
+            "MS": "MS",
+            "MT": "MT",
+            "NC": "NC",
+            "ND": "ND",
+            "NE": "NE",
+            "NH": "NH",
+            "NJ": "NJ",
+            "NM": "NM",
+            "NV": "NV",
+            "NY": "NY",
+            "OH": "OH",
+            "OK": "OK",
+            "OR": "OR",
+            "PA": "PA",
+            "RI": "RI",
+            "SC": "SC",
+            "SD": "SD",
+            "TN": "TN",
+            "TX": "TX",
+            "UT": "UT",
+            "VA": "VA",
+            "VT": "VT",
+            "WA": "WA",
+            "WI": "WI",
+            "WV": "WV",
+            "WY": "WY"
+          }
+        },
+        "street_address_1": {
+          "type": "string",
+          "title": "Street address 1",
+          "example": "123 Main Ave"
+        },
+        "street_address_2": {
+          "type": "string",
+          "title": "Street address 2",
+          "x-nullable": true,
+          "example": "Apartment 9000"
+        },
+        "street_address_3": {
+          "type": "string",
+          "title": "Address Line 3",
+          "x-nullable": true,
+          "example": "Montmârtre"
+        }
+      }
+    },
+    "createPaymentRequestPayload": {
+      "type": "object",
+      "properties": {
+        "isFinal": {
+          "type": "boolean",
+          "default": false
+        },
+        "moveOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proofOfServicePackage": {
+          "$ref": "#/definitions/proofOfServicePackage"
+        },
+        "serviceItemIDs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid",
+            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+          }
+        }
+      }
+    },
+    "customer": {
+      "type": "object",
+      "properties": {
+        "agency": {
+          "type": "string",
+          "title": "Agency",
+          "x-nullable": true,
+          "example": "Some Agency"
+        },
+        "customer_name": {
+          "type": "string",
+          "title": "Customer Name",
+          "x-nullable": true,
+          "example": "George Washington"
+        },
+        "destination_duty_station": {
+          "type": "string",
+          "title": "Destination",
+          "x-nullable": true,
+          "example": "Dover AFB"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "title": "Email Address",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true,
+          "example": "john_bob@example.com"
+        },
+        "grade": {
+          "type": "string",
+          "title": "Grade",
+          "x-nullable": true,
+          "example": "Some Grade"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "origin_duty_station": {
+          "type": "string",
+          "title": "Origin",
+          "x-nullable": true,
+          "example": "Dover AFB"
+        },
+        "pickup_address": {
+          "$ref": "#/definitions/address"
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "title": "Best Contact Phone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true,
+          "example": "212-555-5555"
+        }
+      }
+    },
+    "customerMoveItem": {
+      "type": "object",
+      "properties": {
+        "branch_of_service": {
+          "type": "string",
+          "title": "Branch of service / Agency",
+          "x-nullable": null,
+          "example": "Agency"
+        },
+        "confirmation_number": {
+          "type": "string",
+          "example": "12432"
+        },
+        "created_at": {
+          "description": "when the access code was created",
+          "type": "string",
+          "format": "datetime",
+          "example": "2018-04-12T23:20:50.52Z"
+        },
+        "customer_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "customer_name": {
+          "type": "string",
+          "title": "Customer Name",
+          "x-nullable": true,
+          "example": "Mickey Mouse"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "origin_duty_station_name": {
+          "type": "string",
+          "title": "Origin Duty Station Name",
+          "x-nullable": true,
+          "example": "Fort Knox"
+        }
+      }
+    },
+    "customerMoveItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/customerMoveItem"
+      }
+    },
+    "entitlements": {
+      "type": "object",
+      "properties": {
+        "dependentsAuthorized": {
+          "type": "boolean",
+          "example": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "571008b1-b0de-454d-b843-d71be9f02c04"
+        },
+        "nonTemporaryStorage": {
+          "type": "boolean",
+          "x-nullable": true,
+          "example": false
+        },
+        "privatelyOwnedVehicle": {
+          "type": "boolean",
+          "x-nullable": true,
+          "example": false
+        },
+        "proGearWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 2000
+        },
+        "proGearWeightSpouse": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
+        },
+        "storageInTransit": {
+          "type": "integer",
+          "example": 90
+        },
+        "totalDependents": {
+          "type": "integer",
+          "example": 2
+        },
+        "totalWeightSelf": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 18000
+        }
+      }
+    },
+    "error": {
+      "type": "object",
+      "required": [
+        "message"
+      ],
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "invalidRequest": {
+      "$ref": "#/definitions/error"
+    },
+    "moveTaskOrder": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "example": "USMC-0001"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "customerId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/address"
+        },
+        "destinationDutyStation": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "destinationPPSO": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "entitlements": {
+          "$ref": "#/definitions/entitlements"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "moveID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "moveTaskOrdersType": {
+          "type": "string",
+          "enum": [
+            "NON_TEMPORARY_STORAGE",
+            "PRIME"
+          ]
+        },
+        "originDutyStation": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "originPPSO": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/address"
+        },
+        "remarks": {
+          "type": "string",
+          "example": "Requires more gentle care"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "serviceItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/serviceItem"
+          }
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "DRAFT",
+            "APPROVED",
+            "REJECTED",
+            "SUBMITTED"
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "moveTaskOrderStatus": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "DRAFT",
+            "SUBMITTED",
+            "REJECTED"
+          ]
+        }
+      }
+    },
+    "moveTaskOrders": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/moveTaskOrder"
+      }
+    },
+    "notFound": {
+      "$ref": "#/definitions/error"
+    },
+    "paymentRequest": {
+      "type": "object",
+      "properties": {
+        "documentPackage": {
+          "$ref": "#/definitions/proofOfServicePackage"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "isFinal": {
+          "type": "boolean",
+          "default": false
+        },
+        "moveOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "documentation was incomplete"
+        },
+        "serviceItemIDs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid",
+            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+          }
+        },
+        "status": {
+          "$ref": "#/definitions/paymentRequestStatus"
+        }
+      }
+    },
+    "paymentRequestStatus": {
+      "type": "string",
+      "title": "Payment Request Status",
+      "enum": [
+        "PAYMENT_SUBMITTED",
+        "APPROVED",
+        "REJECTED"
+      ]
+    },
+    "permissionDenied": {
+      "$ref": "#/definitions/error"
+    },
+    "proofOfServicePackage": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/upload"
+          }
+        }
+      }
+    },
+    "serverError": {
+      "$ref": "#/definitions/error"
+    },
+    "serviceItem": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "MoveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "approvedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "description": {
+          "type": "string"
+        },
+        "feeType": {
+          "type": "string",
+          "enum": [
+            "COUNSELING",
+            "CRATING",
+            "TRUCKING",
+            "SHUTTLE"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "quantity": {
+          "type": "integer"
+        },
+        "rate": {
+          "type": "integer"
+        },
+        "rejectedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "SUBMITTED",
+            "REJECTED"
+          ]
+        },
+        "submittedAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "total": {
+          "type": "integer",
+          "format": "cents"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "serviceItemStatus": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "SUBMITTED",
+            "REJECTED"
+          ]
+        }
+      }
+    },
+    "serviceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/serviceItem"
+      }
+    },
+    "updatePaymentRequestPayload": {
+      "type": "object",
+      "properties": {
+        "proofOfServicePackage": {
+          "$ref": "#/definitions/proofOfServicePackage"
+        },
+        "serviceItemIDs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid",
+            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+          }
+        }
+      }
+    },
+    "updatePaymentRequestStatusPayload": {
+      "type": "object",
+      "properties": {
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "documentation was incomplete"
+        },
+        "status": {
+          "$ref": "#/definitions/paymentRequestStatus"
+        }
+      }
+    },
+    "upload": {
+      "type": "object",
+      "required": [
+        "id",
+        "url",
+        "filename",
+        "contentType",
+        "bytes",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "bytes": {
+          "type": "integer"
+        },
+        "contentType": {
+          "type": "string",
+          "format": "mime-type",
+          "example": "application/pdf"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "filename": {
+          "type": "string",
+          "format": "binary",
+          "example": "filename.pdf"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     }
