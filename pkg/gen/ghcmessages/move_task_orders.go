@@ -15,7 +15,7 @@ import (
 )
 
 // MoveTaskOrders move task orders
-// swagger:model moveTaskOrders
+// swagger:model MoveTaskOrders
 type MoveTaskOrders []*MoveTaskOrder
 
 // Validate validates this move task orders

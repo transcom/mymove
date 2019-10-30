@@ -14,7 +14,7 @@ import (
 )
 
 // Customer customer
-// swagger:model customer
+// swagger:model Customer
 type Customer struct {
 
 	// Agency

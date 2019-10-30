@@ -14,7 +14,7 @@ import (
 )
 
 // CustomerMoveItem customer move item
-// swagger:model customerMoveItem
+// swagger:model CustomerMoveItem
 type CustomerMoveItem struct {
 
 	// Branch of service / Agency

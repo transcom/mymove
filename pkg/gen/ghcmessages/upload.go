@@ -16,7 +16,7 @@ import (
 )
 
 // Upload upload
-// swagger:model upload
+// swagger:model Upload
 type Upload struct {
 
 	// bytes

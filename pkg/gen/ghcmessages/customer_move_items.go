@@ -15,7 +15,7 @@ import (
 )
 
 // CustomerMoveItems customer move items
-// swagger:model customerMoveItems
+// swagger:model CustomerMoveItems
 type CustomerMoveItems []*CustomerMoveItem
 
 // Validate validates this customer move items

@@ -16,7 +16,7 @@ import (
 )
 
 // ServiceItem service item
-// swagger:model serviceItem
+// swagger:model ServiceItem
 type ServiceItem struct {
 
 	// move task order ID

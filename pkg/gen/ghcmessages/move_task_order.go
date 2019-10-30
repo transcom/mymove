@@ -17,7 +17,7 @@ import (
 )
 
 // MoveTaskOrder move task order
-// swagger:model moveTaskOrder
+// swagger:model MoveTaskOrder
 type MoveTaskOrder struct {
 
 	// code

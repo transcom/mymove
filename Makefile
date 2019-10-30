@@ -660,7 +660,6 @@ e2e_clean: ## Clean e2e (end-to-end) files and docker images
 	rm -rf cypress/screenshots
 	rm -rf cypress/videos
 	rm -rf bin_linux/
-	rm -f swagger/ghc.yaml
 	docker rm -f cypress || true
 
 .PHONY: db_e2e_up
