@@ -46,7 +46,7 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticShorthaulData() {
 	serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
 		testdatagen.Assertions{
 			ReDomesticServiceArea: models.ReDomesticServiceArea{
-				ServiceArea: dsaTestServiceArea,
+				ServiceArea: dshTestServiceArea,
 			},
 		})
 
@@ -67,7 +67,10 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticShorthaulData() {
 
 	domesticShorthaulPeakPrice := domesticShorthaulPrice
 	domesticShorthaulPeakPrice.PriceCents = 146
+	suite.MustSave(&domesticShorthaulPrice)
 
 	domesticShorthaulNonpeakPrice := domesticShorthaulPrice
+	domesticShorthaulNonpeakPrice.IsPeakPeriod = false
 	domesticShorthaulNonpeakPrice.PriceCents = 127
+	suite.MustSave(&domesticShorthaulPrice)
 }

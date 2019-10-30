@@ -22,8 +22,7 @@ func NewDomesticServiceAreaPricer(db *pop.Connection, logger Logger, contractCod
 	}
 }
 
-// DomesticServiceAreaPricer is a service object to price domestic prices: origin and destination service area, SIT day 1, SIT Addt'l days
-// domestic other prices: pack, unpack, and sit p/d costs for a GHC move
+// DomesticServiceAreaPricer is a service object to price domestic prices: origin and destination service area, SIT day 1, SIT Addt'l days (does not include shorthaul)
 type domesticServiceAreaPricer struct {
 	db           *pop.Connection
 	logger       Logger
