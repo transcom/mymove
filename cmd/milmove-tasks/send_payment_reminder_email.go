@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"strings"
-	"time"
 
 	"github.com/spf13/cobra"
 
@@ -76,7 +75,7 @@ func sendPaymentReminder(cmd *cobra.Command, args []string) error {
 	v.AutomaticEnv()
 
 	dbEnv := v.GetString(cli.DbEnvFlag)
-	offsetDays := v.GetInt(offsetFlag)
+	// offsetDays := v.GetInt(offsetFlag)
 
 	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
 	if err != nil {
@@ -124,13 +123,12 @@ func sendPaymentReminder(cmd *cobra.Command, args []string) error {
 	}
 
 	ctx := context.TODO()
-	targetDate := time.Now().AddDate(0, 0, -offsetDays)
 	notificationSender, notificationSenderErr := notifications.InitEmail(v, session, logger)
 	if notificationSenderErr != nil {
 		logger.Fatal("notification sender sending not enabled", zap.Error(notificationSenderErr))
 	}
 
-	movePaymentReminderNotifier, err := notifications.NewPaymentReminder(dbConnection, logger, targetDate)
+	movePaymentReminderNotifier, err := notifications.NewPaymentReminder(dbConnection, logger)
 	if err != nil {
 		logger.Fatal("initializing MoveReviewed", zap.Error(err))
 	}

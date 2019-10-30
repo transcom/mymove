@@ -6,7 +6,6 @@ import (
 	"fmt"
 	html "html/template"
 	text "text/template"
-	"time"
 
 	"github.com/transcom/mymove/pkg/models"
 
@@ -31,18 +30,16 @@ var (
 type PaymentReminder struct {
 	db           *pop.Connection
 	logger       Logger
-	date         time.Time
 	htmlTemplate *html.Template
 	textTemplate *text.Template
 }
 
 // NewPaymentReminder returns a new move submitted notification
-func NewPaymentReminder(db *pop.Connection, logger Logger, date time.Time) (*PaymentReminder, error) {
+func NewPaymentReminder(db *pop.Connection, logger Logger) (*PaymentReminder, error) {
 
 	return &PaymentReminder{
 		db:           db,
 		logger:       logger,
-		date:         date,
 		htmlTemplate: paymentReminderHTMLTemplate,
 		textTemplate: paymentReminderTextTemplate,
 	}, nil
@@ -63,10 +60,7 @@ type PaymentReminderEmailInfo struct {
 	ReviewedDate         string      `db:"reviewed_date"`
 }
 
-func (m PaymentReminder) GetEmailInfo(date time.Time) (PaymentReminderEmailInfos, error) {
-	fmt.Println(date)
-	dateString := date.Format("2006-01-02")
-	fmt.Println(dateString)
+func (m PaymentReminder) GetEmailInfo() (PaymentReminderEmailInfos, error) {
 	// 	query := `SELECT 'e7edaddf-f4f9-401f-940b-b6c3be84195d' as id, 'lindsay+test1@truss.works' as personal_email, 'Yuma AFB' as duty_station_name, 'Fort Gordon' as new_duty_station_name,
 	// 8000 as weight_estimate, 500 as incentive_estimate_min, 1000 as incentive_estimate_max, 'blah PPO' as transportation_office_name, '555-555-1212' as transportation_office_phone`
 	query := `SELECT sm.id as id, sm.personal_email as personal_email,
@@ -85,6 +79,7 @@ func (m PaymentReminder) GetEmailInfo(date time.Time) (PaymentReminderEmailInfos
 	         LEFT JOIN notifications n ON sm.id = n.service_member_id
 	where ppm.reviewed_date <= now() - INTERVAL '10 DAYS'
 	      AND ppm.reviewed_date >= '2019-10-01'
+          AND (notification_type != 'MOVE_PAYMENT_REMINDER_EMAIL' OR n.service_member_id IS NULL);
 `
 
 	paymentReminderEmailInfos := PaymentReminderEmailInfos{}
@@ -96,13 +91,13 @@ func (m PaymentReminder) GetEmailInfo(date time.Time) (PaymentReminderEmailInfos
 // NotificationSendingContext expects a `notification` with an `emails` method,
 // so we implement `email` to satisfy that interface
 func (m PaymentReminder) emails(ctx context.Context) ([]emailContent, error) {
-	paymentReminderEmailInfos, err := m.GetEmailInfo(m.date)
+	paymentReminderEmailInfos, err := m.GetEmailInfo()
 	if err != nil {
-		m.logger.Error("error retrieving email info", zap.String("date", m.date.String()))
+		m.logger.Error("error retrieving email info")
 		return []emailContent{}, err
 	}
 	if len(paymentReminderEmailInfos) == 0 {
-		m.logger.Info("no emails to be sent", zap.String("date", m.date.String()))
+		m.logger.Info("no emails to be sent")
 		return []emailContent{}, nil
 	}
 	return m.formatEmails(paymentReminderEmailInfos)
@@ -112,8 +107,7 @@ func (m PaymentReminder) emails(ctx context.Context) ([]emailContent, error) {
 func (m PaymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderEmailInfos) ([]emailContent, error) {
 	var emails []emailContent
 	for _, PaymentReminderemailInfo := range PaymentReminderEmailInfos {
-		htmlBody, textBody, err := m.renderTemplates(paymentReminderEmailData{
-			OriginDutyStation:      PaymentReminderemailInfo.DutyStationName,
+		htmlBody, textBody, err := m.renderTemplates(PaymentReminderEmailData{
 			DestinationDutyStation: PaymentReminderemailInfo.NewDutyStationName,
 			WeightEstimate:         fmt.Sprintf("%d", PaymentReminderemailInfo.WeightEstimate),
 			IncentiveEstimateMin:   PaymentReminderemailInfo.IncentiveEstimateMin.ToDollarString(),
@@ -144,7 +138,7 @@ func (m PaymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderE
 	return emails, nil
 }
 
-func (m PaymentReminder) renderTemplates(data paymentReminderEmailData) (string, string, error) {
+func (m PaymentReminder) renderTemplates(data PaymentReminderEmailData) (string, string, error) {
 	htmlBody, err := m.RenderHTML(data)
 	if err != nil {
 		return "", "", fmt.Errorf("error rendering html template using %#v", data)
@@ -175,9 +169,7 @@ func (m PaymentReminder) OnSuccess(PaymentReminderemailInfo PaymentReminderEmail
 	}
 }
 
-type paymentReminderEmailData struct {
-	Link                   string
-	OriginDutyStation      string
+type PaymentReminderEmailData struct {
 	DestinationDutyStation string
 	WeightEstimate         string
 	IncentiveEstimateMin   string
@@ -187,7 +179,7 @@ type paymentReminderEmailData struct {
 }
 
 // RenderHTML renders the html for the email
-func (m PaymentReminder) RenderHTML(data paymentReminderEmailData) (string, error) {
+func (m PaymentReminder) RenderHTML(data PaymentReminderEmailData) (string, error) {
 	var htmlBuffer bytes.Buffer
 	if err := m.htmlTemplate.Execute(&htmlBuffer, data); err != nil {
 		m.logger.Error("cant render html template ", zap.Error(err))
@@ -196,7 +188,7 @@ func (m PaymentReminder) RenderHTML(data paymentReminderEmailData) (string, erro
 }
 
 // RenderText renders the text for the email
-func (m PaymentReminder) RenderText(data paymentReminderEmailData) (string, error) {
+func (m PaymentReminder) RenderText(data PaymentReminderEmailData) (string, error) {
 	var textBuffer bytes.Buffer
 	if err := m.textTemplate.Execute(&textBuffer, data); err != nil {
 		m.logger.Error("cant render text template ", zap.Error(err))
