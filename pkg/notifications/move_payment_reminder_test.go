@@ -133,9 +133,6 @@ func (suite *NotificationSuite) TestPaymentReminderOnSuccess() {
 }
 
 func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
-	// date10DaysAgo := offsetDate(-10)
-	// startDate := time.Date(2019, 1, 7, 0, 0, 0, 0, time.UTC)
-	// onDate := startDate.AddDate(0, 0, -6)
 	pr, err := NewPaymentReminder(suite.DB(), suite.logger)
 	suite.NoError(err)
 	s := PaymentReminderEmailData{
@@ -159,9 +156,11 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 <p>To do that</p>
 
 <p>Log in to MilMove</p>
-<p>Click Request Payment</p>
-<p>Follow the instructions.</p>
-<p>What documents do you need?</p>
+<ul>
+  <li>Click Request Payment</li>
+  <li>Follow the instructions.</li>
+  <li>What documents do you need?</li>
+</ul>
 
 <p>To request payment, you should have copies of:</p>
 <p>Weight tickets from certified scales, documenting empty and full weights for all vehicles and trailers you used for your move</p>
@@ -214,9 +213,9 @@ We want to pay you for your PPM, but we can’t do that until you document expen
 To do that
 
 Log in to MilMove
-Click Request Payment
-Follow the instructions.
-What documents do you need?
+  * Click Request Payment
+  * Follow the instructions.
+  * What documents do you need?
 
 To request payment, you should have copies of:
 Weight tickets from certified scales, documenting empty and full weights for all vehicles and trailers you used for your move
@@ -312,7 +311,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 		suite.NoError(err)
 		expectedEmailContent := emailContent{
 			recipientEmail: *emailInfo.Email,
-			subject:        "[MilMove] Let us know how we did",
+			subject:        fmt.Sprintf("[MilMove] Reminder: request payment for your move to %s", emailInfo.NewDutyStationName),
 			htmlBody:       htmlBody,
 			textBody:       textBody,
 		}

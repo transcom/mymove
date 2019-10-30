@@ -11,9 +11,9 @@ We want to pay you for your PPM, but we can’t do that until you document expen
 To do that
 
 Log in to MilMove
-Click Request Payment
-Follow the instructions.
-What documents do you need?
+  * Click Request Payment
+  * Follow the instructions.
+  * What documents do you need?
 
 To request payment, you should have copies of:
 Weight tickets from certified scales, documenting empty and full weights for all vehicles and trailers you used for your move
