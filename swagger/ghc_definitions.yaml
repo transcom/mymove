@@ -1,22 +1,4 @@
 definitions:
-  CreatePaymentRequestPayload:
-    properties:
-      isFinal:
-        default: false
-        type: boolean
-      moveOrderID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-      proofOfServicePackage:
-        $ref: '#/definitions/ProofOfServicePackage'
-      serviceItemIDs:
-        items:
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
-          format: uuid
-          type: string
-        type: array
-    type: object
   Address:
     type: object
     properties:
@@ -166,67 +148,24 @@ definitions:
       - city
       - state
       - postal_code
-  Customer:
-    type: object
+  CreatePaymentRequestPayload:
     properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      first_name:
-        type: string
-        example: John
-        x-nullable: true
-        title: First Name
-      middle_name:
-        type: string
-        example: L.
-        x-nullable: true
-        title: Middle Name
-      last_name:
-        type: string
-        example: Donut
-        x-nullable: true
-        title: Last Name
-      agency:
-        type: string
-        example: Some Agency
-        x-nullable: true
-        title: Agency
-      grade:
-        type: string
-        example: Some Grade
-        x-nullable: true
-        title: Grade
-      email:
-        type: string
-        format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        example: john_bob@example.com
-        x-nullable: true
-        title: Email Address
-      telephone:
-        type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-555-5555
-        x-nullable: true
-        title: Best Contact Phone
-      origin_duty_station:
-        type: string
-        example: Dover AFB
-        title: Origin
-        x-nullable: true
-      destination_duty_station:
-        type: string
-        example: Dover AFB
-        title: Destination
-        x-nullable: true
-      pickup_address:
-        $ref: '#/definitions/Address'
-      dependentsAuthorized:
-        example: true
+      isFinal:
+        default: false
         type: boolean
+      moveOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      proofOfServicePackage:
+        $ref: '#/definitions/ProofOfServicePackage'
+      serviceItemIDs:
+        items:
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+          format: uuid
+          type: string
+        type: array
+    type: object
   CustomerMoveItem:
     type: object
     properties:
@@ -265,6 +204,54 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/CustomerMoveItem'
+  Customer:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      customer_name:
+        type: string
+        example: George Washington
+        x-nullable: true
+        title: Customer Name
+      agency:
+        type: string
+        example: Some Agency
+        x-nullable: true
+        title: Agency
+      grade:
+        type: string
+        example: Some Grade
+        x-nullable: true
+        title: Grade
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: john_bob@example.com
+        x-nullable: true
+        title: Email Address
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+        title: Best Contact Phone
+      origin_duty_station:
+        type: string
+        example: Dover AFB
+        title: Origin
+        x-nullable: true
+      destination_duty_station:
+        type: string
+        example: Dover AFB
+        title: Destination
+        x-nullable: true
+      pickup_address:
+        $ref: '#/definitions/Address'
   Entitlements:
     properties:
       id:
@@ -277,9 +264,11 @@ definitions:
       nonTemporaryStorage:
         example: false
         type: boolean
+        x-nullable: true
       privatelyOwnedVehicle:
         example: false
         type: boolean
+        x-nullable: true
       proGearWeight:
         example: 2000
         type: integer
@@ -314,11 +303,15 @@ definitions:
       createdAt:
         format: date
         type: string
-      customer:
-        $ref: '#/definitions/Customer'
+      customerId:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
       deletedAt:
         format: date
         type: string
+      destinationAddress:
+        $ref: '#/definitions/Address'
       destinationDutyStation:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
@@ -353,6 +346,8 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+      pickupAddress:
+        $ref: '#/definitions/Address'
       remarks:
         example: Requires more gentle care
         type: string
@@ -365,6 +360,7 @@ definitions:
         type: array
       status:
         enum:
+          - DRAFT  #TODO this is to represent visible to PRIME not sure if this is the right name for this?
           - APPROVED
           - REJECTED
           - SUBMITTED
@@ -378,6 +374,7 @@ definitions:
       status:
         enum:
           - APPROVED
+          - DRAFT
           - SUBMITTED
           - REJECTED
         type: string
@@ -483,7 +480,13 @@ definitions:
       updatedAt:
         format: date
         type: string
+    required:
+      - id
     type: object
+  ServiceItems:
+    type: array
+    items:
+      $ref: '#/definitions/ServiceItem'
   ServiceItemStatus:
     properties:
       status:
@@ -548,3 +551,4 @@ definitions:
       - createdAt
       - updatedAt
     type: object
+

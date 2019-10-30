@@ -2573,9 +2573,11 @@ func init() {
           "x-nullable": true,
           "example": "Some Agency"
         },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "example": true
+        "customer_name": {
+          "type": "string",
+          "title": "Customer Name",
+          "x-nullable": true,
+          "example": "George Washington"
         },
         "destination_duty_station": {
           "type": "string",
@@ -2591,12 +2593,6 @@ func init() {
           "x-nullable": true,
           "example": "john_bob@example.com"
         },
-        "first_name": {
-          "type": "string",
-          "title": "First Name",
-          "x-nullable": true,
-          "example": "John"
-        },
         "grade": {
           "type": "string",
           "title": "Grade",
@@ -2607,18 +2603,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "last_name": {
-          "type": "string",
-          "title": "Last Name",
-          "x-nullable": true,
-          "example": "Donut"
-        },
-        "middle_name": {
-          "type": "string",
-          "title": "Middle Name",
-          "x-nullable": true,
-          "example": "L."
         },
         "origin_duty_station": {
           "type": "string",
@@ -2702,10 +2686,12 @@ func init() {
         },
         "nonTemporaryStorage": {
           "type": "boolean",
+          "x-nullable": true,
           "example": false
         },
         "privatelyOwnedVehicle": {
           "type": "boolean",
+          "x-nullable": true,
           "example": false
         },
         "proGearWeight": {
@@ -2758,12 +2744,17 @@ func init() {
           "type": "string",
           "format": "date"
         },
-        "customer": {
-          "$ref": "#/definitions/customer"
+        "customerId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "deletedAt": {
           "type": "string",
           "format": "date"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/address"
         },
         "destinationDutyStation": {
           "type": "string",
@@ -2809,6 +2800,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "pickupAddress": {
+          "$ref": "#/definitions/address"
+        },
         "remarks": {
           "type": "string",
           "example": "Requires more gentle care"
@@ -2826,6 +2820,7 @@ func init() {
         "status": {
           "type": "string",
           "enum": [
+            "DRAFT",
             "APPROVED",
             "REJECTED",
             "SUBMITTED"
@@ -2844,6 +2839,7 @@ func init() {
           "type": "string",
           "enum": [
             "APPROVED",
+            "DRAFT",
             "SUBMITTED",
             "REJECTED"
           ]
@@ -2931,6 +2927,9 @@ func init() {
     },
     "serviceItem": {
       "type": "object",
+      "required": [
+        "id"
+      ],
       "properties": {
         "MoveTaskOrderID": {
           "type": "string",

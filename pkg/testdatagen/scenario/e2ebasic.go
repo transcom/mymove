@@ -831,6 +831,16 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Uploader: loader,
 	})
 
+	mto := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{ID: uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e")},
+	})
+	testdatagen.MakeServiceItem(db, testdatagen.Assertions{
+		ServiceItem: models.ServiceItem{MoveTaskOrder: mto}},
+	)
+	testdatagen.MakeEntitlement(db, testdatagen.Assertions{
+		GHCEntitlement: models.GHCEntitlement{MoveTaskOrder: &mto}},
+	)
+
 	testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
 			ID: uuid.FromStringOrNil("1c030e51-b5be-40a2-80bf-97a330891307"),

@@ -1,6 +1,8 @@
 package models_test
 
 import (
+	"sort"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -31,6 +33,10 @@ func (suite *ModelSuite) TestGetCustomerMoveItems() {
 
 	customerMoveItems, err := models.GetCustomerMoveItems(suite.DB())
 	suite.NoError(err)
+	// sort array to guarantee order for assertions
+	sort.Slice(customerMoveItems, func(i, j int) bool {
+		return customerMoveItems[i].ConfirmationNumber < customerMoveItems[j].ConfirmationNumber
+	})
 	suite.Len(customerMoveItems, 2)
 	suite.Equal(customerMoveItems[0].CustomerName, "User, Test")
 	suite.Equal(customerMoveItems[0].ConfirmationNumber, "DFTMVE")
