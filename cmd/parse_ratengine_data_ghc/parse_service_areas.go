@@ -49,7 +49,12 @@ var parseServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int
 		// All the rows are consecutive, if we get to a blank one we're done
 		if domServArea.BasePointCity == "" {
 			break
-		} else if csvWriter != nil {
+		}
+
+		if params.showOutput == true {
+			log.Println(domServArea.ToSlice())
+		}
+		if csvWriter != nil {
 			csvWriter.write(domServArea.ToSlice())
 		}
 		domServAreas = append(domServAreas, domServArea)
@@ -76,10 +81,14 @@ var parseServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int
 		// All the rows are consecutive, if we get to a blank one we're done
 		if intlServArea.RateArea == "" {
 			break
-		} else if csvWriter != nil {
-			csvWriter.write(intlServArea.ToSlice())
 		}
 
+		if params.showOutput == true {
+			log.Println(intlServArea.ToSlice())
+		}
+		if csvWriter != nil {
+			csvWriter.write(intlServArea.ToSlice())
+		}
 		intlServAreas = append(intlServAreas, intlServArea)
 	}
 
