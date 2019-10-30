@@ -60,7 +60,7 @@ func (h IndexTSPPsHandler) Handle(params tsppop.IndexTSPPsParams) middleware.Res
 		return handlers.ResponseForError(logger, err)
 	}
 
-	totalTSPPsCount, err := h.DB().Count(&models.TransportationServiceProviderPerformance{})
+	totalTSPPsCount, err := h.TransportationServiceProviderPerformanceListFetcher.FetchTransportationServiceProviderPerformanceCount(queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -72,7 +72,7 @@ func (h IndexTSPPsHandler) Handle(params tsppop.IndexTSPPsParams) middleware.Res
 		payload[i] = payloadForTSPPModel(s)
 	}
 
-	return tsppop.NewIndexTSPPsOK().WithContentRange(fmt.Sprintf("tspps %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedTSPPsCount, totalTSPPsCount)).WithPayload(payload)
+	return tsppop.NewIndexTSPPsOK().WithContentRange(fmt.Sprintf("tspps %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedTSPPsCount, *totalTSPPsCount)).WithPayload(payload)
 }
 
 // GetTSPPHandler returns a transportation service provider performance via GET /transportation_service_provider_performances/{tspId}
