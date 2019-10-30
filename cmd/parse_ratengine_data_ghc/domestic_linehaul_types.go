@@ -1,9 +1,5 @@
 package main
 
-import (
-	"strconv"
-)
-
 /*************************************************************************************************************/
 /* Domestic Line Haul Prices Types
 
@@ -88,50 +84,3 @@ var dLhMilesRanges = []dLhMilesRange{
 }
 
 var dLhWeightBandNumCells = len(dLhMilesRanges)
-
-type domesticServiceAreaPrice struct {
-	ServiceAreaNumber                     string
-	ServiceAreaName                       string
-	ServiceSchedule                       int
-	SITPickupDeliverySchedule             int
-	Season                                string
-	Escalation                            int
-	ShorthaulPrice                        string
-	OriginDestinationPrice                string
-	OriginDestinationSITFirstDayWarehouse string
-	OriginDestinationSITAddlDays          string
-}
-
-func (dSA *domesticServiceAreaPrice) csvHeader() []string {
-	header := []string{
-		"Service Area Number",
-		"Service Area Name",
-		"Service Schedule",
-		"SIT Pickup Delivery Schedule",
-		"Season",
-		"Escalation Number",
-		"Shorthaul Price",
-		"Origin/Destination Price",
-		"Origin/Destination SIT First Day & Warehouse",
-		"Origin/Destination SIT Addtl Days",
-	}
-
-	return header
-}
-
-func (dSA *domesticServiceAreaPrice) toSlice() []string {
-	var values []string
-
-	values = append(values, dSA.ServiceAreaNumber)
-	values = append(values, dSA.ServiceAreaName)
-	values = append(values, strconv.Itoa(dSA.ServiceSchedule))
-	values = append(values, strconv.Itoa(dSA.SITPickupDeliverySchedule))
-	values = append(values, dSA.Season)
-	values = append(values, strconv.Itoa(dSA.Escalation))
-	values = append(values, dSA.ShorthaulPrice)
-	values = append(values, dSA.OriginDestinationPrice)
-	values = append(values, dSA.OriginDestinationSITFirstDayWarehouse)
-	values = append(values, dSA.OriginDestinationSITAddlDays)
-
-	return values
-}

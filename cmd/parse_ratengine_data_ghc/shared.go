@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/csv"
-	"fmt"
 	"log"
 	"os"
 	"regexp"
@@ -122,10 +121,6 @@ func removeWhiteSpace(stripString string) string {
 	s := space.ReplaceAllString(stripString, "")
 
 	return s
-}
-
-func formatServiceAreaNumber(s string) string {
-	return fmt.Sprintf("%03d", getInt(s))
 }
 
 // generateOutputFilename: generates filename using xlsxDataSheetInfo.outputFilename

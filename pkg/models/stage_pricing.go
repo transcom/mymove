@@ -104,3 +104,49 @@ func (dLh *StageDomesticLinehaulPrice) ToSlice() []string {
 
 	return values
 }
+
+type StageDomesticServiceAreaPrice struct {
+	ServiceAreaNumber                     string `db:"service_area_number"`
+	ServiceAreaName                       string `db:"service_area_name"`
+	ServicesSchedule                      string `db:"services_schedule"`
+	SITPickupDeliverySchedule             string `db:"sit_pickup_delivery_schedule"`
+	Season                                string `db:"season"`
+	ShorthaulPrice                        string `db:"shorthaul_price"`
+	OriginDestinationPrice                string `db:"origin_destination_price"`
+	OriginDestinationSITFirstDayWarehouse string `db:"origin_destination_sit_first_day_warehouse"`
+	OriginDestinationSITAddlDays          string `db:"origin_destination_sit_addl_days"`
+}
+
+type StageDomesticServiceAreaPrices []StageDomesticServiceAreaPrice
+
+func (dSA *StageDomesticServiceAreaPrice) CSVHeader() []string {
+	header := []string{
+		"Service Area Number",
+		"Service Area Name",
+		"Services Schedule",
+		"SIT Pickup Delivery Schedule",
+		"Season",
+		"Shorthaul Price",
+		"Origin/Destination Price",
+		"Origin/Destination SIT First Day & Warehouse",
+		"Origin/Destination SIT Add'l Days",
+	}
+
+	return header
+}
+
+func (dSA *StageDomesticServiceAreaPrice) ToSlice() []string {
+	var values []string
+
+	values = append(values, dSA.ServiceAreaNumber)
+	values = append(values, dSA.ServiceAreaName)
+	values = append(values, dSA.ServicesSchedule)
+	values = append(values, dSA.SITPickupDeliverySchedule)
+	values = append(values, dSA.Season)
+	values = append(values, dSA.ShorthaulPrice)
+	values = append(values, dSA.OriginDestinationPrice)
+	values = append(values, dSA.OriginDestinationSITFirstDayWarehouse)
+	values = append(values, dSA.OriginDestinationSITAddlDays)
+
+	return values
+}

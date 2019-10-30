@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -15,8 +18,8 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 		defer csvWriter.close()
 
 		// Write header to CSV
-		dp := domesticServiceAreaPrice{}
-		csvWriter.write(dp.csvHeader())
+		dp := models.StageDomesticServiceAreaPrice{}
+		csvWriter.write(dp.CSVHeader())
 	}
 
 	// XLSX Sheet consts
@@ -33,6 +36,7 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 		return fmt.Errorf("parseDomesticServiceAreaPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
+	var domPrices models.StageDomesticServiceAreaPrices
 	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
 	for _, row := range dataRows {
 		colIndex := feeColIndexStart
@@ -40,35 +44,38 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 		for escalation := 0; escalation < numEscalationYearsToProcess; escalation++ {
 			// For each Rate Season
 			for _, r := range rateSeasons {
-				domPrice := domesticServiceAreaPrice{
-					ServiceAreaNumber:         formatServiceAreaNumber(getCell(row.Cells, serviceAreaNumberColumn)),
+				domPrice := models.StageDomesticServiceAreaPrice{
+					ServiceAreaNumber:         getCell(row.Cells, serviceAreaNumberColumn),
 					ServiceAreaName:           getCell(row.Cells, serviceAreaNameColumn),
-					ServiceSchedule:           getInt(getCell(row.Cells, serviceScheduleColumn)),
-					SITPickupDeliverySchedule: getInt(getCell(row.Cells, sITPickupDeliveryScheduleColumn)),
+					ServicesSchedule:          getCell(row.Cells, serviceScheduleColumn),
+					SITPickupDeliverySchedule: getCell(row.Cells, sITPickupDeliveryScheduleColumn),
 					Season:                    r,
-					Escalation:                escalation,
 				}
 
-				domPrice.ShorthaulPrice = removeFirstDollarSign(getCell(row.Cells, colIndex))
+				domPrice.ShorthaulPrice = getCell(row.Cells, colIndex)
 				colIndex++
-				domPrice.OriginDestinationPrice = removeFirstDollarSign(getCell(row.Cells, colIndex))
+				domPrice.OriginDestinationPrice = getCell(row.Cells, colIndex)
 				colIndex += 3 // skip 2 columns pack and unpack
-				domPrice.OriginDestinationSITFirstDayWarehouse = removeFirstDollarSign(getCell(row.Cells, colIndex))
+				domPrice.OriginDestinationSITFirstDayWarehouse = getCell(row.Cells, colIndex)
 				colIndex++
-				domPrice.OriginDestinationSITAddlDays = removeFirstDollarSign(getCell(row.Cells, colIndex))
+				domPrice.OriginDestinationSITAddlDays = getCell(row.Cells, colIndex)
 				colIndex++ // skip column SIT Pickup / Delivery ≤50 miles (per cwt)
 
 				if params.showOutput == true {
-					log.Println(domPrice.toSlice())
+					log.Println(domPrice.ToSlice())
 				}
 				if csvWriter != nil {
-					csvWriter.write(domPrice.toSlice())
+					csvWriter.write(domPrice.ToSlice())
 				}
+				domPrices = append(domPrices, domPrice)
 
 				colIndex += 2 // skip 1 column (empty column) before starting next Rate type
 			}
-
 		}
+	}
+
+	if err := tableFromSliceCreator.CreateTableFromSlice(domPrices); err != nil {
+		return errors.Wrap(err, "Could not create temp table for domestic service area prices")
 	}
 
 	return nil
