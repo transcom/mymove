@@ -40,8 +40,9 @@ func (h IndexOrganizationsHandler) Handle(params organization.IndexOrganizations
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
 	associations := query.NewQueryAssociations([]services.QueryAssociation{})
+	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-	organizations, err := h.OrganizationListFetcher.FetchOrganizationList(queryFilters, associations, pagination)
+	organizations, err := h.OrganizationListFetcher.FetchOrganizationList(queryFilters, associations, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

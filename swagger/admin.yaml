@@ -465,6 +465,7 @@ definitions:
     required:
       - id
       - issuer
+      - orders_number
       - created_at
       - updated_at
     properties:
@@ -474,6 +475,9 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       issuer:
         $ref: '#/definitions/Issuer'
+      orders_number:
+        type: string
+        title: Orders Number
       created_at:
         type: string
         format: datetime
@@ -631,6 +635,12 @@ paths:
         - in: query
           name: perPage
           type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
       responses:
         200:
           description: success
@@ -667,6 +677,12 @@ paths:
         - in: query
           name: perPage
           type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
       responses:
         200:
           description: success
@@ -782,6 +798,12 @@ paths:
         - in: query
           name: perPage
           type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
       responses:
         200:
           description: success
@@ -844,6 +866,12 @@ paths:
         - in: query
           name: perPage
           type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
       responses:
         200:
           description: success
@@ -959,6 +987,12 @@ paths:
         - in: query
           name: perPage
           type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
       responses:
         200:
           description: success
@@ -995,6 +1029,12 @@ paths:
         - in: query
           name: perPage
           type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
       responses:
         200:
           description: success
@@ -1088,6 +1128,12 @@ paths:
         - in: query
           name: perPage
           type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
       responses:
         200:
           description: success
@@ -1105,4 +1151,3 @@ paths:
           description: not found
         500:
           description: server error
-

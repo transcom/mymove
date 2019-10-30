@@ -36,6 +36,57 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
+    "/customer": {
+      "get": {
+        "description": "Gets all customers",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Gets all customers",
+        "operationId": "getAllCustomerMoves",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved information on all customer",
+            "schema": {
+              "$ref": "#/definitions/CustomerMoveItems"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
+    },
     "/customer/{customerID}": {
       "get": {
         "description": "Returns a given customer",
@@ -89,6 +140,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
+          "format": "uuid",
           "description": "ID of customer to use",
           "name": "customerID",
           "in": "path",
@@ -372,128 +424,6 @@ func init() {
         {
           "type": "string",
           "description": "ID of move order to use",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/move-task-orders/{moveTaskOrderID}/service-items": {
-      "get": {
-        "description": "Gets all line items for a move orders",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "serviceItem"
-        ],
-        "summary": "Gets all line items for a move order",
-        "operationId": "listServiceItems",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved all line items for a move task order",
-            "schema": {
-              "$ref": "#/definitions/ServiceItem"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a service item for a move order by id",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "serviceItem"
-        ],
-        "summary": "Creates a service item for a move order by id",
-        "operationId": "createServiceItem",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/ServiceItem"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Successfully created line item for move task order",
-            "schema": {
-              "$ref": "#/definitions/ServiceItem"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "ID of move order for service item to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -828,6 +758,118 @@ func init() {
           }
         }
       }
+    },
+    "/move_task_orders/{moveTaskOrderID}/service_items": {
+      "get": {
+        "description": "Gets all line items for a move orders",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "serviceItem"
+        ],
+        "summary": "Gets all line items for a move order",
+        "operationId": "listServiceItems",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all line items for a move task order",
+            "schema": {
+              "$ref": "#/definitions/ServiceItems"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a service item for a move order by id",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "serviceItem"
+        ],
+        "summary": "Creates a service item for a move order by id",
+        "operationId": "createServiceItem",
+        "responses": {
+          "201": {
+            "description": "Successfully created service item for move task order",
+            "schema": {
+              "$ref": "#/definitions/ServiceItem"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of move order for service item to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/payment-requests": {
       "get": {
@@ -1341,6 +1383,12 @@ func init() {
           "x-nullable": true,
           "example": "Some Agency"
         },
+        "customer_name": {
+          "type": "string",
+          "title": "Customer Name",
+          "x-nullable": true,
+          "example": "George Washington"
+        },
         "dependentsAuthorized": {
           "type": "boolean",
           "example": true
@@ -1359,12 +1407,6 @@ func init() {
           "x-nullable": true,
           "example": "john_bob@example.com"
         },
-        "first_name": {
-          "type": "string",
-          "title": "First Name",
-          "x-nullable": true,
-          "example": "John"
-        },
         "grade": {
           "type": "string",
           "title": "Grade",
@@ -1375,18 +1417,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "last_name": {
-          "type": "string",
-          "title": "Last Name",
-          "x-nullable": true,
-          "example": "Donut"
-        },
-        "middle_name": {
-          "type": "string",
-          "title": "Middle Name",
-          "x-nullable": true,
-          "example": "L."
         },
         "origin_duty_station": {
           "type": "string",
@@ -1405,6 +1435,55 @@ func init() {
           "x-nullable": true,
           "example": "212-555-5555"
         }
+      }
+    },
+    "CustomerMoveItem": {
+      "type": "object",
+      "properties": {
+        "branch_of_service": {
+          "type": "string",
+          "title": "Branch of service / Agency",
+          "x-nullable": null,
+          "example": "Agency"
+        },
+        "confirmation_number": {
+          "type": "string",
+          "example": "12432"
+        },
+        "created_at": {
+          "description": "when the access code was created",
+          "type": "string",
+          "format": "datetime",
+          "example": "2018-04-12T23:20:50.52Z"
+        },
+        "customer_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "customer_name": {
+          "type": "string",
+          "title": "Customer Name",
+          "x-nullable": true,
+          "example": "Mickey Mouse"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "origin_duty_station_name": {
+          "type": "string",
+          "title": "Origin Duty Station Name",
+          "x-nullable": true,
+          "example": "Fort Knox"
+        }
+      }
+    },
+    "CustomerMoveItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CustomerMoveItem"
       }
     },
     "Entitlements": {
@@ -1638,6 +1717,9 @@ func init() {
     },
     "ServiceItem": {
       "type": "object",
+      "required": [
+        "id"
+      ],
       "properties": {
         "MoveTaskOrderID": {
           "type": "string",
@@ -1716,6 +1798,12 @@ func init() {
             "REJECTED"
           ]
         }
+      }
+    },
+    "ServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ServiceItem"
       }
     },
     "UpdatePaymentRequestPayload": {
@@ -1839,6 +1927,72 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
+    "/customer": {
+      "get": {
+        "description": "Gets all customers",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Gets all customers",
+        "operationId": "getAllCustomerMoves",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved information on all customer",
+            "schema": {
+              "$ref": "#/definitions/CustomerMoveItems"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
     "/customer/{customerID}": {
       "get": {
         "description": "Returns a given customer",
@@ -1907,6 +2061,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
+          "format": "uuid",
           "description": "ID of customer to use",
           "name": "customerID",
           "in": "path",
@@ -2250,158 +2405,6 @@ func init() {
         {
           "type": "string",
           "description": "ID of move order to use",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/move-task-orders/{moveTaskOrderID}/service-items": {
-      "get": {
-        "description": "Gets all line items for a move orders",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "serviceItem"
-        ],
-        "summary": "Gets all line items for a move order",
-        "operationId": "listServiceItems",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved all line items for a move task order",
-            "schema": {
-              "$ref": "#/definitions/ServiceItem"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a service item for a move order by id",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "serviceItem"
-        ],
-        "summary": "Creates a service item for a move order by id",
-        "operationId": "createServiceItem",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/ServiceItem"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Successfully created line item for move task order",
-            "schema": {
-              "$ref": "#/definitions/ServiceItem"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "ID of move order for service item to use",
           "name": "moveTaskOrderID",
           "in": "path",
           "required": true
@@ -2811,6 +2814,148 @@ func init() {
           }
         }
       }
+    },
+    "/move_task_orders/{moveTaskOrderID}/service_items": {
+      "get": {
+        "description": "Gets all line items for a move orders",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "serviceItem"
+        ],
+        "summary": "Gets all line items for a move order",
+        "operationId": "listServiceItems",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all line items for a move task order",
+            "schema": {
+              "$ref": "#/definitions/ServiceItems"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a service item for a move order by id",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "serviceItem"
+        ],
+        "summary": "Creates a service item for a move order by id",
+        "operationId": "createServiceItem",
+        "responses": {
+          "201": {
+            "description": "Successfully created service item for move task order",
+            "schema": {
+              "$ref": "#/definitions/ServiceItem"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of move order for service item to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/payment-requests": {
       "get": {
@@ -3384,6 +3529,12 @@ func init() {
           "x-nullable": true,
           "example": "Some Agency"
         },
+        "customer_name": {
+          "type": "string",
+          "title": "Customer Name",
+          "x-nullable": true,
+          "example": "George Washington"
+        },
         "dependentsAuthorized": {
           "type": "boolean",
           "example": true
@@ -3402,12 +3553,6 @@ func init() {
           "x-nullable": true,
           "example": "john_bob@example.com"
         },
-        "first_name": {
-          "type": "string",
-          "title": "First Name",
-          "x-nullable": true,
-          "example": "John"
-        },
         "grade": {
           "type": "string",
           "title": "Grade",
@@ -3418,18 +3563,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "last_name": {
-          "type": "string",
-          "title": "Last Name",
-          "x-nullable": true,
-          "example": "Donut"
-        },
-        "middle_name": {
-          "type": "string",
-          "title": "Middle Name",
-          "x-nullable": true,
-          "example": "L."
         },
         "origin_duty_station": {
           "type": "string",
@@ -3448,6 +3581,55 @@ func init() {
           "x-nullable": true,
           "example": "212-555-5555"
         }
+      }
+    },
+    "CustomerMoveItem": {
+      "type": "object",
+      "properties": {
+        "branch_of_service": {
+          "type": "string",
+          "title": "Branch of service / Agency",
+          "x-nullable": null,
+          "example": "Agency"
+        },
+        "confirmation_number": {
+          "type": "string",
+          "example": "12432"
+        },
+        "created_at": {
+          "description": "when the access code was created",
+          "type": "string",
+          "format": "datetime",
+          "example": "2018-04-12T23:20:50.52Z"
+        },
+        "customer_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "customer_name": {
+          "type": "string",
+          "title": "Customer Name",
+          "x-nullable": true,
+          "example": "Mickey Mouse"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "origin_duty_station_name": {
+          "type": "string",
+          "title": "Origin Duty Station Name",
+          "x-nullable": true,
+          "example": "Fort Knox"
+        }
+      }
+    },
+    "CustomerMoveItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CustomerMoveItem"
       }
     },
     "Entitlements": {
@@ -3681,6 +3863,9 @@ func init() {
     },
     "ServiceItem": {
       "type": "object",
+      "required": [
+        "id"
+      ],
       "properties": {
         "MoveTaskOrderID": {
           "type": "string",
@@ -3759,6 +3944,12 @@ func init() {
             "REJECTED"
           ]
         }
+      }
+    },
+    "ServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ServiceItem"
       }
     },
     "UpdatePaymentRequestPayload": {

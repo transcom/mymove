@@ -411,18 +411,29 @@ func AssetNames() []string {
 
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() (*asset, error){
-	"pkg/paperwork/formtemplates/form1203template.png":                 pkgPaperworkFormtemplatesForm1203templatePng,
+	"pkg/paperwork/formtemplates/form1203template.png": pkgPaperworkFormtemplatesForm1203templatePng,
+
 	"pkg/paperwork/formtemplates/shipment_summary_worksheet_page1.png": pkgPaperworkFormtemplatesShipment_summary_worksheet_page1Png,
+
 	"pkg/paperwork/formtemplates/shipment_summary_worksheet_page2.png": pkgPaperworkFormtemplatesShipment_summary_worksheet_page2Png,
+
 	"pkg/paperwork/formtemplates/shipment_summary_worksheet_page3.png": pkgPaperworkFormtemplatesShipment_summary_worksheet_page3Png,
-	"pkg/notifications/templates/move_approved_template.html":          pkgNotificationsTemplatesMove_approved_templateHtml,
-	"pkg/notifications/templates/move_approved_template.txt":           pkgNotificationsTemplatesMove_approved_templateTxt,
-	"pkg/notifications/templates/move_canceled_template.html":          pkgNotificationsTemplatesMove_canceled_templateHtml,
-	"pkg/notifications/templates/move_canceled_template.txt":           pkgNotificationsTemplatesMove_canceled_templateTxt,
-	"pkg/notifications/templates/move_reviewed_template.html":          pkgNotificationsTemplatesMove_reviewed_templateHtml,
-	"pkg/notifications/templates/move_reviewed_template.txt":           pkgNotificationsTemplatesMove_reviewed_templateTxt,
-	"pkg/notifications/templates/move_submitted_template.html":         pkgNotificationsTemplatesMove_submitted_templateHtml,
-	"pkg/notifications/templates/move_submitted_template.txt":          pkgNotificationsTemplatesMove_submitted_templateTxt,
+
+	"pkg/notifications/templates/move_approved_template.html": pkgNotificationsTemplatesMove_approved_templateHtml,
+
+	"pkg/notifications/templates/move_approved_template.txt": pkgNotificationsTemplatesMove_approved_templateTxt,
+
+	"pkg/notifications/templates/move_canceled_template.html": pkgNotificationsTemplatesMove_canceled_templateHtml,
+
+	"pkg/notifications/templates/move_canceled_template.txt": pkgNotificationsTemplatesMove_canceled_templateTxt,
+
+	"pkg/notifications/templates/move_reviewed_template.html": pkgNotificationsTemplatesMove_reviewed_templateHtml,
+
+	"pkg/notifications/templates/move_reviewed_template.txt": pkgNotificationsTemplatesMove_reviewed_templateTxt,
+
+	"pkg/notifications/templates/move_submitted_template.html": pkgNotificationsTemplatesMove_submitted_templateHtml,
+
+	"pkg/notifications/templates/move_submitted_template.txt": pkgNotificationsTemplatesMove_submitted_templateTxt,
 }
 
 // AssetDir returns the file names below a certain

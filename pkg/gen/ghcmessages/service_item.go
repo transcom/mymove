@@ -43,8 +43,9 @@ type ServiceItem struct {
 	FeeType string `json:"feeType,omitempty"`
 
 	// id
+	// Required: true
 	// Format: uuid
-	ID strfmt.UUID `json:"id,omitempty"`
+	ID *strfmt.UUID `json:"id"`
 
 	// quantity
 	Quantity int64 `json:"quantity,omitempty"`
@@ -225,8 +226,8 @@ func (m *ServiceItem) validateFeeType(formats strfmt.Registry) error {
 
 func (m *ServiceItem) validateID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.ID) { // not required
-		return nil
+	if err := validate.Required("id", "body", m.ID); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
