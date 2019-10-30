@@ -298,7 +298,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 
 		data := PaymentReminderEmailData{
 			DestinationDutyStation: emailInfo.NewDutyStationName,
-			WeightEstimate:         fmt.Sprintf("%d", emailInfo.WeightEstimate),
+			WeightEstimate:         fmt.Sprintf("%d", emailInfo.WeightEstimate.Int()),
 			IncentiveEstimateMin:   emailInfo.IncentiveEstimateMin.ToDollarString(),
 			IncentiveEstimateMax:   emailInfo.IncentiveEstimateMax.ToDollarString(),
 			TOName:                 emailInfo.TOName,
