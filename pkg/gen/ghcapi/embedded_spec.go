@@ -1389,10 +1389,6 @@ func init() {
           "x-nullable": true,
           "example": "George Washington"
         },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "example": true
-        },
         "destination_duty_station": {
           "type": "string",
           "title": "Destination",
@@ -1500,10 +1496,12 @@ func init() {
         },
         "nonTemporaryStorage": {
           "type": "boolean",
+          "x-nullable": true,
           "example": false
         },
         "privatelyOwnedVehicle": {
           "type": "boolean",
+          "x-nullable": true,
           "example": false
         },
         "proGearWeight": {
@@ -1553,12 +1551,17 @@ func init() {
           "type": "string",
           "format": "date"
         },
-        "customer": {
-          "$ref": "#/definitions/Customer"
+        "customerId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "deletedAt": {
           "type": "string",
           "format": "date"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
         },
         "destinationDutyStation": {
           "type": "string",
@@ -1604,6 +1607,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "remarks": {
           "type": "string",
           "example": "Requires more gentle care"
@@ -1621,6 +1627,7 @@ func init() {
         "status": {
           "type": "string",
           "enum": [
+            "DRAFT",
             "APPROVED",
             "REJECTED",
             "SUBMITTED"
@@ -1639,6 +1646,7 @@ func init() {
           "type": "string",
           "enum": [
             "APPROVED",
+            "DRAFT",
             "SUBMITTED",
             "REJECTED"
           ]
@@ -3535,10 +3543,6 @@ func init() {
           "x-nullable": true,
           "example": "George Washington"
         },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "example": true
-        },
         "destination_duty_station": {
           "type": "string",
           "title": "Destination",
@@ -3646,10 +3650,12 @@ func init() {
         },
         "nonTemporaryStorage": {
           "type": "boolean",
+          "x-nullable": true,
           "example": false
         },
         "privatelyOwnedVehicle": {
           "type": "boolean",
+          "x-nullable": true,
           "example": false
         },
         "proGearWeight": {
@@ -3699,12 +3705,17 @@ func init() {
           "type": "string",
           "format": "date"
         },
-        "customer": {
-          "$ref": "#/definitions/Customer"
+        "customerId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "deletedAt": {
           "type": "string",
           "format": "date"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
         },
         "destinationDutyStation": {
           "type": "string",
@@ -3750,6 +3761,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "remarks": {
           "type": "string",
           "example": "Requires more gentle care"
@@ -3767,6 +3781,7 @@ func init() {
         "status": {
           "type": "string",
           "enum": [
+            "DRAFT",
             "APPROVED",
             "REJECTED",
             "SUBMITTED"
@@ -3785,6 +3800,7 @@ func init() {
           "type": "string",
           "enum": [
             "APPROVED",
+            "DRAFT",
             "SUBMITTED",
             "REJECTED"
           ]

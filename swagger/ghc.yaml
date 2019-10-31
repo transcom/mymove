@@ -795,24 +795,6 @@ paths:
       operationId: updatePaymentRequestStatus
       summary: Updates status of a payment request by id
 definitions:
-  CreatePaymentRequestPayload:
-    properties:
-      isFinal:
-        default: false
-        type: boolean
-      moveOrderID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-      proofOfServicePackage:
-        $ref: '#/definitions/ProofOfServicePackage'
-      serviceItemIDs:
-        items:
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
-          format: uuid
-          type: string
-        type: array
-    type: object
   Address:
     type: object
     properties:
@@ -962,6 +944,24 @@ definitions:
       - city
       - state
       - postal_code
+  CreatePaymentRequestPayload:
+    properties:
+      isFinal:
+        default: false
+        type: boolean
+      moveOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      proofOfServicePackage:
+        $ref: '#/definitions/ProofOfServicePackage'
+      serviceItemIDs:
+        items:
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+          format: uuid
+          type: string
+        type: array
+    type: object
   CustomerMoveItem:
     type: object
     properties:
@@ -1048,9 +1048,6 @@ definitions:
         x-nullable: true
       pickup_address:
         $ref: '#/definitions/Address'
-      dependentsAuthorized:
-        example: true
-        type: boolean
   Entitlements:
     properties:
       id:
@@ -1063,9 +1060,11 @@ definitions:
       nonTemporaryStorage:
         example: false
         type: boolean
+        x-nullable: true
       privatelyOwnedVehicle:
         example: false
         type: boolean
+        x-nullable: true
       proGearWeight:
         example: 2000
         type: integer
@@ -1100,11 +1099,15 @@ definitions:
       createdAt:
         format: date
         type: string
-      customer:
-        $ref: '#/definitions/Customer'
+      customerId:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
       deletedAt:
         format: date
         type: string
+      destinationAddress:
+        $ref: '#/definitions/Address'
       destinationDutyStation:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
@@ -1139,6 +1142,8 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+      pickupAddress:
+        $ref: '#/definitions/Address'
       remarks:
         example: Requires more gentle care
         type: string
@@ -1151,6 +1156,7 @@ definitions:
         type: array
       status:
         enum:
+          - DRAFT  #TODO this is to represent visible to PRIME not sure if this is the right name for this?
           - APPROVED
           - REJECTED
           - SUBMITTED
@@ -1164,6 +1170,7 @@ definitions:
       status:
         enum:
           - APPROVED
+          - DRAFT
           - SUBMITTED
           - REJECTED
         type: string

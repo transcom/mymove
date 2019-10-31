@@ -1,13 +1,17 @@
 package models
 
 import (
+	"time"
+
 	"github.com/gofrs/uuid"
 )
 
 type ServiceItem struct {
-	ID              uuid.UUID     `json:"id" db:"id"`
-	MoveTaskOrderID uuid.UUID     `json:"move_task_order_id" db:"move_task_order_id"`
-	MoveTaskOrder   MoveTaskOrder `belongs_to:"move_task_order"`
+	ID              uuid.UUID     `db:"id"`
+	CreatedAt       time.Time     `db:"created_at"`
+	MoveTaskOrder   MoveTaskOrder `belongs_to:"move_task_orders"`
+	MoveTaskOrderID uuid.UUID     `db:"move_task_order_id"`
+	UpdatedAt       time.Time     `db:"updated_at"`
 }
 
 type ServiceItems []ServiceItem

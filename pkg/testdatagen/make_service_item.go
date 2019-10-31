@@ -2,23 +2,26 @@ package testdatagen
 
 import (
 	"github.com/gobuffalo/pop"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeServiceItem creates a single office user and associated TransportOffice
+// MakeServiceItem creates a single ServiceItems and associated set relationships
 func MakeServiceItem(db *pop.Connection, assertions Assertions) models.ServiceItem {
-	mto := assertions.ServiceItem.MoveTaskOrder
 
-	if assertions.ServiceItem.MoveTaskOrderID == uuid.Nil {
-		mto = MakeMoveTaskOrder(db, assertions)
+	// Create new Orders if not provided
+	// ID is required because it must be populated for Eager saving to work.
+	moveTaskOrder := assertions.ServiceItem.MoveTaskOrder
+	if isZeroUUID(moveTaskOrder.ID) {
+		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
 	}
 
 	serviceItem := models.ServiceItem{
-		MoveTaskOrderID: mto.ID,
+		MoveTaskOrder:   moveTaskOrder,
+		MoveTaskOrderID: moveTaskOrder.ID,
 	}
 
+	// Overwrite values with those from assertions
 	mergeModels(&serviceItem, assertions.ServiceItem)
 
 	mustCreate(db, &serviceItem)
