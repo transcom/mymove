@@ -104,6 +104,12 @@ check_node_version: .check_node_version.stamp ## Check that the correct Node ver
 	scripts/check-node-version
 	touch .check_node_version.stamp
 
+.PHONY: check_go_bindata_version
+check_go_bindata_version: .check_go_bindata_version.stamp ## Check that the correct go-bindata version is installed
+.check_go_bindata_version.stamp: scripts/check-go-bindata-version
+	scripts/check-go-bindata-version
+	touch .check_go_bindata_version.stamp
+
 .PHONY: check_docker_size
 check_docker_size: ## Check the amount of disk space used by docker
 	scripts/check-docker-size
@@ -229,6 +235,9 @@ bin/generate-shipment-summary:
 bin/generate-test-data:
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate-test-data
 
+bin/ghc-pricing-parser:
+	go build -ldflags "$(LDFLAGS)" -o bin/ghc-pricing-parser ./cmd/parse_ratengine_data_ghc
+
 bin_linux/generate-test-data:
 	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate-test-data
 
@@ -340,6 +349,7 @@ build_tools: bin/chamber \
 	bin/find-guardduty-user \
 	bin/generate-access-codes \
 	bin/generate-test-data \
+	bin/ghc-pricing-parser \
 	bin/health-checker \
 	bin/iws \
 	bin/milmove-tasks \
@@ -869,6 +879,8 @@ clean: ## Clean all generated files
 	rm -rf ./public/swagger-ui/*.{css,js,png}
 	rm -rf ./tmp/secure_migrations
 	rm -rf ./tmp/storage
+	rm -rf ./storybook-static
+	rm -rf ./coverage
 
 .PHONY: spellcheck
 spellcheck: .client_deps.stamp ## Run interactive spellchecker

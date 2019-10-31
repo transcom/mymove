@@ -25,10 +25,10 @@ type Entitlements struct {
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// non temporary storage
-	NonTemporaryStorage bool `json:"nonTemporaryStorage,omitempty"`
+	NonTemporaryStorage *bool `json:"nonTemporaryStorage,omitempty"`
 
 	// privately owned vehicle
-	PrivatelyOwnedVehicle bool `json:"privatelyOwnedVehicle,omitempty"`
+	PrivatelyOwnedVehicle *bool `json:"privatelyOwnedVehicle,omitempty"`
 
 	// pro gear weight
 	ProGearWeight int64 `json:"proGearWeight,omitempty"`

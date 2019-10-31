@@ -11,6 +11,7 @@ import (
 	middleware "github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/entitlements"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
@@ -55,6 +56,16 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.ServiceItemDeleteServiceItemHandler == nil {
 		api.ServiceItemDeleteServiceItemHandler = service_item.DeleteServiceItemHandlerFunc(func(params service_item.DeleteServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation service_item.DeleteServiceItem has not yet been implemented")
+		})
+	}
+	if api.CustomerGetAllCustomerMovesHandler == nil {
+		api.CustomerGetAllCustomerMovesHandler = customer.GetAllCustomerMovesHandlerFunc(func(params customer.GetAllCustomerMovesParams) middleware.Responder {
+			return middleware.NotImplemented("operation customer.GetAllCustomerMoves has not yet been implemented")
+		})
+	}
+	if api.CustomerGetCustomerInfoHandler == nil {
+		api.CustomerGetCustomerInfoHandler = customer.GetCustomerInfoHandlerFunc(func(params customer.GetCustomerInfoParams) middleware.Responder {
+			return middleware.NotImplemented("operation customer.GetCustomerInfo has not yet been implemented")
 		})
 	}
 	if api.EntitlementsGetEntitlementsHandler == nil {

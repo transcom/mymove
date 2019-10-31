@@ -86,7 +86,7 @@ export class SignedCertification extends Component {
                     <p className="instructions">
                       Before officially booking your move, please carefully read and then sign the following.
                     </p>
-                    <a className="pdf" onClick={this.print}>
+                    <a className="usa-link pdf" onClick={this.print}>
                       Print
                     </a>
                   </span>

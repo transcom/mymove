@@ -7,8 +7,8 @@ describe('basic alert component', () => {
   const heading = 'a heading';
   const wrapper = shallow(<Alert heading={heading}>{text}</Alert>);
   it('should render children and heading', () => {
-    expect(wrapper.find('.usa-alert-heading').text()).toBe(heading);
-    expect(wrapper.find('.usa-alert-text').text()).toBe(text);
+    expect(wrapper.find('.usa-alert__heading').text()).toBe(heading);
+    expect(wrapper.find('.usa-alert__text').text()).toBe(text);
   });
   it('should not have a close button', () => {
     expect(wrapper.find('.icon.remove-icon')).toHaveLength(0);

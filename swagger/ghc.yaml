@@ -12,6 +12,83 @@ basePath: /ghc/v1
 schemes:
   - http
 paths:
+  '/customer':
+    get:
+      tags:
+        - Customer
+      operationId: getAllCustomerMoves
+      description: Gets all customers
+      summary: Gets all customers
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved information on all customer
+          schema:
+            $ref: '#/definitions/CustomerMoveItems'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+  '/customer/{customerID}':
+    parameters:
+      - description: ID of customer to use
+        in: path
+        name: customerID
+        required: true
+        type: string
+        format: uuid
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved information on an individual customer
+          schema:
+            $ref: '#/definitions/Customer'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - Customer
+      description: Returns a given customer
+      operationId: getCustomerInfo
+      summary: Returns a given customer
   /move-task-orders:
     get:
       produces:
@@ -163,7 +240,7 @@ paths:
       description: Updates a move order by ID
       operationId: updateMoveTaskOrder
       summary: Updates a move order by ID
-  '/move-task-orders/{moveTaskOrderID}/service-items':
+  '/move_task_orders/{moveTaskOrderID}/service_items':
     parameters:
       - description: ID of move order for service item to use
         in: path
@@ -178,7 +255,7 @@ paths:
         '200':
           description: Successfully retrieved all line items for a move task order
           schema:
-            $ref: '#/definitions/ServiceItem'
+            $ref: '#/definitions/ServiceItems'
         '400':
           description: The request payload is invalid
           schema:
@@ -209,15 +286,10 @@ paths:
         - application/json
       produces:
         - application/json
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/ServiceItem'
+      parameters: []
       responses:
         '201':
-          description: Successfully created line item for move task order
+          description: Successfully created service item for move task order
           schema:
             $ref: '#/definitions/ServiceItem'
         '400':
@@ -723,6 +795,155 @@ paths:
       operationId: updatePaymentRequestStatus
       summary: Updates status of a payment request by id
 definitions:
+  Address:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      street_address_1:
+        type: string
+        example: 123 Main Ave
+        title: Street address 1
+      street_address_2:
+        type: string
+        example: Apartment 9000
+        x-nullable: true
+        title: Street address 2
+      street_address_3:
+        type: string
+        example: Montmârtre
+        x-nullable: true
+        title: Address Line 3
+      city:
+        type: string
+        example: Anytown
+        title: City
+      state:
+        title: State
+        type: string
+        x-display-value:
+          AL: AL
+          AK: AK
+          AR: AR
+          AZ: AZ
+          CA: CA
+          CO: CO
+          CT: CT
+          DC: DC
+          DE: DE
+          FL: FL
+          GA: GA
+          HI: HI
+          IA: IA
+          ID: ID
+          IL: IL
+          IN: IN
+          KS: KS
+          KY: KY
+          LA: LA
+          MA: MA
+          MD: MD
+          ME: ME
+          MI: MI
+          MN: MN
+          MO: MO
+          MS: MS
+          MT: MT
+          NC: NC
+          ND: ND
+          NE: NE
+          NH: NH
+          NJ: NJ
+          NM: NM
+          NV: NV
+          NY: NY
+          OH: OH
+          OK: OK
+          OR: OR
+          PA: PA
+          RI: RI
+          SC: SC
+          SD: SD
+          TN: TN
+          TX: TX
+          UT: UT
+          VA: VA
+          VT: VT
+          WA: WA
+          WI: WI
+          WV: WV
+          WY: WY
+        enum:
+          - AL
+          - AK
+          - AR
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VA
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
+      postal_code:
+        type: string
+        format: zip
+        title: ZIP
+        example: '90210'
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+      country:
+        type: string
+        title: Country
+        x-nullable: true
+        example: 'USA'
+        default: USA
+    required:
+      - street_address_1
+      - city
+      - state
+      - postal_code
   CreatePaymentRequestPayload:
     properties:
       isFinal:
@@ -741,8 +962,92 @@ definitions:
           type: string
         type: array
     type: object
+  CustomerMoveItem:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      customer_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      created_at:
+        type: string
+        format: datetime
+        example: 2018-04-12T23:20:50.52Z
+        description: when the access code was created
+      customer_name:
+        type: string
+        example: Mickey Mouse
+        x-nullable: true
+        title: Customer Name
+      branch_of_service:
+        type: string
+        example: Agency
+        x-nullable:
+        title: Branch of service / Agency
+      confirmation_number:
+        type: string
+        example: '12432'
+      origin_duty_station_name:
+        type: string
+        example: Fort Knox
+        title: Origin Duty Station Name
+        x-nullable: true
+  CustomerMoveItems:
+    type: array
+    items:
+      $ref: '#/definitions/CustomerMoveItem'
   Customer:
     type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      customer_name:
+        type: string
+        example: George Washington
+        x-nullable: true
+        title: Customer Name
+      agency:
+        type: string
+        example: Some Agency
+        x-nullable: true
+        title: Agency
+      grade:
+        type: string
+        example: Some Grade
+        x-nullable: true
+        title: Grade
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: john_bob@example.com
+        x-nullable: true
+        title: Email Address
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+        title: Best Contact Phone
+      origin_duty_station:
+        type: string
+        example: Dover AFB
+        title: Origin
+        x-nullable: true
+      destination_duty_station:
+        type: string
+        example: Dover AFB
+        title: Destination
+        x-nullable: true
+      pickup_address:
+        $ref: '#/definitions/Address'
   Entitlements:
     properties:
       id:
@@ -755,9 +1060,11 @@ definitions:
       nonTemporaryStorage:
         example: false
         type: boolean
+        x-nullable: true
       privatelyOwnedVehicle:
         example: false
         type: boolean
+        x-nullable: true
       proGearWeight:
         example: 2000
         type: integer
@@ -792,11 +1099,15 @@ definitions:
       createdAt:
         format: date
         type: string
-      customer:
-        $ref: '#/definitions/Customer'
+      customerId:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
       deletedAt:
         format: date
         type: string
+      destinationAddress:
+        $ref: '#/definitions/Address'
       destinationDutyStation:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
@@ -831,6 +1142,8 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+      pickupAddress:
+        $ref: '#/definitions/Address'
       remarks:
         example: Requires more gentle care
         type: string
@@ -843,6 +1156,7 @@ definitions:
         type: array
       status:
         enum:
+          - DRAFT  #TODO this is to represent visible to PRIME not sure if this is the right name for this?
           - APPROVED
           - REJECTED
           - SUBMITTED
@@ -856,6 +1170,7 @@ definitions:
       status:
         enum:
           - APPROVED
+          - DRAFT
           - SUBMITTED
           - REJECTED
         type: string
@@ -961,7 +1276,13 @@ definitions:
       updatedAt:
         format: date
         type: string
+    required:
+      - id
     type: object
+  ServiceItems:
+    type: array
+    items:
+      $ref: '#/definitions/ServiceItem'
   ServiceItemStatus:
     properties:
       status:

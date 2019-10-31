@@ -53,6 +53,7 @@ If you are looking to understand choices made in this project, see the list of [
 * [Soft Delete](how-to/soft-delete.md#how-to-soft-delete)
 * [Store Data in Redux](how-to/store-data-in-redux.md#how-to-store-data-in-redux)
 * [Store UI State in Redux](how-to/store-ui-state-in-redux.md#how-to-store-ui-state-in-redux)
+* [Test Virus Scanning](how-to/test-virus-scanning.md#how-to-test-virus-scanning)
 * [Troubleshoot GEX Connection](how-to/troubleshoot-gex-connection.md#how-to-troubleshoot-gex-connection)
 * [Unit Test React Components](how-to/unit-test-react-components.md#how-to-unit-test-react-components)
 * [Upgrade Go Version](how-to/upgrade-go-version.md#how-to-upgrade-go-version)

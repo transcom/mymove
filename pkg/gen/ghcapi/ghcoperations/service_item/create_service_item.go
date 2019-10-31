@@ -29,7 +29,7 @@ func NewCreateServiceItem(ctx *middleware.Context, handler CreateServiceItemHand
 	return &CreateServiceItem{Context: ctx, Handler: handler}
 }
 
-/*CreateServiceItem swagger:route POST /move-task-orders/{moveTaskOrderID}/service-items serviceItem createServiceItem
+/*CreateServiceItem swagger:route POST /move_task_orders/{moveTaskOrderID}/service_items serviceItem createServiceItem
 
 Creates a service item for a move order by id
 

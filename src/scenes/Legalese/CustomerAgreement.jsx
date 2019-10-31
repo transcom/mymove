@@ -18,15 +18,29 @@ const CustomerAgreement = ({ onChange, link, checked, agreementText, className }
       <p>
         <strong>Customer Agreement</strong>
       </p>
-      <input id="agree-checkbox" type="checkbox" checked={checked} onChange={handleOnChange} />
-      <label htmlFor="agree-checkbox">
-        I agree to the{' '}
-        {link ? (
-          <Link to={link}> Legal Agreement / Privacy Act</Link>
-        ) : (
-          <a onClick={handleClick}> Legal Agreement / Privacy Act</a>
-        )}
-      </label>
+      <div className="usa-checkbox">
+        <input
+          id="agree-checkbox"
+          type="checkbox"
+          checked={checked}
+          onChange={handleOnChange}
+          className="usa-checkbox__input"
+        />
+        <label htmlFor="agree-checkbox" className="usa-checkbox__label">
+          I agree to the{' '}
+          {link ? (
+            <Link to={link} className="usa-link">
+              {' '}
+              Legal Agreement / Privacy Act
+            </Link>
+          ) : (
+            <a onClick={handleClick} className="usa-link">
+              {' '}
+              Legal Agreement / Privacy Act
+            </a>
+          )}
+        </label>
+      </div>
     </div>
   );
 };

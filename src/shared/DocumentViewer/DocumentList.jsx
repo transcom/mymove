@@ -19,7 +19,7 @@ const DocumentList = ({
 }) => (
   <div>
     {moveDocuments.map(doc => {
-      const chosenDocument = currentMoveDocumentId === doc.id ? styles['chosen-document'] : 'link-blue';
+      const chosenDocument = currentMoveDocumentId === doc.id ? styles['chosen-document'] : 'usa-link link-blue';
       const status = renderStatusIcon(doc.status);
       const detailUrl = `${detailUrlPrefix}/${doc.id}`;
       return (
@@ -71,6 +71,7 @@ const DocumentList = ({
             window,
             defaultRelativeWindowSize,
           )}
+          className="usa-link"
         >
           <FontAwesomeIcon className="icon link-blue" icon={documentUploadIcon} />
           Upload new document

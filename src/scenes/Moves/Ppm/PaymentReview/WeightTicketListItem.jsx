@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { forEach } from 'lodash';
 import { string, number, bool } from 'prop-types';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
@@ -8,6 +9,7 @@ import carTrailerImg from 'shared/images/car-trailer_mobile.png';
 import { formatToOrdinal } from 'shared/formatters';
 import deleteButtonImg from 'shared/images/delete-doc-button.png';
 import AlertWithDeleteConfirmation from 'shared/AlertWithDeleteConfirmation';
+import { UPLOAD_SCAN_STATUS } from 'shared/constants';
 
 const WEIGHT_TICKET_IMAGES = {
   CAR: carImg,
@@ -24,6 +26,16 @@ const MissingLabel = ({ children }) => (
 class WeightTicketListItem extends Component {
   state = {
     showDeleteConfirmation: false,
+  };
+
+  areUploadsInfected = uploads => {
+    let isInfected = false;
+    forEach(uploads, function(upload) {
+      if (upload.status === UPLOAD_SCAN_STATUS.INFECTED) {
+        isInfected = true;
+      }
+    });
+    return isInfected;
   };
 
   toggleShowConfirmation = () => {
@@ -45,8 +57,11 @@ class WeightTicketListItem extends Component {
       showDelete,
       deleteDocumentListItem,
       isWeightTicketSet,
+      uploads,
     } = this.props;
     const { showDeleteConfirmation } = this.state;
+    const isInfected = this.areUploadsInfected(uploads);
+    console.log('end result: ', isInfected);
     return (
       <div className="ticket-item" style={{ display: 'flex' }}>
         {/* size of largest of the images */}
@@ -73,6 +88,13 @@ class WeightTicketListItem extends Component {
               />
             )}
           </div>
+          {isInfected && (
+            <>
+              <div className="infected-indicator">
+                <strong>Delete this file, take a photo of the document, then upload that</strong>
+              </div>
+            </>
+          )}
           {empty_weight_ticket_missing ? (
             <MissingLabel>
               Missing empty weight ticket{' '}
@@ -96,7 +118,6 @@ class WeightTicketListItem extends Component {
             </MissingLabel>
           )}
           {vehicle_options === 'CAR_TRAILER' && !trailer_ownership_missing && <p>Ownership documentation</p>}
-
           {showDeleteConfirmation && (
             <AlertWithDeleteConfirmation
               heading="Delete this document?"

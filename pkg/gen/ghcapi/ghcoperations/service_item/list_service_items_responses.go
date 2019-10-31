@@ -25,7 +25,7 @@ type ListServiceItemsOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.ServiceItem `json:"body,omitempty"`
+	Payload ghcmessages.ServiceItems `json:"body,omitempty"`
 }
 
 // NewListServiceItemsOK creates ListServiceItemsOK with default headers values
@@ -35,13 +35,13 @@ func NewListServiceItemsOK() *ListServiceItemsOK {
 }
 
 // WithPayload adds the payload to the list service items o k response
-func (o *ListServiceItemsOK) WithPayload(payload *ghcmessages.ServiceItem) *ListServiceItemsOK {
+func (o *ListServiceItemsOK) WithPayload(payload ghcmessages.ServiceItems) *ListServiceItemsOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the list service items o k response
-func (o *ListServiceItemsOK) SetPayload(payload *ghcmessages.ServiceItem) {
+func (o *ListServiceItemsOK) SetPayload(payload ghcmessages.ServiceItems) {
 	o.Payload = payload
 }
 
@@ -49,11 +49,14 @@ func (o *ListServiceItemsOK) SetPayload(payload *ghcmessages.ServiceItem) {
 func (o *ListServiceItemsOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(200)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if payload == nil {
+		// return empty array
+		payload = ghcmessages.ServiceItems{}
+	}
+
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }
 

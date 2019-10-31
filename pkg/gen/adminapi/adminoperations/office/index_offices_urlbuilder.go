@@ -15,9 +15,11 @@ import (
 
 // IndexOfficesURL generates an URL for the index offices operation
 type IndexOfficesURL struct {
-	Filter  []string
+	Filter  *string
+	Order   *bool
 	Page    *int64
 	PerPage *int64
+	Sort    *string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -53,21 +55,20 @@ func (o *IndexOfficesURL) Build() (*url.URL, error) {
 
 	qs := make(url.Values)
 
-	var filterIR []string
-	for _, filterI := range o.Filter {
-		filterIS := filterI
-		if filterIS != "" {
-			filterIR = append(filterIR, filterIS)
-		}
+	var filterQ string
+	if o.Filter != nil {
+		filterQ = *o.Filter
+	}
+	if filterQ != "" {
+		qs.Set("filter", filterQ)
 	}
 
-	filter := swag.JoinByFormat(filterIR, "")
-
-	if len(filter) > 0 {
-		qsv := filter[0]
-		if qsv != "" {
-			qs.Set("filter", qsv)
-		}
+	var orderQ string
+	if o.Order != nil {
+		orderQ = swag.FormatBool(*o.Order)
+	}
+	if orderQ != "" {
+		qs.Set("order", orderQ)
 	}
 
 	var pageQ string
@@ -84,6 +85,14 @@ func (o *IndexOfficesURL) Build() (*url.URL, error) {
 	}
 	if perPageQ != "" {
 		qs.Set("perPage", perPageQ)
+	}
+
+	var sortQ string
+	if o.Sort != nil {
+		sortQ = *o.Sort
+	}
+	if sortQ != "" {
+		qs.Set("sort", sortQ)
 	}
 
 	_result.RawQuery = qs.Encode()

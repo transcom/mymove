@@ -2,31 +2,27 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 
 import LoginButton from 'shared/User/LoginButton';
-import UserGreeting from 'shared/User/UserGreeting';
 
 import './index.css';
 
 function QueueHeader() {
   return (
-    <header role="banner" className="header">
-      <div className="officeHeaderOne">
-        <div className="usa-logo" id="basic-logo">
-          <em className="usa-logo-text">
-            <NavLink to="/" title="Home" aria-label="Transcom PPP Office Home">
-              office.move.mil
-            </NavLink>
-          </em>
+    <header className="usa-header usa-header--basic" role="banner">
+      <div className="usa-nav-container header-widescreen">
+        <div className="usa-navbar">
+          <div className="usa-logo" id="basic-logo">
+            <em className="usa-logo__text">
+              <NavLink to="/" title="Home" aria-label="Transcom PPP Office Home">
+                office.move.mil
+              </NavLink>
+            </em>
+          </div>
         </div>
-      </div>
-      <div className="officeHeaderTwo">
-        <ul className="usa-nav-primary">
-          <li>
-            <UserGreeting />
-          </li>
-          <li>
+        <nav className="usa-nav" aria-label="Primary navigation">
+          <ul className="usa-nav__primary usa-accordion">
             <LoginButton />
-          </li>
-        </ul>
+          </ul>
+        </nav>
       </div>
     </header>
   );

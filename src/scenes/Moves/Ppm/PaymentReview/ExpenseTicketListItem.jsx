@@ -1,11 +1,23 @@
 import React, { Component } from 'react';
+import { forEach } from 'lodash';
 import { string } from 'prop-types';
 import deleteButtonImg from 'shared/images/delete-doc-button.png';
 import AlertWithDeleteConfirmation from 'shared/AlertWithDeleteConfirmation';
+import { UPLOAD_SCAN_STATUS } from 'shared/constants';
 
 class ExpenseTicketListItem extends Component {
   state = {
     showDeleteConfirmation: false,
+  };
+
+  areUploadsInfected = uploads => {
+    let isInfected = false;
+    forEach(uploads, function(upload) {
+      if (upload.status === UPLOAD_SCAN_STATUS.INFECTED) {
+        isInfected = true;
+      }
+    });
+    return isInfected;
   };
 
   toggleShowConfirmation = () => {
@@ -14,8 +26,9 @@ class ExpenseTicketListItem extends Component {
   };
 
   render() {
-    const { id, amount, type, paymentMethod, showDelete, deleteDocumentListItem } = this.props;
+    const { id, amount, type, paymentMethod, showDelete, deleteDocumentListItem, uploads } = this.props;
     const { showDeleteConfirmation } = this.state;
+    const isInfected = this.areUploadsInfected(uploads);
     return (
       <div className="ticket-item" style={{ display: 'flex' }}>
         <div style={{ flex: 1 }}>
@@ -32,9 +45,17 @@ class ExpenseTicketListItem extends Component {
               />
             )}
           </div>
+          {isInfected && (
+            <>
+              <div className="infected-indicator">
+                <strong>Delete this file, take a photo of the document, then upload that</strong>
+              </div>
+            </>
+          )}
           <div>
             {type} ({paymentMethod === 'OTHER' ? 'Not GTCC' : paymentMethod})
           </div>
+
           {showDeleteConfirmation && (
             <AlertWithDeleteConfirmation
               heading="Delete this document?"

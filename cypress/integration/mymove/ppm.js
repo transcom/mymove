@@ -7,7 +7,7 @@ describe('completing the ppm flow', function() {
     //profile@comple.te
     cy.signInAsUserPostRequest(milmoveAppName, '13f3949d-0d53-4be4-b1b1-ae4314793f34');
     cy.contains('Fort Gordon (from Yuma AFB)');
-    cy.get('.whole_box > div > :nth-child(3) > span').contains('10,500 lbs');
+    cy.get('[data-cy="move-header-weight-estimate"]').contains('10,500 lbs');
     cy.contains('Continue Move Setup').click();
 
     cy.location().should(loc => {
@@ -107,7 +107,7 @@ describe('completing the ppm flow', function() {
       expect(loc.pathname).to.match(/^\/$/);
     });
 
-    cy.get('.usa-alert-success').within(() => {
+    cy.get('.usa-alert--success').within(() => {
       cy.contains('Congrats - your move is submitted!');
       cy.contains('Next, wait for approval. Once approved:');
       cy.get('a')
@@ -123,7 +123,7 @@ describe('completing the ppm flow with a move date that we currently do not have
     //profile@complete.draft
     cy.signInAsUserPostRequest(milmoveAppName, '3b9360a3-3304-4c60-90f4-83d687884070');
     cy.contains('Fort Gordon (from Yuma AFB)');
-    cy.get('.whole_box > div > :nth-child(3) > span').contains('10,500 lbs');
+    cy.get('[data-cy="move-header-weight-estimate"]').contains('10,500 lbs');
     cy.contains('Continue Move Setup').click();
 
     cy.location().should(loc => {
@@ -200,7 +200,7 @@ describe('completing the ppm flow with a move date that we currently do not have
       expect(loc.pathname).to.match(/^\/$/);
     });
 
-    cy.get('.usa-alert-success').within(() => {
+    cy.get('.usa-alert--success').within(() => {
       cy.contains('Congrats - your move is submitted!');
       cy.contains('Next, wait for approval. Once approved:');
       cy.get('a')
@@ -215,7 +215,7 @@ describe('completing the ppm flow with a move date that we currently do not have
       'We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive.',
     );
 
-    cy.get('.usa-button-secondary')
+    cy.get('[data-cy="edit-move"]')
       .contains('Edit Move')
       .click();
 
@@ -296,7 +296,7 @@ describe('editing ppm only move', () => {
       .contains('Edit Move')
       .click();
 
-    cy.get('.ppm-container').should(ppmContainer => {
+    cy.get('[data-cy="ppm-summary"]').should(ppmContainer => {
       expect(ppmContainer).to.have.length(1);
     });
   });
@@ -331,7 +331,7 @@ describe('allows a SM to continue requesting a payment', function() {
       expect(loc.pathname).to.match(/^\/$/);
     });
 
-    cy.get('.usa-button-secondary')
+    cy.get('a')
       .contains('Continue Requesting Payment')
       .click();
     cy.location().should(loc => {

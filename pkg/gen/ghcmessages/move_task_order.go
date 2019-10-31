@@ -27,12 +27,16 @@ type MoveTaskOrder struct {
 	// Format: date
 	CreatedAt strfmt.Date `json:"createdAt,omitempty"`
 
-	// customer
-	Customer Customer `json:"customer,omitempty"`
+	// customer Id
+	// Format: uuid
+	CustomerID strfmt.UUID `json:"customerId,omitempty"`
 
 	// deleted at
 	// Format: date
 	DeletedAt strfmt.Date `json:"deletedAt,omitempty"`
+
+	// destination address
+	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
 	// destination duty station
 	// Format: uuid
@@ -69,6 +73,9 @@ type MoveTaskOrder struct {
 	// Format: uuid
 	OriginPPSO strfmt.UUID `json:"originPPSO,omitempty"`
 
+	// pickup address
+	PickupAddress *Address `json:"pickupAddress,omitempty"`
+
 	// remarks
 	Remarks string `json:"remarks,omitempty"`
 
@@ -80,7 +87,7 @@ type MoveTaskOrder struct {
 	ServiceItems []*ServiceItem `json:"serviceItems"`
 
 	// status
-	// Enum: [APPROVED REJECTED SUBMITTED]
+	// Enum: [DRAFT APPROVED REJECTED SUBMITTED]
 	Status string `json:"status,omitempty"`
 
 	// updated at
@@ -96,7 +103,15 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateCustomerID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateDeletedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDestinationAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -136,6 +151,10 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validatePickupAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateRequestedPickupDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -171,6 +190,19 @@ func (m *MoveTaskOrder) validateCreatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MoveTaskOrder) validateCustomerID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.CustomerID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("customerId", "body", "uuid", m.CustomerID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MoveTaskOrder) validateDeletedAt(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.DeletedAt) { // not required
@@ -179,6 +211,24 @@ func (m *MoveTaskOrder) validateDeletedAt(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("deletedAt", "body", "date", m.DeletedAt.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validateDestinationAddress(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.DestinationAddress) { // not required
+		return nil
+	}
+
+	if m.DestinationAddress != nil {
+		if err := m.DestinationAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationAddress")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -336,6 +386,24 @@ func (m *MoveTaskOrder) validateOriginPPSO(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MoveTaskOrder) validatePickupAddress(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.PickupAddress) { // not required
+		return nil
+	}
+
+	if m.PickupAddress != nil {
+		if err := m.PickupAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("pickupAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MoveTaskOrder) validateRequestedPickupDate(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.RequestedPickupDate) { // not required
@@ -378,7 +446,7 @@ var moveTaskOrderTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["APPROVED","REJECTED","SUBMITTED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DRAFT","APPROVED","REJECTED","SUBMITTED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -387,6 +455,9 @@ func init() {
 }
 
 const (
+
+	// MoveTaskOrderStatusDRAFT captures enum value "DRAFT"
+	MoveTaskOrderStatusDRAFT string = "DRAFT"
 
 	// MoveTaskOrderStatusAPPROVED captures enum value "APPROVED"
 	MoveTaskOrderStatusAPPROVED string = "APPROVED"
