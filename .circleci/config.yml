@@ -853,7 +853,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: mk-168762441-remove-hhg-access-codes
 
       - client_test:
           requires:
@@ -861,7 +861,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: mk-168762441-remove-hhg-access-codes
 
       - server_test:
           requires:
@@ -869,7 +869,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: mk-168762441-remove-hhg-access-codes
 
       - build_app:
           requires:
@@ -910,28 +910,28 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: mk-168762441-remove-hhg-access-codes
 
       - deploy_experimental_tasks:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: mk-168762441-remove-hhg-access-codes
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: mk-168762441-remove-hhg-access-codes
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: mk-168762441-remove-hhg-access-codes
 
       - check_circle_against_staging_sha:
           requires:
@@ -1020,7 +1020,7 @@ workflows:
             branches:
               only: master
               # Uncomment below if pushing a test branch. Also comment out approve_prod_deploy few lines above.
-              #only: placeholder_branch_name
+              #only: mk-168762441-remove-hhg-access-codes
 
   dependency_updater_go:
     triggers:
