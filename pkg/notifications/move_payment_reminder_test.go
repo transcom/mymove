@@ -104,8 +104,7 @@ func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
 	suite.NoError(err)
 	suite.Len(emailInfoBeforeSending, 2)
 
-	// simulate successfully sending an email and then check that this email does not get sent again.
-	err = PaymentReminder.OnSuccess(emailInfoBeforeSending[0])("SES_MOVE_ID")
+	err = PaymentReminder.OnSuccess(emailInfoBeforeSending[0])("SESID")
 	suite.NoError(err)
 	emailInfoAfterSending, err := PaymentReminder.GetEmailInfo()
 	suite.NoError(err)

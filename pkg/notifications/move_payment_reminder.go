@@ -10,7 +10,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/gofrs/uuid"
-	// "github.com/transcom/mymove/pkg/handlers"
 
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/unit"
@@ -26,7 +25,7 @@ var (
 	paymentReminderHTMLTemplate = html.Must(html.New("text_template").Parse(movePaymentReminderRawHTML))
 )
 
-// PaymentReminder has notification content for completed/reviewed moves
+// PaymentReminder has notification content for approved moves
 type PaymentReminder struct {
 	db            *pop.Connection
 	logger        Logger
@@ -36,7 +35,7 @@ type PaymentReminder struct {
 	textTemplate  *text.Template
 }
 
-// NewPaymentReminder returns a new move submitted notification
+// NewPaymentReminder returns a new payment reminder notification
 func NewPaymentReminder(db *pop.Connection, logger Logger) (*PaymentReminder, error) {
 
 	return &PaymentReminder{

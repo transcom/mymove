@@ -21,10 +21,6 @@ import (
 	"github.com/transcom/mymove/pkg/notifications"
 )
 
-const (
-	paymentReminderFlag string = "offset-days"
-)
-
 func checkPaymentReminderConfig(v *viper.Viper, logger logger) error {
 
 	logger.Debug("checking config")
@@ -52,8 +48,6 @@ func initPaymentReminderFlags(flag *pflag.FlagSet) {
 	// Email
 	cli.InitEmailFlags(flag)
 
-	flag.Int(paymentReminderFlag, 15, "Number of days ago moves had their payment request reviewed")
-
 	// Don't sort flags
 	flag.SortFlags = false
 }
@@ -75,7 +69,6 @@ func sendPaymentReminder(cmd *cobra.Command, args []string) error {
 	v.AutomaticEnv()
 
 	dbEnv := v.GetString(cli.DbEnvFlag)
-	// offsetDays := v.GetInt(offsetFlag)
 
 	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
 	if err != nil {
@@ -117,8 +110,6 @@ func sendPaymentReminder(cmd *cobra.Command, args []string) error {
 	// Create a connection to the DB
 	dbConnection, err := cli.InitDatabase(v, dbCreds, logger)
 	if err != nil {
-		// No connection object means that the configuraton failed to validate and we should not startup
-		// A valid connection object that still has an error indicates that the DB is not up and we should not startup
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
