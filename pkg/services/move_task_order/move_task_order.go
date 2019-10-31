@@ -101,7 +101,7 @@ func (f fetchMoveTaskOrder) UpdateMoveTaskOrderActualWeight(moveTaskOrderID uuid
 	}
 	weight := unit.Pound(actualWeight)
 	mto.ActualWeight = &weight
-	fmt.Println(mto.ActualWeight)
+
 	vErrors, err := f.db.ValidateAndUpdate(mto)
 	if vErrors.HasAny() {
 		return &models.MoveTaskOrder{}, ErrInvalidInput{moveTaskOrderID, vErrors}
