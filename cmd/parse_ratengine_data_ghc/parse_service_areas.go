@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/gocarina/gocsv"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -31,13 +32,9 @@ var parseServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int
 	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime)
 	if csvWriter != nil {
 		defer csvWriter.close()
-
-		// Write header to CSV
-		dsa := models.StageDomesticServiceArea{}
-		csvWriter.write(dsa.CSVHeader())
 	}
 
-	var domServAreas models.StageDomesticServiceAreas
+	var domServAreas []models.StageDomesticServiceArea
 	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[serviceAreaRowIndexStart:]
 	for _, row := range dataRows {
 		domServArea := models.StageDomesticServiceArea{
@@ -52,27 +49,24 @@ var parseServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int
 		}
 
 		if params.showOutput == true {
-			log.Println(domServArea.ToSlice())
-		}
-		if csvWriter != nil {
-			csvWriter.write(domServArea.ToSlice())
+			log.Printf("%v\n", domServArea)
 		}
 		domServAreas = append(domServAreas, domServArea)
 	}
 
+	// TODO: Move these two things out of here
+	if csvWriter != nil {
+		if err := gocsv.MarshalFile(domServAreas, csvWriter.csvFile); err != nil {
+			return errors.Wrap(err, "Could not marshal CSV file for domestic service areas")
+		}
+	}
 	if err := tableFromSliceCreator.CreateTableFromSlice(domServAreas); err != nil {
 		return errors.Wrap(err, "Could not create temp table for domestic service areas")
 	}
 
 	log.Println("Parsing International Service Areas")
-	// Create CSV writer to save data to CSV file, returns nil if params.saveToFile=false
-	if csvWriter != nil {
-		// Write header to CSV
-		isa := models.StageInternationalServiceArea{}
-		csvWriter.write(isa.CSVHeader())
-	}
 
-	var intlServAreas models.StageInternationalServiceAreas
+	var intlServAreas []models.StageInternationalServiceArea
 	for _, row := range dataRows {
 		intlServArea := models.StageInternationalServiceArea{
 			RateArea:   getCell(row.Cells, internationalRateAreaColumn),
@@ -84,14 +78,17 @@ var parseServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int
 		}
 
 		if params.showOutput == true {
-			log.Println(intlServArea.ToSlice())
-		}
-		if csvWriter != nil {
-			csvWriter.write(intlServArea.ToSlice())
+			log.Printf("%v\n", intlServArea)
 		}
 		intlServAreas = append(intlServAreas, intlServArea)
 	}
 
+	// TODO: Move these two things out of here
+	if csvWriter != nil {
+		if err := gocsv.MarshalFile(intlServAreas, csvWriter.csvFile); err != nil {
+			return errors.Wrap(err, "Could not marshal CSV file for international service areas")
+		}
+	}
 	if err := tableFromSliceCreator.CreateTableFromSlice(intlServAreas); err != nil {
 		return errors.Wrap(err, "Could not create temp table for international service areas")
 	}

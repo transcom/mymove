@@ -1,4 +1,4 @@
-Service Area Number,Service Area Name,Services Schedule,SIT Pickup Delivery Schedule,Season,Shorthaul Price,Origin/Destination Price,Origin/Destination SIT First Day & Warehouse,Origin/Destination SIT Add'l Days
+service_area_number,service_area_name,services_schedule,sit_pickup_delivery_schedule,season,shorthaul_price,origin_destination_price,origin_destination_sit_first_day_warehouse,origin_destination_sit_addl_days
 4.0,"Birmingham, AL",2,2,NonPeak,$1.27,$6.89,$19.31,$0.68
 4.0,"Birmingham, AL",2,2,Peak,$1.46,$7.92,$22.21,$0.78
 8,"Dothan, AL",1,2,NonPeak,$0.12,$4.73,$14.82,$0.46

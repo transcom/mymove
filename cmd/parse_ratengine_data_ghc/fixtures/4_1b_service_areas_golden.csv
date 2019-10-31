@@ -1,4 +1,4 @@
-Base Point City,State,Service Area Number,Zip3's
+base_point_city,state,service_area_number,zip3s
 Abilene,TX,736.0,796.0
 Aiken,SC,208.0,298.0
 Akron,OH,612.0,"442,443"
@@ -772,7 +772,7 @@ Yonkers,NY,544.0,107.0
 York,PA,672.0,174.0
 Youngstown,OH,612.0,"444,445"
 Ypsilanti,MI,400.0,481.0
-International Rate Area,Rate Area Id
+rate_area,rate_area_id
 Alaska (Zone) II,US8190100
 Alaska (Zone) III,US8050500
 Alaska (Zone) IV,US8030400

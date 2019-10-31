@@ -1,4 +1,4 @@
-Service Area Number,Origin Service Area,Services Schedule,Season,Weight Lower,Weight Upper,Miles Lower,Miles Upper,Escalation Number,Rate
+service_area_number,origin_service_area,services_schedule,season,weight_lower,weight_upper,miles_lower,miles_upper,escalation_number,rate
 4.0,"Birmingham, AL",2,NonPeak,500,4999,0,250,0,$2.477
 4.0,"Birmingham, AL",2,NonPeak,500,4999,251,500,0,$2.727
 4.0,"Birmingham, AL",2,NonPeak,500,4999,501,1000,0,$3.228

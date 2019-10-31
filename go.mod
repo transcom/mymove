@@ -35,6 +35,7 @@ require (
 	github.com/gobuffalo/packr v1.30.1
 	github.com/gobuffalo/pop v4.12.2+incompatible
 	github.com/gobuffalo/validate v2.0.3+incompatible
+	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
 	github.com/gofrs/flock v0.7.1
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/gorilla/csrf v1.6.1

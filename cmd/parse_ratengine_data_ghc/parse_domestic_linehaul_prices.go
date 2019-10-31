@@ -5,6 +5,7 @@ import (
 	"log"
 	"strconv"
 
+	"github.com/gocarina/gocsv"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -17,10 +18,6 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime)
 	if csvWriter != nil {
 		defer csvWriter.close()
-
-		// Write header to CSV
-		dp := models.StageDomesticLinehaulPrice{}
-		csvWriter.write(dp.CSVHeader())
 	}
 
 	// XLSX Sheet consts
@@ -36,7 +33,7 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 		return fmt.Errorf("parseDomesticLinehaulPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	var domPrices models.StageDomesticLinehaulPrices
+	var domPrices []models.StageDomesticLinehaulPrice
 	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
 	for _, row := range dataRows {
 		colIndex := feeColIndexStart
@@ -62,10 +59,7 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 						}
 						colIndex++
 						if params.showOutput == true {
-							log.Println(domPrice.ToSlice())
-						}
-						if csvWriter != nil {
-							csvWriter.write(domPrice.ToSlice())
+							log.Printf("%v\n", domPrice)
 						}
 						domPrices = append(domPrices, domPrice)
 					}
@@ -75,6 +69,12 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 		}
 	}
 
+	// TODO: Move these two things out of here
+	if csvWriter != nil {
+		if err := gocsv.MarshalFile(domPrices, csvWriter.csvFile); err != nil {
+			return errors.Wrap(err, "Could not marshal CSV file for domestic linehaul prices")
+		}
+	}
 	if err := tableFromSliceCreator.CreateTableFromSlice(domPrices); err != nil {
 		return errors.Wrap(err, "Could not create temp table for domestic linehaul prices")
 	}

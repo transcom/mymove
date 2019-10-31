@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/gocarina/gocsv"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -16,10 +17,6 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime)
 	if csvWriter != nil {
 		defer csvWriter.close()
-
-		// Write header to CSV
-		dp := models.StageDomesticServiceAreaPrice{}
-		csvWriter.write(dp.CSVHeader())
 	}
 
 	// XLSX Sheet consts
@@ -36,7 +33,7 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 		return fmt.Errorf("parseDomesticServiceAreaPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	var domPrices models.StageDomesticServiceAreaPrices
+	var domPrices []models.StageDomesticServiceAreaPrice
 	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
 	for _, row := range dataRows {
 		colIndex := feeColIndexStart
@@ -62,10 +59,7 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 				colIndex++ // skip column SIT Pickup / Delivery ≤50 miles (per cwt)
 
 				if params.showOutput == true {
-					log.Println(domPrice.ToSlice())
-				}
-				if csvWriter != nil {
-					csvWriter.write(domPrice.ToSlice())
+					log.Printf("%v\n", domPrice)
 				}
 				domPrices = append(domPrices, domPrice)
 
@@ -74,6 +68,12 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 		}
 	}
 
+	// TODO: Move these two things out of here
+	if csvWriter != nil {
+		if err := gocsv.MarshalFile(domPrices, csvWriter.csvFile); err != nil {
+			return errors.Wrap(err, "Could not marshal CSV file for domestic service area prices")
+		}
+	}
 	if err := tableFromSliceCreator.CreateTableFromSlice(domPrices); err != nil {
 		return errors.Wrap(err, "Could not create temp table for domestic service area prices")
 	}
