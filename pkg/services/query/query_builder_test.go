@@ -174,7 +174,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		var actualUsers models.OfficeUsers
 
 		pop.Debug = true
-		err := builder.FetchMany(&actualUsers, filters, defaultAssociations(), defaultPagination())
+		err := builder.FetchMany(&actualUsers, filters, defaultAssociations(), defaultPagination(), defaultOrder())
 		pop.Debug = false
 
 		suite.NoError(err)
