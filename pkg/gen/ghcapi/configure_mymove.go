@@ -108,6 +108,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation move_task_order.UpdateMoveTaskOrder has not yet been implemented")
 		})
 	}
+	if api.MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler == nil {
+		api.MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler = move_task_order.UpdateMoveTaskOrderActualWeightHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderActualWeightParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.UpdateMoveTaskOrderActualWeight has not yet been implemented")
+		})
+	}
 	if api.MoveTaskOrderUpdateMoveTaskOrderStatusHandler == nil {
 		api.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = move_task_order.UpdateMoveTaskOrderStatusHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.UpdateMoveTaskOrderStatus has not yet been implemented")
