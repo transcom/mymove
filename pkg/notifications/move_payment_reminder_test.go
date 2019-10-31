@@ -32,7 +32,7 @@ func offsetDate(dayOffset int) time.Time {
 
 // cutoff date for sending payment reminders (don't send if older than this...)
 func cutoffDate() time.Time {
-	cutoffDate, _ := time.Parse("2019-01-01", "2019-10-01")
+	cutoffDate, _ := time.Parse("2019-01-01", "2019-06-02")
 	return cutoffDate
 }
 
@@ -42,8 +42,8 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 	date9DaysAgo := offsetDate(-9)
 
 	moves := []testdatagen.Assertions{
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{ReviewedDate: &date10DaysAgo}},
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{ReviewedDate: &date9DaysAgo}},
+		{PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo}},
+		{PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo}},
 	}
 
 	ppms := suite.createPaymentReminderMoves(moves)
@@ -71,8 +71,8 @@ func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
 	dateTooOld := cutoffDate()
 
 	moves := []testdatagen.Assertions{
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{ReviewedDate: &date9DaysAgo}},
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{ReviewedDate: &dateTooOld}},
+		{PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo}},
+		{PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &dateTooOld}},
 	}
 
 	suite.createPaymentReminderMoves(moves)
@@ -92,8 +92,8 @@ func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
 	dateTooOld := cutoffDate()
 
 	moves := []testdatagen.Assertions{
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{ReviewedDate: &date10DaysAgo}},
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{ReviewedDate: &dateTooOld}},
+		{PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo}},
+		{PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &dateTooOld}},
 	}
 	suite.createPaymentReminderMoves(moves)
 

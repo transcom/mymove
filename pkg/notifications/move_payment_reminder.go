@@ -28,20 +28,24 @@ var (
 
 // PaymentReminder has notification content for completed/reviewed moves
 type PaymentReminder struct {
-	db           *pop.Connection
-	logger       Logger
-	htmlTemplate *html.Template
-	textTemplate *text.Template
+	db            *pop.Connection
+	logger        Logger
+	emailAfter    string
+	noEmailBefore string
+	htmlTemplate  *html.Template
+	textTemplate  *text.Template
 }
 
 // NewPaymentReminder returns a new move submitted notification
 func NewPaymentReminder(db *pop.Connection, logger Logger) (*PaymentReminder, error) {
 
 	return &PaymentReminder{
-		db:           db,
-		logger:       logger,
-		htmlTemplate: paymentReminderHTMLTemplate,
-		textTemplate: paymentReminderTextTemplate,
+		db:            db,
+		logger:        logger,
+		emailAfter:    "10 DAYS",
+		noEmailBefore: "2019-06-01",
+		htmlTemplate:  paymentReminderHTMLTemplate,
+		textTemplate:  paymentReminderTextTemplate,
 	}, nil
 }
 
@@ -57,13 +61,13 @@ type PaymentReminderEmailInfo struct {
 	IncentiveEstimateMax *unit.Cents `db:"incentive_estimate_max"`
 	TOName               string      `db:"transportation_office_name"`
 	TOPhone              string      `db:"transportation_office_phone"`
-	ReviewedDate         string      `db:"reviewed_date"`
+	MoveDate             string      `db:"move_date"`
 }
 
 func (m PaymentReminder) GetEmailInfo() (PaymentReminderEmailInfos, error) {
 	query := `SELECT sm.id as id, sm.personal_email as personal_email,
 	ppm.weight_estimate, ppm.incentive_estimate_min, ppm.incentive_estimate_max,
-	ppm.reviewed_date as reviewed_date,
+	ppm.original_move_date as move_date,
 	dsn.name AS new_duty_station_name,
 	tos.name AS transportation_office_name,
 	opl.number AS transportation_office_phone
@@ -81,12 +85,13 @@ FROM personally_procured_moves ppm
 		limit 1
 	)
 	LEFT JOIN notifications n ON sm.id = n.service_member_id
-where ppm.reviewed_date <= now() - INTERVAL '10 DAYS'
-	AND ppm.reviewed_date >= '2019-10-01'
+ WHERE ppm.original_move_date <= now() - ($1)::INTERVAL
+	AND ppm.original_move_date >= $2
+	AND (ppm.status != 'APPROVED' OR n.service_member_id IS NULL)
 	AND (notification_type != 'MOVE_PAYMENT_REMINDER_EMAIL' OR n.service_member_id IS NULL);`
 
 	paymentReminderEmailInfos := PaymentReminderEmailInfos{}
-	err := m.db.RawQuery(query).All(&paymentReminderEmailInfos)
+	err := m.db.RawQuery(query, m.emailAfter, m.noEmailBefore).All(&paymentReminderEmailInfos)
 
 	return paymentReminderEmailInfos, err
 }
