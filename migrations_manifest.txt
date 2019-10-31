@@ -377,3 +377,4 @@
 20191023161500_set_max_length_on_payment_methods.up.sql
 20191023200010_create_mto_required_fields_tables.up.sql
 20191028210245_hide_moves_experimental_staging.up.sql
+20191031182540_add_notification_indexes.up.sql
