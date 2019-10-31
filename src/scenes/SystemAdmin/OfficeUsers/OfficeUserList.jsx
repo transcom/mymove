@@ -8,12 +8,15 @@ const OfficeUserListFilter = props => (
   </Filter>
 );
 
+const defaultSort = { field: 'last_name', order: 'ASC' };
+
 const OfficeUserList = props => (
   <List
     {...props}
     pagination={<AdminPagination />}
     perPage={25}
     bulkActionButtons={false}
+    sort={defaultSort}
     filters={<OfficeUserListFilter />}
   >
     <Datagrid rowClick="show">

@@ -12,6 +12,41 @@ basePath: /ghc/v1
 schemes:
   - http
 paths:
+  '/customer':
+    get:
+      tags:
+        - Customer
+      operationId: getAllCustomerMoves
+      description: Gets all customers
+      summary: Gets all customers
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved information on all customer
+          schema:
+            $ref: '#/definitions/CustomerMoveItems'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
   '/customer/{customerID}':
     parameters:
       - description: ID of customer to use
@@ -19,6 +54,7 @@ paths:
         name: customerID
         required: true
         type: string
+        format: uuid
     get:
       produces:
         - application/json
@@ -204,7 +240,7 @@ paths:
       description: Updates a move order by ID
       operationId: updateMoveTaskOrder
       summary: Updates a move order by ID
-  '/move-task-orders/{moveTaskOrderID}/service-items':
+  '/move_task_orders/{moveTaskOrderID}/service_items':
     parameters:
       - description: ID of move order for service item to use
         in: path
@@ -219,7 +255,7 @@ paths:
         '200':
           description: Successfully retrieved all line items for a move task order
           schema:
-            $ref: '#/definitions/ServiceItem'
+            $ref: '#/definitions/ServiceItems'
         '400':
           description: The request payload is invalid
           schema:
@@ -250,15 +286,10 @@ paths:
         - application/json
       produces:
         - application/json
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/ServiceItem'
+      parameters: []
       responses:
         '201':
-          description: Successfully created line item for move task order
+          description: Successfully created service item for move task order
           schema:
             $ref: '#/definitions/ServiceItem'
         '400':
@@ -764,24 +795,6 @@ paths:
       operationId: updatePaymentRequestStatus
       summary: Updates status of a payment request by id
 definitions:
-  CreatePaymentRequestPayload:
-    properties:
-      isFinal:
-        default: false
-        type: boolean
-      moveOrderID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-      proofOfServicePackage:
-        $ref: '#/definitions/ProofOfServicePackage'
-      serviceItemIDs:
-        items:
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
-          format: uuid
-          type: string
-        type: array
-    type: object
   Address:
     type: object
     properties:
@@ -931,6 +944,62 @@ definitions:
       - city
       - state
       - postal_code
+  CreatePaymentRequestPayload:
+    properties:
+      isFinal:
+        default: false
+        type: boolean
+      moveOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      proofOfServicePackage:
+        $ref: '#/definitions/ProofOfServicePackage'
+      serviceItemIDs:
+        items:
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+          format: uuid
+          type: string
+        type: array
+    type: object
+  CustomerMoveItem:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      customer_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      created_at:
+        type: string
+        format: datetime
+        example: 2018-04-12T23:20:50.52Z
+        description: when the access code was created
+      customer_name:
+        type: string
+        example: Mickey Mouse
+        x-nullable: true
+        title: Customer Name
+      branch_of_service:
+        type: string
+        example: Agency
+        x-nullable:
+        title: Branch of service / Agency
+      confirmation_number:
+        type: string
+        example: '12432'
+      origin_duty_station_name:
+        type: string
+        example: Fort Knox
+        title: Origin Duty Station Name
+        x-nullable: true
+  CustomerMoveItems:
+    type: array
+    items:
+      $ref: '#/definitions/CustomerMoveItem'
   Customer:
     type: object
     properties:
@@ -938,21 +1007,11 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      first_name:
+      customer_name:
         type: string
-        example: John
+        example: George Washington
         x-nullable: true
-        title: First Name
-      middle_name:
-        type: string
-        example: L.
-        x-nullable: true
-        title: Middle Name
-      last_name:
-        type: string
-        example: Donut
-        x-nullable: true
-        title: Last Name
+        title: Customer Name
       agency:
         type: string
         example: Some Agency
@@ -989,9 +1048,6 @@ definitions:
         x-nullable: true
       pickup_address:
         $ref: '#/definitions/Address'
-      dependentsAuthorized:
-        example: true
-        type: boolean
   Entitlements:
     properties:
       id:
@@ -1004,9 +1060,11 @@ definitions:
       nonTemporaryStorage:
         example: false
         type: boolean
+        x-nullable: true
       privatelyOwnedVehicle:
         example: false
         type: boolean
+        x-nullable: true
       proGearWeight:
         example: 2000
         type: integer
@@ -1041,11 +1099,15 @@ definitions:
       createdAt:
         format: date
         type: string
-      customer:
-        $ref: '#/definitions/Customer'
+      customerId:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
       deletedAt:
         format: date
         type: string
+      destinationAddress:
+        $ref: '#/definitions/Address'
       destinationDutyStation:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
@@ -1080,6 +1142,8 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+      pickupAddress:
+        $ref: '#/definitions/Address'
       remarks:
         example: Requires more gentle care
         type: string
@@ -1092,6 +1156,7 @@ definitions:
         type: array
       status:
         enum:
+          - DRAFT  #TODO this is to represent visible to PRIME not sure if this is the right name for this?
           - APPROVED
           - REJECTED
           - SUBMITTED
@@ -1105,6 +1170,7 @@ definitions:
       status:
         enum:
           - APPROVED
+          - DRAFT
           - SUBMITTED
           - REJECTED
         type: string
@@ -1210,7 +1276,13 @@ definitions:
       updatedAt:
         format: date
         type: string
+    required:
+      - id
     type: object
+  ServiceItems:
+    type: array
+    items:
+      $ref: '#/definitions/ServiceItem'
   ServiceItemStatus:
     properties:
       status:
