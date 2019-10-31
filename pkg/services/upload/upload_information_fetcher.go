@@ -47,7 +47,7 @@ SELECT uploads.id as upload_id,
        ou.telephone AS office_user_telephone
 FROM uploads
          JOIN users u ON uploads.uploader_id = u.id
-         JOIN documents d ON uploads.document_id = d.id
+         LEFT JOIN documents d ON uploads.document_id = d.id
          LEFT JOIN service_members documents_service_members ON d.service_member_id = documents_service_members.id
          LEFT JOIN orders ON documents_service_members.id = orders.service_member_id
          LEFT JOIN moves ON orders.id = moves.orders_id

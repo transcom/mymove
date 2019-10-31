@@ -19,8 +19,8 @@ func (h GetEntitlementsHandler) Handle(params entitlementscodeop.GetEntitlements
 	entitlements := &ghcmessages.Entitlements{
 		ID:                    "571008b1-b0de-454d-b843-d71be9f02c04",
 		DependentsAuthorized:  false,
-		NonTemporaryStorage:   false,
-		PrivatelyOwnedVehicle: true,
+		PrivatelyOwnedVehicle: handlers.FmtBool(true),
+		NonTemporaryStorage:   handlers.FmtBool(false),
 		ProGearWeight:         200,
 		ProGearWeightSpouse:   100,
 		StorageInTransit:      90,

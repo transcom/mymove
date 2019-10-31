@@ -3,46 +3,38 @@ package ghcapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
-
-	"github.com/transcom/mymove/pkg/unit"
+	"go.uber.org/zap"
 
 	movetaskordercodeop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
+	movetaskorderservice "github.com/transcom/mymove/pkg/services/move_task_order"
 )
-
-func payloadForMoveTaskOrder(mto models.MoveTaskOrder) *ghcmessages.MoveTaskOrder {
-
-	payload := &ghcmessages.MoveTaskOrder{
-		ID:     *handlers.FmtUUID(mto.ID),
-		MoveID: *handlers.FmtUUID(mto.MoveID),
-	}
-	if mto.ActualWeight != nil {
-		payload.ActualWeight = *handlers.FmtInt64(int64(*mto.ActualWeight))
-	}
-	return payload
-}
 
 // UpdateMoveTaskOrderActualWeightHandler updates the actual weight for a move task order
 type UpdateMoveTaskOrderActualWeightHandler struct {
 	handlers.HandlerContext
+	moveTaskOrderActualWeightUpdater services.MoveTaskOrderActualWeightUpdater
 }
 
 // Handle updating the actual weight for a move task order
 func (h UpdateMoveTaskOrderActualWeightHandler) Handle(params movetaskordercodeop.UpdateMoveTaskOrderActualWeightParams) middleware.Responder {
-	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	moveTaskOrderID, _ := uuid.FromString(params.MoveTaskOrderID)
-	mto, err := models.FetchMoveTaskOrder(h.DB(), moveTaskOrderID)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+	payload := params.PatchActualWeight
+	mto, err := h.moveTaskOrderActualWeightUpdater.UpdateMoveTaskOrderActualWeight(moveTaskOrderID, payload.ActualWeight)
 	if err != nil {
-		return handlers.ResponseForError(logger, err)
+		logger.Error("ghciapi.UpdateMoveTaskOrderActualWeightHandler error", zap.Error(err))
+		switch err.(type) {
+		case movetaskorderservice.ErrNotFound:
+			return movetaskordercodeop.NewUpdateMoveTaskOrderActualWeightNotFound()
+		case movetaskorderservice.ErrInvalidInput:
+			return movetaskordercodeop.NewUpdateMoveTaskOrderActualWeightBadRequest()
+		default:
+			return movetaskordercodeop.NewUpdateMoveTaskOrderActualWeightInternalServerError()
+		}
 	}
 
-	payload := params.PatchActualWeight
-	actualWeight := unit.Pound(payload.ActualWeight)
-	mto.ActualWeight = &actualWeight
-
 	moveTaskOrderPayload := payloadForMoveTaskOrder(*mto)
-
 	return movetaskordercodeop.NewUpdateMoveTaskOrderActualWeightOK().WithPayload(moveTaskOrderPayload)
 }
