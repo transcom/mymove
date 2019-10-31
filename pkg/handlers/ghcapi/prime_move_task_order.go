@@ -21,8 +21,7 @@ type UpdateMoveTaskOrderActualWeightHandler struct {
 func (h UpdateMoveTaskOrderActualWeightHandler) Handle(params movetaskordercodeop.UpdateMoveTaskOrderActualWeightParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
-	payload := params.PatchActualWeight
-	mto, err := h.moveTaskOrderActualWeightUpdater.UpdateMoveTaskOrderActualWeight(moveTaskOrderID, payload.ActualWeight)
+	mto, err := h.moveTaskOrderActualWeightUpdater.UpdateMoveTaskOrderActualWeight(moveTaskOrderID, params.Body.ActualWeight)
 	if err != nil {
 		logger.Error("ghciapi.UpdateMoveTaskOrderActualWeightHandler error", zap.Error(err))
 		switch err.(type) {

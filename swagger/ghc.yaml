@@ -595,10 +595,13 @@ paths:
         - application/json
       parameters:
         - in: body
-          name: patchActualWeight
+          name: body
           required: true
           schema:
-            $ref: '#/definitions/PatchActualWeight'
+            type: object
+            properties:
+              actualWeight:
+                type: integer
       responses:
         '200':
           description: Successfully retrieved move task order
@@ -1205,7 +1208,7 @@ definitions:
         type: array
       status:
         enum:
-          - DRAFT  #TODO this is to represent visible to PRIME not sure if this is the right name for this?
+          - DRAFT #TODO this is to represent visible to PRIME not sure if this is the right name for this?
           - APPROVED
           - REJECTED
           - SUBMITTED
@@ -1268,11 +1271,6 @@ definitions:
       - REJECTED
     title: Payment Request Status
     type: string
-  PatchActualWeight:
-    type: object
-    properties:
-      actualWeight:
-        type: integer
   ProofOfServicePackage:
     properties:
       id:
