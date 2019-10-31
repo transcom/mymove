@@ -188,10 +188,10 @@ func (h IndexOfficeUsersHandler) generateQueryFilters(filters *string, logger ha
 			zap.String("filters", fs))
 	}
 	if f.Search != "" {
-		search := fmt.Sprintf("%%%s%%", f.Search)
-		queryFilters = append(queryFilters, query.NewQueryFilter("email", "ILIKE", search))
-		queryFilters = append(queryFilters, query.NewQueryFilter("first_name", "ILIKE", search))
-		queryFilters = append(queryFilters, query.NewQueryFilter("last_name", "ILIKE", search))
+		nameSearch := fmt.Sprintf("%s%%", f.Search)
+		queryFilters = append(queryFilters, query.NewQueryFilter("email", "ILIKE", fmt.Sprintf("%%%s%%", f.Search)))
+		queryFilters = append(queryFilters, query.NewQueryFilter("first_name", "ILIKE", nameSearch))
+		queryFilters = append(queryFilters, query.NewQueryFilter("last_name", "ILIKE", nameSearch))
 	}
 	return queryFilters
 }
