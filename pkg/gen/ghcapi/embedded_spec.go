@@ -36,6 +36,57 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
+    "/customer": {
+      "get": {
+        "description": "Gets all customers",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Gets all customers",
+        "operationId": "getAllCustomerMoves",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved information on all customer",
+            "schema": {
+              "$ref": "#/definitions/CustomerMoveItems"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
+    },
     "/customer/{customerID}": {
       "get": {
         "description": "Returns a given customer",
@@ -89,6 +140,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
+          "format": "uuid",
           "description": "ID of customer to use",
           "name": "customerID",
           "in": "path",
@@ -1331,9 +1383,11 @@ func init() {
           "x-nullable": true,
           "example": "Some Agency"
         },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "example": true
+        "customer_name": {
+          "type": "string",
+          "title": "Customer Name",
+          "x-nullable": true,
+          "example": "George Washington"
         },
         "destination_duty_station": {
           "type": "string",
@@ -1349,12 +1403,6 @@ func init() {
           "x-nullable": true,
           "example": "john_bob@example.com"
         },
-        "first_name": {
-          "type": "string",
-          "title": "First Name",
-          "x-nullable": true,
-          "example": "John"
-        },
         "grade": {
           "type": "string",
           "title": "Grade",
@@ -1365,18 +1413,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "last_name": {
-          "type": "string",
-          "title": "Last Name",
-          "x-nullable": true,
-          "example": "Donut"
-        },
-        "middle_name": {
-          "type": "string",
-          "title": "Middle Name",
-          "x-nullable": true,
-          "example": "L."
         },
         "origin_duty_station": {
           "type": "string",
@@ -1397,6 +1433,55 @@ func init() {
         }
       }
     },
+    "CustomerMoveItem": {
+      "type": "object",
+      "properties": {
+        "branch_of_service": {
+          "type": "string",
+          "title": "Branch of service / Agency",
+          "x-nullable": null,
+          "example": "Agency"
+        },
+        "confirmation_number": {
+          "type": "string",
+          "example": "12432"
+        },
+        "created_at": {
+          "description": "when the access code was created",
+          "type": "string",
+          "format": "datetime",
+          "example": "2018-04-12T23:20:50.52Z"
+        },
+        "customer_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "customer_name": {
+          "type": "string",
+          "title": "Customer Name",
+          "x-nullable": true,
+          "example": "Mickey Mouse"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "origin_duty_station_name": {
+          "type": "string",
+          "title": "Origin Duty Station Name",
+          "x-nullable": true,
+          "example": "Fort Knox"
+        }
+      }
+    },
+    "CustomerMoveItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CustomerMoveItem"
+      }
+    },
     "Entitlements": {
       "type": "object",
       "properties": {
@@ -1411,10 +1496,12 @@ func init() {
         },
         "nonTemporaryStorage": {
           "type": "boolean",
+          "x-nullable": true,
           "example": false
         },
         "privatelyOwnedVehicle": {
           "type": "boolean",
+          "x-nullable": true,
           "example": false
         },
         "proGearWeight": {
@@ -1464,12 +1551,17 @@ func init() {
           "type": "string",
           "format": "date"
         },
-        "customer": {
-          "$ref": "#/definitions/Customer"
+        "customerId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "deletedAt": {
           "type": "string",
           "format": "date"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
         },
         "destinationDutyStation": {
           "type": "string",
@@ -1515,6 +1607,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "remarks": {
           "type": "string",
           "example": "Requires more gentle care"
@@ -1532,6 +1627,7 @@ func init() {
         "status": {
           "type": "string",
           "enum": [
+            "DRAFT",
             "APPROVED",
             "REJECTED",
             "SUBMITTED"
@@ -1550,6 +1646,7 @@ func init() {
           "type": "string",
           "enum": [
             "APPROVED",
+            "DRAFT",
             "SUBMITTED",
             "REJECTED"
           ]
@@ -1838,6 +1935,72 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
+    "/customer": {
+      "get": {
+        "description": "Gets all customers",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Customer"
+        ],
+        "summary": "Gets all customers",
+        "operationId": "getAllCustomerMoves",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved information on all customer",
+            "schema": {
+              "$ref": "#/definitions/CustomerMoveItems"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
     "/customer/{customerID}": {
       "get": {
         "description": "Returns a given customer",
@@ -1906,6 +2069,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
+          "format": "uuid",
           "description": "ID of customer to use",
           "name": "customerID",
           "in": "path",
@@ -3373,9 +3537,11 @@ func init() {
           "x-nullable": true,
           "example": "Some Agency"
         },
-        "dependentsAuthorized": {
-          "type": "boolean",
-          "example": true
+        "customer_name": {
+          "type": "string",
+          "title": "Customer Name",
+          "x-nullable": true,
+          "example": "George Washington"
         },
         "destination_duty_station": {
           "type": "string",
@@ -3391,12 +3557,6 @@ func init() {
           "x-nullable": true,
           "example": "john_bob@example.com"
         },
-        "first_name": {
-          "type": "string",
-          "title": "First Name",
-          "x-nullable": true,
-          "example": "John"
-        },
         "grade": {
           "type": "string",
           "title": "Grade",
@@ -3407,18 +3567,6 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "last_name": {
-          "type": "string",
-          "title": "Last Name",
-          "x-nullable": true,
-          "example": "Donut"
-        },
-        "middle_name": {
-          "type": "string",
-          "title": "Middle Name",
-          "x-nullable": true,
-          "example": "L."
         },
         "origin_duty_station": {
           "type": "string",
@@ -3439,6 +3587,55 @@ func init() {
         }
       }
     },
+    "CustomerMoveItem": {
+      "type": "object",
+      "properties": {
+        "branch_of_service": {
+          "type": "string",
+          "title": "Branch of service / Agency",
+          "x-nullable": null,
+          "example": "Agency"
+        },
+        "confirmation_number": {
+          "type": "string",
+          "example": "12432"
+        },
+        "created_at": {
+          "description": "when the access code was created",
+          "type": "string",
+          "format": "datetime",
+          "example": "2018-04-12T23:20:50.52Z"
+        },
+        "customer_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "customer_name": {
+          "type": "string",
+          "title": "Customer Name",
+          "x-nullable": true,
+          "example": "Mickey Mouse"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "origin_duty_station_name": {
+          "type": "string",
+          "title": "Origin Duty Station Name",
+          "x-nullable": true,
+          "example": "Fort Knox"
+        }
+      }
+    },
+    "CustomerMoveItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CustomerMoveItem"
+      }
+    },
     "Entitlements": {
       "type": "object",
       "properties": {
@@ -3453,10 +3650,12 @@ func init() {
         },
         "nonTemporaryStorage": {
           "type": "boolean",
+          "x-nullable": true,
           "example": false
         },
         "privatelyOwnedVehicle": {
           "type": "boolean",
+          "x-nullable": true,
           "example": false
         },
         "proGearWeight": {
@@ -3506,12 +3705,17 @@ func init() {
           "type": "string",
           "format": "date"
         },
-        "customer": {
-          "$ref": "#/definitions/Customer"
+        "customerId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "deletedAt": {
           "type": "string",
           "format": "date"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
         },
         "destinationDutyStation": {
           "type": "string",
@@ -3557,6 +3761,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "remarks": {
           "type": "string",
           "example": "Requires more gentle care"
@@ -3574,6 +3781,7 @@ func init() {
         "status": {
           "type": "string",
           "enum": [
+            "DRAFT",
             "APPROVED",
             "REJECTED",
             "SUBMITTED"
@@ -3592,6 +3800,7 @@ func init() {
           "type": "string",
           "enum": [
             "APPROVED",
+            "DRAFT",
             "SUBMITTED",
             "REJECTED"
           ]
