@@ -119,12 +119,17 @@ type verifyXlsxSheet func(paramConfig, int) error
 
 type xlsxDataSheetInfo struct {
 	description    *string
-	process        *processXlsxSheet
+	processMethods []xlsxProcessInfo
 	verify         *verifyXlsxSheet
 	outputFilename *string //do not include suffix see func generateOutputFilename for details
 }
 
 var xlsxDataSheets []xlsxDataSheetInfo
+
+type xlsxProcessInfo struct {
+	process    *processXlsxSheet
+	adtlSuffix *string
+}
 
 // initDataSheetInfo: When adding new functions for parsing sheets, must add new xlsxDataSheetInfo
 // defining the parse function
@@ -138,7 +143,16 @@ func initDataSheetInfo() {
 	xlsxDataSheets[4] = xlsxDataSheetInfo{
 		description:    stringPointer("1b) Service Areas"),
 		outputFilename: stringPointer("1b_service_areas"),
-		process:        &parseServiceAreas,
+		processMethods: []xlsxProcessInfo{
+			xlsxProcessInfo{
+				process:        &parseDomesticServiceAreas,
+				adtlSuffix: stringPointer("domestic"),
+			},
+			xlsxProcessInfo{
+				process:        &parseInternationalServiceAreas,
+				adtlSuffix: stringPointer("international"),
+			},
+		},
 		verify:         &verifyServiceAreas,
 	}
 
@@ -146,7 +160,10 @@ func initDataSheetInfo() {
 	xlsxDataSheets[6] = xlsxDataSheetInfo{
 		description:    stringPointer("2a) Domestic Linehaul Prices"),
 		outputFilename: stringPointer("2a_domestic_linehaul_prices"),
-		process:        &parseDomesticLinehaulPrices,
+		processMethods: []xlsxProcessInfo{xlsxProcessInfo{
+				process:        &parseDomesticLinehaulPrices,
+			},
+		},
 		verify:         &verifyDomesticLinehaulPrices,
 	}
 
@@ -154,7 +171,10 @@ func initDataSheetInfo() {
 	xlsxDataSheets[7] = xlsxDataSheetInfo{
 		description:    stringPointer("2b) Dom. Service Area Prices"),
 		outputFilename: stringPointer("2b_domestic_service_area_prices"),
-		process:        &parseDomesticServiceAreaPrices,
+		processMethods: []xlsxProcessInfo{xlsxProcessInfo{
+				process:        &parseDomesticServiceAreaPrices,
+			},
+		},
 		verify:         &verifyDomesticServiceAreaPrices,
 	}
 
@@ -179,7 +199,7 @@ func xlsxSheetsUsage() string {
 	message += "Available sheets for parsing are: \n"
 
 	for i, v := range xlsxDataSheets {
-		if v.process != nil {
+		if len(v.processMethods) > 0 {
 			description := ""
 			if v.description != nil {
 				description = *v.description
@@ -302,11 +322,13 @@ func main() {
 	err = db.Transaction(func(connection *pop.Connection) error {
 		if params.processAll == true {
 			for i, x := range xlsxDataSheets {
-				if x.process != nil {
-					dbErr := process(params, i, tableFromSliceCreator)
-					if dbErr != nil {
-						log.Printf("Error processing xlsxDataSheets %v\n", dbErr.Error())
-						return dbErr
+				for _, p := range x.processMethods {
+					if p.process != nil {
+						dbErr := process(params, i, tableFromSliceCreator)
+						if dbErr != nil {
+							log.Printf("Error processing xlsxDataSheets %v\n", dbErr.Error())
+							return dbErr
+						}
 					}
 				}
 			}
@@ -373,13 +395,15 @@ func process(params paramConfig, sheetIndex int, tableFromSliceCreator services.
 	}
 
 	// Call process function
-	if xlsxInfo.process != nil {
-		var callFunc processXlsxSheet
-		callFunc = *xlsxInfo.process
-		err := callFunc(params, sheetIndex, tableFromSliceCreator)
-		if err != nil {
-			log.Printf("%s process error: %v\n", description, err)
-			return errors.Wrapf(err, " process error for sheet index: %d with description: %s", sheetIndex, description)
+	if len(xlsxInfo.processMethods) > 0 {
+		for _, p := range xlsxInfo.processMethods {
+			var callFunc processXlsxSheet
+			callFunc = *p.process
+			err := callFunc(params, sheetIndex, tableFromSliceCreator)
+			if err != nil {
+				log.Printf("%s process error: %v\n", description, err)
+				return errors.Wrapf(err, " process error for sheet index: %d with description: %s", sheetIndex, description)
+			}
 		}
 	} else {
 		log.Fatalf("Missing process function for sheet index %d with description %s\n", sheetIndex, description)

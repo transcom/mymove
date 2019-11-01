@@ -148,7 +148,10 @@ func (suite *ParseRateEngineGHCXLSXSuite) helperTestSetup() {
 	xlsxDataSheets[0] = xlsxDataSheetInfo{
 		description:    stringPointer("0) Test Process 1"),
 		outputFilename: stringPointer("0_test_process_1"),
-		process:        &testProcessFunc1,
+		processMethods: []xlsxProcessInfo{xlsxProcessInfo{
+				process: &testProcessFunc1,
+			},
+		},
 		verify:         &testVerifyFunc1,
 	}
 
@@ -156,7 +159,10 @@ func (suite *ParseRateEngineGHCXLSXSuite) helperTestSetup() {
 	xlsxDataSheets[1] = xlsxDataSheetInfo{
 		description:    stringPointer("1) Test Process 2"),
 		outputFilename: stringPointer("1_test_process_2"),
-		process:        &testProcessFunc2,
+		processMethods: []xlsxProcessInfo{xlsxProcessInfo{
+				process: &testProcessFunc2,
+			},
+		},
 		verify:         &testVerifyFunc2,
 	}
 
@@ -164,8 +170,32 @@ func (suite *ParseRateEngineGHCXLSXSuite) helperTestSetup() {
 	xlsxDataSheets[2] = xlsxDataSheetInfo{
 		description:    stringPointer("2) Test Process 3"),
 		outputFilename: stringPointer("2_test_process_3"),
-		process:        &testProcessFunc3,
+		processMethods: []xlsxProcessInfo{xlsxProcessInfo{
+				process: &testProcessFunc3,
+			},
+		},
 		verify:         &testVerifyFunc3,
+	}
+
+	// 3:
+	xlsxDataSheets[3] = xlsxDataSheetInfo{
+		description:    stringPointer("3) Test Process 4"),
+		outputFilename: stringPointer("3_test_process_4"),
+		processMethods: []xlsxProcessInfo{
+			xlsxProcessInfo{
+				process: &testProcessFunc1,
+				adtlSuffix: stringPointer("suffix1"),
+			},
+			xlsxProcessInfo{
+				process: &testProcessFunc2,
+				adtlSuffix: stringPointer("suffix2"),
+			},
+			xlsxProcessInfo{
+				process: &testProcessFunc4,
+				adtlSuffix: stringPointer("suffix4"),
+			},
+		},
+		verify:         &testVerifyFunc4,
 	}
 }
 
@@ -211,6 +241,16 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_process() {
 				sheetIndex: 2,
 			},
 			wantErr: true,
+		},
+		{
+			name: "TC 4 run fake process methods & verify function 4, with suffix",
+			args: args{
+				params: paramConfig{
+					runTime: time.Now(),
+				},
+				sheetIndex: 3,
+			},
+			wantErr: false,
 		},
 	}
 	for _, tt := range tests {
