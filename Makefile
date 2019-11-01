@@ -104,6 +104,12 @@ check_node_version: .check_node_version.stamp ## Check that the correct Node ver
 	scripts/check-node-version
 	touch .check_node_version.stamp
 
+.PHONY: check_go_bindata_version
+check_go_bindata_version: .check_go_bindata_version.stamp ## Check that the correct go-bindata version is installed
+.check_go_bindata_version.stamp: scripts/check-go-bindata-version
+	scripts/check-go-bindata-version
+	touch .check_go_bindata_version.stamp
+
 .PHONY: check_docker_size
 check_docker_size: ## Check the amount of disk space used by docker
 	scripts/check-docker-size
@@ -753,6 +759,21 @@ tasks_send_post_move_survey: tasks_build_linux_docker ## Run send-post-move-surv
 		$(TASKS_DOCKER_CONTAINER):latest \
 		milmove-tasks send-post-move-survey
 
+
+tasks_send_payment_reminder: tasks_build_linux_docker ## Run send-payment-reminder from inside docker container
+	@echo "sending payment reminder with docker command..."
+	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
+	docker run \
+		-t \
+		-e DB_HOST="database" \
+		-e DB_NAME \
+		-e DB_PORT \
+		-e DB_USER \
+		-e DB_PASSWORD \
+		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
+		--rm \
+		$(TASKS_DOCKER_CONTAINER):latest \
+		milmove-tasks send-payment-reminder
 #
 # ----- END SCHEDULED TASK TARGETS -----
 #

@@ -12,12 +12,15 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/dbtools"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type ParseRateEngineGHCXLSXSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
+	logger                *zap.Logger
+	tableFromSliceCreator services.TableFromSliceCreator
 }
 
 func (suite *ParseRateEngineGHCXLSXSuite) SetupTest() {
@@ -34,6 +37,7 @@ func TestParseRateEngineGHCXLSXSuite(t *testing.T) {
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 	}
+	hs.tableFromSliceCreator = dbtools.NewTableFromSliceCreator(hs.DB(), logger, true)
 
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()
@@ -110,15 +114,15 @@ var testVerifyFunc3 verifyXlsxSheet = func(params paramConfig, sheetIndex int) e
 	return fmt.Errorf("forced test error from function testVerifyFunc3 with index %d", sheetIndex)
 }
 
-var testProcessFunc1 processXlsxSheet = func(params paramConfig, sheetIndex int) error {
+var testProcessFunc1 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator) error {
 	return nil
 }
 
-var testProcessFunc2 processXlsxSheet = func(params paramConfig, sheetIndex int) error {
+var testProcessFunc2 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator) error {
 	return nil
 }
 
-var testProcessFunc3 processXlsxSheet = func(params paramConfig, sheetIndex int) error {
+var testProcessFunc3 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator) error {
 	return fmt.Errorf("forced test error from function testProcessFunc3 with index %d", sheetIndex)
 }
 
@@ -196,7 +200,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_process() {
 	}
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			if err := process(tt.args.params, tt.args.sheetIndex); (err != nil) != tt.wantErr {
+			if err := process(tt.args.params, tt.args.sheetIndex, suite.tableFromSliceCreator); (err != nil) != tt.wantErr {
 				t.Errorf("process() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

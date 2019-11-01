@@ -280,7 +280,7 @@ jobs:
 
   # `check_generated_code` is used to ensure generated code doesn't change
   check_generated_code:
-    executor: mymove_small
+    executor: mymove_medium
     steps:
       - checkout
       - restore_cache:

@@ -4,10 +4,12 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
+	"github.com/gofrs/uuid"
+
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 
-	"github.com/gofrs/uuid"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 type MoveTaskOrder struct {
@@ -31,6 +33,7 @@ type MoveTaskOrder struct {
 	Status                   MoveTaskOrderStatus `db:"status"`
 	ServiceItems             ServiceItems        `has_many:"service_items"`
 	UpdatedAt                time.Time           `db:"updated_at"`
+	ActualWeight             *unit.Pound         `json:"actual_weight" db:"actual_weight"`
 }
 
 type MoveTaskOrderStatus string

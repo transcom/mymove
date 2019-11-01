@@ -3,6 +3,7 @@ package movetaskorder
 import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
@@ -66,4 +67,18 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterEmptyStatu
 	_, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, "")
 
 	suite.Error(err)
+}
+
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderActualWeightUpdater() {
+	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
+	originalMTO := serviceItem.MoveTaskOrder
+	// check not equal to what asserting against below
+	suite.Nil(originalMTO.ActualWeight)
+	mtoActualWeightUpdater := NewMoveTaskOrderActualWeightUpdater(suite.DB())
+
+	newWeight := int64(566)
+	updatedMTO, err := mtoActualWeightUpdater.UpdateMoveTaskOrderActualWeight(originalMTO.ID, newWeight)
+
+	suite.NoError(err)
+	suite.Equal(unit.Pound(newWeight), *updatedMTO.ActualWeight)
 }

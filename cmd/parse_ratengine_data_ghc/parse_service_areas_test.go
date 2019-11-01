@@ -7,14 +7,14 @@ import (
 	"github.com/tealeg/xlsx"
 )
 
-// Test_parseDomesticLinehaulPrices
-func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticLinehaulPrices() {
+// Test_parseServiceAreas
+func (suite *ParseRateEngineGHCXLSXSuite) Test_parseServiceAreas() {
 	initDataSheetInfo()
 	params := paramConfig{
 		processAll:   false,
 		showOutput:   false,
 		xlsxFilename: stringPointer("fixtures/pricing_template_2019-09-19_fake-data.xlsx"),
-		xlsxSheets:   []string{"6"},
+		xlsxSheets:   []string{"4"},
 		saveToFile:   true,
 		runTime:      time.Now(),
 		runVerify:    true,
@@ -26,12 +26,12 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticLinehaulPrices() {
 		log.Fatalf("Failed to open file %s with error %v\n", *params.xlsxFilename, err)
 	}
 
-	const sheetIndex int = 6
-	err = parseDomesticLinehaulPrices(params, sheetIndex, suite.tableFromSliceCreator)
-	suite.NoError(err, "parseDomesticLinehaulPrices function failed")
+	const sheetIndex int = 4
+	err = parseServiceAreas(params, sheetIndex, suite.tableFromSliceCreator)
+	suite.NoError(err, "parseDomesticServiceAreas function failed")
 
 	outputFilename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime)
 
-	const goldenFilename string = "6_2a_domestic_linehaul_prices_golden.csv"
+	const goldenFilename string = "4_1b_service_areas_golden.csv"
 	suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)
 }

@@ -1,15 +1,25 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
+	"go.uber.org/zap"
+
+	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
 	"github.com/tealeg/xlsx"
+
+	"github.com/transcom/mymove/pkg/cli"
+	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/dbtools"
 )
 
 /*************************************************************************
@@ -104,7 +114,7 @@ intentionally are modifying the pattern of how the processing functions are call
 const sharedNumEscalationYearsToProcess int = 1
 const xlsxSheetsCountMax int = 35
 
-type processXlsxSheet func(paramConfig, int) error
+type processXlsxSheet func(paramConfig, int, services.TableFromSliceCreator) error
 type verifyXlsxSheet func(paramConfig, int) error
 
 type xlsxDataSheetInfo struct {
@@ -123,6 +133,14 @@ var xlsxDataSheets []xlsxDataSheetInfo
 // determine the correct index to add.
 func initDataSheetInfo() {
 	xlsxDataSheets = make([]xlsxDataSheetInfo, xlsxSheetsCountMax, xlsxSheetsCountMax)
+
+	// 4: 	1b) Domestic & International Service Areas
+	xlsxDataSheets[4] = xlsxDataSheetInfo{
+		description:    stringPointer("1b) Service Areas"),
+		outputFilename: stringPointer("1b_service_areas"),
+		process:        &parseServiceAreas,
+		verify:         &verifyServiceAreas,
+	}
 
 	// 6: 	2a) Domestic Linehaul Prices
 	xlsxDataSheets[6] = xlsxDataSheetInfo{
@@ -178,6 +196,7 @@ func main() {
 	params := paramConfig{}
 	params.runTime = time.Now()
 
+	flag := pflag.CommandLine
 	filename := flag.String("filename", "", "Filename including path of the XLSX to parse for Rate Engine GHC import")
 	all := flag.Bool("all", true, "Parse entire Rate Engine GHC XLSX")
 	sheets := flag.String("xlsxSheets", "", xlsxSheetsUsage())
@@ -185,7 +204,16 @@ func main() {
 	saveToFile := flag.Bool("save", false, "Save output to CSV file")
 	runVerify := flag.Bool("verify", true, "Default is true, if false skip sheet format verification")
 
-	flag.Parse()
+	// DB Config
+	cli.InitDatabaseFlags(flag)
+
+	// Don't sort flags
+	flag.SortFlags = false
+
+	err := flag.Parse(os.Args[1:])
+	if err != nil {
+		log.Fatalf("Could not parse flags: %v\n", err)
+	}
 
 	// Process command line params
 
@@ -230,33 +258,81 @@ func main() {
 		params.runVerify = *runVerify
 	}
 
+	// Connect to the database
+	//DB connection
+	v := viper.New()
+	err = v.BindPFlags(flag)
+	if err != nil {
+		log.Fatalf("Could not bind flags: %v\n", err)
+	}
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+
+	dbEnv := v.GetString(cli.DbEnvFlag)
+
+	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
+	if err != nil {
+		log.Fatalf("Failed to initialize Zap logging due to %v", err)
+	}
+	zap.ReplaceGlobals(logger)
+
+	err = cli.CheckDatabase(v, logger)
+	if err != nil {
+		logger.Fatal("Connecting to DB", zap.Error(err))
+	}
+
+	// Create a connection to the DB
+	db, err := cli.InitDatabase(v, nil, logger)
+	if err != nil {
+		// No connection object means that the configuraton failed to validate and we should not startup
+		// A valid connection object that still has an error indicates that the DB is not up and we should not startup
+		logger.Fatal("Connecting to DB", zap.Error(err))
+	}
+	defer func() {
+		if closeErr := db.Close(); closeErr != nil {
+			log.Fatalf("Could not close database: %v", closeErr)
+		}
+	}()
+
+	tableFromSliceCreator := dbtools.NewTableFromSliceCreator(db, logger, true)
+
 	// Must be after processing config param
 	// Run the process function
 
-	if params.processAll == true {
-		for i, x := range xlsxDataSheets {
-			if x.process != nil {
-				err := process(params, i)
-				if err != nil {
-					log.Fatalf("Error processing xlsxDataSheets %v\n", err.Error())
+	err = db.Transaction(func(connection *pop.Connection) error {
+		if params.processAll == true {
+			for i, x := range xlsxDataSheets {
+				if x.process != nil {
+					dbErr := process(params, i, tableFromSliceCreator)
+					if dbErr != nil {
+						log.Printf("Error processing xlsxDataSheets %v\n", dbErr.Error())
+						return dbErr
+					}
+				}
+			}
+		} else {
+			for _, v := range params.xlsxSheets {
+				index, dbErr := strconv.Atoi(v)
+				if dbErr != nil {
+					log.Printf("Bad xlsxSheets index provided %v\n", dbErr)
+					return dbErr
+				}
+				if index < len(xlsxDataSheets) {
+					dbErr = process(params, index, tableFromSliceCreator)
+					if dbErr != nil {
+						log.Printf("Error processing %v\n", dbErr)
+						return dbErr
+					}
+				} else {
+					log.Printf("Error processing index %d, not in range of slice xlsxDataSheets\n", index)
+					return errors.New("Index out of range of slice xlsxDataSheets")
 				}
 			}
 		}
-	} else {
-		for _, v := range params.xlsxSheets {
-			index, err := strconv.Atoi(v)
-			if err != nil {
-				log.Fatalf("Bad xlsxSheets index provided %v\n", err)
-			}
-			if index < len(xlsxDataSheets) {
-				err = process(params, index)
-				if err != nil {
-					log.Fatalf("Error processing %v\n", err)
-				}
-			} else {
-				log.Fatalf("Error processing index %d, not in range of slice xlsxDataSheets\n", index)
-			}
-		}
+		return nil
+	})
+	if err != nil {
+		log.Fatalf("Transaction failed:- %v", err)
 	}
 }
 
@@ -269,7 +345,7 @@ func main() {
 //         a.) add new verify function for your processing
 //         b.) add new process function for your processing
 //         c.) update initDataSheetInfo() with a.) and b.)
-func process(params paramConfig, sheetIndex int) error {
+func process(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator) error {
 	xlsxInfo := xlsxDataSheets[sheetIndex]
 	var description string
 	if xlsxInfo.description != nil {
@@ -300,7 +376,7 @@ func process(params paramConfig, sheetIndex int) error {
 	if xlsxInfo.process != nil {
 		var callFunc processXlsxSheet
 		callFunc = *xlsxInfo.process
-		err := callFunc(params, sheetIndex)
+		err := callFunc(params, sheetIndex, tableFromSliceCreator)
 		if err != nil {
 			log.Printf("%s process error: %v\n", description, err)
 			return errors.Wrapf(err, " process error for sheet index: %d with description: %s", sheetIndex, description)

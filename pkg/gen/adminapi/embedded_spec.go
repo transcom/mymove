@@ -878,7 +878,6 @@ func init() {
           "type": "string",
           "title": "Selected Move Type",
           "enum": [
-            "HHG",
             "PPM"
           ]
         }
@@ -2483,7 +2482,6 @@ func init() {
           "type": "string",
           "title": "Selected Move Type",
           "enum": [
-            "HHG",
             "PPM"
           ]
         }
