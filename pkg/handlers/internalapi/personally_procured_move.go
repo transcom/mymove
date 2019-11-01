@@ -2,6 +2,8 @@ package internalapi
 
 import (
 	"fmt"
+	"github.com/gobuffalo/pop"
+	"github.com/transcom/mymove/pkg/auth"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -73,6 +75,31 @@ type CreatePersonallyProcuredMoveHandler struct {
 	handlers.HandlerContext
 }
 
+type Enforcer struct {
+	Session *auth.Session
+	DB *pop.Connection
+}
+
+// GET /ppms/:id
+func (e *Enforcer) CanViewPPM(ppmID uuid.UUID) (bool, *models.PersonallyProcuredMove, error) {
+	var ppm models.PersonallyProcuredMove
+	err := e.ScopePPMs(e.DB.Q()).First(&ppm)
+
+	if err != nil {
+		return false, nil, err
+	}
+
+	return ppm.ID != uuid.Nil, &ppm, nil
+}
+
+// GET /ppms
+func (e *Enforcer) ScopePPMs(query *pop.Query) (*pop.Query) {
+	return query.Where("orders.service_member_id = ? AND personally_procured_moves.id = ?").
+		Join("moves", "moves.id = personally_procured_moves.move_id").
+		Join("orders", "orders.id = moves.orders_id")
+}
+
+
 // Handle is the handler
 func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonallyProcuredMoveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
@@ -134,6 +161,9 @@ func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonally
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
+
+	var ppms models.PersonallyProcuredMoves
+	err := h.DB().All(&ppms)
 
 	// The given move does belong to the current user.
 	ppms := move.PersonallyProcuredMoves
@@ -234,9 +264,16 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) Handle(params ppmop.UpdateP
 	// #nosec UUID is pattern matched by swagger and will be ok
 	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
 
-	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
+	// create enforcer
+	enforcer := Enforcer{Session: session, DB: h.DB()}
+
+	allowed, ppm, err := enforcer.CanUpdatePPM(ppmID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
+	}
+
+	if !allowed {
+		return ppmop.NewUpdatePersonallyProcuredMoveEstimateForbidden()
 	}
 
 	if ppm.MoveID != moveID {
