@@ -30,7 +30,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseServiceAreas() {
 	err = parseServiceAreas(params, sheetIndex, suite.tableFromSliceCreator)
 	suite.NoError(err, "parseDomesticServiceAreas function failed")
 
-	outputFilename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime)
+	outputFilename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime, stringPointer("domestic"))
 
 	const goldenFilename string = "4_1b_service_areas_golden.csv"
 	suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)

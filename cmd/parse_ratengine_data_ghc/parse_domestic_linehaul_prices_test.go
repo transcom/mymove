@@ -30,7 +30,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticLinehaulPrices() {
 	err = parseDomesticLinehaulPrices(params, sheetIndex, suite.tableFromSliceCreator)
 	suite.NoError(err, "parseDomesticLinehaulPrices function failed")
 
-	outputFilename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime)
+	outputFilename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime, nil)
 
 	const goldenFilename string = "6_2a_domestic_linehaul_prices_golden.csv"
 	suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)

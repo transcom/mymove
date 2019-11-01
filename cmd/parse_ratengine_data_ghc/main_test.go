@@ -50,6 +50,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_xlsxDataSheetInfo_generateOutputF
 		process        *processXlsxSheet
 		verify         *verifyXlsxSheet
 		outputFilename *string
+		adtlSuffix     *string
 	}
 	type args struct {
 		index   int
@@ -59,10 +60,11 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_xlsxDataSheetInfo_generateOutputF
 	currentTime := time.Now()
 
 	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		want   string
+		name          string
+		fields        fields
+		args          args
+		adtlSuffix    *string
+		want          string
 	}{
 		{
 			name: "TC 1: generate filename with outputFilename provided",
@@ -86,16 +88,29 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_xlsxDataSheetInfo_generateOutputF
 			},
 			want: "1_rate_engine_ghc_parse_" + currentTime.Format("20060102150405") + ".csv",
 		},
+		{
+			name: "TC 3: generate filename with suffix",
+			args: args{
+				index:   2,
+				runTime: currentTime,
+			},
+			adtlSuffix: stringPointer("adtlSuffix"),
+			want: "2_rate_engine_ghc_parse_adtlSuffix_" + currentTime.Format("20060102150405") + ".csv",
+		},
 	}
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			x := &xlsxDataSheetInfo{
 				description:    tt.fields.description,
-				process:        tt.fields.process,
+				processMethods: []xlsxProcessInfo{xlsxProcessInfo{
+						process: tt.fields.process,
+						adtlSuffix: tt.adtlSuffix,
+					},
+				},
 				verify:         tt.fields.verify,
 				outputFilename: tt.fields.outputFilename,
 			}
-			if got := x.generateOutputFilename(tt.args.index, tt.args.runTime); got != tt.want {
+			if got := x.generateOutputFilename(tt.args.index, tt.args.runTime, tt.adtlSuffix); got != tt.want {
 				t.Errorf("xlsxDataSheetInfo.generateOutputFilename() = %v, want %v", got, tt.want)
 			}
 		})

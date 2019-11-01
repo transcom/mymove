@@ -62,7 +62,7 @@ func createCsvWriter(create bool, sheetIndex int, runTime time.Time) *createCsvH
 	var createCsv createCsvHelper
 
 	if create == true {
-		err := createCsv.createCsvWriter(xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, runTime))
+		err := createCsv.createCsvWriter(xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, runTime, nil))
 		checkError("Failed to create CSV writer", err)
 	} else {
 		return nil
@@ -124,13 +124,18 @@ func removeWhiteSpace(stripString string) string {
 }
 
 // generateOutputFilename: generates filename using xlsxDataSheetInfo.outputFilename
-// with the folling fomat -- <id>_<outputFilename>_<time.Now().Format("20060102150405")>.csv
-func (x *xlsxDataSheetInfo) generateOutputFilename(index int, runTime time.Time) string {
+// with the follwing fomat -- <id>_<outputFilename>_<time.Now().Format("20060102150405")>.csv
+// if the adtlSuffix is passed the format is -- <id>_<outputFilename>_<adtlSuffix>_<time.Now().Format("20060102150405")>.csv
+func (x *xlsxDataSheetInfo) generateOutputFilename(index int, runTime time.Time, adtlSuffix *string) string {
 	var name string
 	if x.outputFilename != nil {
 		name = *x.outputFilename
 	} else {
 		name = "rate_engine_ghc_parse"
+	}
+
+	if adtlSuffix != nil {
+		name = name + "_" + *adtlSuffix
 	}
 
 	name = strconv.Itoa(index) + "_" + name + "_" + runTime.Format("20060102150405") + ".csv"
