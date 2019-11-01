@@ -25,7 +25,7 @@ func (h ListMoveTaskOrdersHandler) Handle(params movetaskorderops.ListMoveTaskOr
 
 	if err != nil {
 		logger.Error("Unable to fetch records:", zap.Error(err))
-		return handlers.ResponseForError(logger, err)
+		return movetaskorderops.NewListMoveTaskOrdersInternalServerError()
 	}
 
 	payload := make(primemessages.MoveTaskOrders, len(mtos))
