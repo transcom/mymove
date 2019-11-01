@@ -47,7 +47,7 @@ require (
 	github.com/jung-kurt/gofpdf v1.12.6
 	github.com/leodido/go-urn v1.2.0
 	github.com/lib/pq v1.2.0
-	github.com/markbates/goth v1.58.0
+	github.com/markbates/goth v1.59.0
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.10 // indirect
 	github.com/mattn/go-shellwords v1.0.6 // indirect
