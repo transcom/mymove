@@ -1,0 +1,133 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"strings"
+
+	"github.com/spf13/cobra"
+
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
+	awssession "github.com/aws/aws-sdk-go/aws/session"
+	"github.com/pkg/errors"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/cli"
+	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/notifications"
+)
+
+func checkPaymentReminderConfig(v *viper.Viper, logger logger) error {
+
+	logger.Debug("checking config")
+
+	err := cli.CheckDatabase(v, logger)
+	if err != nil {
+		return err
+	}
+
+	if err := cli.CheckEmail(v); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func initPaymentReminderFlags(flag *pflag.FlagSet) {
+
+	// DB Config
+	cli.InitDatabaseFlags(flag)
+
+	// Verbose
+	cli.InitVerboseFlags(flag)
+
+	// Email
+	cli.InitEmailFlags(flag)
+
+	// Don't sort flags
+	flag.SortFlags = false
+}
+
+// Command (test eamil): go run ./cmd/milmove-tasks send-payment-reminder
+// Command (send email): go run ./cmd/milmove-tasks send-payment-reminder --email-backend=ses --aws-ses-domain=devlocal.dp3.us --aws-ses-region=us-west-2
+func sendPaymentReminder(cmd *cobra.Command, args []string) error {
+	err := cmd.ParseFlags(args)
+	if err != nil {
+		return errors.Wrap(err, "Could not parse args")
+	}
+	flags := cmd.Flags()
+	v := viper.New()
+	err = v.BindPFlags(flags)
+	if err != nil {
+		return errors.Wrap(err, "Could not bind flags")
+	}
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+
+	dbEnv := v.GetString(cli.DbEnvFlag)
+
+	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
+	if err != nil {
+		log.Fatalf("Failed to initialize Zap logging due to %v", err)
+	}
+	zap.ReplaceGlobals(logger)
+
+	err = checkPaymentReminderConfig(v, logger)
+	if err != nil {
+		logger.Fatal("invalid configuration", zap.Error(err))
+	}
+
+	var session *awssession.Session
+	if v.GetBool(cli.DbIamFlag) || (v.GetString(cli.EmailBackendFlag) == "ses") {
+		c, errorConfig := cli.GetAWSConfig(v, v.GetBool(cli.VerboseFlag))
+		if errorConfig != nil {
+			logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())
+		}
+		s, errorSession := awssession.NewSession(c)
+		if errorSession != nil {
+			logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
+		}
+		session = s
+	}
+
+	var dbCreds *credentials.Credentials
+	if v.GetBool(cli.DbIamFlag) {
+		if session != nil {
+			// We want to get the credentials from the logged in AWS session rather than create directly,
+			// because the session conflates the environment, shared, and container metdata config
+			// within NewSession.  With stscreds, we use the Secure Token Service,
+			// to assume the given role (that has rds db connect permissions).
+			dbIamRole := v.GetString(cli.DbIamRoleFlag)
+			logger.Info(fmt.Sprintf("assuming AWS role %q for db connection", dbIamRole))
+			dbCreds = stscreds.NewCredentials(session, dbIamRole)
+		}
+	}
+
+	// Create a connection to the DB
+	dbConnection, err := cli.InitDatabase(v, dbCreds, logger)
+	if err != nil {
+		logger.Fatal("Connecting to DB", zap.Error(err))
+	}
+
+	ctx := context.TODO()
+	notificationSender, notificationSenderErr := notifications.InitEmail(v, session, logger)
+	if notificationSenderErr != nil {
+		logger.Fatal("notification sender sending not enabled", zap.Error(notificationSenderErr))
+	}
+
+	movePaymentReminderNotifier, err := notifications.NewPaymentReminder(dbConnection, logger)
+	if err != nil {
+		logger.Fatal("initializing MoveReviewed", zap.Error(err))
+	}
+	fmt.Printf("%+v\n", movePaymentReminderNotifier)
+
+	err = notificationSender.SendNotification(ctx, movePaymentReminderNotifier)
+	if err != nil {
+		logger.Fatal("Emails failed to send", zap.Error(err))
+	}
+	return nil
+}
