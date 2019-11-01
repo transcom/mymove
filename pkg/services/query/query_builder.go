@@ -186,7 +186,7 @@ func categoricalCountsQueryOneModel(conn *pop.Connection, filters []services.Que
 
 func filteredQuery(query *pop.Query, filters []services.QueryFilter, t reflect.Type) (*pop.Query, error) {
 	invalidFields := make([]string, 0)
-	likeFilters := map[interface{}][]services.QueryFilter{}
+	likeFilters := []services.QueryFilter{}
 
 	for _, f := range filters {
 		// Validate the filter we're using is valid/safe
@@ -196,7 +196,7 @@ func filteredQuery(query *pop.Query, filters []services.QueryFilter, t reflect.T
 		}
 
 		if f.Comparator() == ilike {
-			likeFilters[f.Value()] = append(likeFilters[f.Value()], f)
+			likeFilters = append(likeFilters, f)
 			continue
 		}
 
@@ -207,17 +207,20 @@ func filteredQuery(query *pop.Query, filters []services.QueryFilter, t reflect.T
 	}
 
 	// Hacky way to get ILIKE filters to work with OR instead of AND
-	for val, f := range likeFilters {
-		var queries []string
-		var vals []interface{}
 
-		for _, lf := range f {
-			vals = append(vals, val)
-			columnQuery := fmt.Sprintf("%s %s ?", lf.Column(), lf.Comparator())
+	if len(likeFilters) > 0 {
+		var likeQuery string
+		var vals []interface{}
+		var queries []string
+
+		for _, f := range likeFilters {
+			vals = append(vals, f.Value())
+			columnQuery := fmt.Sprintf("%s %s ?", f.Column(), f.Comparator())
 			queries = append(queries, columnQuery)
+
+			likeQuery = strings.Join(queries, " OR ")
 		}
 
-		likeQuery := strings.Join(queries, " OR ")
 		query = query.Where(likeQuery, vals...)
 	}
 
