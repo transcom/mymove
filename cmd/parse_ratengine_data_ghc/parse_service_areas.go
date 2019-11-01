@@ -122,7 +122,30 @@ var verifyServiceAreas verifyXlsxSheet = func(params paramConfig, sheetIndex int
 	const rateAreaIDColumn int = 10
 
 	if xlsxDataSheetNum != sheetIndex {
-		return fmt.Errorf("verifyDomesticLinehaulPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
+		return fmt.Errorf("verifyServiceAreas expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
+	}
+
+	// Only check header of domestic and international service areas
+	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[serviceAreaRowIndexStart-1 : serviceAreaRowIndexStart]
+	for _, dataRow := range dataRows {
+		if header := getCell(dataRow.Cells, basePointCityColumn); header != "Base Point City" {
+			return fmt.Errorf("verifyServiceAreas expected to find header 'Base Point City', but received header '%s'", header)
+		}
+		if header := getCell(dataRow.Cells, stateColumn); header != "State" {
+			return fmt.Errorf("verifyServiceAreas expected to find header 'State', but received header '%s'", header)
+		}
+		if header := removeWhiteSpace(getCell(dataRow.Cells, serviceAreaNumberColumn)); header != "ServiceAreaNumber" {
+			return fmt.Errorf("verifyServiceAreas expected to find header 'ServiceAreaNumber', but received header '%s'", header)
+		}
+		if header := removeWhiteSpace(getCell(dataRow.Cells, zip3sColumn)); header != "IncludedZip3's" {
+			return fmt.Errorf("verifyServiceAreas expected to find header \"IncludedZip3's\", but received header '%s'", header)
+		}
+		if header := getCell(dataRow.Cells, internationalRateAreaColumn); header != "International Rate Area" {
+			return fmt.Errorf("verifyServiceAreas expected to find header 'International Rate Area', but received header '%s'", header)
+		}
+		if header := getCell(dataRow.Cells, rateAreaIDColumn); header != "Rate Area ID" {
+			return fmt.Errorf("verifyServiceAreas expected to find header 'Rate Area ID', but received header '%s'", header)
+		}
 	}
 	return nil
 }
