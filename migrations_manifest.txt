@@ -376,4 +376,4 @@
 20191023153000_add_missing_primary_keys.up.sql
 20191023161500_set_max_length_on_payment_methods.up.sql
 20191023200010_create_mto_required_fields_tables.up.sql
-20191031153450_add_office_user_trigram_indexes.up.sql
+20191031153450_add_office_user_indexes.up.sql
