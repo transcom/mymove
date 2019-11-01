@@ -212,7 +212,12 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 	transportationOfficeID, _ := uuid.NewV4()
 	officeUserID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
-	officeUser := models.OfficeUser{ID: officeUserID, TransportationOfficeID: transportationOfficeID, UserID: nil}
+	officeUser := models.OfficeUser{
+		ID:                     officeUserID,
+		TransportationOfficeID: transportationOfficeID,
+		UserID:                 nil,
+		Active:                 true,
+	}
 	queryFilter := mocks.QueryFilter{}
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 

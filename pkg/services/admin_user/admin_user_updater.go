@@ -23,7 +23,7 @@ func (o *adminUserUpdater) UpdateAdminUser(user *models.AdminUser) (*models.Admi
 
 	foundUser.FirstName = user.FirstName
 	foundUser.LastName = user.LastName
-	foundUser.Deactivated = user.Deactivated
+	foundUser.Active = user.Active
 
 	verrs, err := o.builder.UpdateOne(&foundUser)
 	if verrs != nil || err != nil {
