@@ -14,8 +14,8 @@ import (
 // parseServiceAreas: parser for: 1b) Service Areas
 var parseDomesticServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
 	// XLSX Sheet consts
-	const xlsxDataSheetNum int = 4          // 1b) Service Areas
-	const serviceAreaRowIndexStart int = 10 // start at row 10 to get the rates
+	const xlsxDataSheetNum int = 4         // 1b) Service Areas
+	const serviceAreaRowIndexStart int = 9 // start at row 10 to get the rates
 	const basePointCityColumn int = 2
 	const stateColumn int = 3
 	const serviceAreaNumberColumn int = 4
@@ -63,8 +63,8 @@ var parseDomesticServiceAreas processXlsxSheet = func(params paramConfig, sheetI
 
 var parseInternationalServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
 	// XLSX Sheet consts
-	const xlsxDataSheetNum int = 4          // 1b) Service Areas
-	const serviceAreaRowIndexStart int = 10 // start at row 10 to get the rates
+	const xlsxDataSheetNum int = 4         // 1b) Service Areas
+	const serviceAreaRowIndexStart int = 9 // start at row 10 to get the rates
 	const basePointCityColumn int = 2
 	const stateColumn int = 3
 	const serviceAreaNumberColumn int = 4
