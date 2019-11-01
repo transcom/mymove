@@ -144,38 +144,38 @@ func initDataSheetInfo() {
 		description:    stringPointer("1b) Service Areas"),
 		outputFilename: stringPointer("1b_service_areas"),
 		processMethods: []xlsxProcessInfo{
-			xlsxProcessInfo{
-				process:        &parseDomesticServiceAreas,
+			{
+				process:    &parseDomesticServiceAreas,
 				adtlSuffix: stringPointer("domestic"),
 			},
-			xlsxProcessInfo{
-				process:        &parseInternationalServiceAreas,
+			{
+				process:    &parseInternationalServiceAreas,
 				adtlSuffix: stringPointer("international"),
 			},
 		},
-		verify:         &verifyServiceAreas,
+		verify: &verifyServiceAreas,
 	}
 
 	// 6: 	2a) Domestic Linehaul Prices
 	xlsxDataSheets[6] = xlsxDataSheetInfo{
 		description:    stringPointer("2a) Domestic Linehaul Prices"),
 		outputFilename: stringPointer("2a_domestic_linehaul_prices"),
-		processMethods: []xlsxProcessInfo{xlsxProcessInfo{
-				process:        &parseDomesticLinehaulPrices,
-			},
+		processMethods: []xlsxProcessInfo{{
+			process: &parseDomesticLinehaulPrices,
 		},
-		verify:         &verifyDomesticLinehaulPrices,
+		},
+		verify: &verifyDomesticLinehaulPrices,
 	}
 
 	// 7: 	2b) Dom. Service Area Prices
 	xlsxDataSheets[7] = xlsxDataSheetInfo{
 		description:    stringPointer("2b) Dom. Service Area Prices"),
 		outputFilename: stringPointer("2b_domestic_service_area_prices"),
-		processMethods: []xlsxProcessInfo{xlsxProcessInfo{
-				process:        &parseDomesticServiceAreaPrices,
-			},
+		processMethods: []xlsxProcessInfo{{
+			process: &parseDomesticServiceAreaPrices,
 		},
-		verify:         &verifyDomesticServiceAreaPrices,
+		},
+		verify: &verifyDomesticServiceAreaPrices,
 	}
 
 }

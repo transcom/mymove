@@ -1,0 +1,67 @@
+rate_area,rate_area_id
+Alaska (Zone) II,US8190100
+Alaska (Zone) III,US8050500
+Alaska (Zone) IV,US8030400
+Argentina,AR
+Azores,PO01
+Bahrain,BA
+Belgium,BE
+Bolivia,BL
+Brazil - Brazilia,BR
+Chile,CI
+Colombia,CO
+Costa Rica,CS
+Crete,GR29
+Ecuador,EC
+El Salvador,ES
+Germany,GE
+Greece,GR
+Guam,GQ
+Guatemala,GT
+Hawaii,US89
+Honduras,HO
+Hungary,HU
+Italy,IT
+Japan-Central,JA01
+Japan-North,JA03
+Japan-South (Excludes Hokkaido),JA02
+"Korea, Republic Of",KS
+Kuwait,KU
+Manitoba,CA30
+Netherlands,NL
+New South Wales/Australian Capital Territory,AS11
+Northern Territory,AS21
+Norway,NO
+Okinawa,JA96
+Ontario,CA10
+Paraguay,PA
+Peru,PE
+Poland,PL
+Portugal,PO
+Puerto Rico,RQ
+Qatar,QA
+Quebec,CA20
+Romania,RO
+Saudi Arabia,SA
+Sicily,IT10
+Singapore,SN
+Spain,SP
+Turkey,TU
+United Kingdom,UK
+Uruguay,UY
+Venezuela,VE
+Canada West,NSRA1
+Canada Central,NSRA2
+Canada East,NSRA3
+Mexico & Central America,NSRA4
+Caribbean Islands,NSRA5
+South America,NSRA6
+Europe,NSRA7
+Africa - North,NSRA8
+Africa - South,NSRA9
+Middle East,NSRA10
+Asia,NSRA11
+Asia - South,NSRA12
+Pacific Islands,NSRA13
+Australia & New Zealand,NSRA14
+Alaska,NSRA15

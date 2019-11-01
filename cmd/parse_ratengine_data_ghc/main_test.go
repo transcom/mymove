@@ -50,7 +50,6 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_xlsxDataSheetInfo_generateOutputF
 		process        *processXlsxSheet
 		verify         *verifyXlsxSheet
 		outputFilename *string
-		adtlSuffix     *string
 	}
 	type args struct {
 		index   int
@@ -60,11 +59,11 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_xlsxDataSheetInfo_generateOutputF
 	currentTime := time.Now()
 
 	tests := []struct {
-		name          string
-		fields        fields
-		args          args
-		adtlSuffix    *string
-		want          string
+		name       string
+		fields     fields
+		args       args
+		adtlSuffix *string
+		want       string
 	}{
 		{
 			name: "TC 1: generate filename with outputFilename provided",
@@ -95,17 +94,17 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_xlsxDataSheetInfo_generateOutputF
 				runTime: currentTime,
 			},
 			adtlSuffix: stringPointer("adtlSuffix"),
-			want: "2_rate_engine_ghc_parse_adtlSuffix_" + currentTime.Format("20060102150405") + ".csv",
+			want:       "2_rate_engine_ghc_parse_adtlSuffix_" + currentTime.Format("20060102150405") + ".csv",
 		},
 	}
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			x := &xlsxDataSheetInfo{
-				description:    tt.fields.description,
-				processMethods: []xlsxProcessInfo{xlsxProcessInfo{
-						process: tt.fields.process,
-						adtlSuffix: tt.adtlSuffix,
-					},
+				description: tt.fields.description,
+				processMethods: []xlsxProcessInfo{{
+					process:    tt.fields.process,
+					adtlSuffix: tt.adtlSuffix,
+				},
 				},
 				verify:         tt.fields.verify,
 				outputFilename: tt.fields.outputFilename,
@@ -156,33 +155,33 @@ func (suite *ParseRateEngineGHCXLSXSuite) helperTestSetup() {
 	xlsxDataSheets[0] = xlsxDataSheetInfo{
 		description:    stringPointer("0) Test Process 1"),
 		outputFilename: stringPointer("0_test_process_1"),
-		processMethods: []xlsxProcessInfo{xlsxProcessInfo{
-				process: &testProcessFunc1,
-			},
+		processMethods: []xlsxProcessInfo{{
+			process: &testProcessFunc1,
 		},
-		verify:         &testVerifyFunc1,
+		},
+		verify: &testVerifyFunc1,
 	}
 
 	// 1:
 	xlsxDataSheets[1] = xlsxDataSheetInfo{
 		description:    stringPointer("1) Test Process 2"),
 		outputFilename: stringPointer("1_test_process_2"),
-		processMethods: []xlsxProcessInfo{xlsxProcessInfo{
-				process: &testProcessFunc2,
-			},
+		processMethods: []xlsxProcessInfo{{
+			process: &testProcessFunc2,
 		},
-		verify:         &testVerifyFunc2,
+		},
+		verify: &testVerifyFunc2,
 	}
 
 	// 2:
 	xlsxDataSheets[2] = xlsxDataSheetInfo{
 		description:    stringPointer("2) Test Process 3"),
 		outputFilename: stringPointer("2_test_process_3"),
-		processMethods: []xlsxProcessInfo{xlsxProcessInfo{
-				process: &testProcessFunc3,
-			},
+		processMethods: []xlsxProcessInfo{{
+			process: &testProcessFunc3,
 		},
-		verify:         &testVerifyFunc3,
+		},
+		verify: &testVerifyFunc3,
 	}
 
 	// 3:
@@ -190,20 +189,20 @@ func (suite *ParseRateEngineGHCXLSXSuite) helperTestSetup() {
 		description:    stringPointer("3) Test Process 4"),
 		outputFilename: stringPointer("3_test_process_4"),
 		processMethods: []xlsxProcessInfo{
-			xlsxProcessInfo{
-				process: &testProcessFunc1,
+			{
+				process:    &testProcessFunc1,
 				adtlSuffix: stringPointer("suffix1"),
 			},
-			xlsxProcessInfo{
-				process: &testProcessFunc2,
+			{
+				process:    &testProcessFunc2,
 				adtlSuffix: stringPointer("suffix2"),
 			},
-			xlsxProcessInfo{
-				process: &testProcessFunc4,
+			{
+				process:    &testProcessFunc4,
 				adtlSuffix: stringPointer("suffix4"),
 			},
 		},
-		verify:         &testVerifyFunc4,
+		verify: &testVerifyFunc4,
 	}
 }
 

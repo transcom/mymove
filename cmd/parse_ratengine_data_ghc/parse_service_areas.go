@@ -58,9 +58,28 @@ var parseDomesticServiceAreas processXlsxSheet = func(params paramConfig, sheetI
 		return errors.Wrap(err, "Could not create temp table for domestic service areas")
 	}
 
+	return nil
+}
+
+var parseInternationalServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
+	// XLSX Sheet consts
+	const xlsxDataSheetNum int = 4          // 1b) Service Areas
+	const serviceAreaRowIndexStart int = 10 // start at row 10 to get the rates
+	const basePointCityColumn int = 2
+	const stateColumn int = 3
+	const serviceAreaNumberColumn int = 4
+	const zip3sColumn int = 5
+	const internationalRateAreaColumn int = 9
+	const rateAreaIDColumn int = 10
+
+	if xlsxDataSheetNum != sheetIndex {
+		return fmt.Errorf("parseServiceAreas expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
+	}
+
 	log.Println("Parsing International Service Areas")
 
 	var intlServAreas []models.StageInternationalServiceArea
+	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[serviceAreaRowIndexStart:]
 	for _, row := range dataRows {
 		intlServArea := models.StageInternationalServiceArea{
 			RateArea:   getCell(row.Cells, internationalRateAreaColumn),
