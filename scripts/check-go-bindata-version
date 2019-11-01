@@ -1,0 +1,15 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+VERSION="v3.15.0"
+
+GO_BINDATA_VERSION=$(go-bindata --version)
+# shellcheck disable=SC2203
+if [[ $GO_BINDATA_VERSION = *$VERSION* ]]; then
+  echo "$GO_BINDATA_VERSION installed"
+else
+  echo "at least go-bindata $VERSION is required to run this project! Found $GO_BINDATA_VERSION"
+  echo "Run 'brew upgrade go-bindata"
+  exit 1
+fi

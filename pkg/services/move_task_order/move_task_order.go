@@ -9,6 +9,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 //ErrNotFound is returned when a given move task order is not found
@@ -58,7 +59,7 @@ type updateMoveTaskOrderStatus struct {
 	fetchMoveTaskOrder
 }
 
-// NewMoveTaskOrderFetcher creates a new struct with the service dependencies
+// NewMoveTaskOrderStatusUpdater creates a new struct with the service dependencies
 func NewMoveTaskOrderStatusUpdater(db *pop.Connection) services.MoveTaskOrderStatusUpdater {
 	moveTaskOrderFetcher := fetchMoveTaskOrder{db}
 	return &updateMoveTaskOrderStatus{db, moveTaskOrderFetcher}
@@ -71,6 +72,36 @@ func (f fetchMoveTaskOrder) UpdateMoveTaskOrderStatus(moveTaskOrderID uuid.UUID,
 		return &models.MoveTaskOrder{}, err
 	}
 	mto.Status = status
+	vErrors, err := f.db.ValidateAndUpdate(mto)
+	if vErrors.HasAny() {
+		return &models.MoveTaskOrder{}, ErrInvalidInput{moveTaskOrderID, vErrors}
+	}
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
+	return mto, nil
+}
+
+type updateMoveTaskOrderActualWeight struct {
+	db *pop.Connection
+	fetchMoveTaskOrder
+}
+
+// NewMoveTaskOrderActualWeightUpdater creates a new struct with the service dependencies
+func NewMoveTaskOrderActualWeightUpdater(db *pop.Connection) services.MoveTaskOrderActualWeightUpdater {
+	moveTaskOrderFetcher := fetchMoveTaskOrder{db}
+	return &updateMoveTaskOrderActualWeight{db, moveTaskOrderFetcher}
+}
+
+//UpdateMoveTaskOrderActualWeight updates the actual weight of a MoveTaskOrder for a given UUID
+func (f fetchMoveTaskOrder) UpdateMoveTaskOrderActualWeight(moveTaskOrderID uuid.UUID, actualWeight int64) (*models.MoveTaskOrder, error) {
+	mto, err := f.FetchMoveTaskOrder(moveTaskOrderID)
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
+	weight := unit.Pound(actualWeight)
+	mto.ActualWeight = &weight
+
 	vErrors, err := f.db.ValidateAndUpdate(mto)
 	if vErrors.HasAny() {
 		return &models.MoveTaskOrder{}, ErrInvalidInput{moveTaskOrderID, vErrors}
