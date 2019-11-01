@@ -1,11 +1,10 @@
 INSERT INTO re_services
 (id, code, name, created_at, updated_at)
-INSERT INTO re_services
-(id, code, name, created_at, updated_at)
 VALUES
 ('1130e612-94eb-49a7-973d-72f33685e551', 'SMSR', 'Shipment Mgmt Services', now(), now()),
 ('9dc919da-9b66-407b-9f17-05c0f03fcb50', 'COSR', 'Counseling Services', now(), now()),
 ('8d600f25-1def-422d-b159-617c7d59156e', 'DLH', 'Dom. Linehaul', now(), now()),
+('4b85962e-25d3-4485-b43c-2497c4365598', 'DSH', 'Dom. Shorthaul', now(), now()),
 ('2bc3e5cb-adef-46b1-bde9-55570bfdd43e', 'DODP', 'Dom. O/D Price', now(), now()),
 ('998beda7-e390-4a83-b15e-578a24326937', 'DFSIT', 'Dom. O/D 1st Day SIT', now(), now()),
 ('05eb6ff1-5cf6-4918-b887-8260dda6b9fe', 'DASIT', 'Dom. O/D Add''l SIT', now(), now()),
@@ -28,7 +27,6 @@ VALUES
 ('b488bf85-ea5e-49c8-ba5c-e2fa278ac806', 'IFSIT', 'Int''l 1st Day SIT', now(), now()),
 ('bd424e45-397b-4766-9712-de4ae3a2da36', 'IASIT', 'Int''l Add''l Day SIT', now(), now()),
 ('6f4f6e31-0675-4051-b659-89832259f390', 'ISPD', 'Int''l SIT Pickup / Delivery', now(), now()),
-('4b85962e-25d3-4485-b43c-2497c4365598', 'ISPD', 'Int''l SIT Pickup / Delivery', now(), now()),
 ('86203d72-7f7c-49ff-82f0-5b95e4958f60', 'ICRT', 'Int''l. Crating', now(), now()),
 ('4132416b-b1aa-42e7-98f2-0ac0a03e8a31', 'IUCR', 'Int''l. Uncrating', now(), now()),
 ('624a97c5-dfbf-4da9-a6e9-526b4f95af8d', 'ISSR', 'Int''l. Shuttle Service', now(), now()),
