@@ -114,7 +114,7 @@ intentionally are modifying the pattern of how the processing functions are call
 const sharedNumEscalationYearsToProcess int = 1
 const xlsxSheetsCountMax int = 35
 
-type processXlsxSheet func(paramConfig, int, services.TableFromSliceCreator) error
+type processXlsxSheet func(paramConfig, int, services.TableFromSliceCreator, *createCsvHelper) error
 type verifyXlsxSheet func(paramConfig, int) error
 
 type xlsxDataSheetInfo struct {
@@ -397,9 +397,14 @@ func process(params paramConfig, sheetIndex int, tableFromSliceCreator services.
 	// Call process function
 	if len(xlsxInfo.processMethods) > 0 {
 		for _, p := range xlsxInfo.processMethods {
+			// Create CSV writer to save data to CSV file, returns nil if params.saveToFile=false
+			csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime, p.adtlSuffix)
+			if csvWriter != nil {
+				defer csvWriter.close()
+			}
 			var callFunc processXlsxSheet
 			callFunc = *p.process
-			err := callFunc(params, sheetIndex, tableFromSliceCreator)
+			err := callFunc(params, sheetIndex, tableFromSliceCreator, csvWriter)
 			if err != nil {
 				log.Printf("%s process error: %v\n", description, err)
 				return errors.Wrapf(err, " process error for sheet index: %d with description: %s", sheetIndex, description)

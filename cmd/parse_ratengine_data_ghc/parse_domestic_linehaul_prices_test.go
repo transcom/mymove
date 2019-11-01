@@ -27,7 +27,12 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticLinehaulPrices() {
 	}
 
 	const sheetIndex int = 6
-	err = parseDomesticLinehaulPrices(params, sheetIndex, suite.tableFromSliceCreator)
+	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime, nil)
+	if csvWriter != nil {
+		defer csvWriter.close()
+	}
+
+	err = parseDomesticLinehaulPrices(params, sheetIndex, suite.tableFromSliceCreator, csvWriter)
 	suite.NoError(err, "parseDomesticLinehaulPrices function failed")
 
 	outputFilename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime, nil)

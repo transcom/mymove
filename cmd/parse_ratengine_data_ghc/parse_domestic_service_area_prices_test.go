@@ -28,7 +28,12 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticServiceAreaPrices() 
 	}
 
 	const sheetIndex int = 7
-	err = parseDomesticServiceAreaPrices(params, sheetIndex, suite.tableFromSliceCreator)
+	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime, nil)
+	if csvWriter != nil {
+		defer csvWriter.close()
+	}
+
+	err = parseDomesticServiceAreaPrices(params, sheetIndex, suite.tableFromSliceCreator, csvWriter)
 	suite.NoError(err, "parseDomesticServiceAreaPrices function failed")
 
 	outputFilename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime, nil)

@@ -58,11 +58,11 @@ func (cCH *createCsvHelper) close() {
 // Shared Helper functions
 /*************************************************************************/
 
-func createCsvWriter(create bool, sheetIndex int, runTime time.Time) *createCsvHelper {
+func createCsvWriter(create bool, sheetIndex int, runTime time.Time, adtlSuffix *string) *createCsvHelper {
 	var createCsv createCsvHelper
 
 	if create == true {
-		err := createCsv.createCsvWriter(xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, runTime, nil))
+		err := createCsv.createCsvWriter(xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, runTime, adtlSuffix))
 		checkError("Failed to create CSV writer", err)
 	} else {
 		return nil

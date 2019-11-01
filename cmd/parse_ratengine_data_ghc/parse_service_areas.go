@@ -12,7 +12,7 @@ import (
 )
 
 // parseServiceAreas: parser for: 1b) Service Areas
-var parseServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator) error {
+var parseDomesticServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 4          // 1b) Service Areas
 	const serviceAreaRowIndexStart int = 10 // start at row 10 to get the rates
@@ -28,12 +28,6 @@ var parseServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int
 	}
 
 	log.Println("Parsing Domestic Service Areas")
-	// Create CSV writer to save data to CSV file, returns nil if params.saveToFile=false
-	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime)
-	if csvWriter != nil {
-		defer csvWriter.close()
-	}
-
 	var domServAreas []models.StageDomesticServiceArea
 	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[serviceAreaRowIndexStart:]
 	for _, row := range dataRows {

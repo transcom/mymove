@@ -27,11 +27,16 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseServiceAreas() {
 	}
 
 	const sheetIndex int = 4
-	err = parseServiceAreas(params, sheetIndex, suite.tableFromSliceCreator)
+	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime, stringPointer("domestic"))
+	if csvWriter != nil {
+		defer csvWriter.close()
+	}
+
+	err = parseDomesticServiceAreas(params, sheetIndex, suite.tableFromSliceCreator, csvWriter)
 	suite.NoError(err, "parseDomesticServiceAreas function failed")
 
 	outputFilename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime, stringPointer("domestic"))
 
-	const goldenFilename string = "4_1b_service_areas_golden.csv"
-	suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)
+	const domesticGoldenFilename string = "4_1b_service_areas_domestic_golden.csv"
+	suite.helperTestExpectedFileOutput(domesticGoldenFilename, outputFilename)
 }

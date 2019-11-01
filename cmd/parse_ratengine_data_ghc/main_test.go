@@ -129,16 +129,24 @@ var testVerifyFunc3 verifyXlsxSheet = func(params paramConfig, sheetIndex int) e
 	return fmt.Errorf("forced test error from function testVerifyFunc3 with index %d", sheetIndex)
 }
 
-var testProcessFunc1 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator) error {
+var testVerifyFunc4 verifyXlsxSheet = func(params paramConfig, sheetIndex int) error {
 	return nil
 }
 
-var testProcessFunc2 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator) error {
+var testProcessFunc1 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
 	return nil
 }
 
-var testProcessFunc3 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator) error {
+var testProcessFunc2 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
+	return nil
+}
+
+var testProcessFunc3 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
 	return fmt.Errorf("forced test error from function testProcessFunc3 with index %d", sheetIndex)
+}
+
+var testProcessFunc4 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
+	return nil
 }
 
 func (suite *ParseRateEngineGHCXLSXSuite) helperTestSetup() {
