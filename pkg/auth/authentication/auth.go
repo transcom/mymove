@@ -92,6 +92,23 @@ func AdminAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	}
 }
 
+func PrimeAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			session := auth.SessionFromRequestContext(r)
+
+			if session == nil || !session.IsOfficeUser() {
+				http.Error(w, http.StatusText(403), http.StatusForbidden)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		}
+
+		return http.HandlerFunc(mw)
+	}
+}
+
 func (context Context) landingURL(session *auth.Session) string {
 	return fmt.Sprintf(context.callbackTemplate, session.Hostname)
 }
