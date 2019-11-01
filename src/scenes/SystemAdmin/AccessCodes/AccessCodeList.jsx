@@ -15,7 +15,7 @@ const AccessCodeFilter = props => (
       alwaysOn
       resettable
     />
-    <SelectInput source="move_type" choices={[{ id: 'PPM', name: 'PPM' }, { id: 'HHG', name: 'HHG' }]} />
+    <SelectInput source="move_type" choices={[{ id: 'PPM', name: 'PPM' }]} />
   </Filter>
 );
 

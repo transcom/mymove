@@ -26,7 +26,6 @@ definitions:
         type: string
         title: Selected Move Type
         enum:
-          - HHG
           - PPM
       locator:
         type: string
