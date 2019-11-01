@@ -14518,10 +14518,10 @@ use@^3.1.0:
   resolved "https://registry.yarnpkg.com/use/-/use-3.1.1.tgz#d50c8cac79a19fbc20f2911f56eb973f4e10070f"
   integrity sha512-cwESVXlO3url9YWlFW/TA9cshCEhtu7IKJ/p5soJ/gGpj7vbvFrAY/eIioQ6Dw23KjZhYgiIo8HOs1nQ2vr/oQ==
 
-uswds@2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/uswds/-/uswds-2.2.0.tgz#6f82ae426c54a5c1352b265fcbfaf7c5e3cb7ce3"
-  integrity sha512-9gxjEQkW3Pm+OBYANak8iHCvBUHTjUxznXZGPsSxEL5rlDkYcI1Pb7F9mxeSrjMtkFSP6/GaNbGxGrMbSdH6Dw==
+uswds@2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/uswds/-/uswds-2.2.1.tgz#a524fb06703ca53033d433f984966af89cbd780b"
+  integrity sha512-VCi8q4G95JJb5Vf9L3cPMtVsGTlZg/5GIYoM0aFQxFJQOLtw96nfoZWyxliVixn5f8blCEZsnYavuNFXndCbKw==
   dependencies:
     "@types/node" "^8.10.52"
     array-filter "^1.0.0"
