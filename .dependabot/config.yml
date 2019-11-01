@@ -17,11 +17,10 @@ update_configs:
       - sarboc
       - chrisrcoles
 
-  # Keep go.mod (& go.sum) up to date as soon as
-  # new versions are published
+  # Keep go.mod (& go.sum) up to date daily
   - package_manager: "go:modules"
     directory: "/"
-    update_schedule: "weekly"
+    update_schedule: "daily"
     default_labels:
       - dependencies
       - automerge
@@ -32,10 +31,10 @@ update_configs:
       - sarboc
       - chrisrcoles
 
-  # Keep Dockerfile up to date, batching pull requests weekly
+  # Keep Dockerfile up to date, batching pull requests daily
   - package_manager: "docker"
     directory: "/"
-    update_schedule: "weekly"
+    update_schedule: "daily"
     default_labels:
       - dependencies
       - automerge
