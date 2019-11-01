@@ -111,6 +111,18 @@ var parseInternationalServiceAreas processXlsxSheet = func(params paramConfig, s
 
 // verifyServiceAreas: verification for: 1b) Service Areas
 var verifyServiceAreas verifyXlsxSheet = func(params paramConfig, sheetIndex int) error {
-	log.Println("TODO verifyServiceAreas() not implemented")
+	// XLSX Sheet consts
+	const xlsxDataSheetNum int = 4         // 1b) Service Areas
+	const serviceAreaRowIndexStart int = 9 // start at row 6 to get the headings
+	const basePointCityColumn int = 2
+	const stateColumn int = 3
+	const serviceAreaNumberColumn int = 4
+	const zip3sColumn int = 5
+	const internationalRateAreaColumn int = 9
+	const rateAreaIDColumn int = 10
+
+	if xlsxDataSheetNum != sheetIndex {
+		return fmt.Errorf("verifyDomesticLinehaulPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
+	}
 	return nil
 }
