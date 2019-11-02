@@ -87,7 +87,7 @@
     "@storybook/addon-actions": "^5.1.11",
     "@storybook/addon-knobs": "^5.1.11",
     "@storybook/addon-links": "^5.1.11",
-    "@storybook/addons": "^5.1.11",
+    "@storybook/addons": "^5.2.5",
     "@storybook/react": "^5.1.11",
     "adr-log": "^2.1.1",
     "cypress": "^3.4.1",
