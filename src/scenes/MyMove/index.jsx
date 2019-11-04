@@ -8,6 +8,9 @@ import { ConnectedRouter, push, goBack } from 'react-router-redux';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
+import 'uswds';
+import '../../../node_modules/uswds/dist/css/uswds.css';
+
 import Alert from 'shared/Alert';
 import InfectedUpload from 'shared/Uploader/InfectedUpload';
 import ProcessingUpload from 'shared/Uploader/ProcessingUpload';
