@@ -25,7 +25,7 @@ func (o *officeUserUpdater) UpdateOfficeUser(user *models.OfficeUser) (*models.O
 	foundUser.MiddleInitials = user.MiddleInitials
 	foundUser.LastName = user.LastName
 	foundUser.Telephone = user.Telephone
-	foundUser.Deactivated = user.Deactivated
+	foundUser.Active = user.Active
 
 	verrs, err := o.builder.UpdateOne(&foundUser)
 	if verrs != nil || err != nil {

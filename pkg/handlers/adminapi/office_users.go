@@ -24,7 +24,7 @@ func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 		Telephone:              handlers.FmtString(o.Telephone),
 		Email:                  handlers.FmtString(o.Email),
 		TransportationOfficeID: handlers.FmtUUID(o.TransportationOfficeID),
-		Deactivated:            handlers.FmtBool(o.Deactivated),
+		Active:                 handlers.FmtBool(o.Active),
 		CreatedAt:              handlers.FmtDateTime(o.CreatedAt),
 		UpdatedAt:              handlers.FmtDateTime(o.UpdatedAt),
 	}
@@ -113,6 +113,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 		Telephone:              payload.Telephone,
 		Email:                  payload.Email,
 		TransportationOfficeID: transportationOfficeID,
+		Active:                 true,
 	}
 
 	transportationIDFilter := []services.QueryFilter{
@@ -151,7 +152,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 		LastName:       payload.LastName,
 		FirstName:      payload.FirstName,
 		Telephone:      payload.Telephone,
-		Deactivated:    payload.Deactivated,
+		Active:         payload.Active,
 	}
 
 	updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(&officeUser)
