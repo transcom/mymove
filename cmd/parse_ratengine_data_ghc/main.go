@@ -323,13 +323,11 @@ func main() {
 	err = db.Transaction(func(connection *pop.Connection) error {
 		if params.processAll == true {
 			for i, x := range xlsxDataSheets {
-				for _, p := range x.processMethods {
-					if p.process != nil {
-						dbErr := process(params, i, tableFromSliceCreator)
-						if dbErr != nil {
-							log.Printf("Error processing xlsxDataSheets %v\n", dbErr.Error())
-							return dbErr
-						}
+				if len(x.processMethods) >= 1 {
+					dbErr := process(params, i, tableFromSliceCreator)
+					if dbErr != nil {
+						log.Printf("Error processing xlsxDataSheets %v\n", dbErr.Error())
+						return dbErr
 					}
 				}
 			}
@@ -397,18 +395,22 @@ func process(params paramConfig, sheetIndex int, tableFromSliceCreator services.
 
 	// Call process function
 	if len(xlsxInfo.processMethods) > 0 {
-		for _, p := range xlsxInfo.processMethods {
-			// Create CSV writer to save data to CSV file, returns nil if params.saveToFile=false
-			csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime, p.adtlSuffix)
-			if csvWriter != nil {
-				defer csvWriter.close()
-			}
-			var callFunc processXlsxSheet
-			callFunc = *p.process
-			err := callFunc(params, sheetIndex, tableFromSliceCreator, csvWriter)
-			if err != nil {
-				log.Printf("%s process error: %v\n", description, err)
-				return errors.Wrapf(err, " process error for sheet index: %d with description: %s", sheetIndex, description)
+		for methodIndex, p := range xlsxInfo.processMethods {
+			if p.process != nil {
+				// Create CSV writer to save data to CSV file, returns nil if params.saveToFile=false
+				csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime, p.adtlSuffix)
+				if csvWriter != nil {
+					defer csvWriter.close()
+				}
+				var callFunc processXlsxSheet
+				callFunc = *p.process
+				err := callFunc(params, sheetIndex, tableFromSliceCreator, csvWriter)
+				if err != nil {
+					log.Printf("%s process error: %v\n", description, err)
+					return errors.Wrapf(err, " process error for sheet index: %d with description: %s", sheetIndex, description)
+				}
+			} else {
+				log.Printf("No process function for sheet index %d with description %s method index: %d\n", sheetIndex, description, methodIndex)
 			}
 		}
 	} else {
