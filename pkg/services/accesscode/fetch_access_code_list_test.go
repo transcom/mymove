@@ -34,7 +34,7 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListNoFilterNoAssociatio
 	var queryFilters []services.QueryFilter
 	var associations []services.QueryAssociation
 	newAssociations := query.NewQueryAssociations(associations)
-	queryBuilder := query.NewQueryBuilder(suite.DB())
+	queryBuilder := query.NewFetchMany(suite.DB())
 	lf := NewAccessCodeListFetcher(queryBuilder)
 
 	acs, err := lf.FetchAccessCodeList(queryFilters, newAssociations, defaultPagination())
@@ -68,7 +68,7 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListWithFilter() {
 	queryFilters = append(queryFilters, query.NewQueryFilter("move_type", "=", "PPM"))
 	var associations []services.QueryAssociation
 	newAssociations := query.NewQueryAssociations(associations)
-	queryBuilder := query.NewQueryBuilder(suite.DB())
+	queryBuilder := query.NewFetchMany(suite.DB())
 	lf := NewAccessCodeListFetcher(queryBuilder)
 
 	acs, err := lf.FetchAccessCodeList(queryFilters, newAssociations, defaultPagination())
@@ -98,7 +98,7 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListWithAssociation() {
 		query.NewQueryAssociation("ServiceMember.Orders.Moves"),
 	}
 	newAssociations := query.NewQueryAssociations(associations)
-	queryBuilder := query.NewQueryBuilder(suite.DB())
+	queryBuilder := query.NewFetchMany(suite.DB())
 	lf := NewAccessCodeListFetcher(queryBuilder)
 
 	acs, err := lf.FetchAccessCodeList(queryFilters, newAssociations, defaultPagination())

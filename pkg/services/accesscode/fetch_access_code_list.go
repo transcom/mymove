@@ -3,10 +3,11 @@ package accesscode
 import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 type accessCodeListQueryBuilder interface {
-	FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) error
+	query.FetchMany
 }
 
 type accessCodeListFetcher struct {
@@ -17,7 +18,7 @@ type accessCodeListFetcher struct {
 func (o *accessCodeListFetcher) FetchAccessCodeList(filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) (models.AccessCodes, error) {
 	var accessCodes models.AccessCodes
 
-	err := o.builder.FetchMany(&accessCodes, filters, associations, pagination)
+	err := o.builder.WithModel(&accessCodes).WithFilters(filters).WithAssociations(associations).WithPagination(pagination).Execute()
 	if err != nil {
 		return models.AccessCodes{}, err
 	}

@@ -19,14 +19,16 @@ type FetchMany interface {
 	WithModel(model interface{}) *fetchMany
 	WithFilters(filters []services.QueryFilter) *fetchMany
 	WithPagination(pagination services.Pagination) *fetchMany
+	WithAssociations(associations services.QueryAssociations) *fetchMany
 	Execute() error
 }
 
 type fetchMany struct {
-	db         *pop.Connection
-	model      interface{}
-	filters    []services.QueryFilter
-	pagination *services.Pagination
+	db           *pop.Connection
+	model        interface{}
+	filters      []services.QueryFilter
+	pagination   *services.Pagination
+	associations *services.QueryAssociations
 }
 
 func NewFetchMany(db *pop.Connection) *fetchMany {
@@ -35,18 +37,23 @@ func NewFetchMany(db *pop.Connection) *fetchMany {
 	}
 }
 
-func (f *fetchMany) WithFilters(filters []services.QueryFilter) *fetchMany {
-	f.filters = filters
-	return f
-}
-
 func (f *fetchMany) WithModel(model interface{}) *fetchMany {
 	f.model = model
 	return f
 }
 
+func (f *fetchMany) WithFilters(filters []services.QueryFilter) *fetchMany {
+	f.filters = filters
+	return f
+}
+
 func (f *fetchMany) WithPagination(pagination services.Pagination) *fetchMany {
 	f.pagination = &pagination
+	return f
+}
+
+func (f *fetchMany) WithAssociations(associations services.QueryAssociations) *fetchMany {
+	f.associations = &associations
 	return f
 }
 
@@ -65,6 +72,10 @@ func (f *fetchMany) Execute() error {
 
 	if f.pagination != nil {
 		query = paginatedQuery(query, *f.pagination, t)
+	}
+
+	if f.associations != nil {
+		query = newAssociatedQuery(query, *f.associations, t)
 	}
 
 	return query.All(f.model)
@@ -323,4 +334,9 @@ func (p *Builder) QueryForAssociations(model interface{}, associations services.
 func associatedQuery(query *pop.Query, associations services.QueryAssociations, model interface{}) error {
 	query = query.Eager(associations.StringGetAssociations()...)
 	return query.All(model)
+}
+
+func newAssociatedQuery(query *pop.Query, associations services.QueryAssociations, t reflect.Type) *pop.Query {
+	query = query.Eager(associations.StringGetAssociations()...)
+	return query
 }

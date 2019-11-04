@@ -94,7 +94,7 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	adminAPI.AccessCodesIndexAccessCodesHandler = IndexAccessCodesHandler{
 		context,
-		accesscodeservice.NewAccessCodeListFetcher(queryBuilder),
+		accesscodeservice.NewAccessCodeListFetcher(fetchMany),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
