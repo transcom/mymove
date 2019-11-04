@@ -380,3 +380,4 @@
 20191029161504_add_active_column.up.sql
 20191030192621_remove_hhg_access_codes.up.sql
 20191031182540_add_notification_indexes.up.sql
+20191101201107_create-re-services-table-with-values.up.sql
