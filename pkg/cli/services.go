@@ -57,17 +57,22 @@ func CheckServices(v *viper.Viper) error {
 		return errors.New("no service was enabled")
 	}
 
+	// if DPS is enabled then the mutualTLSListener is needed too
 	// if Orders is enabled then the mutualTLSListener is needed too
+	// if PRIME is enabled then the mutualTLSListener is needed too
 	mutualTLSEnabled := v.GetBool(MutualTLSListenerFlag)
 	if v.GetString(EnvironmentFlag) != EnvironmentDevelopment {
+		if dpsEnabled && !mutualTLSEnabled {
+			return errors.New(fmt.Sprintf("for dps service to be enabled both %s and the %s flags must be in use", ServeDPSFlag, MutualTLSListenerFlag))
+		}
 		if ordersEnabled && !mutualTLSEnabled {
 			return errors.New(fmt.Sprintf("for orders service to be enabled both %s and the %s flags must be in use", ServeOrdersFlag, MutualTLSListenerFlag))
 		}
 		if primeAPIEnabled && !mutualTLSEnabled {
 			return errors.New(fmt.Sprintf("for prime service to be enabled both %s and the %s flags must be in use", ServePrimeFlag, MutualTLSListenerFlag))
 		}
-		if mutualTLSEnabled && !ordersEnabled && !primeAPIEnabled {
-			return errors.New("either orders service or prime service must be enabled for mutualTSL to be enabled")
+		if mutualTLSEnabled && !(dpsEnabled || ordersEnabled || primeAPIEnabled) {
+			return errors.New("either dps, orders or prime service must be enabled for mutualTSL to be enabled")
 		}
 	}
 
