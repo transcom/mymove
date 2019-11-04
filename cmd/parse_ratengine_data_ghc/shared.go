@@ -115,7 +115,7 @@ func removeWhiteSpace(stripString string) string {
 }
 
 // generateOutputFilename: generates filename using xlsxDataSheetInfo.outputFilename
-// with the follwing fomat -- <id>_<outputFilename>_<time.Now().Format("20060102150405")>.csv
+// with the following fomat -- <id>_<outputFilename>_<time.Now().Format("20060102150405")>.csv
 // if the adtlSuffix is passed the format is -- <id>_<outputFilename>_<adtlSuffix>_<time.Now().Format("20060102150405")>.csv
 func (x *xlsxDataSheetInfo) generateOutputFilename(index int, runTime time.Time, adtlSuffix *string) string {
 	var name string
