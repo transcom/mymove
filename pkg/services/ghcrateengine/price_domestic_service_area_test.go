@@ -38,16 +38,16 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticServiceArea() {
 		{
 			serviceCode:         "DFSIT",
 			serviceName:         "Dom. O/D 1st Day SIT",
-			expectedPeakCost:    80898,
-			expectedNonpeakCost: 70335,
-			expectedMinPeakCost: 11556,
+			expectedPeakCost:    80899,
+			expectedNonpeakCost: 70336,
+			expectedMinPeakCost: 11557,
 		},
 		{
 			serviceCode:         "DASIT",
 			serviceName:         "Dom. O/D Add'l SIT",
 			expectedPeakCost:    2841,
-			expectedNonpeakCost: 2476,
-			expectedMinPeakCost: 405,
+			expectedNonpeakCost: 2477,
+			expectedMinPeakCost: 406,
 		},
 	}
 

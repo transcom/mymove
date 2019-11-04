@@ -2,6 +2,7 @@ package ghcrateengine
 
 import (
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/pkg/errors"
@@ -71,7 +72,7 @@ func (dsh *domesticShorthaulPricer) PriceDomesticShorthaul(moveDate time.Time, d
 
 	basePrice := pe.PriceCents.Float64() * distance.Float64() * effectiveWeight.ToCWTFloat64()
 	escalatedPrice := basePrice * pe.EscalationCompounded
-	totalCost = unit.Cents(escalatedPrice) // TODO: truncates the price to get an integer- is that what we want?
+	totalCost = unit.Cents(math.Round(escalatedPrice))
 
 	dsh.logger.Info(fmt.Sprintf("%s calculated", shorthaulServiceCode), // May change to use ServiceName
 		zap.String("contractCode:", dsh.contractCode),

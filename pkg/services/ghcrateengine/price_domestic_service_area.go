@@ -2,6 +2,7 @@ package ghcrateengine
 
 import (
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/pkg/errors"
@@ -81,7 +82,7 @@ func (dsa *domesticServiceAreaPricer) PriceDomesticServiceArea(moveDate time.Tim
 
 	baseTotalPrice := priceAndEscalation.PriceCents.Float64() * effectiveWeight.ToCWTFloat64()
 	escalatedTotalPrice := baseTotalPrice * priceAndEscalation.EscalationCompounded
-	totalCost := unit.Cents(escalatedTotalPrice) // TODO: truncates the price to get an integer- is that what we want?
+	totalCost := unit.Cents(math.Round(escalatedTotalPrice))
 
 	dsa.logger.Info(fmt.Sprintf("%s calculated", serviceCode), // May change to use ServiceName
 		zap.String("contractCode:", dsa.contractCode),
