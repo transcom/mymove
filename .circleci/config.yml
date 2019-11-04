@@ -853,7 +853,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: cg_dps_mutual_tls
 
       - client_test:
           requires:
@@ -861,7 +861,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: cg_dps_mutual_tls
 
       - server_test:
           requires:
@@ -869,7 +869,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: cg_dps_mutual_tls
 
       - build_app:
           requires:
@@ -910,28 +910,28 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cg_dps_mutual_tls
 
       - deploy_experimental_tasks:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cg_dps_mutual_tls
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cg_dps_mutual_tls
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cg_dps_mutual_tls
 
       - check_circle_against_staging_sha:
           requires:
