@@ -8,7 +8,7 @@ describe('Office Home Page', function() {
   it('creates new devlocal user', function() {
     cy.signInAsNewOfficeUser();
   });
-  it('successfully loads when not logged in', function() {
+  it('successfully loads when not logged in!', function() {
     cy.logout();
     officeUserIsOnSignInPage();
   });
