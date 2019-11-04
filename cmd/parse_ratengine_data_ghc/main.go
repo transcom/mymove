@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -141,16 +142,16 @@ func initDataSheetInfo() {
 
 	// 4: 	1b) Domestic & International Service Areas
 	xlsxDataSheets[4] = xlsxDataSheetInfo{
-		description:    stringPointer("1b) Service Areas"),
-		outputFilename: stringPointer("1b_service_areas"),
+		description:    swag.String("1b) Service Areas"),
+		outputFilename: swag.String("1b_service_areas"),
 		processMethods: []xlsxProcessInfo{
 			{
 				process:    &parseDomesticServiceAreas,
-				adtlSuffix: stringPointer("domestic"),
+				adtlSuffix: swag.String("domestic"),
 			},
 			{
 				process:    &parseInternationalServiceAreas,
-				adtlSuffix: stringPointer("international"),
+				adtlSuffix: swag.String("international"),
 			},
 		},
 		verify: &verifyServiceAreas,
@@ -158,8 +159,8 @@ func initDataSheetInfo() {
 
 	// 6: 	2a) Domestic Linehaul Prices
 	xlsxDataSheets[6] = xlsxDataSheetInfo{
-		description:    stringPointer("2a) Domestic Linehaul Prices"),
-		outputFilename: stringPointer("2a_domestic_linehaul_prices"),
+		description:    swag.String("2a) Domestic Linehaul Prices"),
+		outputFilename: swag.String("2a_domestic_linehaul_prices"),
 		processMethods: []xlsxProcessInfo{{
 			process: &parseDomesticLinehaulPrices,
 		},
@@ -169,8 +170,8 @@ func initDataSheetInfo() {
 
 	// 7: 	2b) Dom. Service Area Prices
 	xlsxDataSheets[7] = xlsxDataSheetInfo{
-		description:    stringPointer("2b) Dom. Service Area Prices"),
-		outputFilename: stringPointer("2b_domestic_service_area_prices"),
+		description:    swag.String("2b) Dom. Service Area Prices"),
+		outputFilename: swag.String("2b_domestic_service_area_prices"),
 		processMethods: []xlsxProcessInfo{{
 			process: &parseDomesticServiceAreaPrices,
 		},

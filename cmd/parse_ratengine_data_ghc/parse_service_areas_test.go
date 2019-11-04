@@ -4,6 +4,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/tealeg/xlsx"
 )
 
@@ -12,7 +13,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_verifyServiceAreas() {
 	params := paramConfig{
 		processAll:   false,
 		showOutput:   false,
-		xlsxFilename: stringPointer("fixtures/pricing_template_2019-09-19_fake-data.xlsx"),
+		xlsxFilename: swag.String("fixtures/pricing_template_2019-09-19_fake-data.xlsx"),
 		xlsxSheets:   []string{"4"},
 		saveToFile:   true,
 		runTime:      time.Now(),
@@ -36,7 +37,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_verifyServiceAreasWrongSheet() {
 	params := paramConfig{
 		processAll:   false,
 		showOutput:   false,
-		xlsxFilename: stringPointer("fixtures/pricing_template_2019-09-19_fake-data.xlsx"),
+		xlsxFilename: swag.String("fixtures/pricing_template_2019-09-19_fake-data.xlsx"),
 		xlsxSheets:   []string{"5"},
 		saveToFile:   true,
 		runTime:      time.Now(),
@@ -61,7 +62,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticServiceAreas() {
 	params := paramConfig{
 		processAll:   false,
 		showOutput:   false,
-		xlsxFilename: stringPointer("fixtures/pricing_template_2019-09-19_fake-data.xlsx"),
+		xlsxFilename: swag.String("fixtures/pricing_template_2019-09-19_fake-data.xlsx"),
 		xlsxSheets:   []string{"4"},
 		saveToFile:   true,
 		runTime:      time.Now(),
@@ -75,7 +76,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticServiceAreas() {
 	}
 
 	const sheetIndex int = 4
-	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime, stringPointer("domestic"))
+	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime, swag.String("domestic"))
 	if csvWriter != nil {
 		defer csvWriter.close()
 	}
@@ -83,7 +84,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticServiceAreas() {
 	err = parseDomesticServiceAreas(params, sheetIndex, suite.tableFromSliceCreator, csvWriter)
 	suite.NoError(err, "parseDomesticServiceAreas function failed")
 
-	outputFilename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime, stringPointer("domestic"))
+	outputFilename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime, swag.String("domestic"))
 
 	const domesticGoldenFilename string = "4_1b_service_areas_domestic_golden.csv"
 	suite.helperTestExpectedFileOutput(domesticGoldenFilename, outputFilename)
@@ -95,7 +96,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseInternationalServiceAreas() 
 	params := paramConfig{
 		processAll:   false,
 		showOutput:   false,
-		xlsxFilename: stringPointer("fixtures/pricing_template_2019-09-19_fake-data.xlsx"),
+		xlsxFilename: swag.String("fixtures/pricing_template_2019-09-19_fake-data.xlsx"),
 		xlsxSheets:   []string{"4"},
 		saveToFile:   true,
 		runTime:      time.Now(),
@@ -109,7 +110,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseInternationalServiceAreas() 
 	}
 
 	const sheetIndex int = 4
-	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime, stringPointer("international"))
+	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime, swag.String("international"))
 	if csvWriter != nil {
 		defer csvWriter.close()
 	}
@@ -117,7 +118,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseInternationalServiceAreas() 
 	err = parseInternationalServiceAreas(params, sheetIndex, suite.tableFromSliceCreator, csvWriter)
 	suite.NoError(err, "parseInternationalServiceAreas function failed")
 
-	outputFilename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime, stringPointer("international"))
+	outputFilename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime, swag.String("international"))
 
 	const internationalGoldenFilename string = "4_1b_service_areas_international_golden.csv"
 	suite.helperTestExpectedFileOutput(internationalGoldenFilename, outputFilename)

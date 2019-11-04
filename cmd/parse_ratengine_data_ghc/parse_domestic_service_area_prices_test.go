@@ -4,6 +4,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/tealeg/xlsx"
 )
 
@@ -14,7 +15,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticServiceAreaPrices() 
 	params := paramConfig{
 		processAll:   false,
 		showOutput:   false,
-		xlsxFilename: stringPointer("fixtures/pricing_template_2019-09-19_fake-data.xlsx"),
+		xlsxFilename: swag.String("fixtures/pricing_template_2019-09-19_fake-data.xlsx"),
 		xlsxSheets:   []string{"7"},
 		saveToFile:   true,
 		runTime:      time.Now(),

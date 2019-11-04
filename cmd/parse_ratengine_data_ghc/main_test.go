@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -68,8 +69,8 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_xlsxDataSheetInfo_generateOutputF
 		{
 			name: "TC 1: generate filename with outputFilename provided",
 			fields: fields{
-				description:    stringPointer("test_case_1"),
-				outputFilename: stringPointer("test_case_1"),
+				description:    swag.String("test_case_1"),
+				outputFilename: swag.String("test_case_1"),
 				// process not needed for this function
 				// verify not needed for this function
 			},
@@ -93,7 +94,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_xlsxDataSheetInfo_generateOutputF
 				index:   2,
 				runTime: currentTime,
 			},
-			adtlSuffix: stringPointer("adtlSuffix"),
+			adtlSuffix: swag.String("adtlSuffix"),
 			want:       "2_rate_engine_ghc_parse_adtlSuffix_" + currentTime.Format("20060102150405") + ".csv",
 		},
 	}
@@ -153,8 +154,8 @@ func (suite *ParseRateEngineGHCXLSXSuite) helperTestSetup() {
 
 	// 0:
 	xlsxDataSheets[0] = xlsxDataSheetInfo{
-		description:    stringPointer("0) Test Process 1"),
-		outputFilename: stringPointer("0_test_process_1"),
+		description:    swag.String("0) Test Process 1"),
+		outputFilename: swag.String("0_test_process_1"),
 		processMethods: []xlsxProcessInfo{{
 			process: &testProcessFunc1,
 		},
@@ -164,8 +165,8 @@ func (suite *ParseRateEngineGHCXLSXSuite) helperTestSetup() {
 
 	// 1:
 	xlsxDataSheets[1] = xlsxDataSheetInfo{
-		description:    stringPointer("1) Test Process 2"),
-		outputFilename: stringPointer("1_test_process_2"),
+		description:    swag.String("1) Test Process 2"),
+		outputFilename: swag.String("1_test_process_2"),
 		processMethods: []xlsxProcessInfo{{
 			process: &testProcessFunc2,
 		},
@@ -175,8 +176,8 @@ func (suite *ParseRateEngineGHCXLSXSuite) helperTestSetup() {
 
 	// 2:
 	xlsxDataSheets[2] = xlsxDataSheetInfo{
-		description:    stringPointer("2) Test Process 3"),
-		outputFilename: stringPointer("2_test_process_3"),
+		description:    swag.String("2) Test Process 3"),
+		outputFilename: swag.String("2_test_process_3"),
 		processMethods: []xlsxProcessInfo{{
 			process: &testProcessFunc3,
 		},
@@ -186,20 +187,20 @@ func (suite *ParseRateEngineGHCXLSXSuite) helperTestSetup() {
 
 	// 3:
 	xlsxDataSheets[3] = xlsxDataSheetInfo{
-		description:    stringPointer("3) Test Process 4"),
-		outputFilename: stringPointer("3_test_process_4"),
+		description:    swag.String("3) Test Process 4"),
+		outputFilename: swag.String("3_test_process_4"),
 		processMethods: []xlsxProcessInfo{
 			{
 				process:    &testProcessFunc1,
-				adtlSuffix: stringPointer("suffix1"),
+				adtlSuffix: swag.String("suffix1"),
 			},
 			{
 				process:    &testProcessFunc2,
-				adtlSuffix: stringPointer("suffix2"),
+				adtlSuffix: swag.String("suffix2"),
 			},
 			{
 				process:    &testProcessFunc4,
-				adtlSuffix: stringPointer("suffix4"),
+				adtlSuffix: swag.String("suffix4"),
 			},
 		},
 		verify: &testVerifyFunc4,

@@ -79,15 +79,6 @@ func getCell(cells []*xlsx.Cell, i int) string {
 	return ""
 }
 
-// Gotta have a stringPointer function. Returns nil if empty string
-func stringPointer(s string) *string {
-	if s == "" {
-		return nil
-	}
-
-	return &s
-}
-
 func getInt(from string) int {
 	i, err := strconv.Atoi(from)
 	if err != nil {
