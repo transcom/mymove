@@ -2,9 +2,10 @@
   // overflowing entire content for now until bug is fixed
   // https://github.com/marmelab/admin-on-rest/issues/2
   overflow: auto;
+  font-family: sans-serif;
 
   a, p, span {
-    font-size: 1.5rem !important;
+    font-size: 1rem;
   }
 
   table {
@@ -46,9 +47,4 @@
   label {
     width: 25em;
   }
-}
-
-div[class^="MuiSelect-root-"] {
-  padding: 4rem 0 1rem 0;
-  font-size: 1.5rem;
 }
