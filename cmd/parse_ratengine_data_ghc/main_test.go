@@ -117,6 +117,12 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_xlsxDataSheetInfo_generateOutputF
 	}
 }
 
+type TestStruct1 struct{ Field1 string }
+type TestStruct2 struct{ Field1 string }
+type TestStruct4 struct{ Field1 string }
+type TestStruct5 struct{ Field1 string }
+type TestStruct6 struct{ Field1 string }
+
 var testVerifyFunc1 verifyXlsxSheet = func(params paramConfig, sheetIndex int) error {
 	return nil
 }
@@ -133,20 +139,28 @@ var testVerifyFunc4 verifyXlsxSheet = func(params paramConfig, sheetIndex int) e
 	return nil
 }
 
-var testProcessFunc1 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
-	return nil
+var testProcessFunc1 processXlsxSheet = func(params paramConfig, sheetIndex int) (interface{}, error) {
+	return []TestStruct1{}, nil
 }
 
-var testProcessFunc2 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
-	return nil
+var testProcessFunc2 processXlsxSheet = func(params paramConfig, sheetIndex int) (interface{}, error) {
+	return []TestStruct2{}, nil
 }
 
-var testProcessFunc3 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
-	return fmt.Errorf("forced test error from function testProcessFunc3 with index %d", sheetIndex)
+var testProcessFunc3 processXlsxSheet = func(params paramConfig, sheetIndex int) (interface{}, error) {
+	return nil, fmt.Errorf("forced test error from function testProcessFunc3 with index %d", sheetIndex)
 }
 
-var testProcessFunc4 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
-	return nil
+var testProcessFunc4 processXlsxSheet = func(params paramConfig, sheetIndex int) (interface{}, error) {
+	return []TestStruct4{}, nil
+}
+
+var testProcessFunc5 processXlsxSheet = func(params paramConfig, sheetIndex int) (interface{}, error) {
+	return []TestStruct5{}, nil
+}
+
+var testProcessFunc6 processXlsxSheet = func(params paramConfig, sheetIndex int) (interface{}, error) {
+	return []TestStruct6{}, nil
 }
 
 func (suite *ParseRateEngineGHCXLSXSuite) helperTestSetup() {
@@ -191,15 +205,15 @@ func (suite *ParseRateEngineGHCXLSXSuite) helperTestSetup() {
 		outputFilename: swag.String("3_test_process_4"),
 		processMethods: []xlsxProcessInfo{
 			{
-				process:    &testProcessFunc1,
+				process:    &testProcessFunc4,
 				adtlSuffix: swag.String("suffix1"),
 			},
 			{
-				process:    &testProcessFunc2,
+				process:    &testProcessFunc5,
 				adtlSuffix: swag.String("suffix2"),
 			},
 			{
-				process:    &testProcessFunc4,
+				process:    &testProcessFunc6,
 				adtlSuffix: swag.String("suffix4"),
 			},
 		},

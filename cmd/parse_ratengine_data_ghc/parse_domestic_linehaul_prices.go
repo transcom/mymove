@@ -5,15 +5,11 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/gocarina/gocsv"
-	"github.com/pkg/errors"
-
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 )
 
 // parseDomesticLinehaulPrices: parser for 2a) Domestic Linehaul Prices
-var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
+var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, sheetIndex int) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 6  // 2a) Domestic Linehaul Prices
 	const feeColIndexStart int = 6  // start at column 6 to get the rates
@@ -24,7 +20,7 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 	const numEscalationYearsToProcess = sharedNumEscalationYearsToProcess
 
 	if xlsxDataSheetNum != sheetIndex {
-		return fmt.Errorf("parseDomesticLinehaulPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
+		return nil, fmt.Errorf("parseDomesticLinehaulPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
 	var domPrices []models.StageDomesticLinehaulPrice
@@ -63,17 +59,7 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 		}
 	}
 
-	// TODO: Move these two things out of here
-	if csvWriter != nil {
-		if err := gocsv.MarshalFile(domPrices, csvWriter.csvFile); err != nil {
-			return errors.Wrap(err, "Could not marshal CSV file for domestic linehaul prices")
-		}
-	}
-	if err := tableFromSliceCreator.CreateTableFromSlice(domPrices); err != nil {
-		return errors.Wrap(err, "Could not create temp table for domestic linehaul prices")
-	}
-
-	return nil
+	return domPrices, nil
 }
 
 // verifyDomesticLinehaulPrices: verification for 2a) Domestic Linehaul Prices

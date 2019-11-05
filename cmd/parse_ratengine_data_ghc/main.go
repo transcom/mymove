@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
+	"github.com/gocarina/gocsv"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -115,7 +116,7 @@ intentionally are modifying the pattern of how the processing functions are call
 const sharedNumEscalationYearsToProcess int = 1
 const xlsxSheetsCountMax int = 35
 
-type processXlsxSheet func(paramConfig, int, services.TableFromSliceCreator, *createCsvHelper) error
+type processXlsxSheet func(paramConfig, int) (interface{}, error)
 type verifyXlsxSheet func(paramConfig, int) error
 
 type xlsxDataSheetInfo struct {
@@ -379,8 +380,7 @@ func process(params paramConfig, sheetIndex int, tableFromSliceCreator services.
 	// Call verify function
 	if params.runVerify == true {
 		if xlsxInfo.verify != nil {
-			var callFunc verifyXlsxSheet
-			callFunc = *xlsxInfo.verify
+			callFunc := *xlsxInfo.verify
 			err := callFunc(params, sheetIndex)
 			if err != nil {
 				log.Printf("%s verify error: %v\n", description, err)
@@ -397,17 +397,18 @@ func process(params paramConfig, sheetIndex int, tableFromSliceCreator services.
 	if len(xlsxInfo.processMethods) > 0 {
 		for methodIndex, p := range xlsxInfo.processMethods {
 			if p.process != nil {
-				// Create CSV writer to save data to CSV file, returns nil if params.saveToFile=false
-				csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime, p.adtlSuffix)
-				if csvWriter != nil {
-					defer csvWriter.close()
-				}
-				var callFunc processXlsxSheet
-				callFunc = *p.process
-				err := callFunc(params, sheetIndex, tableFromSliceCreator, csvWriter)
+				callFunc := *p.process
+				slice, err := callFunc(params, sheetIndex)
 				if err != nil {
 					log.Printf("%s process error: %v\n", description, err)
 					return errors.Wrapf(err, " process error for sheet index: %d with description: %s", sheetIndex, description)
+				}
+
+				if err := createCSV(params, sheetIndex, p, slice); err != nil {
+					return errors.Wrapf(err, "Could not create CSV for sheet index: %d with description: %s", sheetIndex, description)
+				}
+				if err := createTable(sheetIndex, tableFromSliceCreator, slice); err != nil {
+					return errors.Wrapf(err, "Could not create table for sheet index: %d with description: %s", sheetIndex, description)
 				}
 			} else {
 				log.Printf("No process function for sheet index %d with description %s method index: %d\n", sheetIndex, description, methodIndex)
@@ -419,5 +420,33 @@ func process(params paramConfig, sheetIndex int, tableFromSliceCreator services.
 
 	// Verification and Process completed
 	log.Printf("Completed processing sheet index %d with description %s\n", sheetIndex, description)
+	return nil
+}
+
+func createCSV(params paramConfig, sheetIndex int, processInfo xlsxProcessInfo, slice interface{}) error {
+	if !params.saveToFile {
+		return nil
+	}
+
+	// Create CSV writer to save data to CSV file, returns nil if params.saveToFile=false
+	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime, processInfo.adtlSuffix)
+	if csvWriter != nil {
+		defer csvWriter.close()
+	}
+
+	if csvWriter != nil {
+		if err := gocsv.MarshalFile(slice, csvWriter.csvFile); err != nil {
+			return errors.Wrapf(err, "Could not marshal CSV file for sheet %d", sheetIndex)
+		}
+	}
+
+	return nil
+}
+
+func createTable(sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, slice interface{}) error {
+	if err := tableFromSliceCreator.CreateTableFromSlice(slice); err != nil {
+		return errors.Wrapf(err, "Could not create temp table for sheet %d", sheetIndex)
+	}
+
 	return nil
 }

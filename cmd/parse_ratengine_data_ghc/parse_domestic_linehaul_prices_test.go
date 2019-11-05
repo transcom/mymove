@@ -21,22 +21,22 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticLinehaulPrices() {
 		runVerify:    true,
 	}
 
+	const sheetIndex int = 6
+	dataSheet := xlsxDataSheets[sheetIndex]
+
 	xlsxFile, err := xlsx.OpenFile(*params.xlsxFilename)
 	params.xlsxFile = xlsxFile
 	if err != nil {
 		log.Fatalf("Failed to open file %s with error %v\n", *params.xlsxFilename, err)
 	}
 
-	const sheetIndex int = 6
-	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime, nil)
-	if csvWriter != nil {
-		defer csvWriter.close()
-	}
-
-	err = parseDomesticLinehaulPrices(params, sheetIndex, suite.tableFromSliceCreator, csvWriter)
+	slice, err := parseDomesticLinehaulPrices(params, sheetIndex)
 	suite.NoError(err, "parseDomesticLinehaulPrices function failed")
 
-	outputFilename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime, nil)
+	err = createCSV(params, sheetIndex, dataSheet.processMethods[0], slice)
+	suite.NoError(err, "could not create CSV")
+
+	outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.runTime, nil)
 
 	const goldenFilename string = "6_2a_domestic_linehaul_prices_golden.csv"
 	suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)

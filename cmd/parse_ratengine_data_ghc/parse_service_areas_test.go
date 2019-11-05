@@ -69,22 +69,22 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticServiceAreas() {
 		runVerify:    true,
 	}
 
+	const sheetIndex int = 4
+	dataSheet := xlsxDataSheets[sheetIndex]
+
 	xlsxFile, err := xlsx.OpenFile(*params.xlsxFilename)
 	params.xlsxFile = xlsxFile
 	if err != nil {
 		log.Fatalf("Failed to open file %s with error %v\n", *params.xlsxFilename, err)
 	}
 
-	const sheetIndex int = 4
-	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime, swag.String("domestic"))
-	if csvWriter != nil {
-		defer csvWriter.close()
-	}
-
-	err = parseDomesticServiceAreas(params, sheetIndex, suite.tableFromSliceCreator, csvWriter)
+	slice, err := parseDomesticServiceAreas(params, sheetIndex)
 	suite.NoError(err, "parseDomesticServiceAreas function failed")
 
-	outputFilename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime, swag.String("domestic"))
+	err = createCSV(params, sheetIndex, dataSheet.processMethods[0], slice)
+	suite.NoError(err, "could not create CSV")
+
+	outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.runTime, swag.String("domestic"))
 
 	const domesticGoldenFilename string = "4_1b_service_areas_domestic_golden.csv"
 	suite.helperTestExpectedFileOutput(domesticGoldenFilename, outputFilename)
@@ -103,22 +103,22 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseInternationalServiceAreas() 
 		runVerify:    true,
 	}
 
+	const sheetIndex int = 4
+	dataSheet := xlsxDataSheets[sheetIndex]
+
 	xlsxFile, err := xlsx.OpenFile(*params.xlsxFilename)
 	params.xlsxFile = xlsxFile
 	if err != nil {
 		log.Fatalf("Failed to open file %s with error %v\n", *params.xlsxFilename, err)
 	}
 
-	const sheetIndex int = 4
-	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime, swag.String("international"))
-	if csvWriter != nil {
-		defer csvWriter.close()
-	}
-
-	err = parseInternationalServiceAreas(params, sheetIndex, suite.tableFromSliceCreator, csvWriter)
+	slice, err := parseInternationalServiceAreas(params, sheetIndex)
 	suite.NoError(err, "parseInternationalServiceAreas function failed")
 
-	outputFilename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime, swag.String("international"))
+	err = createCSV(params, sheetIndex, dataSheet.processMethods[1], slice)
+	suite.NoError(err, "could not create CSV")
+
+	outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.runTime, swag.String("international"))
 
 	const internationalGoldenFilename string = "4_1b_service_areas_international_golden.csv"
 	suite.helperTestExpectedFileOutput(internationalGoldenFilename, outputFilename)
