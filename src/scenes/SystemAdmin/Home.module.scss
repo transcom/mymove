@@ -3,34 +3,6 @@
   // https://github.com/marmelab/admin-on-rest/issues/2
   overflow: auto;
   font-family: sans-serif;
-
-  a, p, span {
-    font-size: 1rem;
-  }
-
-  table {
-    margin: 0;
-  }
-
-  th, td {
-    border: 1px solid #efefef;
-  }
-
-  a {
-    &:visited {
-      color: #0071bc;
-    }
-  }
-
-  .headroom-wrapper {
-    font-size: 2rem !important;
-  }
-
-  input {
-    padding-top: 3rem;
-    padding-bottom: 0;
-    font-size: 14px;
-  }
 }
 
 .system-admin-filters {
