@@ -41,7 +41,7 @@ type AdminUser struct {
 	LastName       string       `json:"last_name" db:"last_name"`
 	OrganizationID *uuid.UUID   `json:"organization_id" db:"organization_id"`
 	Organization   Organization `belongs_to:"organization"`
-	Deactivated    bool         `json:"deactivated" db:"deactivated"`
+	Active         bool         `json:"active" db:"active"`
 }
 
 // String is not required by pop and may be deleted

@@ -320,5 +320,6 @@ to minimize side affects and allows us as developers to focus on what we are tru
 ## Resources
 
 * Pairing session on creating the storage in transit GET handler with a service layer:
-  [video](https://drive.google.com/open?id=1gqjlL8rmOEqkHVPjuJrhVH5_Ybazzoso)
+  [video](https://drive.google.com/file/d/19cCDLt1hDJSbZDhHdwQ8u63lBhupTK_s/view)
+  from the [folder](https://drive.google.com/drive/folders/1WMZ5FzzWMU-HzEr36QFfVRr8TRyuK8I-)
   and [pull request](https://github.com/transcom/mymove/pull/2017)

@@ -20,6 +20,9 @@ import (
 // swagger:model MoveTaskOrder
 type MoveTaskOrder struct {
 
+	// actual weight
+	ActualWeight int64 `json:"actualWeight,omitempty"`
+
 	// code
 	Code string `json:"code,omitempty"`
 

@@ -3,34 +3,31 @@ package main
 import (
 	"fmt"
 	"log"
+
+	"github.com/gocarina/gocsv"
+	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 )
 
 // parseDomesticServiceAreaPrices: parser for: 2b) Dom. Service Area Prices
-var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, sheetIndex int) error {
-	// Create CSV writer to save data to CSV file, returns nil if params.saveToFile=false
-	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime)
-	if csvWriter != nil {
-		defer csvWriter.close()
-
-		// Write header to CSV
-		dp := domesticServiceAreaPrice{}
-		csvWriter.write(dp.csvHeader())
-	}
-
+var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
 	// XLSX Sheet consts
-	const xlsxDataSheetNum int = 7  // 2a) Domestic Linehaul Prices
+	const xlsxDataSheetNum int = 7  // 2b) Domestic Service Area Prices
 	const feeColIndexStart int = 6  // start at column 6 to get the rates
 	const feeRowIndexStart int = 10 // start at row 10 to get the rates
 	const serviceAreaNumberColumn int = 2
 	const serviceAreaNameColumn int = 3
 	const serviceScheduleColumn int = 4
 	const sITPickupDeliveryScheduleColumn int = 5
-	const numEscalationYearsToProcess int = sharedNumEscalationYearsToProcess
+	const numEscalationYearsToProcess = sharedNumEscalationYearsToProcess
 
 	if xlsxDataSheetNum != sheetIndex {
 		return fmt.Errorf("parseDomesticServiceAreaPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
+	var domPrices []models.StageDomesticServiceAreaPrice
 	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
 	for _, row := range dataRows {
 		colIndex := feeColIndexStart
@@ -38,35 +35,41 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 		for escalation := 0; escalation < numEscalationYearsToProcess; escalation++ {
 			// For each Rate Season
 			for _, r := range rateSeasons {
-				domPrice := domesticServiceAreaPrice{
-					ServiceAreaNumber:         getInt(getCell(row.Cells, serviceAreaNumberColumn)),
+				domPrice := models.StageDomesticServiceAreaPrice{
+					ServiceAreaNumber:         getCell(row.Cells, serviceAreaNumberColumn),
 					ServiceAreaName:           getCell(row.Cells, serviceAreaNameColumn),
-					ServiceSchedule:           getInt(getCell(row.Cells, serviceScheduleColumn)),
-					SITPickupDeliverySchedule: getInt(getCell(row.Cells, sITPickupDeliveryScheduleColumn)),
+					ServicesSchedule:          getCell(row.Cells, serviceScheduleColumn),
+					SITPickupDeliverySchedule: getCell(row.Cells, sITPickupDeliveryScheduleColumn),
 					Season:                    r,
-					Escalation:                escalation,
 				}
 
-				domPrice.ShorthaulPrice = removeFirstDollarSign(getCell(row.Cells, colIndex))
+				domPrice.ShorthaulPrice = getCell(row.Cells, colIndex)
 				colIndex++
-				domPrice.OriginDestinationPrice = removeFirstDollarSign(getCell(row.Cells, colIndex))
+				domPrice.OriginDestinationPrice = getCell(row.Cells, colIndex)
 				colIndex += 3 // skip 2 columns pack and unpack
-				domPrice.OriginDestinationSITFirstDayWarehouse = removeFirstDollarSign(getCell(row.Cells, colIndex))
+				domPrice.OriginDestinationSITFirstDayWarehouse = getCell(row.Cells, colIndex)
 				colIndex++
-				domPrice.OriginDestinationSITAddlDays = removeFirstDollarSign(getCell(row.Cells, colIndex))
+				domPrice.OriginDestinationSITAddlDays = getCell(row.Cells, colIndex)
 				colIndex++ // skip column SIT Pickup / Delivery ≤50 miles (per cwt)
 
 				if params.showOutput == true {
-					log.Println(domPrice.toSlice())
+					log.Printf("%v\n", domPrice)
 				}
-				if csvWriter != nil {
-					csvWriter.write(domPrice.toSlice())
-				}
+				domPrices = append(domPrices, domPrice)
 
 				colIndex += 2 // skip 1 column (empty column) before starting next Rate type
 			}
-
 		}
+	}
+
+	// TODO: Move these two things out of here
+	if csvWriter != nil {
+		if err := gocsv.MarshalFile(domPrices, csvWriter.csvFile); err != nil {
+			return errors.Wrap(err, "Could not marshal CSV file for domestic service area prices")
+		}
+	}
+	if err := tableFromSliceCreator.CreateTableFromSlice(domPrices); err != nil {
+		return errors.Wrap(err, "Could not create temp table for domestic service area prices")
 	}
 
 	return nil
@@ -85,8 +88,8 @@ var verifyDomesticServiceAreaPrices verifyXlsxSheet = func(params paramConfig, s
 	const numEscalationYearsToProcess int = 4
 
 	// Check headers
-	const feeRowMilageHeaderIndexStart int = (feeRowIndexStart - 2)
-	const verifyHeaderIndexEnd int = (feeRowMilageHeaderIndexStart + 2)
+	const feeRowMilageHeaderIndexStart = feeRowIndexStart - 2
+	const verifyHeaderIndexEnd = feeRowMilageHeaderIndexStart + 2
 
 	if xlsxDataSheetNum != sheetIndex {
 		return fmt.Errorf("verifyDomesticServiceAreaPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)

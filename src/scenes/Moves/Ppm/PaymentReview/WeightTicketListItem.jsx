@@ -61,7 +61,6 @@ class WeightTicketListItem extends Component {
     } = this.props;
     const { showDeleteConfirmation } = this.state;
     const isInfected = this.areUploadsInfected(uploads);
-    console.log('end result: ', isInfected);
     return (
       <div className="ticket-item" style={{ display: 'flex' }}>
         {/* size of largest of the images */}

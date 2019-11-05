@@ -94,14 +94,6 @@
       "value": "admin.{{ .domain }}"
     },
     {
-      "name": "HTTP_ORDERS_SERVER_NAME",
-      "value": "orders.{{ .domain }}"
-    },
-    {
-      "name": "HTTP_DPS_SERVER_NAME",
-      "value": "dps.{{ .domain }}"
-    },
-    {
       "name": "AWS_S3_BUCKET_NAME",
       "value": "transcom-ppp-app-{{ .environment }}-us-west-2"
     },
@@ -162,18 +154,6 @@
       "value": ""
     },
     {
-      "name": "DPS_REDIRECT_URL",
-      "value": "{{ .DPS_REDIRECT_URL }}"
-    },
-    {
-      "name": "DPS_COOKIE_NAME",
-      "value": "{{ .DPS_COOKIE_NAME }}"
-    },
-    {
-      "name": "DPS_COOKIE_DOMAIN",
-      "value": ".sddc.army.mil"
-    },
-    {
       "name": "GEX_URL",
       "value": "https://gexweba.daas.dla.mil/msg_data/submit/"
     },
@@ -200,10 +180,6 @@
     {
       "name": "SERVE_SDDC",
       "value": "{{ .SERVE_SDDC }}"
-    },
-    {
-      "name": "SERVE_DPS",
-      "value": "{{ .SERVE_DPS }}"
     },
     {
       "name": "SERVE_API_INTERNAL",

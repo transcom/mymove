@@ -19,6 +19,8 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/transcom/mymove/pkg/handlers/primeapi"
+
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
@@ -834,6 +836,26 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		ghcAPIMux.Use(userAuthMiddleware)
 		ghcAPIMux.Use(middleware.NoCache(logger))
 		ghcAPIMux.Handle(pat.New("/*"), ghcapi.NewGhcAPIHandler(handlerContext))
+	}
+
+	if v.GetBool(cli.ServePrimeFlag) {
+		primeMux := goji.SubMux()
+		root.Handle(pat.New("/prime/v1/*"), primeMux)
+		primeMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.PrimeSwaggerFlag)))
+		if v.GetBool(cli.ServeSwaggerUIFlag) {
+			logger.Info("Prime API Swagger UI serving is enabled")
+			primeMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "prime.html")))
+		} else {
+			primeMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+		}
+
+		// Mux for GHC API that enforces auth
+		primeAPIMux := goji.SubMux()
+		primeMux.Handle(pat.New("/*"), primeAPIMux)
+		primeAPIMux.Use(userAuthMiddleware)
+		primeAPIMux.Use(authentication.PrimeAuthMiddleware(logger))
+		primeAPIMux.Use(middleware.NoCache(logger))
+		primeAPIMux.Handle(pat.New("/*"), primeapi.NewPrimeAPIHandler(handlerContext))
 	}
 
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)

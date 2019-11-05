@@ -9,15 +9,19 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/dbtools"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type ParseRateEngineGHCXLSXSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
+	logger                *zap.Logger
+	tableFromSliceCreator services.TableFromSliceCreator
 }
 
 func (suite *ParseRateEngineGHCXLSXSuite) SetupTest() {
@@ -34,6 +38,7 @@ func TestParseRateEngineGHCXLSXSuite(t *testing.T) {
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 	}
+	hs.tableFromSliceCreator = dbtools.NewTableFromSliceCreator(hs.DB(), logger, true)
 
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()
@@ -55,16 +60,17 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_xlsxDataSheetInfo_generateOutputF
 	currentTime := time.Now()
 
 	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		want   string
+		name       string
+		fields     fields
+		args       args
+		adtlSuffix *string
+		want       string
 	}{
 		{
 			name: "TC 1: generate filename with outputFilename provided",
 			fields: fields{
-				description:    stringPointer("test_case_1"),
-				outputFilename: stringPointer("test_case_1"),
+				description:    swag.String("test_case_1"),
+				outputFilename: swag.String("test_case_1"),
 				// process not needed for this function
 				// verify not needed for this function
 			},
@@ -82,16 +88,29 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_xlsxDataSheetInfo_generateOutputF
 			},
 			want: "1_rate_engine_ghc_parse_" + currentTime.Format("20060102150405") + ".csv",
 		},
+		{
+			name: "TC 3: generate filename with suffix",
+			args: args{
+				index:   2,
+				runTime: currentTime,
+			},
+			adtlSuffix: swag.String("adtlSuffix"),
+			want:       "2_rate_engine_ghc_parse_adtlSuffix_" + currentTime.Format("20060102150405") + ".csv",
+		},
 	}
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
 			x := &xlsxDataSheetInfo{
-				description:    tt.fields.description,
-				process:        tt.fields.process,
+				description: tt.fields.description,
+				processMethods: []xlsxProcessInfo{{
+					process:    tt.fields.process,
+					adtlSuffix: tt.adtlSuffix,
+				},
+				},
 				verify:         tt.fields.verify,
 				outputFilename: tt.fields.outputFilename,
 			}
-			if got := x.generateOutputFilename(tt.args.index, tt.args.runTime); got != tt.want {
+			if got := x.generateOutputFilename(tt.args.index, tt.args.runTime, tt.adtlSuffix); got != tt.want {
 				t.Errorf("xlsxDataSheetInfo.generateOutputFilename() = %v, want %v", got, tt.want)
 			}
 		})
@@ -110,16 +129,24 @@ var testVerifyFunc3 verifyXlsxSheet = func(params paramConfig, sheetIndex int) e
 	return fmt.Errorf("forced test error from function testVerifyFunc3 with index %d", sheetIndex)
 }
 
-var testProcessFunc1 processXlsxSheet = func(params paramConfig, sheetIndex int) error {
+var testVerifyFunc4 verifyXlsxSheet = func(params paramConfig, sheetIndex int) error {
 	return nil
 }
 
-var testProcessFunc2 processXlsxSheet = func(params paramConfig, sheetIndex int) error {
+var testProcessFunc1 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
 	return nil
 }
 
-var testProcessFunc3 processXlsxSheet = func(params paramConfig, sheetIndex int) error {
+var testProcessFunc2 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
+	return nil
+}
+
+var testProcessFunc3 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
 	return fmt.Errorf("forced test error from function testProcessFunc3 with index %d", sheetIndex)
+}
+
+var testProcessFunc4 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
+	return nil
 }
 
 func (suite *ParseRateEngineGHCXLSXSuite) helperTestSetup() {
@@ -127,26 +154,56 @@ func (suite *ParseRateEngineGHCXLSXSuite) helperTestSetup() {
 
 	// 0:
 	xlsxDataSheets[0] = xlsxDataSheetInfo{
-		description:    stringPointer("0) Test Process 1"),
-		outputFilename: stringPointer("0_test_process_1"),
-		process:        &testProcessFunc1,
-		verify:         &testVerifyFunc1,
+		description:    swag.String("0) Test Process 1"),
+		outputFilename: swag.String("0_test_process_1"),
+		processMethods: []xlsxProcessInfo{{
+			process: &testProcessFunc1,
+		},
+		},
+		verify: &testVerifyFunc1,
 	}
 
 	// 1:
 	xlsxDataSheets[1] = xlsxDataSheetInfo{
-		description:    stringPointer("1) Test Process 2"),
-		outputFilename: stringPointer("1_test_process_2"),
-		process:        &testProcessFunc2,
-		verify:         &testVerifyFunc2,
+		description:    swag.String("1) Test Process 2"),
+		outputFilename: swag.String("1_test_process_2"),
+		processMethods: []xlsxProcessInfo{{
+			process: &testProcessFunc2,
+		},
+		},
+		verify: &testVerifyFunc2,
 	}
 
 	// 2:
 	xlsxDataSheets[2] = xlsxDataSheetInfo{
-		description:    stringPointer("2) Test Process 3"),
-		outputFilename: stringPointer("2_test_process_3"),
-		process:        &testProcessFunc3,
-		verify:         &testVerifyFunc3,
+		description:    swag.String("2) Test Process 3"),
+		outputFilename: swag.String("2_test_process_3"),
+		processMethods: []xlsxProcessInfo{{
+			process: &testProcessFunc3,
+		},
+		},
+		verify: &testVerifyFunc3,
+	}
+
+	// 3:
+	xlsxDataSheets[3] = xlsxDataSheetInfo{
+		description:    swag.String("3) Test Process 4"),
+		outputFilename: swag.String("3_test_process_4"),
+		processMethods: []xlsxProcessInfo{
+			{
+				process:    &testProcessFunc1,
+				adtlSuffix: swag.String("suffix1"),
+			},
+			{
+				process:    &testProcessFunc2,
+				adtlSuffix: swag.String("suffix2"),
+			},
+			{
+				process:    &testProcessFunc4,
+				adtlSuffix: swag.String("suffix4"),
+			},
+		},
+		verify: &testVerifyFunc4,
 	}
 }
 
@@ -193,10 +250,20 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_process() {
 			},
 			wantErr: true,
 		},
+		{
+			name: "TC 4 run fake process methods & verify function 4, with suffix",
+			args: args{
+				params: paramConfig{
+					runTime: time.Now(),
+				},
+				sheetIndex: 3,
+			},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			if err := process(tt.args.params, tt.args.sheetIndex); (err != nil) != tt.wantErr {
+			if err := process(tt.args.params, tt.args.sheetIndex, suite.tableFromSliceCreator); (err != nil) != tt.wantErr {
 				t.Errorf("process() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

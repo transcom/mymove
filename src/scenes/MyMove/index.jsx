@@ -62,11 +62,13 @@ export class AppWrapper extends Component {
 
   noMatch = () => (
     <div className="usa-grid">
-      <h2>Page not found</h2>
-      <p>Looks like you've followed a broken link or entered a URL that doesn't exist on this site.</p>
-      <button className="usa-button" onClick={this.props.goBack}>
-        Go Back
-      </button>
+      <div className="grid-container usa-prose">
+        <h2>Page not found</h2>
+        <p>Looks like you've followed a broken link or entered a URL that doesn't exist on this site.</p>
+        <button className="usa-button" onClick={this.props.goBack}>
+          Go Back
+        </button>
+      </div>
     </div>
   );
 
