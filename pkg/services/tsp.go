@@ -16,5 +16,5 @@ type TransportationServiceProviderPerformanceFetcher interface {
 //go:generate mockery -name TransportationServiceProviderPerformanceListFetcher
 type TransportationServiceProviderPerformanceListFetcher interface {
 	FetchTransportationServiceProviderPerformanceList(filters []QueryFilter, associations QueryAssociations, pagination Pagination, ordering QueryOrder) (models.TransportationServiceProviderPerformances, error)
-	FetchTransportationServiceProviderPerformanceCount(filters []QueryFilter) (*int, error)
+	FetchTransportationServiceProviderPerformanceCount(filters []QueryFilter) (int, error)
 }

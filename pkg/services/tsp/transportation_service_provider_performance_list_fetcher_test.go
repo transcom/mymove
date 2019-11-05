@@ -15,7 +15,7 @@ import (
 
 type testTransportationServiceProviderPerformanceListQueryBuilder struct {
 	fakeFetchMany func(model interface{}) error
-	fakeCount     func(model interface{}) (*int, error)
+	fakeCount     func(model interface{}) (int, error)
 }
 
 func (t *testTransportationServiceProviderPerformanceListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
@@ -23,7 +23,7 @@ func (t *testTransportationServiceProviderPerformanceListQueryBuilder) FetchMany
 	return m
 }
 
-func (t *testTransportationServiceProviderPerformanceListQueryBuilder) Count(model interface{}, filters []services.QueryFilter) (*int, error) {
+func (t *testTransportationServiceProviderPerformanceListQueryBuilder) Count(model interface{}, filters []services.QueryFilter) (int, error) {
 	count, m := t.fakeCount(model)
 	return count, m
 }
@@ -116,9 +116,9 @@ func (suite *TSPServiceSuite) TestCountTSPPs() {
 		id, err := uuid.NewV4()
 
 		suite.NoError(err)
-		fakeCount := func(model interface{}) (*int, error) {
+		fakeCount := func(model interface{}) (int, error) {
 			count := 2
-			return &count, nil
+			return count, nil
 		}
 		builder := &testTransportationServiceProviderPerformanceListQueryBuilder{
 			fakeCount: fakeCount,
@@ -132,12 +132,12 @@ func (suite *TSPServiceSuite) TestCountTSPPs() {
 		count, err := fetcher.FetchTransportationServiceProviderPerformanceCount(filters)
 
 		suite.NoError(err)
-		suite.Equal(2, *count)
+		suite.Equal(2, count)
 	})
 
 	suite.T().Run("if there is an error, we get it with no count", func(t *testing.T) {
-		fakeCount := func(model interface{}) (*int, error) {
-			return nil, errors.New("Fetch error")
+		fakeCount := func(model interface{}) (int, error) {
+			return 0, errors.New("Fetch error")
 		}
 		builder := &testTransportationServiceProviderPerformanceListQueryBuilder{
 			fakeCount: fakeCount,
@@ -149,6 +149,6 @@ func (suite *TSPServiceSuite) TestCountTSPPs() {
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")
-		suite.Nil(count)
+		suite.Equal(0, count)
 	})
 }

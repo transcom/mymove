@@ -7,7 +7,7 @@ import (
 
 type transportationServiceProviderPerformanceListQueryBuilder interface {
 	FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error
-	Count(model interface{}, filters []services.QueryFilter) (*int, error)
+	Count(model interface{}, filters []services.QueryFilter) (int, error)
 }
 
 type transportationServiceProviderPerformanceListFetcher struct {
@@ -22,7 +22,7 @@ func (o *transportationServiceProviderPerformanceListFetcher) FetchTransportatio
 }
 
 // FetchTransportationServiceProviderPerformanceCount counts the transportation service provider performance given a slice of filters
-func (o *transportationServiceProviderPerformanceListFetcher) FetchTransportationServiceProviderPerformanceCount(filters []services.QueryFilter) (*int, error) {
+func (o *transportationServiceProviderPerformanceListFetcher) FetchTransportationServiceProviderPerformanceCount(filters []services.QueryFilter) (int, error) {
 	var tspps models.TransportationServiceProviderPerformances
 	count, error := o.builder.Count(&tspps, filters)
 	return count, error
