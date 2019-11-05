@@ -1015,12 +1015,12 @@ workflows:
       - deploy_prod_storybook:
           requires:
             - build_storybook_app
-            - approve_prod_deploy
+            # - approve_prod_deploy
           filters:
             branches:
-              only: master
+              # only: master
               # Uncomment below if pushing a test branch. Also comment out approve_prod_deploy few lines above.
-              #only: placeholder_branch_name
+              only: cg_storybook_sync_no_cp
 
   dependency_updater_go:
     triggers:
