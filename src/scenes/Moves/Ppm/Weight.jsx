@@ -124,7 +124,7 @@ export class PpmWeight extends Component {
         {progearChanges && (
           <div className="grid-container usa-prose site-prose">
             <h3>How much do you think you'll move?</h3>
-            <p>Your weight entitlement:{this.props.entitlement.weight.toLocaleString()} lbs</p>
+            <p>Your weight entitlement: {this.props.entitlement.weight.toLocaleString()} lbs</p>
           </div>
         )}
         {!progearChanges && (
