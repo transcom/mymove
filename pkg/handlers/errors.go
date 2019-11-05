@@ -25,12 +25,19 @@ const SQLErrMessage string = "Unhandled SQL error encountered"
 // NilErrMessage indicates an uninstantiated error was passed
 const NilErrMessage string = "Nil error passed"
 
+// ValidationErrMessage indicates that some fields were invalid
+const ValidationErrMessage string = "Validation Error"
+
 // ValidationErrorsResponse is a middleware.Responder for a set of validation errors
 type ValidationErrorsResponse struct {
 	Errors map[string]string `json:"errors,omitempty"`
 }
 
-func newValidationErrorsResponse(errors map[string]string) *ValidationErrorsResponse {
+func NewValidationErrorsResponse(verrs *validate.Errors) *ValidationErrorsResponse {
+	errors := make(map[string]string)
+	for _, key := range verrs.Keys() {
+		errors[key] = strings.Join(verrs.Get(key), " ")
+	}
 	return &ValidationErrorsResponse{Errors: errors}
 }
 
@@ -134,11 +141,7 @@ func ResponseForVErrors(logger Logger, verrs *validate.Errors, err error) middle
 	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
 	if verrs.HasAny() {
 		skipLogger.Error("Encountered validation error", zap.Any("Validation errors", verrs.String()))
-		errors := make(map[string]string)
-		for _, key := range verrs.Keys() {
-			errors[key] = strings.Join(verrs.Get(key), " ")
-		}
-		return newValidationErrorsResponse(errors)
+		return NewValidationErrorsResponse(verrs)
 	}
 	return ResponseForError(skipLogger, err)
 }

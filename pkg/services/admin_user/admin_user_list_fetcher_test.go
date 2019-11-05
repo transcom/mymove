@@ -17,7 +17,7 @@ type testAdminUserListQueryBuilder struct {
 	fakeFetchMany func(model interface{}) error
 }
 
-func (t *testAdminUserListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) error {
+func (t *testAdminUserListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
 	m := t.fakeFetchMany(model)
 	return m
 }
@@ -29,6 +29,10 @@ func defaultPagination() services.Pagination {
 
 func defaultAssociations() services.QueryAssociations {
 	return query.NewQueryAssociations([]services.QueryAssociation{})
+}
+
+func defaultOrdering() services.QueryOrder {
+	return query.NewQueryOrder(nil, nil)
 }
 
 func (suite *AdminUserServiceSuite) TestFetchAdminUserList() {
@@ -49,7 +53,7 @@ func (suite *AdminUserServiceSuite) TestFetchAdminUserList() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		adminUsers, err := fetcher.FetchAdminUserList(filters, defaultAssociations(), defaultPagination())
+		adminUsers, err := fetcher.FetchAdminUserList(filters, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.NoError(err)
 		suite.Equal(id, adminUsers[0].ID)
@@ -65,7 +69,7 @@ func (suite *AdminUserServiceSuite) TestFetchAdminUserList() {
 
 		fetcher := NewAdminUserListFetcher(builder)
 
-		adminUsers, err := fetcher.FetchAdminUserList([]services.QueryFilter{}, defaultAssociations(), defaultPagination())
+		adminUsers, err := fetcher.FetchAdminUserList([]services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

@@ -67,6 +67,7 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
+			mock.Anything,
 		).Return(models.TransportationOffices{office}, nil).Once()
 		handler := IndexOfficesHandler{
 			HandlerContext:    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -90,6 +91,7 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 		expectedError := models.ErrFetchNotFound
 		officeListFetcher := &mocks.OfficeListFetcher{}
 		officeListFetcher.On("FetchOfficeList",
+			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,

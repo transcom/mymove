@@ -24,7 +24,12 @@ const SubmittedPpmMoveSummary = props => {
                 <ul>
                   <li>
                     Go to{' '}
-                    <a href="https://move.mil/resources/locator-maps" target="_blank" rel="noopener noreferrer">
+                    <a
+                      href="https://move.mil/resources/locator-maps"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="usa-link"
+                    >
                       certified weight scales
                     </a>{' '}
                     to get empty &amp; full weight tickets.
@@ -39,7 +44,7 @@ const SubmittedPpmMoveSummary = props => {
             <div className="titled_block">
               <div className="title">Documents</div>
               <div className="details-links">
-                <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
+                <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer" className="usa-link">
                   PPM Info Packet
                 </a>
               </div>

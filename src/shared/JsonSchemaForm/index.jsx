@@ -19,8 +19,8 @@ const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
   if (group) {
     const keys = group.fields;
     return (
-      <fieldset key={fieldName}>
-        <legend htmlFor={fieldName}>{group.title}</legend>
+      <fieldset className="usa-fieldset" key={fieldName}>
+        <p htmlFor={fieldName}>{group.title}</p>
         {keys.map(f => renderGroupOrField(f, fields, uiSchema, nameSpace))}
       </fieldset>
     );

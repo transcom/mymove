@@ -6,6 +6,8 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -39,8 +41,9 @@ type UploadPayload struct {
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
 
-	// tags
-	Tags Tags `json:"tags,omitempty"`
+	// status
+	// Enum: [INFECTED CLEAN PROCESSING]
+	Status string `json:"status,omitempty"`
 
 	// updated at
 	// Required: true
@@ -77,7 +80,7 @@ func (m *UploadPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateTags(formats); err != nil {
+	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -148,16 +151,46 @@ func (m *UploadPayload) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *UploadPayload) validateTags(formats strfmt.Registry) error {
+var uploadPayloadTypeStatusPropEnum []interface{}
 
-	if swag.IsZero(m.Tags) { // not required
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["INFECTED","CLEAN","PROCESSING"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		uploadPayloadTypeStatusPropEnum = append(uploadPayloadTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// UploadPayloadStatusINFECTED captures enum value "INFECTED"
+	UploadPayloadStatusINFECTED string = "INFECTED"
+
+	// UploadPayloadStatusCLEAN captures enum value "CLEAN"
+	UploadPayloadStatusCLEAN string = "CLEAN"
+
+	// UploadPayloadStatusPROCESSING captures enum value "PROCESSING"
+	UploadPayloadStatusPROCESSING string = "PROCESSING"
+)
+
+// prop value enum
+func (m *UploadPayload) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, uploadPayloadTypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *UploadPayload) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status) { // not required
 		return nil
 	}
 
-	if err := m.Tags.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("tags")
-		}
+	// value enum
+	if err := m.validateStatusEnum("status", "body", m.Status); err != nil {
 		return err
 	}
 

@@ -78,7 +78,7 @@ describe('testing CSRF protection updating user profile', function() {
     // save info
     cy.get('button[type="submit"]').click();
 
-    cy.get('div[class="usa-alert-text"]').contains('Forbidden');
+    cy.get('div[class="usa-alert__text"]').contains('Forbidden');
 
     // reload page
     cy.visit('/moves/review/edit-profile');

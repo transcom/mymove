@@ -35,7 +35,11 @@ type IndexOfficeUsersParams struct {
 	/*
 	  In: query
 	*/
-	Filter []string
+	Filter *string
+	/*
+	  In: query
+	*/
+	Order *bool
 	/*
 	  In: query
 	*/
@@ -44,6 +48,10 @@ type IndexOfficeUsersParams struct {
 	  In: query
 	*/
 	PerPage *int64
+	/*
+	  In: query
+	*/
+	Sort *string
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -62,6 +70,11 @@ func (o *IndexOfficeUsersParams) BindRequest(r *http.Request, route *middleware.
 		res = append(res, err)
 	}
 
+	qOrder, qhkOrder, _ := qs.GetOK("order")
+	if err := o.bindOrder(qOrder, qhkOrder, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	qPage, qhkPage, _ := qs.GetOK("page")
 	if err := o.bindPage(qPage, qhkPage, route.Formats); err != nil {
 		res = append(res, err)
@@ -72,36 +85,53 @@ func (o *IndexOfficeUsersParams) BindRequest(r *http.Request, route *middleware.
 		res = append(res, err)
 	}
 
+	qSort, qhkSort, _ := qs.GetOK("sort")
+	if err := o.bindSort(qSort, qhkSort, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
 	return nil
 }
 
-// bindFilter binds and validates array parameter Filter from query.
-//
-// Arrays are parsed according to CollectionFormat: "" (defaults to "csv" when empty).
+// bindFilter binds and validates parameter Filter from query.
 func (o *IndexOfficeUsersParams) bindFilter(rawData []string, hasKey bool, formats strfmt.Registry) error {
-
-	var qvFilter string
+	var raw string
 	if len(rawData) > 0 {
-		qvFilter = rawData[len(rawData)-1]
+		raw = rawData[len(rawData)-1]
 	}
 
-	// CollectionFormat:
-	filterIC := swag.SplitByFormat(qvFilter, "")
-	if len(filterIC) == 0 {
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
 		return nil
 	}
 
-	var filterIR []string
-	for _, filterIV := range filterIC {
-		filterI := filterIV
+	o.Filter = &raw
 
-		filterIR = append(filterIR, filterI)
+	return nil
+}
+
+// bindOrder binds and validates parameter Order from query.
+func (o *IndexOfficeUsersParams) bindOrder(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
 	}
 
-	o.Filter = filterIR
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	value, err := swag.ConvertBool(raw)
+	if err != nil {
+		return errors.InvalidType("order", "query", "bool", raw)
+	}
+	o.Order = &value
 
 	return nil
 }
@@ -146,6 +176,24 @@ func (o *IndexOfficeUsersParams) bindPerPage(rawData []string, hasKey bool, form
 		return errors.InvalidType("perPage", "query", "int64", raw)
 	}
 	o.PerPage = &value
+
+	return nil
+}
+
+// bindSort binds and validates parameter Sort from query.
+func (o *IndexOfficeUsersParams) bindSort(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	o.Sort = &raw
 
 	return nil
 }

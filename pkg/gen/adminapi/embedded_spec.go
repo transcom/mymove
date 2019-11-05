@@ -59,6 +59,16 @@ func init() {
             "type": "integer",
             "name": "perPage",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
           }
         ],
         "responses": {
@@ -115,6 +125,16 @@ func init() {
             "type": "integer",
             "name": "perPage",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
           }
         ],
         "responses": {
@@ -141,6 +161,44 @@ func init() {
           },
           "500": {
             "description": "server error"
+          }
+        }
+      },
+      "post": {
+        "description": "creates and returns an admin user record",
+        "tags": [
+          "admin_users"
+        ],
+        "summary": "create an admin user",
+        "operationId": "createAdminUser",
+        "parameters": [
+          {
+            "description": "Admin user information",
+            "name": "adminUser",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/AdminUserCreatePayload"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created Admin User",
+            "schema": {
+              "$ref": "#/definitions/AdminUser"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to create an admin user"
+          },
+          "500": {
+            "description": "Server error"
           }
         }
       }
@@ -182,6 +240,51 @@ func init() {
             "description": "server error"
           }
         }
+      },
+      "patch": {
+        "tags": [
+          "admin_users"
+        ],
+        "summary": "Updates an admin user",
+        "operationId": "updateAdminUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "adminUserId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Admin user information",
+            "name": "adminUser",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AdminUserUpdatePayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated Admin User",
+            "schema": {
+              "$ref": "#/definitions/AdminUser"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to update an admin user"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
       }
     },
     "/electronic_orders": {
@@ -209,6 +312,16 @@ func init() {
           {
             "type": "integer",
             "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
             "in": "query"
           }
         ],
@@ -298,10 +411,7 @@ func init() {
         "operationId": "indexOfficeUsers",
         "parameters": [
           {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
+            "type": "string",
             "name": "filter",
             "in": "query"
           },
@@ -313,6 +423,16 @@ func init() {
           {
             "type": "integer",
             "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
             "in": "query"
           }
         ],
@@ -367,17 +487,14 @@ func init() {
               "$ref": "#/definitions/OfficeUser"
             }
           },
-          "400": {
-            "description": "Invalid Request"
-          },
-          "401": {
-            "description": "Must be authenticated to use this end point"
-          },
-          "403": {
-            "description": "Not authorized to create an office user"
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
           },
           "500": {
-            "description": "Server error"
+            "description": "internal server error"
           }
         }
       }
@@ -458,7 +575,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to create an office user"
+            "description": "Not authorized to update an office user"
           },
           "500": {
             "description": "Server error"
@@ -476,10 +593,7 @@ func init() {
         "operationId": "indexOffices",
         "parameters": [
           {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
+            "type": "string",
             "name": "filter",
             "in": "query"
           },
@@ -491,6 +605,16 @@ func init() {
           {
             "type": "integer",
             "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
             "in": "query"
           }
         ],
@@ -522,6 +646,72 @@ func init() {
         }
       }
     },
+    "/organizations": {
+      "get": {
+        "description": "Returns a list of organizations",
+        "tags": [
+          "organization"
+        ],
+        "summary": "List organizations",
+        "operationId": "indexOrganizations",
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Organizations"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/transportation_service_provider_performances": {
       "get": {
         "description": "Returns a list of transportation service provider performances (TSPPs)",
@@ -544,6 +734,16 @@ func init() {
           {
             "type": "integer",
             "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
             "in": "query"
           }
         ],
@@ -675,7 +875,6 @@ func init() {
           "type": "string",
           "title": "Selected Move Type",
           "enum": [
-            "HHG",
             "PPM"
           ]
         }
@@ -853,17 +1052,17 @@ func init() {
         "email",
         "user_id",
         "organization_id",
-        "deactivated",
+        "active",
         "created_at",
         "updated_at"
       ],
       "properties": {
+        "active": {
+          "type": "boolean"
+        },
         "created_at": {
           "type": "string",
           "format": "datetime"
-        },
-        "deactivated": {
-          "type": "boolean"
         },
         "email": {
           "type": "string",
@@ -895,10 +1094,69 @@ func init() {
         }
       }
     },
+    "AdminUserCreatePayload": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "title": "Email",
+          "example": "user@userdomain.com"
+        },
+        "first_name": {
+          "type": "string",
+          "title": "First Name"
+        },
+        "last_name": {
+          "type": "string",
+          "title": "Last Name"
+        },
+        "organization_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "AdminUserUpdatePayload": {
+      "type": "object",
+      "properties": {
+        "active": {
+          "type": "boolean"
+        },
+        "first_name": {
+          "type": "string",
+          "title": "First Name"
+        },
+        "last_name": {
+          "type": "string",
+          "title": "Last Name"
+        }
+      }
+    },
     "AdminUsers": {
       "type": "array",
       "items": {
         "$ref": "#/definitions/AdminUser"
+      }
+    },
+    "ClientError": {
+      "type": "object",
+      "required": [
+        "title",
+        "detail",
+        "instance"
+      ],
+      "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string"
+        }
       }
     },
     "ElectronicOrder": {
@@ -906,6 +1164,7 @@ func init() {
       "required": [
         "id",
         "issuer",
+        "orders_number",
         "created_at",
         "updated_at"
       ],
@@ -922,6 +1181,10 @@ func init() {
         },
         "issuer": {
           "$ref": "#/definitions/Issuer"
+        },
+        "orders_number": {
+          "type": "string",
+          "title": "Orders Number"
         },
         "updated_at": {
           "type": "string",
@@ -974,17 +1237,18 @@ func init() {
         "last_name",
         "email",
         "telephone",
-        "deactivated",
+        "transportation_office_id",
+        "active",
         "created_at",
         "updated_at"
       ],
       "properties": {
+        "active": {
+          "type": "boolean"
+        },
         "created_at": {
           "type": "string",
           "format": "datetime"
-        },
-        "deactivated": {
-          "type": "boolean"
         },
         "email": {
           "type": "string",
@@ -1010,8 +1274,9 @@ func init() {
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         },
-        "transportation_office": {
-          "$ref": "#/definitions/TransportationOffice"
+        "transportation_office_id": {
+          "type": "string",
+          "format": "uuid"
         },
         "updated_at": {
           "type": "string",
@@ -1057,7 +1322,7 @@ func init() {
     "OfficeUserUpdatePayload": {
       "type": "object",
       "properties": {
-        "deactivated": {
+        "active": {
           "type": "boolean"
         },
         "first_name": {
@@ -1086,6 +1351,54 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/OfficeUser"
+      }
+    },
+    "Organization": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "datetime",
+          "title": "Created at"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "title": "Name"
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "datetime",
+          "title": "Updated at"
+        }
+      }
+    },
+    "Organizations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Organization"
       }
     },
     "TransportationOffice": {
@@ -1322,6 +1635,27 @@ func init() {
           "$ref": "#/definitions/Upload"
         }
       }
+    },
+    "ValidationError": {
+      "required": [
+        "invalid_fields"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/ClientError"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "properties": {
+        "invalid_fields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
     }
   }
 }`))
@@ -1366,6 +1700,16 @@ func init() {
           {
             "type": "integer",
             "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
             "in": "query"
           }
         ],
@@ -1423,6 +1767,16 @@ func init() {
             "type": "integer",
             "name": "perPage",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
           }
         ],
         "responses": {
@@ -1449,6 +1803,44 @@ func init() {
           },
           "500": {
             "description": "server error"
+          }
+        }
+      },
+      "post": {
+        "description": "creates and returns an admin user record",
+        "tags": [
+          "admin_users"
+        ],
+        "summary": "create an admin user",
+        "operationId": "createAdminUser",
+        "parameters": [
+          {
+            "description": "Admin user information",
+            "name": "adminUser",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/AdminUserCreatePayload"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created Admin User",
+            "schema": {
+              "$ref": "#/definitions/AdminUser"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to create an admin user"
+          },
+          "500": {
+            "description": "Server error"
           }
         }
       }
@@ -1490,6 +1882,51 @@ func init() {
             "description": "server error"
           }
         }
+      },
+      "patch": {
+        "tags": [
+          "admin_users"
+        ],
+        "summary": "Updates an admin user",
+        "operationId": "updateAdminUser",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "adminUserId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "Admin user information",
+            "name": "adminUser",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AdminUserUpdatePayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated Admin User",
+            "schema": {
+              "$ref": "#/definitions/AdminUser"
+            }
+          },
+          "400": {
+            "description": "Invalid Request"
+          },
+          "401": {
+            "description": "Must be authenticated to use this end point"
+          },
+          "403": {
+            "description": "Not authorized to update an admin user"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
       }
     },
     "/electronic_orders": {
@@ -1517,6 +1954,16 @@ func init() {
           {
             "type": "integer",
             "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
             "in": "query"
           }
         ],
@@ -1606,10 +2053,7 @@ func init() {
         "operationId": "indexOfficeUsers",
         "parameters": [
           {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
+            "type": "string",
             "name": "filter",
             "in": "query"
           },
@@ -1621,6 +2065,16 @@ func init() {
           {
             "type": "integer",
             "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
             "in": "query"
           }
         ],
@@ -1675,17 +2129,14 @@ func init() {
               "$ref": "#/definitions/OfficeUser"
             }
           },
-          "400": {
-            "description": "Invalid Request"
-          },
-          "401": {
-            "description": "Must be authenticated to use this end point"
-          },
-          "403": {
-            "description": "Not authorized to create an office user"
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
           },
           "500": {
-            "description": "Server error"
+            "description": "internal server error"
           }
         }
       }
@@ -1766,7 +2217,7 @@ func init() {
             "description": "Must be authenticated to use this end point"
           },
           "403": {
-            "description": "Not authorized to create an office user"
+            "description": "Not authorized to update an office user"
           },
           "500": {
             "description": "Server error"
@@ -1784,10 +2235,7 @@ func init() {
         "operationId": "indexOffices",
         "parameters": [
           {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
+            "type": "string",
             "name": "filter",
             "in": "query"
           },
@@ -1799,6 +2247,16 @@ func init() {
           {
             "type": "integer",
             "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
             "in": "query"
           }
         ],
@@ -1830,6 +2288,72 @@ func init() {
         }
       }
     },
+    "/organizations": {
+      "get": {
+        "description": "Returns a list of organizations",
+        "tags": [
+          "organization"
+        ],
+        "summary": "List organizations",
+        "operationId": "indexOrganizations",
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Organizations"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/transportation_service_provider_performances": {
       "get": {
         "description": "Returns a list of transportation service provider performances (TSPPs)",
@@ -1852,6 +2376,16 @@ func init() {
           {
             "type": "integer",
             "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
             "in": "query"
           }
         ],
@@ -1983,7 +2517,6 @@ func init() {
           "type": "string",
           "title": "Selected Move Type",
           "enum": [
-            "HHG",
             "PPM"
           ]
         }
@@ -2161,17 +2694,17 @@ func init() {
         "email",
         "user_id",
         "organization_id",
-        "deactivated",
+        "active",
         "created_at",
         "updated_at"
       ],
       "properties": {
+        "active": {
+          "type": "boolean"
+        },
         "created_at": {
           "type": "string",
           "format": "datetime"
-        },
-        "deactivated": {
-          "type": "boolean"
         },
         "email": {
           "type": "string",
@@ -2203,10 +2736,69 @@ func init() {
         }
       }
     },
+    "AdminUserCreatePayload": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "title": "Email",
+          "example": "user@userdomain.com"
+        },
+        "first_name": {
+          "type": "string",
+          "title": "First Name"
+        },
+        "last_name": {
+          "type": "string",
+          "title": "Last Name"
+        },
+        "organization_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "AdminUserUpdatePayload": {
+      "type": "object",
+      "properties": {
+        "active": {
+          "type": "boolean"
+        },
+        "first_name": {
+          "type": "string",
+          "title": "First Name"
+        },
+        "last_name": {
+          "type": "string",
+          "title": "Last Name"
+        }
+      }
+    },
     "AdminUsers": {
       "type": "array",
       "items": {
         "$ref": "#/definitions/AdminUser"
+      }
+    },
+    "ClientError": {
+      "type": "object",
+      "required": [
+        "title",
+        "detail",
+        "instance"
+      ],
+      "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string"
+        }
       }
     },
     "ElectronicOrder": {
@@ -2214,6 +2806,7 @@ func init() {
       "required": [
         "id",
         "issuer",
+        "orders_number",
         "created_at",
         "updated_at"
       ],
@@ -2230,6 +2823,10 @@ func init() {
         },
         "issuer": {
           "$ref": "#/definitions/Issuer"
+        },
+        "orders_number": {
+          "type": "string",
+          "title": "Orders Number"
         },
         "updated_at": {
           "type": "string",
@@ -2283,17 +2880,18 @@ func init() {
         "last_name",
         "email",
         "telephone",
-        "deactivated",
+        "transportation_office_id",
+        "active",
         "created_at",
         "updated_at"
       ],
       "properties": {
+        "active": {
+          "type": "boolean"
+        },
         "created_at": {
           "type": "string",
           "format": "datetime"
-        },
-        "deactivated": {
-          "type": "boolean"
         },
         "email": {
           "type": "string",
@@ -2319,8 +2917,9 @@ func init() {
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         },
-        "transportation_office": {
-          "$ref": "#/definitions/TransportationOffice"
+        "transportation_office_id": {
+          "type": "string",
+          "format": "uuid"
         },
         "updated_at": {
           "type": "string",
@@ -2366,7 +2965,7 @@ func init() {
     "OfficeUserUpdatePayload": {
       "type": "object",
       "properties": {
-        "deactivated": {
+        "active": {
           "type": "boolean"
         },
         "first_name": {
@@ -2395,6 +2994,54 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/OfficeUser"
+      }
+    },
+    "Organization": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "datetime",
+          "title": "Created at"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "title": "Name"
+        },
+        "telephone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "datetime",
+          "title": "Updated at"
+        }
+      }
+    },
+    "Organizations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Organization"
       }
     },
     "TransportationOffice": {
@@ -2629,6 +3276,27 @@ func init() {
         },
         "upload": {
           "$ref": "#/definitions/Upload"
+        }
+      }
+    },
+    "ValidationError": {
+      "required": [
+        "invalid_fields"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/ClientError"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "properties": {
+        "invalid_fields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       }
     }

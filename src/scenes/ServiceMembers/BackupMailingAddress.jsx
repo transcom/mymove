@@ -7,7 +7,7 @@ import { getFormValues } from 'redux-form';
 import { updateServiceMember } from './ducks';
 
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
-import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import AddressForm from 'shared/AddressForm';
 
 const formName = 'service_member_backup_mailing_addresss';
 const BackupMailingWizardForm = reduxifyWizardForm(formName);
@@ -33,20 +33,16 @@ export class BackupMailingAddress extends Component {
         initialValues={initialValues}
         additionalParams={{ serviceMemberId }}
       >
-        <h1 className="sm-heading">Backup mailing address</h1>
-        <p>
-          Enter the address where mail will reach you if we can’t reach you at your primary address, such as your
-          parents’ address.
-        </p>
-
-        <SwaggerField fieldName="street_address_1" swagger={this.props.schema} required />
-        <SwaggerField fieldName="street_address_2" swagger={this.props.schema} />
-
-        <div className="address_inline">
-          <SwaggerField fieldName="city" swagger={this.props.schema} className="city_state_zip" required />
-          <SwaggerField fieldName="state" swagger={this.props.schema} className="city_state_zip" required />
-          <SwaggerField fieldName="postal_code" swagger={this.props.schema} className="city_state_zip" required />
+        <div className="grid-row">
+          <div className="grid-col-12">
+            <h1 className="sm-heading">Backup mailing address</h1>
+            <p>
+              Enter the address where mail will reach you if we can’t reach you at your primary address, such as your
+              parents’ address.
+            </p>
+          </div>
         </div>
+        <AddressForm schema={this.props.schema} />
       </BackupMailingWizardForm>
     );
   }

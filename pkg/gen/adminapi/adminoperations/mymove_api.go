@@ -24,6 +24,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organization"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_service_provider_performances"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/upload"
 )
@@ -45,6 +46,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		BearerAuthenticator: security.BearerAuth,
 		JSONConsumer:        runtime.JSONConsumer(),
 		JSONProducer:        runtime.JSONProducer(),
+		AdminUsersCreateAdminUserHandler: admin_users.CreateAdminUserHandlerFunc(func(params admin_users.CreateAdminUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation AdminUsersCreateAdminUser has not yet been implemented")
+		}),
 		OfficeUsersCreateOfficeUserHandler: office_users.CreateOfficeUserHandlerFunc(func(params office_users.CreateOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation OfficeUsersCreateOfficeUser has not yet been implemented")
 		}),
@@ -78,8 +82,14 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OfficeIndexOfficesHandler: office.IndexOfficesHandlerFunc(func(params office.IndexOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation OfficeIndexOffices has not yet been implemented")
 		}),
+		OrganizationIndexOrganizationsHandler: organization.IndexOrganizationsHandlerFunc(func(params organization.IndexOrganizationsParams) middleware.Responder {
+			return middleware.NotImplemented("operation OrganizationIndexOrganizations has not yet been implemented")
+		}),
 		TransportationServiceProviderPerformancesIndexTSPPsHandler: transportation_service_provider_performances.IndexTSPPsHandlerFunc(func(params transportation_service_provider_performances.IndexTSPPsParams) middleware.Responder {
 			return middleware.NotImplemented("operation TransportationServiceProviderPerformancesIndexTSPPs has not yet been implemented")
+		}),
+		AdminUsersUpdateAdminUserHandler: admin_users.UpdateAdminUserHandlerFunc(func(params admin_users.UpdateAdminUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation AdminUsersUpdateAdminUser has not yet been implemented")
 		}),
 		OfficeUsersUpdateOfficeUserHandler: office_users.UpdateOfficeUserHandlerFunc(func(params office_users.UpdateOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation OfficeUsersUpdateOfficeUser has not yet been implemented")
@@ -115,6 +125,8 @@ type MymoveAPI struct {
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
+	// AdminUsersCreateAdminUserHandler sets the operation handler for the create admin user operation
+	AdminUsersCreateAdminUserHandler admin_users.CreateAdminUserHandler
 	// OfficeUsersCreateOfficeUserHandler sets the operation handler for the create office user operation
 	OfficeUsersCreateOfficeUserHandler office_users.CreateOfficeUserHandler
 	// AdminUsersGetAdminUserHandler sets the operation handler for the get admin user operation
@@ -137,8 +149,12 @@ type MymoveAPI struct {
 	OfficeUsersIndexOfficeUsersHandler office_users.IndexOfficeUsersHandler
 	// OfficeIndexOfficesHandler sets the operation handler for the index offices operation
 	OfficeIndexOfficesHandler office.IndexOfficesHandler
+	// OrganizationIndexOrganizationsHandler sets the operation handler for the index organizations operation
+	OrganizationIndexOrganizationsHandler organization.IndexOrganizationsHandler
 	// TransportationServiceProviderPerformancesIndexTSPPsHandler sets the operation handler for the index t s p ps operation
 	TransportationServiceProviderPerformancesIndexTSPPsHandler transportation_service_provider_performances.IndexTSPPsHandler
+	// AdminUsersUpdateAdminUserHandler sets the operation handler for the update admin user operation
+	AdminUsersUpdateAdminUserHandler admin_users.UpdateAdminUserHandler
 	// OfficeUsersUpdateOfficeUserHandler sets the operation handler for the update office user operation
 	OfficeUsersUpdateOfficeUserHandler office_users.UpdateOfficeUserHandler
 
@@ -204,6 +220,10 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.AdminUsersCreateAdminUserHandler == nil {
+		unregistered = append(unregistered, "admin_users.CreateAdminUserHandler")
+	}
+
 	if o.OfficeUsersCreateOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.CreateOfficeUserHandler")
 	}
@@ -248,8 +268,16 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "office.IndexOfficesHandler")
 	}
 
+	if o.OrganizationIndexOrganizationsHandler == nil {
+		unregistered = append(unregistered, "organization.IndexOrganizationsHandler")
+	}
+
 	if o.TransportationServiceProviderPerformancesIndexTSPPsHandler == nil {
 		unregistered = append(unregistered, "transportation_service_provider_performances.IndexTSPPsHandler")
+	}
+
+	if o.AdminUsersUpdateAdminUserHandler == nil {
+		unregistered = append(unregistered, "admin_users.UpdateAdminUserHandler")
 	}
 
 	if o.OfficeUsersUpdateOfficeUserHandler == nil {
@@ -357,6 +385,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
+	o.handlers["POST"]["/admin_users"] = admin_users.NewCreateAdminUser(o.context, o.AdminUsersCreateAdminUserHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
 	o.handlers["POST"]["/office_users"] = office_users.NewCreateOfficeUser(o.context, o.OfficeUsersCreateOfficeUserHandler)
 
 	if o.handlers["GET"] == nil {
@@ -412,7 +445,17 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/organizations"] = organization.NewIndexOrganizations(o.context, o.OrganizationIndexOrganizationsHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/transportation_service_provider_performances"] = transportation_service_provider_performances.NewIndexTSPPs(o.context, o.TransportationServiceProviderPerformancesIndexTSPPsHandler)
+
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/admin_users/{adminUserId}"] = admin_users.NewUpdateAdminUser(o.context, o.AdminUsersUpdateAdminUserHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)

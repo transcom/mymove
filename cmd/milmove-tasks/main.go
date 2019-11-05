@@ -47,6 +47,16 @@ func main() {
 	initPostMoveSurveyFlags(sendPostMoveSurveyCommand.Flags())
 	root.AddCommand(sendPostMoveSurveyCommand)
 
+	sendPaymentReminderCommand := &cobra.Command{
+		Use:          "send-payment-reminder",
+		Short:        "sends payment reminder email",
+		Long:         "sends payment reminder email",
+		RunE:         sendPaymentReminder,
+		SilenceUsage: true,
+	}
+	initPaymentReminderFlags(sendPaymentReminderCommand.Flags())
+	root.AddCommand(sendPaymentReminderCommand)
+
 	completionCommand := &cobra.Command{
 		Use:   "completion",
 		Short: "Generates bash completion scripts",

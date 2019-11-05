@@ -32,13 +32,16 @@ type Assertions struct {
 	ElectronicOrder                          models.ElectronicOrder
 	ElectronicOrdersRevision                 models.ElectronicOrdersRevision
 	FuelEIADieselPrice                       models.FuelEIADieselPrice
+	GHCEntitlement                           models.GHCEntitlement
 	Invoice                                  models.Invoice
 	Move                                     models.Move
 	MoveDocument                             models.MoveDocument
+	MoveTaskOrder                            models.MoveTaskOrder
 	MovingExpenseDocument                    models.MovingExpenseDocument
 	WeightTicketSetDocument                  models.WeightTicketSetDocument
 	OfficeUser                               models.OfficeUser
 	Order                                    models.Order
+	Organization                             models.Organization
 	PersonallyProcuredMove                   models.PersonallyProcuredMove
 	ReContract                               models.ReContract
 	ReContractYear                           models.ReContractYear
@@ -46,6 +49,7 @@ type Assertions struct {
 	Reimbursement                            models.Reimbursement
 	ReService                                models.ReService
 	SignedCertification                      models.SignedCertification
+	ServiceItem                              models.ServiceItem
 	ServiceMember                            models.ServiceMember
 	Tariff400ngServiceArea                   models.Tariff400ngServiceArea
 	Tariff400ngItem                          models.Tariff400ngItem

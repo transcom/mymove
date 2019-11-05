@@ -10,6 +10,7 @@ import { bindActionCreators } from 'redux';
 
 import Alert from 'shared/Alert';
 import InfectedUpload from 'shared/Uploader/InfectedUpload';
+import ProcessingUpload from 'shared/Uploader/ProcessingUpload';
 import StyleGuide from 'scenes/StyleGuide';
 import Landing from 'scenes/Landing';
 import Edit from 'scenes/Review/Edit';
@@ -61,9 +62,13 @@ export class AppWrapper extends Component {
 
   noMatch = () => (
     <div className="usa-grid">
-      <h2>Page not found</h2>
-      <p>Looks like you've followed a broken link or entered a URL that doesn't exist on this site.</p>
-      <button onClick={this.props.goBack}>Go Back</button>
+      <div className="grid-container usa-prose">
+        <h2>Page not found</h2>
+        <p>Looks like you've followed a broken link or entered a URL that doesn't exist on this site.</p>
+        <button className="usa-button" onClick={this.props.goBack}>
+          Go Back
+        </button>
+      </div>
     </div>
   );
 
@@ -80,9 +85,15 @@ export class AppWrapper extends Component {
               <div className="usa-grid">
                 <LogoutOnInactivity />
                 {props.swaggerError && (
-                  <Alert type="error" heading="An error occurred">
-                    There was an error contacting the server.
-                  </Alert>
+                  <div className="grid-container">
+                    <div className="grid-row">
+                      <div className="grid-col-12">
+                        <Alert type="error" heading="An error occurred">
+                          There was an error contacting the server.
+                        </Alert>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
               {this.state.hasError && <SomethingWentWrong />}
@@ -109,6 +120,7 @@ export class AppWrapper extends Component {
                   <ValidatedPrivateRoute exact path="/trailer-criteria" component={TrailerCriteria} />
                   <ValidatedPrivateRoute exact path="/allowable-expenses" component={AllowableExpenses} />
                   <ValidatedPrivateRoute exact path="/infected-upload" component={InfectedUpload} />
+                  <ValidatedPrivateRoute exact path="/processing-upload" component={ProcessingUpload} />
                   <ValidatedPrivateRoute
                     path="/moves/:moveId/ppm-payment-request-intro"
                     component={PPMPaymentRequestIntro}

@@ -519,18 +519,7 @@ vCPUs
 Fargate
 ecs-tasks-app-staging
 Devlocal
-# Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
- - /usr/local
- - docs/data/tspp-data-creation.md
- - docs/backend.md
- - docs/adr/0007-swagger-client.md
- - docs/adr/0027-pdf-generation.md
- - README.md
- - docs/frontend.md
- - ./README.md
- - ./docs/data/tspp-data-creation.md
- - ./docs/data/tariff400ng-yearly-import.md
- - ./scripts/README.md
- - ./docs/how-to/run-storybook.md
- - ./docs/database.md
- - ./docs/._database.md
+MacBookPro
+Dependabot
+dependabot
+GENERATED_UUID4_VAL

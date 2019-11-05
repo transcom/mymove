@@ -1,0 +1,775 @@
+base_point_city,state,service_area_number,zip3s
+Abbottstown,PA,672.0,173.0
+Abilene,TX,736.0,796.0
+Aiken,SC,208.0,298.0
+Akron,OH,612.0,"442,443"
+Albany,GA,200.0,"317,398"
+Albany,NY,536.0,122.0
+Albany,OR,660.0,973.0
+Albuquerque,NM,516.0,"870,871,872"
+Alden,NY,540.0,"140,141"
+Alexandria,VA,169.0,223.0
+Algoma,WI,876.0,542.0
+Alhambra,CA,056,918.0
+Alice,TX,748.0,783.0
+Alliance,NE,492.0,693.0
+Alstead,NH,372.0,036
+Altoona,PA,664.0,166.0
+Amarillo,TX,740.0,"790,791"
+Anaheim,CA,056,928.0
+Anderson,SC,688.0,296.0
+Annapolis,MD,380.0,214.0
+Appleton,MN,712.0,562.0
+Arcadia,MO,456.0,636.0
+Archer City,TX,788.0,763.0
+Archer,FL,176.0,326.0
+Arcola,IL,288.0,619.0
+Ardmore,OK,636.0,734.0
+Arlington,VA,169.0,222.0
+Arlington,VT,804.0,052
+Asheville,NC,560.0,288.0
+Ashland,NH,384.0,032
+Atkinson,NC,576.0,284.0
+Atlanta,GA,205.0,"300,303,311,399"
+Atlantic City,NJ,512.0,084
+Augusta,GA,208.0,309.0
+Augusta,ME,364.0,043
+Aurora,IL,252.0,605.0
+Austin,TX,744.0,"733,786,787"
+Avoca,IA,488.0,515.0
+Bainbridge,NY,680.0,"137,138"
+Bakersfield,CA,056,933.0
+Baldwyn,MS,440.0,388.0
+Baltimore,MD,381.0,"210,211,212,213"
+Barlow,OH,624.0,457.0
+Barnhart,TX,776.0,769.0
+Barstow,CA,072,923.0
+Barstow,IL,260.0,612.0
+Baton Rouge,LA,356.0,"707,708"
+Bay View,MD,380.0,219.0
+Baytown,TX,764.0,775.0
+Beachwood,NJ,544.0,087
+Beaumont,TX,764.0,"776,777"
+Beckley,WV,852.0,"258,259"
+Belleville,KS,316.0,669.0
+Belmont,CA,080,940.0
+Beltsville,MD,380.0,"207,208,209"
+Bend,OR,644.0,977.0
+Benson,AZ,032,856.0
+Benton,KY,336.0,420.0
+Berea,KY,328.0,404.0
+Berlin,PA,676.0,155.0
+Bethel,NC,572.0,278.0
+Beverly Hills,CA,056,902.0
+Billings,MT,460.0,"590,591"
+Binghamton,NY,680.0,139.0
+Birmingham,AL,004,352.0
+Bismarck,ND,588.0,585.0
+Blackduck,MN,412.0,566.0
+Blackfoot,ID,240.0,832.0
+Blair,NE,488.0,680.0
+Bloomington,IL,248.0,617.0
+Boise,ID,236.0,"836,837"
+Boonville,IN,272.0,476.0
+Boston,MA,385.0,"021,022"
+Boulder,CO,144.0,803.0
+Bowling Green,VA,820.0,"224,225"
+Brady,TX,776.0,768.0
+Brewster,WA,848.0,988.0
+Bridgeport,CT,544.0,066
+Bristol,GA,176.0,315.0
+Brockton,MA,384.0,024
+Brockwell,AR,048,725.0
+Bronx Park,NY,545.0,104.0
+Brownfield,TX,772.0,793.0
+Bruce Crossing,MI,408.0,499.0
+Bryan,TX,744.0,778.0
+Bryant Pond,ME,372.0,042
+Buckeye,AZ,036,853.0
+Buena Vista,GA,212.0,318.0
+Buffalo,NY,540.0,142.0
+Buffalo,WY,884.0,828.0
+Burbank,CA,056,"915,916"
+Butler,AL,436.0,369.0
+Butler,MO,452.0,647.0
+Butler,PA,676.0,160.0
+Buzzards Bay,MA,684.0,025
+Cadiz,OH,676.0,439.0
+Calmar,IA,304.0,521.0
+Camden,AR,352.0,717.0
+Camden,NJ,672.0,081
+Camp Point,IL,264.0,623.0
+Canadensis,PA,672.0,183.0
+Canton,MS,432.0,"390,391"
+Canton,OH,612.0,447.0
+Carbon Hill,AL,004,355.0
+Carson City,NV,504.0,897.0
+Casper,WY,880.0,826.0
+Cass,GA,204.0,301.0
+Cavetown,MD,380.0,217.0
+Cedar City,UT,792.0,847.0
+Cedar Rapids,IA,292.0,"522,523,524"
+Chambersburg,PA,672.0,172.0
+Chanute,KS,320.0,667.0
+Charleston,AR,040,729.0
+Charleston,WV,852.0,"250,251,252,253"
+Charlotte,NC,564.0,"280,281,282"
+Charlottesville,VA,812.0,229.0
+Chatfield,MN,420.0,559.0
+Chattanooga,TN,720.0,374.0
+Chester,NY,544.0,109.0
+Chester,SC,564.0,297.0
+Chester,VT,804.0,051
+Chicago,IL,253.0,"602,603,606,607,608"
+Chillicothe,MO,448.0,646.0
+Chipley,FL,188.0,324.0
+Chulafinnee,AL,004,362.0
+Churchs Ferry,ND,600.0,583.0
+Cincinnati,OH,608.0,"452,459"
+Clarksburg,WV,856.0,"263,264"
+Clarkston,WA,836.0,994.0
+Clarksville,AR,048,728.0
+Clayton,OK,040,745.0
+Clear Lake,IA,304.0,504.0
+Cleveland,GA,204.0,305.0
+Cleveland,OH,612.0,441.0
+Coeur D Alene,ID,844.0,838.0
+Colby,KS,312.0,677.0
+Colebrook,NH,508.0,059
+Collinsville,AL,004,359.0
+Colorado Springs,CO,140.0,809.0
+Columbia,SC,696.0,"290,291,292"
+Columbus Grove,OH,628.0,458.0
+Columbus,GA,212.0,319.0
+Columbus,OH,616.0,432.0
+Concord,NH,372.0,033
+Cookeville,TN,732.0,385.0
+Cooper,TX,752.0,754.0
+Corbin,KY,340.0,407.0
+Corning,IA,488.0,508.0
+Corpus Christi,TX,748.0,784.0
+Correctionville,IA,300.0,510.0
+Cortez,CO,152.0,813.0
+Crescent City,FL,184.0,321.0
+Crockett,TX,764.0,758.0
+Crowley,LA,348.0,705.0
+Culpeper,VA,168.0,227.0
+Cumberland,MD,828.0,215.0
+Cumberland,OH,616.0,437.0
+Dallas,PA,680.0,186.0
+Dallas,TX,753.0,"752,753"
+Dalton,GA,720.0,307.0
+Daniel,WY,888.0,831.0
+Datil,NM,516.0,878.0
+Davenport,IA,292.0,528.0
+Davenport,WA,844.0,991.0
+Dayton,OH,620.0,454.0
+Dedham,MA,384.0,020
+Del Norte,CO,152.0,811.0
+Delano,CA,056,932.0
+Delta,UT,796.0,846.0
+Deming,NM,532.0,880.0
+Denver,CO,145.0,"800,802"
+Des Moines,IA,296.0,"500,501,502,503,509"
+Detroit Lakes,MN,596.0,565.0
+Detroit,MI,401.0,482.0
+Dickinson,ND,592.0,586.0
+Downingtown,PA,672.0,193.0
+Doylestown,PA,672.0,189.0
+Duluth,MN,412.0,558.0
+Dulzura,CA,076,919.0
+Dunlap,TN,720.0,373.0
+Dunnellon,FL,176.0,344.0
+Durham,NC,580.0,277.0
+East Bernard,TX,764.0,774.0
+East Hickory,PA,668.0,163.0
+Eastland,TX,752.0,764.0
+Easton,MD,164.0,216.0
+Eatontown,NJ,544.0,077
+Eau Claire,WI,864.0,547.0
+Edenton,NC,572.0,279.0
+Edinboro,PA,668.0,164.0
+El Paso,TX,760.0,"799,885"
+Elida,NM,524.0,881.0
+Elizabeth,NJ,544.0,072
+Elizabeth,WV,624.0,261.0
+Elko,NV,496.0,898.0
+Elkton,KY,324.0,422.0
+Elma,WA,840.0,985.0
+Elmira,NY,680.0,149.0
+Elmwood,MA,384.0,023
+Elwood,UT,800.0,843.0
+Emblem,WY,884.0,824.0
+Enid,OK,632.0,737.0
+Enoree,SC,688.0,293.0
+Erie,PA,668.0,165.0
+Essex Junction,VT,808.0,054
+Eureka,CA,064,955.0
+Eureka,MO,456.0,630.0
+Eureka,NV,496.0,893.0
+Evansville,IN,272.0,477.0
+Evergreen,AL,016,364.0
+Fairfield,IL,256.0,628.0
+Fairview Village,PA,672.0,194.0
+Fall River,MA,384.0,027
+Falmouth,KY,608.0,410.0
+Fargo,ND,596.0,581.0
+Farley,IA,304.0,520.0
+Farmingdale,NY,544.0,117.0
+Farmington,NM,528.0,874.0
+Fayetteville,AR,040,727.0
+Fayetteville,IL,456.0,622.0
+Fayetteville,NC,568.0,283.0
+Fayetteville,OH,608.0,451.0
+Fitchburg,MA,384.0,014
+Flagstaff,AZ,024,860.0
+Flint,MI,400.0,"484,485"
+Florence,AZ,028,852.0
+Flushing,NY,545.0,113.0
+Folsom,LA,356.0,704.0
+Forest Grove,OR,660.0,971.0
+Forrest City,AR,044,723.0
+Forreston,IL,252.0,610.0
+Fort Collins,CO,144.0,805.0
+Fort Lauderdale,FL,181.0,333.0
+Fort Pierce,FL,180.0,349.0
+Fort Worth,TX,752.0,761.0
+Frankfort,KY,332.0,406.0
+Franklin,IN,280.0,461.0
+Franktown,CO,144.0,801.0
+Fresno,CA,052,"936,937,938"
+Front Royal,VA,168.0,226.0
+Frostproof,FL,196.0,338.0
+Ft Myers,FL,172.0,"339,341"
+Ft Wayne,IN,276.0,468.0
+Gainesville,VA,168.0,"201,220,221"
+Galesburg,IL,260.0,614.0
+Gallup,NM,528.0,873.0
+Ganado,AZ,024,865.0
+Garden City,KS,308.0,678.0
+Gary,IN,252.0,464.0
+Genoa,NE,488.0,686.0
+George,IA,712.0,512.0
+Georgetown,CT,544.0,068
+Gilman,IL,248.0,609.0
+Gilroy,CA,080,950.0
+Glasgow,DE,164.0,197.0
+Glasgow,KY,324.0,421.0
+Glenwood,AR,048,719.0
+Globe,AZ,028,855.0
+Gold Run,CA,068,957.0
+Goshen,VA,812.0,244.0
+Gouverneur,NY,548.0,136.0
+Grain Valley,MO,448.0,640.0
+Grand Forks,ND,600.0,582.0
+Grand Junction,CO,152.0,815.0
+Grand Rapids,MI,404.0,"493,495"
+Grayson,KY,860.0,411.0
+Great Bend,KS,320.0,675.0
+Great Falls,MT,472.0,594.0
+Greeley,CO,144.0,806.0
+Green Bay,WI,876.0,543.0
+Greenfield,MA,384.0,013
+Greensboro,NC,584.0,274.0
+Greensburg,PA,676.0,156.0
+Grenada,MS,440.0,389.0
+Gringo,PA,676.0,150.0
+Groveton,NH,508.0,035
+Guymon,OK,308.0,739.0
+Hamilton,OH,608.0,450.0
+Hammon,OK,636.0,736.0
+Harlan,KY,340.0,408.0
+Harlem,GA,208.0,308.0
+Harrington,DE,164.0,199.0
+Harrington,ME,368.0,046
+Harrisburg,PA,672.0,171.0
+Harrisonburg,VA,168.0,228.0
+Hartford,CT,160.0,061
+Hattiesburg,MS,428.0,394.0
+Havre,MT,472.0,595.0
+Hayward,WI,412.0,548.0
+Hazard,KY,340.0,417.0
+Hazleton,PA,680.0,182.0
+Helena,MT,472.0,596.0
+Hempstead,NY,544.0,115.0
+Hibbing,MN,412.0,557.0
+Hicksville,NY,544.0,118.0
+Hinesville,GA,216.0,313.0
+Home,PA,676.0,157.0
+Homeville,VA,820.0,238.0
+Hominy,OK,640.0,740.0
+Hondo,NM,532.0,883.0
+Honesdale,PA,680.0,184.0
+Hope,AR,360.0,718.0
+Hopland,CA,080,954.0
+Houston,TX,765.0,"770,771,772"
+Hoxie,AR,044,724.0
+Hugo,OK,636.0,747.0
+Hugoton,KS,308.0,679.0
+Huntington,WV,860.0,257.0
+Huntsville,AL,012,358.0
+Huttonsville,WV,856.0,262.0
+Independence,KS,320.0,673.0
+Indianapolis,IN,280.0,462.0
+Indianola,MS,424.0,387.0
+Indio,CA,072,922.0
+Ingalton,IL,252.0,601.0
+Inglewood,CA,056,903.0
+Ipswich,SD,700.0,574.0
+Isabel,SD,708.0,576.0
+Isom,KY,860.0,418.0
+Jackson,OH,860.0,456.0
+Jackson,KY,340.0,413.0
+Jackson,MI,400.0,492.0
+Jackson,MO,456.0,637.0
+Jackson,MS,432.0,392.0
+Jackson,WY,884.0,830.0
+Jacksonville,FL,176.0,322.0
+Jacksonville,IL,264.0,626.0
+Jamestown,ND,588.0,584.0
+Jasper,AR,048,726.0
+Jasper,IN,272.0,475.0
+Jefferson City,MO,444.0,"650,651"
+Jerome,IL,264.0,627.0
+Jersey City,NJ,544.0,073
+Jerseyville,IL,456.0,620.0
+Johnson City,TN,716.0,376.0
+Johnstonville,CA,068,961.0
+Johnstown,PA,676.0,159.0
+Joliet,IL,252.0,604.0
+Jonesville,LA,344.0,713.0
+Jourdanton,TX,780.0,780.0
+Jupiter,FL,180.0,334.0
+Kalamazoo,MI,404.0,490.0
+Kalispell,MT,476.0,599.0
+Kamiah,ID,844.0,835.0
+Kansas City,KS,448.0,"661,662"
+Kansas City,MO,448.0,"641,649"
+Karlstad,MN,600.0,567.0
+Kaufman,TX,752.0,751.0
+Keene,NH,384.0,034
+Kew Gardens,NY,545.0,"110,114"
+Keyser,WV,828.0,267.0
+Kingman,AZ,500.0,864.0
+Kirksville,MO,444.0,635.0
+Kissimmee,FL,184.0,347.0
+Knoxville,TN,724.0,"377,378,379"
+Kremmling,CO,144.0,804.0
+La Grange,TX,744.0,789.0
+La Junta,CO,140.0,810.0
+La Rue,OH,616.0,433.0
+La Salle,IL,252.0,613.0
+Lake Junction,WY,884.0,821.0
+Lakeland,GA,192.0,316.0
+Lakewood,CA,056,907.0
+Lancaster,PA,672.0,"175,176"
+Lancaster,WI,868.0,538.0
+Lansing,MI,400.0,489.0
+Laramie,WY,880.0,820.0
+Larrys Creek,PA,680.0,177.0
+Las Vegas,NV,500.0,"889,890,891"
+Latham,IL,264.0,625.0
+Lawrence,KS,448.0,660.0
+Lawrenceburg,TN,732.0,384.0
+Lawton,PA,680.0,188.0
+Lebanon,NH,372.0,037
+Leeds,AL,004,"350,351"
+Leesburg,PA,676.0,161.0
+Leonard,ND,596.0,580.0
+Lexington,GA,204.0,306.0
+Lexington,KY,328.0,405.0
+Lexington,TN,728.0,383.0
+Licking,MO,444.0,"654,655"
+Limon,CO,140.0,808.0
+Lincoln,NE,488.0,685.0
+Little Rock,AR,048,722.0
+Little Valley,NY,668.0,147.0
+Livermore,KY,272.0,423.0
+Long Island City,NY,545.0,"100,101,102,111,112"
+Longview,TX,764.0,756.0
+Loon Lake Junction,NY,548.0,129.0
+Los Angeles,CA,057,"900,901,909"
+Louisville,KY,332.0,402.0
+Loup City,NE,480.0,688.0
+Lovelock,NV,504.0,894.0
+Lubbock,TX,772.0,794.0
+Lusk,WY,880.0,822.0
+Macclenny,FL,176.0,320.0
+Mackinaw City,MI,396.0,497.0
+Macon,GA,212.0,312.0
+Madison,WI,868.0,"536,537"
+Madisonville,NJ,544.0,079
+Maljamar,NM,520.0,882.0
+Manchester,KY,340.0,409.0
+Manchester,NH,384.0,"030,031"
+Manchester,NY,540.0,"144,145"
+Mankato,MN,420.0,560.0
+Mansfield,OH,612.0,449.0
+Manton,MI,396.0,496.0
+Marion,SC,696.0,295.0
+Martin,TN,728.0,382.0
+Martinsburg,WV,828.0,254.0
+Matador,TX,752.0,792.0
+Maud,TX,784.0,755.0
+McAllen,TX,768.0,785.0
+McComb,MS,432.0,396.0
+McIntyre,GA,212.0,310.0
+McKinney,TX,752.0,750.0
+Medford,OR,652.0,975.0
+Meeker,CO,148.0,816.0
+Melbourne,FL,184.0,329.0
+Memphis,TN,728.0,"375,381"
+Meridian,MS,436.0,393.0
+Metter,GA,216.0,304.0
+Miami,FL,181.0,"330,331,332"
+Midland,SD,704.0,575.0
+Miles City,MT,460.0,593.0
+Milford,IA,300.0,513.0
+Mill Point,WV,852.0,249.0
+Millville,NJ,672.0,083
+Milo,ME,368.0,044
+Milton,FL,188.0,325.0
+Milwaukee,WI,872.0,"532,533"
+Minco,OK,636.0,730.0
+Minden,NE,480.0,689.0
+Minneapolis,MN,417.0,554.0
+Minot,ND,604.0,587.0
+Missoula,MT,476.0,598.0
+Mitchell,SD,712.0,573.0
+Moab,UT,796.0,845.0
+Moberly,MO,444.0,652.0
+Mobile,AL,016,366.0
+Modesto,CA,068,953.0
+Modoc,IN,280.0,473.0
+Monahans,TX,776.0,797.0
+Moncks Corner,SC,692.0,294.0
+Montgomery,AL,020,361.0
+Monticello,AR,424.0,716.0
+Monticello,KY,340.0,426.0
+Monticello,NY,544.0,127.0
+Montpelier,VT,808.0,056
+Montrose,CO,152.0,814.0
+Montrose,MN,416.0,"553,555"
+Moorcroft,WY,708.0,827.0
+Moreland Hills,OH,612.0,440.0
+Morgantown,WV,856.0,265.0
+Mt Gay,WV,860.0,256.0
+Mt Horeb,WI,868.0,535.0
+Mt Kisco,NY,544.0,105.0
+Mt Pleasant,IA,292.0,526.0
+Mt Sterling,KY,328.0,403.0
+Mt Vernon,AL,016,365.0
+Mukwonago,WI,872.0,531.0
+Murphy,NC,720.0,289.0
+Muskegon,MI,404.0,494.0
+Muskogee,OK,640.0,744.0
+Napoleon,OH,628.0,435.0
+Nappanee,IN,268.0,465.0
+Nashville,TN,732.0,"370,371,372"
+Natchez,LA,344.0,714.0
+Navarre,OH,612.0,446.0
+Neosho,MO,452.0,648.0
+Netcong,NJ,544.0,078
+New Bern,NC,576.0,285.0
+New Brunswick,NJ,544.0,089
+New Court Village,MO,444.0,634.0
+New Haven,CT,160.0,065
+New Haven,OH,628.0,448.0
+New Haven,IN,276.0,467.0
+New Haven,MI,400.0,480.0
+New Market,MD,168.0,206.0
+New Orleans,LA,357.0,"700,701"
+New Richmond,WI,416.0,540.0
+New Rochelle,NY,544.0,108.0
+Newark,NJ,544.0,"070,071"
+Newport News,VA,816.0,236.0
+Newport,PA,672.0,170.0
+Newton,IL,288.0,624.0
+Niagara Falls,NY,540.0,143.0
+Niles,MI,268.0,491.0
+Noblesville,IN,280.0,460.0
+Norfolk,VA,816.0,"233,234,235"
+North Bend,WA,840.0,980.0
+North Bloomfield,CT,160.0,060
+North Powder,OR,656.0,978.0
+North Vernon,IN,280.0,472.0
+Northampton,PA,672.0,"180,181"
+Northumberland,PA,680.0,178.0
+Norton,VA,716.0,242.0
+Norwalk,CA,056,906.0
+Norwich,CT,544.0,063
+Oakland,NJ,544.0,074
+Oakland,CA,080,"946,947"
+Ogden,IL,248.0,618.0
+Ogden,UT,800.0,844.0
+Ojo Caliente,NM,516.0,875.0
+Oklahoma City,OK,636.0,731.0
+Olancha,CA,056,935.0
+Omaha,NE,488.0,681.0
+Oolitic,IN,288.0,474.0
+Opelika,AL,212.0,368.0
+Orlando,FL,185.0,328.0
+Ormsby,PA,668.0,167.0
+Oroville,CA,084,959.0
+Ottumwa,IA,296.0,525.0
+Ozark,AL,008,363.0
+Paint Rock,AL,012,357.0
+Paintsville,KY,860.0,412.0
+Palisade,NE,484.0,690.0
+Palmyra,IN,332.0,471.0
+Palo Alto,CA,080,943.0
+Paramus,NJ,544.0,076
+Pasadena,CA,056,"910,911,912"
+Pasco,WA,836.0,993.0
+Paterson,NJ,544.0,075
+Peoria,IL,260.0,"615,616"
+Peru,IN,284.0,469.0
+Petersburg,WV,828.0,268.0
+Philadelphia,PA,673.0,"190,191,192"
+Phoenicia,NY,536.0,124.0
+Phoenix,AZ,028,"850,851"
+Phoenixville,CT,160.0,062
+Pikeville,KY,860.0,415.0
+Pine Level,AL,020,360.0
+Pine River,MN,412.0,564.0
+Pine Village,IN,284.0,479.0
+Pittsburgh,PA,676.0,"151,152"
+Pittsfield,MA,388.0,012
+Plainview,NE,300.0,687.0
+Pocahontas,IA,304.0,505.0
+Poland,NY,556.0,"133,134"
+Ponca City,OK,632.0,746.0
+Pontiac,MI,400.0,483.0
+Port Richey,FL,196.0,346.0
+Portage,WI,868.0,539.0
+Portageville,MO,456.0,638.0
+Portland,ME,372.0,041
+Portland,OR,660.0,"970,972"
+Portsmouth,VA,816.0,237.0
+Poteau,OK,640.0,749.0
+Pottsville,PA,680.0,179.0
+Poughkeepsie,NY,544.0,126.0
+Prescott,AZ,024,863.0
+Presque Isle,ME,376.0,047
+Prestonsburg,KY,860.0,416.0
+Princeton,WV,824.0,247.0
+Providence,RI,684.0,029
+Racine,WI,872.0,534.0
+Radcliff,KY,332.0,401.0
+Ragley,LA,356.0,706.0
+Raleigh,NC,580.0,276.0
+Ramseur,NC,584.0,"272,273"
+Rapid City,SD,708.0,577.0
+Rawlins,WY,888.0,823.0
+Rayville,LA,352.0,712.0
+Reading,PA,672.0,"195,196"
+Redding,CA,064,960.0
+Reno,NV,504.0,"895,896"
+Richmond,CA,080,948.0
+Richmond,VA,820.0,"230,231,232"
+Ridgeland,SC,692.0,299.0
+Riley,IN,288.0,478.0
+Rimersburg,PA,676.0,162.0
+Ringgold,LA,360.0,710.0
+Ripley,TN,728.0,380.0
+Riverhead,NY,544.0,119.0
+Riverside,CA,072,925.0
+Riverton,WY,888.0,825.0
+Roanoke,VA,824.0,"240,241"
+Roby,TX,736.0,795.0
+Rochester,NY,540.0,146.0
+Rock Springs,WY,888.0,829.0
+Rockford,IL,252.0,611.0
+Rockland,ME,364.0,048
+Roseburg,OR,648.0,974.0
+Rowletts,KY,332.0,427.0
+Ruff Creek,PA,676.0,153.0
+Rustburg,VA,824.0,245.0
+Rutland,VT,804.0,057
+Sacramento,CA,068,"942,956,958"
+Salida,CO,156.0,812.0
+Salina,KS,320.0,674.0
+Salinas,CA,060,939.0
+Salisbury,MD,164.0,218.0
+Salt Lake City,UT,800.0,"840,841,842"
+San Antonio,TX,781.0,782.0
+San Augustine,TX,764.0,759.0
+San Bernardino,CA,072,924.0
+San Diego,CA,077,921.0
+San Fernando,CA,056,913.0
+San Francisco,CA,081,941.0
+San Jose,CA,081,951.0
+San Luis Obispo,CA,056,934.0
+San Mateo,CA,080,944.0
+San Pasqual,CA,076,920.0
+San Rafael,CA,080,949.0
+Sanbornville,NH,384.0,038
+Sanford,FL,184.0,327.0
+Santa Ana,CA,056,"926,927"
+Santa Barbara,CA,056,931.0
+Santa Monica,CA,056,904.0
+Sarasota,FL,196.0,342.0
+Saucier,MS,428.0,395.0
+Sauk Centre,MN,416.0,563.0
+Savannah,GA,216.0,314.0
+Savannah,MO,448.0,644.0
+Schenectady,NY,536.0,"120,121,123"
+Schroeder,MN,412.0,556.0
+Scranton,PA,680.0,185.0
+Searcy,AR,048,"720,721"
+Seattle,WA,841.0,981.0
+Seaville,NJ,672.0,082
+Sebree,KY,272.0,424.0
+Sedalia,MO,448.0,653.0
+Sedro Woolley,WA,832.0,982.0
+Seminole,OK,636.0,748.0
+Senatobia,MS,440.0,386.0
+Senoia,GA,204.0,302.0
+Sharon,VT,804.0,050
+Shawsheen Village,MA,384.0,"018,055"
+Shelbyville,KY,332.0,400.0
+Shenandoah,IA,488.0,516.0
+Shepherd,TX,764.0,773.0
+Sherman Oaks,CA,056,914.0
+Shoshone,ID,244.0,833.0
+Show Low,AZ,024,859.0
+Shreveport,LA,360.0,711.0
+Signal Hill,CA,056,908.0
+Sioux City,IA,300.0,511.0
+Sioux Falls,SD,712.0,"570,571"
+Slayton,MN,712.0,561.0
+Snyder,OK,636.0,735.0
+Solon,ME,368.0,049
+Somerset,KY,340.0,425.0
+Somerville,NJ,544.0,088
+South Bend,IN,268.0,466.0
+South Berwick,ME,372.0,039
+South Bloomfield,OH,616.0,431.0
+South Hadley,MA,384.0,010
+South Millbrook,NY,544.0,125.0
+Spokane,WA,844.0,"990,992"
+Springfield,MA,388.0,011
+Springfield,MO,452.0,"656,657,658"
+Springfield,OH,620.0,455.0
+St Anthony,ID,240.0,834.0
+St Jo,TX,752.0,762.0
+St Johns,MI,400.0,488.0
+St Joseph,MO,448.0,645.0
+St Louis,MO,457.0,631.0
+St Marys,KS,316.0,"664,665"
+St Marys,PA,668.0,158.0
+St Paul,MN,417.0,551.0
+St Petersburg,FL,196.0,337.0
+Stamford,CT,544.0,069
+Standish,ME,372.0,040
+Standish,MI,400.0,"486,487"
+Starkville,MS,440.0,397.0
+Sterling,CO,144.0,807.0
+Stillwater,MN,416.0,550.0
+Stockdale,TX,780.0,781.0
+Stockton,CA,068,952.0
+Stockton,KS,312.0,676.0
+Strong City,KS,320.0,668.0
+Sutton,WV,852.0,266.0
+Syracuse,NY,552.0,"130,131,132"
+Tacoma,WA,840.0,"983,984"
+Tallahassee,FL,192.0,323.0
+Tampa,FL,197.0,"335,336"
+Tazewell,VA,824.0,246.0
+Temple,TX,744.0,765.0
+Thibodaux,LA,356.0,703.0
+Tipton,IA,292.0,527.0
+Toledo,OH,628.0,436.0
+Tomah,WI,868.0,546.0
+Topeka,KS,316.0,666.0
+Topsfield,MA,384.0,019
+Torrance,CA,056,905.0
+Town Creek,AL,012,356.0
+Townshend,VT,804.0,053
+Travis,NY,544.0,103.0
+Trenary,MI,408.0,498.0
+Trenton,NJ,544.0,"085,086"
+Troy,MO,456.0,633.0
+Truth or Consequences,NM,532.0,879.0
+Tryon,NE,484.0,691.0
+Tucson,AZ,032,857.0
+Tucumcari,NM,516.0,884.0
+Tulsa,OK,640.0,741.0
+Tuscaloosa,AL,004,354.0
+Twin Bridges,MT,464.0,597.0
+Tyler,TX,784.0,757.0
+Uniontown,AL,020,367.0
+Uniontown,PA,676.0,154.0
+Unionville,PA,664.0,168.0
+Utica,NY,556.0,135.0
+Uvalde,TX,756.0,788.0
+Vale,OR,236.0,979.0
+Valentine,NE,484.0,692.0
+Valley Falls,OR,652.0,976.0
+Valley Stream,NY,544.0,116.0
+Valparaiso,IN,252.0,463.0
+Van Horn,TX,760.0,798.0
+Ventura,CA,056,930.0
+Versailles,IN,608.0,470.0
+Victoria,VA,820.0,239.0
+Victoria,TX,748.0,779.0
+Vienna,IL,256.0,629.0
+Vinita,OK,640.0,743.0
+Viola,KS,320.0,"670,671"
+Volo,IL,252.0,600.0
+W Covina,CA,056,917.0
+Waco,TX,744.0,"766,767"
+Wagon Mound,NM,516.0,877.0
+Wake Forest,NC,580.0,275.0
+Wallingford,CT,160.0,064
+Walnut Creek,CA,080,945.0
+Warrensburg,NY,556.0,128.0
+Washington,DC,169.0,"200,202,203,204,205"
+Washougal,WA,660.0,986.0
+Waterloo,IA,304.0,507.0
+Watertown,SD,700.0,572.0
+Watkins Glen,NY,552.0,148.0
+Wausau,WI,876.0,544.0
+Wausaukee,WI,876.0,541.0
+Wautoma,WI,876.0,549.0
+Waverly,IA,304.0,506.0
+Wayland,MA,384.0,017
+Waynesville,NC,560.0,287.0
+Weatherford,TX,752.0,760.0
+Welch,WV,860.0,248.0
+Wellsboro,PA,680.0,169.0
+West Bend,WI,872.0,530.0
+West Berlin,NJ,672.0,080
+West Burke,VT,804.0,058
+West Hamlin,WV,860.0,255.0
+West Lafayette,OH,612.0,438.0
+West Liberty,KY,860.0,414.0
+West Milton,OH,620.0,453.0
+West Warwick,RI,684.0,028
+West Yarmouth,MA,684.0,026
+Westside,IA,300.0,514.0
+Wheeling,WV,676.0,260.0
+White Plains,NY,544.0,106.0
+Wichita,KS,320.0,672.0
+Wilber,NE,488.0,"683,684"
+Wilkes Barre,PA,680.0,187.0
+Wilkesboro,NC,564.0,286.0
+Williamsville,MO,456.0,639.0
+Williston,ND,604.0,588.0
+Wilmington,DE,164.0,198.0
+Winston Salem,NC,584.0,271.0
+Wiscasset,ME,364.0,045
+Wolf Point,MT,468.0,592.0
+Woodruff,WI,876.0,545.0
+Woodville,CT,160.0,067
+Woodville,OH,628.0,434.0
+Woodward,OK,632.0,738.0
+Worcester,MA,384.0,"015,016"
+Worthington,OH,616.0,430.0
+Wytheville,VA,824.0,243.0
+Yadkinville,NC,584.0,270.0
+Yakima,WA,848.0,989.0
+Yonkers,NY,544.0,107.0
+York,PA,672.0,174.0
+Youngstown,OH,612.0,"444,445"
+Ypsilanti,MI,400.0,481.0

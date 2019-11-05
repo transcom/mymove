@@ -45,7 +45,9 @@ export default class ConfirmWithReasonButton extends Component {
                 <a onClick={this.setButtonState}>No, never mind</a>
               </div>
               <div className="usa-width-one-whole extras options">
-                <button onClick={this.cancel}>Yes, {buttonTitle}</button>
+                <button className="usa-button" onClick={this.cancel}>
+                  Yes, {buttonTitle}
+                </button>
               </div>
             </div>
           </div>
@@ -63,7 +65,7 @@ export default class ConfirmWithReasonButton extends Component {
                 <a onClick={this.setButtonState}>Never mind</a>
               </div>
               <div className="usa-width-one-whole extras options">
-                <button onClick={this.setCancelState} disabled={!reasonPresent}>
+                <button className="usa-button" onClick={this.setCancelState} disabled={!reasonPresent}>
                   {buttonTitle}
                 </button>
               </div>
@@ -73,7 +75,7 @@ export default class ConfirmWithReasonButton extends Component {
       );
     } else if (this.state.displayState === 'BUTTON') {
       return (
-        <button className="usa-button-secondary" onClick={this.setConfirmState} disabled={buttonDisabled}>
+        <button className="usa-button usa-button--outline" onClick={this.setConfirmState} disabled={buttonDisabled}>
           {buttonTitle}
         </button>
       );
