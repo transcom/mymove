@@ -14,7 +14,7 @@ func (suite *ModelSuite) Test_OfficeUserInstantiation() {
 		"first_name":               {"FirstName can not be blank."},
 		"last_name":                {"LastName can not be blank."},
 		"telephone":                {"Telephone can not be blank."},
-		"email":                    {"Email can not be blank."},
+		"email":                    {"Email does not match the email format."},
 		"transportation_office_id": {"TransportationOfficeID can not be blank."},
 	}
 	suite.verifyValidationErrors(user, expErrors)

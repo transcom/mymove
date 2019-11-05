@@ -57,82 +57,54 @@ func (o *CreateOfficeUserCreated) WriteResponse(rw http.ResponseWriter, producer
 	}
 }
 
-// CreateOfficeUserBadRequestCode is the HTTP code returned for type CreateOfficeUserBadRequest
-const CreateOfficeUserBadRequestCode int = 400
+// CreateOfficeUserUnprocessableEntityCode is the HTTP code returned for type CreateOfficeUserUnprocessableEntity
+const CreateOfficeUserUnprocessableEntityCode int = 422
 
-/*CreateOfficeUserBadRequest Invalid Request
+/*CreateOfficeUserUnprocessableEntity validation error
 
-swagger:response createOfficeUserBadRequest
+swagger:response createOfficeUserUnprocessableEntity
 */
-type CreateOfficeUserBadRequest struct {
+type CreateOfficeUserUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *adminmessages.ValidationError `json:"body,omitempty"`
 }
 
-// NewCreateOfficeUserBadRequest creates CreateOfficeUserBadRequest with default headers values
-func NewCreateOfficeUserBadRequest() *CreateOfficeUserBadRequest {
+// NewCreateOfficeUserUnprocessableEntity creates CreateOfficeUserUnprocessableEntity with default headers values
+func NewCreateOfficeUserUnprocessableEntity() *CreateOfficeUserUnprocessableEntity {
 
-	return &CreateOfficeUserBadRequest{}
+	return &CreateOfficeUserUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the create office user unprocessable entity response
+func (o *CreateOfficeUserUnprocessableEntity) WithPayload(payload *adminmessages.ValidationError) *CreateOfficeUserUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create office user unprocessable entity response
+func (o *CreateOfficeUserUnprocessableEntity) SetPayload(payload *adminmessages.ValidationError) {
+	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *CreateOfficeUserBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *CreateOfficeUserUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
-	rw.WriteHeader(400)
-}
-
-// CreateOfficeUserUnauthorizedCode is the HTTP code returned for type CreateOfficeUserUnauthorized
-const CreateOfficeUserUnauthorizedCode int = 401
-
-/*CreateOfficeUserUnauthorized Must be authenticated to use this end point
-
-swagger:response createOfficeUserUnauthorized
-*/
-type CreateOfficeUserUnauthorized struct {
-}
-
-// NewCreateOfficeUserUnauthorized creates CreateOfficeUserUnauthorized with default headers values
-func NewCreateOfficeUserUnauthorized() *CreateOfficeUserUnauthorized {
-
-	return &CreateOfficeUserUnauthorized{}
-}
-
-// WriteResponse to the client
-func (o *CreateOfficeUserUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
-	rw.WriteHeader(401)
-}
-
-// CreateOfficeUserForbiddenCode is the HTTP code returned for type CreateOfficeUserForbidden
-const CreateOfficeUserForbiddenCode int = 403
-
-/*CreateOfficeUserForbidden Not authorized to create an office user
-
-swagger:response createOfficeUserForbidden
-*/
-type CreateOfficeUserForbidden struct {
-}
-
-// NewCreateOfficeUserForbidden creates CreateOfficeUserForbidden with default headers values
-func NewCreateOfficeUserForbidden() *CreateOfficeUserForbidden {
-
-	return &CreateOfficeUserForbidden{}
-}
-
-// WriteResponse to the client
-func (o *CreateOfficeUserForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
-	rw.WriteHeader(403)
+	rw.WriteHeader(422)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
 }
 
 // CreateOfficeUserInternalServerErrorCode is the HTTP code returned for type CreateOfficeUserInternalServerError
 const CreateOfficeUserInternalServerErrorCode int = 500
 
-/*CreateOfficeUserInternalServerError Server error
+/*CreateOfficeUserInternalServerError internal server error
 
 swagger:response createOfficeUserInternalServerError
 */
