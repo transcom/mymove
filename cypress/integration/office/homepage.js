@@ -20,7 +20,7 @@ describe('Office Home Page', function() {
     cy.waitForReactTableLoad();
 
     cy.get('[data-cy=queueTableRow]:first').click();
-    cy.url().should('include', '/moves/');
+    cy.url().should('include', '/movesssss/');
   });
 });
 
