@@ -428,16 +428,17 @@ func createCSV(params paramConfig, sheetIndex int, processInfo xlsxProcessInfo, 
 		return nil
 	}
 
-	// Create CSV writer to save data to CSV file, returns nil if params.saveToFile=false
-	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime, processInfo.adtlSuffix)
-	if csvWriter != nil {
-		defer csvWriter.close()
+	// Create file for writing the CSV
+	filename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime, processInfo.adtlSuffix)
+	csvFile, err := os.Create(filename)
+	if err != nil {
+		return errors.Wrapf(err, "Could not create CSV file for sheet %d", sheetIndex)
 	}
+	defer csvFile.Close()
 
-	if csvWriter != nil {
-		if err := gocsv.MarshalFile(slice, csvWriter.csvFile); err != nil {
-			return errors.Wrapf(err, "Could not marshal CSV file for sheet %d", sheetIndex)
-		}
+	// Write the CSV
+	if err := gocsv.MarshalFile(slice, csvFile); err != nil {
+		return errors.Wrapf(err, "Could not marshal CSV file for sheet %d", sheetIndex)
 	}
 
 	return nil
