@@ -1,6 +1,7 @@
 package query
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -163,6 +164,21 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		suite.NoError(err)
 		suite.Len(actualUsers, 1)
 		suite.Equal(user2.ID, actualUsers[0].ID)
+	})
+
+	suite.T().Run("fetches many with ilike filter", func(t *testing.T) {
+		search := fmt.Sprintf("%%%s%%", "example.com")
+		filters := []services.QueryFilter{
+			NewQueryFilter("email", ilike, search),
+		}
+		var actualUsers models.OfficeUsers
+
+		pop.Debug = true
+		err := builder.FetchMany(&actualUsers, filters, defaultAssociations(), defaultPagination(), defaultOrder())
+		pop.Debug = false
+
+		suite.NoError(err)
+		suite.Len(actualUsers, 2)
 	})
 
 	suite.T().Run("fetches many with time sort desc", func(t *testing.T) {

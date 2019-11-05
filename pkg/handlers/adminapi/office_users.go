@@ -1,6 +1,7 @@
 package adminapi
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -42,7 +43,7 @@ type IndexOfficeUsersHandler struct {
 func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
-	queryFilters := []services.QueryFilter{}
+	queryFilters := h.generateQueryFilters(params.Filter, logger)
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
 	associations := query.NewQueryAssociations([]services.QueryAssociation{})
@@ -179,4 +180,31 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 	returnPayload := payloadForOfficeUserModel(*updatedOfficeUser)
 
 	return officeuserop.NewUpdateOfficeUserOK().WithPayload(returnPayload)
+}
+
+// generateQueryFilters is helper to convert filter params from a json string
+// of the form `{"search": "example1@example.com"}` to an array of services.QueryFilter
+func (h IndexOfficeUsersHandler) generateQueryFilters(filters *string, logger handlers.Logger) []services.QueryFilter {
+	type Filter struct {
+		Search string `json:"search"`
+	}
+	f := Filter{}
+	var queryFilters []services.QueryFilter
+	if filters == nil {
+		return queryFilters
+	}
+	b := []byte(*filters)
+	err := json.Unmarshal(b, &f)
+	if err != nil {
+		fs := fmt.Sprintf("%v", filters)
+		logger.Warn("unable to decode param", zap.Error(err),
+			zap.String("filters", fs))
+	}
+	if f.Search != "" {
+		nameSearch := fmt.Sprintf("%s%%", f.Search)
+		queryFilters = append(queryFilters, query.NewQueryFilter("email", "ILIKE", fmt.Sprintf("%%%s%%", f.Search)))
+		queryFilters = append(queryFilters, query.NewQueryFilter("first_name", "ILIKE", nameSearch))
+		queryFilters = append(queryFilters, query.NewQueryFilter("last_name", "ILIKE", nameSearch))
+	}
+	return queryFilters
 }
