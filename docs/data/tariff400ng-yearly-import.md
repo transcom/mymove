@@ -84,7 +84,7 @@ We're going to make use of the work that Patrick Stanger delivered in [this PR](
 * [2019 data load](https://github.com/transcom/mymove/pull/2036)
 
 1. Create migration to load `insert` statements generated from the sheet above.
-2. Replace `ID_HERE` with `uuid_generate_v4()` to generate a UUID.
+2. Replace `ID_HERE` with a generated UUID. To generate the UUID please see [this document](docs/how-to/create-or-deactivate-users.md#a-note-about-uuid_generate_v4)
 
 ### Fix certain item rates. Update `weight_lbs_lower` and update `rate_cents` for specific codes
 

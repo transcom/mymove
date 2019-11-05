@@ -24,7 +24,7 @@ const OfficeUserList = props => (
       <TextField source="email" />
       <TextField source="first_name" />
       <TextField source="last_name" />
-      <BooleanField source="deactivated" />
+      <BooleanField source="active" />
     </Datagrid>
   </List>
 );

@@ -5,8 +5,10 @@ class ProcessingUpload extends Component {
     return (
       <Fragment>
         <div className="usa-grid">
-          <h2>Your file is being scanned for viruses </h2>
-          <p>It will be available within a few minutes.</p>
+          <div className="grid-container">
+            <h2>Your file is being scanned for viruses </h2>
+            <p>It will be available within a few minutes.</p>
+          </div>
         </div>
       </Fragment>
     );

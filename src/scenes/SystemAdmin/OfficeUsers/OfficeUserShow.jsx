@@ -15,7 +15,7 @@ const OfficeUserShow = props => {
         <TextField source="middle_initials" />
         <TextField source="last_name" />
         <TextField source="telephone" />
-        <BooleanField source="deactivated" />
+        <BooleanField source="active" />
         <ReferenceField label="Transportation Office" source="transportation_office_id" reference="offices">
           <TextField source="name" />
         </ReferenceField>

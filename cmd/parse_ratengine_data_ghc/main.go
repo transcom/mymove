@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -114,17 +115,22 @@ intentionally are modifying the pattern of how the processing functions are call
 const sharedNumEscalationYearsToProcess int = 1
 const xlsxSheetsCountMax int = 35
 
-type processXlsxSheet func(paramConfig, int, services.TableFromSliceCreator) error
+type processXlsxSheet func(paramConfig, int, services.TableFromSliceCreator, *createCsvHelper) error
 type verifyXlsxSheet func(paramConfig, int) error
 
 type xlsxDataSheetInfo struct {
 	description    *string
-	process        *processXlsxSheet
+	processMethods []xlsxProcessInfo
 	verify         *verifyXlsxSheet
 	outputFilename *string //do not include suffix see func generateOutputFilename for details
 }
 
 var xlsxDataSheets []xlsxDataSheetInfo
+
+type xlsxProcessInfo struct {
+	process    *processXlsxSheet
+	adtlSuffix *string
+}
 
 // initDataSheetInfo: When adding new functions for parsing sheets, must add new xlsxDataSheetInfo
 // defining the parse function
@@ -136,26 +142,41 @@ func initDataSheetInfo() {
 
 	// 4: 	1b) Domestic & International Service Areas
 	xlsxDataSheets[4] = xlsxDataSheetInfo{
-		description:    stringPointer("1b) Service Areas"),
-		outputFilename: stringPointer("1b_service_areas"),
-		process:        &parseServiceAreas,
-		verify:         &verifyServiceAreas,
+		description:    swag.String("1b) Service Areas"),
+		outputFilename: swag.String("1b_service_areas"),
+		processMethods: []xlsxProcessInfo{
+			{
+				process:    &parseDomesticServiceAreas,
+				adtlSuffix: swag.String("domestic"),
+			},
+			{
+				process:    &parseInternationalServiceAreas,
+				adtlSuffix: swag.String("international"),
+			},
+		},
+		verify: &verifyServiceAreas,
 	}
 
 	// 6: 	2a) Domestic Linehaul Prices
 	xlsxDataSheets[6] = xlsxDataSheetInfo{
-		description:    stringPointer("2a) Domestic Linehaul Prices"),
-		outputFilename: stringPointer("2a_domestic_linehaul_prices"),
-		process:        &parseDomesticLinehaulPrices,
-		verify:         &verifyDomesticLinehaulPrices,
+		description:    swag.String("2a) Domestic Linehaul Prices"),
+		outputFilename: swag.String("2a_domestic_linehaul_prices"),
+		processMethods: []xlsxProcessInfo{{
+			process: &parseDomesticLinehaulPrices,
+		},
+		},
+		verify: &verifyDomesticLinehaulPrices,
 	}
 
 	// 7: 	2b) Dom. Service Area Prices
 	xlsxDataSheets[7] = xlsxDataSheetInfo{
-		description:    stringPointer("2b) Dom. Service Area Prices"),
-		outputFilename: stringPointer("2b_domestic_service_area_prices"),
-		process:        &parseDomesticServiceAreaPrices,
-		verify:         &verifyDomesticServiceAreaPrices,
+		description:    swag.String("2b) Dom. Service Area Prices"),
+		outputFilename: swag.String("2b_domestic_service_area_prices"),
+		processMethods: []xlsxProcessInfo{{
+			process: &parseDomesticServiceAreaPrices,
+		},
+		},
+		verify: &verifyDomesticServiceAreaPrices,
 	}
 
 }
@@ -179,7 +200,7 @@ func xlsxSheetsUsage() string {
 	message += "Available sheets for parsing are: \n"
 
 	for i, v := range xlsxDataSheets {
-		if v.process != nil {
+		if len(v.processMethods) > 0 {
 			description := ""
 			if v.description != nil {
 				description = *v.description
@@ -302,7 +323,7 @@ func main() {
 	err = db.Transaction(func(connection *pop.Connection) error {
 		if params.processAll == true {
 			for i, x := range xlsxDataSheets {
-				if x.process != nil {
+				if len(x.processMethods) >= 1 {
 					dbErr := process(params, i, tableFromSliceCreator)
 					if dbErr != nil {
 						log.Printf("Error processing xlsxDataSheets %v\n", dbErr.Error())
@@ -373,13 +394,24 @@ func process(params paramConfig, sheetIndex int, tableFromSliceCreator services.
 	}
 
 	// Call process function
-	if xlsxInfo.process != nil {
-		var callFunc processXlsxSheet
-		callFunc = *xlsxInfo.process
-		err := callFunc(params, sheetIndex, tableFromSliceCreator)
-		if err != nil {
-			log.Printf("%s process error: %v\n", description, err)
-			return errors.Wrapf(err, " process error for sheet index: %d with description: %s", sheetIndex, description)
+	if len(xlsxInfo.processMethods) > 0 {
+		for methodIndex, p := range xlsxInfo.processMethods {
+			if p.process != nil {
+				// Create CSV writer to save data to CSV file, returns nil if params.saveToFile=false
+				csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime, p.adtlSuffix)
+				if csvWriter != nil {
+					defer csvWriter.close()
+				}
+				var callFunc processXlsxSheet
+				callFunc = *p.process
+				err := callFunc(params, sheetIndex, tableFromSliceCreator, csvWriter)
+				if err != nil {
+					log.Printf("%s process error: %v\n", description, err)
+					return errors.Wrapf(err, " process error for sheet index: %d with description: %s", sheetIndex, description)
+				}
+			} else {
+				log.Printf("No process function for sheet index %d with description %s method index: %d\n", sheetIndex, description, methodIndex)
+			}
 		}
 	} else {
 		log.Fatalf("Missing process function for sheet index %d with description %s\n", sheetIndex, description)

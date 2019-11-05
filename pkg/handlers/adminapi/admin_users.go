@@ -25,7 +25,7 @@ func payloadForAdminUserModel(o models.AdminUser) *adminmessages.AdminUser {
 		Email:          handlers.FmtString(o.Email),
 		UserID:         handlers.FmtUUIDPtr(o.UserID),
 		OrganizationID: handlers.FmtUUIDPtr(o.OrganizationID),
-		Deactivated:    handlers.FmtBool(o.Deactivated),
+		Active:         handlers.FmtBool(o.Active),
 		CreatedAt:      handlers.FmtDateTime(o.CreatedAt),
 		UpdatedAt:      handlers.FmtDateTime(o.UpdatedAt),
 	}
@@ -114,6 +114,7 @@ func (h CreateAdminUserHandler) Handle(params adminuserop.CreateAdminUserParams)
 		Email:          payload.Email,
 		Role:           models.SystemAdminRole,
 		OrganizationID: &organizationID,
+		Active:         true,
 	}
 
 	organizationIDFilter := []services.QueryFilter{
@@ -147,15 +148,15 @@ func (h UpdateAdminUserHandler) Handle(params adminuserop.UpdateAdminUserParams)
 	}
 
 	// Don't allow Admin Users to deactivate themselves
-	if adminUserID == session.AdminUserID && payload.Deactivated {
+	if adminUserID == session.AdminUserID && payload.Active {
 		return adminuserop.NewUpdateAdminUserForbidden()
 	}
 
 	adminUser := models.AdminUser{
-		ID:          adminUserID,
-		LastName:    payload.LastName,
-		FirstName:   payload.FirstName,
-		Deactivated: payload.Deactivated,
+		ID:        adminUserID,
+		LastName:  payload.LastName,
+		FirstName: payload.FirstName,
+		Active:    payload.Active,
 	}
 
 	updatedAdminUser, verrs, err := h.AdminUserUpdater.UpdateAdminUser(&adminUser)

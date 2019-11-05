@@ -17,8 +17,6 @@
     "production",
     "--debug-logging",
     "--log-task-metadata",
-    "--db-env",
-    "container",
     "--mutual-tls-enabled",
     "--tls-enabled"
   ],
@@ -89,8 +87,20 @@
       "value": "{{ .move_mil_dod_ca_cert }}"
     },
     {
-      "name": "HTTP_MY_SERVER_NAME",
-      "value": "my.{{ .domain }}"
+      "name": "DPS_REDIRECT_URL",
+      "value": "{{ .DPS_REDIRECT_URL }}"
+    },
+    {
+      "name": "DPS_COOKIE_NAME",
+      "value": "{{ .DPS_COOKIE_NAME }}"
+    },
+    {
+      "name": "DPS_COOKIE_DOMAIN",
+      "value": ".sddc.army.mil"
+    },
+    {
+      "name": "HTTP_DPS_SERVER_NAME",
+      "value": "dps.{{ .domain }}"
     },
     {
       "name": "HTTP_ORDERS_SERVER_NAME",
@@ -147,6 +157,10 @@
     {
       "name": "SERVE_SWAGGER_UI",
       "value": "{{ .SERVE_SWAGGER_UI }}"
+    },
+    {
+      "name": "SERVE_DPS",
+      "value": "{{ .SERVE_DPS }}"
     },
     {
       "name": "SERVE_ORDERS",
