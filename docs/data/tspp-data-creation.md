@@ -207,6 +207,7 @@ VALUES
 This will add the new entries to the temporary TDL table,
 forcing them to adhere to any table constraints
 and generating new UUIDs to be consistent across environments.
+For info on why having consistent UUIDs is important [see this document](docs/how-to/create-or-deactivate-users.md#a-note-about-uuid_generate_v4)
 
 We'll now [create a new migration](../how-to/migrate-the-database.md#how-to-migrate-the-database) with that data (replace your migration filename):
 
@@ -265,6 +266,7 @@ SELECT count(DISTINCT scac) FROM tdl_scores_and_discounts WHERE tsp_id IS NULL;
 
 #### If TSP ID is still null
 
+Note we use GENERATED_UUID4_VAL here to represent a generated UUID, read [this doc](docs/how-to/create-or-deactivate-users.md#a-note-about-uuid_generate_v4) for details.
 If this is not 0, add the TSPs:
 
 ```sql
@@ -273,7 +275,7 @@ CREATE TABLE temp_tsps AS SELECT * FROM transportation_service_providers;
 ALTER TABLE temp_tsps ADD COLUMN import boolean;
 
 INSERT INTO temp_tsps (standard_carrier_alpha_code, id, import)
-  SELECT DISTINCT ON (scac) scac AS standard_carrier_alpha_code, uuid_generate_v4() AS id, true AS import
+  SELECT DISTINCT ON (scac) scac AS standard_carrier_alpha_code, GENERATED_UUID4_VAL AS id, true AS import
   FROM tdl_scores_and_discounts
   WHERE tsp_id IS NULL;
 ```
@@ -308,11 +310,13 @@ The following command will fill the TSPP table with data. Use your data's curren
 >
 > [This document](https://docs.google.com/document/d/12AN1igDt9Acxm9cu1cJA0fiWQIMI3XGs5u_jhCHLo6I) specifies the date ranges for both the performance periods and the rate cycle periods.
 
+Note we use GENERATED_UUID4_VAL here to represent a generated UUID, read [this doc](docs/how-to/create-or-deactivate-users.md#a-note-about-uuid_generate_v4) for details.
+
 ```SQL
 INSERT INTO
   transportation_service_provider_performances (id, performance_period_start, performance_period_end, traffic_distribution_list_id, offer_count, best_value_score, transportation_service_provider_id, created_at, updated_at, rate_cycle_start, rate_cycle_end, linehaul_rate, sit_rate)
 SELECT
-  uuid_generate_v4() as id, '2018-08-01' as performance_period_start, '2018-09-30' as performance_period_end, tdl_id, 0 as offer_count, bvs, tsp_id, now() as created_at, now() as updated_at, '2018-05-15' as rate_cycle_start, '2018-09-30' as rate_cycle_end, lh_rate/100, sit_rate/100
+  GENERATED_UUID4_VAL as id, '2018-08-01' as performance_period_start, '2018-09-30' as performance_period_end, tdl_id, 0 as offer_count, bvs, tsp_id, now() as created_at, now() as updated_at, '2018-05-15' as rate_cycle_start, '2018-09-30' as rate_cycle_end, lh_rate/100, sit_rate/100
 FROM
   tdl_scores_and_discounts;
 ```
