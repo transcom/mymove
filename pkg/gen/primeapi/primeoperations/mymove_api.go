@@ -42,6 +42,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveTaskOrderListMoveTaskOrdersHandler: move_task_order.ListMoveTaskOrdersHandlerFunc(func(params move_task_order.ListMoveTaskOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderListMoveTaskOrders has not yet been implemented")
 		}),
+		MoveTaskOrderUpdateMoveTaskOrderEstimatedWeightHandler: move_task_order.UpdateMoveTaskOrderEstimatedWeightHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderEstimatedWeightParams) middleware.Responder {
+			return middleware.NotImplemented("operation MoveTaskOrderUpdateMoveTaskOrderEstimatedWeight has not yet been implemented")
+		}),
 	}
 }
 
@@ -75,6 +78,8 @@ type MymoveAPI struct {
 
 	// MoveTaskOrderListMoveTaskOrdersHandler sets the operation handler for the list move task orders operation
 	MoveTaskOrderListMoveTaskOrdersHandler move_task_order.ListMoveTaskOrdersHandler
+	// MoveTaskOrderUpdateMoveTaskOrderEstimatedWeightHandler sets the operation handler for the update move task order estimated weight operation
+	MoveTaskOrderUpdateMoveTaskOrderEstimatedWeightHandler move_task_order.UpdateMoveTaskOrderEstimatedWeightHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -140,6 +145,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.MoveTaskOrderListMoveTaskOrdersHandler == nil {
 		unregistered = append(unregistered, "move_task_order.ListMoveTaskOrdersHandler")
+	}
+
+	if o.MoveTaskOrderUpdateMoveTaskOrderEstimatedWeightHandler == nil {
+		unregistered = append(unregistered, "move_task_order.UpdateMoveTaskOrderEstimatedWeightHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -244,6 +253,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move-task-orders"] = move_task_order.NewListMoveTaskOrders(o.context, o.MoveTaskOrderListMoveTaskOrdersHandler)
+
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/prime-actual-weight"] = move_task_order.NewUpdateMoveTaskOrderEstimatedWeight(o.context, o.MoveTaskOrderUpdateMoveTaskOrderEstimatedWeightHandler)
 
 }
 
