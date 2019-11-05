@@ -61,7 +61,7 @@
     "reselect": "^4.0.0",
     "selenium-webdriver": "^3.6.0",
     "swagger-client": "^3.9.0",
-    "swagger-ui-dist": "^3.9.2",
+    "swagger-ui-dist": "^3.24.2",
     "uswds": "2.2.1"
   },
   "name": "client",
