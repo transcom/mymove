@@ -53,7 +53,7 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 		return handlers.ResponseForError(logger, err)
 	}
 
-	totalOfficeUsersCount, err := h.DB().Count(&models.OfficeUser{})
+	totalOfficeUsersCount, err := h.OfficeUserListFetcher.FetchOfficeUserCount(queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

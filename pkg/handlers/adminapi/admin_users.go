@@ -54,7 +54,7 @@ func (h IndexAdminUsersHandler) Handle(params adminuserop.IndexAdminUsersParams)
 		return handlers.ResponseForError(logger, err)
 	}
 
-	totalAdminUsersCount, err := h.DB().Count(&models.AdminUser{})
+	totalAdminUsersCount, err := h.AdminUserListFetcher.FetchAdminUserCount(queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

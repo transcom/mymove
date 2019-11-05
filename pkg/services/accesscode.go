@@ -33,4 +33,5 @@ type OfficeAccessCodes []adminmessages.AccessCode
 //go:generate mockery -name AccessCodeListFetcher
 type AccessCodeListFetcher interface {
 	FetchAccessCodeList(filters []QueryFilter, associations QueryAssociations, pagination Pagination, ordering QueryOrder) (models.AccessCodes, error)
+	FetchAccessCodeCount(filters []QueryFilter) (int, error)
 }
