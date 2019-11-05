@@ -8,7 +8,7 @@ const SignIn = ({ context, location }) => {
   const error = qs.parse(location.search).error;
   return (
     <div className="grid-container usa-prose site-prose">
-      <div classNAme="grid-row">
+      <div className="grid-row">
         <div className="grid-col-8 grid-offset-2">
           {error && (
             <div>
