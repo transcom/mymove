@@ -17,6 +17,10 @@ const (
 	DPSSwaggerFlag string = "dps-swagger"
 	// AdminSwaggerFlag is the Admin Swagger Flag
 	AdminSwaggerFlag string = "admin-swagger"
+	// GHCSwaggerFlag is the GHC Swagger Flag
+	GHCSwaggerFlag string = "ghc-swagger"
+	// PrimeSwaggerFlag is the Prime Swagger Flag
+	PrimeSwaggerFlag string = "prime-swagger"
 	// ServeSwaggerUIFlag is the Serve Swagger UI Flag
 	ServeSwaggerUIFlag string = "serve-swagger-ui"
 )
@@ -28,6 +32,8 @@ func InitSwaggerFlags(flag *pflag.FlagSet) {
 	flag.String(OrdersSwaggerFlag, "swagger/orders.yaml", "The location of the Orders API swagger definition")
 	flag.String(DPSSwaggerFlag, "swagger/dps.yaml", "The location of the DPS API swagger definition")
 	flag.String(AdminSwaggerFlag, "swagger/admin.yaml", "The location of the admin API swagger definition")
+	flag.String(GHCSwaggerFlag, "swagger/ghc.yaml", "The location of the GHC API swagger definition")
+	flag.String(PrimeSwaggerFlag, "swagger/prime.yaml", "The location of the Prime API swagger definition")
 	flag.Bool(ServeSwaggerUIFlag, false, "Whether to serve swagger UI for the APIs")
 }
 
@@ -38,7 +44,9 @@ func CheckSwagger(v *viper.Viper) error {
 		InternalSwaggerFlag,
 		OrdersSwaggerFlag,
 		DPSSwaggerFlag,
+		GHCSwaggerFlag,
 		AdminSwaggerFlag,
+		PrimeSwaggerFlag,
 	}
 
 	for _, c := range swaggerVars {

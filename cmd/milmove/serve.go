@@ -11,12 +11,15 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"net/http/pprof"
 	"os"
 	"os/signal"
 	"path"
 	"strings"
 	"sync"
 	"syscall"
+
+	"github.com/transcom/mymove/pkg/handlers/primeapi"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
@@ -44,9 +47,9 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/adminapi"
 	"github.com/transcom/mymove/pkg/handlers/dpsapi"
+	"github.com/transcom/mymove/pkg/handlers/ghcapi"
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/handlers/ordersapi"
-	"github.com/transcom/mymove/pkg/handlers/publicapi"
 	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/middleware"
@@ -129,6 +132,9 @@ func initServeFlags(flag *pflag.FlagSet) {
 
 	// Feature Flags
 	cli.InitFeatureFlags(flag)
+
+	// pprof flags
+	cli.InitDebugFlags(flag)
 
 	// Service Flags
 	cli.InitServiceFlags(flag)
@@ -230,6 +236,10 @@ func checkServeConfig(v *viper.Viper, logger logger) error {
 	}
 
 	if err := cli.CheckFeatureFlag(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckDebugFlags(v); err != nil {
 		return err
 	}
 
@@ -455,7 +465,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	appnames := auth.ApplicationServername{
 		MilServername:    v.GetString(cli.HTTPMyServerNameFlag),
 		OfficeServername: v.GetString(cli.HTTPOfficeServerNameFlag),
-		TspServername:    v.GetString(cli.HTTPTSPServerNameFlag),
 		AdminServername:  v.GetString(cli.HTTPAdminServerNameFlag),
 		OrdersServername: v.GetString(cli.HTTPOrdersServerNameFlag),
 		DpsServername:    v.GetString(cli.HTTPDPSServerNameFlag),
@@ -474,6 +483,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, clientAuthSecretKey, noSessionTimeout, appnames, useSecureCookie)
 	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, useSecureCookie)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
+	isLoggedInMiddleware := authentication.IsLoggedInMiddleware(logger)
 	clientCertMiddleware := authentication.ClientCertMiddleware(logger, dbConnection)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
@@ -486,7 +496,10 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	handlerContext.SetAppNames(appnames)
 
 	// Email
-	notificationSender := notifications.InitEmail(v, session, logger)
+	notificationSender, notificationSenderErr := notifications.InitEmail(v, session, logger)
+	if notificationSenderErr != nil {
+		logger.Fatal("notification sender sending not enabled", zap.Error(notificationSenderErr))
+	}
 	handlerContext.SetNotificationSender(notificationSender)
 
 	build := v.GetString(cli.BuildRootFlag)
@@ -575,8 +588,19 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	dpsAuthParams := dpsauth.InitDPSAuthParams(v, appnames)
 	handlerContext.SetDPSAuthParams(dpsAuthParams)
 
+	// bare is the base muxer. Not intended to have any middleware attached.
+	bare := goji.NewMux()
+	storageBackend := v.GetString(cli.StorageBackendFlag)
+	if storageBackend == "local" {
+		localStorageRoot := v.GetString(cli.LocalStorageRootFlag)
+		localStorageWebRoot := v.GetString(cli.LocalStorageWebRootFlag)
+		//Add a file handler to provide access to files uploaded in development
+		fs := storage.NewFilesystemHandler(localStorageRoot)
+		bare.Handle(pat.Get(path.Join("/", localStorageWebRoot, "/*")), fs)
+	}
 	// Base routes
-	site := goji.NewMux()
+	site := goji.SubMux()
+	bare.Handle(pat.New("/*"), site)
 	// Add middleware: they are evaluated in the reverse order in which they
 	// are added, but the resulting http.Handlers execute in "normal" order
 	// (i.e., the http.Handler returned by the first Middleware added gets
@@ -720,10 +744,30 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	root := goji.NewMux()
 	root.Use(middleware.Recovery(logger))
-	root.Use(middleware.Trace(logger))                             // injects http request trace id
+	root.Use(middleware.Trace(logger, &handlerContext))            // injects http request trace id
 	root.Use(middleware.ContextLogger("milmove_trace_id", logger)) // injects http request logger
 	root.Use(sessionCookieMiddleware)
 	root.Use(middleware.RequestLogger(logger))
+
+	debug := goji.SubMux()
+	debug.Use(userAuthMiddleware)
+	root.Handle(pat.New("/debug/pprof/*"), debug)
+	if v.GetBool(cli.DebugPProfFlag) {
+		logger.Info("Enabling pprof routes")
+		debug.HandleFunc(pat.Get("/"), pprof.Index)
+		debug.Handle(pat.Get("/allocs"), pprof.Handler("allocs"))
+		debug.Handle(pat.Get("/block"), pprof.Handler("block"))
+		debug.HandleFunc(pat.Get("/cmdline"), pprof.Cmdline)
+		debug.Handle(pat.Get("/goroutine"), pprof.Handler("goroutine"))
+		debug.Handle(pat.Get("/heap"), pprof.Handler("heap"))
+		debug.Handle(pat.Get("/mutex"), pprof.Handler("mutex"))
+		debug.HandleFunc(pat.Get("/profile"), pprof.Profile)
+		debug.HandleFunc(pat.Get("/trace"), pprof.Trace)
+		debug.Handle(pat.Get("/threadcreate"), pprof.Handler("threadcreate"))
+		debug.HandleFunc(pat.Get("/symbol"), pprof.Symbol)
+	} else {
+		debug.HandleFunc(pat.Get("/*"), http.NotFound)
+	}
 
 	// CSRF path is set specifically at the root to avoid duplicate tokens from different paths
 	csrfAuthKey, err := hex.DecodeString(v.GetString(cli.CSRFAuthKeyFlag))
@@ -736,24 +780,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	site.Handle(pat.New("/*"), root)
 
-	if v.GetBool(cli.ServePublicAPIlFlag) {
-		apiMux := goji.SubMux()
-		root.Handle(pat.New("/api/v1/*"), apiMux)
-		apiMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.SwaggerFlag)))
-		if v.GetBool(cli.ServeSwaggerUIFlag) {
-			logger.Info("Public API Swagger UI serving is enabled")
-			apiMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "api.html")))
-		} else {
-			apiMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
-		}
-		externalAPIMux := goji.SubMux()
-		apiMux.Handle(pat.New("/*"), externalAPIMux)
-		externalAPIMux.Use(middleware.NoCache(logger))
-		externalAPIMux.Use(userAuthMiddleware)
-		externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext))
-	}
-
-	if v.GetBool(cli.ServeInternalAPIFlag) {
+	if v.GetBool(cli.ServeAPIInternalFlag) {
 		internalMux := goji.SubMux()
 		root.Handle(pat.New("/internal/*"), internalMux)
 		internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.InternalSwaggerFlag)))
@@ -765,6 +792,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 		// Mux for internal API that enforces auth
 		internalAPIMux := goji.SubMux()
+		internalMux.HandleFunc(pat.Get("/users/is_logged_in"), isLoggedInMiddleware)
 		internalMux.Handle(pat.New("/*"), internalAPIMux)
 		internalAPIMux.Use(userAuthMiddleware)
 		internalAPIMux.Use(middleware.NoCache(logger))
@@ -789,6 +817,45 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		adminAPIMux.Use(authentication.AdminAuthMiddleware(logger))
 		adminAPIMux.Use(middleware.NoCache(logger))
 		adminAPIMux.Handle(pat.New("/*"), adminapi.NewAdminAPIHandler(handlerContext))
+	}
+
+	if v.GetBool(cli.ServeGHCFlag) {
+		ghcMux := goji.SubMux()
+		root.Handle(pat.New("/ghc/v1/*"), ghcMux)
+		ghcMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.GHCSwaggerFlag)))
+		if v.GetBool(cli.ServeSwaggerUIFlag) {
+			logger.Info("GHC API Swagger UI serving is enabled")
+			ghcMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "ghc.html")))
+		} else {
+			ghcMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+		}
+
+		// Mux for GHC API that enforces auth
+		ghcAPIMux := goji.SubMux()
+		ghcMux.Handle(pat.New("/*"), ghcAPIMux)
+		ghcAPIMux.Use(userAuthMiddleware)
+		ghcAPIMux.Use(middleware.NoCache(logger))
+		ghcAPIMux.Handle(pat.New("/*"), ghcapi.NewGhcAPIHandler(handlerContext))
+	}
+
+	if v.GetBool(cli.ServePrimeFlag) {
+		primeMux := goji.SubMux()
+		root.Handle(pat.New("/prime/v1/*"), primeMux)
+		primeMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.PrimeSwaggerFlag)))
+		if v.GetBool(cli.ServeSwaggerUIFlag) {
+			logger.Info("Prime API Swagger UI serving is enabled")
+			primeMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "prime.html")))
+		} else {
+			primeMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+		}
+
+		// Mux for GHC API that enforces auth
+		primeAPIMux := goji.SubMux()
+		primeMux.Handle(pat.New("/*"), primeAPIMux)
+		primeAPIMux.Use(userAuthMiddleware)
+		primeAPIMux.Use(authentication.PrimeAuthMiddleware(logger))
+		primeAPIMux.Use(middleware.NoCache(logger))
+		primeAPIMux.Handle(pat.New("/*"), primeapi.NewPrimeAPIHandler(handlerContext))
 	}
 
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
@@ -819,16 +886,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	storageBackend := v.GetString(cli.StorageBackendFlag)
-	if storageBackend == "local" {
-		localStorageRoot := v.GetString(cli.LocalStorageRootFlag)
-		localStorageWebRoot := v.GetString(cli.LocalStorageWebRootFlag)
-
-		// Add a file handler to provide access to files uploaded in development
-		fs := storage.NewFilesystemHandler(localStorageRoot)
-		root.Handle(pat.Get(path.Join("/", localStorageWebRoot, "/*")), fs)
-	}
-
 	// Serve index.html to all requests that haven't matches a previous route,
 	root.HandleFunc(pat.Get("/*"), indexHandler(build, logger))
 
@@ -842,7 +899,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			Host:        listenInterface,
 			Port:        v.GetInt(cli.NoTLSPortFlag),
 			Logger:      logger,
-			HTTPHandler: site,
+			HTTPHandler: bare,
 		})
 		if err != nil {
 			logger.Fatal("error creating no-tls server", zap.Error(err))
@@ -858,7 +915,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			Host:         listenInterface,
 			Port:         v.GetInt(cli.TLSPortFlag),
 			Logger:       logger,
-			HTTPHandler:  site,
+			HTTPHandler:  bare,
 			ClientAuth:   tls.NoClientCert,
 			Certificates: certificates,
 		})
@@ -876,7 +933,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			Host:         listenInterface,
 			Port:         v.GetInt(cli.MutualTLSPortFlag),
 			Logger:       logger,
-			HTTPHandler:  site,
+			HTTPHandler:  bare,
 			ClientAuth:   tls.RequireAndVerifyClientCert,
 			Certificates: certificates,
 			ClientCAs:    rootCAs,

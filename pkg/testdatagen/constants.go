@@ -91,3 +91,9 @@ var cal = dates.NewUSCalendar()
 
 // NextValidMoveDate is the next valid move date
 var NextValidMoveDate = dates.NextValidMoveDate(time.Now(), cal)
+
+// DefaultContractCode is the default contract code for testing
+const DefaultContractCode = "TEST"
+
+// DefaultServiceCode is the default service code for testing
+const DefaultServiceCode = "STEST"

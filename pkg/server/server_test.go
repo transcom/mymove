@@ -3,6 +3,7 @@ package server
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -185,4 +186,209 @@ func (suite *serverSuite) TestHTTPServerConfig() {
 	suite.NoError(err)
 	suite.Equal(httpsServer.Addr, "127.0.0.1:8080")
 	suite.Equal(suite.httpHandler, httpsServer.Handler)
+}
+
+func (suite *serverSuite) testTLSConfigWithRequest(tlsVersion uint16) {
+
+	keyPair, err := tls.X509KeyPair(
+		suite.readFile("localhost.pem"),
+		suite.readFile("localhost.key"))
+	suite.NoError(err)
+	certificates := []tls.Certificate{keyPair}
+
+	caFile := suite.readFile("ca.pem")
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caFile)
+
+	// A handler that we can test with
+	htmlBody := "<html><body>Hello, client</body></html>"
+	httpHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Check the TLS connection from inside the request
+		connState := r.TLS
+		suite.Equal(tlsVersion, connState.Version)
+		suite.True(connState.HandshakeComplete)
+		suite.False(connState.DidResume)
+		suite.Equal("", connState.NegotiatedProtocol)
+		suite.True(connState.NegotiatedProtocolIsMutual)
+		suite.Equal("localhost", connState.ServerName)
+		suite.Equal("Snake Oil", connState.PeerCertificates[0].Subject.Organization[0])
+		suite.Equal("Snake Oil", connState.VerifiedChains[0][0].Subject.Organization[0])
+
+		// Now write out a message
+		fmt.Fprintln(w, htmlBody)
+	})
+
+	host := "localhost"
+	port := 7443
+	srv, err := CreateNamedServer(&CreateNamedServerInput{
+		Host:         host,
+		Port:         port,
+		HTTPHandler:  httpHandler,
+		Logger:       suite.logger,
+		ClientAuth:   tls.RequireAndVerifyClientCert,
+		Certificates: certificates,
+		ClientCAs:    caCertPool,
+	})
+	defer srv.Close()
+	suite.NoError(err)
+
+	// Start the Server
+	go srv.ListenAndServeTLS()
+
+	srv.WaitUntilReady()
+
+	// Send a request
+	clientTLSConfig := tls.Config{
+		RootCAs:      caCertPool,
+		Certificates: certificates,
+		MinVersion:   tlsVersion,
+		MaxVersion:   tlsVersion,
+	}
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &clientTLSConfig,
+		},
+	}
+	res, err := client.Get(fmt.Sprintf("https://%s:%d", host, port))
+	suite.NoError(err)
+
+	// Read the response
+	if res != nil {
+		body, bodyErr := ioutil.ReadAll(res.Body)
+		res.Body.Close()
+		suite.NoError(bodyErr)
+		suite.Equal(htmlBody+"\n", string(body))
+	}
+
+	// Check the TLS connection directly
+	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", host, port), &clientTLSConfig)
+	defer conn.Close()
+	suite.NoError(err)
+}
+
+func (suite *serverSuite) TestTLSConfigWithRequest() {
+	var versions = map[string]uint16{"1.2": tls.VersionTLS12, "1.3": tls.VersionTLS13}
+	for name, version := range versions {
+		suite.T().Run(fmt.Sprintf("TLS version %s", name), func(t *testing.T) {
+			suite.testTLSConfigWithRequest(version)
+		})
+	}
+}
+
+func (suite *serverSuite) TestTLSConfigWithRequestNoClientAuth() {
+
+	keyPair, err := tls.X509KeyPair(
+		suite.readFile("localhost.pem"),
+		suite.readFile("localhost.key"))
+	suite.NoError(err)
+	certificates := []tls.Certificate{keyPair}
+
+	caFile := suite.readFile("ca.pem")
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caFile)
+
+	// A handler that we can test with
+	httpHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		panic("This handler should have never fired")
+	})
+
+	host := "localhost"
+	port := 7443
+	srv, err := CreateNamedServer(&CreateNamedServerInput{
+		Host:         host,
+		Port:         port,
+		HTTPHandler:  httpHandler,
+		Logger:       suite.logger,
+		ClientAuth:   tls.RequireAndVerifyClientCert,
+		Certificates: certificates,
+		ClientCAs:    caCertPool,
+	})
+	defer srv.Close()
+	suite.NoError(err)
+
+	// Start the Server
+	go srv.ListenAndServeTLS()
+
+	srv.WaitUntilReady()
+
+	// Send a request without TLS client side cert configuration, should return error
+	client := &http.Client{
+		Transport: &http.Transport{},
+	}
+	res, err := client.Get(fmt.Sprintf("https://%s:%d", host, port))
+	suite.Nil(res)
+	suite.Error(err)
+
+	// Check the TLS connection directly
+	// This should fail and conn should be nil
+	config := tls.Config{}
+	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", host, port), &config)
+	suite.Nil(conn)
+	suite.Error(err)
+}
+
+func (suite *serverSuite) TestTLSConfigWithInvalidAuth() {
+
+	keyPair, err := tls.X509KeyPair(
+		suite.readFile("localhost.pem"),
+		suite.readFile("localhost.key"))
+	suite.NoError(err)
+	certificates := []tls.Certificate{keyPair}
+
+	caFile := suite.readFile("ca.pem")
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caFile)
+
+	// A handler that we can test with
+	httpHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		panic("This handler should have never fired")
+	})
+
+	host := "localhost"
+	port := 7443
+	srv, err := CreateNamedServer(&CreateNamedServerInput{
+		Host:         host,
+		Port:         port,
+		HTTPHandler:  httpHandler,
+		Logger:       suite.logger,
+		ClientAuth:   tls.RequireAndVerifyClientCert,
+		Certificates: certificates,
+		ClientCAs:    caCertPool,
+	})
+	defer srv.Close()
+	suite.NoError(err)
+
+	// Start the Server
+	go srv.ListenAndServeTLS()
+
+	srv.WaitUntilReady()
+
+	// Send a request with self signed cert and CA, but doesn't match server used CA
+	invalidKeyPair, err := tls.X509KeyPair(
+		suite.readFile("localhost-invalid.pem"),
+		suite.readFile("localhost-invalid.key"))
+	suite.NoError(err)
+	invalidCertificates := []tls.Certificate{invalidKeyPair}
+
+	invalidCaFile := suite.readFile("invalid-ca.pem")
+	invalidCaCertPool := x509.NewCertPool()
+	invalidCaCertPool.AppendCertsFromPEM(invalidCaFile)
+
+	config := tls.Config{
+		RootCAs:      invalidCaCertPool,
+		Certificates: invalidCertificates,
+	}
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &config,
+		},
+	}
+	res, err := client.Get(fmt.Sprintf("https://%s:%d", host, port))
+	suite.Nil(res)
+	suite.Error(err)
+
+	// Check the TLS connection directly
+	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", host, port), &config)
+	suite.Nil(conn)
+	suite.Error(err)
 }

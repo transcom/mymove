@@ -29,7 +29,7 @@ var nextValidMoveDatePlusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate
 var nextValidMoveDateMinusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
 
 // Run does that data load thing
-func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, logger Logger, storer *storage.Memory) {
+func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, logger Logger, storer *storage.Filesystem) {
 	/*
 	 * Basic user with office access
 	 */
@@ -38,10 +38,12 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b")),
 			LoginGovEmail: email,
+			Active:        true,
 		},
 		OfficeUser: models.OfficeUser{
-			ID:    uuid.FromStringOrNil("9c5911a7-5885-4cf4-abec-021a40692403"),
-			Email: email,
+			ID:     uuid.FromStringOrNil("9c5911a7-5885-4cf4-abec-021a40692403"),
+			Email:  email,
+			Active: true,
 		},
 	})
 
@@ -54,6 +56,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
+			Active:        true,
 		},
 	})
 
@@ -76,6 +79,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
+			Active:        true,
 		},
 	})
 	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
@@ -112,6 +116,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
+			Active:        true,
 		},
 	})
 	ppmNoAdvance := testdatagen.MakePPM(db, testdatagen.Assertions{
@@ -144,6 +149,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
+			Active:        true,
 		},
 	})
 	ppmStorage := testdatagen.MakePPM(db, testdatagen.Assertions{
@@ -179,6 +185,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
+			Active:        true,
 		},
 	})
 	ppmNoStorage := testdatagen.MakePPM(db, testdatagen.Assertions{
@@ -214,6 +221,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
+			Active:        true,
 		},
 	})
 	ppmToCancel := testdatagen.MakePPM(db, testdatagen.Assertions{
@@ -246,6 +254,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
+			Active:        true,
 		},
 	})
 	pastTime := nextValidMoveDateMinusTen
@@ -280,6 +289,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
+			Active:        true,
 		},
 	})
 	futureTime := nextValidMoveDatePlusTen
@@ -326,9 +336,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
+			Active:        true,
 		},
 	})
-	// Date picked essentialy at random, but needs to be within TestYear
+	// Date picked essentially at random, but needs to be within TestYear
 	originalMoveDate := time.Date(testdatagen.TestYear, time.November, 10, 23, 0, 0, 0, time.UTC)
 	actualMoveDate := time.Date(testdatagen.TestYear, time.November, 11, 10, 0, 0, 0, time.UTC)
 	moveTypeDetail := internalmessages.OrdersTypeDetailPCSTDY
@@ -358,6 +369,20 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Uploader: loader,
 	})
+	docAssertions := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm3.Move.ID,
+			Move:                     ppm3.Move,
+			PersonallyProcuredMoveID: &ppm3.ID,
+			Status:                   "AWAITING_REVIEW",
+			MoveDocumentType:         "WEIGHT_TICKET",
+		},
+		Document: models.Document{
+			ServiceMemberID: ppm3.Move.Orders.ServiceMember.ID,
+			ServiceMember:   ppm3.Move.Orders.ServiceMember,
+		},
+	}
+	testdatagen.MakeMoveDocument(db, docAssertions)
 	ppm3.Move.Submit(time.Now())
 	ppm3.Move.Approve()
 	// This is the same PPM model as ppm3, but this is the one that will be saved by SaveMoveDependencies
@@ -376,6 +401,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
+			Active:        true,
 		},
 	})
 	// Date picked essentialy at random, but needs to be within TestYear
@@ -449,6 +475,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
+			Active:        true,
 		},
 	})
 	ppmCanceled := testdatagen.MakePPM(db, testdatagen.Assertions{
@@ -483,6 +510,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
+			Active:        true,
 		},
 	})
 
@@ -516,6 +544,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
+			Active:        true,
 		},
 	})
 
@@ -535,13 +564,53 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	/*
-	* Creates a valid, unclaimed access code
+	* Creates two valid, unclaimed access codes
 	 */
-	accessCodeMoveType := models.SelectedMoveTypePPM
+	accessCodePPMMoveType := models.SelectedMoveTypeHHG
 	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
 		AccessCode: models.AccessCode{
 			Code:     "X3FQJK",
-			MoveType: &accessCodeMoveType,
+			MoveType: &accessCodePPMMoveType,
+		},
+	})
+	accessCodeHHGMoveType := models.SelectedMoveTypePPM
+	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
+		AccessCode: models.AccessCode{
+			Code:     "ABC123",
+			MoveType: &accessCodeHHGMoveType,
+		},
+	})
+	email = "accesscode@mail.com"
+	uuidStr = "1dc93d47-0f3e-4686-9dcf-5d940d0d3ed9"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+	sm := models.ServiceMember{
+		ID:            uuid.FromStringOrNil("09229b74-6da8-47d0-86b7-7c91e991b970"),
+		UserID:        uuid.FromStringOrNil(uuidStr),
+		FirstName:     models.StringPointer("Claimed"),
+		LastName:      models.StringPointer("Access Code"),
+		Edipi:         models.StringPointer("163105198"),
+		PersonalEmail: models.StringPointer(email),
+	}
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: sm,
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("7201788b-92f4-430b-8541-6430b2cc7f3e"),
+			Locator: "CLAIMD",
+		},
+		Uploader: loader,
+	})
+	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
+		AccessCode: models.AccessCode{
+			Code:            "ZYX321",
+			MoveType:        &accessCodeHHGMoveType,
+			ServiceMember:   sm,
+			ServiceMemberID: &sm.ID,
 		},
 	})
 
@@ -554,6 +623,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
+			Active:        true,
 		},
 	})
 	ppm6 := testdatagen.MakePPM(db, testdatagen.Assertions{
@@ -596,6 +666,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
+			Active:        true,
 		},
 	})
 	ppm7 := testdatagen.MakePPM(db, testdatagen.Assertions{
@@ -638,6 +709,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
+			Active:        true,
 		},
 	})
 	ppm5 := testdatagen.MakePPM(db, testdatagen.Assertions{
@@ -681,6 +753,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
+			Active:        true,
 		},
 	})
 	inProgressDate := nextValidMoveDatePlusTen
@@ -726,6 +799,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
+			Active:        true,
 		},
 	})
 
@@ -747,5 +821,51 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Locator: "COMPLE",
 		},
 		Uploader: loader,
+	})
+
+	email = "profile@complete.draft"
+	uuidStr = "3b9360a3-3304-4c60-90f4-83d687884070"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+			Active:        true,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("0ec71d80-ac21-45a7-88ed-2ae8de3961fd"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Move"),
+			LastName:      models.StringPointer("Draft"),
+			Edipi:         models.StringPointer("8893308161"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    true,
+			SpouseHasProGear: true,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("a5d9c7b2-0fe8-4b80-b7c5-3323a066e98c"),
+			Locator: "DFTMVE",
+		},
+		Uploader: loader,
+	})
+
+	mto := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{ID: uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e")},
+	})
+	testdatagen.MakeServiceItem(db, testdatagen.Assertions{
+		ServiceItem: models.ServiceItem{MoveTaskOrder: mto}},
+	)
+	testdatagen.MakeEntitlement(db, testdatagen.Assertions{
+		GHCEntitlement: models.GHCEntitlement{MoveTaskOrder: &mto}},
+	)
+
+	testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			ID: uuid.FromStringOrNil("1c030e51-b5be-40a2-80bf-97a330891307"),
+		},
 	})
 }

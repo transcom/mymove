@@ -25,7 +25,10 @@ type ErrTooLarge struct {
 
 var ErrFileSizeLimitExceedsMax = errors.Errorf("FileSizeLimit exceeds max of %d bytes", MaxFileSizeLimit)
 
-const MaxFileSizeLimit = 350 * MB
+// Anti-Virus scanning won't be able to scan files larger than 250MB
+// Any unscanned files will not be available for download so while we can upload a larger
+// file of any size the file will be locked from downloading forever.
+const MaxFileSizeLimit = 250 * MB
 
 func (e ErrTooLarge) Error() string {
 	return fmt.Sprintf("file is too large: %d > %d filesize limit", e.FileSize, e.FileSizeLimit)
@@ -41,6 +44,13 @@ const (
 
 func (b ByteSize) Int64() int64 {
 	return int64(b)
+}
+
+// File type to be used by Uploader. A wrapper around afero.File that allows attaching
+// some additional metadata
+type File struct {
+	afero.File
+	Tags *string
 }
 
 // Uploader encapsulates a few common processes: creating Uploads for a Document,
@@ -75,7 +85,7 @@ func (u *Uploader) SetUploadStorageKey(key string) {
 // CreateUploadForDocument creates a new Upload by performing validations, storing the specified
 // file using the supplied storer, and saving an Upload object to the database containing
 // the file's metadata.
-func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UUID, file afero.File, allowedTypes AllowedFileTypes) (*models.Upload, *validate.Errors, error) {
+func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UUID, file File, allowedTypes AllowedFileTypes) (*models.Upload, *validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 
 	info, fileStatErr := file.Stat()
@@ -144,7 +154,7 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 		}
 
 		// Push file to S3
-		if _, err := u.Storer.Store(newUpload.StorageKey, file, checksum); err != nil {
+		if _, err := u.Storer.Store(newUpload.StorageKey, file.File, checksum, file.Tags); err != nil {
 			u.logger.Error("failed to store object", zap.Error(err))
 			responseVErrors.Append(verrs)
 			uploadError = errors.Wrap(err, "failed to store object")
@@ -162,8 +172,8 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 }
 
 // CreateUpload stores Upload but does not assign a Document
-func (u *Uploader) CreateUpload(userID uuid.UUID, aFile *afero.File, allowedFileTypes AllowedFileTypes) (*models.Upload, *validate.Errors, error) {
-	return u.CreateUploadForDocument(nil, userID, *aFile, allowedFileTypes)
+func (u *Uploader) CreateUpload(userID uuid.UUID, file File, allowedFileTypes AllowedFileTypes) (*models.Upload, *validate.Errors, error) {
+	return u.CreateUploadForDocument(nil, userID, file, allowedFileTypes)
 }
 
 // PresignedURL returns a URL that can be used to access an Upload's file.

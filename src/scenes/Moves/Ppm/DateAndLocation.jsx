@@ -5,24 +5,23 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
-import { createOrUpdatePpm, setInitialFormValues } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlementsFromState } from 'shared/entitlements';
+import { updatePPMEstimate } from 'shared/Entities/modules/ppms';
 import Alert from 'shared/Alert';
-import './DateAndLocation.css';
-import { GetPpmWeightEstimate } from './api';
 import { ValidateZipRateData } from 'shared/api';
+import { createOrUpdatePpm, setInitialFormValues } from './ducks';
+
+import './DateAndLocation.css';
 
 const formName = 'ppp_date_and_location';
 
-const InvalidMoveParamsErrorMsg =
-  "We can't schedule a move that far in the future. You can try an earlier date, or contact your PPPO for help.";
 const UnsupportedZipCodeErrorMsg =
   'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.';
 
 async function asyncValidate(values, dispatch, props, currentFieldName) {
-  const { original_move_date, pickup_postal_code, origin_duty_station_zip, destination_postal_code } = values;
+  const { pickup_postal_code, destination_postal_code } = values;
 
   // If either postal code is blurred, check both of them for errors. We want to
   // catch these before checking on dates via `GetPpmWeightEstimate`.
@@ -49,25 +48,6 @@ async function asyncValidate(values, dispatch, props, currentFieldName) {
     }
     if (responseObject.pickup_postal_code || responseObject.destination_postal_code) {
       throw responseObject;
-    }
-  }
-
-  // If we have all valid postal codes and a move date, we can verify the rate engine
-  // data for the date, while assuming a very small weight (100) that should be covered in
-  // all SM weight entitlements.
-  const fakeLightWeight = 100;
-  if (pickup_postal_code && destination_postal_code && original_move_date) {
-    try {
-      await GetPpmWeightEstimate(
-        original_move_date,
-        pickup_postal_code,
-        origin_duty_station_zip,
-        destination_postal_code,
-        fakeLightWeight,
-      );
-    } catch (err) {
-      // eslint-disable-next-line no-throw-literal
-      throw { original_move_date: InvalidMoveParamsErrorMsg };
     }
   }
 }
@@ -103,7 +83,10 @@ export class DateAndLocation extends Component {
         pendingValues.days_in_storage = null;
       }
       const moveId = this.props.match.params.moveId;
-      return this.props.createOrUpdatePpm(moveId, pendingValues);
+      return this.props
+        .createOrUpdatePpm(moveId, pendingValues)
+        .then(({ payload }) => this.props.updatePPMEstimate(moveId, payload.id).catch(err => err));
+      // catch block returns error so that the wizard can continue on with its flow
     }
   };
 
@@ -120,7 +103,7 @@ export class DateAndLocation extends Component {
           initialValues={initialValues}
           enableReinitialize={true} //this is needed as the pickup_postal_code value needs to be initialized to the users residential address
         >
-          <h2>PPM Dates & Locations</h2>
+          <h1>PPM Dates & Locations</h1>
           <h3> Move Date </h3>
           <SwaggerField fieldName="original_move_date" swagger={this.props.schema} required />
           <h3>Pickup Location</h3>
@@ -130,7 +113,10 @@ export class DateAndLocation extends Component {
             <Fragment>
               <SwaggerField fieldName="additional_pickup_postal_code" swagger={this.props.schema} required />
               <span className="grey">
-                Making additional stops may decrease your PPM incentive. <a onClick={this.openInfo}>Why</a>
+                Making additional stops may decrease your PPM incentive.{' '}
+                <a onClick={this.openInfo} className="usa-link">
+                  Why
+                </a>
               </span>
               {this.state.showInfo && (
                 <Alert type="info" heading="">
@@ -138,7 +124,10 @@ export class DateAndLocation extends Component {
                   base rate it would cost the government to transport your household goods between your destination and
                   origin. When you add additional stops, your overall PPM incentive will change to account for any
                   deviations from the standard route and to account for the fact that not 100% of your household goods
-                  travelled the entire way from origin to destination. <a onClick={this.closeInfo}>Close</a>
+                  travelled the entire way from origin to destination.{' '}
+                  <a onClick={this.closeInfo} className="usa-link">
+                    Close
+                  </a>
                 </Alert>
               )}
             </Fragment>
@@ -154,10 +143,12 @@ export class DateAndLocation extends Component {
             validate={validateDifferentZip}
             required
           />
-          <span className="grey">
-            The ZIP code for {currentOrders && currentOrders.new_duty_station.name} is{' '}
-            {currentOrders && currentOrders.new_duty_station.address.postal_code}{' '}
-          </span>
+          <div style={{ marginTop: '0.5rem' }}>
+            <span className="grey">
+              The ZIP code for {currentOrders && currentOrders.new_duty_station.name} is{' '}
+              {currentOrders && currentOrders.new_duty_station.address.postal_code}{' '}
+            </span>
+          </div>
           <SwaggerField fieldName="has_sit" swagger={this.props.schema} component={YesNoBoolean} />
           {get(this.props, 'formValues.has_sit', false) && (
             <Fragment>
@@ -210,7 +201,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createOrUpdatePpm, setInitialFormValues }, dispatch);
+  return bindActionCreators({ createOrUpdatePpm, setInitialFormValues, updatePPMEstimate }, dispatch);
 }
 
 export default connect(

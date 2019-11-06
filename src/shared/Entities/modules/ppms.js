@@ -6,6 +6,7 @@ const approvePpmLabel = 'PPMs.approvePPM';
 export const downloadPPMAttachmentsLabel = 'PPMs.downloadAttachments';
 const loadPPMsLabel = 'office.loadPPMs';
 const updatePPMLabel = 'office.updatePPM';
+const updatePPMEstimateLabel = 'ppm.updatePPMEstimate';
 const approveReimbursementLabel = 'office.approveReimbursement';
 
 export function approvePPM(personallyProcuredMoveId, personallyProcuredMoveApproveDate, label = approvePpmLabel) {
@@ -44,6 +45,21 @@ export function updatePPM(
       patchPersonallyProcuredMovePayload: payload,
     },
     { label },
+  );
+}
+
+export function updatePPMEstimate(moveId, personallyProcuredMoveId, label = updatePPMEstimateLabel) {
+  const swaggerTag = 'ppm.updatePersonallyProcuredMoveEstimate';
+  return swaggerRequest(
+    getClient,
+    swaggerTag,
+    {
+      moveId,
+      personallyProcuredMoveId,
+    },
+    {
+      label,
+    },
   );
 }
 

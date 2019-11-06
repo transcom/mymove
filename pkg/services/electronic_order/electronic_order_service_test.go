@@ -14,15 +14,12 @@ type ElectronicOrderServiceSuite struct {
 	logger Logger
 }
 
-func (suite *ElectronicOrderServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
 func TestUserSuite(t *testing.T) {
 
-	hs := &ElectronicOrderServiceSuite{
+	ts := &ElectronicOrderServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
-	suite.Run(t, hs)
+	suite.Run(t, ts)
+	ts.PopTestSuite.TearDown()
 }

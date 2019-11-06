@@ -21,7 +21,7 @@ type User struct {
 	UpdatedAt     time.Time `json:"updated_at" db:"updated_at"`
 	LoginGovUUID  uuid.UUID `json:"login_gov_uuid" db:"login_gov_uuid"`
 	LoginGovEmail string    `json:"login_gov_email" db:"login_gov_email"`
-	Disabled      bool      `json:"disabled" db:"disabled"`
+	Active        bool      `json:"active" db:"active"`
 }
 
 // Users is not required by pop and may be deleted
@@ -77,7 +77,7 @@ func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, err
 	newUser := User{
 		LoginGovUUID:  lgu,
 		LoginGovEmail: strings.ToLower(email),
-		Disabled:      false,
+		Active:        true,
 	}
 	verrs, err := db.ValidateAndCreate(&newUser)
 	if verrs.HasAny() {
@@ -92,7 +92,7 @@ func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, err
 // UserIdentity is summary of the information about a user from the database
 type UserIdentity struct {
 	ID                     uuid.UUID  `db:"id"`
-	Disabled               bool       `db:"disabled"`
+	Active                 bool       `db:"active"`
 	Email                  string     `db:"email"`
 	ServiceMemberID        *uuid.UUID `db:"sm_id"`
 	ServiceMemberFirstName *string    `db:"sm_fname"`
@@ -102,14 +102,14 @@ type UserIdentity struct {
 	OfficeUserFirstName    *string    `db:"ou_fname"`
 	OfficeUserLastName     *string    `db:"ou_lname"`
 	OfficeUserMiddle       *string    `db:"ou_middle"`
-	OfficeDisabled         *bool      `db:"ou_disabled"`
+	OfficeActive           *bool      `db:"ou_active"`
 	AdminUserID            *uuid.UUID `db:"au_id"`
 	AdminUserRole          *AdminRole `db:"au_role"`
 	AdminUserFirstName     *string    `db:"au_fname"`
 	AdminUserLastName      *string    `db:"au_lname"`
-	AdminUserDisabled      *bool      `db:"au_disabled"`
+	AdminUserActive        *bool      `db:"au_active"`
 	DpsUserID              *uuid.UUID `db:"du_id"`
-	DpsDisabled            *bool      `db:"du_disabled"`
+	DpsActive              *bool      `db:"du_active"`
 }
 
 // FetchUserIdentity queries the database for information about the logged in user
@@ -117,7 +117,7 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 	var identities []UserIdentity
 	query := `SELECT users.id,
 				users.login_gov_email AS email,
-				users.disabled AS disabled,
+				users.active AS active,
 				sm.id AS sm_id,
 				sm.first_name AS sm_fname,
 				sm.last_name AS sm_lname,
@@ -126,14 +126,14 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 				ou.first_name AS ou_fname,
 				ou.last_name AS ou_lname,
 				ou.middle_initials AS ou_middle,
-				ou.disabled AS ou_disabled,
+				ou.active AS ou_active,
 				au.id AS au_id,
 				au.role AS au_role,
 				au.first_name AS au_fname,
 				au.last_name AS au_lname,
-				au.disabled AS au_disabled,
+				au.active AS au_active,
 				du.id AS du_id,
-				du.disabled AS du_disabled
+				du.active AS du_active
 			FROM users
 			LEFT OUTER JOIN service_members AS sm on sm.user_id = users.id
 			LEFT OUTER JOIN office_users AS ou on ou.user_id = users.id
@@ -159,7 +159,7 @@ func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit 
 		query = `SELECT
 		        users.id,
 				users.login_gov_email AS email,
-				users.disabled AS disabled,
+				users.active AS active,
 				ou.id AS ou_id,
 				ou.first_name AS ou_fname,
 				ou.last_name AS ou_lname,
@@ -170,7 +170,7 @@ func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit 
 	case auth.AdminApp:
 		query = `SELECT users.id,
 				users.login_gov_email AS email,
-				users.disabled AS disabled,
+				users.active AS active,
 				au.id AS au_id,
 				au.role AS au_role,
 				au.first_name AS au_fname,
@@ -181,7 +181,7 @@ func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit 
 	default:
 		query = `SELECT users.id,
 				users.login_gov_email AS email,
-				users.disabled AS disabled,
+				users.active AS active,
 				sm.id AS sm_id,
 				sm.first_name AS sm_fname,
 				sm.last_name AS sm_lname,

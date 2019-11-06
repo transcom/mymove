@@ -348,7 +348,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 	user := models.User{
 		LoginGovUUID:  id,
 		LoginGovEmail: email,
-		Disabled:      false,
+		Active:        true,
 	}
 
 	userType := r.PostFormValue("userType")
@@ -404,7 +404,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			Telephone:              telephone,
 			TransportationOfficeID: office.ID,
 			Email:                  email,
-			Disabled:               false,
+			Active:                 true,
 		}
 		if user.ID != uuid.Nil {
 			officeUser.UserID = &user.ID
@@ -420,7 +420,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 	case DpsUserType:
 		dpsUser := models.DpsUser{
 			LoginGovEmail: email,
-			Disabled:      false,
+			Active:        true,
 		}
 
 		verrs, err := h.db.ValidateAndSave(&dpsUser)
@@ -474,14 +474,14 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 	session.Email = userIdentity.Email
 
 	// Set the app
-	disabled := userIdentity.Disabled
+	active := userIdentity.Active
 
 	// Keep the logic for redirection separate from setting the session user ids
 	switch userType {
 	case OfficeUserType:
 		session.ApplicationName = auth.OfficeApp
 		session.Hostname = h.appnames.OfficeServername
-		disabled = userIdentity.Disabled || (userIdentity.OfficeDisabled != nil && *userIdentity.OfficeDisabled)
+		active = userIdentity.Active || (userIdentity.OfficeActive != nil && *userIdentity.OfficeActive)
 	case AdminUserType:
 		session.ApplicationName = auth.AdminApp
 		session.Hostname = h.appnames.AdminServername
@@ -492,14 +492,14 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 		session.Hostname = h.appnames.MilServername
 	}
 
-	// If the user is disabled they should be denied a session
-	if disabled {
-		h.logger.Error("Disabled user requesting authentication",
+	// If the user is active they should be denied a session
+	if !active {
+		h.logger.Error("Deactivated user requesting authentication",
 			zap.String("application_name", string(session.ApplicationName)),
 			zap.String("hostname", session.Hostname),
 			zap.String("user_id", session.UserID.String()),
 			zap.String("email", session.Email))
-		return nil, errors.New("Disabled user requesting authentication")
+		return nil, errors.New("Deactivated user requesting authentication")
 	}
 
 	if userIdentity.ServiceMemberID != nil {
@@ -510,7 +510,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 		session.OfficeUserID = *(userIdentity.OfficeUserID)
 	}
 
-	if userIdentity.DpsUserID != nil && (userIdentity.DpsDisabled != nil && !*userIdentity.DpsDisabled) {
+	if userIdentity.DpsUserID != nil && (userIdentity.DpsActive != nil && *userIdentity.DpsActive) {
 		session.DpsUserID = *(userIdentity.DpsUserID)
 	}
 
@@ -528,7 +528,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 // verifySessionWithApp returns an error if the user id for a specific app is not available
 func verifySessionWithApp(session *auth.Session) error {
 
-	// TODO: Should this be a check that we do? Or will all office and tsp users also be service members?
+	// TODO: Should this be a check that we do? Or will all office users also be service members?
 	// if (session.ServiceMemberID == uuid.UUID{}) && session.IsMilApp() {
 	// 	return errors.Errorf("Non-service member user %s authenticated at service member site", session.Email)
 	// }

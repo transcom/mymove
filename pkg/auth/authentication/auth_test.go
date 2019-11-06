@@ -23,8 +23,6 @@ import (
 )
 
 const (
-	// TspTestHost
-	TspTestHost string = "tsp.example.com"
 	// OfficeTestHost
 	OfficeTestHost string = "office.example.com"
 	// MilTestHost
@@ -73,7 +71,6 @@ func ApplicationTestServername() auth.ApplicationServername {
 	appnames := auth.ApplicationServername{
 		MilServername:    MilTestHost,
 		OfficeServername: OfficeTestHost,
-		TspServername:    TspTestHost,
 		OrdersServername: OrdersTestHost,
 		DpsServername:    DpsTestHost,
 		SddcServername:   SddcTestHost,
@@ -101,6 +98,7 @@ func TestAuthSuite(t *testing.T) {
 		logger:       logger,
 	}
 	suite.Run(t, hs)
+	hs.PopTestSuite.TearDown()
 }
 
 func fakeLoginGovProvider(logger Logger) LoginGovProvider {
@@ -163,7 +161,7 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 	user := models.User{
 		LoginGovUUID:  loginGovUUID,
 		LoginGovEmail: "email@example.com",
-		Disabled:      false,
+		Active:        true,
 	}
 	suite.MustSave(&user)
 
@@ -186,6 +184,51 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 	// We should be not be redirected since we're logged in
 	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
 	suite.Equal(handlerSession.UserID, user.ID, "the authenticated user is different from expected")
+}
+
+func (suite *AuthSuite) TestIsLoggedInWhenNoUserLoggedIn() {
+	req := httptest.NewRequest("GET", "/is_logged_in", nil)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(IsLoggedInMiddleware(suite.logger))
+
+	handler.ServeHTTP(rr, req)
+
+	// expects to return 200 OK
+	suite.Equal(http.StatusOK, rr.Code, "handler returned the wrong status code")
+
+	// expects to return that no one is logged in
+	expected := "{\"isLoggedIn\":false}\n"
+	suite.Equal(expected, rr.Body.String(), "handler returned wrong body")
+}
+
+func (suite *AuthSuite) TestIsLoggedInWhenUserLoggedIn() {
+	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	user := models.User{
+		LoginGovUUID:  loginGovUUID,
+		LoginGovEmail: "email@example.com",
+		Active:        true,
+	}
+	suite.MustSave(&user)
+
+	req := httptest.NewRequest("GET", "/is_logged_in", nil)
+
+	// And: the context contains the auth values
+	session := auth.Session{UserID: user.ID, IDToken: "fake Token"}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	req = req.WithContext(ctx)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(IsLoggedInMiddleware(suite.logger))
+
+	handler.ServeHTTP(rr, req)
+
+	// expects to return 200 OK
+	suite.Equal(http.StatusOK, rr.Code, "handler returned the wrong status code")
+
+	// expects to return that no one is logged in
+	expected := "{\"isLoggedIn\":true}\n"
+	suite.Equal(expected, rr.Body.String(), "handler returned wrong body")
 }
 
 func (suite *AuthSuite) TestRequireAuthMiddlewareUnauthorized() {
@@ -212,7 +255,7 @@ func (suite *AuthSuite) TestRequireAdminAuthMiddleware() {
 	user := models.User{
 		LoginGovUUID:  loginGovUUID,
 		LoginGovEmail: "email@example.com",
-		Disabled:      false,
+		Active:        true,
 	}
 	suite.MustSave(&user)
 
@@ -256,9 +299,9 @@ func (suite *AuthSuite) TestRequireAdminAuthMiddlewareUnauthorized() {
 	}
 }
 
-func (suite *AuthSuite) TestAuthorizeDisableUser() {
+func (suite *AuthSuite) TestAuthorizeDeactivateUser() {
 	userIdentity := models.UserIdentity{
-		Disabled: true,
+		Active: false,
 	}
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", OfficeTestHost), nil)
@@ -270,7 +313,7 @@ func (suite *AuthSuite) TestAuthorizeDisableUser() {
 		UserID:          fakeUUID,
 		IDToken:         fakeToken,
 		Hostname:        OfficeTestHost,
-		Email:           "disabled@example.com",
+		Email:           "deactivated@example.com",
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234
@@ -285,13 +328,13 @@ func (suite *AuthSuite) TestAuthorizeDisableUser() {
 	rr := httptest.NewRecorder()
 	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(ctx), "")
 
-	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize disabled user")
+	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize deactivated user")
 }
 
 func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 	officeUserID := uuid.Must(uuid.NewV4())
 	userIdentity := models.UserIdentity{
-		Disabled:     false,
+		Active:       true,
 		OfficeUserID: &officeUserID,
 	}
 
@@ -322,10 +365,10 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 	suite.Equal(officeUserID, session.OfficeUserID)
 }
 
-func (suite *AuthSuite) TestAuthorizeDisableOfficeUser() {
-	officeDisabled := true
+func (suite *AuthSuite) TestAuthorizeDeactivateOfficeUser() {
+	officeActive := false
 	userIdentity := models.UserIdentity{
-		OfficeDisabled: &officeDisabled,
+		OfficeActive: &officeActive,
 	}
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", OfficeTestHost), nil)
@@ -337,7 +380,7 @@ func (suite *AuthSuite) TestAuthorizeDisableOfficeUser() {
 		UserID:          fakeUUID,
 		IDToken:         fakeToken,
 		Hostname:        OfficeTestHost,
-		Email:           "disabled@example.com",
+		Email:           "deactivated@example.com",
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234
@@ -352,13 +395,13 @@ func (suite *AuthSuite) TestAuthorizeDisableOfficeUser() {
 	rr := httptest.NewRecorder()
 	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(ctx), "")
 
-	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize disabled office user")
+	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize deactivated office user")
 }
 
 func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 	officeUserID := uuid.Must(uuid.NewV4())
 	userIdentity := models.UserIdentity{
-		Disabled:     false,
+		Active:       true,
 		OfficeUserID: &officeUserID,
 	}
 
@@ -419,7 +462,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 	var adminUserRole models.AdminRole = "SYSTEM_ADMIN"
 
 	userIdentity := models.UserIdentity{
-		Disabled:      false,
+		Active:        true,
 		OfficeUserID:  &officeUserID,
 		AdminUserID:   &adminUserID,
 		AdminUserRole: &adminUserRole,
@@ -457,10 +500,10 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 	suite.False(session.IsProgramAdmin())
 }
 
-func (suite *AuthSuite) TestAuthorizeDisableAdmin() {
-	adminUserDisabled := true
+func (suite *AuthSuite) TestAuthorizeDeactivateAdmin() {
+	adminUserActive := false
 	userIdentity := models.UserIdentity{
-		AdminUserDisabled: &adminUserDisabled,
+		AdminUserActive: &adminUserActive,
 	}
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", AdminTestHost), nil)
@@ -472,7 +515,7 @@ func (suite *AuthSuite) TestAuthorizeDisableAdmin() {
 		UserID:          fakeUUID,
 		IDToken:         fakeToken,
 		Hostname:        AdminTestHost,
-		Email:           "disabled@example.com",
+		Email:           "deactivated@example.com",
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234
@@ -487,13 +530,13 @@ func (suite *AuthSuite) TestAuthorizeDisableAdmin() {
 	rr := httptest.NewRecorder()
 	authorizeKnownUser(&userIdentity, h, &session, rr, req.WithContext(ctx), "")
 
-	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize disabled admin user")
+	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize deactivated admin user")
 }
 
-func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeDisabled() {
+func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeDeactivated() {
 	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
 		OfficeUser: models.OfficeUser{
-			Disabled: true,
+			Active: false,
 		},
 	})
 
@@ -527,7 +570,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeDisabled() {
 
 	authorizeUnknownUser(user, h, &session, rr, req.WithContext(ctx), "")
 
-	suite.Equal(http.StatusForbidden, rr.Code, "Office user is disabled")
+	suite.Equal(http.StatusForbidden, rr.Code, "Office user is active")
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
@@ -566,7 +609,11 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			Active: true,
+		},
+	})
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback", OfficeTestHost), nil)
 	fakeToken := "some_token"
@@ -603,12 +650,8 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 	suite.Equal(uuid.Nil, session.AdminUserID)
 }
 
-func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDisabled() {
-	adminUser := testdatagen.MakeAdminUser(suite.DB(), testdatagen.Assertions{
-		AdminUser: models.AdminUser{
-			Disabled: true,
-		},
-	})
+func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDeactivated() {
+	adminUser := testdatagen.MakeDefaultAdminUser(suite.DB())
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", AdminTestHost), nil)
 	fakeToken := "some_token"
@@ -640,7 +683,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDisabled() {
 
 	authorizeUnknownUser(user, h, &session, rr, req.WithContext(ctx), "")
 
-	suite.Equal(http.StatusForbidden, rr.Code, "Admin user is disabled")
+	suite.Equal(http.StatusForbidden, rr.Code, "Admin user is active")
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserAdminNotFound() {
@@ -679,7 +722,11 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminNotFound() {
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
-	adminUser := testdatagen.MakeDefaultAdminUser(suite.DB())
+	adminUser := testdatagen.MakeAdminUser(suite.DB(), testdatagen.Assertions{
+		AdminUser: models.AdminUser{
+			Active: true,
+		},
+	})
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", AdminTestHost), nil)
 	fakeToken := "some_token"

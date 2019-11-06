@@ -1,5 +1,7 @@
 # Use dep to manage go dependencies
 
+**NOTE:** Golang has explicitly moved to `go mod` and this project has as well, making this ADR obsolete.
+
 ## Considered Alternatives
 
 * glide

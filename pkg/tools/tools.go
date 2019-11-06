@@ -15,9 +15,7 @@ import (
 	_ "github.com/gobuffalo/pop/soda"
 
 	// Install for getting access to production secrets
-	_ "github.com/segmentio/chamber"
-	// Install for pre-commit circleci testing
-	_ "golang.org/x/tools/cmd/callgraph"
+	_ "github.com/segmentio/chamber/v2"
 
 	// Packr isn't actually a tool dependency, but it's an indirect dependency that `go vet` and `go mod tidy` disagreed about.
 	// Adding it here is a way to ensure that it isn't tidied up from go.mod
@@ -25,4 +23,17 @@ import (
 
 	// Install for autogenerating mocks
 	_ "github.com/vektra/mockery/cmd/mockery"
+
+	// Test packages
+	_ "github.com/go-playground/locales"
+	_ "github.com/go-playground/universal-translator"
+	_ "github.com/imdario/mergo"
+	_ "github.com/leodido/go-urn"
+	_ "github.com/namsral/flag"
+	_ "github.com/stretchr/objx"
+	_ "github.com/tealeg/xlsx"
+	_ "gopkg.in/go-playground/validator.v9"
+
+	// Install go-junit-report for CirclCI test result report generation
+	_ "github.com/jstemmer/go-junit-report"
 )

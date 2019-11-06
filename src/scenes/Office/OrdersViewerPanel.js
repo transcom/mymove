@@ -8,7 +8,7 @@ import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { selectOrdersForMove, updateOrders } from 'shared/Entities/modules/orders';
 import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMembers';
 import { formatDate, formatDateTime } from 'shared/formatters';
-import { PanelSwaggerField, PanelField, editablePanelify } from 'shared/EditablePanel';
+import { PanelSwaggerField, PanelField, editablePanelify, RowBasedHeader } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import { renderStatusIcon } from 'shared/utils';
@@ -29,10 +29,10 @@ const OrdersViewerDisplay = props => {
       <div>
         <PanelField title="Move Locator">{props.move.locator}</PanelField>
         <PanelField title="DoD ID">{props.serviceMember.edipi}</PanelField>
-        <span className="panel-subhead">
+        <h3>
           {renderStatusIcon(orders.status)}
           Orders {orders.orders_number} ({formatDate(orders.issue_date)})
-        </span>
+        </h3>
         {uploads.length > 0 && (
           <p className="uploaded-at">Uploaded {formatDateTime(orders.uploaded_orders.uploads[0].created_at)}</p>
         )}
@@ -55,9 +55,9 @@ const OrdersViewerDisplay = props => {
 
         <PanelSwaggerField title="Dept. Indicator" fieldName="department_indicator" required {...ordersFieldsProps} />
 
-        <PanelSwaggerField title="TAC" fieldName="tac" required {...ordersFieldsProps} />
+        <PanelSwaggerField title="TAC / MDC" fieldName="tac" required {...ordersFieldsProps} />
 
-        <PanelSwaggerField title="SAC" fieldName="sac" {...ordersFieldsProps} required />
+        <PanelSwaggerField title="SAC / SDN" fieldName="sac" {...ordersFieldsProps} required />
       </div>
     </React.Fragment>
   );
@@ -89,18 +89,18 @@ const OrdersViewerEdit = props => {
           <SwaggerField title="Report by" fieldName="report_by_date" swagger={schema} />
         </FormSection>
         <FormSection name="serviceMember">
-          <div className="usa-input duty-station">
+          <div className="duty-station">
             <Field name="current_station" component={DutyStationSearchBox} props={{ title: 'Current Duty Station' }} />
           </div>
         </FormSection>
         <FormSection name="orders">
-          <div className="usa-input duty-station">
+          <div className="duty-station">
             <Field name="new_duty_station" component={DutyStationSearchBox} props={{ title: 'New Duty Station' }} />
           </div>
           <SwaggerField fieldName="has_dependents" swagger={schema} title="Dependents authorized" />
           <SwaggerField title="Dept. Indicator" fieldName="department_indicator" swagger={schema} required />
-          <SwaggerField title="TAC" fieldName="tac" swagger={schema} required />
-          <SwaggerField title="SAC" fieldName="sac" swagger={schema} required />
+          <SwaggerField title="TAC / MDC" fieldName="tac" swagger={schema} required />
+          <SwaggerField title="SAC / SDN" fieldName="sac" swagger={schema} required />
         </FormSection>
       </div>
     </React.Fragment>
@@ -109,7 +109,8 @@ const OrdersViewerEdit = props => {
 
 const formName = 'orders_document_viewer';
 
-let OrdersViewerPanel = editablePanelify(OrdersViewerDisplay, OrdersViewerEdit);
+const editEnabled = true;
+let OrdersViewerPanel = editablePanelify(OrdersViewerDisplay, OrdersViewerEdit, editEnabled, RowBasedHeader);
 OrdersViewerPanel = reduxForm({ form: formName })(OrdersViewerPanel);
 
 function mapStateToProps(state, ownProps) {

@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { getFormValues, reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { get, map } from 'lodash';
@@ -22,6 +22,7 @@ import faQuestionCircle from '@fortawesome/fontawesome-free-solid/faQuestionCirc
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { withContext } from 'shared/AppContext';
+import { loadDutyStationTransportationOffice } from 'shared/TransportationOffices/ducks';
 
 import { getNextPage } from './utility';
 import DocumentsUploaded from './PaymentReview/DocumentsUploaded';
@@ -75,6 +76,7 @@ class WeightTicket extends Component {
   componentDidMount() {
     const { moveId } = this.props;
     this.props.getMoveDocumentsForMove(moveId);
+    this.props.loadDutyStationTransportationOffice(this.props.dutyStationId);
   }
 
   get isCarTrailer() {
@@ -86,14 +88,18 @@ class WeightTicket extends Component {
   };
 
   invalidState = uploader => {
-    return this.hasWeightTicket(uploader.uploaderRef) === uploader.isMissingChecked();
+    if (uploader.isMissingChecked()) {
+      return true;
+    } else return !this.hasWeightTicket(uploader.uploaderRef);
   };
 
   uploaderWithInvalidState = () => {
+    // Validation for the vehicle type
     if (this.state.isValidTrailer === 'Yes' && (this.isCarTrailer && this.invalidState(this.uploaders.trailer))) {
       return true;
     }
-    return this.invalidState(this.uploaders.emptyWeight) || this.invalidState(this.uploaders.fullWeight);
+    // Full weight must be in a valid state to proceed.
+    return this.invalidState(this.uploaders.fullWeight);
   };
 
   //  handleChange for vehicleType and additionalWeightTickets
@@ -138,6 +144,7 @@ class WeightTicket extends Component {
 
     const uploaderKeys = this.nonEmptyUploaderKeys();
     const uploadIds = [];
+    // eslint-disable-next-line no-unused-vars
     for (const key of uploaderKeys) {
       // eslint-disable-next-line security/detect-object-injection
       let files = this.uploaders[key].uploaderRef.getFiles();
@@ -176,6 +183,7 @@ class WeightTicket extends Component {
     const { reset } = this.props;
     const uploaders = this.uploaders;
     const uploaderKeys = this.nonEmptyUploaderKeys();
+    // eslint-disable-next-line no-unused-vars
     for (const key of uploaderKeys) {
       // eslint-disable-next-line security/detect-object-injection
       uploaders[key].uploaderRef.clearFiles();
@@ -193,7 +201,7 @@ class WeightTicket extends Component {
       missingDocumentation,
       isValidTrailer,
     } = this.state;
-    const { handleSubmit, submitting, schema, weightTicketSets, invalid, moveId } = this.props;
+    const { handleSubmit, submitting, schema, weightTicketSets, invalid, moveId, transportationOffice } = this.props;
     const nextBtnLabel =
       additionalWeightTickets === 'Yes' ? nextBtnLabels.SaveAndAddAnother : nextBtnLabels.SaveAndContinue;
     const weightTicketSetOrdinal = formatToOrdinal(weightTicketSets.length + 1);
@@ -201,7 +209,7 @@ class WeightTicket extends Component {
     const emptyWeightTicketFieldsRequired = missingEmptyWeightTicket ? null : true;
 
     return (
-      <Fragment>
+      <div className="grid-container usa-prose site-prose">
         <WizardHeader
           title="Weight tickets"
           right={
@@ -212,250 +220,272 @@ class WeightTicket extends Component {
             </ProgressTimeline>
           }
         />
-        <div className="usa-grid">
-          <DocumentsUploaded moveId={moveId} />
+        <div className="grid-row">
+          <div className="grid-col-12">
+            <DocumentsUploaded moveId={moveId} />
+          </div>
         </div>
-        <form>
-          {this.state.weightTicketSubmissionError && (
-            <div className="usa-grid">
-              <div className="usa-width-one-whole error-message">
-                <Alert type="error" heading="An error occurred">
-                  Something went wrong contacting the server.
-                </Alert>
-              </div>
-            </div>
-          )}
-          <div className="usa-grid expenses-container">
-            <h3 className="expenses-header">Weight Tickets - {weightTicketSetOrdinal} set</h3>
-            Upload an <strong>empty</strong> & <strong>full</strong> weight ticket below for <em>only</em>{' '}
-            <strong>one</strong> vehicle or trip at a time until they're all uploaded.{' '}
-            <Link to="/weight-ticket-examples">
-              <FontAwesomeIcon aria-hidden className="color_blue_link" icon={faQuestionCircle} />
-            </Link>
-            <SwaggerField
-              fieldName="vehicle_options"
-              swagger={schema}
-              onChange={event => this.handleChange(event, 'vehicleType')}
-              value={vehicleType}
-              required
-            />
-            <SwaggerField fieldName="vehicle_nickname" swagger={schema} required />
-            {vehicleType && this.isCarTrailer && (
-              <>
-                <div className="radio-group-wrapper normalize-margins">
-                  <p className="radio-group-header">
-                    Do you own this trailer, and does it meet all <Link to="/trailer-criteria">trailer criteria</Link>?
-                  </p>
-                  <RadioButton
-                    inputClassName="inline_radio"
-                    labelClassName="inline_radio"
-                    label="Yes"
-                    value="Yes"
-                    name="isValidTrailer"
-                    checked={isValidTrailer === 'Yes'}
-                    onChange={event => this.handleChange(event, 'isValidTrailer')}
-                  />
-
-                  <RadioButton
-                    inputClassName="inline_radio"
-                    labelClassName="inline_radio"
-                    label="No"
-                    value="No"
-                    name="isValidTrailer"
-                    checked={isValidTrailer === 'No'}
-                    onChange={event => this.handleChange(event, 'isValidTrailer')}
-                  />
+        <div className="grid-row">
+          <div className="grid-col-12">
+            <form>
+              {this.state.weightTicketSubmissionError && (
+                <div className="grid-row">
+                  <div className="grid-col-12 error-message">
+                    <Alert type="error" heading="An error occurred">
+                      Something went wrong contacting the server.
+                    </Alert>
+                  </div>
                 </div>
-                {isValidTrailer === 'Yes' && (
+              )}
+              <div className="expenses-container">
+                <h3 className="expenses-header">Weight Tickets - {weightTicketSetOrdinal} set</h3>
+                Upload an <strong>empty</strong> & <strong>full</strong> weight ticket below for <em>only</em>{' '}
+                <strong>one</strong> vehicle or trip at a time until they're all uploaded.{' '}
+                <Link to="/weight-ticket-examples" className="usa-link">
+                  <FontAwesomeIcon aria-hidden className="color_blue_link" icon={faQuestionCircle} />
+                </Link>
+                <SwaggerField
+                  fieldName="vehicle_options"
+                  swagger={schema}
+                  onChange={event => this.handleChange(event, 'vehicleType')}
+                  value={vehicleType}
+                  required
+                />
+                <SwaggerField fieldName="vehicle_nickname" swagger={schema} required />
+                {vehicleType && this.isCarTrailer && (
                   <>
-                    <p className="normalize-margins" style={{ marginTop: '1em' }}>
-                      Proof of ownership (ex. registration, bill of sale)
-                    </p>
-                    <p>{documentSizeLimitMsg}</p>
-                    <span data-cy="trailer-upload">
-                      <Uploader
-                        options={{ labelIdle: uploadTrailerProofOfOwnership }}
-                        onRef={ref => (this.uploaders.trailer.uploaderRef = ref)}
-                        onChange={this.onUploadChange('trailer')}
-                        onAddFile={this.onAddFile('trailer')}
+                    <div className="radio-group-wrapper normalize-margins">
+                      <p className="radio-group-header">
+                        Do you own this trailer, and does it meet all{' '}
+                        <Link to="/trailer-criteria" className="usa-link">
+                          trailer criteria
+                        </Link>
+                        ?
+                      </p>
+                      <RadioButton
+                        inputClassName="usa-radio__input inline_radio"
+                        labelClassName="usa-radio__label inline_radio"
+                        label="Yes"
+                        value="Yes"
+                        name="isValidTrailer"
+                        checked={isValidTrailer === 'Yes'}
+                        onChange={event => this.handleChange(event, 'isValidTrailer')}
                       />
-                    </span>
-                    <Checkbox
-                      label="I don't have ownership documentation"
-                      name="missingDocumentation"
-                      checked={missingDocumentation}
-                      onChange={this.handleCheckboxChange}
-                      normalizeLabel
-                    />
-                    {missingDocumentation && (
-                      <div className="one-half" data-cy="trailer-warning">
-                        <Alert type="warning">
-                          If your state does not provide a registration or bill of sale for your trailer, you may write
-                          and upload a signed and dated statement certifying that you or your spouse own the trailer and
-                          meets the <Link to="/trailer-criteria">trailer criteria</Link>. Upload your statement using
-                          the proof of ownership field.
-                        </Alert>
-                      </div>
+
+                      <RadioButton
+                        inputClassName="usa-radio__input inline_radio"
+                        labelClassName="usa-radio__label inline_radio"
+                        label="No"
+                        value="No"
+                        name="isValidTrailer"
+                        checked={isValidTrailer === 'No'}
+                        onChange={event => this.handleChange(event, 'isValidTrailer')}
+                      />
+                    </div>
+                    {isValidTrailer === 'Yes' && (
+                      <>
+                        <p className="normalize-margins" style={{ marginTop: '1em' }}>
+                          Proof of ownership (ex. registration, bill of sale)
+                        </p>
+                        <p>{documentSizeLimitMsg}</p>
+                        <span data-cy="trailer-upload">
+                          <Uploader
+                            options={{ labelIdle: uploadTrailerProofOfOwnership }}
+                            onRef={ref => (this.uploaders.trailer.uploaderRef = ref)}
+                            onChange={this.onUploadChange('trailer')}
+                            onAddFile={this.onAddFile('trailer')}
+                          />
+                        </span>
+                        <Checkbox
+                          label="I don't have ownership documentation"
+                          name="missingDocumentation"
+                          checked={missingDocumentation}
+                          onChange={this.handleCheckboxChange}
+                        />
+                        {missingDocumentation && (
+                          <div className="grid-row">
+                            <div className="grid-col-8" data-cy="trailer-warning">
+                              <Alert type="warning">
+                                If your state does not provide a registration or bill of sale for your trailer, you may
+                                write and upload a signed and dated statement certifying that you or your spouse own the
+                                trailer and meets the{' '}
+                                <Link to="/trailer-criteria" className="usa-link">
+                                  trailer criteria
+                                </Link>
+                                . Upload your statement using the proof of ownership field.
+                              </Alert>
+                            </div>
+                          </div>
+                        )}
+                      </>
                     )}
                   </>
                 )}
-              </>
-            )}
-            {vehicleType && (
-              <>
-                <div className="dashed-divider" />
+                {vehicleType && (
+                  <>
+                    <div className="dashed-divider" />
 
-                <div className="usa-grid-full" style={{ marginTop: '1em' }}>
-                  {this.isCarTrailer && isValidTrailer === 'Yes' ? (
-                    <div style={{ marginBottom: '1em' }}>
-                      You can claim this trailer's weight as part of the total weight of your trip.
-                    </div>
-                  ) : (
-                    <div style={{ marginBottom: '1em' }}>
-                      The weight of this trailer should be <strong>excluded</strong> from the total weight of this trip.
-                      <p>{documentSizeLimitMsg}</p>
-                    </div>
-                  )}
-                  <div className="usa-width-one-third input-group">
-                    <strong className="input-header">
-                      Empty Weight{' '}
-                      {this.isCarTrailer &&
-                        (isValidTrailer === 'Yes' ? (
-                          <>
-                            ( <img alt="car only" className="car-img" src={carImg} /> car only)
-                          </>
+                    <div className="grid-row">
+                      <div className="grid-col-12" style={{ marginTop: '1em' }}>
+                        {this.isCarTrailer && isValidTrailer === 'Yes' ? (
+                          <div style={{ marginBottom: '1em' }}>
+                            You can claim this trailer's weight as part of the total weight of your trip.
+                          </div>
                         ) : (
-                          <>
-                            ( <img alt="car and trailer" className="car-img" src={carTrailerImg} /> car + trailer)
-                          </>
-                        ))}
-                    </strong>
-                    <SwaggerField
-                      className="short-field"
-                      fieldName="empty_weight"
-                      swagger={schema}
-                      hideLabel
-                      required={emptyWeightTicketFieldsRequired}
-                    />{' '}
-                    lbs
-                  </div>
-                  <div className="usa-width-two-thirds uploader-wrapper">
-                    <span data-cy="empty-weight-upload">
-                      <Uploader
-                        options={{ labelIdle: uploadEmptyTicketLabel }}
-                        onRef={ref => (this.uploaders.emptyWeight.uploaderRef = ref)}
-                        onChange={this.onUploadChange('emptyWeight')}
-                        onAddFile={this.onAddFile('emptyWeight')}
-                      />
-                    </span>
-                    <Checkbox
-                      label="I'm missing this weight ticket"
-                      name="missingEmptyWeightTicket"
-                      checked={missingEmptyWeightTicket}
-                      onChange={this.handleCheckboxChange}
-                      normalizeLabel
-                    />
-                    {missingEmptyWeightTicket && (
-                      <span data-cy="empty-warning">
-                        <Alert type="warning">
-                          Contact your local Transportation Office (PPPO) to let them know you’re missing this weight
-                          ticket. For now, keep going and enter the info you do have.
-                        </Alert>
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="usa-grid-full input-group" style={{ marginTop: '1em' }}>
-                  <div className="usa-width-one-third">
-                    <strong className="input-header">
-                      Full Weight{' '}
-                      {this.isCarTrailer && (
-                        <>
-                          ( <img alt="car and trailer" className="car-img" src={carTrailerImg} /> car + trailer)
-                        </>
-                      )}
-                    </strong>
-                    <label className="full-weight-label">Full weight at destination</label>
-                    <SwaggerField
-                      className="short-field"
-                      fieldName="full_weight"
-                      swagger={schema}
-                      hideLabel
-                      required={fullWeightTicketFieldsRequired}
-                    />{' '}
-                    lbs
-                  </div>
+                          <div style={{ marginBottom: '1em' }}>
+                            The weight of this trailer should be <strong>excluded</strong> from the total weight of this
+                            trip.
+                            <p>{documentSizeLimitMsg}</p>
+                          </div>
+                        )}
+                        <div className="grid-row grid-gap">
+                          <div className="grid-col-4 input-group">
+                            <strong className="input-header">
+                              Empty Weight{' '}
+                              {this.isCarTrailer &&
+                                (isValidTrailer === 'Yes' ? (
+                                  <>
+                                    ( <img alt="car only" className="car-img" src={carImg} /> car only)
+                                  </>
+                                ) : (
+                                  <>
+                                    ( <img alt="car and trailer" className="car-img" src={carTrailerImg} /> car +
+                                    trailer)
+                                  </>
+                                ))}
+                            </strong>
+                            <SwaggerField
+                              className="short-field"
+                              fieldName="empty_weight"
+                              swagger={schema}
+                              hideLabel
+                              required={emptyWeightTicketFieldsRequired}
+                            />{' '}
+                            lbs
+                          </div>
+                          <div className="grid-col-8 uploader-wrapper">
+                            <span data-cy="empty-weight-upload">
+                              <Uploader
+                                options={{ labelIdle: uploadEmptyTicketLabel }}
+                                onRef={ref => (this.uploaders.emptyWeight.uploaderRef = ref)}
+                                onChange={this.onUploadChange('emptyWeight')}
+                                onAddFile={this.onAddFile('emptyWeight')}
+                              />
+                            </span>
+                            <Checkbox
+                              label="I'm missing this weight ticket"
+                              name="missingEmptyWeightTicket"
+                              checked={missingEmptyWeightTicket}
+                              onChange={this.handleCheckboxChange}
+                              normalizeLabel
+                            />
+                            {missingEmptyWeightTicket && (
+                              <span data-cy="empty-warning">
+                                <Alert type="warning">
+                                  Contact your local Transportation Office (PPPO) to let them know you’re missing this
+                                  weight ticket. For now, keep going and enter the info you do have.
+                                </Alert>
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid-row grid-gap input-group" style={{ marginTop: '1em' }}>
+                      <div className="grid-col-4">
+                        <strong className="input-header">
+                          Full Weight{' '}
+                          {this.isCarTrailer && (
+                            <>
+                              ( <img alt="car and trailer" className="car-img" src={carTrailerImg} /> car + trailer)
+                            </>
+                          )}
+                        </strong>
+                        <label className="full-weight-label">Full weight at destination</label>
+                        <SwaggerField
+                          className="short-field"
+                          fieldName="full_weight"
+                          swagger={schema}
+                          hideLabel
+                          required={fullWeightTicketFieldsRequired}
+                        />{' '}
+                        lbs
+                      </div>
 
-                  <div className="usa-width-two-thirds uploader-wrapper">
-                    <div data-cy="full-weight-upload">
-                      <Uploader
-                        options={{ labelIdle: uploadFullTicketLabel }}
-                        onRef={ref => (this.uploaders.fullWeight.uploaderRef = ref)}
-                        onChange={this.onUploadChange('fullWeight')}
-                        onAddFile={this.onAddFile('fullWeight')}
+                      <div className="grid-col-8 uploader-wrapper">
+                        <div data-cy="full-weight-upload">
+                          <Uploader
+                            options={{ labelIdle: uploadFullTicketLabel }}
+                            onRef={ref => (this.uploaders.fullWeight.uploaderRef = ref)}
+                            onChange={this.onUploadChange('fullWeight')}
+                            onAddFile={this.onAddFile('fullWeight')}
+                          />
+                        </div>
+                        <Checkbox
+                          label="I'm missing this weight ticket"
+                          name="missingFullWeightTicket"
+                          checked={missingFullWeightTicket}
+                          onChange={this.handleCheckboxChange}
+                          normalizeLabel
+                        />
+                        {missingFullWeightTicket && (
+                          <div data-cy="full-warning">
+                            <Alert type="warning">
+                              <b>You can’t get paid without a full weight ticket.</b> See what you can do to find it,
+                              because without certified documentation of the weight of your belongings, we can’t pay you
+                              your incentive. Call the {transportationOffice.name} Transportation Office at{' '}
+                              {transportationOffice.phone_lines[0]} if you have any questions.
+                            </Alert>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <SwaggerField
+                      fieldName="weight_ticket_date"
+                      swagger={schema}
+                      required={fullWeightTicketFieldsRequired}
+                    />
+                    <div className="dashed-divider" />
+
+                    <div className="radio-group-wrapper">
+                      <p className="radio-group-header">Do you have more weight tickets for another vehicle or trip?</p>
+                      <RadioButton
+                        inputClassName="usa-radio__input inline_radio"
+                        labelClassName="usa-radio__label inline_radio"
+                        label="Yes"
+                        value="Yes"
+                        name="additional_weight_ticket"
+                        checked={additionalWeightTickets === 'Yes'}
+                        onChange={event => this.handleChange(event, 'additionalWeightTickets')}
+                      />
+
+                      <RadioButton
+                        inputClassName="usa-radio__input inline_radio"
+                        labelClassName="usa-radio__label inline_radio"
+                        label="No"
+                        value="No"
+                        name="additional_weight_ticket"
+                        checked={additionalWeightTickets === 'No'}
+                        onChange={event => this.handleChange(event, 'additionalWeightTickets')}
                       />
                     </div>
-                    <Checkbox
-                      label="I'm missing this weight ticket"
-                      name="missingFullWeightTicket"
-                      checked={missingFullWeightTicket}
-                      onChange={this.handleCheckboxChange}
-                      normalizeLabel
-                    />
-                    {missingFullWeightTicket && (
-                      <div data-cy="full-warning">
-                        <Alert type="warning">
-                          Contact your local Transportation Office (PPPO) to let them know you’re missing this weight
-                          ticket. For now, keep going and enter the info you do have.
-                        </Alert>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <SwaggerField
-                  fieldName="weight_ticket_date"
-                  swagger={schema}
-                  required={fullWeightTicketFieldsRequired}
+                  </>
+                )}
+                <PPMPaymentRequestActionBtns
+                  nextBtnLabel={nextBtnLabel}
+                  hasConfirmation={true}
+                  submitButtonsAreDisabled={this.uploaderWithInvalidState() || invalid}
+                  submitting={submitting}
+                  skipHandler={this.skipHandler}
+                  saveAndAddHandler={handleSubmit(this.saveAndAddHandler)}
+                  displaySkip={weightTicketSets.length >= 1}
                 />
-                <div className="dashed-divider" />
-
-                <div className="radio-group-wrapper">
-                  <p className="radio-group-header">Do you have more weight tickets for another vehicle or trip?</p>
-                  <RadioButton
-                    inputClassName="inline_radio"
-                    labelClassName="inline_radio"
-                    label="Yes"
-                    value="Yes"
-                    name="additional_weight_ticket"
-                    checked={additionalWeightTickets === 'Yes'}
-                    onChange={event => this.handleChange(event, 'additionalWeightTickets')}
-                  />
-
-                  <RadioButton
-                    inputClassName="inline_radio"
-                    labelClassName="inline_radio"
-                    label="No"
-                    value="No"
-                    name="additional_weight_ticket"
-                    checked={additionalWeightTickets === 'No'}
-                    onChange={event => this.handleChange(event, 'additionalWeightTickets')}
-                  />
-                </div>
-              </>
-            )}
-            <PPMPaymentRequestActionBtns
-              nextBtnLabel={nextBtnLabel}
-              hasConfirmation={true}
-              submitButtonsAreDisabled={this.uploaderWithInvalidState() || invalid}
-              submitting={submitting}
-              skipHandler={this.skipHandler}
-              saveAndAddHandler={handleSubmit(this.saveAndAddHandler)}
-              displaySkip={weightTicketSets.length >= 1}
-            />
+              </div>
+            </form>
           </div>
-        </form>
-      </Fragment>
+        </div>
+      </div>
     );
   }
 }
@@ -473,6 +503,9 @@ WeightTicket.propTypes = {
 
 function mapStateToProps(state, ownProps) {
   const moveId = ownProps.match.params.moveId;
+  const dutyStationId = get(state, 'serviceMember.currentServiceMember.current_station.id');
+  const officeId = get(state, `transportationOffices.byDutyStationId[${dutyStationId}]`);
+
   return {
     moveId: moveId,
     formValues: getFormValues(formName)(state),
@@ -481,12 +514,15 @@ function mapStateToProps(state, ownProps) {
     schema: get(state, 'swaggerInternal.spec.definitions.CreateWeightTicketDocumentsPayload', {}),
     currentPpm: get(state, 'ppm.currentPpm'),
     weightTicketSets: selectPPMCloseoutDocumentsForMove(state, moveId, ['WEIGHT_TICKET_SET']),
+    transportationOffice: get(state, `transportationOffices.byId.${officeId}`),
+    dutyStationId: dutyStationId,
   };
 }
 
 const mapDispatchToProps = {
   getMoveDocumentsForMove,
   createWeightTicketSetDocument,
+  loadDutyStationTransportationOffice,
 };
 
 export default withContext(

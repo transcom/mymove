@@ -10,3 +10,10 @@ import (
 type TransportationServiceProviderPerformanceFetcher interface {
 	FetchTransportationServiceProviderPerformance(filters []QueryFilter) (models.TransportationServiceProviderPerformance, error)
 }
+
+// TransportationServiceProviderPerformanceListFetcher is the exported interface for fetching
+// a list of transportation service provider performances
+//go:generate mockery -name TransportationServiceProviderPerformanceListFetcher
+type TransportationServiceProviderPerformanceListFetcher interface {
+	FetchTransportationServiceProviderPerformanceList(filters []QueryFilter, associations QueryAssociations, pagination Pagination, ordering QueryOrder) (models.TransportationServiceProviderPerformances, error)
+}

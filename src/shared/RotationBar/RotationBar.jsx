@@ -6,10 +6,10 @@ import styles from './RotationBar.module.scss';
 
 export const RotationBar = props => (
   <div className={styles['rotation-bar']}>
-    <button onClick={props.onLeftButtonClick}>
+    <button className="usa-button" onClick={props.onLeftButtonClick}>
       <img src={leftRotation} alt="rotate-left" />
     </button>
-    <button onClick={props.onRightButtonClick}>
+    <button className="usa-button" onClick={props.onRightButtonClick}>
       <img src={rightRotation} alt="rotate-right" />
     </button>
   </div>

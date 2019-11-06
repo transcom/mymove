@@ -1,0 +1,19 @@
+#! /usr/bin/env bash
+#
+# Pushes static build of Story Book to AWS S3 for hosting.
+#
+
+set -eu -o pipefail
+
+if [ "$#" -ne 1 ]; then
+    echo "Illegal number of parameters"
+    echo "Usage: ./push-storybook-assets S3BUCKET"
+    exit 1
+fi
+
+readonly bucket=${1:-}
+
+# Sync files from source to destination
+# encrypt files on upload
+# delete files at destination that are not on source (bucket versioning is enabled so it only adds a delete marker)
+aws s3 sync --delete --sse AES256 /tmp/storybook/storybook-static/ s3://"${bucket}"/

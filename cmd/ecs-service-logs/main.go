@@ -10,9 +10,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math"
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/99designs/aws-vault/prompt"
 	"github.com/99designs/aws-vault/vault"
@@ -60,6 +62,8 @@ const (
 	flagTasks                  string = "tasks"
 	flagLimit                  string = "limit"
 	flagStatus                 string = "status"
+	flagStartTime              string = "start-time"
+	flagEndTime                string = "end-time"
 	flagVerbose                string = "verbose"
 
 	defaultAWSRegion string = "us-west-2"
@@ -156,6 +160,15 @@ func (e *errInvalidService) Error() string {
 	return fmt.Sprintf("invalid service %q", e.Service)
 }
 
+type errInvalidTimeRange struct {
+	StartTime string
+	EndTime   string
+}
+
+func (e *errInvalidTimeRange) Error() string {
+	return fmt.Sprintf("invalid time range, must provide both start (%q) and end (%q) times in order", e.StartTime, e.EndTime)
+}
+
 func initFlags(flag *pflag.FlagSet) {
 	flag.String(flagAWSRegion, defaultAWSRegion, "The AWS Region")
 	flag.String(flagAWSProfile, "", "The aws-vault profile")
@@ -172,6 +185,8 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.IntP(flagPageSize, "p", -1, "The page size or maximum number of log events to return during each API call.  The default is 10,000 log events.")
 	flag.IntP(flagLimit, "n", -1, "If 1 or above, the maximum number of log events to print to stdout.")
 	flag.IntP(flagTasks, "t", 10, "If 1 or above, the maximum number of log streams (aka tasks) to print to stdout.")
+	flag.String(flagStartTime, "", "The start time for events")
+	flag.String(flagEndTime, "", "The end time for events")
 	flag.BoolP(flagVerbose, "v", false, "Print section lines")
 }
 
@@ -256,6 +271,12 @@ func checkConfig(v *viper.Viper) error {
 		if serviceName := v.GetString(flagService); len(serviceName) == 0 {
 			return &errInvalidService{Service: serviceName}
 		}
+	}
+
+	startTime := v.GetString(flagStartTime)
+	endTime := v.GetString(flagEndTime)
+	if (len(startTime) > 0 && len(endTime) == 0) || (len(startTime) == 0 && len(endTime) > 0) {
+		return &errInvalidTimeRange{StartTime: startTime, EndTime: endTime}
 	}
 
 	return nil
@@ -424,6 +445,28 @@ func showFunction(cmd *cobra.Command, args []string) error {
 	status := strings.ToUpper(v.GetString(flagStatus))
 	pageSize := v.GetInt(flagPageSize)
 	environment := v.GetString(flagEnvironment)
+
+	startTimeString := v.GetString(flagStartTime)
+	endTimeString := v.GetString(flagEndTime)
+	var startTimeUnix, endTimeUnix *int64
+	if len(startTimeString) > 0 && len(endTimeString) > 0 {
+		startTime, errStartTime := time.Parse(time.RFC3339, startTimeString)
+		if errStartTime != nil {
+			return errStartTime
+		}
+
+		endTime, errEndTime := time.Parse(time.RFC3339, endTimeString)
+		if errEndTime != nil {
+			return errEndTime
+		}
+
+		startTimeUnix = aws.Int64(startTime.Unix() * 1000) // milliseconds
+		endTimeUnix = aws.Int64(endTime.Unix() * 1000)     // milliseconds
+
+		if *startTimeUnix > *endTimeUnix {
+			return &errInvalidTimeRange{StartTime: startTime.String(), EndTime: endTime.String()}
+		}
+	}
 
 	jobs := make([]Job, 0)
 
@@ -596,6 +639,12 @@ func showFunction(cmd *cobra.Command, args []string) error {
 			for _, logStream := range describeLogStreamsOutput.LogStreams {
 				logStreamName := aws.StringValue(logStream.LogStreamName)
 				if strings.HasPrefix(logStreamName, logStreamPrefix) {
+					// If the time ranges do not overlap then don't add the task
+					if startTimeUnix != nil && endTimeUnix != nil {
+						if !(math.Max(float64(*logStream.FirstEventTimestamp), float64(*startTimeUnix)) < math.Min(float64(*logStream.LastEventTimestamp), float64(*endTimeUnix))) {
+							continue
+						}
+					}
 					job := Job{
 						TaskID:        logStreamName[len(logStreamPrefix):],
 						LogGroupName:  logGroupName,
@@ -622,6 +671,9 @@ func showFunction(cmd *cobra.Command, args []string) error {
 			if describeLogStreamsOutput.NextToken == nil {
 				break
 			}
+
+			// To prevent throttling sleep. DescribeLogStreams has a cap at 5 per second so 200ms ought to work.
+			time.Sleep(200 * time.Millisecond)
 
 			nextToken = describeLogStreamsOutput.NextToken
 		}
@@ -659,7 +711,7 @@ func showFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Adds command line arguments as custom filters.
-	// For example: ecs-show-service-logs show [FLAGS] trace=XYZ
+	// For example: ecs-service-logs show [FLAGS] trace=XYZ
 	if len(args) > 0 {
 		for _, arg := range args {
 			for i := 1; i < len(arg); i++ {
@@ -730,6 +782,8 @@ func showFunction(cmd *cobra.Command, args []string) error {
 				LogGroupName:   aws.String(job.LogGroupName),
 				LogStreamNames: []*string{aws.String(job.LogStreamName)},
 				NextToken:      nextToken,
+				StartTime:      startTimeUnix,
+				EndTime:        endTimeUnix,
 			}
 			if job.Limit >= 0 {
 				if (limit > 0) && ((limit - count) < job.Limit) {

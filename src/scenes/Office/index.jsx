@@ -1,42 +1,31 @@
-import React, { Component } from 'react';
+import React, { Component, lazy, Suspense } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
 import { history } from 'shared/store';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import QueueHeader from 'shared/Header/Office';
-import QueueList from './QueueList';
-import QueueTable from './QueueTable';
-import MoveInfo from './MoveInfo';
-import OrdersInfo from './OrdersInfo';
-import DocumentViewer from './DocumentViewer';
 import { getCurrentUserInfo, selectCurrentUser } from 'shared/Data/users';
 import { loadInternalSchema, loadPublicSchema } from 'shared/Swagger/ducks';
 import { detectIE11, no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
-import ScratchPad from 'shared/ScratchPad';
 import { isProduction } from 'shared/constants';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { RetrieveMovesForOffice } from './api';
+import QueueHeader from 'shared/Header/Office';
 
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import './office.scss';
+import { withContext } from 'shared/AppContext';
 
-export class Queues extends Component {
-  render() {
-    return (
-      <div className="usa-grid grid-wide queue-columns">
-        <div className="queue-menu-column">
-          <QueueList />
-        </div>
-        <div className="queue-list-column">
-          <QueueTable queueType={this.props.match.params.queueType} retrieveMoves={RetrieveMovesForOffice} />
-        </div>
-      </div>
-    );
-  }
-}
+// Lazy load these dependencies
+const MoveInfo = lazy(() => import('./MoveInfo'));
+const Queues = lazy(() => import('./Queues'));
+const OrdersInfo = lazy(() => import('./OrdersInfo'));
+const DocumentViewer = lazy(() => import('./DocumentViewer'));
+const ScratchPad = lazy(() => import('shared/ScratchPad'));
+const CustomerDetails = lazy(() => import('./TOO/customerDetails'));
+const TOO = lazy(() => import('./TOO/too'));
 
 export class RenderWithOrWithoutHeader extends Component {
   render() {
@@ -44,10 +33,12 @@ export class RenderWithOrWithoutHeader extends Component {
     const Component = this.props.component;
     return (
       <>
-        {this.props.withHeader && <QueueHeader />}
-        <Tag role="main" className="site__content">
-          <Component {...this.props} />
-        </Tag>
+        <Suspense fallback={<LoadingPlaceholder />}>
+          {this.props.withHeader && <QueueHeader />}
+          <Tag role="main" className="site__content">
+            <Component {...this.props} />
+          </Tag>
+        </Suspense>
       </>
     );
   }
@@ -73,12 +64,13 @@ export class OfficeWrapper extends Component {
 
   render() {
     const ConditionalWrap = ({ condition, wrap, children }) => (condition ? wrap(children) : <>{children}</>);
+    const { context: { flags: { too } } = { flags: { too: null } } } = this.props;
     const DivOrMainTag = detectIE11() ? 'div' : 'main';
     const { userIsLoggedIn } = this.props;
     return (
       <ConnectedRouter history={history}>
         <div className="Office site">
-          {!userIsLoggedIn && <QueueHeader />}
+          <Suspense fallback={<LoadingPlaceholder />}>{!userIsLoggedIn && <QueueHeader />}</Suspense>
           <ConditionalWrap
             condition={!userIsLoggedIn}
             wrap={children => (
@@ -107,50 +99,66 @@ export class OfficeWrapper extends Component {
                 <PrivateRoute
                   path="/queues/:queueType/moves/:moveId"
                   component={props => (
-                    <RenderWithOrWithoutHeader component={MoveInfo} withHeader={true} tag={DivOrMainTag} {...props} />
+                    <Suspense fallback={<LoadingPlaceholder />}>
+                      <RenderWithOrWithoutHeader component={MoveInfo} withHeader={true} tag={DivOrMainTag} {...props} />
+                    </Suspense>
                   )}
                 />
                 <PrivateRoute
                   path="/queues/:queueType"
                   component={props => (
-                    <RenderWithOrWithoutHeader component={Queues} withHeader={true} tag={DivOrMainTag} {...props} />
+                    <Suspense fallback={<LoadingPlaceholder />}>
+                      <RenderWithOrWithoutHeader component={Queues} withHeader={true} tag={DivOrMainTag} {...props} />
+                    </Suspense>
                   )}
                 />
                 <PrivateRoute
                   path="/moves/:moveId/orders"
                   component={props => (
-                    <RenderWithOrWithoutHeader
-                      component={OrdersInfo}
-                      withHeader={false}
-                      tag={DivOrMainTag}
-                      {...props}
-                    />
+                    <Suspense fallback={<LoadingPlaceholder />}>
+                      <RenderWithOrWithoutHeader
+                        component={OrdersInfo}
+                        withHeader={false}
+                        tag={DivOrMainTag}
+                        {...props}
+                      />
+                    </Suspense>
                   )}
                 />
                 <PrivateRoute
                   path="/moves/:moveId/documents/:moveDocumentId?"
                   component={props => (
-                    <RenderWithOrWithoutHeader
-                      component={DocumentViewer}
-                      withHeader={false}
-                      tag={DivOrMainTag}
-                      {...props}
-                    />
+                    <Suspense fallback={<LoadingPlaceholder />}>
+                      <RenderWithOrWithoutHeader
+                        component={DocumentViewer}
+                        withHeader={false}
+                        tag={DivOrMainTag}
+                        {...props}
+                      />
+                    </Suspense>
                   )}
                 />
                 {!isProduction && (
                   <PrivateRoute
                     path="/playground"
                     component={props => (
-                      <RenderWithOrWithoutHeader
-                        component={ScratchPad}
-                        withHeader={true}
-                        tag={DivOrMainTag}
-                        {...props}
-                      />
+                      <Suspense fallback={<LoadingPlaceholder />}>
+                        <RenderWithOrWithoutHeader
+                          component={ScratchPad}
+                          withHeader={true}
+                          tag={DivOrMainTag}
+                          {...props}
+                        />
+                      </Suspense>
                     )}
                   />
                 )}
+                <Suspense fallback={<LoadingPlaceholder />}>
+                  <Switch>
+                    {too && <PrivateRoute path="/too/placeholder" component={TOO} />}
+                    {too && <PrivateRoute path="/too/customer/:customerId/details" component={CustomerDetails} />}
+                  </Switch>
+                </Suspense>
               </Switch>
             )}
           </ConditionalWrap>
@@ -175,8 +183,9 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators({ loadInternalSchema, loadPublicSchema, getCurrentUserInfo }, dispatch);
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(OfficeWrapper);
+export default withContext(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(OfficeWrapper),
+);

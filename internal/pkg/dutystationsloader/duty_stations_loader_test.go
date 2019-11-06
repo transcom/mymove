@@ -38,6 +38,7 @@ func TestDutyStationsLoaderSuite(t *testing.T) {
 	}
 
 	suite.Run(t, hs)
+	hs.PopTestSuite.TearDown()
 }
 
 func (suite *DutyStationsLoaderSuite) TestParsingFunctions() {
@@ -86,12 +87,13 @@ func (suite *DutyStationsLoaderSuite) TestCreateInsertQuery() {
 		ID:            uuid.Must(uuid.FromString("cd40c92e-7c8a-4da4-ad58-4480df84b3f0")),
 		LoginGovUUID:  uuid.Must(uuid.FromString("cd40c92e-7c8a-4da4-ad58-4480df84b3f1")),
 		LoginGovEmail: "email@example.com",
+		Active:        true,
 	}
 
 	query := builder.createInsertQuery(model, &pop.Model{Value: models.User{}})
 
 	suite.Equal(
-		"INSERT into users (id, created_at, updated_at, login_gov_uuid, login_gov_email, disabled) VALUES ('cd40c92e-7c8a-4da4-ad58-4480df84b3f0', now(), now(), 'cd40c92e-7c8a-4da4-ad58-4480df84b3f1', 'email@example.com', false);\n",
+		"INSERT into users (id, created_at, updated_at, login_gov_uuid, login_gov_email, active) VALUES ('cd40c92e-7c8a-4da4-ad58-4480df84b3f0', now(), now(), 'cd40c92e-7c8a-4da4-ad58-4480df84b3f1', 'email@example.com', true);\n",
 		query)
 }
 

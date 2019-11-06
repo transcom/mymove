@@ -1,0 +1,42 @@
+#! /usr/bin/env bash
+set -euo pipefail
+
+NOW=$(date '+%s')
+dependency_update=${1:-}
+
+pretext="Dependency update failure for ${dependency_update} update"
+title="CircleCI build #$CIRCLE_BUILD_NUM failed on job $CIRCLE_JOB"
+message="If the failure isn't intermittent (and can't be fixed by a rerun), make story to investigate its cause"
+
+#####
+## Announce in Slack channel
+#####
+# 'color' can be any hex code or the key words 'good', 'warning', or 'danger'
+color="warning"
+
+slack_payload=$(
+cat <<EOM
+{
+    "channel": "#on-call",
+    "attachments": [
+        {
+            "fallback": "$message $CIRCLE_BUILD_URL",
+            "color": "$color",
+            "pretext": "$pretext",
+            "author_name": "$CIRCLE_USERNAME",
+            "title": "$title",
+            "title_link": "$CIRCLE_BUILD_URL",
+            "text": "$message",
+            "ts": $NOW
+        }
+    ]
+}
+EOM
+)
+
+echo
+echo "Slack Payload:"
+echo "$slack_payload"
+echo
+
+curl -X POST --data-urlencode payload="$slack_payload" "$SLACK_WEBHOOK_URL"

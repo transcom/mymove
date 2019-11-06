@@ -492,16 +492,34 @@ MatchReasonCodeFull
 MatchReasonCodeNone
 wkEma
 _No_
-# Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
- - /usr/local
- - docs/data/tspp-data-creation.md
- - docs/backend.md
- - docs/adr/0007-swagger-client.md
- - docs/adr/0027-pdf-generation.md
- - README.md
- - docs/frontend.md
- - ./README.md
- - ./docs/data/tspp-data-creation.md
- - ./docs/data/tariff400ng-yearly-import.md
- - ./scripts/README.md
- - ./docs/how-to/run-storybook.md
+subcommands
+server_run
+DB_DEBUG
+ClamAV
+unscanned
+terraform-aws-s3-anti-virus
+upsidetravel
+av-timestamp
+timestamp
+transcom-ppp-app-devlocal-us-west-2
+transcom-ppp-app-experimental-us-west-2
+transcom-ppp-app-staging-us-west-2
+transcom-ppp-app-prod-us-west-2
+subcommand
+v0.11.
+ie
+deploy_tasks_steps
+up.sql
+app.container
+definition.json
+circle.yml
+server_test
+CPUs
+vCPUs
+Fargate
+ecs-tasks-app-staging
+Devlocal
+MacBookPro
+Dependabot
+dependabot
+GENERATED_UUID4_VAL

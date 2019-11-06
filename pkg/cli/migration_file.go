@@ -14,7 +14,7 @@ import (
 const (
 	// MigrationVersionFlag is the migration version flag
 	MigrationVersionFlag string = "version"
-	// MigrationNameFlag is the migration path flag
+	// MigrationNameFlag is the migration name flag
 	MigrationNameFlag string = "name"
 	// MigrationTypeFlag is the migration manifest flag
 	MigrationTypeFlag string = "type"

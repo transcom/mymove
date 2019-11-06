@@ -7,14 +7,22 @@ export class TransitionToOrders extends Component {
   render() {
     return (
       <div className="usa-grid">
-        <div className="lg center">
-          <p> OK, your profile's complete!</p>
-          <img className="sm" src={profileComplete} alt="profile-check" />
+        <div className="grid-row">
+          <div className="grid-col-12">
+            <div className="lg center">
+              <p> OK, your profile's complete!</p>
+              <img className="sm" src={profileComplete} alt="profile-check" />
+            </div>
+          </div>
         </div>
 
-        <div className="lg center">
-          <p>Now, we need to take a look at your move orders.</p>
-          <img className="sm" src={ordersIcon} alt="onto-move-orders" />
+        <div className="grid-row">
+          <div className="grid-col-12">
+            <div className="lg center">
+              <p>Now, we need to take a look at your move orders.</p>
+              <img className="sm" src={ordersIcon} alt="onto-move-orders" />
+            </div>
+          </div>
         </div>
       </div>
     );

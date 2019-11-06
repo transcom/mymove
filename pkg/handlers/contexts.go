@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gobuffalo/pop"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/sequence"
@@ -18,6 +19,7 @@ import (
 )
 
 // HandlerContext provides access to all the contextual references needed by individual handlers
+//go:generate mockery -name HandlerContext
 type HandlerContext interface {
 	DB() *pop.Connection
 	SessionAndLoggerFromContext(ctx context.Context) (*auth.Session, Logger)
@@ -53,6 +55,8 @@ type HandlerContext interface {
 	SetICNSequencer(sequencer sequence.Sequencer)
 	DPSAuthParams() dpsauth.Params
 	SetDPSAuthParams(params dpsauth.Params)
+	SetTraceID(traceID uuid.UUID)
+	GetTraceID() uuid.UUID
 }
 
 // FeatureFlag struct for feature flags
@@ -78,6 +82,7 @@ type handlerContext struct {
 	useSecureCookie       bool
 	appNames              auth.ApplicationServername
 	featureFlags          map[string]bool
+	traceID               uuid.UUID
 }
 
 // NewHandlerContext returns a new handlerContext with its required private fields set.
@@ -245,4 +250,12 @@ func (hctx *handlerContext) GetFeatureFlag(flag string) bool {
 		return value
 	}
 	return false
+}
+
+func (hctx *handlerContext) SetTraceID(traceID uuid.UUID) {
+	hctx.traceID = traceID
+}
+
+func (hctx *handlerContext) GetTraceID() uuid.UUID {
+	return hctx.traceID
 }

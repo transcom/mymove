@@ -92,6 +92,22 @@ describe('allows a SM to request a payment', function() {
     serviceMemberUploadsExpenses();
     serviceMemberSkipsStep();
   });
+
+  it('service member with old weight tickets can see and delete them', () => {
+    cy.signInAsUserPostRequest(milmoveAppName, 'beccca28-6e15-40cc-8692-261cae0d4b14');
+    cy.get('[data-cy="edit-payment-request"]')
+      .contains('Edit Payment Request')
+      .should('exist')
+      .click();
+    cy.get('.ticket-item')
+      .first()
+      .should('not.contain', 'set');
+    cy.get('[data-cy="delete-ticket"]')
+      .first()
+      .click();
+    cy.get('[data-cy="delete-confirmation-button"]').click();
+    cy.get('.ticket-item').should('not.exist');
+  });
 });
 
 function serviceMemberSkipsStep() {
@@ -107,7 +123,7 @@ function serviceMemberSubmitsPaymentRequestWithMissingDocuments() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/ppm-customer-agreement/);
   });
-  cy.get('.usa-button-secondary')
+  cy.get('.usa-button')
     .contains('Back')
     .click();
   cy.location().should(loc => {
@@ -124,8 +140,8 @@ function serviceMemberSubmitsPaymentRequestWithMissingDocuments() {
   cy.wait('@signedCertifications');
   cy.wait('@requestPayment');
 
-  cy.get('.usa-alert-warning').contains('Payment request is missing info');
-  cy.get('.usa-alert-warning').contains(
+  cy.get('.usa-alert--warning').contains('Payment request is missing info');
+  cy.get('.usa-alert--warning').contains(
     'You will need to contact your local PPPO office to resolve your missing weight ticket.',
   );
 
@@ -143,7 +159,7 @@ function serviceMemberReviewsDocuments() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/ppm-customer-agreement/);
   });
-  cy.get('.usa-button-secondary')
+  cy.get('[data-cy="back-button"]')
     .contains('Back')
     .click();
   cy.location().should(loc => {
@@ -158,8 +174,19 @@ function serviceMemberReviewsDocuments() {
   cy.wait('@signedCertifications');
   cy.wait('@requestPayment');
 }
+function serviceMemberDeletesDocuments() {
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
+  });
+  cy.get('.ticket-item').should('have.length', 4);
+  cy.get('[data-cy="delete-ticket"]')
+    .first()
+    .click();
+  cy.get('[data-cy="delete-confirmation-button"]').click();
+  cy.get('.ticket-item').should('have.length', 3);
+}
 function serviceMemberEditsPaymentRequest() {
-  cy.get('.usa-alert-success')
+  cy.get('.usa-alert--success')
     .contains('Payment request submitted')
     .should('exist');
   cy.get('[data-cy="edit-payment-request"]')
@@ -170,6 +197,7 @@ function serviceMemberEditsPaymentRequest() {
     .should('exist')
     .click();
   serviceMemberSubmitsWeightTicket('CAR', false);
+  serviceMemberDeletesDocuments();
   serviceMemberReviewsDocuments();
 }
 function serviceMemberAddsWeightTicketSetWithMissingDocuments(hasAnother = false) {
@@ -189,7 +217,8 @@ function serviceMemberAddsWeightTicketSetWithMissingDocuments(hasAnother = false
   cy.get('input[name="missingEmptyWeightTicket"]').check({ force: true });
 
   cy.get('input[name="full_weight"]').type('5000');
-  cy.get('input[name="missingFullWeightTicket"]').check({ force: true });
+  cy.upload_file('[data-cy=full-weight-upload] .filepond--root', 'top-secret.png');
+  cy.wait('@postUploadDocument');
 
   cy.get('input[name="weight_ticket_date"]')
     .type('6/2/2018{enter}')
@@ -373,19 +402,22 @@ function serviceMemberSubmitsWeightsTicketsWithoutReceipts() {
   cy.get('input[name="vehicle_nickname"]').type('Nickname');
   cy.get('input[name="empty_weight"]').type('1000');
   cy.get('input[name="full_weight"]').type('2000');
+  cy.upload_file('[data-cy=full-weight-upload] .filepond--root', 'top-secret.png');
+  cy.wait('@postUploadDocument');
   cy.get('input[name="isValidTrailer"][value="Yes"]+label').click();
   cy.get('input[name="missingDocumentation"]+label').click();
   cy.get('[data-cy=trailer-warning]').contains(
     'If your state does not provide a registration or bill of sale for your trailer, you may write and upload a signed and dated statement certifying that you or your spouse own the trailer and meets the trailer criteria. Upload your statement using the proof of ownership field.',
   );
+  cy.get('input[name="missingDocumentation"]+label').click({ force: false });
+  cy.upload_file('[data-cy=trailer-upload] .filepond--root', 'top-secret.png');
+  cy.wait('@postUploadDocument');
+
   cy.get('input[name="missingEmptyWeightTicket"]+label').click();
   cy.get('[data-cy=empty-warning]').contains(
     'Contact your local Transportation Office (PPPO) to let them know you’re missing this weight ticket. For now, keep going and enter the info you do have.',
   );
-  cy.get('input[name="missingFullWeightTicket"]+label').click();
-  cy.get('[data-cy=full-warning]').contains(
-    'Contact your local Transportation Office (PPPO) to let them know you’re missing this weight ticket. For now, keep going and enter the info you do have.',
-  );
+
   cy.get('input[name="weight_ticket_date"]')
     .type('6/2/2018{enter}')
     .blur();

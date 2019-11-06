@@ -55,6 +55,16 @@ div.signature-date {
   input[name='date'] {
     max-width: none;
   }
+
+  .review-customer-agreement label {
+    font-size: 1.6rem;
+  }
+}
+/* Specifically handles case of "I agree to the Legal Agreement / Privacy Act bug that was occuring when anchor text would wrap to next line which would make it difficult to tick the checkbox */
+@media only screen and (max-width: 400px) {
+  .review-customer-agreement label {
+    font-size: 1.4rem;
+  }
 }
 
 .signature_form h3 {
@@ -66,4 +76,8 @@ div.signature-date {
   .legalese .pdf {
     display: none;
   }
+}
+
+.usa-input-error.signature {
+  margin-top: 2rem;
 }

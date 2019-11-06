@@ -19,22 +19,8 @@ const (
 
 	// template for adding office users
 	disableUser string = `UPDATE users
-SET disabled=true
+SET active=false
 WHERE login_gov_email='{{.EmailPrefix}}@{{.EmailDomain}}';
-
-UPDATE admin_users
-SET disabled=true
-WHERE email='{{.EmailPrefix}}@{{.EmailDomain}}';
-
-UPDATE office_users
-SET disabled=true
-WHERE email='{{.EmailPrefix}}@{{.EmailDomain}}';
-
-UPDATE tsp_users
-SET disabled=true
-WHERE email='{{.EmailPrefix}}+pyvl@{{.EmailDomain}}'
-	OR email='{{.EmailPrefix}}+dlxm@{{.EmailDomain}}'
-	OR email='{{.EmailPrefix}}+ssow@{{.EmailDomain}}';
 `
 )
 

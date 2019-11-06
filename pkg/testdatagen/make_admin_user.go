@@ -32,7 +32,6 @@ func MakeAdminUser(db *pop.Connection, assertions Assertions) models.AdminUser {
 		LastName:  "Spaceman",
 		Email:     email,
 		Role:      "SYSTEM_ADMIN",
-		Disabled:  false,
 	}
 
 	mergeModels(&adminUser, assertions.AdminUser)

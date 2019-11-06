@@ -53,6 +53,10 @@ func CheckAddDutyStations(v *viper.Viper, logger logger) error {
 		return err
 	}
 
+	if err := cli.CheckMigrationGenPath(v); err != nil {
+		return err
+	}
+
 	DutyStationsFilename := v.GetString(DutyStationsFilenameFlag)
 	if DutyStationsFilename == "" {
 		return fmt.Errorf("--duty-stations-filename is required")
@@ -69,6 +73,9 @@ func initGenDutyStationsMigrationFlags(flag *pflag.FlagSet) {
 
 	// Migration File Config
 	cli.InitMigrationFileFlags(flag)
+
+	// Migration Gen Path Config
+	cli.InitMigrationGenPathFlags(flag)
 
 	// Add Duty Stations
 	InitAddDutyStationsFlags(flag)
@@ -129,7 +136,7 @@ func genDutyStationsMigration(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	migrationPath := v.GetString(cli.MigrationPathFlag)
+	migrationPath := v.GetString(cli.MigrationGenPathFlag)
 	migrationManifest := v.GetString(cli.MigrationManifestFlag)
 	migrationName := v.GetString(cli.MigrationNameFlag)
 	migrationVersion := v.GetString(cli.MigrationVersionFlag)

@@ -1,6 +1,6 @@
 # Turning TDL scores and TSP discounts into transportation service provider performances
 
-This outlines the steps you need to do to join the two data sources we've traditionally gotten - CSVs or text files of best value scores tide to TDLs, exported one code of service at a time, and CSVs or text files of TSP discount rates, organized by the three pieces of data that make up a TDL (origin, destination, and code of service). If anything behaves in a surprising way, double check the schema detailed here against the organization of your input files. No step of this should alter zero rows, for instance.
+This outlines the steps you need to do to join the two data sources we've traditionally gotten - CSVs or text files of best value scores tied to TDLs, exported one code of service at a time, and CSVs or text files of TSP discount rates, organized by the three pieces of data that make up a TDL (origin, destination, and code of service). If anything behaves in a surprising way, double check the schema detailed here against the organization of your input files. No step of this should alter zero rows, for instance.
 
 Before you begin this process, convert discount rate Excel files or txt files to CSVs, if needed. **Verify that values for SVY_SCORE, RATE_SCORE, and BVS are decimal values (should be formatted like `77.3456`).**
 
@@ -143,6 +143,8 @@ CREATE TABLE tdl_scores_and_discounts AS
     s.scac = dr.scac;
 ```
 
+### Add column to hold TDL IDs
+
 Add a TDL ID column to fill with this next update:
 
 ```sql
@@ -181,6 +183,8 @@ Check for null TDL IDs:
 SELECT count(DISTINCT scac) FROM tdl_scores_and_discounts WHERE tdl_id IS NULL;
 ```
 
+#### If TDL ID is still null
+
 If count returns anything but 0, you'll need to add new TDL entries.
 Check for new entries on the
 [Domestic Channel Control List](https://move.mil/sites/default/files/2019-01/2019%20Domestic%20Channel%20Control%20List.pdf).
@@ -189,7 +193,9 @@ Create a new temp table for TDLs and add the new entries as follows:
 
 ```sql
 CREATE TABLE temp_tdls AS SELECT * FROM traffic_distribution_lists;
+
 ALTER TABLE temp_tdls ADD COLUMN import boolean;
+
 INSERT INTO temp_tdls (id, source_rate_area, destination_region, code_of_service, created_at, updated_at, import)
 VALUES
   (uuid_generate_v4(), 'US4965500', '1', '2', now(), now(), true),
@@ -201,15 +207,15 @@ VALUES
 This will add the new entries to the temporary TDL table,
 forcing them to adhere to any table constraints
 and generating new UUIDs to be consistent across environments.
+For info on why having consistent UUIDs is important [see this document](docs/how-to/create-or-deactivate-users.md#a-note-about-uuid_generate_v4)
 
-We'll now create a new migration with that data (replace your migration filename):
+We'll now [create a new migration](../how-to/migrate-the-database.md#how-to-migrate-the-database) with that data (replace your migration filename):
 
 ```bash
-make bin/soda
-./bin/soda generate sql add_new_tdls
-rm migrations/20190410152949_add_new_tdls.down.sql
+make bin/milmove
+milmove gen migration -n add_new_tdls
 echo -e "INSERT INTO traffic_distribution_lists (id, source_rate_area, destination_region, code_of_service, created_at, updated_at) \nVALUES\n$(
-./scripts/psql-deployed-migrations "\copy (SELECT id, source_rate_area, destination_region, code_of_service FROM temp_tdls WHERE import = true) TO stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
+./scripts/psql-dev "\copy (SELECT id, source_rate_area, destination_region, code_of_service FROM temp_tdls WHERE import = true) TO stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
   | awk '{print "  ("$0", now(), now()),"}' \
   | sed '$ s/.$//');" \
   > migrations/20190410152949_add_new_tdls.up.sql
@@ -223,6 +229,10 @@ to have true `created_at` and `updated_at` timestamps.
 Not your locally inserted time.
 
 Once this migration is written, run it and rejoin the TDLs as above.
+
+----
+
+### Add column to hold TSP IDs
 
 Make room for TSP IDs:
 
@@ -254,32 +264,39 @@ Check for missing TSP IDs:
 SELECT count(DISTINCT scac) FROM tdl_scores_and_discounts WHERE tsp_id IS NULL;
 ```
 
+#### If TSP ID is still null
+
+Note we use GENERATED_UUID4_VAL here to represent a generated UUID, read [this doc](docs/how-to/create-or-deactivate-users.md#a-note-about-uuid_generate_v4) for details.
 If this is not 0, add the TSPs:
 
 ```sql
 CREATE TABLE temp_tsps AS SELECT * FROM transportation_service_providers;
+
 ALTER TABLE temp_tsps ADD COLUMN import boolean;
+
 INSERT INTO temp_tsps (standard_carrier_alpha_code, id, import)
-  SELECT DISTNCT ON (scac) scac AS standard_carrier_alpha_code, uuid_generate_v4() AS id, true AS import
+  SELECT DISTINCT ON (scac) scac AS standard_carrier_alpha_code, GENERATED_UUID4_VAL AS id, true AS import
   FROM tdl_scores_and_discounts
   WHERE tsp_id IS NULL;
 ```
 
-Generate the migration (replacing your migration filename):
+[Generate the migration](../how-to/migrate-the-database.md#how-to-migrate-the-database) (replacing your migration filename):
 
 ```bash
-make bin/soda
-./bin/soda generate sql add_new_scacs
-rm migrations/20190409010258_add_new_scacs.down.sql
-
-echo -e "INSERT INTO transportation_service_providers (id, standard_carrier_alpha_code, created_at, updated_at, name) \nVALUES\n$(
-./scripts/psql-deployed-migrations "\copy (SELECT id, standard_carrier_alpha_code from temp_tsps) TO stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
-  | awk '{print "  ("$0", now(), now(), '\''),"}' \
+make bin/milmove
+milmove gen migration -n add_new_scacs
+echo -e "INSERT INTO transportation_service_providers (id, standard_carrier_alpha_code, created_at, updated_at) \nVALUES\n$(
+./scripts/psql-dev "\copy (SELECT id, standard_carrier_alpha_code FROM temp_tsps WHERE import = true) TO stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
+  | awk '{print "  ("$0", now(), now()),"}' \
   | sed '$ s/.$//');" \
   > migrations/20190409010258_add_new_scacs.up.sql
 ```
 
 Run this migration and rejoin the TSP IDs as above.
+
+----
+
+### Generate data for production import
 
 Now we're ready to combine the datasets together into one table. First, be sure to clear out the `transportation_service_provider_performances` table in case it already contains data:
 
@@ -291,69 +308,68 @@ The following command will fill the TSPP table with data. Use your data's curren
 
 > _Rate cycle_ in this context means the rate cycle **period**, so either the peak or non-peak part of the annual rate cycle and **not** the rate cycle itself.
 >
-> [This document](https://docs.google.com/document/d/1BsE_yIx5_6URs4Kp7baRVMhqJ4Ec_q3hdCmwOYR4EIc) specifies the date ranges for both the performance periods and the rate cycle periods.
+> [This document](https://docs.google.com/document/d/12AN1igDt9Acxm9cu1cJA0fiWQIMI3XGs5u_jhCHLo6I) specifies the date ranges for both the performance periods and the rate cycle periods.
+
+Note we use GENERATED_UUID4_VAL here to represent a generated UUID, read [this doc](docs/how-to/create-or-deactivate-users.md#a-note-about-uuid_generate_v4) for details.
 
 ```SQL
 INSERT INTO
   transportation_service_provider_performances (id, performance_period_start, performance_period_end, traffic_distribution_list_id, offer_count, best_value_score, transportation_service_provider_id, created_at, updated_at, rate_cycle_start, rate_cycle_end, linehaul_rate, sit_rate)
 SELECT
-  uuid_generate_v4() as id, '2018-08-01' as performance_period_start, '2018-09-30' as performance_period_end, tdl_id, 0 as offer_count, bvs, tsp_id, now() as created_at, now() as updated_at, '2018-05-15' as rate_cycle_start, '2018-09-30' as rate_cycle_end, lh_rate/100, sit_rate/100
+  GENERATED_UUID4_VAL as id, '2018-08-01' as performance_period_start, '2018-09-30' as performance_period_end, tdl_id, 0 as offer_count, bvs, tsp_id, now() as created_at, now() as updated_at, '2018-05-15' as rate_cycle_start, '2018-09-30' as rate_cycle_end, lh_rate/100, sit_rate/100
 FROM
   tdl_scores_and_discounts;
 ```
 
 The `/100` of the `sit_rate` and `linehaul_rate` columns accounts for the differences in representing percentages/decimals across sources. This changes integers into decimal representations that fit into our calculations of rates and reimbursements.
 
-Vacuum up now that the party's over.
-
-```SQL
-DROP TABLE tdl_scores_and_discounts;
-DROP TABLE temp_tdl_scores;
-DROP TABLE temp_tsp_discount_rates;
-```
+### Export TSPP Data
 
 Run this in your terminal to dump the contents of the `transportation_service_provider_performances` table for use elsewhere. Double-check your local db name before assuming this will work.
-`pg_dump -h localhost -U postgres -W dev_db --table transportation_service_provider_performances --data-only > tspp_data_dump.pgsql`
+
+```pg_dump -h localhost -U postgres -W dev_db --table transportation_service_provider_performances --data-only > tspp_data_dump.pgsql```
 
 Et voilà: TSPPs!
+
+Note that the above `pg_dump` command will generate a file that uses a single `COPY ... FROM stdin` to load data
+as opposed to a series of `INSERT` statements.  Using `COPY` can be dramatically faster than `INSERT` -- around 100 times
+faster in some cases.  We generally [prefer `INSERT`](https://github.com/transcom/mymove/pull/2670/files#r322981353)
+but the amount of data being loaded may make using it simply too expensive for a migration.
+
+**WARNING:** If the generated file is larger than 250 MB then you will not be able to upload the file. This size limit is in place so that the anti-virus software can scan the file. In the case where a file has been generated that is larger than this size you'll need to split the migration file into multiple migration files each with a size smaller than 250 MB.
 
 ## Data Validation
 
 The following SQL statements can be used to verify that the above process has been completed successfully. Some numbers may be slightly off
 due to natural changes in the data, but any large discrepancies are a potential signal that something has gone wrong somewhere along the way.
 
+NOTE: As of the updates for 2019-10-01 we only import the BVSes for the top performer, instead of everyone. This could lead to more variation in the numbers than in past updates. The numbers below have been updated to reflect the reduced imports.
+
 ```text
 dev_db=# SELECT COUNT(id) FROM transportation_service_provider_performances;
   count
 ---------
- 1062265
+ 847
 (1 row)
 
 dev_db=# select min(best_value_score), max(best_value_score) from transportation_service_provider_performances;
    min   |  max
 ---------+--------
- 61.0964 | 99.223
+  91.0   | 100.0
 (1 row)
 
 
 dev_db=# select min(sit_rate), max(sit_rate) from transportation_service_provider_performances;
- min | max
------+------
- 0.4 | 0.65
+  min | max
+------+------
+ 0.45 | 0.63
 (1 row)
 
 dev_db=# select min(linehaul_rate), max(linehaul_rate) from transportation_service_provider_performances;
  min | max
 -----+------
- 0.4 | 0.69
+ 0.4 | 0.68
 (1 row)
-
-dev_db=# select code_of_service, count(tspp.id) from transportation_service_provider_performances tspp left join traffic_distribution_lists tdl ON tspp.traffic_distribution_list_id=tdl.id group by code_of_service;
- code_of_service | count
------------------+--------
- 2               | 496592
- D               | 565673
-(2 rows)
 
 dev_db=# SELECT min(count), max(count) FROM (
     SELECT transportation_service_provider_id, COUNT(id) FROM transportation_service_provider_performances
@@ -361,13 +377,13 @@ dev_db=# SELECT min(count), max(count) FROM (
     ) as tspp;
  min | max
 -----+------
-   1 | 1592
+   1 | 511
 (1 row)
 
 dev_db=# SELECT count(DISTINCT transportation_service_provider_id) FROM transportation_service_provider_performances;
  count
 -------
-   851
+   35
 (1 row)
 
 SELECT CONCAT(((bucket -1) * 100)::text, '-', (bucket * 100)::text) as rows, count(transportation_service_provider_id) as tsps FROM (
@@ -378,19 +394,10 @@ SELECT CONCAT(((bucket -1) * 100)::text, '-', (bucket * 100)::text) as rows, cou
 
    rows    | tsps
 -----------+-------
- 0-100     |   105
- 100-200   |     3
- 600-700   |    34
- 700-800   |    18
- 800-900   |    14
- 900-1000  |    20
- 1000-1100 |    10
- 1100-1200 |    17
- 1200-1300 |    10
- 1300-1400 |    16
- 1400-1500 |    59
- 1500-1600 |   545
-(12 rows)
+ 0-100     |   33
+ 200-300   |    1
+ 500-600   |    1
+(3 rows)
 
 -- Spot check the data by picking a row from the TDL and TSP text/CSV files and verifying the data:
 
@@ -400,81 +407,41 @@ SELECT source_rate_area, destination_region, code_of_service, performance_period
 FROM traffic_distribution_lists AS tdl
 LEFT JOIN transportation_service_provider_performances on tdl.id = transportation_service_provider_performances.traffic_distribution_list_id
 LEFT JOIN transportation_service_providers on transportation_service_provider_performances.transportation_service_provider_id = transportation_service_providers.id
-WHERE performance_period_start='2019-01-01' and performance_period_end='2019-05-14'
-  AND standard_carrier_alpha_code='ABBV'
-  AND destination_region='14' AND source_rate_area='US11'
+WHERE performance_period_start='2019-10-01' and performance_period_end='2019-12-31'
+  AND destination_region='1' AND source_rate_area='US11'
   AND code_of_service='D';
 
+```
+
+## Temp Data Clean Up
+
+Vacuum up now that the party's over. Only required if you haven't reset the local database already.
+
+```SQL
+DROP TABLE tdl_scores_and_discounts;
+DROP TABLE temp_tdl_scores;
+DROP TABLE temp_tsp_discount_rates;
 ```
 
 ## Create Secure Migrations
 
 You will have to create a secure migration for this data import. Two files will need to be created,
-the file that contains the real data and a local migration (dummy file for dev). Follow the instructions
-at [docs/database.md#secure-migrations](https://github.com/transcom/mymove/blob/master/docs/database.md#secure-migrations)
+the file that contains the real data and a local migration (dummy file for dev). Follow the
+[secure migration steps](../how-to/migrate-the-database.md#secure-migrations).
 
-### Some tips for creating the dummy file
+### How to create the dummy file
 
 You will need to scrub the data that is in the dummy file. The fields: `linehaul_rate`, `sit_rate`, and `best_value_score`
 are company competition sensitive data and needs to scrubbed.
 
 The file will also need to be reduced. Currently, we are picking 2 TSPs per TDL.
 
-The following SQL can be used to do the above mentioned:
-
-* Truncate the table `transportation_service_provider_performances`:
-
-```sql
-TRUNCATE transportation_service_provider_performances CASCADE;
-```
-
-* Load the file created from the `pg_dump`:
+We have a [script](../../scripts/export-obfuscated-tspp-sample) to help with this process. The script will backup the TSPP table, make the appropriate reduction of
+data and scrubbing of key columns, output the results, then restore the original TSPP table.  You can run it like so:
 
 ```sh
-scripts/psql-dev < tspp_data_dump.pgsql
+./scripts/export-obfuscated-tspp-sample <filename>
 ```
 
-* Reduce the number of TSPs to two (2) TSPs per TDL:
-
-```sql
-DELETE FROM transportation_service_provider_performances
-WHERE id not in (
-      SELECT id  FROM
-          (SELECT id, traffic_distribution_list_id, transportation_service_provider_id, performance_period_start, ROW_NUMBER() OVER
-            (PARTITION BY (traffic_distribution_list_id, performance_period_start, performance_period_end)) rn
-           FROM transportation_service_provider_performances
-          ) tmp WHERE (rn = 1 OR rn = 2)
-    );
-```
-
-* Scrub the data:
-
-First, define a `random_between` function ([source](http://www.postgresqltutorial.com/postgresql-random-range/)).
-
-```sql
-CREATE OR REPLACE FUNCTION random_between(low INT ,high INT)
-   RETURNS INT AS
-$$
-BEGIN
-   RETURN floor(random()* (high-low + 1) + low);
-END;
-$$ language 'plpgsql' STRICT;
-```
-
-Then, use that function to set random values for fields that contain secret values:
-
-```sql
-UPDATE transportation_service_provider_performances
-SET linehaul_rate=random(),
-    sit_rate=random(),
-    best_value_score=random_between(60,70);
-```
-
-* Run the `pg_dump` again to capture the new local migration file:
-
-```sql
-pg_dump -h localhost -U postgres -W dev_db --table transportation_service_provider_performances --data-only > local_migration_tspp_data_dump.pgsql
-```
-
-Complete the steps from [docs/database.md#secure-migrations](https://github.com/transcom/mymove/blob/master/docs/database.md#secure-migrations) to
+Complete the [secure migration steps](../how-to/migrate-the-database.md#secure-migrations) to
 submit both migration files.

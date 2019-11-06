@@ -171,7 +171,7 @@ class ExpensesUpload extends Component {
     const isStorageExpense = this.isStorageExpense(formValues);
     const expenseNumber = expenses.length + 1;
     return (
-      <>
+      <div className="grid-container usa-prose site-prose">
         <WizardHeader
           title="Expenses"
           right={
@@ -190,7 +190,7 @@ class ExpensesUpload extends Component {
           <h3 className="expenses-header">Expense {expenseNumber}</h3>
           <p>
             Upload expenses one at a time.{' '}
-            <Link to="/allowable-expenses">
+            <Link to="/allowable-expenses" className="usa-link">
               <FontAwesomeIcon aria-hidden className="color_blue_link" icon={faQuestionCircle} />
             </Link>
           </p>
@@ -323,7 +323,7 @@ class ExpensesUpload extends Component {
             />
           </form>
         </div>
-      </>
+      </div>
     );
   }
 }

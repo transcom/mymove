@@ -49,15 +49,6 @@ func CheckDevlocal(v *viper.Viper) error {
 			return errors.Errorf("Devlocal Auth cannot run with the '%s' office server name, only in %v", serverName, allowedOfficeServerNames)
 		}
 
-		// Check against TSP Server Names
-		allowedTSPServerNames := []string{
-			HTTPTSPServerNameLocal,
-			fmt.Sprintf("tsp.%s.move.mil", EnvironmentExperimental),
-		}
-		if serverName := v.GetString(HTTPTSPServerNameFlag); !stringSliceContains(allowedTSPServerNames, serverName) {
-			return errors.Errorf("Devlocal Auth cannot run with the '%s' tsp server name, only in %v", serverName, allowedTSPServerNames)
-		}
-
 		// Check against Admin Server Names
 		allowedAdminServerNames := []string{
 			HTTPAdminServerNameLocal,

@@ -26,6 +26,25 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
+// IsLoggedInMiddleware handles requests to is_logged_in endpoint by returning true if someone is logged in
+func IsLoggedInMiddleware(logger Logger) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		data := map[string]interface{}{
+			"isLoggedIn": false,
+		}
+
+		session := auth.SessionFromRequestContext(r)
+		if session != nil && session.UserID != uuid.Nil {
+			data["isLoggedIn"] = true
+		}
+
+		newEncoderErr := json.NewEncoder(w).Encode(data)
+		if newEncoderErr != nil {
+			logger.Error("Failed encoding is_logged_in check response", zap.Error(newEncoderErr))
+		}
+	}
+}
+
 // UserAuthMiddleware enforces that the incoming request is tied to a user session
 func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
@@ -62,6 +81,23 @@ func AdminAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 			session := auth.SessionFromRequestContext(r)
 
 			if session == nil || !session.IsAdminUser() {
+				http.Error(w, http.StatusText(403), http.StatusForbidden)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		}
+
+		return http.HandlerFunc(mw)
+	}
+}
+
+func PrimeAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			session := auth.SessionFromRequestContext(r)
+
+			if session == nil || !session.IsOfficeUser() {
 				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
 			}
@@ -330,8 +366,8 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
 
-	if userIdentity.Disabled {
-		h.logger.Error("Disabled user requesting authentication",
+	if !userIdentity.Active {
+		h.logger.Error("Active user requesting authentication",
 			zap.String("application_name", string(session.ApplicationName)),
 			zap.String("hostname", session.Hostname),
 			zap.String("user_id", session.UserID.String()),
@@ -346,13 +382,13 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
 	}
 
-	if userIdentity.DpsUserID != nil && (userIdentity.DpsDisabled != nil && !*userIdentity.DpsDisabled) {
+	if userIdentity.DpsUserID != nil && (userIdentity.DpsActive != nil && *userIdentity.DpsActive) {
 		session.DpsUserID = *(userIdentity.DpsUserID)
 	}
 
 	if session.IsOfficeApp() {
-		if userIdentity.OfficeDisabled != nil && *userIdentity.OfficeDisabled {
-			h.logger.Error("Office user is disabled", zap.String("email", session.Email))
+		if userIdentity.OfficeActive != nil && !*userIdentity.OfficeActive {
+			h.logger.Error("Office user is deactivated", zap.String("email", session.Email))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		}
@@ -382,8 +418,8 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 	}
 
 	if session.IsAdminApp() {
-		if userIdentity.AdminUserDisabled != nil && *userIdentity.AdminUserDisabled {
-			h.logger.Error("Admin user is disabled", zap.String("email", session.Email))
+		if userIdentity.AdminUserActive != nil && !*userIdentity.AdminUserActive {
+			h.logger.Error("Admin user is deactivated", zap.String("email", session.Email))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		}
@@ -449,8 +485,8 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
-		if officeUser.Disabled {
-			h.logger.Error("Office user is disabled", zap.String("email", session.Email))
+		if !officeUser.Active {
+			h.logger.Error("Office user is deactivated", zap.String("email", session.Email))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		}
@@ -473,8 +509,8 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
-		if adminUser.Disabled {
-			h.logger.Error("Admin user is disabled", zap.String("email", session.Email))
+		if !adminUser.Active {
+			h.logger.Error("Admin user is deactivated", zap.String("email", session.Email))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		}
@@ -562,8 +598,6 @@ func InitAuth(v *viper.Viper, logger Logger, appnames auth.ApplicationServername
 		v.GetString(cli.LoginGovMyClientIDFlag),
 		appnames.OfficeServername,
 		v.GetString(cli.LoginGovOfficeClientIDFlag),
-		appnames.TspServername,
-		v.GetString(cli.LoginGovTSPClientIDFlag),
 		appnames.AdminServername,
 		v.GetString(cli.LoginGovAdminClientIDFlag),
 		loginGovCallbackProtocol,

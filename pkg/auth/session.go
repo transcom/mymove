@@ -15,8 +15,6 @@ const sessionContextKey authSessionKey = "session"
 type Application string
 
 const (
-	// TspApp indicates tsp.move.mil
-	TspApp Application = "tsp"
 	// OfficeApp indicates office.move.mil
 	OfficeApp Application = "office"
 	// MilApp indicates my.move.mil (DNS still points to my.move.mil and not mil.move.mil)
@@ -24,11 +22,6 @@ const (
 	// AdminApp indicates admin.move.mil
 	AdminApp Application = "admin"
 )
-
-// IsTspApp returns true iff the request is for the tsp.move.mil host
-func (s *Session) IsTspApp() bool {
-	return s.ApplicationName == TspApp
-}
 
 // IsOfficeApp returns true iff the request is for the office.move.mil host
 func (s *Session) IsOfficeApp() bool {

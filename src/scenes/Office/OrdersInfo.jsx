@@ -39,28 +39,31 @@ class OrdersInfo extends Component {
     if (!this.props.loadDependenciesHasSuccess && !this.props.loadDependenciesHasError) return <LoadingPlaceholder />;
     if (this.props.loadDependenciesHasError)
       return (
-        <div className="usa-grid">
-          <div className="usa-width-one-whole error-message">
-            <Alert type="error" heading="An error occurred">
-              Something went wrong contacting the server.
-            </Alert>
+        <div className="grid-container-widescreen usa-prose site-prose">
+          <div className="grid-row">
+            <div className="grid-col-12 error-message">
+              <Alert type="error" heading="An error occurred">
+                Something went wrong contacting the server.
+              </Alert>
+            </div>
           </div>
         </div>
       );
     return (
-      <div>
-        <div className="usa-grid">
-          <div className="usa-width-two-thirds document-contents">
+      <div className="grid-container-widescreen  usa-prose site-prose">
+        <div className="grid-row grid-gap">
+          <div className="grid-col-8 document-contents">
             {uploads.map(upload => (
               <DocumentContent
                 key={upload.url}
                 url={upload.url}
                 filename={upload.filename}
                 contentType={upload.content_type}
+                status={upload.status}
               />
             ))}
           </div>
-          <div className="usa-width-one-third orders-page-fields">
+          <div className="grid-col-4 orders-page-fields">
             <OrdersViewerPanel title={name} className="document-viewer" moveId={this.props.match.params.moveId} />
           </div>
         </div>

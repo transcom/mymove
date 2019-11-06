@@ -65,7 +65,7 @@ func NewFilesystem(params FilesystemParams) *Filesystem {
 }
 
 // Store stores the content from an io.ReadSeeker at the specified key.
-func (fs *Filesystem) Store(key string, data io.ReadSeeker, checksum string) (*StoreResult, error) {
+func (fs *Filesystem) Store(key string, data io.ReadSeeker, checksum string, tags *string) (*StoreResult, error) {
 	if key == "" {
 		return nil, errors.New("A valid StorageKey must be set before data can be uploaded")
 	}
@@ -113,6 +113,12 @@ func (fs *Filesystem) Fetch(key string) (io.ReadCloser, error) {
 	sourcePath := filepath.Join(fs.root, key)
 	f, err := fs.fs.Open(sourcePath)
 	return f, errors.Wrap(err, "could not open file")
+}
+
+// Tags returns the tags for a specified key
+func (fs *Filesystem) Tags(key string) (map[string]string, error) {
+	tags := make(map[string]string)
+	return tags, nil
 }
 
 // FileSystem returns the underlying afero filesystem

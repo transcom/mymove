@@ -90,20 +90,8 @@
       "value": "office.{{ .domain }}"
     },
     {
-      "name": "HTTP_TSP_SERVER_NAME",
-      "value": "tsp.{{ .domain }}"
-    },
-    {
       "name": "HTTP_ADMIN_SERVER_NAME",
       "value": "admin.{{ .domain }}"
-    },
-    {
-      "name": "HTTP_ORDERS_SERVER_NAME",
-      "value": "orders.{{ .domain }}"
-    },
-    {
-      "name": "HTTP_DPS_SERVER_NAME",
-      "value": "dps.{{ .domain }}"
     },
     {
       "name": "AWS_S3_BUCKET_NAME",
@@ -166,18 +154,6 @@
       "value": ""
     },
     {
-      "name": "DPS_REDIRECT_URL",
-      "value": "{{ .DPS_REDIRECT_URL }}"
-    },
-    {
-      "name": "DPS_COOKIE_NAME",
-      "value": "{{ .DPS_COOKIE_NAME }}"
-    },
-    {
-      "name": "DPS_COOKIE_DOMAIN",
-      "value": ".sddc.army.mil"
-    },
-    {
       "name": "GEX_URL",
       "value": "https://gexweba.daas.dla.mil/msg_data/submit/"
     },
@@ -194,6 +170,10 @@
       "value": "{{ .FEATURE_FLAG_ACCESS_CODE }}"
     },
     {
+      "name": "DEBUG_PPROF",
+      "value": "{{ .DEBUG_PPROF }}"
+    },
+    {
       "name": "SERVE_ADMIN",
       "value": "{{ .SERVE_ADMIN }}"
     },
@@ -202,16 +182,12 @@
       "value": "{{ .SERVE_SDDC }}"
     },
     {
-      "name": "SERVE_DPS",
-      "value": "{{ .SERVE_DPS }}"
-    },
-    {
       "name": "SERVE_API_INTERNAL",
       "value": "{{ .SERVE_API_INTERNAL }}"
     },
     {
-      "name": "SERVE_API_PUBLIC",
-      "value": "{{ .SERVE_API_PUBLIC }}"
+      "name": "SERVE_API_GHC",
+      "value": "{{ .SERVE_API_GHC }}"
     }
   ],
   "logConfiguration": {

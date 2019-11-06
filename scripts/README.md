@@ -26,7 +26,6 @@ committing.
 | `gen-docs-index` | generate index for documents |
 | `generate-md-toc` |  Wrapper script to generate table of contents on Markdown files. |
 | `pre-commit-circleci-validate` | validate CircleCI `config.yml` file |
-| `pre-commit-codecov-validate` | validate Codecov `.codecov.yml` file |
 | `pre-commit-go-imports` | modify imports in go files |
 | `pre-commit-go-lint` | modify go files with linting rules |
 | `pre-commit-go-mod` | modify `go.mod` and `go.sum` to match whats in the project |
@@ -48,6 +47,7 @@ These scripts are primarily used for CircleCI workflows.
 | `ecs-restart-services` | Restarted the ECS services associated with the given environment. |
 | `ecs-run-app-migrations-container` | Creates and runs a migration task using the given container definition. |
 | `rds-snapshot-app-db` | Creates a snapshot of the app database for the given environment. |
+| `push-storybook-assets` | Pushes static build of Story Book to AWS S3 for hosting. |
 
 ## Development Scripts
 
@@ -56,8 +56,6 @@ application testing
 
 | Script Name | Description |
 | --- | --- |
-| `dump-function-calls` |  Show all used functions in our codebase. |
-| `dump-packages` |  Show all used packages in our codebase. |
 | `export-obfuscated-tspp-sample` | Export a subset of rows from the `transportation_service_provider_performances` table |
 | `find-invoices` |  This script will use available API endpoints to find invoices in whatever environment you specify|
 | `generate-devlocal-cert` | Convenience script for creating a new certificate signed by the DevLocal CA. |
@@ -82,6 +80,7 @@ This subset of development scripts is used for testing
 | --- | --- |
 | `run-e2e-test` | Runs cypress tests with interactive GUI |
 | `run-e2e-test-docker` | Runs cypress tests entirely inside docker containers like in CircleCI |
+| `run-server-test-in-circle-container` | Executed in docker-compose.circle.yml to run the `make server_test` task in a CircleCI container |
 
 ### Secure Migrations
 
@@ -92,6 +91,7 @@ migrations.
 | --- | --- |
 | `download-secure-migration` |  A script to download secure migrations from all environments |
 | `generate-secure-migration` |  A script to help manage the creation of secure migrations |
+| `update-s3-sql-files` | A script to rename secure migration files to have .up.sql extension |
 | `upload-secure-migration` | A script to upload secure migrations to all environments |
 
 ### Database Scripts

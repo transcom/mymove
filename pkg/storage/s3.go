@@ -2,7 +2,6 @@ package storage
 
 import (
 	"io"
-	"log"
 	"path"
 	"time"
 
@@ -40,7 +39,7 @@ func NewS3(bucket string, keyNamespace string, logger Logger, session *session.S
 }
 
 // Store stores the content from an io.ReadSeeker at the specified key.
-func (s *S3) Store(key string, data io.ReadSeeker, checksum string) (*StoreResult, error) {
+func (s *S3) Store(key string, data io.ReadSeeker, checksum string, tags *string) (*StoreResult, error) {
 	if key == "" {
 		return nil, errors.New("A valid StorageKey must be set before data can be uploaded")
 	}
@@ -52,6 +51,9 @@ func (s *S3) Store(key string, data io.ReadSeeker, checksum string) (*StoreResul
 		Key:        &namespacedKey,
 		Body:       data,
 		ContentMD5: &checksum,
+	}
+	if tags != nil {
+		input.Tagging = tags
 	}
 
 	if _, err := s.client.PutObject(input); err != nil {
@@ -84,7 +86,6 @@ func (s *S3) Delete(key string) error {
 // It is the caller's responsibility to cleanup this file.
 func (s *S3) Fetch(key string) (io.ReadCloser, error) {
 	namespacedKey := path.Join(s.keyNamespace, key)
-	log.Println(namespacedKey)
 
 	input := &s3.GetObjectInput{
 		Bucket: &s.bucket,
@@ -123,6 +124,29 @@ func (s *S3) PresignedURL(key string, contentType string) (string, error) {
 		return "", errors.Wrap(err, "could not generate presigned URL")
 	}
 	return url, nil
+}
+
+// Tags returns the tags for a specified key
+func (s *S3) Tags(key string) (map[string]string, error) {
+	tags := make(map[string]string)
+
+	namespacedKey := path.Join(s.keyNamespace, key)
+
+	input := &s3.GetObjectTaggingInput{
+		Bucket: &s.bucket,
+		Key:    &namespacedKey,
+	}
+
+	result, err := s.client.GetObjectTagging(input)
+	if err != nil {
+		return tags, errors.Wrap(err, "get object tagging on s3 failed")
+	}
+
+	for _, tag := range result.TagSet {
+		tags[*tag.Key] = *tag.Value
+	}
+
+	return tags, nil
 }
 
 func (s *S3) ContentType(key string) (string, error) {

@@ -4,6 +4,8 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/gen/adminmessages"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -23,4 +25,12 @@ type AccessCodeFetcher interface {
 //go:generate mockery -name AccessCodeClaimer
 type AccessCodeClaimer interface {
 	ClaimAccessCode(code string, serviceMemberID uuid.UUID) (*models.AccessCode, *validate.Errors, error)
+}
+
+type OfficeAccessCodes []adminmessages.AccessCode
+
+// AccessCodeListFetcher is the service object interface for FetchAccessCodeList
+//go:generate mockery -name AccessCodeListFetcher
+type AccessCodeListFetcher interface {
+	FetchAccessCodeList(filters []QueryFilter, associations QueryAssociations, pagination Pagination, ordering QueryOrder) (models.AccessCodes, error)
 }

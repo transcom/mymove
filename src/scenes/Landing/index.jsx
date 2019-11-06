@@ -4,9 +4,9 @@ import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
 import { withLastLocation } from 'react-router-last-location';
-import { withContext } from 'shared/AppContext';
 
-import { MoveSummary, PPMAlert } from './MoveSummary';
+import { MoveSummary } from './MoveSummary';
+import PpmAlert from './PpmAlert';
 import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
@@ -82,7 +82,6 @@ export class Landing extends Component {
   };
   render() {
     const {
-      context,
       isLoggedIn,
       loggedInUserIsLoading,
       loggedInUserSuccess,
@@ -99,7 +98,7 @@ export class Landing extends Component {
       updateMove,
     } = this.props;
     return (
-      <div className="usa-grid">
+      <div className="grid-container usa-prose site-prose">
         {loggedInUserIsLoading && <LoadingPlaceholder />}
         {!isLoggedIn && !loggedInUserIsLoading && <SignIn location={this.props.location} />}
         {loggedInUserSuccess && (
@@ -110,7 +109,7 @@ export class Landing extends Component {
                   You've submitted your move
                 </Alert>
               )}
-              {ppm && moveSubmitSuccess && <PPMAlert heading="Congrats - your move is submitted!" />}
+              {ppm && moveSubmitSuccess && <PpmAlert heading="Congrats - your move is submitted!" />}
               {loggedInUserError && (
                 <Alert type="error" heading="An error occurred">
                   There was an error loading your user information.
@@ -125,7 +124,6 @@ export class Landing extends Component {
 
             {isLoggedIn && !isEmpty(serviceMember) && isProfileComplete && (
               <MoveSummary
-                context={context}
                 entitlement={entitlement}
                 profile={serviceMember}
                 orders={orders}
@@ -177,11 +175,9 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ push, createServiceMember, updateMove }, dispatch);
 }
 
-export default withContext(
-  withLastLocation(
-    connect(
-      mapStateToProps,
-      mapDispatchToProps,
-    )(Landing),
-  ),
+export default withLastLocation(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(Landing),
 );

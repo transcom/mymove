@@ -40,6 +40,9 @@ func initMigrateFlags(flag *pflag.FlagSet) {
 	// Migration Config
 	cli.InitMigrationFlags(flag)
 
+	// Migration Path Config
+	cli.InitMigrationPathFlags(flag)
+
 	// aws-vault Config
 	cli.InitVaultFlags(flag)
 
@@ -66,6 +69,10 @@ func checkMigrateConfig(v *viper.Viper, logger logger) error {
 	}
 
 	if err := cli.CheckMigration(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckMigrationPath(v); err != nil {
 		return err
 	}
 
@@ -180,7 +187,9 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 		pop.Debug = true
 	}
 
-	migrationPaths := expandPaths(strings.Split(v.GetString(cli.MigrationPathFlag), ";"))
+	// Remove any extra quotes around path
+	trimmedMigrationPaths := strings.Trim(v.GetString(cli.MigrationPathFlag), "\"")
+	migrationPaths := expandPaths(strings.Split(trimmedMigrationPaths, ";"))
 	logger.Info(fmt.Sprintf("using migration paths %q", migrationPaths))
 
 	s3Migrations := false
@@ -307,7 +316,7 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 		if len(uri) == 0 {
 			return errors.Errorf("Error finding migration for filename %q", target)
 		}
-		m, err := migrate.ParseMigrationFilename(target)
+		m, err := pop.ParseMigrationFilename(target)
 		if err != nil {
 			return errors.Wrapf(err, "error parsing migration filename %q", uri)
 		}

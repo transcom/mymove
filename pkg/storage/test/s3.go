@@ -28,7 +28,7 @@ func (fake *FakeS3Storage) Delete(key string) error {
 }
 
 // Store stores a file.
-func (fake *FakeS3Storage) Store(key string, data io.ReadSeeker, md5 string) (*storage.StoreResult, error) {
+func (fake *FakeS3Storage) Store(key string, data io.ReadSeeker, md5 string, tags *string) (*storage.StoreResult, error) {
 	f, err := fake.fs.Create(key)
 	if err != nil {
 		return nil, err
@@ -38,7 +38,6 @@ func (fake *FakeS3Storage) Store(key string, data io.ReadSeeker, md5 string) (*s
 	if err != nil {
 		return nil, err
 	}
-
 	if fake.willSucceed {
 		return &storage.StoreResult{}, nil
 	}
@@ -64,6 +63,14 @@ func (fake *FakeS3Storage) FileSystem() *afero.Afero {
 // TempFileSystem returns the underlying afero filesystem
 func (fake *FakeS3Storage) TempFileSystem() *afero.Afero {
 	return fake.tempFs
+}
+
+// Tags returns the tags for a specified key
+func (fake *FakeS3Storage) Tags(key string) (map[string]string, error) {
+	tags := map[string]string{
+		"tagName": "tagValue",
+	}
+	return tags, nil
 }
 
 // NewFakeS3Storage creates a new FakeS3Storage for testing purposes.

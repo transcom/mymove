@@ -63,14 +63,16 @@ function ServiceMemberSummary(props) {
   const yesNoMap = { true: 'Yes', false: 'No' };
 
   return (
-    <div class="service-member-summary">
+    <div className="service-member-summary">
       <h3>Profile and Orders</h3>
-      <div className="usa-grid-full review-content">
-        <div className="usa-width-one-half review-section">
+      <div className="grid-row grid-gap review-content">
+        <div className="grid-col-6 review-section">
           <p className="heading">
             Profile
             <span className="edit-section-link">
-              <Link to={editProfilePath}>Edit</Link>
+              <Link to={editProfilePath} className="usa-link">
+                Edit
+              </Link>
             </span>
           </p>
           <table>
@@ -104,7 +106,9 @@ function ServiceMemberSummary(props) {
                 {moveIsApproved && '*'}
                 {!moveIsApproved && (
                   <span className="edit-section-link">
-                    <Link to={editOrdersPath}>Edit</Link>
+                    <Link to={editOrdersPath} className="usa-link">
+                      Edit
+                    </Link>
                   </span>
                 )}
               </p>
@@ -146,11 +150,13 @@ function ServiceMemberSummary(props) {
           )}
         </div>
 
-        <div className="usa-width-one-half review-section">
+        <div className="grid-col-6 review-section">
           <p className="heading">
             Contact Info
             <span className="edit-section-link">
-              <Link to={editContactInfoPath}>Edit</Link>
+              <Link to={editContactInfoPath} className="usa-link">
+                Edit
+              </Link>
             </span>
           </p>
           <table>
@@ -190,7 +196,9 @@ function ServiceMemberSummary(props) {
               <p className="heading">
                 Backup Contact Info
                 <span className="edit-section-link">
-                  <Link to={editBackupContactPath}>Edit</Link>
+                  <Link to={editBackupContactPath} className="usa-link">
+                    Edit
+                  </Link>
                 </span>
               </p>
               <table key={contact.id}>

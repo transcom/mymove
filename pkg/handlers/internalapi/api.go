@@ -35,6 +35,7 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.PpmCreatePersonallyProcuredMoveHandler = CreatePersonallyProcuredMoveHandler{context}
 	internalAPI.PpmIndexPersonallyProcuredMovesHandler = IndexPersonallyProcuredMovesHandler{context}
 	internalAPI.PpmPatchPersonallyProcuredMoveHandler = PatchPersonallyProcuredMoveHandler{context}
+	internalAPI.PpmUpdatePersonallyProcuredMoveEstimateHandler = UpdatePersonallyProcuredMoveEstimateHandler{context}
 	internalAPI.PpmSubmitPersonallyProcuredMoveHandler = SubmitPersonallyProcuredMoveHandler{context}
 	internalAPI.PpmShowPPMEstimateHandler = ShowPPMEstimateHandler{context}
 	internalAPI.PpmShowPPMSitEstimateHandler = ShowPPMSitEstimateHandler{context}
@@ -44,6 +45,8 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.PpmRequestPPMExpenseSummaryHandler = RequestPPMExpenseSummaryHandler{context}
 
 	internalAPI.DutyStationsSearchDutyStationsHandler = SearchDutyStationsHandler{context}
+
+	internalAPI.AddressesShowAddressHandler = ShowAddressHandler{context}
 
 	internalAPI.TransportationOfficesShowDutyStationTransportationOfficeHandler = ShowDutyStationTransportationOfficeHandler{context}
 
@@ -61,6 +64,7 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 		movedocument.NewMoveDocumentUpdater(context.DB()),
 	}
 	internalAPI.MoveDocsIndexMoveDocumentsHandler = IndexMoveDocumentsHandler{context}
+	internalAPI.MoveDocsDeleteMoveDocumentHandler = DeleteMoveDocumentHandler{context}
 
 	internalAPI.MoveDocsCreateMovingExpenseDocumentHandler = CreateMovingExpenseDocumentHandler{context}
 

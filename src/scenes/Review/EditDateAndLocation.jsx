@@ -12,6 +12,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { createOrUpdatePpm, getPpmSitEstimate } from 'scenes/Moves/Ppm/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
+import { selectPPMForMove } from 'shared/Entities/modules/ppms';
+import { updatePPMEstimate } from 'shared/Entities/modules/ppms';
 import 'scenes/Moves/Ppm/DateAndLocation.css';
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
@@ -21,53 +23,59 @@ const sitEstimateDebounceTime = 300;
 let EditDateAndLocationForm = props => {
   const { handleSubmit, currentOrders, getSitEstimate, schema, valid, sitReimbursement, submitting } = props;
   return (
-    <form onSubmit={handleSubmit}>
-      <h1 className="sm-heading"> Edit PPM Dates & Locations </h1>
-      <p>Changes could impact your move, including the estimated PPM incentive.</p>
-      <h2 className="sm-heading-2"> Move Date </h2>
-      <SwaggerField fieldName="original_move_date" onChange={getSitEstimate} swagger={schema} required />
-      <hr className="spacer" />
-      <h2 className="sm-heading-2">Pickup Location</h2>
-      <SwaggerField fieldName="pickup_postal_code" onChange={getSitEstimate} swagger={schema} required />
-      <SwaggerField fieldName="has_additional_postal_code" swagger={schema} component={YesNoBoolean} />
-      {get(props, 'formValues.has_additional_postal_code', false) && (
-        <Fragment>
-          <SwaggerField fieldName="additional_pickup_postal_code" swagger={schema} required />
-          <span className="grey">Making additional stops may decrease your PPM incentive.</span>
-        </Fragment>
-      )}
-      <hr className="spacer" />
-      <h2 className="sm-heading-2">Destination Location</h2>
-      <p>
-        Enter the ZIP for your new home if you know it, or for {currentOrders && currentOrders.new_duty_station.name} if
-        you don't.
-      </p>
-      <SwaggerField fieldName="destination_postal_code" swagger={schema} onChange={getSitEstimate} required />
-      <span className="grey">
-        The ZIP code for {currentOrders && currentOrders.new_duty_station.name} is{' '}
-        {currentOrders && currentOrders.new_duty_station.address.postal_code}{' '}
-      </span>
-      <SwaggerField fieldName="has_sit" swagger={schema} component={YesNoBoolean} />
-      {get(props, 'formValues.has_sit', false) && (
-        <Fragment>
-          <SwaggerField
-            className="days-in-storage"
-            fieldName="days_in_storage"
-            swagger={schema}
-            onChange={getSitEstimate}
-            required
-          />{' '}
-          <span className="grey">You can choose up to 90 days.</span>
-          {sitReimbursement && (
-            <div className="storage-estimate">
-              You can spend up to {sitReimbursement} on private storage. Save your receipts to submit with your PPM
-              paperwork.
-            </div>
-          )}
-        </Fragment>
-      )}
-      <SaveCancelButtons valid={valid} submitting={submitting} />
-    </form>
+    <div className="grid-container usa-prose site-prose">
+      <div className="grid-row">
+        <div className="grid-col-12">
+          <form onSubmit={handleSubmit}>
+            <h1 className="sm-heading"> Edit PPM Dates & Locations </h1>
+            <p>Changes could impact your move, including the estimated PPM incentive.</p>
+            <h3 className="sm-heading-2"> Move Date </h3>
+            <SwaggerField fieldName="original_move_date" onChange={getSitEstimate} swagger={schema} required />
+            <hr className="spacer" />
+            <h3 className="sm-heading-2">Pickup Location</h3>
+            <SwaggerField fieldName="pickup_postal_code" onChange={getSitEstimate} swagger={schema} required />
+            <SwaggerField fieldName="has_additional_postal_code" swagger={schema} component={YesNoBoolean} />
+            {get(props, 'formValues.has_additional_postal_code', false) && (
+              <Fragment>
+                <SwaggerField fieldName="additional_pickup_postal_code" swagger={schema} required />
+                <span className="grey">Making additional stops may decrease your PPM incentive.</span>
+              </Fragment>
+            )}
+            <hr className="spacer" />
+            <h3 className="sm-heading-2">Destination Location</h3>
+            <p>
+              Enter the ZIP for your new home if you know it, or for{' '}
+              {currentOrders && currentOrders.new_duty_station.name} if you don't.
+            </p>
+            <SwaggerField fieldName="destination_postal_code" swagger={schema} onChange={getSitEstimate} required />
+            <span className="grey">
+              The ZIP code for {currentOrders && currentOrders.new_duty_station.name} is{' '}
+              {currentOrders && currentOrders.new_duty_station.address.postal_code}{' '}
+            </span>
+            <SwaggerField fieldName="has_sit" swagger={schema} component={YesNoBoolean} />
+            {get(props, 'formValues.has_sit', false) && (
+              <Fragment>
+                <SwaggerField
+                  className="days-in-storage"
+                  fieldName="days_in_storage"
+                  swagger={schema}
+                  onChange={getSitEstimate}
+                  required
+                />{' '}
+                <span className="grey">You can choose up to 90 days.</span>
+                {sitReimbursement && (
+                  <div data-cy="storage-estimate" className="storage-estimate">
+                    You can spend up to {sitReimbursement} on private storage. Save your receipts to submit with your
+                    PPM paperwork.
+                  </div>
+                )}
+              </Fragment>
+            )}
+            <SaveCancelButtons valid={valid} submitting={submitting} />
+          </form>
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -83,15 +91,30 @@ class EditDateAndLocation extends Component {
       if (!pendingValues.has_sit) {
         pendingValues.days_in_storage = null;
       }
+
       const moveId = this.props.match.params.moveId;
-      return this.props.createOrUpdatePpm(moveId, pendingValues).then(() => {
-        // This promise resolves regardless of error.
-        if (!this.props.hasSubmitError) {
-          this.props.editSuccessful();
-          this.props.history.goBack();
-        } else {
-          scrollToTop();
-        }
+      return this.props.createOrUpdatePpm(moveId, pendingValues).then(({ payload }) => {
+        this.props
+          .updatePPMEstimate(moveId, payload.id)
+          .then(() => {
+            // This promise resolves regardless of error.
+            if (!this.props.hasSubmitError) {
+              this.props.editSuccessful();
+              this.props.history.goBack();
+            } else {
+              scrollToTop();
+            }
+          })
+          .catch(err => {
+            // This promise resolves regardless of error.
+            if (!this.props.hasSubmitError) {
+              this.props.editSuccessful();
+              this.props.history.goBack();
+            } else {
+              scrollToTop();
+            }
+            return err;
+          });
       });
     }
   };
@@ -124,7 +147,15 @@ class EditDateAndLocation extends Component {
   }
 
   render() {
-    const { initialValues, schema, formValues, sitReimbursement, currentOrders, error } = this.props;
+    const {
+      initialValues,
+      schema,
+      formValues,
+      sitReimbursement,
+      currentOrders,
+      error,
+      entitiesSitReimbursement,
+    } = this.props;
     return (
       <div className="usa-grid">
         {error && (
@@ -141,7 +172,11 @@ class EditDateAndLocation extends Component {
             initialValues={initialValues}
             schema={schema}
             formValues={formValues}
-            sitReimbursement={sitReimbursement}
+            sitReimbursement={
+              sitReimbursement !== entitiesSitReimbursement && sitReimbursement
+                ? sitReimbursement
+                : entitiesSitReimbursement
+            }
             currentOrders={currentOrders}
             onCancel={this.returnToReview}
             createOrUpdatePpm={createOrUpdatePpm}
@@ -168,6 +203,11 @@ function mapStateToProps(state) {
     entitlement: loadEntitlementsFromState(state),
     error: get(state, 'ppm.error'),
     hasSubmitError: get(state, 'ppm.hasSubmitError'),
+    entitiesSitReimbursement: get(
+      selectPPMForMove(state, get(state, 'moves.currentMove.id')),
+      'estimated_storage_reimbursement',
+      '',
+    ),
   };
   const defaultPickupZip = get(state.serviceMember, 'currentServiceMember.residential_address.postal_code');
   props.initialValues = props.currentPpm
@@ -188,6 +228,7 @@ function mapDispatchToProps(dispatch) {
       editBegin,
       editSuccessful,
       entitlementChangeBegin,
+      updatePPMEstimate,
     },
     dispatch,
   );

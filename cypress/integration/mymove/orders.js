@@ -32,12 +32,12 @@ describe('orders entry', function() {
 
     // Choosing same current and destination duty station should block you from progressing and give an error
     cy.selectDutyStation('Yuma AFB', 'new_duty_station');
-    cy.get('.usa-input-error-message').contains(
+    cy.get('.usa-error-message').contains(
       'You entered the same duty station for your origin and destination. Please change one of them.',
     );
     cy.get('button.next').should('be.disabled');
 
-    cy.selectDutyStation('NAS Fort Worth', 'new_duty_station');
+    cy.selectDutyStation('NAS Fort Worth JRB', 'new_duty_station');
 
     cy.nextPage();
 
@@ -46,8 +46,8 @@ describe('orders entry', function() {
     });
 
     cy.setFeatureFlag('ppmPaymentRequest=false', '/');
-    cy.contains('NAS Fort Worth (from Yuma AFB)');
-    cy.get('.whole_box > div > :nth-child(3) > span').contains('7,000 lbs');
+    cy.contains('NAS Fort Worth JRB (from Yuma AFB)');
+    cy.get('[data-cy="move-header-weight-estimate"]').contains('7,000 lbs');
     cy.contains('Continue Move Setup').click();
     cy.location().should(loc => {
       expect(loc.pathname).to.eq('/orders/upload');

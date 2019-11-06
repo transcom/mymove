@@ -9,10 +9,6 @@
 /node_modules
 /.vendor-new
 
-/pkg/gen
-/pkg/assets
-**/mocks
-
 # testing
 /coverage
 coverage.out
@@ -31,7 +27,6 @@ __snapshots__
 
 # Ignore
 /docs/packages.txt
-
 
 #debugging
 /cmd/milmove/debug
@@ -65,6 +60,7 @@ public/swagger-ui/*
 !public/swagger-ui/api.html
 !public/swagger-ui/internal.html
 !public/swagger-ui/admin.html
+!public/swagger-ui/ghc.html
 
 # Cypress integration tests
 cypress/videos

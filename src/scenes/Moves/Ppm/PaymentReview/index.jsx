@@ -48,6 +48,25 @@ class PaymentReview extends Component {
     });
   }
 
+  componentDidUpdate(prevProps) {
+    const { originDutyStationZip, currentPpm, moveDocuments } = this.props;
+    const { actual_move_date, pickup_postal_code, destination_postal_code } = currentPpm;
+    if (moveDocuments.weightTickets.length !== prevProps.moveDocuments.weightTickets.length) {
+      this.props.getMoveDocumentsForMove(this.props.moveId).then(({ obj: documents }) => {
+        const weightTicketNetWeight = calcNetWeight(documents);
+        const netWeight =
+          weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
+        this.props.getPpmWeightEstimate(
+          actual_move_date,
+          pickup_postal_code,
+          originDutyStationZip,
+          destination_postal_code,
+          netWeight,
+        );
+      });
+    }
+  }
+
   handleOnAcceptTermsChange = acceptTerms => {
     this.setState({ acceptTerms });
   };
@@ -86,7 +105,7 @@ class PaymentReview extends Component {
     );
 
     return (
-      <>
+      <div className="grid-container usa-prose site-prose">
         <WizardHeader
           title="Review"
           right={
@@ -158,7 +177,7 @@ class PaymentReview extends Component {
             submitting={submitting}
           />
         </div>
-      </>
+      </div>
     );
   }
 }

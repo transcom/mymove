@@ -19,6 +19,10 @@ If you are looking to understand choices made in this project, see the list of [
 
 * [Metrics](metrics.md). Documentation for application metrics.
 
+## Security
+
+* [Anti-Virus](anti_virus.md). Documentation for the anti-virus solutions employed.
+
 <!--index-->
 
 ## HOWTOs
@@ -27,10 +31,13 @@ If you are looking to understand choices made in this project, see the list of [
 * [Call Swagger Endpoints from React](how-to/access-swagger-endpoints-from-react.md#how-to-call-swagger-endpoints-from-react)
 * [Add Application Logging](how-to/add-application-logging.md#how-to-add-application-logging)
 * [Backup and Restore the Development Database](how-to/backup-and-restore-dev-database.md#how-to-backup-and-restore-the-development-database)
-* [Create or Disable Users](how-to/create-or-disable-users.md#how-to-create-or-disable-users)
+* [Create An ECS Scheduled Task](how-to/create-an-ecs-scheduled-task.md#how-to-create-an-ecs-scheduled-task)
+* [Create or Deactivate Users](how-to/create-or-deactivate-users.md#how-to-create-or-deactivate-users)
 * [Deploy to Experimental](how-to/deploy-to-experimental.md#how-to-deploy-to-experimental)
 * [display dates and times](how-to/display-dates-and-times.md#how-to-display-dates-and-times)
 * [Generate Mocks with Mockery](how-to/generate-mocks-with-mockery.md#how-to-generate-mocks-with-mockery)
+* [handle back-end errors](how-to/handle-backend-errors.md#how-to-handle-back-end-errors)
+* [Manage Dependabot](how-to/manage-dependabot.md#how-to-manage-dependabot)
 * [Manage Dependencies With go mod](how-to/manage-dependencies-with-go-mod.md#how-to-manage-dependencies-with-go-mod)
 * [Manage Docker Locally](how-to/manage-docker-locally.md#how-to-manage-docker-locally)
 * [Migrate the Database](how-to/migrate-the-database.md#how-to-migrate-the-database)
@@ -41,10 +48,13 @@ If you are looking to understand choices made in this project, see the list of [
 * [Run Go Tests](how-to/run-go-tests.md#how-to-run-go-tests)
 * [Run JavaScript (Jest) Tests](how-to/run-js-tests.md#how-to-run-javascript-jest-tests)
 * [Run and troubleshoot pre-commit hooks](how-to/run-pre-commit-hooks.md#run-and-troubleshoot-pre-commit-hooks)
+* [Run server_test job in CircleCI container locally](how-to/run-server-test-circle-ci.md#run-server-test-job-in-circleci-container-locally)
 * [Use and Run Storybook](how-to/run-storybook.md#how-to-use-and-run-storybook)
+* [Searching for Application Errors](how-to/search-for-application-errors.md#how-to-searching-for-application-errors)
 * [Soft Delete](how-to/soft-delete.md#how-to-soft-delete)
 * [Store Data in Redux](how-to/store-data-in-redux.md#how-to-store-data-in-redux)
 * [Store UI State in Redux](how-to/store-ui-state-in-redux.md#how-to-store-ui-state-in-redux)
+* [Test Virus Scanning](how-to/test-virus-scanning.md#how-to-test-virus-scanning)
 * [Troubleshoot GEX Connection](how-to/troubleshoot-gex-connection.md#how-to-troubleshoot-gex-connection)
 * [Unit Test React Components](how-to/unit-test-react-components.md#how-to-unit-test-react-components)
 * [Upgrade Go Version](how-to/upgrade-go-version.md#how-to-upgrade-go-version)

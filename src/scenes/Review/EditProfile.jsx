@@ -36,42 +36,58 @@ let EditProfileForm = props => {
   const currentStation = get(serviceMember, 'current_station');
   const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
   return (
-    <form onSubmit={handleSubmit}>
-      <img src={profileImage} alt="" /> Profile
-      <hr />
-      <h3 className="sm-heading">Edit Profile:</h3>
-      <SwaggerField fieldName="first_name" swagger={schema} required />
-      <SwaggerField fieldName="middle_name" swagger={schema} />
-      <SwaggerField fieldName="last_name" swagger={schema} required />
-      <SwaggerField fieldName="suffix" swagger={schema} />
-      <hr className="spacer" />
-      {!moveIsApproved && (
-        <Fragment>
-          <SwaggerField fieldName="affiliation" swagger={schema} required />
-          <SwaggerField fieldName="rank" swagger={schema} required />
-          <SwaggerField fieldName="edipi" swagger={schema} required />
-          <Field name="current_station" title="Current duty station" component={DutyStationSearchBox} />
-        </Fragment>
-      )}
-      {moveIsApproved && (
-        <Fragment>
-          <div>
-            To change the fields below, contact your local PPPO office at {get(currentStation, 'name')}{' '}
-            {stationPhone ? ` at ${stationPhone}` : ''}.
-          </div>
-          <label>Branch</label>
-          <strong>{schemaAffiliation['x-display-value'][initialValues.affiliation]}</strong>
-          <label>Rank</label>
-          <strong>{schemaRank['x-display-value'][initialValues.rank]}</strong>
-          <label>DoD ID #</label>
-          <strong>{initialValues.edipi}</strong>
+    <div className="grid-container usa-prose site-prose">
+      <div className="grid-row">
+        <div className="grid-col-12">
+          <form onSubmit={handleSubmit}>
+            <img src={profileImage} alt="" />{' '}
+            <h1
+              style={{
+                display: 'inline-block',
+                marginLeft: 10,
+                marginBottom: 0,
+                marginTop: 20,
+              }}
+            >
+              Profile
+            </h1>
+            <hr />
+            <h3 className="sm-heading">Edit Profile:</h3>
+            <SwaggerField fieldName="first_name" swagger={schema} required />
+            <SwaggerField fieldName="middle_name" swagger={schema} />
+            <SwaggerField fieldName="last_name" swagger={schema} required />
+            <SwaggerField fieldName="suffix" swagger={schema} />
+            <hr className="spacer" />
+            {!moveIsApproved && (
+              <Fragment>
+                <SwaggerField fieldName="affiliation" swagger={schema} required />
+                <SwaggerField fieldName="rank" swagger={schema} required />
+                <SwaggerField fieldName="edipi" swagger={schema} required />
+                <Field name="current_station" title="Current duty station" component={DutyStationSearchBox} />
+              </Fragment>
+            )}
+            {moveIsApproved && (
+              <Fragment>
+                <div>
+                  To change the fields below, contact your local PPPO office at {get(currentStation, 'name')}{' '}
+                  {stationPhone ? ` at ${stationPhone}` : ''}.
+                </div>
+                <label>Branch</label>
+                <strong>{schemaAffiliation['x-display-value'][initialValues.affiliation]}</strong>
+                <label>Rank</label>
+                <strong>{schemaRank['x-display-value'][initialValues.rank]}</strong>
+                <label>DoD ID #</label>
+                <strong>{initialValues.edipi}</strong>
 
-          <label>Current Duty Station</label>
-          <strong>{get(initialValues, 'current_station.name')}</strong>
-        </Fragment>
-      )}
-      <SaveCancelButtons valid={valid} submitting={submitting} />
-    </form>
+                <label>Current Duty Station</label>
+                <strong>{get(initialValues, 'current_station.name')}</strong>
+              </Fragment>
+            )}
+            <SaveCancelButtons valid={valid} submitting={submitting} />
+          </form>
+        </div>
+      </div>
+    </div>
   );
 };
 const validateProfileForm = validateAdditionalFields(['current_station']);

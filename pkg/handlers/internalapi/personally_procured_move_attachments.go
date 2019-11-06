@@ -75,8 +75,11 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 		return ppmop.NewCreatePPMAttachmentsUnprocessableEntity()
 	}
 
+	// Add relevant av-.* tags for generated objects (for s3)
+	generatedObjectTags := handlers.FmtString("av-status=CLEAN&av-notes=GENERATED")
+	file := uploader.File{File: mergedPdf, Tags: generatedObjectTags}
 	// Upload merged PDF to S3 and return Upload object
-	pdfUpload, verrs, err := loader.CreateUpload(session.UserID, &mergedPdf, uploader.AllowedTypesPDF)
+	pdfUpload, verrs, err := loader.CreateUpload(session.UserID, file, uploader.AllowedTypesPDF)
 	if verrs.HasAny() || err != nil {
 		switch err.(type) {
 		case uploader.ErrTooLarge:
@@ -92,6 +95,6 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 		return ppmop.NewCreatePPMAttachmentsInternalServerError()
 	}
 
-	uploadPayload := payloadForUploadModel(*pdfUpload, url)
+	uploadPayload := payloadForUploadModel(h.FileStorer(), *pdfUpload, url)
 	return ppmop.NewCreatePPMAttachmentsOK().WithPayload(uploadPayload)
 }

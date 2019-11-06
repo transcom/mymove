@@ -37,7 +37,7 @@ describe('testing CSRF protection updating move info', function() {
       .dblclick();
 
     // save info
-    cy.get('a[class="editable-panel-edit"]')
+    cy.get('[data-cy="edit-link"]')
       .first()
       .click();
 
@@ -68,7 +68,7 @@ describe('testing CSRF protection updating move info', function() {
       .dblclick();
 
     // save info
-    cy.get('a[class="editable-panel-edit"]')
+    cy.get('[data-cy="edit-link"]')
       .first()
       .click();
 

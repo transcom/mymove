@@ -13,11 +13,12 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/storage"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 
-func payloadForUploadModel(upload models.Upload, url string) *internalmessages.UploadPayload {
-	return &internalmessages.UploadPayload{
+func payloadForUploadModel(storer storage.FileStorer, upload models.Upload, url string) *internalmessages.UploadPayload {
+	uploadPayload := &internalmessages.UploadPayload{
 		ID:          handlers.FmtUUID(upload.ID),
 		Filename:    swag.String(upload.Filename),
 		ContentType: swag.String(upload.ContentType),
@@ -26,6 +27,13 @@ func payloadForUploadModel(upload models.Upload, url string) *internalmessages.U
 		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
 		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
 	}
+	tags, err := storer.Tags(upload.StorageKey)
+	if err != nil || len(tags) == 0 {
+		uploadPayload.Status = "PROCESSING"
+	} else {
+		uploadPayload.Status = tags["av-status"]
+	}
+	return uploadPayload
 }
 
 // CreateUploadHandler creates a new upload via POST /documents/{documentID}/uploads
@@ -85,7 +93,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	if err != nil {
 		logger.Fatal("could not instantiate uploader", zap.Error(err))
 	}
-	newUpload, verrs, err := uploader.CreateUploadForDocument(docID, session.UserID, aFile, uploaderpkg.AllowedTypesServiceMember)
+	newUpload, verrs, err := uploader.CreateUploadForDocument(docID, session.UserID, uploaderpkg.File{File: aFile}, uploaderpkg.AllowedTypesServiceMember)
 	if verrs.HasAny() || err != nil {
 		switch err.(type) {
 		case uploaderpkg.ErrTooLarge:
@@ -100,7 +108,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		logger.Error("failed to get presigned url", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
 	}
-	uploadPayload := payloadForUploadModel(*newUpload, url)
+	uploadPayload := payloadForUploadModel(h.FileStorer(), *newUpload, url)
 	return uploadop.NewCreateUploadCreated().WithPayload(uploadPayload)
 }
 

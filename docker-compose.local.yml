@@ -31,8 +31,8 @@ services:
       - MIGRATION_PATH=file:///migrate/local_migrations;file:///migrate/migrations
       - MIGRATION_MANIFEST=/migrate/migrations_manifest.txt
     entrypoint:
-      - "/bin/milmove"
-      - "migrate"
+      - '/bin/milmove'
+      - 'migrate'
     volumes:
       - ./local_migrations:/migrate/local_migrations
 
@@ -57,37 +57,41 @@ services:
       - DB_PORT=5432
       - DB_SSL_MODE=disable
       - DB_USER=postgres
-      - DEVLOCAL_CA=/config/tls/devlocal-ca.pem
       - DEVLOCAL_AUTH=true
+      - DEVLOCAL_CA=/config/tls/devlocal-ca.pem
       - DOD_CA_PACKAGE=/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
       - DPS_AUTH_COOKIE_SECRET_KEY
       - DPS_COOKIE_EXPIRES_IN_MINUTES
       - ENVIRONMENT=test
       - FEATURE_FLAG_ACCESS_CODE=false
+      - GOPROXY=https://gocenter.io
       - HERE_MAPS_APP_CODE
       - HERE_MAPS_APP_ID
       - HERE_MAPS_GEOCODE_ENDPOINT
       - HERE_MAPS_ROUTING_ENDPOINT
+      - HTTP_ADMIN_SERVER_NAME=adminlocal
       - HTTP_MY_SERVER_NAME=milmovelocal
       - HTTP_OFFICE_SERVER_NAME=officelocal
-      - HTTP_TSP_SERVER_NAME=tsplocal
-      - HTTP_ADMIN_SERVER_NAME=adminlocal
       - HTTP_ORDERS_SERVER_NAME=orderslocal
       - IWS_RBS_HOST
+      - LOCAL_STORAGE_ROOT=/tmp
+      - LOCAL_STORAGE_WEB_ROOT=storage
+      - LOGIN_GOV_ADMIN_CLIENT_ID
       - LOGIN_GOV_CALLBACK_PORT=4000
       - LOGIN_GOV_CALLBACK_PROTOCOL
       - LOGIN_GOV_HOSTNAME
       - LOGIN_GOV_MY_CLIENT_ID
       - LOGIN_GOV_OFFICE_CLIENT_ID
       - LOGIN_GOV_SECRET_KEY
-      - LOGIN_GOV_TSP_CLIENT_ID
-      - LOGIN_GOV_ADMIN_CLIENT_ID
       - MOVE_MIL_DOD_CA_CERT
       - MOVE_MIL_DOD_TLS_CERT
       - MOVE_MIL_DOD_TLS_KEY
       - NO_TLS_ENABLED=1
       - NO_TLS_PORT=4000
+      - PGPASSWORD=mysecretpassword
       - SERVE_ADMIN=true
+      - SERVE_API_GHC=false
       - SERVE_API_INTERNAL=true
-      - SERVE_API_PUBLIC=true
       - STORAGE_BACKEND=local
+    volumes:
+      - ./tmp:/tmp
