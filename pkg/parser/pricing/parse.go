@@ -181,6 +181,19 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 		verify: &verifyDomesticServiceAreaPrices,
 	}
 
+	// 16: 	4a) Mgmt., Coun., Trans. Prices
+	xlsxDataSheets[16] = XlsxDataSheetInfo{
+		Description:    swag.String("4a) Mgmt., Coun., Trans. Prices"),
+		outputFilename: swag.String("4a_mgmt_coun_trans_prices"),
+		ProcessMethods: []xlsxProcessInfo{
+			{
+				process:    &parseShipmentManagementServicesPrices,
+				adtlSuffix: swag.String("management"),
+			},
+		},
+		verify: &verifyManagementCounselTransitionPrices,
+	}
+
 	return xlsxDataSheets
 }
 

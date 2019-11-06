@@ -36,3 +36,8 @@ type StageDomesticServiceAreaPrice struct {
 	OriginDestinationSITFirstDayWarehouse string `db:"origin_destination_sit_first_day_warehouse" csv:"origin_destination_sit_first_day_warehouse"`
 	OriginDestinationSITAddlDays          string `db:"origin_destination_sit_addl_days" csv:"origin_destination_sit_addl_days"`
 }
+
+type StageShipmentManagementServicesPrice struct {
+	ContractYear      string `db:"contract_year" csv:"contract_year"`
+	PricePerTaskOrder string `db:"price_per_task_order" csv:"price_per_task_order"`
+}
