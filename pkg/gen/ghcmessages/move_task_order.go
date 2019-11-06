@@ -86,6 +86,12 @@ type MoveTaskOrder struct {
 	// Format: date
 	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
 
+	// secondary delivery address
+	SecondaryDeliveryAddress *Address `json:"secondaryDeliveryAddress,omitempty"`
+
+	// secondary pickup address
+	SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
+
 	// service items
 	ServiceItems []*ServiceItem `json:"serviceItems"`
 
@@ -159,6 +165,14 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRequestedPickupDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSecondaryDeliveryAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSecondaryPickupAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -415,6 +429,42 @@ func (m *MoveTaskOrder) validateRequestedPickupDate(formats strfmt.Registry) err
 
 	if err := validate.FormatOf("requestedPickupDate", "body", "date", m.RequestedPickupDate.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validateSecondaryDeliveryAddress(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SecondaryDeliveryAddress) { // not required
+		return nil
+	}
+
+	if m.SecondaryDeliveryAddress != nil {
+		if err := m.SecondaryDeliveryAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("secondaryDeliveryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validateSecondaryPickupAddress(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SecondaryPickupAddress) { // not required
+		return nil
+	}
+
+	if m.SecondaryPickupAddress != nil {
+		if err := m.SecondaryPickupAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("secondaryPickupAddress")
+			}
+			return err
+		}
 	}
 
 	return nil

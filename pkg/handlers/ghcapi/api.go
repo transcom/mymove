@@ -34,6 +34,10 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		movetaskorder.NewMoveTaskOrderStatusUpdater(context.DB()),
 	}
+	ghcAPI.MoveTaskOrderUpdatePostCounselingInfoHandler = UpdatePostCounselingInfoHandler{
+		HandlerContext:                         context,
+		moveTaskOrderPostCounselingInfoUpdater: movetaskorder.NewMoveTaskOrderPostCounselingInfoUpdater(context.DB()),
+	}
 	ghcAPI.ServiceItemListServiceItemsHandler = ListServiceItemsHandler{
 		context,
 		serviceitem.NewServiceItemListFetcher(queryBuilder),

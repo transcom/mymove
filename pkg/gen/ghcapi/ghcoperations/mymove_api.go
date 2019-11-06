@@ -97,6 +97,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PaymentRequestsUpdatePaymentRequestStatusHandler: payment_requests.UpdatePaymentRequestStatusHandlerFunc(func(params payment_requests.UpdatePaymentRequestStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation PaymentRequestsUpdatePaymentRequestStatus has not yet been implemented")
 		}),
+		MoveTaskOrderUpdatePostCounselingInfoHandler: move_task_order.UpdatePostCounselingInfoHandlerFunc(func(params move_task_order.UpdatePostCounselingInfoParams) middleware.Responder {
+			return middleware.NotImplemented("operation MoveTaskOrderUpdatePostCounselingInfo has not yet been implemented")
+		}),
 		ServiceItemUpdateServiceItemHandler: service_item.UpdateServiceItemHandlerFunc(func(params service_item.UpdateServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation ServiceItemUpdateServiceItem has not yet been implemented")
 		}),
@@ -170,6 +173,8 @@ type MymoveAPI struct {
 	PaymentRequestsUpdatePaymentRequestHandler payment_requests.UpdatePaymentRequestHandler
 	// PaymentRequestsUpdatePaymentRequestStatusHandler sets the operation handler for the update payment request status operation
 	PaymentRequestsUpdatePaymentRequestStatusHandler payment_requests.UpdatePaymentRequestStatusHandler
+	// MoveTaskOrderUpdatePostCounselingInfoHandler sets the operation handler for the update post counseling info operation
+	MoveTaskOrderUpdatePostCounselingInfoHandler move_task_order.UpdatePostCounselingInfoHandler
 	// ServiceItemUpdateServiceItemHandler sets the operation handler for the update service item operation
 	ServiceItemUpdateServiceItemHandler service_item.UpdateServiceItemHandler
 	// ServiceItemUpdateServiceItemStatusHandler sets the operation handler for the update service item status operation
@@ -307,6 +312,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.PaymentRequestsUpdatePaymentRequestStatusHandler == nil {
 		unregistered = append(unregistered, "payment_requests.UpdatePaymentRequestStatusHandler")
+	}
+
+	if o.MoveTaskOrderUpdatePostCounselingInfoHandler == nil {
+		unregistered = append(unregistered, "move_task_order.UpdatePostCounselingInfoHandler")
 	}
 
 	if o.ServiceItemUpdateServiceItemHandler == nil {
@@ -504,6 +513,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/payment-requests/{paymentRequestID}/status"] = payment_requests.NewUpdatePaymentRequestStatus(o.context, o.PaymentRequestsUpdatePaymentRequestStatusHandler)
+
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/post-counseling"] = move_task_order.NewUpdatePostCounselingInfo(o.context, o.MoveTaskOrderUpdatePostCounselingInfoHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)

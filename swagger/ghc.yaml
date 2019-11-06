@@ -633,6 +633,65 @@ paths:
       description: Updates a move order's actual weight by ID
       operationId: updateMoveTaskOrderActualWeight
       summary: Updates a move order's actual weight by ID
+  '/move-task-orders/{moveTaskOrderID}/post-counseling':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              scheduledMoveDate:
+                type: string
+                format: date
+              secondaryPickupAddress:
+                $ref: '#/definitions/Address'
+              secondaryDeliveryAddress:
+                $ref: '#/definitions/Address'
+              ppmIsIncluded:
+                type: boolean
+      responses:
+        '200':
+          description: Successfully retrieved move task order
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+        - prime
+      description: Updates a move task order's post counseling info by ID
+      operationId: updatePostCounselingInfo
+      summary: Updates a move task order's post counseling info such as scheduled move date, secondary and pickup and delivery addresses, and whether or not the PPM is included
   /payment-requests:
     get:
       produces:
@@ -1195,6 +1254,10 @@ definitions:
         format: uuid
         type: string
       pickupAddress:
+        $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        $ref: '#/definitions/Address'
+      secondaryDeliveryAddress:
         $ref: '#/definitions/Address'
       remarks:
         example: Requires more gentle care

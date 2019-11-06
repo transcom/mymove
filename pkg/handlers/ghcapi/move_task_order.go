@@ -59,6 +59,7 @@ func payloadForMoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *ghcmessages.Mo
 	serviceItems := payloadForServiceItems(&moveTaskOrder.ServiceItems)
 	destinationAddress := payloadForAddress(&moveTaskOrder.DestinationAddress)
 	pickupAddress := payloadForAddress(&moveTaskOrder.PickupAddress)
+	secondaryPickupAddress := payloadForAddress(&moveTaskOrder.SecondaryPickupAddress)
 	entitlements := payloadForEntitlements(&moveTaskOrder.Entitlements)
 	payload := &ghcmessages.MoveTaskOrder{
 		CustomerID:             strfmt.UUID(moveTaskOrder.CustomerID.String()),
@@ -70,6 +71,7 @@ func payloadForMoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *ghcmessages.Mo
 		MoveID:                 strfmt.UUID(moveTaskOrder.MoveID.String()),
 		OriginDutyStation:      strfmt.UUID(moveTaskOrder.OriginDutyStationID.String()),
 		PickupAddress:          pickupAddress,
+		SecondaryPickupAddress: secondaryPickupAddress,
 		Remarks:                moveTaskOrder.CustomerRemarks,
 		RequestedPickupDate:    strfmt.Date(moveTaskOrder.RequestedPickupDate),
 		ServiceItems:           serviceItems,

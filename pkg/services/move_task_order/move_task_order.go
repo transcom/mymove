@@ -3,6 +3,8 @@ package movetaskorder
 import (
 	"database/sql"
 	"fmt"
+	"github.com/go-openapi/strfmt"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
@@ -101,6 +103,43 @@ func (f fetchMoveTaskOrder) UpdateMoveTaskOrderActualWeight(moveTaskOrderID uuid
 	}
 	weight := unit.Pound(actualWeight)
 	mto.ActualWeight = &weight
+
+	vErrors, err := f.db.ValidateAndUpdate(mto)
+	if vErrors.HasAny() {
+		return &models.MoveTaskOrder{}, ErrInvalidInput{moveTaskOrderID, vErrors}
+	}
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
+	return mto, nil
+}
+
+type updatePostCounselingInfo struct {
+	db *pop.Connection
+	fetchMoveTaskOrder
+}
+
+// NewMoveTaskOrderActualWeightUpdater creates a new struct with the service dependencies
+func NewMoveTaskOrderPostCounselingInfoUpdater(db *pop.Connection) services.MoveTaskOrderPostCounselingInfoUpdater {
+	moveTaskOrderFetcher := fetchMoveTaskOrder{db}
+	return &updatePostCounselingInfo{db, moveTaskOrderFetcher}
+}
+
+//UpdatePostCounselingInfo updates the actual weight of a MoveTaskOrder for a given UUID
+func (f fetchMoveTaskOrder) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, scheduledMoveDate strfmt.Date, secondaryPickupAddress ghcmessages.Address, secondaryDeliveryAddress ghcmessages.Address, ppmIsIncluded bool) (*models.MoveTaskOrder, error) {
+	mto, err := f.FetchMoveTaskOrder(moveTaskOrderID)
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
+
+	mto.ScheduledMoveDate = scheduledMoveDate
+	mto.SecondaryPickupAddress.StreetAddress1 = *secondaryPickupAddress.StreetAddress1
+	mto.SecondaryPickupAddress.City = *secondaryPickupAddress.City
+	mto.SecondaryPickupAddress.State = *secondaryPickupAddress.State
+	mto.SecondaryDeliveryAddress.StreetAddress1 = *secondaryDeliveryAddress.StreetAddress1
+	mto.SecondaryDeliveryAddress.City = *secondaryDeliveryAddress.City
+	mto.SecondaryDeliveryAddress.State = *secondaryDeliveryAddress.State
+	mto.PPMIsIncluded = ppmIsIncluded
 
 	vErrors, err := f.db.ValidateAndUpdate(mto)
 	if vErrors.HasAny() {

@@ -1,7 +1,9 @@
 package services
 
 import (
+	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -22,4 +24,10 @@ type MoveTaskOrderStatusUpdater interface {
 //go:generate mockery -name MoveTaskOrderActualWeightUpdater
 type MoveTaskOrderActualWeightUpdater interface {
 	UpdateMoveTaskOrderActualWeight(moveTaskOrderID uuid.UUID, actualWeight int64) (*models.MoveTaskOrder, error)
+}
+
+//MoveTaskOrderPostCounselingInfoUpdater is the service object interface for UpdatePostCounselingInfo
+//go:generate mockery -name MoveTaskOrderPostCounselingInfoUpdater
+type MoveTaskOrderPostCounselingInfoUpdater interface {
+	UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, scheduledMoveDate strfmt.Date, secondaryPickupAddress ghcmessages.Address, secondaryDeliveryAddress ghcmessages.Address, ppmIsIncluded bool) (*models.MoveTaskOrder, error)
 }

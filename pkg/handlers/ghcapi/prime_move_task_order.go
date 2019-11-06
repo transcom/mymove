@@ -37,3 +37,30 @@ func (h UpdateMoveTaskOrderActualWeightHandler) Handle(params movetaskordercodeo
 	moveTaskOrderPayload := payloadForMoveTaskOrder(*mto)
 	return movetaskordercodeop.NewUpdateMoveTaskOrderActualWeightOK().WithPayload(moveTaskOrderPayload)
 }
+
+// UpdatePostCounselingInfoHandler updates the actual weight for a move task order
+type UpdatePostCounselingInfoHandler struct {
+	handlers.HandlerContext
+	moveTaskOrderPostCounselingInfoUpdater services.MoveTaskOrderPostCounselingInfoUpdater
+}
+
+// Handle updating the actual weight for a move task order
+func (h UpdatePostCounselingInfoHandler) Handle(params movetaskordercodeop.UpdatePostCounselingInfoParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+	mto, err := h.moveTaskOrderPostCounselingInfoUpdater.UpdatePostCounselingInfo(moveTaskOrderID, params.Body.ScheduledMoveDate, *params.Body.SecondaryPickupAddress, *params.Body.SecondaryDeliveryAddress, params.Body.PpmIsIncluded)
+	if err != nil {
+		logger.Error("ghciapi.UUpdatePostCounselingInfoHandler error", zap.Error(err))
+		switch err.(type) {
+		case movetaskorderservice.ErrNotFound:
+			return movetaskordercodeop.NewUpdatePostCounselingInfoNotFound()
+		case movetaskorderservice.ErrInvalidInput:
+			return movetaskordercodeop.NewUpdatePostCounselingInfoBadRequest()
+		default:
+			return movetaskordercodeop.NewUpdatePostCounselingInfoInternalServerError()
+		}
+	}
+
+	moveTaskOrderPayload := payloadForMoveTaskOrder(*mto)
+	return movetaskordercodeop.NewUpdatePostCounselingInfoOK().WithPayload(moveTaskOrderPayload)
+}
