@@ -1,4 +1,4 @@
-package main
+package pricing
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 )
 
 // parseDomesticLinehaulPrices: parser for 2a) Domestic Linehaul Prices
-var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, sheetIndex int) (interface{}, error) {
+var parseDomesticLinehaulPrices processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 6  // 2a) Domestic Linehaul Prices
 	const feeColIndexStart int = 6  // start at column 6 to get the rates
@@ -24,7 +24,7 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 	}
 
 	var domPrices []models.StageDomesticLinehaulPrice
-	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
+	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
 	for _, row := range dataRows {
 		colIndex := feeColIndexStart
 		// For number of baseline + Escalation years
@@ -48,7 +48,7 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 							Rate:              getCell(row.Cells, colIndex),
 						}
 						colIndex++
-						if params.showOutput == true {
+						if params.ShowOutput == true {
 							log.Printf("%v\n", domPrice)
 						}
 						domPrices = append(domPrices, domPrice)
@@ -63,7 +63,7 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 }
 
 // verifyDomesticLinehaulPrices: verification for 2a) Domestic Linehaul Prices
-var verifyDomesticLinehaulPrices verifyXlsxSheet = func(params paramConfig, sheetIndex int) error {
+var verifyDomesticLinehaulPrices verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
 
 	if dLhWeightBandNumCells != dLhWeightBandNumCellsExpected {
 		return fmt.Errorf("parseDomesticLinehaulPrices(): Exepected %d columns per weight band, found %d defined in golang parser", dLhWeightBandNumCellsExpected, dLhWeightBandNumCells)
@@ -90,7 +90,7 @@ var verifyDomesticLinehaulPrices verifyXlsxSheet = func(params paramConfig, shee
 		return fmt.Errorf("verifyDomesticLinehaulPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowMilageHeaderIndexStart:verifyHeaderIndexEnd]
+	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowMilageHeaderIndexStart:verifyHeaderIndexEnd]
 	for dataRowsIndex, row := range dataRows {
 		colIndex := feeColIndexStart
 		// For number of baseline + Escalation years

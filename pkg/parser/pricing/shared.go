@@ -1,4 +1,4 @@
-package main
+package pricing
 
 import (
 	"log"
@@ -58,13 +58,13 @@ func removeWhiteSpace(stripString string) string {
 	return s
 }
 
-// generateOutputFilename: generates filename using xlsxDataSheetInfo.outputFilename
-// with the following format -- <id>_<outputFilename>_<time.Now().Format("20060102150405")>.csv
-// if the adtlSuffix is passed the format is -- <id>_<outputFilename>_<adtlSuffix>_<time.Now().Format("20060102150405")>.csv
-func (x *xlsxDataSheetInfo) generateOutputFilename(index int, runTime time.Time, adtlSuffix *string) string {
+// generateOutputFilename: generates filename using XlsxDataSheetInfo.OutputFilename
+// with the following format -- <id>_<OutputFilename>_<time.Now().Format("20060102150405")>.csv
+// if the adtlSuffix is passed the format is -- <id>_<OutputFilename>_<adtlSuffix>_<time.Now().Format("20060102150405")>.csv
+func (x *XlsxDataSheetInfo) generateOutputFilename(index int, runTime time.Time, adtlSuffix *string) string {
 	var name string
-	if x.outputFilename != nil {
-		name = *x.outputFilename
+	if x.OutputFilename != nil {
+		name = *x.OutputFilename
 	} else {
 		name = "rate_engine_ghc_parse"
 	}

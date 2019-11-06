@@ -4,24 +4,18 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
-	"github.com/go-openapi/swag"
-	"github.com/gocarina/gocsv"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
-	"github.com/gobuffalo/pop"
-	"github.com/pkg/errors"
 	"github.com/tealeg/xlsx"
 
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
-	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/dbtools"
+	"github.com/transcom/mymove/pkg/parser/pricing"
 )
 
 /*************************************************************************
@@ -113,87 +107,8 @@ You should not have to update the main() or  process() functions. Unless you
 intentionally are modifying the pattern of how the processing functions are called.
 
  *************************************************************************/
-const sharedNumEscalationYearsToProcess int = 1
-const xlsxSheetsCountMax int = 35
 
-type processXlsxSheet func(paramConfig, int) (interface{}, error)
-type verifyXlsxSheet func(paramConfig, int) error
-
-type xlsxDataSheetInfo struct {
-	description    *string
-	processMethods []xlsxProcessInfo
-	verify         *verifyXlsxSheet
-	outputFilename *string //do not include suffix see func generateOutputFilename for details
-}
-
-var xlsxDataSheets []xlsxDataSheetInfo
-
-type xlsxProcessInfo struct {
-	process    *processXlsxSheet
-	adtlSuffix *string
-}
-
-// initDataSheetInfo: When adding new functions for parsing sheets, must add new xlsxDataSheetInfo
-// defining the parse function
-//
-// The index MUST match the sheet that is being processed. Refer to file comments or XLSX to
-// determine the correct index to add.
-func initDataSheetInfo() {
-	xlsxDataSheets = make([]xlsxDataSheetInfo, xlsxSheetsCountMax, xlsxSheetsCountMax)
-
-	// 4: 	1b) Domestic & International Service Areas
-	xlsxDataSheets[4] = xlsxDataSheetInfo{
-		description:    swag.String("1b) Service Areas"),
-		outputFilename: swag.String("1b_service_areas"),
-		processMethods: []xlsxProcessInfo{
-			{
-				process:    &parseDomesticServiceAreas,
-				adtlSuffix: swag.String("domestic"),
-			},
-			{
-				process:    &parseInternationalServiceAreas,
-				adtlSuffix: swag.String("international"),
-			},
-		},
-		verify: &verifyServiceAreas,
-	}
-
-	// 6: 	2a) Domestic Linehaul Prices
-	xlsxDataSheets[6] = xlsxDataSheetInfo{
-		description:    swag.String("2a) Domestic Linehaul Prices"),
-		outputFilename: swag.String("2a_domestic_linehaul_prices"),
-		processMethods: []xlsxProcessInfo{{
-			process: &parseDomesticLinehaulPrices,
-		},
-		},
-		verify: &verifyDomesticLinehaulPrices,
-	}
-
-	// 7: 	2b) Dom. Service Area Prices
-	xlsxDataSheets[7] = xlsxDataSheetInfo{
-		description:    swag.String("2b) Dom. Service Area Prices"),
-		outputFilename: swag.String("2b_domestic_service_area_prices"),
-		processMethods: []xlsxProcessInfo{{
-			process: &parseDomesticServiceAreaPrices,
-		},
-		},
-		verify: &verifyDomesticServiceAreaPrices,
-	}
-
-}
-
-type paramConfig struct {
-	processAll   bool
-	showOutput   bool
-	xlsxFilename *string
-	xlsxSheets   []string
-	saveToFile   bool
-	runTime      time.Time
-	xlsxFile     *xlsx.File
-	runVerify    bool
-}
-
-func xlsxSheetsUsage() string {
+func xlsxSheetsUsage(xlsxDataSheets []pricing.XlsxDataSheetInfo) string {
 	message := "Provide comma separated string of sequential sheet index numbers starting with 0:\n"
 	message += "\t e.g. '-xlsxSheets=\"6,7,11\"'\n"
 	message += "\t      '-xlsxSheets=\"6\"'\n"
@@ -201,10 +116,10 @@ func xlsxSheetsUsage() string {
 	message += "Available sheets for parsing are: \n"
 
 	for i, v := range xlsxDataSheets {
-		if len(v.processMethods) > 0 {
+		if len(v.ProcessMethods) > 0 {
 			description := ""
-			if v.description != nil {
-				description = *v.description
+			if v.Description != nil {
+				description = *v.Description
 			}
 			message += fmt.Sprintf("%d:  %s\n", i, description)
 		}
@@ -214,14 +129,15 @@ func xlsxSheetsUsage() string {
 }
 
 func main() {
-	initDataSheetInfo()
-	params := paramConfig{}
-	params.runTime = time.Now()
+	xlsxDataSheets := pricing.InitDataSheetInfo()
+
+	params := pricing.ParamConfig{}
+	params.RunTime = time.Now()
 
 	flag := pflag.CommandLine
 	filename := flag.String("filename", "", "Filename including path of the XLSX to parse for Rate Engine GHC import")
 	all := flag.Bool("all", true, "Parse entire Rate Engine GHC XLSX")
-	sheets := flag.String("xlsxSheets", "", xlsxSheetsUsage())
+	sheets := flag.String("xlsxSheets", "", xlsxSheetsUsage(xlsxDataSheets))
 	display := flag.Bool("display", false, "Display output of parsed info")
 	saveToFile := flag.Bool("save", false, "Save output to CSV file")
 	runVerify := flag.Bool("verify", true, "Default is true, if false skip sheet format verification")
@@ -239,45 +155,45 @@ func main() {
 
 	// Process command line params
 
-	params.processAll = false
+	params.ProcessAll = false
 	if all != nil && *all == true {
-		params.processAll = true
+		params.ProcessAll = true
 	}
 
 	// option `xlsxSheets` will override `all` flag
 	if sheets != nil && len(*sheets) > 0 {
 		// If processes based on `xlsxSheets` indices provided as arguments
 		// process those and do not run all
-		params.processAll = false
-		params.xlsxSheets = strings.Split(*sheets, ",")
+		params.ProcessAll = false
+		params.XlsxSheets = strings.Split(*sheets, ",")
 	}
 
-	params.xlsxFilename = filename
+	params.XlsxFilename = filename
 	if filename != nil {
 		log.Printf("Importing file %s\n", *filename)
 	} else {
 		log.Fatalf("Did not receive an XLSX filename to parse, missing -filename\n")
 	}
 
-	xlsxFile, err := xlsx.OpenFile(*params.xlsxFilename)
-	params.xlsxFile = xlsxFile
+	xlsxFile, err := xlsx.OpenFile(*params.XlsxFilename)
+	params.XlsxFile = xlsxFile
 	if err != nil {
-		log.Fatalf("Failed to open file %s with error %v\n", *params.xlsxFilename, err)
+		log.Fatalf("Failed to open file %s with error %v\n", *params.XlsxFilename, err)
 	}
 
-	params.showOutput = false
+	params.ShowOutput = false
 	if display != nil && *display == true {
-		params.showOutput = true
+		params.ShowOutput = true
 	}
 
-	params.saveToFile = false
+	params.SaveToFile = false
 	if saveToFile != nil && *saveToFile == true {
-		params.saveToFile = true
+		params.SaveToFile = true
 	}
 
-	params.runVerify = false
+	params.RunVerify = false
 	if runVerify != nil {
-		params.runVerify = *runVerify
+		params.RunVerify = *runVerify
 	}
 
 	// Connect to the database
@@ -316,138 +232,8 @@ func main() {
 		}
 	}()
 
-	tableFromSliceCreator := dbtools.NewTableFromSliceCreator(db, logger, true)
-
-	// Must be after processing config param
-	// Run the process function
-
-	err = db.Transaction(func(connection *pop.Connection) error {
-		if params.processAll == true {
-			for i, x := range xlsxDataSheets {
-				if len(x.processMethods) >= 1 {
-					dbErr := process(params, i, tableFromSliceCreator)
-					if dbErr != nil {
-						log.Printf("Error processing xlsxDataSheets %v\n", dbErr.Error())
-						return dbErr
-					}
-				}
-			}
-		} else {
-			for _, v := range params.xlsxSheets {
-				index, dbErr := strconv.Atoi(v)
-				if dbErr != nil {
-					log.Printf("Bad xlsxSheets index provided %v\n", dbErr)
-					return dbErr
-				}
-				if index < len(xlsxDataSheets) {
-					dbErr = process(params, index, tableFromSliceCreator)
-					if dbErr != nil {
-						log.Printf("Error processing %v\n", dbErr)
-						return dbErr
-					}
-				} else {
-					log.Printf("Error processing index %d, not in range of slice xlsxDataSheets\n", index)
-					return errors.New("Index out of range of slice xlsxDataSheets")
-				}
-			}
-		}
-		return nil
-	})
+	err = pricing.Parse(xlsxDataSheets, params, db, logger)
 	if err != nil {
-		log.Fatalf("Transaction failed:- %v", err)
+		log.Fatalf("Failed to parse pricing template due to %v", err)
 	}
-}
-
-// process: is the main process function. It will call the
-// appropriate verify and process functions based on what is defined
-// in the xlsxDataSheets array
-//
-// Should not need to edit this function when adding new processing functions
-//     to add new processing functions update:
-//         a.) add new verify function for your processing
-//         b.) add new process function for your processing
-//         c.) update initDataSheetInfo() with a.) and b.)
-func process(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator) error {
-	xlsxInfo := xlsxDataSheets[sheetIndex]
-	var description string
-	if xlsxInfo.description != nil {
-		description = *xlsxInfo.description
-		log.Printf("Processing sheet index %d with description %s\n", sheetIndex, description)
-	} else {
-		log.Printf("Processing sheet index %d with missing description\n", sheetIndex)
-	}
-
-	// Call verify function
-	if params.runVerify == true {
-		if xlsxInfo.verify != nil {
-			callFunc := *xlsxInfo.verify
-			err := callFunc(params, sheetIndex)
-			if err != nil {
-				log.Printf("%s verify error: %v\n", description, err)
-				return errors.Wrapf(err, " verify error for sheet index: %d with description: %s", sheetIndex, description)
-			}
-		} else {
-			log.Printf("No verify function for sheet index %d with description %s\n", sheetIndex, description)
-		}
-	} else {
-		log.Print("Skip running the verify functions")
-	}
-
-	// Call process function
-	if len(xlsxInfo.processMethods) > 0 {
-		for methodIndex, p := range xlsxInfo.processMethods {
-			if p.process != nil {
-				callFunc := *p.process
-				slice, err := callFunc(params, sheetIndex)
-				if err != nil {
-					log.Printf("%s process error: %v\n", description, err)
-					return errors.Wrapf(err, " process error for sheet index: %d with description: %s", sheetIndex, description)
-				}
-
-				if err := createCSV(params, sheetIndex, p, slice); err != nil {
-					return errors.Wrapf(err, "Could not create CSV for sheet index: %d with description: %s", sheetIndex, description)
-				}
-				if err := createTable(sheetIndex, tableFromSliceCreator, slice); err != nil {
-					return errors.Wrapf(err, "Could not create table for sheet index: %d with description: %s", sheetIndex, description)
-				}
-			} else {
-				log.Printf("No process function for sheet index %d with description %s method index: %d\n", sheetIndex, description, methodIndex)
-			}
-		}
-	} else {
-		log.Fatalf("Missing process function for sheet index %d with description %s\n", sheetIndex, description)
-	}
-
-	// Verification and Process completed
-	log.Printf("Completed processing sheet index %d with description %s\n", sheetIndex, description)
-	return nil
-}
-
-func createCSV(params paramConfig, sheetIndex int, processInfo xlsxProcessInfo, slice interface{}) error {
-	if !params.saveToFile {
-		return nil
-	}
-
-	// Create file for writing the CSV
-	filename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime, processInfo.adtlSuffix)
-	csvFile, err := os.Create(filename)
-	if err != nil {
-		return errors.Wrapf(err, "Could not create CSV file for sheet %d", sheetIndex)
-	}
-	defer csvFile.Close()
-
-	// Write the CSV
-	if err := gocsv.MarshalFile(slice, csvFile); err != nil {
-		return errors.Wrapf(err, "Could not marshal CSV file for sheet %d", sheetIndex)
-	}
-
-	return nil
-}
-
-func createTable(sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, slice interface{}) error {
-	if err := tableFromSliceCreator.CreateTableFromSlice(slice); err != nil {
-		return errors.Wrapf(err, "Could not create temp table for sheet %d", sheetIndex)
-	}
-
-	return nil
 }

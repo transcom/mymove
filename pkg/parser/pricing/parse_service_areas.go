@@ -1,4 +1,4 @@
-package main
+package pricing
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 )
 
 // parseServiceAreas: parser for: 1b) Service Areas
-var parseDomesticServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int) (interface{}, error) {
+var parseDomesticServiceAreas processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 4         // 1b) Service Areas
 	const serviceAreaRowIndexStart int = 9 // start at row 9 to get the service areas
@@ -23,7 +23,7 @@ var parseDomesticServiceAreas processXlsxSheet = func(params paramConfig, sheetI
 
 	log.Println("Parsing Domestic Service Areas")
 	var domServAreas []models.StageDomesticServiceArea
-	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[serviceAreaRowIndexStart:]
+	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[serviceAreaRowIndexStart:]
 	for _, row := range dataRows {
 		domServArea := models.StageDomesticServiceArea{
 			BasePointCity:     getCell(row.Cells, basePointCityColumn),
@@ -36,7 +36,7 @@ var parseDomesticServiceAreas processXlsxSheet = func(params paramConfig, sheetI
 			break
 		}
 
-		if params.showOutput == true {
+		if params.ShowOutput == true {
 			log.Printf("%v\n", domServArea)
 		}
 		domServAreas = append(domServAreas, domServArea)
@@ -45,7 +45,7 @@ var parseDomesticServiceAreas processXlsxSheet = func(params paramConfig, sheetI
 	return domServAreas, nil
 }
 
-var parseInternationalServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int) (interface{}, error) {
+var parseInternationalServiceAreas processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 4         // 1b) Service Areas
 	const serviceAreaRowIndexStart int = 9 // start at row 9 to get the service areas
@@ -59,7 +59,7 @@ var parseInternationalServiceAreas processXlsxSheet = func(params paramConfig, s
 	log.Println("Parsing International Service Areas")
 
 	var intlServAreas []models.StageInternationalServiceArea
-	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[serviceAreaRowIndexStart:]
+	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[serviceAreaRowIndexStart:]
 	for _, row := range dataRows {
 		intlServArea := models.StageInternationalServiceArea{
 			RateArea:   getCell(row.Cells, internationalRateAreaColumn),
@@ -70,7 +70,7 @@ var parseInternationalServiceAreas processXlsxSheet = func(params paramConfig, s
 			break
 		}
 
-		if params.showOutput == true {
+		if params.ShowOutput == true {
 			log.Printf("%v\n", intlServArea)
 		}
 		intlServAreas = append(intlServAreas, intlServArea)
@@ -80,7 +80,7 @@ var parseInternationalServiceAreas processXlsxSheet = func(params paramConfig, s
 }
 
 // verifyServiceAreas: verification for: 1b) Service Areas
-var verifyServiceAreas verifyXlsxSheet = func(params paramConfig, sheetIndex int) error {
+var verifyServiceAreas verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 4         // 1b) Service Areas
 	const serviceAreaRowIndexStart int = 9 // start at row 6 to get the headings
@@ -96,7 +96,7 @@ var verifyServiceAreas verifyXlsxSheet = func(params paramConfig, sheetIndex int
 	}
 
 	// Only check header of domestic and international service areas
-	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[serviceAreaRowIndexStart-1 : serviceAreaRowIndexStart]
+	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[serviceAreaRowIndexStart-1 : serviceAreaRowIndexStart]
 	for _, dataRow := range dataRows {
 		if header := getCell(dataRow.Cells, basePointCityColumn); header != "Base Point City" {
 			return fmt.Errorf("verifyServiceAreas expected to find header 'Base Point City', but received header '%s'", header)

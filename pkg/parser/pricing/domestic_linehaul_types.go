@@ -1,4 +1,4 @@
-package main
+package pricing
 
 /*************************************************************************************************************/
 /* Domestic Line Haul Prices Types
@@ -12,8 +12,8 @@ Used for:
 */
 /*************************************************************************************************************/
 
-const dLhWeightBandNumCellsExpected int = 10 //cells per band verify against dLhWeightBandNumCells
-const dLhWeightBandCountExpected int = 3     //expected number of weight bands verify against weightBandCount
+const dLhWeightBandNumCellsExpected int = 10 //cells per band Verify against dLhWeightBandNumCells
+const dLhWeightBandCountExpected int = 3     //expected number of weight bands Verify against weightBandCount
 
 type dLhWeightBand struct {
 	lowerLbs int
