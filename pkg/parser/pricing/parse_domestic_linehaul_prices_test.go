@@ -5,7 +5,7 @@ import (
 )
 
 // Test_parseDomesticLinehaulPrices
-func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticLinehaulPrices() {
+func (suite *PricingParserSuite) Test_parseDomesticLinehaulPrices() {
 	xlsxDataSheets := InitDataSheetInfo()
 	params := ParamConfig{
 		ProcessAll:   false,

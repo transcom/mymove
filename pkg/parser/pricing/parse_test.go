@@ -19,7 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-type ParseRateEngineGHCXLSXSuite struct {
+type PricingParserSuite struct {
 	testingsuite.PopTestSuite
 	logger                *zap.Logger
 	tableFromSliceCreator services.TableFromSliceCreator
@@ -27,17 +27,17 @@ type ParseRateEngineGHCXLSXSuite struct {
 	xlsxFile              *xlsx.File
 }
 
-func (suite *ParseRateEngineGHCXLSXSuite) SetupTest() {
+func (suite *PricingParserSuite) SetupTest() {
 	suite.DB().TruncateAll()
 }
 
-func TestParseRateEngineGHCXLSXSuite(t *testing.T) {
+func TestPricingParserSuite(t *testing.T) {
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Panic(err)
 	}
 
-	hs := &ParseRateEngineGHCXLSXSuite{
+	hs := &PricingParserSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 		xlsxFilename: "fixtures/pricing_template_2019-09-19_fake-data.xlsx",
@@ -54,7 +54,7 @@ func TestParseRateEngineGHCXLSXSuite(t *testing.T) {
 	hs.PopTestSuite.TearDown()
 }
 
-func (suite *ParseRateEngineGHCXLSXSuite) Test_xlsxDataSheetInfo_generateOutputFilename() {
+func (suite *PricingParserSuite) Test_xlsxDataSheetInfo_generateOutputFilename() {
 
 	type fields struct {
 		description    *string
@@ -173,7 +173,7 @@ var testProcessFunc6 processXlsxSheet = func(params ParamConfig, sheetIndex int)
 	return []TestStruct6{}, nil
 }
 
-func (suite *ParseRateEngineGHCXLSXSuite) helperTestSetup() []XlsxDataSheetInfo {
+func (suite *PricingParserSuite) helperTestSetup() []XlsxDataSheetInfo {
 	xlsxDataSheets := make([]XlsxDataSheetInfo, xlsxSheetsCountMax, xlsxSheetsCountMax)
 
 	// 0:
@@ -233,7 +233,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) helperTestSetup() []XlsxDataSheetInfo 
 	return xlsxDataSheets
 }
 
-func (suite *ParseRateEngineGHCXLSXSuite) Test_process() {
+func (suite *PricingParserSuite) Test_process() {
 
 	xlsxDataSheets := suite.helperTestSetup()
 
@@ -296,7 +296,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_process() {
 	}
 }
 
-func (suite *ParseRateEngineGHCXLSXSuite) Test_getInt() {
+func (suite *PricingParserSuite) Test_getInt() {
 	type args struct {
 		from string
 	}
@@ -343,7 +343,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_getInt() {
 	}
 }
 
-func (suite *ParseRateEngineGHCXLSXSuite) Test_removeFirstDollarSign() {
+func (suite *PricingParserSuite) Test_removeFirstDollarSign() {
 	type args struct {
 		s string
 	}
@@ -384,7 +384,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_removeFirstDollarSign() {
 	}
 }
 
-func (suite *ParseRateEngineGHCXLSXSuite) helperTestExpectedFileOutput(goldenFilename string, currentOutputFilename string) {
+func (suite *PricingParserSuite) helperTestExpectedFileOutput(goldenFilename string, currentOutputFilename string) {
 	expected := filepath.Join("fixtures", goldenFilename) // relative path
 	expectedBytes, err := ioutil.ReadFile(expected)
 	suite.NoErrorf(err, "error loading expected CSV file output fixture <%s>", expected)

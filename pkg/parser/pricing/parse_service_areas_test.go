@@ -6,7 +6,7 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-func (suite *ParseRateEngineGHCXLSXSuite) Test_verifyServiceAreas() {
+func (suite *PricingParserSuite) Test_verifyServiceAreas() {
 	InitDataSheetInfo()
 	params := ParamConfig{
 		ProcessAll:   false,
@@ -25,7 +25,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_verifyServiceAreas() {
 	suite.NoError(err, "verifyServiceAreas function failed")
 }
 
-func (suite *ParseRateEngineGHCXLSXSuite) Test_verifyServiceAreasWrongSheet() {
+func (suite *PricingParserSuite) Test_verifyServiceAreasWrongSheet() {
 	InitDataSheetInfo()
 	params := ParamConfig{
 		ProcessAll:   false,
@@ -45,7 +45,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_verifyServiceAreasWrongSheet() {
 }
 
 // Test_parseDomesticServiceAreas
-func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticServiceAreas() {
+func (suite *PricingParserSuite) Test_parseDomesticServiceAreas() {
 	xlsxDataSheets := InitDataSheetInfo()
 	params := ParamConfig{
 		ProcessAll:   false,
@@ -73,7 +73,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticServiceAreas() {
 }
 
 // Test_parseInternationalServiceAreas
-func (suite *ParseRateEngineGHCXLSXSuite) Test_parseInternationalServiceAreas() {
+func (suite *PricingParserSuite) Test_parseInternationalServiceAreas() {
 	xlsxDataSheets := InitDataSheetInfo()
 	params := ParamConfig{
 		ProcessAll:   false,
