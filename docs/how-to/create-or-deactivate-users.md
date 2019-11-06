@@ -20,6 +20,17 @@ get a valid UUID4 value from [the Online UUID Generator](https://www.uuidgenerat
 In this document anywhere you see `GENERATED_UUID4_VAL` you will need to give a unique UUID4 value (i.e. don't reuse
 the same value across different tables.
 
+#### Reasons why we avoid `uuid_generate_v4()`
+
+We avoid the use of `uuid_generate_v4()` for scripts that add data to the database (esp generating primary keys) because
+
+* It make running migrations multiple times end up with different results
+* It makes it hard to use primary keys generated this way as foreign keys in other migrations.
+* It raises the remote possibility that a migration works in one system and fails in another
+* With specific UUIDs we were able to track down users in each system. When using `uuid_generate_v4()` we have no way of telling what UUID people were assigned on remote machines so we lose the ability to identify them locally.
+
+For more details see this [slack thread](https://ustcdp3.slack.com/archives/CP6PTUPQF/p1559840327095700)
+
 ### Creating Office Users
 
 For creating users let's assume that the new user's email is username@example.com.

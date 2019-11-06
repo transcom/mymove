@@ -4,6 +4,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/tealeg/xlsx"
 )
 
@@ -14,7 +15,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticServiceAreaPrices() 
 	params := paramConfig{
 		processAll:   false,
 		showOutput:   false,
-		xlsxFilename: stringPointer("fixtures/pricing_template_2019-09-19_fake-data.xlsx"),
+		xlsxFilename: swag.String("fixtures/pricing_template_2019-09-19_fake-data.xlsx"),
 		xlsxSheets:   []string{"7"},
 		saveToFile:   true,
 		runTime:      time.Now(),
@@ -28,10 +29,15 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticServiceAreaPrices() 
 	}
 
 	const sheetIndex int = 7
-	err = parseDomesticServiceAreaPrices(params, sheetIndex, suite.tableFromSliceCreator)
+	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime, nil)
+	if csvWriter != nil {
+		defer csvWriter.close()
+	}
+
+	err = parseDomesticServiceAreaPrices(params, sheetIndex, suite.tableFromSliceCreator, csvWriter)
 	suite.NoError(err, "parseDomesticServiceAreaPrices function failed")
 
-	outputFilename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime)
+	outputFilename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.runTime, nil)
 
 	const goldenFilename string = "7_2b_domestic_service_area_prices_golden.csv"
 	suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)

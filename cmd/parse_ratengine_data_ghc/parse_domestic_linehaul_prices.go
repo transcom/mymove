@@ -13,13 +13,7 @@ import (
 )
 
 // parseDomesticLinehaulPrices: parser for 2a) Domestic Linehaul Prices
-var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator) error {
-	// Create CSV writer to save data to CSV file, returns nil if params.saveToFile=false
-	csvWriter := createCsvWriter(params.saveToFile, sheetIndex, params.runTime)
-	if csvWriter != nil {
-		defer csvWriter.close()
-	}
-
+var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 6  // 2a) Domestic Linehaul Prices
 	const feeColIndexStart int = 6  // start at column 6 to get the rates
