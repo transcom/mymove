@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+
 	"github.com/go-openapi/loads"
 
 	"github.com/transcom/mymove/pkg/gen/primeapi"
@@ -22,6 +24,10 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	primeAPI.MoveTaskOrderListMoveTaskOrdersHandler = ListMoveTaskOrdersHandler{
 		context,
+	}
+	primeAPI.MoveTaskOrderUpdateMoveTaskOrderEstimatedWeightHandler = UpdateMoveTaskOrderEstimatedWeightHandler{
+		context,
+		movetaskorder.NewMoveTaskOrderEstimatedWeightUpdater(context.DB()),
 	}
 
 	return primeAPI.Serve(nil)

@@ -5,11 +5,12 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/services"
 	movetaskorderservice "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/unit"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/models"
