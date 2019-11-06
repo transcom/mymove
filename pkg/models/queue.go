@@ -28,6 +28,7 @@ type MoveQueueItem struct {
 	DestinationGBLOC           *string            `json:"destination_gbloc" db:"destination_gbloc"`
 	DeliveredDate              *time.Time         `json:"delivered_date" db:"delivered_date"`
 	InvoiceApprovedDate        *time.Time         `json:"invoice_approved_date" db:"invoice_approved_date"`
+	BranchOfService            string             `json:"branch_of_service" db:"branch_of_service"`
 }
 
 // GetMoveQueueItems gets all moveQueueItems for a specific lifecycleState
@@ -42,6 +43,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				COALESCE(sm.rank, '*missing*') as rank,
 				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
 				moves.locator as locator,
+				sm.affiliation as branch_of_service,
 				ord.orders_type as orders_type,
 				COALESCE(
 					ppm.actual_move_date,
@@ -73,6 +75,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				COALESCE(sm.rank, '*missing*') as rank,
 				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
 				moves.locator as locator,
+				sm.affiliation as branch_of_service,
 				ord.orders_type as orders_type,
 				COALESCE(ppm.actual_move_date, ppm.original_move_date) as move_date,
 				moves.created_at as created_at,
@@ -97,6 +100,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				COALESCE(sm.rank, '*missing*') as rank,
 				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
 				moves.locator as locator,
+				sm.affiliation as branch_of_service,
 				ord.orders_type as orders_type,
 				COALESCE(ppm.actual_move_date, ppm.original_move_date) as move_date,
 				moves.created_at as created_at,
@@ -121,6 +125,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				COALESCE(sm.rank, '*missing*') as rank,
 				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
 				moves.locator as locator,
+				sm.affiliation as branch_of_service,
 				ord.orders_type as orders_type,
 				COALESCE(ppm.actual_move_date, ppm.original_move_date) as move_date,
 				moves.created_at as created_at,
@@ -145,6 +150,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				COALESCE(sm.rank, '*missing*') as rank,
 				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
 				moves.locator as locator,
+				sm.affiliation as branch_of_service,
 				ord.orders_type as orders_type,
 				COALESCE(
 					ppm.actual_move_date,

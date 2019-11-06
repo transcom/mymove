@@ -37,5 +37,9 @@ const destination = CreateReactTableColumn('Destination', 'destination_duty_stat
   Cell: row => <span>{row.value}</span>,
 });
 
+const branchOfService = CreateReactTableColumn('Branch', 'branch_of_service', {
+  Cell: row => <span>{row.value}</span>,
+});
+
 // Columns used to display in react table
-export const defaultColumns = [status, customerName, origin, destination, dodId, locator, moveDate];
+export const defaultColumns = [status, customerName, origin, destination, dodId, locator, moveDate, branchOfService];
