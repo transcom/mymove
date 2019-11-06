@@ -97,13 +97,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderPrimeEstimatedWeightUpd
 	newWeight := unit.Pound(1234)
 	now := time.Now()
 	updatedMTO, updateErr := mtoActualWeightUpdater.UpdatePrimeEstimatedWeight(originalMTO.ID, newWeight, now)
+	suite.NoError(updateErr)
 	suite.NotNil(updatedMTO)
 	dbUpdatedMTO, fetchErr := mtoActualWeightFetcher.FetchMoveTaskOrder(updatedMTO.ID)
+	suite.NoError(fetchErr)
 
-	suite.NoError(updateErr)
 	suite.Equal(newWeight, *updatedMTO.PrimeEstimatedWeight)
 	suite.Equal(now.Format(time.RFC3339), updatedMTO.PrimeEstimatedWeightRecordedDate.Format(time.RFC3339))
-	suite.NoError(fetchErr)
 	suite.Equal(newWeight, *dbUpdatedMTO.PrimeEstimatedWeight)
 	suite.Equal(now.Format(time.RFC3339), dbUpdatedMTO.PrimeEstimatedWeightRecordedDate.Format(time.RFC3339))
 }

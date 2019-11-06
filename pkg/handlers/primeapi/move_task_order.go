@@ -55,7 +55,7 @@ func (h UpdateMoveTaskOrderEstimatedWeightHandler) Handle(params movetaskorderop
 	primeEstimatedWeight := unit.Pound(params.Body.PrimeEstimatedWeight)
 	mto, err := h.moveTaskOrderPrimeEstimatedWeightUpdater.UpdatePrimeEstimatedWeight(moveTaskOrderID, primeEstimatedWeight, time.Now())
 	if err != nil {
-		logger.Error("ghciap.MoveTaskOrderHandler error", zap.Error(err))
+		logger.Error("ghciap.UpdateMoveTaskOrderEstimatedWeightHandler error", zap.Error(err))
 		switch err.(type) {
 		case movetaskorderservice.ErrNotFound:
 			return movetaskorderops.NewUpdateMoveTaskOrderEstimatedWeightNotFound()
