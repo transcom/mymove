@@ -18,6 +18,36 @@ div.slider-container {
   margin: 4em;
 }
 
+div.progear-slider-container {
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 4em;
+}
+
+.progear-slider-container .rangeslider__fill {
+  background-color: #0071bc;
+}
+
+.rangeslider__handle-tooltip {
+  background-color: white !important;
+  color: black !important;
+  border: 1px solid black;
+  width: 115px !important;
+  height: 25px !important;
+}
+
+.rangeslider__handle-tooltip span {
+  margin-top: 0 !important;
+}
+
+.rangeslider__handle-tooltip span::before {
+  content: "about ";
+}
+
+.rangeslider__handle-tooltip span::after {
+  content: " lbs";
+}
+
 table.numeric-info th {
   border: none;
 }
