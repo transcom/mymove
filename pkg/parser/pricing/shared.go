@@ -1,9 +1,7 @@
-package main
+package pricing
 
 import (
-	"encoding/csv"
 	"log"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -16,59 +14,13 @@ import (
 // COMMON Types
 /*************************************************************************************************************/
 
+const sharedNumEscalationYearsToProcess int = 1
+
 var rateSeasons = []string{"NonPeak", "Peak"}
-
-type createCsvHelper struct {
-	csvFilename string
-	csvFile     *os.File
-	csvWriter   *csv.Writer
-}
-
-func (cCH *createCsvHelper) createCsvWriter(filename string) error {
-
-	cCH.csvFilename = filename
-	file, err := os.Create(cCH.csvFilename)
-
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	cCH.csvFile = file
-	cCH.csvWriter = csv.NewWriter(cCH.csvFile)
-
-	return nil
-}
-
-func (cCH *createCsvHelper) write(record []string) {
-	if cCH.csvWriter == nil {
-		log.Fatalln("createCsvHelper.createCsvWriter() was not called to initialize cCH.csvWriter")
-	}
-	err := cCH.csvWriter.Write(record)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	cCH.csvWriter.Flush()
-}
-
-func (cCH *createCsvHelper) close() {
-	cCH.csvFile.Close()
-	cCH.csvWriter.Flush()
-}
 
 /*************************************************************************/
 // Shared Helper functions
 /*************************************************************************/
-
-func createCsvWriter(create bool, sheetIndex int, runTime time.Time, adtlSuffix *string) *createCsvHelper {
-	var createCsv createCsvHelper
-
-	if create == true {
-		err := createCsv.createCsvWriter(xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, runTime, adtlSuffix))
-		checkError("Failed to create CSV writer", err)
-	} else {
-		return nil
-	}
-	return &createCsv
-}
 
 // A safe way to get a cell from a slice of cells, returning empty string if not found
 func getCell(cells []*xlsx.Cell, i int) string {
@@ -97,12 +49,6 @@ func getInt(from string) int {
 	return i
 }
 
-func checkError(message string, err error) {
-	if err != nil {
-		log.Fatal(message, err)
-	}
-}
-
 func removeFirstDollarSign(s string) string {
 	return strings.Replace(s, "$", "", 1)
 }
@@ -114,10 +60,10 @@ func removeWhiteSpace(stripString string) string {
 	return s
 }
 
-// generateOutputFilename: generates filename using xlsxDataSheetInfo.outputFilename
-// with the following fomat -- <id>_<outputFilename>_<time.Now().Format("20060102150405")>.csv
+// generateOutputFilename: generates filename using XlsxDataSheetInfo.outputFilename
+// with the following format -- <id>_<OutputFilename>_<time.Now().Format("20060102150405")>.csv
 // if the adtlSuffix is passed the format is -- <id>_<outputFilename>_<adtlSuffix>_<time.Now().Format("20060102150405")>.csv
-func (x *xlsxDataSheetInfo) generateOutputFilename(index int, runTime time.Time, adtlSuffix *string) string {
+func (x *XlsxDataSheetInfo) generateOutputFilename(index int, runTime time.Time, adtlSuffix *string) string {
 	var name string
 	if x.outputFilename != nil {
 		name = *x.outputFilename
