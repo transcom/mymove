@@ -48,9 +48,12 @@ const (
 )
 
 func (m *MoveTaskOrder) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.Validate(
-		&validators.StringIsPresent{Field: string(m.Status), Name: "Status"},
-	), nil
+	var vs []validate.Validator
+	vs = append(vs, &validators.StringIsPresent{Field: string(m.Status), Name: "Status"})
+	if m.PrimeEstimatedWeight != nil {
+		vs = append(vs, &validators.IntIsGreaterThan{Field: m.PrimeEstimatedWeight.Int(), Compared: -1, Name: "PrimeEstimatedWeight"})
+	}
+	return validate.Validate(vs...), nil
 }
 
 type MoveTaskOrders []MoveTaskOrder

@@ -1,9 +1,18 @@
 package primeapi
 
 import (
+	"errors"
 	"fmt"
 	"net/http/httptest"
 	"time"
+
+	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/models"
+
+	"github.com/stretchr/testify/mock"
+
+	"github.com/transcom/mymove/pkg/services/mocks"
 
 	"github.com/go-openapi/strfmt"
 
@@ -65,4 +74,40 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderEstimatedWeightHandlerSuccess(
 	now := strfmt.Date(time.Now())
 	suite.NotNil(updateMoveTaskOrderEstimatedWeightPayload.PrimeEstimatedWeightRecordedDate)
 	suite.Equal(now.String(), updateMoveTaskOrderEstimatedWeightPayload.PrimeEstimatedWeightRecordedDate.String())
+}
+
+func (suite *HandlerSuite) TestUpdateMoveTaskOrderEstimatedWeightHandlerUnprocessableEntity() {
+	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
+	moveTaskOrder := serviceItem.MoveTaskOrder
+
+	// set up what needs to be passed to handler
+	request := httptest.NewRequest("PATCH", fmt.Sprintf("/move-task-orders/%s/prime-estimated-weight", moveTaskOrder.ID), nil)
+	params := movetaskorderops.UpdateMoveTaskOrderEstimatedWeightParams{
+		HTTPRequest: request,
+	}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+	// make the request
+	updater := &mocks.MoveTaskOrderPrimeEstimatedWeightUpdater{}
+
+	id, _ := uuid.NewV4()
+	verrs := make(map[string][]string)
+	verrs["validation xyz"] = []string{"validation failure"}
+	moveTaskOrderValidationError := movetaskorder.NewErrInvalidInput(id, errors.New("error"), verrs)
+	updater.On("UpdatePrimeEstimatedWeight",
+		mock.AnythingOfType("uuid.UUID"),
+		mock.AnythingOfType("unit.Pound"),
+		mock.AnythingOfType("time.Time"),
+	).Return(&models.MoveTaskOrder{}, moveTaskOrderValidationError)
+	handler := UpdateMoveTaskOrderEstimatedWeightHandler{
+		context,
+		updater,
+	}
+	response := handler.Handle(params)
+
+	suite.Assertions.IsType(&movetaskorderops.UpdateMoveTaskOrderEstimatedWeightUnprocessableEntity{}, response)
+	clientErr := response.(*movetaskorderops.UpdateMoveTaskOrderEstimatedWeightUnprocessableEntity).Payload
+	suite.Equal(clientErr.InvalidFields, map[string]string{"validation xyz": "validation failure"})
+	suite.Equal(*clientErr.Title, handlers.ValidationErrMessage)
+	suite.Equal(*clientErr.Detail, moveTaskOrderValidationError.Error())
 }

@@ -3,6 +3,7 @@ package movetaskorder
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -22,14 +23,40 @@ func (e ErrNotFound) Error() string {
 	return fmt.Sprintf("move task order id: %s not found", e.id.String())
 }
 
-//ErrInvalidInput is returned when an update to a move task order fails a validation rule
-type ErrInvalidInput struct {
+type errInvalidInput struct {
 	id uuid.UUID
 	error
+	validationErrors map[string][]string
+}
+
+//ErrInvalidInput is returned when an update to a move task order fails a validation rule
+type ErrInvalidInput struct {
+	errInvalidInput
+}
+
+func NewErrInvalidInput(id uuid.UUID, err error, validationErrors map[string][]string) ErrInvalidInput {
+	return ErrInvalidInput{
+		errInvalidInput{
+			id:               id,
+			error:            err,
+			validationErrors: validationErrors,
+		},
+	}
 }
 
 func (e ErrInvalidInput) Error() string {
-	return fmt.Sprintf("invalid input for move task order id: %s. %s", e.id.String(), e.error.Error())
+	return fmt.Sprintf("invalid input for move task order id: %s. %s", e.id.String(), e.InvalidFields())
+}
+
+func (e ErrInvalidInput) InvalidFields() map[string]string {
+	es := make(map[string]string)
+	if e.validationErrors == nil {
+		return es
+	}
+	for k, v := range e.validationErrors {
+		es[k] = strings.Join(v, " ")
+	}
+	return es
 }
 
 type fetchMoveTaskOrder struct {
@@ -75,7 +102,7 @@ func (f fetchMoveTaskOrder) UpdateMoveTaskOrderStatus(moveTaskOrderID uuid.UUID,
 	mto.Status = status
 	vErrors, err := f.db.ValidateAndUpdate(mto)
 	if vErrors.HasAny() {
-		return &models.MoveTaskOrder{}, ErrInvalidInput{moveTaskOrderID, vErrors}
+		return &models.MoveTaskOrder{}, NewErrInvalidInput(moveTaskOrderID, err, vErrors.Errors)
 	}
 	if err != nil {
 		return &models.MoveTaskOrder{}, err
@@ -103,7 +130,7 @@ func (f updateMoveTaskOrderEstimatedWeight) UpdatePrimeEstimatedWeight(moveTaskO
 	mto.PrimeEstimatedWeightRecordedDate = &updateTime
 	vErrors, err := f.db.ValidateAndUpdate(mto)
 	if vErrors.HasAny() {
-		return &models.MoveTaskOrder{}, ErrInvalidInput{moveTaskOrderID, vErrors}
+		return &models.MoveTaskOrder{}, NewErrInvalidInput(moveTaskOrderID, err, vErrors.Errors)
 	}
 	if err != nil {
 		return &models.MoveTaskOrder{}, err
@@ -133,7 +160,7 @@ func (f fetchMoveTaskOrder) UpdateMoveTaskOrderActualWeight(moveTaskOrderID uuid
 
 	vErrors, err := f.db.ValidateAndUpdate(mto)
 	if vErrors.HasAny() {
-		return &models.MoveTaskOrder{}, ErrInvalidInput{moveTaskOrderID, vErrors}
+		return &models.MoveTaskOrder{}, NewErrInvalidInput(moveTaskOrderID, err, vErrors.Errors)
 	}
 	if err != nil {
 		return &models.MoveTaskOrder{}, err

@@ -107,3 +107,18 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderPrimeEstimatedWeightUpd
 	suite.Equal(newWeight, *dbUpdatedMTO.PrimeEstimatedWeight)
 	suite.Equal(now.Format(time.RFC3339), dbUpdatedMTO.PrimeEstimatedWeightRecordedDate.Format(time.RFC3339))
 }
+
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderPrimeEstimatedWeightUpdaterInvalidWeight() {
+	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
+	originalMTO := serviceItem.MoveTaskOrder
+	// check not equal to what asserting against below
+	suite.Nil(originalMTO.PrimeEstimatedWeight)
+	suite.Nil(originalMTO.PrimeEstimatedWeightRecordedDate)
+	mtoActualWeightUpdater := NewMoveTaskOrderEstimatedWeightUpdater(suite.DB())
+
+	newWeight := unit.Pound(-1000)
+	now := time.Now()
+	_, updateErr := mtoActualWeightUpdater.UpdatePrimeEstimatedWeight(originalMTO.ID, newWeight, now)
+
+	suite.Error(updateErr)
+}

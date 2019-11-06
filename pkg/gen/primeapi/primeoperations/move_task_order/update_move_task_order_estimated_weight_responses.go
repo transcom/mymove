@@ -57,48 +57,6 @@ func (o *UpdateMoveTaskOrderEstimatedWeightOK) WriteResponse(rw http.ResponseWri
 	}
 }
 
-// UpdateMoveTaskOrderEstimatedWeightBadRequestCode is the HTTP code returned for type UpdateMoveTaskOrderEstimatedWeightBadRequest
-const UpdateMoveTaskOrderEstimatedWeightBadRequestCode int = 400
-
-/*UpdateMoveTaskOrderEstimatedWeightBadRequest The request payload is invalid
-
-swagger:response updateMoveTaskOrderEstimatedWeightBadRequest
-*/
-type UpdateMoveTaskOrderEstimatedWeightBadRequest struct {
-
-	/*
-	  In: Body
-	*/
-	Payload interface{} `json:"body,omitempty"`
-}
-
-// NewUpdateMoveTaskOrderEstimatedWeightBadRequest creates UpdateMoveTaskOrderEstimatedWeightBadRequest with default headers values
-func NewUpdateMoveTaskOrderEstimatedWeightBadRequest() *UpdateMoveTaskOrderEstimatedWeightBadRequest {
-
-	return &UpdateMoveTaskOrderEstimatedWeightBadRequest{}
-}
-
-// WithPayload adds the payload to the update move task order estimated weight bad request response
-func (o *UpdateMoveTaskOrderEstimatedWeightBadRequest) WithPayload(payload interface{}) *UpdateMoveTaskOrderEstimatedWeightBadRequest {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the update move task order estimated weight bad request response
-func (o *UpdateMoveTaskOrderEstimatedWeightBadRequest) SetPayload(payload interface{}) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *UpdateMoveTaskOrderEstimatedWeightBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
-	}
-}
-
 // UpdateMoveTaskOrderEstimatedWeightUnauthorizedCode is the HTTP code returned for type UpdateMoveTaskOrderEstimatedWeightUnauthorized
 const UpdateMoveTaskOrderEstimatedWeightUnauthorizedCode int = 401
 
@@ -222,6 +180,50 @@ func (o *UpdateMoveTaskOrderEstimatedWeightNotFound) WriteResponse(rw http.Respo
 	payload := o.Payload
 	if err := producer.Produce(rw, payload); err != nil {
 		panic(err) // let the recovery middleware deal with this
+	}
+}
+
+// UpdateMoveTaskOrderEstimatedWeightUnprocessableEntityCode is the HTTP code returned for type UpdateMoveTaskOrderEstimatedWeightUnprocessableEntity
+const UpdateMoveTaskOrderEstimatedWeightUnprocessableEntityCode int = 422
+
+/*UpdateMoveTaskOrderEstimatedWeightUnprocessableEntity The request payload is invalid
+
+swagger:response updateMoveTaskOrderEstimatedWeightUnprocessableEntity
+*/
+type UpdateMoveTaskOrderEstimatedWeightUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *primemessages.ValidationError `json:"body,omitempty"`
+}
+
+// NewUpdateMoveTaskOrderEstimatedWeightUnprocessableEntity creates UpdateMoveTaskOrderEstimatedWeightUnprocessableEntity with default headers values
+func NewUpdateMoveTaskOrderEstimatedWeightUnprocessableEntity() *UpdateMoveTaskOrderEstimatedWeightUnprocessableEntity {
+
+	return &UpdateMoveTaskOrderEstimatedWeightUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the update move task order estimated weight unprocessable entity response
+func (o *UpdateMoveTaskOrderEstimatedWeightUnprocessableEntity) WithPayload(payload *primemessages.ValidationError) *UpdateMoveTaskOrderEstimatedWeightUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update move task order estimated weight unprocessable entity response
+func (o *UpdateMoveTaskOrderEstimatedWeightUnprocessableEntity) SetPayload(payload *primemessages.ValidationError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *UpdateMoveTaskOrderEstimatedWeightUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(422)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 

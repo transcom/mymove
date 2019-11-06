@@ -56,11 +56,19 @@ func (h UpdateMoveTaskOrderEstimatedWeightHandler) Handle(params movetaskorderop
 	mto, err := h.moveTaskOrderPrimeEstimatedWeightUpdater.UpdatePrimeEstimatedWeight(moveTaskOrderID, primeEstimatedWeight, time.Now())
 	if err != nil {
 		logger.Error("ghciap.UpdateMoveTaskOrderEstimatedWeightHandler error", zap.Error(err))
-		switch err.(type) {
+		switch e := err.(type) {
 		case movetaskorderservice.ErrNotFound:
 			return movetaskorderops.NewUpdateMoveTaskOrderEstimatedWeightNotFound()
 		case movetaskorderservice.ErrInvalidInput:
-			return movetaskorderops.NewUpdateMoveTaskOrderEstimatedWeightBadRequest()
+			payload := &primemessages.ValidationError{
+				InvalidFields: e.InvalidFields(),
+				ClientError: primemessages.ClientError{
+					Title:    handlers.FmtString(handlers.ValidationErrMessage),
+					Detail:   handlers.FmtString(e.Error()),
+					Instance: handlers.FmtUUID(h.GetTraceID()),
+				},
+			}
+			return movetaskorderops.NewUpdateMoveTaskOrderEstimatedWeightUnprocessableEntity().WithPayload(payload)
 		default:
 			return movetaskorderops.NewListMoveTaskOrdersInternalServerError()
 		}

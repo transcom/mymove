@@ -73,10 +73,6 @@ paths:
           description: Successfully retrieved move task order
           schema:
             $ref: '#/definitions/MoveTaskOrder'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
         '401':
           description: The request was denied
           schema:
@@ -89,6 +85,10 @@ paths:
           description: The requested resource wasn't found
           schema:
             $ref: '#/responses/NotFound'
+        '422':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/definitions/ValidationError'
         '500':
           description: A server error occurred
           schema:
@@ -250,6 +250,20 @@ definitions:
       - city
       - state
       - postalCode
+  ClientError:
+    type: object
+    properties:
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
+    required:
+      - title
+      - detail
+      - instance
   Customer:
     type: object
     properties:
@@ -424,6 +438,17 @@ definitions:
     items:
       $ref: '#/definitions/MoveTaskOrder'
     type: array
+  ValidationError:
+    allOf:
+      - $ref: '#/definitions/ClientError'
+      - type: object
+    properties:
+      invalid_fields:
+        type: object
+        additionalProperties:
+          type: string
+    required:
+      - invalid_fields
 responses:
   InvalidRequest:
     description: The request payload is invalid
