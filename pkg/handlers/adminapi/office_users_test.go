@@ -46,7 +46,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 			HTTPRequest: req,
 		}
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewFetchMany(suite.DB())
 		handler := IndexOfficeUsersHandler{
 			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:        query.NewQueryFilter,

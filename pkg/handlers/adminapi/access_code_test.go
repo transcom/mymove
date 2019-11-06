@@ -46,7 +46,7 @@ func (suite *HandlerSuite) TestIndexAccessCodesHandler() {
 		params := accesscodeop.IndexAccessCodesParams{
 			HTTPRequest: req,
 		}
-		queryBuilder := query.NewQueryBuilder(suite.DB())
+		queryBuilder := query.NewFetchMany(suite.DB())
 		handler := IndexAccessCodesHandler{
 			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:        query.NewQueryFilter,
@@ -90,7 +90,7 @@ func (suite *HandlerSuite) TestIndexAccessCodesHandler() {
 }
 
 func (suite *HandlerSuite) TestIndexAccessCodesHandlerHelpers() {
-	queryBuilder := query.NewQueryBuilder(suite.DB())
+	queryBuilder := query.NewFetchMany(suite.DB())
 	handler := IndexAccessCodesHandler{
 		HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 		NewQueryFilter:        query.NewQueryFilter,
