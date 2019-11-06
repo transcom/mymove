@@ -1,11 +1,9 @@
 package pricing
 
 import (
-	"log"
 	"time"
 
 	"github.com/go-openapi/swag"
-	"github.com/tealeg/xlsx"
 )
 
 func (suite *ParseRateEngineGHCXLSXSuite) Test_verifyServiceAreas() {
@@ -13,22 +11,17 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_verifyServiceAreas() {
 	params := ParamConfig{
 		ProcessAll:   false,
 		ShowOutput:   false,
-		XlsxFilename: swag.String("fixtures/pricing_template_2019-09-19_fake-data.xlsx"),
+		XlsxFilename: &suite.xlsxFilename,
 		XlsxSheets:   []string{"4"},
 		SaveToFile:   true,
 		RunTime:      time.Now(),
+		XlsxFile:     suite.xlsxFile,
 		RunVerify:    true,
-	}
-
-	xlsxFile, err := xlsx.OpenFile(*params.XlsxFilename)
-	params.XlsxFile = xlsxFile
-	if err != nil {
-		log.Fatalf("Failed to open file %s with error %v\n", *params.XlsxFilename, err)
 	}
 
 	const sheetIndex int = 4
 
-	err = verifyServiceAreas(params, sheetIndex)
+	err := verifyServiceAreas(params, sheetIndex)
 	suite.NoError(err, "verifyServiceAreas function failed")
 }
 
@@ -37,22 +30,17 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_verifyServiceAreasWrongSheet() {
 	params := ParamConfig{
 		ProcessAll:   false,
 		ShowOutput:   false,
-		XlsxFilename: swag.String("fixtures/pricing_template_2019-09-19_fake-data.xlsx"),
+		XlsxFilename: &suite.xlsxFilename,
 		XlsxSheets:   []string{"5"},
 		SaveToFile:   true,
 		RunTime:      time.Now(),
+		XlsxFile:     suite.xlsxFile,
 		RunVerify:    true,
-	}
-
-	xlsxFile, err := xlsx.OpenFile(*params.XlsxFilename)
-	params.XlsxFile = xlsxFile
-	if err != nil {
-		log.Fatalf("Failed to open file %s with error %v\n", *params.XlsxFilename, err)
 	}
 
 	const sheetIndex int = 4
 
-	err = verifyServiceAreas(params, sheetIndex)
+	err := verifyServiceAreas(params, sheetIndex)
 	suite.NoError(err, "verifyServiceAreas function failed")
 }
 
@@ -62,21 +50,16 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticServiceAreas() {
 	params := ParamConfig{
 		ProcessAll:   false,
 		ShowOutput:   false,
-		XlsxFilename: swag.String("fixtures/pricing_template_2019-09-19_fake-data.xlsx"),
+		XlsxFilename: &suite.xlsxFilename,
 		XlsxSheets:   []string{"4"},
 		SaveToFile:   true,
 		RunTime:      time.Now(),
+		XlsxFile:     suite.xlsxFile,
 		RunVerify:    true,
 	}
 
 	const sheetIndex int = 4
 	dataSheet := xlsxDataSheets[sheetIndex]
-
-	xlsxFile, err := xlsx.OpenFile(*params.XlsxFilename)
-	params.XlsxFile = xlsxFile
-	if err != nil {
-		log.Fatalf("Failed to open file %s with error %v\n", *params.XlsxFilename, err)
-	}
 
 	slice, err := parseDomesticServiceAreas(params, sheetIndex)
 	suite.NoError(err, "parseDomesticServiceAreas function failed")
@@ -95,21 +78,16 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseInternationalServiceAreas() 
 	params := ParamConfig{
 		ProcessAll:   false,
 		ShowOutput:   false,
-		XlsxFilename: swag.String("fixtures/pricing_template_2019-09-19_fake-data.xlsx"),
+		XlsxFilename: &suite.xlsxFilename,
 		XlsxSheets:   []string{"4"},
 		SaveToFile:   true,
 		RunTime:      time.Now(),
+		XlsxFile:     suite.xlsxFile,
 		RunVerify:    true,
 	}
 
 	const sheetIndex int = 4
 	dataSheet := xlsxDataSheets[sheetIndex]
-
-	xlsxFile, err := xlsx.OpenFile(*params.XlsxFilename)
-	params.XlsxFile = xlsxFile
-	if err != nil {
-		log.Fatalf("Failed to open file %s with error %v\n", *params.XlsxFilename, err)
-	}
 
 	slice, err := parseInternationalServiceAreas(params, sheetIndex)
 	suite.NoError(err, "parseInternationalServiceAreas function failed")

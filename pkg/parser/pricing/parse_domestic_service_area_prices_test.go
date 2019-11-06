@@ -1,11 +1,7 @@
 package pricing
 
 import (
-	"log"
 	"time"
-
-	"github.com/go-openapi/swag"
-	"github.com/tealeg/xlsx"
 )
 
 // Test_parseDomesticServiceAreaPrices
@@ -14,21 +10,16 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_parseDomesticServiceAreaPrices() 
 	params := ParamConfig{
 		ProcessAll:   false,
 		ShowOutput:   false,
-		XlsxFilename: swag.String("fixtures/pricing_template_2019-09-19_fake-data.xlsx"),
+		XlsxFilename: &suite.xlsxFilename,
 		XlsxSheets:   []string{"7"},
 		SaveToFile:   true,
 		RunTime:      time.Now(),
+		XlsxFile:     suite.xlsxFile,
 		RunVerify:    true,
 	}
 
 	const sheetIndex int = 7
 	dataSheet := xlsxDataSheets[sheetIndex]
-
-	xlsxFile, err := xlsx.OpenFile(*params.XlsxFilename)
-	params.XlsxFile = xlsxFile
-	if err != nil {
-		log.Fatalf("Failed to open file %s with error %v\n", *params.XlsxFilename, err)
-	}
 
 	slice, err := parseDomesticServiceAreaPrices(params, sheetIndex)
 	suite.NoError(err, "parseDomesticServiceAreaPrices function failed")

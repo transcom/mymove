@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-openapi/swag"
 	"github.com/stretchr/testify/suite"
+	"github.com/tealeg/xlsx"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -22,6 +23,8 @@ type ParseRateEngineGHCXLSXSuite struct {
 	testingsuite.PopTestSuite
 	logger                *zap.Logger
 	tableFromSliceCreator services.TableFromSliceCreator
+	xlsxFilename          string
+	xlsxFile              *xlsx.File
 }
 
 func (suite *ParseRateEngineGHCXLSXSuite) SetupTest() {
@@ -37,8 +40,15 @@ func TestParseRateEngineGHCXLSXSuite(t *testing.T) {
 	hs := &ParseRateEngineGHCXLSXSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
+		xlsxFilename: "fixtures/pricing_template_2019-09-19_fake-data.xlsx",
 	}
+
 	hs.tableFromSliceCreator = dbtools.NewTableFromSliceCreator(hs.DB(), logger, true)
+
+	hs.xlsxFile, err = xlsx.OpenFile(hs.xlsxFilename)
+	if err != nil {
+		log.Panic(err)
+	}
 
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()
