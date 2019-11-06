@@ -2403,10 +2403,10 @@ adjust-sourcemap-loader@2.0.0:
     object-path "0.11.4"
     regex-parser "2.2.10"
 
-adr-log@^2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/adr-log/-/adr-log-2.1.1.tgz#95b8d6a06325d102cf25427cd6a77ed8c2054f86"
-  integrity sha512-TvxITz0Uv0PBEdwfMdMxudgkiZnyAEprphdvx+ZUYGur42pliST5JCKGwb+xDSw0jxRRfZjXAMsA/tJ3DJO+AA==
+adr-log@^2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/adr-log/-/adr-log-2.1.2.tgz#5ae512b61594c70bd065b4a93204e9cf9d39d53b"
+  integrity sha512-txMF8wJ89MMQPEWwxU3rqyhYe0VcWWnN4hwr9vjr7l28GhZEyiIx8FHsv7KoiWcfldhb9+C6QSGCRySFcFTeTg==
   dependencies:
     console-stamp "^0.2.6"
     glob "^7.1.2"
