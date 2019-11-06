@@ -82,6 +82,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ServiceItemListServiceItemsHandler: service_item.ListServiceItemsHandlerFunc(func(params service_item.ListServiceItemsParams) middleware.Responder {
 			return middleware.NotImplemented("operation ServiceItemListServiceItems has not yet been implemented")
 		}),
+		MoveTaskOrderUpdateDestinationAddressHandler: move_task_order.UpdateDestinationAddressHandlerFunc(func(params move_task_order.UpdateDestinationAddressParams) middleware.Responder {
+			return middleware.NotImplemented("operation MoveTaskOrderUpdateDestinationAddress has not yet been implemented")
+		}),
 		MoveTaskOrderUpdateMoveTaskOrderHandler: move_task_order.UpdateMoveTaskOrderHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderUpdateMoveTaskOrder has not yet been implemented")
 		}),
@@ -163,6 +166,8 @@ type MymoveAPI struct {
 	PaymentRequestsListPaymentRequestsHandler payment_requests.ListPaymentRequestsHandler
 	// ServiceItemListServiceItemsHandler sets the operation handler for the list service items operation
 	ServiceItemListServiceItemsHandler service_item.ListServiceItemsHandler
+	// MoveTaskOrderUpdateDestinationAddressHandler sets the operation handler for the update destination address operation
+	MoveTaskOrderUpdateDestinationAddressHandler move_task_order.UpdateDestinationAddressHandler
 	// MoveTaskOrderUpdateMoveTaskOrderHandler sets the operation handler for the update move task order operation
 	MoveTaskOrderUpdateMoveTaskOrderHandler move_task_order.UpdateMoveTaskOrderHandler
 	// MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler sets the operation handler for the update move task order actual weight operation
@@ -292,6 +297,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.ServiceItemListServiceItemsHandler == nil {
 		unregistered = append(unregistered, "service_item.ListServiceItemsHandler")
+	}
+
+	if o.MoveTaskOrderUpdateDestinationAddressHandler == nil {
+		unregistered = append(unregistered, "move_task_order.UpdateDestinationAddressHandler")
 	}
 
 	if o.MoveTaskOrderUpdateMoveTaskOrderHandler == nil {
@@ -488,6 +497,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move_task_orders/{moveTaskOrderID}/service_items"] = service_item.NewListServiceItems(o.context, o.ServiceItemListServiceItemsHandler)
+
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/destination-address"] = move_task_order.NewUpdateDestinationAddress(o.context, o.MoveTaskOrderUpdateDestinationAddressHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)

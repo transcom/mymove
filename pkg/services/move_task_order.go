@@ -31,3 +31,10 @@ type MoveTaskOrderActualWeightUpdater interface {
 type MoveTaskOrderPostCounselingInfoUpdater interface {
 	UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, scheduledMoveDate strfmt.Date, secondaryPickupAddress ghcmessages.Address, secondaryDeliveryAddress ghcmessages.Address, ppmIsIncluded bool) (*models.MoveTaskOrder, error)
 }
+
+//MoveTaskOrderDestinationAddressUpdater is the service object interface for UpdatePostCounselingInfo
+//go:generate mockery -name MoveTaskOrderPostCounselingInfoUpdater
+type MoveTaskOrderDestinationAddressUpdater interface {
+	UpdateDestinationAddress(moveTaskOrderID uuid.UUID, destinationAddress ghcmessages.Address) (*models.MoveTaskOrder, error)
+}
+

@@ -79,6 +79,9 @@ type MoveTaskOrder struct {
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
+	// ppm is included
+	PpmIsIncluded bool `json:"ppmIsIncluded,omitempty"`
+
 	// remarks
 	Remarks string `json:"remarks,omitempty"`
 

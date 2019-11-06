@@ -54,7 +54,7 @@ func requestToModels(params movetaskorderops.UpdateMoveTaskOrderStatusParams) (u
 }
 
 // TODO it might make sense to create a package for these various mappers, rather than making them all private
-// TODO since some can be reused. Might also make sense to have some mapper specfic tests
+// TODO since some can be reused. Might also make sense to have some mapper specific tests
 func payloadForMoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *ghcmessages.MoveTaskOrder {
 	serviceItems := payloadForServiceItems(&moveTaskOrder.ServiceItems)
 	destinationAddress := payloadForAddress(&moveTaskOrder.DestinationAddress)
@@ -70,6 +70,7 @@ func payloadForMoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *ghcmessages.Mo
 		MoveDate:               strfmt.Date(moveTaskOrder.RequestedPickupDate),
 		MoveID:                 strfmt.UUID(moveTaskOrder.MoveID.String()),
 		OriginDutyStation:      strfmt.UUID(moveTaskOrder.OriginDutyStationID.String()),
+		PpmIsIncluded:          moveTaskOrder.PpmIsIncluded,
 		PickupAddress:          pickupAddress,
 		SecondaryPickupAddress: secondaryPickupAddress,
 		Remarks:                moveTaskOrder.CustomerRemarks,

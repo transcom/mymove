@@ -139,7 +139,39 @@ func (f fetchMoveTaskOrder) UpdatePostCounselingInfo(moveTaskOrderID uuid.UUID, 
 	mto.SecondaryDeliveryAddress.StreetAddress1 = *secondaryDeliveryAddress.StreetAddress1
 	mto.SecondaryDeliveryAddress.City = *secondaryDeliveryAddress.City
 	mto.SecondaryDeliveryAddress.State = *secondaryDeliveryAddress.State
-	mto.PPMIsIncluded = ppmIsIncluded
+	mto.PpmIsIncluded = ppmIsIncluded
+
+	vErrors, err := f.db.ValidateAndUpdate(mto)
+	if vErrors.HasAny() {
+		return &models.MoveTaskOrder{}, ErrInvalidInput{moveTaskOrderID, vErrors}
+	}
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
+	return mto, nil
+}
+
+type updateDestinationAddress struct {
+	db *pop.Connection
+	fetchMoveTaskOrder
+}
+
+// NewMoveTaskOrderDestinationAddressUpdater creates a new struct with the service dependencies
+func NewMoveTaskOrderDestinationAddressUpdater(db *pop.Connection) services.MoveTaskOrderPostCounselingInfoUpdater {
+	moveTaskOrderFetcher := fetchMoveTaskOrder{db}
+	return &updateDestinationAddress{db, moveTaskOrderFetcher}
+}
+
+//UpdatePostCounselingInfo updates the actual weight of a MoveTaskOrder for a given UUID
+func (f fetchMoveTaskOrder) UpdateDestinationAddress(moveTaskOrderID uuid.UUID, destinationAddress ghcmessages.Address) (*models.MoveTaskOrder, error) {
+	mto, err := f.FetchMoveTaskOrder(moveTaskOrderID)
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
+
+	mto.DestinationAddress.StreetAddress1 = *destinationAddress.StreetAddress1
+	mto.DestinationAddress.City = *destinationAddress.City
+	mto.DestinationAddress.State = *destinationAddress.State
 
 	vErrors, err := f.db.ValidateAndUpdate(mto)
 	if vErrors.HasAny() {

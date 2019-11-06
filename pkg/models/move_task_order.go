@@ -34,7 +34,7 @@ type MoveTaskOrder struct {
 	SecondaryDeliveryAddress Address 		     `belongs_to:"addresses"`
 	RequestedPickupDate      time.Time           `db:"requested_pickup_date"`
 	ScheduledMoveDate		 strfmt.Date		 `db:"scheduled_move_date"`
-	PPMIsIncluded			 bool                `db:ppm_is_included`
+	PpmIsIncluded			 bool                `db:ppm_is_included`
 	Status                   MoveTaskOrderStatus `db:"status"`
 	ServiceItems             ServiceItems        `has_many:"service_items"`
 	UpdatedAt                time.Time           `db:"updated_at"`

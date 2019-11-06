@@ -64,3 +64,28 @@ func (h UpdatePostCounselingInfoHandler) Handle(params movetaskordercodeop.Updat
 	moveTaskOrderPayload := payloadForMoveTaskOrder(*mto)
 	return movetaskordercodeop.NewUpdatePostCounselingInfoOK().WithPayload(moveTaskOrderPayload)
 }
+
+type UpdateDestinationAddressHandler struct {
+	handlers.HandlerContext
+	moveTaskOrderDestinationAddressUpdater services.MoveTaskOrderDestinationAddressUpdater
+}
+
+func (h UpdateDestinationAddressHandler) Handle(params movetaskordercodeop.UpdateDestinationAddressParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+	mto, err := h.moveTaskOrderDestinationAddressUpdater.UpdateDestinationAddress(moveTaskOrderID, *params.Body.DestinationAddress)
+	if err != nil {
+		logger.Error("ghciapi.UpdateDestinationAddressHandler error", zap.Error(err))
+		switch err.(type) {
+		case movetaskorderservice.ErrNotFound:
+			return movetaskordercodeop.NewUpdateDestinationAddressNotFound()
+		case movetaskorderservice.ErrInvalidInput:
+			return movetaskordercodeop.NewUpdateDestinationAddressBadRequest()
+		default:
+			return movetaskordercodeop.NewUpdateDestinationAddressInternalServerError()
+		}
+	}
+
+	moveTaskOrderPayload := payloadForMoveTaskOrder(*mto)
+	return movetaskordercodeop.NewUpdateDestinationAddressOK().WithPayload(moveTaskOrderPayload)
+}
