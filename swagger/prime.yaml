@@ -47,7 +47,7 @@ paths:
       description: Gets all move orders
       operationId: listMoveTaskOrders
       summary: Gets all move orders
-  '/move-task-orders/{moveTaskOrderID}/prime-actual-weight':
+  '/move-task-orders/{moveTaskOrderID}/prime-estimated-weight':
     parameters:
       - description: ID of move order to use
         in: path
@@ -66,7 +66,7 @@ paths:
           schema:
             type: object
             properties:
-              estimatedWeight:
+              primeEstimatedWeight:
                 type: integer
       responses:
         '200':
@@ -392,6 +392,15 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+      primeEstimatedWeight:
+        type: integer
+        example: 1000
+        x-formatting: weight
+        x-nullable: true
+      primeEstimatedWeightRecordedDate:
+        format: date
+        type: string
+        x-nullable: true
       pickupAddress:
         $ref: '#/definitions/Address'
       remarks:

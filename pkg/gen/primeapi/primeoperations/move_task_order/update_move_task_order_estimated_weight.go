@@ -31,7 +31,7 @@ func NewUpdateMoveTaskOrderEstimatedWeight(ctx *middleware.Context, handler Upda
 	return &UpdateMoveTaskOrderEstimatedWeight{Context: ctx, Handler: handler}
 }
 
-/*UpdateMoveTaskOrderEstimatedWeight swagger:route PATCH /move-task-orders/{moveTaskOrderID}/prime-actual-weight moveTaskOrder prime updateMoveTaskOrderEstimatedWeight
+/*UpdateMoveTaskOrderEstimatedWeight swagger:route PATCH /move-task-orders/{moveTaskOrderID}/prime-estimated-weight moveTaskOrder prime updateMoveTaskOrderEstimatedWeight
 
 Updates a move order's estimated weight by ID
 
@@ -65,8 +65,8 @@ func (o *UpdateMoveTaskOrderEstimatedWeight) ServeHTTP(rw http.ResponseWriter, r
 // swagger:model UpdateMoveTaskOrderEstimatedWeightBody
 type UpdateMoveTaskOrderEstimatedWeightBody struct {
 
-	// estimated weight
-	EstimatedWeight int64 `json:"estimatedWeight,omitempty"`
+	// prime estimated weight
+	PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
 }
 
 // Validate validates this update move task order estimated weight body

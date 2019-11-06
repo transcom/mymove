@@ -257,7 +257,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/prime-actual-weight"] = move_task_order.NewUpdateMoveTaskOrderEstimatedWeight(o.context, o.MoveTaskOrderUpdateMoveTaskOrderEstimatedWeightHandler)
+	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/prime-estimated-weight"] = move_task_order.NewUpdateMoveTaskOrderEstimatedWeight(o.context, o.MoveTaskOrderUpdateMoveTaskOrderEstimatedWeightHandler)
 
 }
 

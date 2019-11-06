@@ -3,6 +3,7 @@ package movetaskorder
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
@@ -72,6 +73,34 @@ func (f fetchMoveTaskOrder) UpdateMoveTaskOrderStatus(moveTaskOrderID uuid.UUID,
 		return &models.MoveTaskOrder{}, err
 	}
 	mto.Status = status
+	vErrors, err := f.db.ValidateAndUpdate(mto)
+	if vErrors.HasAny() {
+		return &models.MoveTaskOrder{}, ErrInvalidInput{moveTaskOrderID, vErrors}
+	}
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
+	return mto, nil
+}
+
+type updateMoveTaskOrderEstimatedWeight struct {
+	db *pop.Connection
+	fetchMoveTaskOrder
+}
+
+func NewMoveTaskOrderEstimatedWeightUpdater(db *pop.Connection) services.MoveTaskOrderPrimeEstimatedWeightUpdater {
+	moveTaskOrderFetcher := fetchMoveTaskOrder{db}
+	return &updateMoveTaskOrderEstimatedWeight{db, moveTaskOrderFetcher}
+}
+
+//UpdateEstimatedWeight updates the estimated weight of a MoveTaskOrder for a given UUID
+func (f updateMoveTaskOrderEstimatedWeight) UpdatePrimeEstimatedWeight(moveTaskOrderID uuid.UUID, primeEstimatedWeight unit.Pound, updateTime time.Time) (*models.MoveTaskOrder, error) {
+	mto, err := f.FetchMoveTaskOrder(moveTaskOrderID)
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
+	mto.PrimeEstimatedWeight = &primeEstimatedWeight
+	mto.PrimeEstimatedWeightRecordedDate = &updateTime
 	vErrors, err := f.db.ValidateAndUpdate(mto)
 	if vErrors.HasAny() {
 		return &models.MoveTaskOrder{}, ErrInvalidInput{moveTaskOrderID, vErrors}

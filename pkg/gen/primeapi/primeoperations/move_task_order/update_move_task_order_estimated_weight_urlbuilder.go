@@ -40,7 +40,7 @@ func (o *UpdateMoveTaskOrderEstimatedWeightURL) SetBasePath(bp string) {
 func (o *UpdateMoveTaskOrderEstimatedWeightURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/move-task-orders/{moveTaskOrderID}/prime-actual-weight"
+	var _path = "/move-task-orders/{moveTaskOrderID}/prime-estimated-weight"
 
 	moveTaskOrderID := o.MoveTaskOrderID
 	if moveTaskOrderID != "" {

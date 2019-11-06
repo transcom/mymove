@@ -87,7 +87,7 @@ func init() {
         }
       }
     },
-    "/move-task-orders/{moveTaskOrderID}/prime-actual-weight": {
+    "/move-task-orders/{moveTaskOrderID}/prime-estimated-weight": {
       "patch": {
         "description": "Updates a move order's estimated weight by ID",
         "consumes": [
@@ -110,7 +110,7 @@ func init() {
             "schema": {
               "type": "object",
               "properties": {
-                "estimatedWeight": {
+                "primeEstimatedWeight": {
                   "type": "integer"
                 }
               }
@@ -517,6 +517,17 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "primeEstimatedWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1000
+        },
+        "primeEstimatedWeightRecordedDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "remarks": {
           "type": "string",
           "example": "Requires more gentle care"
@@ -659,7 +670,7 @@ func init() {
         }
       }
     },
-    "/move-task-orders/{moveTaskOrderID}/prime-actual-weight": {
+    "/move-task-orders/{moveTaskOrderID}/prime-estimated-weight": {
       "patch": {
         "description": "Updates a move order's estimated weight by ID",
         "consumes": [
@@ -682,7 +693,7 @@ func init() {
             "schema": {
               "type": "object",
               "properties": {
-                "estimatedWeight": {
+                "primeEstimatedWeight": {
                   "type": "integer"
                 }
               }
@@ -1103,6 +1114,17 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "primeEstimatedWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1000
+        },
+        "primeEstimatedWeightRecordedDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
         },
         "remarks": {
           "type": "string",

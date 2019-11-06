@@ -1,11 +1,14 @@
 package primeapi
 
 import (
+	"time"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/services"
 	movetaskorderservice "github.com/transcom/mymove/pkg/services/move_task_order"
+	"github.com/transcom/mymove/pkg/unit"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
@@ -41,15 +44,15 @@ func (h ListMoveTaskOrdersHandler) Handle(params movetaskorderops.ListMoveTaskOr
 
 type UpdateMoveTaskOrderEstimatedWeightHandler struct {
 	handlers.HandlerContext
-	moveTaskOrderStatusUpdater services.MoveTaskOrderStatusUpdater
+	moveTaskOrderPrimeEstimatedWeightUpdater services.MoveTaskOrderPrimeEstimatedWeightUpdater
 }
 
 func (h UpdateMoveTaskOrderEstimatedWeightHandler) Handle(params movetaskorderops.UpdateMoveTaskOrderEstimatedWeightParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
-	status := models.MoveTaskOrderStatus(params.Body.EstimatedWeight)
-	mto, err := h.moveTaskOrderStatusUpdater.UpdateMoveTaskOrderStatus(moveTaskOrderID, status)
+	primeEstimatedWeight := unit.Pound(params.Body.PrimeEstimatedWeight)
+	mto, err := h.moveTaskOrderPrimeEstimatedWeightUpdater.UpdatePrimeEstimatedWeight(moveTaskOrderID, primeEstimatedWeight, time.Now())
 	if err != nil {
 		logger.Error("ghciap.MoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {

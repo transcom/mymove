@@ -12,20 +12,31 @@ func MoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *primemessages.MoveTaskOr
 	destinationAddress := Address(&moveTaskOrder.DestinationAddress)
 	pickupAddress := Address(&moveTaskOrder.PickupAddress)
 	entitlements := Entitlements(&moveTaskOrder.Entitlements)
+	var primeEstimatedWeight *int64
+	if moveTaskOrder.PrimeEstimatedWeight != nil {
+		wt := moveTaskOrder.PrimeEstimatedWeight.Int64()
+		primeEstimatedWeight = &wt
+	}
+	var primeEstimatedWeightRecordedDate *strfmt.Date
+	if moveTaskOrder.PrimeEstimatedWeight != nil {
+		primeEstimatedWeightRecordedDate = handlers.FmtDatePtr(moveTaskOrder.PrimeEstimatedWeightRecordedDate)
+	}
 	payload := &primemessages.MoveTaskOrder{
-		CustomerID:             strfmt.UUID(moveTaskOrder.CustomerID.String()),
-		DestinationAddress:     destinationAddress,
-		DestinationDutyStation: strfmt.UUID(moveTaskOrder.DestinationDutyStation.ID.String()),
-		Entitlements:           entitlements,
-		ID:                     strfmt.UUID(moveTaskOrder.ID.String()),
-		MoveDate:               strfmt.Date(moveTaskOrder.RequestedPickupDate),
-		MoveID:                 strfmt.UUID(moveTaskOrder.MoveID.String()),
-		OriginDutyStation:      strfmt.UUID(moveTaskOrder.OriginDutyStationID.String()),
-		PickupAddress:          pickupAddress,
-		Remarks:                moveTaskOrder.CustomerRemarks,
-		RequestedPickupDate:    strfmt.Date(moveTaskOrder.RequestedPickupDate),
-		Status:                 string(moveTaskOrder.Status),
-		UpdatedAt:              strfmt.Date(moveTaskOrder.UpdatedAt),
+		CustomerID:                       strfmt.UUID(moveTaskOrder.CustomerID.String()),
+		DestinationAddress:               destinationAddress,
+		DestinationDutyStation:           strfmt.UUID(moveTaskOrder.DestinationDutyStation.ID.String()),
+		Entitlements:                     entitlements,
+		ID:                               strfmt.UUID(moveTaskOrder.ID.String()),
+		MoveDate:                         strfmt.Date(moveTaskOrder.RequestedPickupDate),
+		MoveID:                           strfmt.UUID(moveTaskOrder.MoveID.String()),
+		OriginDutyStation:                strfmt.UUID(moveTaskOrder.OriginDutyStationID.String()),
+		PickupAddress:                    pickupAddress,
+		PrimeEstimatedWeight:             primeEstimatedWeight,
+		PrimeEstimatedWeightRecordedDate: primeEstimatedWeightRecordedDate,
+		Remarks:                          moveTaskOrder.CustomerRemarks,
+		RequestedPickupDate:              strfmt.Date(moveTaskOrder.RequestedPickupDate),
+		Status:                           string(moveTaskOrder.Status),
+		UpdatedAt:                        strfmt.Date(moveTaskOrder.UpdatedAt),
 	}
 	return payload
 }
