@@ -47,6 +47,7 @@ type Assertions struct {
 	ReContractYear                           models.ReContractYear
 	ReDomesticServiceArea                    models.ReDomesticServiceArea
 	Reimbursement                            models.Reimbursement
+	ReService                                models.ReService
 	SignedCertification                      models.SignedCertification
 	ServiceItem                              models.ServiceItem
 	ServiceMember                            models.ServiceMember

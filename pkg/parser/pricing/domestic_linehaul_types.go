@@ -1,4 +1,4 @@
-package main
+package pricing
 
 /*************************************************************************************************************/
 /* Domestic Line Haul Prices Types
@@ -12,15 +12,15 @@ Used for:
 */
 /*************************************************************************************************************/
 
-const dLhWeightBandNumCellsExpected int = 10 //cells per band verify against dLhWeightBandNumCells
-const dLhWeightBandCountExpected int = 3     //expected number of weight bands verify against weightBandCount
+const dlhWeightBandNumCellsExpected int = 10 //cells per band verify against dlhWeightBandNumCells
+const dlhWeightBandCountExpected int = 3     //expected number of weight bands verify against weightBandCount
 
-type dLhWeightBand struct {
+type dlhWeightBand struct {
 	lowerLbs int
 	upperLbs int
 }
 
-var dLhWeightBands = []dLhWeightBand{
+var dlhWeightBands = []dlhWeightBand{
 	{
 		lowerLbs: 500,
 		upperLbs: 4999,
@@ -35,12 +35,12 @@ var dLhWeightBands = []dLhWeightBand{
 	},
 }
 
-type dLhMilesRange struct {
+type dlhMilesRange struct {
 	lower int
 	upper int
 }
 
-var dLhMilesRanges = []dLhMilesRange{
+var dlhMilesRanges = []dlhMilesRange{
 	{
 		lower: 0,
 		upper: 250,
@@ -83,4 +83,4 @@ var dLhMilesRanges = []dLhMilesRange{
 	},
 }
 
-var dLhWeightBandNumCells = len(dLhMilesRanges)
+var dlhWeightBandNumCells = len(dlhMilesRanges)

@@ -236,7 +236,7 @@ bin/generate-test-data:
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate-test-data
 
 bin/ghc-pricing-parser:
-	go build -ldflags "$(LDFLAGS)" -o bin/ghc-pricing-parser ./cmd/parse_ratengine_data_ghc
+	go build -ldflags "$(LDFLAGS)" -o bin/ghc-pricing-parser ./cmd/ghc-pricing-parser
 
 bin_linux/generate-test-data:
 	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate-test-data

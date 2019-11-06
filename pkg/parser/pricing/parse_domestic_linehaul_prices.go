@@ -1,19 +1,15 @@
-package main
+package pricing
 
 import (
 	"fmt"
 	"log"
 	"strconv"
 
-	"github.com/gocarina/gocsv"
-	"github.com/pkg/errors"
-
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 )
 
 // parseDomesticLinehaulPrices: parser for 2a) Domestic Linehaul Prices
-var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
+var parseDomesticLinehaulPrices processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 6  // 2a) Domestic Linehaul Prices
 	const feeColIndexStart int = 6  // start at column 6 to get the rates
@@ -24,11 +20,11 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 	const numEscalationYearsToProcess = sharedNumEscalationYearsToProcess
 
 	if xlsxDataSheetNum != sheetIndex {
-		return fmt.Errorf("parseDomesticLinehaulPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
+		return nil, fmt.Errorf("parseDomesticLinehaulPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
 	var domPrices []models.StageDomesticLinehaulPrice
-	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
+	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
 	for _, row := range dataRows {
 		colIndex := feeColIndexStart
 		// For number of baseline + Escalation years
@@ -36,9 +32,9 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 			// For each Rate Season
 			for _, r := range rateSeasons {
 				// For each weight band
-				for _, w := range dLhWeightBands {
+				for _, w := range dlhWeightBands {
 					// For each mileage range
-					for _, m := range dLhMilesRanges {
+					for _, m := range dlhMilesRanges {
 						domPrice := models.StageDomesticLinehaulPrice{
 							ServiceAreaNumber: getCell(row.Cells, serviceAreaNumberColumn),
 							OriginServiceArea: getCell(row.Cells, originServiceAreaColumn),
@@ -52,7 +48,7 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 							Rate:              getCell(row.Cells, colIndex),
 						}
 						colIndex++
-						if params.showOutput == true {
+						if params.ShowOutput == true {
 							log.Printf("%v\n", domPrice)
 						}
 						domPrices = append(domPrices, domPrice)
@@ -63,28 +59,18 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params paramConfig, shee
 		}
 	}
 
-	// TODO: Move these two things out of here
-	if csvWriter != nil {
-		if err := gocsv.MarshalFile(domPrices, csvWriter.csvFile); err != nil {
-			return errors.Wrap(err, "Could not marshal CSV file for domestic linehaul prices")
-		}
-	}
-	if err := tableFromSliceCreator.CreateTableFromSlice(domPrices); err != nil {
-		return errors.Wrap(err, "Could not create temp table for domestic linehaul prices")
-	}
-
-	return nil
+	return domPrices, nil
 }
 
 // verifyDomesticLinehaulPrices: verification for 2a) Domestic Linehaul Prices
-var verifyDomesticLinehaulPrices verifyXlsxSheet = func(params paramConfig, sheetIndex int) error {
+var verifyDomesticLinehaulPrices verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
 
-	if dLhWeightBandNumCells != dLhWeightBandNumCellsExpected {
-		return fmt.Errorf("parseDomesticLinehaulPrices(): Exepected %d columns per weight band, found %d defined in golang parser", dLhWeightBandNumCellsExpected, dLhWeightBandNumCells)
+	if dlhWeightBandNumCells != dlhWeightBandNumCellsExpected {
+		return fmt.Errorf("parseDomesticLinehaulPrices(): Exepected %d columns per weight band, found %d defined in golang parser", dlhWeightBandNumCellsExpected, dlhWeightBandNumCells)
 	}
 
-	if len(dLhWeightBands) != dLhWeightBandCountExpected {
-		return fmt.Errorf("parseDomesticLinehaulPrices(): Exepected %d weight bands, found %d defined in golang parser", dLhWeightBandCountExpected, len(dLhWeightBands))
+	if len(dlhWeightBands) != dlhWeightBandCountExpected {
+		return fmt.Errorf("parseDomesticLinehaulPrices(): Exepected %d weight bands, found %d defined in golang parser", dlhWeightBandCountExpected, len(dlhWeightBands))
 	}
 
 	// XLSX Sheet consts
@@ -104,7 +90,7 @@ var verifyDomesticLinehaulPrices verifyXlsxSheet = func(params paramConfig, shee
 		return fmt.Errorf("verifyDomesticLinehaulPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowMilageHeaderIndexStart:verifyHeaderIndexEnd]
+	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowMilageHeaderIndexStart:verifyHeaderIndexEnd]
 	for dataRowsIndex, row := range dataRows {
 		colIndex := feeColIndexStart
 		// For number of baseline + Escalation years
@@ -112,15 +98,15 @@ var verifyDomesticLinehaulPrices verifyXlsxSheet = func(params paramConfig, shee
 			// For each Rate Season
 			for _, r := range rateSeasons {
 				// For each weight band
-				for _, w := range dLhWeightBands {
+				for _, w := range dlhWeightBands {
 					// For each milage range
-					for dLhMilesRangesIndex, m := range dLhMilesRanges {
+					for dlhMilesRangesIndex, m := range dlhMilesRanges {
 						// skip the last index because the text is not easily checked
-						if dLhMilesRangesIndex == len(dLhMilesRanges)-1 {
+						if dlhMilesRangesIndex == len(dlhMilesRanges)-1 {
 							colIndex++
 							continue
 						}
-						verificationLog := fmt.Sprintf(" , verfication for row index: %d, colIndex: %d, Escalation: %d, rateSeasons %v, dLhWeightBands %v",
+						verificationLog := fmt.Sprintf(" , verfication for row index: %d, colIndex: %d, Escalation: %d, rateSeasons %v, dlhWeightBands %v",
 							dataRowsIndex, colIndex, escalation, r, w)
 						if dataRowsIndex == 0 {
 							if m.lower != getInt(getCell(row.Cells, colIndex)) {
