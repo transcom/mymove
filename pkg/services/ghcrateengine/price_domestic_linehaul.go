@@ -3,6 +3,8 @@ package ghcrateengine
 import (
 	"time"
 
+	"go.uber.org/zap/zapcore"
+
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -10,9 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
 )
-
-// minDomesticWeight is the minimum weight used in domestic calculations (weights below this are upgraded to the min)
-const minDomesticWeight = unit.Pound(500)
 
 // NewDomesticLinehaulPricer is the public constructor for a DomesticLinehaulPricer using Pop
 func NewDomesticLinehaulPricer(db *pop.Connection, logger Logger, contractCode string) services.DomesticLinehaulPricer {
@@ -28,6 +27,18 @@ type domesticLinehaulPricer struct {
 	db           *pop.Connection
 	logger       Logger
 	contractCode string
+}
+
+// priceAndEscalation is used to hold data returned by the database query
+type milliCentPriceAndEscalation struct {
+	PriceMillicents      unit.Millicents `db:"price_millicents"`
+	EscalationCompounded float64         `db:"escalation_compounded"`
+}
+
+func (p milliCentPriceAndEscalation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	encoder.AddInt("PriceMillicents", p.PriceMillicents.Int())
+	encoder.AddFloat64("EscalationCompounded", p.EscalationCompounded)
+	return nil
 }
 
 // PriceDomesticLinehaul produces the price in cents for the linehaul charge for the given move parameters
@@ -54,7 +65,7 @@ func (p domesticLinehaulPricer) PriceDomesticLinehaul(moveDate time.Time, distan
 
 	isPeakPeriod := IsPeakPeriod(moveDate)
 
-	var pe priceAndEscalation
+	var pe milliCentPriceAndEscalation
 	query :=
 		`select price_millicents, escalation_compounded
          from re_domestic_linehaul_prices dlp
