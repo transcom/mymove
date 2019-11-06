@@ -10,6 +10,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { formatCentsRange, formatNumber } from 'shared/formatters';
 import { getPpmWeightEstimate, createOrUpdatePpm, getSelectedWeightInfo } from './ducks';
+import { loadEntitlementsFromState } from 'shared/entitlements';
 import { updatePPMEstimate } from 'shared/Entities/modules/ppms';
 import 'react-rangeslider/lib/index.css';
 import './Weight.css';
@@ -118,10 +119,14 @@ export class PpmWeight extends Component {
       selectedWeightInfo,
     } = this.props;
     const { context: { flags: { progearChanges } } = { flags: { progearChanges: null } } } = this.props;
-
     return (
       <div>
-        {progearChanges && <h1>Progear placeholder text</h1>}
+        {progearChanges && (
+          <div className="grid-container usa-prose site-prose">
+            <h3>How much do you think you'll move?</h3>
+            <p>Your weight entitlement: {this.props.entitlement.weight.toLocaleString()} lbs</p>
+          </div>
+        )}
         {!progearChanges && (
           <div className="grid-container usa-prose site-prose">
             <WeightWizardForm
@@ -243,6 +248,7 @@ function mapStateToProps(state) {
     ...state.ppm,
     selectedWeightInfo: getSelectedWeightInfo(state),
     currentWeight: get(state, 'ppm.currentPpm.weight_estimate'),
+    entitlement: loadEntitlementsFromState(state),
     schema: schema,
     originDutyStationZip,
   };

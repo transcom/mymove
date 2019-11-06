@@ -76,7 +76,7 @@ function Header() {
                   </NavLink>
                 </em>
               </div>
-              <button class="usa-menu-btn">Menu</button>
+              <button className="usa-menu-btn">Menu</button>
             </div>
             <nav className="usa-nav" aria-label="Primary navigation">
               <ul className="usa-nav__primary usa-accordion">

@@ -14,12 +14,6 @@ update_configs:
     default_labels:
       - dependencies
       - automerge
-    default_reviewers:
-      - tinyels
-      - chrisgilmerproj
-      - jacquelineIO
-      - sarboc
-      - chrisrcoles
 
   # Keep go.mod (& go.sum) up to date daily
   - package_manager: "go:modules"
@@ -32,12 +26,6 @@ update_configs:
     default_labels:
       - dependencies
       - automerge
-    default_reviewers:
-      - tinyels
-      - chrisgilmerproj
-      - jacquelineIO
-      - sarboc
-      - chrisrcoles
 
   # Keep Dockerfile up to date, batching pull requests daily
   - package_manager: "docker"
@@ -50,9 +38,3 @@ update_configs:
     default_labels:
       - dependencies
       - automerge
-    default_reviewers:
-      - tinyels
-      - chrisgilmerproj
-      - jacquelineIO
-      - sarboc
-      - chrisrcoles
