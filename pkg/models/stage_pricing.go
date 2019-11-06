@@ -37,16 +37,16 @@ type StageDomesticServiceAreaPrice struct {
 	OriginDestinationSITAddlDays          string `db:"origin_destination_sit_addl_days" csv:"origin_destination_sit_addl_days"`
 }
 
-type StageIntlOtherPrice struct {
-	RateAreaCode string `db:"rate_area_code" csv:"rate_area_code"`
-	RateAreaName string    `db:"rate_area_name" csv:"rate_area_name"`
-	HHGOriginPackPrice string `db:"hhg_origin_pack_price" csv:"hhg_origin_pack_price"`
-	HHGDestinationUnPackPrice string `db:"hhg_destination_unpack_price" csv:"hhg_destination_unpack_price"`
-	UBOriginPackPrice string `db:"ub_origin_pack_price" csv:"ub_origin_pack_price"`
-	UBDestinationUnPackPrice string `db:"ub_destination_unpack_price" csv:"ub_destination_unpack_price"`
+type StageOtherIntlPrice struct {
+	RateAreaCode                          string `db:"rate_area_code" csv:"rate_area_code"`
+	RateAreaName                          string `db:"rate_area_name" csv:"rate_area_name"`
+	HHGOriginPackPrice                    string `db:"hhg_origin_pack_price" csv:"hhg_origin_pack_price"`
+	HHGDestinationUnPackPrice             string `db:"hhg_destination_unpack_price" csv:"hhg_destination_unpack_price"`
+	UBOriginPackPrice                     string `db:"ub_origin_pack_price" csv:"ub_origin_pack_price"`
+	UBDestinationUnPackPrice              string `db:"ub_destination_unpack_price" csv:"ub_destination_unpack_price"`
 	OriginDestinationSITFirstDayWarehouse string `db:"origin_destination_sit_first_day_warehouse" csv:"origin_destination_sit_first_day_warehouse"`
 	OriginDestinationSITAddlDays          string `db:"origin_destination_sit_addl_days" csv:"origin_destination_sit_addl_days"`
-	SITLte50Miles string `db:"sit_lte_50_Miles" csv:"sit_lte_50_miles"`
-	SITGt50Miles string `db:"sit_gt_50_Miles" csv:"sit_gt_50_miles"`
-	Season string `db:"season" csv:"season"`
+	SITLte50Miles                         string `db:"sit_lte_50_miles" csv:"sit_lte_50_miles"`
+	SITGt50Miles                          string `db:"sit_gt_50_miles" csv:"sit_gt_50_miles"`
+	Season                                string `db:"season" csv:"season"`
 }
