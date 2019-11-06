@@ -22,7 +22,7 @@ Parser tool to extract data from the GHC Rate Engine XLSX
 
 For help run: <program> -h
 
-`go run cmd/parse_ratengine_data_ghc/*.go -h`
+`go run ./cmd/ghc-pricing-parser/ -h`
 
 Rate Engine XLSX sections this tool will be parsing:
 
@@ -101,7 +101,7 @@ To add new parser functions to this file:
 	c.) Update initDataSheetInfo() with a.) and b.)
 		The index must match the sheet index in the XLSX that you aim to process
 
-You should not have to update the main() or  process() functions. Unless you
+You should not have to update the Parse() or process() functions unless you
 intentionally are modifying the pattern of how the processing functions are called.
 
  *************************************************************************/
