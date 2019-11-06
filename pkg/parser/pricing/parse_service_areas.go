@@ -1,18 +1,14 @@
-package main
+package pricing
 
 import (
 	"fmt"
 	"log"
 
-	"github.com/gocarina/gocsv"
-	"github.com/pkg/errors"
-
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 )
 
 // parseServiceAreas: parser for: 1b) Service Areas
-var parseDomesticServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
+var parseDomesticServiceAreas processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 4         // 1b) Service Areas
 	const serviceAreaRowIndexStart int = 9 // start at row 9 to get the service areas
@@ -20,16 +16,14 @@ var parseDomesticServiceAreas processXlsxSheet = func(params paramConfig, sheetI
 	const stateColumn int = 3
 	const serviceAreaNumberColumn int = 4
 	const zip3sColumn int = 5
-	const internationalRateAreaColumn int = 9
-	const rateAreaIDColumn int = 10
 
 	if xlsxDataSheetNum != sheetIndex {
-		return fmt.Errorf("parseServiceAreas expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
+		return nil, fmt.Errorf("parseServiceAreas expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
 	log.Println("Parsing Domestic Service Areas")
 	var domServAreas []models.StageDomesticServiceArea
-	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[serviceAreaRowIndexStart:]
+	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[serviceAreaRowIndexStart:]
 	for _, row := range dataRows {
 		domServArea := models.StageDomesticServiceArea{
 			BasePointCity:     getCell(row.Cells, basePointCityColumn),
@@ -42,44 +36,30 @@ var parseDomesticServiceAreas processXlsxSheet = func(params paramConfig, sheetI
 			break
 		}
 
-		if params.showOutput == true {
+		if params.ShowOutput == true {
 			log.Printf("%v\n", domServArea)
 		}
 		domServAreas = append(domServAreas, domServArea)
 	}
 
-	// TODO: Move these two things out of here
-	if csvWriter != nil {
-		if err := gocsv.MarshalFile(domServAreas, csvWriter.csvFile); err != nil {
-			return errors.Wrap(err, "Could not marshal CSV file for domestic service areas")
-		}
-	}
-	if err := tableFromSliceCreator.CreateTableFromSlice(domServAreas); err != nil {
-		return errors.Wrap(err, "Could not create temp table for domestic service areas")
-	}
-
-	return nil
+	return domServAreas, nil
 }
 
-var parseInternationalServiceAreas processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
+var parseInternationalServiceAreas processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 4         // 1b) Service Areas
 	const serviceAreaRowIndexStart int = 9 // start at row 9 to get the service areas
-	const basePointCityColumn int = 2
-	const stateColumn int = 3
-	const serviceAreaNumberColumn int = 4
-	const zip3sColumn int = 5
 	const internationalRateAreaColumn int = 9
 	const rateAreaIDColumn int = 10
 
 	if xlsxDataSheetNum != sheetIndex {
-		return fmt.Errorf("parseServiceAreas expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
+		return nil, fmt.Errorf("parseServiceAreas expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
 	log.Println("Parsing International Service Areas")
 
 	var intlServAreas []models.StageInternationalServiceArea
-	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[serviceAreaRowIndexStart:]
+	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[serviceAreaRowIndexStart:]
 	for _, row := range dataRows {
 		intlServArea := models.StageInternationalServiceArea{
 			RateArea:   getCell(row.Cells, internationalRateAreaColumn),
@@ -90,27 +70,17 @@ var parseInternationalServiceAreas processXlsxSheet = func(params paramConfig, s
 			break
 		}
 
-		if params.showOutput == true {
+		if params.ShowOutput == true {
 			log.Printf("%v\n", intlServArea)
 		}
 		intlServAreas = append(intlServAreas, intlServArea)
 	}
 
-	// TODO: Move these two things out of here
-	if csvWriter != nil {
-		if err := gocsv.MarshalFile(intlServAreas, csvWriter.csvFile); err != nil {
-			return errors.Wrap(err, "Could not marshal CSV file for international service areas")
-		}
-	}
-	if err := tableFromSliceCreator.CreateTableFromSlice(intlServAreas); err != nil {
-		return errors.Wrap(err, "Could not create temp table for international service areas")
-	}
-
-	return nil
+	return intlServAreas, nil
 }
 
 // verifyServiceAreas: verification for: 1b) Service Areas
-var verifyServiceAreas verifyXlsxSheet = func(params paramConfig, sheetIndex int) error {
+var verifyServiceAreas verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 4         // 1b) Service Areas
 	const serviceAreaRowIndexStart int = 9 // start at row 6 to get the headings
@@ -126,7 +96,7 @@ var verifyServiceAreas verifyXlsxSheet = func(params paramConfig, sheetIndex int
 	}
 
 	// Only check header of domestic and international service areas
-	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[serviceAreaRowIndexStart-1 : serviceAreaRowIndexStart]
+	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[serviceAreaRowIndexStart-1 : serviceAreaRowIndexStart]
 	for _, dataRow := range dataRows {
 		if header := getCell(dataRow.Cells, basePointCityColumn); header != "Base Point City" {
 			return fmt.Errorf("verifyServiceAreas expected to find header 'Base Point City', but received header '%s'", header)

@@ -1,18 +1,14 @@
-package main
+package pricing
 
 import (
 	"fmt"
 	"log"
 
-	"github.com/gocarina/gocsv"
-	"github.com/pkg/errors"
-
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 )
 
 // parseDomesticServiceAreaPrices: parser for: 2b) Dom. Service Area Prices
-var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
+var parseDomesticServiceAreaPrices processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 7  // 2b) Domestic Service Area Prices
 	const feeColIndexStart int = 6  // start at column 6 to get the rates
@@ -24,11 +20,11 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 	const numEscalationYearsToProcess = sharedNumEscalationYearsToProcess
 
 	if xlsxDataSheetNum != sheetIndex {
-		return fmt.Errorf("parseDomesticServiceAreaPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
+		return nil, fmt.Errorf("parseDomesticServiceAreaPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
 	var domPrices []models.StageDomesticServiceAreaPrice
-	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
+	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
 	for _, row := range dataRows {
 		colIndex := feeColIndexStart
 		// For number of baseline + Escalation years
@@ -52,7 +48,7 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 				domPrice.OriginDestinationSITAddlDays = getCell(row.Cells, colIndex)
 				colIndex++ // skip column SIT Pickup / Delivery ≤50 miles (per cwt)
 
-				if params.showOutput == true {
+				if params.ShowOutput == true {
 					log.Printf("%v\n", domPrice)
 				}
 				domPrices = append(domPrices, domPrice)
@@ -62,21 +58,11 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params paramConfig, s
 		}
 	}
 
-	// TODO: Move these two things out of here
-	if csvWriter != nil {
-		if err := gocsv.MarshalFile(domPrices, csvWriter.csvFile); err != nil {
-			return errors.Wrap(err, "Could not marshal CSV file for domestic service area prices")
-		}
-	}
-	if err := tableFromSliceCreator.CreateTableFromSlice(domPrices); err != nil {
-		return errors.Wrap(err, "Could not create temp table for domestic service area prices")
-	}
-
-	return nil
+	return domPrices, nil
 }
 
 // verifyDomesticServiceAreaPrices: verification 2b) Dom. Service Area Prices
-var verifyDomesticServiceAreaPrices verifyXlsxSheet = func(params paramConfig, sheetIndex int) error {
+var verifyDomesticServiceAreaPrices verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 7  // 2a) Domestic Linehaul Prices
 	const feeColIndexStart int = 6  // start at column 6 to get the rates
@@ -106,7 +92,7 @@ var verifyDomesticServiceAreaPrices verifyXlsxSheet = func(params paramConfig, s
 		"SIT Pickup / Delivery ≤50 miles (per cwt)",
 	}
 
-	dataRows := params.xlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowMilageHeaderIndexStart:verifyHeaderIndexEnd]
+	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowMilageHeaderIndexStart:verifyHeaderIndexEnd]
 	for dataRowsIndex, row := range dataRows {
 		colIndex := feeColIndexStart
 		// For number of baseline + Escalation years
