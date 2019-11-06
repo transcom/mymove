@@ -32,9 +32,9 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params ParamConfig, shee
 			// For each Rate Season
 			for _, r := range rateSeasons {
 				// For each weight band
-				for _, w := range dLhWeightBands {
+				for _, w := range dlhWeightBands {
 					// For each mileage range
-					for _, m := range dLhMilesRanges {
+					for _, m := range dlhMilesRanges {
 						domPrice := models.StageDomesticLinehaulPrice{
 							ServiceAreaNumber: getCell(row.Cells, serviceAreaNumberColumn),
 							OriginServiceArea: getCell(row.Cells, originServiceAreaColumn),
@@ -65,12 +65,12 @@ var parseDomesticLinehaulPrices processXlsxSheet = func(params ParamConfig, shee
 // verifyDomesticLinehaulPrices: verification for 2a) Domestic Linehaul Prices
 var verifyDomesticLinehaulPrices verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
 
-	if dLhWeightBandNumCells != dLhWeightBandNumCellsExpected {
-		return fmt.Errorf("parseDomesticLinehaulPrices(): Exepected %d columns per weight band, found %d defined in golang parser", dLhWeightBandNumCellsExpected, dLhWeightBandNumCells)
+	if dlhWeightBandNumCells != dlhWeightBandNumCellsExpected {
+		return fmt.Errorf("parseDomesticLinehaulPrices(): Exepected %d columns per weight band, found %d defined in golang parser", dlhWeightBandNumCellsExpected, dlhWeightBandNumCells)
 	}
 
-	if len(dLhWeightBands) != dLhWeightBandCountExpected {
-		return fmt.Errorf("parseDomesticLinehaulPrices(): Exepected %d weight bands, found %d defined in golang parser", dLhWeightBandCountExpected, len(dLhWeightBands))
+	if len(dlhWeightBands) != dlhWeightBandCountExpected {
+		return fmt.Errorf("parseDomesticLinehaulPrices(): Exepected %d weight bands, found %d defined in golang parser", dlhWeightBandCountExpected, len(dlhWeightBands))
 	}
 
 	// XLSX Sheet consts
@@ -98,15 +98,15 @@ var verifyDomesticLinehaulPrices verifyXlsxSheet = func(params ParamConfig, shee
 			// For each Rate Season
 			for _, r := range rateSeasons {
 				// For each weight band
-				for _, w := range dLhWeightBands {
+				for _, w := range dlhWeightBands {
 					// For each milage range
-					for dLhMilesRangesIndex, m := range dLhMilesRanges {
+					for dlhMilesRangesIndex, m := range dlhMilesRanges {
 						// skip the last index because the text is not easily checked
-						if dLhMilesRangesIndex == len(dLhMilesRanges)-1 {
+						if dlhMilesRangesIndex == len(dlhMilesRanges)-1 {
 							colIndex++
 							continue
 						}
-						verificationLog := fmt.Sprintf(" , verfication for row index: %d, colIndex: %d, Escalation: %d, rateSeasons %v, dLhWeightBands %v",
+						verificationLog := fmt.Sprintf(" , verfication for row index: %d, colIndex: %d, Escalation: %d, rateSeasons %v, dlhWeightBands %v",
 							dataRowsIndex, colIndex, escalation, r, w)
 						if dataRowsIndex == 0 {
 							if m.lower != getInt(getCell(row.Cells, colIndex)) {

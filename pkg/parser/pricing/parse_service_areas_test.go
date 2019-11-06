@@ -1,44 +1,45 @@
 package pricing
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/go-openapi/swag"
 )
 
 func (suite *PricingParserSuite) Test_verifyServiceAreas() {
+	const sheetIndex = 4
 	InitDataSheetInfo()
+
 	params := ParamConfig{
 		ProcessAll:   false,
 		ShowOutput:   false,
-		XlsxFilename: &suite.xlsxFilename,
-		XlsxSheets:   []string{"4"},
+		XlsxFilename: suite.xlsxFilename,
+		XlsxSheets:   []string{strconv.Itoa(sheetIndex)},
 		SaveToFile:   true,
 		RunTime:      time.Now(),
 		XlsxFile:     suite.xlsxFile,
 		RunVerify:    true,
 	}
-
-	const sheetIndex int = 4
 
 	err := verifyServiceAreas(params, sheetIndex)
 	suite.NoError(err, "verifyServiceAreas function failed")
 }
 
 func (suite *PricingParserSuite) Test_verifyServiceAreasWrongSheet() {
+	const sheetIndex = 4
 	InitDataSheetInfo()
+
 	params := ParamConfig{
 		ProcessAll:   false,
 		ShowOutput:   false,
-		XlsxFilename: &suite.xlsxFilename,
-		XlsxSheets:   []string{"5"},
+		XlsxFilename: suite.xlsxFilename,
+		XlsxSheets:   []string{strconv.Itoa(sheetIndex)},
 		SaveToFile:   true,
 		RunTime:      time.Now(),
 		XlsxFile:     suite.xlsxFile,
 		RunVerify:    true,
 	}
-
-	const sheetIndex int = 4
 
 	err := verifyServiceAreas(params, sheetIndex)
 	suite.NoError(err, "verifyServiceAreas function failed")
@@ -46,26 +47,26 @@ func (suite *PricingParserSuite) Test_verifyServiceAreasWrongSheet() {
 
 // Test_parseDomesticServiceAreas
 func (suite *PricingParserSuite) Test_parseDomesticServiceAreas() {
+	const sheetIndex = 4
 	xlsxDataSheets := InitDataSheetInfo()
+	dataSheet := xlsxDataSheets[sheetIndex]
+
 	params := ParamConfig{
 		ProcessAll:   false,
 		ShowOutput:   false,
-		XlsxFilename: &suite.xlsxFilename,
-		XlsxSheets:   []string{"4"},
+		XlsxFilename: suite.xlsxFilename,
+		XlsxSheets:   []string{strconv.Itoa(sheetIndex)},
 		SaveToFile:   true,
 		RunTime:      time.Now(),
 		XlsxFile:     suite.xlsxFile,
 		RunVerify:    true,
 	}
 
-	const sheetIndex int = 4
-	dataSheet := xlsxDataSheets[sheetIndex]
-
 	slice, err := parseDomesticServiceAreas(params, sheetIndex)
 	suite.NoError(err, "parseDomesticServiceAreas function failed")
 
 	outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, swag.String("domestic"))
-	err = createCSV(outputFilename, sheetIndex, slice)
+	err = createCSV(outputFilename, slice)
 	suite.NoError(err, "could not create CSV")
 
 	const domesticGoldenFilename string = "4_1b_service_areas_domestic_golden.csv"
@@ -74,26 +75,26 @@ func (suite *PricingParserSuite) Test_parseDomesticServiceAreas() {
 
 // Test_parseInternationalServiceAreas
 func (suite *PricingParserSuite) Test_parseInternationalServiceAreas() {
+	const sheetIndex = 4
 	xlsxDataSheets := InitDataSheetInfo()
+	dataSheet := xlsxDataSheets[sheetIndex]
+
 	params := ParamConfig{
 		ProcessAll:   false,
 		ShowOutput:   false,
-		XlsxFilename: &suite.xlsxFilename,
-		XlsxSheets:   []string{"4"},
+		XlsxFilename: suite.xlsxFilename,
+		XlsxSheets:   []string{strconv.Itoa(sheetIndex)},
 		SaveToFile:   true,
 		RunTime:      time.Now(),
 		XlsxFile:     suite.xlsxFile,
 		RunVerify:    true,
 	}
 
-	const sheetIndex int = 4
-	dataSheet := xlsxDataSheets[sheetIndex]
-
 	slice, err := parseInternationalServiceAreas(params, sheetIndex)
 	suite.NoError(err, "parseInternationalServiceAreas function failed")
 
 	outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, swag.String("international"))
-	err = createCSV(outputFilename, sheetIndex, slice)
+	err = createCSV(outputFilename, slice)
 	suite.NoError(err, "could not create CSV")
 
 	const internationalGoldenFilename string = "4_1b_service_areas_international_golden.csv"

@@ -14,6 +14,8 @@ import (
 // COMMON Types
 /*************************************************************************************************************/
 
+const sharedNumEscalationYearsToProcess int = 1
+
 var rateSeasons = []string{"NonPeak", "Peak"}
 
 /*************************************************************************/
@@ -58,13 +60,13 @@ func removeWhiteSpace(stripString string) string {
 	return s
 }
 
-// generateOutputFilename: generates filename using XlsxDataSheetInfo.OutputFilename
+// generateOutputFilename: generates filename using XlsxDataSheetInfo.outputFilename
 // with the following format -- <id>_<OutputFilename>_<time.Now().Format("20060102150405")>.csv
-// if the adtlSuffix is passed the format is -- <id>_<OutputFilename>_<adtlSuffix>_<time.Now().Format("20060102150405")>.csv
+// if the adtlSuffix is passed the format is -- <id>_<outputFilename>_<adtlSuffix>_<time.Now().Format("20060102150405")>.csv
 func (x *XlsxDataSheetInfo) generateOutputFilename(index int, runTime time.Time, adtlSuffix *string) string {
 	var name string
-	if x.OutputFilename != nil {
-		name = *x.OutputFilename
+	if x.outputFilename != nil {
+		name = *x.outputFilename
 	} else {
 		name = "rate_engine_ghc_parse"
 	}

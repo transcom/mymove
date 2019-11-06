@@ -28,26 +28,6 @@ For help run: <program> -h
 
  *************************************************************************/
 
-func xlsxSheetsUsage(xlsxDataSheets []pricing.XlsxDataSheetInfo) string {
-	message := "Provide comma separated string of sequential sheet index numbers starting with 0:\n"
-	message += "\t e.g. '-xlsxSheets=\"6,7,11\"'\n"
-	message += "\t      '-xlsxSheets=\"6\"'\n"
-	message += "\n"
-	message += "Available sheets for parsing are: \n"
-
-	for i, v := range xlsxDataSheets {
-		if len(v.ProcessMethods) > 0 {
-			description := ""
-			if v.Description != nil {
-				description = *v.Description
-			}
-			message += fmt.Sprintf("%d:  %s\n", i, description)
-		}
-	}
-
-	return message
-}
-
 func main() {
 	xlsxDataSheets := pricing.InitDataSheetInfo()
 
@@ -88,17 +68,17 @@ func main() {
 		params.XlsxSheets = strings.Split(*sheets, ",")
 	}
 
-	params.XlsxFilename = filename
 	if filename != nil {
 		log.Printf("Importing file %s\n", *filename)
 	} else {
 		log.Fatalf("Did not receive an XLSX filename to parse, missing -filename\n")
 	}
+	params.XlsxFilename = *filename
 
-	xlsxFile, err := xlsx.OpenFile(*params.XlsxFilename)
+	xlsxFile, err := xlsx.OpenFile(params.XlsxFilename)
 	params.XlsxFile = xlsxFile
 	if err != nil {
-		log.Fatalf("Failed to open file %s with error %v\n", *params.XlsxFilename, err)
+		log.Fatalf("Failed to open file %s with error %v\n", params.XlsxFilename, err)
 	}
 
 	params.ShowOutput = false
@@ -152,8 +132,29 @@ func main() {
 		}
 	}()
 
+	// Now kick off the parsing
 	err = pricing.Parse(xlsxDataSheets, params, db, logger)
 	if err != nil {
 		log.Fatalf("Failed to parse pricing template due to %v", err)
 	}
+}
+
+func xlsxSheetsUsage(xlsxDataSheets []pricing.XlsxDataSheetInfo) string {
+	message := "Provide comma separated string of sequential sheet index numbers starting with 0:\n"
+	message += "\t e.g. '-xlsxSheets=\"6,7,11\"'\n"
+	message += "\t      '-xlsxSheets=\"6\"'\n"
+	message += "\n"
+	message += "Available sheets for parsing are: \n"
+
+	for i, v := range xlsxDataSheets {
+		if len(v.ProcessMethods) > 0 {
+			description := ""
+			if v.Description != nil {
+				description = *v.Description
+			}
+			message += fmt.Sprintf("%d:  %s\n", i, description)
+		}
+	}
+
+	return message
 }

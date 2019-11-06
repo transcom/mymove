@@ -117,8 +117,8 @@ func (suite *PricingParserSuite) Test_xlsxDataSheetInfo_generateOutputFilename()
 					adtlSuffix: tt.adtlSuffix,
 				},
 				},
-				Verify:         tt.fields.verify,
-				OutputFilename: tt.fields.outputFilename,
+				verify:         tt.fields.verify,
+				outputFilename: tt.fields.outputFilename,
 			}
 			if got := x.generateOutputFilename(tt.args.index, tt.args.runTime, tt.adtlSuffix); got != tt.want {
 				t.Errorf("xlsxDataSheetInfo.generateOutputFilename() = %v, want %v", got, tt.want)
@@ -179,40 +179,40 @@ func (suite *PricingParserSuite) helperTestSetup() []XlsxDataSheetInfo {
 	// 0:
 	xlsxDataSheets[0] = XlsxDataSheetInfo{
 		Description:    swag.String("0) Test Process 1"),
-		OutputFilename: swag.String("0_test_process_1"),
+		outputFilename: swag.String("0_test_process_1"),
 		ProcessMethods: []xlsxProcessInfo{{
 			process: &testProcessFunc1,
 		},
 		},
-		Verify: &testVerifyFunc1,
+		verify: &testVerifyFunc1,
 	}
 
 	// 1:
 	xlsxDataSheets[1] = XlsxDataSheetInfo{
 		Description:    swag.String("1) Test Process 2"),
-		OutputFilename: swag.String("1_test_process_2"),
+		outputFilename: swag.String("1_test_process_2"),
 		ProcessMethods: []xlsxProcessInfo{{
 			process: &testProcessFunc2,
 		},
 		},
-		Verify: &testVerifyFunc2,
+		verify: &testVerifyFunc2,
 	}
 
 	// 2:
 	xlsxDataSheets[2] = XlsxDataSheetInfo{
 		Description:    swag.String("2) Test Process 3"),
-		OutputFilename: swag.String("2_test_process_3"),
+		outputFilename: swag.String("2_test_process_3"),
 		ProcessMethods: []xlsxProcessInfo{{
 			process: &testProcessFunc3,
 		},
 		},
-		Verify: &testVerifyFunc3,
+		verify: &testVerifyFunc3,
 	}
 
 	// 3:
 	xlsxDataSheets[3] = XlsxDataSheetInfo{
 		Description:    swag.String("3) Test Process 4"),
-		OutputFilename: swag.String("3_test_process_4"),
+		outputFilename: swag.String("3_test_process_4"),
 		ProcessMethods: []xlsxProcessInfo{
 			{
 				process:    &testProcessFunc4,
@@ -227,7 +227,7 @@ func (suite *PricingParserSuite) helperTestSetup() []XlsxDataSheetInfo {
 				adtlSuffix: swag.String("suffix4"),
 			},
 		},
-		Verify: &testVerifyFunc4,
+		verify: &testVerifyFunc4,
 	}
 
 	return xlsxDataSheets

@@ -96,16 +96,16 @@ Rate Engine XLSX sheet tabs:
 
 To add new parser functions to this file:
 
-	a.) (optional) Add new Verify function for your processing must match signature verifyXlsxSheet
+	a.) (optional) Add new verify function for your processing must match signature verifyXlsxSheet
 	b.) Add new process function to process XLSX data sheet must match signature processXlsxSheet
-	c.) Update initDataSheetInfo() with a.) and b.)
+	c.) Update InitDataSheetInfo() with a.) and b.)
 		The index must match the sheet index in the XLSX that you aim to process
 
 You should not have to update the Parse() or process() functions unless you
 intentionally are modifying the pattern of how the processing functions are called.
 
  *************************************************************************/
-const sharedNumEscalationYearsToProcess int = 1
+
 const xlsxSheetsCountMax int = 35
 
 type processXlsxSheet func(ParamConfig, int) (interface{}, error)
@@ -114,8 +114,8 @@ type verifyXlsxSheet func(ParamConfig, int) error
 type XlsxDataSheetInfo struct {
 	Description    *string
 	ProcessMethods []xlsxProcessInfo
-	Verify         *verifyXlsxSheet
-	OutputFilename *string //do not include suffix see func generateOutputFilename for details
+	verify         *verifyXlsxSheet
+	outputFilename *string //do not include suffix see func generateOutputFilename for details
 }
 
 type xlsxProcessInfo struct {
@@ -123,7 +123,18 @@ type xlsxProcessInfo struct {
 	adtlSuffix *string
 }
 
-// initDataSheetInfo: When adding new functions for parsing sheets, must add new XlsxDataSheetInfo
+type ParamConfig struct {
+	ProcessAll   bool
+	ShowOutput   bool
+	XlsxFilename string
+	XlsxSheets   []string
+	SaveToFile   bool
+	RunTime      time.Time
+	XlsxFile     *xlsx.File
+	RunVerify    bool
+}
+
+// InitDataSheetInfo: When adding new functions for parsing sheets, must add new XlsxDataSheetInfo
 // defining the parse function
 //
 // The index MUST match the sheet that is being processed. Refer to file comments or XLSX to
@@ -134,7 +145,7 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 	// 4: 	1b) Domestic & International Service Areas
 	xlsxDataSheets[4] = XlsxDataSheetInfo{
 		Description:    swag.String("1b) Service Areas"),
-		OutputFilename: swag.String("1b_service_areas"),
+		outputFilename: swag.String("1b_service_areas"),
 		ProcessMethods: []xlsxProcessInfo{
 			{
 				process:    &parseDomesticServiceAreas,
@@ -145,43 +156,32 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 				adtlSuffix: swag.String("international"),
 			},
 		},
-		Verify: &verifyServiceAreas,
+		verify: &verifyServiceAreas,
 	}
 
 	// 6: 	2a) Domestic Linehaul Prices
 	xlsxDataSheets[6] = XlsxDataSheetInfo{
 		Description:    swag.String("2a) Domestic Linehaul Prices"),
-		OutputFilename: swag.String("2a_domestic_linehaul_prices"),
+		outputFilename: swag.String("2a_domestic_linehaul_prices"),
 		ProcessMethods: []xlsxProcessInfo{{
 			process: &parseDomesticLinehaulPrices,
 		},
 		},
-		Verify: &verifyDomesticLinehaulPrices,
+		verify: &verifyDomesticLinehaulPrices,
 	}
 
 	// 7: 	2b) Dom. Service Area Prices
 	xlsxDataSheets[7] = XlsxDataSheetInfo{
 		Description:    swag.String("2b) Dom. Service Area Prices"),
-		OutputFilename: swag.String("2b_domestic_service_area_prices"),
+		outputFilename: swag.String("2b_domestic_service_area_prices"),
 		ProcessMethods: []xlsxProcessInfo{{
 			process: &parseDomesticServiceAreaPrices,
 		},
 		},
-		Verify: &verifyDomesticServiceAreaPrices,
+		verify: &verifyDomesticServiceAreaPrices,
 	}
 
 	return xlsxDataSheets
-}
-
-type ParamConfig struct {
-	ProcessAll   bool
-	ShowOutput   bool
-	XlsxFilename *string
-	XlsxSheets   []string
-	SaveToFile   bool
-	RunTime      time.Time
-	XlsxFile     *xlsx.File
-	RunVerify    bool
 }
 
 func Parse(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, db *pop.Connection, logger Logger) error {
@@ -230,14 +230,14 @@ func Parse(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, db *pop.Conne
 }
 
 // process: is the main process function. It will call the
-// appropriate Verify and process functions based on what is defined
+// appropriate verify and process functions based on what is defined
 // in the xlsxDataSheets array
 //
 // Should not need to edit this function when adding new processing functions
 //     to add new processing functions update:
-//         a.) add new Verify function for your processing
+//         a.) add new verify function for your processing
 //         b.) add new process function for your processing
-//         c.) update initDataSheetInfo() with a.) and b.)
+//         c.) update InitDataSheetInfo() with a.) and b.)
 func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator) error {
 	xlsxInfo := xlsxDataSheets[sheetIndex]
 	var description string
@@ -248,20 +248,20 @@ func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex 
 		log.Printf("Processing sheet index %d with missing Description\n", sheetIndex)
 	}
 
-	// Call Verify function
+	// Call verify function
 	if params.RunVerify == true {
-		if xlsxInfo.Verify != nil {
-			callFunc := *xlsxInfo.Verify
+		if xlsxInfo.verify != nil {
+			callFunc := *xlsxInfo.verify
 			err := callFunc(params, sheetIndex)
 			if err != nil {
 				log.Printf("%s Verify error: %v\n", description, err)
 				return errors.Wrapf(err, " Verify error for sheet index: %d with Description: %s", sheetIndex, description)
 			}
 		} else {
-			log.Printf("No Verify function for sheet index %d with Description %s\n", sheetIndex, description)
+			log.Printf("No verify function for sheet index %d with Description %s\n", sheetIndex, description)
 		}
 	} else {
-		log.Print("Skip running the Verify functions")
+		log.Print("Skip running the verify functions")
 	}
 
 	// Call process function
@@ -277,11 +277,11 @@ func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex 
 
 				if params.SaveToFile {
 					filename := xlsxDataSheets[sheetIndex].generateOutputFilename(sheetIndex, params.RunTime, p.adtlSuffix)
-					if err := createCSV(filename, sheetIndex, slice); err != nil {
+					if err := createCSV(filename, slice); err != nil {
 						return errors.Wrapf(err, "Could not create CSV for sheet index: %d with Description: %s", sheetIndex, description)
 					}
 				}
-				if err := createTable(sheetIndex, tableFromSliceCreator, slice); err != nil {
+				if err := tableFromSliceCreator.CreateTableFromSlice(slice); err != nil {
 					return errors.Wrapf(err, "Could not create table for sheet index: %d with Description: %s", sheetIndex, description)
 				}
 			} else {
@@ -297,25 +297,21 @@ func process(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, sheetIndex 
 	return nil
 }
 
-func createCSV(filename string, sheetIndex int, slice interface{}) error {
+func createCSV(filename string, slice interface{}) error {
 	// Create file for writing the CSV
 	csvFile, err := os.Create(filename)
 	if err != nil {
-		return errors.Wrapf(err, "Could not create CSV file for sheet %d", sheetIndex)
+		return errors.Wrapf(err, "Could not create CSV file")
 	}
-	defer csvFile.Close()
+	defer func() {
+		if closeErr := csvFile.Close(); closeErr != nil {
+			log.Fatalf("Could not close CSV file: %v", closeErr)
+		}
+	}()
 
 	// Write the CSV
 	if err := gocsv.MarshalFile(slice, csvFile); err != nil {
-		return errors.Wrapf(err, "Could not marshal CSV file for sheet %d", sheetIndex)
-	}
-
-	return nil
-}
-
-func createTable(sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, slice interface{}) error {
-	if err := tableFromSliceCreator.CreateTableFromSlice(slice); err != nil {
-		return errors.Wrapf(err, "Could not create temp table for sheet %d", sheetIndex)
+		return errors.Wrapf(err, "Could not marshal CSV file")
 	}
 
 	return nil
