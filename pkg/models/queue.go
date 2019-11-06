@@ -66,7 +66,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			OR (ppm.status = 'SUBMITTED'
 				AND (NOT moves.status in ('CANCELED', 'DRAFT'))))
 			AND moves.show is true
-			GROUP BY moves.ID, rank, customer_name, edipi, locator, orders_type, move_date, moves.created_at, last_modified_date, moves.status, ppm.submit_date, ppm_status, origin_duty_station.name
+			GROUP BY moves.ID, rank, customer_name, edipi, locator, orders_type, move_date, moves.created_at, last_modified_date, moves.status, ppm.submit_date, ppm_status, origin_duty_station.name, sm.affiliation
 		`
 	} else if lifecycleState == "ppm_payment_requested" {
 		query = `
