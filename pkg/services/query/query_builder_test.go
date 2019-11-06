@@ -310,7 +310,7 @@ func (suite *QueryBuilderSuite) TestCount() {
 
 		suite.Error(err)
 		suite.Equal("[fake_column =] is not valid input", err.Error())
-		suite.Nil(count)
+		suite.Zero(count)
 	})
 
 	suite.T().Run("fails with invalid comparator", func(t *testing.T) {
@@ -322,7 +322,7 @@ func (suite *QueryBuilderSuite) TestCount() {
 
 		suite.Error(err)
 		suite.Equal("[id *] is not valid input", err.Error())
-		suite.Nil(count)
+		suite.Zero(count)
 	})
 
 	suite.T().Run("fails when not pointer", func(t *testing.T) {
@@ -331,7 +331,7 @@ func (suite *QueryBuilderSuite) TestCount() {
 
 		suite.Error(err)
 		suite.Equal("Model should be pointer to slice of structs", err.Error())
-		suite.Nil(count)
+		suite.Zero(count)
 	})
 
 	suite.T().Run("fails when not pointer to slice", func(t *testing.T) {
@@ -340,7 +340,7 @@ func (suite *QueryBuilderSuite) TestCount() {
 
 		suite.Error(err)
 		suite.Equal("Model should be pointer to slice of structs", err.Error())
-		suite.Nil(count)
+		suite.Zero(count)
 	})
 
 	suite.T().Run("fails when not pointer to slice of structs", func(t *testing.T) {
@@ -350,7 +350,7 @@ func (suite *QueryBuilderSuite) TestCount() {
 
 		suite.Error(err)
 		suite.Equal("Model should be pointer to slice of structs", err.Error())
-		suite.Nil(count)
+		suite.Zero(count)
 	})
 }
 
