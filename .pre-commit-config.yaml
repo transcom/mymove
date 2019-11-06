@@ -76,9 +76,9 @@ repos:
     hooks:
       - id: markdown-toc
         name: markdown-toc
-        entry: scripts/generate-md-toc
+        entry: scripts/pre-commit-markdown-toc
         language: script
-        files: \.md$
+        types: ["file", "markdown"]
 
   - repo: local
     hooks:

@@ -32,7 +32,7 @@
   * [JavaScript Concepts](#javascript-concepts)
   * [Resources](#resources)
 
-Regenerate with "scripts/generate-md-toc"
+Regenerate with "scripts/pre-commit-markdown-toc"
 
 <!-- tocstop -->
 
