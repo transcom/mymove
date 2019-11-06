@@ -276,7 +276,7 @@ func (suite *QueryBuilderSuite) TestCount() {
 		count, err := builder.Count(&models.OfficeUsers{}, filters)
 
 		suite.NoError(err)
-		suite.Equal(1, *count)
+		suite.Equal(1, count)
 
 		// do the reverse to make sure we don't get the same record every time
 		filters = []services.QueryFilter{
@@ -286,7 +286,7 @@ func (suite *QueryBuilderSuite) TestCount() {
 		count, err = builder.Count(&models.OfficeUsers{}, filters)
 
 		suite.NoError(err)
-		suite.Equal(1, *count)
+		suite.Equal(1, count)
 	})
 
 	suite.T().Run("counts with time filter", func(t *testing.T) {
@@ -298,7 +298,7 @@ func (suite *QueryBuilderSuite) TestCount() {
 		count, err := builder.Count(&models.OfficeUsers{}, filters)
 		pop.Debug = false
 		suite.NoError(err)
-		suite.Equal(1, *count)
+		suite.Equal(1, count)
 	})
 
 	suite.T().Run("fails with invalid column", func(t *testing.T) {
