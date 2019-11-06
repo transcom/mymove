@@ -1,4 +1,4 @@
-package main
+package pricing
 
 import (
 	"fmt"
@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-openapi/swag"
 	"github.com/stretchr/testify/suite"
+	"github.com/tealeg/xlsx"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -18,33 +19,42 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-type ParseRateEngineGHCXLSXSuite struct {
+type PricingParserSuite struct {
 	testingsuite.PopTestSuite
 	logger                *zap.Logger
 	tableFromSliceCreator services.TableFromSliceCreator
+	xlsxFilename          string
+	xlsxFile              *xlsx.File
 }
 
-func (suite *ParseRateEngineGHCXLSXSuite) SetupTest() {
+func (suite *PricingParserSuite) SetupTest() {
 	suite.DB().TruncateAll()
 }
 
-func TestParseRateEngineGHCXLSXSuite(t *testing.T) {
+func TestPricingParserSuite(t *testing.T) {
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Panic(err)
 	}
 
-	hs := &ParseRateEngineGHCXLSXSuite{
+	hs := &PricingParserSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
+		xlsxFilename: "fixtures/pricing_template_2019-09-19_fake-data.xlsx",
 	}
+
 	hs.tableFromSliceCreator = dbtools.NewTableFromSliceCreator(hs.DB(), logger, true)
+
+	hs.xlsxFile, err = xlsx.OpenFile(hs.xlsxFilename)
+	if err != nil {
+		log.Panic(err)
+	}
 
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()
 }
 
-func (suite *ParseRateEngineGHCXLSXSuite) Test_xlsxDataSheetInfo_generateOutputFilename() {
+func (suite *PricingParserSuite) Test_xlsxDataSheetInfo_generateOutputFilename() {
 
 	type fields struct {
 		description    *string
@@ -100,9 +110,9 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_xlsxDataSheetInfo_generateOutputF
 	}
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			x := &xlsxDataSheetInfo{
-				description: tt.fields.description,
-				processMethods: []xlsxProcessInfo{{
+			x := &XlsxDataSheetInfo{
+				Description: tt.fields.description,
+				ProcessMethods: []xlsxProcessInfo{{
 					process:    tt.fields.process,
 					adtlSuffix: tt.adtlSuffix,
 				},
@@ -117,46 +127,60 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_xlsxDataSheetInfo_generateOutputF
 	}
 }
 
-var testVerifyFunc1 verifyXlsxSheet = func(params paramConfig, sheetIndex int) error {
+type TestStruct1 struct{ Field1 string }
+type TestStruct2 struct{ Field1 string }
+type TestStruct4 struct{ Field1 string }
+type TestStruct5 struct{ Field1 string }
+type TestStruct6 struct{ Field1 string }
+
+var testVerifyFunc1 verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
 	return nil
 }
 
-var testVerifyFunc2 verifyXlsxSheet = func(params paramConfig, sheetIndex int) error {
+var testVerifyFunc2 verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
 	return nil
 }
 
-var testVerifyFunc3 verifyXlsxSheet = func(params paramConfig, sheetIndex int) error {
+var testVerifyFunc3 verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
 	return fmt.Errorf("forced test error from function testVerifyFunc3 with index %d", sheetIndex)
 }
 
-var testVerifyFunc4 verifyXlsxSheet = func(params paramConfig, sheetIndex int) error {
+var testVerifyFunc4 verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
 	return nil
 }
 
-var testProcessFunc1 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
-	return nil
+var testProcessFunc1 processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+	return []TestStruct1{}, nil
 }
 
-var testProcessFunc2 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
-	return nil
+var testProcessFunc2 processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+	return []TestStruct2{}, nil
 }
 
-var testProcessFunc3 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
-	return fmt.Errorf("forced test error from function testProcessFunc3 with index %d", sheetIndex)
+var testProcessFunc3 processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+	return nil, fmt.Errorf("forced test error from function testProcessFunc3 with index %d", sheetIndex)
 }
 
-var testProcessFunc4 processXlsxSheet = func(params paramConfig, sheetIndex int, tableFromSliceCreator services.TableFromSliceCreator, csvWriter *createCsvHelper) error {
-	return nil
+var testProcessFunc4 processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+	return []TestStruct4{}, nil
 }
 
-func (suite *ParseRateEngineGHCXLSXSuite) helperTestSetup() {
-	xlsxDataSheets = make([]xlsxDataSheetInfo, xlsxSheetsCountMax, xlsxSheetsCountMax)
+var testProcessFunc5 processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+	return []TestStruct5{}, nil
+}
+
+var testProcessFunc6 processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+	return []TestStruct6{}, nil
+}
+
+func (suite *PricingParserSuite) helperTestSetup() []XlsxDataSheetInfo {
+	xlsxDataSheets := make([]XlsxDataSheetInfo, xlsxSheetsCountMax, xlsxSheetsCountMax)
 
 	// 0:
-	xlsxDataSheets[0] = xlsxDataSheetInfo{
-		description:    swag.String("0) Test Process 1"),
+	xlsxDataSheets[0] = XlsxDataSheetInfo{
+		Description:    swag.String("0) Test Process 1"),
 		outputFilename: swag.String("0_test_process_1"),
-		processMethods: []xlsxProcessInfo{{
+		ProcessMethods: []xlsxProcessInfo{{
 			process: &testProcessFunc1,
 		},
 		},
@@ -164,10 +188,10 @@ func (suite *ParseRateEngineGHCXLSXSuite) helperTestSetup() {
 	}
 
 	// 1:
-	xlsxDataSheets[1] = xlsxDataSheetInfo{
-		description:    swag.String("1) Test Process 2"),
+	xlsxDataSheets[1] = XlsxDataSheetInfo{
+		Description:    swag.String("1) Test Process 2"),
 		outputFilename: swag.String("1_test_process_2"),
-		processMethods: []xlsxProcessInfo{{
+		ProcessMethods: []xlsxProcessInfo{{
 			process: &testProcessFunc2,
 		},
 		},
@@ -175,10 +199,10 @@ func (suite *ParseRateEngineGHCXLSXSuite) helperTestSetup() {
 	}
 
 	// 2:
-	xlsxDataSheets[2] = xlsxDataSheetInfo{
-		description:    swag.String("2) Test Process 3"),
+	xlsxDataSheets[2] = XlsxDataSheetInfo{
+		Description:    swag.String("2) Test Process 3"),
 		outputFilename: swag.String("2_test_process_3"),
-		processMethods: []xlsxProcessInfo{{
+		ProcessMethods: []xlsxProcessInfo{{
 			process: &testProcessFunc3,
 		},
 		},
@@ -186,33 +210,35 @@ func (suite *ParseRateEngineGHCXLSXSuite) helperTestSetup() {
 	}
 
 	// 3:
-	xlsxDataSheets[3] = xlsxDataSheetInfo{
-		description:    swag.String("3) Test Process 4"),
+	xlsxDataSheets[3] = XlsxDataSheetInfo{
+		Description:    swag.String("3) Test Process 4"),
 		outputFilename: swag.String("3_test_process_4"),
-		processMethods: []xlsxProcessInfo{
+		ProcessMethods: []xlsxProcessInfo{
 			{
-				process:    &testProcessFunc1,
+				process:    &testProcessFunc4,
 				adtlSuffix: swag.String("suffix1"),
 			},
 			{
-				process:    &testProcessFunc2,
+				process:    &testProcessFunc5,
 				adtlSuffix: swag.String("suffix2"),
 			},
 			{
-				process:    &testProcessFunc4,
+				process:    &testProcessFunc6,
 				adtlSuffix: swag.String("suffix4"),
 			},
 		},
 		verify: &testVerifyFunc4,
 	}
+
+	return xlsxDataSheets
 }
 
-func (suite *ParseRateEngineGHCXLSXSuite) Test_process() {
+func (suite *PricingParserSuite) Test_process() {
 
-	suite.helperTestSetup()
+	xlsxDataSheets := suite.helperTestSetup()
 
 	type args struct {
-		params     paramConfig
+		params     ParamConfig
 		sheetIndex int
 	}
 	tests := []struct {
@@ -223,8 +249,8 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_process() {
 		{
 			name: "TC 2 run fake process & verify function 1, no error",
 			args: args{
-				params: paramConfig{
-					runTime: time.Now(),
+				params: ParamConfig{
+					RunTime: time.Now(),
 				},
 				sheetIndex: 0,
 			},
@@ -233,8 +259,8 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_process() {
 		{
 			name: "TC 2 run fake process & verify function 2, no error",
 			args: args{
-				params: paramConfig{
-					runTime: time.Now(),
+				params: ParamConfig{
+					RunTime: time.Now(),
 				},
 				sheetIndex: 1,
 			},
@@ -243,8 +269,8 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_process() {
 		{
 			name: "TC 3 run fake process & verify function 3, with error",
 			args: args{
-				params: paramConfig{
-					runTime: time.Now(),
+				params: ParamConfig{
+					RunTime: time.Now(),
 				},
 				sheetIndex: 2,
 			},
@@ -253,8 +279,8 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_process() {
 		{
 			name: "TC 4 run fake process methods & verify function 4, with suffix",
 			args: args{
-				params: paramConfig{
-					runTime: time.Now(),
+				params: ParamConfig{
+					RunTime: time.Now(),
 				},
 				sheetIndex: 3,
 			},
@@ -263,14 +289,14 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_process() {
 	}
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			if err := process(tt.args.params, tt.args.sheetIndex, suite.tableFromSliceCreator); (err != nil) != tt.wantErr {
+			if err := process(xlsxDataSheets, tt.args.params, tt.args.sheetIndex, suite.tableFromSliceCreator); (err != nil) != tt.wantErr {
 				t.Errorf("process() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
 }
 
-func (suite *ParseRateEngineGHCXLSXSuite) Test_getInt() {
+func (suite *PricingParserSuite) Test_getInt() {
 	type args struct {
 		from string
 	}
@@ -317,7 +343,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_getInt() {
 	}
 }
 
-func (suite *ParseRateEngineGHCXLSXSuite) Test_removeFirstDollarSign() {
+func (suite *PricingParserSuite) Test_removeFirstDollarSign() {
 	type args struct {
 		s string
 	}
@@ -358,7 +384,7 @@ func (suite *ParseRateEngineGHCXLSXSuite) Test_removeFirstDollarSign() {
 	}
 }
 
-func (suite *ParseRateEngineGHCXLSXSuite) helperTestExpectedFileOutput(goldenFilename string, currentOutputFilename string) {
+func (suite *PricingParserSuite) helperTestExpectedFileOutput(goldenFilename string, currentOutputFilename string) {
 	expected := filepath.Join("fixtures", goldenFilename) // relative path
 	expectedBytes, err := ioutil.ReadFile(expected)
 	suite.NoErrorf(err, "error loading expected CSV file output fixture <%s>", expected)
