@@ -411,10 +411,7 @@ func init() {
         "operationId": "indexOfficeUsers",
         "parameters": [
           {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
+            "type": "string",
             "name": "filter",
             "in": "query"
           },
@@ -490,17 +487,14 @@ func init() {
               "$ref": "#/definitions/OfficeUser"
             }
           },
-          "400": {
-            "description": "Invalid Request"
-          },
-          "401": {
-            "description": "Must be authenticated to use this end point"
-          },
-          "403": {
-            "description": "Not authorized to create an office user"
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
           },
           "500": {
-            "description": "Server error"
+            "description": "internal server error"
           }
         }
       }
@@ -1143,6 +1137,26 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/AdminUser"
+      }
+    },
+    "ClientError": {
+      "type": "object",
+      "required": [
+        "title",
+        "detail",
+        "instance"
+      ],
+      "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string"
+        }
       }
     },
     "ElectronicOrder": {
@@ -1621,6 +1635,27 @@ func init() {
           "$ref": "#/definitions/Upload"
         }
       }
+    },
+    "ValidationError": {
+      "required": [
+        "invalid_fields"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/ClientError"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "properties": {
+        "invalid_fields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
     }
   }
 }`))
@@ -2018,10 +2053,7 @@ func init() {
         "operationId": "indexOfficeUsers",
         "parameters": [
           {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
+            "type": "string",
             "name": "filter",
             "in": "query"
           },
@@ -2097,17 +2129,14 @@ func init() {
               "$ref": "#/definitions/OfficeUser"
             }
           },
-          "400": {
-            "description": "Invalid Request"
-          },
-          "401": {
-            "description": "Must be authenticated to use this end point"
-          },
-          "403": {
-            "description": "Not authorized to create an office user"
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
           },
           "500": {
-            "description": "Server error"
+            "description": "internal server error"
           }
         }
       }
@@ -2752,6 +2781,26 @@ func init() {
         "$ref": "#/definitions/AdminUser"
       }
     },
+    "ClientError": {
+      "type": "object",
+      "required": [
+        "title",
+        "detail",
+        "instance"
+      ],
+      "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    },
     "ElectronicOrder": {
       "type": "object",
       "required": [
@@ -3227,6 +3276,27 @@ func init() {
         },
         "upload": {
           "$ref": "#/definitions/Upload"
+        }
+      }
+    },
+    "ValidationError": {
+      "required": [
+        "invalid_fields"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/ClientError"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "properties": {
+        "invalid_fields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       }
     }
