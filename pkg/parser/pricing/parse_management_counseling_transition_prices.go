@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/tealeg/xlsx"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -46,7 +48,7 @@ var verifyManagementCounselTransitionPrices verifyXlsxSheet = func(params ParamC
 	// XLSX Sheet consts
 	const xlsxDataSheetNum int = 16 // 4a) Mgmt., Coun., Trans. Prices
 	const mgmtRowIndexStart int = 9
-	const counRowIndexStart int = 21
+	const counRowIndexStart int = 22
 	const tranRowIndexStart int = 34
 	const contractYearColIndexStart int = 2
 	const priceColumnIndexStart int = 3
@@ -55,52 +57,42 @@ var verifyManagementCounselTransitionPrices verifyXlsxSheet = func(params ParamC
 		return fmt.Errorf("verifyManagementCounselTransitionPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
+	// Shipment Management Services Headers
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[mgmtRowIndexStart-1 : mgmtRowIndexStart]
-	for _, dataRow := range dataRows {
-		contractYearHeader := "EXAMPLE"
-		if header := getCell(dataRow.Cells, contractYearColIndexStart); header != contractYearHeader {
-			return fmt.Errorf("verifyManagementCounselTransitionPrices expected to find header '%s', but received header '%s'", contractYearHeader, header)
-		}
-		priceColumnHeader := "$X.XX"
-		if header := removeWhiteSpace(getCell(dataRow.Cells, priceColumnIndexStart)); header != priceColumnHeader {
-			return fmt.Errorf("verifyManagementCounselTransitionPrices expected to find header '%s', but received header '%s'", priceColumnHeader, header)
-		}
+	err := helperCheckHeaders("EXAMPLE", "$X.XX", contractYearColIndexStart, priceColumnIndexStart, dataRows)
+	if err != nil {
+		return err
 	}
 
-	// Shipment Management Services Headers
 	dataRows = params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[mgmtRowIndexStart-2 : mgmtRowIndexStart-1]
-	for _, dataRow := range dataRows {
-		contractYearHeader := "Contract Year"
-		if header := getCell(dataRow.Cells, contractYearColIndexStart); header != contractYearHeader {
-			return fmt.Errorf("verifyManagementCounselTransitionPrices expected to find header '%s', but received header '%s'", contractYearHeader, header)
-		}
-		priceColumnHeader := "ShipmentManagementServicesPrice($pertaskorder)"
-		if header := removeWhiteSpace(getCell(dataRow.Cells, priceColumnIndexStart)); header != priceColumnHeader {
-			return fmt.Errorf("verifyManagementCounselTransitionPrices expected to find header '%s', but received header '%s'", priceColumnHeader, header)
-		}
+	err = helperCheckHeaders("Contract Year", "ShipmentManagementServicesPrice($pertaskorder)", contractYearColIndexStart, priceColumnIndexStart, dataRows)
+	if err != nil {
+		return err
 	}
 
 	// Counseling Services
 	dataRows = params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[counRowIndexStart-1 : counRowIndexStart]
-	for _, dataRow := range dataRows {
-		contractYearHeader := "Contract Year"
-		if header := getCell(dataRow.Cells, contractYearColIndexStart); header != contractYearHeader {
-			return fmt.Errorf("verifyManagementCounselTransitionPrices expected to find header '%s', but received header '%s'", contractYearHeader, header)
-		}
-		priceColumnHeader := "CounselingServicesPrice($pertaskorder)"
-		if header := removeWhiteSpace(getCell(dataRow.Cells, priceColumnIndexStart)); header != priceColumnHeader {
-			return fmt.Errorf("verifyManagementCounselTransitionPrices expected to find header '%s', but received header '%s'", priceColumnHeader, header)
-		}
+	err = helperCheckHeaders("EXAMPLE", "$X.XX", contractYearColIndexStart, priceColumnIndexStart, dataRows)
+	if err != nil {
+		return err
+	}
+
+	dataRows = params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[counRowIndexStart-2 : counRowIndexStart-1]
+	err = helperCheckHeaders("Contract Year", "CounselingServicesPrice($pertaskorder)", contractYearColIndexStart, priceColumnIndexStart, dataRows)
+	if err != nil {
+		return err
 	}
 
 	// Transition
 	dataRows = params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[tranRowIndexStart-1 : tranRowIndexStart]
+	return helperCheckHeaders("Contract Year", "TransitionPrice($totalcost)", contractYearColIndexStart, priceColumnIndexStart, dataRows)
+}
+
+func helperCheckHeaders(contractYearHeader string, priceColumnHeader string, contractYearColIndexStart int, priceColumnIndexStart int, dataRows []*xlsx.Row) error {
 	for _, dataRow := range dataRows {
-		contractYearHeader := "Contract Year"
 		if header := getCell(dataRow.Cells, contractYearColIndexStart); header != contractYearHeader {
 			return fmt.Errorf("verifyManagementCounselTransitionPrices expected to find header '%s', but received header '%s'", contractYearHeader, header)
 		}
-		priceColumnHeader := "TransitionPrice($totalcost)"
 		if header := removeWhiteSpace(getCell(dataRow.Cells, priceColumnIndexStart)); header != priceColumnHeader {
 			return fmt.Errorf("verifyManagementCounselTransitionPrices expected to find header '%s', but received header '%s'", priceColumnHeader, header)
 		}
