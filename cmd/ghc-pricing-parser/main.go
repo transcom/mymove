@@ -9,7 +9,10 @@ import (
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"github.com/transcom/mymove/pkg/services/ghcimport"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/services/ghc_re_import"
 
 	"github.com/tealeg/xlsx"
 
@@ -41,6 +44,7 @@ func main() {
 	display := flag.Bool("display", false, "Display output of parsed info")
 	saveToFile := flag.Bool("save", false, "Save output to CSV file")
 	runVerify := flag.Bool("verify", true, "Default is true, if false skip sheet format verification")
+	runImport := flag.Bool("db_import", true, "Run GHC Rate Engine Import")
 
 	// DB Config
 	cli.InitDatabaseFlags(flag)
@@ -96,6 +100,11 @@ func main() {
 		params.RunVerify = *runVerify
 	}
 
+	params.RunImport = false
+	if runImport != nil && *runImport == true {
+		params.RunImport = true
+	}
+
 	// Connect to the database
 	//DB connection
 	v := viper.New()
@@ -137,6 +146,19 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to parse pricing template due to %v", err)
 	}
+
+	// If the parsing was successful, run GHC Rate Engine importer
+	if params.RunImport == true {
+		ghcREImporter := ghcimport.GHCRateEngineImporter{
+			DB:     db,
+			Logger: logger,
+		}
+		err = ghcREImporter.Import()
+		if err != nil {
+			log.Fatalf("GHC Rate Engine import failed due to %v", err)
+		}
+	}
+
 }
 
 func xlsxSheetsUsage(xlsxDataSheets []pricing.XlsxDataSheetInfo) string {
