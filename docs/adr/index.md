@@ -2,8 +2,6 @@
 
 This log lists the architectural decisions for DP3 Infrastructure.
 
-<!--Regenerate the content by using "npx adr-log -i". You can install it via "yarn". -->
-
 <!-- adrlog -->
 
 - [ADR-0000](0000-server-framework.md) - Use Truss' [Golang](https://golang.org/) web server skeleton to build API for DP3

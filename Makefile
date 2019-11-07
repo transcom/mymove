@@ -850,8 +850,8 @@ make_test: ## Test make targets not checked by CircleCI
 #
 
 .PHONY: adr_update
-adr_update: .client_deps.stamp ## Update ADR Log
-	yarn run adr-log
+adr_update: ## Update ADR Log
+	pre-commit run -a gen-docs
 
 .PHONY: gofmt
 gofmt:  ## Run go fmt over all Go files
