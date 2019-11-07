@@ -181,6 +181,16 @@ class QueueTable extends Component {
               onDoubleClick: () => this.openMove(rowInfo),
               onClick: () => this.openMove(rowInfo),
             })}
+            getTheadFilterThProps={() => {
+              return {
+                style: { position: 'inherit', overflow: 'inherit' },
+              };
+            }}
+            getTableProps={() => {
+              return {
+                style: { overflow: 'inherit' },
+              };
+            }}
           />
         </div>
       </div>
