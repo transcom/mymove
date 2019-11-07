@@ -127,36 +127,36 @@ var verifyManagementCounselTransitionPrices verifyXlsxSheet = func(params ParamC
 
 	// Shipment Management Services Headers
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[mgmtRowIndexStart-1 : mgmtRowIndexStart]
-	err := helperCheckHeaders("EXAMPLE", "$X.XX", contractYearColIndexStart, priceColumnIndexStart, dataRows)
+	err := helperCheckHeadersFor4b("EXAMPLE", "$X.XX", contractYearColIndexStart, priceColumnIndexStart, dataRows)
 	if err != nil {
 		return err
 	}
 
 	dataRows = params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[mgmtRowIndexStart-2 : mgmtRowIndexStart-1]
-	err = helperCheckHeaders("Contract Year", "ShipmentManagementServicesPrice($pertaskorder)", contractYearColIndexStart, priceColumnIndexStart, dataRows)
+	err = helperCheckHeadersFor4b("Contract Year", "ShipmentManagementServicesPrice($pertaskorder)", contractYearColIndexStart, priceColumnIndexStart, dataRows)
 	if err != nil {
 		return err
 	}
 
 	// Counseling Services
 	dataRows = params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[counRowIndexStart-1 : counRowIndexStart]
-	err = helperCheckHeaders("EXAMPLE", "$X.XX", contractYearColIndexStart, priceColumnIndexStart, dataRows)
+	err = helperCheckHeadersFor4b("EXAMPLE", "$X.XX", contractYearColIndexStart, priceColumnIndexStart, dataRows)
 	if err != nil {
 		return err
 	}
 
 	dataRows = params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[counRowIndexStart-2 : counRowIndexStart-1]
-	err = helperCheckHeaders("Contract Year", "CounselingServicesPrice($pertaskorder)", contractYearColIndexStart, priceColumnIndexStart, dataRows)
+	err = helperCheckHeadersFor4b("Contract Year", "CounselingServicesPrice($pertaskorder)", contractYearColIndexStart, priceColumnIndexStart, dataRows)
 	if err != nil {
 		return err
 	}
 
 	// Transition
 	dataRows = params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[tranRowIndexStart-1 : tranRowIndexStart]
-	return helperCheckHeaders("Contract Year", "TransitionPrice($totalcost)", contractYearColIndexStart, priceColumnIndexStart, dataRows)
+	return helperCheckHeadersFor4b("Contract Year", "TransitionPrice($totalcost)", contractYearColIndexStart, priceColumnIndexStart, dataRows)
 }
 
-func helperCheckHeaders(contractYearHeader string, priceColumnHeader string, contractYearColIndexStart int, priceColumnIndexStart int, dataRows []*xlsx.Row) error {
+func helperCheckHeadersFor4b(contractYearHeader string, priceColumnHeader string, contractYearColIndexStart int, priceColumnIndexStart int, dataRows []*xlsx.Row) error {
 	for _, dataRow := range dataRows {
 		if header := getCell(dataRow.Cells, contractYearColIndexStart); header != contractYearHeader {
 			return fmt.Errorf("verifyManagementCounselTransitionPrices expected to find header '%s', but received header '%s'", contractYearHeader, header)
