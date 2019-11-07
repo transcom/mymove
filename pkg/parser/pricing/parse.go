@@ -202,6 +202,27 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 		verify: &verifyManagementCounselTransitionPrices,
 	}
 
+	// 17: 	5a) Access. and Add. Prices
+	xlsxDataSheets[17] = XlsxDataSheetInfo{
+		Description:    swag.String("5a) Access. and Add. Prices"),
+		outputFilename: swag.String("5a_access_and_add_prices"),
+		ProcessMethods: []xlsxProcessInfo{
+			{
+				process:    &parseDomesticMoveAccessorialPrices,
+				adtlSuffix: swag.String("domestic"),
+			},
+			{
+				process:    &parseInternationalMoveAccessorialPrices,
+				adtlSuffix: swag.String("international"),
+			},
+			{
+				process:    &parseDomesticInternationalAdditionalPrices,
+				adtlSuffix: swag.String("additional"),
+			},
+		},
+		verify: &verifyAccessAndAddPrices,
+	}
+
 	return xlsxDataSheets
 }
 

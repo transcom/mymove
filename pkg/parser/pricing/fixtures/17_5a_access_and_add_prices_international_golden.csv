@@ -1,0 +1,7 @@
+market,service_provided,price_per_unit
+CONUS,Crating (per cubic ft.),25.61
+OCONUS,Crating (per cubic ft.),28.59
+CONUS,Uncrating (per cubic ft.),6.54
+OCONUS,Uncrating (per cubic ft.),6.54
+CONUS,Shuttle Service (per cwt),145.29
+OCONUS,Shuttle Service (per cwt),156.23
