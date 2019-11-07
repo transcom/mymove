@@ -520,6 +520,9 @@ Fargate
 ecs-tasks-app-staging
 Devlocal
 MacBookPro
+TOOs
+TIOs
+casbin
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - /usr/local
  - docs/data/tspp-data-creation.md
