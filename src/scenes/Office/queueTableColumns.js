@@ -1,6 +1,8 @@
 import React from 'react';
 import { capitalize } from 'lodash';
 import { formatDate } from 'shared/formatters';
+import SingleDatePicker from 'shared/JsonSchemaForm/SingleDatePicker';
+import moment from 'moment';
 
 // Abstracting react table column creation
 const CreateReactTableColumn = (header, accessor, options = {}) => ({
@@ -27,6 +29,26 @@ const locator = CreateReactTableColumn('Locator #', 'locator', {
 
 const moveDate = CreateReactTableColumn('PPM start', 'move_date', {
   Cell: row => <span className="move_date">{formatDate(row.value)}</span>,
+  filterable: true,
+  filterMethod: (filter, row) => {
+    // Filter dates that are same or before the filtered value
+    if (filter.value === undefined) {
+      return true;
+    }
+
+    const rowDate = moment(formatDate(row[filter.id]));
+    const filterDate = moment(formatDate(filter.value));
+
+    return rowDate.isSameOrBefore(filterDate);
+  },
+  Filter: ({ filter, onChange }) => {
+    return SingleDatePicker({
+      onChange: value => {
+        return onChange(formatDate(value));
+      },
+      value: filter ? formatDate(filter.value) : null,
+    });
+  },
 });
 
 const origin = CreateReactTableColumn('Origin', 'origin_duty_station_name', {
