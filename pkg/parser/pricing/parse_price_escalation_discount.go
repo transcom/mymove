@@ -55,7 +55,7 @@ var verifyPriceEscalationDiscount verifyXlsxSheet = func(params ParamConfig, she
 		return fmt.Errorf("verifyPriceEscalationDiscount expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
-	// Only check header of domestic and international service areas
+	// Check names on header row
 	headerRow := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[discountsRowIndexStart-2] // header 2 rows above data
 	headers := []headerInfo{
 		{"Contract Year", contractYearColumn},
@@ -63,6 +63,13 @@ var verifyPriceEscalationDiscount verifyXlsxSheet = func(params ParamConfig, she
 		{"Discount", discountColumn},
 		{"Resulting Price Escalation", priceEscalationColumn},
 	}
+	for _, header := range headers {
+		if err := verifyHeader(headerRow, header.column, header.headerName); err != nil {
+			return err
+		}
+	}
 
-	return verifyHeaders(headerRow, headers)
+	// Check name on example row
+	exampleRow := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[discountsRowIndexStart-1] // example 1 row above data
+	return verifyHeader(exampleRow, contractYearColumn, "EXAMPLE")
 }

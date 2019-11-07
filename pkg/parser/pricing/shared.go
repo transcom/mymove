@@ -20,8 +20,8 @@ const sharedNumEscalationYearsToProcess int = 1
 var rateSeasons = []string{"NonPeak", "Peak"}
 
 type headerInfo struct {
-	header string
-	column int
+	headerName string
+	column     int
 }
 
 /*************************************************************************/
@@ -66,12 +66,10 @@ func removeWhiteSpace(stripString string) string {
 	return s
 }
 
-func verifyHeaders(row *xlsx.Row, headers []headerInfo) error {
-	for _, headerInfo := range headers {
-		actual := getCell(row.Cells, headerInfo.column)
-		if removeWhiteSpace(headerInfo.header) != removeWhiteSpace(actual) {
-			return fmt.Errorf("format error: Header <%s> is missing; got <%s> instead", headerInfo.header, actual)
-		}
+func verifyHeader(row *xlsx.Row, column int, expectedName string) error {
+	actual := getCell(row.Cells, column)
+	if removeWhiteSpace(expectedName) != removeWhiteSpace(actual) {
+		return fmt.Errorf("format error: Header <%s> is missing; got <%s> instead", expectedName, actual)
 	}
 
 	return nil
