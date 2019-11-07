@@ -194,6 +194,10 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 				process:    &parseCounselingServicesPrices,
 				adtlSuffix: swag.String("counsel"),
 			},
+			{
+				process:    &parseTransitionPrices,
+				adtlSuffix: swag.String("transition"),
+			},
 		},
 		verify: &verifyManagementCounselTransitionPrices,
 	}

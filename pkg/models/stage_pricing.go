@@ -46,3 +46,8 @@ type StageCounselingServicesPrice struct {
 	ContractYear      string `db:"contract_year" csv:"contract_year"`
 	PricePerTaskOrder string `db:"price_per_task_order" csv:"price_per_task_order"`
 }
+
+type StageTransitionPrice struct {
+	ContractYear      string `db:"contract_year" csv:"contract_year"`
+	PricePerTaskOrder string `db:"price_total_cost" csv:"price_total_cost"`
+}

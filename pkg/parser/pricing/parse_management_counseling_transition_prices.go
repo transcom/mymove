@@ -77,6 +77,40 @@ var parseCounselingServicesPrices processXlsxSheet = func(params ParamConfig, sh
 	return counPrices, nil
 }
 
+var parseTransitionPrices processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+	// XLSX Sheet consts
+	const xlsxDataSheetNum int = 16 // 4a) Mgmt., Coun., Trans. Prices
+	const tranRowIndexStart int = 34
+	const contractYearColIndexStart int = 2
+	const priceColumnIndexStart int = 3
+
+	if xlsxDataSheetNum != sheetIndex {
+		return nil, fmt.Errorf("parseTransitionPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
+	}
+
+	log.Println("Parsing Transition Prices")
+	var tranPrices []models.StageTransitionPrice
+	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[tranRowIndexStart:]
+	for _, row := range dataRows {
+		tranPrice := models.StageTransitionPrice{
+			ContractYear:      getCell(row.Cells, contractYearColIndexStart),
+			PricePerTaskOrder: getCell(row.Cells, priceColumnIndexStart),
+		}
+
+		// All the rows are consecutive, if we get a blank we're done
+		if tranPrice.ContractYear == "" {
+			break
+		}
+
+		if params.ShowOutput == true {
+			log.Printf("%v\n", tranPrice)
+		}
+		tranPrices = append(tranPrices, tranPrice)
+	}
+
+	return tranPrices, nil
+}
+
 // verifyManagementCounselTransitionPrices: verification for: 4a) Mgmt., Coun., Trans. Prices
 var verifyManagementCounselTransitionPrices verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
 	// XLSX Sheet consts
