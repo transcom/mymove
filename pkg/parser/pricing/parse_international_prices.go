@@ -164,9 +164,9 @@ func verifyInternationalPrices(params ParamConfig, sheetIndex int, xlsxSheetNum 
 
 	// Check headers
 	const headerIndexStart = feeRowIndexStart - 3
-	const headerIndexStart2 = feeRowIndexStart - 2
-	const verifyHeaderIndexEnd2 = headerIndexStart2 + 2
 	const verifyHeaderIndexEnd = headerIndexStart + 2
+	const repeatingHeaderIndexStart = feeRowIndexStart - 2
+	const verifyHeaderIndexEnd2 = repeatingHeaderIndexStart + 2
 
 	if xlsxDataSheetNum != sheetIndex {
 		return fmt.Errorf("verifyOconusToOconusPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
@@ -179,7 +179,7 @@ func verifyInternationalPrices(params ParamConfig, sheetIndex int, xlsxSheetNum 
 	}
 
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[headerIndexStart:verifyHeaderIndexEnd]
-	repeatingRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[headerIndexStart2:verifyHeaderIndexEnd2]
+	repeatingRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[repeatingHeaderIndexStart:verifyHeaderIndexEnd2]
 	for dataRowsIndex, row := range dataRows {
 		colIndex := feeColIndexStart
 		// For number of baseline + Escalation years
