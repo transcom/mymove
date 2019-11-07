@@ -41,6 +41,10 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0032](0032-csrf-protection.md) - CSRF Protection for the Application
 - [ADR-0033](0033-service-object-layer.md) - *Service Object Layer*
 - [ADR-0034](0034-working-with-mocks-generation-and-assertion.md) - *Working With Mocks: Generation and Assertion*
+- [ADR-0035](0035-use-query-builder.md) - Use Query Builder for for Admin Interface
+- [ADR-0036](0036-go-integration.md) - Use Separate Integration Package for Go Integration Tests
+- [ADR-0037](0037-go-path-and-project-layout-revisited.md) - Put mymove outside of standard GOPATH
+- [ADR-0038](0038-soft-delete.md) - Use Soft Delete Instead of Hard Delete
 
 <!-- adrlogstop -->
 
