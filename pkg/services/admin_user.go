@@ -10,6 +10,7 @@ import (
 //go:generate mockery -name AdminUserListFetcher
 type AdminUserListFetcher interface {
 	FetchAdminUserList(filters []QueryFilter, associations QueryAssociations, pagination Pagination, ordering QueryOrder) (models.AdminUsers, error)
+	FetchAdminUserCount(filters []QueryFilter) (int, error)
 }
 
 // AdminUserFetcher is the exported interface for fetching a single admin user

@@ -47,7 +47,7 @@ func (h IndexOrganizationsHandler) Handle(params organization.IndexOrganizations
 		return handlers.ResponseForError(logger, err)
 	}
 
-	totalOrganizationsCount, err := h.DB().Count(&models.Organization{})
+	totalOrganizationsCount, err := h.OrganizationListFetcher.FetchOrganizationCount(queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
