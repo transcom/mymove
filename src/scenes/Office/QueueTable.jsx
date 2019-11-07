@@ -169,7 +169,6 @@ class QueueTable extends Component {
             />
           </span>
           <ReactTable
-            filterable
             columns={showColumns}
             data={this.state.data}
             loading={this.state.loading} // Display the loading overlay when we need it

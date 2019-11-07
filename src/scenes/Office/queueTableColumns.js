@@ -15,35 +15,31 @@ const status = CreateReactTableColumn('Status', 'synthetic_status', {
       {capitalize(row.value && row.value.replace('_', ' '))}
     </span>
   ),
-  filterable: false,
 });
 
-const customerName = CreateReactTableColumn('Customer name', 'customer_name', { filterable: false });
+const customerName = CreateReactTableColumn('Customer name', 'customer_name');
 
-const dodId = CreateReactTableColumn('DoD ID', 'edipi', { filterable: false });
+const dodId = CreateReactTableColumn('DoD ID', 'edipi');
 
 const locator = CreateReactTableColumn('Locator #', 'locator', {
   Cell: row => <span data-cy="locator">{row.value}</span>,
-  filterable: false,
 });
 
 const moveDate = CreateReactTableColumn('PPM start', 'move_date', {
   Cell: row => <span className="move_date">{formatDate(row.value)}</span>,
-  filterable: false,
 });
 
 const origin = CreateReactTableColumn('Origin', 'origin_duty_station_name', {
   Cell: row => <span>{row.value}</span>,
-  filterable: false,
 });
 
 const destination = CreateReactTableColumn('Destination', 'destination_duty_station_name', {
   Cell: row => <span>{row.value}</span>,
-  filterable: false,
 });
 
 const branchOfService = CreateReactTableColumn('Branch', 'branch_of_service', {
   Cell: row => <span>{row.value}</span>,
+  filterable: true,
   filterMethod: (filter, row) => {
     if (filter.value === 'all') {
       return true;
@@ -58,11 +54,11 @@ const branchOfService = CreateReactTableColumn('Branch', 'branch_of_service', {
       value={filter ? filter.value : 'all'}
     >
       <option value="all">Show All</option>
-      <option value="ARMY">ARMY</option>
-      <option value="NAVY">NAVY</option>
-      <option value="MARINES">MARINES</option>
-      <option value="AIR_FORCE">AIR_FORCE</option>
-      <option value="COAST_GUARD">COAST_GUARD</option>
+      <option value="ARMY">Army</option>
+      <option value="NAVY">Navy</option>
+      <option value="MARINES">Marines</option>
+      <option value="AIR_FORCE">Air Force</option>
+      <option value="COAST_GUARD">Coast Guard</option>
     </select>
   ),
 });
