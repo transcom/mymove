@@ -9,16 +9,15 @@ import (
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"github.com/transcom/mymove/pkg/services/ghcimport"
-	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/services/ghc_re_import"
+	"go.uber.org/zap"
 
 	"github.com/tealeg/xlsx"
 
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/parser/pricing"
+	"github.com/transcom/mymove/pkg/services/ghcimport"
 )
 
 /*************************************************************************

@@ -49,10 +49,7 @@ func (gre *GHCRateEngineImporter) runImports() error {
 func (gre *GHCRateEngineImporter) Import() error {
 
 	err := gre.DB.Transaction(func(connection *pop.Connection) error {
-		var dbError error = nil
-
-		dbError = gre.runImports()
-
+		dbError := gre.runImports()
 		return dbError
 	})
 	if err != nil {
