@@ -58,7 +58,7 @@ func (h IndexAccessCodesHandler) Handle(params accesscodeop.IndexAccessCodesPara
 	}
 	accessCodesCount := len(accessCodes)
 
-	totalAccessCodeCount, err := h.DB().Count(&models.AccessCode{})
+	totalAccessCodeCount, err := h.AccessCodeListFetcher.FetchAccessCodeCount(queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
