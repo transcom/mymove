@@ -22,7 +22,7 @@ These scripts are used to operate the system.
 
 | Script Name | Description |
 | --- | --- |
-| `download-alb-logs` | Download alb logs for the given enviornment and dates to a local folder |
+| `download-alb-logs` | Download alb logs for the given environment and dates to a local folder |
 | `scan-alb-logs` | Scan alb logs for specific http codes. |
 
 ## Pre-commit Scripts
