@@ -2,34 +2,7 @@
   // overflowing entire content for now until bug is fixed
   // https://github.com/marmelab/admin-on-rest/issues/2
   overflow: auto;
-
-  a, p, span {
-    font-size: 1.5rem !important;
-  }
-
-  table {
-    margin: 0;
-  }
-
-  th, td {
-    border: 1px solid #efefef;
-  }
-
-  a {
-    &:visited {
-      color: #0071bc;
-    }
-  }
-
-  .headroom-wrapper {
-    font-size: 2rem !important;
-  }
-
-  input {
-    padding-top: 3rem;
-    padding-bottom: 0;
-    font-size: 14px;
-  }
+  font-family: sans-serif;
 }
 
 .system-admin-filters {
@@ -46,9 +19,4 @@
   label {
     width: 25em;
   }
-}
-
-div[class^="MuiSelect-root-"] {
-  padding: 4rem 0 1rem 0;
-  font-size: 1.5rem;
 }
