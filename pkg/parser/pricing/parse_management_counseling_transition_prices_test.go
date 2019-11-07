@@ -34,6 +34,33 @@ func (suite *PricingParserSuite) Test_parseShipmentManagementServicesPrices() {
 	suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)
 }
 
+func (suite *PricingParserSuite) Test_parseCounselServicesPrices() {
+	const sheetIndex = 16
+	xlsxDataSheets := InitDataSheetInfo()
+	dataSheet := xlsxDataSheets[sheetIndex]
+
+	params := ParamConfig{
+		ProcessAll:   false,
+		ShowOutput:   false,
+		XlsxFilename: suite.xlsxFilename,
+		XlsxSheets:   []string{strconv.Itoa(sheetIndex)},
+		SaveToFile:   true,
+		RunTime:      time.Now(),
+		XlsxFile:     suite.xlsxFile,
+		RunVerify:    true,
+	}
+
+	slice, err := parseCounselingServicesPrices(params, sheetIndex)
+	suite.NoError(err, "parseCounselingServicesPrices function failed")
+
+	outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, swag.String("counsel"))
+	err = createCSV(outputFilename, slice)
+	suite.NoError(err, "could not create CSV")
+
+	const goldenFilename string = "16_4a_mgmt_coun_trans_prices_counsel_golden.csv"
+	suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)
+}
+
 func (suite *PricingParserSuite) Test_verifyManagementCounselTransitionPrices() {
 	const sheetIndex = 16
 	InitDataSheetInfo()

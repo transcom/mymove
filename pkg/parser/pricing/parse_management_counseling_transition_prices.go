@@ -43,6 +43,40 @@ var parseShipmentManagementServicesPrices processXlsxSheet = func(params ParamCo
 	return mgmtPrices, nil
 }
 
+var parseCounselingServicesPrices processXlsxSheet = func(params ParamConfig, sheetIndex int) (interface{}, error) {
+	// XLSX Sheet consts
+	const xlsxDataSheetNum int = 16 // 4a) Mgmt., Coun., Trans. Prices
+	const counRowIndexStart int = 22
+	const contractYearColIndexStart int = 2
+	const priceColumnIndexStart int = 3
+
+	if xlsxDataSheetNum != sheetIndex {
+		return nil, fmt.Errorf("parseCounselingServicesPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
+	}
+
+	log.Println("Parsing Counseling Services Prices")
+	var counPrices []models.StageCounselingServicesPrice
+	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[counRowIndexStart:]
+	for _, row := range dataRows {
+		cnslSrvcPrice := models.StageCounselingServicesPrice{
+			ContractYear:      getCell(row.Cells, contractYearColIndexStart),
+			PricePerTaskOrder: getCell(row.Cells, priceColumnIndexStart),
+		}
+
+		// All the rows are consecutive, if we get a blank we're done
+		if cnslSrvcPrice.ContractYear == "" {
+			break
+		}
+
+		if params.ShowOutput == true {
+			log.Printf("%v\n", cnslSrvcPrice)
+		}
+		counPrices = append(counPrices, cnslSrvcPrice)
+	}
+
+	return counPrices, nil
+}
+
 // verifyManagementCounselTransitionPrices: verification for: 4a) Mgmt., Coun., Trans. Prices
 var verifyManagementCounselTransitionPrices verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
 	// XLSX Sheet consts
