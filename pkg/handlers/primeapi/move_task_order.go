@@ -1,10 +1,16 @@
 package primeapi
 
 import (
+	"time"
+
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/services"
+	movetaskorderservice "github.com/transcom/mymove/pkg/services/move_task_order"
+	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -31,61 +37,42 @@ func (h ListMoveTaskOrdersHandler) Handle(params movetaskorderops.ListMoveTaskOr
 	payload := make(primemessages.MoveTaskOrders, len(mtos))
 
 	for i, m := range mtos {
-		payload[i] = payloadForMoveTaskOrder(m)
+		payload[i] = payloads.MoveTaskOrder(m)
 	}
 
 	return movetaskorderops.NewListMoveTaskOrdersOK().WithPayload(payload)
 }
 
-func payloadForMoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *primemessages.MoveTaskOrder {
-	destinationAddress := payloadForAddress(&moveTaskOrder.DestinationAddress)
-	pickupAddress := payloadForAddress(&moveTaskOrder.PickupAddress)
-	entitlements := payloadForEntitlements(&moveTaskOrder.Entitlements)
-	payload := &primemessages.MoveTaskOrder{
-		CustomerID:             strfmt.UUID(moveTaskOrder.CustomerID.String()),
-		DestinationAddress:     destinationAddress,
-		DestinationDutyStation: strfmt.UUID(moveTaskOrder.DestinationDutyStation.ID.String()),
-		Entitlements:           entitlements,
-		ID:                     strfmt.UUID(moveTaskOrder.ID.String()),
-		MoveDate:               strfmt.Date(moveTaskOrder.RequestedPickupDate),
-		MoveID:                 strfmt.UUID(moveTaskOrder.MoveID.String()),
-		OriginDutyStation:      strfmt.UUID(moveTaskOrder.OriginDutyStationID.String()),
-		PickupAddress:          pickupAddress,
-		Remarks:                moveTaskOrder.CustomerRemarks,
-		RequestedPickupDate:    strfmt.Date(moveTaskOrder.RequestedPickupDate),
-		Status:                 string(moveTaskOrder.Status),
-		UpdatedAt:              strfmt.Date(moveTaskOrder.UpdatedAt),
-	}
-	return payload
+type UpdateMoveTaskOrderEstimatedWeightHandler struct {
+	handlers.HandlerContext
+	moveTaskOrderPrimeEstimatedWeightUpdater services.MoveTaskOrderPrimeEstimatedWeightUpdater
 }
 
-func payloadForAddress(a *models.Address) *primemessages.Address {
-	if a == nil {
-		return nil
-	}
-	return &primemessages.Address{
-		ID:             strfmt.UUID(a.ID.String()),
-		StreetAddress1: swag.String(a.StreetAddress1),
-		StreetAddress2: a.StreetAddress2,
-		StreetAddress3: a.StreetAddress3,
-		City:           swag.String(a.City),
-		State:          swag.String(a.State),
-		PostalCode:     swag.String(a.PostalCode),
-		Country:        a.Country,
-	}
-}
+func (h UpdateMoveTaskOrderEstimatedWeightHandler) Handle(params movetaskorderops.UpdateMoveTaskOrderEstimatedWeightParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-func payloadForEntitlements(entitlement *models.GHCEntitlement) *primemessages.Entitlements {
-	if entitlement == nil {
-		return nil
+	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+	primeEstimatedWeight := unit.Pound(params.Body.PrimeEstimatedWeight)
+	mto, err := h.moveTaskOrderPrimeEstimatedWeightUpdater.UpdatePrimeEstimatedWeight(moveTaskOrderID, primeEstimatedWeight, time.Now())
+	if err != nil {
+		logger.Error("ghciap.UpdateMoveTaskOrderEstimatedWeightHandler error", zap.Error(err))
+		switch e := err.(type) {
+		case movetaskorderservice.ErrNotFound:
+			return movetaskorderops.NewUpdateMoveTaskOrderEstimatedWeightNotFound()
+		case movetaskorderservice.ErrInvalidInput:
+			payload := &primemessages.ValidationError{
+				InvalidFields: e.InvalidFields(),
+				ClientError: primemessages.ClientError{
+					Title:    handlers.FmtString(handlers.ValidationErrMessage),
+					Detail:   handlers.FmtString(e.Error()),
+					Instance: handlers.FmtUUID(h.GetTraceID()),
+				},
+			}
+			return movetaskorderops.NewUpdateMoveTaskOrderEstimatedWeightUnprocessableEntity().WithPayload(payload)
+		default:
+			return movetaskorderops.NewListMoveTaskOrdersInternalServerError()
+		}
 	}
-	return &primemessages.Entitlements{
-		DependentsAuthorized:  entitlement.DependentsAuthorized,
-		NonTemporaryStorage:   handlers.FmtBool(entitlement.NonTemporaryStorage),
-		PrivatelyOwnedVehicle: handlers.FmtBool(entitlement.PrivatelyOwnedVehicle),
-		ProGearWeight:         int64(entitlement.ProGearWeight),
-		ProGearWeightSpouse:   int64(entitlement.ProGearWeightSpouse),
-		StorageInTransit:      int64(entitlement.StorageInTransit),
-		TotalDependents:       int64(entitlement.TotalDependents),
-	}
+	moveTaskOrderPayload := payloads.MoveTaskOrder(*mto)
+	return movetaskorderops.NewUpdateMoveTaskOrderEstimatedWeightOK().WithPayload(moveTaskOrderPayload)
 }
