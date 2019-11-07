@@ -26,7 +26,7 @@ func (suite *PricingParserSuite) Test_verifyPriceEscalationDiscount() {
 		suite.NoError(err, "verifyPriceEscalationDiscount function failed")
 	})
 
-	suite.T().Run("normal operation", func(t *testing.T) {
+	suite.T().Run("passing in a bad sheet index", func(t *testing.T) {
 		err := verifyPriceEscalationDiscount(params, 7)
 		if suite.Error(err) {
 			suite.Equal("verifyPriceEscalationDiscount expected to process sheet 18, but received sheetIndex 7", err.Error())
