@@ -65,7 +65,9 @@ type PaymentReminderEmailInfo struct {
 
 func (m PaymentReminder) GetEmailInfo() (PaymentReminderEmailInfos, error) {
 	query := `SELECT sm.id as id, sm.personal_email as personal_email,
-	ppm.weight_estimate, COALESCE(ppm.incentive_estimate_min, 0) as incentive_estimate_min, COALESCE(ppm.incentive_estimate_max, 0) as incentive_estimate_max,
+	COALESCE(ppm.weight_estimate, 0) as weight_estimate,
+	COALESCE(ppm.incentive_estimate_min, 0) as incentive_estimate_min,
+	COALESCE(ppm.incentive_estimate_max, 0) as incentive_estimate_max,
 	ppm.original_move_date as move_date,
 	dsn.name AS new_duty_station_name,
 	tos.name AS transportation_office_name,
