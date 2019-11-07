@@ -36,3 +36,10 @@ type StageDomesticServiceAreaPrice struct {
 	OriginDestinationSITFirstDayWarehouse string `db:"origin_destination_sit_first_day_warehouse" csv:"origin_destination_sit_first_day_warehouse"`
 	OriginDestinationSITAddlDays          string `db:"origin_destination_sit_addl_days" csv:"origin_destination_sit_addl_days"`
 }
+
+type StagePriceEscalationDiscount struct {
+	ContractYear          string `db:"contract_year" csv:"contract_year"`
+	ForecastingAdjustment string `db:"forecasting_adjustment" csv:"forecasting_adjustment"`
+	Discount              string `db:"discount" csv:"discount"`
+	PriceEscalation       string `db:"price_escalation" csv:"price_escalation"`
+}

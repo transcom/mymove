@@ -1,6 +1,7 @@
 package pricing
 
 import (
+	"fmt"
 	"log"
 	"regexp"
 	"strconv"
@@ -17,6 +18,11 @@ import (
 const sharedNumEscalationYearsToProcess int = 1
 
 var rateSeasons = []string{"NonPeak", "Peak"}
+
+type headerInfo struct {
+	header string
+	column int
+}
 
 /*************************************************************************/
 // Shared Helper functions
@@ -58,6 +64,17 @@ func removeWhiteSpace(stripString string) string {
 	s := space.ReplaceAllString(stripString, "")
 
 	return s
+}
+
+func verifyHeaders(row *xlsx.Row, headers []headerInfo) error {
+	for _, headerInfo := range headers {
+		actual := getCell(row.Cells, headerInfo.column)
+		if removeWhiteSpace(headerInfo.header) != removeWhiteSpace(actual) {
+			return fmt.Errorf("format error: Header <%s> is missing; got <%s> instead", headerInfo.header, actual)
+		}
+	}
+
+	return nil
 }
 
 // generateOutputFilename: generates filename using XlsxDataSheetInfo.outputFilename
