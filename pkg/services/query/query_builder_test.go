@@ -178,7 +178,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		pop.Debug = false
 
 		suite.NoError(err)
-		suite.Len(actualUsers, 2)
+		suite.Len(actualUsers, 4)
 	})
 
 	suite.T().Run("fetches many with time sort desc", func(t *testing.T) {
