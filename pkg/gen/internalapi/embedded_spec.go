@@ -4281,10 +4281,14 @@ func init() {
         "edipi",
         "rank",
         "orders_type",
+        "branch_of_service",
         "last_modified_date",
         "created_at"
       ],
       "properties": {
+        "branch_of_service": {
+          "type": "string"
+        },
         "created_at": {
           "type": "string",
           "format": "date-time"
@@ -10087,10 +10091,14 @@ func init() {
         "edipi",
         "rank",
         "orders_type",
+        "branch_of_service",
         "last_modified_date",
         "created_at"
       ],
       "properties": {
+        "branch_of_service": {
+          "type": "string"
+        },
         "created_at": {
           "type": "string",
           "format": "date-time"
