@@ -277,6 +277,32 @@ func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter, a
 	return nil
 }
 
+func (p *Builder) Count(model interface{}, filters []services.QueryFilter) (int, error) {
+	t := reflect.TypeOf(model)
+	if t.Kind() != reflect.Ptr {
+		return 0, errors.New(fetchManyReflectionMessage)
+	}
+	t = t.Elem()
+	if t.Kind() != reflect.Slice {
+		return 0, errors.New(fetchManyReflectionMessage)
+	}
+	t = t.Elem()
+	if t.Kind() != reflect.Struct {
+		return 0, errors.New(fetchManyReflectionMessage)
+	}
+	query := p.db.Q()
+	query, err := filteredQuery(query, filters, t)
+	if err != nil {
+		return 0, err
+	}
+
+	count, err := query.Count(model)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
 func (p *Builder) CreateOne(model interface{}) (*validate.Errors, error) {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {

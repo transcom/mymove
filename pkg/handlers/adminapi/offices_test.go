@@ -69,6 +69,9 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(models.TransportationOffices{office}, nil).Once()
+		officeListFetcher.On("FetchOfficeCount",
+			mock.Anything,
+		).Return(1, nil).Once()
 		handler := IndexOfficesHandler{
 			HandlerContext:    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:    newQueryFilter,
@@ -96,6 +99,9 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, expectedError).Once()
+		officeListFetcher.On("FetchOfficeCount",
+			mock.Anything,
+		).Return(0, expectedError).Once()
 		handler := IndexOfficesHandler{
 			HandlerContext:    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:    newQueryFilter,

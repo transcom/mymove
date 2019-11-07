@@ -178,7 +178,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		pop.Debug = false
 
 		suite.NoError(err)
-		suite.Len(actualUsers, 2)
+		suite.Len(actualUsers, 4)
 	})
 
 	suite.T().Run("fetches many with time sort desc", func(t *testing.T) {
@@ -274,6 +274,99 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 
 		suite.Error(err)
 		suite.Equal("Model should be pointer to slice of structs", err.Error())
+	})
+}
+
+func (suite *QueryBuilderSuite) TestCount() {
+	// this should be stubbed out with a model that is agnostic to our code
+	// similar to how the pop repo tests might work
+	user := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	user2 := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	builder := NewQueryBuilder(suite.DB())
+
+	suite.T().Run("counts with uuid filter", func(t *testing.T) {
+		filters := []services.QueryFilter{
+			NewQueryFilter("id", equals, user2.ID.String()),
+		}
+
+		count, err := builder.Count(&models.OfficeUsers{}, filters)
+
+		suite.NoError(err)
+		suite.Equal(1, count)
+
+		// do the reverse to make sure we don't get the same record every time
+		filters = []services.QueryFilter{
+			NewQueryFilter("id", equals, user.ID.String()),
+		}
+
+		count, err = builder.Count(&models.OfficeUsers{}, filters)
+
+		suite.NoError(err)
+		suite.Equal(1, count)
+	})
+
+	suite.T().Run("counts with time filter", func(t *testing.T) {
+		filters := []services.QueryFilter{
+			NewQueryFilter("created_at", greaterThan, user.CreatedAt),
+		}
+
+		pop.Debug = true
+		count, err := builder.Count(&models.OfficeUsers{}, filters)
+		pop.Debug = false
+		suite.NoError(err)
+		suite.Equal(1, count)
+	})
+
+	suite.T().Run("fails with invalid column", func(t *testing.T) {
+		filters := []services.QueryFilter{
+			NewQueryFilter("fake_column", equals, user.ID.String()),
+		}
+
+		count, err := builder.Count(&models.OfficeUsers{}, filters)
+
+		suite.Error(err)
+		suite.Equal("[fake_column =] is not valid input", err.Error())
+		suite.Zero(count)
+	})
+
+	suite.T().Run("fails with invalid comparator", func(t *testing.T) {
+		filters := []services.QueryFilter{
+			NewQueryFilter("id", "*", user.ID.String()),
+		}
+
+		count, err := builder.Count(&models.OfficeUsers{}, filters)
+
+		suite.Error(err)
+		suite.Equal("[id *] is not valid input", err.Error())
+		suite.Zero(count)
+	})
+
+	suite.T().Run("fails when not pointer", func(t *testing.T) {
+
+		count, err := builder.Count(models.OfficeUsers{}, []services.QueryFilter{})
+
+		suite.Error(err)
+		suite.Equal("Model should be pointer to slice of structs", err.Error())
+		suite.Zero(count)
+	})
+
+	suite.T().Run("fails when not pointer to slice", func(t *testing.T) {
+
+		count, err := builder.Count(&models.OfficeUser{}, []services.QueryFilter{})
+
+		suite.Error(err)
+		suite.Equal("Model should be pointer to slice of structs", err.Error())
+		suite.Zero(count)
+	})
+
+	suite.T().Run("fails when not pointer to slice of structs", func(t *testing.T) {
+		var intSlice []int
+
+		count, err := builder.Count(&intSlice, []services.QueryFilter{})
+
+		suite.Error(err)
+		suite.Equal("Model should be pointer to slice of structs", err.Error())
+		suite.Zero(count)
 	})
 }
 

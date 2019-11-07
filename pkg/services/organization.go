@@ -13,4 +13,5 @@ type OrganizationFetcher interface {
 //go:generate mockery -name OrganizationListFetcher
 type OrganizationListFetcher interface {
 	FetchOrganizationList(filters []QueryFilter, associations QueryAssociations, pagination Pagination, ordering QueryOrder) (models.Organizations, error)
+	FetchOrganizationCount(filters []QueryFilter) (int, error)
 }

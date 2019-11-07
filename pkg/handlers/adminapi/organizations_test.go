@@ -70,6 +70,9 @@ func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(models.Organizations{org}, nil).Once()
+		organizationListFetcher.On("FetchOrganizationCount",
+			mock.Anything,
+		).Return(1, nil).Once()
 		handler := IndexOrganizationsHandler{
 			HandlerContext:          handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:          newQueryFilter,
@@ -97,6 +100,9 @@ func (suite *HandlerSuite) TestIndexOrganizationsHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, expectedError).Once()
+		organizationListFetcher.On("FetchOrganizationCount",
+			mock.Anything,
+		).Return(0, expectedError).Once()
 		handler := IndexOrganizationsHandler{
 			HandlerContext:          handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:          newQueryFilter,
