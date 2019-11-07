@@ -65,6 +65,16 @@ var parseOtherIntlPrices processXlsxSheet = func(params ParamConfig, sheetIndex 
 }
 
 var verifyOtherIntlPrices verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
+	// XLSX Sheet consts
+	const xlsxDataSheetNum int = 13 // 3d) International Other Prices
+	const feeColIndexStart int = 4  // start at column 6 to get the rates
+	const feeRowIndexStart int = 10 // start at row 10 to get the rates
+	const priceAreaCodeColumn int = 2
+	const priceAreaNameColumn int = 3
+
+	if xlsxDataSheetNum != sheetIndex {
+		return fmt.Errorf("verifyOtherIntlPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
+	}
 
 	return nil
 }
