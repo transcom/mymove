@@ -70,6 +70,9 @@ func (suite *HandlerSuite) TestIndexTSPPsHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(models.TransportationServiceProviderPerformances{tspp}, nil).Once()
+		ListFetcher.On("FetchTransportationServiceProviderPerformanceCount",
+			mock.Anything,
+		).Return(1, nil).Once()
 		handler := IndexTSPPsHandler{
 			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter: newQueryFilter,

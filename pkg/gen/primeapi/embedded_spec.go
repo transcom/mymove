@@ -86,6 +86,85 @@ func init() {
           }
         }
       }
+    },
+    "/move-task-orders/{moveTaskOrderID}/prime-estimated-weight": {
+      "patch": {
+        "description": "Updates a move order's estimated weight by ID",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder",
+          "prime"
+        ],
+        "summary": "Updates a move order's estimated weight by ID",
+        "operationId": "updateMoveTaskOrderEstimatedWeight",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "primeEstimatedWeight": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved move task order",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "422": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of move order to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
     }
   },
   "definitions": {
@@ -248,6 +327,26 @@ func init() {
           "title": "Address Line 3",
           "x-nullable": true,
           "example": "Montmârtre"
+        }
+      }
+    },
+    "ClientError": {
+      "type": "object",
+      "required": [
+        "title",
+        "detail",
+        "instance"
+      ],
+      "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string"
         }
       }
     },
@@ -438,6 +537,17 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "primeEstimatedWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1000
+        },
+        "primeEstimatedWeightRecordedDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "remarks": {
           "type": "string",
           "example": "Requires more gentle care"
@@ -465,6 +575,27 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "ValidationError": {
+      "required": [
+        "invalid_fields"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/ClientError"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "properties": {
+        "invalid_fields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
       }
     }
   },
@@ -579,6 +710,97 @@ func init() {
           }
         }
       }
+    },
+    "/move-task-orders/{moveTaskOrderID}/prime-estimated-weight": {
+      "patch": {
+        "description": "Updates a move order's estimated weight by ID",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder",
+          "prime"
+        ],
+        "summary": "Updates a move order's estimated weight by ID",
+        "operationId": "updateMoveTaskOrderEstimatedWeight",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "primeEstimatedWeight": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved move task order",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "422": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of move order to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
     }
   },
   "definitions": {
@@ -741,6 +963,26 @@ func init() {
           "title": "Address Line 3",
           "x-nullable": true,
           "example": "Montmârtre"
+        }
+      }
+    },
+    "ClientError": {
+      "type": "object",
+      "required": [
+        "title",
+        "detail",
+        "instance"
+      ],
+      "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string"
         }
       }
     },
@@ -931,6 +1173,17 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "primeEstimatedWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1000
+        },
+        "primeEstimatedWeightRecordedDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "remarks": {
           "type": "string",
           "example": "Requires more gentle care"
@@ -958,6 +1211,27 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "ValidationError": {
+      "required": [
+        "invalid_fields"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/ClientError"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "properties": {
+        "invalid_fields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
       }
     }
   },
