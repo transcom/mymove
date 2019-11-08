@@ -72,8 +72,48 @@ var verifyOtherIntlPrices verifyXlsxSheet = func(params ParamConfig, sheetIndex 
 	const priceAreaCodeColumn int = 2
 	const priceAreaNameColumn int = 3
 
+	repeatingHeaders := []string{
+		"HHGOriginPackPrice(percwt)",
+		"HHGDestinationUnpackPrice(percwt)",
+		"UBOriginPackPrice(percwt)",
+		"UBDestinationUnpackPrice(percwt)",
+		"Origin/DestinationSITFirstDay&WarehouseHandling(percwt)",
+		"Origin/DestinationSITAdd'lDays(percwt)",
+		"SITPickup/Delivery≤50Miles(percwt)",
+		"SITPickup/Delivery>50Miles(percwtpermile)",
+	}
+
 	if xlsxDataSheetNum != sheetIndex {
 		return fmt.Errorf("verifyOtherIntlPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
+	}
+
+	nonPriceHeaderRow := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart-3 : feeRowIndexStart-2][0]
+	headerRow := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart-2 : feeRowIndexStart-1][0]
+
+	if header := removeWhiteSpace(getCell(nonPriceHeaderRow.Cells, priceAreaCodeColumn)); header != "PriceAreaCode/ID" {
+		return fmt.Errorf("verifyOtherIntl expected to find header 'PriceAreaCode/ID', but received header '%s'", header)
+	}
+	if header := removeWhiteSpace(getCell(nonPriceHeaderRow.Cells, priceAreaNameColumn)); header != "InternationalPriceArea(PPIRA)/DomesticPriceArea(PPDRA)/Non-StandardRateArea" {
+		return fmt.Errorf("verifyOtherIntl expected to find header 'InternationalPriceArea(PPIRA)/DomesticPriceArea(PPDRA)/Non-StandardRateArea', but received header '%s'", header)
+	}
+
+	// NonPeak season headers
+	colIndex := feeColIndexStart
+	for _, repeatingHeader := range repeatingHeaders {
+		if header := removeWhiteSpace(getCell(headerRow.Cells, colIndex)); header != repeatingHeader {
+			return fmt.Errorf("verifyOtherIntl expected to find header '%s', but received header '%s'", repeatingHeader, header)
+		}
+		colIndex++
+	}
+
+	colIndex++
+
+	// Peak season headers
+	for _, repeatingHeader := range repeatingHeaders {
+		if header := removeWhiteSpace(getCell(headerRow.Cells, colIndex)); header != repeatingHeader {
+			return fmt.Errorf("verifyOtherIntl expected to find header '%s', but received header '%s'", repeatingHeader, header)
+		}
+		colIndex++
 	}
 
 	return nil
