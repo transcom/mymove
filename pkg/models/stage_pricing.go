@@ -36,3 +36,33 @@ type StageDomesticServiceAreaPrice struct {
 	OriginDestinationSITFirstDayWarehouse string `db:"origin_destination_sit_first_day_warehouse" csv:"origin_destination_sit_first_day_warehouse"`
 	OriginDestinationSITAddlDays          string `db:"origin_destination_sit_addl_days" csv:"origin_destination_sit_addl_days"`
 }
+
+type StageOconusToOconusPrice struct {
+	OriginIntlPriceAreaID      string `db:"origin_intl_price_area_id" csv:"origin_intl_price_area_id"`
+	OriginIntlPriceArea        string `db:"origin_intl_price_area" csv:"origin_intl_price_area"`
+	DestinationIntlPriceAreaID string `db:"destination_intl_price_area_id" csv:"destination_intl_price_area_id"`
+	DestinationIntlPriceArea   string `db:"destination_intl_price_area" csv:"destination_intl_price_area"`
+	Season                     string `db:"season" csv:"season"`
+	HHGShippingLinehaulPrice   string `db:"hhg_shipping_linehaul_price" csv:"hhg_shipping_linehaul_price"`
+	UBPrice                    string `db:"ub_price" csv:"ub_price"`
+}
+
+type StageConusToOconusPrice struct {
+	OriginDomesticPriceAreaCode string `db:"origin_domestic_price_area_code" csv:"origin_domestic_price_area_code"`
+	OriginDomesticPriceArea     string `db:"origin_domestic_price_area" csv:"origin_domestic_price_area"`
+	DestinationIntlPriceAreaID  string `db:"destination_intl_price_area_id" csv:"destination_intl_price_area_id"`
+	DestinationIntlPriceArea    string `db:"destination_intl_price_area" csv:"destination_intl_price_area"`
+	Season                      string `db:"season" csv:"season"`
+	HHGShippingLinehaulPrice    string `db:"hhg_shipping_linehaul_price" csv:"hhg_shipping_linehaul_price"`
+	UBPrice                     string `db:"ub_price" csv:"ub_price"`
+}
+
+type StageOconusToConusPrice struct {
+	OriginIntlPriceAreaID            string `db:"origin_intl_price_area_id" csv:"origin_intl_price_area_id"`
+	OriginIntlPriceArea              string `db:"origin_intl_price_area" csv:"origin_intl_price_area"`
+	DestinationDomesticPriceAreaCode string `db:"destination_domestic_price_area_area" csv:"destination_domestic_price_area_area"`
+	DestinationDomesticPriceArea     string `db:"destination_domestic_price_area" csv:"destination_domestic_price_area"`
+	Season                           string `db:"season" csv:"season"`
+	HHGShippingLinehaulPrice         string `db:"hhg_shipping_linehaul_price" csv:"hhg_shipping_linehaul_price"`
+	UBPrice                          string `db:"ub_price" csv:"ub_price"`
+}
