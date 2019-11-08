@@ -214,6 +214,17 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 		verify: &verifyIntlOconusToConusPrices,
 	}
 
+	// 18:	5b) Price Escalation Discount
+	xlsxDataSheets[18] = XlsxDataSheetInfo{
+		Description:    swag.String("5b) Price Escalation Discount"),
+		outputFilename: swag.String("5b_price_escalation_discount"),
+		ProcessMethods: []xlsxProcessInfo{{
+			process: &parsePriceEscalationDiscount,
+		},
+		},
+		verify: &verifyPriceEscalationDiscount,
+	}
+
 	return xlsxDataSheets
 }
 

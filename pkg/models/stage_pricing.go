@@ -66,3 +66,10 @@ type StageOconusToConusPrice struct {
 	HHGShippingLinehaulPrice         string `db:"hhg_shipping_linehaul_price" csv:"hhg_shipping_linehaul_price"`
 	UBPrice                          string `db:"ub_price" csv:"ub_price"`
 }
+
+type StagePriceEscalationDiscount struct {
+	ContractYear          string `db:"contract_year" csv:"contract_year"`
+	ForecastingAdjustment string `db:"forecasting_adjustment" csv:"forecasting_adjustment"`
+	Discount              string `db:"discount" csv:"discount"`
+	PriceEscalation       string `db:"price_escalation" csv:"price_escalation"`
+}
