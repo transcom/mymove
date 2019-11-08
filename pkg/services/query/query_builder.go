@@ -59,7 +59,20 @@ func (f *fetchMany) WithAssociations(associations services.QueryAssociations) *f
 
 func (f *fetchMany) Execute() error {
 	query := f.db.Q()
+
 	t := reflect.TypeOf(f.model)
+
+	if t.Kind() != reflect.Ptr {
+		return errors.New(fetchManyReflectionMessage)
+	}
+	t = t.Elem()
+	if t.Kind() != reflect.Slice {
+		return errors.New(fetchManyReflectionMessage)
+	}
+	t = t.Elem()
+	if t.Kind() != reflect.Struct {
+		return errors.New("hi there yo")
+	}
 	var err error
 
 	if len(f.filters) > 0 {
