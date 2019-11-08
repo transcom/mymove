@@ -14,6 +14,27 @@ type OrganizationListFetcher struct {
 	mock.Mock
 }
 
+// FetchOrganizationCount provides a mock function with given fields: filters
+func (_m *OrganizationListFetcher) FetchOrganizationCount(filters []services.QueryFilter) (int, error) {
+	ret := _m.Called(filters)
+
+	var r0 int
+	if rf, ok := ret.Get(0).(func([]services.QueryFilter) int); ok {
+		r0 = rf(filters)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func([]services.QueryFilter) error); ok {
+		r1 = rf(filters)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // FetchOrganizationList provides a mock function with given fields: filters, associations, pagination, ordering
 func (_m *OrganizationListFetcher) FetchOrganizationList(filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.Organizations, error) {
 	ret := _m.Called(filters, associations, pagination, ordering)
