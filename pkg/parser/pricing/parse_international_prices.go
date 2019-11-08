@@ -140,7 +140,7 @@ func verifyInternationalPrices(params ParamConfig, sheetIndex int, xlsxSheetNum 
 	const verifyHeaderIndexEnd2 = repeatingHeaderIndexStart + 2
 
 	if xlsxDataSheetNum != sheetIndex {
-		return fmt.Errorf("verifyOconusToOconusPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
+		return fmt.Errorf("verifyInternationalPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
 	// Verify header strings

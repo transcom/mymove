@@ -49,7 +49,7 @@ func (suite *PricingParserSuite) Test_OconusToOconusPrices() {
 	suite.T().Run("attempt to verify oconusToOconus prices with incorrect sheet index", func(t *testing.T) {
 		err := verifyIntlOconusToOconusPrices(params, 7)
 		if suite.Error(err) {
-			suite.Equal("verifyOconusToOconusPrices expected to process sheet 10, but received sheetIndex 7", err.Error())
+			suite.Equal("verifyInternationalPrices expected to process sheet 10, but received sheetIndex 7", err.Error())
 		}
 	})
 }
@@ -97,7 +97,7 @@ func (suite *PricingParserSuite) Test_ConusToOconusPrices() {
 	suite.T().Run("attempt to verify conusToOconus prices with incorrect sheet index", func(t *testing.T) {
 		err := verifyIntlConusToOconusPrices(params, 7)
 		if suite.Error(err) {
-			suite.Equal("verifyConusToOconusPrices expected to process sheet 10, but received sheetIndex 7", err.Error())
+			suite.Equal("verifyInternationalPrices expected to process sheet 11, but received sheetIndex 7", err.Error())
 		}
 	})
 }
@@ -145,7 +145,7 @@ func (suite *PricingParserSuite) Test_OconusToConusPrices() {
 	suite.T().Run("attempt to verify oconusToConus prices with incorrect sheet index", func(t *testing.T) {
 		err := verifyIntlOconusToConusPrices(params, 7)
 		if suite.Error(err) {
-			suite.Equal("verifyOconusToConusPrices expected to process sheet 10, but received sheetIndex 7", err.Error())
+			suite.Equal("verifyInternationalPrices expected to process sheet 12, but received sheetIndex 7", err.Error())
 		}
 	})
 }
