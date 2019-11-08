@@ -24,7 +24,7 @@ require (
 	github.com/go-openapi/spec v0.19.4
 	github.com/go-openapi/strfmt v0.19.3
 	github.com/go-openapi/swag v0.19.5
-	github.com/go-openapi/validate v0.19.4
+	github.com/go-openapi/validate v0.19.5
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.16.0
 	github.com/go-swagger/go-swagger v0.21.0
