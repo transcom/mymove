@@ -30,3 +30,24 @@ func (r *ReRateArea) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: r.Name, Name: "Name"},
 	), nil
 }
+
+// FetchReRateAreaItem returns an area for a matching code
+func FetchReRateAreaItem(tx *pop.Connection, code string) (*ReRateArea, error) {
+	var area ReRateArea
+	query := `
+		SELECT * from re_rate_area
+		WHERE
+			code = $1
+	`
+	err := tx.RawQuery(query, code).First(&area)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if area.Code == code {
+		return &area, err
+	}
+
+	return nil, err
+}
