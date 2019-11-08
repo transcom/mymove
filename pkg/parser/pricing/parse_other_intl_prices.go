@@ -90,11 +90,14 @@ var verifyOtherIntlPrices verifyXlsxSheet = func(params ParamConfig, sheetIndex 
 	nonPriceHeaderRow := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart-3 : feeRowIndexStart-2][0]
 	headerRow := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart-2 : feeRowIndexStart-1][0]
 
-	if header := removeWhiteSpace(getCell(nonPriceHeaderRow.Cells, priceAreaCodeColumn)); header != "PriceAreaCode/ID" {
-		return fmt.Errorf("verifyOtherIntl expected to find header 'PriceAreaCode/ID', but received header '%s'", header)
+	priceAreaCodeHeader := "PriceAreaCode/ID"
+	if header := removeWhiteSpace(getCell(nonPriceHeaderRow.Cells, priceAreaCodeColumn)); header != priceAreaCodeHeader {
+		return fmt.Errorf("verifyOtherIntl expected to find header '%s', but received header '%s'", priceAreaCodeHeader, header)
 	}
-	if header := removeWhiteSpace(getCell(nonPriceHeaderRow.Cells, priceAreaNameColumn)); header != "InternationalPriceArea(PPIRA)/DomesticPriceArea(PPDRA)/Non-StandardRateArea" {
-		return fmt.Errorf("verifyOtherIntl expected to find header 'InternationalPriceArea(PPIRA)/DomesticPriceArea(PPDRA)/Non-StandardRateArea', but received header '%s'", header)
+
+	priceAreaNameHeader := "InternationalPriceArea(PPIRA)/DomesticPriceArea(PPDRA)/Non-StandardRateArea"
+	if header := removeWhiteSpace(getCell(nonPriceHeaderRow.Cells, priceAreaNameColumn)); header != priceAreaNameHeader {
+		return fmt.Errorf("verifyOtherIntl expected to find header '%s', but received header '%s'", priceAreaNameHeader, header)
 	}
 
 	// NonPeak season headers
