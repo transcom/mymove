@@ -125,7 +125,7 @@ class QueueTable extends Component {
       ppm_approved: 'Approved moves',
     };
 
-    const showColumns = defaultColumns;
+    const showColumns = defaultColumns();
 
     const defaultSort = queueType => {
       if (['all'].includes(queueType)) {
