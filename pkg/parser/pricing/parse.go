@@ -180,6 +180,50 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 		},
 		verify: &verifyDomesticServiceAreaPrices,
 	}
+	// 10: 	3a) OCONUS TO OCONUS Prices
+	xlsxDataSheets[10] = XlsxDataSheetInfo{
+		Description:    swag.String("3a) OCONUS to OCONUS Prices"),
+		outputFilename: swag.String("3a_oconus_to_oconus_prices"),
+		ProcessMethods: []xlsxProcessInfo{{
+			//process: &parseOconusToOconusPrices,
+			process: &parseOconusToOconusPrices,
+		},
+		},
+		verify: &verifyIntlOconusToOconusPrices,
+	}
+
+	// 11: 	3b) CONUS TO OCONUS Prices
+	xlsxDataSheets[11] = XlsxDataSheetInfo{
+		Description:    swag.String("3b) CONUS to OCONUS Prices"),
+		outputFilename: swag.String("3b_conus_to_oconus_prices"),
+		ProcessMethods: []xlsxProcessInfo{{
+			process: &parseConusToOconusPrices,
+		},
+		},
+		verify: &verifyIntlConusToOconusPrices,
+	}
+
+	// 12: 	3c) OCONUS TO CONUS Prices
+	xlsxDataSheets[12] = XlsxDataSheetInfo{
+		Description:    swag.String("3c) OCONUS to CONUS Prices"),
+		outputFilename: swag.String("3c_oconus_to_conus_prices"),
+		ProcessMethods: []xlsxProcessInfo{{
+			process: &parseOconusToConusPrices,
+		},
+		},
+		verify: &verifyIntlOconusToConusPrices,
+	}
+
+	// 18:	5b) Price Escalation Discount
+	xlsxDataSheets[18] = XlsxDataSheetInfo{
+		Description:    swag.String("5b) Price Escalation Discount"),
+		outputFilename: swag.String("5b_price_escalation_discount"),
+		ProcessMethods: []xlsxProcessInfo{{
+			process: &parsePriceEscalationDiscount,
+		},
+		},
+		verify: &verifyPriceEscalationDiscount,
+	}
 
 	return xlsxDataSheets
 }
