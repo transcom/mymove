@@ -77,6 +77,9 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(models.AdminUsers{adminUser}, nil).Once()
+		adminUserListFetcher.On("FetchAdminUserCount",
+			mock.Anything,
+		).Return(1, nil).Once()
 		handler := IndexAdminUsersHandler{
 			HandlerContext:       handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:       newQueryFilter,
@@ -104,6 +107,9 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, expectedError).Once()
+		adminUserListFetcher.On("FetchAdminUserCount",
+			mock.Anything,
+		).Return(0, expectedError).Once()
 		handler := IndexAdminUsersHandler{
 			HandlerContext:       handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:       newQueryFilter,

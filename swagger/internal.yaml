@@ -2224,6 +2224,8 @@ definitions:
         x-nullable: true
       weight_allotment:
         $ref: '#/definitions/WeightAllotment'
+      branch_of_service:
+        type: string
     required:
       - id
       - status
@@ -2232,6 +2234,7 @@ definitions:
       - edipi
       - rank
       - orders_type
+      - branch_of_service
       - last_modified_date
       - created_at
   MoveDatesSummary:

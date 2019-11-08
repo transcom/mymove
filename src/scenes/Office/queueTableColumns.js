@@ -60,5 +60,31 @@ const destination = CreateReactTableColumn('Destination', 'destination_duty_stat
   Cell: row => <span>{row.value}</span>,
 });
 
+const branchOfService = CreateReactTableColumn('Branch', 'branch_of_service', {
+  Cell: row => <span>{row.value}</span>,
+  filterable: true,
+  filterMethod: (filter, row) => {
+    if (filter.value === 'all') {
+      return true;
+    }
+
+    return row[filter.id] === filter.value;
+  },
+  Filter: ({ filter, onChange }) => (
+    <select
+      onChange={event => onChange(event.target.value)}
+      style={{ width: '100%' }}
+      value={filter ? filter.value : 'all'}
+    >
+      <option value="all">Show All</option>
+      <option value="ARMY">Army</option>
+      <option value="NAVY">Navy</option>
+      <option value="MARINES">Marines</option>
+      <option value="AIR_FORCE">Air Force</option>
+      <option value="COAST_GUARD">Coast Guard</option>
+    </select>
+  ),
+});
+
 // Columns used to display in react table
-export const defaultColumns = [status, customerName, origin, destination, dodId, locator, moveDate];
+export const defaultColumns = [status, customerName, origin, destination, dodId, locator, moveDate, branchOfService];

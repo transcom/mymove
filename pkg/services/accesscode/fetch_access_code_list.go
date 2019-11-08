@@ -7,6 +7,7 @@ import (
 
 type accessCodeListQueryBuilder interface {
 	FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error
+	Count(model interface{}, filters []services.QueryFilter) (int, error)
 }
 
 type accessCodeListFetcher struct {
@@ -23,6 +24,13 @@ func (o *accessCodeListFetcher) FetchAccessCodeList(filters []services.QueryFilt
 	}
 
 	return accessCodes, nil
+}
+
+// FetchAccessCodeCount uses the passed query builder to count access codes
+func (o *accessCodeListFetcher) FetchAccessCodeCount(filters []services.QueryFilter) (int, error) {
+	var accessCodes models.AccessCodes
+	count, err := o.builder.Count(&accessCodes, filters)
+	return count, err
 }
 
 // NewAccessCodeListFetcher returns an implementation of AccessCodeListFetcher
