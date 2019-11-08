@@ -46,6 +46,7 @@ const moveDate = CreateReactTableColumn('PPM start', 'move_date', {
       onChange: value => {
         return onChange(formatDate(value));
       },
+      inputClassName: 'queue-date-picker-filter',
       formattedValue: filter ? formatDate4DigitYear(filter.value) : null,
       placeholder: 'DD-MMM-YYYY',
     });
@@ -87,4 +88,7 @@ const branchOfService = CreateReactTableColumn('Branch', 'branch_of_service', {
 });
 
 // Columns used to display in react table
-export const defaultColumns = [status, customerName, origin, destination, dodId, locator, moveDate, branchOfService];
+export const defaultColumns = (props = {}) => {
+  //const { queueType } = props;
+  return [status, customerName, origin, destination, dodId, locator, moveDate, branchOfService];
+};
