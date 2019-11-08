@@ -47,6 +47,7 @@ const moveDate = CreateReactTableColumn('PPM start', 'move_date', {
         return onChange(formatDate(value));
       },
       formattedValue: filter ? formatDate4DigitYear(filter.value) : null,
+      placeholder: 'DD-MMM-YYYY',
     });
   },
 });

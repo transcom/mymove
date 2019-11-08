@@ -35,13 +35,13 @@ const getDayPickerProps = disabledDays => {
 };
 
 export default function SingleDatePicker(props) {
-  const { value = null, formattedValue = null, onChange, onBlur, disabled, name, disabledDays } = props;
+  const { value = null, formattedValue = null, onChange, onBlur, disabled, name, disabledDays, placeholder } = props;
   const formatted = formattedValue ? formattedValue : parseDate(value);
   return (
     <DayPickerInput
       onDayChange={onChange}
       onDayPickerHide={onBlur}
-      placeholder=""
+      placeholder={placeholder}
       parseDate={parseDate}
       formatDate={formatDate}
       value={formatted}
