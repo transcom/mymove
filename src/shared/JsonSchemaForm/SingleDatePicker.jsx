@@ -47,6 +47,7 @@ export default function SingleDatePicker(props) {
     inputClassName,
   } = props;
   const formatted = formattedValue ? formattedValue : parseDate(value);
+
   return (
     <DayPickerInput
       onDayChange={onChange}
