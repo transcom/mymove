@@ -35,12 +35,12 @@ func main() {
 	params.RunTime = time.Now()
 
 	flag := pflag.CommandLine
-	filename := flag.String("filename", "", "Filename including path of the XLSX to parse for Rate Engine GHC import")
-	all := flag.Bool("all", true, "Parse entire Rate Engine GHC XLSX")
-	sheets := flag.String("xlsxSheets", "", xlsxSheetsUsage(xlsxDataSheets))
-	display := flag.Bool("display", false, "Display output of parsed info")
-	saveToFile := flag.Bool("save", false, "Save output to CSV file")
-	runVerify := flag.Bool("verify", true, "Default is true, if false skip sheet format verification")
+	flag.StringVar(&params.XlsxFilename, "filename", "", "Filename including path of the XLSX to parse for Rate Engine GHC import")
+	flag.BoolVar(&params.ProcessAll, "all", true, "Parse entire Rate Engine GHC XLSX")
+	flag.StringSliceVar(&params.XlsxSheets, "xlsxSheets", []string{}, xlsxSheetsUsage(xlsxDataSheets))
+	flag.BoolVar(&params.ShowOutput, "display", false, "Display output of parsed info")
+	flag.BoolVar(&params.SaveToFile, "save", false, "Save output to CSV file")
+	flag.BoolVar(&params.RunVerify, "verify", true, "Default is true, if false skip sheet format verification")
 
 	// DB Config
 	cli.InitDatabaseFlags(flag)
@@ -53,51 +53,24 @@ func main() {
 		log.Fatalf("Could not parse flags: %v\n", err)
 	}
 
-	// Process command line params
-
-	params.ProcessAll = false
-	if all != nil && *all == true {
-		params.ProcessAll = true
-	}
-
 	// option `xlsxSheets` will override `all` flag
-	if sheets != nil && len(*sheets) > 0 {
-		// If processes based on `xlsxSheets` indices provided as arguments
-		// process those and do not run all
+	if len(params.XlsxSheets) > 0 {
 		params.ProcessAll = false
-		params.XlsxSheets = strings.Split(*sheets, ",")
 	}
 
-	if filename != nil {
-		log.Printf("Importing file %s\n", *filename)
+	if len(params.XlsxFilename) > 0 {
+		log.Printf("Importing file %s\n", params.XlsxFilename)
 	} else {
 		log.Fatalf("Did not receive an XLSX filename to parse, missing -filename\n")
 	}
-	params.XlsxFilename = *filename
 
-	xlsxFile, err := xlsx.OpenFile(params.XlsxFilename)
-	params.XlsxFile = xlsxFile
+	params.XlsxFile, err = xlsx.OpenFile(params.XlsxFilename)
 	if err != nil {
 		log.Fatalf("Failed to open file %s with error %v\n", params.XlsxFilename, err)
 	}
 
-	params.ShowOutput = false
-	if display != nil && *display == true {
-		params.ShowOutput = true
-	}
-
-	params.SaveToFile = false
-	if saveToFile != nil && *saveToFile == true {
-		params.SaveToFile = true
-	}
-
-	params.RunVerify = false
-	if runVerify != nil {
-		params.RunVerify = *runVerify
-	}
-
 	// Connect to the database
-	//DB connection
+	// DB connection
 	v := viper.New()
 	err = v.BindPFlags(flag)
 	if err != nil {
