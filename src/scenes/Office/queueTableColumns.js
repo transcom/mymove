@@ -1,6 +1,6 @@
 import React from 'react';
 import { capitalize } from 'lodash';
-import { formatDate, formatDate4DigitYear } from 'shared/formatters';
+import { formatDate } from 'shared/formatters';
 import SingleDatePicker from 'shared/JsonSchemaForm/SingleDatePicker';
 import moment from 'moment';
 
@@ -47,8 +47,8 @@ const moveDate = CreateReactTableColumn('PPM start', 'move_date', {
         return onChange(formatDate(value));
       },
       inputClassName: 'queue-date-picker-filter',
-      formattedValue: filter ? formatDate4DigitYear(filter.value) : null,
-      placeholder: 'DD-MMM-YYYY',
+      formattedValue: filter ? formatDate(filter.value) : null,
+      placeholder: 'DD-MMM-YY',
     });
   },
 });
