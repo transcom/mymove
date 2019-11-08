@@ -4,9 +4,9 @@ on: pull_request
 jobs:
   approve:
     name: Auto-approve dependabot PRs
-    if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: hmarr/auto-approve-action@v2.0.0
+        if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
