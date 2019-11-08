@@ -78,7 +78,7 @@ func (suite *PricingParserSuite) Test_ConusToOconusPrices() {
 		err = createCSV(outputFilename, slice)
 		suite.NoError(err, "could not create CSV")
 
-		const goldenFilename string = "10_3b_conus_to_oconus_prices_golden.csv"
+		const goldenFilename string = "11_3b_conus_to_oconus_prices_golden.csv"
 		suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)
 	})
 
@@ -126,7 +126,7 @@ func (suite *PricingParserSuite) Test_OconusToConusPrices() {
 		err = createCSV(outputFilename, slice)
 		suite.NoError(err, "could not create CSV")
 
-		const goldenFilename string = "10_3c_oconus_to_conus_prices_golden.csv"
+		const goldenFilename string = "12_3c_oconus_to_conus_prices_golden.csv"
 		suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)
 	})
 
