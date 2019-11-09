@@ -14,19 +14,21 @@ import (
 )
 
 // NewTableFromSliceCreator is the public constructor for a TableFromSliceCreator using Pop
-func NewTableFromSliceCreator(db *pop.Connection, logger Logger, isTemp bool) services.TableFromSliceCreator {
+func NewTableFromSliceCreator(db *pop.Connection, logger Logger, isTemp bool, isDropIfExists bool) services.TableFromSliceCreator {
 	return &tableFromSliceCreator{
-		db:     db,
-		logger: logger,
-		isTemp: isTemp,
+		db:             db,
+		logger:         logger,
+		isTemp:         isTemp,
+		isDropIfExists: isDropIfExists,
 	}
 }
 
 // tableFromSliceCreator is a service object to create/populate a table from a slice
 type tableFromSliceCreator struct {
-	db     *pop.Connection
-	logger Logger
-	isTemp bool
+	db             *pop.Connection
+	logger         Logger
+	isTemp         bool
+	isDropIfExists bool
 }
 
 // CreateTableFromSlice creates and populates a table from a slice of structs
@@ -74,6 +76,12 @@ func (c tableFromSliceCreator) CreateTableFromSlice(slice interface{}) error {
 	createTableQuery := builder.String()
 
 	err := c.db.Transaction(func(tx *pop.Connection) error {
+		if c.isDropIfExists {
+			err := tx.RawQuery("DROP TABLE IF EXISTS " + tableName).Exec()
+			if err != nil {
+				return err
+			}
+		}
 		err := tx.RawQuery(createTableQuery).Exec()
 		if err != nil {
 			return err
