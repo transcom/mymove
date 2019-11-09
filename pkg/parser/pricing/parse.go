@@ -214,6 +214,17 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 		verify: &verifyIntlOconusToConusPrices,
 	}
 
+	// 14: 	3e) Non-Standard Locn Prices
+	xlsxDataSheets[14] = XlsxDataSheetInfo{
+		Description:    swag.String("3e) Non-Standard Loc'n Prices"),
+		outputFilename: swag.String("3e_non_standard_locn_prices"),
+		ProcessMethods: []xlsxProcessInfo{{
+			process: &parseNonStandardLocnPrices,
+		},
+		},
+		verify: &verifyNonStandardLocnPrices,
+	}
+
 	// 18:	5b) Price Escalation Discount
 	xlsxDataSheets[18] = XlsxDataSheetInfo{
 		Description:    swag.String("5b) Price Escalation Discount"),

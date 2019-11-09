@@ -73,3 +73,14 @@ type StagePriceEscalationDiscount struct {
 	Discount              string `db:"discount" csv:"discount"`
 	PriceEscalation       string `db:"price_escalation" csv:"price_escalation"`
 }
+
+type StageNonStandardLocnPrice struct {
+	OriginID        string `db:"origin_id" csv:"origin_id"`
+	OriginArea      string `db:"origin_area" csv:"origin_area"`
+	DestinationID   string `db:"destination_id" csv:"destination_id"`
+	DestinationArea string `db:"destination_area" csv:"destination_area"`
+	MoveType        string `db:"move_type" csv:"move_type"`
+	Season          string `db:"season" csv:"season"`
+	HHGPrice        string `db:"hhg_price" csv:"hhg_price"`
+	UBPrice         string `db:"ub_price" csv:"ub_price"`
+}
