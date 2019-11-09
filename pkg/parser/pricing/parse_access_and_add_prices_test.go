@@ -123,6 +123,6 @@ func (suite *PricingParserSuite) Test_verifyAccessAndAddPricesWithWrongSheet() {
 	}
 
 	err := verifyAccessAndAddPrices(params, sheetIndex)
-	// TODO check errormessage
 	suite.Error(err, "verifyAccessAndAddPrices function failed")
+	suite.Equal("verifyAccessAndAddPrices expected to process sheet 17, but received sheetIndex 15", err.Error())
 }

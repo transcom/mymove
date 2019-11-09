@@ -123,6 +123,6 @@ func (suite *PricingParserSuite) Test_verifyManagementCounselTransitionPricesWit
 	}
 
 	err := verifyManagementCounselTransitionPrices(params, sheetIndex)
-	// TODO check errormessage
 	suite.Error(err, "verifyManagementCounselTransitionPrices function failed")
+	suite.Equal("verifyManagementCounselTransitionPrices expected to process sheet 16, but received sheetIndex 15", err.Error())
 }
