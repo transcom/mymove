@@ -8,6 +8,9 @@ import (
 type GHCRateEngineImporter struct {
 	DB     *pop.Connection
 	Logger Logger
+	// TODO: add reference maps here as needed for dependencies between tables
+	// like UUID maps for domestic service areas
+	// domesticServiceAreaUUIDs map[string]uuid.UUID
 }
 
 func (gre *GHCRateEngineImporter) runImports() error {
