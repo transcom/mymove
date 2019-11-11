@@ -107,12 +107,12 @@ func CustomerWithMTO(moveTaskOrder *models.MoveTaskOrder) *primemessages.Custome
 	}
 	customer := Customer(&moveTaskOrder.Customer)
 	return &primemessages.Customer{
+		ID:                     strfmt.UUID(customer.ID.String()),
 		Agency:                 customer.Agency,
 		DestinationDutyStation: &moveTaskOrder.DestinationDutyStation.Name,
 		Email:                  customer.Email,
 		FirstName:              customer.FirstName,
 		Grade:                  customer.Grade,
-		ID:                     strfmt.UUID(moveTaskOrder.ID.String()),
 		LastName:               customer.LastName,
 		MiddleName:             customer.MiddleName,
 		OriginDutyStation:      &moveTaskOrder.OriginDutyStation.Name,
