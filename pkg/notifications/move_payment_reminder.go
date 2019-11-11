@@ -58,9 +58,10 @@ type PaymentReminderEmailInfo struct {
 	WeightEstimate       *unit.Pound `db:"weight_estimate"`
 	IncentiveEstimateMin *unit.Cents `db:"incentive_estimate_min"`
 	IncentiveEstimateMax *unit.Cents `db:"incentive_estimate_max"`
-	TOName               string      `db:"transportation_office_name"`
-	TOPhone              string      `db:"transportation_office_phone"`
-	MoveDate             string      `db:"move_date"`
+	IncentiveTxt         string
+	TOName               string `db:"transportation_office_name"`
+	TOPhone              string `db:"transportation_office_phone"`
+	MoveDate             string `db:"move_date"`
 }
 
 func (m PaymentReminder) GetEmailInfo() (PaymentReminderEmailInfos, error) {
@@ -116,11 +117,18 @@ func (m PaymentReminder) emails(ctx context.Context) ([]emailContent, error) {
 func (m PaymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderEmailInfos) ([]emailContent, error) {
 	var emails []emailContent
 	for _, PaymentReminderEmailInfo := range PaymentReminderEmailInfos {
+		incentiveTxt := ""
+		if PaymentReminderEmailInfo.WeightEstimate.Int() > 0 && PaymentReminderEmailInfo.IncentiveEstimateMin.Int() > 0 && PaymentReminderEmailInfo.IncentiveEstimateMax.Int() > 0 {
+			incentiveTxt = fmt.Sprintf("You expected to move about %d lbs, which gives you an estimated incentive of %s-%s.", PaymentReminderEmailInfo.WeightEstimate.Int(), PaymentReminderEmailInfo.IncentiveEstimateMin.ToDollarString(), PaymentReminderEmailInfo.IncentiveEstimateMax.ToDollarString())
+		}
+		fmt.Println("result")
+		fmt.Println(incentiveTxt)
 		htmlBody, textBody, err := m.renderTemplates(PaymentReminderEmailData{
 			DestinationDutyStation: PaymentReminderEmailInfo.NewDutyStationName,
 			WeightEstimate:         fmt.Sprintf("%d", PaymentReminderEmailInfo.WeightEstimate.Int()),
 			IncentiveEstimateMin:   PaymentReminderEmailInfo.IncentiveEstimateMin.ToDollarString(),
 			IncentiveEstimateMax:   PaymentReminderEmailInfo.IncentiveEstimateMax.ToDollarString(),
+			IncentiveTxt:           incentiveTxt,
 			TOName:                 PaymentReminderEmailInfo.TOName,
 			TOPhone:                PaymentReminderEmailInfo.TOPhone,
 		})
@@ -183,6 +191,7 @@ type PaymentReminderEmailData struct {
 	WeightEstimate         string
 	IncentiveEstimateMin   string
 	IncentiveEstimateMax   string
+	IncentiveTxt           string
 	TOName                 string
 	TOPhone                string
 }
