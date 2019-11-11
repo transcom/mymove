@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+	"math/rand"
 	"time"
 
 	"github.com/transcom/mymove/pkg/unit"
@@ -57,3 +59,11 @@ func (m *MoveTaskOrder) Validate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 type MoveTaskOrders []MoveTaskOrder
+
+func GenerateReferenceID() string {
+	min := 1000
+	max := 9999
+	firstNum := rand.Intn(max - min + 1) + min
+	secondNum := rand.Intn(max - min + 1) + min
+	return fmt.Sprintf("%v-%v", firstNum, secondNum)
+}
