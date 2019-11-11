@@ -72,3 +72,54 @@ func Entitlements(entitlement *models.GHCEntitlement) *primemessages.Entitlement
 		TotalDependents:       int64(entitlement.TotalDependents),
 	}
 }
+
+func Customer(serviceMember *models.ServiceMember) *primemessages.Customer {
+	if serviceMember == nil {
+		return nil
+	}
+	var agency *string
+	if serviceMember.Affiliation != nil {
+		agency = handlers.FmtString(string(*serviceMember.Affiliation))
+	}
+	var rank *string
+	if serviceMember.Rank != nil {
+		rank = handlers.FmtString(string(*serviceMember.Rank))
+	}
+
+	return &primemessages.Customer{
+		ID:            strfmt.UUID(serviceMember.ID.String()),
+		Agency:        agency,
+		Email:         serviceMember.PersonalEmail,
+		FirstName:     serviceMember.FirstName,
+		Grade:         rank,
+		LastName:      serviceMember.LastName,
+		MiddleName:    serviceMember.MiddleName,
+		PickupAddress: Address(serviceMember.ResidentialAddress),
+		Suffix:        serviceMember.Suffix,
+		Telephone:     serviceMember.Telephone,
+	}
+}
+
+// TODO maybe remove
+func CustomerWithMTO(moveTaskOrder *models.MoveTaskOrder) *primemessages.Customer {
+	if moveTaskOrder == nil {
+		return nil
+	}
+	customer := Customer(&moveTaskOrder.Customer)
+	return &primemessages.Customer{
+		Agency:                 customer.Agency,
+		DestinationDutyStation: &moveTaskOrder.DestinationDutyStation.Name,
+		Email:                  customer.Email,
+		FirstName:              customer.FirstName,
+		Grade:                  customer.Grade,
+		ID:                     strfmt.UUID(moveTaskOrder.ID.String()),
+		LastName:               customer.LastName,
+		MiddleName:             customer.MiddleName,
+		OriginDutyStation:      &moveTaskOrder.OriginDutyStation.Name,
+		PickupAddress:          Address(&moveTaskOrder.PickupAddress),
+		Suffix:                 customer.Suffix,
+		Telephone:              customer.Telephone,
+		Remarks:                moveTaskOrder.CustomerRemarks,
+		RequestedPickupDate:    strfmt.Date(moveTaskOrder.RequestedPickupDate),
+	}
+}
