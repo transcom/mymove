@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/parser/pricing"
+	"github.com/transcom/mymove/pkg/services/ghcimport"
 )
 
 /*************************************************************************
@@ -41,6 +42,7 @@ func main() {
 	flag.BoolVar(&params.ShowOutput, "display", false, "Display output of parsed info")
 	flag.BoolVar(&params.SaveToFile, "save", false, "Save output to CSV file")
 	flag.BoolVar(&params.RunVerify, "verify", true, "Default is true, if false skip sheet format verification")
+	flag.BoolVar(&params.RunImport, "GHC_DB_import", true, "Run GHC Rate Engine Import")
 
 	// DB Config
 	cli.InitDatabaseFlags(flag)
@@ -110,6 +112,18 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to parse pricing template due to %v", err)
 	}
+
+	// If the parsing was successful, run GHC Rate Engine importer
+	if params.RunImport {
+		ghcREImporter := ghcimport.GHCRateEngineImporter{
+			Logger: logger,
+		}
+		err = ghcREImporter.Import(db)
+		if err != nil {
+			log.Fatalf("GHC Rate Engine import failed due to %v", err)
+		}
+	}
+
 }
 
 func xlsxSheetsUsage(xlsxDataSheets []pricing.XlsxDataSheetInfo) string {
