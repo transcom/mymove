@@ -132,6 +132,7 @@ type ParamConfig struct {
 	RunTime      time.Time
 	XlsxFile     *xlsx.File
 	RunVerify    bool
+	RunImport    bool
 }
 
 // InitDataSheetInfo: When adding new functions for parsing sheets, must add new XlsxDataSheetInfo
@@ -223,6 +224,17 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 		},
 		},
 		verify: &verifyPriceEscalationDiscount,
+	}
+
+	// 13: 	5a) Other International Prices
+	xlsxDataSheets[13] = XlsxDataSheetInfo{
+		Description:    swag.String("3d) Other International Prices"),
+		outputFilename: swag.String("3d_other_international_prices"),
+		ProcessMethods: []xlsxProcessInfo{{
+			process: &parseOtherIntlPrices,
+		},
+		},
+		verify: &verifyOtherIntlPrices,
 	}
 
 	return xlsxDataSheets
