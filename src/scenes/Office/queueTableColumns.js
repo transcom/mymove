@@ -27,6 +27,7 @@ const locator = CreateReactTableColumn('Locator #', 'locator', {
   Cell: row => <span data-cy="locator">{row.value}</span>,
 });
 
+const dateFormat = 'DD-MMM-YY';
 const moveDate = CreateReactTableColumn('PPM start', 'move_date', {
   Cell: row => <span className="move_date">{formatDate(row.value)}</span>,
   filterable: true,
@@ -34,23 +35,30 @@ const moveDate = CreateReactTableColumn('PPM start', 'move_date', {
     // Filter dates that are same or before the filtered value
     if (filter.value === undefined) {
       return true;
+    } else if (row[filter.id] === undefined) {
+      return false;
     }
 
-    const rowDate = moment(formatDate(row[filter.id]));
-    const filterDate = moment(formatDate(filter.value));
+    const rowDate = moment(row[filter.id]);
+    const filterDate = moment(filter.value, dateFormat);
 
     return rowDate.isSameOrBefore(filterDate);
   },
   Filter: ({ filter, onChange }) => {
-    return SingleDatePicker({
-      onChange: value => {
-        return onChange(formatDate(value));
-      },
-      inputClassName: 'queue-date-picker-filter',
-      value: filter ? filter.value : null,
-      placeholder: 'DD-MMM-YY',
-      format: 'DD-MMM-YY',
-    });
+    return (
+      <div>
+        <div>Before or on:</div>
+        {SingleDatePicker({
+          onChange: value => {
+            return onChange(formatDate(value));
+          },
+          inputClassName: 'queue-date-picker-filter',
+          value: filter ? filter.value : null,
+          placeholder: dateFormat,
+          format: dateFormat,
+        })}
+      </div>
+    );
   },
 });
 
