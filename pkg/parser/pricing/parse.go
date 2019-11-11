@@ -124,15 +124,17 @@ type xlsxProcessInfo struct {
 }
 
 type ParamConfig struct {
-	ProcessAll   bool
-	ShowOutput   bool
-	XlsxFilename string
-	XlsxSheets   []string
-	SaveToFile   bool
-	RunTime      time.Time
-	XlsxFile     *xlsx.File
-	RunVerify    bool
-	RunImport    bool
+	ProcessAll    bool
+	ShowOutput    bool
+	XlsxFilename  string
+	XlsxSheets    []string
+	SaveToFile    bool
+	RunTime       time.Time
+	XlsxFile      *xlsx.File
+	RunVerify     bool
+	RunImport     bool
+	UseTempTables bool
+	DropIfExists  bool
 }
 
 // InitDataSheetInfo: When adding new functions for parsing sheets, must add new XlsxDataSheetInfo
@@ -241,7 +243,7 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 }
 
 func Parse(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, db *pop.Connection, logger Logger) error {
-	tableFromSliceCreator := dbtools.NewTableFromSliceCreator(db, logger, true)
+	tableFromSliceCreator := dbtools.NewTableFromSliceCreator(db, logger, params.UseTempTables, params.DropIfExists)
 
 	// Must be after processing config param
 	// Run the process function
