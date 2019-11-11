@@ -103,42 +103,27 @@ var verifyNonStandardLocnPrices verifyXlsxSheet = func(params ParamConfig, sheet
 	mergedHeaderRow := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[headerRowIndex-1 : headerRowIndex][0] // merged cell uses lower bound
 	headerRow := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[headerRowIndex : headerRowIndex+1][0]
 
-	originIDTitle := "OriginID"
-	if originIDTitle != removeWhiteSpace(getCell(mergedHeaderRow.Cells, originIDCol)) {
-		return fmt.Errorf("format error: Header '%s' is missing got '%s' instead", originIDTitle, removeWhiteSpace(getCell(mergedHeaderRow.Cells, originIDCol)))
-	}
+	verifyHeader(mergedHeaderRow, originIDCol, "OriginID")
 
-	originAreaTitle := "OriginArea"
-	if originAreaTitle != removeWhiteSpace(getCell(mergedHeaderRow.Cells, originAreaCol)) {
-		return fmt.Errorf("format error: Header '%s' is missing got '%s' instead", originAreaTitle, removeWhiteSpace(getCell(mergedHeaderRow.Cells, originAreaCol)))
-	}
+	verifyHeader(mergedHeaderRow, originAreaCol, "OriginArea")
 
-	destinationIDTitle := "DestinationID"
-	if destinationIDTitle != removeWhiteSpace(getCell(mergedHeaderRow.Cells, destinationIDCol)) {
-		return fmt.Errorf("format error: Header '%s' is missing got '%s' instead", destinationIDTitle, removeWhiteSpace(getCell(mergedHeaderRow.Cells, destinationIDCol)))
-	}
+	verifyHeader(mergedHeaderRow, destinationIDCol, "DestinationID")
 
-	destinationAreaTitle := "DestinationArea"
-	if destinationAreaTitle != removeWhiteSpace(getCell(mergedHeaderRow.Cells, destinationAreaCol)) {
-		return fmt.Errorf("format error: Header '%s' is missing got '%s' instead", destinationAreaTitle, removeWhiteSpace(getCell(mergedHeaderRow.Cells, destinationAreaCol)))
-	}
+	verifyHeader(mergedHeaderRow, destinationAreaCol, "DestinationArea")
 
-	moveTypeTitle := "MoveType"
 	// note: Move Type row is not merged like the other non-price headers
-	if moveTypeTitle != removeWhiteSpace(getCell(headerRow.Cells, moveTypeCol)) {
-		return fmt.Errorf("format error: Header '%s' is missing got '%s' instead", moveTypeTitle, removeWhiteSpace(getCell(headerRow.Cells, moveTypeCol)))
-	}
+	verifyHeader(headerRow, moveTypeCol, "MoveType")
 
 	colIndex := feeColIndexStart
 	for _, season := range rateSeasons {
 		for _, header := range repeatingHeaders {
+			// don't use verifyHeader fn here so that we can name the season
 			if header != removeWhiteSpace(getCell(headerRow.Cells, colIndex)) {
-				return fmt.Errorf("format error: Header for '%s' season '%s' is missing got '%s' instead", season, header, removeWhiteSpace(getCell(headerRow.Cells, colIndex)))
+				return fmt.Errorf("format error: Header for '%s' season '%s' is missing, got '%s' instead", season, header, removeWhiteSpace(getCell(headerRow.Cells, colIndex)))
 			}
 			colIndex++
 		}
 		colIndex++
-
 	}
 	return nil
 }
