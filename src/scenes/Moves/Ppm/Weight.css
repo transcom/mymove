@@ -83,6 +83,27 @@ table.numeric-info th {
   color: grey;
 }
 
+.incentive-estimate-box {
+  margin-top: 5em;
+  padding: 2em;
+}
+
+.incentive-estimate-box h4 {
+  margin-bottom: 0;
+}
+
+.incentive-estimate-box h3 {
+  margin-top: 0;
+}
+
+.incentive-range-text {
+  color: green;
+}
+
+.grid-container h3 {
+  font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
+}
+
 table th,
 table td {
   border: none;
