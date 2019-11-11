@@ -18,18 +18,16 @@ const allowedDateFormats = [
 
 function parseDate(str, _format, locale = 'en') {
   // Ignore default format, and attempt to parse date using allowed formats
-  for (var i = 0; i < allowedDateFormats.length; i++) {
-    let format = allowedDateFormats[i]; // eslint-disable-line security/detect-object-injection
-    const m = moment(str, format, locale, true);
-    if (m.isValid()) {
-      return m.toDate();
-    }
+  const m = moment(str, allowedDateFormats, locale, true);
+  if (m.isValid()) {
+    return m.toDate();
   }
+
   return undefined;
 }
 
 function formatDate(date, format = defaultDateFormat, locale = 'en') {
-  return moment(date)
+  return moment(date, allowedDateFormats, locale, true)
     .locale(locale)
     .format(format);
 }
