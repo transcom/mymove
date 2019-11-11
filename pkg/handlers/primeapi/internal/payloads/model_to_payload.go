@@ -109,6 +109,7 @@ func CustomerWithMTO(moveTaskOrder *models.MoveTaskOrder) *primemessages.Custome
 	return &primemessages.Customer{
 		ID:                     strfmt.UUID(customer.ID.String()),
 		Agency:                 customer.Agency,
+		DestinationAddress:     Address(&moveTaskOrder.DestinationAddress),
 		DestinationDutyStation: &moveTaskOrder.DestinationDutyStation.Name,
 		Email:                  customer.Email,
 		FirstName:              customer.FirstName,
@@ -117,9 +118,9 @@ func CustomerWithMTO(moveTaskOrder *models.MoveTaskOrder) *primemessages.Custome
 		MiddleName:             customer.MiddleName,
 		OriginDutyStation:      &moveTaskOrder.OriginDutyStation.Name,
 		PickupAddress:          Address(&moveTaskOrder.PickupAddress),
-		Suffix:                 customer.Suffix,
-		Telephone:              customer.Telephone,
 		Remarks:                moveTaskOrder.CustomerRemarks,
 		RequestedPickupDate:    strfmt.Date(moveTaskOrder.RequestedPickupDate),
+		Suffix:                 customer.Suffix,
+		Telephone:              customer.Telephone,
 	}
 }
