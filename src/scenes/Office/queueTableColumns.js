@@ -47,8 +47,9 @@ const moveDate = CreateReactTableColumn('PPM start', 'move_date', {
         return onChange(formatDate(value));
       },
       inputClassName: 'queue-date-picker-filter',
-      formattedValue: filter ? formatDate(filter.value) : null,
+      value: filter ? filter.value : null,
       placeholder: 'DD-MMM-YY',
+      format: 'DD-MMM-YY',
     });
   },
 });
