@@ -103,16 +103,26 @@ var verifyNonStandardLocnPrices verifyXlsxSheet = func(params ParamConfig, sheet
 	mergedHeaderRow := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[headerRowIndex-1 : headerRowIndex][0] // merged cell uses lower bound
 	headerRow := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[headerRowIndex : headerRowIndex+1][0]
 
-	verifyHeader(mergedHeaderRow, originIDCol, "OriginID")
+	if err := verifyHeader(mergedHeaderRow, originIDCol, "OriginID"); err != nil {
+		return err
+	}
 
-	verifyHeader(mergedHeaderRow, originAreaCol, "OriginArea")
+	if err := verifyHeader(mergedHeaderRow, originAreaCol, "OriginArea"); err != nil {
+		return err
+	}
 
-	verifyHeader(mergedHeaderRow, destinationIDCol, "DestinationID")
+	if err := verifyHeader(mergedHeaderRow, destinationIDCol, "DestinationID"); err != nil {
+		return err
+	}
 
-	verifyHeader(mergedHeaderRow, destinationAreaCol, "DestinationArea")
+	if err := verifyHeader(mergedHeaderRow, destinationAreaCol, "DestinationArea"); err != nil {
+
+	}
 
 	// note: Move Type row is not merged like the other non-price headers
-	verifyHeader(headerRow, moveTypeCol, "MoveType")
+	if err := verifyHeader(headerRow, moveTypeCol, "MoveType"); err != nil {
+		return err
+	}
 
 	colIndex := feeColIndexStart
 	for _, season := range rateSeasons {
