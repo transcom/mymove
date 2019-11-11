@@ -75,7 +75,7 @@ func (c tableFromSliceCreator) CreateTableFromSlice(slice interface{}) error {
 	builder.WriteString(");")
 	createTableQuery := builder.String()
 
-	err := c.db.Transaction(func(tx *pop.Connection) error {
+	transactionErr := c.db.Transaction(func(tx *pop.Connection) error {
 		if c.dropIfExists {
 			err := tx.RawQuery("DROP TABLE IF EXISTS " + tableName).Exec()
 			if err != nil {
@@ -120,5 +120,5 @@ func (c tableFromSliceCreator) CreateTableFromSlice(slice interface{}) error {
 		return nil
 	})
 
-	return err
+	return transactionErr
 }
