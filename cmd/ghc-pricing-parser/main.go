@@ -114,7 +114,7 @@ func main() {
 	}
 
 	// If the parsing was successful, run GHC Rate Engine importer
-	if params.RunImport == true {
+	if params.RunImport {
 		ghcREImporter := ghcimport.GHCRateEngineImporter{
 			DB:     db,
 			Logger: logger,
