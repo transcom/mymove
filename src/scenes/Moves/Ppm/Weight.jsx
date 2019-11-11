@@ -96,6 +96,10 @@ export class PpmWeight extends Component {
     });
   };
 
+  onWeightSliderSelection = value => {
+    console.log(value);
+  };
+
   onWeightSelected() {
     const { currentPpm, originDutyStationZip } = this.props;
     this.props.getPpmWeightEstimate(
@@ -106,6 +110,7 @@ export class PpmWeight extends Component {
       this.state.pendingPpmWeight,
     );
   }
+
   render() {
     const {
       incentive_estimate_min,
@@ -125,6 +130,20 @@ export class PpmWeight extends Component {
           <div className="grid-container usa-prose site-prose">
             <h3>How much do you think you'll move?</h3>
             <p>Your weight entitlement: {this.props.entitlement.weight.toLocaleString()} lbs</p>
+            <div className="progear-slider-container">
+              <Slider
+                min={0}
+                max={this.props.entitlement.weight}
+                value={this.state.pendingPpmWeight}
+                onChange={this.onWeightSelecting}
+                onChangeComplete={this.onWeightSelected}
+                step={500}
+                labels={{
+                  0: `${0} lbs`,
+                  [this.props.entitlement.weight]: `${this.props.entitlement.weight.toLocaleString()} lbs`,
+                }}
+              />
+            </div>
           </div>
         )}
         {!progearChanges && (
