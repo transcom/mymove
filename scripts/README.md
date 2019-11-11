@@ -16,6 +16,15 @@ environment.
 | `check-hosts-file` | Script helps ensure that /etc/hosts has all the correct entries in it |
 | `prereqs` | validate if all prerequisite programs have been installed |
 
+## Operations Scripts
+
+These scripts are used to operate the system.
+
+| Script Name | Description |
+| --- | --- |
+| `download-alb-logs` | Download alb logs for the given environment and dates to a local folder |
+| `scan-alb-logs` | Scan alb logs for specific http codes. |
+
 ## Pre-commit Scripts
 
 These scripts are used primarily to check our code before

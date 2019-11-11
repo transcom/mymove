@@ -18,7 +18,7 @@ var parseDomesticServiceAreas processXlsxSheet = func(params ParamConfig, sheetI
 	const zip3sColumn int = 5
 
 	if xlsxDataSheetNum != sheetIndex {
-		return nil, fmt.Errorf("parseServiceAreas expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
+		return nil, fmt.Errorf("parseDomesticServiceAreas expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
 	log.Println("Parsing Domestic Service Areas")
@@ -53,7 +53,7 @@ var parseInternationalServiceAreas processXlsxSheet = func(params ParamConfig, s
 	const rateAreaIDColumn int = 10
 
 	if xlsxDataSheetNum != sheetIndex {
-		return nil, fmt.Errorf("parseServiceAreas expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
+		return nil, fmt.Errorf("parseInternationalServiceAreas expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
 	log.Println("Parsing International Service Areas")

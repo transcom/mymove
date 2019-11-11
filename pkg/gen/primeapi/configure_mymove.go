@@ -39,6 +39,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation move_task_order.ListMoveTaskOrders has not yet been implemented")
 		})
 	}
+	if api.MoveTaskOrderUpdateMoveTaskOrderEstimatedWeightHandler == nil {
+		api.MoveTaskOrderUpdateMoveTaskOrderEstimatedWeightHandler = move_task_order.UpdateMoveTaskOrderEstimatedWeightHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderEstimatedWeightParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.UpdateMoveTaskOrderEstimatedWeight has not yet been implemented")
+		})
+	}
 
 	api.ServerShutdown = func() {}
 
