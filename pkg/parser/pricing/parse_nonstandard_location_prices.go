@@ -80,6 +80,65 @@ var parseNonStandardLocnPrices processXlsxSheet = func(params ParamConfig, sheet
 }
 
 var verifyNonStandardLocnPrices verifyXlsxSheet = func(params ParamConfig, sheetIndex int) error {
-	const xlsxSheetNum = 14
+	const xlsxDataSheetNum = 14
+
+	const feeRowIndexStart int = 10 // this should match the same const in parse fn
+	const headerRowIndex int = feeRowIndexStart - 2
+	const originIDCol int = 2
+	const originAreaCol int = 3
+	const destinationIDCol int = 4
+	const destinationAreaCol int = 5
+	const moveTypeCol int = 6
+	const feeColIndexStart int = 7
+
+	if xlsxDataSheetNum != sheetIndex {
+		return fmt.Errorf("verifyNonStandardLocnPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
+	}
+
+	repeatingHeaders := []string{
+		"HHGPrice(exceptSIT)(percwt)",
+		"UBPrice(exceptSIT)(percwt)",
+	}
+
+	mergedHeaderRow := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[headerRowIndex-1 : headerRowIndex][0] // merged cell uses lower bound
+	headerRow := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[headerRowIndex : headerRowIndex+1][0]
+
+	originIDTitle := "OriginID"
+	if originIDTitle != removeWhiteSpace(getCell(mergedHeaderRow.Cells, originIDCol)) {
+		return fmt.Errorf("format error: Header '%s' is missing got '%s' instead", originIDTitle, removeWhiteSpace(getCell(mergedHeaderRow.Cells, originIDCol)))
+	}
+
+	originAreaTitle := "OriginArea"
+	if originAreaTitle != removeWhiteSpace(getCell(mergedHeaderRow.Cells, originAreaCol)) {
+		return fmt.Errorf("format error: Header '%s' is missing got '%s' instead", originAreaTitle, removeWhiteSpace(getCell(mergedHeaderRow.Cells, originAreaCol)))
+	}
+
+	destinationIDTitle := "DestinationID"
+	if destinationIDTitle != removeWhiteSpace(getCell(mergedHeaderRow.Cells, destinationIDCol)) {
+		return fmt.Errorf("format error: Header '%s' is missing got '%s' instead", destinationIDTitle, removeWhiteSpace(getCell(mergedHeaderRow.Cells, destinationIDCol)))
+	}
+
+	destinationAreaTitle := "DestinationArea"
+	if destinationAreaTitle != removeWhiteSpace(getCell(mergedHeaderRow.Cells, destinationAreaCol)) {
+		return fmt.Errorf("format error: Header '%s' is missing got '%s' instead", destinationAreaTitle, removeWhiteSpace(getCell(mergedHeaderRow.Cells, destinationAreaCol)))
+	}
+
+	moveTypeTitle := "MoveType"
+	// note: Move Type row is not merged like the other non-price headers
+	if moveTypeTitle != removeWhiteSpace(getCell(headerRow.Cells, moveTypeCol)) {
+		return fmt.Errorf("format error: Header '%s' is missing got '%s' instead", moveTypeTitle, removeWhiteSpace(getCell(headerRow.Cells, moveTypeCol)))
+	}
+
+	colIndex := feeColIndexStart
+	for _, season := range rateSeasons {
+		for _, header := range repeatingHeaders {
+			if header != removeWhiteSpace(getCell(headerRow.Cells, colIndex)) {
+				return fmt.Errorf("format error: Header for '%s' season '%s' is missing got '%s' instead", season, header, removeWhiteSpace(getCell(headerRow.Cells, colIndex)))
+			}
+			colIndex++
+		}
+		colIndex++
+
+	}
 	return nil
 }

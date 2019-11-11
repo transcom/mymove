@@ -41,15 +41,15 @@ func (suite *PricingParserSuite) Test_NonStandardLocnPrices() {
 		}
 	})
 
-	//suite.T().Run("verify NonStandardLocation prices", func(t *testing.T) {
-	//	err := verifyNonStandardLocationPrices(params, sheetIndex)
-	//	suite.NoError(err, "verifyIntlNonStandardLocationPrices failed")
-	//})
-	//
-	//suite.T().Run("attempt to verify non-standard location prices with incorrect sheet index", func(t *testing.T) {
-	//	err := verifyNonStandardLocationPrices(params, 7)
-	//	if suite.Error(err) {
-	//		suite.Equal("verifyInternationalPrices expected to process sheet 10, but received sheetIndex 7", err.Error())
-	//	}
-	//})
+	suite.T().Run("verify NonStandardLocation prices", func(t *testing.T) {
+		err := verifyNonStandardLocnPrices(params, sheetIndex)
+		suite.NoError(err, "verifyNonStandardLocationPrices failed")
+	})
+
+	suite.T().Run("attempt to verify non-standard location prices with incorrect sheet index", func(t *testing.T) {
+		err := verifyNonStandardLocnPrices(params, 13)
+		if suite.Error(err) {
+			suite.Equal("verifyNonStandardLocnPrices expected to process sheet 14, but received sheetIndex 13", err.Error())
+		}
+	})
 }
