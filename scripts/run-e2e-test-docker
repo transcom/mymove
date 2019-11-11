@@ -161,6 +161,10 @@ docker cp ${CONTAINER_CYPRESS}:/cypress/results cypress/ 2>/dev/null || echo "No
 docker cp ${CONTAINER_CYPRESS}:/cypress/screenshots cypress/ 2>/dev/null || echo "No cypress screenshots copied"
 docker cp ${CONTAINER_CYPRESS}:/cypress/videos cypress/ 2>/dev/null || echo "No cypress videos copied"
 
+# combine json files and generate a report
+$DOCKER_RUN  npx mochawesome-merge --reportDir cypress/results > cypress/results/mochawesome.json
+$DOCKER_RUN  npx mochawesome-report-generator cypress/results/mochawesome.json -o cypress/results
+
 # Grab the exit code from the test container
 EXIT_STATUS=$(docker inspect ${CONTAINER_CYPRESS} --format='{{.State.ExitCode}}')
 
