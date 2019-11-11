@@ -4,6 +4,31 @@ import (
 	"testing"
 )
 
+type TestStruct struct {
+	Name              string `db:"name"`
+	ServiceAreaNumber string `db:"service_area_number"`
+	Zip3              string `db:"zip3"`
+}
+
+var validSlice = []TestStruct{
+	// Order matters here for test comparison
+	{
+		Name:              "Amanda",
+		ServiceAreaNumber: "120",
+		Zip3:              "292",
+	},
+	{
+		Name:              "James",
+		ServiceAreaNumber: "444",
+		Zip3:              "361",
+	},
+	{
+		Name:              "John",
+		ServiceAreaNumber: "004",
+		Zip3:              "309",
+	},
+}
+
 func (suite *DBToolsServiceSuite) TestCreateTableFromSlice() {
 	tableFromSliceCreator := NewTableFromSliceCreator(suite.DB(), suite.logger, true, false)
 
@@ -29,31 +54,6 @@ func (suite *DBToolsServiceSuite) TestCreateTableFromSlice() {
 		suite.Equal("All fields of struct must be string, but field field2 is int", err.Error())
 	})
 
-	type TestStruct struct {
-		Name              string `db:"name"`
-		ServiceAreaNumber string `db:"service_area_number"`
-		Zip3              string `db:"zip3"`
-	}
-
-	var validSlice = []TestStruct{
-		// Order matters here for test comparison
-		{
-			Name:              "Amanda",
-			ServiceAreaNumber: "120",
-			Zip3:              "292",
-		},
-		{
-			Name:              "James",
-			ServiceAreaNumber: "444",
-			Zip3:              "361",
-		},
-		{
-			Name:              "John",
-			ServiceAreaNumber: "004",
-			Zip3:              "309",
-		},
-	}
-
 	suite.T().Run("valid slice of structs", func(t *testing.T) {
 		err := tableFromSliceCreator.CreateTableFromSlice(validSlice)
 		suite.NoError(err)
@@ -76,31 +76,6 @@ func (suite *DBToolsServiceSuite) TestCreateTableFromSlice() {
 
 func (suite *DBToolsServiceSuite) TestCreateTableFromSlicePermTable() {
 	tableFromSliceCreator := NewTableFromSliceCreator(suite.DB(), suite.logger, true, true)
-
-	type TestStruct struct {
-		Name              string `db:"name"`
-		ServiceAreaNumber string `db:"service_area_number"`
-		Zip3              string `db:"zip3"`
-	}
-
-	var validSlice = []TestStruct{
-		// Order matters here for test comparison
-		{
-			Name:              "Amanda",
-			ServiceAreaNumber: "120",
-			Zip3:              "292",
-		},
-		{
-			Name:              "James",
-			ServiceAreaNumber: "444",
-			Zip3:              "361",
-		},
-		{
-			Name:              "John",
-			ServiceAreaNumber: "004",
-			Zip3:              "309",
-		},
-	}
 
 	suite.T().Run("two runs no error when drop flag is true", func(t *testing.T) {
 		err := tableFromSliceCreator.CreateTableFromSlice(validSlice)
