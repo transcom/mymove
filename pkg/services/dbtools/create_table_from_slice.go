@@ -79,12 +79,12 @@ func (c tableFromSliceCreator) CreateTableFromSlice(slice interface{}) error {
 		if c.dropIfExists {
 			err := tx.RawQuery("DROP TABLE IF EXISTS " + tableName).Exec()
 			if err != nil {
-				return err
+				return errors.Wrap(err, fmt.Sprintf("Error dropping table: '%s'", tableName))
 			}
 		}
 		err := tx.RawQuery(createTableQuery).Exec()
 		if err != nil {
-			return err
+			return errors.Wrap(err, fmt.Sprintf("Error creating table: '%s'", tableName))
 		}
 
 		// Put data into the table
