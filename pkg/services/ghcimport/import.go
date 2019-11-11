@@ -5,42 +5,21 @@ import (
 	"github.com/pkg/errors"
 )
 
-type GHCREImporter interface {
-	Import() error
-	Description() string
-}
-
 type GHCRateEngineImporter struct {
 	DB     *pop.Connection
 	Logger Logger
 }
 
-func (gre *GHCRateEngineImporter) callImporter(importer GHCREImporter) error {
-	err := importer.Import()
-	if err != nil {
-		return errors.Wrapf(err, "GHC Rate Engine Importer failed for <%s>", importer.Description())
-	}
-	return nil
-}
-
 func (gre *GHCRateEngineImporter) runImports() error {
 
-	// re_domestic_service_areas
-	err := gre.callImporter(REDomesticServiceAreasImporter{
-		db:     gre.DB,
-		logger: gre.Logger,
-	})
+	err := gre.importRERateArea()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "Failed to import re_rate_area")
 	}
 
-	// re_rate_area
-	err = gre.callImporter(RERateAreasImporter{
-		db:     gre.DB,
-		logger: gre.Logger,
-	})
+	err = gre.importREDomesticServiceArea()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "Failed to import re_domestic_service_area")
 	}
 
 	return nil
