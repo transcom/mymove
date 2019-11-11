@@ -43,7 +43,6 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_Import() {
 		{
 			name: "Run GHC Rate Engine Importer",
 			gre: &GHCRateEngineImporter{
-				DB:     suite.DB(),
 				Logger: suite.logger,
 			},
 			wantErr: false,
@@ -51,7 +50,7 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_Import() {
 	}
 	for _, tt := range tests {
 		suite.T().Run(tt.name, func(t *testing.T) {
-			if err := tt.gre.Import(); (err != nil) != tt.wantErr {
+			if err := tt.gre.Import(suite.DB()); (err != nil) != tt.wantErr {
 				t.Errorf("GHCRateEngineImporter.Import() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})

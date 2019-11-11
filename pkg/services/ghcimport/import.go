@@ -6,21 +6,20 @@ import (
 )
 
 type GHCRateEngineImporter struct {
-	DB     *pop.Connection
 	Logger Logger
 	// TODO: add reference maps here as needed for dependencies between tables
 	// like UUID maps for domestic service areas
 	// domesticServiceAreaUUIDs map[string]uuid.UUID
 }
 
-func (gre *GHCRateEngineImporter) runImports() error {
+func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
 
-	err := gre.importRERateArea()
+	err := gre.importRERateArea(dbTx)
 	if err != nil {
 		return errors.Wrap(err, "Failed to import re_rate_area")
 	}
 
-	err = gre.importREDomesticServiceArea()
+	err = gre.importREDomesticServiceArea(dbTx)
 	if err != nil {
 		return errors.Wrap(err, "Failed to import re_domestic_service_area")
 	}
@@ -28,11 +27,11 @@ func (gre *GHCRateEngineImporter) runImports() error {
 	return nil
 }
 
-func (gre *GHCRateEngineImporter) Import() error {
+func (gre *GHCRateEngineImporter) Import(db *pop.Connection) error {
 
-	err := gre.DB.Transaction(func(connection *pop.Connection) error {
-		dbError := gre.runImports()
-		return dbError
+	err := db.Transaction(func(connection *pop.Connection) error {
+		dbTxError := gre.runImports(connection)
+		return dbTxError
 	})
 	if err != nil {
 		return errors.Wrap(err, "Transaction failed during GHC Rate Engine Import()")
