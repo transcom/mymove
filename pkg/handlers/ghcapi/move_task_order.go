@@ -12,6 +12,8 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 
+	entitlementscodeop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/entitlements"
+	movetaskordercodeop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -51,6 +53,33 @@ func requestToModels(params movetaskorderops.UpdateMoveTaskOrderStatusParams) (u
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 	status := models.MoveTaskOrderStatus(params.Body.Status)
 	return moveTaskOrderID, status
+}
+
+// GetEntitlementsHandler fetches the entitlements for a move task order
+type GetEntitlementsHandler struct {
+	handlers.HandlerContext
+	moveTaskOrderFetcher services.MoveTaskOrderFetcher
+}
+
+// Handle getting the entitlements for a move task order
+func (h GetEntitlementsHandler) Handle(params entitlementscodeop.GetEntitlementsParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID)
+	if err != nil {
+		logger.Error("ghciapi.GetEntitlementsHandler error", zap.Error(err))
+		switch err.(type) {
+		case movetaskorderservice.ErrNotFound:
+			return movetaskordercodeop.NewUpdateMoveTaskOrderActualWeightNotFound()
+		case movetaskorderservice.ErrInvalidInput:
+			return movetaskordercodeop.NewUpdateMoveTaskOrderActualWeightBadRequest()
+		default:
+			return movetaskordercodeop.NewUpdateMoveTaskOrderActualWeightInternalServerError()
+		}
+	}
+	entitlements := payloadForEntitlements(&mto.Entitlements)
+
+	return entitlementscodeop.NewGetEntitlementsOK().WithPayload(entitlements)
 }
 
 // TODO it might make sense to create a package for these various mappers, rather than making them all private

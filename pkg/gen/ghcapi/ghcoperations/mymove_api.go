@@ -70,6 +70,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PaymentRequestsGetPaymentRequestHandler: payment_requests.GetPaymentRequestHandlerFunc(func(params payment_requests.GetPaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation PaymentRequestsGetPaymentRequest has not yet been implemented")
 		}),
+		EntitlementsGetPrimeEntitlementsHandler: entitlements.GetPrimeEntitlementsHandlerFunc(func(params entitlements.GetPrimeEntitlementsParams) middleware.Responder {
+			return middleware.NotImplemented("operation EntitlementsGetPrimeEntitlements has not yet been implemented")
+		}),
 		ServiceItemGetServiceItemHandler: service_item.GetServiceItemHandlerFunc(func(params service_item.GetServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation ServiceItemGetServiceItem has not yet been implemented")
 		}),
@@ -152,6 +155,8 @@ type MymoveAPI struct {
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
 	// PaymentRequestsGetPaymentRequestHandler sets the operation handler for the get payment request operation
 	PaymentRequestsGetPaymentRequestHandler payment_requests.GetPaymentRequestHandler
+	// EntitlementsGetPrimeEntitlementsHandler sets the operation handler for the get prime entitlements operation
+	EntitlementsGetPrimeEntitlementsHandler entitlements.GetPrimeEntitlementsHandler
 	// ServiceItemGetServiceItemHandler sets the operation handler for the get service item operation
 	ServiceItemGetServiceItemHandler service_item.GetServiceItemHandler
 	// MoveTaskOrderListMoveTaskOrdersHandler sets the operation handler for the list move task orders operation
@@ -271,6 +276,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.PaymentRequestsGetPaymentRequestHandler == nil {
 		unregistered = append(unregistered, "payment_requests.GetPaymentRequestHandler")
+	}
+
+	if o.EntitlementsGetPrimeEntitlementsHandler == nil {
+		unregistered = append(unregistered, "entitlements.GetPrimeEntitlementsHandler")
 	}
 
 	if o.ServiceItemGetServiceItemHandler == nil {
@@ -459,6 +468,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/payment-requests/{paymentRequestID}"] = payment_requests.NewGetPaymentRequest(o.context, o.PaymentRequestsGetPaymentRequestHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/prime-entitlements"] = entitlements.NewGetPrimeEntitlements(o.context, o.EntitlementsGetPrimeEntitlementsHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

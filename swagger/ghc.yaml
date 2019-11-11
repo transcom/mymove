@@ -581,6 +581,48 @@ paths:
       description: Gets entitlements
       operationId: getEntitlements
       summary: Gets entitlements for a move order by ID
+  '/move-task-orders/{moveTaskOrderID}/prime-entitlements':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      tags:
+        - Entitlements
+        - prime
+      responses:
+        '200':
+          description: Successfully retrieved move task order
+          schema:
+            $ref: '#/definitions/Entitlements'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/definitions/Error'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/definitions/Error'
+      description: Gets entitlements
+      operationId: getPrimeEntitlements
+      summary: Gets entitlements for a move order by ID
   '/move-task-orders/{moveTaskOrderID}/prime-actual-weight':
     parameters:
       - description: ID of move order to use

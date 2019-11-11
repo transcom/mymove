@@ -5,6 +5,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	entitlementscodeop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/entitlements"
 	movetaskordercodeop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/services"
@@ -36,4 +37,31 @@ func (h UpdateMoveTaskOrderActualWeightHandler) Handle(params movetaskordercodeo
 
 	moveTaskOrderPayload := payloadForMoveTaskOrder(*mto)
 	return movetaskordercodeop.NewUpdateMoveTaskOrderActualWeightOK().WithPayload(moveTaskOrderPayload)
+}
+
+// GetPrimeEntitlementsHandler fetches the entitlements for a move task order
+type GetPrimeEntitlementsHandler struct {
+	handlers.HandlerContext
+	moveTaskOrderFetcher services.MoveTaskOrderFetcher
+}
+
+// Handle getting the entitlements for a move task order
+func (h GetPrimeEntitlementsHandler) Handle(params entitlementscodeop.GetPrimeEntitlementsParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID)
+	if err != nil {
+		logger.Error("ghciapi.GetPrimeEntitlementsHandler error", zap.Error(err))
+		switch err.(type) {
+		case movetaskorderservice.ErrNotFound:
+			return movetaskordercodeop.NewUpdateMoveTaskOrderActualWeightNotFound()
+		case movetaskorderservice.ErrInvalidInput:
+			return movetaskordercodeop.NewUpdateMoveTaskOrderActualWeightBadRequest()
+		default:
+			return movetaskordercodeop.NewUpdateMoveTaskOrderActualWeightInternalServerError()
+		}
+	}
+	entitlements := payloadForEntitlements(&mto.Entitlements)
+
+	return entitlementscodeop.NewGetPrimeEntitlementsOK().WithPayload(entitlements)
 }

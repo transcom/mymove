@@ -509,6 +509,67 @@ func init() {
         }
       ]
     },
+    "/move-task-orders/{moveTaskOrderID}/prime-entitlements": {
+      "get": {
+        "description": "Gets entitlements",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Entitlements",
+          "prime"
+        ],
+        "summary": "Gets entitlements for a move order by ID",
+        "operationId": "getPrimeEntitlements",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved move task order",
+            "schema": {
+              "$ref": "#/definitions/Entitlements"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of move order to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}": {
       "get": {
         "description": "Gets a line item by ID for a move order by ID",
@@ -2583,6 +2644,67 @@ func init() {
               "schema": {
                 "$ref": "#/definitions/Error"
               }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of move order to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/move-task-orders/{moveTaskOrderID}/prime-entitlements": {
+      "get": {
+        "description": "Gets entitlements",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Entitlements",
+          "prime"
+        ],
+        "summary": "Gets entitlements for a move order by ID",
+        "operationId": "getPrimeEntitlements",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved move task order",
+            "schema": {
+              "$ref": "#/definitions/Entitlements"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
             }
           }
         }
