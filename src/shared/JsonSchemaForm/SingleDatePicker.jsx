@@ -6,7 +6,15 @@ import { defaultDateFormat } from 'shared/utils';
 import 'react-day-picker/lib/style.css';
 
 // First date format is take to be the default
-const allowedDateFormats = [defaultDateFormat, 'YYYY/M/D', 'YYYY-M-D', 'M-D-YYYY', 'D-MMM-YYYY', 'MMM-D-YYYY'];
+const allowedDateFormats = [
+  defaultDateFormat,
+  'YYYY/M/D',
+  'YYYY-M-D',
+  'M-D-YYYY',
+  'D-MMM-YYYY',
+  'MMM-D-YYYY',
+  'DD-MMM-YY',
+];
 
 function parseDate(str, _format, locale = 'en') {
   // Ignore default format, and attempt to parse date using allowed formats
@@ -20,10 +28,10 @@ function parseDate(str, _format, locale = 'en') {
   return undefined;
 }
 
-function formatDate(date, format = 'L', locale = 'en') {
+function formatDate(date, format = defaultDateFormat, locale = 'en') {
   return moment(date)
     .locale(locale)
-    .format(defaultDateFormat);
+    .format(format);
 }
 
 const getDayPickerProps = disabledDays => {
@@ -37,7 +45,7 @@ const getDayPickerProps = disabledDays => {
 export default function SingleDatePicker(props) {
   const {
     value = null,
-    formattedValue = null,
+    format = defaultDateFormat,
     onChange,
     onBlur,
     disabled,
@@ -46,7 +54,7 @@ export default function SingleDatePicker(props) {
     placeholder,
     inputClassName,
   } = props;
-  const formatted = formattedValue ? formattedValue : parseDate(value);
+  const formatted = parseDate(value);
 
   return (
     <DayPickerInput
@@ -55,6 +63,7 @@ export default function SingleDatePicker(props) {
       placeholder={placeholder}
       parseDate={parseDate}
       formatDate={formatDate}
+      format={format}
       value={formatted}
       dayPickerProps={getDayPickerProps(disabledDays)}
       inputProps={{ disabled, name, onChange, autoComplete: 'off', className: inputClassName || 'usa-input' }}
