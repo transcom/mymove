@@ -28,16 +28,16 @@ div.progear-slider-container {
   background-color: #0071bc;
 }
 
-.rangeslider__handle-tooltip {
-  background-color: white !important;
-  color: black !important;
+.rangeslider .rangeslider__handle-tooltip {
+  background-color: white;
+  color: black;
   border: 1px solid black;
-  width: 115px !important;
-  height: 25px !important;
+  width: 115px;
+  height: 25px;
 }
 
-.rangeslider__handle-tooltip span {
-  margin-top: 0 !important;
+.rangeslider .rangeslider__handle-tooltip span {
+  margin-top: 0;
 }
 
 .rangeslider__handle-tooltip span::before {
