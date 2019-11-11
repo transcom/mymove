@@ -27,14 +27,14 @@ func (suite *PricingParserSuite) Test_verifyServiceAreas() {
 }
 
 func (suite *PricingParserSuite) Test_verifyServiceAreasWrongSheet() {
-	const sheetIndex = 4
+	const sheetIndex = 5
 	InitDataSheetInfo()
 
 	params := ParamConfig{
 		ProcessAll:   false,
 		ShowOutput:   false,
 		XlsxFilename: suite.xlsxFilename,
-		XlsxSheets:   []string{strconv.Itoa(sheetIndex)},
+		XlsxSheets:   []string{"4"},
 		SaveToFile:   true,
 		RunTime:      time.Now(),
 		XlsxFile:     suite.xlsxFile,
@@ -42,7 +42,9 @@ func (suite *PricingParserSuite) Test_verifyServiceAreasWrongSheet() {
 	}
 
 	err := verifyServiceAreas(params, sheetIndex)
-	suite.NoError(err, "verifyServiceAreas function failed")
+	if suite.Error(err) {
+		suite.Equal("verifyServiceAreas expected to process sheet 4, but received sheetIndex 5", err.Error())
+	}
 }
 
 // Test_parseDomesticServiceAreas

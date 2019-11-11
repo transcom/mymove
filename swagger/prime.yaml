@@ -52,6 +52,58 @@ paths:
       description: Gets all move orders
       operationId: listMoveTaskOrders
       summary: Gets all move orders
+  '/move-task-orders/{moveTaskOrderID}/prime-estimated-weight':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              primeEstimatedWeight:
+                type: integer
+      responses:
+        '200':
+          description: Successfully retrieved move task order
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '422':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+        - prime
+      description: Updates a move order's estimated weight by ID
+      operationId: updateMoveTaskOrderEstimatedWeight
+      summary: Updates a move order's estimated weight by ID
 
 definitions:
   Address:
@@ -203,6 +255,20 @@ definitions:
       - city
       - state
       - postalCode
+  ClientError:
+    type: object
+    properties:
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
+    required:
+      - title
+      - detail
+      - instance
   Customer:
     type: object
     properties:
@@ -345,6 +411,15 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+      primeEstimatedWeight:
+        type: integer
+        example: 1000
+        x-formatting: weight
+        x-nullable: true
+      primeEstimatedWeightRecordedDate:
+        format: date
+        type: string
+        x-nullable: true
       pickupAddress:
         $ref: '#/definitions/Address'
       remarks:
@@ -368,6 +443,17 @@ definitions:
     items:
       $ref: '#/definitions/MoveTaskOrder'
     type: array
+  ValidationError:
+    allOf:
+      - $ref: '#/definitions/ClientError'
+      - type: object
+    properties:
+      invalid_fields:
+        type: object
+        additionalProperties:
+          type: string
+    required:
+      - invalid_fields
 responses:
   InvalidRequest:
     description: The request payload is invalid

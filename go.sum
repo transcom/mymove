@@ -30,6 +30,12 @@ github.com/aws/aws-sdk-go v1.25.26 h1:hMrxW3feteaGcP32oKaFdCQsCEWYf9zF12g73C0Acb
 github.com/aws/aws-sdk-go v1.25.26/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/aws/aws-sdk-go v1.25.27 h1:UANmajXi1Vn7eZ9GgdDtkFjxDiaHY6tUixCiB6Bj128=
 github.com/aws/aws-sdk-go v1.25.27/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
+github.com/aws/aws-sdk-go v1.25.29 h1:XMAoVra1O2paI3ZgiougWydq6zGt6sLzWn4qb7oVbBY=
+github.com/aws/aws-sdk-go v1.25.29/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
+github.com/aws/aws-sdk-go v1.25.30 h1:I9qj6zW3mMfsg91e+GMSN/INcaX9tTFvr/l/BAHKaIY=
+github.com/aws/aws-sdk-go v1.25.30/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
+github.com/aws/aws-sdk-go v1.25.31 h1:14mdh3HsTgRekePPkYcCbAaEXJknc3mN7f4XfsiMMDA=
+github.com/aws/aws-sdk-go v1.25.31/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
 github.com/blang/semver v3.5.1+incompatible h1:cQNTCjp13qL8KC3Nbxr/y2Bqb63oX6wdnnjpJbkM4JQ=
@@ -324,6 +330,12 @@ github.com/jung-kurt/gofpdf v1.12.6 h1:uKuWANXSGphk+YcJQe8Aoi7mRo7yDDXcX+OmxcYha
 github.com/jung-kurt/gofpdf v1.12.6/go.mod h1:1hl7y57EsiPAkLbOwzpzqgx1A30nQCk/YmFV8S2vmK0=
 github.com/jung-kurt/gofpdf v1.13.0 h1:OrLyhb9VU2dNdxzDu5lpMhX5/vpfm6RY5Jlr4iPQ6ME=
 github.com/jung-kurt/gofpdf v1.13.0/go.mod h1:1hl7y57EsiPAkLbOwzpzqgx1A30nQCk/YmFV8S2vmK0=
+github.com/jung-kurt/gofpdf v1.14.0 h1:9dypD7SNRFJ1tFYiLwHAnqTAhXJqrcq79Aua+GIo8Ho=
+github.com/jung-kurt/gofpdf v1.14.0/go.mod h1:1hl7y57EsiPAkLbOwzpzqgx1A30nQCk/YmFV8S2vmK0=
+github.com/jung-kurt/gofpdf v1.14.1 h1:yF6v2shqE1M3mw58AGDZjL7B7IQxwfB1wBsv0e+nms4=
+github.com/jung-kurt/gofpdf v1.14.1/go.mod h1:1hl7y57EsiPAkLbOwzpzqgx1A30nQCk/YmFV8S2vmK0=
+github.com/jung-kurt/gofpdf v1.15.1 h1:vcj3SN7gwT+H6MoeTzZ+L58/i4cAAGW64Rl+cxKdpV0=
+github.com/jung-kurt/gofpdf v1.15.1/go.mod h1:1hl7y57EsiPAkLbOwzpzqgx1A30nQCk/YmFV8S2vmK0=
 github.com/karrick/godirwalk v1.10.3/go.mod h1:RoGL9dQei4vP9ilrpETWE8CLOZ1kiN0LhBygSwrAsHA=
 github.com/karrick/godirwalk v1.10.12 h1:BqUm+LuJcXjGv1d2mj3gBiQyrQ57a0rYoAmhvJQ7RDU=
 github.com/karrick/godirwalk v1.10.12/go.mod h1:RoGL9dQei4vP9ilrpETWE8CLOZ1kiN0LhBygSwrAsHA=

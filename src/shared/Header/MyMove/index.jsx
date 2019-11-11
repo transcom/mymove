@@ -66,7 +66,7 @@ function Header() {
       </div>
       {/* Gov banner END */}
       <header className="usa-header usa-header--basic" role="banner">
-        <div className="my-move-header">
+        <div className="my-move-header desktop:padding-bottom-3">
           <div className="usa-nav-container">
             <div className="usa-navbar">
               <div className="usa-logo" id="basic-logo">
