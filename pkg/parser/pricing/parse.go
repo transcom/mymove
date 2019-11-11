@@ -132,6 +132,7 @@ type ParamConfig struct {
 	RunTime      time.Time
 	XlsxFile     *xlsx.File
 	RunVerify    bool
+	RunImport    bool
 }
 
 // InitDataSheetInfo: When adding new functions for parsing sheets, must add new XlsxDataSheetInfo
