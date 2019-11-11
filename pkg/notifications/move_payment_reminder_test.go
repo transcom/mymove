@@ -319,7 +319,6 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			TOName:                 emailInfo.TOName,
 			TOPhone:                emailInfo.TOPhone,
 		}
-		// data.IncentiveTxt = ""
 		htmlBody, err := pr.RenderHTML(data)
 		suite.NoError(err)
 		textBody, err := pr.RenderText(data)
