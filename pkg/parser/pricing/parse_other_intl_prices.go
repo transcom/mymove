@@ -91,31 +91,22 @@ var verifyOtherIntlPrices verifyXlsxSheet = func(params ParamConfig, sheetIndex 
 	headerRow := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart-2 : feeRowIndexStart-1][0]
 
 	priceAreaCodeHeader := "PriceAreaCode/ID"
-	if header := removeWhiteSpace(getCell(nonPriceHeaderRow.Cells, priceAreaCodeColumn)); header != priceAreaCodeHeader {
-		return fmt.Errorf("verifyOtherIntl expected to find header '%s', but received header '%s'", priceAreaCodeHeader, header)
-	}
+	verifyHeader(nonPriceHeaderRow, priceAreaCodeColumn, priceAreaCodeHeader)
 
 	priceAreaNameHeader := "InternationalPriceArea(PPIRA)/DomesticPriceArea(PPDRA)/Non-StandardRateArea"
-	if header := removeWhiteSpace(getCell(nonPriceHeaderRow.Cells, priceAreaNameColumn)); header != priceAreaNameHeader {
-		return fmt.Errorf("verifyOtherIntl expected to find header '%s', but received header '%s'", priceAreaNameHeader, header)
-	}
+	verifyHeader(nonPriceHeaderRow, priceAreaNameColumn, priceAreaNameHeader)
 
 	// NonPeak season headers
 	colIndex := feeColIndexStart
 	for _, repeatingHeader := range repeatingHeaders {
-		if header := removeWhiteSpace(getCell(headerRow.Cells, colIndex)); header != repeatingHeader {
-			return fmt.Errorf("verifyOtherIntl expected to find header '%s', but received header '%s'", repeatingHeader, header)
-		}
+		verifyHeader(headerRow, colIndex, repeatingHeader)
 		colIndex++
 	}
-
 	colIndex++
 
 	// Peak season headers
 	for _, repeatingHeader := range repeatingHeaders {
-		if header := removeWhiteSpace(getCell(headerRow.Cells, colIndex)); header != repeatingHeader {
-			return fmt.Errorf("verifyOtherIntl expected to find header '%s', but received header '%s'", repeatingHeader, header)
-		}
+		verifyHeader(headerRow, colIndex, repeatingHeader)
 		colIndex++
 	}
 

@@ -33,6 +33,26 @@ func (suite *PricingParserSuite) Test_parseOtherIntlPrices() {
 	suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)
 }
 
+func (suite *PricingParserSuite) Test_parseOtherIntlPricesWrongSheet() {
+	const sheetIndex = 12
+
+	params := ParamConfig{
+		ProcessAll:   false,
+		ShowOutput:   false,
+		XlsxFilename: suite.xlsxFilename,
+		XlsxSheets:   []string{"13"},
+		SaveToFile:   true,
+		RunTime:      time.Now(),
+		XlsxFile:     suite.xlsxFile,
+		RunVerify:    true,
+	}
+
+	err := verifyOtherIntlPrices(params, sheetIndex)
+	if suite.Error(err) {
+		suite.Equal("verifyOtherIntlPrices expected to process sheet 13, but received sheetIndex 12", err.Error())
+	}
+}
+
 func (suite *PricingParserSuite) Test_verifyOtherIntlPrices() {
 	const sheetIndex = 13
 	InitDataSheetInfo()
