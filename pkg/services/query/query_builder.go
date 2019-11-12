@@ -11,10 +11,8 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// instanceOfBuilder.FetchOne(model, filters, associations, pagination, ...parameters)
-// instanceOfBuilder.FetchOne(model, id).WithFilters(filtes)
-// query.NewFetchMany(model interface{}).WithFilters(filters).WithPagination(pagination).WithAssociations(associations).Execute()
-
+// FetchMany is the exported interface for fetching a single office user
+//go:generate mockery -name FetchMany
 type FetchMany interface {
 	WithModel(model interface{}) *fetchMany
 	WithFilters(filters []services.QueryFilter) *fetchMany
