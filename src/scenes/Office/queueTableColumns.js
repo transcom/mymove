@@ -30,20 +30,6 @@ const locator = CreateReactTableColumn('Locator #', 'locator', {
 const dateFormat = 'DD-MMM-YY';
 const moveDate = CreateReactTableColumn('PPM start', 'move_date', {
   Cell: row => <span className="move_date">{formatDate(row.value)}</span>,
-  filterable: true,
-  filterMethod: (filter, row) => {
-    // Filter dates that are same or before the filtered value
-    if (filter.value === undefined) {
-      return true;
-    } else if (row[filter.id] === undefined) {
-      return false;
-    }
-
-    const rowDate = moment(row[filter.id]);
-    const filterDate = moment(filter.value, dateFormat);
-
-    return rowDate.isSameOrBefore(filterDate);
-  },
   Filter: ({ filter, onChange }) => {
     return (
       <div>
@@ -60,6 +46,20 @@ const moveDate = CreateReactTableColumn('PPM start', 'move_date', {
       </div>
     );
   },
+  filterMethod: (filter, row) => {
+    // Filter dates that are same or before the filtered value
+    if (filter.value === undefined) {
+      return true;
+    } else if (row[filter.id] === undefined) {
+      return false;
+    }
+
+    const rowDate = moment(row[filter.id]);
+    const filterDate = moment(filter.value, dateFormat);
+
+    return rowDate.isSameOrBefore(filterDate);
+  },
+  filterable: true,
 });
 
 const origin = CreateReactTableColumn('Origin', 'origin_duty_station_name', {
@@ -72,14 +72,6 @@ const destination = CreateReactTableColumn('Destination', 'destination_duty_stat
 
 const branchOfService = CreateReactTableColumn('Branch', 'branch_of_service', {
   Cell: row => <span>{row.value}</span>,
-  filterable: true,
-  filterMethod: (filter, row) => {
-    if (filter.value === 'all') {
-      return true;
-    }
-
-    return row[filter.id] === filter.value;
-  },
   Filter: ({ filter, onChange }) => (
     <select
       onChange={event => onChange(event.target.value)}
@@ -94,6 +86,14 @@ const branchOfService = CreateReactTableColumn('Branch', 'branch_of_service', {
       <option value="COAST_GUARD">Coast Guard</option>
     </select>
   ),
+  filterMethod: (filter, row) => {
+    if (filter.value === 'all') {
+      return true;
+    }
+
+    return row[filter.id] === filter.value;
+  },
+  filterable: true,
 });
 
 // Columns used to display in react table
