@@ -48,6 +48,20 @@ describe('formatters', () => {
     });
   });
 
+  describe('formatDate', () => {
+    it('should be formatted as expected', () => {
+      const inputFormat = 'MMM-DD-YY';
+      const formattedDate = formatters.formatDate('Nov-11-19', inputFormat, 'en', true);
+      expect(formattedDate).toBe('11-Nov-19');
+    });
+
+    it('should be invalid with unexpected input and strict mode on', () => {
+      const inputFormat = 'MMM-DD-YY';
+      const formattedDate = formatters.formatDate('Nov-11-1999', inputFormat, 'en', true);
+      expect(formattedDate).toBe('Invalid date');
+    });
+  });
+
   describe('formatDateTimeWithTZ', () => {
     it('should include the timezone shortcode', () => {
       const formattedDate = formatters.formatDateTimeWithTZ(new Date());
