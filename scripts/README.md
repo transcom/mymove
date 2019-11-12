@@ -49,7 +49,6 @@ These scripts are primarily used for CircleCI workflows.
 | --- | --- |
 | `check-deployed-commit` |  checks that the deployed commit and given commit match. |
 | `circleci-announce-broken-branch` | announce that a branch is broken |
-| `circleci-push-dependency-updates` | Updates dependencies on the repo |
 | `compare-deployed-commit` | checks that the given commit is ahead of the currently deployed commit |
 | `do-exclusively` | CircleCI's current recommendation for roughly serializing a subset of build commands for a given branch |
 | `ecs-deploy-service-container` |  Updates the named service with the given container definition template, image, and environment |
