@@ -89,7 +89,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerServerError() {
 	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusInternalServerError{}, response)
 }
 
-func (suite *HandlerSuite) TestGetEntitlementsHandlerSuccess() {
+func (suite *HandlerSuite) TestGetEntitlementsHandlerIntegration() {
 	// set up what needs to be passed to handler
 	moveTaskOrderID, _ := uuid.NewV4()
 	mto := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
