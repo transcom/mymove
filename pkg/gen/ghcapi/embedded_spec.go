@@ -1552,6 +1552,11 @@ func init() {
           "title": "Origin Duty Station Name",
           "x-nullable": true,
           "example": "Fort Knox"
+        },
+        "reference_id": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "1234-5678"
         }
       }
     },
@@ -3805,6 +3810,11 @@ func init() {
           "title": "Origin Duty Station Name",
           "x-nullable": true,
           "example": "Fort Knox"
+        },
+        "reference_id": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "1234-5678"
         }
       }
     },
