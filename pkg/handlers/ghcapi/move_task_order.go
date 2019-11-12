@@ -13,7 +13,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 
 	entitlementscodeop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/entitlements"
-	movetaskordercodeop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -70,11 +69,11 @@ func (h GetEntitlementsHandler) Handle(params entitlementscodeop.GetEntitlements
 		logger.Error("ghciapi.GetEntitlementsHandler error", zap.Error(err))
 		switch err.(type) {
 		case movetaskorderservice.ErrNotFound:
-			return movetaskordercodeop.NewUpdateMoveTaskOrderActualWeightNotFound()
+			return entitlementscodeop.NewGetEntitlementsNotFound()
 		case movetaskorderservice.ErrInvalidInput:
-			return movetaskordercodeop.NewUpdateMoveTaskOrderActualWeightBadRequest()
+			return entitlementscodeop.NewGetEntitlementsBadRequest()
 		default:
-			return movetaskordercodeop.NewUpdateMoveTaskOrderActualWeightInternalServerError()
+			return entitlementscodeop.NewGetEntitlementsInternalServerError()
 		}
 	}
 	entitlements := payloadForEntitlements(&mto.Entitlements)

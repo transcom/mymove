@@ -54,11 +54,11 @@ func (h GetPrimeEntitlementsHandler) Handle(params entitlementscodeop.GetPrimeEn
 		logger.Error("ghciapi.GetPrimeEntitlementsHandler error", zap.Error(err))
 		switch err.(type) {
 		case movetaskorderservice.ErrNotFound:
-			return movetaskordercodeop.NewUpdateMoveTaskOrderActualWeightNotFound()
+			return entitlementscodeop.NewGetPrimeEntitlementsNotFound()
 		case movetaskorderservice.ErrInvalidInput:
-			return movetaskordercodeop.NewUpdateMoveTaskOrderActualWeightBadRequest()
+			return entitlementscodeop.NewGetPrimeEntitlementsBadRequest()
 		default:
-			return movetaskordercodeop.NewUpdateMoveTaskOrderActualWeightInternalServerError()
+			return entitlementscodeop.NewGetPrimeEntitlementsInternalServerError()
 		}
 	}
 	entitlements := payloadForEntitlements(&mto.Entitlements)
