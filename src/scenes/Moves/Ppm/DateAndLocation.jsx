@@ -134,21 +134,16 @@ export class DateAndLocation extends Component {
           )}
           <h3>Destination Location</h3>
           <p>
-            Enter the ZIP for your new home if you know it, or for{' '}
-            {this.props.currentOrders && this.props.currentOrders.new_duty_station.name} if you don't.
+            The ZIP code for {currentOrders && currentOrders.new_duty_station.name} is{' '}
+            {currentOrders && currentOrders.new_duty_station.address.postal_code}{' '}
           </p>
           <SwaggerField
             fieldName="destination_postal_code"
             swagger={this.props.schema}
             validate={validateDifferentZip}
+            disabled
             required
           />
-          <div style={{ marginTop: '0.5rem' }}>
-            <span className="grey">
-              The ZIP code for {currentOrders && currentOrders.new_duty_station.name} is{' '}
-              {currentOrders && currentOrders.new_duty_station.address.postal_code}{' '}
-            </span>
-          </div>
           <SwaggerField fieldName="has_sit" swagger={this.props.schema} component={YesNoBoolean} />
           {get(this.props, 'formValues.has_sit', false) && (
             <Fragment>
@@ -174,30 +169,35 @@ DateAndLocation.propTypes = {
 };
 
 function mapStateToProps(state) {
+  const originDutyStationZip = state.serviceMember.currentServiceMember.current_station.address.postal_code;
+  const destDutyStationZip = get(state.orders, 'currentOrders.new_duty_station.address.postal_code');
   const props = {
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
     ...state.ppm,
     currentOrders: state.orders.currentOrders,
     formValues: getFormValues(formName)(state),
     entitlement: loadEntitlementsFromState(state),
-    originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
+    originDutyStationZip: originDutyStationZip,
+    destDutyStationZip,
   };
-  const defaultPickupZip = get(state.serviceMember, 'currentServiceMember.residential_address.postal_code');
-  const originDutyStationZip = state.serviceMember.currentServiceMember.current_station.address.postal_code;
 
-  props.initialValues = props.currentPpm
-    ? props.currentPpm
-    : defaultPickupZip
-    ? {
-        pickup_postal_code: defaultPickupZip,
-        origin_duty_station_zip: originDutyStationZip,
-      }
-    : null;
-  if (state.ppm && state.ppm.currentPpm) {
-    state.ppm.currentPpm.origin_duty_station_zip = originDutyStationZip;
-  }
-
+  props.initialValues = getInitValues(props, state, originDutyStationZip, destDutyStationZip);
   return props;
+}
+
+function getInitValues(props, state, originDutyStationZip, destDutyStationZip) {
+  const defaultPickupZip = get(state.serviceMember, 'currentServiceMember.residential_address.postal_code');
+  if (props.currentPpm) {
+    return props.currentPpm;
+  } else if (defaultPickupZip) {
+    return {
+      pickup_postal_code: defaultPickupZip,
+      origin_duty_station_zip: originDutyStationZip,
+      destination_postal_code: destDutyStationZip,
+    };
+  } else {
+    return null;
+  }
 }
 
 function mapDispatchToProps(dispatch) {
