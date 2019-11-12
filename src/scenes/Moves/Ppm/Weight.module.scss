@@ -1,3 +1,5 @@
+@import 'shared/styles/themes.scss';
+
 div.info {
   background-color: rgb(250, 250, 250);
   padding: 2rem;
@@ -23,41 +25,38 @@ div.progear-slider-container {
   margin-right: 0;
   margin-top: 4em;
 }
+:global {
+  .rangeslider .rangeslider__handle-tooltip {
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+    width: 115px;
+    height: 25px;
+  }
 
-.progear-slider-container .rangeslider__fill {
-  background-color: #0071bc;
-}
+  .rangeslider .rangeslider__handle-tooltip span {
+    margin-top: 0;
+  }
 
-.rangeslider .rangeslider__handle-tooltip {
-  background-color: white;
-  color: black;
-  border: 1px solid black;
-  width: 115px;
-  height: 25px;
-}
+  .rangeslider__handle-tooltip span::before {
+    content: "about ";
+  }
 
-.rangeslider .rangeslider__handle-tooltip span {
-  margin-top: 0;
-}
+  .rangeslider__handle-tooltip span::after {
+    content: " lbs";
+  }
 
-.rangeslider__handle-tooltip span::before {
-  content: "about ";
-}
+  .rangeslider__labels .rangeslider__label-item:first-child {
+    width: 60px;
+  }
 
-.rangeslider__handle-tooltip span::after {
-  content: " lbs";
+  .rangeslider .rangeslider__fill {
+    background-color: #0071bc;
+  }
 }
 
 table.numeric-info th {
   border: none;
-}
-
-.slider-container .rangeslider__fill {
-  background-color: #0071bc;
-}
-
-.rangeslider__labels .rangeslider__label-item:first-child {
-  width: 60px;
 }
 
 @media only screen and (max-width: 481px) {
@@ -100,18 +99,19 @@ table.numeric-info th {
   color: green;
 }
 
-.grid-container h3 {
+:global .grid-container h3 {
   font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
 }
+:global {
+  table th,
+  table td {
+    border: none;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-right: 0.5rem;
+  }
 
-table th,
-table td {
-  border: none;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  padding-right: 0.5rem;
-}
-
-th {
-  font-weight: bold;
+  th {
+    font-weight: bold;
+  }
 }

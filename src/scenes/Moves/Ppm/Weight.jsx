@@ -13,7 +13,7 @@ import { getPpmWeightEstimate, createOrUpdatePpm, getSelectedWeightInfo } from '
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { updatePPMEstimate } from 'shared/Entities/modules/ppms';
 import 'react-rangeslider/lib/index.css';
-import './Weight.css';
+import styles from './Weight.module.scss';
 import { withContext } from 'shared/AppContext';
 
 const WeightWizardForm = reduxifyWizardForm('weight-wizard-form');
@@ -175,7 +175,7 @@ export class PpmWeight extends Component {
           <div className="grid-container usa-prose site-prose">
             <h3>How much do you think you'll move?</h3>
             <p>Your weight entitlement: {this.props.entitlement.weight.toLocaleString()} lbs</p>
-            <div className="progear-slider-container">
+            <div className={styles['progear-slider-container']}>
               <Slider
                 min={0}
                 max={this.props.entitlement.weight}
@@ -202,11 +202,11 @@ export class PpmWeight extends Component {
                 </Fragment>
               )}
             </div>
-            <div className="incentive-estimate-box border radius-lg border-base">
+            <div className={`${styles['incentive-estimate-box']} border radius-lg border-base`}>
               {this.chooseVehicleIcon(this.state.pendingPpmWeight)}
               {this.chooseEstimateText(this.state.pendingPpmWeight)}
               <h4>Your incentive for moving {this.state.pendingPpmWeight} lbs:</h4>
-              <h3 className="incentive-range-text">
+              <h3 className={styles['incentive-range-text']}>
                 {formatCentsRange(incentive_estimate_min, incentive_estimate_max)}
               </h3>
               <p className="text-gray-50">Final payment will be based on the weight you actually move.</p>
@@ -241,7 +241,7 @@ export class PpmWeight extends Component {
                   {hasLoadSuccess && (
                     <Fragment>
                       <p>Use this slider to customize how much weight you think you’ll carry.</p>
-                      <div className="slider-container">
+                      <div className={styles['slider-container']}>
                         <Slider
                           min={selectedWeightInfo.min}
                           max={selectedWeightInfo.max}
