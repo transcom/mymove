@@ -36,8 +36,6 @@ type CustomerMoveItem struct {
 // GetCustomerMoveItems gets all CustomerMoveItems
 func GetCustomerMoveItems(db *pop.Connection) ([]CustomerMoveItem, error) {
 	var CustomerMoveItems []CustomerMoveItem
-
-	// TODO ask ron why all these tables being used in join if not using those fields .... ppm,
 	err := db.RawQuery(`
 	SELECT moves.ID,
 		CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
