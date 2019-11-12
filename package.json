@@ -90,7 +90,7 @@
     "@storybook/react": "^5.2.5",
     "cypress": "^3.6.1",
     "mime-types": "^2.1.18",
-    "mocha": "^5.2.0",
+    "mocha": "^6.2.2",
     "mocha-junit-reporter": "^1.18.0",
     "mocha-multi-reporters": "^1.1.7",
     "mockdate": "^2.0.2",
