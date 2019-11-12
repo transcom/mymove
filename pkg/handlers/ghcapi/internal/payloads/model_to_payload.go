@@ -2,10 +2,8 @@ package payloads
 
 import (
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -25,14 +23,14 @@ func CustomerMoveItem(CustomerMoveItem models.CustomerMoveItem) *ghcmessages.Cus
 
 func CustomerInfo(Customer models.Customer) *ghcmessages.Customer {
 	CustomerInfoPayload := ghcmessages.Customer{
-		ID:                     *handlers.FmtUUID(Customer.ID),
-		CustomerName:           swag.String(Customer.CustomerName),
-		Agency:                 swag.String(Customer.Agency),
-		Grade:                  swag.String(Customer.Grade),
-		Email:                  swag.String(Customer.Email),
-		Telephone:              swag.String(Customer.Telephone),
-		OriginDutyStation:      swag.String(Customer.OriginDutyStationName),
-		DestinationDutyStation: swag.String(Customer.DestinationDutyStationName),
+		ID:                     strfmt.UUID(Customer.ID.String()),
+		CustomerName:           &Customer.CustomerName,
+		Agency:                 &Customer.Agency,
+		Grade:                  &Customer.Grade,
+		Email:                  &Customer.Email,
+		Telephone:              &Customer.Telephone,
+		OriginDutyStation:      &Customer.OriginDutyStationName,
+		DestinationDutyStation: &Customer.DestinationDutyStationName,
 	}
 	return &CustomerInfoPayload
 }
