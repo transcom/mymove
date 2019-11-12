@@ -97,7 +97,6 @@ const branchOfService = CreateReactTableColumn('Branch', 'branch_of_service', {
 });
 
 // Columns used to display in react table
-export const defaultColumns = (props = {}) => {
-  //const { queueType } = props;
+export const defaultColumns = () => {
   return [status, customerName, origin, destination, dodId, locator, moveDate, branchOfService];
 };
