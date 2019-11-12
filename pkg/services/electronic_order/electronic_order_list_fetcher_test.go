@@ -15,11 +15,17 @@ import (
 
 type testElectronicOrderListQueryBuilder struct {
 	fakeFetchMany func(model interface{}) error
+	fakeCount     func(model interface{}) (int, error)
 }
 
-func (t *testElectronicOrderListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) error {
+func (t *testElectronicOrderListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
 	m := t.fakeFetchMany(model)
 	return m
+}
+
+func (t *testElectronicOrderListQueryBuilder) Count(model interface{}, filters []services.QueryFilter) (int, error) {
+	count, m := t.fakeCount(model)
+	return count, m
 }
 
 func defaultPagination() services.Pagination {
@@ -29,6 +35,10 @@ func defaultPagination() services.Pagination {
 
 func defaultAssociations() services.QueryAssociations {
 	return query.NewQueryAssociations([]services.QueryAssociation{})
+}
+
+func defaultOrdering() services.QueryOrder {
+	return query.NewQueryOrder(nil, nil)
 }
 
 func (suite *ElectronicOrderServiceSuite) TestFetchElectronicOrderList() {
@@ -49,7 +59,7 @@ func (suite *ElectronicOrderServiceSuite) TestFetchElectronicOrderList() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		electronicOrders, err := fetcher.FetchElectronicOrderList(filters, defaultAssociations(), defaultPagination())
+		electronicOrders, err := fetcher.FetchElectronicOrderList(filters, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.NoError(err)
 		suite.Equal(id, electronicOrders[0].ID)
@@ -65,7 +75,7 @@ func (suite *ElectronicOrderServiceSuite) TestFetchElectronicOrderList() {
 
 		fetcher := NewElectronicOrderListFetcher(builder)
 
-		electronicOrders, err := fetcher.FetchElectronicOrderList([]services.QueryFilter{}, defaultAssociations(), defaultPagination())
+		electronicOrders, err := fetcher.FetchElectronicOrderList([]services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

@@ -97,7 +97,6 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
           end: new Date(),
           isLoading: false,
         });
-
         const routeDefinition = findMatchingRoute(client.spec.paths, operationPath);
         if (!routeDefinition) {
           throw new Error(`Could not find routeDefinition for ${operationPath}`);
@@ -115,7 +114,6 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
         if (!schemaKey) {
           schemaKey = successfulReturnType(routeDefinition, response.status);
         }
-
         if (!schemaKey) {
           throw new Error(`Could not find schemaKey for ${operationPath} status ${response.status}`);
         }

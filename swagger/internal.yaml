@@ -1551,19 +1551,6 @@ definitions:
         type: string
         format: uuid
         title: The service member this document belongs to
-  Tags:
-    type: array
-    items:
-      $ref: '#/definitions/Tag'
-  Tag:
-    type: object
-    properties:
-      key:
-        type: string
-        example: alma mater
-      value:
-        type: string
-        example: smith college
   UploadPayload:
     type: object
     properties:
@@ -1584,8 +1571,12 @@ definitions:
         example: application/pdf
       bytes:
         type: integer
-      tags:
-        $ref: '#/definitions/Tags'
+      status:
+        type: string
+        enum:
+          - INFECTED
+          - CLEAN
+          - PROCESSING
       created_at:
         type: string
         format: date-time
@@ -2233,6 +2224,8 @@ definitions:
         x-nullable: true
       weight_allotment:
         $ref: '#/definitions/WeightAllotment'
+      branch_of_service:
+        type: string
     required:
       - id
       - status
@@ -2241,6 +2234,7 @@ definitions:
       - edipi
       - rank
       - orders_type
+      - branch_of_service
       - last_modified_date
       - created_at
   MoveDatesSummary:

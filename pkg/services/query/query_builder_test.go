@@ -1,6 +1,7 @@
 package query
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -33,6 +34,10 @@ func TestUserSuite(t *testing.T) {
 func defaultPagination() services.Pagination {
 	page, perPage := pagination.DefaultPage(), pagination.DefaultPerPage()
 	return pagination.NewPagination(&page, &perPage)
+}
+
+func defaultOrder() services.QueryOrder {
+	return NewQueryOrder(nil, nil)
 }
 
 func defaultAssociations() services.QueryAssociations {
@@ -127,7 +132,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 			NewQueryFilter("id", equals, user2.ID.String()),
 		}
 
-		err := builder.FetchMany(&actualUsers, filters, defaultAssociations(), defaultPagination())
+		err := builder.FetchMany(&actualUsers, filters, defaultAssociations(), defaultPagination(), defaultOrder())
 
 		suite.NoError(err)
 		suite.Len(actualUsers, 1)
@@ -139,7 +144,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		}
 		var actualUsers models.OfficeUsers
 
-		err = builder.FetchMany(&actualUsers, filters, defaultAssociations(), defaultPagination())
+		err = builder.FetchMany(&actualUsers, filters, defaultAssociations(), defaultPagination(), defaultOrder())
 
 		suite.NoError(err)
 		suite.Len(actualUsers, 1)
@@ -153,12 +158,67 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		var actualUsers models.OfficeUsers
 
 		pop.Debug = true
-		err := builder.FetchMany(&actualUsers, filters, defaultAssociations(), defaultPagination())
+		err := builder.FetchMany(&actualUsers, filters, defaultAssociations(), defaultPagination(), defaultOrder())
 		pop.Debug = false
 
 		suite.NoError(err)
 		suite.Len(actualUsers, 1)
 		suite.Equal(user2.ID, actualUsers[0].ID)
+	})
+
+	suite.T().Run("fetches many with ilike filter", func(t *testing.T) {
+		search := fmt.Sprintf("%%%s%%", "example.com")
+		filters := []services.QueryFilter{
+			NewQueryFilter("email", ilike, search),
+		}
+		var actualUsers models.OfficeUsers
+
+		pop.Debug = true
+		err := builder.FetchMany(&actualUsers, filters, defaultAssociations(), defaultPagination(), defaultOrder())
+		pop.Debug = false
+
+		suite.NoError(err)
+		suite.Len(actualUsers, 4)
+	})
+
+	suite.T().Run("fetches many with time sort desc", func(t *testing.T) {
+		filters := []services.QueryFilter{}
+		order, sort := "created_at", false
+		ordering := NewQueryOrder(&order, &sort)
+
+		testdatagen.MakeDefaultOfficeUser(suite.DB())
+		testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+		var actualUsers models.OfficeUsers
+
+		pop.Debug = true
+		err := builder.FetchMany(&actualUsers, filters, defaultAssociations(), defaultPagination(), ordering)
+		pop.Debug = false
+
+		suite.NoError(err)
+		// check if we have at least two users
+		suite.GreaterOrEqual(len(actualUsers), 2)
+		suite.True(actualUsers[0].CreatedAt.After(actualUsers[1].CreatedAt), "First user created_at should be after second user created_at time")
+	})
+
+	suite.T().Run("fetches many with time sort asc", func(t *testing.T) {
+		filters := []services.QueryFilter{}
+		order, sort := "created_at", true
+		ordering := NewQueryOrder(&order, &sort)
+
+		testdatagen.MakeDefaultOfficeUser(suite.DB())
+		testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+		var actualUsers models.OfficeUsers
+
+		pop.Debug = true
+		err := builder.FetchMany(&actualUsers, filters, defaultAssociations(), defaultPagination(), ordering)
+		pop.Debug = false
+
+		suite.NoError(err)
+		// check if we have at least two users
+		suite.GreaterOrEqual(len(actualUsers), 2)
+		suite.True(actualUsers[0].CreatedAt.Before(actualUsers[1].CreatedAt), "First user created_at should be before second user created_at time")
 	})
 
 	suite.T().Run("fails with invalid column", func(t *testing.T) {
@@ -167,7 +227,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 			NewQueryFilter("fake_column", equals, user.ID.String()),
 		}
 
-		err := builder.FetchMany(&actualUsers, filters, defaultAssociations(), defaultPagination())
+		err := builder.FetchMany(&actualUsers, filters, defaultAssociations(), defaultPagination(), defaultOrder())
 
 		suite.Error(err)
 		suite.Equal("[fake_column =] is not valid input", err.Error())
@@ -180,7 +240,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 			NewQueryFilter("id", "*", user.ID.String()),
 		}
 
-		err := builder.FetchMany(&actualUsers, filters, defaultAssociations(), defaultPagination())
+		err := builder.FetchMany(&actualUsers, filters, defaultAssociations(), defaultPagination(), defaultOrder())
 
 		suite.Error(err)
 		suite.Equal("[id *] is not valid input", err.Error())
@@ -190,7 +250,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 	suite.T().Run("fails when not pointer", func(t *testing.T) {
 		var actualUsers models.OfficeUsers
 
-		err := builder.FetchMany(actualUsers, []services.QueryFilter{}, defaultAssociations(), defaultPagination())
+		err := builder.FetchMany(actualUsers, []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrder())
 
 		suite.Error(err)
 		suite.Equal("Model should be pointer to slice of structs", err.Error())
@@ -200,7 +260,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 	suite.T().Run("fails when not pointer to slice", func(t *testing.T) {
 		var actualUser models.OfficeUser
 
-		err := builder.FetchMany(&actualUser, []services.QueryFilter{}, defaultAssociations(), defaultPagination())
+		err := builder.FetchMany(&actualUser, []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrder())
 
 		suite.Error(err)
 		suite.Equal("Model should be pointer to slice of structs", err.Error())
@@ -210,10 +270,103 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 	suite.T().Run("fails when not pointer to slice of structs", func(t *testing.T) {
 		var intSlice []int
 
-		err := builder.FetchMany(&intSlice, []services.QueryFilter{}, defaultAssociations(), defaultPagination())
+		err := builder.FetchMany(&intSlice, []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrder())
 
 		suite.Error(err)
 		suite.Equal("Model should be pointer to slice of structs", err.Error())
+	})
+}
+
+func (suite *QueryBuilderSuite) TestCount() {
+	// this should be stubbed out with a model that is agnostic to our code
+	// similar to how the pop repo tests might work
+	user := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	user2 := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	builder := NewQueryBuilder(suite.DB())
+
+	suite.T().Run("counts with uuid filter", func(t *testing.T) {
+		filters := []services.QueryFilter{
+			NewQueryFilter("id", equals, user2.ID.String()),
+		}
+
+		count, err := builder.Count(&models.OfficeUsers{}, filters)
+
+		suite.NoError(err)
+		suite.Equal(1, count)
+
+		// do the reverse to make sure we don't get the same record every time
+		filters = []services.QueryFilter{
+			NewQueryFilter("id", equals, user.ID.String()),
+		}
+
+		count, err = builder.Count(&models.OfficeUsers{}, filters)
+
+		suite.NoError(err)
+		suite.Equal(1, count)
+	})
+
+	suite.T().Run("counts with time filter", func(t *testing.T) {
+		filters := []services.QueryFilter{
+			NewQueryFilter("created_at", greaterThan, user.CreatedAt),
+		}
+
+		pop.Debug = true
+		count, err := builder.Count(&models.OfficeUsers{}, filters)
+		pop.Debug = false
+		suite.NoError(err)
+		suite.Equal(1, count)
+	})
+
+	suite.T().Run("fails with invalid column", func(t *testing.T) {
+		filters := []services.QueryFilter{
+			NewQueryFilter("fake_column", equals, user.ID.String()),
+		}
+
+		count, err := builder.Count(&models.OfficeUsers{}, filters)
+
+		suite.Error(err)
+		suite.Equal("[fake_column =] is not valid input", err.Error())
+		suite.Zero(count)
+	})
+
+	suite.T().Run("fails with invalid comparator", func(t *testing.T) {
+		filters := []services.QueryFilter{
+			NewQueryFilter("id", "*", user.ID.String()),
+		}
+
+		count, err := builder.Count(&models.OfficeUsers{}, filters)
+
+		suite.Error(err)
+		suite.Equal("[id *] is not valid input", err.Error())
+		suite.Zero(count)
+	})
+
+	suite.T().Run("fails when not pointer", func(t *testing.T) {
+
+		count, err := builder.Count(models.OfficeUsers{}, []services.QueryFilter{})
+
+		suite.Error(err)
+		suite.Equal("Model should be pointer to slice of structs", err.Error())
+		suite.Zero(count)
+	})
+
+	suite.T().Run("fails when not pointer to slice", func(t *testing.T) {
+
+		count, err := builder.Count(&models.OfficeUser{}, []services.QueryFilter{})
+
+		suite.Error(err)
+		suite.Equal("Model should be pointer to slice of structs", err.Error())
+		suite.Zero(count)
+	})
+
+	suite.T().Run("fails when not pointer to slice of structs", func(t *testing.T) {
+		var intSlice []int
+
+		count, err := builder.Count(&intSlice, []services.QueryFilter{})
+
+		suite.Error(err)
+		suite.Equal("Model should be pointer to slice of structs", err.Error())
+		suite.Zero(count)
 	})
 }
 
@@ -394,7 +547,7 @@ func (suite *QueryBuilderSuite) TestQueryAssociations() {
 		}
 		associations := NewQueryAssociations(queryAssociations)
 
-		err := builder.QueryForAssociations(&accessCodes, associations, filters, defaultPagination())
+		err := builder.QueryForAssociations(&accessCodes, associations, filters, defaultPagination(), defaultOrder())
 
 		suite.NoError(err)
 		suite.Len(accessCodes, 2)
@@ -417,7 +570,7 @@ func (suite *QueryBuilderSuite) TestQueryAssociations() {
 		}
 		associations := NewQueryAssociations(queryAssociations)
 
-		err := builder.QueryForAssociations(&accessCodes, associations, queryFilters, defaultPagination())
+		err := builder.QueryForAssociations(&accessCodes, associations, queryFilters, defaultPagination(), defaultOrder())
 
 		suite.NoError(err)
 		suite.Len(accessCodes, 1)

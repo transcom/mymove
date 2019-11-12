@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
@@ -95,6 +96,11 @@ func (f *fetchMany) Execute() error {
 // allowed comparators for this query builder implementation
 const equals = "="
 const greaterThan = ">"
+const ilike = "ILIKE" // Case insensitive
+
+// allowed sorting order for this query builder implmentation
+const asc = "asc"
+const desc = "desc"
 
 // Error message constants
 const fetchManyReflectionMessage = "Model should be pointer to slice of structs"
@@ -130,20 +136,22 @@ func getComparator(comparator string) (string, bool) {
 		return equals, true
 	case greaterThan:
 		return greaterThan, true
+	case ilike:
+		return ilike, true
 	default:
 		return "", false
 	}
 }
 
-func buildQuery(query *pop.Query, filters []services.QueryFilter, pagination services.Pagination, t reflect.Type) (*pop.Query, error) {
+func buildQuery(query *pop.Query, filters []services.QueryFilter, pagination services.Pagination, order services.QueryOrder, t reflect.Type) (*pop.Query, error) {
 	query, err := filteredQuery(query, filters, t)
-
 	if err != nil {
 		return nil, err
 	}
 
 	query = paginatedQuery(query, pagination, t)
 
+	query, err = orderedQuery(query, order, t)
 	if err != nil {
 		return nil, err
 	}
@@ -153,6 +161,32 @@ func buildQuery(query *pop.Query, filters []services.QueryFilter, pagination ser
 
 func paginatedQuery(query *pop.Query, pagination services.Pagination, t reflect.Type) *pop.Query {
 	return query.Paginate(pagination.Page(), pagination.PerPage())
+}
+
+func orderedQuery(query *pop.Query, order services.QueryOrder, t reflect.Type) (*pop.Query, error) {
+	//omit sorting if no column specified
+	if order.Column() == nil || order.SortOrder() == nil {
+		return query, nil
+	}
+
+	// Validate the filter we're using is valid/safe
+	invalidField := validateOrder(order, t)
+
+	// Column lookup should always adhere to SQL injection input validations
+	// https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.md#defense-option-3-whitelist-input-validation
+	sortOrder := desc
+	if *order.SortOrder() {
+		sortOrder = asc
+	}
+
+	orderQuery := fmt.Sprintf("%s %s", *order.Column(), sortOrder)
+	query = query.Order(orderQuery)
+
+	if len(invalidField) != 0 {
+		return query, fmt.Errorf("%v is not valid input", invalidField)
+	}
+
+	return query, nil
 }
 
 // Validate that the QueryFilter is valid using getDBColumn and getComparator
@@ -166,6 +200,21 @@ func validateFilter(f services.QueryFilter, t reflect.Type) string {
 	if !ok {
 		invalidField = fmt.Sprintf("%s %s", f.Column(), f.Comparator())
 	}
+	return invalidField
+}
+
+// Validate that the QueryOrder is valid using getDBColumn
+func validateOrder(s services.QueryOrder, t reflect.Type) string {
+	invalidField := ""
+	if s.Column() == nil || s.SortOrder() == nil {
+		return "QueryOrder Column or SortOrder is nil"
+	}
+
+	_, ok := getDBColumn(t, *s.Column())
+	if !ok {
+		invalidField = fmt.Sprintf("%s", *s.Column())
+	}
+
 	return invalidField
 }
 
@@ -215,17 +264,44 @@ func categoricalCountsQueryOneModel(conn *pop.Connection, filters []services.Que
 
 func filteredQuery(query *pop.Query, filters []services.QueryFilter, t reflect.Type) (*pop.Query, error) {
 	invalidFields := make([]string, 0)
+	likeFilters := []services.QueryFilter{}
+
 	for _, f := range filters {
 		// Validate the filter we're using is valid/safe
 		invalidField := validateFilter(f, t)
 		if invalidField != "" {
 			invalidFields = append(invalidFields, fmt.Sprintf("%s %s", f.Column(), f.Comparator()))
 		}
+
+		if f.Comparator() == ilike {
+			likeFilters = append(likeFilters, f)
+			continue
+		}
+
 		// Column lookup should always adhere to SQL injection input validations
 		// https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.md#defense-option-3-whitelist-input-validation
 		columnQuery := fmt.Sprintf("%s %s ?", f.Column(), f.Comparator())
 		query = query.Where(columnQuery, f.Value())
 	}
+
+	// Hacky way to get ILIKE filters to work with OR instead of AND
+
+	if len(likeFilters) > 0 {
+		var likeQuery string
+		var vals []interface{}
+		var queries []string
+
+		for _, f := range likeFilters {
+			vals = append(vals, f.Value())
+			columnQuery := fmt.Sprintf("%s %s ?", f.Column(), f.Comparator())
+			queries = append(queries, columnQuery)
+
+			likeQuery = strings.Join(queries, " OR ")
+		}
+
+		query = query.Where(likeQuery, vals...)
+	}
+
 	if len(invalidFields) != 0 {
 		return query, fmt.Errorf("%v is not valid input", invalidFields)
 	}
@@ -253,7 +329,7 @@ func (p *Builder) FetchOne(model interface{}, filters []services.QueryFilter) er
 
 // FetchMany fetches multiple model records using pop's All method
 // Will return error if model is not pointer to slice of structs
-func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) error {
+func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return errors.New(fetchManyReflectionMessage)
@@ -267,7 +343,7 @@ func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter, a
 		return errors.New(fetchManyReflectionMessage)
 	}
 	query := p.db.Q()
-	query, err := buildQuery(query, filters, pagination, t)
+	query, err := buildQuery(query, filters, pagination, ordering, t)
 	if err != nil {
 		return err
 	}
@@ -277,6 +353,32 @@ func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter, a
 		return err
 	}
 	return nil
+}
+
+func (p *Builder) Count(model interface{}, filters []services.QueryFilter) (int, error) {
+	t := reflect.TypeOf(model)
+	if t.Kind() != reflect.Ptr {
+		return 0, errors.New(fetchManyReflectionMessage)
+	}
+	t = t.Elem()
+	if t.Kind() != reflect.Slice {
+		return 0, errors.New(fetchManyReflectionMessage)
+	}
+	t = t.Elem()
+	if t.Kind() != reflect.Struct {
+		return 0, errors.New(fetchManyReflectionMessage)
+	}
+	query := p.db.Q()
+	query, err := filteredQuery(query, filters, t)
+	if err != nil {
+		return 0, err
+	}
+
+	count, err := query.Count(model)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }
 
 func (p *Builder) CreateOne(model interface{}) (*validate.Errors, error) {
@@ -316,7 +418,7 @@ func (p *Builder) FetchCategoricalCountsFromOneModel(model interface{}, filters 
 	return categoricalCounts, nil
 }
 
-func (p *Builder) QueryForAssociations(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination) error {
+func (p *Builder) QueryForAssociations(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return errors.New(fetchOneReflectionMessage)
@@ -330,7 +432,7 @@ func (p *Builder) QueryForAssociations(model interface{}, associations services.
 		return errors.New(fetchManyReflectionMessage)
 	}
 	query := p.db.Q()
-	query, err := buildQuery(query, filters, pagination, t)
+	query, err := buildQuery(query, filters, pagination, ordering, t)
 	if err != nil {
 		return err
 	}

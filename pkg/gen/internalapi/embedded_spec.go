@@ -4281,10 +4281,14 @@ func init() {
         "edipi",
         "rank",
         "orders_type",
+        "branch_of_service",
         "last_modified_date",
         "created_at"
       ],
       "properties": {
+        "branch_of_service": {
+          "type": "string"
+        },
         "created_at": {
           "type": "string",
           "format": "date-time"
@@ -5538,25 +5542,6 @@ func init() {
       ],
       "x-nullable": true
     },
-    "Tag": {
-      "type": "object",
-      "properties": {
-        "key": {
-          "type": "string",
-          "example": "alma mater"
-        },
-        "value": {
-          "type": "string",
-          "example": "smith college"
-        }
-      }
-    },
-    "Tags": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/Tag"
-      }
-    },
     "TransportationOffice": {
       "type": "object",
       "required": [
@@ -5773,8 +5758,13 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "tags": {
-          "$ref": "#/definitions/Tags"
+        "status": {
+          "type": "string",
+          "enum": [
+            "INFECTED",
+            "CLEAN",
+            "PROCESSING"
+          ]
         },
         "updated_at": {
           "type": "string",
@@ -10101,10 +10091,14 @@ func init() {
         "edipi",
         "rank",
         "orders_type",
+        "branch_of_service",
         "last_modified_date",
         "created_at"
       ],
       "properties": {
+        "branch_of_service": {
+          "type": "string"
+        },
         "created_at": {
           "type": "string",
           "format": "date-time"
@@ -11362,25 +11356,6 @@ func init() {
       ],
       "x-nullable": true
     },
-    "Tag": {
-      "type": "object",
-      "properties": {
-        "key": {
-          "type": "string",
-          "example": "alma mater"
-        },
-        "value": {
-          "type": "string",
-          "example": "smith college"
-        }
-      }
-    },
-    "Tags": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/Tag"
-      }
-    },
     "TransportationOffice": {
       "type": "object",
       "required": [
@@ -11600,8 +11575,13 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "tags": {
-          "$ref": "#/definitions/Tags"
+        "status": {
+          "type": "string",
+          "enum": [
+            "INFECTED",
+            "CLEAN",
+            "PROCESSING"
+          ]
         },
         "updated_at": {
           "type": "string",

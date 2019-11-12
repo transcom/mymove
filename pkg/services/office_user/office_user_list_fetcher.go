@@ -8,6 +8,7 @@ import (
 
 type officeUserListQueryBuilder interface {
 	query.FetchMany
+	Count(model interface{}, filters []services.QueryFilter) (int, error)
 }
 
 type officeUserListFetcher struct {
@@ -15,10 +16,17 @@ type officeUserListFetcher struct {
 }
 
 // FetchOfficeUserList uses the passed query builder to fetch a list of office users
-func (o *officeUserListFetcher) FetchOfficeUserList(filters []services.QueryFilter, pagination services.Pagination) (models.OfficeUsers, error) {
+func (o *officeUserListFetcher) FetchOfficeUserList(filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.OfficeUsers, error) {
 	var officeUsers models.OfficeUsers
 	err := o.builder.WithModel(&officeUsers).WithFilters(filters).WithPagination(pagination).Execute()
 	return officeUsers, err
+}
+
+// FetchOfficeUserCount uses the passed query builder to count office users
+func (o *officeUserListFetcher) FetchOfficeUserCount(filters []services.QueryFilter) (int, error) {
+	var officeUsers models.OfficeUsers
+	count, error := o.builder.Count(&officeUsers, filters)
+	return count, error
 }
 
 // NewOfficeUserListFetcher returns an implementation of OfficeUserListFetcher

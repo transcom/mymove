@@ -16,6 +16,10 @@ func defaultPagination() services.Pagination {
 	return pagination.NewPagination(&page, &perPage)
 }
 
+func defaultOrdering() services.QueryOrder {
+	return query.NewQueryOrder(nil, nil)
+}
+
 func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListNoFilterNoAssociation() {
 	ppmMove := models.SelectedMoveTypePPM
 	code1 := "CODE12"
@@ -37,7 +41,7 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListNoFilterNoAssociatio
 	queryBuilder := query.NewFetchMany(suite.DB())
 	lf := NewAccessCodeListFetcher(queryBuilder)
 
-	acs, err := lf.FetchAccessCodeList(queryFilters, newAssociations, defaultPagination())
+	acs, err := lf.FetchAccessCodeList(queryFilters, newAssociations, defaultPagination(), defaultOrdering())
 
 	suite.NoError(err)
 	suite.Len(acs, 2)
@@ -71,7 +75,7 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListWithFilter() {
 	queryBuilder := query.NewFetchMany(suite.DB())
 	lf := NewAccessCodeListFetcher(queryBuilder)
 
-	acs, err := lf.FetchAccessCodeList(queryFilters, newAssociations, defaultPagination())
+	acs, err := lf.FetchAccessCodeList(queryFilters, newAssociations, defaultPagination(), defaultOrdering())
 
 	suite.NoError(err)
 	suite.Len(acs, 1)
@@ -101,7 +105,7 @@ func (suite *AccessCodeServiceSuite) TestFetchAccessCodeListWithAssociation() {
 	queryBuilder := query.NewFetchMany(suite.DB())
 	lf := NewAccessCodeListFetcher(queryBuilder)
 
-	acs, err := lf.FetchAccessCodeList(queryFilters, newAssociations, defaultPagination())
+	acs, err := lf.FetchAccessCodeList(queryFilters, newAssociations, defaultPagination(), defaultOrdering())
 
 	suite.NoError(err)
 	suite.Len(acs, 1)

@@ -55,6 +55,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ServiceItemDeleteServiceItemHandler: service_item.DeleteServiceItemHandlerFunc(func(params service_item.DeleteServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation ServiceItemDeleteServiceItem has not yet been implemented")
 		}),
+		CustomerGetAllCustomerMovesHandler: customer.GetAllCustomerMovesHandlerFunc(func(params customer.GetAllCustomerMovesParams) middleware.Responder {
+			return middleware.NotImplemented("operation CustomerGetAllCustomerMoves has not yet been implemented")
+		}),
 		CustomerGetCustomerInfoHandler: customer.GetCustomerInfoHandlerFunc(func(params customer.GetCustomerInfoParams) middleware.Responder {
 			return middleware.NotImplemented("operation CustomerGetCustomerInfo has not yet been implemented")
 		}),
@@ -81,6 +84,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MoveTaskOrderUpdateMoveTaskOrderHandler: move_task_order.UpdateMoveTaskOrderHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderUpdateMoveTaskOrder has not yet been implemented")
+		}),
+		MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler: move_task_order.UpdateMoveTaskOrderActualWeightHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderActualWeightParams) middleware.Responder {
+			return middleware.NotImplemented("operation MoveTaskOrderUpdateMoveTaskOrderActualWeight has not yet been implemented")
 		}),
 		MoveTaskOrderUpdateMoveTaskOrderStatusHandler: move_task_order.UpdateMoveTaskOrderStatusHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderUpdateMoveTaskOrderStatus has not yet been implemented")
@@ -136,6 +142,8 @@ type MymoveAPI struct {
 	MoveTaskOrderDeleteMoveTaskOrderHandler move_task_order.DeleteMoveTaskOrderHandler
 	// ServiceItemDeleteServiceItemHandler sets the operation handler for the delete service item operation
 	ServiceItemDeleteServiceItemHandler service_item.DeleteServiceItemHandler
+	// CustomerGetAllCustomerMovesHandler sets the operation handler for the get all customer moves operation
+	CustomerGetAllCustomerMovesHandler customer.GetAllCustomerMovesHandler
 	// CustomerGetCustomerInfoHandler sets the operation handler for the get customer info operation
 	CustomerGetCustomerInfoHandler customer.GetCustomerInfoHandler
 	// EntitlementsGetEntitlementsHandler sets the operation handler for the get entitlements operation
@@ -154,6 +162,8 @@ type MymoveAPI struct {
 	ServiceItemListServiceItemsHandler service_item.ListServiceItemsHandler
 	// MoveTaskOrderUpdateMoveTaskOrderHandler sets the operation handler for the update move task order operation
 	MoveTaskOrderUpdateMoveTaskOrderHandler move_task_order.UpdateMoveTaskOrderHandler
+	// MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler sets the operation handler for the update move task order actual weight operation
+	MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler move_task_order.UpdateMoveTaskOrderActualWeightHandler
 	// MoveTaskOrderUpdateMoveTaskOrderStatusHandler sets the operation handler for the update move task order status operation
 	MoveTaskOrderUpdateMoveTaskOrderStatusHandler move_task_order.UpdateMoveTaskOrderStatusHandler
 	// PaymentRequestsUpdatePaymentRequestHandler sets the operation handler for the update payment request operation
@@ -243,6 +253,10 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "service_item.DeleteServiceItemHandler")
 	}
 
+	if o.CustomerGetAllCustomerMovesHandler == nil {
+		unregistered = append(unregistered, "customer.GetAllCustomerMovesHandler")
+	}
+
 	if o.CustomerGetCustomerInfoHandler == nil {
 		unregistered = append(unregistered, "customer.GetCustomerInfoHandler")
 	}
@@ -277,6 +291,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.MoveTaskOrderUpdateMoveTaskOrderHandler == nil {
 		unregistered = append(unregistered, "move_task_order.UpdateMoveTaskOrderHandler")
+	}
+
+	if o.MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler == nil {
+		unregistered = append(unregistered, "move_task_order.UpdateMoveTaskOrderActualWeightHandler")
 	}
 
 	if o.MoveTaskOrderUpdateMoveTaskOrderStatusHandler == nil {
@@ -405,7 +423,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/move-task-orders/{moveTaskOrderID}/service-items"] = service_item.NewCreateServiceItem(o.context, o.ServiceItemCreateServiceItemHandler)
+	o.handlers["POST"]["/move_task_orders/{moveTaskOrderID}/service_items"] = service_item.NewCreateServiceItem(o.context, o.ServiceItemCreateServiceItemHandler)
 
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
@@ -416,6 +434,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}"] = service_item.NewDeleteServiceItem(o.context, o.ServiceItemDeleteServiceItemHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/customer"] = customer.NewGetAllCustomerMoves(o.context, o.CustomerGetAllCustomerMovesHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -455,12 +478,17 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/service-items"] = service_item.NewListServiceItems(o.context, o.ServiceItemListServiceItemsHandler)
+	o.handlers["GET"]["/move_task_orders/{moveTaskOrderID}/service_items"] = service_item.NewListServiceItems(o.context, o.ServiceItemListServiceItemsHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}"] = move_task_order.NewUpdateMoveTaskOrder(o.context, o.MoveTaskOrderUpdateMoveTaskOrderHandler)
+
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/prime-actual-weight"] = move_task_order.NewUpdateMoveTaskOrderActualWeight(o.context, o.MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)

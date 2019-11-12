@@ -15,11 +15,17 @@ import (
 
 type testOfficeListQueryBuilder struct {
 	fakeFetchMany func(model interface{}) error
+	fakeCount     func(model interface{}) (int, error)
 }
 
-func (t *testOfficeListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) error {
+func (t *testOfficeListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
 	m := t.fakeFetchMany(model)
 	return m
+}
+
+func (t *testOfficeListQueryBuilder) Count(model interface{}, filters []services.QueryFilter) (int, error) {
+	count, m := t.fakeCount(model)
+	return count, m
 }
 
 func defaultPagination() services.Pagination {
@@ -29,6 +35,10 @@ func defaultPagination() services.Pagination {
 
 func defaultAssociations() services.QueryAssociations {
 	return query.NewQueryAssociations([]services.QueryAssociation{})
+}
+
+func defaultOrdering() services.QueryOrder {
+	return query.NewQueryOrder(nil, nil)
 }
 
 func (suite *OfficeServiceSuite) TestFetchOfficeList() {
@@ -49,7 +59,7 @@ func (suite *OfficeServiceSuite) TestFetchOfficeList() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		offices, err := fetcher.FetchOfficeList(filters, defaultAssociations(), defaultPagination())
+		offices, err := fetcher.FetchOfficeList(filters, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.NoError(err)
 		suite.Equal(id, offices[0].ID)
@@ -65,7 +75,7 @@ func (suite *OfficeServiceSuite) TestFetchOfficeList() {
 
 		fetcher := NewOfficeListFetcher(builder)
 
-		offices, err := fetcher.FetchOfficeList([]services.QueryFilter{}, defaultAssociations(), defaultPagination())
+		offices, err := fetcher.FetchOfficeList([]services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

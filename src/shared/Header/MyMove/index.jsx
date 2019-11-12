@@ -66,7 +66,7 @@ function Header() {
       </div>
       {/* Gov banner END */}
       <header className="usa-header usa-header--basic" role="banner">
-        <div className="my-move-header">
+        <div className="my-move-header desktop:padding-bottom-3">
           <div className="usa-nav-container">
             <div className="usa-navbar">
               <div className="usa-logo" id="basic-logo">
@@ -76,7 +76,7 @@ function Header() {
                   </NavLink>
                 </em>
               </div>
-              <button class="usa-menu-btn">Menu</button>
+              <button className="usa-menu-btn">Menu</button>
             </div>
             <nav className="usa-nav" aria-label="Primary navigation">
               <ul className="usa-nav__primary usa-accordion">

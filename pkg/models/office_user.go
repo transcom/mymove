@@ -24,7 +24,7 @@ type OfficeUser struct {
 	TransportationOffice   TransportationOffice `belongs_to:"transportation_office"`
 	CreatedAt              time.Time            `json:"created_at" db:"created_at"`
 	UpdatedAt              time.Time            `json:"updated_at" db:"updated_at"`
-	Deactivated            bool                 `json:"deactivated" db:"deactivated"`
+	Active                 bool                 `json:"active" db:"active"`
 }
 
 // OfficeUsers is not required by pop and may be deleted
@@ -35,9 +35,9 @@ type OfficeUsers []OfficeUser
 func (o *OfficeUser) Validate(tx *pop.Connection) (*validate.Errors, error) {
 
 	return validate.Validate(
+		&validators.EmailIsPresent{Field: o.Email, Name: "Email"},
 		&validators.StringIsPresent{Field: o.LastName, Name: "LastName"},
 		&validators.StringIsPresent{Field: o.FirstName, Name: "FirstName"},
-		&validators.StringIsPresent{Field: o.Email, Name: "Email"},
 		&validators.StringIsPresent{Field: o.Telephone, Name: "Telephone"},
 		&validators.UUIDIsPresent{Field: o.TransportationOfficeID, Name: "TransportationOfficeID"},
 	), nil

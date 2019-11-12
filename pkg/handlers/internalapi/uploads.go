@@ -17,26 +17,7 @@ import (
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 
-func payloadForTags(storer storage.FileStorer, upload models.Upload) (*internalmessages.Tags, error) {
-	tags, err := storer.Tags(upload.StorageKey)
-	if err != nil {
-		return nil, err
-	}
-
-	index := 0
-	tagsPayload := make(internalmessages.Tags, len(tags))
-	for k, v := range tags {
-		tag := &internalmessages.Tag{
-			Key:   k,
-			Value: v,
-		}
-		tagsPayload[index] = tag
-		index++
-	}
-	return &tagsPayload, nil
-}
-
-func payloadForUploadModel(storer storage.FileStorer, upload models.Upload, url string) (*internalmessages.UploadPayload, error) {
+func payloadForUploadModel(storer storage.FileStorer, upload models.Upload, url string) *internalmessages.UploadPayload {
 	uploadPayload := &internalmessages.UploadPayload{
 		ID:          handlers.FmtUUID(upload.ID),
 		Filename:    swag.String(upload.Filename),
@@ -46,11 +27,13 @@ func payloadForUploadModel(storer storage.FileStorer, upload models.Upload, url 
 		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
 		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
 	}
-	tagsPayload, err := payloadForTags(storer, upload)
-	if err == nil {
-		uploadPayload.Tags = *tagsPayload
+	tags, err := storer.Tags(upload.StorageKey)
+	if err != nil || len(tags) == 0 {
+		uploadPayload.Status = "PROCESSING"
+	} else {
+		uploadPayload.Status = tags["av-status"]
 	}
-	return uploadPayload, nil
+	return uploadPayload
 }
 
 // CreateUploadHandler creates a new upload via POST /documents/{documentID}/uploads
@@ -125,10 +108,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		logger.Error("failed to get presigned url", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
 	}
-	uploadPayload, err := payloadForUploadModel(h.FileStorer(), *newUpload, url)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
+	uploadPayload := payloadForUploadModel(h.FileStorer(), *newUpload, url)
 	return uploadop.NewCreateUploadCreated().WithPayload(uploadPayload)
 }
 

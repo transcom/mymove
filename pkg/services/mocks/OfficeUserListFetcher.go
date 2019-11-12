@@ -14,13 +14,34 @@ type OfficeUserListFetcher struct {
 	mock.Mock
 }
 
-// FetchOfficeUserList provides a mock function with given fields: filters, pagination
-func (_m *OfficeUserListFetcher) FetchOfficeUserList(filters []services.QueryFilter, pagination services.Pagination) (models.OfficeUsers, error) {
-	ret := _m.Called(filters, pagination)
+// FetchOfficeUserCount provides a mock function with given fields: filters
+func (_m *OfficeUserListFetcher) FetchOfficeUserCount(filters []services.QueryFilter) (int, error) {
+	ret := _m.Called(filters)
+
+	var r0 int
+	if rf, ok := ret.Get(0).(func([]services.QueryFilter) int); ok {
+		r0 = rf(filters)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func([]services.QueryFilter) error); ok {
+		r1 = rf(filters)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// FetchOfficeUserList provides a mock function with given fields: filters, associations, pagination, ordering
+func (_m *OfficeUserListFetcher) FetchOfficeUserList(filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.OfficeUsers, error) {
+	ret := _m.Called(filters, associations, pagination, ordering)
 
 	var r0 models.OfficeUsers
-	if rf, ok := ret.Get(0).(func([]services.QueryFilter, services.Pagination) models.OfficeUsers); ok {
-		r0 = rf(filters, pagination)
+	if rf, ok := ret.Get(0).(func([]services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) models.OfficeUsers); ok {
+		r0 = rf(filters, associations, pagination, ordering)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(models.OfficeUsers)
@@ -28,8 +49,8 @@ func (_m *OfficeUserListFetcher) FetchOfficeUserList(filters []services.QueryFil
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func([]services.QueryFilter, services.Pagination) error); ok {
-		r1 = rf(filters, pagination)
+	if rf, ok := ret.Get(1).(func([]services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) error); ok {
+		r1 = rf(filters, associations, pagination, ordering)
 	} else {
 		r1 = ret.Error(1)
 	}

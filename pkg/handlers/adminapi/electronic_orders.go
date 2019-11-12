@@ -17,10 +17,11 @@ import (
 
 func payloadForElectronicOrderModel(o models.ElectronicOrder) *adminmessages.ElectronicOrder {
 	return &adminmessages.ElectronicOrder{
-		ID:        handlers.FmtUUID(o.ID),
-		Issuer:    adminmessages.Issuer(o.Issuer),
-		CreatedAt: handlers.FmtDateTime(o.CreatedAt),
-		UpdatedAt: handlers.FmtDateTime(o.UpdatedAt),
+		ID:           handlers.FmtUUID(o.ID),
+		Issuer:       adminmessages.Issuer(o.Issuer),
+		OrdersNumber: handlers.FmtString(o.OrdersNumber),
+		CreatedAt:    handlers.FmtDateTime(o.CreatedAt),
+		UpdatedAt:    handlers.FmtDateTime(o.UpdatedAt),
 	}
 }
 
@@ -37,13 +38,14 @@ func (h IndexElectronicOrdersHandler) Handle(params electronicorderop.IndexElect
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
 	associations := query.NewQueryAssociations([]services.QueryAssociation{})
+	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-	electronicOrders, err := h.ElectronicOrderListFetcher.FetchElectronicOrderList(queryFilters, associations, pagination)
+	electronicOrders, err := h.ElectronicOrderListFetcher.FetchElectronicOrderList(queryFilters, associations, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	totalElectronicOrdersCount, err := h.DB().Count(&models.ElectronicOrder{})
+	totalElectronicOrdersCount, err := h.ElectronicOrderListFetcher.FetchElectronicOrderCount(queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

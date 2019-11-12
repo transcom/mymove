@@ -14,13 +14,34 @@ type AdminUserListFetcher struct {
 	mock.Mock
 }
 
-// FetchAdminUserList provides a mock function with given fields: filters, associations, pagination
-func (_m *AdminUserListFetcher) FetchAdminUserList(filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) (models.AdminUsers, error) {
-	ret := _m.Called(filters, associations, pagination)
+// FetchAdminUserCount provides a mock function with given fields: filters
+func (_m *AdminUserListFetcher) FetchAdminUserCount(filters []services.QueryFilter) (int, error) {
+	ret := _m.Called(filters)
+
+	var r0 int
+	if rf, ok := ret.Get(0).(func([]services.QueryFilter) int); ok {
+		r0 = rf(filters)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func([]services.QueryFilter) error); ok {
+		r1 = rf(filters)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// FetchAdminUserList provides a mock function with given fields: filters, associations, pagination, ordering
+func (_m *AdminUserListFetcher) FetchAdminUserList(filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.AdminUsers, error) {
+	ret := _m.Called(filters, associations, pagination, ordering)
 
 	var r0 models.AdminUsers
-	if rf, ok := ret.Get(0).(func([]services.QueryFilter, services.QueryAssociations, services.Pagination) models.AdminUsers); ok {
-		r0 = rf(filters, associations, pagination)
+	if rf, ok := ret.Get(0).(func([]services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) models.AdminUsers); ok {
+		r0 = rf(filters, associations, pagination, ordering)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(models.AdminUsers)
@@ -28,8 +49,8 @@ func (_m *AdminUserListFetcher) FetchAdminUserList(filters []services.QueryFilte
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func([]services.QueryFilter, services.QueryAssociations, services.Pagination) error); ok {
-		r1 = rf(filters, associations, pagination)
+	if rf, ok := ret.Get(1).(func([]services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) error); ok {
+		r1 = rf(filters, associations, pagination, ordering)
 	} else {
 		r1 = ret.Error(1)
 	}

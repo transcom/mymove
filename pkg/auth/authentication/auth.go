@@ -92,6 +92,23 @@ func AdminAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	}
 }
 
+func PrimeAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			session := auth.SessionFromRequestContext(r)
+
+			if session == nil || !session.IsOfficeUser() {
+				http.Error(w, http.StatusText(403), http.StatusForbidden)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		}
+
+		return http.HandlerFunc(mw)
+	}
+}
+
 func (context Context) landingURL(session *auth.Session) string {
 	return fmt.Sprintf(context.callbackTemplate, session.Hostname)
 }
@@ -349,8 +366,8 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
 
-	if userIdentity.Deactivated {
-		h.logger.Error("Deactivated user requesting authentication",
+	if !userIdentity.Active {
+		h.logger.Error("Active user requesting authentication",
 			zap.String("application_name", string(session.ApplicationName)),
 			zap.String("hostname", session.Hostname),
 			zap.String("user_id", session.UserID.String()),
@@ -365,12 +382,12 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
 	}
 
-	if userIdentity.DpsUserID != nil && (userIdentity.DpsDeactivated != nil && !*userIdentity.DpsDeactivated) {
+	if userIdentity.DpsUserID != nil && (userIdentity.DpsActive != nil && *userIdentity.DpsActive) {
 		session.DpsUserID = *(userIdentity.DpsUserID)
 	}
 
 	if session.IsOfficeApp() {
-		if userIdentity.OfficeDeactivated != nil && *userIdentity.OfficeDeactivated {
+		if userIdentity.OfficeActive != nil && !*userIdentity.OfficeActive {
 			h.logger.Error("Office user is deactivated", zap.String("email", session.Email))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
@@ -401,7 +418,7 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 	}
 
 	if session.IsAdminApp() {
-		if userIdentity.AdminUserDeactivated != nil && *userIdentity.AdminUserDeactivated {
+		if userIdentity.AdminUserActive != nil && !*userIdentity.AdminUserActive {
 			h.logger.Error("Admin user is deactivated", zap.String("email", session.Email))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
@@ -468,7 +485,7 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
-		if officeUser.Deactivated {
+		if !officeUser.Active {
 			h.logger.Error("Office user is deactivated", zap.String("email", session.Email))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
@@ -492,7 +509,7 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
-		if adminUser.Deactivated {
+		if !adminUser.Active {
 			h.logger.Error("Admin user is deactivated", zap.String("email", session.Email))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return

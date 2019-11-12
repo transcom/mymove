@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/transcom/mymove/pkg/services/organization"
+
 	"github.com/go-openapi/loads"
 
 	"github.com/transcom/mymove/pkg/gen/adminapi"
@@ -66,6 +68,13 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		pagination.NewPagination,
 	}
 
+	adminAPI.OrganizationIndexOrganizationsHandler = IndexOrganizationsHandler{
+		context,
+		organization.NewOrganizationListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
+
 	adminAPI.TransportationServiceProviderPerformancesIndexTSPPsHandler = IndexTSPPsHandler{
 		context,
 		tspop.NewTransportationServiceProviderPerformanceListFetcher(queryBuilder),
@@ -109,6 +118,18 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 	adminAPI.AdminUsersGetAdminUserHandler = GetAdminUserHandler{
 		context,
 		adminuser.NewAdminUserFetcher(queryBuilder),
+		query.NewQueryFilter,
+	}
+
+	adminAPI.AdminUsersCreateAdminUserHandler = CreateAdminUserHandler{
+		context,
+		adminuser.NewAdminUserCreator(queryBuilder),
+		query.NewQueryFilter,
+	}
+
+	adminAPI.AdminUsersUpdateAdminUserHandler = UpdateAdminUserHandler{
+		context,
+		adminuser.NewAdminUserUpdater(queryBuilder),
 		query.NewQueryFilter,
 	}
 

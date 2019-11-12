@@ -15,11 +15,17 @@ import (
 
 type testOfficeUserListQueryBuilder struct {
 	fakeFetchMany func(model interface{}) error
+	fakeCount     func(model interface{}) (int, error)
 }
 
-func (t *testOfficeUserListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination) error {
+func (t *testOfficeUserListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
 	m := t.fakeFetchMany(model)
 	return m
+}
+
+func (t *testOfficeUserListQueryBuilder) Count(model interface{}, filters []services.QueryFilter) (int, error) {
+	count, m := t.fakeCount(model)
+	return count, m
 }
 
 func defaultPagination() services.Pagination {
@@ -29,6 +35,10 @@ func defaultPagination() services.Pagination {
 
 func defaultAssociations() services.QueryAssociations {
 	return query.NewQueryAssociations([]services.QueryAssociation{})
+}
+
+func defaultOrdering() services.QueryOrder {
+	return query.NewQueryOrder(nil, nil)
 }
 
 func (suite *OfficeUserServiceSuite) TestFetchOfficeUserList() {
@@ -49,7 +59,7 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUserList() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		officeUsers, err := fetcher.FetchOfficeUserList(filters, defaultAssociations(), defaultPagination())
+		officeUsers, err := fetcher.FetchOfficeUserList(filters, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.NoError(err)
 		suite.Equal(id, officeUsers[0].ID)
@@ -65,7 +75,7 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUserList() {
 
 		fetcher := NewOfficeUserListFetcher(builder)
 
-		officeUsers, err := fetcher.FetchOfficeUserList([]services.QueryFilter{}, defaultAssociations(), defaultPagination())
+		officeUsers, err := fetcher.FetchOfficeUserList([]services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

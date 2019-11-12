@@ -1,0 +1,3 @@
+ALTER TABLE move_task_orders
+ADD COLUMN prime_estimated_weight_recorded_date timestamptz,
+ADD COLUMN prime_estimated_weight int;

@@ -75,7 +75,11 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
+			mock.Anything,
 		).Return(models.OfficeUsers{officeUser}, nil).Once()
+		officeUserListFetcher.On("FetchOfficeUserCount",
+			mock.Anything,
+		).Return(1, nil).Once()
 		handler := IndexOfficeUsersHandler{
 			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:        newQueryFilter,
@@ -101,7 +105,11 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
+			mock.Anything,
 		).Return(nil, expectedError).Once()
+		officeUserListFetcher.On("FetchOfficeUserCount",
+			mock.Anything,
+		).Return(0, expectedError).Once()
 		handler := IndexOfficeUsersHandler{
 			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:        newQueryFilter,
@@ -210,7 +218,12 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 	transportationOfficeID, _ := uuid.NewV4()
 	officeUserID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
-	officeUser := models.OfficeUser{ID: officeUserID, TransportationOfficeID: transportationOfficeID, UserID: nil}
+	officeUser := models.OfficeUser{
+		ID:                     officeUserID,
+		TransportationOfficeID: transportationOfficeID,
+		UserID:                 nil,
+		Active:                 true,
+	}
 	queryFilter := mocks.QueryFilter{}
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 
