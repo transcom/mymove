@@ -82,6 +82,9 @@ type MoveTaskOrder struct {
 	// Format: date
 	PrimeEstimatedWeightRecordedDate *strfmt.Date `json:"primeEstimatedWeightRecordedDate,omitempty"`
 
+	// reference Id
+	ReferenceID string `json:"referenceId,omitempty"`
+
 	// remarks
 	Remarks string `json:"remarks,omitempty"`
 

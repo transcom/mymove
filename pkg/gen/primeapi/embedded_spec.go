@@ -548,6 +548,10 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "referenceId": {
+          "type": "string",
+          "example": "1001-3456"
+        },
         "remarks": {
           "type": "string",
           "example": "Requires more gentle care"
@@ -1183,6 +1187,10 @@ func init() {
           "type": "string",
           "format": "date",
           "x-nullable": true
+        },
+        "referenceId": {
+          "type": "string",
+          "example": "1001-3456"
         },
         "remarks": {
           "type": "string",

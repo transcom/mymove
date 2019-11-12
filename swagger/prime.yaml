@@ -417,6 +417,9 @@ definitions:
         x-nullable: true
       pickupAddress:
         $ref: '#/definitions/Address'
+      referenceId:
+        example: 1001-3456
+        type: string
       remarks:
         example: Requires more gentle care
         type: string
@@ -425,7 +428,7 @@ definitions:
         type: string
       status:
         enum:
-          - DRAFT  #TODO this is to represent visible to PRIME not sure if this is the right name for this?
+          - DRAFT #TODO this is to represent visible to PRIME not sure if this is the right name for this?
           - APPROVED
           - REJECTED
           - SUBMITTED

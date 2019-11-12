@@ -34,6 +34,7 @@ type MoveTaskOrder struct {
 	PickupAddressID                  uuid.UUID           `db:"pickup_address_id"`
 	PrimeEstimatedWeight             *unit.Pound         `db:"prime_estimated_weight"`
 	PrimeEstimatedWeightRecordedDate *time.Time          `db:"prime_estimated_weight_recorded_date"`
+	ReferenceID                      string              `db:"reference_id"`
 	RequestedPickupDate              time.Time           `db:"requested_pickup_date"`
 	Status                           MoveTaskOrderStatus `db:"status"`
 	ServiceItems                     ServiceItems        `has_many:"service_items"`
