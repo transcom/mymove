@@ -236,7 +236,7 @@ bin/generate-test-data:
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate-test-data
 
 bin/ghc-pricing-parser:
-	go build -ldflags "$(LDFLAGS)" -o bin/ghc-pricing-parser ./cmd/parse_ratengine_data_ghc
+	go build -ldflags "$(LDFLAGS)" -o bin/ghc-pricing-parser ./cmd/ghc-pricing-parser
 
 bin_linux/generate-test-data:
 	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate-test-data
@@ -850,8 +850,8 @@ make_test: ## Test make targets not checked by CircleCI
 #
 
 .PHONY: adr_update
-adr_update: .client_deps.stamp ## Update ADR Log
-	yarn run adr-log
+adr_update: ## Update ADR Log
+	pre-commit run -a gen-docs
 
 .PHONY: gofmt
 gofmt:  ## Run go fmt over all Go files
@@ -898,8 +898,9 @@ clean: ## Clean all generated files
 	rm -rf ./coverage
 
 .PHONY: spellcheck
-spellcheck: .client_deps.stamp ## Run interactive spellchecker
-	node_modules/.bin/mdspell --ignore-numbers --ignore-acronyms --en-us --no-suggestions \
+spellcheck: ## Run interactive spellchecker
+	@which mdspell -s || (echo "Install mdspell with yarn global add markdown-spellcheck" && exit 1)
+	/usr/local/bin/mdspell --ignore-numbers --ignore-acronyms --en-us --no-suggestions \
 		`find . -type f -name "*.md" \
 			-not -path "./node_modules/*" \
 			-not -path "./vendor/*" \

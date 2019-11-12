@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
@@ -14,6 +15,7 @@ import (
 // allowed comparators for this query builder implementation
 const equals = "="
 const greaterThan = ">"
+const ilike = "ILIKE" // Case insensitive
 
 // allowed sorting order for this query builder implmentation
 const asc = "asc"
@@ -53,6 +55,8 @@ func getComparator(comparator string) (string, bool) {
 		return equals, true
 	case greaterThan:
 		return greaterThan, true
+	case ilike:
+		return ilike, true
 	default:
 		return "", false
 	}
@@ -182,17 +186,44 @@ func categoricalCountsQueryOneModel(conn *pop.Connection, filters []services.Que
 
 func filteredQuery(query *pop.Query, filters []services.QueryFilter, t reflect.Type) (*pop.Query, error) {
 	invalidFields := make([]string, 0)
+	likeFilters := []services.QueryFilter{}
+
 	for _, f := range filters {
 		// Validate the filter we're using is valid/safe
 		invalidField := validateFilter(f, t)
 		if invalidField != "" {
 			invalidFields = append(invalidFields, fmt.Sprintf("%s %s", f.Column(), f.Comparator()))
 		}
+
+		if f.Comparator() == ilike {
+			likeFilters = append(likeFilters, f)
+			continue
+		}
+
 		// Column lookup should always adhere to SQL injection input validations
 		// https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.md#defense-option-3-whitelist-input-validation
 		columnQuery := fmt.Sprintf("%s %s ?", f.Column(), f.Comparator())
 		query = query.Where(columnQuery, f.Value())
 	}
+
+	// Hacky way to get ILIKE filters to work with OR instead of AND
+
+	if len(likeFilters) > 0 {
+		var likeQuery string
+		var vals []interface{}
+		var queries []string
+
+		for _, f := range likeFilters {
+			vals = append(vals, f.Value())
+			columnQuery := fmt.Sprintf("%s %s ?", f.Column(), f.Comparator())
+			queries = append(queries, columnQuery)
+
+			likeQuery = strings.Join(queries, " OR ")
+		}
+
+		query = query.Where(likeQuery, vals...)
+	}
+
 	if len(invalidFields) != 0 {
 		return query, fmt.Errorf("%v is not valid input", invalidFields)
 	}
@@ -244,6 +275,32 @@ func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter, a
 		return err
 	}
 	return nil
+}
+
+func (p *Builder) Count(model interface{}, filters []services.QueryFilter) (int, error) {
+	t := reflect.TypeOf(model)
+	if t.Kind() != reflect.Ptr {
+		return 0, errors.New(fetchManyReflectionMessage)
+	}
+	t = t.Elem()
+	if t.Kind() != reflect.Slice {
+		return 0, errors.New(fetchManyReflectionMessage)
+	}
+	t = t.Elem()
+	if t.Kind() != reflect.Struct {
+		return 0, errors.New(fetchManyReflectionMessage)
+	}
+	query := p.db.Q()
+	query, err := filteredQuery(query, filters, t)
+	if err != nil {
+		return 0, err
+	}
+
+	count, err := query.Count(model)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }
 
 func (p *Builder) CreateOne(model interface{}) (*validate.Errors, error) {

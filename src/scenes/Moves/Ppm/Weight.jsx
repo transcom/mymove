@@ -10,6 +10,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import IconWithTooltip from 'shared/ToolTip/IconWithTooltip';
 import { formatCentsRange, formatNumber } from 'shared/formatters';
 import { getPpmWeightEstimate, createOrUpdatePpm, getSelectedWeightInfo } from './ducks';
+import { loadEntitlementsFromState } from 'shared/entitlements';
 import { updatePPMEstimate } from 'shared/Entities/modules/ppms';
 import 'react-rangeslider/lib/index.css';
 import './Weight.css';
@@ -95,6 +96,10 @@ export class PpmWeight extends Component {
     });
   };
 
+  onWeightSliderSelection = value => {
+    console.log(value);
+  };
+
   onWeightSelected() {
     const { currentPpm, originDutyStationZip } = this.props;
     this.props.getPpmWeightEstimate(
@@ -105,6 +110,7 @@ export class PpmWeight extends Component {
       this.state.pendingPpmWeight,
     );
   }
+
   render() {
     const {
       incentive_estimate_min,
@@ -118,10 +124,28 @@ export class PpmWeight extends Component {
       selectedWeightInfo,
     } = this.props;
     const { context: { flags: { progearChanges } } = { flags: { progearChanges: null } } } = this.props;
-
     return (
       <div>
-        {progearChanges && <h1>Progear placeholder text</h1>}
+        {progearChanges && (
+          <div className="grid-container usa-prose site-prose">
+            <h3>How much do you think you'll move?</h3>
+            <p>Your weight entitlement: {this.props.entitlement.weight.toLocaleString()} lbs</p>
+            <div className="progear-slider-container">
+              <Slider
+                min={0}
+                max={this.props.entitlement.weight}
+                value={this.state.pendingPpmWeight}
+                onChange={this.onWeightSelecting}
+                onChangeComplete={this.onWeightSelected}
+                step={500}
+                labels={{
+                  0: `${0} lbs`,
+                  [this.props.entitlement.weight]: `${this.props.entitlement.weight.toLocaleString()} lbs`,
+                }}
+              />
+            </div>
+          </div>
+        )}
         {!progearChanges && (
           <div className="grid-container usa-prose site-prose">
             <WeightWizardForm
@@ -243,6 +267,7 @@ function mapStateToProps(state) {
     ...state.ppm,
     selectedWeightInfo: getSelectedWeightInfo(state),
     currentWeight: get(state, 'ppm.currentPpm.weight_estimate'),
+    entitlement: loadEntitlementsFromState(state),
     schema: schema,
     originDutyStationZip,
   };

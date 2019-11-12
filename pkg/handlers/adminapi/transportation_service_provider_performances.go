@@ -60,7 +60,7 @@ func (h IndexTSPPsHandler) Handle(params tsppop.IndexTSPPsParams) middleware.Res
 		return handlers.ResponseForError(logger, err)
 	}
 
-	totalTSPPsCount, err := h.DB().Count(&models.TransportationServiceProviderPerformance{})
+	totalTSPPsCount, err := h.TransportationServiceProviderPerformanceListFetcher.FetchTransportationServiceProviderPerformanceCount(queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

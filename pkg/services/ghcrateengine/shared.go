@@ -8,6 +8,9 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// minDomesticWeight is the minimum weight used in domestic calculations (weights below this are upgraded to the min)
+const minDomesticWeight = unit.Pound(500)
+
 // dateInYear represents a specific date in a year (without caring what year it is)
 type dateInYear struct {
 	month time.Month
@@ -53,14 +56,14 @@ func IsPeakPeriod(date time.Time) bool {
 }
 
 // priceAndEscalation is used to hold data returned by the database query
-type priceAndEscalation struct {
-	PriceMillicents      unit.Millicents `db:"price_millicents"`
-	EscalationCompounded float64         `db:"escalation_compounded"`
+type centPriceAndEscalation struct {
+	PriceCents           unit.Cents `db:"price_cents"`
+	EscalationCompounded float64    `db:"escalation_compounded"`
 }
 
 // MarshalLogObject allows priceAndEscalation to be logged by zap
-func (p priceAndEscalation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
-	encoder.AddInt("PriceMillicents", p.PriceMillicents.Int())
+func (p centPriceAndEscalation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	encoder.AddInt("PriceCents", p.PriceCents.Int())
 	encoder.AddFloat64("EscalationCompounded", p.EscalationCompounded)
 	return nil
 }

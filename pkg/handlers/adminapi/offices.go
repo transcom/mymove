@@ -52,7 +52,7 @@ func (h IndexOfficesHandler) Handle(params officeop.IndexOfficesParams) middlewa
 		return handlers.ResponseForError(logger, err)
 	}
 
-	totalOfficesCount, err := h.DB().Count(&models.TransportationOffice{})
+	totalOfficesCount, err := h.OfficeListFetcher.FetchOfficeCount(queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

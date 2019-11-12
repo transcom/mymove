@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-set -eu -o pipefail
-
-# Ignore this check when in CI since its moot
-[[ "${CI:-}" == "true" ]] || circleci config validate
