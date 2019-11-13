@@ -16,6 +16,15 @@ environment.
 | `check-hosts-file` | Script helps ensure that /etc/hosts has all the correct entries in it |
 | `prereqs` | validate if all prerequisite programs have been installed |
 
+## Operations Scripts
+
+These scripts are used to operate the system.
+
+| Script Name | Description |
+| --- | --- |
+| `download-alb-logs` | Download alb logs for the given environment and dates to a local folder |
+| `scan-alb-logs` | Scan alb logs for specific http codes. |
+
 ## Pre-commit Scripts
 
 These scripts are used primarily to check our code before
@@ -24,13 +33,10 @@ committing.
 | Script Name | Description |
 | --- | --- |
 | `gen-docs-index` | generate index for documents |
-| `generate-md-toc` |  Wrapper script to generate table of contents on Markdown files. |
-| `pre-commit-circleci-validate` | validate CircleCI `config.yml` file |
 | `pre-commit-go-imports` | modify imports in go files |
 | `pre-commit-go-lint` | modify go files with linting rules |
 | `pre-commit-go-mod` | modify `go.mod` and `go.sum` to match whats in the project |
 | `pre-commit-go-vet` | analyze code with `go vet` |
-| `pre-commit-spellcheck` | run spell checker against code |
 
 ## CircleCI Scripts
 
@@ -40,7 +46,6 @@ These scripts are primarily used for CircleCI workflows.
 | --- | --- |
 | `check-deployed-commit` |  checks that the deployed commit and given commit match. |
 | `circleci-announce-broken-branch` | announce that a branch is broken |
-| `circleci-push-dependency-updates` | Updates dependencies on the repo |
 | `compare-deployed-commit` | checks that the given commit is ahead of the currently deployed commit |
 | `do-exclusively` | CircleCI's current recommendation for roughly serializing a subset of build commands for a given branch |
 | `ecs-deploy-service-container` |  Updates the named service with the given container definition template, image, and environment |

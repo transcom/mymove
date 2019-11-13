@@ -44,6 +44,11 @@ For more details read the following sections.
 - Rerun the Go formatter on the codebase with `pre-commit run --all-files go-fmt`
 - Commit the above changes and any reformatted code and make sure everything builds correctly on CircleCI
 
+## Update `github action` yaml
+
+- Update `go-version` in `.github/workflows/go-auto-approve.yml`
+- Commit the above changes and make sure the action builds when pushed to github
+
 ## Notify Folks
 
 - It can be jarring when everything suddenly breaks after pulling from master, so it's a nice courtesy to notify folks in #dp3-engineering that the official Go version will be updated shortly and their local Go version should be upgraded as well

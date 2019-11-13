@@ -27,7 +27,14 @@ func (h ListMoveTaskOrdersHandler) Handle(params movetaskorderops.ListMoveTaskOr
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	var mtos models.MoveTaskOrders
-	err := h.DB().All(&mtos)
+
+	query := h.DB().Q()
+	if params.Since != nil {
+		since := time.Unix(*params.Since, 0)
+		query = query.Where("updated_at > ?", since)
+	}
+
+	err := query.All(&mtos)
 
 	if err != nil {
 		logger.Error("Unable to fetch records:", zap.Error(err))

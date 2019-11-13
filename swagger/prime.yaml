@@ -16,7 +16,12 @@ paths:
     get:
       produces:
         - application/json
-      parameters: []
+      parameters:
+        - in: query
+          name: since
+          type: integer
+          format: timestamp
+          description: Only return MTOs updated since this time
       responses:
         '200':
           description: Successfully retrieved all move task orders

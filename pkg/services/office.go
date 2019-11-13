@@ -13,4 +13,5 @@ type OfficeFetcher interface {
 //go:generate mockery -name OfficeListFetcher
 type OfficeListFetcher interface {
 	FetchOfficeList(filters []QueryFilter, associations QueryAssociations, pagination Pagination, ordering QueryOrder) (models.TransportationOffices, error)
+	FetchOfficeCount(filters []QueryFilter) (int, error)
 }

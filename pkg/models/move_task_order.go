@@ -61,11 +61,11 @@ func (m *MoveTaskOrder) Validate(tx *pop.Connection) (*validate.Errors, error) {
 
 type MoveTaskOrders []MoveTaskOrder
 
-// GenerateReferenceID creates a random ID for an MTO. Format (xxxx-xxxx) with X being a number 0-9
+// GenerateReferenceID creates a random ID for an MTO. Format (xxxx-xxxx) with X being a number 0-9 (ex. 0009-1234. 4321-4444)
 func GenerateReferenceID() string {
-	min := 1000
+	min := 0
 	max := 9999
-	firstNum := rand.Intn(max-min+1) + min
-	secondNum := rand.Intn(max-min+1) + min
-	return fmt.Sprintf("%v-%v", firstNum, secondNum)
+	firstNum := rand.Intn(max - min + 1)
+	secondNum := rand.Intn(max - min + 1)
+	return fmt.Sprintf("%04d-%04d", firstNum, secondNum)
 }
