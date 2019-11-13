@@ -40,9 +40,11 @@ func main() {
 	flag.BoolVar(&params.ProcessAll, "all", true, "Parse entire Rate Engine GHC XLSX")
 	flag.StringSliceVar(&params.XlsxSheets, "xlsxSheets", []string{}, xlsxSheetsUsage(xlsxDataSheets))
 	flag.BoolVar(&params.ShowOutput, "display", false, "Display output of parsed info")
-	flag.BoolVar(&params.SaveToFile, "save", false, "Save output to CSV file")
+	flag.BoolVar(&params.SaveToFile, "save-csv", false, "Save output to CSV file")
 	flag.BoolVar(&params.RunVerify, "verify", true, "Default is true, if false skip sheet format verification")
 	flag.BoolVar(&params.RunImport, "re_import", true, "Run GHC Rate Engine Import")
+	flag.BoolVar(&params.UseTempTables, "use-temp-tables", true, "Default is true, if false stage tables are NOT temp tables")
+	flag.BoolVar(&params.DropIfExists, "drop", false, "Default is false, if true stage tables will be dropped if they exist")
 
 	// DB Config
 	cli.InitDatabaseFlags(flag)

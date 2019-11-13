@@ -63,16 +63,6 @@ commands:
             [[ $CIRCLE_BRANCH = master ]] || exit 0
             scripts/circleci-announce-broken-branch
           when: on_fail
-  dependency_update_failure:
-    parameters:
-      dependency_name:
-        type: string
-    steps:
-      - run:
-          name: Depdendency update failure
-          command: |
-            [[ -z "<< parameters.dependency_name >>" ]] || scripts/circleci-dependency-update-failure "<< parameters.dependency_name >>"
-          when: on_fail
   deploy_migrations_steps:
     steps:
       - checkout
@@ -737,73 +727,6 @@ jobs:
       - deploy_app_storybook:
           s3_bucket: storybook.move.mil
 
-
-  # `update_dependencies_go` periodically updates Go dependencies.
-  # The changes are submitted as a pull request for review.
-  update_dependencies_go:
-    executor: mymove_small
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
-      - run:
-          name: Add ~/go/bin to path for golint
-          command: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
-      - run: make go_deps_update
-      - run:
-          name: Display changes
-          command: |
-            git --no-pager status
-            git --no-pager diff --ignore-all-space --color
-      - run:
-          name: Push changes
-          command: scripts/circleci-push-dependency-updates golang
-      - dependency_update_failure:
-          dependency_name: go
-
-  # `update_dependencies_js` periodically updates yarn dependencies.
-  # The changes are submitted as a pull request for review.
-  update_dependencies_js:
-    executor: mymove_small
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          keys:
-            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - run: make client_deps_update
-      - run:
-          name: Display changes
-          command: |
-            git --no-pager status
-            git --no-pager diff --ignore-all-space --color
-      - run:
-          name: Push changes
-          command: scripts/circleci-push-dependency-updates js
-      - dependency_update_failure:
-          dependency_name: js
-
-  # `update_dependencies_pre_commit` periodically updates pre-commit dependencies.
-  # The changes are submitted as a pull request for review.
-  update_dependencies_pre_commit:
-    executor: mymove_small
-    steps:
-      - checkout
-      - run: pre-commit autoupdate
-      - run:
-          name: Display changes
-          command: |
-            git --no-pager status
-            git --no-pager diff --ignore-all-space --color
-      - run:
-          name: Push changes
-          command: scripts/circleci-push-dependency-updates pre-commit
-      - dependency_update_failure:
-          dependency_name: pre_commit
-
 workflows:
   version: 2
 
@@ -1021,39 +944,6 @@ workflows:
               only: master
               # Uncomment below if pushing a test branch. Also comment out approve_prod_deploy few lines above.
               #only: placeholder_branch_name
-
-  dependency_updater_go:
-    triggers:
-      - schedule:
-          # Monday at 12:00 UTC
-          cron: '0 12 * * 1'
-          filters:
-            branches:
-              only: master
-    jobs:
-      - update_dependencies_go
-
-  dependency_updater_js:
-    triggers:
-      - schedule:
-          # Monday at 12:00 UTC
-          cron: '0 12 * * 1'
-          filters:
-            branches:
-              only: master
-    jobs:
-      - update_dependencies_js
-
-  dependency_updater_pre_commit:
-    triggers:
-      - schedule:
-          # Monday at 12:00 UTC
-          cron: '0 12 * * 1'
-          filters:
-            branches:
-              only: master
-    jobs:
-      - update_dependencies_pre_commit
 
 experimental:
   notify:

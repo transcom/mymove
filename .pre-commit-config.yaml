@@ -71,15 +71,6 @@ repos:
         files: swagger/*
         types: [yaml]
 
-  # Ensure markdown files have updated table of contents
-  - repo: local
-    hooks:
-      - id: markdown-toc
-        name: markdown-toc
-        entry: scripts/generate-md-toc
-        language: script
-        files: \.md$
-
   - repo: local
     hooks:
       - id: gomod
@@ -89,13 +80,14 @@ repos:
         files: go.mod
         pass_filenames: false
 
-  - repo: local
+  - repo: git://github.com/trussworks/pre-commit-hooks
+    rev: v0.0.2
     hooks:
+      - id: gen-docs
+        args: ["docs/adr"]
+      - id: circleci-validate
+      - id: markdown-toc
       - id: mdspell
-        name: mdspell
-        entry: scripts/pre-commit-spellcheck
-        language: script
-        files: \.md$
         exclude: >
           (?x)^(
             node_modules/|
@@ -105,21 +97,12 @@ repos:
 
   - repo: local
     hooks:
-      - id: gen-docs
+      - id: gen-docs-index
         name: regenerate docs index
         entry: scripts/gen-docs-index
         language: script
         files: \.md$
         pass_filenames: false
-
-  - repo: local
-    hooks:
-    - id: circleci-validate
-      name: circleci validate
-      entry: scripts/pre-commit-circleci-validate
-      language: script
-      files: '[.]circleci/config.yml$'
-      pass_filenames: false
 
   - repo: https://github.com/pryorda/dockerfilelint-precommit-hooks
     rev: v0.1.0
