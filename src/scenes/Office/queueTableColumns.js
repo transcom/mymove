@@ -73,11 +73,7 @@ const destination = CreateReactTableColumn('Destination', 'destination_duty_stat
 const branchOfService = CreateReactTableColumn('Branch', 'branch_of_service', {
   Cell: row => <span>{row.value}</span>,
   Filter: ({ filter, onChange }) => (
-    <select
-      onChange={event => onChange(event.target.value)}
-      style={{ width: '100%' }}
-      value={filter ? filter.value : 'all'}
-    >
+    <select onChange={event => onChange(event.target.value)} value={filter ? filter.value : 'all'}>
       <option value="all">Show All</option>
       <option value="ARMY">Army</option>
       <option value="NAVY">Navy</option>
