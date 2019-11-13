@@ -88,6 +88,39 @@ type StageOtherIntlPrice struct {
 	Season                                string `db:"season" csv:"season"`
 }
 
+type StageShipmentManagementServicesPrice struct {
+	ContractYear      string `db:"contract_year" csv:"contract_year"`
+	PricePerTaskOrder string `db:"price_per_task_order" csv:"price_per_task_order"`
+}
+
+type StageCounselingServicesPrice struct {
+	ContractYear      string `db:"contract_year" csv:"contract_year"`
+	PricePerTaskOrder string `db:"price_per_task_order" csv:"price_per_task_order"`
+}
+
+type StageTransitionPrice struct {
+	ContractYear      string `db:"contract_year" csv:"contract_year"`
+	PricePerTaskOrder string `db:"price_total_cost" csv:"price_total_cost"`
+}
+
+type StageDomesticMoveAccessorialPrices struct {
+	ServicesSchedule string `db:"services_schedule" csv:"services_schedule"`
+	ServiceProvided  string `db:"service_provided" csv:"service_provided"`
+	PricePerUnit     string `db:"price_per_unit" csv:"price_per_unit"`
+}
+
+type StageInternationalMoveAccessorialPrices struct {
+	Market          string `db:"market" csv:"market"`
+	ServiceProvided string `db:"service_provided" csv:"service_provided"`
+	PricePerUnit    string `db:"price_per_unit" csv:"price_per_unit"`
+}
+
+type StageDomesticInternationalAdditionalPrices struct {
+	Market       string `db:"market" csv:"market"`
+	ShipmentType string `db:"shipment_type" csv:"shipment_type"`
+	Factor       string `db:"factor" csv:"factor"`
+}
+
 type StageNonStandardLocnPrice struct {
 	OriginID        string `db:"origin_id" csv:"origin_id"`
 	OriginArea      string `db:"origin_area" csv:"origin_area"`

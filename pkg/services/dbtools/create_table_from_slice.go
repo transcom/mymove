@@ -14,19 +14,21 @@ import (
 )
 
 // NewTableFromSliceCreator is the public constructor for a TableFromSliceCreator using Pop
-func NewTableFromSliceCreator(db *pop.Connection, logger Logger, isTemp bool) services.TableFromSliceCreator {
+func NewTableFromSliceCreator(db *pop.Connection, logger Logger, isTemp bool, dropIfExists bool) services.TableFromSliceCreator {
 	return &tableFromSliceCreator{
-		db:     db,
-		logger: logger,
-		isTemp: isTemp,
+		db:           db,
+		logger:       logger,
+		isTemp:       isTemp,
+		dropIfExists: dropIfExists,
 	}
 }
 
 // tableFromSliceCreator is a service object to create/populate a table from a slice
 type tableFromSliceCreator struct {
-	db     *pop.Connection
-	logger Logger
-	isTemp bool
+	db           *pop.Connection
+	logger       Logger
+	isTemp       bool
+	dropIfExists bool
 }
 
 // CreateTableFromSlice creates and populates a table from a slice of structs
@@ -73,10 +75,16 @@ func (c tableFromSliceCreator) CreateTableFromSlice(slice interface{}) error {
 	builder.WriteString(");")
 	createTableQuery := builder.String()
 
-	err := c.db.Transaction(func(tx *pop.Connection) error {
+	transactionErr := c.db.Transaction(func(tx *pop.Connection) error {
+		if c.dropIfExists {
+			err := tx.RawQuery("DROP TABLE IF EXISTS " + tableName).Exec()
+			if err != nil {
+				return errors.Wrap(err, fmt.Sprintf("Error dropping table: '%s'", tableName))
+			}
+		}
 		err := tx.RawQuery(createTableQuery).Exec()
 		if err != nil {
-			return err
+			return errors.Wrap(err, fmt.Sprintf("Error creating table: '%s'", tableName))
 		}
 
 		// Put data into the table
@@ -112,5 +120,5 @@ func (c tableFromSliceCreator) CreateTableFromSlice(slice interface{}) error {
 		return nil
 	})
 
-	return err
+	return transactionErr
 }

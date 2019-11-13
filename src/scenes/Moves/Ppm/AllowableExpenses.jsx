@@ -9,7 +9,7 @@ function AllowableExpenses(props) {
   }
 
   return (
-    <div className="grid-container usa-prose site-prose allowable-expenses-container">
+    <div className="grid-container usa-prose allowable-expenses-container">
       <div className="grid-row">
         <div className="grid-col-12">
           <div>

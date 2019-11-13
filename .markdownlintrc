@@ -1,8 +1,10 @@
 {
   "default": true,
   "line_length": false,
+  "no-multiple-blanks": false,
   "MD024": {
     "siblings_only": true
   },
-  "MD014": false
+  "MD014": false,
+  "single-trailing-newline": false
 }
