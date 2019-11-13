@@ -83,11 +83,6 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation payment_requests.GetPaymentRequest has not yet been implemented")
 		})
 	}
-	if api.EntitlementsGetPrimeEntitlementsHandler == nil {
-		api.EntitlementsGetPrimeEntitlementsHandler = entitlements.GetPrimeEntitlementsHandlerFunc(func(params entitlements.GetPrimeEntitlementsParams) middleware.Responder {
-			return middleware.NotImplemented("operation entitlements.GetPrimeEntitlements has not yet been implemented")
-		})
-	}
 	if api.ServiceItemGetServiceItemHandler == nil {
 		api.ServiceItemGetServiceItemHandler = service_item.GetServiceItemHandlerFunc(func(params service_item.GetServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation service_item.GetServiceItem has not yet been implemented")
@@ -111,11 +106,6 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.MoveTaskOrderUpdateMoveTaskOrderHandler == nil {
 		api.MoveTaskOrderUpdateMoveTaskOrderHandler = move_task_order.UpdateMoveTaskOrderHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.UpdateMoveTaskOrder has not yet been implemented")
-		})
-	}
-	if api.MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler == nil {
-		api.MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler = move_task_order.UpdateMoveTaskOrderActualWeightHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderActualWeightParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_task_order.UpdateMoveTaskOrderActualWeight has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderUpdateMoveTaskOrderStatusHandler == nil {

@@ -104,10 +104,6 @@ func payloadForMoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *ghcmessages.Mo
 		Status:                 string(moveTaskOrder.Status),
 		UpdatedAt:              strfmt.Date(moveTaskOrder.UpdatedAt),
 	}
-
-	if moveTaskOrder.ActualWeight != nil {
-		payload.ActualWeight = int64(*moveTaskOrder.ActualWeight)
-	}
 	return payload
 }
 

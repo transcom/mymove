@@ -13,10 +13,16 @@ func MoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *primemessages.MoveTaskOr
 	destinationAddress := Address(&moveTaskOrder.DestinationAddress)
 	pickupAddress := Address(&moveTaskOrder.PickupAddress)
 	entitlements := Entitlements(&moveTaskOrder.Entitlements)
+
+	var primeActualWeight *int64
+	if moveTaskOrder.ActualWeight != nil {
+		actualWeight := moveTaskOrder.PrimeActualWeight.Int64()
+		primeActualWeight = &actualWeight
+	}
 	var primeEstimatedWeight *int64
 	if moveTaskOrder.PrimeEstimatedWeight != nil {
-		wt := moveTaskOrder.PrimeEstimatedWeight.Int64()
-		primeEstimatedWeight = &wt
+		estimatedWeight := moveTaskOrder.PrimeEstimatedWeight.Int64()
+		primeEstimatedWeight = &estimatedWeight
 	}
 	var primeEstimatedWeightRecordedDate *strfmt.Date
 	if moveTaskOrder.PrimeEstimatedWeight != nil {
@@ -32,6 +38,7 @@ func MoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *primemessages.MoveTaskOr
 		MoveID:                           strfmt.UUID(moveTaskOrder.MoveID.String()),
 		OriginDutyStation:                strfmt.UUID(moveTaskOrder.OriginDutyStationID.String()),
 		PickupAddress:                    pickupAddress,
+		PrimeActualWeight:                primeActualWeight,
 		PrimeEstimatedWeight:             primeEstimatedWeight,
 		PrimeEstimatedWeightRecordedDate: primeEstimatedWeightRecordedDate,
 		Remarks:                          moveTaskOrder.CustomerRemarks,
