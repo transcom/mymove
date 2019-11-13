@@ -47,6 +47,15 @@ func init() {
         ],
         "summary": "Gets all move orders",
         "operationId": "listMoveTaskOrders",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "timestamp",
+            "description": "Only return MTOs updated since this time",
+            "name": "since",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successfully retrieved all move task orders",
@@ -656,6 +665,15 @@ func init() {
         ],
         "summary": "Gets all move orders",
         "operationId": "listMoveTaskOrders",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "timestamp",
+            "description": "Only return MTOs updated since this time",
+            "name": "since",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successfully retrieved all move task orders",

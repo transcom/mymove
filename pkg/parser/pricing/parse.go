@@ -124,14 +124,17 @@ type xlsxProcessInfo struct {
 }
 
 type ParamConfig struct {
-	ProcessAll   bool
-	ShowOutput   bool
-	XlsxFilename string
-	XlsxSheets   []string
-	SaveToFile   bool
-	RunTime      time.Time
-	XlsxFile     *xlsx.File
-	RunVerify    bool
+	ProcessAll    bool
+	ShowOutput    bool
+	XlsxFilename  string
+	XlsxSheets    []string
+	SaveToFile    bool
+	RunTime       time.Time
+	XlsxFile      *xlsx.File
+	RunVerify     bool
+	RunImport     bool
+	UseTempTables bool
+	DropIfExists  bool
 }
 
 // InitDataSheetInfo: When adding new functions for parsing sheets, must add new XlsxDataSheetInfo
@@ -225,11 +228,64 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 		verify: &verifyPriceEscalationDiscount,
 	}
 
+	// 13: 	5a) Other International Prices
+	xlsxDataSheets[13] = XlsxDataSheetInfo{
+		Description:    swag.String("3d) Other International Prices"),
+		outputFilename: swag.String("3d_other_international_prices"),
+		ProcessMethods: []xlsxProcessInfo{{
+			process: &parseOtherIntlPrices,
+		},
+		},
+		verify: &verifyOtherIntlPrices,
+	}
+
+	// 16: 	4a) Mgmt., Coun., Trans. Prices
+	xlsxDataSheets[16] = XlsxDataSheetInfo{
+		Description:    swag.String("4a) Mgmt., Coun., Trans. Prices"),
+		outputFilename: swag.String("4a_mgmt_coun_trans_prices"),
+		ProcessMethods: []xlsxProcessInfo{
+			{
+				process:    &parseShipmentManagementServicesPrices,
+				adtlSuffix: swag.String("management"),
+			},
+			{
+				process:    &parseCounselingServicesPrices,
+				adtlSuffix: swag.String("counsel"),
+			},
+			{
+				process:    &parseTransitionPrices,
+				adtlSuffix: swag.String("transition"),
+			},
+		},
+		verify: &verifyManagementCounselTransitionPrices,
+	}
+
+	// 17: 	5a) Access. and Add. Prices
+	xlsxDataSheets[17] = XlsxDataSheetInfo{
+		Description:    swag.String("5a) Access. and Add. Prices"),
+		outputFilename: swag.String("5a_access_and_add_prices"),
+		ProcessMethods: []xlsxProcessInfo{
+			{
+				process:    &parseDomesticMoveAccessorialPrices,
+				adtlSuffix: swag.String("domestic"),
+			},
+			{
+				process:    &parseInternationalMoveAccessorialPrices,
+				adtlSuffix: swag.String("international"),
+			},
+			{
+				process:    &parseDomesticInternationalAdditionalPrices,
+				adtlSuffix: swag.String("additional"),
+			},
+		},
+		verify: &verifyAccessAndAddPrices,
+	}
+
 	return xlsxDataSheets
 }
 
 func Parse(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, db *pop.Connection, logger Logger) error {
-	tableFromSliceCreator := dbtools.NewTableFromSliceCreator(db, logger, true)
+	tableFromSliceCreator := dbtools.NewTableFromSliceCreator(db, logger, params.UseTempTables, params.DropIfExists)
 
 	// Must be after processing config param
 	// Run the process function
