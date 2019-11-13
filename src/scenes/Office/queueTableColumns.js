@@ -1,5 +1,5 @@
 import React from 'react';
-import { capitalize } from 'lodash';
+import { capitalize, memoize } from 'lodash';
 import { formatDate } from 'shared/formatters';
 import SingleDatePicker from 'shared/JsonSchemaForm/SingleDatePicker';
 import moment from 'moment';
@@ -10,6 +10,37 @@ const CreateReactTableColumn = (header, accessor, options = {}) => ({
   accessor: accessor,
   ...options,
 });
+
+// lodash memoize will prevent unnecessary rendering with the same state
+// this will re-render if the state changes
+const destination = memoize(destinationDutyStations =>
+  CreateReactTableColumn('Destination', 'destination_duty_station_name', {
+    Cell: row => <span>{row.value}</span>,
+    Filter: ({ filter, onChange }) => (
+      <select onChange={event => onChange(event.target.value)} value={filter ? filter.value : 'all'}>
+        <option value="all">Show All</option>
+        {destinationDutyStations.map(value => {
+          return (
+            <option key={value} value={value.toLowerCase()}>
+              {value}
+            </option>
+          );
+        })}
+      </select>
+    ),
+    filterMethod: (filter, row) => {
+      if (filter.value === 'all') {
+        return true;
+      } else if (row[filter.id] === undefined) {
+        return false;
+      }
+
+      // filtered value should already be lowercase
+      return row[filter.id].toLowerCase() === filter.value;
+    },
+    filterable: true,
+  }),
+);
 
 const status = CreateReactTableColumn('Status', 'synthetic_status', {
   Cell: row => (
@@ -66,10 +97,6 @@ const origin = CreateReactTableColumn('Origin', 'origin_duty_station_name', {
   Cell: row => <span>{row.value}</span>,
 });
 
-const destination = CreateReactTableColumn('Destination', 'destination_duty_station_name', {
-  Cell: row => <span>{row.value}</span>,
-});
-
 const branchOfService = CreateReactTableColumn('Branch', 'branch_of_service', {
   Cell: row => <span>{row.value}</span>,
   Filter: ({ filter, onChange }) => (
@@ -93,6 +120,15 @@ const branchOfService = CreateReactTableColumn('Branch', 'branch_of_service', {
 });
 
 // Columns used to display in react table
-export const defaultColumns = () => {
-  return [status, customerName, origin, destination, dodId, locator, moveDate, branchOfService];
+export const defaultColumns = component => {
+  return [
+    status,
+    customerName,
+    origin,
+    destination(component.getDestinationDutyStations()),
+    dodId,
+    locator,
+    moveDate,
+    branchOfService,
+  ];
 };
