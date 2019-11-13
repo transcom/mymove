@@ -103,9 +103,9 @@ export class WizardFormPage extends Component {
     const canMoveBackward = (valid || !dirty) && !isFirstPage(pageList, pageKey);
     const hideBackBtn = isFirstPage(pageList, pageKey);
     return (
-      <div className="grid-container">
+      <div className="grid-container usa-prose">
         {serverError && (
-          <div className="grid-row usa-prose">
+          <div className="grid-row">
             <div className="grid-col-12 error-message">
               <Alert type="error" heading="An error occurred">
                 {serverError.message}
