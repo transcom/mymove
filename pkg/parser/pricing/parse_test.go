@@ -43,7 +43,7 @@ func TestPricingParserSuite(t *testing.T) {
 		xlsxFilename: "fixtures/pricing_template_2019-09-19_fake-data.xlsx",
 	}
 
-	hs.tableFromSliceCreator = dbtools.NewTableFromSliceCreator(hs.DB(), logger, true)
+	hs.tableFromSliceCreator = dbtools.NewTableFromSliceCreator(hs.DB(), logger, true, false)
 
 	hs.xlsxFile, err = xlsx.OpenFile(hs.xlsxFilename)
 	if err != nil {

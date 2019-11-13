@@ -16,7 +16,7 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params ParamConfig, s
 	const serviceAreaNumberColumn int = 2
 	const serviceAreaNameColumn int = 3
 	const serviceScheduleColumn int = 4
-	const sITPickupDeliveryScheduleColumn int = 5
+	const sitPickupDeliveryScheduleColumn int = 5
 	const numEscalationYearsToProcess = sharedNumEscalationYearsToProcess
 
 	if xlsxDataSheetNum != sheetIndex {
@@ -35,7 +35,7 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params ParamConfig, s
 					ServiceAreaNumber:         getCell(row.Cells, serviceAreaNumberColumn),
 					ServiceAreaName:           getCell(row.Cells, serviceAreaNameColumn),
 					ServicesSchedule:          getCell(row.Cells, serviceScheduleColumn),
-					SITPickupDeliverySchedule: getCell(row.Cells, sITPickupDeliveryScheduleColumn),
+					SITPickupDeliverySchedule: getCell(row.Cells, sitPickupDeliveryScheduleColumn),
 					Season:                    r,
 				}
 
@@ -74,8 +74,8 @@ var verifyDomesticServiceAreaPrices verifyXlsxSheet = func(params ParamConfig, s
 	const numEscalationYearsToProcess int = 4
 
 	// Check headers
-	const feeRowMilageHeaderIndexStart = feeRowIndexStart - 2
-	const verifyHeaderIndexEnd = feeRowMilageHeaderIndexStart + 2
+	const feeRowMileageHeaderIndexStart = feeRowIndexStart - 2
+	const verifyHeaderIndexEnd = feeRowMileageHeaderIndexStart + 2
 
 	if xlsxDataSheetNum != sheetIndex {
 		return fmt.Errorf("verifyDomesticServiceAreaPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
@@ -92,7 +92,7 @@ var verifyDomesticServiceAreaPrices verifyXlsxSheet = func(params ParamConfig, s
 		"SIT Pickup / Delivery ≤50 miles (per cwt)",
 	}
 
-	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowMilageHeaderIndexStart:verifyHeaderIndexEnd]
+	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowMileageHeaderIndexStart:verifyHeaderIndexEnd]
 	for dataRowsIndex, row := range dataRows {
 		colIndex := feeColIndexStart
 		// For number of baseline + Escalation years

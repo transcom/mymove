@@ -8,7 +8,7 @@
   * [Setting the Mock Clock](#setting-the-mock-clock)
 * [MilMove Calendar Utils](#milmove-calendar-utils)
 
-Regenerate with "scripts/generate-md-toc"
+Regenerate with "pre-commit run -a markdown-toc"
 
 <!-- tocstop -->
 
