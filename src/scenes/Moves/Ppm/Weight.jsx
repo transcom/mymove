@@ -172,7 +172,7 @@ export class PpmWeight extends Component {
     return (
       <div>
         {progearChanges && (
-          <div className="grid-container usa-prose site-prose">
+          <div className="grid-container usa-prose">
             <h3>How much do you think you'll move?</h3>
             <p>Your weight entitlement: {this.props.entitlement.weight.toLocaleString()} lbs</p>
             <div className={styles['progear-slider-container']}>
@@ -214,7 +214,7 @@ export class PpmWeight extends Component {
           </div>
         )}
         {!progearChanges && (
-          <div className="grid-container usa-prose site-prose">
+          <div className="grid-container usa-prose">
             <WeightWizardForm
               handleSubmit={this.handleSubmit}
               pageList={pages}
