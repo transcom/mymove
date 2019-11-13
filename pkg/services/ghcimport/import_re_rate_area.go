@@ -25,13 +25,13 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) er
 
 	var rateAreaExistMap map[string]bool
 	// have to read international tables to get the domestic rate areas
+
 	// models.StageConusToOconusPrice
 	var conusToOconus []models.StageConusToOconusPrice
 	err := db.All(&conusToOconus)
 	if err != nil {
 		return errors.Wrap(err, "")
 	}
-
 	for _, ra := range conusToOconus {
 		if _, ok := rateAreaExistMap[ra.OriginDomesticPriceAreaCode]; !ok {
 			// does the rate area already exist in the rate engine
@@ -104,7 +104,6 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) er
 	if err != nil {
 		return errors.Wrap(err, "")
 	}
-
 	for _, ra := range oconusToConsus {
 		if _, ok := rateAreaExistMap[ra.DestinationDomesticPriceAreaCode]; !ok {
 			// does the rate area already exist in the rate engine
