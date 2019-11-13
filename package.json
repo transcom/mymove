@@ -28,7 +28,7 @@
     "node-sass": "^4.13.0",
     "normalizr": "^3.2.4",
     "path-to-regexp": "^2.2.0",
-    "query-string": "5",
+    "query-string": "6",
     "ra-data-simple-rest": "^2.8.6",
     "react": "^16.11.0",
     "react-admin": "^2.9.0",
