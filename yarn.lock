@@ -7451,10 +7451,10 @@ is-installed-globally@0.1.0:
     global-dirs "^0.1.0"
     is-path-inside "^1.0.0"
 
-is-mobile@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/is-mobile/-/is-mobile-1.0.0.tgz#bc15893f90a669d33e18f718ee2baf850bd68d7a"
-  integrity sha512-7K4jNTxKgxBx/r4bi+RwDeu5+1jgwv+6gPTIyqe4tobY7fB2MQH9k3P2BcvrkpRhGpl/ZDUT5JF5pkuhO3K1AQ==
+is-mobile@2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/is-mobile/-/is-mobile-2.1.0.tgz#4c0cab72f3358dd9986007389b30729fae80da0b"
+  integrity sha512-M5OhlZwh+aTlmRUvDg0Wq3uWVNa+w4DyZ2SjbrS+BhSLu9Po+JXHendC305ZEu+Hh7lywb19Zu4kYXu3L1Oo8A==
 
 is-number-object@^1.0.3:
   version "1.0.3"
