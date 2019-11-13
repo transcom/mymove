@@ -100,6 +100,12 @@ func (f fetchMoveTaskOrder) UpdateMoveTaskOrderStatus(moveTaskOrderID uuid.UUID,
 		return &models.MoveTaskOrder{}, err
 	}
 	mto.Status = status
+
+	// not sure if DRAFT is the right status but going with this for now
+	if status == models.MoveTaskOrderStatusDraft {
+		mto.AvailableToPrimeDate = time.Now()
+	}
+
 	vErrors, err := f.db.ValidateAndUpdate(mto)
 	if vErrors.HasAny() {
 		return &models.MoveTaskOrder{}, NewErrInvalidInput(moveTaskOrderID, err, vErrors.Errors)
