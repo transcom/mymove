@@ -33,6 +33,9 @@ first rendered. The technique can be effectively implemented in places where rou
 what component to offer the customer. Introducing this into those places allows us to gain performance benefit without
 the introduction of significant complexity.
 
+While React Loadable has been implemented in the project before, such as in `src/App/index.js`, it is no longer actively
+supported, which is in why utilizing an alternative like React Lazy is preferable.
+
 Using this specific tool allows us to make use of the pattern in a way that should be compatible for upcoming
 performance focused React features that we may find desirous to use in the future.
 
