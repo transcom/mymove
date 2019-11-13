@@ -11556,7 +11556,7 @@ react-docgen@^4.1.0:
     node-dir "^0.1.10"
     recast "^0.17.3"
 
-react-dom@^16.0.0, react-dom@^16.11.0, react-dom@^16.8.3:
+react-dom@^16.11.0, react-dom@^16.8.3:
   version "16.11.0"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.11.0.tgz#7e7c4a5a85a569d565c2462f5d345da2dd849af5"
   integrity sha512-nrRyIUE1e7j8PaXSPtyRKtz+2y9ubW/ghNgqKFHHAHaeP0fpF5uXR+sq8IMRHC+ZUxw7W9NyCDTBtwWxvkb0iA==
@@ -11658,14 +11658,10 @@ react-hotkeys@2.0.0-pre4:
   dependencies:
     prop-types "^15.6.1"
 
-react-idle-timer@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-3.0.0.tgz#716cbe7cb3678255604b4e2bee9149fd45f25e77"
-  integrity sha512-SiB63+7FNIldrOntKL9rUhADapKns32IGa2HIizgFpgU6wvDsufd7S2efbs3vyCFmAUHEx5SabmaILSb021W7w==
-  dependencies:
-    prop-types "^15.5.10"
-    react "^16.0.0"
-    react-dom "^16.0.0"
+react-idle-timer@^4.2.12:
+  version "4.2.12"
+  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-4.2.12.tgz#3756e3256cd225f319ed093b3d5ebe0d98fcc498"
+  integrity sha512-YD/2Oe4PU5uRv/TH6zTxykKMHpRHWHPEWCUohda81o/jzsrlgyUrklfy46fd8WjgYhlNkJKsiX/GXJAQQC1hcQ==
 
 react-input-autosize@^2.2.2:
   version "2.2.2"
@@ -11979,7 +11975,7 @@ react-window-size@^1.0.1:
   dependencies:
     babel-runtime "^6.6.1"
 
-react@^16.0.0, react@^16.11.0, react@^16.8.3:
+react@^16.11.0, react@^16.8.3:
   version "16.11.0"
   resolved "https://registry.yarnpkg.com/react/-/react-16.11.0.tgz#d294545fe62299ccee83363599bf904e4a07fdbb"
   integrity sha512-M5Y8yITaLmU0ynd0r1Yvfq98Rmll6q8AxaEe88c8e7LxO8fZ2cNgmFt0aGAS9wzf1Ao32NKXtCl+/tVVtkxq6g==
