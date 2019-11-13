@@ -383,4 +383,4 @@
 20191031182540_add_notification_indexes.up.sql
 20191101201107_create-re-services-table-with-values.up.sql
 20191106165340_move_task_order_add_est_wtg.up.sql
-20191113212903_add_available_to_prime_at_and_submitted_counseling_info_at.up.sql
+20191113212903_add_available_to_prime_date_and_submitted_counseling_info_date.up.sql
