@@ -25,7 +25,7 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 	ghcAPI := ghcops.NewMymoveAPI(ghcSpec)
 	queryBuilder := query.NewQueryBuilder(context.DB())
 
-	ghcAPI.EntitlementsGetEntitlementsHandler = GetEntitlementsHandler{context,
+	ghcAPI.MoveTaskOrderGetEntitlementsHandler = GetEntitlementsHandler{context,
 		movetaskorder.NewMoveTaskOrderFetcher(context.DB())}
 	ghcAPI.CustomerGetCustomerInfoHandler = GetCustomerInfoHandler{context}
 	ghcAPI.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = UpdateMoveTaskOrderStatusHandlerFunc{

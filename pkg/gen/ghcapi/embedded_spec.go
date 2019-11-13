@@ -377,7 +377,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Entitlements"
+          "moveTaskOrder"
         ],
         "summary": "Gets entitlements for a move order by ID",
         "operationId": "getEntitlements",
@@ -2366,7 +2366,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Entitlements"
+          "moveTaskOrder"
         ],
         "summary": "Gets entitlements for a move order by ID",
         "operationId": "getEntitlements",

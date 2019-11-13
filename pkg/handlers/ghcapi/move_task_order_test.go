@@ -2,7 +2,6 @@ package ghcapi
 
 import (
 	"errors"
-	"fmt"
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
@@ -18,7 +17,6 @@ import (
 
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 
-	entitlementscodeop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/entitlements"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -90,32 +88,6 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerServerError() {
 	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusInternalServerError{}, response)
 }
 
-func (suite *HandlerSuite) TestUpdateMoveTaskOrderActualWeightHandlerIntegration() {
-	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
-	moveTaskOrder := serviceItem.MoveTaskOrder
-
-	// set up what needs to be passed to handler
-	request := httptest.NewRequest("PATCH", fmt.Sprintf("/move-task-orders/%s/prime-actual-weight", moveTaskOrder.ID), nil)
-	params := movetaskordercodeop.UpdateMoveTaskOrderActualWeightParams{
-		HTTPRequest:     request,
-		Body:            movetaskordercodeop.UpdateMoveTaskOrderActualWeightBody{ActualWeight: 2819},
-		MoveTaskOrderID: moveTaskOrder.ID.String(),
-	}
-	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-
-	// make the request
-	handler := UpdateMoveTaskOrderActualWeightHandler{context,
-		movetaskorder.NewMoveTaskOrderActualWeightUpdater(suite.DB())}
-	response := handler.Handle(params)
-
-	suite.IsNotErrResponse(response)
-	updateMoveTaskOrderActualWeightResponse := response.(*movetaskordercodeop.UpdateMoveTaskOrderActualWeightOK)
-	updateMoveTaskOrderActualWeightPayload := updateMoveTaskOrderActualWeightResponse.Payload
-
-	suite.NotNil(updateMoveTaskOrderActualWeightPayload)
-	suite.Equal(int(updateMoveTaskOrderActualWeightPayload.ActualWeight), 2819)
-}
-
 func (suite *HandlerSuite) TestGetEntitlementsHandlerIntegration() {
 	// set up what needs to be passed to handler
 	moveTaskOrderID, _ := uuid.NewV4()
@@ -126,7 +98,7 @@ func (suite *HandlerSuite) TestGetEntitlementsHandlerIntegration() {
 		GHCEntitlement: models.GHCEntitlement{MoveTaskOrder: &mto}},
 	)
 	request := httptest.NewRequest("GET", "/move-task-orders/move_task_order_id/entitlements", nil)
-	params := entitlementscodeop.GetEntitlementsParams{
+	params := movetaskorderops.GetEntitlementsParams{
 		HTTPRequest:     request,
 		MoveTaskOrderID: mto.ID.String(),
 	}
@@ -138,8 +110,8 @@ func (suite *HandlerSuite) TestGetEntitlementsHandlerIntegration() {
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
-	suite.Assertions.IsType(&entitlementscodeop.GetEntitlementsOK{}, response)
-	getEntitlementsResponse := response.(*entitlementscodeop.GetEntitlementsOK)
+	suite.Assertions.IsType(&movetaskorderops.GetEntitlementsOK{}, response)
+	getEntitlementsResponse := response.(*movetaskorderops.GetEntitlementsOK)
 	getEntitlementsPayload := getEntitlementsResponse.Payload
 
 	suite.NotNil(getEntitlementsPayload)

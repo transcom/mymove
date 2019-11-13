@@ -12,7 +12,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
-	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/entitlements"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/service_item"
@@ -68,9 +67,9 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation customer.GetCustomerInfo has not yet been implemented")
 		})
 	}
-	if api.EntitlementsGetEntitlementsHandler == nil {
-		api.EntitlementsGetEntitlementsHandler = entitlements.GetEntitlementsHandlerFunc(func(params entitlements.GetEntitlementsParams) middleware.Responder {
-			return middleware.NotImplemented("operation entitlements.GetEntitlements has not yet been implemented")
+	if api.MoveTaskOrderGetEntitlementsHandler == nil {
+		api.MoveTaskOrderGetEntitlementsHandler = move_task_order.GetEntitlementsHandlerFunc(func(params move_task_order.GetEntitlementsParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.GetEntitlements has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderGetMoveTaskOrderHandler == nil {

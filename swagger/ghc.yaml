@@ -552,7 +552,7 @@ paths:
         - application/json
       parameters: []
       tags:
-        - Entitlements
+        - moveTaskOrder
       responses:
         '200':
           description: Successfully retrieved move task order
