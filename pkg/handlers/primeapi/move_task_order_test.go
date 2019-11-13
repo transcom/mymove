@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
@@ -135,4 +137,75 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderEstimatedWeightHandlerUnproces
 	suite.Equal(clientErr.InvalidFields, map[string]string{"validation xyz": "validation failure"})
 	suite.Equal(*clientErr.Title, handlers.ValidationErrMessage)
 	suite.Equal(*clientErr.Detail, moveTaskOrderValidationError.Error())
+}
+
+func (suite *HandlerSuite) TestUpdateMoveTaskOrderPostCounselingInformationHandlerIntegration() {
+	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+
+	request := httptest.NewRequest("PATCH", "/move-task-orders/:id/post-counseling-info", nil)
+	body := movetaskorderops.UpdateMoveTaskOrderPostCounselingInformationBody{
+		PpmIsIncluded:            true,
+		ScheduledMoveDate:        strfmt.Date(time.Now()),
+		SecondaryDeliveryAddress: "123 Main Street",
+		SecondaryPickupAddress:   "456 1st Street",
+	}
+	params := movetaskorderops.UpdateMoveTaskOrderPostCounselingInformationParams{
+		HTTPRequest:     request,
+		Body:            body,
+		MoveTaskOrderID: moveTaskOrder.ID.String(),
+	}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+	// make the request
+	handler := UpdateMoveTaskOrderPostCounselingInformationHandler{HandlerContext: context,
+		moveTaskOrderPostCounselingInformationUpdater: movetaskorder.NewMoveTaskOrderPostCounselingInformationUpdater(suite.DB()),
+	}
+	response := handler.Handle(params)
+
+	suite.IsNotErrResponse(response)
+	suite.Assertions.IsType(&movetaskorderops.UpdateMoveTaskOrderPostCounselingInformationOK{}, response)
+	moveTaskOrderResponse := response.(*movetaskorderops.UpdateMoveTaskOrderPostCounselingInformationOK)
+	moveTaskOrderPayload := moveTaskOrderResponse.Payload
+
+	suite.Equal(moveTaskOrder.ID.String(), moveTaskOrderPayload.ID.String())
+	//TODO add these to db
+	//suite.Equal(body.PpmIsIncluded, moveTaskOrderPayload.PPMIsIncluded)
+	//suite.Equal(body.ScheduledMoveDate, moveTaskOrderPayload.ScheduledMoveDate)
+	//suite.Equal(body.SecondaryDeliveryAddress, moveTaskOrderPayload.SecondaryDeliverAddress)
+	//suite.Equal(body.SecondaryPickupAddress, moveTaskOrderPayload.SecondaryPickupAddress)
+
+}
+
+func (suite *HandlerSuite) TestUpdateMoveTaskOrderDestinationAddressHandlerIntegration() {
+	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+
+	request := httptest.NewRequest("PATCH", "/move-task-orders/:id/destination-address", nil)
+	address := testdatagen.MakeDefaultAddress(suite.DB())
+	addressPayload := payloads.Address(&address)
+	params := movetaskorderops.UpdateMoveTaskOrderDestinationAddressParams{
+		HTTPRequest:        request,
+		DestinationAddress: addressPayload,
+		MoveTaskOrderID:    moveTaskOrder.ID.String(),
+	}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+	// make the request
+	handler := UpdateMoveTaskOrderDestinationAddressHandler{HandlerContext: context,
+		moveTaskOrderDestinationAddressUpdater: movetaskorder.NewMoveTaskOrderDestinationAddressUpdater(suite.DB()),
+	}
+	response := handler.Handle(params)
+
+	suite.IsNotErrResponse(response)
+	suite.Assertions.IsType(&movetaskorderops.UpdateMoveTaskOrderPostCounselingInformationOK{}, response)
+	moveTaskOrderResponse := response.(*movetaskorderops.UpdateMoveTaskOrderPostCounselingInformationOK)
+	responsePayload := moveTaskOrderResponse.Payload
+	updatedDestinationAddress := responsePayload.DestinationAddress
+
+	suite.Equal(moveTaskOrder.ID.String(), moveTaskOrderResponse.Payload.ID.String())
+	suite.Equal(*addressPayload.StreetAddress1, *updatedDestinationAddress.StreetAddress1)
+	suite.Equal(*addressPayload.StreetAddress2, *updatedDestinationAddress.StreetAddress2)
+	suite.Equal(*addressPayload.StreetAddress3, *updatedDestinationAddress.StreetAddress3)
+	suite.Equal(*addressPayload.PostalCode, *updatedDestinationAddress.PostalCode)
+	suite.Equal(*addressPayload.City, *updatedDestinationAddress.City)
+	suite.Equal(*addressPayload.State, *updatedDestinationAddress.State)
 }

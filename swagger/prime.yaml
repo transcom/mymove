@@ -180,14 +180,10 @@ paths:
         - application/json
       parameters:
         - in: body
-          name: body
+          name: destinationAddress
           required: true
           schema:
-            type: object
-            properties:
-              destination-address:
-                type: string
-                example: 123 Main Ave
+            $ref: '#/definitions/Address'
       responses:
         '200':
           description: Successfully retrieved move task order

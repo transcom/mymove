@@ -1,6 +1,7 @@
 package movetaskorder
 
 import (
+	"log"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -121,4 +122,25 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderPrimeEstimatedWeightUpd
 	_, updateErr := mtoActualWeightUpdater.UpdatePrimeEstimatedWeight(originalMTO.ID, newWeight, now)
 
 	suite.Error(updateErr)
+}
+
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderDestinationAddressUpdater() {
+	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
+	originalMTO := serviceItem.MoveTaskOrder
+	// check not equal to what asserting against below
+	address := testdatagen.MakeDefaultAddress(suite.DB())
+	log.Println(address.ID)
+	mtoActualWeightUpdater := NewMoveTaskOrderDestinationAddressUpdater(suite.DB())
+	moveTaskOrderFetcher := NewMoveTaskOrderFetcher(suite.DB())
+
+	updatedMTO, updateErr := mtoActualWeightUpdater.UpdateMoveTaskOrderDestinationAddress(originalMTO.ID, &address)
+	suite.NoError(updateErr)
+	suite.NotNil(updatedMTO)
+	suite.Equal(address.City, updatedMTO.DestinationAddress.City)
+	suite.Equal(address.ID, updatedMTO.DestinationAddress.ID)
+
+	dbUpdatedMTO, fetchErr := moveTaskOrderFetcher.FetchMoveTaskOrder(updatedMTO.ID)
+	suite.NoError(fetchErr)
+	suite.Equal(address.City, dbUpdatedMTO.DestinationAddress.City)
+	suite.Equal(address.ID, dbUpdatedMTO.DestinationAddress.ID)
 }

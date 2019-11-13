@@ -39,9 +39,19 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation move_task_order.ListMoveTaskOrders has not yet been implemented")
 		})
 	}
+	if api.MoveTaskOrderUpdateMoveTaskOrderDestinationAddressHandler == nil {
+		api.MoveTaskOrderUpdateMoveTaskOrderDestinationAddressHandler = move_task_order.UpdateMoveTaskOrderDestinationAddressHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderDestinationAddressParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.UpdateMoveTaskOrderDestinationAddress has not yet been implemented")
+		})
+	}
 	if api.MoveTaskOrderUpdateMoveTaskOrderEstimatedWeightHandler == nil {
 		api.MoveTaskOrderUpdateMoveTaskOrderEstimatedWeightHandler = move_task_order.UpdateMoveTaskOrderEstimatedWeightHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderEstimatedWeightParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.UpdateMoveTaskOrderEstimatedWeight has not yet been implemented")
+		})
+	}
+	if api.MoveTaskOrderUpdateMoveTaskOrderPostCounselingInformationHandler == nil {
+		api.MoveTaskOrderUpdateMoveTaskOrderPostCounselingInformationHandler = move_task_order.UpdateMoveTaskOrderPostCounselingInformationHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderPostCounselingInformationParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.UpdateMoveTaskOrderPostCounselingInformation has not yet been implemented")
 		})
 	}
 

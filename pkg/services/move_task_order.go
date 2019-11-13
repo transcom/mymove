@@ -33,3 +33,19 @@ type MoveTaskOrderActualWeightUpdater interface {
 type MoveTaskOrderPrimeEstimatedWeightUpdater interface {
 	UpdatePrimeEstimatedWeight(moveTaskOrderID uuid.UUID, primeEstimatedWeight unit.Pound, updateTime time.Time) (*models.MoveTaskOrder, error)
 }
+
+type PostCounselingInformation struct {
+	PPMIsIncluded                                    bool
+	ScheduledMoveDate                                time.Time
+	SecondaryDeliveryAddress, SecondaryPickupAddress string
+}
+
+//MoveTaskOrderPrimePostCounselingUpdater is the service object interface for UpdateMoveTaskOrderPostCounselingInformation
+//go:generate mockery -name MoveTaskOrderPrimePostCounselingUpdater
+type MoveTaskOrderPrimePostCounselingUpdater interface {
+	UpdateMoveTaskOrderPostCounselingInformation(moveTaskOrderID uuid.UUID, postCounselingInformation PostCounselingInformation) (*models.MoveTaskOrder, error)
+}
+
+type MoveTaskOrderDestinationAddressUpdater interface {
+	UpdateMoveTaskOrderDestinationAddress(moveTaskOrderID uuid.UUID, destinationAddress *models.Address) (*models.MoveTaskOrder, error)
+}

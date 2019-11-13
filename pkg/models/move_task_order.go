@@ -36,6 +36,10 @@ type MoveTaskOrder struct {
 	Status                           MoveTaskOrderStatus `db:"status"`
 	ServiceItems                     ServiceItems        `has_many:"service_items"`
 	UpdatedAt                        time.Time           `db:"updated_at"`
+	SecondaryPickupAddress           *string             `db:"-"`
+	SecondaryDeliveryAddress         *string             `db:"-"`
+	ScheduledMoveDate                *time.Time          `db:"-"`
+	PpmIsIncluded                    bool                `db:"-"`
 }
 
 type MoveTaskOrderStatus string
