@@ -105,7 +105,7 @@ export class WizardFormPage extends Component {
     return (
       <div className="grid-container">
         {serverError && (
-          <div className="grid-row">
+          <div className="grid-row usa-prose">
             <div className="grid-col-12 error-message">
               <Alert type="error" heading="An error occurred">
                 {serverError.message}
