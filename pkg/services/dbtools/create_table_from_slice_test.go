@@ -2,6 +2,8 @@ package dbtools
 
 import (
 	"testing"
+
+	"github.com/gobuffalo/pop"
 )
 
 type TestStruct struct {
@@ -70,7 +72,9 @@ func (suite *DBToolsServiceSuite) TestCreateTableFromSlice() {
 	suite.T().Run("errors out when table exists", func(t *testing.T) {
 		err := tableFromSliceCreator.CreateTableFromSlice(validSlice)
 		suite.Error(err)
-		suite.Equal("Error creating table: 'test_structs': pq: relation \"test_structs\" already exists", err.Error())
+		if err != nil {
+			suite.Equal("Error creating table: 'test_structs': pq: relation \"test_structs\" already exists", err.Error())
+		}
 	})
 }
 
@@ -85,6 +89,36 @@ func (suite *DBToolsServiceSuite) TestCreateTableFromSlicePermTable() {
 
 		var testStructs []TestStruct
 		err = suite.DB().Order("name").All(&testStructs)
+		suite.NoError(err)
+		suite.Len(testStructs, 3)
+		for i, testStruct := range testStructs {
+			suite.Equal(validSlice[i], testStruct)
+		}
+	})
+}
+
+func (suite *DBToolsServiceSuite) TestCreateTableFromSliceWithinTransaction() {
+	suite.DB().Transaction(func(tx *pop.Connection) error {
+		tableFromSliceCreator := NewTableFromSliceCreator(tx, suite.logger, true, true)
+		suite.T().Run("create table from slice in a transaction", func(t *testing.T) {
+			err := tableFromSliceCreator.CreateTableFromSlice(validSlice)
+			suite.NoError(err)
+		})
+
+		var testStructs []TestStruct
+		err := tx.Order("name").All(&testStructs)
+		suite.NoError(err)
+		suite.Len(testStructs, 3)
+		for i, testStruct := range testStructs {
+			suite.Equal(validSlice[i], testStruct)
+		}
+
+		return nil
+	})
+
+	suite.T().Run("verify data still in database after transaction", func(t *testing.T) {
+		var testStructs []TestStruct
+		err := suite.DB().Order("name").All(&testStructs)
 		suite.NoError(err)
 		suite.Len(testStructs, 3)
 		for i, testStruct := range testStructs {
