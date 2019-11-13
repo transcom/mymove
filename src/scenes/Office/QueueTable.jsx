@@ -18,7 +18,7 @@ class QueueTable extends Component {
     super();
     this.state = {
       data: [],
-      destDutystationData: [],
+      destDutyStationData: [],
       pages: null,
       loading: true,
       refreshing: false, // only true when the user clicks the refresh button
@@ -86,7 +86,7 @@ class QueueTable extends Component {
       if (this.state.loadingQueue === loadingQueueType) {
         this.setState({
           data: body,
-          destDutystationData: [...destDutyStationDataSet].sort(),
+          destDutyStationData: [...destDutyStationDataSet].sort(),
           pages: 1,
           loading: false,
           refreshing: false,
@@ -96,7 +96,7 @@ class QueueTable extends Component {
     } catch (e) {
       this.setState({
         data: [],
-        destDutystationData: [],
+        destDutyStationData: [],
         pages: 1,
         loading: false,
         refreshing: false,
@@ -126,7 +126,7 @@ class QueueTable extends Component {
   }
 
   getDestinationDutyStations = () => {
-    return this.state.destDutystationData;
+    return this.state.destDutyStationData;
   };
 
   render() {
