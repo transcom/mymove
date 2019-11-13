@@ -15,7 +15,7 @@ func MoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *primemessages.MoveTaskOr
 	entitlements := Entitlements(&moveTaskOrder.Entitlements)
 
 	var primeActualWeight *int64
-	if moveTaskOrder.ActualWeight != nil {
+	if moveTaskOrder.PrimeActualWeight != nil {
 		actualWeight := moveTaskOrder.PrimeActualWeight.Int64()
 		primeActualWeight = &actualWeight
 	}

@@ -14,7 +14,6 @@ import (
 
 type MoveTaskOrder struct {
 	ID                               uuid.UUID           `db:"id"`
-	ActualWeight                     *unit.Pound         `json:"actual_weight" db:"actual_weight"`
 	CreatedAt                        time.Time           `db:"created_at"`
 	Customer                         ServiceMember       `belongs_to:"service_members"`
 	CustomerID                       uuid.UUID           `db:"customer_id"`

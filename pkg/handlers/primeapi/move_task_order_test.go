@@ -160,7 +160,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderActualWeightHandlerIntegration
 	updateMoveTaskOrderActualWeightPayload := updateMoveTaskOrderActualWeightResponse.Payload
 
 	suite.NotNil(updateMoveTaskOrderActualWeightPayload)
-	suite.Equal(updateMoveTaskOrderActualWeightPayload.PrimeActualWeight, 2819)
+	suite.Equal(int(*updateMoveTaskOrderActualWeightPayload.PrimeActualWeight), 2819)
 }
 
 func (suite *HandlerSuite) TestGetPrimeEntitlementsHandlerIntegration() {
