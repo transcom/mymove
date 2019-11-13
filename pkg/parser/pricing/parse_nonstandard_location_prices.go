@@ -16,7 +16,7 @@ var parseNonStandardLocnPrices processXlsxSheet = func(params ParamConfig, sheet
 	const xlsxDataSheetNum int = 14        // 3e) Non-Standard Loc'n Prices
 	const feeColIndexStart int = 7         // start at column 7 to get the rates
 	const feeRowIndexStart int = 10        // start at row 10 to get the rates (NSRA to NSRA)
-	const feeRowNToOIndexStart int = 243   // start at row 143 to get the NSRA to OCONUS rates
+	const feeRowNToOIndexStart int = 243   // start at row 243 to get the NSRA to OCONUS rates
 	const feeRowOToNIndexStart int = 1031  // start at row 1031 to get the OCONUS to NSRA rates
 	const feeRowNToCIndexStart int = 1819  // start at row 1819 to get the NSRA to CONUS rates
 	const feeRowOCToNIndexStart int = 2622 // start at row 2622 to get the CONUS to NSRA rates
@@ -104,24 +104,24 @@ var verifyNonStandardLocnPrices verifyXlsxSheet = func(params ParamConfig, sheet
 	headerRow := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[headerRowIndex : headerRowIndex+1][0]
 
 	if err := verifyHeader(mergedHeaderRow, originIDCol, "OriginID"); err != nil {
-		return err
+		return fmt.Errorf("verifyNonStandardLocnPrices verification failure: %w", err)
 	}
 
 	if err := verifyHeader(mergedHeaderRow, originAreaCol, "OriginArea"); err != nil {
-		return err
+		return fmt.Errorf("verifyNonStandardLocnPrices verification failure: %w", err)
 	}
 
 	if err := verifyHeader(mergedHeaderRow, destinationIDCol, "DestinationID"); err != nil {
-		return err
+		return fmt.Errorf("verifyNonStandardLocnPrices verification failure: %w", err)
 	}
 
 	if err := verifyHeader(mergedHeaderRow, destinationAreaCol, "DestinationArea"); err != nil {
-
+		return fmt.Errorf("verifyNonStandardLocnPrices verification failure: %w", err)
 	}
 
 	// note: Move Type row is not merged like the other non-price headers
 	if err := verifyHeader(headerRow, moveTypeCol, "MoveType"); err != nil {
-		return err
+		return fmt.Errorf("verifyNonStandardLocnPrices verification failure: %w", err)
 	}
 
 	colIndex := feeColIndexStart
