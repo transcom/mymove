@@ -87,7 +87,7 @@
     "@storybook/addon-knobs": "^5.2.6",
     "@storybook/addon-links": "^5.2.6",
     "@storybook/addons": "^5.1.11",
-    "@storybook/react": "^5.2.5",
+    "@storybook/react": "^5.2.6",
     "cypress": "^3.6.1",
     "mime-types": "^2.1.18",
     "mocha": "^6.2.2",
