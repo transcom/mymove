@@ -1,7 +1,9 @@
 package ghcimport
 
 import (
+	"io/ioutil"
 	"log"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -17,6 +19,18 @@ type GHCRateEngineImportSuite struct {
 
 func (suite *GHCRateEngineImportSuite) SetupTest() {
 	suite.DB().TruncateAll()
+
+	suite.helperSetupStagingTables()
+}
+
+func (suite *GHCRateEngineImportSuite) helperSetupStagingTables() {
+	path := filepath.Join("fixtures", "stage_ghc_pricing.sql")
+	c, ioErr := ioutil.ReadFile(path)
+	suite.NoError(ioErr)
+
+	sql := string(c)
+	err := suite.DB().RawQuery(sql).Exec()
+	suite.NoError(err)
 }
 
 func TestPricingParserSuite(t *testing.T) {
