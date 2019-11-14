@@ -9,11 +9,17 @@ import (
 	"errors"
 	"net/url"
 	golangswaggerpaths "path"
+
+	"github.com/go-openapi/swag"
 )
 
 // ListMoveTaskOrdersURL generates an URL for the list move task orders operation
 type ListMoveTaskOrdersURL struct {
+	Since *int64
+
 	_basePath string
+	// avoid unkeyed usage
+	_ struct{}
 }
 
 // WithBasePath sets the base path for this url builder, only required when it's different from the
@@ -42,6 +48,18 @@ func (o *ListMoveTaskOrdersURL) Build() (*url.URL, error) {
 		_basePath = "/prime/v1"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
+
+	qs := make(url.Values)
+
+	var sinceQ string
+	if o.Since != nil {
+		sinceQ = swag.FormatInt64(*o.Since)
+	}
+	if sinceQ != "" {
+		qs.Set("since", sinceQ)
+	}
+
+	_result.RawQuery = qs.Encode()
 
 	return &_result, nil
 }

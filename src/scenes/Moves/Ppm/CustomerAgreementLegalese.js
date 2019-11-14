@@ -6,7 +6,7 @@ function CustomerAgreementLegalese(props) {
   }
 
   return (
-    <div className="grid-container usa-prose site-prose customer-agreement-legalese-container">
+    <div className="grid-container usa-prose customer-agreement-legalese-container">
       <div className="grid-row">
         <div className="grid-col-12">
           <div>
