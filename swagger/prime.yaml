@@ -104,6 +104,48 @@ paths:
       description: Updates a move order's estimated weight by ID
       operationId: updateMoveTaskOrderEstimatedWeight
       summary: Updates a move order's estimated weight by ID
+  /payment-requests:
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreatePaymentRequestPayload'
+      responses:
+        '201':
+          description: created instance of payment request
+          schema:
+            $ref: '#/definitions/PaymentRequest'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - paymentRequests
+        - prime
+      description: Creates a payment request
+      operationId: createPaymentRequest
+      summary: Creates a payment request
 
 definitions:
   Address:
@@ -317,6 +359,24 @@ definitions:
         x-nullable: true
       pickup_address:
         $ref: '#/definitions/Address'
+  CreatePaymentRequestPayload:
+    properties:
+      isFinal:
+        default: false
+        type: boolean
+      moveOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      proofOfServicePackage:
+        $ref: '#/definitions/ProofOfServicePackage'
+      serviceItemIDs:
+        items:
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+          format: uuid
+          type: string
+        type: array
+    type: object
   Entitlements:
     properties:
       id:
@@ -443,6 +503,88 @@ definitions:
     items:
       $ref: '#/definitions/MoveTaskOrder'
     type: array
+  ProofOfServicePackage:
+    properties:
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      uploads:
+        items:
+          $ref: '#/definitions/Upload'
+        type: array
+    type: object
+  PaymentRequest:
+    properties:
+      documentPackage:
+        $ref: '#/definitions/ProofOfServicePackage'
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        readOnly: true
+        type: string
+      isFinal:
+        default: false
+        type: boolean
+      moveOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      rejectionReason:
+        example: documentation was incomplete
+        type: string
+        x-nullable: true
+      serviceItemIDs:
+        items:
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+          format: uuid
+          type: string
+        type: array
+      status:
+        $ref: '#/definitions/PaymentRequestStatus'
+    type: object
+  PaymentRequestStatus:
+    enum:
+      - PAYMENT_SUBMITTED
+      - APPROVED
+      - REJECTED
+    title: Payment Request Status
+    type: string
+  Upload:
+    properties:
+      bytes:
+        type: integer
+      contentType:
+        example: application/pdf
+        format: mime-type
+        type: string
+      createdAt:
+        format: date-time
+        type: string
+      filename:
+        example: filename.pdf
+        format: binary
+        type: string
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      updatedAt:
+        format: date-time
+        type: string
+      url:
+        example: 'https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538'
+        format: uri
+        type: string
+    required:
+      - id
+      - url
+      - filename
+      - contentType
+      - bytes
+      - createdAt
+      - updatedAt
+    type: object
   ValidationError:
     allOf:
       - $ref: '#/definitions/ClientError'

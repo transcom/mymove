@@ -38,11 +38,6 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
-	if api.PaymentRequestsCreatePaymentRequestHandler == nil {
-		api.PaymentRequestsCreatePaymentRequestHandler = payment_requests.CreatePaymentRequestHandlerFunc(func(params payment_requests.CreatePaymentRequestParams) middleware.Responder {
-			return middleware.NotImplemented("operation payment_requests.CreatePaymentRequest has not yet been implemented")
-		})
-	}
 	if api.ServiceItemCreateServiceItemHandler == nil {
 		api.ServiceItemCreateServiceItemHandler = service_item.CreateServiceItemHandlerFunc(func(params service_item.CreateServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation service_item.CreateServiceItem has not yet been implemented")
