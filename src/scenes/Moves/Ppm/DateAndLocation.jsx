@@ -204,7 +204,4 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ createOrUpdatePpm, setInitialFormValues, updatePPMEstimate }, dispatch);
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(DateAndLocation);
+export default connect(mapStateToProps, mapDispatchToProps)(DateAndLocation);

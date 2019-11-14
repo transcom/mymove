@@ -100,7 +100,4 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = dispatch => bindActionCreators({ loadMove, loadOrders, loadServiceMember }, dispatch);
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(OrdersInfo);
+export default connect(mapStateToProps, mapDispatchToProps)(OrdersInfo);
