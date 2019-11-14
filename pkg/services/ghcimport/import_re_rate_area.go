@@ -25,7 +25,8 @@ func (gre *GHCRateEngineImporter) importRERateArea(dbTx *pop.Connection) error {
 
 func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) error {
 
-	var rateAreaExistMap map[string]bool
+	rateAreaExistMap := make(map[string]bool)
+
 	// have to read international tables to get the domestic rate areas
 
 	// models.StageConusToOconusPrice
@@ -41,7 +42,10 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) er
 			var rateArea *models.ReRateArea
 			rateArea, err = models.FetchReRateAreaItem(db, ra.OriginDomesticPriceAreaCode)
 			if err != nil {
-				return errors.Wrapf(err, "Failed importing re_rate_area from StageConusToOconusPrice with code <%s>", ra.OriginDomesticPriceAreaCode)
+				//fmt.Println(err.Error())
+				if err.Error() != "sql: no rows in result set" {
+					return errors.Wrapf(err, "Failed importing re_rate_area from StageConusToOconusPrice with code <%s>", ra.OriginDomesticPriceAreaCode)
+				}
 			}
 
 			// if it does exist, compare and update information if different
@@ -112,7 +116,9 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) er
 			// does the rate area already exist in the rate engine
 			rateArea, err := models.FetchReRateAreaItem(db, ra.DestinationDomesticPriceAreaCode)
 			if err != nil {
-				return errors.Wrapf(err, "Failed importing re_rate_area from StageOconusToConusPrice with code <%s>", ra.DestinationDomesticPriceAreaCode)
+				if err.Error() != "sql: no rows in result set" {
+					return errors.Wrapf(err, "Failed importing re_rate_area from StageOconusToConusPrice with code <%s>", ra.DestinationDomesticPriceAreaCode)
+				}
 			}
 
 			// if it does exist, compare and update information if different
@@ -181,13 +187,16 @@ func (gre *GHCRateEngineImporter) importInternationalRateAreas(db *pop.Connectio
 		return errors.Wrap(err, "")
 	}
 
-	var rateAreaExistMap map[string]bool
+	//var rateAreaExistMap map[string]bool
+	rateAreaExistMap := make(map[string]bool)
 	for _, sa := range serviceAreas {
 		if _, ok := rateAreaExistMap[sa.RateAreaID]; !ok {
 			// query for ReRateArea
 			rateArea, err := models.FetchReRateAreaItem(db, sa.RateAreaID)
 			if err != nil {
-				return errors.Wrapf(err, "Failed importing re_rate_area from StageInternationalServiceArea with code <%s>", sa.RateAreaID)
+				if err.Error() != "sql: no rows in result set" {
+					return errors.Wrapf(err, "Failed importing re_rate_area from StageInternationalServiceArea with code <%s>", sa.RateAreaID)
+				}
 			}
 			// if it does exist, compare and update information if different
 			if rateArea != nil {

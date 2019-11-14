@@ -12,7 +12,7 @@ import (
 // ReRateArea model struct
 type ReRateArea struct {
 	ID        uuid.UUID `json:"id" db:"id"`
-	IsOconus  bool      `json:"is_oconos" db:"is_oconos"`
+	IsOconus  bool      `json:"is_oconus" db:"is_oconus"`
 	Code      string    `json:"code" db:"code"`
 	Name      string    `json:"name" db:"name"`
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
@@ -35,7 +35,7 @@ func (r *ReRateArea) Validate(tx *pop.Connection) (*validate.Errors, error) {
 func FetchReRateAreaItem(tx *pop.Connection, code string) (*ReRateArea, error) {
 	var area ReRateArea
 	query := `
-		SELECT * from re_rate_area
+		SELECT * from re_rate_areas
 		WHERE
 			code = $1
 	`

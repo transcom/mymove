@@ -1,7 +1,6 @@
 package ghcimport
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"path/filepath"
@@ -27,20 +26,22 @@ func (suite *GHCRateEngineImportSuite) SetupTest() {
 func (suite *GHCRateEngineImportSuite) helperSetupStagingTables() {
 
 	/*
-		// Load the fixture with the sql example
-		f, err := os.Open("./fixtures/stage_ghc_pricing.sql")
-		suite.NoError(err)
+		   //TODO: ask Chris G if there is a preference to use the code from migrations for SQL
+		   //TODO: imports of if the ioutil read fine to use.
 
-		errTransaction := suite.DB().Transaction(func(tx *pop.Connection) error {
-			wait := 10 * time.Millisecond
-			err := migrate.Exec(f, tx, wait)
+			// Load the fixture with the sql example
+			f, err := os.Open("./fixtures/stage_ghc_pricing.sql")
 			suite.NoError(err)
-			return err
-		})
-		suite.NoError(errTransaction)
+
+			errTransaction := suite.DB().Transaction(func(tx *pop.Connection) error {
+				wait := 10 * time.Millisecond
+				err := migrate.Exec(f, tx, wait)
+				suite.NoError(err)
+				return err
+			})
+			suite.NoError(errTransaction)
 	*/
 
-	fmt.Printf("!!!!!!! helperSetupStagingTables() pop URL %v\n\n", suite.DB().URL())
 	path := filepath.Join("fixtures", "stage_ghc_pricing.sql")
 	c, ioErr := ioutil.ReadFile(path)
 	suite.NoError(ioErr)
