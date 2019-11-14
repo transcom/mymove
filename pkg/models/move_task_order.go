@@ -64,7 +64,7 @@ type MoveTaskOrders []MoveTaskOrder
 func GenerateReferenceID() string {
 	min := 0
 	max := 9999
-	firstNum := rand.Intn(max-min+1)
-	secondNum := rand.Intn(max-min+1)
+	firstNum := rand.Intn(max - min + 1)
+	secondNum := rand.Intn(max - min + 1)
 	return fmt.Sprintf("%04d-%04d", firstNum, secondNum)
 }
