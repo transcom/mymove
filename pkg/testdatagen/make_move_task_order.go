@@ -29,6 +29,8 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 	if isZeroUUID(destinationAddress.ID) {
 		destinationAddress = MakeAddress2(db, assertions)
 	}
+	referenceID := models.GenerateReferenceID()
+
 	moveTaskOrder := models.MoveTaskOrder{
 		MoveID:                   move.ID,
 		CustomerID:               sm.ID,
@@ -41,6 +43,7 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 		PickupAddressID:          pickupAddress.ID,
 		DestinationAddress:       destinationAddress,
 		DestinationAddressID:     destinationAddress.ID,
+		ReferenceID:              referenceID,
 		RequestedPickupDate:      time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
 		CustomerRemarks:          "Park in the alley",
 		Status:                   models.MoveTaskOrderStatusApproved,

@@ -70,7 +70,7 @@ func payloadForMoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *ghcmessages.Mo
 		MoveID:                 strfmt.UUID(moveTaskOrder.MoveID.String()),
 		OriginDutyStation:      strfmt.UUID(moveTaskOrder.OriginDutyStationID.String()),
 		PickupAddress:          pickupAddress,
-		ReferenceID:            string(moveTaskOrder.ReferenceID),
+		ReferenceID:            moveTaskOrder.ReferenceID,
 		Remarks:                moveTaskOrder.CustomerRemarks,
 		RequestedPickupDate:    strfmt.Date(moveTaskOrder.RequestedPickupDate),
 		ServiceItems:           serviceItems,
