@@ -4,6 +4,9 @@ import { formatDate } from 'shared/formatters';
 import SingleDatePicker from 'shared/JsonSchemaForm/SingleDatePicker';
 import moment from 'moment';
 
+// testing
+import Select from 'react-select';
+
 // Abstracting react table column creation
 const CreateReactTableColumn = (header, accessor, options = {}) => ({
   Header: header,
@@ -16,27 +19,59 @@ const CreateReactTableColumn = (header, accessor, options = {}) => ({
 const destination = memoize(destinationDutyStations =>
   CreateReactTableColumn('Destination', 'destination_duty_station_name', {
     Cell: row => <span>{row.value}</span>,
-    Filter: ({ filter, onChange }) => (
-      <select onChange={event => onChange(event.target.value)} value={filter ? filter.value : 'all'}>
-        <option value="all">Show All</option>
-        {destinationDutyStations.map(value => {
-          return (
-            <option key={value} value={value.toLowerCase()}>
-              {value}
-            </option>
-          );
-        })}
-      </select>
-    ),
+    Filter: ({ filter, onChange }) => {
+      const options = destinationDutyStations.map(value => ({ label: value, value: value }));
+      return (
+        <Select
+          options={options}
+          onChange={value => {
+            // value example: {label: "Fort Gordon", value: "Fort Gordon"}
+            return onChange(value ? value : undefined);
+          }}
+          defaultValue={filter ? filter.value : undefined}
+          styles={{
+            // overriding styles to match other table filters
+            control: baseStyles => ({
+              ...baseStyles,
+              height: '1.5rem',
+              minHeight: '1.5rem',
+              border: '1px solid rgba(0,0,0,0.1)',
+            }),
+            indicatorsContainer: baseStyles => ({
+              ...baseStyles,
+              height: '1.5rem',
+            }),
+            clearIndicator: baseStyles => ({
+              ...baseStyles,
+              padding: '0.2rem',
+            }),
+            dropdownIndicator: baseStyles => ({
+              ...baseStyles,
+              padding: '0.2rem',
+            }),
+            input: baseStyles => ({
+              ...baseStyles,
+              margin: '0 2px',
+              paddingTop: '0',
+              paddingBottom: '0',
+            }),
+            valueContainer: baseStyles => ({
+              ...baseStyles,
+              padding: '0 8px',
+            }),
+          }}
+          isClearable
+        />
+      );
+    },
     filterMethod: (filter, row) => {
-      if (filter.value === 'all') {
+      if (filter.value === undefined) {
         return true;
       } else if (row[filter.id] === undefined) {
         return false;
       }
 
-      // filtered value should already be lowercase
-      return row[filter.id].toLowerCase() === filter.value;
+      return row[filter.id].toLowerCase() === filter.value.value.toLowerCase();
     },
     filterable: true,
   }),
