@@ -6,8 +6,6 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"io"
-
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -34,8 +32,7 @@ type Upload struct {
 
 	// filename
 	// Required: true
-	// Format: binary
-	Filename io.ReadCloser `json:"filename"`
+	Filename *string `json:"filename"`
 
 	// id
 	// Required: true
@@ -124,7 +121,7 @@ func (m *Upload) validateCreatedAt(formats strfmt.Registry) error {
 
 func (m *Upload) validateFilename(formats strfmt.Registry) error {
 
-	if err := validate.Required("filename", "body", io.ReadCloser(m.Filename)); err != nil {
+	if err := validate.Required("filename", "body", m.Filename); err != nil {
 		return err
 	}
 

@@ -765,7 +765,6 @@ func init() {
         },
         "filename": {
           "type": "string",
-          "format": "binary",
           "example": "filename.pdf"
         },
         "id": {
@@ -1623,7 +1622,6 @@ func init() {
         },
         "filename": {
           "type": "string",
-          "format": "binary",
           "example": "filename.pdf"
         },
         "id": {
