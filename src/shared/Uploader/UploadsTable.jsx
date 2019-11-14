@@ -53,7 +53,7 @@ export class UploadsTable extends Component {
         <tbody>
           {this.props.uploads.map(upload => (
             <tr key={upload.id} className="vertical-align text-top">
-              <td className="maxw-15" style={{ overflowWrap: 'break-word' }}>
+              <td className="maxw-card" style={{ overflowWrap: 'break-word', wordWrap: 'break-word' }}>
                 {this.getUploadUrl(upload)}
               </td>
               <td>{moment(upload.created_at).format('LLL')}</td>
