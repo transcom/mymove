@@ -5983,10 +5983,10 @@ filepond-polyfill@^1.0.2:
   resolved "https://registry.yarnpkg.com/filepond-polyfill/-/filepond-polyfill-1.0.4.tgz#cd816b4eb595dabd4baff215a797cb57ee1997ed"
   integrity sha512-ERBcCzqXadQB4mUaG34IOCsLStVpuG3F4a/nyYYeJLAfBIkT9DbQcJpIqcRQM+T3DyiNi1iZnq3rusFcQRaSMg==
 
-filepond@^1.8.6:
-  version "1.8.8"
-  resolved "https://registry.yarnpkg.com/filepond/-/filepond-1.8.8.tgz#51a408d7df2aeb8824716ab043841efb8c602c42"
-  integrity sha512-K/Rtfzetn2HniaAVwbUoo1nymE5lir4iy5L3ik3a/ZyR9H7B3YhkhO9VhW5oTAkMxGDYOV7o8DBMP6ny3Z997g==
+filepond@^3.0.2:
+  version "3.9.0"
+  resolved "https://registry.yarnpkg.com/filepond/-/filepond-3.9.0.tgz#a11457ea432420585406b2511f67f2516246add8"
+  integrity sha512-6XqRwzdpCOHYvnp7hqPpYbOH03zweOcGkgv5ixQlihbRxLFUw2AJId4lHwLdbKW7LX9EaQPqZ6qRF+3T0dkDVw==
 
 filesize@3.6.1:
   version "3.6.1"
@@ -11678,12 +11678,12 @@ react-fast-compare@^2.0.4:
   resolved "https://registry.yarnpkg.com/react-fast-compare/-/react-fast-compare-2.0.4.tgz#e84b4d455b0fec113e0402c329352715196f81f9"
   integrity sha512-suNP+J1VU1MWFKcyt7RtjiSWUjvidmQSlqu+eHslq+342xCbGTYmC0mEhPCOHxlW0CywylOC1u2DFAT+bv4dBw==
 
-react-filepond@^2.0.6:
-  version "2.0.8"
-  resolved "https://registry.yarnpkg.com/react-filepond/-/react-filepond-2.0.8.tgz#43b34f5cf7dfc2d977a100f309bdae11e537d79a"
-  integrity sha512-Hacih5OUP0/Fhv0BV5pN3OEYJ9/xL2YGxCZmlTENwzqbeAbrIImO7xD1teLnMTc8yy9Za831QiRqljbH+El/eg==
+react-filepond@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/react-filepond/-/react-filepond-4.0.0.tgz#eb000b820e38eb64628a4543ada12f97969cc1c4"
+  integrity sha512-cgnGMPa0XBU1gQ80RdlpAYi5lAzEnSrjO4zwe+pYG0V7MIx2GkXZU6TVVZjBWsSjF+qKR5c7JY3agU4CgP6cfw==
   dependencies:
-    filepond "^1.8.6"
+    filepond "^3.0.2"
 
 react-focus-lock@^1.18.3:
   version "1.19.1"
