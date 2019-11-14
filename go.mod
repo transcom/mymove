@@ -20,18 +20,17 @@ require (
 	github.com/go-ini/ini v1.49.0 // indirect
 	github.com/go-openapi/errors v0.19.2
 	github.com/go-openapi/loads v0.19.4
-	github.com/go-openapi/runtime v0.19.7
+	github.com/go-openapi/runtime v0.19.8
 	github.com/go-openapi/spec v0.19.4
 	github.com/go-openapi/strfmt v0.19.3
 	github.com/go-openapi/swag v0.19.5
-	github.com/go-openapi/validate v0.19.4
+	github.com/go-openapi/validate v0.19.5
 	github.com/go-playground/locales v0.13.0
-	github.com/go-playground/universal-translator v0.16.0
+	github.com/go-playground/universal-translator v0.17.0
 	github.com/go-swagger/go-swagger v0.21.0
 	github.com/gobuffalo/envy v1.7.1
 	github.com/gobuffalo/fizz v1.9.5
 	github.com/gobuffalo/flect v0.1.6
-	github.com/gobuffalo/gogen v0.2.0 // indirect
 	github.com/gobuffalo/nulls v0.1.0 // indirect
 	github.com/gobuffalo/packr v1.30.1
 	github.com/gobuffalo/pop v4.12.2+incompatible
@@ -69,7 +68,7 @@ require (
 	github.com/tealeg/xlsx v1.0.5
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
-	go.uber.org/zap v1.12.0
+	go.uber.org/zap v1.13.0
 	goji.io v2.0.2+incompatible
 	golang.org/x/crypto v0.0.0-20191028145041-f83a4685e152
 	golang.org/x/net v0.0.0-20191028085509-fe3aa8a45271

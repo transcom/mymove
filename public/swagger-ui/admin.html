@@ -71,46 +71,46 @@
 <script src="/swagger-ui/swagger-ui-standalone-preset.js"> </script>
 <script src="/swagger-ui/js.cookie.js"></script>
 <script>
-  window.onload = function() {
-    // Intercept the request to add csrf token and only allow requests to the current domain.
-    const requestInterceptor = function(req) {
-      if (!req.loadSpec) {
-        const token = Cookies.get('masked_gorilla_csrf');
-        if (token) {
-          req.headers['X-CSRF-Token'] = token;
-        } else {
-          console.warn('Unable to retrieve CSRF Token from cookie');
-        }
-      }
+    window.onload = function() {
+        // Intercept the request to add csrf token and only allow requests to the current domain.
+        const requestInterceptor = function(req) {
+            if (!req.loadSpec) {
+                const token = Cookies.get('masked_gorilla_csrf');
+                if (token) {
+                    req.headers['X-CSRF-Token'] = token;
+                } else {
+                    console.warn('Unable to retrieve CSRF Token from cookie');
+                }
+            }
+            // Get just the pathname whether an absolute or relative path
+            let link = document.createElement("a");
+            let url = req['url'];
+            link.href = url;
 
-      // Get just the pathname whether an absolute or relative path
-      let location = document.createElement("a");
-      let url = req['url'];
-      location.href = url;
+            let path = link.pathname;
+            let query = link.search;
+            // Ensure that we only load files from the current domain.
+            req.url = window.location.protocol + "//" + window.location.host + path + query;
+            return req;
+        };
 
-      let path = location.pathname;
-      // Ensure that we only load files from the current domain.
-      req.url = window.location.protocol + "//" + window.location.host + path;
-      return req;
-    };
+        // Build a system
+        const ui = SwaggerUIBundle({
+            url: "/admin/v1/swagger.yaml",
+            requestInterceptor: requestInterceptor,
+            dom_id: '#swagger-ui',
+            deepLinking: true,
+            presets: [
+                SwaggerUIBundle.presets.apis
+            ],
+            plugins: [
+                SwaggerUIBundle.plugins.DownloadUrl
+            ],
+            validatorUrl: false
+        })
 
-    // Build a system
-    const ui = SwaggerUIBundle({
-      url: "/admin/v1/swagger.yaml",
-      requestInterceptor: requestInterceptor,
-      dom_id: '#swagger-ui',
-      deepLinking: true,
-      presets: [
-        SwaggerUIBundle.presets.apis
-      ],
-      plugins: [
-        SwaggerUIBundle.plugins.DownloadUrl
-      ],
-      validatorUrl: false
-    })
-
-    window.ui = ui
-  }
+        window.ui = ui
+    }
 </script>
 </body>
 

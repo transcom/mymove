@@ -90,7 +90,9 @@ FROM personally_procured_moves ppm
  WHERE ppm.original_move_date <= now() - ($1)::INTERVAL
 	AND ppm.original_move_date >= $2
 	AND (ppm.status != 'APPROVED' OR n.service_member_id IS NULL)
-	AND (notification_type != 'MOVE_PAYMENT_REMINDER_EMAIL' OR n.service_member_id IS NULL);`
+	AND (notification_type != 'MOVE_PAYMENT_REMINDER_EMAIL' OR n.service_member_id IS NULL)
+	AND m.status = 'APPROVED'
+	AND m.show is true;`
 
 	paymentReminderEmailInfos := PaymentReminderEmailInfos{}
 	err := m.db.RawQuery(query, m.emailAfter, m.noEmailBefore).All(&paymentReminderEmailInfos)
