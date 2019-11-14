@@ -36,7 +36,7 @@ let EditProfileForm = props => {
   const currentStation = get(serviceMember, 'current_station');
   const stationPhone = get(currentStation, 'transportation_office.phone_lines.0');
   return (
-    <div className="grid-container usa-prose site-prose">
+    <div className="grid-container usa-prose">
       <div className="grid-row">
         <div className="grid-col-12">
           <form onSubmit={handleSubmit}>

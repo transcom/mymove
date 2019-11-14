@@ -90,23 +90,31 @@ var verifyOtherIntlPrices verifyXlsxSheet = func(params ParamConfig, sheetIndex 
 	nonPriceHeaderRow := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart-3 : feeRowIndexStart-2][0]
 	headerRow := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart-2 : feeRowIndexStart-1][0]
 
-	priceAreaCodeHeader := "PriceAreaCode/ID"
-	verifyHeader(nonPriceHeaderRow, priceAreaCodeColumn, priceAreaCodeHeader)
+	if err := verifyHeader(nonPriceHeaderRow, priceAreaCodeColumn, "PriceAreaCode/ID"); err != nil {
+		return fmt.Errorf("verifyOtherIntlPrices verification failure: %w", err)
+
+	}
 
 	priceAreaNameHeader := "InternationalPriceArea(PPIRA)/DomesticPriceArea(PPDRA)/Non-StandardRateArea"
-	verifyHeader(nonPriceHeaderRow, priceAreaNameColumn, priceAreaNameHeader)
+	if err := verifyHeader(nonPriceHeaderRow, priceAreaNameColumn, priceAreaNameHeader); err != nil {
+		return fmt.Errorf("verifyOtherIntlPrices verification failure: %w", err)
+	}
 
 	// NonPeak season headers
 	colIndex := feeColIndexStart
 	for _, repeatingHeader := range repeatingHeaders {
-		verifyHeader(headerRow, colIndex, repeatingHeader)
+		if err := verifyHeader(headerRow, colIndex, repeatingHeader); err != nil {
+			return fmt.Errorf("verifyOtherIntlPrices verification failure: %w", err)
+		}
 		colIndex++
 	}
 	colIndex++
 
 	// Peak season headers
 	for _, repeatingHeader := range repeatingHeaders {
-		verifyHeader(headerRow, colIndex, repeatingHeader)
+		if err := verifyHeader(headerRow, colIndex, repeatingHeader); err != nil {
+			return fmt.Errorf("verifyOtherIntlPrices verification failure: %w", err)
+		}
 		colIndex++
 	}
 

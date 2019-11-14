@@ -39,7 +39,7 @@ class OrdersInfo extends Component {
     if (!this.props.loadDependenciesHasSuccess && !this.props.loadDependenciesHasError) return <LoadingPlaceholder />;
     if (this.props.loadDependenciesHasError)
       return (
-        <div className="grid-container-widescreen usa-prose site-prose">
+        <div className="grid-container-widescreen usa-prose">
           <div className="grid-row">
             <div className="grid-col-12 error-message">
               <Alert type="error" heading="An error occurred">
@@ -50,7 +50,7 @@ class OrdersInfo extends Component {
         </div>
       );
     return (
-      <div className="grid-container-widescreen  usa-prose site-prose">
+      <div className="grid-container-widescreen usa-prose">
         <div className="grid-row grid-gap">
           <div className="grid-col-8 document-contents">
             {uploads.map(upload => (

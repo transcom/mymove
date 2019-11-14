@@ -209,7 +209,7 @@ class WeightTicket extends Component {
     const emptyWeightTicketFieldsRequired = missingEmptyWeightTicket ? null : true;
 
     return (
-      <div className="grid-container usa-prose site-prose">
+      <div className="grid-container usa-prose">
         <WizardHeader
           title="Weight tickets"
           right={

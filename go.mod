@@ -6,7 +6,7 @@ require (
 	github.com/0xAX/notificator v0.0.0-20191016112426-3962a5ea8da1 // indirect
 	github.com/99designs/aws-vault v4.5.1+incompatible
 	github.com/99designs/keyring v1.1.3
-	github.com/aws/aws-sdk-go v1.25.31
+	github.com/aws/aws-sdk-go v1.25.32
 	github.com/cockroachdb/cockroach-go v0.0.0-20190925194419-606b3d062051 // indirect
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
@@ -20,13 +20,13 @@ require (
 	github.com/go-ini/ini v1.49.0 // indirect
 	github.com/go-openapi/errors v0.19.2
 	github.com/go-openapi/loads v0.19.4
-	github.com/go-openapi/runtime v0.19.7
+	github.com/go-openapi/runtime v0.19.8
 	github.com/go-openapi/spec v0.19.4
 	github.com/go-openapi/strfmt v0.19.3
 	github.com/go-openapi/swag v0.19.5
-	github.com/go-openapi/validate v0.19.4
+	github.com/go-openapi/validate v0.19.5
 	github.com/go-playground/locales v0.13.0
-	github.com/go-playground/universal-translator v0.16.0
+	github.com/go-playground/universal-translator v0.17.0
 	github.com/go-swagger/go-swagger v0.21.0
 	github.com/gobuffalo/envy v1.7.1
 	github.com/gobuffalo/fizz v1.9.5
@@ -68,7 +68,7 @@ require (
 	github.com/tealeg/xlsx v1.0.5
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
-	go.uber.org/zap v1.12.0
+	go.uber.org/zap v1.13.0
 	goji.io v2.0.2+incompatible
 	golang.org/x/crypto v0.0.0-20191028145041-f83a4685e152
 	golang.org/x/net v0.0.0-20191028085509-fe3aa8a45271
