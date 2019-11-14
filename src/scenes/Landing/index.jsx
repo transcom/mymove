@@ -175,9 +175,4 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ push, createServiceMember, updateMove }, dispatch);
 }
 
-export default withLastLocation(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  )(Landing),
-);
+export default withLastLocation(connect(mapStateToProps, mapDispatchToProps)(Landing));

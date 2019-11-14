@@ -55,7 +55,4 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ loadDutyStationTransportationOffice }, dispatch);
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(TransportationOfficeContactInfo);
+export default connect(mapStateToProps, mapDispatchToProps)(TransportationOfficeContactInfo);

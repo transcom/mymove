@@ -201,12 +201,5 @@ export const reduxifyWizardForm = (name, additionalValidations, asyncValidate, a
     asyncBlurFields,
     enableReinitialize: true,
     keepDirtyOnReinitialize: true,
-  })(
-    withRouter(
-      connect(
-        null,
-        mapDispatchToProps,
-      )(wizardFormPageWithSize),
-    ),
-  );
+  })(withRouter(connect(null, mapDispatchToProps)(wizardFormPageWithSize)));
 };

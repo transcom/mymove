@@ -489,10 +489,5 @@ const mapDispatchToProps = dispatch =>
     dispatch,
   );
 
-const connectedMoveInfo = withContext(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  )(MoveInfo),
-);
+const connectedMoveInfo = withContext(connect(mapStateToProps, mapDispatchToProps)(MoveInfo));
 export { connectedMoveInfo as default, ReferrerQueueLink };

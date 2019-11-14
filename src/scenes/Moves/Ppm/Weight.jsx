@@ -353,9 +353,4 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default withContext(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  )(PpmWeight),
-);
+export default withContext(connect(mapStateToProps, mapDispatchToProps)(PpmWeight));

@@ -97,7 +97,4 @@ function mapStateToProps(state) {
     ...state.serviceMember,
   };
 }
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(ContactInfo);
+export default connect(mapStateToProps, mapDispatchToProps)(ContactInfo);
