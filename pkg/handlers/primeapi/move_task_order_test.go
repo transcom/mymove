@@ -168,11 +168,10 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderPostCounselingInformationHandl
 	moveTaskOrderPayload := moveTaskOrderResponse.Payload
 
 	suite.Equal(moveTaskOrder.ID.String(), moveTaskOrderPayload.ID.String())
-	//TODO add these to db
-	//suite.Equal(body.PpmIsIncluded, moveTaskOrderPayload.PPMIsIncluded)
-	//suite.Equal(body.ScheduledMoveDate, moveTaskOrderPayload.ScheduledMoveDate)
-	//suite.Equal(body.SecondaryDeliveryAddress, moveTaskOrderPayload.SecondaryDeliverAddress)
-	//suite.Equal(body.SecondaryPickupAddress, moveTaskOrderPayload.SecondaryPickupAddress)
+	suite.Equal(body.PpmIsIncluded, moveTaskOrderPayload.PpmIsIncluded)
+	suite.Equal(body.ScheduledMoveDate, moveTaskOrderPayload.ScheduledMoveDate)
+	suite.Equal(body.SecondaryDeliveryAddress, moveTaskOrderPayload.SecondaryDeliveryAddress)
+	suite.Equal(body.SecondaryPickupAddress, moveTaskOrderPayload.SecondaryPickupAddress)
 
 }
 

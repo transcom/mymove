@@ -128,11 +128,9 @@ paths:
                 format: date
                 example: '2018-04-26'
               secondary-pickup-address:
-                type: string
-                example: 123 Main Ave
+                $ref: '#/definitions/Address'
               secondary-delivery-address:
-                type: string
-                example: 123 Main Ave
+                $ref: '#/definitions/Address'
               ppm-is-included:
                 type: boolean
       responses:
@@ -548,6 +546,16 @@ definitions:
       updatedAt:
         format: date
         type: string
+      scheduled-move-date:
+        type: string
+        format: date
+        example: '2018-04-26'
+      secondary-pickup-address:
+        $ref: '#/definitions/Address'
+      secondary-delivery-address:
+        $ref: '#/definitions/Address'
+      ppm-is-included:
+        type: boolean
     type: object
   MoveTaskOrders:
     items:

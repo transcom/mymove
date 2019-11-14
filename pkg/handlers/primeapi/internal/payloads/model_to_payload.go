@@ -21,6 +21,10 @@ func MoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *primemessages.MoveTaskOr
 	if moveTaskOrder.PrimeEstimatedWeight != nil {
 		primeEstimatedWeightRecordedDate = handlers.FmtDatePtr(moveTaskOrder.PrimeEstimatedWeightRecordedDate)
 	}
+	var scheduledMoveDate strfmt.Date
+	if moveTaskOrder.ScheduledMoveDate != nil {
+		scheduledMoveDate = *handlers.FmtDate(*moveTaskOrder.ScheduledMoveDate)
+	}
 	payload := &primemessages.MoveTaskOrder{
 		CustomerID:                       strfmt.UUID(moveTaskOrder.CustomerID.String()),
 		DestinationAddress:               destinationAddress,
@@ -30,11 +34,15 @@ func MoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *primemessages.MoveTaskOr
 		MoveDate:                         strfmt.Date(moveTaskOrder.RequestedPickupDate),
 		MoveID:                           strfmt.UUID(moveTaskOrder.MoveID.String()),
 		OriginDutyStation:                strfmt.UUID(moveTaskOrder.OriginDutyStationID.String()),
+		PpmIsIncluded:                    moveTaskOrder.PpmIsIncluded,
 		PickupAddress:                    pickupAddress,
 		PrimeEstimatedWeight:             primeEstimatedWeight,
 		PrimeEstimatedWeightRecordedDate: primeEstimatedWeightRecordedDate,
 		Remarks:                          moveTaskOrder.CustomerRemarks,
 		RequestedPickupDate:              strfmt.Date(moveTaskOrder.RequestedPickupDate),
+		ScheduledMoveDate:                scheduledMoveDate,
+		SecondaryPickupAddress:           *moveTaskOrder.SecondaryPickupAddress,
+		SecondaryDeliveryAddress:         *moveTaskOrder.SecondaryDeliveryAddress,
 		Status:                           string(moveTaskOrder.Status),
 		UpdatedAt:                        strfmt.Date(moveTaskOrder.UpdatedAt),
 	}

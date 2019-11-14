@@ -97,8 +97,8 @@ func (h UpdateMoveTaskOrderPostCounselingInformationHandler) Handle(params movet
 		services.PostCounselingInformation{
 			PPMIsIncluded:            params.Body.PpmIsIncluded,
 			ScheduledMoveDate:        scheduledMoveDate,
-			SecondaryDeliveryAddress: params.Body.SecondaryDeliveryAddress,
-			SecondaryPickupAddress:   params.Body.SecondaryPickupAddress,
+			SecondaryDeliveryAddress: payloads.AddressModel(params.Body.SecondaryDeliveryAddress),
+			SecondaryPickupAddress:   payloads.AddressModel(params.Body.SecondaryPickupAddress),
 		},
 	)
 	if err != nil {

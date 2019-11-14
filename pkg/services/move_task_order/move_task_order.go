@@ -185,13 +185,35 @@ func (u *updateMoveTaskOrderPostCounselingInformation) UpdateMoveTaskOrderPostCo
 	if err != nil {
 		return &models.MoveTaskOrder{}, err
 	}
-	//TODO add to db once model structure is resolved
-	//mto.SecondaryPickupAddress := postCounselingInformation.SecondaryPickupAddress
-	//mto.SecondaryDeliveryAddress := postCounselingInformation.SecondaryDeliveryAddress
-	//mto.ScheduledMoveDate := postCounselingInformation.ScheduledMoveDate
-	//mto.PpmIsIncluded := postCounselingInformation.PPMIsIncluded
+	// for belongs_to relationships pop requires updating the parent table first and then
+	// passing the id to the child
+	secondaryPickupAddress := postCounselingInformation.SecondaryPickupAddress
+	vErrors, err := u.db.ValidateAndSave(secondaryPickupAddress)
+	if vErrors.HasAny() {
+		return &models.MoveTaskOrder{}, NewErrInvalidInput(moveTaskOrderID, err, vErrors.Errors)
+	}
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
+	mto.SecondaryPickupAddressID = &secondaryPickupAddress.ID
+	mto.SecondaryPickupAddress = secondaryPickupAddress
 
-	vErrors, err := u.db.ValidateAndUpdate(mto)
+	// for belongs_to relationships pop requires updating the parent table first and then
+	// passing the id to the child
+	secondaryDeliveryAddress := postCounselingInformation.SecondaryDeliveryAddress
+	vErrors, err = u.db.ValidateAndSave(secondaryDeliveryAddress)
+	if vErrors.HasAny() {
+		return &models.MoveTaskOrder{}, NewErrInvalidInput(moveTaskOrderID, err, vErrors.Errors)
+	}
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
+	mto.SecondaryDeliveryAddressID = &secondaryDeliveryAddress.ID
+	mto.SecondaryDeliveryAddress = secondaryDeliveryAddress
+
+	mto.ScheduledMoveDate = &postCounselingInformation.ScheduledMoveDate
+	mto.PpmIsIncluded = postCounselingInformation.PPMIsIncluded
+	vErrors, err = u.db.ValidateAndUpdate(mto)
 	if vErrors.HasAny() {
 		return &models.MoveTaskOrder{}, NewErrInvalidInput(moveTaskOrderID, err, vErrors.Errors)
 	}

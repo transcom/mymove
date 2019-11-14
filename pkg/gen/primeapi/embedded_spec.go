@@ -202,12 +202,10 @@ func init() {
                   "example": "2018-04-26"
                 },
                 "secondary-delivery-address": {
-                  "type": "string",
-                  "example": "123 Main Ave"
+                  "$ref": "#/definitions/Address"
                 },
                 "secondary-pickup-address": {
-                  "type": "string",
-                  "example": "123 Main Ave"
+                  "$ref": "#/definitions/Address"
                 }
               }
             }
@@ -712,6 +710,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppm-is-included": {
+          "type": "boolean"
+        },
         "primeEstimatedWeight": {
           "type": "integer",
           "x-formatting": "weight",
@@ -730,6 +731,17 @@ func init() {
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "scheduled-move-date": {
+          "type": "string",
+          "format": "date",
+          "example": "2018-04-26"
+        },
+        "secondary-delivery-address": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondary-pickup-address": {
+          "$ref": "#/definitions/Address"
         },
         "status": {
           "type": "string",
@@ -1013,12 +1025,10 @@ func init() {
                   "example": "2018-04-26"
                 },
                 "secondary-delivery-address": {
-                  "type": "string",
-                  "example": "123 Main Ave"
+                  "$ref": "#/definitions/Address"
                 },
                 "secondary-pickup-address": {
-                  "type": "string",
-                  "example": "123 Main Ave"
+                  "$ref": "#/definitions/Address"
                 }
               }
             }
@@ -1547,6 +1557,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppm-is-included": {
+          "type": "boolean"
+        },
         "primeEstimatedWeight": {
           "type": "integer",
           "x-formatting": "weight",
@@ -1565,6 +1578,17 @@ func init() {
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "scheduled-move-date": {
+          "type": "string",
+          "format": "date",
+          "example": "2018-04-26"
+        },
+        "secondary-delivery-address": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondary-pickup-address": {
+          "$ref": "#/definitions/Address"
         },
         "status": {
           "type": "string",

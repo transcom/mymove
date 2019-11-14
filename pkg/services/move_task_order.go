@@ -37,7 +37,7 @@ type MoveTaskOrderPrimeEstimatedWeightUpdater interface {
 type PostCounselingInformation struct {
 	PPMIsIncluded                                    bool
 	ScheduledMoveDate                                time.Time
-	SecondaryDeliveryAddress, SecondaryPickupAddress string
+	SecondaryDeliveryAddress, SecondaryPickupAddress *models.Address
 }
 
 //MoveTaskOrderPrimePostCounselingUpdater is the service object interface for UpdateMoveTaskOrderPostCounselingInformation
