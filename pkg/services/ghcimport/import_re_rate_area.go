@@ -82,7 +82,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) er
 			} else if rateArea == nil {
 				// insert into re_rate_area
 				newRateArea := models.ReRateArea{
-					IsOconus: true,
+					IsOconus: false,
 					Code:     ra.OriginDomesticPriceAreaCode,
 					Name:     ra.OriginDomesticPriceArea,
 				}
@@ -154,7 +154,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) er
 			} else if rateArea == nil {
 				// insert into re_rate_area
 				newRateArea := models.ReRateArea{
-					IsOconus: true,
+					IsOconus: false,
 					Code:     ra.DestinationDomesticPriceAreaCode,
 					Name:     ra.DestinationDomesticPriceArea,
 				}

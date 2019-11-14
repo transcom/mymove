@@ -64,7 +64,7 @@ func TestGHCRateEngineImportSuite(t *testing.T) {
 	}
 
 	suite.Run(t, hs)
-	hs.PopTestSuite.TearDown()
+	//hs.PopTestSuite.TearDown()
 }
 
 func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_Import() {
