@@ -141,13 +141,17 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderEstimatedWeightHandlerUnproces
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderPostCounselingInformationHandlerIntegration() {
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+	address := testdatagen.MakeDefaultAddress(suite.DB())
+	address2 := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
 
 	request := httptest.NewRequest("PATCH", "/move-task-orders/:id/post-counseling-info", nil)
+	addressPayload := payloads.Address(&address)
+	address2Payload := payloads.Address(&address2)
 	body := movetaskorderops.UpdateMoveTaskOrderPostCounselingInformationBody{
 		PpmIsIncluded:            true,
 		ScheduledMoveDate:        strfmt.Date(time.Now()),
-		SecondaryDeliveryAddress: "123 Main Street",
-		SecondaryPickupAddress:   "456 1st Street",
+		SecondaryDeliveryAddress: addressPayload,
+		SecondaryPickupAddress:   address2Payload,
 	}
 	params := movetaskorderops.UpdateMoveTaskOrderPostCounselingInformationParams{
 		HTTPRequest:     request,
@@ -170,7 +174,11 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderPostCounselingInformationHandl
 	suite.Equal(moveTaskOrder.ID.String(), moveTaskOrderPayload.ID.String())
 	suite.Equal(body.PpmIsIncluded, moveTaskOrderPayload.PpmIsIncluded)
 	suite.Equal(body.ScheduledMoveDate, moveTaskOrderPayload.ScheduledMoveDate)
+	//ID is auto generated when address is created, so compare everything else except ID
+	body.SecondaryDeliveryAddress.ID = moveTaskOrderPayload.SecondaryDeliveryAddress.ID
 	suite.Equal(body.SecondaryDeliveryAddress, moveTaskOrderPayload.SecondaryDeliveryAddress)
+	//ID is auto generated when address is created, so compare everything else except ID
+	body.SecondaryPickupAddress.ID = moveTaskOrderPayload.SecondaryPickupAddress.ID
 	suite.Equal(body.SecondaryPickupAddress, moveTaskOrderPayload.SecondaryPickupAddress)
 
 }

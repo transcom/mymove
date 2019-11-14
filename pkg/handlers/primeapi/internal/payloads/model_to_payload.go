@@ -41,8 +41,8 @@ func MoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *primemessages.MoveTaskOr
 		Remarks:                          moveTaskOrder.CustomerRemarks,
 		RequestedPickupDate:              strfmt.Date(moveTaskOrder.RequestedPickupDate),
 		ScheduledMoveDate:                scheduledMoveDate,
-		SecondaryPickupAddress:           *moveTaskOrder.SecondaryPickupAddress,
-		SecondaryDeliveryAddress:         *moveTaskOrder.SecondaryDeliveryAddress,
+		SecondaryPickupAddress:           Address(moveTaskOrder.SecondaryPickupAddress),
+		SecondaryDeliveryAddress:         Address(moveTaskOrder.SecondaryDeliveryAddress),
 		Status:                           string(moveTaskOrder.Status),
 		UpdatedAt:                        strfmt.Date(moveTaskOrder.UpdatedAt),
 	}
