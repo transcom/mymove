@@ -352,11 +352,4 @@ const mapDispatchToProps = {
   createMovingExpenseDocument,
 };
 
-export default withContext(
-  withLastLocation(
-    connect(
-      mapStateToProps,
-      mapDispatchToProps,
-    )(ExpensesUpload),
-  ),
-);
+export default withContext(withLastLocation(connect(mapStateToProps, mapDispatchToProps)(ExpensesUpload)));

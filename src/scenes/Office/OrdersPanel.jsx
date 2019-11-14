@@ -183,7 +183,4 @@ function mapDispatchToProps(dispatch) {
   return { update };
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(OrdersPanel);
+export default connect(mapStateToProps, mapDispatchToProps)(OrdersPanel);

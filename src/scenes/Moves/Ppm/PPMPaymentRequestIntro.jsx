@@ -113,9 +113,4 @@ const mapDispatchToProps = {
   createOrUpdatePpm,
 };
 
-export default withContext(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  )(PPMPaymentRequestIntro),
-);
+export default withContext(connect(mapStateToProps, mapDispatchToProps)(PPMPaymentRequestIntro));

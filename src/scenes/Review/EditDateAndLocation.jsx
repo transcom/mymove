@@ -234,7 +234,4 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(EditDateAndLocation);
+export default connect(mapStateToProps, mapDispatchToProps)(EditDateAndLocation);

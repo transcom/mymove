@@ -117,7 +117,4 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ validateAccessCode, claimAccessCode }, dispatch);
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(withRouter(AccessCode));
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(AccessCode));

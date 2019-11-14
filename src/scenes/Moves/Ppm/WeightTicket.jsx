@@ -95,7 +95,7 @@ class WeightTicket extends Component {
 
   uploaderWithInvalidState = () => {
     // Validation for the vehicle type
-    if (this.state.isValidTrailer === 'Yes' && (this.isCarTrailer && this.invalidState(this.uploaders.trailer))) {
+    if (this.state.isValidTrailer === 'Yes' && this.isCarTrailer && this.invalidState(this.uploaders.trailer)) {
       return true;
     }
     // Full weight must be in a valid state to proceed.
@@ -525,11 +525,4 @@ const mapDispatchToProps = {
   loadDutyStationTransportationOffice,
 };
 
-export default withContext(
-  withLastLocation(
-    connect(
-      mapStateToProps,
-      mapDispatchToProps,
-    )(WeightTicket),
-  ),
-);
+export default withContext(withLastLocation(connect(mapStateToProps, mapDispatchToProps)(WeightTicket)));
