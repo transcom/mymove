@@ -22,9 +22,13 @@ jobs:
         # b/c checkout action leaves in detached head state https://github.com/actions/checkout/issues/6
         run: git checkout "$(echo ${{ github.head_ref }})"
         if: github.head_ref != '' && (github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]')
+      - name: setup go
+        uses: actions/setup-go@v1
+        with:
+          go-version: '1.13.4'
       - name: Tidy
         run: |
-          rm -f go.sum
+          go version
           go mod tidy
         if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
       - name: set up Git

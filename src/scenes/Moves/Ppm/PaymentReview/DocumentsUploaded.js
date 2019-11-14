@@ -172,7 +172,4 @@ const mapDispatchToProps = {
   deleteMoveDocument,
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(DocumentsUploaded);
+export default connect(mapStateToProps, mapDispatchToProps)(DocumentsUploaded);

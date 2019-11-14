@@ -72,7 +72,4 @@ function mapStateToProps(state) {
     ...state.serviceMember,
   };
 }
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(ResidentialAddress);
+export default connect(mapStateToProps, mapDispatchToProps)(ResidentialAddress);

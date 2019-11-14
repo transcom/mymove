@@ -199,7 +199,4 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(DocumentUploader);
+export default connect(mapStateToProps, mapDispatchToProps)(DocumentUploader);

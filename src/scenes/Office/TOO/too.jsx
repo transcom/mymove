@@ -77,9 +77,4 @@ const mapDispatchToProps = {
   getAllCustomerMoves,
 };
 
-export default withRouter(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  )(TOO),
-);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(TOO));

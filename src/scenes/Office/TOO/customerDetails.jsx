@@ -131,7 +131,4 @@ const mapDispatchToProps = {
   getCustomerInfo,
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(CustomerDetails);
+export default connect(mapStateToProps, mapDispatchToProps)(CustomerDetails);

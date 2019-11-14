@@ -131,7 +131,4 @@ const mapStateToProps = (state, props) => ({
   formValues: getFormValues(props.form)(state),
 });
 
-export default connect(
-  mapStateToProps,
-  { replace },
-)(DocumentUploader);
+export default connect(mapStateToProps, { replace })(DocumentUploader);

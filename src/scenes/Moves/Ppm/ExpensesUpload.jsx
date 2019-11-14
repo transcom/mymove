@@ -171,7 +171,7 @@ class ExpensesUpload extends Component {
     const isStorageExpense = this.isStorageExpense(formValues);
     const expenseNumber = expenses.length + 1;
     return (
-      <div className="grid-container usa-prose site-prose">
+      <div className="grid-container usa-prose">
         <WizardHeader
           title="Expenses"
           right={
@@ -352,11 +352,4 @@ const mapDispatchToProps = {
   createMovingExpenseDocument,
 };
 
-export default withContext(
-  withLastLocation(
-    connect(
-      mapStateToProps,
-      mapDispatchToProps,
-    )(ExpensesUpload),
-  ),
-);
+export default withContext(withLastLocation(connect(mapStateToProps, mapDispatchToProps)(ExpensesUpload)));

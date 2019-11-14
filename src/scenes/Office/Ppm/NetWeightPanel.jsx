@@ -77,7 +77,4 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(NetWeightPanel);
+export default connect(mapStateToProps, mapDispatchToProps)(NetWeightPanel);
