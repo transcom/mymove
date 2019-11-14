@@ -10,6 +10,7 @@ import (
 
 func (gre *GHCRateEngineImporter) importRERateArea(dbTx *pop.Connection) error {
 
+	pop.Debug = true
 	err := gre.importDomesticRateAreas(dbTx)
 	if err != nil {
 		return errors.Wrap(err, "importRERateArea failed to import")
@@ -18,6 +19,7 @@ func (gre *GHCRateEngineImporter) importRERateArea(dbTx *pop.Connection) error {
 	if err != nil {
 		return errors.Wrap(err, "importRERateArea failed to import")
 	}
+	pop.Debug = false
 	return nil
 }
 
@@ -29,6 +31,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) er
 	// models.StageConusToOconusPrice
 	var conusToOconus []models.StageConusToOconusPrice
 	err := db.All(&conusToOconus)
+
 	if err != nil {
 		return errors.Wrap(err, "")
 	}

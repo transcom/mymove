@@ -1,6 +1,7 @@
 package ghcimport
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"path/filepath"
@@ -39,14 +40,15 @@ func (suite *GHCRateEngineImportSuite) helperSetupStagingTables() {
 		suite.NoError(errTransaction)
 	*/
 
+	fmt.Printf("!!!!!!! helperSetupStagingTables() pop URL %v\n\n", suite.DB().URL())
 	path := filepath.Join("fixtures", "stage_ghc_pricing.sql")
 	c, ioErr := ioutil.ReadFile(path)
-	if ioErr != nil {
-		// handle error.
-	}
+	suite.NoError(ioErr)
+
 	sql := string(c)
 	err := suite.DB().RawQuery(sql).Exec()
 	suite.NoError(err)
+
 }
 
 func TestGHCRateEngineImportSuite(t *testing.T) {
@@ -65,6 +67,27 @@ func TestGHCRateEngineImportSuite(t *testing.T) {
 }
 
 func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_Import() {
+
+	//suite.helperSetupStagingTables()
+	//fmt.Printf("!!!!!!! TestGHCRateEngineImporter_Import() pop URL %v\n\n", suite.DB().URL())
+
+	//time.Sleep(30*time.Second)
+
+	/*
+		pop.Debug = true
+		var conusToOconus []models.StageConusToOconusPrice
+		err := suite.DB().All(&conusToOconus)
+		suite.NoError(err)
+
+		var table models.StageConusToOconusPrice
+		var rowCount int
+		rowCount, err = suite.DB().Count(&table)
+		suite.NoError(err)
+
+		fmt.Printf("count = %d\n\n",rowCount)
+		pop.Debug = false
+	*/
+
 	tests := []struct {
 		name    string
 		gre     *GHCRateEngineImporter
