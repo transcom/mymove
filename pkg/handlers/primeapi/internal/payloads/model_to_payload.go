@@ -25,6 +25,10 @@ func MoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *primemessages.MoveTaskOr
 	if moveTaskOrder.ScheduledMoveDate != nil {
 		scheduledMoveDate = *handlers.FmtDate(*moveTaskOrder.ScheduledMoveDate)
 	}
+	var ppmIsIncluded bool
+	if moveTaskOrder.ScheduledMoveDate != nil {
+		ppmIsIncluded = *moveTaskOrder.PpmIsIncluded
+	}
 	payload := &primemessages.MoveTaskOrder{
 		CustomerID:                       strfmt.UUID(moveTaskOrder.CustomerID.String()),
 		DestinationAddress:               destinationAddress,
@@ -34,7 +38,7 @@ func MoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *primemessages.MoveTaskOr
 		MoveDate:                         strfmt.Date(moveTaskOrder.RequestedPickupDate),
 		MoveID:                           strfmt.UUID(moveTaskOrder.MoveID.String()),
 		OriginDutyStation:                strfmt.UUID(moveTaskOrder.OriginDutyStationID.String()),
-		PpmIsIncluded:                    moveTaskOrder.PpmIsIncluded,
+		PpmIsIncluded:                    ppmIsIncluded,
 		PickupAddress:                    pickupAddress,
 		PrimeEstimatedWeight:             primeEstimatedWeight,
 		PrimeEstimatedWeightRecordedDate: primeEstimatedWeightRecordedDate,

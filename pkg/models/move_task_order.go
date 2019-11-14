@@ -41,7 +41,7 @@ type MoveTaskOrder struct {
 	SecondaryDeliveryAddress         *Address            `belongs_to:"addresses"`
 	SecondaryDeliveryAddressID       *uuid.UUID          `db:"secondary_delivery_address_id"`
 	ScheduledMoveDate                *time.Time          `db:"scheduled_move_date"`
-	PpmIsIncluded                    bool                `db:"ppm_is_included"`
+	PpmIsIncluded                    *bool               `db:"ppm_is_included"`
 }
 
 type MoveTaskOrderStatus string
