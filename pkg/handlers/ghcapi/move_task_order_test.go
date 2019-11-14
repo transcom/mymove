@@ -46,6 +46,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegration() {
 	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusOK{}, response)
 	suite.Equal(moveTaskOrdersPayload.ID, strfmt.UUID(moveTaskOrder.ID.String()))
 	suite.Equal(moveTaskOrdersPayload.Status, "DRAFT")
+	suite.Regexp("^\\d{4}-\\d{4}$", moveTaskOrdersPayload.ReferenceID)
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerNotFoundError() {
