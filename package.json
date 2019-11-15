@@ -32,7 +32,7 @@
     "ra-data-simple-rest": "^2.8.6",
     "react": "^16.12.0",
     "react-admin": "^2.9.0",
-    "react-app-polyfill": "^0.2.0",
+    "react-app-polyfill": "^1.0.4",
     "react-day-picker": "=7.4.0",
     "react-dom": "^16.12.0",
     "react-filepond": "^4.0.0",
