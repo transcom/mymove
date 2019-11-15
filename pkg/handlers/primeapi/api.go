@@ -30,5 +30,9 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 		movetaskorder.NewMoveTaskOrderEstimatedWeightUpdater(context.DB()),
 	}
 
+	primeAPI.PaymentRequestsCreatePaymentRequestHandler = CreatePaymentRequestHandler{
+		context,
+	}
+
 	return primeAPI.Serve(nil)
 }
