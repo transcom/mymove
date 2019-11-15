@@ -34,12 +34,7 @@ func (r *ReRateArea) Validate(tx *pop.Connection) (*validate.Errors, error) {
 // FetchReRateAreaItem returns an area for a matching code
 func FetchReRateAreaItem(tx *pop.Connection, code string) (*ReRateArea, error) {
 	var area ReRateArea
-	query := `
-		SELECT * from re_rate_areas
-		WHERE
-			code = $1
-	`
-	err := tx.RawQuery(query, code).First(&area)
+	err := tx.Where("code = $1", code).First(&area)
 
 	if err != nil {
 		return nil, err
