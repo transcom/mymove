@@ -24,24 +24,6 @@ func (suite *GHCRateEngineImportSuite) SetupTest() {
 }
 
 func (suite *GHCRateEngineImportSuite) helperSetupStagingTables() {
-
-	/*
-		   //TODO: ask Chris G if there is a preference to use the code from migrations for SQL
-		   //TODO: imports of if the ioutil read fine to use.
-
-			// Load the fixture with the sql example
-			f, err := os.Open("./fixtures/stage_ghc_pricing.sql")
-			suite.NoError(err)
-
-			errTransaction := suite.DB().Transaction(func(tx *pop.Connection) error {
-				wait := 10 * time.Millisecond
-				err := migrate.Exec(f, tx, wait)
-				suite.NoError(err)
-				return err
-			})
-			suite.NoError(errTransaction)
-	*/
-
 	path := filepath.Join("fixtures", "stage_ghc_pricing.sql")
 	c, ioErr := ioutil.ReadFile(path)
 	suite.NoError(ioErr)
@@ -49,7 +31,6 @@ func (suite *GHCRateEngineImportSuite) helperSetupStagingTables() {
 	sql := string(c)
 	err := suite.DB().RawQuery(sql).Exec()
 	suite.NoError(err)
-
 }
 
 func TestGHCRateEngineImportSuite(t *testing.T) {
@@ -64,31 +45,10 @@ func TestGHCRateEngineImportSuite(t *testing.T) {
 	}
 
 	suite.Run(t, hs)
-	//hs.PopTestSuite.TearDown()
+	hs.PopTestSuite.TearDown()
 }
 
 func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_Import() {
-
-	//suite.helperSetupStagingTables()
-	//fmt.Printf("!!!!!!! TestGHCRateEngineImporter_Import() pop URL %v\n\n", suite.DB().URL())
-
-	//time.Sleep(30*time.Second)
-
-	/*
-		pop.Debug = true
-		var conusToOconus []models.StageConusToOconusPrice
-		err := suite.DB().All(&conusToOconus)
-		suite.NoError(err)
-
-		var table models.StageConusToOconusPrice
-		var rowCount int
-		rowCount, err = suite.DB().Count(&table)
-		suite.NoError(err)
-
-		fmt.Printf("count = %d\n\n",rowCount)
-		pop.Debug = false
-	*/
-
 	tests := []struct {
 		name    string
 		gre     *GHCRateEngineImporter

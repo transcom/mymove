@@ -1,8 +1,6 @@
 package ghcimport
 
 import (
-	"fmt"
-
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
 )
@@ -31,9 +29,7 @@ func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
 
 func (gre *GHCRateEngineImporter) Import(db *pop.Connection) error {
 
-	fmt.Printf("!!!!!!! before db.Transaction pop URL %v\n\n", db.URL())
 	err := db.Transaction(func(connection *pop.Connection) error {
-		fmt.Printf("!!!!!!! inside db.Transaction pop URL %v\n\n", db.URL())
 		dbTxError := gre.runImports(connection)
 		return dbTxError
 	})

@@ -9,8 +9,6 @@ import (
 )
 
 func (gre *GHCRateEngineImporter) importRERateArea(dbTx *pop.Connection) error {
-
-	pop.Debug = true
 	err := gre.importDomesticRateAreas(dbTx)
 	if err != nil {
 		return errors.Wrap(err, "importRERateArea failed to import")
@@ -19,7 +17,6 @@ func (gre *GHCRateEngineImporter) importRERateArea(dbTx *pop.Connection) error {
 	if err != nil {
 		return errors.Wrap(err, "importRERateArea failed to import")
 	}
-	pop.Debug = false
 	return nil
 }
 
@@ -34,7 +31,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) er
 	err := db.All(&conusToOconus)
 
 	if err != nil {
-		return errors.Wrap(err, "")
+		return errors.Wrap(err, "Failed to query all StageConusToOconusPrice")
 	}
 	for _, ra := range conusToOconus {
 		if _, ok := rateAreaExistMap[ra.OriginDomesticPriceAreaCode]; !ok {
@@ -42,7 +39,6 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) er
 			var rateArea *models.ReRateArea
 			rateArea, err = models.FetchReRateAreaItem(db, ra.OriginDomesticPriceAreaCode)
 			if err != nil {
-				//fmt.Println(err.Error())
 				if err.Error() != "sql: no rows in result set" {
 					return errors.Wrapf(err, "Failed importing re_rate_area from StageConusToOconusPrice with code <%s>", ra.OriginDomesticPriceAreaCode)
 				}
@@ -109,7 +105,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) er
 	var oconusToConsus []models.StageOconusToConusPrice
 	err = db.All(&oconusToConsus)
 	if err != nil {
-		return errors.Wrap(err, "")
+		return errors.Wrap(err, "Failed to query all StageOconusToConusPrice")
 	}
 	for _, ra := range oconusToConsus {
 		if _, ok := rateAreaExistMap[ra.DestinationDomesticPriceAreaCode]; !ok {
@@ -184,10 +180,9 @@ func (gre *GHCRateEngineImporter) importInternationalRateAreas(db *pop.Connectio
 
 	err := db.All(&serviceAreas)
 	if err != nil {
-		return errors.Wrap(err, "")
+		return errors.Wrap(err, "Failed to query all StageInternationalServiceArea")
 	}
 
-	//var rateAreaExistMap map[string]bool
 	rateAreaExistMap := make(map[string]bool)
 	for _, sa := range serviceAreas {
 		if _, ok := rateAreaExistMap[sa.RateAreaID]; !ok {
