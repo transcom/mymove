@@ -147,7 +147,9 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_importRERateAre
 				t.Errorf("GHCRateEngineImporter.importRERateArea() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			// Run any additional verify functions
-			suite.helperImportRERateAreaVerifyImportComplete()
+			if !tt.wantErr {
+				suite.helperImportRERateAreaVerifyImportComplete()
+			}
 			if tc == 2 {
 				//suite.helperImportRERateAreaTC2("verify")
 			}
