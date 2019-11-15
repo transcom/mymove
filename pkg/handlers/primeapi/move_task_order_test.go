@@ -203,8 +203,8 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderDestinationAddressHandlerInteg
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
-	suite.Assertions.IsType(&movetaskorderops.UpdateMoveTaskOrderPostCounselingInformationOK{}, response)
-	moveTaskOrderResponse := response.(*movetaskorderops.UpdateMoveTaskOrderPostCounselingInformationOK)
+	suite.Assertions.IsType(&movetaskorderops.UpdateMoveTaskOrderDestinationAddressOK{}, response)
+	moveTaskOrderResponse := response.(*movetaskorderops.UpdateMoveTaskOrderDestinationAddressOK)
 	responsePayload := moveTaskOrderResponse.Payload
 	updatedDestinationAddress := responsePayload.DestinationAddress
 

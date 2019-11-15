@@ -19,10 +19,12 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
+//ListMoveTaskOrdersHandler handler for updating MoveTaskOrder Destination Address
 type ListMoveTaskOrdersHandler struct {
 	handlers.HandlerContext
 }
 
+//Handle handles requests to ListMoveTaskOrdersHandler
 func (h ListMoveTaskOrdersHandler) Handle(params movetaskorderops.ListMoveTaskOrdersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
@@ -50,11 +52,13 @@ func (h ListMoveTaskOrdersHandler) Handle(params movetaskorderops.ListMoveTaskOr
 	return movetaskorderops.NewListMoveTaskOrdersOK().WithPayload(payload)
 }
 
+//UpdateMoveTaskOrderEstimatedWeightHandler handler for updating MoveTaskOrder Destination Address
 type UpdateMoveTaskOrderEstimatedWeightHandler struct {
 	handlers.HandlerContext
 	moveTaskOrderPrimeEstimatedWeightUpdater services.MoveTaskOrderPrimeEstimatedWeightUpdater
 }
 
+//Handle handles requests to UpdateMoveTaskOrderEstimatedWeightHandler
 func (h UpdateMoveTaskOrderEstimatedWeightHandler) Handle(params movetaskorderops.UpdateMoveTaskOrderEstimatedWeightParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
@@ -84,11 +88,13 @@ func (h UpdateMoveTaskOrderEstimatedWeightHandler) Handle(params movetaskorderop
 	return movetaskorderops.NewUpdateMoveTaskOrderEstimatedWeightOK().WithPayload(moveTaskOrderPayload)
 }
 
+//UpdateMoveTaskOrderPostCounselingInformationHandler handler for updating MoveTaskOrder Destination Address
 type UpdateMoveTaskOrderPostCounselingInformationHandler struct {
 	handlers.HandlerContext
 	moveTaskOrderPostCounselingInformationUpdater services.MoveTaskOrderPrimePostCounselingUpdater
 }
 
+//Handle handles requests to UpdateMoveTaskOrderPostCounselingInformationHandler
 func (h UpdateMoveTaskOrderPostCounselingInformationHandler) Handle(params movetaskorderops.UpdateMoveTaskOrderPostCounselingInformationParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
@@ -124,22 +130,23 @@ func (h UpdateMoveTaskOrderPostCounselingInformationHandler) Handle(params movet
 	return movetaskorderops.NewUpdateMoveTaskOrderPostCounselingInformationOK().WithPayload(moveTaskOrderPayload)
 }
 
+//UpdateMoveTaskOrderDestinationAddressHandler handler for updating MoveTaskOrder Destination Address
 type UpdateMoveTaskOrderDestinationAddressHandler struct {
 	handlers.HandlerContext
 	moveTaskOrderDestinationAddressUpdater services.MoveTaskOrderDestinationAddressUpdater
 }
 
+//Handle handles requests to UpdateMoveTaskOrderDestinationAddressHandler
 func (h UpdateMoveTaskOrderDestinationAddressHandler) Handle(params movetaskorderops.UpdateMoveTaskOrderDestinationAddressParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
-	address := params.DestinationAddress
-	addressModel := payloads.AddressModel(address)
+	addressModel := payloads.AddressModel(params.DestinationAddress)
 	mto, err := h.moveTaskOrderDestinationAddressUpdater.UpdateMoveTaskOrderDestinationAddress(moveTaskOrderID, addressModel)
 	if err != nil {
 		logger.Error("ghciap.UpdateMoveTaskOrderPostCounselingInformationHandler error", zap.Error(err))
 		switch e := err.(type) {
 		case movetaskorderservice.ErrNotFound:
-			return movetaskorderops.NewUpdateMoveTaskOrderPostCounselingInformationNotFound()
+			return movetaskorderops.NewUpdateMoveTaskOrderDestinationAddressNotFound()
 		case movetaskorderservice.ErrInvalidInput:
 			payload := &primemessages.ValidationError{
 				InvalidFields: e.InvalidFields(),
@@ -149,11 +156,11 @@ func (h UpdateMoveTaskOrderDestinationAddressHandler) Handle(params movetaskorde
 					Instance: handlers.FmtUUID(h.GetTraceID()),
 				},
 			}
-			return movetaskorderops.NewUpdateMoveTaskOrderPostCounselingInformationUnprocessableEntity().WithPayload(payload)
+			return movetaskorderops.NewUpdateMoveTaskOrderDestinationAddressUnprocessableEntity().WithPayload(payload)
 		default:
-			return movetaskorderops.NewUpdateMoveTaskOrderPostCounselingInformationInternalServerError()
+			return movetaskorderops.NewUpdateMoveTaskOrderDestinationAddressInternalServerError()
 		}
 	}
 	moveTaskOrderPayload := payloads.MoveTaskOrder(*mto)
-	return movetaskorderops.NewUpdateMoveTaskOrderPostCounselingInformationOK().WithPayload(moveTaskOrderPayload)
+	return movetaskorderops.NewUpdateMoveTaskOrderDestinationAddressOK().WithPayload(moveTaskOrderPayload)
 }

@@ -136,13 +136,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderDestinationAddressUpdat
 	updatedMTO, updateErr := mtoActualWeightUpdater.UpdateMoveTaskOrderDestinationAddress(originalMTO.ID, &address)
 	suite.NoError(updateErr)
 	suite.NotNil(updatedMTO)
-	suite.Equal(address.City, updatedMTO.DestinationAddress.City)
-	suite.Equal(address.ID, updatedMTO.DestinationAddress.ID)
+	// CreatedAt, UpdatedAt will be different so just assert against string format
+	suite.Equal(address.LineFormat(), updatedMTO.DestinationAddress.LineFormat())
 
 	dbUpdatedMTO, fetchErr := moveTaskOrderFetcher.FetchMoveTaskOrder(updatedMTO.ID)
 	suite.NoError(fetchErr)
-	suite.Equal(address.City, dbUpdatedMTO.DestinationAddress.City)
-	suite.Equal(address.ID, dbUpdatedMTO.DestinationAddress.ID)
+	suite.Equal(address.LineFormat(), dbUpdatedMTO.DestinationAddress.LineFormat())
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderPrimePostCounselingUpdater() {
