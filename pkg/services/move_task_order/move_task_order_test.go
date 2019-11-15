@@ -1,7 +1,6 @@
 package movetaskorder
 
 import (
-	"log"
 	"time"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -152,7 +151,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderPrimePostCounselingUpda
 	// check not equal to what asserting against below
 	address := testdatagen.MakeDefaultAddress(suite.DB())
 	address2 := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
-	log.Println(address.ID)
 	mtoPostCounselingInformationUpdater := NewMoveTaskOrderPostCounselingInformationUpdater(suite.DB())
 	moveTaskOrderFetcher := NewMoveTaskOrderFetcher(suite.DB())
 
