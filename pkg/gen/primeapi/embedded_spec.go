@@ -189,7 +189,7 @@ func init() {
         "operationId": "getPrimeEntitlements",
         "responses": {
           "200": {
-            "description": "Successfully retrieved move task order",
+            "description": "Successfully retrieved entitlements",
             "schema": {
               "$ref": "#/definitions/Entitlements"
             }
@@ -983,7 +983,7 @@ func init() {
         "operationId": "getPrimeEntitlements",
         "responses": {
           "200": {
-            "description": "Successfully retrieved move task order",
+            "description": "Successfully retrieved entitlements",
             "schema": {
               "$ref": "#/definitions/Entitlements"
             }

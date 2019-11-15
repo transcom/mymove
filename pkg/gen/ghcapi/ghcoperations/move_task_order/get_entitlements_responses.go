@@ -16,7 +16,7 @@ import (
 // GetEntitlementsOKCode is the HTTP code returned for type GetEntitlementsOK
 const GetEntitlementsOKCode int = 200
 
-/*GetEntitlementsOK Successfully retrieved move task order
+/*GetEntitlementsOK Successfully retrieved entitlements
 
 swagger:response getEntitlementsOK
 */
