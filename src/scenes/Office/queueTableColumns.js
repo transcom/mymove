@@ -8,7 +8,7 @@ import moment from 'moment';
 import Select from 'react-select';
 
 // Abstracting react table column creation
-const CreateReactTableColumn = (header, accessor, options = {}) => ({
+const createReactTableColumn = (header, accessor, options = {}) => ({
   Header: header,
   accessor: accessor,
   ...options,
@@ -17,7 +17,7 @@ const CreateReactTableColumn = (header, accessor, options = {}) => ({
 // lodash memoize will prevent unnecessary rendering with the same state
 // this will re-render if the state changes
 const destination = memoize(destinationDutyStations =>
-  CreateReactTableColumn('Destination', 'destination_duty_station_name', {
+  createReactTableColumn('Destination', 'destination_duty_station_name', {
     Cell: row => <span>{row.value}</span>,
     Filter: ({ filter, onChange }) => {
       const options = destinationDutyStations.map(value => ({ label: value, value: value }));
@@ -77,7 +77,7 @@ const destination = memoize(destinationDutyStations =>
   }),
 );
 
-const status = CreateReactTableColumn('Status', 'synthetic_status', {
+const status = createReactTableColumn('Status', 'synthetic_status', {
   Cell: row => (
     <span className="status" data-cy="status">
       {capitalize(row.value && row.value.replace('_', ' '))}
@@ -85,16 +85,16 @@ const status = CreateReactTableColumn('Status', 'synthetic_status', {
   ),
 });
 
-const customerName = CreateReactTableColumn('Customer name', 'customer_name');
+const customerName = createReactTableColumn('Customer name', 'customer_name');
 
-const dodId = CreateReactTableColumn('DoD ID', 'edipi');
+const dodId = createReactTableColumn('DoD ID', 'edipi');
 
-const locator = CreateReactTableColumn('Locator #', 'locator', {
+const locator = createReactTableColumn('Locator #', 'locator', {
   Cell: row => <span data-cy="locator">{row.value}</span>,
 });
 
 const dateFormat = 'DD-MMM-YY';
-const moveDate = CreateReactTableColumn('PPM start', 'move_date', {
+const moveDate = createReactTableColumn('PPM start', 'move_date', {
   Cell: row => <span className="move_date">{formatDate(row.value)}</span>,
   Filter: ({ filter, onChange }) => {
     return (
@@ -128,11 +128,11 @@ const moveDate = CreateReactTableColumn('PPM start', 'move_date', {
   filterable: true,
 });
 
-const origin = CreateReactTableColumn('Origin', 'origin_duty_station_name', {
+const origin = createReactTableColumn('Origin', 'origin_duty_station_name', {
   Cell: row => <span>{row.value}</span>,
 });
 
-const branchOfService = CreateReactTableColumn('Branch', 'branch_of_service', {
+const branchOfService = createReactTableColumn('Branch', 'branch_of_service', {
   Cell: row => <span>{row.value}</span>,
   Filter: ({ filter, onChange }) => (
     <select onChange={event => onChange(event.target.value)} value={filter ? filter.value : 'all'}>
