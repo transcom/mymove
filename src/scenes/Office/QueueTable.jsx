@@ -118,14 +118,13 @@ class QueueTable extends Component {
     const titles = {
       new: 'New moves',
       troubleshooting: 'Troubleshooting',
-      ppm: 'All PPMs',
       ppm_payment_requested: 'Payment requested',
       all: 'All moves',
       ppm_completed: 'Completed moves',
       ppm_approved: 'Approved moves',
     };
 
-    const showColumns = defaultColumns;
+    const showColumns = defaultColumns();
 
     const defaultSort = queueType => {
       if (['all'].includes(queueType)) {
@@ -181,6 +180,16 @@ class QueueTable extends Component {
               onDoubleClick: () => this.openMove(rowInfo),
               onClick: () => this.openMove(rowInfo),
             })}
+            getTheadFilterThProps={() => {
+              return {
+                style: { position: 'inherit', overflow: 'inherit' },
+              };
+            }}
+            getTableProps={() => {
+              return {
+                style: { overflow: 'inherit' },
+              };
+            }}
           />
         </div>
       </div>

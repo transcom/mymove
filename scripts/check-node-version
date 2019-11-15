@@ -2,7 +2,7 @@
 
 set -eu -o pipefail
 
-VERSION="v10.16"
+VERSION="v10."
 
 NODE_VERSION=$(node --version)
 if [[ $NODE_VERSION = *$VERSION* ]]; then

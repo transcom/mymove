@@ -75,6 +75,9 @@ type MoveTaskOrder struct {
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
+	// ppm is included
+	PpmIsIncluded bool `json:"ppm-is-included,omitempty"`
+
 	// prime estimated weight
 	PrimeEstimatedWeight *int64 `json:"primeEstimatedWeight,omitempty"`
 
@@ -88,6 +91,16 @@ type MoveTaskOrder struct {
 	// requested pickup date
 	// Format: date
 	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
+
+	// scheduled move date
+	// Format: date
+	ScheduledMoveDate strfmt.Date `json:"scheduled-move-date,omitempty"`
+
+	// secondary delivery address
+	SecondaryDeliveryAddress *Address `json:"secondary-delivery-address,omitempty"`
+
+	// secondary pickup address
+	SecondaryPickupAddress *Address `json:"secondary-pickup-address,omitempty"`
 
 	// status
 	// Enum: [DRAFT APPROVED REJECTED SUBMITTED]
@@ -163,6 +176,18 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRequestedPickupDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateScheduledMoveDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSecondaryDeliveryAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSecondaryPickupAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -428,6 +453,55 @@ func (m *MoveTaskOrder) validateRequestedPickupDate(formats strfmt.Registry) err
 
 	if err := validate.FormatOf("requestedPickupDate", "body", "date", m.RequestedPickupDate.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validateScheduledMoveDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ScheduledMoveDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("scheduled-move-date", "body", "date", m.ScheduledMoveDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validateSecondaryDeliveryAddress(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SecondaryDeliveryAddress) { // not required
+		return nil
+	}
+
+	if m.SecondaryDeliveryAddress != nil {
+		if err := m.SecondaryDeliveryAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("secondary-delivery-address")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validateSecondaryPickupAddress(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SecondaryPickupAddress) { // not required
+		return nil
+	}
+
+	if m.SecondaryPickupAddress != nil {
+		if err := m.SecondaryPickupAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("secondary-pickup-address")
+			}
+			return err
+		}
 	}
 
 	return nil

@@ -16,7 +16,12 @@ paths:
     get:
       produces:
         - application/json
-      parameters: []
+      parameters:
+        - in: query
+          name: since
+          type: integer
+          format: timestamp
+          description: Only return MTOs updated since this time
       responses:
         '200':
           description: Successfully retrieved all move task orders
@@ -99,7 +104,115 @@ paths:
       description: Updates a move order's estimated weight by ID
       operationId: updateMoveTaskOrderEstimatedWeight
       summary: Updates a move order's estimated weight by ID
-
+  '/move-task-orders/{moveTaskOrderID}/post-counseling-info':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              scheduled-move-date:
+                type: string
+                format: date
+                example: '2018-04-26'
+              secondary-pickup-address:
+                $ref: '#/definitions/Address'
+              secondary-delivery-address:
+                $ref: '#/definitions/Address'
+              ppm-is-included:
+                type: boolean
+      responses:
+        '200':
+          description: Successfully retrieved move task order
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '422':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+        - prime
+      description: Updates move task order's post counseling information
+      operationId: updateMoveTaskOrderPostCounselingInformation
+      summary: Updates move task order's post counseling information
+  '/move-task-orders/{moveTaskOrderID}/destination-address':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: destinationAddress
+          required: true
+          schema:
+            $ref: '#/definitions/Address'
+      responses:
+        '200':
+          description: Successfully retrieved move task order
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '422':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+        - prime
+      description: Updates move task order's destination address
+      operationId: updateMoveTaskOrderDestinationAddress
+      summary: Updates move task order's destination address
 definitions:
   Address:
     type: object
@@ -433,6 +546,16 @@ definitions:
       updatedAt:
         format: date
         type: string
+      scheduled-move-date:
+        type: string
+        format: date
+        example: '2018-04-26'
+      secondary-pickup-address:
+        $ref: '#/definitions/Address'
+      secondary-delivery-address:
+        $ref: '#/definitions/Address'
+      ppm-is-included:
+        type: boolean
     type: object
   MoveTaskOrders:
     items:

@@ -2,7 +2,6 @@ package payloads
 
 import (
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -22,6 +21,14 @@ func MoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *primemessages.MoveTaskOr
 	if moveTaskOrder.PrimeEstimatedWeight != nil {
 		primeEstimatedWeightRecordedDate = handlers.FmtDatePtr(moveTaskOrder.PrimeEstimatedWeightRecordedDate)
 	}
+	var scheduledMoveDate strfmt.Date
+	if moveTaskOrder.ScheduledMoveDate != nil {
+		scheduledMoveDate = *handlers.FmtDate(*moveTaskOrder.ScheduledMoveDate)
+	}
+	var ppmIsIncluded bool
+	if moveTaskOrder.ScheduledMoveDate != nil {
+		ppmIsIncluded = *moveTaskOrder.PpmIsIncluded
+	}
 	payload := &primemessages.MoveTaskOrder{
 		CustomerID:                       strfmt.UUID(moveTaskOrder.CustomerID.String()),
 		DestinationAddress:               destinationAddress,
@@ -31,11 +38,15 @@ func MoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *primemessages.MoveTaskOr
 		MoveDate:                         strfmt.Date(moveTaskOrder.RequestedPickupDate),
 		MoveID:                           strfmt.UUID(moveTaskOrder.MoveID.String()),
 		OriginDutyStation:                strfmt.UUID(moveTaskOrder.OriginDutyStationID.String()),
+		PpmIsIncluded:                    ppmIsIncluded,
 		PickupAddress:                    pickupAddress,
 		PrimeEstimatedWeight:             primeEstimatedWeight,
 		PrimeEstimatedWeightRecordedDate: primeEstimatedWeightRecordedDate,
 		Remarks:                          moveTaskOrder.CustomerRemarks,
 		RequestedPickupDate:              strfmt.Date(moveTaskOrder.RequestedPickupDate),
+		ScheduledMoveDate:                scheduledMoveDate,
+		SecondaryPickupAddress:           Address(moveTaskOrder.SecondaryPickupAddress),
+		SecondaryDeliveryAddress:         Address(moveTaskOrder.SecondaryDeliveryAddress),
 		Status:                           string(moveTaskOrder.Status),
 		UpdatedAt:                        strfmt.Date(moveTaskOrder.UpdatedAt),
 	}
@@ -48,12 +59,12 @@ func Address(a *models.Address) *primemessages.Address {
 	}
 	return &primemessages.Address{
 		ID:             strfmt.UUID(a.ID.String()),
-		StreetAddress1: swag.String(a.StreetAddress1),
+		StreetAddress1: &a.StreetAddress1,
 		StreetAddress2: a.StreetAddress2,
 		StreetAddress3: a.StreetAddress3,
-		City:           swag.String(a.City),
-		State:          swag.String(a.State),
-		PostalCode:     swag.String(a.PostalCode),
+		City:           &a.City,
+		State:          &a.State,
+		PostalCode:     &a.PostalCode,
 		Country:        a.Country,
 	}
 }

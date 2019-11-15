@@ -1,7 +1,10 @@
 package movetaskorder
 
 import (
+	"log"
 	"time"
+
+	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -121,4 +124,57 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderPrimeEstimatedWeightUpd
 	_, updateErr := mtoActualWeightUpdater.UpdatePrimeEstimatedWeight(originalMTO.ID, newWeight, now)
 
 	suite.Error(updateErr)
+}
+
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderDestinationAddressUpdater() {
+	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
+	originalMTO := serviceItem.MoveTaskOrder
+	// check not equal to what asserting against below
+	address := testdatagen.MakeDefaultAddress(suite.DB())
+	mtoActualWeightUpdater := NewMoveTaskOrderDestinationAddressUpdater(suite.DB())
+	moveTaskOrderFetcher := NewMoveTaskOrderFetcher(suite.DB())
+
+	updatedMTO, updateErr := mtoActualWeightUpdater.UpdateMoveTaskOrderDestinationAddress(originalMTO.ID, &address)
+	suite.NoError(updateErr)
+	suite.NotNil(updatedMTO)
+	suite.Equal(address.City, updatedMTO.DestinationAddress.City)
+	suite.Equal(address.ID, updatedMTO.DestinationAddress.ID)
+
+	dbUpdatedMTO, fetchErr := moveTaskOrderFetcher.FetchMoveTaskOrder(updatedMTO.ID)
+	suite.NoError(fetchErr)
+	suite.Equal(address.City, dbUpdatedMTO.DestinationAddress.City)
+	suite.Equal(address.ID, dbUpdatedMTO.DestinationAddress.ID)
+}
+
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderPrimePostCounselingUpdater() {
+	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
+	originalMTO := serviceItem.MoveTaskOrder
+	// check not equal to what asserting against below
+	address := testdatagen.MakeDefaultAddress(suite.DB())
+	address2 := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
+	log.Println(address.ID)
+	mtoPostCounselingInformationUpdater := NewMoveTaskOrderPostCounselingInformationUpdater(suite.DB())
+	moveTaskOrderFetcher := NewMoveTaskOrderFetcher(suite.DB())
+
+	now := time.Date(2019, 1, 1, 0, 0, 0, 0, time.UTC)
+	information := services.PostCounselingInformation{
+		PPMIsIncluded:            true,
+		ScheduledMoveDate:        now,
+		SecondaryDeliveryAddress: &address,
+		SecondaryPickupAddress:   &address2,
+	}
+	updatedMTO, updateErr := mtoPostCounselingInformationUpdater.UpdateMoveTaskOrderPostCounselingInformation(originalMTO.ID, information)
+	suite.NoError(updateErr)
+	suite.NotNil(updatedMTO)
+	suite.Equal(information.ScheduledMoveDate, *updatedMTO.ScheduledMoveDate)
+	suite.Equal(information.SecondaryDeliveryAddress, updatedMTO.SecondaryDeliveryAddress)
+	suite.Equal(information.SecondaryPickupAddress, updatedMTO.SecondaryPickupAddress)
+	suite.Equal(information.PPMIsIncluded, updatedMTO.PpmIsIncluded)
+
+	dbUpdatedMTO, fetchErr := moveTaskOrderFetcher.FetchMoveTaskOrder(updatedMTO.ID)
+	suite.NoError(fetchErr)
+	suite.Equal(information.ScheduledMoveDate.String(), (*dbUpdatedMTO.ScheduledMoveDate).UTC().String())
+	suite.Equal(information.SecondaryDeliveryAddress.LineFormat(), dbUpdatedMTO.SecondaryDeliveryAddress.LineFormat())
+	suite.Equal(information.SecondaryPickupAddress.LineFormat(), dbUpdatedMTO.SecondaryPickupAddress.LineFormat())
+	suite.Equal(information.PPMIsIncluded, dbUpdatedMTO.PpmIsIncluded)
 }

@@ -60,7 +60,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
     * [Development Machine Timezone Issues](#development-machine-timezone-issues)
     * [Linters & Pre-commit Hooks](#linters--pre-commit-hooks)
 
-Regenerate with "scripts/generate-md-toc"
+Regenerate with "pre-commit run -a markdown-toc"
 
 <!-- tocstop -->
 
