@@ -1407,37 +1407,37 @@
     ramda "^0.26.0"
     react-dev-utils "^7.0.0"
 
-"@rescripts/rescript-env@^0.0.10":
-  version "0.0.10"
-  resolved "https://registry.yarnpkg.com/@rescripts/rescript-env/-/rescript-env-0.0.10.tgz#fc5cab1b86afcccaf38be4bd5f027b65589a155f"
-  integrity sha512-ld+UnpIEynRj5kE8yHRx96n/L5x05pfhY4hUULSX8HTMgvWKvO6d8hRiu31PPp/eEVQ7drkmoxO2TvTnVNIC4A==
+"@rescripts/rescript-env@^0.0.11":
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/@rescripts/rescript-env/-/rescript-env-0.0.11.tgz#0ea2c0c416ec52a9c8fc1e50a40982a7a614dd66"
+  integrity sha512-wXAEvoH9CBzG3NM3QpPb8417YVIS7QqKo1mF7F/LGINQURtDRdZiLGIF3bJUjcwvfN/z0xI1E62bISuCO3k03A==
   dependencies:
-    "@rescripts/rescript-use-babel-config" "^0.0.8"
-    "@rescripts/rescript-use-eslint-config" "^0.0.9"
-    "@rescripts/rescript-use-tslint-config" "^0.0.5"
-    "@rescripts/utilities" "^0.0.5"
+    "@rescripts/rescript-use-babel-config" "^0.0.9"
+    "@rescripts/rescript-use-eslint-config" "^0.0.10"
+    "@rescripts/rescript-use-tslint-config" "^0.0.6"
+    "@rescripts/utilities" "^0.0.6"
     ramda "^0.26.1"
 
-"@rescripts/rescript-use-babel-config@^0.0.8":
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/@rescripts/rescript-use-babel-config/-/rescript-use-babel-config-0.0.8.tgz#fa4cab17dfaf7ec8b98ec619b608930675936fa8"
-  integrity sha512-fqlcSky7rQDj85srl5+jnxzvmRNKnDLDLMG+K4zsIhZ/+WRTwo44D4cFxbHspBrnTFhpa6ac7peBYPRCCFvJMQ==
-  dependencies:
-    "@rescripts/utilities" "^0.0.5"
-
-"@rescripts/rescript-use-eslint-config@^0.0.9":
+"@rescripts/rescript-use-babel-config@^0.0.9":
   version "0.0.9"
-  resolved "https://registry.yarnpkg.com/@rescripts/rescript-use-eslint-config/-/rescript-use-eslint-config-0.0.9.tgz#b5b0fd0a232c8ac811299be0b397ec7ab7f58db0"
-  integrity sha512-L+KYNnUpPkpltuo0xk8vET+8VKMrHtjFbyDIXe93OP2oggxuuSV7yKm9WWI8RQk7Jbve8YLmH9y4iy4CaS7S0g==
+  resolved "https://registry.yarnpkg.com/@rescripts/rescript-use-babel-config/-/rescript-use-babel-config-0.0.9.tgz#18d30e85b205fd8065354f1be263bf0603d2ccfa"
+  integrity sha512-jJjqUFJRqTjFgntM3TAuPPKtxpf0rltV7hFtTTxrO2i+DqUerj0SEWZMeVWJv/t4QkBtNQBKlDD7MF3TGHflpw==
   dependencies:
-    "@rescripts/utilities" "^0.0.5"
+    "@rescripts/utilities" "^0.0.6"
 
-"@rescripts/rescript-use-tslint-config@^0.0.5":
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/@rescripts/rescript-use-tslint-config/-/rescript-use-tslint-config-0.0.5.tgz#47da341de39ae4ee96500deb25f0f8cf3af36285"
-  integrity sha512-g8EGk/oDyVtlDC0rqkq1fhaIAt8RItIEjoa4CBujh0o+EtMNU5Nzqm7HNBzK1ksdCk+JlTw9SUUop1q41F0H3w==
+"@rescripts/rescript-use-eslint-config@^0.0.10":
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/@rescripts/rescript-use-eslint-config/-/rescript-use-eslint-config-0.0.10.tgz#09f20509b679d50c787fee22b279e8c1310ecec0"
+  integrity sha512-guZHYGs/w50REfJYFhX03KkaFxKqj18XIknKta9/QtG9rXaYc6hR/+7nqUVwsZIvtWDT/zxXcxcSju1w3ZtUcg==
   dependencies:
-    "@rescripts/utilities" "^0.0.5"
+    "@rescripts/utilities" "^0.0.6"
+
+"@rescripts/rescript-use-tslint-config@^0.0.6":
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/@rescripts/rescript-use-tslint-config/-/rescript-use-tslint-config-0.0.6.tgz#a9b66b21164907a544df2a0c527263d1189cf1e5"
+  integrity sha512-9Jjl//tDhR/tYs2ns1Ld8njjxnykfavOk6XIudiOHYY+xKzY2TykgniO4S5cFYWEm992FOLWABNrrInSAEOofA==
+  dependencies:
+    "@rescripts/utilities" "^0.0.6"
     ramda "^0.26.0"
     tslint-loader "^3.5.4"
 
@@ -1445,6 +1445,13 @@
   version "0.0.5"
   resolved "https://registry.yarnpkg.com/@rescripts/utilities/-/utilities-0.0.5.tgz#1bc296744044e4c6ea5d137f073f72b4892a357a"
   integrity sha512-9YtdDTiICbUzFpmUnfSJRfeBtNR+T3+5LYiPS7xaNSzmOiVXwWubl5kfEzNQIpcg5xOUknYbkObwyUzd9s3QvQ==
+  dependencies:
+    ramda "^0.26.0"
+
+"@rescripts/utilities@^0.0.6":
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/@rescripts/utilities/-/utilities-0.0.6.tgz#23202bed3c7015cb24b7fba7f3fb0660d1713d65"
+  integrity sha512-Lmy6+b3HZ7gbN+kKaP6B752/KW1EbLlsAjxCB/9ztzzv3BKnIvJm1R5rMGg4ycNMSlrOOpCFVpuKry5EHqaNmw==
   dependencies:
     ramda "^0.26.0"
 
