@@ -18,6 +18,7 @@ class QueueTable extends Component {
     super();
     this.state = {
       data: [],
+      origDutyStationData: [],
       destDutyStationData: [],
       pages: null,
       loading: true,
@@ -74,8 +75,12 @@ class QueueTable extends Component {
       const body = await this.props.retrieveMoves(this.props.queueType);
       // grab all destination duty station and remove duplicates
       // this will build on top of the current duty stations list we see from the data
+      let origDutyStationDataSet = new Set(this.getOriginDutyStations());
       let destDutyStationDataSet = new Set(this.getDestinationDutyStations());
       body.forEach(value => {
+        if (value.origin_duty_station_name !== undefined && value.origin_duty_station_name !== '') {
+          origDutyStationDataSet.add(value.origin_duty_station_name);
+        }
         if (value.destination_duty_station_name !== undefined && value.destination_duty_station_name !== '') {
           destDutyStationDataSet.add(value.destination_duty_station_name);
         }
@@ -86,6 +91,7 @@ class QueueTable extends Component {
       if (this.state.loadingQueue === loadingQueueType) {
         this.setState({
           data: body,
+          origDutyStationData: [...origDutyStationDataSet].sort(),
           destDutyStationData: [...destDutyStationDataSet].sort(),
           pages: 1,
           loading: false,
@@ -96,6 +102,7 @@ class QueueTable extends Component {
     } catch (e) {
       this.setState({
         data: [],
+        origDutyStationData: [],
         destDutyStationData: [],
         pages: 1,
         loading: false,
@@ -127,6 +134,10 @@ class QueueTable extends Component {
 
   getDestinationDutyStations = () => {
     return this.state.destDutyStationData;
+  };
+
+  getOriginDutyStations = () => {
+    return this.state.origDutyStationData;
   };
 
   render() {
@@ -223,4 +234,9 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ setUserIsLoggedIn }, dispatch);
 }
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(QueueTable));
+export default withRouter(
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(QueueTable),
+);
