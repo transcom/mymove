@@ -101,8 +101,8 @@ func (f fetchMoveTaskOrder) UpdateMoveTaskOrderStatus(moveTaskOrderID uuid.UUID,
 	}
 	mto.Status = status
 
-	// not sure if DRAFT is the right status but going with this for now
-	if status == models.MoveTaskOrderStatusDraft {
+	// when an MTO is approved it becomes available to the Prime
+	if status == models.MoveTaskOrderStatusApproved {
 		mto.AvailableToPrimeDate = time.Now()
 	}
 
