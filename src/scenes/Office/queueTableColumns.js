@@ -15,60 +15,60 @@ const createReactTableColumn = (header, accessor, options = {}) => ({
 });
 
 const getReactSelectFilterSettings = (data = []) => ({
-    Filter: ({ filter, onChange }) => {
+  Filter: ({ filter, onChange }) => {
     const options = data.map(value => ({ label: value, value: value }));
-      return (
-        <Select
-          options={options}
-          onChange={value => {
-            // value example: {label: "Fort Gordon", value: "Fort Gordon"}
-            return onChange(value ? value : undefined);
-          }}
-          defaultValue={filter ? filter.value : undefined}
-          styles={{
-            // overriding styles to match other table filters
-            control: baseStyles => ({
-              ...baseStyles,
-              height: '1.5rem',
-              minHeight: '1.5rem',
-              border: '1px solid rgba(0,0,0,0.1)',
-            }),
-            indicatorsContainer: baseStyles => ({
-              ...baseStyles,
-              height: '1.5rem',
-            }),
-            clearIndicator: baseStyles => ({
-              ...baseStyles,
-              padding: '0.2rem',
-            }),
-            dropdownIndicator: baseStyles => ({
-              ...baseStyles,
-              padding: '0.2rem',
-            }),
-            input: baseStyles => ({
-              ...baseStyles,
-              margin: '0 2px',
-              paddingTop: '0',
-              paddingBottom: '0',
-            }),
-            valueContainer: baseStyles => ({
-              ...baseStyles,
-              padding: '0 8px',
-            }),
-          }}
-          isClearable
-        />
-      );
-    },
-    filterMethod: (filter, row) => {
-      if (filter.value === undefined) {
-        return true;
-      } else if (row[filter.id] === undefined) {
-        return false;
-      }
+    return (
+      <Select
+        options={options}
+        onChange={value => {
+          // value example: {label: "Fort Gordon", value: "Fort Gordon"}
+          return onChange(value ? value : undefined);
+        }}
+        defaultValue={filter ? filter.value : undefined}
+        styles={{
+          // overriding styles to match other table filters
+          control: baseStyles => ({
+            ...baseStyles,
+            height: '1.5rem',
+            minHeight: '1.5rem',
+            border: '1px solid rgba(0,0,0,0.1)',
+          }),
+          indicatorsContainer: baseStyles => ({
+            ...baseStyles,
+            height: '1.5rem',
+          }),
+          clearIndicator: baseStyles => ({
+            ...baseStyles,
+            padding: '0.2rem',
+          }),
+          dropdownIndicator: baseStyles => ({
+            ...baseStyles,
+            padding: '0.2rem',
+          }),
+          input: baseStyles => ({
+            ...baseStyles,
+            margin: '0 2px',
+            paddingTop: '0',
+            paddingBottom: '0',
+          }),
+          valueContainer: baseStyles => ({
+            ...baseStyles,
+            padding: '0 8px',
+          }),
+        }}
+        isClearable
+      />
+    );
+  },
+  filterMethod: (filter, row) => {
+    if (filter.value === undefined) {
+      return true;
+    } else if (row[filter.id] === undefined) {
+      return false;
+    }
 
-      return row[filter.id].toLowerCase() === filter.value.value.toLowerCase();
-    },
+    return row[filter.id].toLowerCase() === filter.value.value.toLowerCase();
+  },
 });
 
 // lodash memoize will prevent unnecessary rendering with the same state
@@ -78,6 +78,14 @@ const destination = memoize(destinationDutyStations =>
     Cell: row => <span>{row.value}</span>,
     filterable: true,
     ...getReactSelectFilterSettings(destinationDutyStations),
+  }),
+);
+
+const origin = memoize(originDutyStations =>
+  createReactTableColumn('Origin', 'origin_duty_station_name', {
+    Cell: row => <span>{row.value}</span>,
+    filterable: true,
+    ...getReactSelectFilterSettings(originDutyStations),
   }),
 );
 
@@ -132,10 +140,6 @@ const moveDate = createReactTableColumn('PPM start', 'move_date', {
   filterable: true,
 });
 
-const origin = createReactTableColumn('Origin', 'origin_duty_station_name', {
-  Cell: row => <span>{row.value}</span>,
-});
-
 const branchOfService = createReactTableColumn('Branch', 'branch_of_service', {
   Cell: row => <span>{row.value}</span>,
   Filter: ({ filter, onChange }) => (
@@ -163,7 +167,7 @@ export const defaultColumns = component => {
   return [
     status,
     customerName,
-    origin,
+    origin(component.getOriginDutyStations()),
     destination(component.getDestinationDutyStations()),
     dodId,
     locator,
