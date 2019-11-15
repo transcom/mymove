@@ -168,7 +168,4 @@ const mapDispatchToProps = {
   getPpmWeightEstimate,
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(PPMShipmentSummary);
+export default connect(mapStateToProps, mapDispatchToProps)(PPMShipmentSummary);

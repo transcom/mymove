@@ -12,6 +12,7 @@ import { formatCentsRange, formatNumber } from 'shared/formatters';
 import { getPpmWeightEstimate, createOrUpdatePpm, getSelectedWeightInfo } from './ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { updatePPMEstimate } from 'shared/Entities/modules/ppms';
+import RadioButton from 'shared/RadioButton';
 import 'react-rangeslider/lib/index.css';
 import styles from './Weight.module.scss';
 import { withContext } from 'shared/AppContext';
@@ -156,6 +157,10 @@ export class PpmWeight extends Component {
     }
   }
 
+  handleChange = (event, type) => {
+    this.setState({ [type]: event.target.value });
+  };
+
   render() {
     const {
       incentive_estimate_min,
@@ -169,10 +174,11 @@ export class PpmWeight extends Component {
       selectedWeightInfo,
     } = this.props;
     const { context: { flags: { progearChanges } } = { flags: { progearChanges: null } } } = this.props;
+    const { includesProgear = 'No' } = this.state;
     return (
       <div>
         {progearChanges && (
-          <div className="grid-container usa-prose site-prose">
+          <div className="grid-container usa-prose">
             <h3>How much do you think you'll move?</h3>
             <p>Your weight entitlement: {this.props.entitlement.weight.toLocaleString()} lbs</p>
             <div className={styles['progear-slider-container']}>
@@ -211,10 +217,35 @@ export class PpmWeight extends Component {
               </h3>
               <p className="text-gray-50">Final payment will be based on the weight you actually move.</p>
             </div>
+            <div className="radio-group-wrapper normalize-margins">
+              <h3>Does that weight include pro-gear?</h3>
+              <RadioButton
+                inputClassName="usa-radio__input inline_radio"
+                labelClassName="usa-radio__label inline_radio"
+                label="Yes"
+                value="Yes"
+                name="includesProgear"
+                checked={includesProgear === 'Yes'}
+                onChange={event => this.handleChange(event, 'includesProgear')}
+              />
+
+              <RadioButton
+                inputClassName="usa-radio__input inline_radio"
+                labelClassName="usa-radio__label inline_radio"
+                label="No"
+                value="No"
+                name="includesProgear"
+                checked={includesProgear === 'No'}
+                onChange={event => this.handleChange(event, 'includesProgear')}
+              />
+              <p>
+                Books, papers, and equipment needed for official duties. <a href="#">What counts as pro-gear?</a>{' '}
+              </p>
+            </div>
           </div>
         )}
         {!progearChanges && (
-          <div className="grid-container usa-prose site-prose">
+          <div className="grid-container usa-prose">
             <WeightWizardForm
               handleSubmit={this.handleSubmit}
               pageList={pages}
@@ -353,9 +384,4 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default withContext(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  )(PpmWeight),
-);
+export default withContext(connect(mapStateToProps, mapDispatchToProps)(PpmWeight));

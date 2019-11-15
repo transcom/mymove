@@ -105,7 +105,7 @@ class PaymentReview extends Component {
     );
 
     return (
-      <div className="grid-container usa-prose site-prose">
+      <div className="grid-container usa-prose">
         <WizardHeader
           title="Review"
           right={
@@ -204,7 +204,4 @@ const mapDispatchToProps = {
   getPpmWeightEstimate,
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(PaymentReview);
+export default connect(mapStateToProps, mapDispatchToProps)(PaymentReview);

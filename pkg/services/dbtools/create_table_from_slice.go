@@ -75,50 +75,56 @@ func (c tableFromSliceCreator) CreateTableFromSlice(slice interface{}) error {
 	builder.WriteString(");")
 	createTableQuery := builder.String()
 
-	transactionErr := c.db.Transaction(func(tx *pop.Connection) error {
-		if c.dropIfExists {
-			err := tx.RawQuery("DROP TABLE IF EXISTS " + tableName).Exec()
-			if err != nil {
-				return errors.Wrap(err, fmt.Sprintf("Error dropping table: '%s'", tableName))
-			}
-		}
-		err := tx.RawQuery(createTableQuery).Exec()
-		if err != nil {
-			return errors.Wrap(err, fmt.Sprintf("Error creating table: '%s'", tableName))
-		}
-
-		// Put data into the table
-		stmt, err := tx.TX.Prepare(pq.CopyIn(tableName, fieldDbNames...))
-		if err != nil {
-			return errors.Wrap(err, "Error preparing CopyIn statement")
-		}
-
-		sliceValue := reflect.ValueOf(slice)
-		for i := 0; i < sliceValue.Len(); i++ {
-			structValue := sliceValue.Index(i)
-
-			fieldValues := make([]interface{}, numFields)
-			for j := 0; j < numFields; j++ {
-				fieldValue := structValue.Field(j)
-				fieldValues[j] = fieldValue.Interface()
-			}
-			_, execErr := stmt.Exec(fieldValues...)
-			if execErr != nil {
-				return errors.Wrapf(execErr, "Error executing CopyIn statement with values %q", fieldValues)
-			}
-		}
-
-		_, err = stmt.Exec()
-		if err != nil {
-			return errors.Wrap(err, "Error flushing CopyIn statement")
-		}
-
-		if err := stmt.Close(); err != nil {
-			return errors.Wrap(err, "Error closing CopyIn statement")
-		}
-
-		return nil
+	// check to see if we are already in a transaction
+	if c.db.TX != nil {
+		return c.executeSQL(c.db, tableName, createTableQuery, fieldDbNames, numFields, slice)
+	}
+	return c.db.Transaction(func(tx *pop.Connection) error {
+		return c.executeSQL(tx, tableName, createTableQuery, fieldDbNames, numFields, slice)
 	})
+}
 
-	return transactionErr
+func (c tableFromSliceCreator) executeSQL(tx *pop.Connection, tableName string, createTableQuery string, fieldDbNames []string, numFields int, slice interface{}) error {
+	if c.dropIfExists {
+		err := tx.RawQuery("DROP TABLE IF EXISTS " + tableName).Exec()
+		if err != nil {
+			return errors.Wrap(err, fmt.Sprintf("Error dropping table: '%s'", tableName))
+		}
+	}
+	err := tx.RawQuery(createTableQuery).Exec()
+	if err != nil {
+		return errors.Wrap(err, fmt.Sprintf("Error creating table: '%s'", tableName))
+	}
+
+	// Put data into the table
+	stmt, err := tx.TX.Prepare(pq.CopyIn(tableName, fieldDbNames...))
+	if err != nil {
+		return errors.Wrap(err, "Error preparing CopyIn statement")
+	}
+
+	sliceValue := reflect.ValueOf(slice)
+	for i := 0; i < sliceValue.Len(); i++ {
+		structValue := sliceValue.Index(i)
+
+		fieldValues := make([]interface{}, numFields)
+		for j := 0; j < numFields; j++ {
+			fieldValue := structValue.Field(j)
+			fieldValues[j] = fieldValue.Interface()
+		}
+		_, execErr := stmt.Exec(fieldValues...)
+		if execErr != nil {
+			return errors.Wrapf(execErr, "Error executing CopyIn statement with values %q", fieldValues)
+		}
+	}
+
+	_, err = stmt.Exec()
+	if err != nil {
+		return errors.Wrap(err, "Error flushing CopyIn statement")
+	}
+
+	if err := stmt.Close(); err != nil {
+		return errors.Wrap(err, "Error closing CopyIn statement")
+	}
+
+	return nil
 }

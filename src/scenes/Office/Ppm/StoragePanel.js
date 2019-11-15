@@ -122,7 +122,4 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(StoragePanel);
+export default connect(mapStateToProps, mapDispatchToProps)(StoragePanel);

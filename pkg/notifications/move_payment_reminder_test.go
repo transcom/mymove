@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -42,8 +44,22 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 	date9DaysAgo := offsetDate(-9)
 
 	moves := []testdatagen.Assertions{
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo}},
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo}},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo},
+			Move:                   models.Move{Status: models.MoveStatusDRAFT},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo},
+			Move:                   models.Move{Show: swag.Bool(false)},
+		},
 	}
 
 	ppms := suite.createPaymentReminderMoves(moves)
@@ -67,12 +83,28 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 
 func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
 	db := suite.DB()
+	date10DaysAgo := offsetDate(-10)
 	date9DaysAgo := offsetDate(-9)
 	dateTooOld := cutoffDate()
 
 	moves := []testdatagen.Assertions{
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo}},
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &dateTooOld}},
+		{
+
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &dateTooOld},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo},
+			Move:                   models.Move{Status: models.MoveStatusDRAFT},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo},
+			Move:                   models.Move{Show: swag.Bool(false)},
+		},
 	}
 
 	suite.createPaymentReminderMoves(moves)
@@ -92,8 +124,14 @@ func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
 	dateTooOld := cutoffDate()
 
 	moves := []testdatagen.Assertions{
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo}},
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &dateTooOld}},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &dateTooOld},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
+		},
 	}
 	suite.createPaymentReminderMoves(moves)
 
