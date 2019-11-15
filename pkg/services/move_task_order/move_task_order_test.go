@@ -167,12 +167,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderPrimePostCounselingUpda
 	suite.Equal(information.ScheduledMoveDate, *updatedMTO.ScheduledMoveDate)
 	suite.Equal(information.SecondaryDeliveryAddress, updatedMTO.SecondaryDeliveryAddress)
 	suite.Equal(information.SecondaryPickupAddress, updatedMTO.SecondaryPickupAddress)
-	suite.Equal(information.PPMIsIncluded, updatedMTO.PpmIsIncluded)
+	suite.Equal(information.PPMIsIncluded, *updatedMTO.PpmIsIncluded)
 
 	dbUpdatedMTO, fetchErr := moveTaskOrderFetcher.FetchMoveTaskOrder(updatedMTO.ID)
 	suite.NoError(fetchErr)
 	suite.Equal(information.ScheduledMoveDate.String(), (*dbUpdatedMTO.ScheduledMoveDate).UTC().String())
 	suite.Equal(information.SecondaryDeliveryAddress.LineFormat(), dbUpdatedMTO.SecondaryDeliveryAddress.LineFormat())
 	suite.Equal(information.SecondaryPickupAddress.LineFormat(), dbUpdatedMTO.SecondaryPickupAddress.LineFormat())
-	suite.Equal(information.PPMIsIncluded, dbUpdatedMTO.PpmIsIncluded)
+	suite.Equal(information.PPMIsIncluded, *dbUpdatedMTO.PpmIsIncluded)
 }
