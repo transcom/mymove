@@ -555,7 +555,7 @@ paths:
         - moveTaskOrder
       responses:
         '200':
-          description: Successfully retrieved move task order
+          description: Successfully retrieved entitlements
           schema:
             $ref: '#/definitions/Entitlements'
         '400':
