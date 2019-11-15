@@ -16,7 +16,7 @@ import (
 // UpdateMoveTaskOrderPostCounselingInformationOKCode is the HTTP code returned for type UpdateMoveTaskOrderPostCounselingInformationOK
 const UpdateMoveTaskOrderPostCounselingInformationOKCode int = 200
 
-/*UpdateMoveTaskOrderPostCounselingInformationOK Successfully retrieved move task order
+/*UpdateMoveTaskOrderPostCounselingInformationOK Successfully updated move task order post counseling information
 
 swagger:response updateMoveTaskOrderPostCounselingInformationOK
 */

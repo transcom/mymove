@@ -123,7 +123,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved move task order",
+            "description": "Successfully updated move task order destination address",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
             }
@@ -213,7 +213,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved move task order",
+            "description": "Successfully updated move task order post counseling information",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
             }
@@ -934,7 +934,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved move task order",
+            "description": "Successfully updated move task order destination address",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
             }
@@ -1036,7 +1036,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved move task order",
+            "description": "Successfully updated move task order post counseling information",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrder"
             }
