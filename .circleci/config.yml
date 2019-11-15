@@ -290,6 +290,8 @@ jobs:
     executor: mymove_medium
     steps:
       - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run: make anti_virus
       - announce_failure
 
