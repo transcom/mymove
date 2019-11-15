@@ -1,6 +1,7 @@
 package movetaskorder
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -51,21 +52,25 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdater() {
 	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
 	originalMTO := serviceItem.MoveTaskOrder
+
+	fmt.Println(originalMTO.AvailableToPrimeDate)
+	suite.Equal(originalMTO.AvailableToPrimeDate, time.Date(0001, 1, 1, 0, 0, 0, 0, time.UTC))
 	// check not equal to what asserting against below
-	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusDraft)
+	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusApproved)
 	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
 
-	updatedMTO, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, models.MoveTaskOrderStatusDraft)
+	updatedMTO, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, models.MoveTaskOrderStatusApproved)
 
 	suite.NoError(err)
-	suite.Equal(models.MoveTaskOrderStatusDraft, updatedMTO.Status)
+	suite.NotEqual(updatedMTO.AvailableToPrimeDate, time.Date(0001, 1, 1, 0, 0, 0, 0, time.UTC))
+	suite.Equal(models.MoveTaskOrderStatusApproved, updatedMTO.Status)
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterEmptyStatus() {
 	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
 	originalMTO := serviceItem.MoveTaskOrder
 	// check not equal to what asserting against below
-	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusDraft)
+	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusApproved)
 	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
 
 	_, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, "")
