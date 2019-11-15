@@ -14,13 +14,9 @@ const createReactTableColumn = (header, accessor, options = {}) => ({
   ...options,
 });
 
-// lodash memoize will prevent unnecessary rendering with the same state
-// this will re-render if the state changes
-const destination = memoize(destinationDutyStations =>
-  createReactTableColumn('Destination', 'destination_duty_station_name', {
-    Cell: row => <span>{row.value}</span>,
+const getReactSelectFilterSettings = (data = []) => ({
     Filter: ({ filter, onChange }) => {
-      const options = destinationDutyStations.map(value => ({ label: value, value: value }));
+    const options = data.map(value => ({ label: value, value: value }));
       return (
         <Select
           options={options}
@@ -73,7 +69,15 @@ const destination = memoize(destinationDutyStations =>
 
       return row[filter.id].toLowerCase() === filter.value.value.toLowerCase();
     },
+});
+
+// lodash memoize will prevent unnecessary rendering with the same state
+// this will re-render if the state changes
+const destination = memoize(destinationDutyStations =>
+  createReactTableColumn('Destination', 'destination_duty_station_name', {
+    Cell: row => <span>{row.value}</span>,
     filterable: true,
+    ...getReactSelectFilterSettings(destinationDutyStations),
   }),
 );
 
