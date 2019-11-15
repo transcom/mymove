@@ -40,6 +40,9 @@ type CustomerMoveItem struct {
 
 	// Origin Duty Station Name
 	OriginDutyStationName *string `json:"origin_duty_station_name,omitempty"`
+
+	// reference id
+	ReferenceID *string `json:"reference_id,omitempty"`
 }
 
 // Validate validates this customer move item
