@@ -98,22 +98,22 @@ func (suite *DBToolsServiceSuite) TestCreateTableFromSlicePermTable() {
 }
 
 func (suite *DBToolsServiceSuite) TestCreateTableFromSliceWithinTransaction() {
-	suite.DB().Transaction(func(tx *pop.Connection) error {
-		tableFromSliceCreator := NewTableFromSliceCreator(tx, suite.logger, true, true)
-		suite.T().Run("create table from slice in a transaction", func(t *testing.T) {
+	suite.T().Run("create table from slice in a transaction", func(t *testing.T) {
+		suite.DB().Transaction(func(tx *pop.Connection) error {
+			tableFromSliceCreator := NewTableFromSliceCreator(tx, suite.logger, true, true)
 			err := tableFromSliceCreator.CreateTableFromSlice(validSlice)
 			suite.NoError(err)
+
+			var testStructs []TestStruct
+			err = tx.Order("name").All(&testStructs)
+			suite.NoError(err)
+			suite.Len(testStructs, 3)
+			for i, testStruct := range testStructs {
+				suite.Equal(validSlice[i], testStruct)
+			}
+			return nil
 		})
 
-		var testStructs []TestStruct
-		err := tx.Order("name").All(&testStructs)
-		suite.NoError(err)
-		suite.Len(testStructs, 3)
-		for i, testStruct := range testStructs {
-			suite.Equal(validSlice[i], testStruct)
-		}
-
-		return nil
 	})
 
 	suite.T().Run("verify data still in database after transaction", func(t *testing.T) {
