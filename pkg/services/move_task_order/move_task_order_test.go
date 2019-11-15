@@ -161,6 +161,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderPrimePostCounselingUpda
 		SecondaryDeliveryAddress: &address,
 		SecondaryPickupAddress:   &address2,
 	}
+	suite.Equal(originalMTO.SubmittedCounselingInfoDate, time.Date(0001, 1, 1, 0, 0, 0, 0, time.UTC))
+
 	updatedMTO, updateErr := mtoPostCounselingInformationUpdater.UpdateMoveTaskOrderPostCounselingInformation(originalMTO.ID, information)
 	suite.NoError(updateErr)
 	suite.NotNil(updatedMTO)
@@ -168,6 +170,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderPrimePostCounselingUpda
 	suite.Equal(information.SecondaryDeliveryAddress, updatedMTO.SecondaryDeliveryAddress)
 	suite.Equal(information.SecondaryPickupAddress, updatedMTO.SecondaryPickupAddress)
 	suite.Equal(information.PPMIsIncluded, updatedMTO.PpmIsIncluded)
+	suite.NotEqual(updatedMTO.SubmittedCounselingInfoDate, time.Date(0001, 1, 1, 0, 0, 0, 0, time.UTC))
 
 	dbUpdatedMTO, fetchErr := moveTaskOrderFetcher.FetchMoveTaskOrder(updatedMTO.ID)
 	suite.NoError(fetchErr)

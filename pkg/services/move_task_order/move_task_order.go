@@ -219,7 +219,7 @@ func (u *updateMoveTaskOrderPostCounselingInformation) UpdateMoveTaskOrderPostCo
 
 	mto.ScheduledMoveDate = &postCounselingInformation.ScheduledMoveDate
 	mto.PpmIsIncluded = &postCounselingInformation.PPMIsIncluded
-	mto.SubmittedCounselingDate = time.Now()
+	mto.SubmittedCounselingInfoDate = time.Now()
 	vErrors, err = u.db.ValidateAndUpdate(mto)
 	if vErrors.HasAny() {
 		return &models.MoveTaskOrder{}, NewErrInvalidInput(moveTaskOrderID, err, vErrors.Errors)
