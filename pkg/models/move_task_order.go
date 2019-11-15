@@ -62,10 +62,18 @@ func (m *MoveTaskOrder) Validate(tx *pop.Connection) (*validate.Errors, error) {
 type MoveTaskOrders []MoveTaskOrder
 
 // GenerateReferenceID creates a random ID for an MTO. Format (xxxx-xxxx) with X being a number 0-9 (ex. 0009-1234. 4321-4444)
-func GenerateReferenceID() string {
+func GenerateReferenceID(tx *pop.Connection) string {
 	min := 0
 	max := 9999
 	firstNum := rand.Intn(max - min + 1)
 	secondNum := rand.Intn(max - min + 1)
+	var exists int
+	err := tx.RawQuery("SELECT 1 FROM move_task_orders WHERE reference_id = $1").First(&exists)
+	if err != nil {
+		fmt.Println("BIG ERROR", err)
+	}
+	if exists != 0 {
+		return GenerateReferenceID(tx)
+	}
 	return fmt.Sprintf("%04d-%04d", firstNum, secondNum)
 }

@@ -29,7 +29,7 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 	if isZeroUUID(destinationAddress.ID) {
 		destinationAddress = MakeAddress2(db, assertions)
 	}
-	referenceID := models.GenerateReferenceID()
+	referenceID := models.GenerateReferenceID(db)
 
 	moveTaskOrder := models.MoveTaskOrder{
 		MoveID:                   move.ID,
