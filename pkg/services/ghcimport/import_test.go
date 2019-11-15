@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -19,21 +20,23 @@ type GHCRateEngineImportSuite struct {
 
 func (suite *GHCRateEngineImportSuite) SetupTest() {
 	suite.DB().TruncateAll()
-
-	suite.helperSetupStagingTables()
 }
 
-func (suite *GHCRateEngineImportSuite) helperSetupStagingTables() {
+func helperSetupStagingTables(t *testing.T, db *pop.Connection) {
 	path := filepath.Join("fixtures", "stage_ghc_pricing.sql")
 	c, ioErr := ioutil.ReadFile(path)
-	suite.NoError(ioErr)
+	if ioErr != nil {
+		t.Fatal(ioErr)
+	}
 
 	sql := string(c)
-	err := suite.DB().RawQuery(sql).Exec()
-	suite.NoError(err)
+	err := db.RawQuery(sql).Exec()
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
-func TestPricingParserSuite(t *testing.T) {
+func TestGHCRateEngineImportSuite(t *testing.T) {
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Panic(err)
@@ -43,6 +46,8 @@ func TestPricingParserSuite(t *testing.T) {
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 	}
+
+	helperSetupStagingTables(t, hs.DB())
 
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()
