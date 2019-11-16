@@ -516,7 +516,7 @@ definitions:
     type: object
   PaymentRequest:
     properties:
-      documentPackage:
+      proofOfServicePackage:
         $ref: '#/definitions/ProofOfServicePackage'
       id:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
