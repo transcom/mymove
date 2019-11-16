@@ -135,6 +135,8 @@ type ParamConfig struct {
 	RunImport     bool
 	UseTempTables bool
 	DropIfExists  bool
+	ContractCode  string
+	ContractName  string
 }
 
 // InitDataSheetInfo: When adding new functions for parsing sheets, must add new XlsxDataSheetInfo

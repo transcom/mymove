@@ -2,7 +2,6 @@ package models_test
 
 import (
 	"testing"
-	"time"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -10,10 +9,8 @@ import (
 func (suite *ModelSuite) TestReContractValidations() {
 	suite.T().Run("test valid ReContract", func(t *testing.T) {
 		validReContract := models.ReContract{
-			Code:      "ABC",
-			Name:      "ABC, Inc.",
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
+			Code: "ABC",
+			Name: "ABC, Inc.",
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validReContract, expErrors)

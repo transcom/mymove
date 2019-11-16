@@ -62,7 +62,9 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_Import() {
 		{
 			name: "Run GHC Rate Engine Importer",
 			gre: &GHCRateEngineImporter{
-				Logger: suite.logger,
+				Logger:       suite.logger,
+				ContractCode: "TEST",
+				ContractName: "Test Contract",
 			},
 			wantErr: false,
 		},
