@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"github.com/gofrs/uuid"
 	"regexp"
 	"strings"
 	"time"
@@ -179,6 +180,26 @@ func (v *StringInList) IsValid(errors *validate.Errors) {
 	if !v.List.Contains(v.Value) {
 		errors.Add(validators.GenerateKey(v.FieldName), fmt.Sprintf("'%s' is not in the list [%s].", v.Value, strings.Join(v.List.Contents(), ", ")))
 	}
+}
+
+type UUIDArrayIsPresent struct {
+	Name    string
+	Field   []uuid.UUID
+	Message string
+}
+
+// IsValid adds an error if the field is an empty array.
+func (v *UUIDArrayIsPresent) IsValid(errors *validate.Errors) {
+	if len(v.Field) > 0 {
+		return
+	}
+
+	if len(v.Message) > 0 {
+		errors.Add(validators.GenerateKey(v.Name), v.Message)
+		return
+	}
+
+	errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be empty.", v.Name))
 }
 
 // AffiliationIsPresent validates that a branch is present

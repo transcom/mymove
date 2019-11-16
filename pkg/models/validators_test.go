@@ -2,11 +2,13 @@ package models_test
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/require"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/models"
@@ -219,6 +221,15 @@ func TestOptionalStringInclusion_IsValid(t *testing.T) {
 			t.Fatal("There should be no errors")
 		}
 	})
+}
+
+func TestUUIDArrayIsPresent_IsValid(t *testing.T) {
+	errs := validate.NewErrors()
+	r := require.New(t)
+	v := models.UUIDArrayIsPresent{Name: "Name", Field: []uuid.UUID{}, Message: "Field can't be blank."}
+	v.IsValid(errs)
+	r.Equal(errs.Count(), 1)
+	r.Equal(errs.Get("name"), []string{"Field can't be blank."})
 }
 
 func TestFloat64IsPresent_IsValid(t *testing.T) {
