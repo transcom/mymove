@@ -29,6 +29,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		zap.Bool("is_final", *params.Body.IsFinal),
 		zap.String("move_order_id", (params.Body.MoveOrderID).String()),
 		zap.Strings("service_item_ids", serviceItemIDStrings),
+		// TODO add ProofOfService object to log
 	)
 
 	//responseWriter := http.ResponseWriter(http.ResponseWriter.WriteHeader(http.StatusNotImplemented), runtime.Producer())
