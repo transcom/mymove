@@ -57,6 +57,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdater() {
 
 	suite.NoError(err)
 	suite.Equal(models.MoveTaskOrderStatusDraft, updatedMTO.Status)
+	suite.NotNil(updatedMTO.ReferenceID)
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterEmptyStatus() {
