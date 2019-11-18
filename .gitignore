@@ -81,3 +81,6 @@ storybook-static
 *.sfp
 *.ign
 *.ign2
+
+# Serverless
+.serverless

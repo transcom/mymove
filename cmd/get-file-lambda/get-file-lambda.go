@@ -3,15 +3,14 @@ package main
 import (
 	"context"
 	"log"
-	"os"
-	"path"
 	"strings"
+
+	"github.com/aws/aws-lambda-go/lambda"
 
 	"github.com/transcom/mymove/pkg/storage"
 
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/pkg/errors"
-	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
@@ -19,73 +18,31 @@ import (
 )
 
 type Event struct {
-	Key string `json:"name"`
+	Key string `json:"key"`
 }
 
-const (
-	StorageKey  string = "storage-key"
-	OutFileName string = "outfile-name"
-)
-
-func checkConfig(v *viper.Viper, logger logger) error {
-
-	logger.Debug("checking config")
-
-	err := cli.CheckStorage(v)
-	if err != nil {
-		return err
-	}
-	if v.GetString(StorageKey) == "" {
-		return errors.New("missing storage key")
-	}
-	if v.GetString(OutFileName) == "" {
-		v.Set(OutFileName, path.Base(v.GetString(StorageKey)))
-	}
-
-	return nil
-}
-
-func initFlags(flag *pflag.FlagSet) {
-
-	// Storage config
-	cli.InitStorageFlags(flag)
-
-	// Verbose
-	cli.InitVerboseFlags(flag)
-
-	flag.String(StorageKey, "", "file storage key")
-	flag.String(OutFileName, "", "local filename")
-	// Don't sort flags
-	flag.SortFlags = false
-}
-
-func HandleRequest(ctx context.Context, name Event) (string, error) {
-
-	flag := pflag.CommandLine
-	initFlags(flag)
-	flag.Parse(os.Args[1:])
+func HandleRequest(ctx context.Context, event Event) (string, error) {
 
 	v := viper.New()
-	v.BindPFlags(flag)
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	dbEnv := v.GetString(cli.DbEnvFlag)
-
-	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
+	//TODO pass via env
+	verbose := true
+	dbEnv := "development"
+	storageBackend := "s3"
+	s3Region := "us-west-2"
+	s3Bucket := "transcom-ppp-app-devlocal-us-west-2"
+	s3KeyNameSpace := "matthewkrump"
+	logger, err := logging.Config(dbEnv, verbose)
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
 	zap.ReplaceGlobals(logger)
 
-	err = checkConfig(v, logger)
-	if err != nil {
-		logger.Fatal("invalid configuration", zap.Error(err))
-	}
-
 	var session *awssession.Session
-	if v.GetString(cli.StorageBackendFlag) == "s3" {
-		c, errorConfig := cli.GetAWSConfig(v, v.GetBool(cli.VerboseFlag))
+	if storageBackend == "s3" {
+		c, errorConfig := cli.GetAWSConfig(v, verbose)
 		if errorConfig != nil {
 			logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())
 		}
@@ -96,15 +53,29 @@ func HandleRequest(ctx context.Context, name Event) (string, error) {
 		session = s
 	}
 
-	// Create a connection to the DB
-	storer := storage.InitStorage(v, session, logger)
-	// Have content type in db, but for now going to avoid connecting to db, so just retrieve from bucket
-	contentType, err := storer.ContentType(v.GetString(StorageKey))
+	//var storer FileStorer
+	if storageBackend == "s3" {
+		logger.Info("Using s3 storage backend",
+			zap.String("region", s3Region),
+			zap.String("key", s3KeyNameSpace))
+		if len(s3Bucket) == 0 {
+			logger.Fatal("must provide aws-s3-bucket-name parameter, exiting")
+		}
+		if len(s3Region) == 0 {
+			logger.Fatal("Must provide aws-s3-region parameter, exiting")
+		}
+		if len(s3KeyNameSpace) == 0 {
+			logger.Fatal("Must provide aws_s3_key_namespace parameter, exiting")
+		}
+	}
+	storer := storage.NewS3(s3KeyNameSpace, s3KeyNameSpace, logger, session)
+
+	contentType, err := storer.ContentType(event.Key)
 	if err != nil {
 		logger.Fatal("can't get content type", zap.Error(err))
 	}
 
-	f, err := storer.PresignedURL(v.GetString(StorageKey), contentType)
+	f, err := storer.PresignedURL(event.Key, contentType)
 	if err != nil {
 		logger.Fatal("can't get generate presigned url", zap.Error(err))
 	}
@@ -112,8 +83,5 @@ func HandleRequest(ctx context.Context, name Event) (string, error) {
 }
 
 func main() {
-
-	HandleRequest(context.TODO(), Event{Key: StorageKey})
-	//TODO lambda, lambda, lambda
-	//lambda.Start(HandleRequest)
+	lambda.Start(HandleRequest)
 }

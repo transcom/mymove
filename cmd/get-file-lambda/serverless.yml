@@ -1,0 +1,21 @@
+service: aws-iam-sleuth
+
+provider:
+  name: aws
+  region: us-west-2
+  deploymentBucket: transcom-ppp-serverless-sleuth
+  runtime: go1.x
+  environment:
+    MY_SECRET:
+
+  package:
+    exclude:
+      - ./**
+    include:
+      - ./get-file-lambda
+
+functions:
+  get-file:
+    handler: ./get-file-lambda
+    memorySize: 256
+    role: "arn:aws:iam::923914045601:role/serverless_sleuth"
