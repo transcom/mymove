@@ -434,8 +434,8 @@ github.com/ruudk/golang-pdf417 v0.0.0-20181029194003-1af4ab5afa58/go.mod h1:6lfF
 github.com/satori/go.uuid v1.2.0/go.mod h1:dA0hQrYB0VpLJoorglMZABFdXlWrHn1NEOzdhQKdks0=
 github.com/segmentio/backo-go v0.0.0-20160424052352-204274ad699c h1:rsRTAcCR5CeNLkvgBVSjQoDGRRt6kggsE6XYBqCv2KQ=
 github.com/segmentio/backo-go v0.0.0-20160424052352-204274ad699c/go.mod h1:kJ9mm9YmoWSkk+oQ+5Cj8DEoRCX2JT6As4kEtIIOp1M=
-github.com/segmentio/chamber/v2 v2.7.3 h1:FLiSfNTs4YTJunZnNdQhsHE63VKngEbwAoaCXgti5TQ=
-github.com/segmentio/chamber/v2 v2.7.3/go.mod h1:HvA9uSBFgkrz5QAU1lSGzH6vgj8Ds0Ed4Nvp0DaA/sc=
+github.com/segmentio/chamber/v2 v2.7.5 h1:/Xocz/UHmtnA/4q8+tTqsjrvDLvQr0ONStsiR3aA30M=
+github.com/segmentio/chamber/v2 v2.7.5/go.mod h1:HvA9uSBFgkrz5QAU1lSGzH6vgj8Ds0Ed4Nvp0DaA/sc=
 github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516 h1:ofR1ZdrNSkiWcMsRrubK9tb2/SlZVWttAfqUjJi6QYc=
 github.com/serenize/snaker v0.0.0-20171204205717-a683aaf2d516/go.mod h1:Yow6lPLSAXx2ifx470yD/nUe22Dv5vBvxK/UK9UUTVs=
 github.com/sergi/go-diff v1.0.0 h1:Kpca3qRNrduNnOQeazBd0ysaKrUJiIuISHxogkT9RPQ=
