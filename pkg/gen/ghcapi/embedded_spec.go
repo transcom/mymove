@@ -1735,7 +1735,6 @@ func init() {
           "type": "string",
           "enum": [
             "APPROVED",
-            "DRAFT",
             "SUBMITTED",
             "REJECTED"
           ]
@@ -3993,7 +3992,6 @@ func init() {
           "type": "string",
           "enum": [
             "APPROVED",
-            "DRAFT",
             "SUBMITTED",
             "REJECTED"
           ]

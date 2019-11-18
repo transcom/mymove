@@ -361,7 +361,7 @@ definitions:
         example: 212-555-5555
         x-nullable: true
         title: Best Contact Phone
-#TODO confirm that we actually want all items below repeated on response, since already on mto
+      #TODO confirm that we actually want all items below repeated on response, since already on mto
       originDutyStation:
         type: string
         example: Dover AFB
@@ -496,8 +496,7 @@ definitions:
         type: string
       status:
         enum:
-          - DRAFT  #TODO this is to represent visible to PRIME not sure if this is the right name for this?
-          - APPROVED
+          - APPROVED # This now is the status for made available to Prime (not previously used DRAFT)
           - REJECTED
           - SUBMITTED
         type: string

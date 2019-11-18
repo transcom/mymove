@@ -1230,7 +1230,6 @@ definitions:
       status:
         enum:
           - APPROVED
-          - DRAFT
           - SUBMITTED
           - REJECTED
         type: string
