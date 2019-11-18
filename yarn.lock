@@ -1398,12 +1398,12 @@
     react-lifecycles-compat "^3.0.4"
     warning "^3.0.0"
 
-"@rescripts/cli@^0.0.10":
-  version "0.0.10"
-  resolved "https://registry.yarnpkg.com/@rescripts/cli/-/cli-0.0.10.tgz#9887e836f43de6bbbf031de6c46fe32ab2d347ec"
-  integrity sha512-pACILSpJPhtvBjiYhT1Fuhh1BGmHnG1tW5t4nsGCYg6D8SCLapqk7tdcK/oZd56yXYIJ3/svpzVY9KbG5rPgOQ==
+"@rescripts/cli@^0.0.13":
+  version "0.0.13"
+  resolved "https://registry.yarnpkg.com/@rescripts/cli/-/cli-0.0.13.tgz#b35331ada2dc5d9578a7a40a339684451acf295d"
+  integrity sha512-ik/HqNVcR/9Yb2nz3fvNBA+fKviAGxEmZc5ci2rbrNzcDC4vu/ZH1yY8eBHZ9opA7KFeU2O5MWhgMFYXmmN1Cg==
   dependencies:
-    "@rescripts/utilities" "^0.0.5"
+    "@rescripts/utilities" "^0.0.6"
     ramda "^0.26.0"
     react-dev-utils "^7.0.0"
 
@@ -1440,13 +1440,6 @@
     "@rescripts/utilities" "^0.0.6"
     ramda "^0.26.0"
     tslint-loader "^3.5.4"
-
-"@rescripts/utilities@^0.0.5":
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/@rescripts/utilities/-/utilities-0.0.5.tgz#1bc296744044e4c6ea5d137f073f72b4892a357a"
-  integrity sha512-9YtdDTiICbUzFpmUnfSJRfeBtNR+T3+5LYiPS7xaNSzmOiVXwWubl5kfEzNQIpcg5xOUknYbkObwyUzd9s3QvQ==
-  dependencies:
-    ramda "^0.26.0"
 
 "@rescripts/utilities@^0.0.6":
   version "0.0.6"
