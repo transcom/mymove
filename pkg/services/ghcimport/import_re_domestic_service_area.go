@@ -21,12 +21,12 @@ type domesticServiceAreaData struct {
 	zip3s       stringSet
 }
 
-func (gre *GHCRateEngineImporter) importREDomesticServiceArea(dbTx *pop.Connection) error {
+func (gre *GHCRateEngineImporter) importREDomesticServiceArea(dbTx *pop.Connection) (map[string]uuid.UUID, error) {
 	// Read all the staged domestic service areas
 	var stageDomesticServiceAreas []models.StageDomesticServiceArea
 	stageErr := dbTx.All(&stageDomesticServiceAreas)
 	if stageErr != nil {
-		return errors.Wrap(stageErr, "Could not read staged domestic service areas")
+		return nil, errors.Wrap(stageErr, "Could not read staged domestic service areas")
 	}
 
 	// Since we appear to have duplicate service areas (and possibly zips too), consolidate data to
@@ -35,14 +35,14 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceArea(dbTx *pop.Connecti
 	for _, stageArea := range stageDomesticServiceAreas {
 		serviceAreaNumber, err := cleanServiceAreaNumber(stageArea.ServiceAreaNumber)
 		if err != nil {
-			return errors.Wrapf(err, "Could not process service area number [%s]", stageArea.ServiceAreaNumber)
+			return nil, errors.Wrapf(err, "Could not process service area number [%s]", stageArea.ServiceAreaNumber)
 		}
 
 		splitZip3s := strings.Split(stageArea.Zip3s, ",")
 		for i, zip3 := range splitZip3s {
 			splitZip3s[i], err = cleanZip3(zip3)
 			if err != nil {
-				return errors.Wrapf(err, "Could not process zip3 [%s]", zip3)
+				return nil, errors.Wrapf(err, "Could not process zip3 [%s]", zip3)
 			}
 		}
 
@@ -91,28 +91,28 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceArea(dbTx *pop.Connecti
 	var stageDomesticServiceAreaPrices []models.StageDomesticServiceAreaPrice
 	stageErr = dbTx.All(&stageDomesticServiceAreaPrices)
 	if stageErr != nil {
-		return errors.Wrap(stageErr, "Could not read staged domestic service area prices")
+		return nil, errors.Wrap(stageErr, "Could not read staged domestic service area prices")
 	}
 
 	for _, stagePrice := range stageDomesticServiceAreaPrices {
 		serviceAreaNumber, err := cleanServiceAreaNumber(stagePrice.ServiceAreaNumber)
 		if err != nil {
-			return errors.Wrapf(err, "Could not process service area number [%s]", stagePrice.ServiceAreaNumber)
+			return nil, errors.Wrapf(err, "Could not process service area number [%s]", stagePrice.ServiceAreaNumber)
 		}
 
 		foundServiceAreaData, serviceAreaFound := serviceAreasData[serviceAreaNumber]
 		if !serviceAreaFound {
-			return errors.New(fmt.Sprintf("Missing service area [%s] in list of service areas", serviceAreaNumber))
+			return nil, errors.New(fmt.Sprintf("Missing service area [%s] in list of service areas", serviceAreaNumber))
 		}
 
 		servicesSchedule, err := stringToInteger(stagePrice.ServicesSchedule)
 		if err != nil {
-			return errors.Wrapf(err, "Could not process services schedule [%s]", stagePrice.ServicesSchedule)
+			return nil, errors.Wrapf(err, "Could not process services schedule [%s]", stagePrice.ServicesSchedule)
 		}
 
 		sitSchedule, err := stringToInteger(stagePrice.SITPickupDeliverySchedule)
 		if err != nil {
-			return errors.Wrapf(err, "Could not process SIT P/D schedule [%s]", stagePrice.SITPickupDeliverySchedule)
+			return nil, errors.Wrapf(err, "Could not process SIT P/D schedule [%s]", stagePrice.SITPickupDeliverySchedule)
 		}
 
 		serviceArea := foundServiceAreaData.serviceArea
@@ -127,10 +127,10 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceArea(dbTx *pop.Connecti
 		reServiceArea := serviceAreaData.serviceArea
 		verrs, err := dbTx.ValidateAndSave(reServiceArea)
 		if err != nil {
-			return errors.Wrapf(err, "Could not save service area: %+v", *reServiceArea)
+			return nil, errors.Wrapf(err, "Could not save service area: %+v", *reServiceArea)
 		}
 		if verrs.HasAny() {
-			return errors.Wrapf(verrs, "Validation errors when saving contract: %+v", *reServiceArea)
+			return nil, errors.Wrapf(verrs, "Validation errors when saving contract: %+v", *reServiceArea)
 		}
 		serviceAreaToIDMap[reServiceArea.ServiceArea] = reServiceArea.ID
 
@@ -142,15 +142,13 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceArea(dbTx *pop.Connecti
 			}
 			verrs, err := dbTx.ValidateAndSave(&reZip3)
 			if err != nil {
-				return errors.Wrapf(err, "Could not save zip3: %+v", reZip3)
+				return nil, errors.Wrapf(err, "Could not save zip3: %+v", reZip3)
 			}
 			if verrs.HasAny() {
-				return errors.Wrapf(verrs, "Validation errors when saving zip3: %+v", reZip3)
+				return nil, errors.Wrapf(verrs, "Validation errors when saving zip3: %+v", reZip3)
 			}
 		}
 	}
 
-	gre.serviceAreaToIDMap = serviceAreaToIDMap
-
-	return nil
+	return serviceAreaToIDMap, nil
 }
