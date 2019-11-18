@@ -3,11 +3,11 @@ form.default {
 }
 
 h1.sm-heading {
-  font-size: 3rem;
+  line-height: 1.1;
 }
 
 h2.sm-heading-2 {
-  font-size: 2.5rem;
+  line-height: 1.1;
 }
 
 .DayPicker {

@@ -15,11 +15,17 @@ import (
 
 type testAdminUserListQueryBuilder struct {
 	fakeFetchMany func(model interface{}) error
+	fakeCount     func(model interface{}) (int, error)
 }
 
 func (t *testAdminUserListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
 	m := t.fakeFetchMany(model)
 	return m
+}
+
+func (t *testAdminUserListQueryBuilder) Count(model interface{}, filters []services.QueryFilter) (int, error) {
+	count, m := t.fakeCount(model)
+	return count, m
 }
 
 func defaultPagination() services.Pagination {

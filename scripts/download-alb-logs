@@ -1,0 +1,26 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+#
+# Download alb logs for the given environment and dates to a local folder
+#
+# Requires a environment and http code but can also include a date.
+# When a date is not given the current UTC date is used.
+#
+# Example:
+#	../scripts/download-alb-logs tmp prod 2019/02/14,2019/02/16
+#
+# Note: Must run from transcom-ppp/ directory
+#
+
+[[ $# -ne 3 ]] && echo "Usage: download-alb-logs <dest> <environment:prod|staging|experimental> [<day:YYYY/mm/dd>[,<day:YYYY/mm/dd>]]" && exit 1
+
+readonly dest=$1
+readonly environment=$2
+IFS=', ' read -r -a dates <<< "$3"
+
+mkdir -p "${dest}"
+for date in "${dates[@]}"; do
+  aws s3 sync --quiet "s3://transcom-ppp-aws-logs/alb/app-${environment}/AWSLogs/923914045601/elasticloadbalancing/us-west-2/${date}/" "$dest"
+done

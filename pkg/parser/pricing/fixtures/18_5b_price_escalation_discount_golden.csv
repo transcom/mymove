@@ -1,0 +1,9 @@
+contract_year,forecasting_adjustment,discount,price_escalation
+Base Period Year 1,1.0000,,1
+Base Period Year 2,1.0206,,1.0206
+Base Period Year 3,1.0197,,1.0197
+Option Period 1,1.0214,,1.0214
+Option Period 2,1.0211,,1.0211
+Award Term 1,1.0199,,1.0199
+Award Term 2,1.0194,,1.0194
+Option Period 3,1.0202,,1.0202

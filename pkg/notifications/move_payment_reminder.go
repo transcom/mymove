@@ -58,14 +58,17 @@ type PaymentReminderEmailInfo struct {
 	WeightEstimate       *unit.Pound `db:"weight_estimate"`
 	IncentiveEstimateMin *unit.Cents `db:"incentive_estimate_min"`
 	IncentiveEstimateMax *unit.Cents `db:"incentive_estimate_max"`
-	TOName               string      `db:"transportation_office_name"`
-	TOPhone              string      `db:"transportation_office_phone"`
-	MoveDate             string      `db:"move_date"`
+	IncentiveTxt         string
+	TOName               string `db:"transportation_office_name"`
+	TOPhone              string `db:"transportation_office_phone"`
+	MoveDate             string `db:"move_date"`
 }
 
 func (m PaymentReminder) GetEmailInfo() (PaymentReminderEmailInfos, error) {
 	query := `SELECT sm.id as id, sm.personal_email as personal_email,
-	ppm.weight_estimate, COALESCE(ppm.incentive_estimate_min, 0) as incentive_estimate_min, COALESCE(ppm.incentive_estimate_max, 0) as incentive_estimate_max,
+	COALESCE(ppm.weight_estimate, 0) as weight_estimate,
+	COALESCE(ppm.incentive_estimate_min, 0) as incentive_estimate_min,
+	COALESCE(ppm.incentive_estimate_max, 0) as incentive_estimate_max,
 	ppm.original_move_date as move_date,
 	dsn.name AS new_duty_station_name,
 	tos.name AS transportation_office_name,
@@ -87,7 +90,9 @@ FROM personally_procured_moves ppm
  WHERE ppm.original_move_date <= now() - ($1)::INTERVAL
 	AND ppm.original_move_date >= $2
 	AND (ppm.status != 'APPROVED' OR n.service_member_id IS NULL)
-	AND (notification_type != 'MOVE_PAYMENT_REMINDER_EMAIL' OR n.service_member_id IS NULL);`
+	AND (notification_type != 'MOVE_PAYMENT_REMINDER_EMAIL' OR n.service_member_id IS NULL)
+	AND m.status = 'APPROVED'
+	AND m.show is true;`
 
 	paymentReminderEmailInfos := PaymentReminderEmailInfos{}
 	err := m.db.RawQuery(query, m.emailAfter, m.noEmailBefore).All(&paymentReminderEmailInfos)
@@ -114,11 +119,16 @@ func (m PaymentReminder) emails(ctx context.Context) ([]emailContent, error) {
 func (m PaymentReminder) formatEmails(PaymentReminderEmailInfos PaymentReminderEmailInfos) ([]emailContent, error) {
 	var emails []emailContent
 	for _, PaymentReminderEmailInfo := range PaymentReminderEmailInfos {
+		incentiveTxt := ""
+		if PaymentReminderEmailInfo.WeightEstimate.Int() > 0 && PaymentReminderEmailInfo.IncentiveEstimateMin.Int() > 0 && PaymentReminderEmailInfo.IncentiveEstimateMax.Int() > 0 {
+			incentiveTxt = fmt.Sprintf("You expected to move about %d lbs, which gives you an estimated incentive of %s-%s.", PaymentReminderEmailInfo.WeightEstimate.Int(), PaymentReminderEmailInfo.IncentiveEstimateMin.ToDollarString(), PaymentReminderEmailInfo.IncentiveEstimateMax.ToDollarString())
+		}
 		htmlBody, textBody, err := m.renderTemplates(PaymentReminderEmailData{
 			DestinationDutyStation: PaymentReminderEmailInfo.NewDutyStationName,
 			WeightEstimate:         fmt.Sprintf("%d", PaymentReminderEmailInfo.WeightEstimate.Int()),
 			IncentiveEstimateMin:   PaymentReminderEmailInfo.IncentiveEstimateMin.ToDollarString(),
 			IncentiveEstimateMax:   PaymentReminderEmailInfo.IncentiveEstimateMax.ToDollarString(),
+			IncentiveTxt:           incentiveTxt,
 			TOName:                 PaymentReminderEmailInfo.TOName,
 			TOPhone:                PaymentReminderEmailInfo.TOPhone,
 		})
@@ -181,6 +191,7 @@ type PaymentReminderEmailData struct {
 	WeightEstimate         string
 	IncentiveEstimateMin   string
 	IncentiveEstimateMax   string
+	IncentiveTxt           string
 	TOName                 string
 	TOPhone                string
 }

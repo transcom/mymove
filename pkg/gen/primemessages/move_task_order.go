@@ -75,6 +75,16 @@ type MoveTaskOrder struct {
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
+	// prime actual weight
+	PrimeActualWeight *int64 `json:"primeActualWeight,omitempty"`
+
+	// prime estimated weight
+	PrimeEstimatedWeight *int64 `json:"primeEstimatedWeight,omitempty"`
+
+	// prime estimated weight recorded date
+	// Format: date
+	PrimeEstimatedWeightRecordedDate *strfmt.Date `json:"primeEstimatedWeightRecordedDate,omitempty"`
+
 	// remarks
 	Remarks string `json:"remarks,omitempty"`
 
@@ -148,6 +158,10 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePickupAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePrimeEstimatedWeightRecordedDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -391,6 +405,19 @@ func (m *MoveTaskOrder) validatePickupAddress(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validatePrimeEstimatedWeightRecordedDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.PrimeEstimatedWeightRecordedDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("primeEstimatedWeightRecordedDate", "body", "date", m.PrimeEstimatedWeightRecordedDate.String(), formats); err != nil {
+		return err
 	}
 
 	return nil

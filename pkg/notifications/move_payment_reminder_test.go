@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/go-openapi/swag"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -42,8 +44,22 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 	date9DaysAgo := offsetDate(-9)
 
 	moves := []testdatagen.Assertions{
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo}},
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo}},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo},
+			Move:                   models.Move{Status: models.MoveStatusDRAFT},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo},
+			Move:                   models.Move{Show: swag.Bool(false)},
+		},
 	}
 
 	ppms := suite.createPaymentReminderMoves(moves)
@@ -67,12 +83,28 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 
 func (suite *NotificationSuite) TestPaymentReminderFetchNoneFound() {
 	db := suite.DB()
+	date10DaysAgo := offsetDate(-10)
 	date9DaysAgo := offsetDate(-9)
 	dateTooOld := cutoffDate()
 
 	moves := []testdatagen.Assertions{
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo}},
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &dateTooOld}},
+		{
+
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &dateTooOld},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo},
+			Move:                   models.Move{Status: models.MoveStatusDRAFT},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date9DaysAgo},
+			Move:                   models.Move{Show: swag.Bool(false)},
+		},
 	}
 
 	suite.createPaymentReminderMoves(moves)
@@ -92,8 +124,14 @@ func (suite *NotificationSuite) TestPaymentReminderFetchAlreadySentEmail() {
 	dateTooOld := cutoffDate()
 
 	moves := []testdatagen.Assertions{
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo}},
-		{PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &dateTooOld}},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &date10DaysAgo},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
+		},
+		{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{OriginalMoveDate: &dateTooOld},
+			Move:                   models.Move{Status: models.MoveStatusAPPROVED},
+		},
 	}
 	suite.createPaymentReminderMoves(moves)
 
@@ -139,12 +177,13 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 		WeightEstimate:         "1500",
 		IncentiveEstimateMin:   "500",
 		IncentiveEstimateMax:   "1000",
+		IncentiveTxt:           "You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.",
 		TOName:                 "TEST PPPO",
 		TOPhone:                "555-555-5555",
 	}
 	expectedHTMLContent := `<p>We hope your move to DestDutyStation went well.</p>
 
-<p>It’s been a couple of weeks, so we want to make sure you get paid for that move. You expected to move about 1500 lbs, which gives you an estimated incentive of 500-1000.</p>
+<p>It’s been a couple of weeks, so we want to make sure you get paid for that move. You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.</p>
 
 <p>To get your incentive, you need to request payment.</p>
 
@@ -196,12 +235,13 @@ func (suite *NotificationSuite) TestPaymentReminderTextTemplateRender() {
 		WeightEstimate:         "1500",
 		IncentiveEstimateMin:   "500",
 		IncentiveEstimateMax:   "1000",
+		IncentiveTxt:           "You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.",
 		TOName:                 "TEST PPPO",
 		TOPhone:                "555-555-5555",
 	}
 	expectedTextContent := `We hope your move to DestDutyStation went well.
 
-It’s been a couple of weeks, so we want to make sure you get paid for that move. You expected to move about 1500 lbs, which gives you an estimated incentive of 500-1000.
+It’s been a couple of weeks, so we want to make sure you get paid for that move. You expected to move about 1500 lbs, which gives you an estimated incentive of $500-$1000.
 
 To get your incentive, you need to request payment.
 
@@ -254,6 +294,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 	estimateMin2 := unit.Cents(2000)
 	estimateMax2 := unit.Cents(2200)
 
+	email3 := "email3"
 	weightEst3 := unit.Pound(0)
 	estimateMin3 := unit.Cents(0)
 	estimateMax3 := unit.Cents(0)
@@ -265,6 +306,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			WeightEstimate:       &weightEst1,
 			IncentiveEstimateMin: &estimateMin1,
 			IncentiveEstimateMax: &estimateMax1,
+			IncentiveTxt:         fmt.Sprintf("You expected to move about %d lbs, which gives you an estimated incentive of %s-%s.", weightEst1.Int(), estimateMin1.ToDollarString(), estimateMax1.ToDollarString()),
 			TOName:               "to1",
 			TOPhone:              "111-111-1111",
 		},
@@ -274,8 +316,19 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			WeightEstimate:       &weightEst2,
 			IncentiveEstimateMin: &estimateMin2,
 			IncentiveEstimateMax: &estimateMax2,
+			IncentiveTxt:         fmt.Sprintf("You expected to move about %d lbs, which gives you an estimated incentive of %s-%s.", weightEst2.Int(), estimateMin2.ToDollarString(), estimateMax2.ToDollarString()),
 			TOName:               "to2",
 			TOPhone:              "222-222-2222",
+		},
+		{
+			Email:                &email3,
+			NewDutyStationName:   "nd3",
+			WeightEstimate:       &weightEst3,
+			IncentiveEstimateMin: &estimateMin3,
+			IncentiveEstimateMax: &estimateMax3,
+			IncentiveTxt:         "",
+			TOName:               "to0",
+			TOPhone:              "000-000-0000",
 		},
 		{
 			// nil emails should be skipped
@@ -284,11 +337,11 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			WeightEstimate:       &weightEst3,
 			IncentiveEstimateMin: &estimateMin3,
 			IncentiveEstimateMax: &estimateMax3,
+			IncentiveTxt:         "",
 			TOName:               "to0",
 			TOPhone:              "000-000-0000",
 		},
 	}
-
 	formattedEmails, err := pr.formatEmails(emailInfos)
 
 	suite.NoError(err)
@@ -300,10 +353,10 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			WeightEstimate:         fmt.Sprintf("%d", emailInfo.WeightEstimate.Int()),
 			IncentiveEstimateMin:   emailInfo.IncentiveEstimateMin.ToDollarString(),
 			IncentiveEstimateMax:   emailInfo.IncentiveEstimateMax.ToDollarString(),
+			IncentiveTxt:           emailInfo.IncentiveTxt,
 			TOName:                 emailInfo.TOName,
 			TOPhone:                emailInfo.TOPhone,
 		}
-
 		htmlBody, err := pr.RenderHTML(data)
 		suite.NoError(err)
 		textBody, err := pr.RenderText(data)
@@ -317,10 +370,10 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 		if emailInfo.Email != nil {
 			suite.Equal(expectedEmailContent.recipientEmail, actualEmailContent.recipientEmail)
 			suite.Equal(expectedEmailContent.subject, actualEmailContent.subject)
-			suite.Equal(expectedEmailContent.htmlBody, actualEmailContent.htmlBody)
+			suite.Equal(expectedEmailContent.htmlBody, actualEmailContent.htmlBody, "htmlBody diffferent: %s", emailInfo.TOName)
 			suite.Equal(expectedEmailContent.textBody, actualEmailContent.textBody)
 		}
 	}
 	// only expect the two moves with non-nil email addresses to get added to formattedEmails
-	suite.Len(formattedEmails, 2)
+	suite.Len(formattedEmails, 3)
 }

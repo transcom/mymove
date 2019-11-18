@@ -1,0 +1,8 @@
+market,shipment_type,factor
+CONUS,Mobile Homes,1.20
+CONUS,Tow Away Boat Service,1.10
+CONUS,Haul Away Boat Service,1.30
+OCONUS,Tow Away Boat Service,1.32
+OCONUS,Haul Away Boat Service,1.40
+CONUS,NTS Packing Factor,1.32
+OCONUS,NTS Packing Factor,1.45
