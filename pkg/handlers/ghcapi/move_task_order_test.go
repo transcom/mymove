@@ -28,7 +28,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegration() {
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
 	params := move_task_order.UpdateMoveTaskOrderStatusParams{
 		HTTPRequest:     request,
-		Body:            &ghcmessages.MoveTaskOrderStatus{Status: "DRAFT"},
+		Body:            &ghcmessages.MoveTaskOrderStatus{Status: "SUBMITTED"},
 		MoveTaskOrderID: moveTaskOrder.ID.String(),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -45,7 +45,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegration() {
 
 	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusOK{}, response)
 	suite.Equal(moveTaskOrdersPayload.ID, strfmt.UUID(moveTaskOrder.ID.String()))
-	suite.Equal(moveTaskOrdersPayload.Status, "DRAFT")
+	suite.Equal(moveTaskOrdersPayload.Status, "SUBMITTED")
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerNotFoundError() {
@@ -53,7 +53,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerNotFoundError() {
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
 	params := move_task_order.UpdateMoveTaskOrderStatusParams{
 		HTTPRequest:     request,
-		Body:            &ghcmessages.MoveTaskOrderStatus{Status: "DRAFT"},
+		Body:            &ghcmessages.MoveTaskOrderStatus{Status: "SUBMITTED"},
 		MoveTaskOrderID: moveTaskOrderID.String(),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -73,7 +73,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerServerError() {
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
 	params := move_task_order.UpdateMoveTaskOrderStatusParams{
 		HTTPRequest:     request,
-		Body:            &ghcmessages.MoveTaskOrderStatus{Status: "DRAFT"},
+		Body:            &ghcmessages.MoveTaskOrderStatus{Status: "SUBMITTED"},
 		MoveTaskOrderID: moveTaskOrderID.String(),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
