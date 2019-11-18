@@ -49,7 +49,7 @@
     "react-scripts": "^3.0.1",
     "react-select": "^3.0.8",
     "react-table": "^6.8.2",
-    "react-tabs": "^2.2.2",
+    "react-tabs": "^3.0.0",
     "react-window-size": "^1.0.1",
     "reduce-reducers": "^1.0.4",
     "redux": "^4.0.4",
