@@ -13665,10 +13665,10 @@ swagger-client@^3.9.0:
     utf8-bytes "0.0.1"
     utfstring "^2.0.0"
 
-swagger-ui-dist@^3.24.2:
-  version "3.24.2"
-  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-3.24.2.tgz#bbc53d4d0533d6f3ec43c0dcbcfa117de8153971"
-  integrity sha512-Nhx9hODibHEa53ErTrguM/N0XaEBcQeKkTlfgJvRwMo/CrJI6ncy8xKOh3meSqQj+oVqz2nhWjMBBudJsRYz5g==
+swagger-ui-dist@^3.24.3:
+  version "3.24.3"
+  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-3.24.3.tgz#99754d11b0ddd314a1a50db850acb415e4b0a0c6"
+  integrity sha512-kB8qobP42Xazaym7sD9g5mZuRL4416VIIYZMqPEIskkzKqbPLQGEiHA3ga31bdzyzFLgr6Z797+6X1Am6zYpbg==
 
 symbol-observable@1.0.1:
   version "1.0.1"
