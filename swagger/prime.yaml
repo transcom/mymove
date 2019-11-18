@@ -104,6 +104,56 @@ paths:
       description: Updates a move order's estimated weight by ID
       operationId: updateMoveTaskOrderEstimatedWeight
       summary: Updates a move order's estimated weight by ID
+  '/move-task-orders/{moveTaskOrderID}/prime-actual-weight':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    patch:
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              actualWeight:
+                type: integer
+      responses:
+        '200':
+          description: Successfully retrieved move task order
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+        - prime
+      description: Updates a move order's actual weight by ID
+      operationId: updateMoveTaskOrderActualWeight
+      summary: Updates a move order's actual weight by ID
   '/move-task-orders/{moveTaskOrderID}/customer':
     parameters:
       - description: ID of move order to use
@@ -117,7 +167,7 @@ paths:
       parameters: []
       responses:
         '200':
-          description: Successfully retrieved customer assocaited with move task order
+          description: Successfully retrieved customer associated with move task order
           schema:
             $ref: '#/definitions/Customer'
         '401':
@@ -146,6 +196,48 @@ paths:
       description: Gets a the customer associated with a move task order ID
       operationId: getMoveTaskOrderCustomer
       summary: Gets a the customer associated with a move task order ID
+  '/move-task-orders/{moveTaskOrderID}/prime-entitlements':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      tags:
+        - moveTaskOrder
+        - prime
+      responses:
+        '200':
+          description: Successfully retrieved entitlements
+          schema:
+            $ref: '#/definitions/Entitlements'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      description: Gets entitlements
+      operationId: getPrimeEntitlements
+      summary: Gets entitlements for a move order by ID
   '/move-task-orders/{moveTaskOrderID}/post-counseling-info':
     parameters:
       - description: ID of move order to use
@@ -470,7 +562,7 @@ definitions:
         example: 212-555-5555
         x-nullable: true
         title: Best Contact Phone
-#TODO confirm that we actually want all items below repeated on response, since already on mto
+      #TODO confirm that we actually want all items below repeated on response, since already on mto
       originDutyStation:
         type: string
         example: Dover AFB
@@ -586,6 +678,11 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+      primeActualWeight:
+        type: integer
+        example: 1000
+        x-formatting: weight
+        x-nullable: true
       primeEstimatedWeight:
         type: integer
         example: 1000
@@ -605,7 +702,7 @@ definitions:
         type: string
       status:
         enum:
-          - DRAFT  #TODO this is to represent visible to PRIME not sure if this is the right name for this?
+          - DRAFT #TODO this is to represent visible to PRIME not sure if this is the right name for this?
           - APPROVED
           - REJECTED
           - SUBMITTED

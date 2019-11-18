@@ -77,14 +77,14 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderActualWeightUpdater() {
 	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
 	originalMTO := serviceItem.MoveTaskOrder
 	// check not equal to what asserting against below
-	suite.Nil(originalMTO.ActualWeight)
+	suite.Nil(originalMTO.PrimeActualWeight)
 	mtoActualWeightUpdater := NewMoveTaskOrderActualWeightUpdater(suite.DB())
 
 	newWeight := int64(566)
 	updatedMTO, err := mtoActualWeightUpdater.UpdateMoveTaskOrderActualWeight(originalMTO.ID, newWeight)
 
 	suite.NoError(err)
-	suite.Equal(unit.Pound(newWeight), *updatedMTO.ActualWeight)
+	suite.Equal(unit.Pound(newWeight), *updatedMTO.PrimeActualWeight)
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderPrimeEstimatedWeightUpdater() {
