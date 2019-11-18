@@ -13,10 +13,10 @@ func (suite *GHCRateEngineImportSuite) helperImportRERateAreaTC2(action string) 
 	var err error
 	// Update domestic US6B name "Texas-South" to something else and verify it was changed back when done
 	var texas *models.ReRateArea
-	texas, err = models.FetchReRateAreaItem(suite.DB(), "US6B")
+	texas, err = models.FetchReRateAreaItem(suite.DB(), "US68")
 	suite.NoError(err)
 	//suite.NotNil(texas)
-	suite.FatalNil(texas)
+	suite.Equal(true, suite.NotNil(texas))
 	fmt.Printf("\nFetch US6B rate area %v\n\n", texas)
 	suite.Equal("Texas-South", texas.Name)
 
@@ -24,21 +24,21 @@ func (suite *GHCRateEngineImportSuite) helperImportRERateAreaTC2(action string) 
 	var alaska *models.ReRateArea
 	alaska, err = models.FetchReRateAreaItem(suite.DB(), "US8101000")
 	suite.NoError(err)
-	suite.NotNil(alaska)
+	suite.Equal(true, suite.NotNil(alaska))
 	suite.Equal("Alaska (Zone) I", alaska.Name)
 
 	// Update oconus AS11 name "New South Wales/Australian Capital Territory"
 	var wales *models.ReRateArea
 	wales, err = models.FetchReRateAreaItem(suite.DB(), "AS11")
 	suite.NoError(err)
-	suite.NotNil(wales)
+	suite.Equal(true, suite.NotNil(wales))
 	suite.Equal("New South Wales/Australian Capital Territory", wales.Name)
 
 	if action == "setup" {
 		modifiedName := "New name"
 		texas.Name = modifiedName
 		suite.MustSave(texas)
-		texas, err = models.FetchReRateAreaItem(suite.DB(), "US6B")
+		texas, err = models.FetchReRateAreaItem(suite.DB(), "US68")
 		suite.NoError(err)
 		suite.Equal(modifiedName, texas.Name)
 
@@ -63,13 +63,14 @@ func (suite *GHCRateEngineImportSuite) helperImportRERateAreaTC2(action string) 
 func (suite *GHCRateEngineImportSuite) helperImportRERateAreaTC3(action string) {
 	if action == "setup" {
 		// drop a staging table that we are depending on to do import
-		dropQuery := fmt.Sprintf("DROP DATABASE IF EXISTS %s;", "stage_conus_to_oconus_prices")
+		dropQuery := fmt.Sprintf("DROP TABLE IF EXISTS %s;", "stage_conus_to_oconus_prices")
 		dropErr := suite.DB().RawQuery(dropQuery).Exec()
 		suite.NoError(dropErr)
 	}
 }
 
 func (suite *GHCRateEngineImportSuite) helperImportRERateAreaVerifyImportComplete() {
+	fmt.Printf("helperImportRERateAreaVerifyImportComplete() DB URL %s\n\n", suite.DB().URL())
 	var rateArea models.ReRateArea
 	count, countErr := suite.DB().Count(&rateArea)
 	suite.NoError(countErr)
@@ -136,11 +137,13 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_importRERateAre
 				Logger: tt.fields.Logger,
 			}
 			// Run any necessary setup functions
-			if tc == 2 {
-				//suite.NoError(gre.importRERateArea(tt.args.dbTx))
-				//suite.helperImportRERateAreaTC2("setup")
+			if tc == 1 {
+				suite.NoError(gre.importRERateArea(tt.args.dbTx))
+			} else if tc == 2 {
+				suite.NoError(gre.importRERateArea(tt.args.dbTx))
+				suite.helperImportRERateAreaTC2("setup")
 			} else if tc == 3 {
-				//suite.helperImportRERateAreaTC3("setup")
+				suite.helperImportRERateAreaTC3("setup")
 			}
 			// Execute function under test
 			if err := gre.importRERateArea(tt.args.dbTx); (err != nil) != tt.wantErr {
@@ -151,7 +154,7 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_importRERateAre
 				suite.helperImportRERateAreaVerifyImportComplete()
 			}
 			if tc == 2 {
-				//suite.helperImportRERateAreaTC2("verify")
+				suite.helperImportRERateAreaTC2("verify")
 			}
 		})
 	}
