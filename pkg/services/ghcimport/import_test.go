@@ -23,7 +23,7 @@ func (suite *GHCRateEngineImportSuite) SetupTest() {
 }
 
 func (suite *GHCRateEngineImportSuite) TearDownSuite() {
-	//suite.PopTestSuite.TearDown()
+	suite.PopTestSuite.TearDown()
 }
 
 func (suite *GHCRateEngineImportSuite) helperSetupStagingTables() {
