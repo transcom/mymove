@@ -29,15 +29,11 @@ func (suite *GHCRateEngineImportSuite) TearDownSuite() {
 func (suite *GHCRateEngineImportSuite) helperSetupStagingTables() {
 	path := filepath.Join("fixtures", "stage_ghc_pricing.sql")
 	c, ioErr := ioutil.ReadFile(path)
-	if ioErr != nil {
-		suite.T().Fatal(ioErr)
-	}
+	suite.NoError(ioErr)
 
 	sql := string(c)
 	err := suite.DB().RawQuery(sql).Exec()
-	if err != nil {
-		suite.T().Fatal(err)
-	}
+	suite.NoError(err)
 }
 
 func TestGHCRateEngineImportSuite(t *testing.T) {

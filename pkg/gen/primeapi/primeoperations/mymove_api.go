@@ -42,8 +42,14 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveTaskOrderGetMoveTaskOrderCustomerHandler: move_task_order.GetMoveTaskOrderCustomerHandlerFunc(func(params move_task_order.GetMoveTaskOrderCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderGetMoveTaskOrderCustomer has not yet been implemented")
 		}),
+		MoveTaskOrderGetPrimeEntitlementsHandler: move_task_order.GetPrimeEntitlementsHandlerFunc(func(params move_task_order.GetPrimeEntitlementsParams) middleware.Responder {
+			return middleware.NotImplemented("operation MoveTaskOrderGetPrimeEntitlements has not yet been implemented")
+		}),
 		MoveTaskOrderListMoveTaskOrdersHandler: move_task_order.ListMoveTaskOrdersHandlerFunc(func(params move_task_order.ListMoveTaskOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderListMoveTaskOrders has not yet been implemented")
+		}),
+		MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler: move_task_order.UpdateMoveTaskOrderActualWeightHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderActualWeightParams) middleware.Responder {
+			return middleware.NotImplemented("operation MoveTaskOrderUpdateMoveTaskOrderActualWeight has not yet been implemented")
 		}),
 		MoveTaskOrderUpdateMoveTaskOrderEstimatedWeightHandler: move_task_order.UpdateMoveTaskOrderEstimatedWeightHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderEstimatedWeightParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderUpdateMoveTaskOrderEstimatedWeight has not yet been implemented")
@@ -81,8 +87,12 @@ type MymoveAPI struct {
 
 	// MoveTaskOrderGetMoveTaskOrderCustomerHandler sets the operation handler for the get move task order customer operation
 	MoveTaskOrderGetMoveTaskOrderCustomerHandler move_task_order.GetMoveTaskOrderCustomerHandler
+	// MoveTaskOrderGetPrimeEntitlementsHandler sets the operation handler for the get prime entitlements operation
+	MoveTaskOrderGetPrimeEntitlementsHandler move_task_order.GetPrimeEntitlementsHandler
 	// MoveTaskOrderListMoveTaskOrdersHandler sets the operation handler for the list move task orders operation
 	MoveTaskOrderListMoveTaskOrdersHandler move_task_order.ListMoveTaskOrdersHandler
+	// MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler sets the operation handler for the update move task order actual weight operation
+	MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler move_task_order.UpdateMoveTaskOrderActualWeightHandler
 	// MoveTaskOrderUpdateMoveTaskOrderEstimatedWeightHandler sets the operation handler for the update move task order estimated weight operation
 	MoveTaskOrderUpdateMoveTaskOrderEstimatedWeightHandler move_task_order.UpdateMoveTaskOrderEstimatedWeightHandler
 
@@ -152,8 +162,16 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "move_task_order.GetMoveTaskOrderCustomerHandler")
 	}
 
+	if o.MoveTaskOrderGetPrimeEntitlementsHandler == nil {
+		unregistered = append(unregistered, "move_task_order.GetPrimeEntitlementsHandler")
+	}
+
 	if o.MoveTaskOrderListMoveTaskOrdersHandler == nil {
 		unregistered = append(unregistered, "move_task_order.ListMoveTaskOrdersHandler")
+	}
+
+	if o.MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler == nil {
+		unregistered = append(unregistered, "move_task_order.UpdateMoveTaskOrderActualWeightHandler")
 	}
 
 	if o.MoveTaskOrderUpdateMoveTaskOrderEstimatedWeightHandler == nil {
@@ -266,7 +284,17 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/prime-entitlements"] = move_task_order.NewGetPrimeEntitlements(o.context, o.MoveTaskOrderGetPrimeEntitlementsHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/move-task-orders"] = move_task_order.NewListMoveTaskOrders(o.context, o.MoveTaskOrderListMoveTaskOrdersHandler)
+
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/prime-actual-weight"] = move_task_order.NewUpdateMoveTaskOrderActualWeight(o.context, o.MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
