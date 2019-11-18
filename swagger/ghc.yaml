@@ -1212,7 +1212,6 @@ definitions:
         type: array
       status:
         enum:
-          - DRAFT #TODO this is to represent visible to PRIME not sure if this is the right name for this?
           - APPROVED
           - REJECTED
           - SUBMITTED

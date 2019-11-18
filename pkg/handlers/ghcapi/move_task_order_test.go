@@ -60,7 +60,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerNotFoundError() {
 
 	// make the request
 	mtoStatusUpdater := &mocks.MoveTaskOrderStatusUpdater{}
-	mtoStatusUpdater.On("UpdateMoveTaskOrderStatus", moveTaskOrderID, models.MoveTaskOrderStatusDraft).
+	mtoStatusUpdater.On("UpdateMoveTaskOrderStatus", moveTaskOrderID, models.MoveTaskOrderStatusSubmitted).
 		Return(&models.MoveTaskOrder{}, movetaskorder.ErrNotFound{})
 	handler := UpdateMoveTaskOrderStatusHandlerFunc{context, mtoStatusUpdater}
 	response := handler.Handle(params)
@@ -80,7 +80,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerServerError() {
 
 	// make the request
 	mtoStatusUpdater := &mocks.MoveTaskOrderStatusUpdater{}
-	mtoStatusUpdater.On("UpdateMoveTaskOrderStatus", moveTaskOrderID, models.MoveTaskOrderStatusDraft).
+	mtoStatusUpdater.On("UpdateMoveTaskOrderStatus", moveTaskOrderID, models.MoveTaskOrderStatusSubmitted).
 		Return(&models.MoveTaskOrder{}, errors.New("something bad happened"))
 	handler := UpdateMoveTaskOrderStatusHandlerFunc{context, mtoStatusUpdater}
 	response := handler.Handle(params)
