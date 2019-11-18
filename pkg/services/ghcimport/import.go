@@ -16,15 +16,13 @@ type GHCRateEngineImporter struct {
 }
 
 func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
-	var err error
-
 	// Reference tables
-	gre.contractID, err = gre.importREContract(dbTx)
+	err := gre.importREContract(dbTx)
 	if err != nil {
 		return errors.Wrap(err, "Failed to import re_contract")
 	}
 
-	gre.serviceAreaToIDMap, err = gre.importREDomesticServiceArea(dbTx)
+	err = gre.importREDomesticServiceArea(dbTx)
 	if err != nil {
 		return errors.Wrap(err, "Failed to import re_domestic_service_area")
 	}
