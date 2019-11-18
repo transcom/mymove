@@ -6,8 +6,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// PaymentRequestCreator is the exported interface for fetching multiple transportation offices
+// PaymentRequestCreator is the exported interface for creating a payment request
 //go:generate mockery -name PaymentRequestCreator
 type PaymentRequestCreator interface {
-	CreatePaymentRequest(paymentRequest *models.PaymentRequest, moveTaskOrderIDFilter []QueryFilter) (*models.PaymentRequest, *validate.Errors, error)
+	CreatePaymentRequest(paymentRequest *models.PaymentRequest) (*models.PaymentRequest, *validate.Errors, error)
 }

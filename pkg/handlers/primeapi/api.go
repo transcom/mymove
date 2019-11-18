@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 
 	"github.com/go-openapi/loads"
 
@@ -32,6 +33,7 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	primeAPI.PaymentRequestsCreatePaymentRequestHandler = CreatePaymentRequestHandler{
 		context,
+		paymentrequest.NewPaymentRequestCreator(context.DB()),
 	}
 
 	return primeAPI.Serve(nil)
