@@ -78,18 +78,14 @@ func generateReferenceID(tx *pop.Connection) (string, error) {
 	return newReferenceID, nil
 }
 
-const maxAttempts = 10
-
 func GenerateReferenceID(tx *pop.Connection) (string, error) {
+	const maxAttempts = 10
 	var referenceID string
 	var err error
 	for i := 0; i < maxAttempts; i++ {
 		referenceID, err = generateReferenceID(tx)
 		if err == nil {
 			return referenceID, nil
-		}
-		if i >= maxAttempts {
-			break
 		}
 	}
 	return "", err
