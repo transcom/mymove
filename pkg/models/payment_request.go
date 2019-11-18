@@ -25,7 +25,7 @@ func (p *PaymentRequest) Validate(tx *pop.Connection) (*validate.Errors, error) 
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: p.MoveTaskOrderID, Name: "MoveTaskOrderID"},
 		&UUIDArrayIsPresent{Field: p.ServiceItemIDs, Name: "ServiceItemIDs"},
+		// TODO: make sure serviceItemIDs are unique
 		&validators.StringIsPresent{Field: p.RejectionReason, Name: "RejectionReason"},
 	), nil
 }
-
