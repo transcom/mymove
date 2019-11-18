@@ -385,3 +385,4 @@
 20191106165340_move_task_order_add_est_wtg.up.sql
 20191107173303_add-reference-id-to-mto.up.sql
 20191113142631_add_moves_show_idx.up.sql
+20191118163343_alter_ghc_approval_status.up.sql
