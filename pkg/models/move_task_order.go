@@ -16,7 +16,6 @@ import (
 
 type MoveTaskOrder struct {
 	ID                               uuid.UUID           `db:"id"`
-	ActualWeight                     *unit.Pound         `json:"actual_weight" db:"actual_weight"`
 	CreatedAt                        time.Time           `db:"created_at"`
 	Customer                         ServiceMember       `belongs_to:"service_members"`
 	CustomerID                       uuid.UUID           `db:"customer_id"`
@@ -32,6 +31,7 @@ type MoveTaskOrder struct {
 	OriginDutyStationID              uuid.UUID           `db:"origin_duty_station_id"`
 	PickupAddress                    Address             `belongs_to:"addresses"`
 	PickupAddressID                  uuid.UUID           `db:"pickup_address_id"`
+	PrimeActualWeight                *unit.Pound         `db:"prime_actual_weight"`
 	PrimeEstimatedWeight             *unit.Pound         `db:"prime_estimated_weight"`
 	PrimeEstimatedWeightRecordedDate *time.Time          `db:"prime_estimated_weight_recorded_date"`
 	RequestedPickupDate              time.Time           `db:"requested_pickup_date"`
@@ -54,6 +54,9 @@ func (m *MoveTaskOrder) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	vs = append(vs, &validators.StringIsPresent{Field: string(m.Status), Name: "Status"})
 	if m.PrimeEstimatedWeight != nil {
 		vs = append(vs, &validators.IntIsGreaterThan{Field: m.PrimeEstimatedWeight.Int(), Compared: -1, Name: "PrimeEstimatedWeight"})
+	}
+	if m.PrimeActualWeight != nil {
+		vs = append(vs, &validators.IntIsGreaterThan{Field: m.PrimeActualWeight.Int(), Compared: -1, Name: "PrimeActualWeight"})
 	}
 	return validate.Validate(vs...), nil
 }

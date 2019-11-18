@@ -33,8 +33,6 @@ func NewGetMoveTaskOrderCustomer(ctx *middleware.Context, handler GetMoveTaskOrd
 
 Gets a the customer associated with a move task order ID
 
-Gets a the customer associated with a move task order ID
-
 */
 type GetMoveTaskOrderCustomer struct {
 	Context *middleware.Context

@@ -2,10 +2,10 @@ import { swaggerRequest } from 'shared/Swagger/request';
 import { getGHCClient } from 'shared/Swagger/api';
 import { get } from 'lodash';
 
-const getEntitlementsLabel = 'Entitlements.getEntitlements';
+const getEntitlementsLabel = 'moveTaskOrder.getEntitlements';
 
 export function getEntitlements(moveTaskOrderID, label = getEntitlementsLabel) {
-  const swaggerTag = 'Entitlements.getEntitlements';
+  const swaggerTag = 'moveTaskOrder.getEntitlements';
   return swaggerRequest(getGHCClient, swaggerTag, { moveTaskOrderID }, { label });
 }
 
