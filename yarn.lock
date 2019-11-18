@@ -11862,10 +11862,10 @@ react-router-dom@^4.2.0, react-router-dom@^4.2.2:
     react-router "^4.3.1"
     warning "^4.0.1"
 
-react-router-last-location@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/react-router-last-location/-/react-router-last-location-1.1.0.tgz#cfa1958d7b1fbb22ace38f35b1d12b8ac5ef0326"
-  integrity sha512-VOCQKhwho9XjFWkRgLN6eD1pciPf5EtoCNbO38Tagllds8mdQsFfQwuhkb/jp1JPxexWBZPZNO15LbuYg6a4gQ==
+react-router-last-location@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/react-router-last-location/-/react-router-last-location-2.0.1.tgz#54d625876dd1448594fa1114aa02e7e21db12970"
+  integrity sha512-3FbFIWwUr2qN28vN9DNdFp6RhUH/yif6ILVff1zT+hLdyGmlNPh3GuPhveb7bHQLgB744QW8L0qtWjX58ESuZQ==
 
 react-router-redux@^5.0.0-alpha.8, react-router-redux@~5.0.0-alpha.9:
   version "5.0.0-alpha.9"
