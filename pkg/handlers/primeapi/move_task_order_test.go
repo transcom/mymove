@@ -139,6 +139,27 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderEstimatedWeightHandlerUnproces
 	suite.Equal(*clientErr.Detail, moveTaskOrderValidationError.Error())
 }
 
+func (suite *HandlerSuite) TestGetMoveTaskOrdersCustomerHandler() {
+	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+
+	request := httptest.NewRequest("GET", "/move-task-orders/:id/customer", nil)
+
+	params := movetaskorderops.GetMoveTaskOrderCustomerParams{HTTPRequest: request, MoveTaskOrderID: moveTaskOrder.ID.String()}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+	// make the request
+	handler := GetMoveTaskOrderCustomerHandler{HandlerContext: context,
+		moveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(suite.DB()),
+	}
+	response := handler.Handle(params)
+
+	suite.IsNotErrResponse(response)
+	customer := response.(*movetaskorderops.GetMoveTaskOrderCustomerOK)
+	moveTaskOrdersCustomerPayload := customer.Payload
+
+	suite.Equal(moveTaskOrder.CustomerID.String(), moveTaskOrdersCustomerPayload.ID.String())
+}
+
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderPostCounselingInformationHandlerIntegration() {
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
 	address := testdatagen.MakeDefaultAddress(suite.DB())

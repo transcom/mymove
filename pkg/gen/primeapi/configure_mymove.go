@@ -34,6 +34,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
+	if api.MoveTaskOrderGetMoveTaskOrderCustomerHandler == nil {
+		api.MoveTaskOrderGetMoveTaskOrderCustomerHandler = move_task_order.GetMoveTaskOrderCustomerHandlerFunc(func(params move_task_order.GetMoveTaskOrderCustomerParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrderCustomer has not yet been implemented")
+		})
+	}
 	if api.MoveTaskOrderListMoveTaskOrdersHandler == nil {
 		api.MoveTaskOrderListMoveTaskOrdersHandler = move_task_order.ListMoveTaskOrdersHandlerFunc(func(params move_task_order.ListMoveTaskOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.ListMoveTaskOrders has not yet been implemented")

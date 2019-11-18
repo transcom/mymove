@@ -291,7 +291,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          docker_layer_caching: true
+          docker_layer_caching: false
       - run: make anti_virus
       - announce_failure
 
@@ -360,7 +360,7 @@ jobs:
 
   # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
   integration_tests:
-    parallelism: 10
+    parallelism: 6
     executor: mymove_medium_plus
     steps:
       - checkout
@@ -391,8 +391,6 @@ jobs:
     executor: mymove_and_postgres_large
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
@@ -506,8 +504,6 @@ jobs:
     executor: mymove_medium
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
       - restore_cache:
           keys:
             - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}

@@ -104,6 +104,48 @@ paths:
       description: Updates a move order's estimated weight by ID
       operationId: updateMoveTaskOrderEstimatedWeight
       summary: Updates a move order's estimated weight by ID
+  '/move-task-orders/{moveTaskOrderID}/customer':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved customer assocaited with move task order
+          schema:
+            $ref: '#/definitions/Customer'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '422':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+        - prime
+      description: Gets a the customer associated with a move task order ID
+      operationId: getMoveTaskOrderCustomer
+      summary: Gets a the customer associated with a move task order ID
   '/move-task-orders/{moveTaskOrderID}/post-counseling-info':
     parameters:
       - description: ID of move order to use
@@ -384,11 +426,26 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      name:
+      first_name:
         type: string
-        example: George Washington
+        example: John
         x-nullable: true
-        title: Customer Name
+        title: First Name
+      middle_name:
+        type: string
+        example: L.
+        x-nullable: true
+        title: Middle Name
+      last_name:
+        type: string
+        example: Donut
+        x-nullable: true
+        title: Last Name
+      suffix:
+        type: string
+        example: Jr.
+        x-nullable: true
+        title: Suffix
       agency:
         type: string
         example: Some Agency
@@ -413,6 +470,7 @@ definitions:
         example: 212-555-5555
         x-nullable: true
         title: Best Contact Phone
+#TODO confirm that we actually want all items below repeated on response, since already on mto
       originDutyStation:
         type: string
         example: Dover AFB
@@ -425,6 +483,15 @@ definitions:
         x-nullable: true
       pickup_address:
         $ref: '#/definitions/Address'
+      destination_address:
+        $ref: '#/definitions/Address'
+        x-nullable: true
+      remarks:
+        example: Requires more gentle care
+        type: string
+      requestedPickupDate:
+        format: date
+        type: string
   Entitlements:
     properties:
       id:
