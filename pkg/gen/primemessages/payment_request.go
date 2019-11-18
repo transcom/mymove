@@ -19,9 +19,6 @@ import (
 // swagger:model PaymentRequest
 type PaymentRequest struct {
 
-	// document package
-	DocumentPackage *ProofOfServicePackage `json:"documentPackage,omitempty"`
-
 	// id
 	// Read Only: true
 	// Format: uuid
@@ -30,9 +27,12 @@ type PaymentRequest struct {
 	// is final
 	IsFinal *bool `json:"isFinal,omitempty"`
 
-	// move order ID
+	// move task order ID
 	// Format: uuid
-	MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
+	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
+
+	// proof of service package
+	ProofOfServicePackage *ProofOfServicePackage `json:"proofOfServicePackage,omitempty"`
 
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`
@@ -48,15 +48,15 @@ type PaymentRequest struct {
 func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateDocumentPackage(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateMoveOrderID(formats); err != nil {
+	if err := m.validateMoveTaskOrderID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateProofOfServicePackage(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -74,24 +74,6 @@ func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *PaymentRequest) validateDocumentPackage(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.DocumentPackage) { // not required
-		return nil
-	}
-
-	if m.DocumentPackage != nil {
-		if err := m.DocumentPackage.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("documentPackage")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (m *PaymentRequest) validateID(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ID) { // not required
@@ -105,14 +87,32 @@ func (m *PaymentRequest) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *PaymentRequest) validateMoveOrderID(formats strfmt.Registry) error {
+func (m *PaymentRequest) validateMoveTaskOrderID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.MoveOrderID) { // not required
+	if swag.IsZero(m.MoveTaskOrderID) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("moveOrderID", "body", "uuid", m.MoveOrderID.String(), formats); err != nil {
+	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentRequest) validateProofOfServicePackage(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ProofOfServicePackage) { // not required
+		return nil
+	}
+
+	if m.ProofOfServicePackage != nil {
+		if err := m.ProofOfServicePackage.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("proofOfServicePackage")
+			}
+			return err
+		}
 	}
 
 	return nil

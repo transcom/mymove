@@ -22,9 +22,9 @@ type CreatePaymentRequestPayload struct {
 	// is final
 	IsFinal *bool `json:"isFinal,omitempty"`
 
-	// move order ID
+	// move task order ID
 	// Format: uuid
-	MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
+	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
 	// proof of service package
 	ProofOfServicePackage *ProofOfServicePackage `json:"proofOfServicePackage,omitempty"`
@@ -37,7 +37,7 @@ type CreatePaymentRequestPayload struct {
 func (m *CreatePaymentRequestPayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateMoveOrderID(formats); err != nil {
+	if err := m.validateMoveTaskOrderID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -55,13 +55,13 @@ func (m *CreatePaymentRequestPayload) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *CreatePaymentRequestPayload) validateMoveOrderID(formats strfmt.Registry) error {
+func (m *CreatePaymentRequestPayload) validateMoveTaskOrderID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.MoveOrderID) { // not required
+	if swag.IsZero(m.MoveTaskOrderID) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("moveOrderID", "body", "uuid", m.MoveOrderID.String(), formats); err != nil {
+	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
 		return err
 	}
 

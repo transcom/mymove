@@ -430,7 +430,7 @@ func init() {
           "type": "boolean",
           "default": false
         },
-        "moveOrderID": {
+        "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -678,9 +678,6 @@ func init() {
     "PaymentRequest": {
       "type": "object",
       "properties": {
-        "documentPackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
-        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -691,10 +688,13 @@ func init() {
           "type": "boolean",
           "default": false
         },
-        "moveOrderID": {
+        "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proofOfServicePackage": {
+          "$ref": "#/definitions/ProofOfServicePackage"
         },
         "rejectionReason": {
           "type": "string",
@@ -1287,7 +1287,7 @@ func init() {
           "type": "boolean",
           "default": false
         },
-        "moveOrderID": {
+        "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -1535,9 +1535,6 @@ func init() {
     "PaymentRequest": {
       "type": "object",
       "properties": {
-        "documentPackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
-        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -1548,10 +1545,13 @@ func init() {
           "type": "boolean",
           "default": false
         },
-        "moveOrderID": {
+        "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proofOfServicePackage": {
+          "$ref": "#/definitions/ProofOfServicePackage"
         },
         "rejectionReason": {
           "type": "string",

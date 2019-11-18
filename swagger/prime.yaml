@@ -364,7 +364,7 @@ definitions:
       isFinal:
         default: false
         type: boolean
-      moveOrderID:
+      moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
@@ -526,7 +526,7 @@ definitions:
       isFinal:
         default: false
         type: boolean
-      moveOrderID:
+      moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
