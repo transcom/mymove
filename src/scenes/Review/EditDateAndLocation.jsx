@@ -23,7 +23,7 @@ const sitEstimateDebounceTime = 300;
 let EditDateAndLocationForm = props => {
   const { handleSubmit, currentOrders, getSitEstimate, schema, valid, sitReimbursement, submitting } = props;
   return (
-    <div className="grid-container usa-prose site-prose">
+    <div className="grid-container usa-prose">
       <div className="grid-row">
         <div className="grid-col-12">
           <form onSubmit={handleSubmit}>
@@ -234,7 +234,4 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(EditDateAndLocation);
+export default connect(mapStateToProps, mapDispatchToProps)(EditDateAndLocation);

@@ -56,7 +56,7 @@ export class WizardPage extends Component {
     const canMoveForward = pageIsValid;
     const canMoveBackward = (pageIsValid || !dirty) && !isFirstPage(pageList, pageKey);
     return (
-      <div className="grid-container usa-prose site-prose">
+      <div className="grid-container usa-prose">
         {error && (
           <div className="grid-row">
             <div className="grid-col-12 error-message">
@@ -121,9 +121,4 @@ function mapDispatchToProps(dispatch) {
 }
 
 const wizardFormPageWithSize = windowSize(WizardPage);
-export default withRouter(
-  connect(
-    null,
-    mapDispatchToProps,
-  )(wizardFormPageWithSize),
-);
+export default withRouter(connect(null, mapDispatchToProps)(wizardFormPageWithSize));

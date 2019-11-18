@@ -141,3 +141,36 @@ func (h GetPrimeEntitlementsHandler) Handle(params movetaskorderops.GetPrimeEnti
 
 	return movetaskorderops.NewGetPrimeEntitlementsOK().WithPayload(entitlements)
 }
+
+type GetMoveTaskOrderCustomerHandler struct {
+	handlers.HandlerContext
+	moveTaskOrderFetcher services.MoveTaskOrderFetcher
+}
+
+func (h GetMoveTaskOrderCustomerHandler) Handle(params movetaskorderops.GetMoveTaskOrderCustomerParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID)
+	if err != nil {
+		logger.Error("ghciap.GetMoveTaskOrderCustomerHandler error", zap.Error(err))
+		switch e := err.(type) {
+		case movetaskorderservice.ErrNotFound:
+			return movetaskorderops.NewGetMoveTaskOrderCustomerNotFound()
+		case movetaskorderservice.ErrInvalidInput:
+			payload := &primemessages.ValidationError{
+				InvalidFields: e.InvalidFields(),
+				ClientError: primemessages.ClientError{
+					Title:    handlers.FmtString(handlers.ValidationErrMessage),
+					Detail:   handlers.FmtString(e.Error()),
+					Instance: handlers.FmtUUID(h.GetTraceID()),
+				},
+			}
+			return movetaskorderops.NewGetMoveTaskOrderCustomerUnprocessableEntity().WithPayload(payload)
+		default:
+			return movetaskorderops.NewGetMoveTaskOrderCustomerInternalServerError()
+		}
+	}
+	customer := payloads.CustomerWithMTO(mto)
+	return movetaskorderops.NewGetMoveTaskOrderCustomerOK().WithPayload(customer)
+}

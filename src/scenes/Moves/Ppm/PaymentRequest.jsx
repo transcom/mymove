@@ -139,7 +139,7 @@ export class PaymentRequest extends Component {
     const canSubmitPayment = !updatingPPM && atLeastOneMoveDoc && this.state.acceptTerms;
 
     return (
-      <div className="grid-container usa-prose site-prose">
+      <div className="grid-container usa-prose">
         <div className="grid-row grid-gap payment-request">
           <div className="grid-col-8">
             {updateError && (
@@ -207,7 +207,4 @@ const mapDispatchToProps = {
   createMovingExpenseDocument,
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(PaymentRequest);
+export default connect(mapStateToProps, mapDispatchToProps)(PaymentRequest);

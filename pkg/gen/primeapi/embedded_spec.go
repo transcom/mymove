@@ -96,12 +96,9 @@ func init() {
         }
       }
     },
-    "/move-task-orders/{moveTaskOrderID}/prime-actual-weight": {
-      "patch": {
-        "description": "Updates a move order's actual weight by ID",
-        "consumes": [
-          "application/json"
-        ],
+    "/move-task-orders/{moveTaskOrderID}/customer": {
+      "get": {
+        "description": "Gets a the customer associated with a move task order ID",
         "produces": [
           "application/json"
         ],
@@ -109,34 +106,13 @@ func init() {
           "moveTaskOrder",
           "prime"
         ],
-        "summary": "Updates a move order's actual weight by ID",
-        "operationId": "updateMoveTaskOrderActualWeight",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "actualWeight": {
-                  "type": "integer"
-                }
-              }
-            }
-          }
-        ],
+        "summary": "Gets a the customer associated with a move task order ID",
+        "operationId": "getMoveTaskOrderCustomer",
         "responses": {
           "200": {
-            "description": "Successfully retrieved move task order",
+            "description": "Successfully retrieved customer associated with move task order",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
+              "$ref": "#/definitions/Customer"
             }
           },
           "401": {
@@ -157,71 +133,16 @@ func init() {
               "$ref": "#/responses/NotFound"
             }
           },
+          "422": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
           "500": {
             "description": "A server error occurred",
             "schema": {
               "$ref": "#/responses/ServerError"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "ID of move order to use",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/move-task-orders/{moveTaskOrderID}/prime-entitlements": {
-      "get": {
-        "description": "Gets entitlements",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder",
-          "prime"
-        ],
-        "summary": "Gets entitlements for a move order by ID",
-        "operationId": "getPrimeEntitlements",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved entitlements",
-            "schema": {
-              "$ref": "#/definitions/Entitlements"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -514,6 +435,10 @@ func init() {
           "x-nullable": true,
           "example": "Dover AFB"
         },
+        "destination_address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
         "email": {
           "type": "string",
           "format": "x-email",
@@ -521,6 +446,12 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true,
           "example": "john_bob@example.com"
+        },
+        "first_name": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": true,
+          "example": "John"
         },
         "grade": {
           "type": "string",
@@ -533,11 +464,17 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "name": {
+        "last_name": {
           "type": "string",
-          "title": "Customer Name",
+          "title": "Last Name",
           "x-nullable": true,
-          "example": "George Washington"
+          "example": "Donut"
+        },
+        "middle_name": {
+          "type": "string",
+          "title": "Middle Name",
+          "x-nullable": true,
+          "example": "L."
         },
         "originDutyStation": {
           "type": "string",
@@ -547,6 +484,20 @@ func init() {
         },
         "pickup_address": {
           "$ref": "#/definitions/Address"
+        },
+        "remarks": {
+          "type": "string",
+          "example": "Requires more gentle care"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "suffix": {
+          "type": "string",
+          "title": "Suffix",
+          "x-nullable": true,
+          "example": "Jr."
         },
         "telephone": {
           "type": "string",
@@ -875,12 +826,9 @@ func init() {
         }
       }
     },
-    "/move-task-orders/{moveTaskOrderID}/prime-actual-weight": {
-      "patch": {
-        "description": "Updates a move order's actual weight by ID",
-        "consumes": [
-          "application/json"
-        ],
+    "/move-task-orders/{moveTaskOrderID}/customer": {
+      "get": {
+        "description": "Gets a the customer associated with a move task order ID",
         "produces": [
           "application/json"
         ],
@@ -888,37 +836,13 @@ func init() {
           "moveTaskOrder",
           "prime"
         ],
-        "summary": "Updates a move order's actual weight by ID",
-        "operationId": "updateMoveTaskOrderActualWeight",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "actualWeight": {
-                  "type": "integer"
-                }
-              }
-            }
-          }
-        ],
+        "summary": "Gets a the customer associated with a move task order ID",
+        "operationId": "getMoveTaskOrderCustomer",
         "responses": {
           "200": {
-            "description": "Successfully retrieved move task order",
+            "description": "Successfully retrieved customer associated with move task order",
             "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/Customer"
             }
           },
           "401": {
@@ -948,6 +872,12 @@ func init() {
               }
             }
           },
+          "422": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
           "500": {
             "description": "A server error occurred",
             "schema": {
@@ -955,67 +885,6 @@ func init() {
               "schema": {
                 "$ref": "#/definitions/Error"
               }
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "ID of move order to use",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/move-task-orders/{moveTaskOrderID}/prime-entitlements": {
-      "get": {
-        "description": "Gets entitlements",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder",
-          "prime"
-        ],
-        "summary": "Gets entitlements for a move order by ID",
-        "operationId": "getPrimeEntitlements",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved entitlements",
-            "schema": {
-              "$ref": "#/definitions/Entitlements"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
             }
           }
         }
@@ -1320,6 +1189,10 @@ func init() {
           "x-nullable": true,
           "example": "Dover AFB"
         },
+        "destination_address": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
         "email": {
           "type": "string",
           "format": "x-email",
@@ -1327,6 +1200,12 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "x-nullable": true,
           "example": "john_bob@example.com"
+        },
+        "first_name": {
+          "type": "string",
+          "title": "First Name",
+          "x-nullable": true,
+          "example": "John"
         },
         "grade": {
           "type": "string",
@@ -1339,11 +1218,17 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "name": {
+        "last_name": {
           "type": "string",
-          "title": "Customer Name",
+          "title": "Last Name",
           "x-nullable": true,
-          "example": "George Washington"
+          "example": "Donut"
+        },
+        "middle_name": {
+          "type": "string",
+          "title": "Middle Name",
+          "x-nullable": true,
+          "example": "L."
         },
         "originDutyStation": {
           "type": "string",
@@ -1353,6 +1238,20 @@ func init() {
         },
         "pickup_address": {
           "$ref": "#/definitions/Address"
+        },
+        "remarks": {
+          "type": "string",
+          "example": "Requires more gentle care"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "suffix": {
+          "type": "string",
+          "title": "Suffix",
+          "x-nullable": true,
+          "example": "Jr."
         },
         "telephone": {
           "type": "string",
