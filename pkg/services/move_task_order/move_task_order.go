@@ -100,7 +100,7 @@ func (f fetchMoveTaskOrder) UpdateMoveTaskOrderStatus(moveTaskOrderID uuid.UUID,
 		return &models.MoveTaskOrder{}, err
 	}
 	if mto.Status != status && status == models.MoveTaskOrderStatusDraft {
-		mto.ReferenceID = models.GenerateReferenceID()
+		mto.ReferenceID, _ = models.GenerateReferenceID(f.db)
 	}
 	mto.Status = status
 	vErrors, err := f.db.ValidateAndUpdate(mto)
