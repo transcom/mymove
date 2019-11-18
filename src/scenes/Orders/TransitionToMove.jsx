@@ -17,14 +17,21 @@ export class TransitionToMove extends Component {
   render() {
     return (
       <div className="usa-grid">
-        <div className="lg center">
-          <p> Great, we're done with your orders.</p>
-          <img className="sm" src={ordersComplete} alt="profile-check" />
+        <div className="grid-row grid-gap">
+          <div className="grid-col-3 desktop:grid-col-2 text-right">
+            <img className="sm margin-top-3 desktop:margin-top-1" src={ordersComplete} alt="profile-check" />
+          </div>
+          <div className="grid-col-9 desktop:grid-col-10">
+            <h1 className="sm-heading">Great, we're done with your orders.</h1>
+          </div>
         </div>
-
-        <div className="lg center">
-          <p>Now, we're ready to schedule your move!</p>
-          <img className="sm" src={moveIcon} alt="onto-move-orders" />
+        <div className="grid-row grid-gap">
+          <div className="grid-col-3 desktop:grid-col-2 text-right">
+            <img className="sm margin-top-5 desktop:margin-top-1" src={moveIcon} alt="onto-move-orders" />
+          </div>
+          <div className="grid-col-9 desktop:grid-col-10">
+            <h1 className="sm-heading">Now, we're ready to schedule your move!</h1>
+          </div>
         </div>
       </div>
     );

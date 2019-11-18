@@ -29,6 +29,10 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		movetaskorder.NewMoveTaskOrderEstimatedWeightUpdater(context.DB()),
 	}
+	primeAPI.MoveTaskOrderGetMoveTaskOrderCustomerHandler = GetMoveTaskOrderCustomerHandler{
+		context,
+		movetaskorder.NewMoveTaskOrderFetcher(context.DB()),
+	}
 
 	return primeAPI.Serve(nil)
 }

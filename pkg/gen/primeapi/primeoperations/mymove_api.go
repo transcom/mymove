@@ -39,6 +39,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		BearerAuthenticator: security.BearerAuth,
 		JSONConsumer:        runtime.JSONConsumer(),
 		JSONProducer:        runtime.JSONProducer(),
+		MoveTaskOrderGetMoveTaskOrderCustomerHandler: move_task_order.GetMoveTaskOrderCustomerHandlerFunc(func(params move_task_order.GetMoveTaskOrderCustomerParams) middleware.Responder {
+			return middleware.NotImplemented("operation MoveTaskOrderGetMoveTaskOrderCustomer has not yet been implemented")
+		}),
 		MoveTaskOrderListMoveTaskOrdersHandler: move_task_order.ListMoveTaskOrdersHandlerFunc(func(params move_task_order.ListMoveTaskOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderListMoveTaskOrders has not yet been implemented")
 		}),
@@ -76,6 +79,8 @@ type MymoveAPI struct {
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
+	// MoveTaskOrderGetMoveTaskOrderCustomerHandler sets the operation handler for the get move task order customer operation
+	MoveTaskOrderGetMoveTaskOrderCustomerHandler move_task_order.GetMoveTaskOrderCustomerHandler
 	// MoveTaskOrderListMoveTaskOrdersHandler sets the operation handler for the list move task orders operation
 	MoveTaskOrderListMoveTaskOrdersHandler move_task_order.ListMoveTaskOrdersHandler
 	// MoveTaskOrderUpdateMoveTaskOrderEstimatedWeightHandler sets the operation handler for the update move task order estimated weight operation
@@ -141,6 +146,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
+	}
+
+	if o.MoveTaskOrderGetMoveTaskOrderCustomerHandler == nil {
+		unregistered = append(unregistered, "move_task_order.GetMoveTaskOrderCustomerHandler")
 	}
 
 	if o.MoveTaskOrderListMoveTaskOrdersHandler == nil {
@@ -248,6 +257,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers == nil {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/customer"] = move_task_order.NewGetMoveTaskOrderCustomer(o.context, o.MoveTaskOrderGetMoveTaskOrderCustomerHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
