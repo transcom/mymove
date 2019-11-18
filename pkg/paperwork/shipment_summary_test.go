@@ -50,10 +50,10 @@ func (mppmc *mockPPMComputer) CalledWith() []ppmComputerParams {
 func (suite *PaperworkSuite) TestComputeObligationsParams() {
 	ppmComputer := NewSSWPPMComputer(&mockPPMComputer{})
 	pickupPostalCode := "85369"
-	destinationPostalCode := "31905"
+	destinationDutyStationPostalCode := "31905"
 	ppm := models.PersonallyProcuredMove{
-		PickupPostalCode:      &pickupPostalCode,
-		DestinationPostalCode: &destinationPostalCode,
+		PickupPostalCode:                 &pickupPostalCode,
+		DestinationDutyStationPostalCode: &destinationDutyStationPostalCode,
 	}
 	noPPM := models.ShipmentSummaryFormData{PersonallyProcuredMoves: models.PersonallyProcuredMoves{}}
 	missingZip := models.ShipmentSummaryFormData{PersonallyProcuredMoves: models.PersonallyProcuredMoves{{}}}
@@ -76,15 +76,15 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 	origMoveDate := time.Date(2018, 12, 11, 0, 0, 0, 0, time.UTC)
 	actualDate := time.Date(2018, 12, 15, 0, 0, 0, 0, time.UTC)
 	pickupPostalCode := "85369"
-	destinationPostalCode := "31905"
+	destinationDutyStationPostalCode := "31905"
 	cents := unit.Cents(1000)
 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			OriginalMoveDate:      &origMoveDate,
-			ActualMoveDate:        &actualDate,
-			PickupPostalCode:      &pickupPostalCode,
-			DestinationPostalCode: &destinationPostalCode,
-			TotalSITCost:          &cents,
+			OriginalMoveDate:                 &origMoveDate,
+			ActualMoveDate:                   &actualDate,
+			PickupPostalCode:                 &pickupPostalCode,
+			DestinationDutyStationPostalCode: &destinationDutyStationPostalCode,
+			TotalSITCost:                     &cents,
 		},
 	})
 	currentDutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
@@ -103,7 +103,7 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 			Weight:                                totalWeightEntitlement,
 			OriginPickupZip5:                      pickupPostalCode,
 			OriginDutyStationZip5:                 currentDutyStation.Address.PostalCode,
-			DestinationZip5:                       destinationPostalCode,
+			DestinationZip5:                       destinationDutyStationPostalCode,
 			DistanceMilesFromOriginPickupZip:      miles,
 			DistanceMilesFromOriginDutyStationZip: miles,
 			Date:                                  actualDate,
@@ -113,7 +113,7 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 			Weight:                                ppmRemainingEntitlement,
 			OriginPickupZip5:                      pickupPostalCode,
 			OriginDutyStationZip5:                 currentDutyStation.Address.PostalCode,
-			DestinationZip5:                       destinationPostalCode,
+			DestinationZip5:                       destinationDutyStationPostalCode,
 			DistanceMilesFromOriginPickupZip:      miles,
 			DistanceMilesFromOriginDutyStationZip: miles,
 			Date:                                  actualDate,
@@ -142,10 +142,10 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 	suite.Run("TestComputeObligations when there is no actual PPM SIT", func() {
 		ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 			PersonallyProcuredMove: models.PersonallyProcuredMove{
-				OriginalMoveDate:      &origMoveDate,
-				ActualMoveDate:        &actualDate,
-				PickupPostalCode:      &pickupPostalCode,
-				DestinationPostalCode: &destinationPostalCode,
+				OriginalMoveDate:                 &origMoveDate,
+				ActualMoveDate:                   &actualDate,
+				PickupPostalCode:                 &pickupPostalCode,
+				DestinationDutyStationPostalCode: &destinationDutyStationPostalCode,
 			},
 		})
 		currentDutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())

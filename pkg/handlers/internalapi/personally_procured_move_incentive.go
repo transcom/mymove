@@ -27,12 +27,12 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 
 	engine := rateengine.NewRateEngine(h.DB(), logger)
 
-	distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistance(params.OriginZip, params.DestinationZip)
+	distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistance(params.OriginZip, params.DestinationDutyStationZip)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistance(params.OriginDutyStationZip, params.DestinationZip)
+	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistance(params.OriginDutyStationZip, params.DestinationDutyStationZip)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -41,7 +41,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 		unit.Pound(params.Weight),
 		params.OriginZip,
 		params.OriginDutyStationZip,
-		params.DestinationZip,
+		params.DestinationDutyStationZip,
 		distanceMilesFromOriginPickupZip,
 		distanceMilesFromOriginDutyStationZip,
 		time.Time(params.OriginalMoveDate),

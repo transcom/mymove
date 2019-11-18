@@ -618,7 +618,7 @@ func init() {
             "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
             "type": "string",
             "format": "zip",
-            "name": "destination_zip",
+            "name": "destination_duty_station_zip",
             "in": "query",
             "required": true
           },
@@ -2082,7 +2082,7 @@ func init() {
             "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
             "type": "string",
             "format": "zip",
-            "name": "destination_zip",
+            "name": "destination_duty_station_zip",
             "in": "query",
             "required": true
           },
@@ -3296,7 +3296,7 @@ func init() {
           "maximum": 90,
           "x-nullable": true
         },
-        "destination_postal_code": {
+        "destination_duty_station_postal_code": {
           "type": "string",
           "format": "zip",
           "title": "ZIP/Postal Code",
@@ -4705,14 +4705,6 @@ func init() {
           "maximum": 90,
           "x-nullable": true
         },
-        "destination_postal_code": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP/Postal Code",
-          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-          "x-nullable": true,
-          "example": "90210"
-        },
         "has_additional_postal_code": {
           "type": "boolean",
           "title": "Do you have stuff at another pickup location?",
@@ -4930,7 +4922,7 @@ func init() {
           "maximum": 90,
           "x-nullable": true
         },
-        "destination_postal_code": {
+        "destination_duty_station_postal_code": {
           "type": "string",
           "format": "zip",
           "title": "ZIP/Postal Code",
@@ -5628,7 +5620,7 @@ func init() {
           "maximum": 90,
           "x-nullable": true
         },
-        "destination_postal_code": {
+        "destination_duty_station_postal_code": {
           "type": "string",
           "format": "zip",
           "title": "ZIP/Postal Code",
@@ -6422,7 +6414,7 @@ func init() {
             "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
             "type": "string",
             "format": "zip",
-            "name": "destination_zip",
+            "name": "destination_duty_station_zip",
             "in": "query",
             "required": true
           },
@@ -7886,7 +7878,7 @@ func init() {
             "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
             "type": "string",
             "format": "zip",
-            "name": "destination_zip",
+            "name": "destination_duty_station_zip",
             "in": "query",
             "required": true
           },
@@ -9101,7 +9093,7 @@ func init() {
           "minimum": 0,
           "x-nullable": true
         },
-        "destination_postal_code": {
+        "destination_duty_station_postal_code": {
           "type": "string",
           "format": "zip",
           "title": "ZIP/Postal Code",
@@ -10516,14 +10508,6 @@ func init() {
           "minimum": 0,
           "x-nullable": true
         },
-        "destination_postal_code": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP/Postal Code",
-          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
-          "x-nullable": true,
-          "example": "90210"
-        },
         "has_additional_postal_code": {
           "type": "boolean",
           "title": "Do you have stuff at another pickup location?",
@@ -10743,7 +10727,7 @@ func init() {
           "minimum": 0,
           "x-nullable": true
         },
-        "destination_postal_code": {
+        "destination_duty_station_postal_code": {
           "type": "string",
           "format": "zip",
           "title": "ZIP/Postal Code",
@@ -11443,7 +11427,7 @@ func init() {
           "minimum": 0,
           "x-nullable": true
         },
-        "destination_postal_code": {
+        "destination_duty_station_postal_code": {
           "type": "string",
           "format": "zip",
           "title": "ZIP/Postal Code",

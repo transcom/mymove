@@ -162,7 +162,7 @@ definitions:
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
-      destination_postal_code:
+      destination_duty_station_postal_code:
         type: string
         format: zip
         title: ZIP/Postal Code
@@ -235,7 +235,7 @@ definitions:
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
-      destination_postal_code:
+      destination_duty_station_postal_code:
         type: string
         format: zip
         title: ZIP/Postal Code
@@ -308,13 +308,6 @@ definitions:
         x-nullable: true
         title: Do you have stuff at another pickup location?
       additional_pickup_postal_code:
-        type: string
-        format: zip
-        title: ZIP/Postal Code
-        example: '90210'
-        pattern: '^(\d{5}([\-]\d{4})?)$'
-        x-nullable: true
-      destination_postal_code:
         type: string
         format: zip
         title: ZIP/Postal Code
@@ -409,7 +402,7 @@ definitions:
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
-      destination_postal_code:
+      destination_duty_station_postal_code:
         type: string
         format: zip
         title: ZIP/Postal Code
@@ -2421,7 +2414,7 @@ paths:
           pattern: '^(\d{5}([\-]\d{4})?)$'
           required: true
         - in: query
-          name: destination_zip
+          name: destination_duty_station_zip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
@@ -3514,7 +3507,7 @@ paths:
           pattern: '^(\d{5}([\-]\d{4})?)$'
           required: true
         - in: query
-          name: destination_zip
+          name: destination_duty_station_zip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'

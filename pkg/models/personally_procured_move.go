@@ -35,38 +35,38 @@ const (
 
 // PersonallyProcuredMove is the portion of a move that a service member performs themselves
 type PersonallyProcuredMove struct {
-	ID                            uuid.UUID                    `json:"id" db:"id"`
-	MoveID                        uuid.UUID                    `json:"move_id" db:"move_id"`
-	Move                          Move                         `belongs_to:"move"`
-	CreatedAt                     time.Time                    `json:"created_at" db:"created_at"`
-	UpdatedAt                     time.Time                    `json:"updated_at" db:"updated_at"`
-	Size                          *internalmessages.TShirtSize `json:"size" db:"size"`
-	WeightEstimate                *unit.Pound                  `json:"weight_estimate" db:"weight_estimate"`
-	OriginalMoveDate              *time.Time                   `json:"original_move_date" db:"original_move_date"`
-	ActualMoveDate                *time.Time                   `json:"actual_move_date" db:"actual_move_date"`
-	SubmitDate                    *time.Time                   `json:"submit_date" db:"submit_date"`
-	ApproveDate                   *time.Time                   `json:"approve_date" db:"approve_date"`
-	ReviewedDate                  *time.Time                   `json:"reviewed_date" db:"reviewed_date"`
-	NetWeight                     *unit.Pound                  `json:"net_weight" db:"net_weight"`
-	PickupPostalCode              *string                      `json:"pickup_postal_code" db:"pickup_postal_code"`
-	HasAdditionalPostalCode       *bool                        `json:"has_additional_postal_code" db:"has_additional_postal_code"`
-	AdditionalPickupPostalCode    *string                      `json:"additional_pickup_postal_code" db:"additional_pickup_postal_code"`
-	DestinationPostalCode         *string                      `json:"destination_postal_code" db:"destination_postal_code"`
-	HasSit                        *bool                        `json:"has_sit" db:"has_sit"`
-	DaysInStorage                 *int64                       `json:"days_in_storage" db:"days_in_storage"`
-	EstimatedStorageReimbursement *string                      `json:"estimated_storage_reimbursement" db:"estimated_storage_reimbursement"`
-	Mileage                       *int64                       `json:"mileage" db:"mileage"`
-	PlannedSITMax                 *unit.Cents                  `json:"planned_sit_max" db:"planned_sit_max"`
-	SITMax                        *unit.Cents                  `json:"sit_max" db:"sit_max"`
-	IncentiveEstimateMin          *unit.Cents                  `json:"incentive_estimate_min" db:"incentive_estimate_min"`
-	IncentiveEstimateMax          *unit.Cents                  `json:"incentive_estimate_max" db:"incentive_estimate_max"`
-	Status                        PPMStatus                    `json:"status" db:"status"`
-	HasRequestedAdvance           bool                         `json:"has_requested_advance" db:"has_requested_advance"`
-	AdvanceID                     *uuid.UUID                   `json:"advance_id" db:"advance_id"`
-	Advance                       *Reimbursement               `belongs_to:"reimbursements"`
-	AdvanceWorksheet              Document                     `belongs_to:"documents"`
-	AdvanceWorksheetID            *uuid.UUID                   `json:"advance_worksheet_id" db:"advance_worksheet_id"`
-	TotalSITCost                  *unit.Cents                  `json:"total_sit_cost" db:"total_sit_cost"`
+	ID                               uuid.UUID                    `json:"id" db:"id"`
+	MoveID                           uuid.UUID                    `json:"move_id" db:"move_id"`
+	Move                             Move                         `belongs_to:"move"`
+	CreatedAt                        time.Time                    `json:"created_at" db:"created_at"`
+	UpdatedAt                        time.Time                    `json:"updated_at" db:"updated_at"`
+	Size                             *internalmessages.TShirtSize `json:"size" db:"size"`
+	WeightEstimate                   *unit.Pound                  `json:"weight_estimate" db:"weight_estimate"`
+	OriginalMoveDate                 *time.Time                   `json:"original_move_date" db:"original_move_date"`
+	ActualMoveDate                   *time.Time                   `json:"actual_move_date" db:"actual_move_date"`
+	SubmitDate                       *time.Time                   `json:"submit_date" db:"submit_date"`
+	ApproveDate                      *time.Time                   `json:"approve_date" db:"approve_date"`
+	ReviewedDate                     *time.Time                   `json:"reviewed_date" db:"reviewed_date"`
+	NetWeight                        *unit.Pound                  `json:"net_weight" db:"net_weight"`
+	PickupPostalCode                 *string                      `json:"pickup_postal_code" db:"pickup_postal_code"`
+	HasAdditionalPostalCode          *bool                        `json:"has_additional_postal_code" db:"has_additional_postal_code"`
+	AdditionalPickupPostalCode       *string                      `json:"additional_pickup_postal_code" db:"additional_pickup_postal_code"`
+	DestinationDutyStationPostalCode *string                      `json:"destination_postal_code" db:"destination_postal_code"`
+	HasSit                           *bool                        `json:"has_sit" db:"has_sit"`
+	DaysInStorage                    *int64                       `json:"days_in_storage" db:"days_in_storage"`
+	EstimatedStorageReimbursement    *string                      `json:"estimated_storage_reimbursement" db:"estimated_storage_reimbursement"`
+	Mileage                          *int64                       `json:"mileage" db:"mileage"`
+	PlannedSITMax                    *unit.Cents                  `json:"planned_sit_max" db:"planned_sit_max"`
+	SITMax                           *unit.Cents                  `json:"sit_max" db:"sit_max"`
+	IncentiveEstimateMin             *unit.Cents                  `json:"incentive_estimate_min" db:"incentive_estimate_min"`
+	IncentiveEstimateMax             *unit.Cents                  `json:"incentive_estimate_max" db:"incentive_estimate_max"`
+	Status                           PPMStatus                    `json:"status" db:"status"`
+	HasRequestedAdvance              bool                         `json:"has_requested_advance" db:"has_requested_advance"`
+	AdvanceID                        *uuid.UUID                   `json:"advance_id" db:"advance_id"`
+	Advance                          *Reimbursement               `belongs_to:"reimbursements"`
+	AdvanceWorksheet                 Document                     `belongs_to:"documents"`
+	AdvanceWorksheetID               *uuid.UUID                   `json:"advance_worksheet_id" db:"advance_worksheet_id"`
+	TotalSITCost                     *unit.Cents                  `json:"total_sit_cost" db:"total_sit_cost"`
 }
 
 // PersonallyProcuredMoves is a list of PPMs

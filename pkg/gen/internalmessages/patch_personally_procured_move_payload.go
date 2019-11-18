@@ -36,10 +36,6 @@ type PatchPersonallyProcuredMovePayload struct {
 	// Minimum: 0
 	DaysInStorage *int64 `json:"days_in_storage,omitempty"`
 
-	// ZIP/Postal Code
-	// Pattern: ^(\d{5}([\-]\d{4})?)$
-	DestinationPostalCode *string `json:"destination_postal_code,omitempty"`
-
 	// Do you have stuff at another pickup location?
 	HasAdditionalPostalCode *bool `json:"has_additional_postal_code,omitempty"`
 
@@ -94,10 +90,6 @@ func (m *PatchPersonallyProcuredMovePayload) Validate(formats strfmt.Registry) e
 	}
 
 	if err := m.validateDaysInStorage(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateDestinationPostalCode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -204,19 +196,6 @@ func (m *PatchPersonallyProcuredMovePayload) validateDaysInStorage(formats strfm
 	}
 
 	if err := validate.MaximumInt("days_in_storage", "body", int64(*m.DaysInStorage), 90, false); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *PatchPersonallyProcuredMovePayload) validateDestinationPostalCode(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.DestinationPostalCode) { // not required
-		return nil
-	}
-
-	if err := validate.Pattern("destination_postal_code", "body", string(*m.DestinationPostalCode), `^(\d{5}([\-]\d{4})?)$`); err != nil {
 		return err
 	}
 

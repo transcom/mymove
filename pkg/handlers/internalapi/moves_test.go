@@ -431,11 +431,11 @@ func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
 	netWeight := unit.Pound(1000)
 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			MoveID:                move.ID,
-			ActualMoveDate:        &testdatagen.DateInsidePerformancePeriod,
-			NetWeight:             &netWeight,
-			PickupPostalCode:      models.StringPointer("50303"),
-			DestinationPostalCode: models.StringPointer("30814"),
+			MoveID:                           move.ID,
+			ActualMoveDate:                   &testdatagen.DateInsidePerformancePeriod,
+			NetWeight:                        &netWeight,
+			PickupPostalCode:                 models.StringPointer("50303"),
+			DestinationDutyStationPostalCode: models.StringPointer("30814"),
 		},
 	})
 	certificationType := models.SignedCertificationTypePPMPAYMENT

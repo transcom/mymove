@@ -34,7 +34,7 @@ type CreatePersonallyProcuredMovePayload struct {
 
 	// ZIP/Postal Code
 	// Pattern: ^(\d{5}([\-]\d{4})?)$
-	DestinationPostalCode *string `json:"destination_postal_code,omitempty"`
+	DestinationDutyStationPostalCode *string `json:"destination_duty_station_postal_code,omitempty"`
 
 	// Estimated Storage Reimbursement
 	EstimatedStorageReimbursement *string `json:"estimated_storage_reimbursement,omitempty"`
@@ -88,7 +88,7 @@ func (m *CreatePersonallyProcuredMovePayload) Validate(formats strfmt.Registry) 
 		res = append(res, err)
 	}
 
-	if err := m.validateDestinationPostalCode(formats); err != nil {
+	if err := m.validateDestinationDutyStationPostalCode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -184,13 +184,13 @@ func (m *CreatePersonallyProcuredMovePayload) validateDaysInStorage(formats strf
 	return nil
 }
 
-func (m *CreatePersonallyProcuredMovePayload) validateDestinationPostalCode(formats strfmt.Registry) error {
+func (m *CreatePersonallyProcuredMovePayload) validateDestinationDutyStationPostalCode(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.DestinationPostalCode) { // not required
+	if swag.IsZero(m.DestinationDutyStationPostalCode) { // not required
 		return nil
 	}
 
-	if err := validate.Pattern("destination_postal_code", "body", string(*m.DestinationPostalCode), `^(\d{5}([\-]\d{4})?)$`); err != nil {
+	if err := validate.Pattern("destination_duty_station_postal_code", "body", string(*m.DestinationDutyStationPostalCode), `^(\d{5}([\-]\d{4})?)$`); err != nil {
 		return err
 	}
 

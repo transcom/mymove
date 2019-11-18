@@ -19,19 +19,19 @@ func MakePPM(db *pop.Connection, assertions Assertions) models.PersonallyProcure
 	}
 
 	ppm := models.PersonallyProcuredMove{
-		Move:                          move,
-		MoveID:                        move.ID,
-		Size:                          &shirt,
-		WeightEstimate:                poundPointer(8000),
-		OriginalMoveDate:              models.TimePointer(DateInsidePeakRateCycle),
-		PickupPostalCode:              models.StringPointer("72017"),
-		HasAdditionalPostalCode:       models.BoolPointer(false),
-		AdditionalPickupPostalCode:    nil,
-		DestinationPostalCode:         models.StringPointer("60605"),
-		HasSit:                        models.BoolPointer(false),
-		DaysInStorage:                 nil,
-		Status:                        models.PPMStatusDRAFT,
-		EstimatedStorageReimbursement: models.StringPointer("estimate sit"),
+		Move:                             move,
+		MoveID:                           move.ID,
+		Size:                             &shirt,
+		WeightEstimate:                   poundPointer(8000),
+		OriginalMoveDate:                 models.TimePointer(DateInsidePeakRateCycle),
+		PickupPostalCode:                 models.StringPointer("72017"),
+		HasAdditionalPostalCode:          models.BoolPointer(false),
+		AdditionalPickupPostalCode:       nil,
+		DestinationDutyStationPostalCode: models.StringPointer("60605"),
+		HasSit:                           models.BoolPointer(false),
+		DaysInStorage:                    nil,
+		Status:                           models.PPMStatusDRAFT,
+		EstimatedStorageReimbursement:    models.StringPointer("estimate sit"),
 	}
 
 	// Overwrite values with those from assertions

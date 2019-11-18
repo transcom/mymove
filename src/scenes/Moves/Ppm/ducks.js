@@ -71,12 +71,17 @@ export function createOrUpdatePpm(moveId, ppm) {
   };
 }
 
-export function setInitialFormValues(originalMoveDate, pickupPostalCode, originDutyStationZip, destinationPostalCode) {
+export function setInitialFormValues(
+  originalMoveDate,
+  pickupPostalCode,
+  originDutyStationZip,
+  destinationDutyStationZip,
+) {
   return function(dispatch) {
     dispatch(change('ppp_date_and_location', 'original_move_date', originalMoveDate));
     dispatch(change('ppp_date_and_location', 'pickup_postal_code', pickupPostalCode));
     dispatch(change('ppp_date_and_location', 'origin_duty_station_zip', originDutyStationZip));
-    dispatch(change('ppp_date_and_location', 'destination_postal_code', destinationPostalCode));
+    dispatch(change('ppp_date_and_location', 'destination_duty_station_zip', destinationDutyStationZip));
   };
 }
 

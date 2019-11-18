@@ -24,30 +24,30 @@ func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models
 		return nil, err
 	}
 	ppmPayload := internalmessages.PersonallyProcuredMovePayload{
-		ID:                            handlers.FmtUUID(personallyProcuredMove.ID),
-		MoveID:                        *handlers.FmtUUID(personallyProcuredMove.MoveID),
-		CreatedAt:                     handlers.FmtDateTime(personallyProcuredMove.CreatedAt),
-		UpdatedAt:                     handlers.FmtDateTime(personallyProcuredMove.UpdatedAt),
-		Size:                          personallyProcuredMove.Size,
-		WeightEstimate:                handlers.FmtPoundPtr(personallyProcuredMove.WeightEstimate),
-		OriginalMoveDate:              handlers.FmtDatePtr(personallyProcuredMove.OriginalMoveDate),
-		ActualMoveDate:                handlers.FmtDatePtr(personallyProcuredMove.ActualMoveDate),
-		SubmitDate:                    handlers.FmtDateTimePtr(personallyProcuredMove.SubmitDate),
-		ApproveDate:                   handlers.FmtDateTimePtr(personallyProcuredMove.ApproveDate),
-		NetWeight:                     handlers.FmtPoundPtr(personallyProcuredMove.NetWeight),
-		PickupPostalCode:              personallyProcuredMove.PickupPostalCode,
-		HasAdditionalPostalCode:       personallyProcuredMove.HasAdditionalPostalCode,
-		AdditionalPickupPostalCode:    personallyProcuredMove.AdditionalPickupPostalCode,
-		DestinationPostalCode:         personallyProcuredMove.DestinationPostalCode,
-		HasSit:                        personallyProcuredMove.HasSit,
-		DaysInStorage:                 personallyProcuredMove.DaysInStorage,
-		EstimatedStorageReimbursement: personallyProcuredMove.EstimatedStorageReimbursement,
-		Status:                        internalmessages.PPMStatus(personallyProcuredMove.Status),
-		HasRequestedAdvance:           &personallyProcuredMove.HasRequestedAdvance,
-		Advance:                       payloadForReimbursementModel(personallyProcuredMove.Advance),
-		AdvanceWorksheet:              documentPayload,
-		Mileage:                       personallyProcuredMove.Mileage,
-		TotalSitCost:                  handlers.FmtCost(personallyProcuredMove.TotalSITCost),
+		ID:                               handlers.FmtUUID(personallyProcuredMove.ID),
+		MoveID:                           *handlers.FmtUUID(personallyProcuredMove.MoveID),
+		CreatedAt:                        handlers.FmtDateTime(personallyProcuredMove.CreatedAt),
+		UpdatedAt:                        handlers.FmtDateTime(personallyProcuredMove.UpdatedAt),
+		Size:                             personallyProcuredMove.Size,
+		WeightEstimate:                   handlers.FmtPoundPtr(personallyProcuredMove.WeightEstimate),
+		OriginalMoveDate:                 handlers.FmtDatePtr(personallyProcuredMove.OriginalMoveDate),
+		ActualMoveDate:                   handlers.FmtDatePtr(personallyProcuredMove.ActualMoveDate),
+		SubmitDate:                       handlers.FmtDateTimePtr(personallyProcuredMove.SubmitDate),
+		ApproveDate:                      handlers.FmtDateTimePtr(personallyProcuredMove.ApproveDate),
+		NetWeight:                        handlers.FmtPoundPtr(personallyProcuredMove.NetWeight),
+		PickupPostalCode:                 personallyProcuredMove.PickupPostalCode,
+		HasAdditionalPostalCode:          personallyProcuredMove.HasAdditionalPostalCode,
+		AdditionalPickupPostalCode:       personallyProcuredMove.AdditionalPickupPostalCode,
+		DestinationDutyStationPostalCode: &personallyProcuredMove.Move.Orders.NewDutyStation.Address.PostalCode,
+		HasSit:                           personallyProcuredMove.HasSit,
+		DaysInStorage:                    personallyProcuredMove.DaysInStorage,
+		EstimatedStorageReimbursement:    personallyProcuredMove.EstimatedStorageReimbursement,
+		Status:                           internalmessages.PPMStatus(personallyProcuredMove.Status),
+		HasRequestedAdvance:              &personallyProcuredMove.HasRequestedAdvance,
+		Advance:                          payloadForReimbursementModel(personallyProcuredMove.Advance),
+		AdvanceWorksheet:                 documentPayload,
+		Mileage:                          personallyProcuredMove.Mileage,
+		TotalSitCost:                     handlers.FmtCost(personallyProcuredMove.TotalSITCost),
 	}
 	if personallyProcuredMove.IncentiveEstimateMin != nil {
 		min := (*personallyProcuredMove.IncentiveEstimateMin).Int64()
@@ -99,7 +99,7 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 		payload.PickupPostalCode,
 		payload.HasAdditionalPostalCode,
 		payload.AdditionalPickupPostalCode,
-		payload.DestinationPostalCode,
+		payload.DestinationDutyStationPostalCode,
 		payload.HasSit,
 		payload.DaysInStorage,
 		payload.EstimatedStorageReimbursement,
@@ -176,9 +176,6 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 			ppm.AdditionalPickupPostalCode = payload.AdditionalPickupPostalCode
 		}
 		ppm.HasAdditionalPostalCode = payload.HasAdditionalPostalCode
-	}
-	if payload.DestinationPostalCode != nil {
-		ppm.DestinationPostalCode = payload.DestinationPostalCode
 	}
 
 	if payload.HasSit != nil {
@@ -350,12 +347,12 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models
 
 	originDutyStationZip := ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode
 
-	distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistance(*ppm.PickupPostalCode, *ppm.DestinationPostalCode)
+	distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistance(*ppm.PickupPostalCode, *ppm.DestinationDutyStationPostalCode)
 	if err != nil {
 		return err
 	}
 
-	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistance(originDutyStationZip, *ppm.DestinationPostalCode)
+	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistance(originDutyStationZip, *ppm.DestinationDutyStationPostalCode)
 	if err != nil {
 		return err
 	}
@@ -364,7 +361,7 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models
 		unit.Pound(*ppm.WeightEstimate),
 		*ppm.PickupPostalCode,
 		originDutyStationZip,
-		*ppm.DestinationPostalCode,
+		*ppm.DestinationDutyStationPostalCode,
 		distanceMilesFromOriginPickupZip,
 		distanceMilesFromOriginDutyStationZip,
 		time.Time(*ppm.OriginalMoveDate),
@@ -377,7 +374,7 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models
 	// Update SIT estimate
 	if ppm.HasSit != nil && *ppm.HasSit {
 		cwtWeight := unit.Pound(*ppm.WeightEstimate).ToCWT()
-		sitZip3 := rateengine.Zip5ToZip3(*ppm.DestinationPostalCode)
+		sitZip3 := rateengine.Zip5ToZip3(*ppm.DestinationDutyStationPostalCode)
 		sitComputation, sitChargeErr := re.SitCharge(cwtWeight, daysInSIT, sitZip3, *ppm.OriginalMoveDate, true)
 		if sitChargeErr != nil {
 			return sitChargeErr

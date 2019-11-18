@@ -38,7 +38,7 @@ type ShowPPMIncentiveParams struct {
 	  Pattern: ^(\d{5}([\-]\d{4})?)$
 	  In: query
 	*/
-	DestinationZip string
+	DestinationDutyStationZip string
 	/*
 	  Required: true
 	  Pattern: ^(\d{5}([\-]\d{4})?)$
@@ -74,8 +74,8 @@ func (o *ShowPPMIncentiveParams) BindRequest(r *http.Request, route *middleware.
 
 	qs := runtime.Values(r.URL.Query())
 
-	qDestinationZip, qhkDestinationZip, _ := qs.GetOK("destination_zip")
-	if err := o.bindDestinationZip(qDestinationZip, qhkDestinationZip, route.Formats); err != nil {
+	qDestinationDutyStationZip, qhkDestinationDutyStationZip, _ := qs.GetOK("destination_duty_station_zip")
+	if err := o.bindDestinationDutyStationZip(qDestinationDutyStationZip, qhkDestinationDutyStationZip, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -105,10 +105,10 @@ func (o *ShowPPMIncentiveParams) BindRequest(r *http.Request, route *middleware.
 	return nil
 }
 
-// bindDestinationZip binds and validates parameter DestinationZip from query.
-func (o *ShowPPMIncentiveParams) bindDestinationZip(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindDestinationDutyStationZip binds and validates parameter DestinationDutyStationZip from query.
+func (o *ShowPPMIncentiveParams) bindDestinationDutyStationZip(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("destination_zip", "query")
+		return errors.Required("destination_duty_station_zip", "query")
 	}
 	var raw string
 	if len(rawData) > 0 {
@@ -117,23 +117,23 @@ func (o *ShowPPMIncentiveParams) bindDestinationZip(rawData []string, hasKey boo
 
 	// Required: true
 	// AllowEmptyValue: false
-	if err := validate.RequiredString("destination_zip", "query", raw); err != nil {
+	if err := validate.RequiredString("destination_duty_station_zip", "query", raw); err != nil {
 		return err
 	}
 
-	o.DestinationZip = raw
+	o.DestinationDutyStationZip = raw
 
-	if err := o.validateDestinationZip(formats); err != nil {
+	if err := o.validateDestinationDutyStationZip(formats); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// validateDestinationZip carries on validations for parameter DestinationZip
-func (o *ShowPPMIncentiveParams) validateDestinationZip(formats strfmt.Registry) error {
+// validateDestinationDutyStationZip carries on validations for parameter DestinationDutyStationZip
+func (o *ShowPPMIncentiveParams) validateDestinationDutyStationZip(formats strfmt.Registry) error {
 
-	if err := validate.Pattern("destination_zip", "query", o.DestinationZip, `^(\d{5}([\-]\d{4})?)$`); err != nil {
+	if err := validate.Pattern("destination_duty_station_zip", "query", o.DestinationDutyStationZip, `^(\d{5}([\-]\d{4})?)$`); err != nil {
 		return err
 	}
 

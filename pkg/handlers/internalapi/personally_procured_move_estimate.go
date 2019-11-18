@@ -23,12 +23,12 @@ func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middl
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	engine := rateengine.NewRateEngine(h.DB(), logger)
 
-	distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistance(params.OriginZip, params.DestinationZip)
+	distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistance(params.OriginZip, params.DestinationDutyStationZip)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistance(params.OriginDutyStationZip, params.DestinationZip)
+	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistance(params.OriginDutyStationZip, params.DestinationDutyStationZip)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -37,7 +37,7 @@ func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middl
 		unit.Pound(params.WeightEstimate),
 		params.OriginZip,
 		params.OriginDutyStationZip,
-		params.DestinationZip,
+		params.DestinationDutyStationZip,
 		distanceMilesFromOriginPickupZip,
 		distanceMilesFromOriginDutyStationZip,
 		time.Time(params.OriginalMoveDate),

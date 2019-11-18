@@ -39,12 +39,12 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 
 	originDutyStationZip := ssfd.CurrentDutyStation.Address.PostalCode
 
-	distanceMilesFromPickupZip, err := planner.Zip5TransitDistance(*firstPPM.PickupPostalCode, *firstPPM.DestinationPostalCode)
+	distanceMilesFromPickupZip, err := planner.Zip5TransitDistance(*firstPPM.PickupPostalCode, *firstPPM.DestinationDutyStationPostalCode)
 	if err != nil {
 		return models.Obligations{}, errors.New("error calculating distance")
 	}
 
-	distanceMilesFromDutyStationZip, err := planner.Zip5TransitDistance(originDutyStationZip, *firstPPM.DestinationPostalCode)
+	distanceMilesFromDutyStationZip, err := planner.Zip5TransitDistance(originDutyStationZip, *firstPPM.DestinationDutyStationPostalCode)
 	if err != nil {
 		return models.Obligations{}, errors.New("error calculating distance")
 	}
@@ -53,7 +53,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 		ssfd.PPMRemainingEntitlement,
 		*firstPPM.PickupPostalCode,
 		originDutyStationZip,
-		*firstPPM.DestinationPostalCode,
+		*firstPPM.DestinationDutyStationPostalCode,
 		distanceMilesFromPickupZip,
 		distanceMilesFromDutyStationZip,
 		*firstPPM.ActualMoveDate,
@@ -69,7 +69,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 		ssfd.WeightAllotment.TotalWeight,
 		*firstPPM.PickupPostalCode,
 		originDutyStationZip,
-		*firstPPM.DestinationPostalCode,
+		*firstPPM.DestinationDutyStationPostalCode,
 		distanceMilesFromPickupZip,
 		distanceMilesFromDutyStationZip,
 		*firstPPM.ActualMoveDate,
@@ -98,7 +98,7 @@ func (sswPpmComputer *SSWPPMComputer) nilCheckPPM(ssfd models.ShipmentSummaryFor
 		return models.PersonallyProcuredMove{}, errors.New("missing ppm")
 	}
 	firstPPM := ssfd.PersonallyProcuredMoves[0]
-	if firstPPM.PickupPostalCode == nil || firstPPM.DestinationPostalCode == nil {
+	if firstPPM.PickupPostalCode == nil || firstPPM.DestinationDutyStationPostalCode == nil {
 		return models.PersonallyProcuredMove{}, errors.New("missing required address parameter")
 	}
 	if firstPPM.ActualMoveDate == nil {
