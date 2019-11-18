@@ -1398,12 +1398,12 @@
     react-lifecycles-compat "^3.0.4"
     warning "^3.0.0"
 
-"@rescripts/cli@^0.0.10":
-  version "0.0.10"
-  resolved "https://registry.yarnpkg.com/@rescripts/cli/-/cli-0.0.10.tgz#9887e836f43de6bbbf031de6c46fe32ab2d347ec"
-  integrity sha512-pACILSpJPhtvBjiYhT1Fuhh1BGmHnG1tW5t4nsGCYg6D8SCLapqk7tdcK/oZd56yXYIJ3/svpzVY9KbG5rPgOQ==
+"@rescripts/cli@^0.0.13":
+  version "0.0.13"
+  resolved "https://registry.yarnpkg.com/@rescripts/cli/-/cli-0.0.13.tgz#b35331ada2dc5d9578a7a40a339684451acf295d"
+  integrity sha512-ik/HqNVcR/9Yb2nz3fvNBA+fKviAGxEmZc5ci2rbrNzcDC4vu/ZH1yY8eBHZ9opA7KFeU2O5MWhgMFYXmmN1Cg==
   dependencies:
-    "@rescripts/utilities" "^0.0.5"
+    "@rescripts/utilities" "^0.0.6"
     ramda "^0.26.0"
     react-dev-utils "^7.0.0"
 
@@ -1440,13 +1440,6 @@
     "@rescripts/utilities" "^0.0.6"
     ramda "^0.26.0"
     tslint-loader "^3.5.4"
-
-"@rescripts/utilities@^0.0.5":
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/@rescripts/utilities/-/utilities-0.0.5.tgz#1bc296744044e4c6ea5d137f073f72b4892a357a"
-  integrity sha512-9YtdDTiICbUzFpmUnfSJRfeBtNR+T3+5LYiPS7xaNSzmOiVXwWubl5kfEzNQIpcg5xOUknYbkObwyUzd9s3QvQ==
-  dependencies:
-    ramda "^0.26.0"
 
 "@rescripts/utilities@^0.0.6":
   version "0.0.6"
@@ -4201,11 +4194,6 @@ core-js-pure@^3.0.1:
   version "3.3.3"
   resolved "https://registry.yarnpkg.com/core-js-pure/-/core-js-pure-3.3.3.tgz#c6a796e371782394ffb60d82ff67e0e073070093"
   integrity sha512-sBLE90LngoFYwhLsy5ftt+WWxkQnMufRsn2uyYxJxW73SkvAlxonAdZARimkKrK1c+w01eX9r19vA/J5KMtqfA==
-
-core-js@2.6.4:
-  version "2.6.4"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.4.tgz#b8897c062c4d769dd30a0ac5c73976c47f92ea0d"
-  integrity sha512-05qQ5hXShcqGkPZpXEFLIpxayZscVD2kuMBZewxiIPPEagukO4mqgPA9CWhUvFBJfy3ODdK2p9xyHh7FTU9/7A==
 
 core-js@3.2.1:
   version "3.2.1"
@@ -11131,13 +11119,6 @@ promise.prototype.finally@^3.1.0:
     es-abstract "^1.13.0"
     function-bind "^1.1.1"
 
-promise@8.0.2:
-  version "8.0.2"
-  resolved "https://registry.yarnpkg.com/promise/-/promise-8.0.2.tgz#9dcd0672192c589477d56891271bdc27547ae9f0"
-  integrity sha512-EIyzM39FpVOMbqgzEHhxdrEhtOSDOtjMZQ0M6iVfCE+kWNgCkAyOdnuCWqfmflylftfadU6FkiMgHZA2kUzwRw==
-  dependencies:
-    asap "~2.0.6"
-
 promise@8.0.3:
   version "8.0.3"
   resolved "https://registry.yarnpkg.com/promise/-/promise-8.0.3.tgz#f592e099c6cddc000d538ee7283bb190452b0bf6"
@@ -11488,17 +11469,6 @@ react-admin@^2.9.0:
     ra-core "^2.9.8"
     ra-language-english "^2.9.3"
     ra-ui-materialui "^2.9.8"
-
-react-app-polyfill@^0.2.0:
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/react-app-polyfill/-/react-app-polyfill-0.2.2.tgz#a903b61a8bfd9c5e5f16fc63bebe44d6922a44fb"
-  integrity sha512-mAYn96B/nB6kWG87Ry70F4D4rsycU43VYTj3ZCbKP+SLJXwC0x6YCbwcICh3uW8/C9s1VgP197yx+w7SCWeDdQ==
-  dependencies:
-    core-js "2.6.4"
-    object-assign "4.1.1"
-    promise "8.0.2"
-    raf "3.4.1"
-    whatwg-fetch "3.0.0"
 
 react-app-polyfill@^1.0.4:
   version "1.0.4"

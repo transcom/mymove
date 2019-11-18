@@ -32,7 +32,8 @@ export const DELETE_MOVE_DOCUMENT = ReduxHelpers.generateAsyncActionTypes(delete
 export const findPendingWeightTickets = moveDocs => {
   return moveDocs.filter(
     ({ move_document_type, status }) =>
-      move_document_type === MOVE_DOC_TYPE.WEIGHT_TICKET_SET && status !== MOVE_DOC_STATUS.OK,
+      move_document_type === MOVE_DOC_TYPE.WEIGHT_TICKET_SET &&
+      ![MOVE_DOC_STATUS.OK, MOVE_DOC_STATUS.EXCLUDE].includes(status),
   );
 };
 
