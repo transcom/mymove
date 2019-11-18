@@ -2,6 +2,7 @@ package storage
 
 import (
 	"io"
+	"log"
 	"path"
 	"time"
 
@@ -151,6 +152,8 @@ func (s *S3) Tags(key string) (map[string]string, error) {
 
 func (s *S3) ContentType(key string) (string, error) {
 	namespacedKey := path.Join(s.keyNamespace, key)
+	log.Println(s.bucket)
+	log.Println(namespacedKey)
 	result, err := s.client.HeadObject(&s3.HeadObjectInput{
 		Bucket: &s.bucket,
 		Key:    &namespacedKey,

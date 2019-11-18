@@ -3,10 +3,14 @@ service: aws-iam-sleuth
 provider:
   name: aws
   region: us-west-2
-  deploymentBucket: transcom-ppp-serverless-sleuth
+  deploymentBucket: transcom-ppp-third-party-artifacts
   runtime: go1.x
-  environment:
-    MY_SECRET:
+#  environment:
+#    VERBOSE: true
+#    S3_REGION: "us-west-2"
+#    S3_BUCKET: "transcom-ppp-app-devlocal-us-west-2"
+#    S3_KEY_NAMESPACE: "matthewkrump"
+#    DB_ENV: "development"
 
   package:
     exclude:
@@ -18,4 +22,4 @@ functions:
   get-file:
     handler: ./get-file-lambda
     memorySize: 256
-    role: "arn:aws:iam::923914045601:role/serverless_sleuth"
+    role: "arn:aws:iam::923914045601:role/lamda-serverless-get_file-experimental"

@@ -30,10 +30,25 @@ func HandleRequest(ctx context.Context, event Event) (string, error) {
 	//TODO pass via env
 	verbose := true
 	dbEnv := "development"
-	storageBackend := "s3"
 	s3Region := "us-west-2"
 	s3Bucket := "transcom-ppp-app-devlocal-us-west-2"
 	s3KeyNameSpace := "matthewkrump"
+	//dbEnv, err := env.Env("DB_ENV")
+	//if err != nil {
+	//	log.Fatalf("DB_ENV missing %v", err)
+	//}
+	//s3Region, err := env.Env("S3_REGION")
+	//if err != nil {
+	//	log.Fatalf("S3_REGION missing %v", err)
+	//}
+	//s3Bucket, err := env.Env("S3_BUCKET")
+	//if err != nil {
+	//	log.Fatalf("S3_BUCKET missing %v", err)
+	//}
+	//s3KeyNameSpace, err := env.Env("S3_KEY_NAME_SPACE")
+	//if err != nil {
+	//	log.Fatalf("S3_KEY_NAME_SPACE missing %v", err)
+	//}
 	logger, err := logging.Config(dbEnv, verbose)
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
@@ -41,41 +56,29 @@ func HandleRequest(ctx context.Context, event Event) (string, error) {
 	zap.ReplaceGlobals(logger)
 
 	var session *awssession.Session
-	if storageBackend == "s3" {
-		c, errorConfig := cli.GetAWSConfig(v, verbose)
-		if errorConfig != nil {
-			logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())
-		}
-		s, errorSession := awssession.NewSession(c)
-		if errorSession != nil {
-			logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
-		}
-		session = s
+	//TODO this is wack
+	c, errorConfig := cli.GetAWSConfig(v, verbose)
+	log.Println(c)
+	if errorConfig != nil {
+		logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())
 	}
-
-	//var storer FileStorer
-	if storageBackend == "s3" {
-		logger.Info("Using s3 storage backend",
-			zap.String("region", s3Region),
-			zap.String("key", s3KeyNameSpace))
-		if len(s3Bucket) == 0 {
-			logger.Fatal("must provide aws-s3-bucket-name parameter, exiting")
-		}
-		if len(s3Region) == 0 {
-			logger.Fatal("Must provide aws-s3-region parameter, exiting")
-		}
-		if len(s3KeyNameSpace) == 0 {
-			logger.Fatal("Must provide aws_s3_key_namespace parameter, exiting")
-		}
+	s, errorSession := awssession.NewSession(c)
+	if errorSession != nil {
+		logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
 	}
-	storer := storage.NewS3(s3KeyNameSpace, s3KeyNameSpace, logger, session)
+	session = s
 
-	contentType, err := storer.ContentType(event.Key)
-	if err != nil {
-		logger.Fatal("can't get content type", zap.Error(err))
-	}
+	logger.Info("Using s3 storage backend",
+		zap.String("region", s3Region),
+		zap.String("key", s3KeyNameSpace))
+	storer := storage.NewS3(s3Bucket, s3KeyNameSpace, logger, session)
 
-	f, err := storer.PresignedURL(event.Key, contentType)
+	//contentType, err := storer.ContentType(event.Key)
+	//if err != nil {
+	//	logger.Fatal("can't get content type", zap.Error(err))
+	//}
+
+	f, err := storer.PresignedURL(event.Key, "image/png")
 	if err != nil {
 		logger.Fatal("can't get generate presigned url", zap.Error(err))
 	}
