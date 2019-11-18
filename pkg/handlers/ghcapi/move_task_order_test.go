@@ -28,7 +28,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegration() {
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
 	params := move_task_order.UpdateMoveTaskOrderStatusParams{
 		HTTPRequest:     request,
-		Body:            &ghcmessages.MoveTaskOrderStatus{Status: "DRAFT"},
+		Body:            &ghcmessages.MoveTaskOrderStatus{Status: "SUBMITTED"},
 		MoveTaskOrderID: moveTaskOrder.ID.String(),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -54,14 +54,14 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerNotFoundError() {
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
 	params := move_task_order.UpdateMoveTaskOrderStatusParams{
 		HTTPRequest:     request,
-		Body:            &ghcmessages.MoveTaskOrderStatus{Status: "DRAFT"},
+		Body:            &ghcmessages.MoveTaskOrderStatus{Status: "SUBMITTED"},
 		MoveTaskOrderID: moveTaskOrderID.String(),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 
 	// make the request
 	mtoStatusUpdater := &mocks.MoveTaskOrderStatusUpdater{}
-	mtoStatusUpdater.On("UpdateMoveTaskOrderStatus", moveTaskOrderID, models.MoveTaskOrderStatusDraft).
+	mtoStatusUpdater.On("UpdateMoveTaskOrderStatus", moveTaskOrderID, models.MoveTaskOrderStatusSubmitted).
 		Return(&models.MoveTaskOrder{}, movetaskorder.ErrNotFound{})
 	handler := UpdateMoveTaskOrderStatusHandlerFunc{context, mtoStatusUpdater}
 	response := handler.Handle(params)
@@ -74,14 +74,14 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerServerError() {
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
 	params := move_task_order.UpdateMoveTaskOrderStatusParams{
 		HTTPRequest:     request,
-		Body:            &ghcmessages.MoveTaskOrderStatus{Status: "DRAFT"},
+		Body:            &ghcmessages.MoveTaskOrderStatus{Status: "SUBMITTED"},
 		MoveTaskOrderID: moveTaskOrderID.String(),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 
 	// make the request
 	mtoStatusUpdater := &mocks.MoveTaskOrderStatusUpdater{}
-	mtoStatusUpdater.On("UpdateMoveTaskOrderStatus", moveTaskOrderID, models.MoveTaskOrderStatusDraft).
+	mtoStatusUpdater.On("UpdateMoveTaskOrderStatus", moveTaskOrderID, models.MoveTaskOrderStatusSubmitted).
 		Return(&models.MoveTaskOrder{}, errors.New("something bad happened"))
 	handler := UpdateMoveTaskOrderStatusHandlerFunc{context, mtoStatusUpdater}
 	response := handler.Handle(params)

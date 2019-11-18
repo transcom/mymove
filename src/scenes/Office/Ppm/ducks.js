@@ -3,6 +3,8 @@ import { GetPpmIncentive, GetExpenseSummary } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import reduceReducers from 'reduce-reducers';
 import { filter } from 'lodash';
+import { MOVE_DOC_STATUS } from 'shared/constants';
+
 const GET_PPM_INCENTIVE = 'GET_PPM_INCENTIVE';
 const GET_PPM_EXPENSE_SUMMARY = 'GET_PPM_EXPENSE_SUMMARY';
 const CLEAR_PPM_INCENTIVE = 'CLEAR_PPM_INCENTIVE';
@@ -51,12 +53,14 @@ export const getDocsByStatusAndType = (documents, statusToExclude, typeToExclude
     if (!statusToExclude) {
       return expense.move_document_type !== typeToExclude;
     }
-
     if (!typeToExclude) {
-      return expense.status !== statusToExclude;
+      return ![MOVE_DOC_STATUS.EXCLUDE, statusToExclude].includes(expense.status);
     }
 
-    return expense.status !== statusToExclude && expense.move_document_type !== typeToExclude;
+    return (
+      ![MOVE_DOC_STATUS.EXCLUDE, statusToExclude].includes(expense.status) &&
+      expense.move_document_type !== typeToExclude
+    );
   });
 };
 

@@ -805,7 +805,6 @@ func init() {
         "status": {
           "type": "string",
           "enum": [
-            "DRAFT",
             "APPROVED",
             "REJECTED",
             "SUBMITTED"
@@ -1729,7 +1728,6 @@ func init() {
         "status": {
           "type": "string",
           "enum": [
-            "DRAFT",
             "APPROVED",
             "REJECTED",
             "SUBMITTED"

@@ -47,7 +47,6 @@ const (
 	MoveTaskOrderStatusApproved  MoveTaskOrderStatus = "APPROVED"
 	MoveTaskOrderStatusSubmitted MoveTaskOrderStatus = "SUBMITTED"
 	MoveTaskOrderStatusRejected  MoveTaskOrderStatus = "REJECTED"
-	MoveTaskOrderStatusDraft     MoveTaskOrderStatus = "DRAFT"
 )
 
 func (m *MoveTaskOrder) Validate(tx *pop.Connection) (*validate.Errors, error) {

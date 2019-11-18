@@ -96,7 +96,7 @@ type MoveTaskOrder struct {
 	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
 
 	// status
-	// Enum: [DRAFT APPROVED REJECTED SUBMITTED]
+	// Enum: [APPROVED REJECTED SUBMITTED]
 	Status string `json:"status,omitempty"`
 
 	// updated at
@@ -443,7 +443,7 @@ var moveTaskOrderTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DRAFT","APPROVED","REJECTED","SUBMITTED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["APPROVED","REJECTED","SUBMITTED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -452,9 +452,6 @@ func init() {
 }
 
 const (
-
-	// MoveTaskOrderStatusDRAFT captures enum value "DRAFT"
-	MoveTaskOrderStatusDRAFT string = "DRAFT"
 
 	// MoveTaskOrderStatusAPPROVED captures enum value "APPROVED"
 	MoveTaskOrderStatusAPPROVED string = "APPROVED"
