@@ -106,6 +106,7 @@ func init() {
           "moveTaskOrder",
           "prime"
         ],
+        "summary": "Gets a the customer associated with a move task order ID",
         "operationId": "getMoveTaskOrderCustomer",
         "responses": {
           "200": {
@@ -1149,6 +1150,7 @@ func init() {
           "moveTaskOrder",
           "prime"
         ],
+        "summary": "Gets a the customer associated with a move task order ID",
         "operationId": "getMoveTaskOrderCustomer",
         "responses": {
           "200": {

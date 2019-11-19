@@ -1,7 +1,6 @@
 package movetaskorder
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -53,7 +52,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdater() {
 	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
 	originalMTO := serviceItem.MoveTaskOrder
 
-	fmt.Println(originalMTO.AvailableToPrimeDate)
 	suite.Equal(originalMTO.AvailableToPrimeDate, time.Date(0001, 1, 1, 0, 0, 0, 0, time.UTC))
 	// check not equal to what asserting against below
 	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusSubmitted)
@@ -63,6 +61,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdater() {
 
 	suite.NoError(err)
 	suite.Equal(models.MoveTaskOrderStatusSubmitted, updatedMTO.Status)
+	suite.NotEqual(updatedMTO.AvailableToPrimeDate, time.Date(0001, 1, 1, 0, 0, 0, 0, time.UTC))
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterEmptyStatus() {
@@ -140,18 +139,20 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderDestinationAddressUpdat
 	updatedMTO, updateErr := mtoActualWeightUpdater.UpdateMoveTaskOrderDestinationAddress(originalMTO.ID, &address)
 	suite.NoError(updateErr)
 	suite.NotNil(updatedMTO)
-	suite.Equal(address.City, updatedMTO.DestinationAddress.City)
-	suite.Equal(address.ID, updatedMTO.DestinationAddress.ID)
+	// CreatedAt, UpdatedAt will be different so just assert against string format
+	suite.Equal(address.LineFormat(), updatedMTO.DestinationAddress.LineFormat())
 
 	dbUpdatedMTO, fetchErr := moveTaskOrderFetcher.FetchMoveTaskOrder(updatedMTO.ID)
 	suite.NoError(fetchErr)
-	suite.Equal(address.City, dbUpdatedMTO.DestinationAddress.City)
-	suite.Equal(address.ID, dbUpdatedMTO.DestinationAddress.ID)
+	suite.Equal(address.LineFormat(), dbUpdatedMTO.DestinationAddress.LineFormat())
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderPrimePostCounselingUpdater() {
 	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
 	originalMTO := serviceItem.MoveTaskOrder
+
+	suite.Equal(originalMTO.AvailableToPrimeDate, time.Date(0001, 1, 1, 0, 0, 0, 0, time.UTC))
+
 	// check not equal to what asserting against below
 	address := testdatagen.MakeDefaultAddress(suite.DB())
 	address2 := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
@@ -165,21 +166,19 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderPrimePostCounselingUpda
 		SecondaryDeliveryAddress: &address,
 		SecondaryPickupAddress:   &address2,
 	}
-	suite.Equal(originalMTO.SubmittedCounselingInfoDate, time.Date(0001, 1, 1, 0, 0, 0, 0, time.UTC))
-
 	updatedMTO, updateErr := mtoPostCounselingInformationUpdater.UpdateMoveTaskOrderPostCounselingInformation(originalMTO.ID, information)
 	suite.NoError(updateErr)
 	suite.NotNil(updatedMTO)
 	suite.Equal(information.ScheduledMoveDate, *updatedMTO.ScheduledMoveDate)
 	suite.Equal(information.SecondaryDeliveryAddress, updatedMTO.SecondaryDeliveryAddress)
 	suite.Equal(information.SecondaryPickupAddress, updatedMTO.SecondaryPickupAddress)
-	suite.Equal(information.PPMIsIncluded, updatedMTO.PpmIsIncluded)
-	suite.NotEqual(updatedMTO.SubmittedCounselingInfoDate, time.Date(0001, 1, 1, 0, 0, 0, 0, time.UTC))
+	suite.Equal(information.PPMIsIncluded, *updatedMTO.PpmIsIncluded)
+	suite.NotEqual(updatedMTO.AvailableToPrimeDate, time.Date(0001, 1, 1, 0, 0, 0, 0, time.UTC))
 
 	dbUpdatedMTO, fetchErr := moveTaskOrderFetcher.FetchMoveTaskOrder(updatedMTO.ID)
 	suite.NoError(fetchErr)
 	suite.Equal(information.ScheduledMoveDate.String(), (*dbUpdatedMTO.ScheduledMoveDate).UTC().String())
 	suite.Equal(information.SecondaryDeliveryAddress.LineFormat(), dbUpdatedMTO.SecondaryDeliveryAddress.LineFormat())
 	suite.Equal(information.SecondaryPickupAddress.LineFormat(), dbUpdatedMTO.SecondaryPickupAddress.LineFormat())
-	suite.Equal(information.PPMIsIncluded, dbUpdatedMTO.PpmIsIncluded)
+	suite.Equal(information.PPMIsIncluded, *dbUpdatedMTO.PpmIsIncluded)
 }

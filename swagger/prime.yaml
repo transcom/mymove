@@ -304,6 +304,7 @@ paths:
         - prime
       description: Gets a the customer associated with a move task order ID
       operationId: getMoveTaskOrderCustomer
+      summary: Gets a the customer associated with a move task order ID
   '/move-task-orders/{moveTaskOrderID}/prime-entitlements':
     parameters:
       - description: ID of move order to use

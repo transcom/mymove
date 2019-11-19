@@ -46,6 +46,8 @@ type MoveTaskOrderPrimePostCounselingUpdater interface {
 	UpdateMoveTaskOrderPostCounselingInformation(moveTaskOrderID uuid.UUID, postCounselingInformation PostCounselingInformation) (*models.MoveTaskOrder, error)
 }
 
+//MoveTaskOrderDestinationAddressUpdater is the service object interface for MoveTaskOrderDestinationAddressUpdater
+//go:generate mockery -name MoveTaskOrderDestinationAddressUpdater
 type MoveTaskOrderDestinationAddressUpdater interface {
 	UpdateMoveTaskOrderDestinationAddress(moveTaskOrderID uuid.UUID, destinationAddress *models.Address) (*models.MoveTaskOrder, error)
 }
