@@ -8,76 +8,88 @@ import moment from 'moment';
 import Select from 'react-select';
 
 // Abstracting react table column creation
-const CreateReactTableColumn = (header, accessor, options = {}) => ({
+const createReactTableColumn = (header, accessor, options = {}) => ({
   Header: header,
   accessor: accessor,
   ...options,
 });
 
+const getReactSelectFilterSettings = (data = []) => ({
+  Filter: ({ filter, onChange }) => {
+    const options = data.map(value => ({ label: value, value: value }));
+    return (
+      <Select
+        options={options}
+        onChange={value => {
+          // value example: {label: "Fort Gordon", value: "Fort Gordon"}
+          return onChange(value ? value : undefined);
+        }}
+        defaultValue={filter ? filter.value : undefined}
+        styles={{
+          // overriding styles to match other table filters
+          control: baseStyles => ({
+            ...baseStyles,
+            height: '1.5rem',
+            minHeight: '1.5rem',
+            border: '1px solid rgba(0,0,0,0.1)',
+          }),
+          indicatorsContainer: baseStyles => ({
+            ...baseStyles,
+            height: '1.5rem',
+          }),
+          clearIndicator: baseStyles => ({
+            ...baseStyles,
+            padding: '0.2rem',
+          }),
+          dropdownIndicator: baseStyles => ({
+            ...baseStyles,
+            padding: '0.2rem',
+          }),
+          input: baseStyles => ({
+            ...baseStyles,
+            margin: '0 2px',
+            paddingTop: '0',
+            paddingBottom: '0',
+          }),
+          valueContainer: baseStyles => ({
+            ...baseStyles,
+            padding: '0 8px',
+          }),
+        }}
+        isClearable
+      />
+    );
+  },
+  filterMethod: (filter, row) => {
+    if (filter.value === undefined) {
+      return true;
+    } else if (row[filter.id] === undefined) {
+      return false;
+    }
+
+    return row[filter.id].toLowerCase() === filter.value.value.toLowerCase();
+  },
+});
+
 // lodash memoize will prevent unnecessary rendering with the same state
 // this will re-render if the state changes
 const destination = memoize(destinationDutyStations =>
-  CreateReactTableColumn('Destination', 'destination_duty_station_name', {
+  createReactTableColumn('Destination', 'destination_duty_station_name', {
     Cell: row => <span>{row.value}</span>,
-    Filter: ({ filter, onChange }) => {
-      const options = destinationDutyStations.map(value => ({ label: value, value: value }));
-      return (
-        <Select
-          options={options}
-          onChange={value => {
-            // value example: {label: "Fort Gordon", value: "Fort Gordon"}
-            return onChange(value ? value : undefined);
-          }}
-          defaultValue={filter ? filter.value : undefined}
-          styles={{
-            // overriding styles to match other table filters
-            control: baseStyles => ({
-              ...baseStyles,
-              height: '1.5rem',
-              minHeight: '1.5rem',
-              border: '1px solid rgba(0,0,0,0.1)',
-            }),
-            indicatorsContainer: baseStyles => ({
-              ...baseStyles,
-              height: '1.5rem',
-            }),
-            clearIndicator: baseStyles => ({
-              ...baseStyles,
-              padding: '0.2rem',
-            }),
-            dropdownIndicator: baseStyles => ({
-              ...baseStyles,
-              padding: '0.2rem',
-            }),
-            input: baseStyles => ({
-              ...baseStyles,
-              margin: '0 2px',
-              paddingTop: '0',
-              paddingBottom: '0',
-            }),
-            valueContainer: baseStyles => ({
-              ...baseStyles,
-              padding: '0 8px',
-            }),
-          }}
-          isClearable
-        />
-      );
-    },
-    filterMethod: (filter, row) => {
-      if (filter.value === undefined) {
-        return true;
-      } else if (row[filter.id] === undefined) {
-        return false;
-      }
-
-      return row[filter.id].toLowerCase() === filter.value.value.toLowerCase();
-    },
     filterable: true,
+    ...getReactSelectFilterSettings(destinationDutyStations),
   }),
 );
 
-const status = CreateReactTableColumn('Status', 'synthetic_status', {
+const origin = memoize(originDutyStations =>
+  createReactTableColumn('Origin', 'origin_duty_station_name', {
+    Cell: row => <span>{row.value}</span>,
+    filterable: true,
+    ...getReactSelectFilterSettings(originDutyStations),
+  }),
+);
+
+const status = createReactTableColumn('Status', 'synthetic_status', {
   Cell: row => (
     <span className="status" data-cy="status">
       {capitalize(row.value && row.value.replace('_', ' '))}
@@ -85,16 +97,16 @@ const status = CreateReactTableColumn('Status', 'synthetic_status', {
   ),
 });
 
-const customerName = CreateReactTableColumn('Customer name', 'customer_name');
+const customerName = createReactTableColumn('Customer name', 'customer_name');
 
-const dodId = CreateReactTableColumn('DoD ID', 'edipi');
+const dodId = createReactTableColumn('DoD ID', 'edipi');
 
-const locator = CreateReactTableColumn('Locator #', 'locator', {
+const locator = createReactTableColumn('Locator #', 'locator', {
   Cell: row => <span data-cy="locator">{row.value}</span>,
 });
 
 const dateFormat = 'DD-MMM-YY';
-const moveDate = CreateReactTableColumn('PPM start', 'move_date', {
+const moveDate = createReactTableColumn('PPM start', 'move_date', {
   Cell: row => <span className="move_date">{formatDate(row.value)}</span>,
   Filter: ({ filter, onChange }) => {
     return (
@@ -128,11 +140,7 @@ const moveDate = CreateReactTableColumn('PPM start', 'move_date', {
   filterable: true,
 });
 
-const origin = CreateReactTableColumn('Origin', 'origin_duty_station_name', {
-  Cell: row => <span>{row.value}</span>,
-});
-
-const branchOfService = CreateReactTableColumn('Branch', 'branch_of_service', {
+const branchOfService = createReactTableColumn('Branch', 'branch_of_service', {
   Cell: row => <span>{row.value}</span>,
   Filter: ({ filter, onChange }) => (
     <select onChange={event => onChange(event.target.value)} value={filter ? filter.value : 'all'}>
@@ -159,7 +167,7 @@ export const defaultColumns = component => {
   return [
     status,
     customerName,
-    origin,
+    origin(component.getOriginDutyStations()),
     destination(component.getDestinationDutyStations()),
     dodId,
     locator,

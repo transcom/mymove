@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
@@ -137,6 +139,70 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderEstimatedWeightHandlerUnproces
 	suite.Equal(*clientErr.Detail, moveTaskOrderValidationError.Error())
 }
 
+func (suite *HandlerSuite) TestUpdateMoveTaskOrderActualWeightHandlerIntegration() {
+	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
+	moveTaskOrder := serviceItem.MoveTaskOrder
+
+	// set up what needs to be passed to handler
+	request := httptest.NewRequest("PATCH", fmt.Sprintf("/move-task-orders/%s/prime-actual-weight", moveTaskOrder.ID), nil)
+	params := movetaskorderops.UpdateMoveTaskOrderActualWeightParams{
+		HTTPRequest:     request,
+		Body:            movetaskorderops.UpdateMoveTaskOrderActualWeightBody{ActualWeight: 2819},
+		MoveTaskOrderID: moveTaskOrder.ID.String(),
+	}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+	// make the request
+	handler := UpdateMoveTaskOrderActualWeightHandler{context,
+		movetaskorder.NewMoveTaskOrderActualWeightUpdater(suite.DB())}
+	response := handler.Handle(params)
+
+	suite.IsNotErrResponse(response)
+	updateMoveTaskOrderActualWeightResponse := response.(*movetaskorderops.UpdateMoveTaskOrderActualWeightOK)
+	updateMoveTaskOrderActualWeightPayload := updateMoveTaskOrderActualWeightResponse.Payload
+
+	suite.NotNil(updateMoveTaskOrderActualWeightPayload)
+	suite.Equal(int(*updateMoveTaskOrderActualWeightPayload.PrimeActualWeight), 2819)
+}
+
+func (suite *HandlerSuite) TestGetPrimeEntitlementsHandlerIntegration() {
+	// set up what needs to be passed to handler
+	moveTaskOrderID, _ := uuid.NewV4()
+	mto := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{ID: moveTaskOrderID},
+	})
+	testdatagen.MakeEntitlement(suite.DB(), testdatagen.Assertions{
+		GHCEntitlement: models.GHCEntitlement{MoveTaskOrder: &mto}},
+	)
+	request := httptest.NewRequest("GET", "/move-task-orders/move_task_order_id/prime-entitlements", nil)
+	params := movetaskorderops.GetPrimeEntitlementsParams{
+		HTTPRequest:     request,
+		MoveTaskOrderID: mto.ID.String(),
+	}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+	// make the request
+	handler := GetPrimeEntitlementsHandler{context,
+		movetaskorder.NewMoveTaskOrderFetcher(suite.DB())}
+	response := handler.Handle(params)
+
+	suite.IsNotErrResponse(response)
+	suite.Assertions.IsType(&movetaskorderops.GetPrimeEntitlementsOK{}, response)
+	getPrimeEntitlementsResponse := response.(*movetaskorderops.GetPrimeEntitlementsOK)
+	getPrimeEntitlementsPayload := getPrimeEntitlementsResponse.Payload
+
+	suite.NotNil(getPrimeEntitlementsPayload)
+
+	suite.Equal(getPrimeEntitlementsPayload.DependentsAuthorized, true)
+	suite.Equal(*getPrimeEntitlementsPayload.NonTemporaryStorage, true)
+	suite.Equal(*getPrimeEntitlementsPayload.PrivatelyOwnedVehicle, true)
+	suite.Equal(int(getPrimeEntitlementsPayload.ProGearWeight), 100)
+	suite.Equal(int(getPrimeEntitlementsPayload.ProGearWeightSpouse), 200)
+	suite.Equal(int(getPrimeEntitlementsPayload.StorageInTransit), 2)
+	suite.Equal(int(getPrimeEntitlementsPayload.TotalDependents), 1)
+	suite.Equal(int(getPrimeEntitlementsPayload.TotalWeightSelf), 0)
+}
+
 func (suite *HandlerSuite) TestGetMoveTaskOrdersCustomerHandler() {
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
 
@@ -156,4 +222,82 @@ func (suite *HandlerSuite) TestGetMoveTaskOrdersCustomerHandler() {
 	moveTaskOrdersCustomerPayload := customer.Payload
 
 	suite.Equal(moveTaskOrder.CustomerID.String(), moveTaskOrdersCustomerPayload.ID.String())
+}
+
+func (suite *HandlerSuite) TestUpdateMoveTaskOrderPostCounselingInformationHandlerIntegration() {
+	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+	address := testdatagen.MakeDefaultAddress(suite.DB())
+	address2 := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
+
+	request := httptest.NewRequest("PATCH", "/move-task-orders/:id/post-counseling-info", nil)
+	addressPayload := payloads.Address(&address)
+	address2Payload := payloads.Address(&address2)
+	body := movetaskorderops.UpdateMoveTaskOrderPostCounselingInformationBody{
+		PpmIsIncluded:            true,
+		ScheduledMoveDate:        strfmt.Date(time.Now()),
+		SecondaryDeliveryAddress: addressPayload,
+		SecondaryPickupAddress:   address2Payload,
+	}
+	params := movetaskorderops.UpdateMoveTaskOrderPostCounselingInformationParams{
+		HTTPRequest:     request,
+		Body:            body,
+		MoveTaskOrderID: moveTaskOrder.ID.String(),
+	}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+	// make the request
+	handler := UpdateMoveTaskOrderPostCounselingInformationHandler{HandlerContext: context,
+		moveTaskOrderPostCounselingInformationUpdater: movetaskorder.NewMoveTaskOrderPostCounselingInformationUpdater(suite.DB()),
+	}
+	response := handler.Handle(params)
+
+	suite.IsNotErrResponse(response)
+	suite.Assertions.IsType(&movetaskorderops.UpdateMoveTaskOrderPostCounselingInformationOK{}, response)
+	moveTaskOrderResponse := response.(*movetaskorderops.UpdateMoveTaskOrderPostCounselingInformationOK)
+	moveTaskOrderPayload := moveTaskOrderResponse.Payload
+
+	suite.Equal(moveTaskOrder.ID.String(), moveTaskOrderPayload.ID.String())
+	suite.Equal(body.PpmIsIncluded, moveTaskOrderPayload.PpmIsIncluded)
+	suite.Equal(body.ScheduledMoveDate, moveTaskOrderPayload.ScheduledMoveDate)
+	//ID is auto generated when address is created, so compare everything else except ID
+	body.SecondaryDeliveryAddress.ID = moveTaskOrderPayload.SecondaryDeliveryAddress.ID
+	suite.Equal(body.SecondaryDeliveryAddress, moveTaskOrderPayload.SecondaryDeliveryAddress)
+	//ID is auto generated when address is created, so compare everything else except ID
+	body.SecondaryPickupAddress.ID = moveTaskOrderPayload.SecondaryPickupAddress.ID
+	suite.Equal(body.SecondaryPickupAddress, moveTaskOrderPayload.SecondaryPickupAddress)
+
+}
+
+func (suite *HandlerSuite) TestUpdateMoveTaskOrderDestinationAddressHandlerIntegration() {
+	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+
+	request := httptest.NewRequest("PATCH", "/move-task-orders/:id/destination-address", nil)
+	address := testdatagen.MakeDefaultAddress(suite.DB())
+	addressPayload := payloads.Address(&address)
+	params := movetaskorderops.UpdateMoveTaskOrderDestinationAddressParams{
+		HTTPRequest:        request,
+		DestinationAddress: addressPayload,
+		MoveTaskOrderID:    moveTaskOrder.ID.String(),
+	}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+	// make the request
+	handler := UpdateMoveTaskOrderDestinationAddressHandler{HandlerContext: context,
+		moveTaskOrderDestinationAddressUpdater: movetaskorder.NewMoveTaskOrderDestinationAddressUpdater(suite.DB()),
+	}
+	response := handler.Handle(params)
+
+	suite.IsNotErrResponse(response)
+	suite.Assertions.IsType(&movetaskorderops.UpdateMoveTaskOrderDestinationAddressOK{}, response)
+	moveTaskOrderResponse := response.(*movetaskorderops.UpdateMoveTaskOrderDestinationAddressOK)
+	responsePayload := moveTaskOrderResponse.Payload
+	updatedDestinationAddress := responsePayload.DestinationAddress
+
+	suite.Equal(moveTaskOrder.ID.String(), moveTaskOrderResponse.Payload.ID.String())
+	suite.Equal(*addressPayload.StreetAddress1, *updatedDestinationAddress.StreetAddress1)
+	suite.Equal(*addressPayload.StreetAddress2, *updatedDestinationAddress.StreetAddress2)
+	suite.Equal(*addressPayload.StreetAddress3, *updatedDestinationAddress.StreetAddress3)
+	suite.Equal(*addressPayload.PostalCode, *updatedDestinationAddress.PostalCode)
+	suite.Equal(*addressPayload.City, *updatedDestinationAddress.City)
+	suite.Equal(*addressPayload.State, *updatedDestinationAddress.State)
 }

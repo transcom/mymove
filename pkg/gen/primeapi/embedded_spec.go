@@ -110,7 +110,7 @@ func init() {
         "operationId": "getMoveTaskOrderCustomer",
         "responses": {
           "200": {
-            "description": "Successfully retrieved customer assocaited with move task order",
+            "description": "Successfully retrieved customer associated with move task order",
             "schema": {
               "$ref": "#/definitions/Customer"
             }
@@ -137,6 +137,307 @@ func init() {
             "description": "The request payload is invalid",
             "schema": {
               "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of move order to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/move-task-orders/{moveTaskOrderID}/destination-address": {
+      "patch": {
+        "description": "Updates move task order's destination address",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder",
+          "prime"
+        ],
+        "summary": "Updates move task order's destination address",
+        "operationId": "updateMoveTaskOrderDestinationAddress",
+        "parameters": [
+          {
+            "name": "destinationAddress",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Address"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated move task order destination address",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "422": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of move order to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
+      "patch": {
+        "description": "Updates move task order's post counseling information",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder",
+          "prime"
+        ],
+        "summary": "Updates move task order's post counseling information",
+        "operationId": "updateMoveTaskOrderPostCounselingInformation",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ppm-is-included": {
+                  "type": "boolean"
+                },
+                "scheduled-move-date": {
+                  "type": "string",
+                  "format": "date",
+                  "example": "2018-04-26"
+                },
+                "secondary-delivery-address": {
+                  "$ref": "#/definitions/Address"
+                },
+                "secondary-pickup-address": {
+                  "$ref": "#/definitions/Address"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated move task order post counseling information",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "422": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of move order to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/move-task-orders/{moveTaskOrderID}/prime-actual-weight": {
+      "patch": {
+        "description": "Updates a move order's actual weight by ID",
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder",
+          "prime"
+        ],
+        "summary": "Updates a move order's actual weight by ID",
+        "operationId": "updateMoveTaskOrderActualWeight",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "actualWeight": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved move task order",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of move order to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/move-task-orders/{moveTaskOrderID}/prime-entitlements": {
+      "get": {
+        "description": "Gets entitlements",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder",
+          "prime"
+        ],
+        "summary": "Gets entitlements for a move order by ID",
+        "operationId": "getPrimeEntitlements",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved entitlements",
+            "schema": {
+              "$ref": "#/definitions/Entitlements"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
             }
           },
           "500": {
@@ -637,6 +938,15 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppm-is-included": {
+          "type": "boolean"
+        },
+        "primeActualWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1000
+        },
         "primeEstimatedWeight": {
           "type": "integer",
           "x-formatting": "weight",
@@ -656,10 +966,20 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "scheduled-move-date": {
+          "type": "string",
+          "format": "date",
+          "example": "2018-04-26"
+        },
+        "secondary-delivery-address": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondary-pickup-address": {
+          "$ref": "#/definitions/Address"
+        },
         "status": {
           "type": "string",
           "enum": [
-            "DRAFT",
             "APPROVED",
             "REJECTED",
             "SUBMITTED"
@@ -834,7 +1154,7 @@ func init() {
         "operationId": "getMoveTaskOrderCustomer",
         "responses": {
           "200": {
-            "description": "Successfully retrieved customer assocaited with move task order",
+            "description": "Successfully retrieved customer associated with move task order",
             "schema": {
               "$ref": "#/definitions/Customer"
             }
@@ -870,6 +1190,361 @@ func init() {
             "description": "The request payload is invalid",
             "schema": {
               "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of move order to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/move-task-orders/{moveTaskOrderID}/destination-address": {
+      "patch": {
+        "description": "Updates move task order's destination address",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder",
+          "prime"
+        ],
+        "summary": "Updates move task order's destination address",
+        "operationId": "updateMoveTaskOrderDestinationAddress",
+        "parameters": [
+          {
+            "name": "destinationAddress",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Address"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated move task order destination address",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "422": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of move order to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
+      "patch": {
+        "description": "Updates move task order's post counseling information",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder",
+          "prime"
+        ],
+        "summary": "Updates move task order's post counseling information",
+        "operationId": "updateMoveTaskOrderPostCounselingInformation",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ppm-is-included": {
+                  "type": "boolean"
+                },
+                "scheduled-move-date": {
+                  "type": "string",
+                  "format": "date",
+                  "example": "2018-04-26"
+                },
+                "secondary-delivery-address": {
+                  "$ref": "#/definitions/Address"
+                },
+                "secondary-pickup-address": {
+                  "$ref": "#/definitions/Address"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated move task order post counseling information",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "422": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of move order to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/move-task-orders/{moveTaskOrderID}/prime-actual-weight": {
+      "patch": {
+        "description": "Updates a move order's actual weight by ID",
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder",
+          "prime"
+        ],
+        "summary": "Updates a move order's actual weight by ID",
+        "operationId": "updateMoveTaskOrderActualWeight",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "actualWeight": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved move task order",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "ID of move order to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/move-task-orders/{moveTaskOrderID}/prime-entitlements": {
+      "get": {
+        "description": "Gets entitlements",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder",
+          "prime"
+        ],
+        "summary": "Gets entitlements for a move order by ID",
+        "operationId": "getPrimeEntitlements",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved entitlements",
+            "schema": {
+              "$ref": "#/definitions/Entitlements"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
             }
           },
           "500": {
@@ -1385,6 +2060,15 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "ppm-is-included": {
+          "type": "boolean"
+        },
+        "primeActualWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 1000
+        },
         "primeEstimatedWeight": {
           "type": "integer",
           "x-formatting": "weight",
@@ -1404,10 +2088,20 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "scheduled-move-date": {
+          "type": "string",
+          "format": "date",
+          "example": "2018-04-26"
+        },
+        "secondary-delivery-address": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondary-pickup-address": {
+          "$ref": "#/definitions/Address"
+        },
         "status": {
           "type": "string",
           "enum": [
-            "DRAFT",
             "APPROVED",
             "REJECTED",
             "SUBMITTED"

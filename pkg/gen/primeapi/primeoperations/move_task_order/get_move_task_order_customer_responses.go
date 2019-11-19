@@ -16,7 +16,7 @@ import (
 // GetMoveTaskOrderCustomerOKCode is the HTTP code returned for type GetMoveTaskOrderCustomerOK
 const GetMoveTaskOrderCustomerOKCode int = 200
 
-/*GetMoveTaskOrderCustomerOK Successfully retrieved customer assocaited with move task order
+/*GetMoveTaskOrderCustomerOK Successfully retrieved customer associated with move task order
 
 swagger:response getMoveTaskOrderCustomerOK
 */
