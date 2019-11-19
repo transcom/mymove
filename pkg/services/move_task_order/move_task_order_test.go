@@ -69,7 +69,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterEmptyStatu
 	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
 	originalMTO := serviceItem.MoveTaskOrder
 	// check not equal to what asserting against below
-	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusSubmitted)
+	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusApproved)
 	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
 
 	_, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, "")
