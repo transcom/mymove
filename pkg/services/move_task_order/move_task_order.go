@@ -167,3 +167,99 @@ func (f fetchMoveTaskOrder) UpdateMoveTaskOrderActualWeight(moveTaskOrderID uuid
 	}
 	return mto, nil
 }
+
+type updateMoveTaskOrderPostCounselingInformation struct {
+	db *pop.Connection
+	fetchMoveTaskOrder
+}
+
+// NewMoveTaskOrderPostCounselingInformationUpdater creates a new struct with the service dependencies
+func NewMoveTaskOrderPostCounselingInformationUpdater(db *pop.Connection) services.MoveTaskOrderPrimePostCounselingUpdater {
+	moveTaskOrderFetcher := fetchMoveTaskOrder{db}
+	return &updateMoveTaskOrderPostCounselingInformation{db, moveTaskOrderFetcher}
+}
+
+//UpdateMoveTaskOrderActualWeight updates the post counseling information
+func (u *updateMoveTaskOrderPostCounselingInformation) UpdateMoveTaskOrderPostCounselingInformation(moveTaskOrderID uuid.UUID, postCounselingInformation services.PostCounselingInformation) (*models.MoveTaskOrder, error) {
+	mto, err := u.FetchMoveTaskOrder(moveTaskOrderID)
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
+	// for belongs_to relationships pop requires updating the parent table first and then
+	// passing the id to the child
+	secondaryPickupAddress := postCounselingInformation.SecondaryPickupAddress
+	vErrors, err := u.db.ValidateAndSave(secondaryPickupAddress)
+	if vErrors.HasAny() {
+		return &models.MoveTaskOrder{}, NewErrInvalidInput(moveTaskOrderID, err, vErrors.Errors)
+	}
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
+	mto.SecondaryPickupAddressID = &secondaryPickupAddress.ID
+	mto.SecondaryPickupAddress = secondaryPickupAddress
+
+	// for belongs_to relationships pop requires updating the parent table first and then
+	// passing the id to the child
+	secondaryDeliveryAddress := postCounselingInformation.SecondaryDeliveryAddress
+	vErrors, err = u.db.ValidateAndSave(secondaryDeliveryAddress)
+	if vErrors.HasAny() {
+		return &models.MoveTaskOrder{}, NewErrInvalidInput(moveTaskOrderID, err, vErrors.Errors)
+	}
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
+	mto.SecondaryDeliveryAddressID = &secondaryDeliveryAddress.ID
+	mto.SecondaryDeliveryAddress = secondaryDeliveryAddress
+
+	mto.ScheduledMoveDate = &postCounselingInformation.ScheduledMoveDate
+	mto.PpmIsIncluded = &postCounselingInformation.PPMIsIncluded
+	vErrors, err = u.db.ValidateAndUpdate(mto)
+	if vErrors.HasAny() {
+		return &models.MoveTaskOrder{}, NewErrInvalidInput(moveTaskOrderID, err, vErrors.Errors)
+	}
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
+	return mto, nil
+}
+
+type updateMoveTaskOrderDestinationAddress struct {
+	db *pop.Connection
+	fetchMoveTaskOrder
+}
+
+func NewMoveTaskOrderDestinationAddressUpdater(db *pop.Connection) services.MoveTaskOrderDestinationAddressUpdater {
+	moveTaskOrderFetcher := fetchMoveTaskOrder{db}
+	return &updateMoveTaskOrderDestinationAddress{db, moveTaskOrderFetcher}
+}
+
+func (u updateMoveTaskOrderDestinationAddress) UpdateMoveTaskOrderDestinationAddress(moveTaskOrderID uuid.UUID, destinationAddress *models.Address) (*models.MoveTaskOrder, error) {
+	mto, err := u.FetchMoveTaskOrder(moveTaskOrderID)
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
+	if destinationAddress == nil {
+		invalidFields := map[string][]string{}
+		invalidFields["destinationAddress"] = []string{"destination_address cannot be null"}
+		return &models.MoveTaskOrder{}, NewErrInvalidInput(moveTaskOrderID, err, invalidFields)
+	}
+	// for belongs_to relationships pop requires updating the parent table first and then
+	// passing the id to the child
+	vErrors, err := u.db.ValidateAndSave(destinationAddress)
+	if vErrors.HasAny() {
+		return &models.MoveTaskOrder{}, NewErrInvalidInput(moveTaskOrderID, err, vErrors.Errors)
+	}
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
+	mto.DestinationAddressID = destinationAddress.ID
+	mto.DestinationAddress = *destinationAddress
+	vErrors, err = u.db.ValidateAndSave(mto)
+	if vErrors.HasAny() {
+		return &models.MoveTaskOrder{}, NewErrInvalidInput(moveTaskOrderID, err, vErrors.Errors)
+	}
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
+	return mto, nil
+}
