@@ -54,13 +54,14 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdater() {
 
 	suite.Nil(originalMTO.AvailableToPrimeDate)
 	// check not equal to what asserting against below
-	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusSubmitted)
+	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusApproved)
 	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
 
-	updatedMTO, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, models.MoveTaskOrderStatusSubmitted)
+	updatedMTO, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, models.MoveTaskOrderStatusApproved)
 
 	suite.NoError(err)
-	suite.Equal(models.MoveTaskOrderStatusSubmitted, updatedMTO.Status)
+	suite.Equal(models.MoveTaskOrderStatusApproved, updatedMTO.Status)
+	// date should be filled when mto has been approved
 	suite.NotNil(updatedMTO.AvailableToPrimeDate)
 }
 
