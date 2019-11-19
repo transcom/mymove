@@ -21,7 +21,7 @@ const editBackupContactFormName = 'edit_backup_contact';
 let EditBackupContactForm = props => {
   const { schema, handleSubmit, submitting, valid } = props;
   return (
-    <div className="grid-container usa-prose site-prose">
+    <div className="grid-container usa-prose">
       <div className="grid-row">
         <div className="grid-col-12">
           <form onSubmit={handleSubmit}>
@@ -123,7 +123,4 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(EditBackupContact);
+export default connect(mapStateToProps, mapDispatchToProps)(EditBackupContact);

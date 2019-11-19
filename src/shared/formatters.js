@@ -167,9 +167,9 @@ export const displayDateRange = (dates, formatType = 'long') => {
 // Office Formatters
 
 // Format a date and ignore any time values, e.g. 03-Jan-18
-export function formatDate(date) {
+export function formatDate(date, inputFormat, locale = 'en', isStrict = false) {
   if (date) {
-    return moment(date).format('DD-MMM-YY');
+    return moment(date, inputFormat, locale, isStrict).format('DD-MMM-YY');
   }
 }
 

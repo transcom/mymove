@@ -229,7 +229,7 @@ class MoveInfo extends Component {
     if (!this.props.loadDependenciesHasSuccess && !this.props.loadDependenciesHasError) return <LoadingPlaceholder />;
     if (this.props.loadDependenciesHasError)
       return (
-        <div className="grid-container-widescreen usa-prose site-prose">
+        <div className="grid-container-widescreen usa-prose">
           <div className="grid-row">
             <div className="grid-col-12 error-message">
               <Alert type="error" heading="An error occurred">
@@ -241,7 +241,7 @@ class MoveInfo extends Component {
       );
 
     return (
-      <div className="grid-container-widescreen usa-prose site-prose">
+      <div className="grid-container-widescreen usa-prose">
         <div className="grid-row grid-gap">
           <div className="grid-col-8">
             <h1>
@@ -489,10 +489,5 @@ const mapDispatchToProps = dispatch =>
     dispatch,
   );
 
-const connectedMoveInfo = withContext(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  )(MoveInfo),
-);
+const connectedMoveInfo = withContext(connect(mapStateToProps, mapDispatchToProps)(MoveInfo));
 export { connectedMoveInfo as default, ReferrerQueueLink };

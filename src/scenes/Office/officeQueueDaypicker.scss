@@ -1,0 +1,19 @@
+/* This is imported into office.scss */
+
+//datepicker css module overide
+.rt-th {
+  .DayPickerInput {
+    width: 100%;
+  }
+}
+
+.rt-th:last-child {
+  .DayPickerInput {
+    .DayPickerInput-OverlayWrapper {
+      .DayPickerInput-Overlay {
+        left: auto;
+        right: 0;
+      }
+    }
+  }
+}

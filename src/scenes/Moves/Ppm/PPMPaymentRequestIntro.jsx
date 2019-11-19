@@ -35,7 +35,7 @@ class PPMPaymentRequestIntro extends Component {
     const { schema, invalid, handleSubmit, submitting } = this.props;
     const { ppmUpdateError } = this.state;
     return (
-      <div className="grid-container usa-prose site-prose ppm-payment-req-intro">
+      <div className="grid-container usa-prose ppm-payment-req-intro">
         {ppmUpdateError && (
           <div className="grid-row">
             <div className="grid-col-12 error-message">
@@ -113,9 +113,4 @@ const mapDispatchToProps = {
   createOrUpdatePpm,
 };
 
-export default withContext(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  )(PPMPaymentRequestIntro),
-);
+export default withContext(connect(mapStateToProps, mapDispatchToProps)(PPMPaymentRequestIntro));

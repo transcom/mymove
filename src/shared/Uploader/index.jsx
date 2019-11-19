@@ -181,7 +181,4 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({}, dispatch);
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(Uploader);
+export default connect(mapStateToProps, mapDispatchToProps)(Uploader);
