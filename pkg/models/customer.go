@@ -50,6 +50,7 @@ func GetCustomerMoveItems(db *pop.Connection) ([]CustomerMoveItem, error) {
 			LEFT JOIN service_members AS sm ON ord.service_member_id = sm.id
 			LEFT JOIN duty_stations AS origin_duty_station ON sm.duty_station_id = origin_duty_station.id
 			LEFT JOIN move_task_orders AS mto ON mto.move_id = moves.id
+		WHERE moves.show IS TRUE
 	`).All(&CustomerMoveItems)
 	return CustomerMoveItems, err
 }
