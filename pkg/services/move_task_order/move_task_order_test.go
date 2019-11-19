@@ -52,7 +52,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdater() {
 	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
 	originalMTO := serviceItem.MoveTaskOrder
 
-	suite.Equal(originalMTO.AvailableToPrimeDate, time.Date(0001, 1, 1, 0, 0, 0, 0, time.UTC))
+	suite.Nil(originalMTO.AvailableToPrimeDate)
 	// check not equal to what asserting against below
 	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusSubmitted)
 	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
@@ -61,7 +61,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdater() {
 
 	suite.NoError(err)
 	suite.Equal(models.MoveTaskOrderStatusSubmitted, updatedMTO.Status)
-	suite.NotEqual(updatedMTO.AvailableToPrimeDate, time.Date(0001, 1, 1, 0, 0, 0, 0, time.UTC))
+	suite.NotNil(updatedMTO.AvailableToPrimeDate)
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterEmptyStatus() {
@@ -150,8 +150,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderDestinationAddressUpdat
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderPrimePostCounselingUpdater() {
 	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
 	originalMTO := serviceItem.MoveTaskOrder
-
-	suite.Equal(originalMTO.AvailableToPrimeDate, time.Date(0001, 1, 1, 0, 0, 0, 0, time.UTC))
+	suite.Nil(originalMTO.SubmittedCounselingInfoDate)
 
 	// check not equal to what asserting against below
 	address := testdatagen.MakeDefaultAddress(suite.DB())
@@ -173,7 +172,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderPrimePostCounselingUpda
 	suite.Equal(information.SecondaryDeliveryAddress, updatedMTO.SecondaryDeliveryAddress)
 	suite.Equal(information.SecondaryPickupAddress, updatedMTO.SecondaryPickupAddress)
 	suite.Equal(information.PPMIsIncluded, *updatedMTO.PpmIsIncluded)
-	suite.NotEqual(updatedMTO.AvailableToPrimeDate, time.Date(0001, 1, 1, 0, 0, 0, 0, time.UTC))
+	suite.NotNil(updatedMTO.SubmittedCounselingInfoDate)
 
 	dbUpdatedMTO, fetchErr := moveTaskOrderFetcher.FetchMoveTaskOrder(updatedMTO.ID)
 	suite.NoError(fetchErr)
