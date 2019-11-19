@@ -154,10 +154,14 @@ func (s *S3) ContentType(key string) (string, error) {
 	namespacedKey := path.Join(s.keyNamespace, key)
 	log.Println(s.bucket)
 	log.Println(namespacedKey)
-	result, err := s.client.HeadObject(&s3.HeadObjectInput{
+	input := s3.HeadObjectInput{
 		Bucket: &s.bucket,
 		Key:    &namespacedKey,
-	})
+	}
+	log.Println("Bucket: ", *input.Bucket)
+	log.Println("Key: ", *input.Key)
+	result, err := s.client.HeadObject(&input)
+	log.Println("err:", err)
 	if err != nil {
 		if aerr, ok := err.(awserr.Error); ok {
 			switch aerr.Code() {

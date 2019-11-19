@@ -9,6 +9,7 @@ import (
 	"crypto/md5"
 	"encoding/base64"
 	"io"
+	"log"
 	"net/http"
 	"path"
 
@@ -102,6 +103,7 @@ func InitStorage(v *viper.Viper, sess *awssession.Session, logger Logger) FileSt
 			logger.Fatal("Must provide aws_s3_key_namespace parameter, exiting")
 		}
 		storer = NewS3(awsS3Bucket, awsS3KeyNamespace, logger, sess)
+		log.Println("InitStorage.storer: ", storer)
 	} else if storageBackend == "memory" {
 		logger.Info("Using memory storage backend",
 			zap.String(cli.LocalStorageRootFlag, path.Join(localStorageRoot, localStorageWebRoot)),

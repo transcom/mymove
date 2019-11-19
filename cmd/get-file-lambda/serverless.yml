@@ -6,6 +6,7 @@ provider:
   deploymentBucket: transcom-ppp-third-party-artifacts
   runtime: go1.x
 #  environment:
+#    AWS_PROFILE: ${env:AWS_PROFILE}
 #    VERBOSE: true
 #    S3_REGION: "us-west-2"
 #    S3_BUCKET: "transcom-ppp-app-devlocal-us-west-2"

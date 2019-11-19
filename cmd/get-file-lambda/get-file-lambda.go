@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"os"
 	"strings"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -11,6 +12,7 @@ import (
 
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/pkg/errors"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
@@ -21,65 +23,82 @@ type Event struct {
 	Key string `json:"key"`
 }
 
+func checkConfig(v *viper.Viper, logger logger) error {
+
+	logger.Debug("checking config")
+
+	err := cli.CheckStorage(v)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func initFlags(flag *pflag.FlagSet) {
+
+	// Storage config
+	cli.InitStorageFlags(flag)
+
+	// Verbose
+	cli.InitVerboseFlags(flag)
+
+	// Don't sort flags
+	flag.SortFlags = false
+}
+
 func HandleRequest(ctx context.Context, event Event) (string, error) {
 
+	flag := pflag.CommandLine
+	initFlags(flag)
+	flag.Parse(os.Args[1:])
+
 	v := viper.New()
+	v.BindPFlags(flag)
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	//TODO pass via env
-	verbose := true
-	dbEnv := "development"
-	s3Region := "us-west-2"
-	s3Bucket := "transcom-ppp-app-devlocal-us-west-2"
-	s3KeyNameSpace := "matthewkrump"
-	//dbEnv, err := env.Env("DB_ENV")
-	//if err != nil {
-	//	log.Fatalf("DB_ENV missing %v", err)
-	//}
-	//s3Region, err := env.Env("S3_REGION")
-	//if err != nil {
-	//	log.Fatalf("S3_REGION missing %v", err)
-	//}
-	//s3Bucket, err := env.Env("S3_BUCKET")
-	//if err != nil {
-	//	log.Fatalf("S3_BUCKET missing %v", err)
-	//}
-	//s3KeyNameSpace, err := env.Env("S3_KEY_NAME_SPACE")
-	//if err != nil {
-	//	log.Fatalf("S3_KEY_NAME_SPACE missing %v", err)
-	//}
-	logger, err := logging.Config(dbEnv, verbose)
+	dbEnv := v.GetString(cli.DbEnvFlag)
+
+	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
 	zap.ReplaceGlobals(logger)
 
+	err = checkConfig(v, logger)
+	if err != nil {
+		logger.Fatal("invalid configuration", zap.Error(err))
+	}
+
 	var session *awssession.Session
-	//TODO this is wack
-	c, errorConfig := cli.GetAWSConfig(v, verbose)
-	log.Printf("aws config: %+v", c)
-	if errorConfig != nil {
-		logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())
+	v.Set(cli.StorageBackendFlag, "s3")
+	if v.GetString(cli.StorageBackendFlag) == "s3" {
+		c, errorConfig := cli.GetAWSConfig(v, v.GetBool(cli.VerboseFlag))
+		if errorConfig != nil {
+			logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())
+		}
+		s, errorSession := awssession.NewSession(c)
+		if errorSession != nil {
+			logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
+		}
+		session = s
 	}
-	s, errorSession := awssession.NewSession(c)
-	if errorSession != nil {
-		logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
+
+	// Create a connection to the DB
+	v.Set(cli.StorageBackendFlag, "s3")
+	v.Set(cli.AWSS3BucketNameFlag, "transcom-ppp-app-devlocal-us-west-2")
+	v.Set(cli.AWSS3RegionFlag, "us-west-2")
+	v.Set(cli.AWSS3KeyNamespaceFlag, "matthewkrump")
+	storer := storage.InitStorage(v, session, logger)
+	log.Println("storer: ", storer)
+	// Have content type in db, but for now going to avoid connecting to db, so just retrieve from bucket
+	contentType, err := storer.ContentType(event.Key)
+	if err != nil {
+		logger.Fatal("can't get content type", zap.Error(err))
 	}
-	session = s
-	log.Printf("aws session: %+v", session)
 
-	logger.Info("Using s3 storage backend",
-		zap.String("region", s3Region),
-		zap.String("key", s3KeyNameSpace))
-	storer := storage.NewS3(s3Bucket, s3KeyNameSpace, logger, session)
-
-	//contentType, err := storer.ContentType(event.Key)
-	//if err != nil {
-	//	logger.Fatal("can't get content type", zap.Error(err))
-	//}
-
-	f, err := storer.PresignedURL(event.Key, "image/png")
+	f, err := storer.PresignedURL(event.Key, contentType)
 	if err != nil {
 		logger.Fatal("can't get generate presigned url", zap.Error(err))
 	}
