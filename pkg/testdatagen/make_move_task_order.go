@@ -43,7 +43,7 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 		DestinationAddressID:     destinationAddress.ID,
 		RequestedPickupDate:      time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
 		CustomerRemarks:          "Park in the alley",
-		Status:                   models.MoveTaskOrderStatusApproved,
+		Status:                   models.MoveTaskOrderStatusSubmitted,
 	}
 
 	// Overwrite values with those from assertions
