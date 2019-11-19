@@ -171,7 +171,4 @@ const mapDispatchToProps = {
   getMoveDocumentsForMove,
   getPpmWeightEstimate,
 };
-export const MoveSummary = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(MoveSummaryComponent);
+export const MoveSummary = connect(mapStateToProps, mapDispatchToProps)(MoveSummaryComponent);

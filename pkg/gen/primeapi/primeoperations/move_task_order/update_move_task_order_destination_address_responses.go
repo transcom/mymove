@@ -16,7 +16,7 @@ import (
 // UpdateMoveTaskOrderDestinationAddressOKCode is the HTTP code returned for type UpdateMoveTaskOrderDestinationAddressOK
 const UpdateMoveTaskOrderDestinationAddressOKCode int = 200
 
-/*UpdateMoveTaskOrderDestinationAddressOK Successfully retrieved move task order
+/*UpdateMoveTaskOrderDestinationAddressOK Successfully updated move task order destination address
 
 swagger:response updateMoveTaskOrderDestinationAddressOK
 */

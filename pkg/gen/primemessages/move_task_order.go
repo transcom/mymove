@@ -78,6 +78,9 @@ type MoveTaskOrder struct {
 	// ppm is included
 	PpmIsIncluded bool `json:"ppm-is-included,omitempty"`
 
+	// prime actual weight
+	PrimeActualWeight *int64 `json:"primeActualWeight,omitempty"`
+
 	// prime estimated weight
 	PrimeEstimatedWeight *int64 `json:"primeEstimatedWeight,omitempty"`
 
@@ -103,7 +106,7 @@ type MoveTaskOrder struct {
 	SecondaryPickupAddress *Address `json:"secondary-pickup-address,omitempty"`
 
 	// status
-	// Enum: [DRAFT APPROVED REJECTED SUBMITTED]
+	// Enum: [APPROVED REJECTED SUBMITTED]
 	Status string `json:"status,omitempty"`
 
 	// updated at
@@ -511,7 +514,7 @@ var moveTaskOrderTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DRAFT","APPROVED","REJECTED","SUBMITTED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["APPROVED","REJECTED","SUBMITTED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -520,9 +523,6 @@ func init() {
 }
 
 const (
-
-	// MoveTaskOrderStatusDRAFT captures enum value "DRAFT"
-	MoveTaskOrderStatusDRAFT string = "DRAFT"
 
 	// MoveTaskOrderStatusAPPROVED captures enum value "APPROVED"
 	MoveTaskOrderStatusAPPROVED string = "APPROVED"

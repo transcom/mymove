@@ -377,94 +377,15 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Entitlements"
+          "moveTaskOrder"
         ],
         "summary": "Gets entitlements for a move order by ID",
         "operationId": "getEntitlements",
         "responses": {
           "200": {
-            "description": "Successfully retrieved move task order",
+            "description": "Successfully retrieved entitlements",
             "schema": {
               "$ref": "#/definitions/Entitlements"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "ID of move order to use",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/move-task-orders/{moveTaskOrderID}/prime-actual-weight": {
-      "patch": {
-        "description": "Updates a move order's actual weight by ID",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder",
-          "prime"
-        ],
-        "summary": "Updates a move order's actual weight by ID",
-        "operationId": "updateMoveTaskOrderActualWeight",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "actualWeight": {
-                  "type": "integer"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved move task order",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
             }
           },
           "400": {
@@ -1552,6 +1473,11 @@ func init() {
           "title": "Origin Duty Station Name",
           "x-nullable": true,
           "example": "Fort Knox"
+        },
+        "reference_id": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "1234-5678"
         }
       }
     },
@@ -1622,11 +1548,6 @@ func init() {
     "MoveTaskOrder": {
       "type": "object",
       "properties": {
-        "actualWeight": {
-          "type": "integer",
-          "x-formatting": "weight",
-          "example": 1000
-        },
         "code": {
           "type": "string",
           "example": "USMC-0001"
@@ -1711,7 +1632,6 @@ func init() {
         "status": {
           "type": "string",
           "enum": [
-            "DRAFT",
             "APPROVED",
             "REJECTED",
             "SUBMITTED"
@@ -1730,7 +1650,6 @@ func init() {
           "type": "string",
           "enum": [
             "APPROVED",
-            "DRAFT",
             "SUBMITTED",
             "REJECTED"
           ]
@@ -2450,94 +2369,15 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Entitlements"
+          "moveTaskOrder"
         ],
         "summary": "Gets entitlements for a move order by ID",
         "operationId": "getEntitlements",
         "responses": {
           "200": {
-            "description": "Successfully retrieved move task order",
+            "description": "Successfully retrieved entitlements",
             "schema": {
               "$ref": "#/definitions/Entitlements"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "parameters": [
-        {
-          "type": "string",
-          "description": "ID of move order to use",
-          "name": "moveTaskOrderID",
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/move-task-orders/{moveTaskOrderID}/prime-actual-weight": {
-      "patch": {
-        "description": "Updates a move order's actual weight by ID",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder",
-          "prime"
-        ],
-        "summary": "Updates a move order's actual weight by ID",
-        "operationId": "updateMoveTaskOrderActualWeight",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "actualWeight": {
-                  "type": "integer"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved move task order",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
             }
           },
           "400": {
@@ -3805,6 +3645,11 @@ func init() {
           "title": "Origin Duty Station Name",
           "x-nullable": true,
           "example": "Fort Knox"
+        },
+        "reference_id": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "1234-5678"
         }
       }
     },
@@ -3875,11 +3720,6 @@ func init() {
     "MoveTaskOrder": {
       "type": "object",
       "properties": {
-        "actualWeight": {
-          "type": "integer",
-          "x-formatting": "weight",
-          "example": 1000
-        },
         "code": {
           "type": "string",
           "example": "USMC-0001"
@@ -3964,7 +3804,6 @@ func init() {
         "status": {
           "type": "string",
           "enum": [
-            "DRAFT",
             "APPROVED",
             "REJECTED",
             "SUBMITTED"
@@ -3983,7 +3822,6 @@ func init() {
           "type": "string",
           "enum": [
             "APPROVED",
-            "DRAFT",
             "SUBMITTED",
             "REJECTED"
           ]

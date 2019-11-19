@@ -18,6 +18,8 @@ class QueueTable extends Component {
     super();
     this.state = {
       data: [],
+      origDutyStationData: [],
+      destDutyStationData: [],
       pages: null,
       loading: true,
       refreshing: false, // only true when the user clicks the refresh button
@@ -71,12 +73,26 @@ class QueueTable extends Component {
     // Catch any errors here and render an empty queue
     try {
       const body = await this.props.retrieveMoves(this.props.queueType);
+      // grab all destination duty station and remove duplicates
+      // this will build on top of the current duty stations list we see from the data
+      let origDutyStationDataSet = new Set(this.getOriginDutyStations());
+      let destDutyStationDataSet = new Set(this.getDestinationDutyStations());
+      body.forEach(value => {
+        if (value.origin_duty_station_name !== undefined && value.origin_duty_station_name !== '') {
+          origDutyStationDataSet.add(value.origin_duty_station_name);
+        }
+        if (value.destination_duty_station_name !== undefined && value.destination_duty_station_name !== '') {
+          destDutyStationDataSet.add(value.destination_duty_station_name);
+        }
+      });
 
       // Only update the queue list if the request that is returning
       // is for the same queue as the most recent request.
       if (this.state.loadingQueue === loadingQueueType) {
         this.setState({
           data: body,
+          origDutyStationData: [...origDutyStationDataSet].sort(),
+          destDutyStationData: [...destDutyStationDataSet].sort(),
           pages: 1,
           loading: false,
           refreshing: false,
@@ -86,6 +102,8 @@ class QueueTable extends Component {
     } catch (e) {
       this.setState({
         data: [],
+        origDutyStationData: [],
+        destDutyStationData: [],
         pages: 1,
         loading: false,
         refreshing: false,
@@ -114,6 +132,14 @@ class QueueTable extends Component {
     this.fetchData();
   }
 
+  getDestinationDutyStations = () => {
+    return this.state.destDutyStationData;
+  };
+
+  getOriginDutyStations = () => {
+    return this.state.origDutyStationData;
+  };
+
   render() {
     const titles = {
       new: 'New moves',
@@ -124,7 +150,7 @@ class QueueTable extends Component {
       ppm_approved: 'Approved moves',
     };
 
-    const showColumns = defaultColumns();
+    const showColumns = defaultColumns(this);
 
     const defaultSort = queueType => {
       if (['all'].includes(queueType)) {
@@ -208,9 +234,4 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ setUserIsLoggedIn }, dispatch);
 }
 
-export default withRouter(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  )(QueueTable),
-);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(QueueTable));

@@ -162,7 +162,7 @@ func (f fetchMoveTaskOrder) UpdateMoveTaskOrderActualWeight(moveTaskOrderID uuid
 		return &models.MoveTaskOrder{}, err
 	}
 	weight := unit.Pound(actualWeight)
-	mto.ActualWeight = &weight
+	mto.PrimeActualWeight = &weight
 
 	vErrors, err := f.db.ValidateAndUpdate(mto)
 	if vErrors.HasAny() {

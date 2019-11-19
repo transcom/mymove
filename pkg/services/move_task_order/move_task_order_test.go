@@ -56,21 +56,20 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdater() {
 	fmt.Println(originalMTO.AvailableToPrimeDate)
 	suite.Equal(originalMTO.AvailableToPrimeDate, time.Date(0001, 1, 1, 0, 0, 0, 0, time.UTC))
 	// check not equal to what asserting against below
-	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusApproved)
+	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusSubmitted)
 	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
 
-	updatedMTO, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, models.MoveTaskOrderStatusApproved)
+	updatedMTO, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, models.MoveTaskOrderStatusSubmitted)
 
 	suite.NoError(err)
-	suite.NotEqual(updatedMTO.AvailableToPrimeDate, time.Date(0001, 1, 1, 0, 0, 0, 0, time.UTC))
-	suite.Equal(models.MoveTaskOrderStatusApproved, updatedMTO.Status)
+	suite.Equal(models.MoveTaskOrderStatusSubmitted, updatedMTO.Status)
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterEmptyStatus() {
 	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
 	originalMTO := serviceItem.MoveTaskOrder
 	// check not equal to what asserting against below
-	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusApproved)
+	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusSubmitted)
 	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
 
 	_, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, "")
@@ -82,14 +81,14 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderActualWeightUpdater() {
 	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
 	originalMTO := serviceItem.MoveTaskOrder
 	// check not equal to what asserting against below
-	suite.Nil(originalMTO.ActualWeight)
+	suite.Nil(originalMTO.PrimeActualWeight)
 	mtoActualWeightUpdater := NewMoveTaskOrderActualWeightUpdater(suite.DB())
 
 	newWeight := int64(566)
 	updatedMTO, err := mtoActualWeightUpdater.UpdateMoveTaskOrderActualWeight(originalMTO.ID, newWeight)
 
 	suite.NoError(err)
-	suite.Equal(unit.Pound(newWeight), *updatedMTO.ActualWeight)
+	suite.Equal(unit.Pound(newWeight), *updatedMTO.PrimeActualWeight)
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderPrimeEstimatedWeightUpdater() {

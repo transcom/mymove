@@ -12,10 +12,16 @@ func MoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *primemessages.MoveTaskOr
 	destinationAddress := Address(&moveTaskOrder.DestinationAddress)
 	pickupAddress := Address(&moveTaskOrder.PickupAddress)
 	entitlements := Entitlements(&moveTaskOrder.Entitlements)
+
+	var primeActualWeight *int64
+	if moveTaskOrder.PrimeActualWeight != nil {
+		actualWeight := moveTaskOrder.PrimeActualWeight.Int64()
+		primeActualWeight = &actualWeight
+	}
 	var primeEstimatedWeight *int64
 	if moveTaskOrder.PrimeEstimatedWeight != nil {
-		wt := moveTaskOrder.PrimeEstimatedWeight.Int64()
-		primeEstimatedWeight = &wt
+		estimatedWeight := moveTaskOrder.PrimeEstimatedWeight.Int64()
+		primeEstimatedWeight = &estimatedWeight
 	}
 	var primeEstimatedWeightRecordedDate *strfmt.Date
 	if moveTaskOrder.PrimeEstimatedWeight != nil {
@@ -40,6 +46,7 @@ func MoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *primemessages.MoveTaskOr
 		OriginDutyStation:                strfmt.UUID(moveTaskOrder.OriginDutyStationID.String()),
 		PpmIsIncluded:                    ppmIsIncluded,
 		PickupAddress:                    pickupAddress,
+		PrimeActualWeight:                primeActualWeight,
 		PrimeEstimatedWeight:             primeEstimatedWeight,
 		PrimeEstimatedWeightRecordedDate: primeEstimatedWeightRecordedDate,
 		Remarks:                          moveTaskOrder.CustomerRemarks,
@@ -81,5 +88,57 @@ func Entitlements(entitlement *models.GHCEntitlement) *primemessages.Entitlement
 		ProGearWeightSpouse:   int64(entitlement.ProGearWeightSpouse),
 		StorageInTransit:      int64(entitlement.StorageInTransit),
 		TotalDependents:       int64(entitlement.TotalDependents),
+	}
+}
+
+func Customer(serviceMember *models.ServiceMember) *primemessages.Customer {
+	if serviceMember == nil {
+		return nil
+	}
+	var agency *string
+	if serviceMember.Affiliation != nil {
+		agency = handlers.FmtString(string(*serviceMember.Affiliation))
+	}
+	var rank *string
+	if serviceMember.Rank != nil {
+		rank = handlers.FmtString(string(*serviceMember.Rank))
+	}
+
+	return &primemessages.Customer{
+		ID:            strfmt.UUID(serviceMember.ID.String()),
+		Agency:        agency,
+		Email:         serviceMember.PersonalEmail,
+		FirstName:     serviceMember.FirstName,
+		Grade:         rank,
+		LastName:      serviceMember.LastName,
+		MiddleName:    serviceMember.MiddleName,
+		PickupAddress: Address(serviceMember.ResidentialAddress),
+		Suffix:        serviceMember.Suffix,
+		Telephone:     serviceMember.Telephone,
+	}
+}
+
+// TODO maybe remove
+func CustomerWithMTO(moveTaskOrder *models.MoveTaskOrder) *primemessages.Customer {
+	if moveTaskOrder == nil {
+		return nil
+	}
+	customer := Customer(&moveTaskOrder.Customer)
+	return &primemessages.Customer{
+		ID:                     strfmt.UUID(customer.ID.String()),
+		Agency:                 customer.Agency,
+		DestinationAddress:     Address(&moveTaskOrder.DestinationAddress),
+		DestinationDutyStation: &moveTaskOrder.DestinationDutyStation.Name,
+		Email:                  customer.Email,
+		FirstName:              customer.FirstName,
+		Grade:                  customer.Grade,
+		LastName:               customer.LastName,
+		MiddleName:             customer.MiddleName,
+		OriginDutyStation:      &moveTaskOrder.OriginDutyStation.Name,
+		PickupAddress:          Address(&moveTaskOrder.PickupAddress),
+		Remarks:                moveTaskOrder.CustomerRemarks,
+		RequestedPickupDate:    strfmt.Date(moveTaskOrder.RequestedPickupDate),
+		Suffix:                 customer.Suffix,
+		Telephone:              customer.Telephone,
 	}
 }
