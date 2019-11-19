@@ -34,7 +34,7 @@ what component to offer the customer. Introducing this into those places allows 
 the introduction of significant complexity.
 
 While React Loadable has been implemented in the project before, such as in `src/App/index.js`, it is no longer actively
-supported, which is in why utilizing an alternative like React Lazy is preferable.
+supported, which is why utilizing an alternative like React Lazy is preferable.
 
 Using this specific tool allows us to make use of the pattern in a way that should be compatible for upcoming
 performance focused React features that we may find desirous to use in the future.
@@ -68,17 +68,17 @@ customer navigates to this route. The `Suspense` tag provides an alternative thi
 ### Leave things as they are
 
 * `+` No changes needed to be done.
-* `-` No increase in front end performance
+* `-` No improvement in front end performance
 
 ### Use React Loadable
 
-* `+` Performance increase for frontend app
+* `+` Performance improvement for frontend app
 * `-` Risk introduced due to library no longer being maintained
 * `-` Increase in verbosity for frontend routes
 
 ### Use Loadable Components
 
-* `+` Performance increase for frontend app
+* `+` Performance improvement for frontend app
 * `+` React team recommends this library for some use cases (server side rendering)
 * `-` Increase in verbosity for frontend routes
 * `-` Abstraction layer on top of a relatively new React features. Unknown how this might interact with
@@ -87,7 +87,7 @@ may want to use in the future.
 
 ### Use React Lazy
 
-* `+` Performance increase for frontend app
+* `+` Performance improvement for frontend app
 * `+` Developed by React Team
 * `+` Designed to eventually interact with [Concurrent Mode](https://reactjs.org/docs/concurrent-mode-intro.html).
 * `-` Increase in verbosity for frontend routes
