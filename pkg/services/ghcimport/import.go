@@ -17,25 +17,25 @@ type GHCRateEngineImporter struct {
 
 func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
 	// Reference tables
-	err := gre.importREContract(dbTx)
+	err := gre.importREContract(dbTx) // Also populates gre.contractID
 	if err != nil {
-		return errors.Wrap(err, "Failed to import re_contract")
+		return errors.Wrap(err, "failed to import re_contract")
 	}
 
-	err = gre.importREDomesticServiceArea(dbTx)
+	err = gre.importREDomesticServiceArea(dbTx) // Also populates gre.serviceAreaToIDMap
 	if err != nil {
-		return errors.Wrap(err, "Failed to import re_domestic_service_area")
+		return errors.Wrap(err, "failed to import re_domestic_service_area")
 	}
 
 	err = gre.importRERateArea(dbTx)
 	if err != nil {
-		return errors.Wrap(err, "Failed to import re_rate_area")
+		return errors.Wrap(err, "failed to import re_rate_area")
 	}
 
 	// Non-reference tables
 	err = gre.importREDomesticLinehaulPrices(dbTx)
 	if err != nil {
-		return errors.Wrap(err, "Failed to import re_domestic_linehaul_prices")
+		return errors.Wrap(err, "failed to import re_domestic_linehaul_prices")
 	}
 
 	return nil
@@ -47,7 +47,7 @@ func (gre *GHCRateEngineImporter) Import(db *pop.Connection) error {
 		return dbTxError
 	})
 	if err != nil {
-		return errors.Wrap(err, "Transaction failed during GHC Rate Engine Import()")
+		return errors.Wrap(err, "transaction failed during GHC Rate Engine Import()")
 	}
 	return nil
 }

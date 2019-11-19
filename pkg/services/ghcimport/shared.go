@@ -47,7 +47,7 @@ func isPeakPeriod(season string) (bool, error) {
 		return false, nil
 	}
 
-	return false, errors.New(fmt.Sprintf("Invalid season [%s]", season))
+	return false, fmt.Errorf("invalid season [%s]", season)
 }
 
 func priceStringToFloat(rawPrice string) (float64, error) {
@@ -64,7 +64,7 @@ func priceStringToFloat(rawPrice string) (float64, error) {
 func priceToMillicents(rawPrice string) (int, error) {
 	floatPrice, err := priceStringToFloat(rawPrice)
 	if err != nil {
-		return 0, errors.Wrapf(err, "Could not parse price [%s]", rawPrice)
+		return 0, errors.Wrapf(err, "could not parse price [%s]", rawPrice)
 	}
 
 	millicents := int(math.Round(floatPrice * 100000))
