@@ -15,7 +15,6 @@ func (suite *GHCRateEngineImportSuite) helperImportRERateAreaTC2(action string) 
 	var texas *models.ReRateArea
 	texas, err = models.FetchReRateAreaItem(suite.DB(), "US68")
 	suite.NoError(err)
-	//suite.NotNil(texas)
 	suite.Equal(true, suite.NotNil(texas))
 	fmt.Printf("\nFetch US6B rate area %v\n\n", texas)
 	suite.Equal("Texas-South", texas.Name)
@@ -70,7 +69,6 @@ func (suite *GHCRateEngineImportSuite) helperImportRERateAreaTC3(action string) 
 }
 
 func (suite *GHCRateEngineImportSuite) helperImportRERateAreaVerifyImportComplete() {
-	fmt.Printf("helperImportRERateAreaVerifyImportComplete() DB URL %s\n\n", suite.DB().URL())
 	var rateArea models.ReRateArea
 	count, countErr := suite.DB().Count(&rateArea)
 	suite.NoError(countErr)
@@ -140,7 +138,6 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_importRERateAre
 			if tc == 1 {
 				suite.NoError(gre.importRERateArea(tt.args.dbTx))
 			} else if tc == 2 {
-				suite.NoError(gre.importRERateArea(tt.args.dbTx))
 				suite.helperImportRERateAreaTC2("setup")
 			} else if tc == 3 {
 				suite.helperImportRERateAreaTC3("setup")

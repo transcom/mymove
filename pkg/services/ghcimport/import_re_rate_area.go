@@ -1,6 +1,8 @@
 package ghcimport
 
 import (
+	"fmt"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/pkg/errors"
@@ -11,11 +13,11 @@ import (
 func (gre *GHCRateEngineImporter) importRERateArea(dbTx *pop.Connection) error {
 	err := gre.importDomesticRateAreas(dbTx)
 	if err != nil {
-		return errors.Wrap(err, "importRERateArea failed to import")
+		return fmt.Errorf("importRERateArea failed to import: %w", err)
 	}
 	err = gre.importInternationalRateAreas(dbTx)
 	if err != nil {
-		return errors.Wrap(err, "importRERateArea failed to import")
+		return fmt.Errorf("importRERateArea failed to import: %w", err)
 	}
 	return nil
 }
@@ -31,7 +33,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) er
 	err := db.All(&conusToOconus)
 
 	if err != nil {
-		return errors.Wrap(err, "Failed to query all StageConusToOconusPrice")
+		return fmt.Errorf("failed to query all StageConusToOconusPrice: %w", err)
 	}
 	for _, ra := range conusToOconus {
 		if _, ok := rateAreaExistMap[ra.OriginDomesticPriceAreaCode]; !ok {
@@ -40,7 +42,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) er
 			rateArea, err = models.FetchReRateAreaItem(db, ra.OriginDomesticPriceAreaCode)
 			if err != nil {
 				if err.Error() != "sql: no rows in result set" {
-					return errors.Wrapf(err, "Failed importing re_rate_area from StageConusToOconusPrice with code <%s>", ra.OriginDomesticPriceAreaCode)
+					return fmt.Errorf("failed importing re_rate_area from StageConusToOconusPrice with code: <%s> error: %w", ra.OriginDomesticPriceAreaCode, err)
 				}
 			}
 
@@ -70,7 +72,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) er
 						if verrs.HasAny() {
 							dbError = dbError + verrs.Error()
 						}
-						return errors.Wrapf(errors.New(dbError), "error saving ReRateArea from StageConusToOconusPrice with rate are ID: %s"+ra.OriginDomesticPriceAreaCode)
+						return fmt.Errorf("error saving ReRateArea from StageConusToOconusPrice with rate are ID: %s error: %w", ra.OriginDomesticPriceAreaCode, errors.New(dbError))
 					}
 				}
 
@@ -92,7 +94,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) er
 					if verrs.HasAny() {
 						dbError = dbError + verrs.Error()
 					}
-					return errors.Wrapf(errors.New(dbError), "error creating ReRateArea from StageConusToOconusPrice with rate are ID: %s"+ra.OriginDomesticPriceAreaCode)
+					return fmt.Errorf("error creating ReRateArea from StageConusToOconusPrice with rate are ID: %s error: %w", ra.OriginDomesticPriceAreaCode, errors.New(dbError))
 				}
 			}
 
@@ -105,7 +107,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) er
 	var oconusToConsus []models.StageOconusToConusPrice
 	err = db.All(&oconusToConsus)
 	if err != nil {
-		return errors.Wrap(err, "Failed to query all StageOconusToConusPrice")
+		return fmt.Errorf("failed to query all StageOconusToConusPrice error: %w", err)
 	}
 	for _, ra := range oconusToConsus {
 		if _, ok := rateAreaExistMap[ra.DestinationDomesticPriceAreaCode]; !ok {
@@ -113,7 +115,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) er
 			rateArea, err := models.FetchReRateAreaItem(db, ra.DestinationDomesticPriceAreaCode)
 			if err != nil {
 				if err.Error() != "sql: no rows in result set" {
-					return errors.Wrapf(err, "Failed importing re_rate_area from StageOconusToConusPrice with code <%s>", ra.DestinationDomesticPriceAreaCode)
+					return fmt.Errorf("Failed importing re_rate_area from StageOconusToConusPrice with code <%s> error: %w", ra.DestinationDomesticPriceAreaCode, err)
 				}
 			}
 
@@ -142,7 +144,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) er
 						if verrs.HasAny() {
 							dbError = dbError + verrs.Error()
 						}
-						return errors.Wrapf(errors.New(dbError), "error saving ReRateArea from StageOconusToConusPrice with rate are ID: %s"+ra.DestinationDomesticPriceAreaCode)
+						return fmt.Errorf("error saving ReRateArea from StageOconusToConusPrice with rate are ID: %s error: %w", ra.DestinationDomesticPriceAreaCode, errors.New(dbError))
 					}
 				}
 
@@ -163,7 +165,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) er
 					if verrs.HasAny() {
 						dbError = dbError + verrs.Error()
 					}
-					return errors.Wrapf(errors.New(dbError), "error creating ReRateArea from StageOconusToConusPrice with rate are ID: %s"+ra.DestinationDomesticPriceAreaCode)
+					return fmt.Errorf("error creating ReRateArea from StageOconusToConusPrice with rate are ID: %s error: %w", ra.DestinationDomesticPriceAreaCode, errors.New(dbError))
 				}
 			}
 
@@ -180,7 +182,7 @@ func (gre *GHCRateEngineImporter) importInternationalRateAreas(db *pop.Connectio
 
 	err := db.All(&serviceAreas)
 	if err != nil {
-		return errors.Wrap(err, "Failed to query all StageInternationalServiceArea")
+		return fmt.Errorf("failed to query all StageInternationalServiceArea: %w", err)
 	}
 
 	rateAreaExistMap := make(map[string]bool)
@@ -190,7 +192,7 @@ func (gre *GHCRateEngineImporter) importInternationalRateAreas(db *pop.Connectio
 			rateArea, err := models.FetchReRateAreaItem(db, sa.RateAreaID)
 			if err != nil {
 				if err.Error() != "sql: no rows in result set" {
-					return errors.Wrapf(err, "Failed importing re_rate_area from StageInternationalServiceArea with code <%s>", sa.RateAreaID)
+					return fmt.Errorf("failed importing re_rate_area from StageInternationalServiceArea with code <%s> error: %w", sa.RateAreaID, err)
 				}
 			}
 			// if it does exist, compare and update information if different
@@ -215,7 +217,7 @@ func (gre *GHCRateEngineImporter) importInternationalRateAreas(db *pop.Connectio
 						if verrs.HasAny() {
 							dbError = dbError + verrs.Error()
 						}
-						return errors.Wrapf(errors.New(dbError), "error saving ReRateArea from StageInternationalServiceArea with rate are ID: %s"+sa.RateAreaID)
+						return fmt.Errorf("error saving ReRateArea from StageInternationalServiceArea with rate are ID: %s error: %w", sa.RateAreaID, errors.New(dbError))
 					}
 				}
 				// if it does not exist, insert into ReRateArea
@@ -235,7 +237,7 @@ func (gre *GHCRateEngineImporter) importInternationalRateAreas(db *pop.Connectio
 					if verrs.HasAny() {
 						dbError = dbError + verrs.Error()
 					}
-					return errors.Wrapf(errors.New(dbError), "error creating ReRateArea from StageInternationalServiceArea with rate are ID: %s"+sa.RateAreaID)
+					return fmt.Errorf("error creating ReRateArea from StageInternationalServiceArea with rate are ID: %s error: %w", sa.RateAreaID, errors.New(dbError))
 				}
 			}
 
