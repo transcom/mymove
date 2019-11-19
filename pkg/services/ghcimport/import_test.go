@@ -6,12 +6,14 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
+
+const testContractCode = "TEST"
+const testContractName = "Test Contract"
 
 type GHCRateEngineImportSuite struct {
 	testingsuite.PopTestSuite
@@ -20,20 +22,21 @@ type GHCRateEngineImportSuite struct {
 
 func (suite *GHCRateEngineImportSuite) SetupTest() {
 	suite.DB().TruncateAll()
+	suite.helperSetupStagingTables()
 }
 
-func helperSetupStagingTables(t *testing.T, db *pop.Connection) {
+func (suite *GHCRateEngineImportSuite) TearDownSuite() {
+	suite.PopTestSuite.TearDown()
+}
+
+func (suite *GHCRateEngineImportSuite) helperSetupStagingTables() {
 	path := filepath.Join("fixtures", "stage_ghc_pricing.sql")
 	c, ioErr := ioutil.ReadFile(path)
-	if ioErr != nil {
-		t.Fatal(ioErr)
-	}
+	suite.NoError(ioErr)
 
 	sql := string(c)
-	err := db.RawQuery(sql).Exec()
-	if err != nil {
-		t.Fatal(err)
-	}
+	err := suite.DB().RawQuery(sql).Exec()
+	suite.NoError(err)
 }
 
 func TestGHCRateEngineImportSuite(t *testing.T) {
@@ -47,10 +50,7 @@ func TestGHCRateEngineImportSuite(t *testing.T) {
 		logger:       logger,
 	}
 
-	helperSetupStagingTables(t, hs.DB())
-
 	suite.Run(t, hs)
-	hs.PopTestSuite.TearDown()
 }
 
 func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_Import() {
@@ -63,8 +63,8 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_Import() {
 			name: "Run GHC Rate Engine Importer",
 			gre: &GHCRateEngineImporter{
 				Logger:       suite.logger,
-				ContractCode: "TEST",
-				ContractName: "Test Contract",
+				ContractCode: testContractCode,
+				ContractName: testContractName,
 			},
 			wantErr: false,
 		},
