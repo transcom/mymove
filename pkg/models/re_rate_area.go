@@ -40,9 +40,5 @@ func FetchReRateAreaItem(tx *pop.Connection, code string) (*ReRateArea, error) {
 		return nil, err
 	}
 
-	if area.Code == code {
-		return &area, err
-	}
-
-	return nil, err
+	return &area, err
 }
