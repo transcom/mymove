@@ -58,7 +58,7 @@ func HandleRequest(ctx context.Context, event Event) (string, error) {
 	var session *awssession.Session
 	//TODO this is wack
 	c, errorConfig := cli.GetAWSConfig(v, verbose)
-	log.Println(c)
+	log.Printf("aws config: %+v", c)
 	if errorConfig != nil {
 		logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())
 	}
@@ -67,6 +67,7 @@ func HandleRequest(ctx context.Context, event Event) (string, error) {
 		logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
 	}
 	session = s
+	log.Printf("aws session: %+v", session)
 
 	logger.Info("Using s3 storage backend",
 		zap.String("region", s3Region),
