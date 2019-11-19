@@ -15,16 +15,15 @@ import (
 // FetchMany is the exported interface for fetching a single office user
 //go:generate mockery -name FetchMany
 type FetchMany interface {
-	WithModel(model interface{}) *fetchMany
 	WithFilters(filters []services.QueryFilter) *fetchMany
 	WithPagination(pagination services.Pagination) *fetchMany
 	WithAssociations(associations services.QueryAssociations) *fetchMany
-	Execute() error
+	Count(model interface{}) (int, error)
+	Execute(model interface{}) error
 }
 
 type fetchMany struct {
 	db           *pop.Connection
-	model        interface{}
 	filters      []services.QueryFilter
 	pagination   *services.Pagination
 	associations *services.QueryAssociations
@@ -36,9 +35,41 @@ func NewFetchMany(db *pop.Connection) *fetchMany {
 	}
 }
 
-func (f *fetchMany) WithModel(model interface{}) *fetchMany {
-	f.model = model
-	return f
+func (f *fetchMany) Count(model interface{}) (int, error) {
+	query := f.db.Q()
+
+	t := reflect.TypeOf(model)
+
+	if t.Kind() != reflect.Ptr {
+		return 0, errors.New(fetchManyReflectionMessage)
+	}
+	t = t.Elem()
+	if t.Kind() != reflect.Slice {
+		return 0, errors.New(fetchManyReflectionMessage)
+	}
+	t = t.Elem()
+	if t.Kind() != reflect.Struct {
+		return 0, errors.New(fetchManyReflectionMessage)
+	}
+	var err error
+
+	if len(f.filters) > 0 {
+		query, err = filteredQuery(query, f.filters, t)
+	}
+
+	if err != nil {
+		return 0, err
+	}
+
+	if f.pagination != nil {
+		query = paginatedQuery(query, *f.pagination, t)
+	}
+
+	if f.associations != nil {
+		query = newAssociatedQuery(query, *f.associations, t)
+	}
+
+	return query.Count(model)
 }
 
 func (f *fetchMany) WithFilters(filters []services.QueryFilter) *fetchMany {
@@ -56,10 +87,10 @@ func (f *fetchMany) WithAssociations(associations services.QueryAssociations) *f
 	return f
 }
 
-func (f *fetchMany) Execute() error {
+func (f *fetchMany) Execute(model interface{}) error {
 	query := f.db.Q()
 
-	t := reflect.TypeOf(f.model)
+	t := reflect.TypeOf(model)
 
 	if t.Kind() != reflect.Ptr {
 		return errors.New(fetchManyReflectionMessage)
@@ -70,7 +101,7 @@ func (f *fetchMany) Execute() error {
 	}
 	t = t.Elem()
 	if t.Kind() != reflect.Struct {
-		return errors.New("hi there yo")
+		return errors.New(fetchManyReflectionMessage)
 	}
 	var err error
 
@@ -90,7 +121,7 @@ func (f *fetchMany) Execute() error {
 		query = newAssociatedQuery(query, *f.associations, t)
 	}
 
-	return query.All(f.model)
+	return query.All(model)
 }
 
 // allowed comparators for this query builder implementation
