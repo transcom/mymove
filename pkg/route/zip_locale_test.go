@@ -11,6 +11,11 @@ func (suite *PlannerSuite) TestZip5ToLatLong() {
 	suite.Assertions.Nil(err, "Should not get error from Zip5")
 	suite.Assertions.Equal(zip02807LatLong, ll, "Lat long for zip with leading zero")
 
+	// With delivery route
+	ll, err = Zip5ToLatLong("02807-9999")
+	suite.Assertions.Nil(err, "Should not get error from Zip5 no leading 0")
+	suite.Assertions.Equal(zip02807LatLong, ll, "Lat long for zip with no leading zero")
+
 	// Without leading 0
 	ll, err = Zip5ToLatLong("2807")
 	suite.Assertions.Nil(err, "Should not get error from Zip5 no leading 0")

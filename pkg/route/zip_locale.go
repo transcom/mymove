@@ -2,17 +2,25 @@ package route
 
 import (
 	"strconv"
+	"strings"
 )
+
+// Zip5ToLatLong return only first 5 char of zip (xxxxx-xxxx)
+func formatZip5(s string) string {
+	zipParts := strings.Split(s, "-")
+	return zipParts[0]
+}
 
 // Zip5ToLatLong looks up a zip code and returns the Lat Long from the census data
 func Zip5ToLatLong(zip5 string) (LatLong, error) {
 	var ll LatLong
-	zipAsInt, err := strconv.Atoi(zip5)
+	zip := formatZip5(zip5)
+	zipAsInt, err := strconv.Atoi(zip)
 	if err == nil {
 		var ok bool
 		ll, ok = zip5ToLatLongMap[zipAsInt]
 		if !ok {
-			err = NewUnsupportedPostalCodeError(zip5)
+			err = NewUnsupportedPostalCodeError(zip)
 		}
 	}
 	return ll, err
