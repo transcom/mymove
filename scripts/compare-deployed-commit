@@ -40,5 +40,6 @@ else
   echo "* Deployed commit ($deployed_commit) is not an ancestor of the local commit ($local_commit)."
   echo "* The deployed commit is either ahead of the local commit or the commits have different histories."
   echo "* Deploy is blocked."
-  exit 1
+
+  circleci-agent step halt
 fi
