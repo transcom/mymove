@@ -15,9 +15,9 @@ import (
 // FetchMany is the exported interface for fetching a single office user
 //go:generate mockery -name FetchMany
 type FetchMany interface {
-	WithFilters(filters []services.QueryFilter) *fetchMany
-	WithPagination(pagination services.Pagination) *fetchMany
-	WithAssociations(associations services.QueryAssociations) *fetchMany
+	Filters(filters []services.QueryFilter) *fetchMany
+	Pagination(pagination services.Pagination) *fetchMany
+	Associations(associations services.QueryAssociations) *fetchMany
 	Count(model interface{}) (int, error)
 	Execute(model interface{}) error
 }
@@ -33,6 +33,21 @@ func NewFetchMany(db *pop.Connection) *fetchMany {
 	return &fetchMany{
 		db: db,
 	}
+}
+
+func (f *fetchMany) Filters(filters []services.QueryFilter) *fetchMany {
+	f.filters = filters
+	return f
+}
+
+func (f *fetchMany) Pagination(pagination services.Pagination) *fetchMany {
+	f.pagination = &pagination
+	return f
+}
+
+func (f *fetchMany) Associations(associations services.QueryAssociations) *fetchMany {
+	f.associations = &associations
+	return f
 }
 
 func (f *fetchMany) Count(model interface{}) (int, error) {
@@ -70,21 +85,6 @@ func (f *fetchMany) Count(model interface{}) (int, error) {
 	}
 
 	return query.Count(model)
-}
-
-func (f *fetchMany) WithFilters(filters []services.QueryFilter) *fetchMany {
-	f.filters = filters
-	return f
-}
-
-func (f *fetchMany) WithPagination(pagination services.Pagination) *fetchMany {
-	f.pagination = &pagination
-	return f
-}
-
-func (f *fetchMany) WithAssociations(associations services.QueryAssociations) *fetchMany {
-	f.associations = &associations
-	return f
 }
 
 func (f *fetchMany) Execute(model interface{}) error {

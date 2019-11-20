@@ -23,7 +23,7 @@ func (t *testOfficeUserListQueryBuilder) FetchMany(model interface{}, filters []
 	return m
 }
 
-func (t *testOfficeUserListQueryBuilder) Count(model interface{}, filters []services.QueryFilter) (int, error) {
+func (t *testOfficeUserListQueryBuilder) Count(model interface{}) (int, error) {
 	count, m := t.fakeCount(model)
 	return count, m
 }

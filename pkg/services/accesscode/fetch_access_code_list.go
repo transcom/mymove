@@ -18,8 +18,12 @@ type accessCodeListFetcher struct {
 func (o *accessCodeListFetcher) FetchAccessCodeList(filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.AccessCodes, error) {
 	var accessCodes models.AccessCodes
 
-	err := o.builder.WithFilters(filters).WithAssociations(associations).WithPagination(pagination).Execute(&accessCodes)
-	// err := o.builder.FetchMany(&accessCodes, filters, associations, pagination, ordering)
+	err := o.builder.
+		Filters(filters).
+		Associations(associations).
+		Pagination(pagination).
+		Execute(&accessCodes)
+
 	if err != nil {
 		return models.AccessCodes{}, err
 	}
@@ -30,7 +34,10 @@ func (o *accessCodeListFetcher) FetchAccessCodeList(filters []services.QueryFilt
 // FetchAccessCodeCount uses the passed query builder to count access codes
 func (o *accessCodeListFetcher) FetchAccessCodeCount(filters []services.QueryFilter) (int, error) {
 	var accessCodes models.AccessCodes
-	count, err := o.builder.WithFilters(filters).Count(&accessCodes)
+	count, err := o.builder.
+		Filters(filters).
+		Count(&accessCodes)
+
 	return count, err
 }
 
