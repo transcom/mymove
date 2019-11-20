@@ -20,6 +20,7 @@ var tablesToTruncate = [...]string{
 	"re_contract_years",
 	"re_contracts",
 	"re_domestic_accessorial_prices",
+	"re_domestic_linehaul_prices",
 	"re_domestic_other_prices",
 	"re_domestic_service_area_prices",
 	"re_domestic_service_areas",
