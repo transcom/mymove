@@ -92,14 +92,21 @@ func HandleRequest(ctx context.Context, event Event) (string, error) {
 	if err != nil {
 		logger.Fatal("can't get content type", zap.Error(err))
 	}
+	log.Println("ContentType: ", contentType)
 
-	f, err := storer.PresignedURL(event.Key, contentType)
+	presignedURL, err := storer.PresignedURL(event.Key, contentType)
 	if err != nil {
 		logger.Fatal("can't get generate presigned url", zap.Error(err))
 	}
-	return f, nil
+	log.Println("URL: ", presignedURL)
+	return presignedURL, nil
 }
 
 func main() {
 	lambda.Start(HandleRequest)
+
+	// For local testing
+	// ctx := context.Background()
+	// event := Event{Key: "user/d6aab501-dd85-4126-b71a-246fc50ec263/uploads/c17771af-2878-4aaf-923d-8faf1cd58cea"}
+	// HandleRequest(ctx, event)
 }
