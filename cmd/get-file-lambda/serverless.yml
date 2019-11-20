@@ -8,6 +8,7 @@ provider:
   environment:
     AWS_ACCESS_KEY_ID: ${env:AWS_ACCESS_KEY_ID}
     AWS_SECRET_ACCESS_KEY: ${env:AWS_SECRET_ACCESS_KEY}
+    AWS_REGION: ${env:AWS_REGION}
     VERBOSE: true
     STORAGE_BACKEND: s3
     AWS_S3_BUCKET_NAME: "transcom-ppp-app-devlocal-us-west-2"
