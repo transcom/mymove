@@ -72,7 +72,6 @@ func HandleRequest(ctx context.Context, event Event) (string, error) {
 	}
 
 	var session *awssession.Session
-	v.Set(cli.StorageBackendFlag, "s3")
 	if v.GetString(cli.StorageBackendFlag) == "s3" {
 		c, errorConfig := cli.GetAWSConfig(v, v.GetBool(cli.VerboseFlag))
 		if errorConfig != nil {
@@ -86,10 +85,6 @@ func HandleRequest(ctx context.Context, event Event) (string, error) {
 	}
 
 	// Create a connection to the DB
-	v.Set(cli.StorageBackendFlag, "s3")
-	v.Set(cli.AWSS3BucketNameFlag, "transcom-ppp-app-devlocal-us-west-2")
-	v.Set(cli.AWSS3RegionFlag, "us-west-2")
-	v.Set(cli.AWSS3KeyNamespaceFlag, "matthewkrump")
 	storer := storage.InitStorage(v, session, logger)
 	log.Println("storer: ", storer)
 	// Have content type in db, but for now going to avoid connecting to db, so just retrieve from bucket
