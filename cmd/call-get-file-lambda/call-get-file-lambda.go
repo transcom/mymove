@@ -1,14 +1,15 @@
 package main
 
 import (
-	"context"
+	"encoding/json"
+	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
-	"github.com/aws/aws-lambda-go/lambda"
-
-	"github.com/transcom/mymove/pkg/storage"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/lambda"
 
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/pkg/errors"
@@ -18,10 +19,6 @@ import (
 	"github.com/transcom/mymove/pkg/logging"
 	"go.uber.org/zap"
 )
-
-type Event struct {
-	Key string `json:"key"`
-}
 
 func checkConfig(v *viper.Viper, logger logger) error {
 
@@ -47,12 +44,15 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
+type Event struct {
+	Key string `json:"key"`
+}
 type Response struct {
 	PresignedURL string `json:"preSignedURL"`
 	StatusCode   int    `json:"statusCode"`
 }
 
-func HandleRequest(ctx context.Context, event Event) (Response, error) {
+func main() {
 
 	flag := pflag.CommandLine
 	initFlags(flag)
@@ -77,6 +77,7 @@ func HandleRequest(ctx context.Context, event Event) (Response, error) {
 	}
 
 	var session *awssession.Session
+	var lambdaClient *lambda.Lambda
 	if v.GetString(cli.StorageBackendFlag) == "s3" {
 		c, errorConfig := cli.GetAWSConfig(v, v.GetBool(cli.VerboseFlag))
 		if errorConfig != nil {
@@ -87,31 +88,35 @@ func HandleRequest(ctx context.Context, event Event) (Response, error) {
 			logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
 		}
 		session = s
+		lambdaClient = lambda.New(session, c)
 	}
-
-	// Create a connection to the DB
-	storer := storage.InitStorage(v, session, logger)
-	log.Println("storer: ", storer)
-	// Have content type in db, but for now going to avoid connecting to db, so just retrieve from bucket
-	contentType, err := storer.ContentType(event.Key)
+	if lambdaClient == nil {
+		fmt.Println("lambdaClient must not be nil")
+		os.Exit(0)
+	}
+	request := Event{Key: "/user/d6aab501-dd85-4126-b71a-246fc50ec263/uploads/c17771af-2878-4aaf-923d-8faf1cd58ce"}
+	payload, err := json.Marshal(request)
 	if err != nil {
-		logger.Fatal("can't get content type", zap.Error(err))
+		log.Fatal("Error marshalling request: ", request)
 	}
-	log.Println("ContentType: ", contentType)
-
-	presignedURL, err := storer.PresignedURL(event.Key, contentType)
+	result, err := lambdaClient.Invoke(&lambda.InvokeInput{FunctionName: aws.String("get-file"), Payload: payload})
 	if err != nil {
-		logger.Fatal("can't get generate presigned url", zap.Error(err))
+		fmt.Println("Error calling get-file")
+		os.Exit(0)
 	}
-	log.Println("URL: ", presignedURL)
-	return Response{PresignedURL: presignedURL, StatusCode: 200}, nil
-}
+	var resp Response
 
-func main() {
-	lambda.Start(HandleRequest)
+	err = json.Unmarshal(result.Payload, &resp)
+	if err != nil {
+		fmt.Println("Error unmarshalling get-file response")
+		os.Exit(0)
+	}
 
-	// For local testing
-	// ctx := context.Background()
-	// event := Event{Key: "user/d6aab501-dd85-4126-b71a-246fc50ec263/uploads/c17771af-2878-4aaf-923d-8faf1cd58cea"}
-	// HandleRequest(ctx, event)
+	// If the status code is NOT 200, the call failed
+	if resp.StatusCode != 200 {
+		fmt.Println("Error getting items, StatusCode: " + strconv.Itoa(resp.StatusCode))
+		os.Exit(0)
+	}
+
+	fmt.Println(resp)
 }
