@@ -2,10 +2,11 @@ package models
 
 import (
 	"fmt"
-	"github.com/gofrs/uuid"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/gofrs/uuid"
 
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"

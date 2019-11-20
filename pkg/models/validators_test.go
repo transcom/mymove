@@ -2,10 +2,11 @@ package models_test
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
 
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
