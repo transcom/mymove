@@ -152,8 +152,6 @@ func (s *S3) Tags(key string) (map[string]string, error) {
 
 func (s *S3) ContentType(key string) (string, error) {
 	namespacedKey := path.Join(s.keyNamespace, key)
-	log.Println(s.bucket)
-	log.Println(namespacedKey)
 	input := s3.HeadObjectInput{
 		Bucket: &s.bucket,
 		Key:    &namespacedKey,
