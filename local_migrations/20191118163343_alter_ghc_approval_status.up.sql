@@ -1,6 +1,6 @@
 CREATE TYPE ghc_approval_status_2 AS ENUM (
     'APPROVED',
-    'SUBMITTED',
+    'DRAFT',
     'REJECTED'
     );
 
