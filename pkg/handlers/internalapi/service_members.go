@@ -101,7 +101,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		if err != nil {
 			return handlers.ResponseForError(logger, err)
 		}
-		s, err := models.FetchDutyStation(ctx, h.DB(), id)
+		s, err := models.FetchDutyStation(h.DB(), id)
 		if err != nil {
 			return handlers.ResponseForError(logger, err)
 		}
@@ -253,7 +253,7 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(ctx context.Con
 			return validate.NewErrors(), err
 		}
 		// Fetch the model partially as a validation on the ID
-		station, err := models.FetchDutyStation(ctx, h.DB(), stationID)
+		station, err := models.FetchDutyStation(h.DB(), stationID)
 		if err != nil {
 			return validate.NewErrors(), err
 		}

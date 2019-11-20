@@ -41,7 +41,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 	// Load duty station and transportation office association
 	if serviceMember.DutyStationID != nil {
 		// Fetch associations on duty station
-		dutyStation, err := models.FetchDutyStation(ctx, h.DB(), *serviceMember.DutyStationID)
+		dutyStation, err := models.FetchDutyStation(h.DB(), *serviceMember.DutyStationID)
 		if err != nil {
 			return handlers.ResponseForError(logger, err)
 		}

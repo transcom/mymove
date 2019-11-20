@@ -1,7 +1,6 @@
 package models
 
 import (
-	"context"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -79,7 +78,7 @@ func FetchDSContactInfo(db *pop.Connection, dutyStationID *uuid.UUID) (*DutyStat
 }
 
 // FetchDutyStation returns a station for a given id
-func FetchDutyStation(ctx context.Context, tx *pop.Connection, id uuid.UUID) (DutyStation, error) {
+func FetchDutyStation(tx *pop.Connection, id uuid.UUID) (DutyStation, error) {
 	var station DutyStation
 	err := tx.Q().Eager("Address").Find(&station, id)
 	return station, err

@@ -80,7 +80,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-	dutyStation, err := models.FetchDutyStation(ctx, h.DB(), stationID)
+	dutyStation, err := models.FetchDutyStation(h.DB(), stationID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -154,8 +154,6 @@ type UpdateOrdersHandler struct {
 // Handle ... updates an order from a request payload
 func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middleware.Responder {
 
-	ctx := params.HTTPRequest.Context()
-
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	orderID, err := uuid.FromString(params.OrdersID.String())
@@ -172,7 +170,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-	dutyStation, err := models.FetchDutyStation(ctx, h.DB(), stationID)
+	dutyStation, err := models.FetchDutyStation(h.DB(), stationID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
