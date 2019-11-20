@@ -69,7 +69,7 @@ func main() {
 	}
 	log.Printf("Importing file %s\n", params.XlsxFilename)
 
-	if params.ContractCode == "" {
+	if params.RunImport && params.ContractCode == "" {
 		log.Fatalf("Did not receive a contract code; missing --contract-code\n")
 	}
 
