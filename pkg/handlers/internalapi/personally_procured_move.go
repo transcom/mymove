@@ -188,10 +188,6 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 		}
 		ppm.HasAdditionalPostalCode = payload.HasAdditionalPostalCode
 	}
-	if payload.DestinationPostalCode != nil {
-		ppm.DestinationPostalCode = payload.DestinationPostalCode
-	}
-
 	if payload.HasSit != nil {
 		ppm.HasSit = payload.HasSit
 	}

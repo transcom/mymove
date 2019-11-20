@@ -321,7 +321,6 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	newHasSit := swag.Bool(false)
 	daysInStorage := swag.Int64(3)
 	newPickupPostalCode := swag.String("32168")
-	newDestinationPostalCode := swag.String("29401")
 	newSitCost := swag.Int64(60)
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
@@ -357,7 +356,6 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 		OriginalMoveDate:        handlers.FmtDatePtr(&newMoveDate),
 		HasAdditionalPostalCode: newHasAdditionalPostalCode,
 		PickupPostalCode:        newPickupPostalCode,
-		DestinationPostalCode:   newDestinationPostalCode,
 		HasSit:                  newHasSit,
 		TotalSitCost:            newSitCost,
 	}
@@ -381,7 +379,6 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	suite.Equal(patchPPMPayload.WeightEstimate, newWeight, "Weight should have been updated.")
 	suite.Equal(patchPPMPayload.TotalSitCost, newSitCost, "Total sit cost should have been updated.")
 	suite.Equal(patchPPMPayload.PickupPostalCode, newPickupPostalCode, "PickupPostalCode should have been updated.")
-	suite.Equal(patchPPMPayload.DestinationPostalCode, newDestinationPostalCode, "DestinationPostalCode should have been updated.")
 	suite.Nil(patchPPMPayload.AdditionalPickupPostalCode, "AdditionalPickupPostalCode should have been updated to nil.")
 	suite.Equal(*(*time.Time)(patchPPMPayload.OriginalMoveDate), newMoveDate, "MoveDate should have been updated.")
 }
