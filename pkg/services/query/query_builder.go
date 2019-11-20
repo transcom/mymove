@@ -12,8 +12,52 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// FetchMany is the exported interface for fetching a single office user
-//go:generate mockery -name FetchMany
+type FetchOne interface {
+	Filters(filters []services.QueryFilter) *fetchOne
+	Execute(model interface{}) error
+}
+
+type fetchOne struct {
+	db      *pop.Connection
+	filters []services.QueryFilter
+}
+
+func NewFetchOne(db *pop.Connection) *fetchOne {
+	return &fetchOne{
+		db: db,
+	}
+}
+
+func (f *fetchOne) Filters(filters []services.QueryFilter) *fetchOne {
+	f.filters = filters
+	return f
+}
+
+func (f *fetchOne) Execute(model interface{}) error {
+	t := reflect.TypeOf(model)
+	if t.Kind() != reflect.Ptr {
+		return errors.New(fetchOneReflectionMessage)
+	}
+	t = t.Elem()
+	if t.Kind() != reflect.Struct {
+		return errors.New(fetchOneReflectionMessage)
+	}
+
+	query := f.db.Q()
+
+	var err error
+
+	if len(f.filters) > 0 {
+		query, err = filteredQuery(query, f.filters, t)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return query.First(model)
+}
+
 type FetchMany interface {
 	Filters(filters []services.QueryFilter) *fetchMany
 	Pagination(pagination services.Pagination) *fetchMany
