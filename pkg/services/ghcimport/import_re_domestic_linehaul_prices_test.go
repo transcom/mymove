@@ -33,7 +33,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticLinehaulPrices() {
 func (suite *GHCRateEngineImportSuite) helperVerifyDomesticLinehaulCount() {
 	count, err := suite.DB().Count(&models.ReDomesticLinehaulPrice{})
 	suite.NoError(err)
-	suite.Equal(13560, count)
+	suite.Equal(240, count)
 }
 
 func (suite *GHCRateEngineImportSuite) helperCheckDomesticLinehaulValue() {

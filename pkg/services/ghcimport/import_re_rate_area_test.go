@@ -72,7 +72,7 @@ func (suite *GHCRateEngineImportSuite) helperImportRERateAreaVerifyImportComplet
 	var rateArea models.ReRateArea
 	count, countErr := suite.DB().Count(&rateArea)
 	suite.NoError(countErr)
-	suite.Equal(120, count)
+	suite.Equal(9, count)
 }
 
 func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_importRERateArea() {

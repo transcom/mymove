@@ -53,12 +53,12 @@ func (suite *GHCRateEngineImportSuite) helperVerifyServiceAreaCount() {
 	// Domestic service areas count
 	count, err := suite.DB().Count(&models.ReDomesticServiceArea{})
 	suite.NoError(err)
-	suite.Equal(226, count)
+	suite.Equal(4, count)
 
 	// Zip3s count
 	count, err = suite.DB().Count(&models.ReZip3s{})
 	suite.NoError(err)
-	suite.Equal(908, count)
+	suite.Equal(18, count)
 }
 
 func (suite *GHCRateEngineImportSuite) helperCheckServiceAreaValue() {
