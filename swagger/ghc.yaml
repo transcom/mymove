@@ -1162,7 +1162,7 @@ definitions:
         enum:
           - APPROVED
           - REJECTED
-          - SUBMITTED
+          - DRAFT
         type: string
       updatedAt:
         format: date
@@ -1173,7 +1173,7 @@ definitions:
       status:
         enum:
           - APPROVED
-          - SUBMITTED
+          - DRAFT
           - REJECTED
         type: string
     type: object

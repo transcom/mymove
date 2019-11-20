@@ -28,7 +28,6 @@ func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
 }
 
 func (gre *GHCRateEngineImporter) Import(db *pop.Connection) error {
-
 	err := db.Transaction(func(connection *pop.Connection) error {
 		dbTxError := gre.runImports(connection)
 		return dbTxError

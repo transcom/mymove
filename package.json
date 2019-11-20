@@ -29,7 +29,7 @@
     "normalizr": "^3.2.4",
     "path-to-regexp": "^2.2.0",
     "query-string": "6",
-    "ra-data-simple-rest": "^2.8.6",
+    "ra-data-simple-rest": "^2.9.9",
     "react": "^16.12.0",
     "react-admin": "^2.9.0",
     "react-app-polyfill": "^1.0.4",

@@ -704,7 +704,7 @@ definitions:
         enum:
           - APPROVED # This now is the status for made available to Prime (not previously used DRAFT)
           - REJECTED
-          - SUBMITTED
+          - DRAFT
         type: string
       updatedAt:
         format: date
