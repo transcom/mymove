@@ -1,4 +1,4 @@
-service: aws-iam-sleuth
+service: aws-get-file
 
 provider:
   name: aws
