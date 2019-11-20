@@ -1,6 +1,7 @@
 package ghcimport
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"path/filepath"
@@ -15,13 +16,39 @@ import (
 const testContractCode = "TEST"
 const testContractName = "Test Contract"
 
+var tablesToTruncate = [...]string{
+	"re_contract_years",
+	"re_contracts",
+	"re_domestic_accessorial_prices",
+	"re_domestic_other_prices",
+	"re_domestic_service_area_prices",
+	"re_domestic_service_areas",
+	"re_intl_accessorial_prices",
+	"re_intl_other_prices",
+	"re_intl_prices",
+	"re_rate_areas",
+	// Don't touch re_services -- that data is inserted by a migration
+	"re_shipment_type_prices",
+	"re_shipment_types",
+	"re_task_order_fees",
+	"re_zip3s",
+}
+
 type GHCRateEngineImportSuite struct {
 	testingsuite.PopTestSuite
 	logger *zap.Logger
 }
 
 func (suite *GHCRateEngineImportSuite) SetupTest() {
-	suite.DB().TruncateAll()
+	// Clean up only the rate engine tables we're going to be inserting into for the tests.
+	for _, table := range tablesToTruncate {
+		sql := fmt.Sprintf("TRUNCATE TABLE %s CASCADE", table)
+		err := suite.DB().RawQuery(sql).Exec()
+		suite.NoError(err)
+	}
+}
+
+func (suite *GHCRateEngineImportSuite) SetupSuite() {
 	suite.helperSetupStagingTables()
 }
 
