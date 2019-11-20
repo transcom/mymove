@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
-
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/pkg/errors"
@@ -156,8 +155,7 @@ func (s *S3) ContentType(key string) (string, error) {
 		Bucket: &s.bucket,
 		Key:    &namespacedKey,
 	}
-	log.Println("Bucket: ", *input.Bucket)
-	log.Println("Key: ", *input.Key)
+	log.Println("Input: ", input)
 	result, err := s.client.HeadObject(&input)
 	log.Println("err:", err)
 	if err != nil {
