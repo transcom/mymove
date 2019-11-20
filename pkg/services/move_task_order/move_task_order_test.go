@@ -53,10 +53,10 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdater() {
 	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusSubmitted)
 	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
 
-	updatedMTO, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, models.MoveTaskOrderStatusSubmitted)
+	updatedMTO, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, models.MoveTaskOrderStatusApproved)
 
 	suite.NoError(err)
-	suite.Equal(models.MoveTaskOrderStatusDraft, updatedMTO.Status)
+	suite.Equal(models.MoveTaskOrderStatusApproved, updatedMTO.Status)
 	suite.NotNil(updatedMTO.ReferenceID)
 }
 
