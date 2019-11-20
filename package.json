@@ -62,7 +62,7 @@
     "selenium-webdriver": "^3.6.0",
     "swagger-client": "^3.9.6",
     "swagger-ui-dist": "^3.24.3",
-    "uswds": "2.2.1"
+    "uswds": "2.3.0"
   },
   "name": "client",
   "private": true,
