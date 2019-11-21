@@ -50,9 +50,9 @@ type MoveTaskOrder struct {
 type MoveTaskOrderStatus string
 
 const (
-	MoveTaskOrderStatusApproved MoveTaskOrderStatus = "APPROVED"
-	MoveTaskOrderStatusDraft    MoveTaskOrderStatus = "DRAFT"
-	MoveTaskOrderStatusRejected MoveTaskOrderStatus = "REJECTED"
+	MoveTaskOrderStatusApproved  MoveTaskOrderStatus = "APPROVED"
+	MoveTaskOrderStatusSubmitted MoveTaskOrderStatus = "SUBMITTED"
+	MoveTaskOrderStatusRejected  MoveTaskOrderStatus = "REJECTED"
 )
 
 func (m *MoveTaskOrder) Validate(tx *pop.Connection) (*validate.Errors, error) {
