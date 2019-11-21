@@ -106,6 +106,13 @@ func (f fetchMoveTaskOrder) UpdateMoveTaskOrderStatus(moveTaskOrderID uuid.UUID,
 		return &models.MoveTaskOrder{}, err
 	}
 	mto.Status = status
+
+	// when an MTO is approved it becomes available to the Prime
+	if status == models.MoveTaskOrderStatusApproved {
+		now := time.Now()
+		mto.AvailableToPrimeDate = &now
+	}
+
 	vErrors, err := f.db.ValidateAndUpdate(mto)
 	if vErrors.HasAny() {
 		return &models.MoveTaskOrder{}, NewErrInvalidInput(moveTaskOrderID, err, vErrors.Errors)
@@ -219,6 +226,8 @@ func (u *updateMoveTaskOrderPostCounselingInformation) UpdateMoveTaskOrderPostCo
 
 	mto.ScheduledMoveDate = &postCounselingInformation.ScheduledMoveDate
 	mto.PpmIsIncluded = &postCounselingInformation.PPMIsIncluded
+	now := time.Now()
+	mto.SubmittedCounselingInfoDate = &now
 	vErrors, err = u.db.ValidateAndUpdate(mto)
 	if vErrors.HasAny() {
 		return &models.MoveTaskOrder{}, NewErrInvalidInput(moveTaskOrderID, err, vErrors.Errors)
