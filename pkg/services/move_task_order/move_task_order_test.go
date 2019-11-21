@@ -91,6 +91,21 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterDraftStatu
 	suite.Nil(updatedMTO.ReferenceID)
 }
 
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterReferenceIDUnchangedOnRepeatedCalls() {
+	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
+	originalMTO := serviceItem.MoveTaskOrder
+	// check not equal to what asserting against below
+	suite.Equal(originalMTO.Status, models.MoveTaskOrderStatusApproved)
+	suite.NotNil(originalMTO.ReferenceID)
+	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
+
+	updatedMTO, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, models.MoveTaskOrderStatusDraft)
+
+	suite.NoError(err)
+	// Reference ID should not change on repeated calls to Update
+	suite.Equal(*updatedMTO.ReferenceID, *originalMTO.ReferenceID)
+}
+
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterEmptyStatus() {
 	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
 	originalMTO := serviceItem.MoveTaskOrder

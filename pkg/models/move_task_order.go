@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"time"
@@ -95,5 +96,5 @@ func GenerateReferenceID(tx *pop.Connection) (*string, error) {
 			return &referenceID, nil
 		}
 	}
-	return nil, err
+	return nil, errors.New("move_task_order: failed to generate reference id")
 }
