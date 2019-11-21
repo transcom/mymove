@@ -20,6 +20,7 @@ import styles from './Home.module.scss';
 import * as Cookies from 'js-cookie';
 import customRoutes from './CustomRoutes';
 import AdminUserEdit from './AdminUsers/AdminUserEdit';
+import NotificationList from './Notifications/NotificationList';
 
 const httpClient = (url, options = {}) => {
   const token = Cookies.get('masked_gorilla_csrf');
@@ -69,6 +70,7 @@ const Home = () => (
       <Resource name="access_codes" options={{ label: 'Access codes' }} list={AccessCodeList} />
       <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
       <Resource name="organizations" />
+      <Resource name="notifications" options={{ label: 'Notifications' }} list={NotificationList} />
     </Admin>
   </div>
 );

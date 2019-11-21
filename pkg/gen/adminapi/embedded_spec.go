@@ -401,6 +401,69 @@ func init() {
         }
       }
     },
+    "/notifications": {
+      "get": {
+        "description": "Returns a list of notifications that have been sent to service members",
+        "tags": [
+          "notification"
+        ],
+        "summary": "List notifications",
+        "operationId": "indexNotifications",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Notifications"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/office_users": {
       "get": {
         "description": "Returns a list of office users",
@@ -1228,6 +1291,50 @@ func init() {
         "coast-guard"
       ]
     },
+    "Notification": {
+      "type": "object",
+      "required": [
+        "id",
+        "email",
+        "service_member_id",
+        "ses_message_id",
+        "notification_type",
+        "created_at"
+      ],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "email": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "notification_type": {
+          "type": "string",
+          "enum": [
+            "MOVE_REVIEWED_EMAIL",
+            "MOVE_PAYMENT_REMINDER_EMAIL"
+          ]
+        },
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "ses_message_id": {
+          "type": "string"
+        }
+      }
+    },
+    "Notifications": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Notification"
+      }
+    },
     "OfficeUser": {
       "type": "object",
       "required": [
@@ -2026,6 +2133,69 @@ func init() {
             "description": "success",
             "schema": {
               "$ref": "#/definitions/ElectronicOrdersTotals"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/notifications": {
+      "get": {
+        "description": "Returns a list of notifications that have been sent to service members",
+        "tags": [
+          "notification"
+        ],
+        "summary": "List notifications",
+        "operationId": "indexNotifications",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Notifications"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
             }
           },
           "400": {
@@ -2870,6 +3040,50 @@ func init() {
         "marine-corps",
         "coast-guard"
       ]
+    },
+    "Notification": {
+      "type": "object",
+      "required": [
+        "id",
+        "email",
+        "service_member_id",
+        "ses_message_id",
+        "notification_type",
+        "created_at"
+      ],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "email": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "notification_type": {
+          "type": "string",
+          "enum": [
+            "MOVE_REVIEWED_EMAIL",
+            "MOVE_PAYMENT_REMINDER_EMAIL"
+          ]
+        },
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "ses_message_id": {
+          "type": "string"
+        }
+      }
+    },
+    "Notifications": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Notification"
+      }
     },
     "OfficeUser": {
       "type": "object",
