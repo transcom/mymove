@@ -35,7 +35,7 @@ type MoveTaskOrder struct {
 	PrimeEstimatedWeight             *unit.Pound         `db:"prime_estimated_weight"`
 	PrimeEstimatedWeightRecordedDate *time.Time          `db:"prime_estimated_weight_recorded_date"`
 	RequestedPickupDate              time.Time           `db:"requested_pickup_date"`
-	ReferenceID                      string              `db:"reference_id"`
+	ReferenceID                      *string             `db:"reference_id"`
 	Status                           MoveTaskOrderStatus `db:"status"`
 	ServiceItems                     ServiceItems        `has_many:"service_items"`
 	UpdatedAt                        time.Time           `db:"updated_at"`
@@ -50,9 +50,9 @@ type MoveTaskOrder struct {
 type MoveTaskOrderStatus string
 
 const (
-	MoveTaskOrderStatusApproved  MoveTaskOrderStatus = "APPROVED"
-	MoveTaskOrderStatusSubmitted MoveTaskOrderStatus = "SUBMITTED"
-	MoveTaskOrderStatusRejected  MoveTaskOrderStatus = "REJECTED"
+	MoveTaskOrderStatusApproved MoveTaskOrderStatus = "APPROVED"
+	MoveTaskOrderStatusDraft    MoveTaskOrderStatus = "DRAFT"
+	MoveTaskOrderStatusRejected MoveTaskOrderStatus = "REJECTED"
 )
 
 func (m *MoveTaskOrder) Validate(tx *pop.Connection) (*validate.Errors, error) {
@@ -83,15 +83,15 @@ func generateReferenceID(tx *pop.Connection) (string, error) {
 	return newReferenceID, nil
 }
 
-func GenerateReferenceID(tx *pop.Connection) (string, error) {
+func GenerateReferenceID(tx *pop.Connection) (*string, error) {
 	const maxAttempts = 10
 	var referenceID string
 	var err error
 	for i := 0; i < maxAttempts; i++ {
 		referenceID, err = generateReferenceID(tx)
 		if err == nil {
-			return referenceID, nil
+			return &referenceID, nil
 		}
 	}
-	return "", err
+	return nil, err
 }

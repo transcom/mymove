@@ -48,25 +48,48 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 
 }
 
-func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdater() {
-	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterDraftToApproved() {
+	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			Status: models.MoveTaskOrderStatusDraft,
+		},
+	})
 	originalMTO := serviceItem.MoveTaskOrder
 	// check not equal to what asserting against below
-	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusSubmitted)
+	suite.Equal(originalMTO.Status, models.MoveTaskOrderStatusDraft)
+	suite.Nil(originalMTO.ReferenceID)
 	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
 
 	updatedMTO, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, models.MoveTaskOrderStatusApproved)
 
 	suite.NoError(err)
 	suite.Equal(models.MoveTaskOrderStatusApproved, updatedMTO.Status)
+	// Reference ID should be populated once MTO is approved
 	suite.NotNil(updatedMTO.ReferenceID)
+}
+
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterDraftStatus() {
+	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			Status: models.MoveTaskOrderStatusDraft,
+		},
+	})
+	originalMTO := serviceItem.MoveTaskOrder
+	// check not equal to what asserting against below
+	suite.Equal(originalMTO.Status, models.MoveTaskOrderStatusDraft)
+	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
+
+	updatedMTO, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, models.MoveTaskOrderStatusDraft)
+
+	suite.NoError(err)
+	suite.Equal(models.MoveTaskOrderStatusDraft, updatedMTO.Status)
+	// Reference ID should not be populated when in Draft status
+	suite.Nil(updatedMTO.ReferenceID)
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterEmptyStatus() {
 	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
 	originalMTO := serviceItem.MoveTaskOrder
-	// check not equal to what asserting against below
-	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusSubmitted)
 	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
 
 	_, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, "")
