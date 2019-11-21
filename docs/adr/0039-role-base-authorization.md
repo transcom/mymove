@@ -1,25 +1,22 @@
 # Add Role-Based Authorization
 
 **NOTE:** This ADR updates and supersedes [ADR0024 Model Authorization and Handler Design](./0024-model-authorization-and-handler-design.md).
-
-[Additional background can be found in this design document](https://docs.google.com/document/d/1-CZx-hqDr7VtGtn0pr-UJ-ZH-fHiiBrn5Q_WX0CDGJY/edit).
-
-**User Story:**
+.
 
 As the MilMove system takes on more types of users (including TOOs, TIOs, and
 the GHC prime contractor), it is important to ensure that only the correct users
 are able to access each API endpoint. For example, an office user should be able to
 index a list of moves, but a service member should not; they should only be able
-to view their own move. Currently, permissions by role are handled individually in API
-handlers. Since this information is scattered, it poses risk of being incorrect and
-not easily identified. A structured Role-Based Authorization scheme will unify
-this information. This will make it easier for engineers to understand and edit the
-permissions.
+to view their own move. Currently, permissions are handled by code in the models package
+that checks if the current user is able to access data at the time it is accessed in a
+handler or service object. Having these checks baked into the model layer makes it difficult
+to reuse functionality in different context and also hard to see what checks are being done in
+ a handler or service object.
 
-More specific than filtering by role, there is also a desire to be intentional about
-the way we scope database calls to avoid users having access to data they shouldn't.
-For example, while a service member should have access to the Fetch Move
-endpoint, they should only be able to access their own move, not another SM's.
+We want to move to a more structured role-based system, ideally one that allows us to declare
+what roles can access an endpoints in the same place we define that end point: the swaggerfile.
+
+There will need to be additional checks throughout the system to ensure that users are able to, for example, only see their own data. But having a role-based system in place will make it easier for that code to assume that a user has certain attributes that it can then use to make such determinations.
 
 ## Considered Alternatives
 
@@ -54,22 +51,19 @@ Note that this process takes only one database call.
 
   We can continue using this pattern as we expand the MilMove system.
 
-* **Create an Enforcer Object to Scope Queries and Perform Fine-grained Access Control**
+* **Create an Enforcer Object**
 
-  This approach involves creating an object to encapsulate two operations:
-  1. Determining if an operation too granular for a purely role-based system is allowed. for example, can a service member access a specific move?
-  2. Scoping database access by adding `WHERE` clauses to queries. This allows access control to be delegated to the database for data-loading operations where filtering data in code would be inefficient.
+  This approach involves writing code to encapsulate the authorization logic and explicitly invoking it within handlers or service objects as needed. It could be seen as taking our existing system and just extracting the authorization checks into functions outside the models.
 
-  There is a [prototype](https://github.com/transcom/mymove/pull/new/auth-spike) of this approach.
+  The name for this object comes from what similar objects are called within casbin.
 
 ## Decision Outcome
 
 * Chosen Alternative: **Implement Role-Based Access Control in Middleware**
-and **Create a Service Object to Scope Queries**
 * The main motivators of this decision are:
-  * It accomplishes our desired feature set
-  * Much of the work to determine how to implement this has already been prototyped
-  * We are assuming that we will only need finer-grained access control in some cases and that blanket role-based checks will be sufficient in enough cases to justify having authorization at two levels.
+  * It allows us to easily audit which endpoints are accessible by which roles by examining the API descriptions in the swaggerfile.
+  * Having the role check in a middleware makes it less likely that an authorization check is missed.
+  * We have completed spikes that show that this approach is doable with a minimal amount of additional work.
 
 ## Pros and Cons of the Alternatives
 
@@ -99,12 +93,8 @@ and **Create a Service Object to Scope Queries**
 * `-` Model code requires arguments for authorization that doesn't make sense in all contexts
 * `-` Adding new roles requires considerable code and database schema changes
 
-### *Create an Enforcer Object to Scope Queries and Perform Fine-grained Access Control*
+### *Create an Enforcer Object*
 
-* `+` Codifies process for scoping data in uniform way
-* `+` Does not require fetching large amounts of data, to then be filtered
-in code (this is slow and doesn't scale)
-* `+` Similar handlers can use similar/the same enforcer, making it easier to
-change multiple handlers in response to db migrations
-* `+` Able to express row-level access rules
+* `+` Allows for a place to put finer-grained access controls
 * `-` Requires explicit use in every handler
+* `-`

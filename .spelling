@@ -523,6 +523,7 @@ MacBookPro
 TOOs
 TIOs
 casbin
+swaggerfile
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - /usr/local
  - docs/data/tspp-data-creation.md
@@ -539,3 +540,4 @@ casbin
  - ./docs/database.md
  - ./docs/._database.md
  - ./docs/how-to/test-virus-scanning.md
+ - ./docs/adr/0039-role-base-authorization.md
