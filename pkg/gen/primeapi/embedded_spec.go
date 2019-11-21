@@ -786,6 +786,10 @@ func init() {
         "pickup_address": {
           "$ref": "#/definitions/Address"
         },
+        "referenceId": {
+          "type": "string",
+          "example": "1001-3456"
+        },
         "remarks": {
           "type": "string",
           "example": "Requires more gentle care"
@@ -1907,6 +1911,10 @@ func init() {
         },
         "pickup_address": {
           "$ref": "#/definitions/Address"
+        },
+        "referenceId": {
+          "type": "string",
+          "example": "1001-3456"
         },
         "remarks": {
           "type": "string",

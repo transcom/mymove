@@ -578,6 +578,9 @@ definitions:
       destination_address:
         $ref: '#/definitions/Address'
         x-nullable: true
+      referenceId:
+        example: 1001-3456
+        type: string
       remarks:
         example: Requires more gentle care
         type: string

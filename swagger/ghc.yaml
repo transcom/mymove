@@ -1148,6 +1148,9 @@ definitions:
         type: string
       pickupAddress:
         $ref: '#/definitions/Address'
+      referenceId:
+        example: 1001-3456
+        type: string
       remarks:
         example: Requires more gentle care
         type: string

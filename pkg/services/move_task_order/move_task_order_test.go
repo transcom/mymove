@@ -52,20 +52,21 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdater() {
 	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
 	originalMTO := serviceItem.MoveTaskOrder
 	// check not equal to what asserting against below
-	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusApproved)
+	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusSubmitted)
 	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
 
 	updatedMTO, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, models.MoveTaskOrderStatusApproved)
 
 	suite.NoError(err)
 	suite.Equal(models.MoveTaskOrderStatusApproved, updatedMTO.Status)
+	suite.NotNil(updatedMTO.ReferenceID)
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterEmptyStatus() {
 	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
 	originalMTO := serviceItem.MoveTaskOrder
 	// check not equal to what asserting against below
-	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusApproved)
+	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusSubmitted)
 	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
 
 	_, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, "")

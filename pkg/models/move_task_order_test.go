@@ -9,7 +9,8 @@ import (
 )
 
 func (suite *ModelSuite) TestGenerateReferenceID() {
-	referenceID := models.GenerateReferenceID()
+	referenceID, err := models.GenerateReferenceID(suite.DB())
+	suite.NoError(err)
 	firstNum, _ := strconv.Atoi(strings.Split(referenceID, "-")[0])
 	secondNum, _ := strconv.Atoi(strings.Split(referenceID, "-")[1])
 	suite.Equal(reflect.TypeOf(referenceID).String(), "string")
