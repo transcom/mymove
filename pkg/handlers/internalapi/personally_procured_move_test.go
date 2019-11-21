@@ -396,6 +396,7 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 	newMoveDate := time.Date(testdatagen.TestYear, time.November, 10, 23, 0, 0, 0, time.UTC)
 	initialMoveDate := newMoveDate.Add(-2 * 24 * time.Hour)
 
+	destinationPostalCode := swag.String("12345")
 	hasAdditionalPostalCode := swag.Bool(true)
 	newHasAdditionalPostalCode := swag.Bool(false)
 	additionalPickupPostalCode := swag.String("90210")
@@ -404,10 +405,35 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 	newHasSit := swag.Bool(false)
 	daysInStorage := swag.Int64(3)
 	newPickupPostalCode := swag.String("32168")
-	newDestinationPostalCode := swag.String("29401")
 	newSitCost := swag.Int64(60)
 
-	move := testdatagen.MakeDefaultMove(suite.DB())
+	dutyStationAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+		Address: models.Address{
+			StreetAddress1: "test address1",
+			City:           "charleston",
+			State:          "SC",
+			PostalCode:     "29401",
+			Country:        swag.String("United States"),
+		},
+	})
+
+	newDutyStation := testdatagen.MakeDutyStation(suite.DB(), testdatagen.Assertions{
+		DutyStation: models.DutyStation{
+			Name:        "test duty station",
+			Affiliation: internalmessages.AffiliationARMY,
+			AddressID:   dutyStationAddress.ID,
+			Address:     dutyStationAddress,
+		},
+	})
+
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			NewDutyStationID: newDutyStation.ID,
+			NewDutyStation:   newDutyStation,
+		},
+	})
+
+	// move := testdatagen.MakeDefaultMove(suite.DB())
 
 	newAdvanceWorksheet := models.Document{
 		ServiceMember:   move.Orders.ServiceMember,
@@ -423,6 +449,7 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 		OriginalMoveDate:           &initialMoveDate,
 		HasAdditionalPostalCode:    hasAdditionalPostalCode,
 		AdditionalPickupPostalCode: additionalPickupPostalCode,
+		DestinationPostalCode:      destinationPostalCode,
 		HasSit:                     hasSit,
 		DaysInStorage:              daysInStorage,
 		Status:                     models.PPMStatusDRAFT,
@@ -440,7 +467,7 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 		OriginalMoveDate:        handlers.FmtDatePtr(&newMoveDate),
 		HasAdditionalPostalCode: newHasAdditionalPostalCode,
 		PickupPostalCode:        newPickupPostalCode,
-		DestinationPostalCode:   newDestinationPostalCode,
+		DestinationPostalCode:   destinationPostalCode,
 		HasSit:                  newHasSit,
 		TotalSitCost:            newSitCost,
 	}
@@ -464,7 +491,6 @@ func (suite *HandlerSuite) TestUpdatePPMEstimateHandler() {
 	suite.Equal(patchPPMPayload.WeightEstimate, newWeight, "Weight should have been updated.")
 	suite.Equal(patchPPMPayload.TotalSitCost, newSitCost, "Total sit cost should have been updated.")
 	suite.Equal(patchPPMPayload.PickupPostalCode, newPickupPostalCode, "PickupPostalCode should have been updated.")
-	suite.Equal(patchPPMPayload.DestinationPostalCode, newDestinationPostalCode, "DestinationPostalCode should have been updated.")
 	suite.Nil(patchPPMPayload.AdditionalPickupPostalCode, "AdditionalPickupPostalCode should have been updated to nil.")
 	suite.Equal(*(*time.Time)(patchPPMPayload.OriginalMoveDate), newMoveDate, "MoveDate should have been updated.")
 

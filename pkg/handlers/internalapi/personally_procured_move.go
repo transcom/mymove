@@ -372,7 +372,7 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models
 		unit.Pound(*ppm.WeightEstimate),
 		*ppm.PickupPostalCode,
 		originDutyStationZip,
-		*ppm.DestinationPostalCode,
+		destinationDutyStationZip,
 		distanceMilesFromOriginPickupZip,
 		distanceMilesFromOriginDutyStationZip,
 		time.Time(*ppm.OriginalMoveDate),
