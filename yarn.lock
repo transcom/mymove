@@ -11315,10 +11315,10 @@ querystringify@^2.1.1:
   resolved "https://registry.yarnpkg.com/querystringify/-/querystringify-2.1.1.tgz#60e5a5fd64a7f8bfa4d2ab2ed6fdf4c85bad154e"
   integrity sha512-w7fLxIRCRT7U8Qu53jQnJyPkYZIaR4n5151KMfcJlO/A9397Wxb1amJvROTK6TOnp7PfoAmg/qXiNHI+08jRfA==
 
-ra-core@^2.9.8:
-  version "2.9.8"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-2.9.8.tgz#c667bb1cdffc802484a8c8b6f8b94d6b145e6db4"
-  integrity sha512-0fqXShFrndD7OrNCpF1lg9vL4JNbNTMR/SCzq2xeXMbzaP5SA2Wr28HDxrhA2e5NnO4zQ+/t+3EgMkw3iqyYwQ==
+ra-core@^2.9.8, ra-core@^2.9.9:
+  version "2.9.9"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-2.9.9.tgz#2241e007dea3defcb623e8d475a06b353705b11c"
+  integrity sha512-PdS9z0Dtaqustw+SB6EbpHbSYnW7QDK0CbImXeN47Sf262Nl0PeyFeg5bmITnGuCsweeThGwqb0dacal5YeBSA==
   dependencies:
     classnames "~2.2.5"
     date-fns "^1.29.0"
@@ -11327,7 +11327,7 @@ ra-core@^2.9.8:
     node-polyglot "^2.2.2"
     prop-types "~15.6.1"
     query-string "~5.1.1"
-    ra-language-english "^2.9.3"
+    ra-language-english "^2.9.9"
     react-redux "~5.0.7"
     react-router "^4.2.0"
     react-router-dom "^4.2.0"
@@ -11338,18 +11338,23 @@ ra-core@^2.9.8:
     redux-saga "~0.16.0"
     reselect "~3.0.0"
 
-ra-data-simple-rest@^2.8.6:
-  version "2.9.8"
-  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-2.9.8.tgz#3db1a245ddffffccdecb0dbc30c50c99e3994d61"
-  integrity sha512-/fJmtTMAt1LFdSuPNahtPwAs5GSpl+5yuZ5nCBtJVi/tJUcfb5TSC1joddZh1Op1TMSlUKZNHJ0E/9lbDygy4w==
+ra-data-simple-rest@^2.9.9:
+  version "2.9.9"
+  resolved "https://registry.yarnpkg.com/ra-data-simple-rest/-/ra-data-simple-rest-2.9.9.tgz#86366289a1bae11902001ff9c7e83c05517e8055"
+  integrity sha512-VNZ6fBYJqFkr2QexPurEI8QLufYkuvPpCUuMO5mc8MmPvXy/LAdAE9eS044cPcm38OH6qxY93SRRmz8q4b5wCQ==
   dependencies:
     query-string "~5.1.1"
-    ra-core "^2.9.8"
+    ra-core "^2.9.9"
 
 ra-language-english@^2.9.3:
   version "2.9.3"
   resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-2.9.3.tgz#346528ad8bc54c16ba23c011b7866d98541c6d7b"
   integrity sha512-ni923vBW0V+vMfo1NoaF8Bhk/T7GZdAyoO3J5B+/czQKCGh3bFm7D3xZExf/0NB/e/TmYUEy4noVQ+SsflY7ew==
+
+ra-language-english@^2.9.9:
+  version "2.9.9"
+  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-2.9.9.tgz#e8d90d40df8e5e66de8a7b3a72f33dd9de638501"
+  integrity sha512-tWybE7ZnCRyiVAWcyN02LA4v5oi030A853lLDmTJUJySUMSwqyy3EpAdiLrOXfe3XKEoyIjRLGQK54iX2cQ/Mw==
 
 ra-ui-materialui@^2.9.8:
   version "2.9.8"

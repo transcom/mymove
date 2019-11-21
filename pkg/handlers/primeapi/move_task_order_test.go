@@ -142,7 +142,6 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderEstimatedWeightHandlerUnproces
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderActualWeightHandlerIntegration() {
 	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
 	moveTaskOrder := serviceItem.MoveTaskOrder
-
 	// set up what needs to be passed to handler
 	request := httptest.NewRequest("PATCH", fmt.Sprintf("/move-task-orders/%s/prime-actual-weight", moveTaskOrder.ID), nil)
 	params := movetaskorderops.UpdateMoveTaskOrderActualWeightParams{
@@ -151,16 +150,13 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderActualWeightHandlerIntegration
 		MoveTaskOrderID: moveTaskOrder.ID.String(),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-
 	// make the request
 	handler := UpdateMoveTaskOrderActualWeightHandler{context,
 		movetaskorder.NewMoveTaskOrderActualWeightUpdater(suite.DB())}
 	response := handler.Handle(params)
-
 	suite.IsNotErrResponse(response)
 	updateMoveTaskOrderActualWeightResponse := response.(*movetaskorderops.UpdateMoveTaskOrderActualWeightOK)
 	updateMoveTaskOrderActualWeightPayload := updateMoveTaskOrderActualWeightResponse.Payload
-
 	suite.NotNil(updateMoveTaskOrderActualWeightPayload)
 	suite.Equal(int(*updateMoveTaskOrderActualWeightPayload.PrimeActualWeight), 2819)
 }
@@ -180,19 +176,15 @@ func (suite *HandlerSuite) TestGetPrimeEntitlementsHandlerIntegration() {
 		MoveTaskOrderID: mto.ID.String(),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-
 	// make the request
 	handler := GetPrimeEntitlementsHandler{context,
 		movetaskorder.NewMoveTaskOrderFetcher(suite.DB())}
 	response := handler.Handle(params)
-
 	suite.IsNotErrResponse(response)
 	suite.Assertions.IsType(&movetaskorderops.GetPrimeEntitlementsOK{}, response)
 	getPrimeEntitlementsResponse := response.(*movetaskorderops.GetPrimeEntitlementsOK)
 	getPrimeEntitlementsPayload := getPrimeEntitlementsResponse.Payload
-
 	suite.NotNil(getPrimeEntitlementsPayload)
-
 	suite.Equal(getPrimeEntitlementsPayload.DependentsAuthorized, true)
 	suite.Equal(*getPrimeEntitlementsPayload.NonTemporaryStorage, true)
 	suite.Equal(*getPrimeEntitlementsPayload.PrivatelyOwnedVehicle, true)
@@ -205,18 +197,14 @@ func (suite *HandlerSuite) TestGetPrimeEntitlementsHandlerIntegration() {
 
 func (suite *HandlerSuite) TestGetMoveTaskOrdersCustomerHandler() {
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
-
 	request := httptest.NewRequest("GET", "/move-task-orders/:id/customer", nil)
-
 	params := movetaskorderops.GetMoveTaskOrderCustomerParams{HTTPRequest: request, MoveTaskOrderID: moveTaskOrder.ID.String()}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-
 	// make the request
 	handler := GetMoveTaskOrderCustomerHandler{HandlerContext: context,
 		moveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(suite.DB()),
 	}
 	response := handler.Handle(params)
-
 	suite.IsNotErrResponse(response)
 	customer := response.(*movetaskorderops.GetMoveTaskOrderCustomerOK)
 	moveTaskOrdersCustomerPayload := customer.Payload
