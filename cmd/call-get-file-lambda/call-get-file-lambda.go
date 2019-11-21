@@ -99,13 +99,14 @@ func main() {
 	if err != nil {
 		log.Fatal("Error marshalling request: ", request)
 	}
-	result, err := lambdaClient.Invoke(&lambda.InvokeInput{FunctionName: aws.String("get-file"), Payload: payload})
+	result, err := lambdaClient.Invoke(&lambda.InvokeInput{FunctionName: aws.String("aws-get-file-dev-get-file"), Payload: payload})
 	if err != nil {
-		fmt.Println("Error calling get-file")
+		fmt.Println("Error calling aws-get-file-dev-get-file")
 		os.Exit(0)
 	}
 	var resp Response
 
+	log.Println(result)
 	err = json.Unmarshal(result.Payload, &resp)
 	if err != nil {
 		fmt.Println("Error unmarshalling get-file response")
@@ -113,6 +114,7 @@ func main() {
 	}
 
 	// If the status code is NOT 200, the call failed
+	log.Println(resp)
 	if resp.StatusCode != 200 {
 		fmt.Println("Error getting items, StatusCode: " + strconv.Itoa(resp.StatusCode))
 		os.Exit(0)
