@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"os"
 	"strings"
@@ -18,10 +19,6 @@ import (
 	"github.com/transcom/mymove/pkg/logging"
 	"go.uber.org/zap"
 )
-
-type Event struct {
-	Key string `json:"key"`
-}
 
 func checkConfig(v *viper.Viper, logger logger) error {
 
@@ -47,24 +44,35 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
+var v *viper.Viper
+
+func init() {
+	// Had to move into init for now otherwise tried to set the flags on each call to handler which
+	// causes a panic since can only set once
+	v = viper.New()
+	flag := pflag.CommandLine
+	initFlags(flag)
+	flag.Parse(os.Args[1:])
+
+	v.BindPFlags(flag)
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+}
+
+type Event struct {
+	Key string `json:"key"`
+}
+
 type Response struct {
 	PresignedURL string `json:"preSignedURL"`
 	StatusCode   int    `json:"statusCode"`
 }
 
 func HandleRequest(ctx context.Context, event Event) (Response, error) {
-
-	flag := pflag.CommandLine
-	initFlags(flag)
-	flag.Parse(os.Args[1:])
-
-	v := viper.New()
-	v.BindPFlags(flag)
-	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-	v.AutomaticEnv()
-
 	dbEnv := v.GetString(cli.DbEnvFlag)
 	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
+	eventJson, err := json.Marshal(event)
+	logger.Info(string(eventJson))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}

@@ -94,19 +94,19 @@ func main() {
 		fmt.Println("lambdaClient must not be nil")
 		os.Exit(0)
 	}
-	request := Event{Key: "/user/d6aab501-dd85-4126-b71a-246fc50ec263/uploads/c17771af-2878-4aaf-923d-8faf1cd58ce"}
+	request := Event{Key: "user/d6aab501-dd85-4126-b71a-246fc50ec263/uploads/c17771af-2878-4aaf-923d-8faf1cd58cea"}
 	payload, err := json.Marshal(request)
+	log.Println("payload: ", string(payload))
 	if err != nil {
 		log.Fatal("Error marshalling request: ", request)
 	}
-	result, err := lambdaClient.Invoke(&lambda.InvokeInput{FunctionName: aws.String("aws-get-file-dev-get-file"), Payload: payload})
+	result, err := lambdaClient.Invoke(&lambda.InvokeInput{FunctionName: aws.String("aws-get-file-dev-get-file"), Payload: payload, InvocationType: aws.String(lambda.InvocationTypeRequestResponse)})
 	if err != nil {
 		fmt.Println("Error calling aws-get-file-dev-get-file")
 		os.Exit(0)
 	}
 	var resp Response
 
-	log.Println(string(result.Payload))
 	err = json.Unmarshal(result.Payload, &resp)
 	if err != nil {
 		fmt.Println("Error unmarshalling get-file response")
@@ -114,7 +114,6 @@ func main() {
 	}
 
 	// If the status code is NOT 200, the call failed
-	log.Println(resp)
 	if resp.StatusCode != 200 {
 		fmt.Println("Error getting items, StatusCode: " + strconv.Itoa(resp.StatusCode))
 		os.Exit(0)

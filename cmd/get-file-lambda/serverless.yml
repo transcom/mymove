@@ -5,18 +5,18 @@ provider:
   region: us-west-2
   deploymentBucket: transcom-ppp-third-party-artifacts
   runtime: go1.x
-  timeout: 10
+  timeout: 300
   environment:
     # For local invocation you need the AWS vars
     # Please comment these out for deployment
-    # AWS_ACCESS_KEY_ID: ${env:AWS_ACCESS_KEY_ID}
-    # AWS_ACCOUNT_ID: ${env:AWS_ACCOUNT_ID}
-    # AWS_DEFAULT_REGION: ${env:AWS_REGION}
-    # AWS_REGION: ${env:AWS_REGION}
-    # AWS_SDK_LOAD_CONFIG: 1
-    # AWS_SECRET_ACCESS_KEY: ${env:AWS_SECRET_ACCESS_KEY}
-    # AWS_SECURITY_TOKEN: ${env:AWS_SECURITY_TOKEN}
-    # AWS_SESSION_TOKEN: ${env:AWS_SESSION_TOKEN}
+#    AWS_ACCESS_KEY_ID: ${env:AWS_ACCESS_KEY_ID}
+#    AWS_ACCOUNT_ID: ${env:AWS_ACCOUNT_ID}
+#    AWS_DEFAULT_REGION: ${env:AWS_REGION}
+#    AWS_REGION: ${env:AWS_REGION}
+#    AWS_SDK_LOAD_CONFIG: 1
+#    AWS_SECRET_ACCESS_KEY: ${env:AWS_SECRET_ACCESS_KEY}
+#    AWS_SECURITY_TOKEN: ${env:AWS_SECURITY_TOKEN}
+#    AWS_SESSION_TOKEN: ${env:AWS_SESSION_TOKEN}
     VERBOSE: true
     STORAGE_BACKEND: s3
     AWS_S3_BUCKET_NAME: "transcom-ppp-app-devlocal-us-west-2"
