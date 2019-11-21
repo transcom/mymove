@@ -1,10 +1,8 @@
 package primeapi
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -15,9 +13,19 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-func payloadForPaymentRequestModel(s models.PaymentRequest) *primemessages.PaymentRequest {
+func payloadForPaymentRequestModel(pr models.PaymentRequest) *primemessages.PaymentRequest {
+	var serviceItemIDs = []strfmt.UUID{}
+
+	for _, id := range pr.ServiceItemIDs {
+		serviceItemIDs = append(serviceItemIDs, *handlers.FmtUUID(id))
+	}
+
 	return &primemessages.PaymentRequest{
-		ID: *handlers.FmtUUID(s.ID),
+		ID: *handlers.FmtUUID(pr.ID),
+		MoveTaskOrderID: *handlers.FmtUUID(pr.MoveTaskOrderID),
+		ServiceItemIDs: serviceItemIDs,
+		IsFinal: &pr.IsFinal,
+		RejectionReason: &pr.RejectionReason,
 	}
 }
 
@@ -30,48 +38,24 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	// TODO: authorization to create payment request
 
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	//TODO: add in checks for params
-	//if len(params.Body.MoveTaskOrderID) == 0 {
-	//	logger.Error("no MoveTaskID on params")
-	//}
 
-	serviceItemIDs := params.Body.ServiceItemIDs
-	var popServiceItemIDs []uuid.UUID
-	for _, id := range serviceItemIDs {
-		// params receives swagger version of UUID and it needs to convert to pop version
-		properUUIDTypeID, err := uuid.FromString(id.String())
-		if err != nil {
-			logger.Error("Error saving payment request", zap.Error(err))
-			return paymentrequestop.NewCreatePaymentRequestInternalServerError()
-		}
-
-		popServiceItemIDs = append(popServiceItemIDs, properUUIDTypeID)
+	var serviceItemIDs = []uuid.UUID{}
+	for _, id := range params.Body.ServiceItemIDs {
+		serviceItemIDs = append(serviceItemIDs, handlers.FmtToPopUUID(id))
 	}
-
-	moveTaskOrderID, err := uuid.FromString(params.Body.MoveTaskOrderID.String())
-	if err != nil {
-		logger.Error(fmt.Sprintf("UUID Parsing for %s", params.Body.MoveTaskOrderID), zap.Error(err))
+	paymentRequest := models.PaymentRequest{
+		IsFinal:         *params.Body.IsFinal,
+		MoveTaskOrderID: handlers.FmtToPopUUID(params.Body.MoveTaskOrderID),
+		ServiceItemIDs:  serviceItemIDs,
 	}
 
 	moveTaskOrder := models.MoveTaskOrder{}
-	err = h.DB().Find(&moveTaskOrder, moveTaskOrderID)
+	err := h.DB().Find(&moveTaskOrder, paymentRequest.MoveTaskOrderID)
 	if err != nil {
 		logger.Error("Error saving payment request", zap.Error(err))
 		return paymentrequestop.NewCreatePaymentRequestNotFound()
 	}
 
-	isFinal := *params.Body.IsFinal
-
-	paymentRequest := models.PaymentRequest{
-		ID:              uuid.UUID{},
-		IsFinal:         isFinal,
-		MoveTaskOrder:   moveTaskOrder,
-		MoveTaskOrderID: moveTaskOrderID,
-		ServiceItemIDs:  popServiceItemIDs,
-		RejectionReason: "",
-		CreatedAt:       time.Time{},
-		UpdatedAt:       time.Time{},
-	}
 	createdPaymentRequest, verrs, err := h.PaymentRequestCreator.CreatePaymentRequest(&paymentRequest)
 	if err != nil || verrs != nil {
 		logger.Error("Error saving payment request", zap.Error(verrs))
@@ -79,7 +63,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	}
 
 	serviceItemIDStrings := []string{}
-	for _, id := range serviceItemIDs {
+	for _, id := range params.Body.ServiceItemIDs {
 		idString := id.String()
 		serviceItemIDStrings = append(serviceItemIDStrings, idString)
 	}
@@ -90,5 +74,6 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		// TODO add ProofOfService object to log
 	)
 	returnPayload := payloadForPaymentRequestModel(*createdPaymentRequest)
+
 	return paymentrequestop.NewCreatePaymentRequestCreated().WithPayload(returnPayload)
 }
