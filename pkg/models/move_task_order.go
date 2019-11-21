@@ -35,6 +35,8 @@ type MoveTaskOrder struct {
 	PrimeEstimatedWeight             *unit.Pound         `db:"prime_estimated_weight"`
 	PrimeEstimatedWeightRecordedDate *time.Time          `db:"prime_estimated_weight_recorded_date"`
 	RequestedPickupDate              time.Time           `db:"requested_pickup_date"`
+	SubmittedCounselingInfoDate      *time.Time          `db:"submitted_counseling_info_date"`
+	AvailableToPrimeDate             *time.Time          `db:"available_to_prime_date"`
 	Status                           MoveTaskOrderStatus `db:"status"`
 	ServiceItems                     ServiceItems        `has_many:"service_items"`
 	UpdatedAt                        time.Time           `db:"updated_at"`
