@@ -64,7 +64,6 @@ func HandleRequest(ctx context.Context, event Event) (Response, error) {
 	v.AutomaticEnv()
 
 	dbEnv := v.GetString(cli.DbEnvFlag)
-
 	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)

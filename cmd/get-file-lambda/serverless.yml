@@ -5,6 +5,7 @@ provider:
   region: us-west-2
   deploymentBucket: transcom-ppp-third-party-artifacts
   runtime: go1.x
+  timeout: 10
   environment:
     # For local invocation you need the AWS vars
     # Please comment these out for deployment
