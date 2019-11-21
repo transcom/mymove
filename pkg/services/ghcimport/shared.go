@@ -5,8 +5,6 @@ import (
 	"math"
 	"strconv"
 	"strings"
-
-	"github.com/pkg/errors"
 )
 
 func stringToInteger(rawString string) (int, error) {
@@ -64,7 +62,7 @@ func priceStringToFloat(rawPrice string) (float64, error) {
 func priceToMillicents(rawPrice string) (int, error) {
 	floatPrice, err := priceStringToFloat(rawPrice)
 	if err != nil {
-		return 0, errors.Wrapf(err, "could not parse price [%s]", rawPrice)
+		return 0, fmt.Errorf("could not parse price [%s]: %w", rawPrice, err)
 	}
 
 	millicents := int(math.Round(floatPrice * 100000))

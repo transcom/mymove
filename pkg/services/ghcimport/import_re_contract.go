@@ -23,7 +23,7 @@ func (gre *GHCRateEngineImporter) importREContract(dbTx *pop.Connection) error {
 	// See if contract code already exists.
 	exists, err := dbTx.Where("code = ?", gre.ContractCode).Exists(&models.ReContract{})
 	if err != nil {
-		return errors.Wrapf(err, "could not determine if contract code [%s] existed", gre.ContractCode)
+		return fmt.Errorf("could not determine if contract code [%s] existed: %w", gre.ContractCode, err)
 	}
 	if exists {
 		return fmt.Errorf("the provided contract code [%s] already exists", gre.ContractCode)
@@ -35,11 +35,11 @@ func (gre *GHCRateEngineImporter) importREContract(dbTx *pop.Connection) error {
 		Name: contractName,
 	}
 	verrs, err := dbTx.ValidateAndSave(&contract)
-	if err != nil {
-		return errors.Wrapf(err, "could not save contract: %+v", contract)
-	}
 	if verrs.HasAny() {
-		return errors.Wrapf(verrs, "validation errors when saving contract: %+v", contract)
+		return fmt.Errorf("validation errors when saving contract [%+v]: %w", contract, verrs)
+	}
+	if err != nil {
+		return fmt.Errorf("could not save contract [%+v]: %w", contract, err)
 	}
 
 	gre.contractID = contract.ID

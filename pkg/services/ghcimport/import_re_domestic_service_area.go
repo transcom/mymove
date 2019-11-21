@@ -6,7 +6,6 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -47,7 +46,7 @@ func (gre *GHCRateEngineImporter) buildServiceAreasData(dbTx *pop.Connection) (s
 	var stageDomesticServiceAreas []models.StageDomesticServiceArea
 	stageErr := dbTx.All(&stageDomesticServiceAreas)
 	if stageErr != nil {
-		return nil, errors.Wrap(stageErr, "could not read staged domestic service areas")
+		return nil, fmt.Errorf("could not read staged domestic service areas: %w", stageErr)
 	}
 
 	// Since we appear to have duplicate service areas (and possibly zips too), consolidate data to
@@ -56,14 +55,14 @@ func (gre *GHCRateEngineImporter) buildServiceAreasData(dbTx *pop.Connection) (s
 	for _, stageArea := range stageDomesticServiceAreas {
 		serviceAreaNumber, err := cleanServiceAreaNumber(stageArea.ServiceAreaNumber)
 		if err != nil {
-			return nil, errors.Wrapf(err, "could not process service area number [%s]", stageArea.ServiceAreaNumber)
+			return nil, fmt.Errorf("could not process service area number [%s]: %w", stageArea.ServiceAreaNumber, err)
 		}
 
 		splitZip3s := strings.Split(stageArea.Zip3s, ",")
 		for i, zip3 := range splitZip3s {
 			splitZip3s[i], err = cleanZip3(zip3)
 			if err != nil {
-				return nil, errors.Wrapf(err, "could not process zip3 [%s]", zip3)
+				return nil, fmt.Errorf("could not process zip3 [%s]: %w", zip3, err)
 			}
 		}
 
@@ -122,13 +121,13 @@ func (gre *GHCRateEngineImporter) addScheduleData(dbTx *pop.Connection, serviceA
 	var stageDomesticServiceAreaPrices []models.StageDomesticServiceAreaPrice
 	stageErr := dbTx.All(&stageDomesticServiceAreaPrices)
 	if stageErr != nil {
-		return errors.Wrap(stageErr, "could not read staged domestic service area prices")
+		return fmt.Errorf("could not read staged domestic service area prices: %w", stageErr)
 	}
 
 	for _, stagePrice := range stageDomesticServiceAreaPrices {
 		serviceAreaNumber, err := cleanServiceAreaNumber(stagePrice.ServiceAreaNumber)
 		if err != nil {
-			return errors.Wrapf(err, "could not process service area number [%s]", stagePrice.ServiceAreaNumber)
+			return fmt.Errorf("could not process service area number [%s]: %w", stagePrice.ServiceAreaNumber, err)
 		}
 
 		foundServiceAreaData, serviceAreaFound := serviceAreasData[serviceAreaNumber]
@@ -138,12 +137,12 @@ func (gre *GHCRateEngineImporter) addScheduleData(dbTx *pop.Connection, serviceA
 
 		servicesSchedule, err := stringToInteger(stagePrice.ServicesSchedule)
 		if err != nil {
-			return errors.Wrapf(err, "could not process services schedule [%s]", stagePrice.ServicesSchedule)
+			return fmt.Errorf("could not process services schedule [%s]: %w", stagePrice.ServicesSchedule, err)
 		}
 
 		sitSchedule, err := stringToInteger(stagePrice.SITPickupDeliverySchedule)
 		if err != nil {
-			return errors.Wrapf(err, "could not process SIT P/D schedule [%s]", stagePrice.SITPickupDeliverySchedule)
+			return fmt.Errorf("could not process SIT P/D schedule [%s]: %w", stagePrice.SITPickupDeliverySchedule, err)
 		}
 
 		serviceArea := foundServiceAreaData.serviceArea
@@ -163,7 +162,7 @@ func (gre *GHCRateEngineImporter) saveServiceAreasAndZip3s(dbTx *pop.Connection,
 		var existingServiceAreas models.ReDomesticServiceAreas
 		err := dbTx.Where("service_area = ?", reServiceArea.ServiceArea).All(&existingServiceAreas)
 		if err != nil {
-			return nil, errors.Wrapf(err, "could not lookup existing service area [%s]", reServiceArea.ServiceArea)
+			return nil, fmt.Errorf("could not lookup existing service area [%s]: %w", reServiceArea.ServiceArea, err)
 		}
 		doSaveServiceArea := true
 		if len(existingServiceAreas) > 0 {
@@ -175,11 +174,11 @@ func (gre *GHCRateEngineImporter) saveServiceAreasAndZip3s(dbTx *pop.Connection,
 
 		if doSaveServiceArea {
 			verrs, saveErr := dbTx.ValidateAndSave(reServiceArea)
-			if saveErr != nil {
-				return nil, errors.Wrapf(saveErr, "could not save service area: %+v", *reServiceArea)
-			}
 			if verrs.HasAny() {
-				return nil, errors.Wrapf(verrs, "validation errors when saving contract: %+v", *reServiceArea)
+				return nil, fmt.Errorf("validation errors when saving contract [%+v]: %w", *reServiceArea, verrs)
+			}
+			if saveErr != nil {
+				return nil, fmt.Errorf("could not save service area [%+v]: %w", *reServiceArea, saveErr)
 			}
 		}
 		serviceAreaToIDMap[reServiceArea.ServiceArea] = reServiceArea.ID
@@ -205,7 +204,7 @@ func (gre *GHCRateEngineImporter) saveZip3sForServiceArea(dbTx *pop.Connection, 
 		var existingZip3s models.ReZip3s
 		err := dbTx.Where("zip3 = ?", reZip3.Zip3).All(&existingZip3s)
 		if err != nil {
-			return errors.Wrapf(err, "could not lookup existing zip3 [%s]", reZip3.Zip3)
+			return fmt.Errorf("could not lookup existing zip3 [%s]: %w", reZip3.Zip3, err)
 		}
 		doSaveZip3 := true
 		if len(existingZip3s) > 0 {
@@ -217,11 +216,11 @@ func (gre *GHCRateEngineImporter) saveZip3sForServiceArea(dbTx *pop.Connection, 
 
 		if doSaveZip3 {
 			verrs, saveErr := dbTx.ValidateAndSave(&reZip3)
-			if saveErr != nil {
-				return errors.Wrapf(saveErr, "could not save zip3: %+v", reZip3)
-			}
 			if verrs.HasAny() {
-				return errors.Wrapf(verrs, "validation errors when saving zip3: %+v", reZip3)
+				return fmt.Errorf("validation errors when saving zip3 [%+v]: %w", reZip3, verrs)
+			}
+			if saveErr != nil {
+				return fmt.Errorf("could not save zip3 [%+v]: %w", reZip3, saveErr)
 			}
 		}
 	}

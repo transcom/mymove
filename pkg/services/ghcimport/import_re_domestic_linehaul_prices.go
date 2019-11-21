@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/gobuffalo/pop"
-	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -15,38 +14,38 @@ func (gre *GHCRateEngineImporter) importREDomesticLinehaulPrices(dbTx *pop.Conne
 	var stageDomesticLinehaulPrices []models.StageDomesticLinehaulPrice
 	err := dbTx.All(&stageDomesticLinehaulPrices)
 	if err != nil {
-		return errors.Wrap(err, "could not read staged domestic linehaul prices")
+		return fmt.Errorf("could not read staged domestic linehaul prices: %w", err)
 	}
 
 	for _, stagePrice := range stageDomesticLinehaulPrices {
 		weightLowerInt, err := stringToInteger(stagePrice.WeightLower)
 		if err != nil {
-			return errors.Wrapf(err, "could not process weight lower [%s]", stagePrice.WeightLower)
+			return fmt.Errorf("could not process weight lower [%s]: %w", stagePrice.WeightLower, err)
 		}
 
 		weightUpperInt, err := stringToInteger(stagePrice.WeightUpper)
 		if err != nil {
-			return errors.Wrapf(err, "could not process weight upper [%s]", stagePrice.WeightUpper)
+			return fmt.Errorf("could not process weight upper [%s]: %w", stagePrice.WeightUpper, err)
 		}
 
 		milesLowerInt, err := stringToInteger(stagePrice.MilesLower)
 		if err != nil {
-			return errors.Wrapf(err, "could not process miles lower [%s]", stagePrice.MilesLower)
+			return fmt.Errorf("could not process miles lower [%s]: %w", stagePrice.MilesLower, err)
 		}
 
 		milesUpperInt, err := stringToInteger(stagePrice.MilesUpper)
 		if err != nil {
-			return errors.Wrapf(err, "could not process miles lower [%s]", stagePrice.MilesUpper)
+			return fmt.Errorf("could not process miles lower [%s]: %w", stagePrice.MilesUpper, err)
 		}
 
 		isPeakPeriod, err := isPeakPeriod(stagePrice.Season)
 		if err != nil {
-			return errors.Wrapf(err, "could not process season [%s]", stagePrice.Season)
+			return fmt.Errorf("could not process season [%s]: %w", stagePrice.Season, err)
 		}
 
 		serviceArea, err := cleanServiceAreaNumber(stagePrice.ServiceAreaNumber)
 		if err != nil {
-			return errors.Wrapf(err, "could not process service area number [%s]", stagePrice.ServiceAreaNumber)
+			return fmt.Errorf("could not process service area number [%s]: %w", stagePrice.ServiceAreaNumber, err)
 		}
 		serviceAreaID, found := gre.serviceAreaToIDMap[serviceArea]
 		if !found {
@@ -55,7 +54,7 @@ func (gre *GHCRateEngineImporter) importREDomesticLinehaulPrices(dbTx *pop.Conne
 
 		priceMillicents, err := priceToMillicents(stagePrice.Rate)
 		if err != nil {
-			return errors.Wrapf(err, "could not process rate [%s]", stagePrice.MilesUpper)
+			return fmt.Errorf("could not process rate [%s]: %w", stagePrice.MilesUpper, err)
 		}
 
 		domesticLinehaulPrice := models.ReDomesticLinehaulPrice{
@@ -70,11 +69,11 @@ func (gre *GHCRateEngineImporter) importREDomesticLinehaulPrices(dbTx *pop.Conne
 		}
 
 		verrs, err := dbTx.ValidateAndSave(&domesticLinehaulPrice)
-		if err != nil {
-			return errors.Wrapf(err, "could not save domestic linehaul price: %+v", domesticLinehaulPrice)
-		}
 		if verrs.HasAny() {
-			return errors.Wrapf(verrs, "validation errors when saving domestic linehaul price: %+v", domesticLinehaulPrice)
+			return fmt.Errorf("validation errors when saving domestic linehaul price [%+v]: %w", domesticLinehaulPrice, verrs)
+		}
+		if err != nil {
+			return fmt.Errorf("could not save domestic linehaul price [%+v]: %w", domesticLinehaulPrice, err)
 		}
 	}
 
