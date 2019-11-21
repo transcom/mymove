@@ -208,7 +208,13 @@ class QueueTable extends Component {
             })}
             getTheadFilterThProps={() => {
               return {
-                style: { position: 'inherit', overflow: 'inherit' },
+                style: {
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  position: 'inherit',
+                  overflow: 'inherit',
+                },
               };
             }}
             getTableProps={() => {
