@@ -49,7 +49,6 @@ func MoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *primemessages.MoveTaskOr
 		PrimeActualWeight:                primeActualWeight,
 		PrimeEstimatedWeight:             primeEstimatedWeight,
 		PrimeEstimatedWeightRecordedDate: primeEstimatedWeightRecordedDate,
-		ReferenceID:                      moveTaskOrder.ReferenceID,
 		Remarks:                          moveTaskOrder.CustomerRemarks,
 		RequestedPickupDate:              strfmt.Date(moveTaskOrder.RequestedPickupDate),
 		ScheduledMoveDate:                scheduledMoveDate,

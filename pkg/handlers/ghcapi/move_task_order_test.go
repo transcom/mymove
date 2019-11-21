@@ -28,7 +28,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegration() {
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
 	params := move_task_order.UpdateMoveTaskOrderStatusParams{
 		HTTPRequest:     request,
-		Body:            &ghcmessages.MoveTaskOrderStatus{Status: "SUBMITTED"},
+		Body:            &ghcmessages.MoveTaskOrderStatus{Status: "APPROVED"},
 		MoveTaskOrderID: moveTaskOrder.ID.String(),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -45,7 +45,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegration() {
 
 	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusOK{}, response)
 	suite.Equal(moveTaskOrdersPayload.ID, strfmt.UUID(moveTaskOrder.ID.String()))
-	suite.Equal(moveTaskOrdersPayload.Status, "SUBMITTED")
+	suite.Equal(moveTaskOrdersPayload.Status, "APPROVED")
 	suite.Regexp("^\\d{4}-\\d{4}$", moveTaskOrdersPayload.ReferenceID)
 }
 
