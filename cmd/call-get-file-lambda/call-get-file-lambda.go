@@ -106,7 +106,7 @@ func main() {
 	}
 	var resp Response
 
-	log.Println(result)
+	log.Println(string(result.Payload))
 	err = json.Unmarshal(result.Payload, &resp)
 	if err != nil {
 		fmt.Println("Error unmarshalling get-file response")
