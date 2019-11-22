@@ -51,21 +51,25 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdater() {
 	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
 	originalMTO := serviceItem.MoveTaskOrder
+
+	suite.Nil(originalMTO.AvailableToPrimeDate)
 	// check not equal to what asserting against below
-	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusSubmitted)
+	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusApproved)
 	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
 
-	updatedMTO, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, models.MoveTaskOrderStatusSubmitted)
+	updatedMTO, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, models.MoveTaskOrderStatusApproved)
 
 	suite.NoError(err)
-	suite.Equal(models.MoveTaskOrderStatusSubmitted, updatedMTO.Status)
+	suite.Equal(models.MoveTaskOrderStatusApproved, updatedMTO.Status)
+	// date should be filled when mto has been approved
+	suite.NotNil(updatedMTO.AvailableToPrimeDate)
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterEmptyStatus() {
 	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
 	originalMTO := serviceItem.MoveTaskOrder
 	// check not equal to what asserting against below
-	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusSubmitted)
+	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusApproved)
 	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
 
 	_, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, "")
@@ -147,6 +151,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderDestinationAddressUpdat
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderPrimePostCounselingUpdater() {
 	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
 	originalMTO := serviceItem.MoveTaskOrder
+	suite.Nil(originalMTO.SubmittedCounselingInfoDate)
+
 	// check not equal to what asserting against below
 	address := testdatagen.MakeDefaultAddress(suite.DB())
 	address2 := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
@@ -167,6 +173,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderPrimePostCounselingUpda
 	suite.Equal(information.SecondaryDeliveryAddress, updatedMTO.SecondaryDeliveryAddress)
 	suite.Equal(information.SecondaryPickupAddress, updatedMTO.SecondaryPickupAddress)
 	suite.Equal(information.PPMIsIncluded, *updatedMTO.PpmIsIncluded)
+	suite.NotNil(updatedMTO.SubmittedCounselingInfoDate)
 
 	dbUpdatedMTO, fetchErr := moveTaskOrderFetcher.FetchMoveTaskOrder(updatedMTO.ID)
 	suite.NoError(fetchErr)

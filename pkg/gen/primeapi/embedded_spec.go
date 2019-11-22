@@ -982,7 +982,7 @@ func init() {
           "enum": [
             "APPROVED",
             "REJECTED",
-            "SUBMITTED"
+            "DRAFT"
           ]
         },
         "updatedAt": {
@@ -2104,7 +2104,7 @@ func init() {
           "enum": [
             "APPROVED",
             "REJECTED",
-            "SUBMITTED"
+            "DRAFT"
           ]
         },
         "updatedAt": {
