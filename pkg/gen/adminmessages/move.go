@@ -41,6 +41,9 @@ type Move struct {
 	// Format: uuid
 	ServiceMemberID strfmt.UUID `json:"service_member_id,omitempty"`
 
+	// show
+	Show bool `json:"show,omitempty"`
+
 	// status
 	Status MoveStatus `json:"status,omitempty"`
 

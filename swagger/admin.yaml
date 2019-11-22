@@ -679,6 +679,8 @@ definitions:
         example: '12432'
       status:
         $ref: '#/definitions/MoveStatus'
+      show:
+        type: boolean
       created_at:
         type: string
         format: date-time

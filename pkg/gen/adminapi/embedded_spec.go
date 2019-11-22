@@ -1325,6 +1325,9 @@ func init() {
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "show": {
+          "type": "boolean"
+        },
         "status": {
           "$ref": "#/definitions/MoveStatus"
         },
@@ -3095,6 +3098,9 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "show": {
+          "type": "boolean"
         },
         "status": {
           "$ref": "#/definitions/MoveStatus"
