@@ -29,3 +29,18 @@ func (r *ReService) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: r.Name, Name: "Name"},
 	), nil
 }
+
+// FetchReServiceItem returns a service for a matching code
+func FetchReServiceItem(tx *pop.Connection, code string) (*ReService, error) {
+	var service ReService
+	err := tx.Where("code = $1", code).First(&service)
+	if err != nil {
+		return nil, err
+	}
+
+	if service.Code == code {
+		return &service, err
+	}
+
+	return nil, err
+}
