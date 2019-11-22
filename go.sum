@@ -166,8 +166,6 @@ github.com/go-swagger/scan-repo-boundary v0.0.0-20180623220736-973b3573c013/go.m
 github.com/gobuffalo/attrs v0.1.0 h1:LY6/rbhPD/hfa+AfviaMXBmZBGb0fGHF12yg7f3dPQA=
 github.com/gobuffalo/attrs v0.1.0/go.mod h1:fmNpaWyHM0tRm8gCZWKx8yY9fvaNLo2PyzBNSrBZ5Hw=
 github.com/gobuffalo/envy v1.7.0/go.mod h1:n7DRkBerg/aorDM8kbduw5dN3oXGswK5liaSCx4T5NI=
-github.com/gobuffalo/envy v1.7.1 h1:OQl5ys5MBea7OGCdvPbBJWRgnhC/fGona6QKfvFeau8=
-github.com/gobuffalo/envy v1.7.1/go.mod h1:FurDp9+EDPE4aIUS3ZLyD+7/9fpx7YRt/ukY6jIHf0w=
 github.com/gobuffalo/envy v1.8.1 h1:RUr68liRvs0TS1D5qdW3mQv2SjAsu1QWMCx1tG4kDjs=
 github.com/gobuffalo/envy v1.8.1/go.mod h1:FurDp9+EDPE4aIUS3ZLyD+7/9fpx7YRt/ukY6jIHf0w=
 github.com/gobuffalo/fizz v1.9.5 h1:Qh0GkP7MYtJs9RZwBkPJ0CzEXynVowdNfrjg8b+TOxA=
