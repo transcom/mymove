@@ -14,7 +14,6 @@ type PaymentRequest struct {
 	IsFinal         bool          `db:"is_final"`
 	MoveTaskOrder   MoveTaskOrder `belongs_to:"move_task_orders"`
 	MoveTaskOrderID uuid.UUID     `db:"move_task_order_id"`
-	ServiceItemIDs  []uuid.UUID   `db:"service_item_id_s"`
 	RejectionReason string        `db:"rejection_reason"`
 	//TODO DocumentPackage
 	CreatedAt time.Time `db:"created_at"`
@@ -25,8 +24,5 @@ type PaymentRequest struct {
 func (p *PaymentRequest) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: p.MoveTaskOrderID, Name: "MoveTaskOrderID"},
-		&UUIDArrayIsPresent{Field: p.ServiceItemIDs, Name: "ServiceItemIDs"},
-		// TODO: make sure serviceItemIDs are unique
-		&validators.StringIsPresent{Field: p.RejectionReason, Name: "RejectionReason"},
 	), nil
 }

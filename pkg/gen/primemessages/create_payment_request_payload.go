@@ -6,8 +6,6 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"strconv"
-
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -28,9 +26,6 @@ type CreatePaymentRequestPayload struct {
 
 	// proof of service package
 	ProofOfServicePackage *ProofOfServicePackage `json:"proofOfServicePackage,omitempty"`
-
-	// service item i ds
-	ServiceItemIDs []strfmt.UUID `json:"serviceItemIDs"`
 }
 
 // Validate validates this create payment request payload
@@ -42,10 +37,6 @@ func (m *CreatePaymentRequestPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateProofOfServicePackage(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateServiceItemIDs(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -81,23 +72,6 @@ func (m *CreatePaymentRequestPayload) validateProofOfServicePackage(formats strf
 			}
 			return err
 		}
-	}
-
-	return nil
-}
-
-func (m *CreatePaymentRequestPayload) validateServiceItemIDs(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ServiceItemIDs) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(m.ServiceItemIDs); i++ {
-
-		if err := validate.FormatOf("serviceItemIDs"+"."+strconv.Itoa(i), "body", "uuid", m.ServiceItemIDs[i].String(), formats); err != nil {
-			return err
-		}
-
 	}
 
 	return nil

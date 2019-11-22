@@ -868,4 +868,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			ID: uuid.FromStringOrNil("1c030e51-b5be-40a2-80bf-97a330891307"),
 		},
 	})
+
+	testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			ID: uuid.FromStringOrNil("a2c34dba-015f-4f96-a38b-0c0b9272e208"),
+		},
+	})
+
 }

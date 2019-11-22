@@ -13,7 +13,7 @@ import (
 // into the strfmt types that go-swagger uses for payloads.
 
 // FmtToPopUUID converts go-swagger type to pop type
-func FmtToPopUUID(u strfmt.UUID) uuid.UUID{
+func FmtToPopUUID(u strfmt.UUID) uuid.UUID {
 	fmtUUID, _ := uuid.FromString(u.String())
 	return fmtUUID
 }

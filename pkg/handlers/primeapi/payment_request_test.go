@@ -3,14 +3,14 @@ package primeapi
 import (
 	"fmt"
 	"net/http/httptest"
+	"time"
 
-	"github.com/go-openapi/strfmt"
+	"github.com/stretchr/testify/mock"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/testdatagen"
-
-	"github.com/stretchr/testify/mock"
 
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -23,23 +23,26 @@ import (
 func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
 	moveTaskOrderID := moveTaskOrder.ID
-	serviceItemID, _ := uuid.NewV4()
 	paymentRequestID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
-	rejectionReason := "Missing documentation"
 
 	paymentRequest := models.PaymentRequest{
+		MoveTaskOrderID: moveTaskOrderID,
+		IsFinal:         false,
+	}
+
+	returnedPaymentRequest := models.PaymentRequest{
 		ID:              paymentRequestID,
 		MoveTaskOrderID: moveTaskOrderID,
-		ServiceItemIDs:  []uuid.UUID{serviceItemID},
-		RejectionReason: rejectionReason,
+		MoveTaskOrder:   moveTaskOrder,
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
 	}
 
 	suite.T().Run("successful create payment request", func(t *testing.T) {
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 
 		paymentRequestCreator.On("CreatePaymentRequest",
-			&paymentRequest,
-			mock.Anything).Return(&paymentRequest, nil, nil).Once()
+			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, nil, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -56,7 +59,6 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 				IsFinal:               &paymentRequest.IsFinal,
 				MoveTaskOrderID:       *handlers.FmtUUID(paymentRequest.MoveTaskOrderID),
 				ProofOfServicePackage: nil,
-				ServiceItemIDs:        []strfmt.UUID{*handlers.FmtUUID(paymentRequest.ServiceItemIDs[0])},
 			},
 		}
 		response := handler.Handle(params)
@@ -68,14 +70,11 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		badPaymentRequest := models.PaymentRequest{
 			ID:              paymentRequestID,
 			MoveTaskOrderID: uuid.UUID{},
-			ServiceItemIDs:  []uuid.UUID{serviceItemID},
-			RejectionReason: rejectionReason,
 		}
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 
 		paymentRequestCreator.On("CreatePaymentRequest",
-			&paymentRequest,
-			mock.Anything).Return(&badPaymentRequest, nil, nil).Once()
+			mock.AnythingOfType("*models.PaymentRequest")).Return(&badPaymentRequest, nil, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),

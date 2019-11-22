@@ -370,12 +370,6 @@ definitions:
         type: string
       proofOfServicePackage:
         $ref: '#/definitions/ProofOfServicePackage'
-      serviceItemIDs:
-        items:
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
-          format: uuid
-          type: string
-        type: array
     type: object
   Entitlements:
     properties:
@@ -534,12 +528,6 @@ definitions:
         example: documentation was incomplete
         type: string
         x-nullable: true
-      serviceItemIDs:
-        items:
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
-          format: uuid
-          type: string
-        type: array
       status:
         $ref: '#/definitions/PaymentRequestStatus'
     type: object

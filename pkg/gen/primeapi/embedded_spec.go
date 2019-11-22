@@ -437,14 +437,6 @@ func init() {
         },
         "proofOfServicePackage": {
           "$ref": "#/definitions/ProofOfServicePackage"
-        },
-        "serviceItemIDs": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
         }
       }
     },
@@ -700,14 +692,6 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "documentation was incomplete"
-        },
-        "serviceItemIDs": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
@@ -1294,14 +1278,6 @@ func init() {
         },
         "proofOfServicePackage": {
           "$ref": "#/definitions/ProofOfServicePackage"
-        },
-        "serviceItemIDs": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
         }
       }
     },
@@ -1557,14 +1533,6 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "documentation was incomplete"
-        },
-        "serviceItemIDs": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"

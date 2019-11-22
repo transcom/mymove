@@ -42,6 +42,7 @@ type Assertions struct {
 	OfficeUser                               models.OfficeUser
 	Order                                    models.Order
 	Organization                             models.Organization
+	PaymentRequest                           models.PaymentRequest
 	PersonallyProcuredMove                   models.PersonallyProcuredMove
 	ReContract                               models.ReContract
 	ReContractYear                           models.ReContractYear
