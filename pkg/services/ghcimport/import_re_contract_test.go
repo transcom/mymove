@@ -34,12 +34,12 @@ func (suite *GHCRateEngineImportSuite) Test_importREContract() {
 }
 
 func (suite *GHCRateEngineImportSuite) Test_importREContract_runTwice() {
-	suite.T().Run("import success, but no contract name", func(t *testing.T) {
-		gre := &GHCRateEngineImporter{
-			Logger:       suite.logger,
-			ContractCode: testContractCode,
-		}
+	gre := &GHCRateEngineImporter{
+		Logger:       suite.logger,
+		ContractCode: testContractCode,
+	}
 
+	suite.T().Run("import success, but no contract name", func(t *testing.T) {
 		err := gre.importREContract(suite.DB())
 		suite.NoError(err)
 		suite.helperCheckContractName(testContractCode)
@@ -47,11 +47,6 @@ func (suite *GHCRateEngineImportSuite) Test_importREContract_runTwice() {
 	})
 
 	suite.T().Run("try to run again with same contract code", func(t *testing.T) {
-		gre := &GHCRateEngineImporter{
-			Logger:       suite.logger,
-			ContractCode: testContractCode,
-		}
-
 		err := gre.importREContract(suite.DB())
 		if suite.Error(err) {
 			expected := fmt.Sprintf("the provided contract code [%s] already exists", testContractCode)

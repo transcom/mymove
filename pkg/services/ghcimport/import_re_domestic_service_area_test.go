@@ -7,12 +7,12 @@ import (
 )
 
 func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceArea() {
-	suite.T().Run("import success", func(t *testing.T) {
-		gre := &GHCRateEngineImporter{
-			Logger:       suite.logger,
-			ContractCode: testContractCode,
-		}
+	gre := &GHCRateEngineImporter{
+		Logger:       suite.logger,
+		ContractCode: testContractCode,
+	}
 
+	suite.T().Run("import success", func(t *testing.T) {
 		err := gre.importREDomesticServiceArea(suite.DB())
 		suite.NoError(err)
 		suite.helperVerifyServiceAreaCount()
@@ -23,11 +23,6 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceArea() {
 	})
 
 	suite.T().Run("Run a second time with one changed row, should still succeed", func(t *testing.T) {
-		gre := &GHCRateEngineImporter{
-			Logger:       suite.logger,
-			ContractCode: testContractCode,
-		}
-
 		// Change a service area and remove a zip and see if they return as they were before.
 		var serviceArea models.ReDomesticServiceArea
 		err := suite.DB().Where("service_area = '452'").First(&serviceArea)

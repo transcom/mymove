@@ -152,6 +152,8 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_importRERateAre
 			}
 			if tc == 2 {
 				suite.helperImportRERateAreaTC2("verify")
+			} else if tc == 3 {
+				suite.helperSetupStagingTables()
 			}
 		})
 	}
