@@ -62,6 +62,7 @@ type FetchMany interface {
 	Filters(filters []services.QueryFilter) *fetchMany
 	Pagination(pagination services.Pagination) *fetchMany
 	Associations(associations services.QueryAssociations) *fetchMany
+	Ordering(ordering services.QueryOrder) *fetchMany
 	Count(model interface{}) (int, error)
 	Execute(model interface{}) error
 }
@@ -71,6 +72,7 @@ type fetchMany struct {
 	filters      []services.QueryFilter
 	pagination   *services.Pagination
 	associations *services.QueryAssociations
+	ordering     *services.QueryOrder
 }
 
 func NewFetchMany(db *pop.Connection) *fetchMany {
@@ -91,6 +93,11 @@ func (f *fetchMany) Pagination(pagination services.Pagination) *fetchMany {
 
 func (f *fetchMany) Associations(associations services.QueryAssociations) *fetchMany {
 	f.associations = &associations
+	return f
+}
+
+func (f *fetchMany) Ordering(ordering services.QueryOrder) *fetchMany {
+	f.ordering = &ordering
 	return f
 }
 
@@ -163,6 +170,14 @@ func (f *fetchMany) Execute(model interface{}) error {
 
 	if f.associations != nil {
 		query = newAssociatedQuery(query, *f.associations, t)
+	}
+
+	if f.ordering != nil {
+		query, err = orderedQuery(query, *f.ordering, t)
+	}
+
+	if err != nil {
+		return err
 	}
 
 	return query.All(model)

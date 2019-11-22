@@ -20,6 +20,7 @@ func (o *officeUserListFetcher) FetchOfficeUserList(filters []services.QueryFilt
 	err := o.builder.
 		Filters(filters).
 		Pagination(pagination).
+		Ordering(ordering).
 		Execute(&officeUsers)
 	return officeUsers, err
 }
