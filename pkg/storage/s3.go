@@ -1,11 +1,14 @@
 package storage
 
 import (
+	"crypto/x509"
+	"encoding/pem"
 	"io"
 	"path"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/cloudfront/sign"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
@@ -13,26 +16,34 @@ import (
 
 // S3 implements the file storage API using S3.
 type S3 struct {
-	bucket       string
-	keyNamespace string
-	logger       Logger
-	client       *s3.S3
-	fs           *afero.Afero
-	tempFs       *afero.Afero
+	bucket                string
+	keyNamespace          string
+	logger                Logger
+	client                *s3.S3
+	fs                    *afero.Afero
+	tempFs                *afero.Afero
+	assetsDomainName      string
+	cfPrivateKey          string
+	cfPrivateKeyID        string
+	cfDistributionEnabled bool
 }
 
 // NewS3 creates a new S3 using the provided AWS session.
-func NewS3(bucket string, keyNamespace string, logger Logger, session *session.Session) *S3 {
+func NewS3(bucket, keyNamespace, assetsDomainName, cfPrivateKey, cfPrivateKeyID string, cfDistributionEnabled bool, logger Logger, session *session.Session) *S3 {
 	var fs = afero.NewMemMapFs()
 	var tempFs = afero.NewMemMapFs()
 	client := s3.New(session)
 	return &S3{
-		bucket:       bucket,
-		keyNamespace: keyNamespace,
-		logger:       logger,
-		client:       client,
-		fs:           &afero.Afero{Fs: fs},
-		tempFs:       &afero.Afero{Fs: tempFs},
+		bucket:                bucket,
+		keyNamespace:          keyNamespace,
+		assetsDomainName:      assetsDomainName,
+		cfPrivateKey:          cfPrivateKey,
+		cfPrivateKeyID:        cfPrivateKeyID,
+		cfDistributionEnabled: cfDistributionEnabled,
+		logger:                logger,
+		client:                client,
+		fs:                    &afero.Afero{Fs: fs},
+		tempFs:                &afero.Afero{Fs: tempFs},
 	}
 }
 
@@ -112,6 +123,19 @@ func (s *S3) TempFileSystem() *afero.Afero {
 func (s *S3) PresignedURL(key string, contentType string) (string, error) {
 	namespacedKey := path.Join(s.keyNamespace, key)
 
+	block, _ := pem.Decode([]byte(s.cfPrivateKey))
+	privKey, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
+	rawURL := path.Join(s.assetsDomainName, namespacedKey)
+
+	//if cloudfront is enabled then generate url from cloudfront trusted signer otherwise use s3 signed url
+	if s.cfDistributionEnabled {
+		cfSigner := sign.NewURLSigner(s.cfPrivateKeyID, privKey)
+		url, err := cfSigner.Sign(rawURL, time.Now().Add(15*time.Minute))
+		if err != nil {
+			return "", errors.Wrap(err, "could not generate presigned URL")
+		}
+		return url, nil
+	}
 	req, _ := s.client.GetObjectRequest(&s3.GetObjectInput{
 		Bucket:              &s.bucket,
 		Key:                 &namespacedKey,

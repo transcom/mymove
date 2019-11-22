@@ -20,6 +20,10 @@ const (
 	MoveMilDoDTLSCertFlag string = "move-mil-dod-tls-cert"
 	// MoveMilDoDTLSKeyFlag is the Move.mil DoD TLS Key Flag
 	MoveMilDoDTLSKeyFlag string = "move-mil-dod-tls-key"
+	// CFPrivateKeyFlag is cloudfront private key flag
+	CFPrivateKeyFlag string = "cloud-front-private-key"
+	// CFKeyIDFlag is cloudfront key id flag
+	CFKeyIDFlag string = "cloud-front-key-id"
 )
 
 type ErrInvalidPKCS7 struct {
@@ -37,6 +41,8 @@ func InitCertFlags(flag *pflag.FlagSet) {
 	flag.String(MoveMilDoDCACertFlag, "", "The DoD CA certificate used to sign the move.mil TLS certificate.")
 	flag.String(MoveMilDoDTLSCertFlag, "", "The DoD-signed TLS certificate for various move.mil services.")
 	flag.String(MoveMilDoDTLSKeyFlag, "", "The private key for the DoD-signed TLS certificate for various move.mil services.")
+	flag.String(CFPrivateKeyFlag, "", "Cloudfront private key")
+	flag.String(CFKeyIDFlag, "", "Cloudfront private key id")
 }
 
 // CheckCert validates Cert command line flags
