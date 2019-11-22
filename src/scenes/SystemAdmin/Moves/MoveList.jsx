@@ -7,7 +7,7 @@ const defaultSort = { field: 'locator', order: 'ASC' };
 
 const MoveFilter = props => (
   <Filter {...props} className={styles['system-admin-filters']}>
-    <TextInput label="Locator" source="locator" reference="locator" fullWidth alwaysOn resettable />
+    <TextInput label="Locator" source="locator" reference="locator" alwaysOn resettable />
   </Filter>
 );
 
