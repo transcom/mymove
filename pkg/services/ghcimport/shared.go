@@ -2,7 +2,6 @@ package ghcimport
 
 import (
 	"fmt"
-	"math"
 	"strconv"
 	"strings"
 )
@@ -48,23 +47,50 @@ func isPeakPeriod(season string) (bool, error) {
 	return false, fmt.Errorf("invalid season [%s]", season)
 }
 
-func priceStringToFloat(rawPrice string) (float64, error) {
+func getPriceParts(rawPrice string, expectedDecimalPlaces int) (int, int, error) {
+	// Get rid of a dollar sign if there is one.
 	basePrice := strings.Replace(rawPrice, "$", "", -1)
 
-	floatPrice, err := strconv.ParseFloat(basePrice, 64)
-	if err != nil {
-		return 0, err
+	// Split the string on the decimal point.
+	priceParts := strings.Split(basePrice, ".")
+	if len(priceParts) != 2 {
+		return 0, 0, fmt.Errorf("expected 2 price parts but found %d for price [%s]", len(priceParts), rawPrice)
 	}
 
-	return floatPrice, nil
+	integerPart, err := strconv.Atoi(priceParts[0])
+	if err != nil {
+		return 0, 0, fmt.Errorf("could not convert integer part of price [%s]", rawPrice)
+	}
+
+	if len(priceParts[1]) != expectedDecimalPlaces {
+		return 0, 0, fmt.Errorf("expected %d decimal places but found %d for price [%s]", expectedDecimalPlaces,
+			len(priceParts[1]), rawPrice)
+	}
+
+	fractionalPart, err := strconv.Atoi(priceParts[1])
+	if err != nil {
+		return 0, 0, fmt.Errorf("could not convert fractional part of price [%s]", rawPrice)
+	}
+
+	return integerPart, fractionalPart, nil
 }
 
 func priceToMillicents(rawPrice string) (int, error) {
-	floatPrice, err := priceStringToFloat(rawPrice)
+	integerPart, fractionalPart, err := getPriceParts(rawPrice, 3)
 	if err != nil {
 		return 0, fmt.Errorf("could not parse price [%s]: %w", rawPrice, err)
 	}
 
-	millicents := int(math.Round(floatPrice * 100000))
+	millicents := (integerPart * 100000) + (fractionalPart * 100)
 	return millicents, nil
+}
+
+func priceToCents(rawPrice string) (int, error) {
+	integerPart, fractionalPart, err := getPriceParts(rawPrice, 2)
+	if err != nil {
+		return 0, fmt.Errorf("could not parse price [%s]: %w", rawPrice, err)
+	}
+
+	cents := (integerPart * 100) + fractionalPart
+	return cents, nil
 }

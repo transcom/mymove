@@ -102,22 +102,29 @@ func (suite *GHCRateEngineImportSuite) Test_isPeakPeriod() {
 	}
 }
 
-func (suite *GHCRateEngineImportSuite) Test_priceStringToFloat() {
+func (suite *GHCRateEngineImportSuite) Test_getPriceParts() {
 	tests := []struct {
-		name        string
-		input       string
-		expected    float64
-		shouldError bool
+		name                   string
+		rawPrice               string
+		decimalPlaces          int
+		expectedIntegerPart    int
+		expectedFractionalPart int
+		shouldError            bool
 	}{
-		{"price with dollar sign", "$3.557", 3.557, false},
-		{"price with no dollar sign", "3.557", 3.557, false},
-		{"price as integer", "3", 3, false},
-		{"not a number", "3.53X", 0, true},
+		{"at expected decimal places", "$3.557", 3, 3, 557, false},
+		{"less than max decimal places", "$3.5", 3, 0, 0, true},
+		{"more than max decimal places", "$3.5777", 3, 0, 0, true},
+		{"no dollar sign", "2.001", 3, 2, 1, false},
+		{"very small, no dollar sign", "0.005", 3, 0, 5, false},
+		{"no decimal point", "1", 3, 0, 0, true},
+		{"invalid price", "$3.ABC", 3, 0, 0, true},
+		{"empty string", "", 4, 0, 0, true},
 	}
 	for _, test := range tests {
 		suite.T().Run(test.name, func(t *testing.T) {
-			result, err := priceStringToFloat(test.input)
-			suite.Equal(test.expected, result)
+			integerPart, fractionalPart, err := getPriceParts(test.rawPrice, test.decimalPlaces)
+			suite.Equal(test.expectedIntegerPart, integerPart)
+			suite.Equal(test.expectedFractionalPart, fractionalPart)
 			if test.shouldError {
 				suite.Error(err)
 			} else {
@@ -135,13 +142,47 @@ func (suite *GHCRateEngineImportSuite) Test_priceToMillicents() {
 		shouldError bool
 	}{
 		{"price with dollar sign", "$3.557", 355700, false},
-		{"price with no dollar sign", "3.557", 355700, false},
-		{"price as integer", "3", 300000, false},
+		{"leading zeros in decimal part", "$3.005", 300500, false},
+		{"two decimal places", "$3.55", 0, true},
+		{"more than expected decimal places", "$3.5571", 0, true},
+		{"input of zero", "0", 0, true},
+		{"empty string", "", 0, true},
+		{"price without dollar sign", "0.001", 100, false},
+		{"price as integer", "3", 0, true},
 		{"not a number", "3.53X", 0, true},
 	}
 	for _, test := range tests {
 		suite.T().Run(test.name, func(t *testing.T) {
 			result, err := priceToMillicents(test.input)
+			suite.Equal(test.expected, result)
+			if test.shouldError {
+				suite.Error(err)
+			} else {
+				suite.NoError(err)
+			}
+		})
+	}
+}
+
+func (suite *GHCRateEngineImportSuite) Test_priceToCents() {
+	tests := []struct {
+		name        string
+		input       string
+		expected    int
+		shouldError bool
+	}{
+		{"price with dollar sign", "$3.55", 355, false},
+		{"leading zeros in decimal part", "$3.01", 301, false},
+		{"more than expected decimal places", "$3.551", 0, true},
+		{"input of zero", "0", 0, true},
+		{"empty string", "", 0, true},
+		{"price without dollar sign", "0.01", 1, false},
+		{"price as integer", "3", 0, true},
+		{"not a number", "3.5X", 0, true},
+	}
+	for _, test := range tests {
+		suite.T().Run(test.name, func(t *testing.T) {
+			result, err := priceToCents(test.input)
 			suite.Equal(test.expected, result)
 			if test.shouldError {
 				suite.Error(err)
