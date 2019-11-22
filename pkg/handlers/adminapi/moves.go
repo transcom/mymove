@@ -26,6 +26,10 @@ type IndexMovesHandler struct {
 }
 
 func payloadForMoveModel(move models.Move) *adminmessages.Move {
+	showMove := true
+	if move.Show != nil {
+		showMove = *move.Show
+	}
 
 	return &adminmessages.Move{
 		ID:              handlers.FmtUUID(move.ID),
@@ -33,6 +37,7 @@ func payloadForMoveModel(move models.Move) *adminmessages.Move {
 		ServiceMemberID: *handlers.FmtUUID(move.Orders.ServiceMemberID),
 		Locator:         &move.Locator,
 		Status:          adminmessages.MoveStatus(move.Status),
+		Show:            showMove,
 		CreatedAt:       handlers.FmtDateTime(move.CreatedAt),
 		UpdatedAt:       handlers.FmtDateTime(move.UpdatedAt),
 	}
@@ -73,8 +78,7 @@ func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Res
 // of the form `{"move_type": "PPM" "code": "XYZBCS"}` to an array of services.QueryFilter
 func (h IndexMovesHandler) generateQueryFilters(filters *string, logger handlers.Logger) []services.QueryFilter {
 	type Filter struct {
-		MoveType string `json:"move_type"`
-		Code     string `json:"code"`
+		Locator string `json:"locator"`
 	}
 	f := Filter{}
 	var queryFilters []services.QueryFilter
@@ -88,11 +92,9 @@ func (h IndexMovesHandler) generateQueryFilters(filters *string, logger handlers
 		logger.Warn("unable to decode param", zap.Error(err),
 			zap.String("filters", fs))
 	}
-	if f.MoveType != "" {
-		queryFilters = append(queryFilters, query.NewQueryFilter("move_type", "=", f.MoveType))
+	if f.Locator != "" {
+		queryFilters = append(queryFilters, query.NewQueryFilter("locator", "=", f.Locator))
 	}
-	if f.Code != "" && len(f.Code) == 6 {
-		queryFilters = append(queryFilters, query.NewQueryFilter("code", "=", f.Code))
-	}
+
 	return queryFilters
 }
