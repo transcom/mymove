@@ -245,3 +245,41 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 	suite.False(verrs.HasAny(), "failed to save valid statuses")
 	suite.NoError(err)
 }
+
+func (suite *ModelSuite) TestFetchMoveByOrderID() {
+	orderID := uuid.Must(uuid.NewV4())
+	moveID, _ := uuid.FromString("7112b18b-7e03-4b28-adde-532b541bba8d")
+	invalidID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
+
+	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+		Order: Order{
+			ID: orderID,
+		},
+	})
+	testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: Move{
+			ID:       moveID,
+			OrdersID: orderID,
+			Orders:   order,
+		},
+	})
+
+	tests := []struct {
+		lookupID  uuid.UUID
+		resultID  uuid.UUID
+		resultErr bool
+	}{
+		{lookupID: orderID, resultID: moveID, resultErr: false},
+		{lookupID: invalidID, resultID: invalidID, resultErr: true},
+	}
+
+	for _, ts := range tests {
+		move, err := FetchMoveByOrderID(suite.DB(), ts.lookupID)
+		if ts.resultErr {
+			suite.Error(err)
+		} else {
+			suite.NoError(err)
+		}
+		suite.Equal(move.ID, ts.resultID, "Wrong moveID: %s", ts.lookupID)
+	}
+}
