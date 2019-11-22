@@ -28,8 +28,13 @@ type IndexMovesHandler struct {
 func payloadForMoveModel(move models.Move) *adminmessages.Move {
 
 	return &adminmessages.Move{
-		ID: handlers.FmtUUID(move.ID),
-		//ToDo: more to add
+		ID:              handlers.FmtUUID(move.ID),
+		OrdersID:        handlers.FmtUUID(move.OrdersID),
+		ServiceMemberID: *handlers.FmtUUID(move.Orders.ServiceMemberID),
+		Locator:         &move.Locator,
+		Status:          adminmessages.MoveStatus(move.Status),
+		CreatedAt:       handlers.FmtDateTime(move.CreatedAt),
+		UpdatedAt:       handlers.FmtDateTime(move.UpdatedAt),
 	}
 }
 
