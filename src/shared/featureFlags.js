@@ -15,6 +15,7 @@ const defaultFlags = {
   sitPanel: true,
   ppmPaymentRequest: true,
   too: false,
+  progearChanges: false,
 };
 
 const environmentFlags = {

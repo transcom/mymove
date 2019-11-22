@@ -98,7 +98,7 @@ export class Landing extends Component {
       updateMove,
     } = this.props;
     return (
-      <div className="grid-container usa-prose site-prose">
+      <div className="grid-container usa-prose">
         {loggedInUserIsLoading && <LoadingPlaceholder />}
         {!isLoggedIn && !loggedInUserIsLoading && <SignIn location={this.props.location} />}
         {loggedInUserSuccess && (
@@ -175,9 +175,4 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ push, createServiceMember, updateMove }, dispatch);
 }
 
-export default withLastLocation(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  )(Landing),
-);
+export default withLastLocation(connect(mapStateToProps, mapDispatchToProps)(Landing));

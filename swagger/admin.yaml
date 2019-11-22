@@ -12,6 +12,31 @@ consumes:
 produces:
   - application/json
 definitions:
+  ClientError:
+    type: object
+    properties:
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
+    required:
+      - title
+      - detail
+      - instance
+  ValidationError:
+    allOf:
+      - $ref: '#/definitions/ClientError'
+      - type: object
+    properties:
+      invalid_fields:
+        type: object
+        additionalProperties:
+          type: string
+    required:
+      - invalid_fields
   AccessCode:
     type: object
     properties:
@@ -26,7 +51,6 @@ definitions:
         type: string
         title: Selected Move Type
         enum:
-          - HHG
           - PPM
       locator:
         type: string
@@ -59,7 +83,7 @@ definitions:
       transportation_office_id:
         type: string
         format: uuid
-      deactivated:
+      active:
         type: boolean
       created_at:
         type: string
@@ -75,7 +99,7 @@ definitions:
       - email
       - telephone
       - transportation_office_id
-      - deactivated
+      - active
       - created_at
       - updated_at
   OfficeUsers:
@@ -103,7 +127,7 @@ definitions:
       organization_id:
         type: string
         format: uuid
-      deactivated:
+      active:
         type: boolean
       created_at:
         type: string
@@ -118,7 +142,7 @@ definitions:
       - email
       - user_id
       - organization_id
-      - deactivated
+      - active
       - created_at
       - updated_at
   AdminUsers:
@@ -430,7 +454,7 @@ definitions:
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
-      deactivated:
+      active:
         type: boolean
   AdminUserCreatePayload:
     type: object
@@ -458,7 +482,7 @@ definitions:
       last_name:
         type: string
         title: Last Name
-      deactivated:
+      active:
         type: boolean
   ElectronicOrder:
     type: object
@@ -668,9 +692,7 @@ paths:
       parameters:
         - in: query
           name: filter
-          type: array
-          items:
-            type: string
+          type: string
         - in: query
           name: page
           type: integer
@@ -717,14 +739,12 @@ paths:
           description: Successfully created Office User
           schema:
             $ref: '#/definitions/OfficeUser'
-        400:
-          description: Invalid Request
-        401:
-          description: Must be authenticated to use this end point
-        403:
-          description: Not authorized to create an office user
+        422:
+          description: validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
         500:
-          description: Server error
+          description: internal server error
   /office_users/{officeUserId}:
     get:
       summary: Get an office user

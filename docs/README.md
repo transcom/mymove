@@ -36,6 +36,8 @@ If you are looking to understand choices made in this project, see the list of [
 * [Deploy to Experimental](how-to/deploy-to-experimental.md#how-to-deploy-to-experimental)
 * [display dates and times](how-to/display-dates-and-times.md#how-to-display-dates-and-times)
 * [Generate Mocks with Mockery](how-to/generate-mocks-with-mockery.md#how-to-generate-mocks-with-mockery)
+* [handle back-end errors](how-to/handle-backend-errors.md#how-to-handle-back-end-errors)
+* [Manage Dependabot](how-to/manage-dependabot.md#how-to-manage-dependabot)
 * [Manage Dependencies With go mod](how-to/manage-dependencies-with-go-mod.md#how-to-manage-dependencies-with-go-mod)
 * [Manage Docker Locally](how-to/manage-docker-locally.md#how-to-manage-docker-locally)
 * [Migrate the Database](how-to/migrate-the-database.md#how-to-migrate-the-database)
@@ -100,6 +102,7 @@ If you are looking to understand choices made in this project, see the list of [
 * 0036 [Use Separate Integration Package for Go Integration Tests](adr/0036-go-integration.md#use-separate-integration-package-for-go-integration-tests)
 * 0037 [Put mymove outside of standard GOPATH](adr/0037-go-path-and-project-layout-revisited.md#put-mymove-outside-of-standard-gopath)
 * 0038 [Use Soft Delete Instead of Hard Delete](adr/0038-soft-delete.md#use-soft-delete-instead-of-hard-delete)
-* 0039 [Add Role-Based Authorization](adr/0039-role-base-authorization.md#add-role-based-authorization)
+* 0039 [Use React Lazy for code splitting](adr/0039-react-lazy-and-code-splitting.md#use-react-lazy-for-code-splitting)
+* 0040 [Add Role-Based Authorization](adr/0040-role-base-authorization.md#add-role-based-authorization)
 
 <!--endindex-->

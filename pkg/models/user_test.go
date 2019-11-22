@@ -94,7 +94,11 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(ErrFetchNotFound, err, "Expected not to find missing Identity")
 	suite.Nil(identity)
 
-	alice := testdatagen.MakeDefaultUser(suite.DB())
+	alice := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
+		User: User{
+			Active: true,
+		},
+	})
 	identity, err = FetchUserIdentity(suite.DB(), alice.LoginGovUUID.String())
 	suite.Nil(err, "loading alice's identity")
 	suite.NotNil(identity)

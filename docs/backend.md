@@ -31,7 +31,7 @@
 * [Environment settings](#environment-settings)
   * [Adding `ulimit`](#adding-ulimit)
 
-Regenerate with "scripts/generate-md-toc"
+Regenerate with "pre-commit run -a markdown-toc"
 
 <!-- tocstop -->
 

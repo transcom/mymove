@@ -7,8 +7,15 @@ const defaultSort = { field: 'code', order: 'DESC' };
 
 const AccessCodeFilter = props => (
   <Filter {...props} className={styles['system-admin-filters']}>
-    <TextInput label="Access Code" source="code" reference="access_codes" alwaysOn />
-    <SelectInput source="move_type" choices={[{ id: 'PPM', name: 'PPM' }, { id: 'HHG', name: 'HHG' }]} />
+    <TextInput
+      label="Access Code (don't include prefix)"
+      source="code"
+      reference="access_codes"
+      fullWidth
+      alwaysOn
+      resettable
+    />
+    <SelectInput source="move_type" choices={[{ id: 'PPM', name: 'PPM' }]} />
   </Filter>
 );
 

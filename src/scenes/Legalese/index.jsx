@@ -164,7 +164,4 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(SignedCertification);
+export default connect(mapStateToProps, mapDispatchToProps)(SignedCertification);

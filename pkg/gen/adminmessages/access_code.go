@@ -30,7 +30,7 @@ type AccessCode struct {
 	Locator string `json:"locator,omitempty"`
 
 	// Selected Move Type
-	// Enum: [HHG PPM]
+	// Enum: [PPM]
 	MoveType string `json:"move_type,omitempty"`
 }
 
@@ -69,7 +69,7 @@ var accessCodeTypeMoveTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["HHG","PPM"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PPM"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -78,9 +78,6 @@ func init() {
 }
 
 const (
-
-	// AccessCodeMoveTypeHHG captures enum value "HHG"
-	AccessCodeMoveTypeHHG string = "HHG"
 
 	// AccessCodeMoveTypePPM captures enum value "PPM"
 	AccessCodeMoveTypePPM string = "PPM"

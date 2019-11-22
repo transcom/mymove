@@ -19,6 +19,10 @@ import (
 // swagger:model MoveQueueItem
 type MoveQueueItem struct {
 
+	// branch of service
+	// Required: true
+	BranchOfService *string `json:"branch_of_service"`
+
 	// created at
 	// Required: true
 	// Format: date-time
@@ -111,6 +115,10 @@ type MoveQueueItem struct {
 func (m *MoveQueueItem) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateBranchOfService(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -174,6 +182,15 @@ func (m *MoveQueueItem) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MoveQueueItem) validateBranchOfService(formats strfmt.Registry) error {
+
+	if err := validate.Required("branch_of_service", "body", m.BranchOfService); err != nil {
+		return err
+	}
+
 	return nil
 }
 

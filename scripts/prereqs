@@ -55,3 +55,4 @@ check-bash-version
 check-go-version
 check-gopath
 check-node-version
+check-go-bindata-version

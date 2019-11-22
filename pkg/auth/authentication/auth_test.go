@@ -161,7 +161,7 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 	user := models.User{
 		LoginGovUUID:  loginGovUUID,
 		LoginGovEmail: "email@example.com",
-		Deactivated:   false,
+		Active:        true,
 	}
 	suite.MustSave(&user)
 
@@ -207,7 +207,7 @@ func (suite *AuthSuite) TestIsLoggedInWhenUserLoggedIn() {
 	user := models.User{
 		LoginGovUUID:  loginGovUUID,
 		LoginGovEmail: "email@example.com",
-		Deactivated:   false,
+		Active:        true,
 	}
 	suite.MustSave(&user)
 
@@ -255,7 +255,7 @@ func (suite *AuthSuite) TestRequireAdminAuthMiddleware() {
 	user := models.User{
 		LoginGovUUID:  loginGovUUID,
 		LoginGovEmail: "email@example.com",
-		Deactivated:   false,
+		Active:        true,
 	}
 	suite.MustSave(&user)
 
@@ -301,7 +301,7 @@ func (suite *AuthSuite) TestRequireAdminAuthMiddlewareUnauthorized() {
 
 func (suite *AuthSuite) TestAuthorizeDeactivateUser() {
 	userIdentity := models.UserIdentity{
-		Deactivated: true,
+		Active: false,
 	}
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", OfficeTestHost), nil)
@@ -334,7 +334,7 @@ func (suite *AuthSuite) TestAuthorizeDeactivateUser() {
 func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 	officeUserID := uuid.Must(uuid.NewV4())
 	userIdentity := models.UserIdentity{
-		Deactivated:  false,
+		Active:       true,
 		OfficeUserID: &officeUserID,
 	}
 
@@ -366,9 +366,9 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 }
 
 func (suite *AuthSuite) TestAuthorizeDeactivateOfficeUser() {
-	officeDeactivated := true
+	officeActive := false
 	userIdentity := models.UserIdentity{
-		OfficeDeactivated: &officeDeactivated,
+		OfficeActive: &officeActive,
 	}
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", OfficeTestHost), nil)
@@ -401,7 +401,7 @@ func (suite *AuthSuite) TestAuthorizeDeactivateOfficeUser() {
 func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 	officeUserID := uuid.Must(uuid.NewV4())
 	userIdentity := models.UserIdentity{
-		Deactivated:  false,
+		Active:       true,
 		OfficeUserID: &officeUserID,
 	}
 
@@ -462,7 +462,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 	var adminUserRole models.AdminRole = "SYSTEM_ADMIN"
 
 	userIdentity := models.UserIdentity{
-		Deactivated:   false,
+		Active:        true,
 		OfficeUserID:  &officeUserID,
 		AdminUserID:   &adminUserID,
 		AdminUserRole: &adminUserRole,
@@ -501,9 +501,9 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
 }
 
 func (suite *AuthSuite) TestAuthorizeDeactivateAdmin() {
-	adminUserDeactivated := true
+	adminUserActive := false
 	userIdentity := models.UserIdentity{
-		AdminUserDeactivated: &adminUserDeactivated,
+		AdminUserActive: &adminUserActive,
 	}
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", AdminTestHost), nil)
@@ -536,7 +536,7 @@ func (suite *AuthSuite) TestAuthorizeDeactivateAdmin() {
 func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeDeactivated() {
 	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
 		OfficeUser: models.OfficeUser{
-			Deactivated: true,
+			Active: false,
 		},
 	})
 
@@ -570,7 +570,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeDeactivated() {
 
 	authorizeUnknownUser(user, h, &session, rr, req.WithContext(ctx), "")
 
-	suite.Equal(http.StatusForbidden, rr.Code, "Office user is deactivated")
+	suite.Equal(http.StatusForbidden, rr.Code, "Office user is active")
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
@@ -609,7 +609,11 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			Active: true,
+		},
+	})
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback", OfficeTestHost), nil)
 	fakeToken := "some_token"
@@ -647,11 +651,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDeactivated() {
-	adminUser := testdatagen.MakeAdminUser(suite.DB(), testdatagen.Assertions{
-		AdminUser: models.AdminUser{
-			Deactivated: true,
-		},
-	})
+	adminUser := testdatagen.MakeDefaultAdminUser(suite.DB())
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", AdminTestHost), nil)
 	fakeToken := "some_token"
@@ -683,7 +683,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDeactivated() {
 
 	authorizeUnknownUser(user, h, &session, rr, req.WithContext(ctx), "")
 
-	suite.Equal(http.StatusForbidden, rr.Code, "Admin user is deactivated")
+	suite.Equal(http.StatusForbidden, rr.Code, "Admin user is active")
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserAdminNotFound() {
@@ -722,7 +722,11 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminNotFound() {
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
-	adminUser := testdatagen.MakeDefaultAdminUser(suite.DB())
+	adminUser := testdatagen.MakeAdminUser(suite.DB(), testdatagen.Assertions{
+		AdminUser: models.AdminUser{
+			Active: true,
+		},
+	})
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", AdminTestHost), nil)
 	fakeToken := "some_token"

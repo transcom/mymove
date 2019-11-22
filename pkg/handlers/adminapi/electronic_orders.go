@@ -45,7 +45,7 @@ func (h IndexElectronicOrdersHandler) Handle(params electronicorderop.IndexElect
 		return handlers.ResponseForError(logger, err)
 	}
 
-	totalElectronicOrdersCount, err := h.DB().Count(&models.ElectronicOrder{})
+	totalElectronicOrdersCount, err := h.ElectronicOrderListFetcher.FetchElectronicOrderCount(queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

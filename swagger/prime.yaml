@@ -1,0 +1,754 @@
+swagger: '2.0'
+info:
+  contact:
+    email: dp3@truss.works
+  description: The Prime API for move.mil
+  license:
+    name: MIT
+    url: 'https://opensource.org/licenses/MIT'
+  title: move.mil API
+  version: 0.0.1
+basePath: /prime/v1
+schemes:
+  - http
+paths:
+  /move-task-orders:
+    get:
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: since
+          type: integer
+          format: timestamp
+          description: Only return MTOs updated since this time
+      responses:
+        '200':
+          description: Successfully retrieved all move task orders
+          schema:
+            $ref: '#/definitions/MoveTaskOrders'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+      description: Gets all move orders
+      operationId: listMoveTaskOrders
+      summary: Gets all move orders
+  '/move-task-orders/{moveTaskOrderID}/prime-estimated-weight':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              primeEstimatedWeight:
+                type: integer
+      responses:
+        '200':
+          description: Successfully retrieved move task order
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '422':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+        - prime
+      description: Updates a move order's estimated weight by ID
+      operationId: updateMoveTaskOrderEstimatedWeight
+      summary: Updates a move order's estimated weight by ID
+  '/move-task-orders/{moveTaskOrderID}/post-counseling-info':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              scheduled-move-date:
+                type: string
+                format: date
+                example: '2018-04-26'
+              secondary-pickup-address:
+                $ref: '#/definitions/Address'
+              secondary-delivery-address:
+                $ref: '#/definitions/Address'
+              ppm-is-included:
+                type: boolean
+      responses:
+        '200':
+          description: Successfully updated move task order post counseling information
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '422':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+        - prime
+      description: Updates move task order's post counseling information
+      operationId: updateMoveTaskOrderPostCounselingInformation
+      summary: Updates move task order's post counseling information
+  '/move-task-orders/{moveTaskOrderID}/destination-address':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: destinationAddress
+          required: true
+          schema:
+            $ref: '#/definitions/Address'
+      responses:
+        '200':
+          description: Successfully updated move task order destination address
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '422':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+        - prime
+      description: Updates move task order's destination address
+      operationId: updateMoveTaskOrderDestinationAddress
+      summary: Updates move task order's destination address
+  '/move-task-orders/{moveTaskOrderID}/prime-actual-weight':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    patch:
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              actualWeight:
+                type: integer
+      responses:
+        '200':
+          description: Successfully retrieved move task order
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+        - prime
+      description: Updates a move order's actual weight by ID
+      operationId: updateMoveTaskOrderActualWeight
+      summary: Updates a move order's actual weight by ID
+  '/move-task-orders/{moveTaskOrderID}/customer':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved customer associated with move task order
+          schema:
+            $ref: '#/definitions/Customer'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '422':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+        - prime
+      description: Gets a the customer associated with a move task order ID
+      operationId: getMoveTaskOrderCustomer
+      summary: Gets a the customer associated with a move task order ID
+  '/move-task-orders/{moveTaskOrderID}/prime-entitlements':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      tags:
+        - moveTaskOrder
+        - prime
+      responses:
+        '200':
+          description: Successfully retrieved entitlements
+          schema:
+            $ref: '#/definitions/Entitlements'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      description: Gets entitlements
+      operationId: getPrimeEntitlements
+      summary: Gets entitlements for a move order by ID
+definitions:
+  Address:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      streetAddress1:
+        type: string
+        example: 123 Main Ave
+        title: Street address 1
+      streetAddress2:
+        type: string
+        example: Apartment 9000
+        x-nullable: true
+        title: Street address 2
+      streetAddress3:
+        type: string
+        example: Montmârtre
+        x-nullable: true
+        title: Address Line 3
+      city:
+        type: string
+        example: Anytown
+        title: City
+      state:
+        title: State
+        type: string
+        x-display-value:
+          AL: AL
+          AK: AK
+          AR: AR
+          AZ: AZ
+          CA: CA
+          CO: CO
+          CT: CT
+          DC: DC
+          DE: DE
+          FL: FL
+          GA: GA
+          HI: HI
+          IA: IA
+          ID: ID
+          IL: IL
+          IN: IN
+          KS: KS
+          KY: KY
+          LA: LA
+          MA: MA
+          MD: MD
+          ME: ME
+          MI: MI
+          MN: MN
+          MO: MO
+          MS: MS
+          MT: MT
+          NC: NC
+          ND: ND
+          NE: NE
+          NH: NH
+          NJ: NJ
+          NM: NM
+          NV: NV
+          NY: NY
+          OH: OH
+          OK: OK
+          OR: OR
+          PA: PA
+          RI: RI
+          SC: SC
+          SD: SD
+          TN: TN
+          TX: TX
+          UT: UT
+          VA: VA
+          VT: VT
+          WA: WA
+          WI: WI
+          WV: WV
+          WY: WY
+        enum:
+          - AL
+          - AK
+          - AR
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VA
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
+      postalCode:
+        type: string
+        format: zip
+        title: ZIP
+        example: '90210'
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+      country:
+        type: string
+        title: Country
+        x-nullable: true
+        example: 'USA'
+        default: USA
+    required:
+      - streetAddress1
+      - city
+      - state
+      - postalCode
+  ClientError:
+    type: object
+    properties:
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
+    required:
+      - title
+      - detail
+      - instance
+  Customer:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      first_name:
+        type: string
+        example: John
+        x-nullable: true
+        title: First Name
+      middle_name:
+        type: string
+        example: L.
+        x-nullable: true
+        title: Middle Name
+      last_name:
+        type: string
+        example: Donut
+        x-nullable: true
+        title: Last Name
+      suffix:
+        type: string
+        example: Jr.
+        x-nullable: true
+        title: Suffix
+      agency:
+        type: string
+        example: Some Agency
+        x-nullable: true
+        title: Agency
+      grade:
+        type: string
+        example: Some Grade
+        x-nullable: true
+        title: Grade
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: john_bob@example.com
+        x-nullable: true
+        title: Email Address
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+        title: Best Contact Phone
+      #TODO confirm that we actually want all items below repeated on response, since already on mto
+      originDutyStation:
+        type: string
+        example: Dover AFB
+        title: Origin
+        x-nullable: true
+      destinationDutyStation:
+        type: string
+        example: Dover AFB
+        title: Destination
+        x-nullable: true
+      pickup_address:
+        $ref: '#/definitions/Address'
+      destination_address:
+        $ref: '#/definitions/Address'
+        x-nullable: true
+      remarks:
+        example: Requires more gentle care
+        type: string
+      requestedPickupDate:
+        format: date
+        type: string
+  Entitlements:
+    properties:
+      id:
+        example: 571008b1-b0de-454d-b843-d71be9f02c04
+        format: uuid
+        type: string
+      dependentsAuthorized:
+        example: true
+        type: boolean
+      nonTemporaryStorage:
+        example: false
+        type: boolean
+        x-nullable: true
+      privatelyOwnedVehicle:
+        example: false
+        type: boolean
+        x-nullable: true
+      proGearWeight:
+        example: 2000
+        type: integer
+        x-formatting: weight
+      proGearWeightSpouse:
+        example: 500
+        type: integer
+        x-formatting: weight
+      storageInTransit:
+        example: 90
+        type: integer
+      totalDependents:
+        example: 2
+        type: integer
+      totalWeightSelf:
+        example: 18000
+        type: integer
+        x-formatting: weight
+    type: object
+  Error:
+    properties:
+      message:
+        type: string
+    required:
+      - message
+    type: object
+  MoveTaskOrder:
+    properties:
+      code:
+        example: USMC-0001
+        type: string
+      createdAt:
+        format: date
+        type: string
+      customerId:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      deletedAt:
+        format: date
+        type: string
+      destinationAddress:
+        $ref: '#/definitions/Address'
+      destinationDutyStation:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      destinationPPSO:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      entitlements:
+        $ref: '#/definitions/Entitlements'
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      moveDate:
+        format: date
+        type: string
+      moveID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      moveTaskOrdersType:
+        enum:
+          - NON_TEMPORARY_STORAGE
+          - PRIME
+        type: string
+      originDutyStation:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      originPPSO:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      primeActualWeight:
+        type: integer
+        example: 1000
+        x-formatting: weight
+        x-nullable: true
+      primeEstimatedWeight:
+        type: integer
+        example: 1000
+        x-formatting: weight
+        x-nullable: true
+      primeEstimatedWeightRecordedDate:
+        format: date
+        type: string
+        x-nullable: true
+      pickupAddress:
+        $ref: '#/definitions/Address'
+      remarks:
+        example: Requires more gentle care
+        type: string
+      requestedPickupDate:
+        format: date
+        type: string
+      status:
+        enum:
+          - APPROVED # This now is the status for made available to Prime (not previously used DRAFT)
+          - REJECTED
+          - DRAFT
+        type: string
+      updatedAt:
+        format: date
+        type: string
+      scheduled-move-date:
+        type: string
+        format: date
+        example: '2018-04-26'
+      secondary-pickup-address:
+        $ref: '#/definitions/Address'
+      secondary-delivery-address:
+        $ref: '#/definitions/Address'
+      ppm-is-included:
+        type: boolean
+    type: object
+  MoveTaskOrders:
+    items:
+      $ref: '#/definitions/MoveTaskOrder'
+    type: array
+  ValidationError:
+    allOf:
+      - $ref: '#/definitions/ClientError'
+      - type: object
+    properties:
+      invalid_fields:
+        type: object
+        additionalProperties:
+          type: string
+    required:
+      - invalid_fields
+responses:
+  InvalidRequest:
+    description: The request payload is invalid
+    schema:
+      $ref: '#/definitions/Error'
+  NotFound:
+    description: The requested resource wasn't found
+    schema:
+      $ref: '#/definitions/Error'
+  PermissionDenied:
+    description: The request was denied
+    schema:
+      $ref: '#/definitions/Error'
+  ServerError:
+    description: A server error occurred
+    schema:
+      $ref: '#/definitions/Error'

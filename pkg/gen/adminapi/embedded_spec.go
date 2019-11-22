@@ -411,10 +411,7 @@ func init() {
         "operationId": "indexOfficeUsers",
         "parameters": [
           {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
+            "type": "string",
             "name": "filter",
             "in": "query"
           },
@@ -490,17 +487,14 @@ func init() {
               "$ref": "#/definitions/OfficeUser"
             }
           },
-          "400": {
-            "description": "Invalid Request"
-          },
-          "401": {
-            "description": "Must be authenticated to use this end point"
-          },
-          "403": {
-            "description": "Not authorized to create an office user"
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
           },
           "500": {
-            "description": "Server error"
+            "description": "internal server error"
           }
         }
       }
@@ -881,7 +875,6 @@ func init() {
           "type": "string",
           "title": "Selected Move Type",
           "enum": [
-            "HHG",
             "PPM"
           ]
         }
@@ -1059,17 +1052,17 @@ func init() {
         "email",
         "user_id",
         "organization_id",
-        "deactivated",
+        "active",
         "created_at",
         "updated_at"
       ],
       "properties": {
+        "active": {
+          "type": "boolean"
+        },
         "created_at": {
           "type": "string",
           "format": "datetime"
-        },
-        "deactivated": {
-          "type": "boolean"
         },
         "email": {
           "type": "string",
@@ -1127,7 +1120,7 @@ func init() {
     "AdminUserUpdatePayload": {
       "type": "object",
       "properties": {
-        "deactivated": {
+        "active": {
           "type": "boolean"
         },
         "first_name": {
@@ -1144,6 +1137,26 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/AdminUser"
+      }
+    },
+    "ClientError": {
+      "type": "object",
+      "required": [
+        "title",
+        "detail",
+        "instance"
+      ],
+      "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string"
+        }
       }
     },
     "ElectronicOrder": {
@@ -1225,17 +1238,17 @@ func init() {
         "email",
         "telephone",
         "transportation_office_id",
-        "deactivated",
+        "active",
         "created_at",
         "updated_at"
       ],
       "properties": {
+        "active": {
+          "type": "boolean"
+        },
         "created_at": {
           "type": "string",
           "format": "datetime"
-        },
-        "deactivated": {
-          "type": "boolean"
         },
         "email": {
           "type": "string",
@@ -1309,7 +1322,7 @@ func init() {
     "OfficeUserUpdatePayload": {
       "type": "object",
       "properties": {
-        "deactivated": {
+        "active": {
           "type": "boolean"
         },
         "first_name": {
@@ -1620,6 +1633,27 @@ func init() {
         },
         "upload": {
           "$ref": "#/definitions/Upload"
+        }
+      }
+    },
+    "ValidationError": {
+      "required": [
+        "invalid_fields"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/ClientError"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "properties": {
+        "invalid_fields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       }
     }
@@ -2019,10 +2053,7 @@ func init() {
         "operationId": "indexOfficeUsers",
         "parameters": [
           {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
+            "type": "string",
             "name": "filter",
             "in": "query"
           },
@@ -2098,17 +2129,14 @@ func init() {
               "$ref": "#/definitions/OfficeUser"
             }
           },
-          "400": {
-            "description": "Invalid Request"
-          },
-          "401": {
-            "description": "Must be authenticated to use this end point"
-          },
-          "403": {
-            "description": "Not authorized to create an office user"
+          "422": {
+            "description": "validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
           },
           "500": {
-            "description": "Server error"
+            "description": "internal server error"
           }
         }
       }
@@ -2489,7 +2517,6 @@ func init() {
           "type": "string",
           "title": "Selected Move Type",
           "enum": [
-            "HHG",
             "PPM"
           ]
         }
@@ -2667,17 +2694,17 @@ func init() {
         "email",
         "user_id",
         "organization_id",
-        "deactivated",
+        "active",
         "created_at",
         "updated_at"
       ],
       "properties": {
+        "active": {
+          "type": "boolean"
+        },
         "created_at": {
           "type": "string",
           "format": "datetime"
-        },
-        "deactivated": {
-          "type": "boolean"
         },
         "email": {
           "type": "string",
@@ -2735,7 +2762,7 @@ func init() {
     "AdminUserUpdatePayload": {
       "type": "object",
       "properties": {
-        "deactivated": {
+        "active": {
           "type": "boolean"
         },
         "first_name": {
@@ -2752,6 +2779,26 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/AdminUser"
+      }
+    },
+    "ClientError": {
+      "type": "object",
+      "required": [
+        "title",
+        "detail",
+        "instance"
+      ],
+      "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "instance": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string"
+        }
       }
     },
     "ElectronicOrder": {
@@ -2834,17 +2881,17 @@ func init() {
         "email",
         "telephone",
         "transportation_office_id",
-        "deactivated",
+        "active",
         "created_at",
         "updated_at"
       ],
       "properties": {
+        "active": {
+          "type": "boolean"
+        },
         "created_at": {
           "type": "string",
           "format": "datetime"
-        },
-        "deactivated": {
-          "type": "boolean"
         },
         "email": {
           "type": "string",
@@ -2918,7 +2965,7 @@ func init() {
     "OfficeUserUpdatePayload": {
       "type": "object",
       "properties": {
-        "deactivated": {
+        "active": {
           "type": "boolean"
         },
         "first_name": {
@@ -3229,6 +3276,27 @@ func init() {
         },
         "upload": {
           "$ref": "#/definitions/Upload"
+        }
+      }
+    },
+    "ValidationError": {
+      "required": [
+        "invalid_fields"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/ClientError"
+        },
+        {
+          "type": "object"
+        }
+      ],
+      "properties": {
+        "invalid_fields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       }
     }

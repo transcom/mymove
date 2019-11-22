@@ -1,6 +1,7 @@
 package adminapi
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -24,7 +25,7 @@ func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 		Telephone:              handlers.FmtString(o.Telephone),
 		Email:                  handlers.FmtString(o.Email),
 		TransportationOfficeID: handlers.FmtUUID(o.TransportationOfficeID),
-		Deactivated:            handlers.FmtBool(o.Deactivated),
+		Active:                 handlers.FmtBool(o.Active),
 		CreatedAt:              handlers.FmtDateTime(o.CreatedAt),
 		UpdatedAt:              handlers.FmtDateTime(o.UpdatedAt),
 	}
@@ -42,7 +43,7 @@ type IndexOfficeUsersHandler struct {
 func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
-	queryFilters := []services.QueryFilter{}
+	queryFilters := h.generateQueryFilters(params.Filter, logger)
 
 	pagination := h.NewPagination(params.Page, params.PerPage)
 	associations := query.NewQueryAssociations([]services.QueryAssociation{})
@@ -53,7 +54,7 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 		return handlers.ResponseForError(logger, err)
 	}
 
-	totalOfficeUsersCount, err := h.DB().Count(&models.OfficeUser{})
+	totalOfficeUsersCount, err := h.OfficeUserListFetcher.FetchOfficeUserCount(queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -113,6 +114,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 		Telephone:              payload.Telephone,
 		Email:                  payload.Email,
 		TransportationOfficeID: transportationOfficeID,
+		Active:                 true,
 	}
 
 	transportationIDFilter := []services.QueryFilter{
@@ -120,8 +122,20 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 	}
 
 	createdOfficeUser, verrs, err := h.OfficeUserCreator.CreateOfficeUser(&officeUser, transportationIDFilter)
-	if err != nil || verrs != nil {
-		logger.Error("Error saving user", zap.Error(verrs))
+	if verrs != nil {
+		payload := &adminmessages.ValidationError{
+			InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors,
+		}
+
+		payload.Title = handlers.FmtString(handlers.ValidationErrMessage)
+		payload.Detail = handlers.FmtString("The information you provided is invalid.")
+		payload.Instance = handlers.FmtUUID(h.GetTraceID())
+
+		return officeuserop.NewCreateOfficeUserUnprocessableEntity().WithPayload(payload)
+	}
+
+	if err != nil {
+		logger.Error("Error saving user", zap.Error(err))
 		return officeuserop.NewCreateOfficeUserInternalServerError()
 	}
 
@@ -151,7 +165,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 		LastName:       payload.LastName,
 		FirstName:      payload.FirstName,
 		Telephone:      payload.Telephone,
-		Deactivated:    payload.Deactivated,
+		Active:         payload.Active,
 	}
 
 	updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(&officeUser)
@@ -166,4 +180,31 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 	returnPayload := payloadForOfficeUserModel(*updatedOfficeUser)
 
 	return officeuserop.NewUpdateOfficeUserOK().WithPayload(returnPayload)
+}
+
+// generateQueryFilters is helper to convert filter params from a json string
+// of the form `{"search": "example1@example.com"}` to an array of services.QueryFilter
+func (h IndexOfficeUsersHandler) generateQueryFilters(filters *string, logger handlers.Logger) []services.QueryFilter {
+	type Filter struct {
+		Search string `json:"search"`
+	}
+	f := Filter{}
+	var queryFilters []services.QueryFilter
+	if filters == nil {
+		return queryFilters
+	}
+	b := []byte(*filters)
+	err := json.Unmarshal(b, &f)
+	if err != nil {
+		fs := fmt.Sprintf("%v", filters)
+		logger.Warn("unable to decode param", zap.Error(err),
+			zap.String("filters", fs))
+	}
+	if f.Search != "" {
+		nameSearch := fmt.Sprintf("%s%%", f.Search)
+		queryFilters = append(queryFilters, query.NewQueryFilter("email", "ILIKE", fmt.Sprintf("%%%s%%", f.Search)))
+		queryFilters = append(queryFilters, query.NewQueryFilter("first_name", "ILIKE", nameSearch))
+		queryFilters = append(queryFilters, query.NewQueryFilter("last_name", "ILIKE", nameSearch))
+	}
+	return queryFilters
 }

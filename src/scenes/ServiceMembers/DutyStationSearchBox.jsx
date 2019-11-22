@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { debounce, get } from 'lodash';
-import AsyncSelect from 'react-select/lib/Async';
+import AsyncSelect from 'react-select/async';
 import Alert from 'shared/Alert';
 import { components } from 'react-select';
 import Highlighter from 'react-highlight-words';

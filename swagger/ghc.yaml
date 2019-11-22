@@ -552,32 +552,32 @@ paths:
         - application/json
       parameters: []
       tags:
-        - Entitlements
+        - moveTaskOrder
       responses:
         '200':
-          description: Successfully retrieved move task order
+          description: Successfully retrieved entitlements
           schema:
             $ref: '#/definitions/Entitlements'
         '400':
           description: The request payload is invalid
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/InvalidRequest'
         '401':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '403':
           description: The request was denied
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/PermissionDenied'
         '404':
           description: The requested resource wasn't found
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/NotFound'
         '500':
           description: A server error occurred
           schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/responses/ServerError'
       description: Gets entitlements
       operationId: getEntitlements
       summary: Gets entitlements for a move order by ID
@@ -969,6 +969,10 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      reference_id:
+        type: string
+        x-nullable: true
+        example: 1234-5678
       customer_id:
         type: string
         format: uuid
@@ -1156,10 +1160,9 @@ definitions:
         type: array
       status:
         enum:
-          - DRAFT  #TODO this is to represent visible to PRIME not sure if this is the right name for this?
           - APPROVED
           - REJECTED
-          - SUBMITTED
+          - DRAFT
         type: string
       updatedAt:
         format: date
@@ -1171,7 +1174,6 @@ definitions:
         enum:
           - APPROVED
           - DRAFT
-          - SUBMITTED
           - REJECTED
         type: string
     type: object

@@ -14,7 +14,13 @@ const AdminUserEdit = props => (
       <DisabledInput source="email" />
       <TextInput source="first_name" validate={required()} />
       <TextInput source="last_name" validate={required()} />
-      <SelectInput source="deactivated" choices={[{ id: true, name: 'Yes' }, { id: false, name: 'No' }]} />
+      <SelectInput
+        source="active"
+        choices={[
+          { id: true, name: 'Yes' },
+          { id: false, name: 'No' },
+        ]}
+      />
       <DisabledInput source="created_at" />
       <DisabledInput source="updated_at" />
     </SimpleForm>

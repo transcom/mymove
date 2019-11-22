@@ -8,6 +8,9 @@ import { ConnectedRouter, push, goBack } from 'react-router-redux';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
+import 'uswds';
+import '../../../node_modules/uswds/dist/css/uswds.css';
+
 import Alert from 'shared/Alert';
 import InfectedUpload from 'shared/Uploader/InfectedUpload';
 import ProcessingUpload from 'shared/Uploader/ProcessingUpload';
@@ -62,11 +65,13 @@ export class AppWrapper extends Component {
 
   noMatch = () => (
     <div className="usa-grid">
-      <h2>Page not found</h2>
-      <p>Looks like you've followed a broken link or entered a URL that doesn't exist on this site.</p>
-      <button className="usa-button" onClick={this.props.goBack}>
-        Go Back
-      </button>
+      <div className="grid-container usa-prose">
+        <h2>Page not found</h2>
+        <p>Looks like you've followed a broken link or entered a URL that doesn't exist on this site.</p>
+        <button className="usa-button" onClick={this.props.goBack}>
+          Go Back
+        </button>
+      </div>
     </div>
   );
 
@@ -168,7 +173,4 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch =>
   bindActionCreators({ goBack, push, loadInternalSchema, getCurrentUserInfo }, dispatch);
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(AppWrapper);
+export default connect(mapStateToProps, mapDispatchToProps)(AppWrapper);

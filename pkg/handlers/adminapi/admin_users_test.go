@@ -77,6 +77,9 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(models.AdminUsers{adminUser}, nil).Once()
+		adminUserListFetcher.On("FetchAdminUserCount",
+			mock.Anything,
+		).Return(1, nil).Once()
 		handler := IndexAdminUsersHandler{
 			HandlerContext:       handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:       newQueryFilter,
@@ -104,6 +107,9 @@ func (suite *HandlerSuite) TestIndexAdminUsersHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, expectedError).Once()
+		adminUserListFetcher.On("FetchAdminUserCount",
+			mock.Anything,
+		).Return(0, expectedError).Once()
 		handler := IndexAdminUsersHandler{
 			HandlerContext:       handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:       newQueryFilter,
@@ -212,7 +218,13 @@ func (suite *HandlerSuite) TestGetAdminUserHandler() {
 func (suite *HandlerSuite) TestCreateAdminUserHandler() {
 	organizationID, _ := uuid.NewV4()
 	adminUserID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
-	adminUser := models.AdminUser{ID: adminUserID, OrganizationID: &organizationID, UserID: nil, Role: models.SystemAdminRole}
+	adminUser := models.AdminUser{
+		ID:             adminUserID,
+		OrganizationID: &organizationID,
+		UserID:         nil,
+		Role:           models.SystemAdminRole,
+		Active:         true,
+	}
 	queryFilter := mocks.QueryFilter{}
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 

@@ -377,13 +377,13 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Entitlements"
+          "moveTaskOrder"
         ],
         "summary": "Gets entitlements for a move order by ID",
         "operationId": "getEntitlements",
         "responses": {
           "200": {
-            "description": "Successfully retrieved move task order",
+            "description": "Successfully retrieved entitlements",
             "schema": {
               "$ref": "#/definitions/Entitlements"
             }
@@ -391,31 +391,31 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/responses/InvalidRequest"
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/responses/PermissionDenied"
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/responses/PermissionDenied"
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/responses/NotFound"
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/responses/ServerError"
             }
           }
         }
@@ -1473,6 +1473,11 @@ func init() {
           "title": "Origin Duty Station Name",
           "x-nullable": true,
           "example": "Fort Knox"
+        },
+        "reference_id": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "1234-5678"
         }
       }
     },
@@ -1627,10 +1632,9 @@ func init() {
         "status": {
           "type": "string",
           "enum": [
-            "DRAFT",
             "APPROVED",
             "REJECTED",
-            "SUBMITTED"
+            "DRAFT"
           ]
         },
         "updatedAt": {
@@ -1647,7 +1651,6 @@ func init() {
           "enum": [
             "APPROVED",
             "DRAFT",
-            "SUBMITTED",
             "REJECTED"
           ]
         }
@@ -2366,13 +2369,13 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Entitlements"
+          "moveTaskOrder"
         ],
         "summary": "Gets entitlements for a move order by ID",
         "operationId": "getEntitlements",
         "responses": {
           "200": {
-            "description": "Successfully retrieved move task order",
+            "description": "Successfully retrieved entitlements",
             "schema": {
               "$ref": "#/definitions/Entitlements"
             }
@@ -2380,31 +2383,46 @@ func init() {
           "400": {
             "description": "The request payload is invalid",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
             }
           },
           "401": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
             }
           },
           "403": {
             "description": "The request was denied",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
             }
           },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
             }
           },
           "500": {
             "description": "A server error occurred",
             "schema": {
-              "$ref": "#/definitions/Error"
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
             }
           }
         }
@@ -3627,6 +3645,11 @@ func init() {
           "title": "Origin Duty Station Name",
           "x-nullable": true,
           "example": "Fort Knox"
+        },
+        "reference_id": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "1234-5678"
         }
       }
     },
@@ -3781,10 +3804,9 @@ func init() {
         "status": {
           "type": "string",
           "enum": [
-            "DRAFT",
             "APPROVED",
             "REJECTED",
-            "SUBMITTED"
+            "DRAFT"
           ]
         },
         "updatedAt": {
@@ -3801,7 +3823,6 @@ func init() {
           "enum": [
             "APPROVED",
             "DRAFT",
-            "SUBMITTED",
             "REJECTED"
           ]
         }

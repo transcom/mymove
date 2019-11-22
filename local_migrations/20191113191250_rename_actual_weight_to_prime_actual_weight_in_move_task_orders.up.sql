@@ -1,0 +1,1 @@
+ALTER TABLE move_task_orders RENAME COLUMN actual_weight to prime_actual_weight;
