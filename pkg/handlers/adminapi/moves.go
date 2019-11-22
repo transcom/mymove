@@ -78,8 +78,7 @@ func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Res
 // of the form `{"move_type": "PPM" "code": "XYZBCS"}` to an array of services.QueryFilter
 func (h IndexMovesHandler) generateQueryFilters(filters *string, logger handlers.Logger) []services.QueryFilter {
 	type Filter struct {
-		ServiceMemberID string `json:"service_member_id"`
-		Locator         string `json:"locator"`
+		Locator string `json:"locator"`
 	}
 	f := Filter{}
 	var queryFilters []services.QueryFilter
@@ -95,9 +94,6 @@ func (h IndexMovesHandler) generateQueryFilters(filters *string, logger handlers
 	}
 	if f.Locator != "" {
 		queryFilters = append(queryFilters, query.NewQueryFilter("locator", "=", f.Locator))
-	}
-	if f.ServiceMemberID != "" {
-		queryFilters = append(queryFilters, query.NewQueryFilter("service_member_id", "=", f.ServiceMemberID))
 	}
 
 	return queryFilters
