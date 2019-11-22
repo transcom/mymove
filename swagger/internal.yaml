@@ -2398,6 +2398,9 @@ paths:
   /estimates/ppm:
     get:
       summary: Return a PPM cost estimate
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Calculates a reimbursement range for a PPM move (excluding SIT)
       operationId: showPPMEstimate
       tags:
@@ -2450,6 +2453,9 @@ paths:
   /estimates/ppm_sit:
     get:
       summary: Return a PPM move's SIT cost estimate
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Calculates a reimbursment for a PPM move's SIT
       operationId: showPPMSitEstimate
       tags:
@@ -2496,6 +2502,9 @@ paths:
   /users/logged_in:
     get:
       summary: Returns the user info for the currently logged in user
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Returns the user info for the currently logged in user
       operationId: showLoggedInUser
       tags:
@@ -2514,6 +2523,9 @@ paths:
   /users/is_logged_in:
     get:
       summary: Returns boolean as to whether the user is logged in
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Returns boolean as to whether the user is logged in
       operationId: isLoggedInUser
       tags:
@@ -2530,6 +2542,9 @@ paths:
   /orders:
     post:
       summary: Creates an orders model for a logged-in user
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Creates an instance of orders tied to a service member
       operationId: createOrders
       tags:
@@ -2556,6 +2571,9 @@ paths:
   /orders/{ordersId}:
     put:
       summary: Updates orders
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: All fields sent in this request will be set on the orders referenced
       operationId: updateOrders
       tags:
@@ -2589,6 +2607,9 @@ paths:
           description: internal server error
     get:
       summary: Returns the given order
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Returns the given order
       operationId: showOrders
       tags:
@@ -2618,6 +2639,9 @@ paths:
   /moves/{moveId}:
     patch:
       summary: Patches the move
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Any fields sent in this request will be set on the move referenced
       operationId: patchMove
       tags:
@@ -2651,6 +2675,9 @@ paths:
           description: internal server error
     get:
       summary: Returns the given move
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Returns the given move
       operationId: showMove
       tags:
@@ -2680,6 +2707,9 @@ paths:
   /moves/{moveId}/signed_certifications:
     post:
       summary: Submits signed certification for the given move ID
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Create an instance of signed_certification tied to the move ID
       operationId: createSignedCertification
       tags:
@@ -2713,6 +2743,9 @@ paths:
           description: internal server error
     get:
       summary: gets the signed certifications for the given move ID
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: returns a list of all signed_certifications associated with the move ID
       operationId: indexSignedCertification
       tags:
@@ -2741,6 +2774,9 @@ paths:
   /moves/{moveId}/personally_procured_move:
     post:
       summary: Creates a new PPM for the given move
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Create an instance of personally_procured_move tied to the move ID
       operationId: createPersonallyProcuredMove
       tags:
@@ -2774,6 +2810,9 @@ paths:
           description: server error
     get:
       summary: Returns a list of all PPMs associated with this move
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Returns a list of all PPMs associated with this move
       operationId: indexPersonallyProcuredMoves
       tags:
@@ -2799,6 +2838,9 @@ paths:
   /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}/estimate:
     patch:
       summary: Calculates the estimated incentive of a PPM
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: This request calculates the estimated incentive of a PPM and attaches this range to the PPM
       operationId: updatePersonallyProcuredMoveEstimate
       tags:
@@ -2836,6 +2878,9 @@ paths:
   /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}:
     put:
       summary: Updates the PPM
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: This replaces the current version of the PPM with the version sent.
       operationId: updatePersonallyProcuredMove
       tags:
@@ -2873,6 +2918,9 @@ paths:
           description: internal server error
     patch:
       summary: Patches the PPM
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Any fields sent in this request will be set on the PPM referenced
       operationId: patchPersonallyProcuredMove
       tags:
@@ -2914,6 +2962,9 @@ paths:
           description: internal server error
     get:
       summary: Returns the given PPM
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Returns the given PPM
       operationId: showPersonallyProcuredMove
       tags:
@@ -2945,6 +2996,9 @@ paths:
   /personally_procured_move/{personallyProcuredMoveId}/submit:
     post:
       summary: Submits a PPM for approval
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Submits a PPM for approval by the office. The status of the PPM will be updated to SUBMITTED
       operationId: submitPersonallyProcuredMove
       tags:
@@ -2979,6 +3033,9 @@ paths:
   /personally_procured_move/{personallyProcuredMoveId}/expense_summary:
     get:
       summary: Returns an expense summary organized by expense type
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Calculates and returns an expense summary organized by expense type
       operationId: requestPPMExpenseSummary
       tags:
@@ -3008,6 +3065,9 @@ paths:
   /personally_procured_move/{personallyProcuredMoveId}/request_payment:
     post:
       summary: Moves the PPM and the move into the PAYMENT_REQUESTED state
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Moves the PPM and the move into the PAYMENT_REQUESTED state
       operationId: requestPPMPayment
       tags:
@@ -3037,6 +3097,9 @@ paths:
   /reimbursement/{reimbursementId}/approve:
     post:
       summary: Approves the reimbursement
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Sets the status of the reimbursement to APPROVED.
       operationId: approveReimbursement
       tags:
@@ -3064,6 +3127,9 @@ paths:
   /moves/{moveId}/orders:
     get:
       summary: Returns orders information for a move for office use
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Returns orders information for a move for office use
       operationId: showOfficeOrders
       tags:
@@ -3093,6 +3159,9 @@ paths:
   /moves/{moveId}/move_documents:
     get:
       summary: Returns a list of all Move Documents associated with this move
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Returns a list of all Move Documents associated with this move
       operationId: indexMoveDocuments
       tags:
@@ -3117,6 +3186,9 @@ paths:
           description: user is not authorized
     post:
       summary: Creates a move document
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Created a move document with the given information
       operationId: createGenericMoveDocument
       tags:
@@ -3149,6 +3221,9 @@ paths:
   /move_documents/{moveDocumentId}:
     put:
       summary: Updates a move document
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Update a move document with the given information
       operationId: updateMoveDocument
       tags:
@@ -3182,6 +3257,9 @@ paths:
           description: internal server error
     delete:
       summary: Deletes a move document
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Deletes a move document with the given information
       operationId: deleteMoveDocument
       tags:
@@ -3209,6 +3287,9 @@ paths:
   /moves/{moveId}/moving_expense_documents:
     post:
       summary: Creates a moving expense document
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Created a moving expense document with the given information
       operationId: createMovingExpenseDocument
       tags:
@@ -3241,6 +3322,9 @@ paths:
   /moves/{moveId}/approve:
     post:
       summary: Approves a move to proceed
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Approves the basic details of a move. The status of the move will be updated to APPROVED
       operationId: approveMove
       tags:
@@ -3272,6 +3356,9 @@ paths:
   /moves/{moveId}/submit:
     post:
       summary: Submits a move for approval
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Submits a move for approval by the office. The status of the move will be updated to SUBMITTED
       operationId: submitMoveForApproval
       tags:
@@ -3308,6 +3395,9 @@ paths:
   /moves/{moveId}/cancel:
     post:
       summary: Cancels a move
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Cancels the basic details of a move. The status of the move will be updated to CANCELED
       operationId: cancelMove
       tags:
@@ -3344,6 +3434,9 @@ paths:
   /moves/{moveId}/move_dates_summary:
     get:
       summary: Returns projected move-related dates for a given move date
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Returns projected move-related dates for a given move date
       operationId: showMoveDatesSummary
       tags:
@@ -3377,6 +3470,9 @@ paths:
   /moves/{moveId}/shipment_summary_worksheet:
     get:
       summary: Returns Shipment Summary Worksheet
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Generates pre-filled PDF using data already collected
       operationId: showShipmentSummaryWorksheet
       tags:
@@ -3417,6 +3513,9 @@ paths:
   /personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments:
     post:
       summary: Creates PPM attachments PDF
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Creates a PPM attachments PDF
       operationId: createPPMAttachments
       tags:
@@ -3459,6 +3558,9 @@ paths:
   /personally_procured_moves/{personallyProcuredMoveId}/approve:
     post:
       summary: Approves the PPM
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Sets the status of the PPM to APPROVED.
       operationId: approvePPM
       tags:
@@ -3491,6 +3593,9 @@ paths:
   /personally_procured_moves/incentive:
     get:
       summary: Return a PPM incentive value
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Calculates incentive for a PPM move (excluding SIT)
       operationId: showPPMIncentive
       tags:
@@ -3539,6 +3644,9 @@ paths:
   /documents:
     post:
       summary: Create a new document
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Documents represent a physical artifact such as a scanned document or a PDF file
       operationId: createDocument
       tags:
@@ -3561,6 +3669,9 @@ paths:
   /documents/{documentId}:
     get:
       summary: Returns a document
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Returns a document and its uploads
       operationId: showDocument
       tags:
@@ -3590,6 +3701,9 @@ paths:
   /uploads/{uploadId}:
     delete:
       summary: Deletes an upload
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Uploads represent a single digital file, such as a JPEG or PDF.
       operationId: deleteUpload
       tags:
@@ -3617,6 +3731,9 @@ paths:
   /uploads:
     post:
       summary: Create a new upload
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Uploads represent a single digital file, such as a JPEG or PDF.
       operationId: createUpload
       tags:
@@ -3654,6 +3771,9 @@ paths:
           description: server error
     delete:
       summary: Deletes a collection of uploads
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Uploads represent a single digital file, such as a JPEG or PDF.
       operationId: deleteUploads
       tags:
@@ -3683,6 +3803,9 @@ paths:
   /service_members:
     post:
       summary: Creates service member for a logged-in user
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Creates an instance of a service member tied to a user
       operationId: createServiceMember
       tags:
@@ -3711,6 +3834,9 @@ paths:
   /service_members/{serviceMemberId}:
     get:
       summary: Returns the given service member
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Returns the given service member
       operationId: showServiceMember
       tags:
@@ -3739,6 +3865,9 @@ paths:
           description: internal server error
     patch:
       summary: Patches the service member
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Any fields sent in this request will be set on the service member referenced
       operationId: patchServiceMember
       tags:
@@ -3773,6 +3902,9 @@ paths:
   /service_members/{serviceMemberId}/current_orders:
     get:
       summary: Returns the latest orders for a given service member
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Returns orders
       operationId: showServiceMemberOrders
       tags:
@@ -3802,6 +3934,9 @@ paths:
   /service_members/{serviceMemberId}/backup_contacts:
     post:
       summary: Submits backup contact for a logged-in user
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Creates an instance of a backup contact tied to a service member user
       operationId: createServiceMemberBackupContact
       tags:
@@ -3835,6 +3970,9 @@ paths:
           description: internal server error
     get:
       summary: List all service member backup contacts
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: List all service member backup contacts
       operationId: indexServiceMemberBackupContacts
       tags:
@@ -3864,6 +4002,9 @@ paths:
   /backup_contacts/{backupContactId}:
     get:
       summary: Returns the given service member backup contact
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Returns the given service member backup contact
       operationId: showServiceMemberBackupContact
       tags:
@@ -3892,6 +4033,9 @@ paths:
           description: internal server error
     put:
       summary: Updates a service member backup contact
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Any fields sent in this request will be set on the backup contact referenced
       operationId: updateServiceMemberBackupContact
       tags:
@@ -3926,6 +4070,9 @@ paths:
   /duty_stations:
     get:
       summary: Returns the duty stations matching the search query
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Returns the duty stations matching the search query
       operationId: searchDutyStations
       tags:
@@ -3954,6 +4101,9 @@ paths:
   /duty_stations/{dutyStationId}/transportation_office:
     get:
       summary: Returns the transportation office for a given duty station
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Returns the given duty station's transportation office
       operationId: showDutyStationTransportationOffice
       tags:
@@ -3983,6 +4133,9 @@ paths:
   /queues/{queueType}:
     get:
       summary: Show all moves in a queue
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Show all moves in a queue
       operationId: showQueue
       tags:
@@ -4017,6 +4170,9 @@ paths:
   /entitlements:
     get:
       summary: List weight weights allotted by entitlement
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: List weight weights allotted by entitlement
       operationId: indexEntitlements
       tags:
@@ -4029,6 +4185,9 @@ paths:
   /entitlements/{moveId}:
     get:
       summary: Validates that the stored weight estimate is below the allotted entitlement range for a service member
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Determine whether weight estimate is below entitlement
       operationId: validateEntitlement
       tags:
@@ -4050,6 +4209,9 @@ paths:
   /calendar/available_move_dates:
     get:
       summary: Returns available dates for the move calendar
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Returns available dates for the move calendar
       operationId: showAvailableMoveDates
       tags:
@@ -4077,6 +4239,9 @@ paths:
   /dps_auth/cookie_url:
     post:
       summary: Returns the URL to redirect to that begins DPS auth
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Returns the URL to redirect to that begins DPS auth
       operationId: getCookieURL
       tags:
@@ -4106,6 +4271,9 @@ paths:
   /moves/{moveId}/weight_ticket:
     post:
       summary: Creates a weight ticket document
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Created a weight ticket document with the given information
       operationId: createWeightTicketDocument
       tags:
@@ -4138,6 +4306,9 @@ paths:
   /rate_engine_postal_codes/{postal_code}:
     get:
       summary: Validate if a zipcode is valid for origin or destination location for a move.
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Verifies if a zipcode is valid for origin or destination location for a move.
       operationId: validatePostalCodeWithRateData
       tags:
@@ -4172,6 +4343,9 @@ paths:
   /access_codes:
     get:
       summary: Fetches an access code
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Fetches the access code for a service member.
       operationId: fetchAccessCode
       tags:
@@ -4192,6 +4366,9 @@ paths:
   /access_codes/valid:
     get:
       summary: Validate if an access code has been unused and associated with the correct move type.
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Verifies if access code is both unused and correctly associated with a move type.
       operationId: validateAccessCode
       tags:
@@ -4219,6 +4396,9 @@ paths:
   /access_codes/invalid:
     patch:
       summary: Updates access code as invalid by associating it with the current service member.
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Updates access code as invalid by associating it with the current service member.
       operationId: claimAccessCode
       tags:
@@ -4251,6 +4431,9 @@ paths:
   /addresses/{addressId}:
     get:
       summary: Returns an address
+      x-swagger-roles:
+        - office
+        - contractingOfficer
       description: Returns an address
       operationId: showAddress
       tags:

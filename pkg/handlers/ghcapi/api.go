@@ -2,7 +2,6 @@ package ghcapi
 
 import (
 	"log"
-	"net/http"
 
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 
@@ -15,8 +14,8 @@ import (
 	serviceitem "github.com/transcom/mymove/pkg/services/service_item"
 )
 
-// NewGhcAPIHandler returns a handler for the GHC API
-func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
+// NewGhcAPI returns GHC API
+func NewGhcAPI(context handlers.HandlerContext) *ghcops.MymoveAPI {
 
 	ghcSpec, err := loads.Analyzed(ghcapi.SwaggerJSON, "")
 	if err != nil {
@@ -44,5 +43,5 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 	}
 
 	ghcAPI.CustomerGetAllCustomerMovesHandler = GetAllCustomerMovesHandler{context}
-	return ghcAPI.Serve(nil)
+	return ghcAPI
 }

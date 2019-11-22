@@ -84,7 +84,13 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       }
     },
     "/customer/{customerID}": {
@@ -135,7 +141,13 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       },
       "parameters": [
         {
@@ -196,7 +208,13 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       }
     },
     "/move-task-orders/{moveTaskOrderID}": {
@@ -247,7 +265,13 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       },
       "delete": {
         "description": "Deletes a move order by ID",
@@ -296,7 +320,13 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       },
       "patch": {
         "description": "Updates a move order by ID",
@@ -358,7 +388,13 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       },
       "parameters": [
         {
@@ -478,7 +514,13 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       },
       "delete": {
         "description": "Deletes a line item by ID for a move order by ID",
@@ -527,7 +569,13 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       },
       "patch": {
         "description": "Updates a service item by ID for a move order by ID",
@@ -589,7 +637,13 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       },
       "parameters": [
         {
@@ -669,7 +723,13 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       },
       "parameters": [
         {
@@ -756,7 +816,13 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       }
     },
     "/move_task_orders/{moveTaskOrderID}/service_items": {
@@ -807,7 +873,13 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       },
       "post": {
         "description": "Creates a service item for a move order by id",
@@ -859,7 +931,13 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       },
       "parameters": [
         {
@@ -1036,7 +1114,13 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       },
       "patch": {
         "description": "Updates a payment request by id",
@@ -1099,7 +1183,13 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       },
       "parameters": [
         {
@@ -1182,7 +1272,13 @@ func init() {
               "$ref": "#/responses/ServerError"
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       }
     }
   },
@@ -2001,7 +2097,13 @@ func init() {
               }
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       }
     },
     "/customer/{customerID}": {
@@ -2067,7 +2169,13 @@ func init() {
               }
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       },
       "parameters": [
         {
@@ -2143,7 +2251,13 @@ func init() {
               }
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       }
     },
     "/move-task-orders/{moveTaskOrderID}": {
@@ -2209,7 +2323,13 @@ func init() {
               }
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       },
       "delete": {
         "description": "Deletes a move order by ID",
@@ -2273,7 +2393,13 @@ func init() {
               }
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       },
       "patch": {
         "description": "Updates a move order by ID",
@@ -2350,7 +2476,13 @@ func init() {
               }
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       },
       "parameters": [
         {
@@ -2500,7 +2632,13 @@ func init() {
               }
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       },
       "delete": {
         "description": "Deletes a line item by ID for a move order by ID",
@@ -2564,7 +2702,13 @@ func init() {
               }
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       },
       "patch": {
         "description": "Updates a service item by ID for a move order by ID",
@@ -2641,7 +2785,13 @@ func init() {
               }
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       },
       "parameters": [
         {
@@ -2736,7 +2886,13 @@ func init() {
               }
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       },
       "parameters": [
         {
@@ -2838,7 +2994,13 @@ func init() {
               }
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       }
     },
     "/move_task_orders/{moveTaskOrderID}/service_items": {
@@ -2904,7 +3066,13 @@ func init() {
               }
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       },
       "post": {
         "description": "Creates a service item for a move order by id",
@@ -2971,7 +3139,13 @@ func init() {
               }
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       },
       "parameters": [
         {
@@ -3178,7 +3352,13 @@ func init() {
               }
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       },
       "patch": {
         "description": "Updates a payment request by id",
@@ -3256,7 +3436,13 @@ func init() {
               }
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       },
       "parameters": [
         {
@@ -3354,7 +3540,13 @@ func init() {
               }
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "tio",
+          "too",
+          "contractingOfficer",
+          "office"
+        ]
       }
     }
   },

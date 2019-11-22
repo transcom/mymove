@@ -19,6 +19,8 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
+	middleware "github.com/go-openapi/runtime/middleware"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/models"
@@ -73,6 +75,52 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 		}
 		return http.HandlerFunc(mw)
 	}
+}
+
+type apiContext interface {
+	Context() *middleware.Context
+}
+
+// RoleAuthMiddleware enforces that the incoming request is tied to a user session
+func RoleAuthMiddleware(logger Logger) func(api apiContext) func(handler http.Handler) http.Handler {
+	return func(api apiContext) func(http.Handler) http.Handler {
+		return func(next http.Handler) http.Handler {
+			mw := func(w http.ResponseWriter, r *http.Request) {
+
+				session := auth.SessionFromRequestContext(r)
+				userRoles := session.Roles
+				// We must have a logged in session and a user
+
+				route, r, _ := api.Context().RouteInfo(r)
+				endpointRoles, exists := route.Operation.VendorExtensible.Extensions["x-swagger-roles"]
+				if !exists {
+					next.ServeHTTP(w, r)
+					return
+				}
+				endpointRolesAsInterfaceArray, ok := endpointRoles.([]interface{})
+				if !ok {
+					http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+					return
+				}
+				endpointRolesAsStringArray := make([]auth.Role, len(endpointRolesAsInterfaceArray))
+				for i, v := range endpointRolesAsInterfaceArray {
+					endpointRolesAsStringArray[i] = v.(auth.Role)
+				}
+				for _, userRole := range userRoles {
+					for _, endpointRole := range endpointRolesAsStringArray {
+						if userRole == endpointRole {
+							next.ServeHTTP(w, r)
+							return
+						}
+					}
+				}
+				http.Error(w, http.StatusText(403), http.StatusForbidden)
+				return
+			}
+			return http.HandlerFunc(mw)
+		}
+	}
+
 }
 
 func AdminAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
@@ -394,6 +442,7 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 		}
 		if userIdentity.OfficeUserID != nil {
 			session.OfficeUserID = *(userIdentity.OfficeUserID)
+			session.Roles = append(session.Roles, auth.RoleOffice)
 		} else {
 			// In case they managed to login before the office_user record was created
 			officeUser, err := models.FetchOfficeUserByEmail(h.db, session.Email)
@@ -407,6 +456,8 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 				return
 			}
 			session.OfficeUserID = officeUser.ID
+			session.Roles = append(session.Roles, auth.RoleOffice)
+
 			officeUser.UserID = &userIdentity.ID
 			err = h.db.Save(officeUser)
 			if err != nil {

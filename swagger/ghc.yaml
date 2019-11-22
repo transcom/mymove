@@ -19,6 +19,11 @@ paths:
       operationId: getAllCustomerMoves
       description: Gets all customers
       summary: Gets all customers
+      x-swagger-roles:
+        - tio
+        - too
+        - contractingOfficer
+        - office
       produces:
         - application/json
       parameters: []
@@ -88,6 +93,11 @@ paths:
         - Customer
       description: Returns a given customer
       operationId: getCustomerInfo
+      x-swagger-roles:
+        - tio
+        - too
+        - contractingOfficer
+        - office
       summary: Returns a given customer
   /move-task-orders:
     get:
@@ -123,6 +133,11 @@ paths:
         - moveTaskOrder
       description: Gets all move orders
       operationId: listMoveTaskOrders
+      x-swagger-roles:
+        - tio
+        - too
+        - contractingOfficer
+        - office
       summary: Gets all move orders
   '/move-task-orders/{moveTaskOrderID}':
     parameters:
@@ -164,6 +179,11 @@ paths:
         - moveTaskOrder
       description: Deletes a move order by ID
       operationId: deleteMoveTaskOrder
+      x-swagger-roles:
+        - tio
+        - too
+        - contractingOfficer
+        - office
       summary: Deletes a move order by ID
     get:
       produces:
@@ -198,6 +218,11 @@ paths:
         - moveTaskOrder
       description: Gets a move order
       operationId: getMoveTaskOrder
+      x-swagger-roles:
+        - tio
+        - too
+        - contractingOfficer
+        - office
       summary: Gets a move order by ID
     patch:
       consumes:
@@ -239,6 +264,11 @@ paths:
         - moveTaskOrder
       description: Updates a move order by ID
       operationId: updateMoveTaskOrder
+      x-swagger-roles:
+        - tio
+        - too
+        - contractingOfficer
+        - office
       summary: Updates a move order by ID
   '/move_task_orders/{moveTaskOrderID}/service_items':
     parameters:
@@ -280,6 +310,11 @@ paths:
         - serviceItem
       description: Gets all line items for a move orders
       operationId: listServiceItems
+      x-swagger-roles:
+        - tio
+        - too
+        - contractingOfficer
+        - office
       summary: Gets all line items for a move order
     post:
       consumes:
@@ -316,6 +351,11 @@ paths:
         - serviceItem
       description: Creates a service item for a move order by id
       operationId: createServiceItem
+      x-swagger-roles:
+        - tio
+        - too
+        - contractingOfficer
+        - office
       summary: Creates a service item for a move order by id
   '/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}':
     parameters:
@@ -362,6 +402,11 @@ paths:
         - serviceItem
       description: Deletes a line item by ID for a move order by ID
       operationId: deleteServiceItem
+      x-swagger-roles:
+        - tio
+        - too
+        - contractingOfficer
+        - office
       summary: Deletes a line item by ID for a move order by ID
     get:
       produces:
@@ -396,6 +441,11 @@ paths:
         - serviceItem
       description: Gets a line item by ID for a move order by ID
       operationId: getServiceItem
+      x-swagger-roles:
+        - tio
+        - too
+        - contractingOfficer
+        - office
       summary: Gets a line item by ID for a move order by ID
     patch:
       consumes:
@@ -437,6 +487,11 @@ paths:
         - serviceItem
       description: Updates a service item by ID for a move order by ID
       operationId: updateServiceItem
+      x-swagger-roles:
+        - tio
+        - too
+        - contractingOfficer
+        - office
       summary: Updates a service item by ID for a move order by ID
   '/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}/status':
     parameters:
@@ -492,6 +547,11 @@ paths:
         - serviceItem
       description: Changes the status of a line item for a move order by ID
       operationId: updateServiceItemStatus
+      x-swagger-roles:
+        - tio
+        - too
+        - contractingOfficer
+        - office
       summary: Change the status of a line item for a move order by ID
   '/move-task-orders/{moveTaskOrderID}/status':
     patch:
@@ -539,6 +599,11 @@ paths:
         - moveTaskOrder
       description: Changes move order status
       operationId: updateMoveTaskOrderStatus
+      x-swagger-roles:
+        - tio
+        - too
+        - contractingOfficer
+        - office
       summary: Change the status of a move order
   '/move-task-orders/{moveTaskOrderID}/entitlements':
     parameters:
@@ -702,6 +767,11 @@ paths:
         - gov
       description: Fetches an instance of a payment request by id
       operationId: getPaymentRequest
+      x-swagger-roles:
+        - tio
+        - too
+        - contractingOfficer
+        - office
       summary: Fetches a payment request by id
     patch:
       consumes:
@@ -744,6 +814,11 @@ paths:
         - prime
       description: Updates a payment request by id
       operationId: updatePaymentRequest
+      x-swagger-roles:
+        - tio
+        - too
+        - contractingOfficer
+        - office
       summary: Updates a payment request by id
   '/payment-requests/{paymentRequestID}/status':
     patch:
@@ -793,6 +868,11 @@ paths:
         - gov
       description: Updates status of a payment request by id
       operationId: updatePaymentRequestStatus
+      x-swagger-roles:
+        - tio
+        - too
+        - contractingOfficer
+        - office
       summary: Updates status of a payment request by id
 definitions:
   Address:

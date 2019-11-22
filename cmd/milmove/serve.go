@@ -485,6 +485,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
 	isLoggedInMiddleware := authentication.IsLoggedInMiddleware(logger)
 	clientCertMiddleware := authentication.ClientCertMiddleware(logger, dbConnection)
+	roleAuthMiddleware := authentication.RoleAuthMiddleware(logger)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
 	handlerContext.SetCookieSecret(clientAuthSecretKey)
@@ -796,7 +797,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		internalMux.Handle(pat.New("/*"), internalAPIMux)
 		internalAPIMux.Use(userAuthMiddleware)
 		internalAPIMux.Use(middleware.NoCache(logger))
-		internalAPIMux.Handle(pat.New("/*"), internalapi.NewInternalAPIHandler(handlerContext))
+		api := internalapi.NewInternalAPI(handlerContext)
+		internalAPIMux.Handle(pat.New("/*"), api.Serve(nil))
+		internalAPIMux.Use(roleAuthMiddleware(api))
 	}
 
 	if v.GetBool(cli.ServeAdminFlag) {
@@ -835,7 +838,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		ghcMux.Handle(pat.New("/*"), ghcAPIMux)
 		ghcAPIMux.Use(userAuthMiddleware)
 		ghcAPIMux.Use(middleware.NoCache(logger))
-		ghcAPIMux.Handle(pat.New("/*"), ghcapi.NewGhcAPIHandler(handlerContext))
+		api := ghcapi.NewGhcAPI(handlerContext)
+		ghcAPIMux.Use(roleAuthMiddleware(api))
+		ghcAPIMux.Handle(pat.New("/*"), api.Serve(nil))
 	}
 
 	if v.GetBool(cli.ServePrimeFlag) {
