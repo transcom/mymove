@@ -38,7 +38,7 @@ require (
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
 	github.com/gofrs/flock v0.7.1
 	github.com/gofrs/uuid v3.2.0+incompatible
-	github.com/gorilla/csrf v1.6.1
+	github.com/gorilla/csrf v1.6.2
 	github.com/imdario/mergo v0.3.8
 	github.com/jackc/pgconn v1.1.0 // indirect
 	github.com/jessevdk/go-flags v1.4.0
