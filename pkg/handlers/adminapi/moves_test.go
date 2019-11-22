@@ -82,10 +82,31 @@ func (suite *HandlerSuite) TestIndexMovesHandlerHelpers() {
 
 	suite.T().Run("test filters present", func(t *testing.T) {
 
+		s := `{"locator":"TEST123", "service_member_id":"TESTID}`
+		qfs := handler.generateQueryFilters(&s, suite.TestLogger())
+		expectedFilters := []services.QueryFilter{
+			query.NewQueryFilter("locator", "=", "TEST123"),
+			query.NewQueryFilter("service_member_id", "=", "TESTID"),
+		}
+		suite.Equal(expectedFilters, qfs)
+	})
+
+	suite.T().Run("test locator filter present", func(t *testing.T) {
+
 		s := `{"locator":"TEST123"}`
 		qfs := handler.generateQueryFilters(&s, suite.TestLogger())
 		expectedFilters := []services.QueryFilter{
 			query.NewQueryFilter("locator", "=", "TEST123"),
+		}
+		suite.Equal(expectedFilters, qfs)
+	})
+
+	suite.T().Run("test service_member_id filter present", func(t *testing.T) {
+
+		s := `{"service_member_id":"TESTID"}`
+		qfs := handler.generateQueryFilters(&s, suite.TestLogger())
+		expectedFilters := []services.QueryFilter{
+			query.NewQueryFilter("service_member_id", "=", "TESTID"),
 		}
 		suite.Equal(expectedFilters, qfs)
 	})
