@@ -11,48 +11,38 @@ import (
 )
 
 func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceAreaPrices() {
-	suite.T().Run("successfully run import re_domestic_service_area_prices table empty", func(t *testing.T) {
+	gre := &GHCRateEngineImporter{
+		Logger:       suite.logger,
+		ContractCode: testContractCode,
+	}
+
+	suite.T().Run("import success", func(t *testing.T) {
+		// Prerequisite tables must be loaded.
 		suite.helperSetupReServicesTable()
-		gre := &GHCRateEngineImporter{
-			Logger:       suite.logger,
-			ContractCode: testContractCode,
-		}
+
 		err := gre.importREContract(suite.DB())
 		suite.NoError(err)
-		suite.NotNil(gre.contractID)
+
 		err = gre.importREDomesticServiceArea(suite.DB())
 		suite.NoError(err)
+
 		err = gre.importREDomesticServiceAreaPrices(suite.DB())
 		suite.NoError(err)
+		suite.helperVerifyDomesticServiceAreaPrices()
 
-		var serviceAreaPrices models.ReDomesticServiceAreaPrices
-		err = suite.DB().Eager("DomesticServiceArea", "Service").All(&serviceAreaPrices)
-		suite.NoError(err)
-		suite.Equal(32, len(serviceAreaPrices))
+		// Spot check domestic service area prices for one row
+		suite.helperCheckDomesticServiceAreaPriceValue()
+	})
 
-		suite.Equal("DSH", serviceAreaPrices[0].Service.Code)
-		suite.Equal("AL", serviceAreaPrices[0].DomesticServiceArea.State)
-		suite.Equal("Birmingham", serviceAreaPrices[0].DomesticServiceArea.BasePointCity)
-		suite.Equal(false, serviceAreaPrices[0].IsPeakPeriod)
-		suite.Equal(unit.Cents(127), serviceAreaPrices[0].PriceCents)
+	suite.T().Run("run a second time; should fail immediately due to constraint violation", func(t *testing.T) {
+		err := gre.importREDomesticServiceAreaPrices(suite.DB())
+		if suite.Error(err) {
+			suite.Contains(err.Error(), "duplicate key value violates unique constraint")
+		}
 
-		suite.Equal("DODP", serviceAreaPrices[1].Service.Code)
-		suite.Equal("AL", serviceAreaPrices[1].DomesticServiceArea.State)
-		suite.Equal("Birmingham", serviceAreaPrices[1].DomesticServiceArea.BasePointCity)
-		suite.Equal(false, serviceAreaPrices[1].IsPeakPeriod)
-		suite.Equal(unit.Cents(689), serviceAreaPrices[1].PriceCents)
-
-		suite.Equal("DFSIT", serviceAreaPrices[2].Service.Code)
-		suite.Equal("AL", serviceAreaPrices[2].DomesticServiceArea.State)
-		suite.Equal("Birmingham", serviceAreaPrices[2].DomesticServiceArea.BasePointCity)
-		suite.Equal(false, serviceAreaPrices[2].IsPeakPeriod)
-		suite.Equal(unit.Cents(1931), serviceAreaPrices[2].PriceCents)
-
-		suite.Equal("DASIT", serviceAreaPrices[3].Service.Code)
-		suite.Equal("AL", serviceAreaPrices[3].DomesticServiceArea.State)
-		suite.Equal("Birmingham", serviceAreaPrices[3].DomesticServiceArea.BasePointCity)
-		suite.Equal(false, serviceAreaPrices[3].IsPeakPeriod)
-		suite.Equal(unit.Cents(68), serviceAreaPrices[3].PriceCents)
+		// Check to see if anything else changed
+		suite.helperVerifyDomesticServiceAreaPrices()
+		suite.helperCheckDomesticServiceAreaPriceValue()
 	})
 }
 
@@ -89,4 +79,75 @@ func (suite *GHCRateEngineImportSuite) helperSetupReServicesTable() {
 	sql := string(c)
 	err := suite.DB().RawQuery(sql).Exec()
 	suite.NoError(err)
+}
+
+func (suite *GHCRateEngineImportSuite) helperVerifyDomesticServiceAreaPrices() {
+	count, err := suite.DB().Count(&models.ReDomesticServiceAreaPrices{})
+	suite.NoError(err)
+	suite.Equal(32, count)
+}
+
+func (suite *GHCRateEngineImportSuite) helperCheckDomesticServiceAreaPriceValue() {
+	// Get contract UUID.
+	var contract models.ReContract
+	err := suite.DB().Where("code = ?", testContractCode).First(&contract)
+	suite.NoError(err)
+
+	// Get domestic service area UUID.
+	var serviceArea models.ReDomesticServiceArea
+	err = suite.DB().Where("service_area = '592'").First(&serviceArea)
+	suite.NoError(err)
+
+	var serviceDSH models.ReService
+	err = suite.DB().Where("code = 'DSH'").First(&serviceDSH)
+	suite.NoError(err)
+
+	// Get domestic service area price DSH
+	var domesticServiceAreaPrice models.ReDomesticServiceAreaPrice
+	err = suite.DB().
+		Where("contract_id = ?", contract.ID).
+		Where("service_id = ?", serviceDSH.ID).
+		Where("domestic_service_area_id = ?", serviceArea.ID).
+		Where("is_peak_period = false").First(&domesticServiceAreaPrice)
+	suite.NoError(err)
+	suite.Equal(unit.Cents(16), domesticServiceAreaPrice.PriceCents)
+
+	var serviceDODP models.ReService
+	err = suite.DB().Where("code = 'DODP'").First(&serviceDODP)
+	suite.NoError(err)
+
+	// Get domestic service area price DODP
+	err = suite.DB().
+		Where("contract_id = ?", contract.ID).
+		Where("service_id = ?", serviceDODP.ID).
+		Where("domestic_service_area_id = ?", serviceArea.ID).
+		Where("is_peak_period = false").First(&domesticServiceAreaPrice)
+	suite.NoError(err)
+	suite.Equal(unit.Cents(581), domesticServiceAreaPrice.PriceCents)
+
+	var serviceDFSIT models.ReService
+	err = suite.DB().Where("code = 'DFSIT'").First(&serviceDFSIT)
+	suite.NoError(err)
+
+	// Get domestic service area price DFSIT
+	err = suite.DB().
+		Where("contract_id = ?", contract.ID).
+		Where("service_id = ?", serviceDFSIT.ID).
+		Where("domestic_service_area_id = ?", serviceArea.ID).
+		Where("is_peak_period = false").First(&domesticServiceAreaPrice)
+	suite.NoError(err)
+	suite.Equal(unit.Cents(1597), domesticServiceAreaPrice.PriceCents)
+
+	var serviceDASIT models.ReService
+	err = suite.DB().Where("code = 'DASIT'").First(&serviceDASIT)
+	suite.NoError(err)
+
+	// Get domestic service area price DASIT
+	err = suite.DB().
+		Where("contract_id = ?", contract.ID).
+		Where("service_id = ?", serviceDASIT.ID).
+		Where("domestic_service_area_id = ?", serviceArea.ID).
+		Where("is_peak_period = false").First(&domesticServiceAreaPrice)
+	suite.NoError(err)
+	suite.Equal(unit.Cents(62), domesticServiceAreaPrice.PriceCents)
 }
