@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"time"
@@ -37,6 +38,7 @@ type MoveTaskOrder struct {
 	RequestedPickupDate              time.Time           `db:"requested_pickup_date"`
 	SubmittedCounselingInfoDate      *time.Time          `db:"submitted_counseling_info_date"`
 	AvailableToPrimeDate             *time.Time          `db:"available_to_prime_date"`
+	ReferenceID                      *string             `db:"reference_id"`
 	Status                           MoveTaskOrderStatus `db:"status"`
 	ServiceItems                     ServiceItems        `has_many:"service_items"`
 	UpdatedAt                        time.Time           `db:"updated_at"`
@@ -71,10 +73,28 @@ func (m *MoveTaskOrder) Validate(tx *pop.Connection) (*validate.Errors, error) {
 type MoveTaskOrders []MoveTaskOrder
 
 // GenerateReferenceID creates a random ID for an MTO. Format (xxxx-xxxx) with X being a number 0-9 (ex. 0009-1234. 4321-4444)
-func GenerateReferenceID() string {
+func generateReferenceID(tx *pop.Connection) (string, error) {
 	min := 0
 	max := 9999
 	firstNum := rand.Intn(max - min + 1)
 	secondNum := rand.Intn(max - min + 1)
-	return fmt.Sprintf("%04d-%04d", firstNum, secondNum)
+	newReferenceID := fmt.Sprintf("%04d-%04d", firstNum, secondNum)
+	count, err := tx.Where(`reference_id= $1`, newReferenceID).Count(&MoveTaskOrder{})
+	if err != nil || count > 0 {
+		return "", err
+	}
+	return newReferenceID, nil
+}
+
+func GenerateReferenceID(tx *pop.Connection) (*string, error) {
+	const maxAttempts = 10
+	var referenceID string
+	var err error
+	for i := 0; i < maxAttempts; i++ {
+		referenceID, err = generateReferenceID(tx)
+		if err == nil {
+			return &referenceID, nil
+		}
+	}
+	return nil, errors.New("move_task_order: failed to generate reference id")
 }

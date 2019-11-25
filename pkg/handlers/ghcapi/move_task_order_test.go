@@ -23,12 +23,19 @@ import (
 )
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegration() {
-	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
+	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			Status: models.MoveTaskOrderStatusDraft,
+		},
+	})
 	moveTaskOrder := serviceItem.MoveTaskOrder
+	// confirm initial status is DRAFT and no ReferenceID
+	suite.Equal(moveTaskOrder.Status, models.MoveTaskOrderStatusDraft)
+	suite.Nil(moveTaskOrder.ReferenceID)
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
 	params := move_task_order.UpdateMoveTaskOrderStatusParams{
 		HTTPRequest:     request,
-		Body:            &ghcmessages.MoveTaskOrderStatus{Status: "DRAFT"},
+		Body:            &ghcmessages.MoveTaskOrderStatus{Status: "APPROVED"},
 		MoveTaskOrderID: moveTaskOrder.ID.String(),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -45,7 +52,9 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegration() {
 
 	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusOK{}, response)
 	suite.Equal(moveTaskOrdersPayload.ID, strfmt.UUID(moveTaskOrder.ID.String()))
-	suite.Equal(moveTaskOrdersPayload.Status, "DRAFT")
+	suite.Equal(moveTaskOrdersPayload.Status, "APPROVED")
+	suite.NotNil(moveTaskOrdersPayload.ReferenceID)
+	suite.Regexp("^\\d{4}-\\d{4}$", *moveTaskOrdersPayload.ReferenceID)
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerNotFoundError() {
