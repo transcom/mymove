@@ -165,6 +165,10 @@
     {
       "name": "SERVE_ORDERS",
       "value": "{{ .SERVE_ORDERS }}"
+    },
+    {
+      "name": "SERVE_API_GHC",
+      "value": "{{ .SERVE_API_GHC }}"
     }
   ],
   "logConfiguration": {

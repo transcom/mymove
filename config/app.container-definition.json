@@ -184,10 +184,6 @@
     {
       "name": "SERVE_API_INTERNAL",
       "value": "{{ .SERVE_API_INTERNAL }}"
-    },
-    {
-      "name": "SERVE_API_GHC",
-      "value": "{{ .SERVE_API_GHC }}"
     }
   ],
   "logConfiguration": {
