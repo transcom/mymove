@@ -31,7 +31,7 @@
     "query-string": "6",
     "ra-data-simple-rest": "^2.9.9",
     "react": "^16.12.0",
-    "react-admin": "^2.9.0",
+    "react-admin": "^3.0.1",
     "react-app-polyfill": "^1.0.4",
     "react-day-picker": "=7.4.0",
     "react-dom": "^16.12.0",
