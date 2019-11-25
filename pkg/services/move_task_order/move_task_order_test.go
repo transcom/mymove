@@ -48,13 +48,18 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 
 }
 
-func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdater() {
-	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterDraftToApproved() {
+	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			Status: models.MoveTaskOrderStatusDraft,
+		},
+	})
 	originalMTO := serviceItem.MoveTaskOrder
 
 	suite.Nil(originalMTO.AvailableToPrimeDate)
 	// check not equal to what asserting against below
-	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusApproved)
+	suite.Equal(originalMTO.Status, models.MoveTaskOrderStatusDraft)
+	suite.Nil(originalMTO.ReferenceID)
 	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
 
 	updatedMTO, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, models.MoveTaskOrderStatusApproved)
@@ -63,13 +68,47 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdater() {
 	suite.Equal(models.MoveTaskOrderStatusApproved, updatedMTO.Status)
 	// date should be filled when mto has been approved
 	suite.NotNil(updatedMTO.AvailableToPrimeDate)
+	// Reference ID should be populated once MTO is approved
+	suite.NotNil(updatedMTO.ReferenceID)
+}
+
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterDraftStatus() {
+	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			Status: models.MoveTaskOrderStatusDraft,
+		},
+	})
+	originalMTO := serviceItem.MoveTaskOrder
+	// check not equal to what asserting against below
+	suite.Equal(originalMTO.Status, models.MoveTaskOrderStatusDraft)
+	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
+
+	updatedMTO, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, models.MoveTaskOrderStatusDraft)
+
+	suite.NoError(err)
+	suite.Equal(models.MoveTaskOrderStatusDraft, updatedMTO.Status)
+	// Reference ID should not be populated when in Draft status
+	suite.Nil(updatedMTO.ReferenceID)
+}
+
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterReferenceIDUnchangedOnRepeatedCalls() {
+	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
+	originalMTO := serviceItem.MoveTaskOrder
+	// check not equal to what asserting against below
+	suite.Equal(originalMTO.Status, models.MoveTaskOrderStatusApproved)
+	suite.NotNil(originalMTO.ReferenceID)
+	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
+
+	updatedMTO, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, models.MoveTaskOrderStatusDraft)
+
+	suite.NoError(err)
+	// Reference ID should not change on repeated calls to Update
+	suite.Equal(*updatedMTO.ReferenceID, *originalMTO.ReferenceID)
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterEmptyStatus() {
 	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
 	originalMTO := serviceItem.MoveTaskOrder
-	// check not equal to what asserting against below
-	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusApproved)
 	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
 
 	_, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, "")
