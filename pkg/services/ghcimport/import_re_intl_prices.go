@@ -43,13 +43,13 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 		originRateArea := stageOconusToOconusPrice.OriginIntlPriceAreaID
 		originRateAreaID, found := gre.internationalRateAreaToIDMap[originRateArea]
 		if !found {
-			return fmt.Errorf("could not find service [%s] in map", stageOconusToOconusPrice.OriginIntlPriceAreaID)
+			return fmt.Errorf("could not find origin service area [%s] in map", stageOconusToOconusPrice.OriginIntlPriceAreaID)
 		}
 
 		destinationRateArea := stageOconusToOconusPrice.DestinationIntlPriceAreaID
 		destinationRateAreaID, found := gre.internationalRateAreaToIDMap[destinationRateArea]
 		if !found {
-			return fmt.Errorf("could not find service [%s] in map", stageOconusToOconusPrice.DestinationIntlPriceAreaID)
+			return fmt.Errorf("could not find destination service area [%s] in map", stageOconusToOconusPrice.DestinationIntlPriceAreaID)
 		}
 
 		var perUnitCentsHHG int
