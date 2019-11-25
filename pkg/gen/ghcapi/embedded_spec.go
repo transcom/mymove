@@ -1615,6 +1615,11 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "referenceId": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "1001-3456"
+        },
         "remarks": {
           "type": "string",
           "example": "Requires more gentle care"
@@ -1634,7 +1639,7 @@ func init() {
           "enum": [
             "APPROVED",
             "REJECTED",
-            "SUBMITTED"
+            "DRAFT"
           ]
         },
         "updatedAt": {
@@ -1650,7 +1655,7 @@ func init() {
           "type": "string",
           "enum": [
             "APPROVED",
-            "SUBMITTED",
+            "DRAFT",
             "REJECTED"
           ]
         }
@@ -3787,6 +3792,11 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "referenceId": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "1001-3456"
+        },
         "remarks": {
           "type": "string",
           "example": "Requires more gentle care"
@@ -3806,7 +3816,7 @@ func init() {
           "enum": [
             "APPROVED",
             "REJECTED",
-            "SUBMITTED"
+            "DRAFT"
           ]
         },
         "updatedAt": {
@@ -3822,7 +3832,7 @@ func init() {
           "type": "string",
           "enum": [
             "APPROVED",
-            "SUBMITTED",
+            "DRAFT",
             "REJECTED"
           ]
         }

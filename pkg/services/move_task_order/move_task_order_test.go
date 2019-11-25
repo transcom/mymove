@@ -48,24 +48,67 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 
 }
 
-func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdater() {
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterDraftToApproved() {
+	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			Status: models.MoveTaskOrderStatusDraft,
+		},
+	})
+	originalMTO := serviceItem.MoveTaskOrder
+
+	suite.Nil(originalMTO.AvailableToPrimeDate)
+	// check not equal to what asserting against below
+	suite.Equal(originalMTO.Status, models.MoveTaskOrderStatusDraft)
+	suite.Nil(originalMTO.ReferenceID)
+	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
+
+	updatedMTO, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, models.MoveTaskOrderStatusApproved)
+
+	suite.NoError(err)
+	suite.Equal(models.MoveTaskOrderStatusApproved, updatedMTO.Status)
+	// date should be filled when mto has been approved
+	suite.NotNil(updatedMTO.AvailableToPrimeDate)
+	// Reference ID should be populated once MTO is approved
+	suite.NotNil(updatedMTO.ReferenceID)
+}
+
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterDraftStatus() {
+	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			Status: models.MoveTaskOrderStatusDraft,
+		},
+	})
+	originalMTO := serviceItem.MoveTaskOrder
+	// check not equal to what asserting against below
+	suite.Equal(originalMTO.Status, models.MoveTaskOrderStatusDraft)
+	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
+
+	updatedMTO, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, models.MoveTaskOrderStatusDraft)
+
+	suite.NoError(err)
+	suite.Equal(models.MoveTaskOrderStatusDraft, updatedMTO.Status)
+	// Reference ID should not be populated when in Draft status
+	suite.Nil(updatedMTO.ReferenceID)
+}
+
+func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterReferenceIDUnchangedOnRepeatedCalls() {
 	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
 	originalMTO := serviceItem.MoveTaskOrder
 	// check not equal to what asserting against below
-	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusSubmitted)
+	suite.Equal(originalMTO.Status, models.MoveTaskOrderStatusApproved)
+	suite.NotNil(originalMTO.ReferenceID)
 	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
 
-	updatedMTO, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, models.MoveTaskOrderStatusSubmitted)
+	updatedMTO, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, models.MoveTaskOrderStatusDraft)
 
 	suite.NoError(err)
-	suite.Equal(models.MoveTaskOrderStatusSubmitted, updatedMTO.Status)
+	// Reference ID should not change on repeated calls to Update
+	suite.Equal(*updatedMTO.ReferenceID, *originalMTO.ReferenceID)
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderStatusUpdaterEmptyStatus() {
 	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
 	originalMTO := serviceItem.MoveTaskOrder
-	// check not equal to what asserting against below
-	suite.NotEqual(originalMTO.Status, models.MoveTaskOrderStatusSubmitted)
 	mtoStatusUpdater := NewMoveTaskOrderStatusUpdater(suite.DB())
 
 	_, err := mtoStatusUpdater.UpdateMoveTaskOrderStatus(originalMTO.ID, "")
@@ -147,6 +190,8 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderDestinationAddressUpdat
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderPrimePostCounselingUpdater() {
 	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
 	originalMTO := serviceItem.MoveTaskOrder
+	suite.Nil(originalMTO.SubmittedCounselingInfoDate)
+
 	// check not equal to what asserting against below
 	address := testdatagen.MakeDefaultAddress(suite.DB())
 	address2 := testdatagen.MakeAddress2(suite.DB(), testdatagen.Assertions{})
@@ -167,6 +212,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderPrimePostCounselingUpda
 	suite.Equal(information.SecondaryDeliveryAddress, updatedMTO.SecondaryDeliveryAddress)
 	suite.Equal(information.SecondaryPickupAddress, updatedMTO.SecondaryPickupAddress)
 	suite.Equal(information.PPMIsIncluded, *updatedMTO.PpmIsIncluded)
+	suite.NotNil(updatedMTO.SubmittedCounselingInfoDate)
 
 	dbUpdatedMTO, fetchErr := moveTaskOrderFetcher.FetchMoveTaskOrder(updatedMTO.ID)
 	suite.NoError(fetchErr)

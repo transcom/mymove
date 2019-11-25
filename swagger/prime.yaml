@@ -104,6 +104,115 @@ paths:
       description: Updates a move order's estimated weight by ID
       operationId: updateMoveTaskOrderEstimatedWeight
       summary: Updates a move order's estimated weight by ID
+  '/move-task-orders/{moveTaskOrderID}/post-counseling-info':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            properties:
+              scheduled-move-date:
+                type: string
+                format: date
+                example: '2018-04-26'
+              secondary-pickup-address:
+                $ref: '#/definitions/Address'
+              secondary-delivery-address:
+                $ref: '#/definitions/Address'
+              ppm-is-included:
+                type: boolean
+      responses:
+        '200':
+          description: Successfully updated move task order post counseling information
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '422':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+        - prime
+      description: Updates move task order's post counseling information
+      operationId: updateMoveTaskOrderPostCounselingInformation
+      summary: Updates move task order's post counseling information
+  '/move-task-orders/{moveTaskOrderID}/destination-address':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: destinationAddress
+          required: true
+          schema:
+            $ref: '#/definitions/Address'
+      responses:
+        '200':
+          description: Successfully updated move task order destination address
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '422':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+        - prime
+      description: Updates move task order's destination address
+      operationId: updateMoveTaskOrderDestinationAddress
+      summary: Updates move task order's destination address
   '/move-task-orders/{moveTaskOrderID}/prime-actual-weight':
     parameters:
       - description: ID of move order to use
@@ -238,115 +347,6 @@ paths:
       description: Gets entitlements
       operationId: getPrimeEntitlements
       summary: Gets entitlements for a move order by ID
-  '/move-task-orders/{moveTaskOrderID}/post-counseling-info':
-    parameters:
-      - description: ID of move order to use
-        in: path
-        name: moveTaskOrderID
-        required: true
-        type: string
-    patch:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            type: object
-            properties:
-              scheduled-move-date:
-                type: string
-                format: date
-                example: '2018-04-26'
-              secondary-pickup-address:
-                $ref: '#/definitions/Address'
-              secondary-delivery-address:
-                $ref: '#/definitions/Address'
-              ppm-is-included:
-                type: boolean
-      responses:
-        '200':
-          description: Successfully updated move task order post counseling information
-          schema:
-            $ref: '#/definitions/MoveTaskOrder'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '422':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/definitions/ValidationError'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - moveTaskOrder
-        - prime
-      description: Updates move task order's post counseling information
-      operationId: updateMoveTaskOrderPostCounselingInformation
-      summary: Updates move task order's post counseling information
-  '/move-task-orders/{moveTaskOrderID}/destination-address':
-    parameters:
-      - description: ID of move order to use
-        in: path
-        name: moveTaskOrderID
-        required: true
-        type: string
-    patch:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: destinationAddress
-          required: true
-          schema:
-            $ref: '#/definitions/Address'
-      responses:
-        '200':
-          description: Successfully updated move task order destination address
-          schema:
-            $ref: '#/definitions/MoveTaskOrder'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '422':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/definitions/ValidationError'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - moveTaskOrder
-        - prime
-      description: Updates move task order's destination address
-      operationId: updateMoveTaskOrderDestinationAddress
-      summary: Updates move task order's destination address
 definitions:
   Address:
     type: object
@@ -578,6 +578,10 @@ definitions:
       destination_address:
         $ref: '#/definitions/Address'
         x-nullable: true
+      referenceId:
+        example: 1001-3456
+        type: string
+        x-nullable: true
       remarks:
         example: Requires more gentle care
         type: string
@@ -704,7 +708,7 @@ definitions:
         enum:
           - APPROVED # This now is the status for made available to Prime (not previously used DRAFT)
           - REJECTED
-          - SUBMITTED
+          - DRAFT
         type: string
       updatedAt:
         format: date

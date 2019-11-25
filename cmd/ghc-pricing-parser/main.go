@@ -42,9 +42,11 @@ func main() {
 	flag.BoolVar(&params.ShowOutput, "display", false, "Display output of parsed info")
 	flag.BoolVar(&params.SaveToFile, "save-csv", false, "Save output to CSV file")
 	flag.BoolVar(&params.RunVerify, "verify", true, "Default is true, if false skip sheet format verification")
-	flag.BoolVar(&params.RunImport, "GHC_DB_import", true, "Run GHC Rate Engine Import")
+	flag.BoolVar(&params.RunImport, "re-import", true, "Run GHC Rate Engine Import")
 	flag.BoolVar(&params.UseTempTables, "use-temp-tables", true, "Default is true, if false stage tables are NOT temp tables")
 	flag.BoolVar(&params.DropIfExists, "drop", false, "Default is false, if true stage tables will be dropped if they exist")
+	flag.StringVar(&params.ContractCode, "contract-code", "", "Contract code to use for this import")
+	flag.StringVar(&params.ContractName, "contract-name", "", "Contract name to use for this import")
 
 	// DB Config
 	cli.InitDatabaseFlags(flag)
@@ -62,10 +64,13 @@ func main() {
 		params.ProcessAll = false
 	}
 
-	if len(params.XlsxFilename) > 0 {
-		log.Printf("Importing file %s\n", params.XlsxFilename)
-	} else {
-		log.Fatalf("Did not receive an XLSX filename to parse, missing -filename\n")
+	if params.XlsxFilename == "" {
+		log.Fatalf("Did not receive an XLSX filename to parse; missing --filename\n")
+	}
+	log.Printf("Importing file %s\n", params.XlsxFilename)
+
+	if params.RunImport && params.ContractCode == "" {
+		log.Fatalf("Did not receive a contract code; missing --contract-code\n")
 	}
 
 	params.XlsxFile, err = xlsx.OpenFile(params.XlsxFilename)
@@ -118,7 +123,9 @@ func main() {
 	// If the parsing was successful, run GHC Rate Engine importer
 	if params.RunImport {
 		ghcREImporter := ghcimport.GHCRateEngineImporter{
-			Logger: logger,
+			Logger:       logger,
+			ContractCode: params.ContractCode,
+			ContractName: params.ContractName,
 		}
 		err = ghcREImporter.Import(db)
 		if err != nil {

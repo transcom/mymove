@@ -2,7 +2,6 @@ package models_test
 
 import (
 	"testing"
-	"time"
 
 	"github.com/gofrs/uuid"
 
@@ -18,8 +17,6 @@ func (suite *ModelSuite) TestReDomesticOtherPriceValidations() {
 			IsPeakPeriod: true,
 			Schedule:     2,
 			PriceCents:   unit.Cents(431),
-			CreatedAt:    time.Now(),
-			UpdatedAt:    time.Now(),
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validReDomesticOtherPrice, expErrors)
@@ -43,8 +40,6 @@ func (suite *ModelSuite) TestReDomesticOtherPriceValidations() {
 			IsPeakPeriod: false,
 			Schedule:     4,
 			PriceCents:   unit.Cents(123),
-			CreatedAt:    time.Now(),
-			UpdatedAt:    time.Now(),
 		}
 		expErrors := map[string][]string{
 			"schedule": {"4 is not less than 4."},

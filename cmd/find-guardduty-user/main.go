@@ -18,11 +18,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/99designs/aws-vault/prompt"
-	"github.com/99designs/aws-vault/vault"
-	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudtrail"
@@ -30,6 +26,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+
+	"github.com/transcom/mymove/pkg/cli"
 )
 
 // FindingDetail captures the data from a guard duty finding
@@ -112,12 +110,17 @@ func (e *errInvalidComparison) Error() string {
 }
 
 func initFlags(flag *pflag.FlagSet) {
+
+	// aws-vault
+	cli.InitVaultFlags(flag)
+
 	flag.String("aws-guardduty-region", "us-west-2", "AWS region used inspecting guardduty")
-	flag.String("aws-profile", "", "The aws-vault profile")
-	flag.String("aws-vault-keychain-name", "", "The aws-vault keychain name")
 	flag.BoolP("archived", "a", false, "Show archived findings instead of current findings")
 	flag.StringP("output", "o", "json", "Whether to print output as 'text' or 'json'")
-	flag.BoolP("verbose", "v", false, "Show extra output for debugging")
+
+	// Verbose
+	cli.InitVerboseFlags(flag)
+
 	flag.SortFlags = false
 }
 
@@ -154,6 +157,10 @@ func checkOutput(v *viper.Viper) error {
 
 func checkConfig(v *viper.Viper) error {
 
+	if err := cli.CheckVault(v); err != nil {
+		return err
+	}
+
 	err := checkRegion(v)
 	if err != nil {
 		return errors.Wrap(err, "Region check failed")
@@ -162,6 +169,10 @@ func checkConfig(v *viper.Viper) error {
 	err = checkOutput(v)
 	if err != nil {
 		return errors.Wrap(err, "Output check failed")
+	}
+
+	if err := cli.CheckVerbose(v); err != nil {
+		return err
 	}
 
 	return nil
@@ -227,52 +238,6 @@ func GetUser(roleArn *string, serviceCloudTrail *cloudtrail.CloudTrail) (*string
 	return &username, nil
 }
 
-// getAWSCredentials uses envars OR aws-vault to return AWS credentials
-func getAWSCredentials(keychainName string, keychainProfile string) (*credentials.Credentials, error) {
-
-	// Attempt to retrieve AWS creds from envar, if not move to aws-vault
-	creds := credentials.NewEnvCredentials()
-	_, err := creds.Get()
-	if err == nil {
-		// we have creds for envars return them
-		return creds, nil
-	}
-
-	// Open the keyring which holds the credentials
-	ring, _ := keyring.Open(keyring.Config{
-		ServiceName:              "aws-vault",
-		AllowedBackends:          []keyring.BackendType{keyring.KeychainBackend},
-		KeychainName:             keychainName,
-		KeychainTrustApplication: true,
-	})
-
-	// Prepare options for the vault before creating the provider
-	vConfig, err := vault.LoadConfigFromEnv()
-	if err != nil {
-		return nil, errors.Wrap(err, "Unable to load AWS config from environment")
-	}
-	vOptions := vault.VaultOptions{
-		Config:    vConfig,
-		MfaPrompt: prompt.Method("terminal"),
-	}
-	vOptions = vOptions.ApplyDefaults()
-	err = vOptions.Validate()
-	if err != nil {
-		return nil, errors.Wrap(err, "Unable to validate aws-vault options")
-	}
-
-	// Get a new provider to retrieve the credentials
-	provider, err := vault.NewVaultProvider(ring, keychainProfile, vOptions)
-	if err != nil {
-		return nil, errors.Wrap(err, "Unable to create aws-vault provider")
-	}
-	credVals, err := provider.Retrieve()
-	if err != nil {
-		return nil, errors.Wrap(err, "Unable to retrieve aws credentials from aws-vault")
-	}
-	return credentials.NewStaticCredentialsFromCreds(credVals), nil
-}
-
 func main() {
 
 	flag := pflag.CommandLine
@@ -318,25 +283,21 @@ func main() {
 		os.Exit(1)
 	}
 
-	keychainName := v.GetString("aws-vault-keychain-name")
-	keychainProfile := v.GetString("aws-profile")
-	creds, err := getAWSCredentials(keychainName, keychainProfile)
-	if err != nil {
-		logger.Fatal(errors.Wrap(err, fmt.Sprintf("Unable to get AWS credentials from the keychain %s and profile %s", keychainName, keychainProfile)))
+	// Get credentials from environment or AWS Vault
+	c, errorConfig := cli.GetAWSConfig(v, v.GetBool(cli.VerboseFlag))
+	if errorConfig != nil {
+		logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())
+	}
+	session, errorSession := awssession.NewSession(c)
+	if errorSession != nil {
+		logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
 	}
 
-	// Define services
-	sess := awssession.Must(awssession.NewSession(&aws.Config{
-		CredentialsChainVerboseErrors: aws.Bool(v.GetBool("verbose")),
-		Credentials:                   creds,
-		Region:                        aws.String(v.GetString("aws-guardduty-region")),
-	}))
-
 	// GuardDuty has the findings
-	serviceGuardDuty := guardduty.New(sess)
+	serviceGuardDuty := guardduty.New(session)
 
 	// CloudTrail has information on who caused the event
-	serviceCloudTrail := cloudtrail.New(sess)
+	serviceCloudTrail := cloudtrail.New(session)
 
 	// List Detectors
 	listDetectorsInput := guardduty.ListDetectorsInput{}
