@@ -16,6 +16,7 @@ import RadioButton from 'shared/RadioButton';
 import 'react-rangeslider/lib/index.css';
 import styles from './Weight.module.scss';
 import { withContext } from 'shared/AppContext';
+import RangeSlider from 'shared/RangeSlider';
 
 const WeightWizardForm = reduxifyWizardForm('weight-wizard-form');
 
@@ -24,7 +25,7 @@ export class PpmWeight extends Component {
     super(props);
 
     this.state = {
-      pendingPpmWeight: null,
+      pendingPpmWeight: 0,
     };
 
     this.onWeightSelected = this.onWeightSelected.bind(this);
@@ -94,6 +95,12 @@ export class PpmWeight extends Component {
   onWeightSelecting = value => {
     this.setState({
       pendingPpmWeight: value,
+    });
+  };
+
+  onProgearChangesWeightSelecting = event => {
+    this.setState({
+      pendingPpmWeight: event.target.valueAsNumber,
     });
   };
 
@@ -175,6 +182,7 @@ export class PpmWeight extends Component {
     } = this.props;
     const { context: { flags: { progearChanges } } = { flags: { progearChanges: null } } } = this.props;
     const { includesProgear = 'No' } = this.state;
+
     return (
       <div>
         {progearChanges && (
@@ -182,18 +190,43 @@ export class PpmWeight extends Component {
             <h3>How much do you think you'll move?</h3>
             <p>Your weight entitlement: {this.props.entitlement.weight.toLocaleString()} lbs</p>
             <div className={styles['progear-slider-container']}>
-              <Slider
-                min={0}
+              {/*<Slider*/}
+              {/*  min={0}*/}
+              {/*  max={this.props.entitlement.weight}*/}
+              {/*  value={this.state.pendingPpmWeight}*/}
+              {/*  onChange={this.onWeightSelecting}*/}
+              {/*  onChangeComplete={this.onWeightSelected}*/}
+              {/*  step={500}*/}
+              {/*  labels={{*/}
+              {/*    0: `${0} lbs`,*/}
+              {/*    [this.props.entitlement.weight]: `${this.props.entitlement.weight.toLocaleString()} lbs`,*/}
+              {/*  }}*/}
+              {/*/>*/}
+              <div className="rangeslider__container">
+                <output id="slider__output" htmlFor="progear__weight__selector">
+                  about {this.state.pendingPpmWeight}
+                </output>
+                <input
+                  id="progear__weight__selector"
+                  className="usa-range"
+                  type="range"
+                  min={0}
+                  max={this.props.entitlement.weight}
+                  step={500}
+                  defaultValue={this.state.pendingPpmWeight}
+                  onInput={this.onProgearChangesWeightSelecting}
+                  onChange={this.onWeightSelected}
+                />
+              </div>
+
+              <RangeSlider
+                id="progear-test"
                 max={this.props.entitlement.weight}
-                value={this.state.pendingPpmWeight}
-                onChange={this.onWeightSelecting}
-                onChangeComplete={this.onWeightSelected}
                 step={500}
-                labels={{
-                  0: `${0} lbs`,
-                  [this.props.entitlement.weight]: `${this.props.entitlement.weight.toLocaleString()} lbs`,
-                }}
+                min={0}
+                defaultValue={this.state.pendingPpmWeight}
               />
+
               {hasEstimateError && (
                 <Fragment>
                   <div className="error-message">
