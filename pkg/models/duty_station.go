@@ -81,7 +81,7 @@ func FetchDSContactInfo(db *pop.Connection, dutyStationID *uuid.UUID) (*DutyStat
 // FetchDutyStation returns a station for a given id
 func FetchDutyStation(ctx context.Context, tx *pop.Connection, id uuid.UUID) (DutyStation, error) {
 	var station DutyStation
-	err := tx.Q().Find(&station, id)
+	err := tx.Q().Eager("Address").Find(&station, id)
 	return station, err
 }
 
