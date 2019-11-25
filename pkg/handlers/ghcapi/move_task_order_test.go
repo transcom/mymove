@@ -23,12 +23,19 @@ import (
 )
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegration() {
-	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{})
+	serviceItem := testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			Status: models.MoveTaskOrderStatusDraft,
+		},
+	})
 	moveTaskOrder := serviceItem.MoveTaskOrder
+	// confirm initial status is DRAFT and no ReferenceID
+	suite.Equal(moveTaskOrder.Status, models.MoveTaskOrderStatusDraft)
+	suite.Nil(moveTaskOrder.ReferenceID)
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
 	params := move_task_order.UpdateMoveTaskOrderStatusParams{
 		HTTPRequest:     request,
-		Body:            &ghcmessages.MoveTaskOrderStatus{Status: "DRAFT"},
+		Body:            &ghcmessages.MoveTaskOrderStatus{Status: "APPROVED"},
 		MoveTaskOrderID: moveTaskOrder.ID.String(),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -45,7 +52,9 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegration() {
 
 	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusOK{}, response)
 	suite.Equal(moveTaskOrdersPayload.ID, strfmt.UUID(moveTaskOrder.ID.String()))
-	suite.Equal(moveTaskOrdersPayload.Status, "DRAFT")
+	suite.Equal(moveTaskOrdersPayload.Status, "APPROVED")
+	suite.NotNil(moveTaskOrdersPayload.ReferenceID)
+	suite.Regexp("^\\d{4}-\\d{4}$", *moveTaskOrdersPayload.ReferenceID)
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerNotFoundError() {
@@ -86,4 +95,42 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerServerError() {
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusInternalServerError{}, response)
+}
+
+func (suite *HandlerSuite) TestGetEntitlementsHandlerIntegration() {
+	// set up what needs to be passed to handler
+	moveTaskOrderID, _ := uuid.NewV4()
+	mto := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{ID: moveTaskOrderID},
+	})
+	testdatagen.MakeEntitlement(suite.DB(), testdatagen.Assertions{
+		GHCEntitlement: models.GHCEntitlement{MoveTaskOrder: &mto}},
+	)
+	request := httptest.NewRequest("GET", "/move-task-orders/move_task_order_id/entitlements", nil)
+	params := movetaskorderops.GetEntitlementsParams{
+		HTTPRequest:     request,
+		MoveTaskOrderID: mto.ID.String(),
+	}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+	// make the request
+	handler := GetEntitlementsHandler{context,
+		movetaskorder.NewMoveTaskOrderFetcher(suite.DB())}
+	response := handler.Handle(params)
+
+	suite.IsNotErrResponse(response)
+	suite.Assertions.IsType(&movetaskorderops.GetEntitlementsOK{}, response)
+	getEntitlementsResponse := response.(*movetaskorderops.GetEntitlementsOK)
+	getEntitlementsPayload := getEntitlementsResponse.Payload
+
+	suite.NotNil(getEntitlementsPayload)
+
+	suite.Equal(getEntitlementsPayload.DependentsAuthorized, true)
+	suite.Equal(*getEntitlementsPayload.NonTemporaryStorage, true)
+	suite.Equal(*getEntitlementsPayload.PrivatelyOwnedVehicle, true)
+	suite.Equal(int(getEntitlementsPayload.ProGearWeight), 100)
+	suite.Equal(int(getEntitlementsPayload.ProGearWeightSpouse), 200)
+	suite.Equal(int(getEntitlementsPayload.StorageInTransit), 2)
+	suite.Equal(int(getEntitlementsPayload.TotalDependents), 1)
+	suite.Equal(int(getEntitlementsPayload.TotalWeightSelf), 0)
 }

@@ -5,6 +5,8 @@
 # Caches may have a `v1-` prefix, since caches in CircleCI 2.0 are immutable.
 # A prefix provides an easy way to invalidate a cache.  See https://circleci.com/docs/2.0/caching/#clearing-cache
 #
+# Please do not use docker_layer_caching! It costs too much money to run. Please set to `false`.
+#
 ############
 
 version: '2.1'
@@ -291,7 +293,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          docker_layer_caching: true
+          docker_layer_caching: false
       - run: make anti_virus
       - announce_failure
 
@@ -360,12 +362,12 @@ jobs:
 
   # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
   integration_tests:
-    parallelism: 10
+    parallelism: 6
     executor: mymove_medium_plus
     steps:
       - checkout
       - setup_remote_docker:
-          docker_layer_caching: true
+          docker_layer_caching: false
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
@@ -391,8 +393,6 @@ jobs:
     executor: mymove_and_postgres_large
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
@@ -481,7 +481,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          docker_layer_caching: true
+          docker_layer_caching: false
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
@@ -506,8 +506,6 @@ jobs:
     executor: mymove_medium
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
       - restore_cache:
           keys:
             - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
@@ -527,7 +525,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          docker_layer_caching: true
+          docker_layer_caching: false
       - run: make bin/chamber
       - run: make bin/rds-combined-ca-bundle.pem
       - run: make server_build
@@ -543,7 +541,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker:
-          docker_layer_caching: true
+          docker_layer_caching: false
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}

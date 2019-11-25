@@ -383,5 +383,13 @@
 20191031182540_add_notification_indexes.up.sql
 20191101201107_create-re-services-table-with-values.up.sql
 20191106165340_move_task_order_add_est_wtg.up.sql
+20191107173303_add-reference-id-to-mto.up.sql
 20191113142631_add_moves_show_idx.up.sql
+20191113191250_rename_actual_weight_to_prime_actual_weight_in_move_task_orders.up.sql
+20191113212903_add_available_to_prime_date_and_submitted_counseling_info_date.up.sql
+20191114203559_create-contractors-table.up.sql
+20191114204029_move_task_order_add_post_counseling_info.up.sql
+20191118163343_alter_ghc_approval_status.up.sql
+20191119171641_add-known-contractors.up.sql
+20191120165831_disable-user-migration.up.sql
 20191120173320_create_payment_requests_table.up.sql

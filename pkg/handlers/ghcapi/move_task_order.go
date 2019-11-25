@@ -53,6 +53,33 @@ func requestToModels(params movetaskorderops.UpdateMoveTaskOrderStatusParams) (u
 	return moveTaskOrderID, status
 }
 
+// GetEntitlementsHandler fetches the entitlements for a move task order
+type GetEntitlementsHandler struct {
+	handlers.HandlerContext
+	moveTaskOrderFetcher services.MoveTaskOrderFetcher
+}
+
+// Handle getting the entitlements for a move task order
+func (h GetEntitlementsHandler) Handle(params movetaskorderops.GetEntitlementsParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID)
+	if err != nil {
+		logger.Error("ghciapi.GetEntitlementsHandler error", zap.Error(err))
+		switch err.(type) {
+		case movetaskorderservice.ErrNotFound:
+			return movetaskorderops.NewGetEntitlementsNotFound()
+		case movetaskorderservice.ErrInvalidInput:
+			return movetaskorderops.NewGetEntitlementsBadRequest()
+		default:
+			return movetaskorderops.NewGetEntitlementsInternalServerError()
+		}
+	}
+	entitlements := payloadForEntitlements(&mto.Entitlements)
+
+	return movetaskorderops.NewGetEntitlementsOK().WithPayload(entitlements)
+}
+
 // TODO it might make sense to create a package for these various mappers, rather than making them all private
 // TODO since some can be reused. Might also make sense to have some mapper specfic tests
 func payloadForMoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *ghcmessages.MoveTaskOrder {
@@ -70,15 +97,12 @@ func payloadForMoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *ghcmessages.Mo
 		MoveID:                 strfmt.UUID(moveTaskOrder.MoveID.String()),
 		OriginDutyStation:      strfmt.UUID(moveTaskOrder.OriginDutyStationID.String()),
 		PickupAddress:          pickupAddress,
+		ReferenceID:            moveTaskOrder.ReferenceID,
 		Remarks:                moveTaskOrder.CustomerRemarks,
 		RequestedPickupDate:    strfmt.Date(moveTaskOrder.RequestedPickupDate),
 		ServiceItems:           serviceItems,
 		Status:                 string(moveTaskOrder.Status),
 		UpdatedAt:              strfmt.Date(moveTaskOrder.UpdatedAt),
-	}
-
-	if moveTaskOrder.ActualWeight != nil {
-		payload.ActualWeight = int64(*moveTaskOrder.ActualWeight)
 	}
 	return payload
 }

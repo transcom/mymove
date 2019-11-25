@@ -81,14 +81,14 @@ func FetchDSContactInfo(db *pop.Connection, dutyStationID *uuid.UUID) (*DutyStat
 // FetchDutyStation returns a station for a given id
 func FetchDutyStation(ctx context.Context, tx *pop.Connection, id uuid.UUID) (DutyStation, error) {
 	var station DutyStation
-	err := tx.Q().Eager().Find(&station, id)
+	err := tx.Q().Eager("Address").Find(&station, id)
 	return station, err
 }
 
 // FetchDutyStationByName returns a station for a given unique name
 func FetchDutyStationByName(tx *pop.Connection, name string) (DutyStation, error) {
 	var station DutyStation
-	err := tx.Where("name = ?", name).Eager().First(&station)
+	err := tx.Where("name = ?", name).Eager("Address").First(&station)
 	return station, err
 }
 
@@ -147,7 +147,6 @@ func FetchDutyStationTransportationOffice(db *pop.Connection, dutyStationID uuid
 func FetchDutyStationsByPostalCode(tx *pop.Connection, postalCode string) (DutyStations, error) {
 	var stations DutyStations
 	query := tx.
-		Eager().
 		Where("addresses.postal_code like $1", postalCode).
 		LeftJoin("addresses", "duty_stations.address_id = addresses.id")
 

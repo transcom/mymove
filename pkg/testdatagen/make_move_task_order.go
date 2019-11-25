@@ -29,6 +29,15 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 	if isZeroUUID(destinationAddress.ID) {
 		destinationAddress = MakeAddress2(db, assertions)
 	}
+	mtoStatus := assertions.MoveTaskOrder.Status
+	if mtoStatus == "" {
+		mtoStatus = models.MoveTaskOrderStatusApproved
+	}
+
+	var referenceID *string
+	if assertions.MoveTaskOrder.Status != models.MoveTaskOrderStatusDraft {
+		referenceID, _ = models.GenerateReferenceID(db)
+	}
 	moveTaskOrder := models.MoveTaskOrder{
 		MoveID:                   move.ID,
 		CustomerID:               sm.ID,
@@ -37,13 +46,14 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 		OriginDutyStation:        sm.DutyStation,
 		DestinationDutyStation:   move.Orders.NewDutyStation,
 		DestinationDutyStationID: move.Orders.NewDutyStation.ID,
+		ReferenceID:              referenceID,
 		PickupAddress:            pickupAddress,
 		PickupAddressID:          pickupAddress.ID,
 		DestinationAddress:       destinationAddress,
 		DestinationAddressID:     destinationAddress.ID,
 		RequestedPickupDate:      time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
 		CustomerRemarks:          "Park in the alley",
-		Status:                   models.MoveTaskOrderStatusApproved,
+		Status:                   mtoStatus,
 	}
 
 	// Overwrite values with those from assertions

@@ -20,7 +20,7 @@ import (
 type MoveTaskOrderStatus struct {
 
 	// status
-	// Enum: [APPROVED DRAFT SUBMITTED REJECTED]
+	// Enum: [APPROVED DRAFT REJECTED]
 	Status string `json:"status,omitempty"`
 }
 
@@ -42,7 +42,7 @@ var moveTaskOrderStatusTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["APPROVED","DRAFT","SUBMITTED","REJECTED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["APPROVED","DRAFT","REJECTED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -57,9 +57,6 @@ const (
 
 	// MoveTaskOrderStatusStatusDRAFT captures enum value "DRAFT"
 	MoveTaskOrderStatusStatusDRAFT string = "DRAFT"
-
-	// MoveTaskOrderStatusStatusSUBMITTED captures enum value "SUBMITTED"
-	MoveTaskOrderStatusStatusSUBMITTED string = "SUBMITTED"
 
 	// MoveTaskOrderStatusStatusREJECTED captures enum value "REJECTED"
 	MoveTaskOrderStatusStatusREJECTED string = "REJECTED"

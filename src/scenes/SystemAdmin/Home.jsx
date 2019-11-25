@@ -16,6 +16,8 @@ import OfficeList from './Offices/OfficeList';
 import TSPPList from './TSPPs/TSPPList';
 import TSPPShow from './TSPPs/TSPPShow';
 import ElectronicOrderList from './ElectronicOrders/ElectronicOrderList';
+import MoveList from './Moves/MoveList';
+
 import styles from './Home.module.scss';
 import * as Cookies from 'js-cookie';
 import customRoutes from './CustomRoutes';
@@ -59,6 +61,7 @@ const Home = () => (
         create={AdminUserCreate}
         edit={AdminUserEdit}
       />
+      <Resource name="moves" options={{ label: 'Moves' }} list={MoveList} />
       <Resource
         name="transportation_service_provider_performances"
         options={{ label: 'TSPPs' }}

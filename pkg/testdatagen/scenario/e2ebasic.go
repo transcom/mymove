@@ -865,7 +865,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 
 	testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
-			ID: uuid.FromStringOrNil("1c030e51-b5be-40a2-80bf-97a330891307"),
+			ID:     uuid.FromStringOrNil("1c030e51-b5be-40a2-80bf-97a330891307"),
+			Status: models.MoveTaskOrderStatusDraft,
 		},
 	})
 

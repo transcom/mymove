@@ -154,8 +154,15 @@ func GetAWSConfig(v *viper.Viper, verbose bool) (*aws.Config, error) {
 		Region: aws.String(awsRegion),
 	}
 
-	// If program is not wrapped in aws-vault wrapper then get credentials
-	if awsVault := v.GetString(VaultAWSVaultFlag); len(awsVault) == 0 {
+	// Attempt to retrieve AWS creds from envar, if not move to aws-vault
+	creds := credentials.NewEnvCredentials()
+	_, err := creds.Get()
+	if err == nil {
+		// we have creds for envars return them
+		awsConfig.CredentialsChainVerboseErrors = aws.Bool(verbose)
+		awsConfig.Credentials = creds
+	} else if awsVault := v.GetString(VaultAWSVaultFlag); len(awsVault) == 0 {
+		// If program is not wrapped in aws-vault wrapper then get credentials
 		keychainName := v.GetString(VaultAWSKeychainNameFlag)
 		awsProfile := v.GetString(VaultAWSProfileFlag)
 		if len(keychainName) > 0 && len(awsProfile) > 0 {

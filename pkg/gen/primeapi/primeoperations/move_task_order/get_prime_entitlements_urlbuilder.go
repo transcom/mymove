@@ -12,8 +12,8 @@ import (
 	"strings"
 )
 
-// UpdateMoveTaskOrderActualWeightURL generates an URL for the update move task order actual weight operation
-type UpdateMoveTaskOrderActualWeightURL struct {
+// GetPrimeEntitlementsURL generates an URL for the get prime entitlements operation
+type GetPrimeEntitlementsURL struct {
 	MoveTaskOrderID string
 
 	_basePath string
@@ -24,7 +24,7 @@ type UpdateMoveTaskOrderActualWeightURL struct {
 // WithBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *UpdateMoveTaskOrderActualWeightURL) WithBasePath(bp string) *UpdateMoveTaskOrderActualWeightURL {
+func (o *GetPrimeEntitlementsURL) WithBasePath(bp string) *GetPrimeEntitlementsURL {
 	o.SetBasePath(bp)
 	return o
 }
@@ -32,26 +32,26 @@ func (o *UpdateMoveTaskOrderActualWeightURL) WithBasePath(bp string) *UpdateMove
 // SetBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *UpdateMoveTaskOrderActualWeightURL) SetBasePath(bp string) {
+func (o *GetPrimeEntitlementsURL) SetBasePath(bp string) {
 	o._basePath = bp
 }
 
 // Build a url path and query string
-func (o *UpdateMoveTaskOrderActualWeightURL) Build() (*url.URL, error) {
+func (o *GetPrimeEntitlementsURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/move-task-orders/{moveTaskOrderID}/prime-actual-weight"
+	var _path = "/move-task-orders/{moveTaskOrderID}/prime-entitlements"
 
 	moveTaskOrderID := o.MoveTaskOrderID
 	if moveTaskOrderID != "" {
 		_path = strings.Replace(_path, "{moveTaskOrderID}", moveTaskOrderID, -1)
 	} else {
-		return nil, errors.New("moveTaskOrderId is required on UpdateMoveTaskOrderActualWeightURL")
+		return nil, errors.New("moveTaskOrderId is required on GetPrimeEntitlementsURL")
 	}
 
 	_basePath := o._basePath
 	if _basePath == "" {
-		_basePath = "/ghc/v1"
+		_basePath = "/prime/v1"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
 
@@ -59,7 +59,7 @@ func (o *UpdateMoveTaskOrderActualWeightURL) Build() (*url.URL, error) {
 }
 
 // Must is a helper function to panic when the url builder returns an error
-func (o *UpdateMoveTaskOrderActualWeightURL) Must(u *url.URL, err error) *url.URL {
+func (o *GetPrimeEntitlementsURL) Must(u *url.URL, err error) *url.URL {
 	if err != nil {
 		panic(err)
 	}
@@ -70,17 +70,17 @@ func (o *UpdateMoveTaskOrderActualWeightURL) Must(u *url.URL, err error) *url.UR
 }
 
 // String returns the string representation of the path with query string
-func (o *UpdateMoveTaskOrderActualWeightURL) String() string {
+func (o *GetPrimeEntitlementsURL) String() string {
 	return o.Must(o.Build()).String()
 }
 
 // BuildFull builds a full url with scheme, host, path and query string
-func (o *UpdateMoveTaskOrderActualWeightURL) BuildFull(scheme, host string) (*url.URL, error) {
+func (o *GetPrimeEntitlementsURL) BuildFull(scheme, host string) (*url.URL, error) {
 	if scheme == "" {
-		return nil, errors.New("scheme is required for a full url on UpdateMoveTaskOrderActualWeightURL")
+		return nil, errors.New("scheme is required for a full url on GetPrimeEntitlementsURL")
 	}
 	if host == "" {
-		return nil, errors.New("host is required for a full url on UpdateMoveTaskOrderActualWeightURL")
+		return nil, errors.New("host is required for a full url on GetPrimeEntitlementsURL")
 	}
 
 	base, err := o.Build()
@@ -94,6 +94,6 @@ func (o *UpdateMoveTaskOrderActualWeightURL) BuildFull(scheme, host string) (*ur
 }
 
 // StringFull returns the string representation of a complete url
-func (o *UpdateMoveTaskOrderActualWeightURL) StringFull(scheme, host string) string {
+func (o *GetPrimeEntitlementsURL) StringFull(scheme, host string) string {
 	return o.Must(o.BuildFull(scheme, host)).String()
 }

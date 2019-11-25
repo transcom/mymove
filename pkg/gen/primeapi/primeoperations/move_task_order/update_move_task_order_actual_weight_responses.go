@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	ghcmessages "github.com/transcom/mymove/pkg/gen/ghcmessages"
+	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // UpdateMoveTaskOrderActualWeightOKCode is the HTTP code returned for type UpdateMoveTaskOrderActualWeightOK
@@ -25,7 +25,7 @@ type UpdateMoveTaskOrderActualWeightOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.MoveTaskOrder `json:"body,omitempty"`
+	Payload *primemessages.MoveTaskOrder `json:"body,omitempty"`
 }
 
 // NewUpdateMoveTaskOrderActualWeightOK creates UpdateMoveTaskOrderActualWeightOK with default headers values
@@ -35,13 +35,13 @@ func NewUpdateMoveTaskOrderActualWeightOK() *UpdateMoveTaskOrderActualWeightOK {
 }
 
 // WithPayload adds the payload to the update move task order actual weight o k response
-func (o *UpdateMoveTaskOrderActualWeightOK) WithPayload(payload *ghcmessages.MoveTaskOrder) *UpdateMoveTaskOrderActualWeightOK {
+func (o *UpdateMoveTaskOrderActualWeightOK) WithPayload(payload *primemessages.MoveTaskOrder) *UpdateMoveTaskOrderActualWeightOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the update move task order actual weight o k response
-func (o *UpdateMoveTaskOrderActualWeightOK) SetPayload(payload *ghcmessages.MoveTaskOrder) {
+func (o *UpdateMoveTaskOrderActualWeightOK) SetPayload(payload *primemessages.MoveTaskOrder) {
 	o.Payload = payload
 }
 

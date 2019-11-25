@@ -107,7 +107,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(DutyStation);
+export default connect(mapStateToProps, mapDispatchToProps)(DutyStation);

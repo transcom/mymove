@@ -114,9 +114,6 @@ export const accessCode = new schema.Entity('accessCodes');
 // Service Items
 export const serviceItems = new schema.Entity('serviceItems');
 
-// Entitlements
-export const entitlements = new schema.Entity('entitlements');
-
 // Move Task Orders
 export const moveTaskOrder = new schema.Entity('moveTaskOrders');
 

@@ -19,10 +19,12 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
+// ListMoveTaskOrdersHandler fetches all the move task orders
 type ListMoveTaskOrdersHandler struct {
 	handlers.HandlerContext
 }
 
+// Handle fetching all the move task orders with an option to only get those since a certain date
 func (h ListMoveTaskOrdersHandler) Handle(params movetaskorderops.ListMoveTaskOrdersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
@@ -50,11 +52,13 @@ func (h ListMoveTaskOrdersHandler) Handle(params movetaskorderops.ListMoveTaskOr
 	return movetaskorderops.NewListMoveTaskOrdersOK().WithPayload(payload)
 }
 
+// UpdateMoveTaskOrderEstimatedWeightHandler updates the move task order's estimated weight
 type UpdateMoveTaskOrderEstimatedWeightHandler struct {
 	handlers.HandlerContext
 	moveTaskOrderPrimeEstimatedWeightUpdater services.MoveTaskOrderPrimeEstimatedWeightUpdater
 }
 
+// Handle updating the move task order's estimated weight
 func (h UpdateMoveTaskOrderEstimatedWeightHandler) Handle(params movetaskorderops.UpdateMoveTaskOrderEstimatedWeightParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
@@ -62,7 +66,7 @@ func (h UpdateMoveTaskOrderEstimatedWeightHandler) Handle(params movetaskorderop
 	primeEstimatedWeight := unit.Pound(params.Body.PrimeEstimatedWeight)
 	mto, err := h.moveTaskOrderPrimeEstimatedWeightUpdater.UpdatePrimeEstimatedWeight(moveTaskOrderID, primeEstimatedWeight, time.Now())
 	if err != nil {
-		logger.Error("ghciap.UpdateMoveTaskOrderEstimatedWeightHandler error", zap.Error(err))
+		logger.Error("primeapi.UpdateMoveTaskOrderEstimatedWeightHandler error", zap.Error(err))
 		switch e := err.(type) {
 		case movetaskorderservice.ErrNotFound:
 			return movetaskorderops.NewUpdateMoveTaskOrderEstimatedWeightNotFound()
@@ -82,4 +86,165 @@ func (h UpdateMoveTaskOrderEstimatedWeightHandler) Handle(params movetaskorderop
 	}
 	moveTaskOrderPayload := payloads.MoveTaskOrder(*mto)
 	return movetaskorderops.NewUpdateMoveTaskOrderEstimatedWeightOK().WithPayload(moveTaskOrderPayload)
+}
+
+type UpdateMoveTaskOrderPostCounselingInformationHandler struct {
+	handlers.HandlerContext
+	moveTaskOrderPostCounselingInformationUpdater services.MoveTaskOrderPrimePostCounselingUpdater
+}
+
+func (h UpdateMoveTaskOrderPostCounselingInformationHandler) Handle(params movetaskorderops.UpdateMoveTaskOrderPostCounselingInformationParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+	scheduledMoveDate := time.Time(params.Body.ScheduledMoveDate)
+	mto, err := h.moveTaskOrderPostCounselingInformationUpdater.UpdateMoveTaskOrderPostCounselingInformation(moveTaskOrderID,
+		services.PostCounselingInformation{
+			PPMIsIncluded:            params.Body.PpmIsIncluded,
+			ScheduledMoveDate:        scheduledMoveDate,
+			SecondaryDeliveryAddress: payloads.AddressModel(params.Body.SecondaryDeliveryAddress),
+			SecondaryPickupAddress:   payloads.AddressModel(params.Body.SecondaryPickupAddress),
+		},
+	)
+	if err != nil {
+		logger.Error("ghciap.UpdateMoveTaskOrderPostCounselingInformationHandler error", zap.Error(err))
+		switch e := err.(type) {
+		case movetaskorderservice.ErrNotFound:
+			return movetaskorderops.NewUpdateMoveTaskOrderPostCounselingInformationNotFound()
+		case movetaskorderservice.ErrInvalidInput:
+			payload := &primemessages.ValidationError{
+				InvalidFields: e.InvalidFields(),
+				ClientError: primemessages.ClientError{
+					Title:    handlers.FmtString(handlers.ValidationErrMessage),
+					Detail:   handlers.FmtString(e.Error()),
+					Instance: handlers.FmtUUID(h.GetTraceID()),
+				},
+			}
+			return movetaskorderops.NewUpdateMoveTaskOrderPostCounselingInformationUnprocessableEntity().WithPayload(payload)
+		default:
+			return movetaskorderops.NewUpdateMoveTaskOrderPostCounselingInformationInternalServerError()
+		}
+	}
+	moveTaskOrderPayload := payloads.MoveTaskOrder(*mto)
+	return movetaskorderops.NewUpdateMoveTaskOrderPostCounselingInformationOK().WithPayload(moveTaskOrderPayload)
+}
+
+type UpdateMoveTaskOrderDestinationAddressHandler struct {
+	handlers.HandlerContext
+	moveTaskOrderDestinationAddressUpdater services.MoveTaskOrderDestinationAddressUpdater
+}
+
+//Handle handles requests to UpdateMoveTaskOrderDestinationAddressHandler
+func (h UpdateMoveTaskOrderDestinationAddressHandler) Handle(params movetaskorderops.UpdateMoveTaskOrderDestinationAddressParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+	addressModel := payloads.AddressModel(params.DestinationAddress)
+	mto, err := h.moveTaskOrderDestinationAddressUpdater.UpdateMoveTaskOrderDestinationAddress(moveTaskOrderID, addressModel)
+	if err != nil {
+		logger.Error("ghciap.UpdateMoveTaskOrderPostCounselingInformationHandler error", zap.Error(err))
+		switch e := err.(type) {
+		case movetaskorderservice.ErrNotFound:
+			return movetaskorderops.NewUpdateMoveTaskOrderDestinationAddressNotFound()
+		case movetaskorderservice.ErrInvalidInput:
+			payload := &primemessages.ValidationError{
+				InvalidFields: e.InvalidFields(),
+				ClientError: primemessages.ClientError{
+					Title:    handlers.FmtString(handlers.ValidationErrMessage),
+					Detail:   handlers.FmtString(e.Error()),
+					Instance: handlers.FmtUUID(h.GetTraceID()),
+				},
+			}
+			return movetaskorderops.NewUpdateMoveTaskOrderDestinationAddressUnprocessableEntity().WithPayload(payload)
+		default:
+			return movetaskorderops.NewUpdateMoveTaskOrderDestinationAddressInternalServerError()
+		}
+	}
+	moveTaskOrderPayload := payloads.MoveTaskOrder(*mto)
+	return movetaskorderops.NewUpdateMoveTaskOrderDestinationAddressOK().WithPayload(moveTaskOrderPayload)
+}
+
+// UpdateMoveTaskOrderActualWeightHandler updates the actual weight for a move task order
+type UpdateMoveTaskOrderActualWeightHandler struct {
+	handlers.HandlerContext
+	moveTaskOrderActualWeightUpdater services.MoveTaskOrderActualWeightUpdater
+}
+
+// Handle updating the actual weight for a move task order
+func (h UpdateMoveTaskOrderActualWeightHandler) Handle(params movetaskorderops.UpdateMoveTaskOrderActualWeightParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+	mto, err := h.moveTaskOrderActualWeightUpdater.UpdateMoveTaskOrderActualWeight(moveTaskOrderID, params.Body.ActualWeight)
+	if err != nil {
+		logger.Error("primeapi.UpdateMoveTaskOrderActualWeightHandler error", zap.Error(err))
+		switch err.(type) {
+		case movetaskorderservice.ErrNotFound:
+			return movetaskorderops.NewUpdateMoveTaskOrderActualWeightNotFound()
+		case movetaskorderservice.ErrInvalidInput:
+			return movetaskorderops.NewUpdateMoveTaskOrderActualWeightBadRequest()
+		default:
+			return movetaskorderops.NewUpdateMoveTaskOrderActualWeightInternalServerError()
+		}
+	}
+
+	moveTaskOrderPayload := payloads.MoveTaskOrder(*mto)
+	return movetaskorderops.NewUpdateMoveTaskOrderActualWeightOK().WithPayload(moveTaskOrderPayload)
+}
+
+// GetPrimeEntitlementsHandler fetches the entitlements for a move task order
+type GetPrimeEntitlementsHandler struct {
+	handlers.HandlerContext
+	moveTaskOrderFetcher services.MoveTaskOrderFetcher
+}
+
+// Handle getting the entitlements for a move task order
+func (h GetPrimeEntitlementsHandler) Handle(params movetaskorderops.GetPrimeEntitlementsParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID)
+	if err != nil {
+		logger.Error("primeapi.GetPrimeEntitlementsHandler error", zap.Error(err))
+		switch err.(type) {
+		case movetaskorderservice.ErrNotFound:
+			return movetaskorderops.NewGetPrimeEntitlementsNotFound()
+		case movetaskorderservice.ErrInvalidInput:
+			return movetaskorderops.NewGetPrimeEntitlementsBadRequest()
+		default:
+			return movetaskorderops.NewGetPrimeEntitlementsInternalServerError()
+		}
+	}
+	entitlements := payloads.Entitlements(&mto.Entitlements)
+
+	return movetaskorderops.NewGetPrimeEntitlementsOK().WithPayload(entitlements)
+}
+
+type GetMoveTaskOrderCustomerHandler struct {
+	handlers.HandlerContext
+	moveTaskOrderFetcher services.MoveTaskOrderFetcher
+}
+
+func (h GetMoveTaskOrderCustomerHandler) Handle(params movetaskorderops.GetMoveTaskOrderCustomerParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID)
+	if err != nil {
+		logger.Error("ghciap.GetMoveTaskOrderCustomerHandler error", zap.Error(err))
+		switch e := err.(type) {
+		case movetaskorderservice.ErrNotFound:
+			return movetaskorderops.NewGetMoveTaskOrderCustomerNotFound()
+		case movetaskorderservice.ErrInvalidInput:
+			payload := &primemessages.ValidationError{
+				InvalidFields: e.InvalidFields(),
+				ClientError: primemessages.ClientError{
+					Title:    handlers.FmtString(handlers.ValidationErrMessage),
+					Detail:   handlers.FmtString(e.Error()),
+					Instance: handlers.FmtUUID(h.GetTraceID()),
+				},
+			}
+			return movetaskorderops.NewGetMoveTaskOrderCustomerUnprocessableEntity().WithPayload(payload)
+		default:
+			return movetaskorderops.NewGetMoveTaskOrderCustomerInternalServerError()
+		}
+	}
+	customer := payloads.CustomerWithMTO(mto)
+	return movetaskorderops.NewGetMoveTaskOrderCustomerOK().WithPayload(customer)
 }

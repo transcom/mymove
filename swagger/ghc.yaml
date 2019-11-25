@@ -552,61 +552,12 @@ paths:
         - application/json
       parameters: []
       tags:
-        - Entitlements
+        - moveTaskOrder
       responses:
         '200':
-          description: Successfully retrieved move task order
+          description: Successfully retrieved entitlements
           schema:
             $ref: '#/definitions/Entitlements'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/definitions/Error'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/definitions/Error'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/definitions/Error'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/definitions/Error'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/definitions/Error'
-      description: Gets entitlements
-      operationId: getEntitlements
-      summary: Gets entitlements for a move order by ID
-  '/move-task-orders/{moveTaskOrderID}/prime-actual-weight':
-    parameters:
-      - description: ID of move order to use
-        in: path
-        name: moveTaskOrderID
-        required: true
-        type: string
-    patch:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            type: object
-            properties:
-              actualWeight:
-                type: integer
-      responses:
-        '200':
-          description: Successfully retrieved move task order
-          schema:
-            $ref: '#/definitions/MoveTaskOrder'
         '400':
           description: The request payload is invalid
           schema:
@@ -627,12 +578,9 @@ paths:
           description: A server error occurred
           schema:
             $ref: '#/responses/ServerError'
-      tags:
-        - moveTaskOrder
-        - prime
-      description: Updates a move order's actual weight by ID
-      operationId: updateMoveTaskOrderActualWeight
-      summary: Updates a move order's actual weight by ID
+      description: Gets entitlements
+      operationId: getEntitlements
+      summary: Gets entitlements for a move order by ID
   /payment-requests:
     get:
       produces:
@@ -962,6 +910,10 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      reference_id:
+        type: string
+        x-nullable: true
+        example: 1234-5678
       customer_id:
         type: string
         format: uuid
@@ -1137,6 +1089,10 @@ definitions:
         type: string
       pickupAddress:
         $ref: '#/definitions/Address'
+      referenceId:
+        example: 1001-3456
+        type: string
+        x-nullable: true
       remarks:
         example: Requires more gentle care
         type: string
@@ -1149,15 +1105,10 @@ definitions:
         type: array
       status:
         enum:
-          - DRAFT #TODO this is to represent visible to PRIME not sure if this is the right name for this?
           - APPROVED
           - REJECTED
-          - SUBMITTED
+          - DRAFT
         type: string
-      actualWeight:
-        type: integer
-        example: 1000
-        x-formatting: weight
       updatedAt:
         format: date
         type: string
@@ -1168,7 +1119,6 @@ definitions:
         enum:
           - APPROVED
           - DRAFT
-          - SUBMITTED
           - REJECTED
         type: string
     type: object

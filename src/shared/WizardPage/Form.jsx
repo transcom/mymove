@@ -115,12 +115,14 @@ export class WizardFormPage extends Component {
         )}
         <form className={className}>{children}</form>
         <div className="grid-row" style={{ marginTop: '0.5rem' }}>
-          <div className="grid-col-12 text-right margin-top-6 tablet:margin-top-3">
+          <div className="grid-col margin-top-6 tablet:margin-top-3">
             {!isMobile && (
-              <button className="usa-button usa-button--outline cancel" onClick={this.cancelFlow}>
+              <button className="usa-button usa-button--outline cancel padding-left-0" onClick={this.cancelFlow}>
                 Cancel
               </button>
             )}
+          </div>
+          <div className="grid-col text-right margin-top-6 tablet:margin-top-3">
             {!hideBackBtn && (
               <button
                 className="usa-button usa-button--outline prev"
@@ -201,12 +203,5 @@ export const reduxifyWizardForm = (name, additionalValidations, asyncValidate, a
     asyncBlurFields,
     enableReinitialize: true,
     keepDirtyOnReinitialize: true,
-  })(
-    withRouter(
-      connect(
-        null,
-        mapDispatchToProps,
-      )(wizardFormPageWithSize),
-    ),
-  );
+  })(withRouter(connect(null, mapDispatchToProps)(wizardFormPageWithSize)));
 };

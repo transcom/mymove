@@ -186,9 +186,4 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators({ loadInternalSchema, loadPublicSchema, getCurrentUserInfo }, dispatch);
-export default withContext(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  )(OfficeWrapper),
-);
+export default withContext(connect(mapStateToProps, mapDispatchToProps)(OfficeWrapper));
