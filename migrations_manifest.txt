@@ -390,4 +390,5 @@
 20191114203559_create-contractors-table.up.sql
 20191114204029_move_task_order_add_post_counseling_info.up.sql
 20191118163343_alter_ghc_approval_status.up.sql
+20191119171641_add-known-contractors.up.sql
 20191120165831_disable-user-migration.up.sql
