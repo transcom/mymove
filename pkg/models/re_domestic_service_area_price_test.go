@@ -2,7 +2,6 @@ package models_test
 
 import (
 	"testing"
-	"time"
 
 	"github.com/gofrs/uuid"
 
@@ -18,8 +17,6 @@ func (suite *ModelSuite) TestReDomesticServiceAreaPriceValidations() {
 			IsPeakPeriod:          true,
 			DomesticServiceAreaID: uuid.Must(uuid.NewV4()),
 			PriceCents:            unit.Cents(375),
-			CreatedAt:             time.Now(),
-			UpdatedAt:             time.Now(),
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validReDomesticServiceAreaPrice, expErrors)
