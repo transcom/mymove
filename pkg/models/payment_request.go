@@ -10,11 +10,11 @@ import (
 )
 
 type PaymentRequest struct {
-	ID              uuid.UUID     `db:"id"`
-	IsFinal         bool          `db:"is_final"`
+	ID              uuid.UUID     `json:"id" db:"id"`
+	IsFinal         bool          `json:"is_final" db:"is_final"`
 	MoveTaskOrder   MoveTaskOrder `belongs_to:"move_task_orders"`
-	MoveTaskOrderID uuid.UUID     `db:"move_task_order_id"`
-	RejectionReason string        `db:"rejection_reason"`
+	MoveTaskOrderID uuid.UUID     `json:"move_task_order_id" db:"move_task_order_id"`
+	RejectionReason string        `json:"rejection_reason" db:"rejection_reason"`
 	//TODO DocumentPackage
 	CreatedAt time.Time `db:"created_at"`
 	UpdatedAt time.Time `db:"updated_at"`

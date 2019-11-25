@@ -16,12 +16,12 @@ func NewPaymentRequestCreator(db *pop.Connection) services.PaymentRequestCreator
 	return &paymentRequestCreator{db}
 }
 
-func (p *paymentRequestCreator) CreatePaymentRequest(pr *models.PaymentRequest) (paymentRequest *models.PaymentRequest, verrs *validate.Errors, err error) {
+func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequest *models.PaymentRequest) (*models.PaymentRequest, *validate.Errors, error) {
 
-	verrs, err = p.db.ValidateAndCreate(&paymentRequest)
+	verrs, err := p.db.ValidateAndCreate(paymentRequest)
 	if err != nil || verrs.HasAny() {
 		return nil, verrs, err
 	}
 
-	return paymentRequest, nil, nil
+	return paymentRequest, verrs, err
 }

@@ -50,7 +50,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	paymentRequest.MoveTaskOrder = moveTaskOrder
 
 	createdPaymentRequest, verrs, err := h.PaymentRequestCreator.CreatePaymentRequest(&paymentRequest)
-	if err != nil || verrs != nil {
+	if err != nil || verrs.HasAny() {
 		logger.Error("Error saving payment request", zap.Error(verrs))
 		return paymentrequestop.NewCreatePaymentRequestInternalServerError()
 	}
