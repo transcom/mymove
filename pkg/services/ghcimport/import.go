@@ -30,12 +30,12 @@ func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
 		return fmt.Errorf("failed to import re_domestic_service_area: %w", err)
 	}
 
-	err = gre.importRERateArea(dbTx)
+	err = gre.importRERateArea(dbTx) // Also populates gre.domesticRateAreaToIDMap and gre.internationalRateAreaToIDMap
 	if err != nil {
 		return fmt.Errorf("failed to import re_rate_area: %w", err)
 	}
 
-	//Non-reference tables
+	// Non-reference tables
 	err = gre.importREDomesticLinehaulPrices(dbTx)
 	if err != nil {
 		return fmt.Errorf("failed to import re_domestic_linehaul_prices: %w", err)

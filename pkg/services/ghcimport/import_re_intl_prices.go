@@ -34,7 +34,8 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 	//loop through the OCONUS to OCONUS data and store in db
 	for _, stageOconusToOconusPrice := range oconusToOconusPrices {
 		var intlPricingModels models.ReIntlPrices
-		isPeakPeriod, err := isPeakPeriod(stageOconusToOconusPrice.Season)
+		var peakPeriod bool
+		peakPeriod, err = isPeakPeriod(stageOconusToOconusPrice.Season)
 		if err != nil {
 			return errors.Wrapf(err, "could not process sesason [%s]", stageOconusToOconusPrice.Season)
 		}
@@ -51,12 +52,14 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 			return fmt.Errorf("could not find service [%s] in map", stageOconusToOconusPrice.DestinationIntlPriceAreaID)
 		}
 
-		perUnitCentsHHG, err := priceToCents(stageOconusToOconusPrice.HHGShippingLinehaulPrice)
+		var perUnitCentsHHG int
+		perUnitCentsHHG, err = priceToCents(stageOconusToOconusPrice.HHGShippingLinehaulPrice)
 		if err != nil {
 			return fmt.Errorf("could not process linehaul price [%s]: %w", stageOconusToOconusPrice.HHGShippingLinehaulPrice, err)
 		}
 
-		perUnitCentsUB, err := priceToCents(stageOconusToOconusPrice.UBPrice)
+		var perUnitCentsUB int
+		perUnitCentsUB, err = priceToCents(stageOconusToOconusPrice.UBPrice)
 		if err != nil {
 			return fmt.Errorf("could not process linehaul price [%s]: %w", stageOconusToOconusPrice.HHGShippingLinehaulPrice, err)
 		}
@@ -66,7 +69,7 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 			ServiceID:             serviceIOOLH.ID,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
-			IsPeakPeriod:          isPeakPeriod,
+			IsPeakPeriod:          peakPeriod,
 			PerUnitCents:          unit.Cents(perUnitCentsHHG),
 		}
 
@@ -77,16 +80,16 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 			ServiceID:             serviceIOOUB.ID,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
-			IsPeakPeriod:          isPeakPeriod,
+			IsPeakPeriod:          peakPeriod,
 			PerUnitCents:          unit.Cents(perUnitCentsUB),
 		}
 
 		intlPricingModels = append(intlPricingModels, intlPricingModelIOOUB)
 
 		for _, model := range intlPricingModels {
-			verrs, err := dbTx.ValidateAndSave(&model)
-			if err != nil {
-				return fmt.Errorf("error saving ReIntlPrices: %+v with error: %w", model, err)
+			verrs, dbErr := dbTx.ValidateAndSave(&model)
+			if dbErr != nil {
+				return fmt.Errorf("error saving ReIntlPrices: %+v with error: %w", model, dbErr)
 			}
 			if verrs.HasAny() {
 				return fmt.Errorf("error saving ReIntlPrices: %+v with validation errors: %w", model, verrs)
@@ -116,7 +119,8 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 	//loop through the CONUS to OCONUS data and store in db
 	for _, stageConusToOconusPrice := range conusToOconusPrices {
 		var intlPricingModels models.ReIntlPrices
-		isPeakPeriod, err := isPeakPeriod(stageConusToOconusPrice.Season)
+		var peakPeriod bool
+		peakPeriod, err = isPeakPeriod(stageConusToOconusPrice.Season)
 		if err != nil {
 			return errors.Wrapf(err, "could not process sesason [%s]", stageConusToOconusPrice.Season)
 		}
@@ -133,12 +137,14 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 			return fmt.Errorf("could not find service [%s] in map", stageConusToOconusPrice.DestinationIntlPriceAreaID)
 		}
 
-		perUnitCentsHHG, err := priceToCents(stageConusToOconusPrice.HHGShippingLinehaulPrice)
+		var perUnitCentsHHG int
+		perUnitCentsHHG, err = priceToCents(stageConusToOconusPrice.HHGShippingLinehaulPrice)
 		if err != nil {
 			return fmt.Errorf("could not process linehaul price [%s]: %w", stageConusToOconusPrice.HHGShippingLinehaulPrice, err)
 		}
 
-		perUnitCentsUB, err := priceToCents(stageConusToOconusPrice.UBPrice)
+		var perUnitCentsUB int
+		perUnitCentsUB, err = priceToCents(stageConusToOconusPrice.UBPrice)
 		if err != nil {
 			return fmt.Errorf("could not process linehaul price [%s]: %w", stageConusToOconusPrice.HHGShippingLinehaulPrice, err)
 		}
@@ -148,7 +154,7 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 			ServiceID:             serviceICOLH.ID,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
-			IsPeakPeriod:          isPeakPeriod,
+			IsPeakPeriod:          peakPeriod,
 			PerUnitCents:          unit.Cents(perUnitCentsHHG),
 		}
 
@@ -159,16 +165,16 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 			ServiceID:             serviceICOUB.ID,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
-			IsPeakPeriod:          isPeakPeriod,
+			IsPeakPeriod:          peakPeriod,
 			PerUnitCents:          unit.Cents(perUnitCentsUB),
 		}
 
 		intlPricingModels = append(intlPricingModels, intlPricingModelICOUB)
 
 		for _, model := range intlPricingModels {
-			verrs, err := dbTx.ValidateAndSave(&model)
-			if err != nil {
-				return fmt.Errorf("error saving ReIntlPrices: %+v with error: %w", model, err)
+			verrs, dbErr := dbTx.ValidateAndSave(&model)
+			if dbErr != nil {
+				return fmt.Errorf("error saving ReIntlPrices: %+v with error: %w", model, dbErr)
 			}
 			if verrs.HasAny() {
 				return fmt.Errorf("error saving ReIntlPrices: %+v with validation errors: %w", model, verrs)
