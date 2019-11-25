@@ -85,5 +85,18 @@ func (suite *FetchServiceSuite) TestFetchRecordList() {
 	})
 }
 
-// func (suite *FetchServiceSuite) TestFetchRecordCount() {
-// }
+func (suite *FetchServiceSuite) TestFetchRecordCount() {
+	fakeCount := func(model interface{}) (int, error) {
+		return 5, nil
+	}
+
+	builder := &testListQueryBuilder{
+		fakeCount: fakeCount,
+	}
+	fetcher := NewListFetcher(builder)
+
+	var officeUsers models.OfficeUsers
+	count, err := fetcher.FetchRecordCount(&officeUsers, []services.QueryFilter{})
+	suite.NoError(err)
+	suite.Equal(5, count)
+}
