@@ -6,7 +6,6 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/gobuffalo/pop"
-	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -16,7 +15,7 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 	var oconusToOconusPrices []models.StageOconusToOconusPrice
 	err := dbTx.All(&oconusToOconusPrices)
 	if err != nil {
-		return errors.Wrap(err, "could not read staged OCONUS to OCONUS prices")
+		return fmt.Errorf("could not read staged OCONUS to OCONUS prices: %w", err)
 	}
 
 	//Int'l O->O Shipping & LH
@@ -37,7 +36,7 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 		var peakPeriod bool
 		peakPeriod, err = isPeakPeriod(stageOconusToOconusPrice.Season)
 		if err != nil {
-			return errors.Wrapf(err, "could not process sesason [%s]", stageOconusToOconusPrice.Season)
+			return fmt.Errorf("could not process sesason [%s]: %w", stageOconusToOconusPrice.Season, err)
 		}
 
 		originRateArea := stageOconusToOconusPrice.OriginIntlPriceAreaID
@@ -101,7 +100,7 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 	var conusToOconusPrices []models.StageConusToOconusPrice
 	err = dbTx.All(&conusToOconusPrices)
 	if err != nil {
-		return errors.Wrap(err, "could not read staged CONUS to OCONUS prices")
+		return fmt.Errorf("could not read staged CONUS to OCONUS prices: %w", err)
 	}
 
 	//Int'l C->O Shipping & LH
@@ -122,7 +121,7 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 		var peakPeriod bool
 		peakPeriod, err = isPeakPeriod(stageConusToOconusPrice.Season)
 		if err != nil {
-			return errors.Wrapf(err, "could not process sesason [%s]", stageConusToOconusPrice.Season)
+			return fmt.Errorf("could not process sesason [%s]: %w", stageConusToOconusPrice.Season, err)
 		}
 
 		originRateArea := stageConusToOconusPrice.OriginDomesticPriceAreaCode
@@ -186,7 +185,7 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 	var oconusToConusPrices []models.StageOconusToConusPrice
 	err = dbTx.All(&oconusToConusPrices)
 	if err != nil {
-		return errors.Wrap(err, "could not read staged OCONUS to CONUS prices")
+		return fmt.Errorf("could not read staged OCONUS to CONUS prices: %w", err)
 	}
 
 	//Int'l O->C Shipping & LH
@@ -206,7 +205,7 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 		var intlPricingModels models.ReIntlPrices
 		isPeakPeriod, err := isPeakPeriod(stageOconusToConusPrice.Season)
 		if err != nil {
-			return errors.Wrapf(err, "could not process season [%s]", stageOconusToConusPrice.Season)
+			return fmt.Errorf("could not process season [%s]: %w", stageOconusToConusPrice.Season, err)
 		}
 
 		originRateArea := stageOconusToConusPrice.OriginIntlPriceAreaID
