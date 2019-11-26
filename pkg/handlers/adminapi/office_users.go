@@ -34,7 +34,7 @@ func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 // IndexOfficeUsersHandler returns a list of office users via GET /office_users
 type IndexOfficeUsersHandler struct {
 	handlers.HandlerContext
-	services.OfficeUserListFetcher
+	services.ListFetcher
 	services.NewQueryFilter
 	services.NewPagination
 }
@@ -49,12 +49,13 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 	associations := query.NewQueryAssociations([]services.QueryAssociation{})
 	ordering := query.NewQueryOrder(params.Sort, params.Order)
 
-	officeUsers, err := h.OfficeUserListFetcher.FetchOfficeUserList(queryFilters, associations, pagination, ordering)
+	var officeUsers models.OfficeUsers
+	err := h.ListFetcher.FetchRecordList(&officeUsers, queryFilters, associations, pagination, ordering)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	totalOfficeUsersCount, err := h.OfficeUserListFetcher.FetchOfficeUserCount(queryFilters)
+	totalOfficeUsersCount, err := h.ListFetcher.FetchRecordCount(&officeUsers, queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
