@@ -38,9 +38,5 @@ func FetchReServiceItem(tx *pop.Connection, code string) (*ReService, error) {
 		return nil, err
 	}
 
-	if service.Code == code {
-		return &service, err
-	}
-
-	return nil, err
+	return &service, err
 }
