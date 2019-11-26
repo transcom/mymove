@@ -98,12 +98,6 @@ export class PpmWeight extends Component {
     });
   };
 
-  onProgearChangesWeightSelecting = event => {
-    this.setState({
-      pendingPpmWeight: event.target.valueAsNumber,
-    });
-  };
-
   onWeightSelected() {
     const { currentPpm, originDutyStationZip } = this.props;
     this.props.getPpmWeightEstimate(
@@ -182,49 +176,24 @@ export class PpmWeight extends Component {
     } = this.props;
     const { context: { flags: { progearChanges } } = { flags: { progearChanges: null } } } = this.props;
     const { includesProgear = 'No' } = this.state;
-
+    console.log(document.getElementById('progear__estimation__slider'));
     return (
       <div>
         {progearChanges && (
           <div className="grid-container usa-prose">
             <h3>How much do you think you'll move?</h3>
             <p>Your weight entitlement: {this.props.entitlement.weight.toLocaleString()} lbs</p>
-            <div className={styles['progear-slider-container']}>
-              {/*<Slider*/}
-              {/*  min={0}*/}
-              {/*  max={this.props.entitlement.weight}*/}
-              {/*  value={this.state.pendingPpmWeight}*/}
-              {/*  onChange={this.onWeightSelecting}*/}
-              {/*  onChangeComplete={this.onWeightSelected}*/}
-              {/*  step={500}*/}
-              {/*  labels={{*/}
-              {/*    0: `${0} lbs`,*/}
-              {/*    [this.props.entitlement.weight]: `${this.props.entitlement.weight.toLocaleString()} lbs`,*/}
-              {/*  }}*/}
-              {/*/>*/}
-              <div className="rangeslider__container">
-                <output id="slider__output" htmlFor="progear__weight__selector">
-                  about {this.state.pendingPpmWeight}
-                </output>
-                <input
-                  id="progear__weight__selector"
-                  className="usa-range"
-                  type="range"
-                  min={0}
-                  max={this.props.entitlement.weight}
-                  step={500}
-                  defaultValue={this.state.pendingPpmWeight}
-                  onInput={this.onProgearChangesWeightSelecting}
-                  onChange={this.onWeightSelected}
-                />
-              </div>
-
+            <div>
               <RangeSlider
-                id="progear-test"
+                id="progear__estimation__slider"
                 max={this.props.entitlement.weight}
                 step={500}
                 min={0}
-                defaultValue={this.state.pendingPpmWeight}
+                defaultValue={500}
+                prependTooltipText="about"
+                appendToolTipText="lbs"
+                stateChangeFunc={this.onWeightSelecting}
+                onChange={this.onWeightSelected}
               />
 
               {hasEstimateError && (
