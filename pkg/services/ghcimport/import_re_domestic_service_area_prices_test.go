@@ -2,8 +2,6 @@ package ghcimport
 
 import (
 	"fmt"
-	"io/ioutil"
-	"path/filepath"
 	"testing"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -18,8 +16,6 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceAreaPrices() 
 
 	suite.T().Run("import success", func(t *testing.T) {
 		// Prerequisite tables must be loaded.
-		suite.helperSetupReServicesTable()
-
 		err := gre.importREContract(suite.DB())
 		suite.NoError(err)
 
@@ -53,8 +49,6 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceAreaPricesFai
 		dropErr := suite.DB().RawQuery(dropQuery).Exec()
 		suite.NoError(dropErr)
 
-		suite.helperSetupReServicesTable()
-
 		gre := &GHCRateEngineImporter{
 			Logger:       suite.logger,
 			ContractCode: testContractCode,
@@ -69,16 +63,6 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceAreaPricesFai
 			suite.Equal("Error looking up StageDomesticServiceAreaPrice data: unable to fetch records: pq: relation \"stage_domestic_service_area_prices\" does not exist", err.Error())
 		}
 	})
-}
-
-func (suite *GHCRateEngineImportSuite) helperSetupReServicesTable() {
-	path := filepath.Join("../../../migrations", "20191101201107_create-re-services-table-with-values.up.sql")
-	c, ioErr := ioutil.ReadFile(path)
-	suite.NoError(ioErr)
-
-	sql := string(c)
-	err := suite.DB().RawQuery(sql).Exec()
-	suite.NoError(err)
 }
 
 func (suite *GHCRateEngineImportSuite) helperVerifyDomesticServiceAreaPrices() {

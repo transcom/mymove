@@ -47,11 +47,12 @@ func (suite *GHCRateEngineImportSuite) SetupTest() {
 		err := suite.DB().RawQuery(sql).Exec()
 		suite.NoError(err)
 	}
+	// setup re_services which is normally a migration in other environments
+	suite.helperSetupReServicesTable()
 }
 
 func (suite *GHCRateEngineImportSuite) SetupSuite() {
 	suite.helperSetupStagingTables()
-	suite.helperSetupReServicesTable()
 }
 
 func (suite *GHCRateEngineImportSuite) TearDownSuite() {
