@@ -32,7 +32,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	if params.Body == nil {
-		logger.Error("Error saving payment request")
+		logger.Error("Error saving payment request: params body is nil")
 		return paymentrequestop.NewCreatePaymentRequestBadRequest()
 	}
 	paymentRequest := models.PaymentRequest{
