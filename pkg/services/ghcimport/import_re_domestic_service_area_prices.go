@@ -2,10 +2,8 @@ package ghcimport
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -26,23 +24,14 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Conn
 			return ippErr
 		}
 
-		servicesSchedule, ssErr := strconv.Atoi(stageDomPricingModel.ServicesSchedule)
-		if ssErr != nil {
-			return fmt.Errorf("Failed to parse ServicesSchedule for %+v: %w", stageDomPricingModel, ssErr)
-		}
-		sITPDSchedule, spErr := strconv.Atoi(stageDomPricingModel.SITPickupDeliverySchedule)
-		if spErr != nil {
-			return fmt.Errorf("Failed to parse SITPickupDeliverySchedule for %+v: %w", stageDomPricingModel, spErr)
-		}
 		serviceAreaNumber, csaErr := cleanServiceAreaNumber(stageDomPricingModel.ServiceAreaNumber)
 		if csaErr != nil {
 			return csaErr
 		}
 
-		var serviceArea models.ReDomesticServiceArea
-		err := db.Where("service_area = $1 and services_schedule = $2 and sit_pd_schedule = $3", serviceAreaNumber, servicesSchedule, sITPDSchedule).First(&serviceArea)
-		if err != nil || serviceArea.ID == uuid.Nil {
-			return fmt.Errorf("Cannot find service area number '%s' with services schedule '%d' and SITPickupDeliverySchedule '%d': %w", serviceAreaNumber, servicesSchedule, sITPDSchedule, err)
+		serviceAreaID, found := gre.serviceAreaToIDMap[serviceAreaNumber]
+		if !found {
+			return fmt.Errorf("could not find service area [%s] in map", serviceAreaNumber)
 		}
 
 		//DSH - ShorthaulPrice
@@ -60,7 +49,7 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Conn
 			ContractID:            gre.contractID,
 			ServiceID:             service.ID,
 			IsPeakPeriod:          isPeakPeriod,
-			DomesticServiceAreaID: serviceArea.ID,
+			DomesticServiceAreaID: serviceAreaID,
 			PriceCents:            unit.Cents(cents),
 		}
 
@@ -81,7 +70,7 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Conn
 			ContractID:            gre.contractID,
 			ServiceID:             service.ID,
 			IsPeakPeriod:          isPeakPeriod,
-			DomesticServiceAreaID: serviceArea.ID,
+			DomesticServiceAreaID: serviceAreaID,
 			PriceCents:            unit.Cents(cents),
 		}
 
@@ -102,7 +91,7 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Conn
 			ContractID:            gre.contractID,
 			ServiceID:             service.ID,
 			IsPeakPeriod:          isPeakPeriod,
-			DomesticServiceAreaID: serviceArea.ID,
+			DomesticServiceAreaID: serviceAreaID,
 			PriceCents:            unit.Cents(cents),
 		}
 
@@ -123,7 +112,7 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Conn
 			ContractID:            gre.contractID,
 			ServiceID:             service.ID,
 			IsPeakPeriod:          isPeakPeriod,
-			DomesticServiceAreaID: serviceArea.ID,
+			DomesticServiceAreaID: serviceAreaID,
 			PriceCents:            unit.Cents(cents),
 		}
 
