@@ -1,6 +1,6 @@
 import React from 'react';
 import { phoneValidators } from 'scenes/SystemAdmin/shared/form_validators';
-import { Edit, SimpleForm, TextInput, DisabledInput, SelectInput, required, Toolbar, SaveButton } from 'react-admin';
+import { Edit, SimpleForm, TextInput, SelectInput, required, Toolbar, SaveButton } from 'react-admin';
 
 const OfficeUserEditToolbar = props => (
   <Toolbar {...props}>
@@ -11,8 +11,8 @@ const OfficeUserEditToolbar = props => (
 const OfficeUserEdit = props => (
   <Edit {...props}>
     <SimpleForm toolbar={<OfficeUserEditToolbar />}>
-      <DisabledInput source="id" />
-      <DisabledInput source="email" />
+      <TextInput source="id" disabled />
+      <TextInput source="email" disabled />
       <TextInput source="first_name" validate={required()} />
       <TextInput source="middle_initials" />
       <TextInput source="last_name" validate={required()} />
@@ -24,8 +24,8 @@ const OfficeUserEdit = props => (
           { id: false, name: 'No' },
         ]}
       />
-      <DisabledInput source="created_at" />
-      <DisabledInput source="updated_at" />
+      <TextInput source="created_at" disabled />
+      <TextInput source="updated_at" disabled />
     </SimpleForm>
   </Edit>
 );
