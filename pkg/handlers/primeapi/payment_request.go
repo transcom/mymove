@@ -32,26 +32,38 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	if params.Body == nil {
-		logger.Error("Error saving payment request: params body is nil")
+		logger.Error("Invalid payment request: params body is nil")
 		return paymentrequestop.NewCreatePaymentRequestBadRequest()
 	}
+
+	mtoID := handlers.FmtToPopUUID(params.Body.MoveTaskOrderID)
+	if mtoID == nil {
+		logger.Error("Invalid payment request: params moveTaskOrderID is nil")
+		return paymentrequestop.NewCreatePaymentRequestBadRequest()
+	}
+
 	paymentRequest := models.PaymentRequest{
 		IsFinal:         *params.Body.IsFinal,
-		MoveTaskOrderID: handlers.FmtToPopUUID(params.Body.MoveTaskOrderID),
+		MoveTaskOrderID: *mtoID,
 	}
 
 	moveTaskOrder := models.MoveTaskOrder{}
 	err := h.DB().Find(&moveTaskOrder, paymentRequest.MoveTaskOrderID)
 	if err != nil {
-		logger.Error("Error saving payment request", zap.Error(err))
+		logger.Error("Error finding MTO with ID request", zap.Error(err), zap.Any("MoveTaskOrderID", paymentRequest.MoveTaskOrderID))
 		return paymentrequestop.NewCreatePaymentRequestNotFound()
 	}
 
 	paymentRequest.MoveTaskOrder = moveTaskOrder
 
 	createdPaymentRequest, verrs, err := h.PaymentRequestCreator.CreatePaymentRequest(&paymentRequest)
-	if err != nil || verrs.HasAny() {
-		logger.Error("Error saving payment request", zap.Error(verrs))
+	if verrs.HasAny() {
+		logger.Error("Error creating payment request verrs", zap.Error(verrs))
+		return paymentrequestop.NewCreatePaymentRequestInternalServerError()
+	}
+
+	if err != nil {
+		logger.Error("Error creating payment request err", zap.Error(err))
 		return paymentrequestop.NewCreatePaymentRequestInternalServerError()
 	}
 

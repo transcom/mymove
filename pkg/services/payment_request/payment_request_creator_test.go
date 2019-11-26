@@ -17,10 +17,10 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		IsFinal:         false,
 	}
 
+	creator := NewPaymentRequestCreator(suite.DB())
+
 	// Happy path
 	suite.T().Run("Payment request is created successfully", func(t *testing.T) {
-
-		creator := NewPaymentRequestCreator(suite.DB())
 		_, verrs, err := creator.CreatePaymentRequest(&paymentRequest)
 		suite.NoError(err)
 		suite.NoVerrs(verrs)
@@ -28,7 +28,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 	// Bad move task order ID
 	suite.T().Run("Given an non-existent move task order id, the create should fail", func(t *testing.T) {
-		creator := NewPaymentRequestCreator(suite.DB())
 		mtoID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
 		invalidPaymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: mtoID,

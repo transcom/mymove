@@ -32,15 +32,15 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		IsFinal:         false,
 	}
 
-	returnedPaymentRequest := models.PaymentRequest{
-		ID:              paymentRequestID,
-		MoveTaskOrderID: moveTaskOrderID,
-		MoveTaskOrder:   moveTaskOrder,
-		CreatedAt:       time.Now(),
-		UpdatedAt:       time.Now(),
-	}
-
 	suite.T().Run("successful create payment request", func(t *testing.T) {
+		returnedPaymentRequest := models.PaymentRequest{
+			ID:              paymentRequestID,
+			MoveTaskOrderID: moveTaskOrderID,
+			MoveTaskOrder:   moveTaskOrder,
+			CreatedAt:       time.Now(),
+			UpdatedAt:       time.Now(),
+		}
+
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 
 		paymentRequestCreator.On("CreatePaymentRequest",
@@ -65,6 +65,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&paymentrequestop.CreatePaymentRequestCreated{}, response)
+		fmt.Printf("CreatePaymentRequestCreated response %v \n\n\n", response)
 	})
 
 	suite.T().Run("failed create payment request", func(t *testing.T) {

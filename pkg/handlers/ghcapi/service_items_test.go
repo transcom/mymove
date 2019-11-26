@@ -152,7 +152,7 @@ func (suite *HandlerSuite) TestCreateServiceItemHandler() {
 
 		serviceItemCreator.On("CreateServiceItem",
 			&serviceItem,
-			mock.Anything).Return(&serviceItem, nil, nil).Once()
+			mock.Anything).Return(&badServiceItem, nil, nil).Once()
 
 		handler := CreateServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -161,6 +161,6 @@ func (suite *HandlerSuite) TestCreateServiceItemHandler() {
 		}
 
 		response := handler.Handle(params)
-		suite.IsType(&serviceitemop.CreateServiceItemCreated{}, response)
+		suite.IsType(&serviceitemop.CreateServiceItemBadRequest{}, response)
 	})
 }
