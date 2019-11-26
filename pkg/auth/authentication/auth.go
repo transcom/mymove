@@ -77,20 +77,20 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	}
 }
 
-type apiContext interface {
+type APIContext interface {
 	Context() *middleware.Context
 }
 
 // RoleAuthMiddleware enforces that the incoming request is tied to a user session
-func RoleAuthMiddleware(logger Logger) func(api apiContext) func(handler http.Handler) http.Handler {
-	return func(api apiContext) func(http.Handler) http.Handler {
+func RoleAuthMiddleware(logger Logger) func(api APIContext) func(handler http.Handler) http.Handler {
+	return func(api APIContext) func(http.Handler) http.Handler {
 		return func(next http.Handler) http.Handler {
 			mw := func(w http.ResponseWriter, r *http.Request) {
 
 				session := auth.SessionFromRequestContext(r)
 				userRoles := session.Roles
-				// We must have a logged in session and a user
 
+				// We must have a logged in session and a user
 				route, r, _ := api.Context().RouteInfo(r)
 				endpointRoles, exists := route.Operation.VendorExtensible.Extensions["x-swagger-roles"]
 				if !exists {
@@ -102,13 +102,14 @@ func RoleAuthMiddleware(logger Logger) func(api apiContext) func(handler http.Ha
 					http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 					return
 				}
-				endpointRolesAsStringArray := make([]auth.Role, len(endpointRolesAsInterfaceArray))
+				endpointRolesAsStringArray := make([]string, len(endpointRolesAsInterfaceArray))
 				for i, v := range endpointRolesAsInterfaceArray {
-					endpointRolesAsStringArray[i] = v.(auth.Role)
+					endpointRolesAsStringArray[i] = v.(string)
 				}
 				for _, userRole := range userRoles {
 					for _, endpointRole := range endpointRolesAsStringArray {
-						if userRole == endpointRole {
+						userRoleString := string(userRole)
+						if userRoleString == endpointRole {
 							next.ServeHTTP(w, r)
 							return
 						}
