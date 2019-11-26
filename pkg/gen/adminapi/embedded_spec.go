@@ -401,6 +401,69 @@ func init() {
         }
       }
     },
+    "/moves": {
+      "get": {
+        "description": "Returns a list of moves",
+        "tags": [
+          "move"
+        ],
+        "summary": "List moves",
+        "operationId": "indexMoves",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Moves"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/notifications": {
       "get": {
         "description": "Returns a list of notifications that have been sent to service members",
@@ -1291,6 +1354,74 @@ func init() {
         "coast-guard"
       ]
     },
+    "Move": {
+      "type": "object",
+      "required": [
+        "id",
+        "orders_id",
+        "locator",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "locator": {
+          "type": "string",
+          "example": "12432"
+        },
+        "orders_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "show": {
+          "type": "boolean"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "MoveStatus": {
+      "type": "string",
+      "title": "Move status",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "APPROVED",
+        "CANCELED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "CANCELED": "Canceled",
+        "DRAFT": "Draft",
+        "SUBMITTED": "Submitted"
+      }
+    },
+    "Moves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Move"
+      }
+    },
     "Notification": {
       "type": "object",
       "required": [
@@ -1311,7 +1442,8 @@ func init() {
         },
         "id": {
           "type": "string",
-          "format": "uuid"
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "notification_type": {
           "type": "string",
@@ -2133,6 +2265,69 @@ func init() {
             "description": "success",
             "schema": {
               "$ref": "#/definitions/ElectronicOrdersTotals"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/moves": {
+      "get": {
+        "description": "Returns a list of moves",
+        "tags": [
+          "move"
+        ],
+        "summary": "List moves",
+        "operationId": "indexMoves",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/Moves"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
             }
           },
           "400": {
@@ -3041,6 +3236,74 @@ func init() {
         "coast-guard"
       ]
     },
+    "Move": {
+      "type": "object",
+      "required": [
+        "id",
+        "orders_id",
+        "locator",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "locator": {
+          "type": "string",
+          "example": "12432"
+        },
+        "orders_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "show": {
+          "type": "boolean"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "MoveStatus": {
+      "type": "string",
+      "title": "Move status",
+      "enum": [
+        "DRAFT",
+        "SUBMITTED",
+        "APPROVED",
+        "CANCELED"
+      ],
+      "x-display-value": {
+        "APPROVED": "Approved",
+        "CANCELED": "Canceled",
+        "DRAFT": "Draft",
+        "SUBMITTED": "Submitted"
+      }
+    },
+    "Moves": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Move"
+      }
+    },
     "Notification": {
       "type": "object",
       "required": [
@@ -3061,7 +3324,8 @@ func init() {
         },
         "id": {
           "type": "string",
-          "format": "uuid"
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "notification_type": {
           "type": "string",

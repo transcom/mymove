@@ -18,8 +18,6 @@ func (suite *ModelSuite) TestReContractYearValidations() {
 			EndDate:              time.Date(2020, time.September, 30, 0, 0, 0, 0, time.UTC),
 			Escalation:           1.03,
 			EscalationCompounded: 1.74,
-			CreatedAt:            time.Now(),
-			UpdatedAt:            time.Now(),
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validReContractYear, expErrors)
@@ -46,8 +44,6 @@ func (suite *ModelSuite) TestReContractYearValidations() {
 			EndDate:              time.Date(2020, time.October, 1, 0, 0, 0, 0, time.UTC),
 			Escalation:           -1,
 			EscalationCompounded: -1.74,
-			CreatedAt:            time.Now(),
-			UpdatedAt:            time.Now(),
 		}
 		expErrors := map[string][]string{
 			"end_date":              {"EndDate must be after StartDate."},

@@ -654,6 +654,7 @@ definitions:
       id:
         type: string
         format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       email:
         type: string
       service_member_id:
@@ -673,6 +674,58 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/Notification'
+  MoveStatus:
+    type: string
+    title: Move status
+    enum:
+      - DRAFT
+      - SUBMITTED
+      - APPROVED
+      - CANCELED
+    x-display-value:
+      DRAFT: Draft
+      SUBMITTED: Submitted
+      APPROVED: Approved
+      CANCELED: Canceled
+  Moves:
+    type: array
+    items:
+      $ref: '#/definitions/Move'
+  Move:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      orders_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      locator:
+        type: string
+        example: '12432'
+      status:
+        $ref: '#/definitions/MoveStatus'
+      show:
+        type: boolean
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - orders_id
+      - locator
+      - created_at
+      - updated_at
 paths:
   /access_codes:
     get:
@@ -1235,6 +1288,46 @@ paths:
               description: Used for pagination
           schema:
             $ref: '#/definitions/Notifications'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: not found
+        500:
+          description: server error
+  /moves:
+    get:
+      summary: List moves
+      description: Returns a list of moves
+      operationId: indexMoves
+      tags:
+        - move
+      parameters:
+        - in: query
+          name: filter
+          type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
+      responses:
+        200:
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
+          schema:
+            $ref: '#/definitions/Moves'
         400:
           description: invalid request
         401:
