@@ -24,3 +24,24 @@ UPDATE re_services SET code = 'IUCRT', updated_at = now() WHERE id = '4132416b-b
 UPDATE re_services SET code = 'IOSHUT', name = 'Int''l. Origin Shuttle Service', updated_at = now() WHERE id = '624a97c5-dfbf-4da9-a6e9-526b4f95af8d';
 UPDATE re_services SET name = 'NonStd. HHG', updated_at = now() WHERE id = '7e1c4f99-0054-4fac-a302-1a07a1daf58e';
 UPDATE re_services SET name = 'NonStd. UB', updated_at = now() WHERE id = 'a68fa051-b09d-43f3-8290-f56fc89a4fe8';
+
+INSERT INTO re_services
+(id, code, name, created_at, updated_at)
+VALUES
+('50f1179a-3b72-4fa1-a951-fe5bcc70bd14', 'DDP', 'Dom. Destination Price', now(), now()),
+('d0561c49-e1a9-40b8-a739-3e639a9d77af', 'DDFSIT', 'Dom. Destination 1st Day SIT', now(), now()),
+('a0ead168-7469-4cb6-bc5b-2ebef5a38f92', 'DDASIT', 'Dom. Destination Add''l SIT', now(), now()),
+('5c80f3b5-548e-4077-9b8e-8d0390e73668', 'DDDSIT', 'Dom. Destination SIT Delivery', now(), now()),
+('556663e3-675a-4b06-8da3-e4f1e9a9d3cd', 'DDSHUT', 'Dom. Destination Shuttle Service', now(), now()),
+('bd6064ca-e780-4ab4-a37b-0ae98eebb244', 'IDFSIT', 'Int''l. Destination 1st Day SIT', now(), now()),
+('806c6d59-57ff-4a3f-9518-ebf29ba9cb10', 'IDASIT', 'Int''l. Destination Add''l Day SIT', now(), now()),
+('28389ee1-56cf-400c-aa52-1501ecdd7c69', 'IDDSIT', 'Int''l. Destination SIT Delivery', now(), now()),
+('22fc07ed-be15-4f50-b941-cbd38153b378', 'IDSHUT', 'Int''l. Destination Shuttle Service', now(), now()),
+('4780b30c-e846-437a-b39a-c499a6b09872', 'FSC', 'Fuel Surcharge', now(), now()),
+('dbd3a39a-6bb9-42da-b81a-9229df7019cf', 'DMHF', 'Dom. Mobile Home Factor', now(), now()),
+('0e45b6f5-f2f5-4235-94e4-7b4cb899eb5d', 'DBTF', 'Dom. Tow Away Boat Factor', now(), now()),
+('2471cc2d-6ed5-4ecc-9d43-db9711c8645b', 'DBHF', 'Dom. Haul Away Boat Factor', now(), now()),
+('20998cfd-bfc7-410b-a3c5-d709ead4f94e', 'IBTF', 'Int’l. Tow Away Boat Factor', now(), now()),
+('387b9654-5685-4ac9-b213-81962be9c145', 'IBHF', 'Int’l. Haul Away Boat Factor', now(), now()),
+('3cc83af7-ecb9-4b33-bbc6-ff1459f001e2', 'DNPKF', 'Dom. NTS Packing Factor', now(), now()),
+('874cb86a-bc39-4f57-a614-53ee3fcacf14', 'INPKF', 'Int’l. NTS Packing Factor', now(), now());
