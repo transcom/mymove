@@ -60,7 +60,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceAreaPricesFai
 
 		err = gre.importREDomesticServiceAreaPrices(suite.DB())
 		if suite.Error(err) {
-			suite.Equal("Error looking up StageDomesticServiceAreaPrice data: unable to fetch records: pq: relation \"stage_domestic_service_area_prices\" does not exist", err.Error())
+			suite.Equal("error looking up StageDomesticServiceAreaPrice data: unable to fetch records: pq: relation \"stage_domestic_service_area_prices\" does not exist", err.Error())
 		}
 	})
 }

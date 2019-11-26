@@ -13,7 +13,7 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Conn
 	var stageDomPricingModels []models.StageDomesticServiceAreaPrice
 
 	if err := db.All(&stageDomPricingModels); err != nil {
-		return fmt.Errorf("Error looking up StageDomesticServiceAreaPrice data: %w", err)
+		return fmt.Errorf("error looking up StageDomesticServiceAreaPrice data: %w", err)
 	}
 
 	for _, stageDomPricingModel := range stageDomPricingModels {
@@ -37,12 +37,12 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Conn
 		//DSH - ShorthaulPrice
 		service, err := models.FetchReServiceItem(db, "DSH")
 		if err != nil {
-			return fmt.Errorf("Failed importing re_service from StageDomesticServiceAreaPrice with code DSH: %w", err)
+			return fmt.Errorf("failed importing re_service from StageDomesticServiceAreaPrice with code DSH: %w", err)
 		}
 
 		cents, convErr := priceToCents(stageDomPricingModel.ShorthaulPrice)
 		if convErr != nil {
-			return fmt.Errorf("Failed to parse price for Shorthaul data: %+v error: %w", stageDomPricingModel, convErr)
+			return fmt.Errorf("failed to parse price for Shorthaul data: %+v error: %w", stageDomPricingModel, convErr)
 		}
 
 		domPricingModelDSH := models.ReDomesticServiceAreaPrice{
@@ -58,12 +58,12 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Conn
 		//DODP - OriginDestinationPrice
 		service, err = models.FetchReServiceItem(db, "DODP")
 		if err != nil {
-			return fmt.Errorf("Failed importing re_service from StageDomesticServiceAreaPrice with code DODP: %w", err)
+			return fmt.Errorf("failed importing re_service from StageDomesticServiceAreaPrice with code DODP: %w", err)
 		}
 
 		cents, convErr = priceToCents(stageDomPricingModel.OriginDestinationPrice)
 		if convErr != nil {
-			return fmt.Errorf("Failed to parse price for OriginDestinationPrice data: %+v error: %w", stageDomPricingModel, convErr)
+			return fmt.Errorf("failed to parse price for OriginDestinationPrice data: %+v error: %w", stageDomPricingModel, convErr)
 		}
 
 		domPricingModelDODP := models.ReDomesticServiceAreaPrice{
@@ -79,12 +79,12 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Conn
 		//DFSIT - OriginDestinationSITFirstDayWarehouse
 		service, err = models.FetchReServiceItem(db, "DFSIT")
 		if err != nil {
-			return fmt.Errorf("Failed importing re_service from StageDomesticServiceAreaPrice with code DFSIT: %w", err)
+			return fmt.Errorf("failed importing re_service from StageDomesticServiceAreaPrice with code DFSIT: %w", err)
 		}
 
 		cents, convErr = priceToCents(stageDomPricingModel.OriginDestinationSITFirstDayWarehouse)
 		if convErr != nil {
-			return fmt.Errorf("Failed to parse price for OriginDestinationSITFirstDayWarehouse data: %+v error: %w", stageDomPricingModel, convErr)
+			return fmt.Errorf("failed to parse price for OriginDestinationSITFirstDayWarehouse data: %+v error: %w", stageDomPricingModel, convErr)
 		}
 
 		domPricingModelDFSIT := models.ReDomesticServiceAreaPrice{
@@ -100,12 +100,12 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Conn
 		//DASIT - OriginDestinationSITAddlDays
 		service, err = models.FetchReServiceItem(db, "DASIT")
 		if err != nil {
-			return fmt.Errorf("Failed importing re_service from StageDomesticServiceAreaPrice with code DASIT: %w", err)
+			return fmt.Errorf("failed importing re_service from StageDomesticServiceAreaPrice with code DASIT: %w", err)
 		}
 
 		cents, convErr = priceToCents(stageDomPricingModel.OriginDestinationSITAddlDays)
 		if convErr != nil {
-			return fmt.Errorf("Failed to parse price for OriginDestinationSITAddlDays data: %+v error: %w", stageDomPricingModel, convErr)
+			return fmt.Errorf("failed to parse price for OriginDestinationSITAddlDays data: %+v error: %w", stageDomPricingModel, convErr)
 		}
 
 		domPricingModelDASIT := models.ReDomesticServiceAreaPrice{
