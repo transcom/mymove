@@ -46,6 +46,7 @@ const (
 	RoleTOO                Role = "too"
 	RoleContractingOfficer Role = "contractingOfficer"
 	RoleOffice             Role = "office"
+	RoleCustomer           Role = "customer"
 )
 
 // Session stores information about the currently logged in session
