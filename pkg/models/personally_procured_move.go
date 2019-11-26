@@ -203,6 +203,27 @@ func FetchPersonallyProcuredMove(db *pop.Connection, session *auth.Session, id u
 	return &ppm, nil
 }
 
+// FetchPersonallyProcuredMoveByOrderID Fetches and Validates a PPM model
+func FetchPersonallyProcuredMoveByOrderID(db *pop.Connection, session *auth.Session, orderID uuid.UUID) (*PersonallyProcuredMove, error) {
+	var ppm PersonallyProcuredMove
+	err := db.Q().Eager("Move.Orders.ServiceMember.DutyStation.Address").
+		LeftJoin("moves as m", "m.id = personally_procured_moves.move_id").
+		Where("m.orders_id = ?", orderID).
+		First(&ppm)
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return &PersonallyProcuredMove{}, ErrFetchNotFound
+		}
+		return &PersonallyProcuredMove{}, err
+	}
+
+	if session.IsMilApp() && ppm.Move.Orders.ServiceMember.ID != session.ServiceMemberID {
+		return &PersonallyProcuredMove{}, ErrFetchForbidden
+	}
+
+	return &ppm, nil
+}
+
 // SavePersonallyProcuredMove Safely saves a PPM and it's associated Advance.
 func SavePersonallyProcuredMove(db *pop.Connection, ppm *PersonallyProcuredMove) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()

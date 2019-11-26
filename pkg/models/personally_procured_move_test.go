@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
@@ -130,4 +131,57 @@ func (suite *ModelSuite) TestFetchMoveDocumentsForTypes() {
 		suite.Equal(2, len(moveDocs))
 	}
 
+}
+
+func (suite *ModelSuite) TestFetchPersonallyProcuredMoveByOrderID() {
+	orderID := uuid.Must(uuid.NewV4())
+	moveID, _ := uuid.FromString("7112b18b-7e03-4b28-adde-532b541bba8d")
+	invalidID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
+
+	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+		Order: Order{
+			ID: orderID,
+		},
+	})
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: Move{
+			ID:       moveID,
+			OrdersID: orderID,
+			Orders:   order,
+		},
+	})
+
+	serviceMember := move.Orders.ServiceMember
+	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
+
+	ppm, verrs, err := move.CreatePPM(suite.DB(), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
+	suite.NoError(err)
+	suite.False(verrs.HasAny())
+
+	advance.Request()
+	SavePersonallyProcuredMove(suite.DB(), ppm)
+	session := auth.Session{
+		UserID:          serviceMember.User.ID,
+		ApplicationName: auth.MilApp,
+		ServiceMemberID: serviceMember.ID,
+	}
+
+	tests := []struct {
+		lookupID  uuid.UUID
+		resultID  uuid.UUID
+		resultErr bool
+	}{
+		{lookupID: orderID, resultID: moveID, resultErr: false},
+		{lookupID: invalidID, resultID: invalidID, resultErr: true},
+	}
+
+	for _, ts := range tests {
+		ppm, err := FetchPersonallyProcuredMoveByOrderID(suite.DB(), &session, ts.lookupID)
+		if ts.resultErr {
+			suite.Error(err)
+		} else {
+			suite.NoError(err)
+		}
+		suite.Equal(ppm.MoveID, ts.resultID, "Wrong moveID: %s", ts.lookupID)
+	}
 }
