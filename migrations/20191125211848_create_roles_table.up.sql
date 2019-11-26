@@ -1,6 +1,6 @@
 CREATE TABLE roles (
 	id integer PRIMARY KEY,
-	type text
+	role_type text
 );
 
 CREATE TABLE user_role (
