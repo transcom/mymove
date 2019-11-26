@@ -78,6 +78,8 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) (m
 					return nil, fmt.Errorf("error saving ReRateArea from StageConusToOconusPrice with rate are ID: %s error: %w", ra.OriginDomesticPriceAreaCode, errors.New(dbError))
 				}
 			}
+			// add to map
+			rateAreaToIDMap[ra.OriginDomesticPriceAreaCode] = rateArea.ID
 
 			// if it does not exist, insert into ReRateArea
 		} else if rateArea == nil {
@@ -99,11 +101,9 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) (m
 				}
 				return nil, fmt.Errorf("error creating ReRateArea from StageConusToOconusPrice with rate are ID: %s error: %w", ra.OriginDomesticPriceAreaCode, errors.New(dbError))
 			}
+			// add to map
 			rateAreaToIDMap[ra.OriginDomesticPriceAreaCode] = newRateArea.ID
 		}
-
-		// add to map
-		//rateAreaToIDMap[ra.OriginDomesticPriceAreaCode] = newRateArea.ID
 	}
 
 	// models.StageOconusToConusPrice
@@ -150,6 +150,9 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) (m
 				}
 			}
 
+			// add to map
+			rateAreaToIDMap[ra.DestinationDomesticPriceAreaCode] = rateArea.ID
+
 			// if it does not exist, insert into ReRateArea
 		} else if rateArea == nil {
 			// insert into re_rate_area
@@ -169,11 +172,9 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(db *pop.Connection) (m
 				}
 				return nil, fmt.Errorf("error creating ReRateArea from StageOconusToConusPrice with rate are ID: %s error: %w", ra.DestinationDomesticPriceAreaCode, errors.New(dbError))
 			}
+			// add to map
 			rateAreaToIDMap[ra.DestinationDomesticPriceAreaCode] = newRateArea.ID
 		}
-
-		// add to map
-		//rateAreaToIDMap[ra.DestinationDomesticPriceAreaCode] = newRateArea.ID
 	}
 
 	return rateAreaToIDMap, nil
@@ -221,6 +222,9 @@ func (gre *GHCRateEngineImporter) importInternationalRateAreas(db *pop.Connectio
 					return nil, fmt.Errorf("error saving ReRateArea from StageInternationalServiceArea with rate are ID: %s error: %w", sa.RateAreaID, errors.New(dbError))
 				}
 			}
+			// add to map
+			rateAreaToIDMap[sa.RateAreaID] = rateArea.ID
+
 			// if it does not exist, insert into ReRateArea
 		} else if rateArea == nil {
 			// insert into re_rate_area
@@ -240,11 +244,9 @@ func (gre *GHCRateEngineImporter) importInternationalRateAreas(db *pop.Connectio
 				}
 				return nil, fmt.Errorf("error creating ReRateArea from StageInternationalServiceArea with rate are ID: %s error: %w", sa.RateAreaID, errors.New(dbError))
 			}
+			// add to map
 			rateAreaToIDMap[sa.RateAreaID] = newRateArea.ID
 		}
-
-		// add to map
-		//rateAreaToIDMap[sa.RateAreaID] = newRateArea.ID
 	}
 
 	return rateAreaToIDMap, nil
