@@ -88,19 +88,40 @@ func InitStorage(v *viper.Viper, sess *awssession.Session, logger Logger) FileSt
 		awsS3Bucket := v.GetString(cli.AWSS3BucketNameFlag)
 		awsS3Region := v.GetString(cli.AWSS3RegionFlag)
 		awsS3KeyNamespace := v.GetString(cli.AWSS3KeyNamespaceFlag)
-		cfPrivateKey := v.GetString(cli.CFPrivateKeyFlag)
-		cfPrivateKeyID := v.GetString(cli.CFKeyIDFlag)
-		cfEnableDistribution := v.GetBool(cli.CFEnableDistribution)
-		assetsDomain := v.GetString(cli.HTTPAssetsServerNameFlag)
-		assetsFQDN := url.URL{
-			Scheme: "https",
-			Host:   path.Join(assetsDomain, "move.mil"),
-		}
 
 		logger.Info("Using s3 storage backend",
 			zap.String("bucket", awsS3Bucket),
 			zap.String("region", awsS3Region),
 			zap.String("key", awsS3KeyNamespace))
+
+		//init cdn related variables
+		cfBackend := v.GetString(cli.CDNBackendFlag)
+		cdnEnabled := false
+		cfPrivateKey := ""
+		cfPrivateKeyID := ""
+		assetsFQDN := url.URL{Scheme: "https"}
+
+		if cfBackend == "cloudfront" {
+			cdnEnabled = true
+			cfPrivateKey = v.GetString(cli.CFPrivateKeyFlag)
+			cfPrivateKeyID = v.GetString(cli.CFKeyIDFlag)
+			assetsDomain := v.GetString(cli.AwsCfDomain)
+			assetsFQDN.Host = assetsDomain
+
+			logger.Info("Using cloudfront as CDN for distribution",
+				zap.String("assets domain", assetsDomain),
+				zap.String("key", cfPrivateKeyID))
+
+			if len(cfPrivateKey) == 0 {
+				logger.Fatal("must provide cloud-front-private-key parameter, exiting")
+			}
+			if len(cfPrivateKeyID) == 0 {
+				logger.Fatal("must provide cloud-front-key-id parameter, exiting")
+			}
+			if len(assetsDomain) == 0 {
+				logger.Fatal("must provide aws-cf-domain parameter, exiting")
+			}
+		}
 
 		if len(awsS3Bucket) == 0 {
 			logger.Fatal("must provide aws-s3-bucket-name parameter, exiting")
@@ -112,7 +133,7 @@ func InitStorage(v *viper.Viper, sess *awssession.Session, logger Logger) FileSt
 			logger.Fatal("Must provide aws_s3_key_namespace parameter, exiting")
 		}
 
-		storer = NewS3(awsS3Bucket, awsS3KeyNamespace, assetsFQDN.String(), cfPrivateKey, cfPrivateKeyID, cfEnableDistribution, logger, sess)
+		storer = NewS3(awsS3Bucket, awsS3KeyNamespace, assetsFQDN.String(), cfPrivateKey, cfPrivateKeyID, cdnEnabled, logger, sess)
 	} else if storageBackend == "memory" {
 		logger.Info("Using memory storage backend",
 			zap.String(cli.LocalStorageRootFlag, path.Join(localStorageRoot, localStorageWebRoot)),

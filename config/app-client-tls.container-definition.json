@@ -123,6 +123,10 @@
       "value": "s3"
     },
     {
+      "name": "CDN_BACKEND",
+      "value": "s3"
+    },
+    {
       "name": "EMAIL_BACKEND",
       "value": "ses"
     },

@@ -123,12 +123,12 @@ func (s *S3) TempFileSystem() *afero.Afero {
 func (s *S3) PresignedURL(key string, contentType string) (string, error) {
 	namespacedKey := path.Join(s.keyNamespace, key)
 
-	block, _ := pem.Decode([]byte(s.cfPrivateKey))
-	privKey, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
-	rawURL := path.Join(s.assetsDomainName, namespacedKey)
-
 	//if cloudfront is enabled then generate url from cloudfront trusted signer otherwise use s3 signed url
 	if s.cfDistributionEnabled {
+		block, _ := pem.Decode([]byte(s.cfPrivateKey))
+		privKey, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
+		rawURL := path.Join(s.assetsDomainName, namespacedKey)
+
 		cfSigner := sign.NewURLSigner(s.cfPrivateKeyID, privKey)
 		url, err := cfSigner.Sign(rawURL, time.Now().Add(15*time.Minute))
 		if err != nil {
