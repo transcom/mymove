@@ -4,8 +4,8 @@ CREATE TABLE roles (
 );
 
 CREATE TABLE user_role (
-	user_id uuid  NOT NULL
-	role_id integer NOT NULL
-	FOREIGN KEY (user_id) REFERENCES users (id),
-	FOREIGN KEY (role_id) REFERENCES roles (id)
+	users_id uuid NOT NULL
+	roles_id integer NOT NULL
+	FOREIGN KEY (users_id) REFERENCES users (id),
+	FOREIGN KEY (roles_id) REFERENCES roles (id)
 );
