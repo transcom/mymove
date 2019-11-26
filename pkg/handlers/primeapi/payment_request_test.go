@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/gobuffalo/validate"
+
 	"github.com/stretchr/testify/mock"
 
 	"github.com/gofrs/uuid"
@@ -42,7 +44,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, nil, nil).Once()
+			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, validate.NewErrors(), nil).Once()
 
 		handler := CreatePaymentRequestHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -56,9 +58,8 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequestPayload{
-				IsFinal:               &paymentRequest.IsFinal,
-				MoveTaskOrderID:       *handlers.FmtUUID(paymentRequest.MoveTaskOrderID),
-				ProofOfServicePackage: nil,
+				IsFinal:         &paymentRequest.IsFinal,
+				MoveTaskOrderID: *handlers.FmtUUID(paymentRequest.MoveTaskOrderID),
 			},
 		}
 		response := handler.Handle(params)

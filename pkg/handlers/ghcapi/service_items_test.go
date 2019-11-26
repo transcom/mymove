@@ -146,6 +146,8 @@ func (suite *HandlerSuite) TestCreateServiceItemHandler() {
 	})
 
 	suite.T().Run("Failed create", func(t *testing.T) {
+		badServiceItem := serviceItem
+		badServiceItem.MoveTaskOrderID = uuid.UUID{}
 		serviceItemCreator := &mocks.ServiceItemCreator{}
 
 		serviceItemCreator.On("CreateServiceItem",

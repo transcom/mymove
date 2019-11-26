@@ -17,7 +17,6 @@ func NewPaymentRequestCreator(db *pop.Connection) services.PaymentRequestCreator
 }
 
 func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequest *models.PaymentRequest) (*models.PaymentRequest, *validate.Errors, error) {
-
 	verrs, err := p.db.ValidateAndCreate(paymentRequest)
 	if err != nil || verrs.HasAny() {
 		return nil, verrs, err
