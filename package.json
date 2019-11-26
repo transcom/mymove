@@ -6,7 +6,7 @@
     "@fortawesome/react-fontawesome": "^0.0.20",
     "bytes": "^3.0.0",
     "classnames": "^2.2.5",
-    "core-js": "^3.4.2",
+    "core-js": "^3.4.3",
     "enzyme": "^3.2.0",
     "enzyme-adapter-react-16": "^1.1.1",
     "eslint-plugin-no-only-tests": "^2.3.0",
