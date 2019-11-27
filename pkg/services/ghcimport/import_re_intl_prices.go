@@ -38,19 +38,19 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 		var peakPeriod bool
 		peakPeriod, err = isPeakPeriod(stageOconusToOconusPrice.Season)
 		if err != nil {
-			return fmt.Errorf("could not process sesason [%s]: %w", stageOconusToOconusPrice.Season, err)
+			return fmt.Errorf("could not process season [%s]: %w", stageOconusToOconusPrice.Season, err)
 		}
 
 		originRateArea := stageOconusToOconusPrice.OriginIntlPriceAreaID
 		originRateAreaID, found := gre.internationalRateAreaToIDMap[originRateArea]
 		if !found {
-			return fmt.Errorf("could not find origin service area [%s] in map", stageOconusToOconusPrice.OriginIntlPriceAreaID)
+			return fmt.Errorf("could not find origin rate area [%s] in map", stageOconusToOconusPrice.OriginIntlPriceAreaID)
 		}
 
 		destinationRateArea := stageOconusToOconusPrice.DestinationIntlPriceAreaID
 		destinationRateAreaID, found := gre.internationalRateAreaToIDMap[destinationRateArea]
 		if !found {
-			return fmt.Errorf("could not find destination service area [%s] in map", stageOconusToOconusPrice.DestinationIntlPriceAreaID)
+			return fmt.Errorf("could not find destination rate area [%s] in map", stageOconusToOconusPrice.DestinationIntlPriceAreaID)
 		}
 
 		var perUnitCentsHHG int
@@ -125,19 +125,19 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 		var peakPeriod bool
 		peakPeriod, err = isPeakPeriod(stageConusToOconusPrice.Season)
 		if err != nil {
-			return fmt.Errorf("could not process sesason [%s]: %w", stageConusToOconusPrice.Season, err)
+			return fmt.Errorf("could not process season [%s]: %w", stageConusToOconusPrice.Season, err)
 		}
 
 		originRateArea := stageConusToOconusPrice.OriginDomesticPriceAreaCode
 		originRateAreaID, found := gre.domesticRateAreaToIDMap[originRateArea]
 		if !found {
-			return fmt.Errorf("could not find service [%s] in map", stageConusToOconusPrice.OriginDomesticPriceAreaCode)
+			return fmt.Errorf("could not find domestic rate area [%s] in map", stageConusToOconusPrice.OriginDomesticPriceAreaCode)
 		}
 
 		destinationRateArea := stageConusToOconusPrice.DestinationIntlPriceAreaID
 		destinationRateAreaID, found := gre.internationalRateAreaToIDMap[destinationRateArea]
 		if !found {
-			return fmt.Errorf("could not find service [%s] in map", stageConusToOconusPrice.DestinationIntlPriceAreaID)
+			return fmt.Errorf("could not find international rate area [%s] in map", stageConusToOconusPrice.DestinationIntlPriceAreaID)
 		}
 
 		var perUnitCentsHHG int
@@ -217,13 +217,13 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 		originRateArea := stageOconusToConusPrice.OriginIntlPriceAreaID
 		originRateAreaID, found := gre.internationalRateAreaToIDMap[originRateArea]
 		if !found {
-			return fmt.Errorf("could not find service [%s] in map", stageOconusToConusPrice.OriginIntlPriceAreaID)
+			return fmt.Errorf("could not find international rate area [%s] in map", stageOconusToConusPrice.OriginIntlPriceAreaID)
 		}
 
 		destinationRateArea := stageOconusToConusPrice.DestinationDomesticPriceAreaCode
 		destinationRateAreaID, found := gre.domesticRateAreaToIDMap[destinationRateArea]
 		if !found {
-			return fmt.Errorf("could not find service [%s] in map", stageOconusToConusPrice.DestinationDomesticPriceAreaCode)
+			return fmt.Errorf("could not find domestic rate area [%s] in map", stageOconusToConusPrice.DestinationDomesticPriceAreaCode)
 		}
 
 		perUnitCentsHHG, err := priceToCents(stageOconusToConusPrice.HHGShippingLinehaulPrice)
