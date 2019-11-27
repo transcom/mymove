@@ -19,13 +19,15 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 	}
 
 	//Int'l O->O Shipping & LH
-	serviceIOOLH, err := models.FetchReServiceItem(dbTx, "IOOLH")
+	var serviceIOOLH models.ReService
+	err = dbTx.Where("code = 'IOOLH'").First(&serviceIOOLH)
 	if err != nil {
 		return fmt.Errorf("failed importing re_intl_prices from StageOconousToOconus with code IOOLH: %w", err)
 	}
 
 	//Int'l O->O UB
-	serviceIOOUB, err := models.FetchReServiceItem(dbTx, "IOOUB")
+	var serviceIOOUB models.ReService
+	err = dbTx.Where("code = 'IOOUB'").First(&serviceIOOUB)
 	if err != nil {
 		return fmt.Errorf("failed importing re_intl_prices from StageOconousToOconus with code IOOUB: %w", err)
 	}
@@ -104,13 +106,15 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 	}
 
 	//Int'l C->O Shipping & LH
-	serviceICOLH, err := models.FetchReServiceItem(dbTx, "ICOLH")
+	var serviceICOLH models.ReService
+	err = dbTx.Where("code = 'ICOLH'").First(&serviceICOLH)
 	if err != nil {
 		return fmt.Errorf("failed importing re_intl_prices from StageConousToOconus with code ICOLH: %w", err)
 	}
 
 	//Int'l C->O UB
-	serviceICOUB, err := models.FetchReServiceItem(dbTx, "ICOUB")
+	var serviceICOUB models.ReService
+	err = dbTx.Where("code = 'ICOUB'").First(&serviceICOUB)
 	if err != nil {
 		return fmt.Errorf("failed importing re_intl_prices from StageConousToOconus with code ICOUB: %w", err)
 	}
@@ -189,13 +193,15 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 	}
 
 	//Int'l O->C Shipping & LH
-	serviceIOCLH, err := models.FetchReServiceItem(dbTx, "IOCLH")
+	var serviceIOCLH models.ReService
+	err = dbTx.Where("code = 'IOCLH'").First(&serviceIOCLH)
 	if err != nil {
 		return fmt.Errorf("failed importing re_intl_prices from StageOconousToConus with code IOCLH: %w", err)
 	}
 
 	//Int'l O->C UB
-	serviceIOCUB, err := models.FetchReServiceItem(dbTx, "IOCUB")
+	var serviceIOCUB models.ReService
+	err = dbTx.Where("code = 'IOCUB'").First(&serviceIOCUB)
 	if err != nil {
 		return fmt.Errorf("failed importing re_intl_prices from StageOconousToConus with code IOCUB: %w", err)
 	}

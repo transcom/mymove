@@ -54,12 +54,12 @@ func (suite *GHCRateEngineImportSuite) helperCheckInternationalPriceValue() {
 	suite.NoError(err)
 
 	// Get service UUID.
-	var serviceIOOLH *models.ReService
-	serviceIOOLH, err = models.FetchReServiceItem(suite.DB(), "IOOLH")
+	var serviceIOOLH models.ReService
+	err = suite.DB().Where("code = 'IOOLH'").First(&serviceIOOLH)
 	suite.NoError(err)
 
-	var serviceIOOUB *models.ReService
-	serviceIOOUB, err = models.FetchReServiceItem(suite.DB(), "IOOUB")
+	var serviceIOOUB models.ReService
+	err = suite.DB().Where("code = 'IOOUB'").First(&serviceIOOUB)
 	suite.NoError(err)
 
 	// Get origin rate area UUID.
