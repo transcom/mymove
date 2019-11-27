@@ -80,7 +80,16 @@ func (suite *GHCRateEngineImportSuite) helperSetupReServicesTable() {
 	sql := string(c)
 	err := suite.DB().RawQuery(sql).Exec()
 	if suite.NoError(err) {
-		fmt.Println(" success")
+		// read second migration
+		path = filepath.Join("../../../migrations", "20191126160639_update-and-add-values-for-reservices-table.up.sql")
+		c, ioErr = ioutil.ReadFile(path)
+		suite.NoError(ioErr)
+
+		sql := string(c)
+		err := suite.DB().RawQuery(sql).Exec()
+		if suite.NoError(err) {
+			fmt.Println(" success")
+		}
 	}
 }
 
