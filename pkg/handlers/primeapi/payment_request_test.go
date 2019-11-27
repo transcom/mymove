@@ -3,6 +3,7 @@ package primeapi
 import (
 	"fmt"
 	"net/http/httptest"
+	"testing"
 	"time"
 
 	"github.com/gobuffalo/validate"
@@ -18,8 +19,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
-
-	"testing"
 )
 
 func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
@@ -65,6 +64,12 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&paymentrequestop.CreatePaymentRequestCreated{}, response)
+		typedResponse := response.(*paymentrequestop.CreatePaymentRequestCreated)
+		suite.Equal(returnedPaymentRequest.ID.String(), typedResponse.Payload.ID.String())
+		if suite.NotNil(typedResponse.Payload.IsFinal) {
+			suite.Equal(returnedPaymentRequest.IsFinal, *typedResponse.Payload.IsFinal)
+		}
+		suite.Equal(returnedPaymentRequest.MoveTaskOrderID.String(), typedResponse.Payload.MoveTaskOrderID.String())
 	})
 
 	suite.T().Run("failed create payment request", func(t *testing.T) {
