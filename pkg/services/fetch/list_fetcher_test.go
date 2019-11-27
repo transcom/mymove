@@ -1,4 +1,4 @@
-package officeuser
+package fetch
 
 import (
 	"errors"
@@ -13,17 +13,17 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
-type testOfficeUserListQueryBuilder struct {
+type testListQueryBuilder struct {
 	fakeFetchMany func(model interface{}) error
 	fakeCount     func(model interface{}) (int, error)
 }
 
-func (t *testOfficeUserListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
+func (t *testListQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
 	m := t.fakeFetchMany(model)
 	return m
 }
 
-func (t *testOfficeUserListQueryBuilder) Count(model interface{}, filters []services.QueryFilter) (int, error) {
+func (t *testListQueryBuilder) Count(model interface{}, filters []services.QueryFilter) (int, error) {
 	count, m := t.fakeCount(model)
 	return count, m
 }
@@ -41,7 +41,7 @@ func defaultOrdering() services.QueryOrder {
 	return query.NewQueryOrder(nil, nil)
 }
 
-func (suite *OfficeUserServiceSuite) TestFetchOfficeUserList() {
+func (suite *FetchServiceSuite) TestFetchRecordList() {
 	suite.T().Run("if the user is fetched, it should be returned", func(t *testing.T) {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
@@ -50,16 +50,17 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUserList() {
 			value.Set(reflect.Append(value, reflect.ValueOf(models.OfficeUser{ID: id})))
 			return nil
 		}
-		builder := &testOfficeUserListQueryBuilder{
+		builder := &testListQueryBuilder{
 			fakeFetchMany: fakeFetchMany,
 		}
 
-		fetcher := NewOfficeUserListFetcher(builder)
+		fetcher := NewListFetcher(builder)
 		filters := []services.QueryFilter{
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		officeUsers, err := fetcher.FetchOfficeUserList(filters, defaultAssociations(), defaultPagination(), defaultOrdering())
+		var officeUsers models.OfficeUsers
+		err = fetcher.FetchRecordList(&officeUsers, filters, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.NoError(err)
 		suite.Equal(id, officeUsers[0].ID)
@@ -69,16 +70,33 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUserList() {
 		fakeFetchMany := func(model interface{}) error {
 			return errors.New("Fetch error")
 		}
-		builder := &testOfficeUserListQueryBuilder{
+		builder := &testListQueryBuilder{
 			fakeFetchMany: fakeFetchMany,
 		}
 
-		fetcher := NewOfficeUserListFetcher(builder)
+		fetcher := NewListFetcher(builder)
 
-		officeUsers, err := fetcher.FetchOfficeUserList([]services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
+		var officeUsers models.OfficeUsers
+		err := fetcher.FetchRecordList(&officeUsers, []services.QueryFilter{}, defaultAssociations(), defaultPagination(), defaultOrdering())
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")
 		suite.Equal(models.OfficeUsers(nil), officeUsers)
 	})
+}
+
+func (suite *FetchServiceSuite) TestFetchRecordCount() {
+	fakeCount := func(model interface{}) (int, error) {
+		return 5, nil
+	}
+
+	builder := &testListQueryBuilder{
+		fakeCount: fakeCount,
+	}
+	fetcher := NewListFetcher(builder)
+
+	var officeUsers models.OfficeUsers
+	count, err := fetcher.FetchRecordCount(&officeUsers, []services.QueryFilter{})
+	suite.NoError(err)
+	suite.Equal(5, count)
 }
