@@ -1,6 +1,7 @@
 package ghcapi
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -147,12 +148,12 @@ func (suite *HandlerSuite) TestCreateServiceItemHandler() {
 
 	suite.T().Run("Failed create", func(t *testing.T) {
 		badServiceItem := serviceItem
-		badServiceItem.MoveTaskOrderID = uuid.UUID{}
+		badServiceItem.MoveTaskOrderID = uuid.Nil
 		serviceItemCreator := &mocks.ServiceItemCreator{}
 
 		serviceItemCreator.On("CreateServiceItem",
 			&serviceItem,
-			mock.Anything).Return(&badServiceItem, nil, nil).Once()
+			mock.Anything).Return(&badServiceItem, nil, errors.New("mock failed to create")).Once()
 
 		handler := CreateServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -161,6 +162,6 @@ func (suite *HandlerSuite) TestCreateServiceItemHandler() {
 		}
 
 		response := handler.Handle(params)
-		suite.IsType(&serviceitemop.CreateServiceItemBadRequest{}, response)
+		suite.IsType(&serviceitemop.CreateServiceItemInternalServerError{}, response)
 	})
 }

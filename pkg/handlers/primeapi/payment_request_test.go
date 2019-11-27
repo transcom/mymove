@@ -65,7 +65,6 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&paymentrequestop.CreatePaymentRequestCreated{}, response)
-		fmt.Printf("CreatePaymentRequestCreated response %v \n\n\n", response)
 	})
 
 	suite.T().Run("failed create payment request", func(t *testing.T) {
