@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/gobuffalo/pop"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -57,6 +58,40 @@ func (suite *GHCRateEngineImportSuite) helperImportRERateAreaTC2(action string) 
 	} else if action == "verify" {
 		// nothing to do, verify happens at the top
 	}
+}
+
+func (suite *GHCRateEngineImportSuite) helperVerifyDomesticRateAreaToIDMap(domesticRateAreaToIDMap map[string]uuid.UUID) {
+	suite.NotEqual(map[string]uuid.UUID(nil), domesticRateAreaToIDMap)
+	count, dbErr := suite.DB().Where("is_oconus = 'false'").Count(models.ReRateArea{})
+	suite.NoError(dbErr)
+	suite.Equal(4, count)
+	suite.Equal(count, len(domesticRateAreaToIDMap))
+	var rateArea models.ReRateArea
+	err := suite.DB().Where("code = 'US68'").First(&rateArea)
+	suite.NoError(err)
+	suite.Equal("Texas-South", rateArea.Name)
+	suite.Equal(rateArea.ID, domesticRateAreaToIDMap["US68"])
+	err = suite.DB().Where("code = 'US47'").First(&rateArea)
+	suite.NoError(err)
+	suite.Equal("Alabama", rateArea.Name)
+	suite.Equal(rateArea.ID, domesticRateAreaToIDMap["US47"])
+}
+
+func (suite *GHCRateEngineImportSuite) helperVerifyInternationalRateAreaToIDMap(internationalRateAreaToIDMap map[string]uuid.UUID) {
+	suite.NotEqual(map[string]uuid.UUID(nil), internationalRateAreaToIDMap)
+	count, dbErr := suite.DB().Where("is_oconus = 'true'").Count(models.ReRateArea{})
+	suite.NoError(dbErr)
+	suite.Equal(5, count)
+	suite.Equal(count, len(internationalRateAreaToIDMap))
+	var rateArea models.ReRateArea
+	err := suite.DB().Where("code = 'GE'").First(&rateArea)
+	suite.NoError(err)
+	suite.Equal("Germany", rateArea.Name)
+	suite.Equal(rateArea.ID, internationalRateAreaToIDMap["GE"])
+	err = suite.DB().Where("code = 'US8101000'").First(&rateArea)
+	suite.NoError(err)
+	suite.Equal("Alaska (Zone) I", rateArea.Name)
+	suite.Equal(rateArea.ID, internationalRateAreaToIDMap["US8101000"])
 }
 
 func (suite *GHCRateEngineImportSuite) helperImportRERateAreaTC3(action string) {
@@ -150,9 +185,16 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_importRERateAre
 			if !tt.wantErr {
 				suite.helperImportRERateAreaVerifyImportComplete()
 			}
-			if tc == 2 {
+			if tc == 0 || tc == 1 {
+				suite.helperVerifyDomesticRateAreaToIDMap(gre.domesticRateAreaToIDMap)
+				suite.helperVerifyInternationalRateAreaToIDMap(gre.internationalRateAreaToIDMap)
+			} else if tc == 2 {
+				suite.helperVerifyDomesticRateAreaToIDMap(gre.domesticRateAreaToIDMap)
+				suite.helperVerifyInternationalRateAreaToIDMap(gre.internationalRateAreaToIDMap)
 				suite.helperImportRERateAreaTC2("verify")
 			} else if tc == 3 {
+				suite.Equal(map[string]uuid.UUID(nil), gre.domesticRateAreaToIDMap)
+				suite.Equal(map[string]uuid.UUID(nil), gre.internationalRateAreaToIDMap)
 				suite.helperSetupStagingTables()
 			}
 		})
