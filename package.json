@@ -89,10 +89,10 @@
     "@storybook/addons": "^5.1.11",
     "@storybook/react": "^5.2.6",
     "cypress": "^3.6.1",
+    "cypress-multi-reporters": "^1.2.3",
     "mime-types": "^2.1.25",
     "mocha": "^6.2.2",
-    "mocha-junit-reporter": "^1.18.0",
-    "mocha-multi-reporters": "^1.1.7",
+    "mocha-junit-reporter": "1.23.1",
     "mockdate": "^2.0.2",
     "prettier": "=1.19.1",
     "react-mock-router": "^1.0.15"
