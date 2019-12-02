@@ -176,7 +176,6 @@ export class PpmWeight extends Component {
     } = this.props;
     const { context: { flags: { progearChanges } } = { flags: { progearChanges: null } } } = this.props;
     const { includesProgear = 'No' } = this.state;
-    console.log(document.getElementById('progear__estimation__slider'));
     return (
       <div>
         {progearChanges && (

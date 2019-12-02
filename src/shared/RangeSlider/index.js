@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styles from './RangeSlider.module.scss';
+import { detectIE11 } from '../utils';
 
 class RangeSlider extends Component {
   onInput = event => {
@@ -15,7 +16,7 @@ class RangeSlider extends Component {
     ) {
       output.style.marginLeft = pxPerTick * ticks - output.offsetWidth / 2 + 'px';
     }
-    output.value =
+    output.innerText =
       (this.props.prependTooltipText ? this.props.prependTooltipText + ' ' : '') +
       event.target.valueAsNumber +
       (this.props.appendToolTipText ? ' ' + this.props.appendToolTipText : '');
@@ -26,6 +27,9 @@ class RangeSlider extends Component {
   };
 
   onChange = value => {
+    if (detectIE11()) {
+      this.onInput(value);
+    }
     this.props.onChange(value);
   };
 
@@ -33,7 +37,7 @@ class RangeSlider extends Component {
     return (
       <>
         <div className="rangeslider__container">
-          <output
+          <span
             className={`${styles['rangeslider-output']} border-base border-1px radius-lg padding-left-1 padding-right-1`}
             id={'output__' + this.props.id}
             htmlFor={this.props.id}
@@ -41,7 +45,7 @@ class RangeSlider extends Component {
             {(this.props.prependTooltipText ? this.props.prependTooltipText + ' ' : '') +
               this.props.defaultValue +
               (this.props.appendToolTipText ? ' ' + this.props.appendToolTipText : '')}
-          </output>
+          </span>
           <input
             id={this.props.id}
             className="usa-range"
@@ -53,6 +57,8 @@ class RangeSlider extends Component {
             onInput={this.onInput}
             onChange={this.onChange}
           />
+          <span className={styles['slider-min-label']}>{this.props.min} </span>
+          <span className={styles['slider-max-label']}>{this.props.max} </span>
         </div>
       </>
     );
