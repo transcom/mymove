@@ -1,6 +1,7 @@
 package primeapi
 
 import (
+	"errors"
 	"fmt"
 	"net/http/httptest"
 	"testing"
@@ -98,6 +99,72 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		response := handler.Handle(params)
 		suite.IsType(&paymentrequestop.CreatePaymentRequestBadRequest{}, response)
 
+	})
+
+	suite.T().Run("failed create payment request -- err is returned", func(t *testing.T) {
+		returnedPaymentRequest := models.PaymentRequest{
+			ID:              paymentRequestID,
+			MoveTaskOrderID: moveTaskOrderID,
+			MoveTaskOrder:   moveTaskOrder,
+			CreatedAt:       time.Now(),
+			UpdatedAt:       time.Now(),
+		}
+
+		paymentRequestCreator := &mocks.PaymentRequestCreator{}
+
+		paymentRequestCreator.On("CreatePaymentRequest",
+			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, validate.NewErrors(), errors.New("test failed to create with err returned")).Once()
+
+		handler := CreatePaymentRequestHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			paymentRequestCreator,
+		}
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests"), nil)
+		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		params := paymentrequestop.CreatePaymentRequestParams{
+			HTTPRequest: req,
+			Body: &primemessages.CreatePaymentRequestPayload{
+				IsFinal:         &paymentRequest.IsFinal,
+				MoveTaskOrderID: *handlers.FmtUUID(paymentRequest.MoveTaskOrderID),
+			},
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&paymentrequestop.CreatePaymentRequestInternalServerError{}, response)
+
+	})
+
+	suite.T().Run("failed create payment request -- non-existent MTO ID", func(t *testing.T) {
+		returnedPaymentRequest := models.PaymentRequest{}
+
+		paymentRequestCreator := &mocks.PaymentRequestCreator{}
+
+		paymentRequestCreator.On("CreatePaymentRequest",
+			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, validate.NewErrors(), nil).Once()
+
+		handler := CreatePaymentRequestHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			paymentRequestCreator,
+		}
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests"), nil)
+		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		badMTOID, _ := uuid.FromString("23000000-0000-0000-0000-000000000000")
+		params := paymentrequestop.CreatePaymentRequestParams{
+			HTTPRequest: req,
+			Body: &primemessages.CreatePaymentRequestPayload{
+				IsFinal:         &paymentRequest.IsFinal,
+				MoveTaskOrderID: *handlers.FmtUUID(badMTOID),
+			},
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&paymentrequestop.CreatePaymentRequestNotFound{}, response)
 	})
 
 }
