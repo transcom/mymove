@@ -204,9 +204,9 @@ func FetchPersonallyProcuredMove(db *pop.Connection, session *auth.Session, id u
 }
 
 // FetchPersonallyProcuredMoveByOrderID Fetches and Validates a PPM model
-func FetchPersonallyProcuredMoveByOrderID(db *pop.Connection, session *auth.Session, orderID uuid.UUID) (*PersonallyProcuredMove, error) {
+func FetchPersonallyProcuredMoveByOrderID(db *pop.Connection, orderID uuid.UUID) (*PersonallyProcuredMove, error) {
 	var ppm PersonallyProcuredMove
-	err := db.Q().Eager("Move.Orders.ServiceMember.DutyStation.Address").
+	err := db.Q().
 		LeftJoin("moves as m", "m.id = personally_procured_moves.move_id").
 		Where("m.orders_id = ?", orderID).
 		First(&ppm)
@@ -215,10 +215,6 @@ func FetchPersonallyProcuredMoveByOrderID(db *pop.Connection, session *auth.Sess
 			return &PersonallyProcuredMove{}, ErrFetchNotFound
 		}
 		return &PersonallyProcuredMove{}, err
-	}
-
-	if session.IsMilApp() && ppm.Move.Orders.ServiceMember.ID != session.ServiceMemberID {
-		return &PersonallyProcuredMove{}, ErrFetchForbidden
 	}
 
 	return &ppm, nil

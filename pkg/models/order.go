@@ -89,7 +89,32 @@ func (o *Order) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 
 // SaveOrder saves an order
 func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
-	return db.ValidateAndSave(order)
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
+	db.Transaction(func(dbConnection *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
+
+		ppm, err := FetchPersonallyProcuredMoveByOrderID(db, order.ID)
+		if err != nil {
+			return transactionError
+		}
+
+		ppm.DestinationPostalCode = &order.NewDutyStation.Address.PostalCode
+		if verrs, err := dbConnection.ValidateAndSave(ppm); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = err
+			return transactionError
+		}
+
+		if verrs, err := db.ValidateAndSave(order); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = err
+			return transactionError
+		}
+		return nil
+	})
+	return responseVErrors, responseError
 }
 
 // State Machine

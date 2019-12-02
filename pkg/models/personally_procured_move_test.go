@@ -151,7 +151,6 @@ func (suite *ModelSuite) TestFetchPersonallyProcuredMoveByOrderID() {
 		},
 	})
 
-	serviceMember := move.Orders.ServiceMember
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
 
 	ppm, verrs, err := move.CreatePPM(suite.DB(), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
@@ -160,11 +159,6 @@ func (suite *ModelSuite) TestFetchPersonallyProcuredMoveByOrderID() {
 
 	advance.Request()
 	SavePersonallyProcuredMove(suite.DB(), ppm)
-	session := auth.Session{
-		UserID:          serviceMember.User.ID,
-		ApplicationName: auth.MilApp,
-		ServiceMemberID: serviceMember.ID,
-	}
 
 	tests := []struct {
 		lookupID  uuid.UUID
@@ -176,7 +170,7 @@ func (suite *ModelSuite) TestFetchPersonallyProcuredMoveByOrderID() {
 	}
 
 	for _, ts := range tests {
-		ppm, err := FetchPersonallyProcuredMoveByOrderID(suite.DB(), &session, ts.lookupID)
+		ppm, err := FetchPersonallyProcuredMoveByOrderID(suite.DB(), ts.lookupID)
 		if ts.resultErr {
 			suite.Error(err)
 		} else {
