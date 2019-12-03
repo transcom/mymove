@@ -44,6 +44,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0037](0037-go-path-and-project-layout-revisited.md) - Put mymove outside of standard GOPATH
 - [ADR-0038](0038-soft-delete.md) - Use Soft Delete Instead of Hard Delete
 - [ADR-0039](0039-react-lazy-and-code-splitting.md) - Use React Lazy for code splitting
+- [ADR-0040](0040-role-base-authorization.md) - Add Role-Based Authorization
 
 <!-- adrlogstop -->
 
