@@ -52,6 +52,9 @@ type Customer struct {
 	// pickup address
 	PickupAddress *Address `json:"pickup_address,omitempty"`
 
+	// reference Id
+	ReferenceID *string `json:"referenceId,omitempty"`
+
 	// remarks
 	Remarks string `json:"remarks,omitempty"`
 

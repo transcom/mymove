@@ -99,6 +99,12 @@ func (f fetchMoveTaskOrder) UpdateMoveTaskOrderStatus(moveTaskOrderID uuid.UUID,
 	if err != nil {
 		return &models.MoveTaskOrder{}, err
 	}
+	if mto.Status != status && status == models.MoveTaskOrderStatusApproved {
+		mto.ReferenceID, err = models.GenerateReferenceID(f.db)
+	}
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
 	mto.Status = status
 
 	// when an MTO is approved it becomes available to the Prime
