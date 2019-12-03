@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/admin_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/electronic_order"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/move"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notification"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organization"
@@ -79,6 +80,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MoveIndexMovesHandler: move.IndexMovesHandlerFunc(func(params move.IndexMovesParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveIndexMoves has not yet been implemented")
+		}),
+		NotificationIndexNotificationsHandler: notification.IndexNotificationsHandlerFunc(func(params notification.IndexNotificationsParams) middleware.Responder {
+			return middleware.NotImplemented("operation NotificationIndexNotifications has not yet been implemented")
 		}),
 		OfficeUsersIndexOfficeUsersHandler: office_users.IndexOfficeUsersHandlerFunc(func(params office_users.IndexOfficeUsersParams) middleware.Responder {
 			return middleware.NotImplemented("operation OfficeUsersIndexOfficeUsers has not yet been implemented")
@@ -151,6 +155,8 @@ type MymoveAPI struct {
 	ElectronicOrderIndexElectronicOrdersHandler electronic_order.IndexElectronicOrdersHandler
 	// MoveIndexMovesHandler sets the operation handler for the index moves operation
 	MoveIndexMovesHandler move.IndexMovesHandler
+	// NotificationIndexNotificationsHandler sets the operation handler for the index notifications operation
+	NotificationIndexNotificationsHandler notification.IndexNotificationsHandler
 	// OfficeUsersIndexOfficeUsersHandler sets the operation handler for the index office users operation
 	OfficeUsersIndexOfficeUsersHandler office_users.IndexOfficeUsersHandler
 	// OfficeIndexOfficesHandler sets the operation handler for the index offices operation
@@ -268,6 +274,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.MoveIndexMovesHandler == nil {
 		unregistered = append(unregistered, "move.IndexMovesHandler")
+	}
+
+	if o.NotificationIndexNotificationsHandler == nil {
+		unregistered = append(unregistered, "notification.IndexNotificationsHandler")
 	}
 
 	if o.OfficeUsersIndexOfficeUsersHandler == nil {
@@ -446,6 +456,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/moves"] = move.NewIndexMoves(o.context, o.MoveIndexMovesHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/notifications"] = notification.NewIndexNotifications(o.context, o.NotificationIndexNotificationsHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
