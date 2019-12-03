@@ -86,7 +86,6 @@ func RoleAuthMiddleware(logger Logger) func(api APIContext) func(handler http.Ha
 	return func(api APIContext) func(http.Handler) http.Handler {
 		return func(next http.Handler) http.Handler {
 			mw := func(w http.ResponseWriter, r *http.Request) {
-
 				session := auth.SessionFromRequestContext(r)
 				userRoles := session.Roles
 
@@ -456,7 +455,6 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 				return
 			}
 			session.OfficeUserID = officeUser.ID
-
 			officeUser.UserID = &userIdentity.ID
 			err = h.db.Save(officeUser)
 			if err != nil {

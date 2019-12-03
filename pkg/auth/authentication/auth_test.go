@@ -82,7 +82,6 @@ func ApplicationTestServername() auth.ApplicationServername {
 type AuthSuite struct {
 	testingsuite.PopTestSuite
 	logger Logger
-	// apiContext APIContext
 }
 
 func (suite *AuthSuite) SetupTest() {
@@ -97,7 +96,6 @@ func TestAuthSuite(t *testing.T) {
 	hs := &AuthSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
-		// apiContext:   MymoveAPI,
 	}
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()
