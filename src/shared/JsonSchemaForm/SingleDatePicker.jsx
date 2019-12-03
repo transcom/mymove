@@ -9,11 +9,11 @@ import 'react-day-picker/lib/style.css';
 const allowedDateFormats = [
   defaultDateFormat,
   'YYYY/M/D',
-  'YYYY-M-D',
-  'M-D-YYYY',
-  'D-MMM-YYYY',
-  'MMM-D-YYYY',
-  'DD-MMM-YY',
+  // 'YYYY-M-D',
+  // 'M-D-YYYY',
+  // 'D-MMM-YYYY',
+  // 'MMM-D-YYYY',
+  // 'DD-MMM-YY',
 ];
 
 function parseDate(str, _format, locale = 'en') {
