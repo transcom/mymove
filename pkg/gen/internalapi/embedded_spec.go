@@ -69,7 +69,8 @@ func init() {
         },
         "x-swagger-roles": [
           "office",
-          "contractingOfficer"
+          "contractingOfficer",
+          "customer"
         ]
       }
     },
@@ -122,7 +123,8 @@ func init() {
         },
         "x-swagger-roles": [
           "office",
-          "contractingOfficer"
+          "contractingOfficer",
+          "customer"
         ]
       }
     },
@@ -166,7 +168,8 @@ func init() {
         },
         "x-swagger-roles": [
           "office",
-          "contractingOfficer"
+          "contractingOfficer",
+          "customer"
         ]
       }
     },
@@ -1873,7 +1876,8 @@ func init() {
         },
         "x-swagger-roles": [
           "office",
-          "contractingOfficer"
+          "contractingOfficer",
+          "customer"
         ]
       }
     },
@@ -3036,7 +3040,8 @@ func init() {
         },
         "x-swagger-roles": [
           "office",
-          "contractingOfficer"
+          "contractingOfficer",
+          "customer"
         ]
       }
     },
@@ -3067,7 +3072,8 @@ func init() {
         },
         "x-swagger-roles": [
           "office",
-          "contractingOfficer"
+          "contractingOfficer",
+          "customer"
         ]
       }
     }
@@ -6117,7 +6123,8 @@ func init() {
         },
         "x-swagger-roles": [
           "office",
-          "contractingOfficer"
+          "contractingOfficer",
+          "customer"
         ]
       }
     },
@@ -6170,7 +6177,8 @@ func init() {
         },
         "x-swagger-roles": [
           "office",
-          "contractingOfficer"
+          "contractingOfficer",
+          "customer"
         ]
       }
     },
@@ -6214,7 +6222,8 @@ func init() {
         },
         "x-swagger-roles": [
           "office",
-          "contractingOfficer"
+          "contractingOfficer",
+          "customer"
         ]
       }
     },
@@ -7921,7 +7930,8 @@ func init() {
         },
         "x-swagger-roles": [
           "office",
-          "contractingOfficer"
+          "contractingOfficer",
+          "customer"
         ]
       }
     },
@@ -9084,7 +9094,8 @@ func init() {
         },
         "x-swagger-roles": [
           "office",
-          "contractingOfficer"
+          "contractingOfficer",
+          "customer"
         ]
       }
     },
@@ -9115,7 +9126,8 @@ func init() {
         },
         "x-swagger-roles": [
           "office",
-          "contractingOfficer"
+          "contractingOfficer",
+          "customer"
         ]
       }
     }

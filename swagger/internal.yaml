@@ -2505,6 +2505,7 @@ paths:
       x-swagger-roles:
         - office
         - contractingOfficer
+        - customer
       description: Returns the user info for the currently logged in user
       operationId: showLoggedInUser
       tags:
@@ -2526,6 +2527,7 @@ paths:
       x-swagger-roles:
         - office
         - contractingOfficer
+        - customer
       description: Returns boolean as to whether the user is logged in
       operationId: isLoggedInUser
       tags:
@@ -3359,6 +3361,7 @@ paths:
       x-swagger-roles:
         - office
         - contractingOfficer
+        - customer
       description: Submits a move for approval by the office. The status of the move will be updated to SUBMITTED
       operationId: submitMoveForApproval
       tags:
@@ -4346,6 +4349,7 @@ paths:
       x-swagger-roles:
         - office
         - contractingOfficer
+        - customer
       description: Fetches the access code for a service member.
       operationId: fetchAccessCode
       tags:
@@ -4369,6 +4373,7 @@ paths:
       x-swagger-roles:
         - office
         - contractingOfficer
+        - customer
       description: Verifies if access code is both unused and correctly associated with a move type.
       operationId: validateAccessCode
       tags:
@@ -4399,6 +4404,7 @@ paths:
       x-swagger-roles:
         - office
         - contractingOfficer
+        - customer
       description: Updates access code as invalid by associating it with the current service member.
       operationId: claimAccessCode
       tags:
