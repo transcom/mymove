@@ -429,7 +429,6 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 
 	if userIdentity.ServiceMemberID != nil {
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
-		session.Roles = append(session.Roles, auth.RoleCustomer)
 	}
 
 	if userIdentity.DpsUserID != nil && (userIdentity.DpsActive != nil && *userIdentity.DpsActive) {
@@ -444,7 +443,6 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 		}
 		if userIdentity.OfficeUserID != nil {
 			session.OfficeUserID = *(userIdentity.OfficeUserID)
-			session.Roles = append(session.Roles, auth.RoleOffice)
 		} else {
 			// In case they managed to login before the office_user record was created
 			officeUser, err := models.FetchOfficeUserByEmail(h.db, session.Email)
@@ -458,7 +456,6 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 				return
 			}
 			session.OfficeUserID = officeUser.ID
-			session.Roles = append(session.Roles, auth.RoleOffice)
 
 			officeUser.UserID = &userIdentity.ID
 			err = h.db.Save(officeUser)
@@ -576,14 +573,11 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 		if session.IsOfficeApp() && officeUser != nil {
 			session.OfficeUserID = officeUser.ID
 			officeUser.UserID = &user.ID
-			session.Roles = append(session.Roles, auth.RoleOffice)
 			err = h.db.Save(officeUser)
 		} else if session.IsAdminApp() && adminUser.ID != uuid.Nil {
 			session.AdminUserID = adminUser.ID
 			adminUser.UserID = &user.ID
 			err = h.db.Save(&adminUser)
-		} else {
-			session.Roles = append(session.Roles, auth.RoleCustomer)
 		}
 	}
 	if err != nil {

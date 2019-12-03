@@ -764,36 +764,3 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 	suite.Equal(adminUser.ID, session.AdminUserID)
 	suite.Equal(uuid.Nil, session.OfficeUserID)
 }
-
-// func (suite *AuthSuite) TestRequireRoleAuthMiddleware() {
-// 	fakeToken := "some_token"
-// 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc3")
-// 	session := auth.Session{
-// 		ApplicationName: auth.OfficeApp,
-// 		UserID:          fakeUUID,
-// 		IDToken:         fakeToken,
-// 		Hostname:        OfficeTestHost,
-// 		Roles:           []auth.Role{auth.RoleOffice},
-// 	}
-
-// 	rr := httptest.NewRecorder()
-// 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/estimates/ppm", OfficeTestHost), nil)
-
-// 	// And: the context contains the auth values
-// 	ctx := auth.SetSessionInRequestContext(req, &session)
-// 	req = req.WithContext(ctx)
-
-// 	var handlerSession *auth.Session
-// 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-// 		handlerSession = auth.SessionFromRequestContext(r)
-// 	})
-
-// 	// need to figure out how to get the ap pi to pass through
-// 	middleware := RoleAuthMiddleware(suite.logger)(suite.apiContext)(handler)
-
-// 	middleware.ServeHTTP(rr, req)
-
-// 	// // We should be not be redirected since we're logged in
-// 	// suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
-// 	suite.Equal(handlerSession.UserID, fakeUUID, "same user")
-// }
