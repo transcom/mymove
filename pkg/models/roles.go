@@ -10,10 +10,10 @@ import (
 
 // Role is an object representing the types of users who can authenticate in the admin app
 type Role struct {
-	ID        int        `json:"id" db:"id"`
-	Type      string     `json:"type" db:"type"`
-	CreatedAt time.Time  `json:"created_at" db:"created_at"`
-	ClaimedAt *time.Time `json:"claimed_at" db:"claimed_at"`
+	ID        int       `json:"id" db:"id"`
+	RoleType  string    `json:"role_type" db:"role_type"`
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
 
 type Roles []Role
@@ -22,8 +22,8 @@ type Roles []Role
 // This method is not required and may be deleted.
 func (r *Role) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.StringIsPresent{Field: string(r.ID), Name: "ID"},
-		&validators.StringIsPresent{Field: string(r.Type), Name: "Type"},
+		&validators.IntIsPresent{Field: int(r.ID), Name: "ID"},
+		&validators.StringIsPresent{Field: string(r.RoleType), Name: "RoleType"},
 	), nil
 }
 
