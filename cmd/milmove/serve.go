@@ -742,6 +742,24 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 				dpsCookieExpires))
 	}
 
+	if v.GetBool(cli.ServePrimeFlag) {
+		primeMux := goji.SubMux()
+		// TODO # will need to add hostname detector middleware here
+		//primeDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.PrimeServername)
+		//primeMux.Use(primeDetectionMiddleware)
+		primeMux.Use(middleware.NoCache(logger))
+		primeMux.Use(clientCertMiddleware)
+		primeMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.PrimeSwaggerFlag)))
+		if v.GetBool(cli.ServeSwaggerUIFlag) {
+			logger.Info("Prime API Swagger UI serving is enabled")
+			primeMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "prime.html")))
+		} else {
+			primeMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+		}
+		primeMux.Handle(pat.New("/*"), primeapi.NewPrimeAPIHandler(handlerContext))
+		site.Handle(pat.New("/prime/v1/*"), primeMux)
+	}
+
 	root := goji.NewMux()
 	root.Use(middleware.Recovery(logger))
 	root.Use(middleware.Trace(logger, &handlerContext))            // injects http request trace id
@@ -836,31 +854,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		ghcAPIMux.Use(userAuthMiddleware)
 		ghcAPIMux.Use(middleware.NoCache(logger))
 		ghcAPIMux.Handle(pat.New("/*"), ghcapi.NewGhcAPIHandler(handlerContext))
-	}
-
-	if v.GetBool(cli.ServePrimeFlag) {
-		primeMux := goji.SubMux()
-		// TODO # will need to add hostname detector middleware here
-		//primeDetectionMiddleware := auth.HostnameDetectorMiddleware()
-		//primeMux.Use(ordersDetectionMiddleware)
-		fmt.Println("Serving Prime API")
-		primeMux.Use(clientCertMiddleware)
-		root.Handle(pat.New("/prime/v1/*"), primeMux)
-		primeMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.PrimeSwaggerFlag)))
-		if v.GetBool(cli.ServeSwaggerUIFlag) {
-			logger.Info("Prime API Swagger UI serving is enabled")
-			primeMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "prime.html")))
-		} else {
-			primeMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
-		}
-
-		// Mux for GHC API that enforces auth
-		primeAPIMux := goji.SubMux()
-		primeMux.Handle(pat.New("/*"), primeAPIMux)
-		primeAPIMux.Use(userAuthMiddleware)
-		primeAPIMux.Use(authentication.PrimeAuthMiddleware(logger))
-		primeAPIMux.Use(middleware.NoCache(logger))
-		primeAPIMux.Handle(pat.New("/*"), primeapi.NewPrimeAPIHandler(handlerContext))
 	}
 
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)

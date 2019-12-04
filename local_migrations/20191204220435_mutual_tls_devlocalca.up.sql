@@ -27,8 +27,8 @@ INSERT INTO public.client_certs (
 	allow_navy_orders_write)
 VALUES (
 	'9ca7b372-3dc9-46f9-8010-e66889420544',
-	'bc95ac7064f4d1df17eaf446a8c0569786918e74423636db38dfd05191ef481b',
-	'/O=Snake Oil/CN=localhost',
+	'2c0c1fc67a294443292a9e71de0c71cc374fe310e8073f8cdc15510f6b0ef4db',
+	'/C=US/ST=DC/L=Washington/O=Truss/OU=AppClientTLS/CN=devlocal',
 	false,
 	true,
 	now(),
