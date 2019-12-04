@@ -35,7 +35,8 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Conn
 		}
 
 		//DSH - ShorthaulPrice
-		service, err := models.FetchReServiceItem(db, "DSH")
+		var serviceDSH models.ReService
+		err := db.Where("code = 'DSH'").First(&serviceDSH)
 		if err != nil {
 			return fmt.Errorf("failed importing re_service from StageDomesticServiceAreaPrice with code DSH: %w", err)
 		}
@@ -47,7 +48,7 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Conn
 
 		domPricingModelDSH := models.ReDomesticServiceAreaPrice{
 			ContractID:            gre.contractID,
-			ServiceID:             service.ID,
+			ServiceID:             serviceDSH.ID,
 			IsPeakPeriod:          isPeakPeriod,
 			DomesticServiceAreaID: serviceAreaID,
 			PriceCents:            unit.Cents(cents),
@@ -55,10 +56,11 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Conn
 
 		domPricingModels = append(domPricingModels, domPricingModelDSH)
 
-		//DODP - OriginDestinationPrice
-		service, err = models.FetchReServiceItem(db, "DODP")
+		//DOP - OriginDestinationPrice
+		var serviceDOP models.ReService
+		err = db.Where("code = 'DOP'").First(&serviceDOP)
 		if err != nil {
-			return fmt.Errorf("failed importing re_service from StageDomesticServiceAreaPrice with code DODP: %w", err)
+			return fmt.Errorf("failed importing re_service from StageDomesticServiceAreaPrice with code DOP: %w", err)
 		}
 
 		cents, convErr = priceToCents(stageDomPricingModel.OriginDestinationPrice)
@@ -66,20 +68,21 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Conn
 			return fmt.Errorf("failed to parse price for OriginDestinationPrice data: %+v error: %w", stageDomPricingModel, convErr)
 		}
 
-		domPricingModelDODP := models.ReDomesticServiceAreaPrice{
+		domPricingModelDOP := models.ReDomesticServiceAreaPrice{
 			ContractID:            gre.contractID,
-			ServiceID:             service.ID,
+			ServiceID:             serviceDOP.ID,
 			IsPeakPeriod:          isPeakPeriod,
 			DomesticServiceAreaID: serviceAreaID,
 			PriceCents:            unit.Cents(cents),
 		}
 
-		domPricingModels = append(domPricingModels, domPricingModelDODP)
+		domPricingModels = append(domPricingModels, domPricingModelDOP)
 
-		//DFSIT - OriginDestinationSITFirstDayWarehouse
-		service, err = models.FetchReServiceItem(db, "DFSIT")
+		//DOFSIT - OriginDestinationSITFirstDayWarehouse
+		var serviceDOFSIT models.ReService
+		err = db.Where("code = 'DOFSIT'").First(&serviceDOFSIT)
 		if err != nil {
-			return fmt.Errorf("failed importing re_service from StageDomesticServiceAreaPrice with code DFSIT: %w", err)
+			return fmt.Errorf("failed importing re_service from StageDomesticServiceAreaPrice with code DOFSIT: %w", err)
 		}
 
 		cents, convErr = priceToCents(stageDomPricingModel.OriginDestinationSITFirstDayWarehouse)
@@ -87,20 +90,21 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Conn
 			return fmt.Errorf("failed to parse price for OriginDestinationSITFirstDayWarehouse data: %+v error: %w", stageDomPricingModel, convErr)
 		}
 
-		domPricingModelDFSIT := models.ReDomesticServiceAreaPrice{
+		domPricingModelDOFSIT := models.ReDomesticServiceAreaPrice{
 			ContractID:            gre.contractID,
-			ServiceID:             service.ID,
+			ServiceID:             serviceDOFSIT.ID,
 			IsPeakPeriod:          isPeakPeriod,
 			DomesticServiceAreaID: serviceAreaID,
 			PriceCents:            unit.Cents(cents),
 		}
 
-		domPricingModels = append(domPricingModels, domPricingModelDFSIT)
+		domPricingModels = append(domPricingModels, domPricingModelDOFSIT)
 
-		//DASIT - OriginDestinationSITAddlDays
-		service, err = models.FetchReServiceItem(db, "DASIT")
+		//DOASIT - OriginDestinationSITAddlDays
+		var serviceDOASIT models.ReService
+		err = db.Where("code = 'DOASIT'").First(&serviceDOASIT)
 		if err != nil {
-			return fmt.Errorf("failed importing re_service from StageDomesticServiceAreaPrice with code DASIT: %w", err)
+			return fmt.Errorf("failed importing re_service from StageDomesticServiceAreaPrice with code DOASIT: %w", err)
 		}
 
 		cents, convErr = priceToCents(stageDomPricingModel.OriginDestinationSITAddlDays)
@@ -108,15 +112,15 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Conn
 			return fmt.Errorf("failed to parse price for OriginDestinationSITAddlDays data: %+v error: %w", stageDomPricingModel, convErr)
 		}
 
-		domPricingModelDASIT := models.ReDomesticServiceAreaPrice{
+		domPricingModelDOASIT := models.ReDomesticServiceAreaPrice{
 			ContractID:            gre.contractID,
-			ServiceID:             service.ID,
+			ServiceID:             serviceDOASIT.ID,
 			IsPeakPeriod:          isPeakPeriod,
 			DomesticServiceAreaID: serviceAreaID,
 			PriceCents:            unit.Cents(cents),
 		}
 
-		domPricingModels = append(domPricingModels, domPricingModelDASIT)
+		domPricingModels = append(domPricingModels, domPricingModelDOASIT)
 
 		for _, model := range domPricingModels {
 			verrs, err := db.ValidateAndSave(&model)

@@ -96,40 +96,40 @@ func (suite *GHCRateEngineImportSuite) helperCheckDomesticServiceAreaPriceValue(
 	suite.NoError(err)
 	suite.Equal(unit.Cents(16), domesticServiceAreaPrice.PriceCents)
 
-	var serviceDODP models.ReService
-	err = suite.DB().Where("code = 'DODP'").First(&serviceDODP)
+	var serviceDOP models.ReService
+	err = suite.DB().Where("code = 'DOP'").First(&serviceDOP)
 	suite.NoError(err)
 
 	// Get domestic service area price DODP
 	err = suite.DB().
 		Where("contract_id = ?", contract.ID).
-		Where("service_id = ?", serviceDODP.ID).
+		Where("service_id = ?", serviceDOP.ID).
 		Where("domestic_service_area_id = ?", serviceArea.ID).
 		Where("is_peak_period = false").First(&domesticServiceAreaPrice)
 	suite.NoError(err)
 	suite.Equal(unit.Cents(581), domesticServiceAreaPrice.PriceCents)
 
-	var serviceDFSIT models.ReService
-	err = suite.DB().Where("code = 'DFSIT'").First(&serviceDFSIT)
+	var serviceDOFSIT models.ReService
+	err = suite.DB().Where("code = 'DOFSIT'").First(&serviceDOFSIT)
 	suite.NoError(err)
 
-	// Get domestic service area price DFSIT
+	// Get domestic service area price DOFSIT
 	err = suite.DB().
 		Where("contract_id = ?", contract.ID).
-		Where("service_id = ?", serviceDFSIT.ID).
+		Where("service_id = ?", serviceDOFSIT.ID).
 		Where("domestic_service_area_id = ?", serviceArea.ID).
 		Where("is_peak_period = false").First(&domesticServiceAreaPrice)
 	suite.NoError(err)
 	suite.Equal(unit.Cents(1597), domesticServiceAreaPrice.PriceCents)
 
-	var serviceDASIT models.ReService
-	err = suite.DB().Where("code = 'DASIT'").First(&serviceDASIT)
+	var serviceDOASIT models.ReService
+	err = suite.DB().Where("code = 'DOASIT'").First(&serviceDOASIT)
 	suite.NoError(err)
 
-	// Get domestic service area price DASIT
+	// Get domestic service area price DOASIT
 	err = suite.DB().
 		Where("contract_id = ?", contract.ID).
-		Where("service_id = ?", serviceDASIT.ID).
+		Where("service_id = ?", serviceDOASIT.ID).
 		Where("domestic_service_area_id = ?", serviceArea.ID).
 		Where("is_peak_period = false").First(&domesticServiceAreaPrice)
 	suite.NoError(err)
