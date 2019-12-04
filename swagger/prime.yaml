@@ -555,6 +555,7 @@ definitions:
       - detail
       - instance
   CreatePaymentRequestPayload:
+    type: object
     properties:
       isFinal:
         default: false
