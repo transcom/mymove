@@ -21,7 +21,7 @@ func CustomerMoveItem(CustomerMoveItem models.CustomerMoveItem) *ghcmessages.Cus
 	return &CustomerMoveItemPayload
 }
 
-func CustomerInfo(Customer models.Customer) *ghcmessages.Customer {
+func CustomerInfo(Customer models.CustomerInfo) *ghcmessages.Customer {
 	CustomerInfoPayload := ghcmessages.Customer{
 		ID:                     strfmt.UUID(Customer.ID.String()),
 		CustomerName:           &Customer.CustomerName,

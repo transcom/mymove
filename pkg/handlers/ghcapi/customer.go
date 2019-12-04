@@ -30,7 +30,7 @@ func (h GetCustomerInfoHandler) Handle(params customercodeop.GetCustomerInfoPara
 	customer, err := models.GetCustomerInfo(h.DB(), customerID)
 
 	if err != nil {
-		logger.Error("Loading Customer Info", zap.Error(err))
+		logger.Error("Loading CustomerInfo Info", zap.Error(err))
 		return handlers.ResponseForError(logger, err)
 	}
 	customerInfoPayload := payloads.CustomerInfo(customer)
@@ -53,7 +53,7 @@ func (h GetAllCustomerMovesHandler) Handle(params customercodeop.GetAllCustomerM
 	CustomerMoveItems, err := models.GetCustomerMoveItems(h.DB())
 
 	if err != nil {
-		logger.Error("Loading Customer Moves", zap.Error(err))
+		logger.Error("Loading CustomerInfo Moves", zap.Error(err))
 		return handlers.ResponseForError(logger, err)
 	}
 

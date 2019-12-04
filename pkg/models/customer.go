@@ -7,7 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-type Customer struct {
+type CustomerInfo struct {
 	ID                         uuid.UUID `json:"id" db:"id"`
 	CustomerName               string    `json:"customer_name" db:"customer_name"`
 	OriginDutyStationName      string    `json:"origin_duty_station_name" db:"origin_duty_station_name"`
@@ -55,8 +55,8 @@ func GetCustomerMoveItems(db *pop.Connection) ([]CustomerMoveItem, error) {
 	return CustomerMoveItems, err
 }
 
-func GetCustomerInfo(db *pop.Connection, customerID uuid.UUID) (Customer, error) {
-	var customer Customer
+func GetCustomerInfo(db *pop.Connection, customerID uuid.UUID) (CustomerInfo, error) {
+	var customer CustomerInfo
 	err := db.RawQuery(`
 	SELECT sm.ID,
 	   CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
