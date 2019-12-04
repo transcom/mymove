@@ -786,6 +786,7 @@ func init() {
       }
     },
     "CreatePaymentRequestPayload": {
+      "type": "object",
       "properties": {
         "isFinal": {
           "type": "boolean",
@@ -2105,6 +2106,7 @@ func init() {
       }
     },
     "CreatePaymentRequestPayload": {
+      "type": "object",
       "properties": {
         "isFinal": {
           "type": "boolean",
