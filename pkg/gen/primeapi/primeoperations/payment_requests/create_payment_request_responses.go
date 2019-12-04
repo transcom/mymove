@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	ghcmessages "github.com/transcom/mymove/pkg/gen/ghcmessages"
+	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // CreatePaymentRequestCreatedCode is the HTTP code returned for type CreatePaymentRequestCreated
@@ -25,7 +25,7 @@ type CreatePaymentRequestCreated struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.PaymentRequest `json:"body,omitempty"`
+	Payload *primemessages.PaymentRequest `json:"body,omitempty"`
 }
 
 // NewCreatePaymentRequestCreated creates CreatePaymentRequestCreated with default headers values
@@ -35,13 +35,13 @@ func NewCreatePaymentRequestCreated() *CreatePaymentRequestCreated {
 }
 
 // WithPayload adds the payload to the create payment request created response
-func (o *CreatePaymentRequestCreated) WithPayload(payload *ghcmessages.PaymentRequest) *CreatePaymentRequestCreated {
+func (o *CreatePaymentRequestCreated) WithPayload(payload *primemessages.PaymentRequest) *CreatePaymentRequestCreated {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create payment request created response
-func (o *CreatePaymentRequestCreated) SetPayload(payload *ghcmessages.PaymentRequest) {
+func (o *CreatePaymentRequestCreated) SetPayload(payload *primemessages.PaymentRequest) {
 	o.Payload = payload
 }
 

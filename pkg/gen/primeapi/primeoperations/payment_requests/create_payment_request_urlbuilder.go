@@ -39,7 +39,7 @@ func (o *CreatePaymentRequestURL) Build() (*url.URL, error) {
 
 	_basePath := o._basePath
 	if _basePath == "" {
-		_basePath = "/ghc/v1"
+		_basePath = "/prime/v1"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
 
