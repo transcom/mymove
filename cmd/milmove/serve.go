@@ -840,6 +840,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	if v.GetBool(cli.ServePrimeFlag) {
 		primeMux := goji.SubMux()
+		// TODO # will need to add hostname detector middleware here
+		//primeDetectionMiddleware := auth.HostnameDetectorMiddleware()
+		//primeMux.Use(ordersDetectionMiddleware)
+		fmt.Println("Serving Prime API")
+		primeMux.Use(clientCertMiddleware)
 		root.Handle(pat.New("/prime/v1/*"), primeMux)
 		primeMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.PrimeSwaggerFlag)))
 		if v.GetBool(cli.ServeSwaggerUIFlag) {
