@@ -394,5 +394,4 @@
 20191120165831_disable-user-migration.up.sql
 20191125211848_create_roles_table.up.sql
 20191126160639_update-and-add-values-for-reservices-table.up.sql
-20191203050531_populate_roles_table.up.sql
 20191204160349_add_new_user_type_tables.up.sql

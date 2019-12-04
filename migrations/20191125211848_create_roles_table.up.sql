@@ -2,7 +2,7 @@ CREATE TABLE roles (
 	id integer PRIMARY KEY,
 	role_type text,
 	created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+	updated_at timestamp without time zone NOT NULL
 );
 
 CREATE TABLE user_roles (
