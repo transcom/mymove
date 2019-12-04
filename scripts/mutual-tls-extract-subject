@@ -11,4 +11,4 @@ set -eu -o pipefail
 #in middleware we pull out key, digest it and compare to what's stored in DB and then we can authorize effectively
 
 # Fingerprint
-openssl x509 -subject -noout -in "$1"
+openssl x509 -subject -noout -in "$1" | perl -ne 's/^subject= //; print'
