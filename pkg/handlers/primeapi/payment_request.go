@@ -2,6 +2,7 @@ package primeapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_requests"
@@ -32,23 +33,25 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	if params.Body == nil {
-		logger.Error("Invalid payment request: params body is nil")
+		logger.Error("Invalid payment request: params Body is nil")
 		return paymentrequestop.NewCreatePaymentRequestBadRequest()
 	}
 
-	mtoID := handlers.FmtToPopUUID(params.Body.MoveTaskOrderID)
-	if mtoID == nil {
-		logger.Error("Invalid payment request: params moveTaskOrderID is nil")
+	moveTaskOrderIDString := params.Body.MoveTaskOrderID.String()
+	mtoID, err := uuid.FromString(moveTaskOrderIDString)
+	if err != nil {
+		logger.Error("Invalid payment request: params MoveTaskOrderID cannot be converted to a UUID",
+			zap.String("MoveTaskOrderID", moveTaskOrderIDString), zap.Error(err))
 		return paymentrequestop.NewCreatePaymentRequestBadRequest()
 	}
 
 	paymentRequest := models.PaymentRequest{
 		IsFinal:         *params.Body.IsFinal,
-		MoveTaskOrderID: *mtoID,
+		MoveTaskOrderID: mtoID,
 	}
 
 	moveTaskOrder := models.MoveTaskOrder{}
-	err := h.DB().Find(&moveTaskOrder, paymentRequest.MoveTaskOrderID)
+	err = h.DB().Find(&moveTaskOrder, paymentRequest.MoveTaskOrderID)
 	if err != nil {
 		logger.Error("Error finding MTO with ID request", zap.Error(err), zap.Any("MoveTaskOrderID", paymentRequest.MoveTaskOrderID))
 		return paymentrequestop.NewCreatePaymentRequestNotFound()
@@ -69,7 +72,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 
 	logger.Info("Payment Request params",
 		zap.Bool("is_final", *params.Body.IsFinal),
-		zap.String("move_task_order_id", (params.Body.MoveTaskOrderID).String()),
+		zap.String("move_task_order_id", moveTaskOrderIDString),
 		// TODO: add ServiceItems
 		// TODO add ProofOfService object to log
 	)
