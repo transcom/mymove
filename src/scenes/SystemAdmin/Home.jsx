@@ -16,10 +16,13 @@ import OfficeList from './Offices/OfficeList';
 import TSPPList from './TSPPs/TSPPList';
 import TSPPShow from './TSPPs/TSPPShow';
 import ElectronicOrderList from './ElectronicOrders/ElectronicOrderList';
+import MoveList from './Moves/MoveList';
+
 import styles from './Home.module.scss';
 import * as Cookies from 'js-cookie';
 import customRoutes from './CustomRoutes';
 import AdminUserEdit from './AdminUsers/AdminUserEdit';
+import NotificationList from './Notifications/NotificationList';
 
 const httpClient = (url, options = {}) => {
   const token = Cookies.get('masked_gorilla_csrf');
@@ -59,6 +62,7 @@ const Home = () => (
         create={AdminUserCreate}
         edit={AdminUserEdit}
       />
+      <Resource name="moves" options={{ label: 'Moves' }} list={MoveList} />
       <Resource
         name="transportation_service_provider_performances"
         options={{ label: 'TSPPs' }}
@@ -69,6 +73,7 @@ const Home = () => (
       <Resource name="access_codes" options={{ label: 'Access codes' }} list={AccessCodeList} />
       <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
       <Resource name="organizations" />
+      <Resource name="notifications" options={{ label: 'Notifications' }} list={NotificationList} />
     </Admin>
   </div>
 );

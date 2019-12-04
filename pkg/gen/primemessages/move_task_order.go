@@ -75,6 +75,12 @@ type MoveTaskOrder struct {
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
+	// ppm is included
+	PpmIsIncluded bool `json:"ppm-is-included,omitempty"`
+
+	// prime actual weight
+	PrimeActualWeight *int64 `json:"primeActualWeight,omitempty"`
+
 	// prime estimated weight
 	PrimeEstimatedWeight *int64 `json:"primeEstimatedWeight,omitempty"`
 
@@ -89,8 +95,18 @@ type MoveTaskOrder struct {
 	// Format: date
 	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
 
+	// scheduled move date
+	// Format: date
+	ScheduledMoveDate strfmt.Date `json:"scheduled-move-date,omitempty"`
+
+	// secondary delivery address
+	SecondaryDeliveryAddress *Address `json:"secondary-delivery-address,omitempty"`
+
+	// secondary pickup address
+	SecondaryPickupAddress *Address `json:"secondary-pickup-address,omitempty"`
+
 	// status
-	// Enum: [DRAFT APPROVED REJECTED SUBMITTED]
+	// Enum: [APPROVED REJECTED DRAFT]
 	Status string `json:"status,omitempty"`
 
 	// updated at
@@ -163,6 +179,18 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRequestedPickupDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateScheduledMoveDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSecondaryDeliveryAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSecondaryPickupAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -433,11 +461,60 @@ func (m *MoveTaskOrder) validateRequestedPickupDate(formats strfmt.Registry) err
 	return nil
 }
 
+func (m *MoveTaskOrder) validateScheduledMoveDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ScheduledMoveDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("scheduled-move-date", "body", "date", m.ScheduledMoveDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validateSecondaryDeliveryAddress(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SecondaryDeliveryAddress) { // not required
+		return nil
+	}
+
+	if m.SecondaryDeliveryAddress != nil {
+		if err := m.SecondaryDeliveryAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("secondary-delivery-address")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validateSecondaryPickupAddress(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SecondaryPickupAddress) { // not required
+		return nil
+	}
+
+	if m.SecondaryPickupAddress != nil {
+		if err := m.SecondaryPickupAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("secondary-pickup-address")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 var moveTaskOrderTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DRAFT","APPROVED","REJECTED","SUBMITTED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["APPROVED","REJECTED","DRAFT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -447,17 +524,14 @@ func init() {
 
 const (
 
-	// MoveTaskOrderStatusDRAFT captures enum value "DRAFT"
-	MoveTaskOrderStatusDRAFT string = "DRAFT"
-
 	// MoveTaskOrderStatusAPPROVED captures enum value "APPROVED"
 	MoveTaskOrderStatusAPPROVED string = "APPROVED"
 
 	// MoveTaskOrderStatusREJECTED captures enum value "REJECTED"
 	MoveTaskOrderStatusREJECTED string = "REJECTED"
 
-	// MoveTaskOrderStatusSUBMITTED captures enum value "SUBMITTED"
-	MoveTaskOrderStatusSUBMITTED string = "SUBMITTED"
+	// MoveTaskOrderStatusDRAFT captures enum value "DRAFT"
+	MoveTaskOrderStatusDRAFT string = "DRAFT"
 )
 
 // prop value enum

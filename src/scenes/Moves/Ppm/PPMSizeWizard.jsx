@@ -14,7 +14,7 @@ export class PpmSizeWizardPage extends Component {
     const moveId = this.props.match.params.moveId;
     if (pendingPpmSize) {
       let weight = currentPpm.weight_estimate;
-      if (currentPpm.size !== pendingPpmSize || (!isFinite(weight) || weight === 0)) {
+      if (currentPpm.size !== pendingPpmSize || !isFinite(weight) || weight === 0) {
         weight = 0;
       }
 
@@ -61,7 +61,4 @@ function mapStateToProps(state) {
     weightInfo: getRawWeightInfo(state),
   };
 }
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(PpmSizeWizardPage);
+export default connect(mapStateToProps, mapDispatchToProps)(PpmSizeWizardPage);

@@ -23,9 +23,15 @@ type Customer struct {
 	// Destination
 	DestinationDutyStation *string `json:"destinationDutyStation,omitempty"`
 
+	// destination address
+	DestinationAddress *Address `json:"destination_address,omitempty"`
+
 	// Email Address
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
 	Email *string `json:"email,omitempty"`
+
+	// First Name
+	FirstName *string `json:"first_name,omitempty"`
 
 	// Grade
 	Grade *string `json:"grade,omitempty"`
@@ -34,14 +40,30 @@ type Customer struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// Customer Name
-	Name *string `json:"name,omitempty"`
+	// Last Name
+	LastName *string `json:"last_name,omitempty"`
+
+	// Middle Name
+	MiddleName *string `json:"middle_name,omitempty"`
 
 	// Origin
 	OriginDutyStation *string `json:"originDutyStation,omitempty"`
 
 	// pickup address
 	PickupAddress *Address `json:"pickup_address,omitempty"`
+
+	// reference Id
+	ReferenceID *string `json:"referenceId,omitempty"`
+
+	// remarks
+	Remarks string `json:"remarks,omitempty"`
+
+	// requested pickup date
+	// Format: date
+	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
+
+	// Suffix
+	Suffix *string `json:"suffix,omitempty"`
 
 	// Best Contact Phone
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
@@ -51,6 +73,10 @@ type Customer struct {
 // Validate validates this customer
 func (m *Customer) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateDestinationAddress(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateEmail(formats); err != nil {
 		res = append(res, err)
@@ -64,6 +90,10 @@ func (m *Customer) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateRequestedPickupDate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateTelephone(formats); err != nil {
 		res = append(res, err)
 	}
@@ -71,6 +101,24 @@ func (m *Customer) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Customer) validateDestinationAddress(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.DestinationAddress) { // not required
+		return nil
+	}
+
+	if m.DestinationAddress != nil {
+		if err := m.DestinationAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destination_address")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -113,6 +161,19 @@ func (m *Customer) validatePickupAddress(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *Customer) validateRequestedPickupDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.RequestedPickupDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("requestedPickupDate", "body", "date", m.RequestedPickupDate.String(), formats); err != nil {
+		return err
 	}
 
 	return nil

@@ -14,6 +14,8 @@ import (
 	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	adminuser "github.com/transcom/mymove/pkg/services/admin_user"
 	electronicorder "github.com/transcom/mymove/pkg/services/electronic_order"
+	fetch "github.com/transcom/mymove/pkg/services/fetch"
+	move "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/office"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	tspop "github.com/transcom/mymove/pkg/services/tsp"
@@ -37,7 +39,7 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	adminAPI.OfficeUsersIndexOfficeUsersHandler = IndexOfficeUsersHandler{
 		context,
-		officeuser.NewOfficeUserListFetcher(queryBuilder),
+		fetch.NewListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
 	}
@@ -135,6 +137,20 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 	adminAPI.UploadGetUploadHandler = GetUploadHandler{
 		context,
 		upload.NewUploadInformationFetcher(context.DB()),
+	}
+
+	adminAPI.NotificationIndexNotificationsHandler = IndexNotificationsHandler{
+		context,
+		fetch.NewListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
+
+	adminAPI.MoveIndexMovesHandler = IndexMovesHandler{
+		context,
+		move.NewMoveListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
 	}
 
 	return adminAPI.Serve(nil)

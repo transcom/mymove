@@ -20,9 +20,6 @@ import (
 // swagger:model MoveTaskOrder
 type MoveTaskOrder struct {
 
-	// actual weight
-	ActualWeight int64 `json:"actualWeight,omitempty"`
-
 	// code
 	Code string `json:"code,omitempty"`
 
@@ -79,6 +76,9 @@ type MoveTaskOrder struct {
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
 
+	// reference Id
+	ReferenceID *string `json:"referenceId,omitempty"`
+
 	// remarks
 	Remarks string `json:"remarks,omitempty"`
 
@@ -90,7 +90,7 @@ type MoveTaskOrder struct {
 	ServiceItems []*ServiceItem `json:"serviceItems"`
 
 	// status
-	// Enum: [DRAFT APPROVED REJECTED SUBMITTED]
+	// Enum: [APPROVED REJECTED DRAFT]
 	Status string `json:"status,omitempty"`
 
 	// updated at
@@ -449,7 +449,7 @@ var moveTaskOrderTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DRAFT","APPROVED","REJECTED","SUBMITTED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["APPROVED","REJECTED","DRAFT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -459,17 +459,14 @@ func init() {
 
 const (
 
-	// MoveTaskOrderStatusDRAFT captures enum value "DRAFT"
-	MoveTaskOrderStatusDRAFT string = "DRAFT"
-
 	// MoveTaskOrderStatusAPPROVED captures enum value "APPROVED"
 	MoveTaskOrderStatusAPPROVED string = "APPROVED"
 
 	// MoveTaskOrderStatusREJECTED captures enum value "REJECTED"
 	MoveTaskOrderStatusREJECTED string = "REJECTED"
 
-	// MoveTaskOrderStatusSUBMITTED captures enum value "SUBMITTED"
-	MoveTaskOrderStatusSUBMITTED string = "SUBMITTED"
+	// MoveTaskOrderStatusDRAFT captures enum value "DRAFT"
+	MoveTaskOrderStatusDRAFT string = "DRAFT"
 )
 
 // prop value enum

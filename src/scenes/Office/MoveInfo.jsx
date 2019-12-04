@@ -121,6 +121,7 @@ const ReferrerQueueLink = props => {
 class MoveInfo extends Component {
   state = {
     redirectToHome: false,
+    hideTooltip: true,
   };
 
   componentDidMount() {
@@ -203,6 +204,11 @@ class MoveInfo extends Component {
         </span>
       );
     }
+  };
+
+  handleToolTipHover = () => {
+    // Temporarily disable due to bug: https://ustcdp3.slack.com/archives/CP4979J0G/p1575412461036700
+    // this.setState({ hideTooltip: !this.state.hideTooltip });
   };
 
   render() {
@@ -325,9 +331,9 @@ class MoveInfo extends Component {
                   Please fill out missing data
                 </Alert>
               )}
-              <div>
+              <div onMouseEnter={this.handleToolTipHover} onMouseLeave={this.handleToolTipHover}>
                 <ToolTip
-                  disabled={ordersComplete}
+                  disabled={this.state.hideTooltip}
                   textStyle="tooltiptext-large"
                   toolTipText="Some information about the move is missing or contains errors. Please fix these problems before approving."
                 >
@@ -489,10 +495,5 @@ const mapDispatchToProps = dispatch =>
     dispatch,
   );
 
-const connectedMoveInfo = withContext(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps,
-  )(MoveInfo),
-);
+const connectedMoveInfo = withContext(connect(mapStateToProps, mapDispatchToProps)(MoveInfo));
 export { connectedMoveInfo as default, ReferrerQueueLink };

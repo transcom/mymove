@@ -52,8 +52,10 @@ export class UploadsTable extends Component {
         </thead>
         <tbody>
           {this.props.uploads.map(upload => (
-            <tr key={upload.id}>
-              <td>{this.getUploadUrl(upload)}</td>
+            <tr key={upload.id} className="vertical-align text-top">
+              <td className="maxw-card" style={{ overflowWrap: 'break-word', wordWrap: 'break-word' }}>
+                {this.getUploadUrl(upload)}
+              </td>
               <td>{moment(upload.created_at).format('LLL')}</td>
               <td>{bytes(upload.bytes)}</td>
               <td>
@@ -82,7 +84,4 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({}, dispatch);
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(UploadsTable);
+export default connect(mapStateToProps, mapDispatchToProps)(UploadsTable);

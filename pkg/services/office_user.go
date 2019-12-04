@@ -12,13 +12,6 @@ type OfficeUserFetcher interface {
 	FetchOfficeUser(filters []QueryFilter) (models.OfficeUser, error)
 }
 
-// OfficeUserListFetcher is the exported interface for fetching multiple office users
-//go:generate mockery -name OfficeUserListFetcher
-type OfficeUserListFetcher interface {
-	FetchOfficeUserList(filters []QueryFilter, associations QueryAssociations, pagination Pagination, ordering QueryOrder) (models.OfficeUsers, error)
-	FetchOfficeUserCount(filters []QueryFilter) (int, error)
-}
-
 // OfficeUserCreator is the exported interface for creating an office user
 //go:generate mockery -name OfficeUserCreator
 type OfficeUserCreator interface {

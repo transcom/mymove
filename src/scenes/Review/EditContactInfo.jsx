@@ -158,7 +158,4 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(EditContact);
+export default connect(mapStateToProps, mapDispatchToProps)(EditContact);

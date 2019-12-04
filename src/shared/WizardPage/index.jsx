@@ -68,12 +68,18 @@ export class WizardPage extends Component {
         )}
         {children}
         <div className="grid-row" style={{ marginTop: '0.5rem' }}>
-          <div className="grid-col-12 text-right">
+          <div className="grid-col margin-top-6 tablet:margin-top-3">
             {!isMobile && (
-              <button className="usa-button usa-button--outline cancel" onClick={this.cancelFlow} disabled={false}>
+              <button
+                className="usa-button usa-button--outline cancel padding-left-0"
+                onClick={this.cancelFlow}
+                disabled={false}
+              >
                 Cancel
               </button>
             )}
+          </div>
+          <div className="grid-col text-right margin-top-6 tablet:margin-top-3">
             <button
               className="usa-button usa-button--outline prev"
               onClick={this.previousPage}
@@ -121,9 +127,4 @@ function mapDispatchToProps(dispatch) {
 }
 
 const wizardFormPageWithSize = windowSize(WizardPage);
-export default withRouter(
-  connect(
-    null,
-    mapDispatchToProps,
-  )(wizardFormPageWithSize),
-);
+export default withRouter(connect(null, mapDispatchToProps)(wizardFormPageWithSize));

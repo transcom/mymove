@@ -135,6 +135,8 @@ type ParamConfig struct {
 	RunImport     bool
 	UseTempTables bool
 	DropIfExists  bool
+	ContractCode  string
+	ContractName  string
 }
 
 // InitDataSheetInfo: When adding new functions for parsing sheets, must add new XlsxDataSheetInfo
@@ -296,12 +298,12 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 }
 
 func Parse(xlsxDataSheets []XlsxDataSheetInfo, params ParamConfig, db *pop.Connection, logger Logger) error {
-	tableFromSliceCreator := dbtools.NewTableFromSliceCreator(db, logger, params.UseTempTables, params.DropIfExists)
-
 	// Must be after processing config param
 	// Run the process function
 
-	err := db.Transaction(func(connection *pop.Connection) error {
+	err := db.Transaction(func(tx *pop.Connection) error {
+		tableFromSliceCreator := dbtools.NewTableFromSliceCreator(tx, logger, params.UseTempTables, params.DropIfExists)
+
 		if params.ProcessAll == true {
 			for i, x := range xlsxDataSheets {
 				if len(x.ProcessMethods) >= 1 {
