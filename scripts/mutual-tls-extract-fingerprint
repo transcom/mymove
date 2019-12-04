@@ -1,0 +1,15 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+#
+# Get a sha256 hash of the certificate from CAC
+#
+
+#certificates table contains sha256 of public cert -
+#middleware gets cert, terminates at tls, passes on to middleware
+#in middleware we pull out key, digest it and compare to what's stored in DB and then we can authorize effectively
+
+# Fingerprint
+openssl x509 -pubkey -noout -in "$1" | openssl dgst -sha256
+
