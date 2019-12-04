@@ -12,8 +12,10 @@ type GHCRateEngineImporter struct {
 	ContractCode string
 	ContractName string
 	// TODO: add reference maps here as needed for dependencies between tables
-	contractID         uuid.UUID
-	serviceAreaToIDMap map[string]uuid.UUID
+	contractID                   uuid.UUID
+	serviceAreaToIDMap           map[string]uuid.UUID
+	domesticRateAreaToIDMap      map[string]uuid.UUID
+	internationalRateAreaToIDMap map[string]uuid.UUID
 }
 
 func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
@@ -28,7 +30,7 @@ func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
 		return fmt.Errorf("failed to import re_domestic_service_area: %w", err)
 	}
 
-	err = gre.importRERateArea(dbTx)
+	err = gre.importRERateArea(dbTx) // Also populates gre.domesticRateAreaToIDMap and gre.internationalRateAreaToIDMap
 	if err != nil {
 		return fmt.Errorf("failed to import re_rate_area: %w", err)
 	}
@@ -37,6 +39,11 @@ func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
 	err = gre.importREDomesticLinehaulPrices(dbTx)
 	if err != nil {
 		return fmt.Errorf("failed to import re_domestic_linehaul_prices: %w", err)
+	}
+
+	err = gre.importREInternationalPrices(dbTx)
+	if err != nil {
+		return fmt.Errorf("failed to import re_intl_prices: %w", err)
 	}
 
 	return nil
