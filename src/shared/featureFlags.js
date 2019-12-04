@@ -20,13 +20,13 @@ const defaultFlags = {
 };
 
 const environmentFlags = {
-  development: Object.assign({}, defaultFlags, { too: true }),
+  development: Object.assign({}, defaultFlags, { tio: true, too: true }),
 
   test: Object.assign({}, defaultFlags),
 
-  experimental: Object.assign({}, defaultFlags, { too: true }),
+  experimental: Object.assign({}, defaultFlags, { tio: true, too: true }),
 
-  staging: Object.assign({}, defaultFlags, { too: true }),
+  staging: Object.assign({}, defaultFlags, { tio: true, too: true }),
 
   production: Object.assign({}, defaultFlags, {
     sitPanel: false,
