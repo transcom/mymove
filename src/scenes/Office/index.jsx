@@ -29,6 +29,7 @@ const DocumentViewer = lazy(() => import('./DocumentViewer'));
 const ScratchPad = lazy(() => import('shared/ScratchPad'));
 const CustomerDetails = lazy(() => import('./TOO/customerDetails'));
 const TOO = lazy(() => import('./TOO/too'));
+const TIO = lazy(() => import('./TIO/tio'));
 
 export class RenderWithOrWithoutHeader extends Component {
   render() {
@@ -67,7 +68,7 @@ export class OfficeWrapper extends Component {
 
   render() {
     const ConditionalWrap = ({ condition, wrap, children }) => (condition ? wrap(children) : <>{children}</>);
-    const { context: { flags: { too } } = { flags: { too: null } } } = this.props;
+    const { context: { flags: { too, tio } } = { flags: { too: null } } } = this.props;
     const DivOrMainTag = detectIE11() ? 'div' : 'main';
     const { userIsLoggedIn } = this.props;
     return (
@@ -160,6 +161,7 @@ export class OfficeWrapper extends Component {
                   <Switch>
                     {too && <PrivateRoute path="/too/placeholder" component={TOO} />}
                     {too && <PrivateRoute path="/too/customer/:customerId/details" component={CustomerDetails} />}
+                    {tio && <PrivateRoute path="/tio/placeholder" component={TIO} />}
                   </Switch>
                 </Suspense>
               </Switch>
