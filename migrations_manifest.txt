@@ -394,3 +394,4 @@
 20191120165831_disable-user-migration.up.sql
 20191126160639_update-and-add-values-for-reservices-table.up.sql
 20191204160349_add_new_user_type_tables.up.sql
+20191204231026_add_customer_id_to_users.up.sql
