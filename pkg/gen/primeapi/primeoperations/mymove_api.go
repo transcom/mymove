@@ -20,6 +20,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_requests"
 )
 
 // NewMymoveAPI creates a new Mymove instance
@@ -39,6 +40,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		BearerAuthenticator: security.BearerAuth,
 		JSONConsumer:        runtime.JSONConsumer(),
 		JSONProducer:        runtime.JSONProducer(),
+		PaymentRequestsCreatePaymentRequestHandler: payment_requests.CreatePaymentRequestHandlerFunc(func(params payment_requests.CreatePaymentRequestParams) middleware.Responder {
+			return middleware.NotImplemented("operation PaymentRequestsCreatePaymentRequest has not yet been implemented")
+		}),
 		MoveTaskOrderGetMoveTaskOrderCustomerHandler: move_task_order.GetMoveTaskOrderCustomerHandlerFunc(func(params move_task_order.GetMoveTaskOrderCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderGetMoveTaskOrderCustomer has not yet been implemented")
 		}),
@@ -91,6 +95,8 @@ type MymoveAPI struct {
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
+	// PaymentRequestsCreatePaymentRequestHandler sets the operation handler for the create payment request operation
+	PaymentRequestsCreatePaymentRequestHandler payment_requests.CreatePaymentRequestHandler
 	// MoveTaskOrderGetMoveTaskOrderCustomerHandler sets the operation handler for the get move task order customer operation
 	MoveTaskOrderGetMoveTaskOrderCustomerHandler move_task_order.GetMoveTaskOrderCustomerHandler
 	// MoveTaskOrderGetPrimeEntitlementsHandler sets the operation handler for the get prime entitlements operation
@@ -166,6 +172,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
+	}
+
+	if o.PaymentRequestsCreatePaymentRequestHandler == nil {
+		unregistered = append(unregistered, "payment_requests.CreatePaymentRequestHandler")
 	}
 
 	if o.MoveTaskOrderGetMoveTaskOrderCustomerHandler == nil {
@@ -293,6 +303,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers == nil {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/payment-requests"] = payment_requests.NewCreatePaymentRequest(o.context, o.PaymentRequestsCreatePaymentRequestHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
