@@ -26,21 +26,27 @@ type Assertions struct {
 	AdminUser                                models.AdminUser
 	BackupContact                            models.BackupContact
 	BlackoutDate                             models.BlackoutDate
+	Customer                                 models.Customer
+	DestinationDutyStation                   models.DutyStation
 	DistanceCalculation                      models.DistanceCalculation
 	Document                                 models.Document
 	DutyStation                              models.DutyStation
 	ElectronicOrder                          models.ElectronicOrder
 	ElectronicOrdersRevision                 models.ElectronicOrdersRevision
+	Entitlement                              models.Entitlement
 	FuelEIADieselPrice                       models.FuelEIADieselPrice
 	Invoice                                  models.Invoice
 	Move                                     models.Move
 	MoveDocument                             models.MoveDocument
+	MoveOrder                                models.MoveOrder
+	MoveTaskOrder                            models.MoveTaskOrder
 	MovingExpenseDocument                    models.MovingExpenseDocument
 	Notification                             models.Notification
 	WeightTicketSetDocument                  models.WeightTicketSetDocument
 	OfficeUser                               models.OfficeUser
 	Order                                    models.Order
 	Organization                             models.Organization
+	OriginDutyStation                        models.DutyStation
 	PaymentRequest                           models.PaymentRequest
 	PersonallyProcuredMove                   models.PersonallyProcuredMove
 	ReContract                               models.ReContract
