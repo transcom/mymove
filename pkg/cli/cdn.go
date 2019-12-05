@@ -23,14 +23,13 @@ func InitCDNFlags(flag *pflag.FlagSet) {
 	flag.String(AwsCfDomain, "", "Hostname according to environment.")
 	flag.String(CFPrivateKeyFlag, "", "Cloudfront private key")
 	flag.String(CFKeyIDFlag, "", "Cloudfront private key id")
-	flag.String(CDNBackendFlag, "local", "CDN backend for serving files")
+	flag.String(CDNBackendFlag, "s3", "CDN backend for serving files")
 }
 
 func CheckCDNValues(v *viper.Viper) error {
 
 	flags := []string{
 		AwsCfDomain,
-		CDNBackendFlag,
 	}
 
 	for _, c := range flags {

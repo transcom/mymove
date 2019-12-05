@@ -57,6 +57,7 @@ services:
       - HTTP_MY_SERVER_NAME=milmovelocal
       - HTTP_OFFICE_SERVER_NAME=officelocal
       - HTTP_ORDERS_SERVER_NAME=orderslocal
+      - AWS_CF_DOMAIN=assetslocal
       - IWS_RBS_HOST
       - LOGIN_GOV_ADMIN_CLIENT_ID
       - LOGIN_GOV_CALLBACK_PORT=4000

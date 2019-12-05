@@ -94,6 +94,10 @@
       "value": "admin.{{ .domain }}"
     },
     {
+      "name": "AWS_CF_DOMAIN",
+      "value": "assets.{{ .domain }}"
+    },
+    {
       "name": "AWS_S3_BUCKET_NAME",
       "value": "transcom-ppp-app-{{ .environment }}-us-west-2"
     },
