@@ -7,6 +7,12 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+type Customer struct {
+	ID        uuid.UUID `json:"id" db:"id"`
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+}
+
 type CustomerInfo struct {
 	ID                         uuid.UUID `json:"id" db:"id"`
 	CustomerName               string    `json:"customer_name" db:"customer_name"`

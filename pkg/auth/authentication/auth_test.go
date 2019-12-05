@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/cli"
+
 	"github.com/markbates/goth"
 
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -648,6 +650,63 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 	// Office app, so should only have office ID information
 	suite.Equal(officeUser.ID, session.OfficeUserID)
 	suite.Equal(uuid.Nil, session.AdminUserID)
+}
+
+func (suite *AuthSuite) TestCustomerCreatedOnlyWhenRoleBasedAuthFeatureFlagEnabled() {
+	user := testdatagen.MakeDefaultUser(suite.DB())
+	session := auth.Session{
+		ApplicationName: auth.MilApp,
+		UserID:          user.ID,
+		Hostname:        MilTestHost,
+	}
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		//TODO ask why for other tests dont do this? produces an error if not.
+		FakeRSAKey,
+		false,
+		false,
+	}
+	rr := httptest.NewRecorder()
+
+	createCustomer(h, &session, rr)
+	c, err := suite.DB().Count(models.Customer{})
+
+	suite.NoError(err)
+	suite.Equal(c, 0)
+}
+
+func (suite *AuthSuite) TestCreateCustomer() {
+	user := testdatagen.MakeDefaultUser(suite.DB())
+	session := auth.Session{
+		ApplicationName: auth.MilApp,
+		UserID:          user.ID,
+		Hostname:        MilTestHost,
+	}
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		//TODO ask why for other tests dont do this? produces an error if not.
+		FakeRSAKey,
+		false,
+		false,
+	}
+	h.SetFeatureFlag(FeatureFlag{Name: cli.FeatureFlagRoleBasedAuth, Active: true})
+	rr := httptest.NewRecorder()
+
+	createCustomer(h, &session, rr)
+	updatedUser := &models.User{}
+	err := suite.DB().Find(updatedUser, user.ID)
+	suite.NoError(err)
+	c, err := suite.DB().Count(models.Customer{})
+	suite.NoError(err)
+
+	suite.Equal(1, c)
+	suite.NotNil(updatedUser.CustomerID)
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDeactivated() {
