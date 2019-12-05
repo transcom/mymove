@@ -528,4 +528,5 @@ Dependabot
 dependabot
 GENERATED_UUID4_VAL
 markdown-toc
+Jira
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.

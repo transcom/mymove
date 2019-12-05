@@ -28,7 +28,7 @@ var tablesToTruncate = [...]string{
 	"re_intl_other_prices",
 	"re_intl_prices",
 	"re_rate_areas",
-	// Don't touch re_services -- that data is inserted by a migration
+	"re_services",
 	"re_shipment_type_prices",
 	"re_shipment_types",
 	"re_task_order_fees",
@@ -47,11 +47,12 @@ func (suite *GHCRateEngineImportSuite) SetupTest() {
 		err := suite.DB().RawQuery(sql).Exec()
 		suite.NoError(err)
 	}
+	// setup re_services which is normally a migration in other environments
+	suite.helperSetupReServicesTable()
 }
 
 func (suite *GHCRateEngineImportSuite) SetupSuite() {
 	suite.helperSetupStagingTables()
-	suite.helperSetupReServicesTable()
 }
 
 func (suite *GHCRateEngineImportSuite) TearDownSuite() {

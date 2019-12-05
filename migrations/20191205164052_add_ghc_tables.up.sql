@@ -1,4 +1,5 @@
-CREATE TABLE entitlements (
+CREATE TABLE entitlements
+(
 	id uuid PRIMARY KEY NOT NULL,
 	dependents_authorized bool,
 	total_dependents integer,
@@ -11,7 +12,8 @@ CREATE TABLE entitlements (
 	updated_at timestamp WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE move_orders (
+CREATE TABLE move_orders
+(
 	id uuid PRIMARY KEY NOT NULL,
 	customer_id uuid REFERENCES customers,
 	origin_duty_station_id uuid REFERENCES duty_stations,
@@ -21,7 +23,8 @@ CREATE TABLE move_orders (
 	updated_at timestamp WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE move_task_orders (
+CREATE TABLE move_task_orders
+(
 	id uuid PRIMARY KEY NOT NULL,
 	move_order_id uuid REFERENCES move_orders,
 	reference_id varchar,
@@ -32,7 +35,8 @@ CREATE TABLE move_task_orders (
 	updated_at timestamp WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE mto_shipments (
+CREATE TABLE mto_shipments
+(
 	id uuid PRIMARY KEY NOT NULL,
 	move_task_order_id uuid REFERENCES move_task_orders,
 	scheduled_pickup_date date,
@@ -49,24 +53,17 @@ CREATE TABLE mto_shipments (
 	updated_at timestamp WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE mto_service_items (
+CREATE TABLE mto_service_items
+(
 	id uuid PRIMARY KEY NOT NULL,
 	move_task_order_id uuid REFERENCES move_task_orders,
 	mto_shipment_id uuid REFERENCES mto_shipments,
-	re_services_id uuid REFERENCS re_services,
+	re_services_id uuid REFERENCES re_services,
 	meta_id uuid,
 	meta_type char,
 	created_at timestamp WITH TIME ZONE NOT NULL DEFAULT NOW(),
 	updated_at timestamp WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE payment_requests
-(
-    id uuid primary key,
-    move_task_order_id uuid not null
-        constraint payment_requests_move_task_order_id_fkey references move_task_orders,
-    is_final boolean,
-    rejection_reason varchar,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
+ALTER TABLE payment_requests
+	ADD COLUMN move_task_order_id uuid REFERENCES move_task_orders

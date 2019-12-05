@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+
 	"github.com/go-openapi/loads"
 
 	"github.com/transcom/mymove/pkg/gen/primeapi"
@@ -19,6 +21,11 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 		log.Fatalln(err)
 	}
 	primeAPI := primeops.NewMymoveAPI(primeSpec)
+
+	primeAPI.PaymentRequestsCreatePaymentRequestHandler = CreatePaymentRequestHandler{
+		context,
+		paymentrequest.NewPaymentRequestCreator(context.DB()),
+	}
 
 	return primeAPI.Serve(nil)
 }
