@@ -1,0 +1,20 @@
+#! /usr/bin/env bash
+
+#
+# A script to connect to endpoints on the PRIME API.
+#
+# This uses the specially created devlocal-mtls cert and key that were generated from the devlocal-ca.
+#
+# Example:
+#
+#   prime-api move-task-orders/
+#
+
+set -eu -o pipefail
+
+# TODO: This needs to be changed to the correct host once the hostname detector middleware is installed
+# Probably the new value will be `primelocal`
+HOSTNAME=milmovelocal
+
+readonly endpoint=$1
+curl -k --cert ./config/tls/devlocal-mtls.cer --key ./config/tls/devlocal-mtls.key "https://${HOSTNAME}:9443/prime/v1/${endpoint}"
