@@ -113,11 +113,32 @@ func (context Context) landingURL(session *auth.Session) string {
 	return fmt.Sprintf(context.callbackTemplate, session.Hostname)
 }
 
+func (context *Context) SetFeatureFlag(flag FeatureFlag) {
+	if context.featureFlags == nil {
+		context.featureFlags = make(map[string]bool)
+	}
+
+	context.featureFlags[flag.Name] = flag.Active
+}
+
+func (context *Context) GetFeatureFlag(flag string) bool {
+	if value, ok := context.featureFlags[flag]; ok {
+		return value
+	}
+	return false
+}
+
 // Context is the common handler type for auth handlers
 type Context struct {
 	logger           Logger
 	loginGovProvider LoginGovProvider
 	callbackTemplate string
+	featureFlags     map[string]bool
+}
+
+type FeatureFlag struct {
+	Name   string
+	Active bool
 }
 
 // NewAuthContext creates an Context
@@ -356,6 +377,8 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	} else if err == models.ErrFetchNotFound { // Never heard of them so far
 		authorizeUnknownUser(openIDUser, h, session, w, r, landingURL.String())
+		// noop when feature flag not enabled or not milmove
+		createCustomer(h, session, w)
 		return
 	} else {
 		h.logger.Error("Error loading Identity.", zap.Error(err))
@@ -540,6 +563,26 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 
 	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
 	http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
+}
+
+func createCustomer(h CallbackHandler, session *auth.Session, w http.ResponseWriter) {
+	if !session.IsMilApp() || !h.Context.GetFeatureFlag(cli.FeatureFlagRoleBasedAuth) {
+		return
+	}
+	if session.UserID == uuid.Nil {
+		h.logger.Error("error creating customer, user id cannot be nil")
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+	customer := models.Customer{}
+	customer.UserID = session.UserID
+	err := h.db.Create(&customer)
+	if err != nil {
+		h.logger.Error("error creating customer", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+	return
 }
 
 func fetchToken(logger Logger, code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
