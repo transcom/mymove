@@ -184,13 +184,13 @@ export class PpmWeight extends Component {
             <p>Your weight entitlement: {this.props.entitlement.weight.toLocaleString()} lbs</p>
             <div>
               <RangeSlider
-                id="progear__estimation__slider"
+                id="progear-estimation-slider"
                 max={this.props.entitlement.weight}
                 step={500}
                 min={0}
                 defaultValue={500}
                 prependTooltipText="about"
-                appendToolTipText="lbs"
+                appendTooltipText="lbs"
                 stateChangeFunc={this.onWeightSelecting}
                 onChange={this.onWeightSelected}
               />
