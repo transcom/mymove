@@ -397,3 +397,4 @@
 20191204160349_add_new_user_type_tables.up.sql
 20191204200540_create_and_populate_roles_table.up.sql
 20191205190530_gbloc-assignments.up.sql
+20191205211911_gbloc-assignments-data.up.sql
