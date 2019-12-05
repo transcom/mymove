@@ -398,3 +398,4 @@
 20191204170511_remove-old-tables.up.sql
 20191204200540_create_and_populate_roles_table.up.sql
 20191204231026_add_user_id_to_customers.up.sql
+20191205201215_add_user_id_to_too.up.sql
