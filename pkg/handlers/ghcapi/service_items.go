@@ -73,8 +73,12 @@ func (h CreateServiceItemHandler) Handle(params serviceitemop.CreateServiceItemP
 	}
 
 	createdServiceItem, verrs, err := h.ServiceItemCreator.CreateServiceItem(&serviceItem, transportationIDFilter)
-	if err != nil || verrs != nil {
-		logger.Error("Error saving service item", zap.Error(verrs))
+	if verrs != nil {
+		logger.Error("Error creating service item", zap.Error(verrs))
+		return serviceitemop.NewCreateServiceItemInternalServerError()
+	}
+	if err != nil {
+		logger.Error("Error creating service item", zap.Error(err))
 		return serviceitemop.NewCreateServiceItemInternalServerError()
 	}
 

@@ -12,7 +12,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
-	ghcmessages "github.com/transcom/mymove/pkg/gen/ghcmessages"
+	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // NewCreatePaymentRequestParams creates a new CreatePaymentRequestParams object
@@ -34,7 +34,7 @@ type CreatePaymentRequestParams struct {
 	/*
 	  In: body
 	*/
-	Body *ghcmessages.CreatePaymentRequestPayload
+	Body *primemessages.CreatePaymentRequestPayload
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -48,7 +48,7 @@ func (o *CreatePaymentRequestParams) BindRequest(r *http.Request, route *middlew
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body ghcmessages.CreatePaymentRequestPayload
+		var body primemessages.CreatePaymentRequestPayload
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			res = append(res, errors.NewParseError("body", "body", "", err))
 		} else {
