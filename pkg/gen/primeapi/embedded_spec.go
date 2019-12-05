@@ -536,6 +536,70 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/payment-requests": {
+      "post": {
+        "description": "Creates a payment request",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequests",
+          "prime"
+        ],
+        "summary": "Creates a payment request",
+        "operationId": "createPaymentRequest",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreatePaymentRequestPayload"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created instance of payment request",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequest"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -718,6 +782,20 @@ func init() {
         },
         "title": {
           "type": "string"
+        }
+      }
+    },
+    "CreatePaymentRequestPayload": {
+      "type": "object",
+      "properties": {
+        "isFinal": {
+          "type": "boolean",
+          "default": false
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -1000,6 +1078,106 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "PaymentRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "isFinal": {
+          "type": "boolean",
+          "default": false
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proofOfServicePackage": {
+          "$ref": "#/definitions/ProofOfServicePackage"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "documentation was incomplete"
+        },
+        "status": {
+          "$ref": "#/definitions/PaymentRequestStatus"
+        }
+      }
+    },
+    "PaymentRequestStatus": {
+      "type": "string",
+      "title": "Payment Request Status",
+      "enum": [
+        "PAYMENT_SUBMITTED",
+        "APPROVED",
+        "REJECTED"
+      ]
+    },
+    "ProofOfServicePackage": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
+        }
+      }
+    },
+    "Upload": {
+      "type": "object",
+      "required": [
+        "id",
+        "url",
+        "filename",
+        "contentType",
+        "bytes",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "bytes": {
+          "type": "integer"
+        },
+        "contentType": {
+          "type": "string",
+          "format": "mime-type",
+          "example": "application/pdf"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "filename": {
+          "type": "string",
+          "example": "filename.pdf"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
       }
     },
     "ValidationError": {
@@ -1663,6 +1841,85 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/payment-requests": {
+      "post": {
+        "description": "Creates a payment request",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "paymentRequests",
+          "prime"
+        ],
+        "summary": "Creates a payment request",
+        "operationId": "createPaymentRequest",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreatePaymentRequestPayload"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created instance of payment request",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequest"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -1845,6 +2102,20 @@ func init() {
         },
         "title": {
           "type": "string"
+        }
+      }
+    },
+    "CreatePaymentRequestPayload": {
+      "type": "object",
+      "properties": {
+        "isFinal": {
+          "type": "boolean",
+          "default": false
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -2127,6 +2398,106 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/MoveTaskOrder"
+      }
+    },
+    "PaymentRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "isFinal": {
+          "type": "boolean",
+          "default": false
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proofOfServicePackage": {
+          "$ref": "#/definitions/ProofOfServicePackage"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "documentation was incomplete"
+        },
+        "status": {
+          "$ref": "#/definitions/PaymentRequestStatus"
+        }
+      }
+    },
+    "PaymentRequestStatus": {
+      "type": "string",
+      "title": "Payment Request Status",
+      "enum": [
+        "PAYMENT_SUBMITTED",
+        "APPROVED",
+        "REJECTED"
+      ]
+    },
+    "ProofOfServicePackage": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "uploads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Upload"
+          }
+        }
+      }
+    },
+    "Upload": {
+      "type": "object",
+      "required": [
+        "id",
+        "url",
+        "filename",
+        "contentType",
+        "bytes",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "bytes": {
+          "type": "integer"
+        },
+        "contentType": {
+          "type": "string",
+          "format": "mime-type",
+          "example": "application/pdf"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "filename": {
+          "type": "string",
+          "example": "filename.pdf"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
       }
     },
     "ValidationError": {
