@@ -21,27 +21,27 @@ import (
 
 // Assertions defines assertions about what the data contains
 type Assertions struct {
-	AccessCode               models.AccessCode
-	Address                  models.Address
-	AdminUser                models.AdminUser
-	BackupContact            models.BackupContact
-	BlackoutDate             models.BlackoutDate
-	DistanceCalculation      models.DistanceCalculation
-	Document                 models.Document
-	DutyStation              models.DutyStation
-	ElectronicOrder          models.ElectronicOrder
-	ElectronicOrdersRevision models.ElectronicOrdersRevision
-	FuelEIADieselPrice       models.FuelEIADieselPrice
-	Invoice                  models.Invoice
-	Move                     models.Move
-	MoveDocument             models.MoveDocument
-	MovingExpenseDocument    models.MovingExpenseDocument
-	Notification             models.Notification
-	WeightTicketSetDocument  models.WeightTicketSetDocument
-	OfficeUser               models.OfficeUser
-	Order                    models.Order
-	Organization             models.Organization
-	// PaymentRequest                           models.PaymentRequest
+	AccessCode                               models.AccessCode
+	Address                                  models.Address
+	AdminUser                                models.AdminUser
+	BackupContact                            models.BackupContact
+	BlackoutDate                             models.BlackoutDate
+	DistanceCalculation                      models.DistanceCalculation
+	Document                                 models.Document
+	DutyStation                              models.DutyStation
+	ElectronicOrder                          models.ElectronicOrder
+	ElectronicOrdersRevision                 models.ElectronicOrdersRevision
+	FuelEIADieselPrice                       models.FuelEIADieselPrice
+	Invoice                                  models.Invoice
+	Move                                     models.Move
+	MoveDocument                             models.MoveDocument
+	MovingExpenseDocument                    models.MovingExpenseDocument
+	Notification                             models.Notification
+	WeightTicketSetDocument                  models.WeightTicketSetDocument
+	OfficeUser                               models.OfficeUser
+	Order                                    models.Order
+	Organization                             models.Organization
+	PaymentRequest                           models.PaymentRequest
 	PersonallyProcuredMove                   models.PersonallyProcuredMove
 	ReContract                               models.ReContract
 	ReContractYear                           models.ReContractYear
