@@ -16,6 +16,7 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 	if mtoStatus == "" {
 		mtoStatus = models.MoveTaskOrderStatusApproved
 	}
+	var referenceID *string
 	moveTaskOrder := models.MoveTaskOrder{
 		MoveOrder:          moveOrder,
 		MoveOrderID:        moveOrder.ID,

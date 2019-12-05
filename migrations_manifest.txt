@@ -395,7 +395,6 @@
 20191120173320_create_payment_requests_table.up.sql
 20191126160639_update-and-add-values-for-reservices-table.up.sql
 20191204160349_add_new_user_type_tables.up.sql
-20191204164738_add_ghc_tables.up.sql
 20191204170511_remove-old-tables.up.sql
 20191204200540_create_and_populate_roles_table.up.sql
-20191205151932_add_ghc_tables.up.sql
+20191205164052_add_ghc_tables.up.sql
