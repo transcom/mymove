@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -82,56 +84,30 @@ func (suite *GHCRateEngineImportSuite) helperCheckDomesticServiceAreaPriceValue(
 	err = suite.DB().Where("service_area = '592'").First(&serviceArea)
 	suite.NoError(err)
 
-	var serviceDSH models.ReService
-	err = suite.DB().Where("code = 'DSH'").First(&serviceDSH)
-	suite.NoError(err)
-
 	// Get domestic service area price DSH
-	var domesticServiceAreaPrice models.ReDomesticServiceAreaPrice
-	err = suite.DB().
-		Where("contract_id = ?", contract.ID).
-		Where("service_id = ?", serviceDSH.ID).
-		Where("domestic_service_area_id = ?", serviceArea.ID).
-		Where("is_peak_period = false").First(&domesticServiceAreaPrice)
-	suite.NoError(err)
-	suite.Equal(unit.Cents(16), domesticServiceAreaPrice.PriceCents)
-
-	var serviceDOP models.ReService
-	err = suite.DB().Where("code = 'DOP'").First(&serviceDOP)
-	suite.NoError(err)
+	suite.verifyDomesticSerivceAreaPrice(unit.Cents(16), contract.ID, "DSH", serviceArea.ID)
 
 	// Get domestic service area price DODP
-	err = suite.DB().
-		Where("contract_id = ?", contract.ID).
-		Where("service_id = ?", serviceDOP.ID).
-		Where("domestic_service_area_id = ?", serviceArea.ID).
-		Where("is_peak_period = false").First(&domesticServiceAreaPrice)
-	suite.NoError(err)
-	suite.Equal(unit.Cents(581), domesticServiceAreaPrice.PriceCents)
-
-	var serviceDOFSIT models.ReService
-	err = suite.DB().Where("code = 'DOFSIT'").First(&serviceDOFSIT)
-	suite.NoError(err)
+	suite.verifyDomesticSerivceAreaPrice(unit.Cents(581), contract.ID, "DOP", serviceArea.ID)
 
 	// Get domestic service area price DOFSIT
-	err = suite.DB().
-		Where("contract_id = ?", contract.ID).
-		Where("service_id = ?", serviceDOFSIT.ID).
-		Where("domestic_service_area_id = ?", serviceArea.ID).
-		Where("is_peak_period = false").First(&domesticServiceAreaPrice)
-	suite.NoError(err)
-	suite.Equal(unit.Cents(1597), domesticServiceAreaPrice.PriceCents)
-
-	var serviceDOASIT models.ReService
-	err = suite.DB().Where("code = 'DOASIT'").First(&serviceDOASIT)
-	suite.NoError(err)
+	suite.verifyDomesticSerivceAreaPrice(unit.Cents(1597), contract.ID, "DOFSIT", serviceArea.ID)
 
 	// Get domestic service area price DOASIT
+	suite.verifyDomesticSerivceAreaPrice(unit.Cents(62), contract.ID, "DOASIT", serviceArea.ID)
+}
+
+func (suite *GHCRateEngineImportSuite) verifyDomesticSerivceAreaPrice(expected unit.Cents, contractID uuid.UUID, serviceCode string, serviceAreaID uuid.UUID) {
+	var service models.ReService
+	err := suite.DB().Where("code = ?", serviceCode).First(&service)
+	suite.NoError(err)
+
+	var domesticServiceAreaPrice models.ReDomesticServiceAreaPrice
 	err = suite.DB().
-		Where("contract_id = ?", contract.ID).
-		Where("service_id = ?", serviceDOASIT.ID).
-		Where("domestic_service_area_id = ?", serviceArea.ID).
+		Where("contract_id = ?", contractID).
+		Where("service_id = ?", service.ID).
+		Where("domestic_service_area_id = ?", serviceAreaID).
 		Where("is_peak_period = false").First(&domesticServiceAreaPrice)
 	suite.NoError(err)
-	suite.Equal(unit.Cents(62), domesticServiceAreaPrice.PriceCents)
+	suite.Equal(expected, domesticServiceAreaPrice.PriceCents)
 }
