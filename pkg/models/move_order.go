@@ -3,6 +3,9 @@ package models
 import (
 	"time"
 
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
 )
 
@@ -18,4 +21,13 @@ type MoveOrder struct {
 	DestinationDutyStationID uuid.UUID   `db:"destination_duty_station_id"`
 	OriginDutyStation        DutyStation `belongs_to:"duty_stations"`
 	OriginDutyStationID      uuid.UUID   `db:"origin_duty_station_id"`
+}
+
+func (m *MoveOrder) Validate(tx *pop.Connection) (*validate.Errors, error) {
+	var vs []validate.Validator
+	vs = append(vs, &validators.UUIDIsPresent{Field: m.CustomerID, Name: "CustomerID"})
+	vs = append(vs, &validators.UUIDIsPresent{Field: m.EntitlementID, Name: "EntitlementID"})
+	vs = append(vs, &validators.UUIDIsPresent{Field: m.DestinationDutyStationID, Name: "DestinationDutyStationID"})
+	vs = append(vs, &validators.UUIDIsPresent{Field: m.OriginDutyStationID, Name: "OriginDutyStationID"})
+	return validate.Validate(vs...), nil
 }

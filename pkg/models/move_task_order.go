@@ -8,6 +8,9 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
+
+	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/validators"
 )
 
 type MoveTaskOrder struct {
@@ -29,6 +32,12 @@ const (
 	MoveTaskOrderStatusDraft    MoveTaskOrderStatus = "DRAFT"
 	MoveTaskOrderStatusRejected MoveTaskOrderStatus = "REJECTED"
 )
+
+func (m *MoveTaskOrder) Validate(tx *pop.Connection) (*validate.Errors, error) {
+	return validate.Validate(
+		&validators.StringIsPresent{Field: string(m.Status), Name: "Status"},
+	), nil
+}
 
 type MoveTaskOrders []MoveTaskOrder
 

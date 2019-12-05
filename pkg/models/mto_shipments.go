@@ -3,6 +3,9 @@ package models
 import (
 	"time"
 
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/unit"
@@ -28,4 +31,16 @@ type MTOShipment struct {
 	PrimeActualWeight                *unit.Pound   `db:"prime_actual_weight"`
 	CreatedAt                        time.Time     `db:"created_at"`
 	UpdatedAt                        time.Time     `db:"updated_at"`
+}
+
+func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
+	var vs []validate.Validator
+	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveTaskOrderID, Name: "MoveTaskOrderID"})
+	if m.PrimeEstimatedWeight != nil {
+		vs = append(vs, &validators.IntIsGreaterThan{Field: m.PrimeEstimatedWeight.Int(), Compared: -1, Name: "PrimeEstimatedWeight"})
+	}
+	if m.PrimeActualWeight != nil {
+		vs = append(vs, &validators.IntIsGreaterThan{Field: m.PrimeActualWeight.Int(), Compared: -1, Name: "PrimeActualWeight"})
+	}
+	return validate.Validate(vs...), nil
 }
