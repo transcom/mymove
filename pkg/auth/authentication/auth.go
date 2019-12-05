@@ -569,29 +569,16 @@ func createCustomer(h CallbackHandler, session *auth.Session, w http.ResponseWri
 	if !session.IsMilApp() || !h.Context.GetFeatureFlag(cli.FeatureFlagRoleBasedAuth) {
 		return
 	}
-	user, err := models.GetUser(h.db, session.UserID)
-	if err != nil {
-		h.logger.Error("error creating customer, cannot fetch user", zap.Error(err))
+	if session.UserID == uuid.Nil {
+		h.logger.Error("error creating customer, user id cannot be nil")
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
-
-	err = h.db.Transaction(func(db *pop.Connection) error {
-		var errCreatingCustomer error
-		customer := models.Customer{}
-		errCreatingCustomer = h.db.Create(&customer)
-		if errCreatingCustomer != nil {
-			h.logger.Error("error creating customer", zap.Error(err))
-			return err
-		}
-		user.CustomerID = &customer.ID
-		errCreatingCustomer = h.db.UpdateColumns(user, "customer_id")
-		if errCreatingCustomer != nil {
-			h.logger.Error("error updating users while creating customer", zap.Error(err))
-		}
-		return errCreatingCustomer
-	})
+	customer := models.Customer{}
+	customer.UserID = session.UserID
+	err := h.db.Create(&customer)
 	if err != nil {
+		h.logger.Error("error creating customer", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}

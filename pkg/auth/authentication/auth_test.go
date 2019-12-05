@@ -664,7 +664,6 @@ func (suite *AuthSuite) TestCustomerCreatedOnlyWhenRoleBasedAuthFeatureFlagEnabl
 	h := CallbackHandler{
 		authContext,
 		suite.DB(),
-		//TODO ask why for other tests dont do this? produces an error if not.
 		FakeRSAKey,
 		false,
 		false,
@@ -690,7 +689,6 @@ func (suite *AuthSuite) TestCreateCustomer() {
 	h := CallbackHandler{
 		authContext,
 		suite.DB(),
-		//TODO ask why for other tests dont do this? produces an error if not.
 		FakeRSAKey,
 		false,
 		false,
@@ -699,14 +697,14 @@ func (suite *AuthSuite) TestCreateCustomer() {
 	rr := httptest.NewRecorder()
 
 	createCustomer(h, &session, rr)
-	updatedUser := &models.User{}
-	err := suite.DB().Find(updatedUser, user.ID)
-	suite.NoError(err)
 	c, err := suite.DB().Count(models.Customer{})
+	suite.NoError(err)
+	customer := &models.Customer{}
+	err = suite.DB().Where("user_id=$1", user.ID).First(customer)
 	suite.NoError(err)
 
 	suite.Equal(1, c)
-	suite.NotNil(updatedUser.CustomerID)
+	suite.Equal(user.ID, customer.UserID)
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDeactivated() {

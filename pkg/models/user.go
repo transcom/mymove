@@ -3,8 +3,6 @@ package models
 import (
 	"time"
 
-	"github.com/go-swagger/go-swagger/examples/oauth2/models"
-
 	"strings"
 
 	"github.com/gobuffalo/pop"
@@ -18,14 +16,12 @@ import (
 
 // User is an entity with a registered uuid and email at login.gov
 type User struct {
-	ID            uuid.UUID        `json:"id" db:"id"`
-	CreatedAt     time.Time        `json:"created_at" db:"created_at"`
-	UpdatedAt     time.Time        `json:"updated_at" db:"updated_at"`
-	LoginGovUUID  uuid.UUID        `json:"login_gov_uuid" db:"login_gov_uuid"`
-	LoginGovEmail string           `json:"login_gov_email" db:"login_gov_email"`
-	Active        bool             `json:"active" db:"active"`
-	CustomerID    *uuid.UUID       `db:"customer_id"`
-	Customer      *models.Customer `belongs_to:"customers"`
+	ID            uuid.UUID `json:"id" db:"id"`
+	CreatedAt     time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at" db:"updated_at"`
+	LoginGovUUID  uuid.UUID `json:"login_gov_uuid" db:"login_gov_uuid"`
+	LoginGovEmail string    `json:"login_gov_email" db:"login_gov_email"`
+	Active        bool      `json:"active" db:"active"`
 }
 
 // Users is not required by pop and may be deleted

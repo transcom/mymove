@@ -396,4 +396,4 @@
 20191126160639_update-and-add-values-for-reservices-table.up.sql
 20191204160349_add_new_user_type_tables.up.sql
 20191204200540_create_and_populate_roles_table.up.sql
-20191204231026_add_customer_id_to_users.up.sql
+20191204231026_add_user_id_to_customers.up.sql
