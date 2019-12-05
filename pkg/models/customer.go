@@ -43,7 +43,7 @@ type CustomerMoveItem struct {
 
 // GetCustomerMoveItems gets all CustomerMoveItems
 func GetCustomerMoveItems(db *pop.Connection) ([]CustomerMoveItem, error) {
-	var CustomerMoveItems []CustomerMoveItem
+	var customerMoveItems []CustomerMoveItem
 	err := db.RawQuery(`
 	SELECT moves.ID,
 		CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
@@ -59,12 +59,12 @@ func GetCustomerMoveItems(db *pop.Connection) ([]CustomerMoveItem, error) {
 			LEFT JOIN duty_stations AS origin_duty_station ON sm.duty_station_id = origin_duty_station.id
 			LEFT JOIN move_task_orders AS mto ON mto.move_id = moves.id
 		WHERE moves.show IS TRUE
-	`).All(&CustomerMoveItems)
-	return CustomerMoveItems, err
+	`).All(&customerMoveItems)
+	return customerMoveItems, err
 }
 
 func GetCustomerInfo(db *pop.Connection, customerID uuid.UUID) (CustomerInfo, error) {
-	var customer CustomerInfo
+	var customerInfo CustomerInfo
 	err := db.RawQuery(`
 	SELECT sm.ID,
 	   CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
@@ -82,6 +82,6 @@ func GetCustomerInfo(db *pop.Connection, customerID uuid.UUID) (CustomerInfo, er
 			JOIN duty_stations AS origin_duty_station ON sm.duty_station_id = origin_duty_station.id
 			JOIN duty_stations AS destination_duty_station ON ord.new_duty_station_id = destination_duty_station.id
            WHERE sm.id = $1
-	`, customerID).First(&customer)
-	return customer, err
+	`, customerID).First(&customerInfo)
+	return customerInfo, err
 }
