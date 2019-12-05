@@ -113,6 +113,10 @@ func (context Context) landingURL(session *auth.Session) string {
 	return fmt.Sprintf(context.callbackTemplate, session.Hostname)
 }
 
+func (context Context) verificationInProgressURL(session *auth.Session) string {
+	return fmt.Sprintf(context.callbackTemplate, session.Hostname) + "verification-in-progress"
+}
+
 func (context *Context) SetFeatureFlag(flag FeatureFlag) {
 	if context.featureFlags == nil {
 		context.featureFlags = make(map[string]bool)
@@ -379,6 +383,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		authorizeUnknownUser(openIDUser, h, session, w, r, landingURL.String())
 		// noop when feature flag not enabled or not milmove
 		createCustomer(h, session, w)
+		createTOO(h, session, w, r)
 		return
 	} else {
 		h.logger.Error("Error loading Identity.", zap.Error(err))
@@ -563,6 +568,14 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 
 	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
 	http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
+}
+
+func createTOO(h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request) {
+	if !session.IsOfficeApp() || !h.Context.GetFeatureFlag(cli.FeatureFlagRoleBasedAuth) {
+		return
+	}
+	http.Redirect(w, r, h.verificationInProgressURL(session), http.StatusTemporaryRedirect)
+	return
 }
 
 func createCustomer(h CallbackHandler, session *auth.Session, w http.ResponseWriter) {

@@ -677,6 +677,42 @@ func (suite *AuthSuite) TestCustomerCreatedOnlyWhenRoleBasedAuthFeatureFlagEnabl
 	suite.Equal(c, 0)
 }
 
+func (suite *AuthSuite) TestCreateTOO() {
+	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			Active: true,
+		},
+	})
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback", OfficeTestHost), nil)
+	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        OfficeTestHost,
+		Email:           officeUser.Email,
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		FakeRSAKey,
+		false,
+		false,
+	}
+	h.SetFeatureFlag(FeatureFlag{Name: cli.FeatureFlagRoleBasedAuth, Active: true})
+	rr := httptest.NewRecorder()
+
+	createTOO(h, &session, rr, req.WithContext(ctx))
+
+	suite.Equal(rr.Code, 307)
+}
+
 func (suite *AuthSuite) TestCreateCustomer() {
 	user := testdatagen.MakeDefaultUser(suite.DB())
 	session := auth.Session{
