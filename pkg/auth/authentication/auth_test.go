@@ -708,7 +708,7 @@ func (suite *AuthSuite) TestCreateTOO() {
 	h.SetFeatureFlag(FeatureFlag{Name: cli.FeatureFlagRoleBasedAuth, Active: true})
 	rr := httptest.NewRecorder()
 
-	createTOO(h, &session, rr, req.WithContext(ctx))
+	redirectTOO(h, &session, rr, req.WithContext(ctx))
 
 	suite.Equal(rr.Code, 307)
 }

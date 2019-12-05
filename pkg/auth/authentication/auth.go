@@ -114,7 +114,7 @@ func (context Context) landingURL(session *auth.Session) string {
 }
 
 func (context Context) verificationInProgressURL(session *auth.Session) string {
-	return fmt.Sprintf(context.callbackTemplate, session.Hostname) + "verification-in-progress"
+	return fmt.Sprintf(context.callbackTemplate, session.Hostname) + "/verification-in-progress"
 }
 
 func (context *Context) SetFeatureFlag(flag FeatureFlag) {
@@ -376,19 +376,49 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.logger.Info("New Login", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email), zap.String("Host", session.Hostname))
 
 	userIdentity, err := models.FetchUserIdentity(h.db, openIDUser.UserID)
-	if err == nil { // Someone we know already
-		authorizeKnownUser(userIdentity, h, session, w, r, landingURL.String())
-		return
-	} else if err == models.ErrFetchNotFound { // Never heard of them so far
-		authorizeUnknownUser(openIDUser, h, session, w, r, landingURL.String())
-		// noop when feature flag not enabled or not milmove
-		createCustomer(h, session, w)
-		createTOO(h, session, w, r)
-		return
+
+	if !h.Context.GetFeatureFlag(cli.FeatureFlagRoleBasedAuth) {
+		if err == nil { // Someone we know already
+			authorizeKnownUser(userIdentity, h, session, w, r, landingURL.String())
+			return
+		} else if err == models.ErrFetchNotFound { // Never heard of them so far
+			authorizeUnknownUser(openIDUser, h, session, w, r, landingURL.String())
+			return
+		} else {
+			h.logger.Error("Error loading Identity.", zap.Error(err))
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
 	} else {
-		h.logger.Error("Error loading Identity.", zap.Error(err))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return
+		if err == nil {
+			authorizeKnownUser(userIdentity, h, session, w, r, landingURL.String())
+			return
+		} else if err == models.ErrFetchNotFound { // Never heard of them so far
+			// noop when feature flag is not enabled
+			user, err := models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
+			if err != nil {
+				h.logger.Error("Error creating user", zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
+			if session.IsSystemAdmin() {
+				associateAdminUser(user, h, w)
+			}
+			if session.IsOfficeApp() {
+				associateOfficeUser(user, h, w)
+			}
+			redirectTOO(h, session, w, r)
+			createCustomer(h, session, w)
+			h.logger.Info("logged in", zap.Any("session", session))
+
+			auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
+			http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
+			return
+		} else {
+			h.logger.Error("Error loading Identity.", zap.Error(err))
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
 	}
 }
 
@@ -499,6 +529,73 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
 }
 
+func associateOfficeUser(user *models.User, h CallbackHandler, w http.ResponseWriter) {
+	var officeUser *models.OfficeUser
+	var err error
+	officeUser, err = models.FetchOfficeUserByEmail(h.db, user.LoginGovEmail)
+	if err == models.ErrFetchNotFound {
+		h.logger.Error("No Office user found", zap.String("email", user.LoginGovEmail))
+		http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+		return
+	} else if err != nil {
+		h.logger.Error("Checking for office user", zap.String("email", user.LoginGovEmail), zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+	if !officeUser.Active {
+		h.logger.Error("Office user is deactivated", zap.String("email", user.LoginGovEmail))
+		http.Error(w, http.StatusText(403), http.StatusForbidden)
+		return
+	}
+	if officeUser.ID != uuid.Nil {
+		//session.OfficeUserID = officeUser.ID
+		officeUser.UserID = &user.ID
+		err = h.db.UpdateColumns(officeUser, "user_id")
+		if err != nil {
+			h.logger.Error("Error creating user", zap.Error(err))
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
+	}
+	return
+}
+
+func associateAdminUser(user *models.User, h CallbackHandler, w http.ResponseWriter) {
+	var adminUser models.AdminUser
+	queryBuilder := query.NewQueryBuilder(h.db)
+	filters := []services.QueryFilter{
+		query.NewQueryFilter("email", "=", user.LoginGovEmail),
+	}
+	err := queryBuilder.FetchOne(&adminUser, filters)
+
+	if err != nil && errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+		h.logger.Error("No admin user found", zap.String("email", user.LoginGovEmail))
+		http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+		return
+	} else if err != nil {
+		h.logger.Error("Checking for admin user", zap.String("email", user.LoginGovEmail), zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+	if !adminUser.Active {
+		h.logger.Error("Admin user is deactivated", zap.String("email", user.LoginGovEmail))
+		http.Error(w, http.StatusText(403), http.StatusForbidden)
+		return
+	}
+	if adminUser.ID != uuid.Nil && adminUser.UserID != nil {
+		//TODO do we need to mutate the session?
+		//session.AdminUserID = adminUser.ID
+		adminUser.UserID = &user.ID
+		err = h.db.UpdateColumns(adminUser, "user_id")
+		if err != nil {
+			h.logger.Error("Error creating user", zap.Error(err))
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
+	}
+	return
+}
+
 func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
 	var officeUser *models.OfficeUser
 	var err error
@@ -570,10 +667,11 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 	http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
 }
 
-func createTOO(h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request) {
+func redirectTOO(h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request) {
 	if !session.IsOfficeApp() || !h.Context.GetFeatureFlag(cli.FeatureFlagRoleBasedAuth) {
 		return
 	}
+	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
 	http.Redirect(w, r, h.verificationInProgressURL(session), http.StatusTemporaryRedirect)
 	return
 }
