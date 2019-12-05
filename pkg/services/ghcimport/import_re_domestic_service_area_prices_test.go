@@ -70,7 +70,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceAreaPricesFai
 func (suite *GHCRateEngineImportSuite) helperVerifyDomesticServiceAreaPrices() {
 	count, err := suite.DB().Count(&models.ReDomesticServiceAreaPrices{})
 	suite.NoError(err)
-	suite.Equal(32, count)
+	suite.Equal(56, count)
 }
 
 func (suite *GHCRateEngineImportSuite) helperCheckDomesticServiceAreaPriceValue() {
@@ -87,14 +87,23 @@ func (suite *GHCRateEngineImportSuite) helperCheckDomesticServiceAreaPriceValue(
 	// Get domestic service area price DSH
 	suite.verifyDomesticSerivceAreaPrice(unit.Cents(16), contract.ID, "DSH", serviceArea.ID)
 
-	// Get domestic service area price DODP
+	// Get domestic service area price DOP
 	suite.verifyDomesticSerivceAreaPrice(unit.Cents(581), contract.ID, "DOP", serviceArea.ID)
+
+	// Get domestic service area price DDP
+	suite.verifyDomesticSerivceAreaPrice(unit.Cents(581), contract.ID, "DDP", serviceArea.ID)
 
 	// Get domestic service area price DOFSIT
 	suite.verifyDomesticSerivceAreaPrice(unit.Cents(1597), contract.ID, "DOFSIT", serviceArea.ID)
 
+	// Get domestic service area price DDFSIT
+	suite.verifyDomesticSerivceAreaPrice(unit.Cents(1597), contract.ID, "DDFSIT", serviceArea.ID)
+
 	// Get domestic service area price DOASIT
 	suite.verifyDomesticSerivceAreaPrice(unit.Cents(62), contract.ID, "DOASIT", serviceArea.ID)
+
+	// Get domestic service area price DDASIT
+	suite.verifyDomesticSerivceAreaPrice(unit.Cents(62), contract.ID, "DDASIT", serviceArea.ID)
 }
 
 func (suite *GHCRateEngineImportSuite) verifyDomesticSerivceAreaPrice(expected unit.Cents, contractID uuid.UUID, serviceCode string, serviceAreaID uuid.UUID) {
