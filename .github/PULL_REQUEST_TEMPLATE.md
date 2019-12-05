@@ -29,11 +29,11 @@ echo "Code goes here"
 * [ ] Tested in the Experimental environment (for changes to containers, app startup, or connection to data stores)
 * [ ] User facing changes have been reviewed by design.
 * [ ] Request review from a member of a different team.
-* [ ] Have the Pivotal acceptance criteria been met for this change?
+* [ ] Have the Jira acceptance criteria been met for this change?
 
 ## References
 
-* [Pivotal story](tbd) for this change
+* [Jira story](tbd) for this change
 * [this article](tbd) explains more about the approach used.
 
 ## Screenshots
