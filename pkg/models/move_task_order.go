@@ -12,7 +12,7 @@ import (
 
 type MoveTaskOrder struct {
 	ID                 uuid.UUID           `db:"id"`
-	MoveOrder          MoveOrder           `belong_to:"move_orders"`
+	MoveOrder          MoveOrder           `belongs_to:"move_orders"`
 	MoveOrderID        uuid.UUID           `db:"move_order_id"`
 	ReferenceID        *string             `db:"reference_id"`
 	Status             MoveTaskOrderStatus `db:"status"`
