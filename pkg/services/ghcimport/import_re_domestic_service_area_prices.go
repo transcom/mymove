@@ -5,9 +5,42 @@ import (
 
 	"github.com/gobuffalo/pop"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
+
+func appendDomesticServiceAreaPrice(
+	domPricingModels models.ReDomesticServiceAreaPrices,
+	db *pop.Connection,
+	code string,
+	contractID uuid.UUID,
+	isPeakPeriod bool,
+	serviceAreaID uuid.UUID,
+	price string,
+) (models.ReDomesticServiceAreaPrices, error) {
+	var service models.ReService
+	err := db.Where("code = ?", code).First(&service)
+	if err != nil {
+		return domPricingModels, fmt.Errorf("failed importing re_service from StageDomesticServiceAreaPrice with code %s: %w", code, err)
+	}
+
+	cents, convErr := priceToCents(price)
+	if convErr != nil {
+		return domPricingModels, fmt.Errorf("failed to parse price for service code %s: %+v error: %w", code, price, convErr)
+	}
+
+	domPricingModel := models.ReDomesticServiceAreaPrice{
+		ContractID:            contractID,
+		ServiceID:             service.ID,
+		IsPeakPeriod:          isPeakPeriod,
+		DomesticServiceAreaID: serviceAreaID,
+		PriceCents:            unit.Cents(cents),
+	}
+
+	return append(domPricingModels, domPricingModel), nil
+}
 
 func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Connection) error {
 	var stageDomPricingModels []models.StageDomesticServiceAreaPrice
@@ -35,92 +68,29 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Conn
 		}
 
 		//DSH - ShorthaulPrice
-		var serviceDSH models.ReService
-		err := db.Where("code = 'DSH'").First(&serviceDSH)
+		var err error
+		domPricingModels, err = appendDomesticServiceAreaPrice(domPricingModels, db, "DSH", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.ShorthaulPrice)
 		if err != nil {
-			return fmt.Errorf("failed importing re_service from StageDomesticServiceAreaPrice with code DSH: %w", err)
+			return err
 		}
-
-		cents, convErr := priceToCents(stageDomPricingModel.ShorthaulPrice)
-		if convErr != nil {
-			return fmt.Errorf("failed to parse price for Shorthaul data: %+v error: %w", stageDomPricingModel, convErr)
-		}
-
-		domPricingModelDSH := models.ReDomesticServiceAreaPrice{
-			ContractID:            gre.contractID,
-			ServiceID:             serviceDSH.ID,
-			IsPeakPeriod:          isPeakPeriod,
-			DomesticServiceAreaID: serviceAreaID,
-			PriceCents:            unit.Cents(cents),
-		}
-
-		domPricingModels = append(domPricingModels, domPricingModelDSH)
 
 		//DOP - OriginDestinationPrice
-		var serviceDOP models.ReService
-		err = db.Where("code = 'DOP'").First(&serviceDOP)
+		domPricingModels, err = appendDomesticServiceAreaPrice(domPricingModels, db, "DOP", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.OriginDestinationPrice)
 		if err != nil {
-			return fmt.Errorf("failed importing re_service from StageDomesticServiceAreaPrice with code DOP: %w", err)
+			return err
 		}
-
-		cents, convErr = priceToCents(stageDomPricingModel.OriginDestinationPrice)
-		if convErr != nil {
-			return fmt.Errorf("failed to parse price for OriginDestinationPrice data: %+v error: %w", stageDomPricingModel, convErr)
-		}
-
-		domPricingModelDOP := models.ReDomesticServiceAreaPrice{
-			ContractID:            gre.contractID,
-			ServiceID:             serviceDOP.ID,
-			IsPeakPeriod:          isPeakPeriod,
-			DomesticServiceAreaID: serviceAreaID,
-			PriceCents:            unit.Cents(cents),
-		}
-
-		domPricingModels = append(domPricingModels, domPricingModelDOP)
 
 		//DOFSIT - OriginDestinationSITFirstDayWarehouse
-		var serviceDOFSIT models.ReService
-		err = db.Where("code = 'DOFSIT'").First(&serviceDOFSIT)
+		domPricingModels, err = appendDomesticServiceAreaPrice(domPricingModels, db, "DOFSIT", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.OriginDestinationSITFirstDayWarehouse)
 		if err != nil {
-			return fmt.Errorf("failed importing re_service from StageDomesticServiceAreaPrice with code DOFSIT: %w", err)
+			return err
 		}
-
-		cents, convErr = priceToCents(stageDomPricingModel.OriginDestinationSITFirstDayWarehouse)
-		if convErr != nil {
-			return fmt.Errorf("failed to parse price for OriginDestinationSITFirstDayWarehouse data: %+v error: %w", stageDomPricingModel, convErr)
-		}
-
-		domPricingModelDOFSIT := models.ReDomesticServiceAreaPrice{
-			ContractID:            gre.contractID,
-			ServiceID:             serviceDOFSIT.ID,
-			IsPeakPeriod:          isPeakPeriod,
-			DomesticServiceAreaID: serviceAreaID,
-			PriceCents:            unit.Cents(cents),
-		}
-
-		domPricingModels = append(domPricingModels, domPricingModelDOFSIT)
 
 		//DOASIT - OriginDestinationSITAddlDays
-		var serviceDOASIT models.ReService
-		err = db.Where("code = 'DOASIT'").First(&serviceDOASIT)
+		domPricingModels, err = appendDomesticServiceAreaPrice(domPricingModels, db, "DOASIT", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.OriginDestinationSITAddlDays)
 		if err != nil {
-			return fmt.Errorf("failed importing re_service from StageDomesticServiceAreaPrice with code DOASIT: %w", err)
+			return err
 		}
-
-		cents, convErr = priceToCents(stageDomPricingModel.OriginDestinationSITAddlDays)
-		if convErr != nil {
-			return fmt.Errorf("failed to parse price for OriginDestinationSITAddlDays data: %+v error: %w", stageDomPricingModel, convErr)
-		}
-
-		domPricingModelDOASIT := models.ReDomesticServiceAreaPrice{
-			ContractID:            gre.contractID,
-			ServiceID:             serviceDOASIT.ID,
-			IsPeakPeriod:          isPeakPeriod,
-			DomesticServiceAreaID: serviceAreaID,
-			PriceCents:            unit.Cents(cents),
-		}
-
-		domPricingModels = append(domPricingModels, domPricingModelDOASIT)
 
 		for _, model := range domPricingModels {
 			verrs, err := db.ValidateAndSave(&model)
