@@ -1,8 +1,9 @@
 package models
 
 import (
-	"github.com/transcom/mymove/pkg/unit"
 	"time"
+
+	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"

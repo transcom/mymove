@@ -1,11 +1,12 @@
 package models
 
 import (
+	"time"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
-	"time"
 )
 
 type PaymentRequestStatus string
@@ -35,7 +36,7 @@ type PaymentRequest struct {
 	IsFinal         bool                 `json:"is_final" db:"is_final"`
 	MoveTaskOrderID uuid.UUID            `json:"move_task_order_id" db:"move_task_order_id"`
 	Status          PaymentRequestStatus `json:"status" db:"status"`
-	RejectReason    string               `json:"reject_reason" db:"reject_reason"`
+	RejectionReason string               `json:"rejection_reason" db:"rejection_reason"`
 	RequestedAt     time.Time            `json:"requested_at" db:"requested_at"`
 	ReviewedAt      time.Time            `json:"reviewed_at" db:"reviewed_at"`
 	SentToGexAt     time.Time            `json:"sent_to_gex_at" db:"sent_to_gex_at"`

@@ -12,7 +12,7 @@ func (suite *ModelSuite) TestPaymentServiceItemValidation() {
 	suite.T().Run("test valid PaymentServiceItem", func(t *testing.T) {
 		validPaymentServiceItem := models.PaymentServiceItem{
 			PaymentRequestID: uuid.Must(uuid.NewV4()),
-			Status: "REQUESTED",
+			Status:           "REQUESTED",
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validPaymentServiceItem, expErrors)
@@ -23,7 +23,7 @@ func (suite *ModelSuite) TestPaymentServiceItemValidation() {
 
 		expErrors := map[string][]string{
 			"payment_request_id": {"PaymentRequestID can not be blank."},
-			"status": {"Status can not be blank.", "Status is not in the list [REQUESTED, APPROVED, DENIED, SENT_TO_GEX, PAID]."},
+			"status":             {"Status can not be blank.", "Status is not in the list [REQUESTED, APPROVED, DENIED, SENT_TO_GEX, PAID]."},
 		}
 
 		suite.verifyValidationErrors(&invalidPaymentServiceItem, expErrors)
@@ -32,11 +32,11 @@ func (suite *ModelSuite) TestPaymentServiceItemValidation() {
 	suite.T().Run("test invalid status for PaymentServiceItem", func(t *testing.T) {
 		invalidPaymentServiceItem := models.PaymentServiceItem{
 			PaymentRequestID: uuid.Must(uuid.NewV4()),
-			Status: "Sleeping",
+			Status:           "Sleeping",
 		}
 		expErrors := map[string][]string{
 			"status": {"Status is not in the list [REQUESTED, APPROVED, DENIED, SENT_TO_GEX, PAID]."},
 		}
-	suite.verifyValidationErrors(&invalidPaymentServiceItem, expErrors)
-})
+		suite.verifyValidationErrors(&invalidPaymentServiceItem, expErrors)
+	})
 }

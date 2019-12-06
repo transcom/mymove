@@ -22,6 +22,6 @@ func (suite *ModelSuite) TestPaymentRequestValidation() {
 		expErrors := map[string][]string{
 			"status": {"Status is not in the list [PENDING, REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, PAID]."},
 		}
-	suite.verifyValidationErrors(&invalidPaymentRequest, expErrors)
-})
+		suite.verifyValidationErrors(&invalidPaymentRequest, expErrors)
+	})
 }

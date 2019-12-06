@@ -9,7 +9,7 @@ import (
 func (suite *ModelSuite) TestServiceItemParamKeyValidation() {
 	suite.T().Run("test valid ServiceItemParamKey", func(t *testing.T) {
 		validServiceItemParamKey := models.ServiceItemParamKey{
-			Type: "STRING",
+			Type:   "STRING",
 			Origin: "PRIME",
 		}
 		expErrors := map[string][]string{}
@@ -20,7 +20,7 @@ func (suite *ModelSuite) TestServiceItemParamKeyValidation() {
 		invalidServiceItemParamKey := models.ServiceItemParamKey{}
 
 		expErrors := map[string][]string{
-			"type": {"Type can not be blank.", "Type is not in the list [STRING, DATE, INTEGER, DECIMAL]."},
+			"type":   {"Type can not be blank.", "Type is not in the list [STRING, DATE, INTEGER, DECIMAL]."},
 			"origin": {"Origin can not be blank.", "Origin is not in the list [PRIME, SYSTEM]."},
 		}
 
@@ -29,7 +29,7 @@ func (suite *ModelSuite) TestServiceItemParamKeyValidation() {
 
 	suite.T().Run("test invalid type for ServiceItemParamKey", func(t *testing.T) {
 		invalidServiceItemParamKey := models.ServiceItemParamKey{
-			Type: "TIME",
+			Type:   "TIME",
 			Origin: "PRIME",
 		}
 		expErrors := map[string][]string{
@@ -40,7 +40,7 @@ func (suite *ModelSuite) TestServiceItemParamKeyValidation() {
 
 	suite.T().Run("test invalid origin for ServiceItemParamKey", func(t *testing.T) {
 		invalidServiceItemParamKey := models.ServiceItemParamKey{
-			Type: "DATE",
+			Type:   "DATE",
 			Origin: "OPTIMUS",
 		}
 		expErrors := map[string][]string{

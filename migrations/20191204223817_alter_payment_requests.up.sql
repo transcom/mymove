@@ -14,5 +14,3 @@ ALTER TABLE payment_requests
     ADD COLUMN sent_to_gex_at timestamp without time zone,
     ADD COLUMN received_by_gex_at timestamp without time zone,
     ADD COLUMN paid_at timestamp without time zone;
-
-ALTER TABLE payment_requests RENAME COLUMN rejection_reason to reject_reason;

@@ -12,7 +12,7 @@ func MakePaymentRequest(db *pop.Connection, assertions Assertions) models.Paymen
 	// Create new PaymentRequest if not provided
 	paymentRequest := models.PaymentRequest{
 		IsFinal:         false,
-		RejectReason: "Not good enough",
+		RejectionReason: "Not good enough",
 	}
 
 	// Overwrite values with those from assertions

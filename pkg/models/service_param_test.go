@@ -11,7 +11,7 @@ import (
 func (suite *ModelSuite) TestServiceParamValidation() {
 	suite.T().Run("test valid ServiceParam", func(t *testing.T) {
 		validServiceParam := models.ServiceParam{
-			ServiceID: uuid.Must(uuid.NewV4()),
+			ServiceID:             uuid.Must(uuid.NewV4()),
 			ServiceItemParamKeyID: uuid.Must(uuid.NewV4()),
 		}
 		expErrors := map[string][]string{}
@@ -22,7 +22,7 @@ func (suite *ModelSuite) TestServiceParamValidation() {
 		invalidServiceParam := models.ServiceParam{}
 
 		expErrors := map[string][]string{
-			"service_id": {"ServiceID can not be blank."},
+			"service_id":                {"ServiceID can not be blank."},
 			"service_item_param_key_id": {"ServiceItemParamKeyID can not be blank."},
 		}
 
