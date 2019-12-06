@@ -9,6 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// MoveOrder is an object representing the move and order for a customer
 type MoveOrder struct {
 	ID                       uuid.UUID   `db:"id"`
 	CreatedAt                time.Time   `db:"created_at"`
@@ -23,6 +24,7 @@ type MoveOrder struct {
 	OriginDutyStationID      uuid.UUID   `db:"origin_duty_station_id"`
 }
 
+// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (m *MoveOrder) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.CustomerID, Name: "CustomerID"})

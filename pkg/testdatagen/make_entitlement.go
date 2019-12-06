@@ -6,17 +6,24 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-//  MakeEntitlement creates a single Entitlement
+// MakeEntitlement creates a single Entitlement
 func MakeEntitlement(db *pop.Connection, assertions Assertions) models.Entitlement {
+	true := true
+	dependents := 1
+	proGearWeight := 100
+	proGearWeightSpouse := 200
+	storageInTransit := 2
+
 	entitlement := models.Entitlement{
-		DependentsAuthorized:  true,
-		TotalDependents:       1,
-		NonTemporaryStorage:   true,
-		PrivatelyOwnedVehicle: true,
-		ProGearWeight:         100,
-		ProGearWeightSpouse:   200,
-		StorageInTransit:      2,
+		DependentsAuthorized:  &true,
+		TotalDependents:       &dependents,
+		NonTemporaryStorage:   &true,
+		PrivatelyOwnedVehicle: &true,
+		ProGearWeight:         &proGearWeight,
+		ProGearWeightSpouse:   &proGearWeightSpouse,
+		StorageInTransit:      &storageInTransit,
 	}
+
 	// Overwrite values with those from assertions
 	mergeModels(&entitlement, assertions.Entitlement)
 

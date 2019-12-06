@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// MtoShipment is an object representing data for a move task order shipment
 type MtoShipment struct {
 	ID                               uuid.UUID     `db:"id"`
 	MoveTaskOrder                    MoveTaskOrder `belongs_to:"move_task_orders"`
@@ -33,9 +34,12 @@ type MtoShipment struct {
 	UpdatedAt                        time.Time     `db:"updated_at"`
 }
 
+// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (m *MtoShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveTaskOrderID, Name: "MoveTaskOrderID"})
+	vs = append(vs, &validators.UUIDIsPresent{Field: m.PickupAddressID, Name: "PickupAddressID"})
+	vs = append(vs, &validators.UUIDIsPresent{Field: m.DestinationAddressID, Name: "DestinationAddressID"})
 	if m.PrimeEstimatedWeight != nil {
 		vs = append(vs, &validators.IntIsGreaterThan{Field: m.PrimeEstimatedWeight.Int(), Compared: -1, Name: "PrimeEstimatedWeight"})
 	}
