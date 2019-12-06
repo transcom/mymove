@@ -12,7 +12,7 @@ type Customer struct {
 	LastName  string    `db:"last_name"`
 	Email     string    `db:"email"`
 	Phone     string    `db:"phone"`
-	DODID     *string   `db:"dod_id"`
+	DodID     *string   `db:"dod_id"`
 	CreatedAt time.Time `db:"created_at"`
 	UpdatedAt time.Time `db:"updated_at"`
 }

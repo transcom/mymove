@@ -11,7 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-type MTOShipment struct {
+type MtoShipment struct {
 	ID                               uuid.UUID     `db:"id"`
 	MoveTaskOrder                    MoveTaskOrder `belongs_to:"move_task_orders"`
 	MoveTaskOrderID                  uuid.UUID     `db:"move_task_order_id"`
@@ -33,7 +33,7 @@ type MTOShipment struct {
 	UpdatedAt                        time.Time     `db:"updated_at"`
 }
 
-func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (m *MtoShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveTaskOrderID, Name: "MoveTaskOrderID"})
 	if m.PrimeEstimatedWeight != nil {

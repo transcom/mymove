@@ -15,8 +15,8 @@ func MakePaymentRequest(db *pop.Connection, assertions Assertions) models.Paymen
 		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
 	}
 	paymentRequest := models.PaymentRequest{
-		// MoveTaskOrder:   moveTaskOrder,
-		// MoveTaskOrderID: moveTaskOrder.ID,
+		MoveTaskOrder:   moveTaskOrder,
+		MoveTaskOrderID: moveTaskOrder.ID,
 		IsFinal:         false,
 		RejectionReason: "Not good enough",
 	}

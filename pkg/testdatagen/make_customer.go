@@ -14,7 +14,7 @@ func MakeCustomer(db *pop.Connection, assertions Assertions) models.Customer {
 		LastName:  "Cruz",
 		Email:     "ccruz@example.com",
 		Phone:     "1234567890",
-		DODID:     models.StringPointer(randomEdipi()),
+		DodID:     models.StringPointer(randomEdipi()),
 	}
 
 	// Overwrite values with those from assertions
