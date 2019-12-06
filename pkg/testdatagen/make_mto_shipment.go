@@ -11,8 +11,8 @@ import (
 
 // MakeMTOShipment creates a single MTOShipment and associated set relationships
 func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipment {
-	var moveTaskOrder models.MoveTaskOrder
-	if isZeroUUID(assertions.MoveTaskOrder.ID) {
+	moveTaskOrder := assertions.MoveTaskOrder
+	if isZeroUUID(moveTaskOrder.ID) {
 		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
 	}
 	pickupAddress := assertions.MTOShipment.PickupAddress

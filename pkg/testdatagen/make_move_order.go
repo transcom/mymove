@@ -8,21 +8,29 @@ import (
 
 // MakeMoveOrder creates a single MoveOrder and associated set relationships
 func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.MoveOrder {
-	var customer models.Customer
-	if isZeroUUID(assertions.Customer.ID) {
+	customer := assertions.Customer
+	if isZeroUUID(customer.ID) {
 		customer = MakeCustomer(db, assertions)
 	}
-	var entitlement models.Entitlement
-	if isZeroUUID(assertions.Entitlement.ID) {
+	entitlement := assertions.Entitlement
+	if isZeroUUID(entitlement.ID) {
 		entitlement = MakeEntitlement(db, assertions)
 	}
-	var originDutyStation models.DutyStation
-	if isZeroUUID(assertions.OriginDutyStation.ID) {
-		originDutyStation = MakeDutyStation(db, assertions)
+	originDutyStation := assertions.OriginDutyStation
+	if isZeroUUID(originDutyStation.ID) {
+		originDutyStation = MakeDutyStation(db, Assertions{
+			DutyStation: models.DutyStation{
+				Name: "Alamo",
+			},
+		})
 	}
-	var destinationDutyStation models.DutyStation
-	if isZeroUUID(assertions.DestinationDutyStation.ID) {
-		destinationDutyStation = MakeDutyStation(db, assertions)
+	destinationDutyStation := assertions.DestinationDutyStation
+	if isZeroUUID(destinationDutyStation.ID) {
+		destinationDutyStation = MakeDutyStation(db, Assertions{
+			DutyStation: models.DutyStation{
+				Name: "Versailles",
+			},
+		})
 	}
 	moveOrder := models.MoveOrder{
 		Customer:                 customer,

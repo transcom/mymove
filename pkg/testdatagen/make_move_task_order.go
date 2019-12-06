@@ -8,8 +8,8 @@ import (
 
 // MakeMoveTaskOrder creates a single MoveTaskOrder and associated set relationships
 func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTaskOrder {
-	var moveOrder models.MoveOrder
-	if isZeroUUID(assertions.MoveOrder.ID) {
+	moveOrder := assertions.MoveOrder
+	if isZeroUUID(moveOrder.ID) {
 		moveOrder = MakeMoveOrder(db, assertions)
 	}
 	mtoStatus := assertions.MoveTaskOrder.Status

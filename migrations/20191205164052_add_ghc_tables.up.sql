@@ -18,7 +18,7 @@ CREATE TABLE move_orders
 	customer_id uuid REFERENCES customers,
 	origin_duty_station_id uuid REFERENCES duty_stations,
 	destination_duty_station_id uuid REFERENCES duty_stations,
-	entitlements_id uuid REFERENCES entitlements,
+	entitlement_id uuid REFERENCES entitlements,
 	created_at timestamp WITH TIME ZONE NOT NULL DEFAULT NOW(),
 	updated_at timestamp WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
@@ -28,9 +28,9 @@ CREATE TABLE move_task_orders
 	id uuid PRIMARY KEY NOT NULL,
 	move_order_id uuid REFERENCES move_orders,
 	reference_id varchar,
-	status ghc_approval_status,
-	is_available_to_prime bool,
-	is_cancelled bool,
+	status ghc_approval_status NOT NULL,
+	is_available_to_prime bool NOT NULL,
+	is_cancelled bool NOT NULL,
 	created_at timestamp WITH TIME ZONE NOT NULL DEFAULT NOW(),
 	updated_at timestamp WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
@@ -56,14 +56,21 @@ CREATE TABLE mto_shipments
 CREATE TABLE mto_service_items
 (
 	id uuid PRIMARY KEY NOT NULL,
-	move_task_order_id uuid REFERENCES move_task_orders,
+	move_task_order_id uuid REFERENCES move_task_orders ,
 	mto_shipment_id uuid REFERENCES mto_shipments,
 	re_services_id uuid REFERENCES re_services,
-	meta_id uuid,
-	meta_type char,
+	meta_id uuid NOT NULL,
+	meta_type text NOT NULL,
 	created_at timestamp WITH TIME ZONE NOT NULL DEFAULT NOW(),
 	updated_at timestamp WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
 ALTER TABLE payment_requests
-	ADD COLUMN move_task_order_id uuid REFERENCES move_task_orders
+	ADD COLUMN move_task_order_id uuid REFERENCES move_task_orders;
+
+ALTER TABLE customers
+	ADD COLUMN first_name text NOT NULL,
+	ADD COLUMN last_name text NOT NULL,
+	ADD COLUMN email text NOT NULL,
+	ADD COLUMN phone text NOT NULL,
+	ADD COLUMN dod_id text;

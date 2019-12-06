@@ -4,9 +4,18 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"testing"
 
 	"github.com/transcom/mymove/pkg/models"
 )
+
+func (suite *ModelSuite) TestMoveTaskOrderValidation() {
+	suite.T().Run("test valid MoveTaskOrder", func(t *testing.T) {
+		validMoveTaskOrder := models.MoveTaskOrder{}
+		expErrors := map[string][]string{}
+		suite.verifyValidationErrors(&validMoveTaskOrder, expErrors)
+	})
+}
 
 func (suite *ModelSuite) TestGenerateReferenceID() {
 	r, err := models.GenerateReferenceID(suite.DB())

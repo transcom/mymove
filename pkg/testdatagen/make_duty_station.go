@@ -1,6 +1,8 @@
 package testdatagen
 
 import (
+	"fmt"
+
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -32,16 +34,19 @@ func MakeDutyStation(db *pop.Connection, assertions Assertions) models.DutyStati
 			},
 		})
 	}
-
+	name := assertions.DutyStation.Name
+	if name == "" {
+		name = "Yuma AFB"
+	}
 	station := models.DutyStation{
-		Name:                   "Yuma AFB",
+		Name:                   name,
 		Affiliation:            internalmessages.AffiliationAIRFORCE,
 		AddressID:              address.ID,
 		Address:                address,
 		TransportationOfficeID: &transportationOffice.ID,
 		TransportationOffice:   transportationOffice,
 	}
-
+	fmt.Println(station.Name)
 	mergeModels(&station, assertions.DutyStation)
 
 	mustCreate(db, &station)

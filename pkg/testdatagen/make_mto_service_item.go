@@ -8,16 +8,16 @@ import (
 
 // MakeMTOServiceItem creates a single MTOServiceItem and associated set relationships
 func MakeMTOServiceItem(db *pop.Connection, assertions Assertions) models.MTOServiceItem {
-	var moveTaskOrder models.MoveTaskOrder
-	if isZeroUUID(assertions.MoveTaskOrder.ID) {
+	moveTaskOrder := assertions.MoveTaskOrder
+	if isZeroUUID(moveTaskOrder.ID) {
 		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
 	}
-	var mtoShipment models.MTOShipment
-	if isZeroUUID(assertions.MTOShipment.ID) {
+	mtoShipment := assertions.MTOShipment
+	if isZeroUUID(mtoShipment.ID) {
 		mtoShipment = MakeMTOShipment(db, assertions)
 	}
-	var reService models.ReService
-	if isZeroUUID(assertions.ReService.ID) {
+	reService := assertions.ReService
+	if isZeroUUID(reService.ID) {
 		reService = MakeReService(db, assertions)
 	}
 	mtoServiceItem := models.MTOServiceItem{
