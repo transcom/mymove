@@ -61,5 +61,8 @@ func (p *PaymentServiceItem) Validate(tx *pop.Connection) (*validate.Errors, err
 		&validators.UUIDIsPresent{Field: p.PaymentRequestID, Name: "PaymentRequestID"},
 		&validators.StringIsPresent{Field: string(p.Status), Name: "Status"},
 		&validators.StringInclusion{Field: p.Status.String(), Name: "Status", List: validPaymentServiceItemStatus},
+		&validators.TimeIsPresent{Field: p.RequestedAt, Name: "RequestedAt"},
+		&validators.IntIsPresent{Field: p.PriceCents.Int(), Name: "PriceCents"},
+		&validators.IntIsGreaterThan{Field: p.PriceCents.Int(), Name: "PriceCents", Compared: 0},
 	), nil
 }

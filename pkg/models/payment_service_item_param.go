@@ -30,5 +30,6 @@ func (p *PaymentServiceItemParam) Validate(tx *pop.Connection) (*validate.Errors
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: p.PaymentServiceItemID, Name: "PaymentServiceItemID"},
 		&validators.UUIDIsPresent{Field: p.ServiceItemParamKeyID, Name: "ServiceItemParamKeyID"},
+		&validators.StringIsPresent{Field: p.Value, Name: "Value"},
 	), nil
 }

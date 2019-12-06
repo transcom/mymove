@@ -13,6 +13,7 @@ func (suite *ModelSuite) TestPaymentServiceItemParamValidation() {
 		validPaymentServiceItemParam := models.PaymentServiceItemParam{
 			PaymentServiceItemID:  uuid.Must(uuid.NewV4()),
 			ServiceItemParamKeyID: uuid.Must(uuid.NewV4()),
+			Value:                 "Value",
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validPaymentServiceItemParam, expErrors)
@@ -24,6 +25,7 @@ func (suite *ModelSuite) TestPaymentServiceItemParamValidation() {
 		expErrors := map[string][]string{
 			"payment_service_item_id":   {"PaymentServiceItemID can not be blank."},
 			"service_item_param_key_id": {"ServiceItemParamKeyID can not be blank."},
+			"value":                     {"Value can not be blank."},
 		}
 
 		suite.verifyValidationErrors(&invalidPaymentServiceItemParam, expErrors)
