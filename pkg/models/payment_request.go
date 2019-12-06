@@ -15,11 +15,11 @@ func (p PaymentRequestStatus) String() string {
 }
 
 const (
-	PaymentRequestStatusPending PaymentRequestStatus = "PENDING"
-	PaymentRequestStatusReviewed PaymentRequestStatus = "REVIEWED"
-	PaymentRequestStatusSentToGex PaymentRequestStatus = "SENT_TO_GEX"
+	PaymentRequestStatusPending       PaymentRequestStatus = "PENDING"
+	PaymentRequestStatusReviewed      PaymentRequestStatus = "REVIEWED"
+	PaymentRequestStatusSentToGex     PaymentRequestStatus = "SENT_TO_GEX"
 	PaymentRequestStatusReceivedByGex PaymentRequestStatus = "RECEIVED_BY_GEX"
-	PaymentRequestStatusPaid PaymentRequestStatus = "PAID"
+	PaymentRequestStatusPaid          PaymentRequestStatus = "PAID"
 )
 
 var validPaymentRequestStatus = []string{
@@ -31,18 +31,18 @@ var validPaymentRequestStatus = []string{
 }
 
 type PaymentRequest struct {
-	ID              uuid.UUID     `json:"id" db:"id"`
-	IsFinal         bool          `json:"is_final" db:"is_final"`
-	MoveTaskOrderID uuid.UUID     `json:"move_task_order_id" db:"move_task_order_id"`
-	Status PaymentRequestStatus `json:"payment_request_status" db:"payment_request_status"`
-	RejectReason    string        `json:"reject_reason" db:"reject_reason"`
-	RequestedAt     time.Time     `json:"requested_at" db:"requested_at"`
-	ReviewedAt      time.Time     `json:"reviewed_at" db:"reviewed_at"`
-	SentToGexAt     time.Time     `json:"sent_to_gex_at" db:"sent_to_gex_at"`
-	ReceivedByGexAt time.Time     `json:"received_by_gex_at" db:"received_by_gex_at"`
-	PaidAt          time.Time     `json:"paid_at" db:"paid_at"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
+	ID              uuid.UUID            `json:"id" db:"id"`
+	IsFinal         bool                 `json:"is_final" db:"is_final"`
+	MoveTaskOrderID uuid.UUID            `json:"move_task_order_id" db:"move_task_order_id"`
+	Status          PaymentRequestStatus `json:"status" db:"status"`
+	RejectReason    string               `json:"reject_reason" db:"reject_reason"`
+	RequestedAt     time.Time            `json:"requested_at" db:"requested_at"`
+	ReviewedAt      time.Time            `json:"reviewed_at" db:"reviewed_at"`
+	SentToGexAt     time.Time            `json:"sent_to_gex_at" db:"sent_to_gex_at"`
+	ReceivedByGexAt time.Time            `json:"received_by_gex_at" db:"received_by_gex_at"`
+	PaidAt          time.Time            `json:"paid_at" db:"paid_at"`
+	CreatedAt       time.Time            `db:"created_at"`
+	UpdatedAt       time.Time            `db:"updated_at"`
 }
 
 // PaymentRequests is not required by pop and may be deleted

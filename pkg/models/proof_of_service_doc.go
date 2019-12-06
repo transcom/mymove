@@ -10,15 +10,15 @@ import (
 )
 
 type ProofOfServiceDoc struct {
-	ID               uuid.UUID                `json:"id" db:"id"`
-	PaymentRequestID uuid.UUID                `json:"payment_request_id" db:"payment_request_id"`
-	UploadID    uuid.UUID                `json:"upload_id" db:"upload_id"`
-	CreatedAt        time.Time                `db:"created_at"`
-	UpdatedAt        time.Time                `db:"updated_at"`
+	ID               uuid.UUID `json:"id" db:"id"`
+	PaymentRequestID uuid.UUID `json:"payment_request_id" db:"payment_request_id"`
+	UploadID         uuid.UUID `json:"upload_id" db:"upload_id"`
+	CreatedAt        time.Time `db:"created_at"`
+	UpdatedAt        time.Time `db:"updated_at"`
 
 	//Associations
 	PaymentRequest PaymentRequest `belongs_to:"payment_requests"`
-	Upload PaymentRequest `belongs_to:"uploads"`
+	Upload         PaymentRequest `belongs_to:"uploads"`
 }
 
 // ProofOfServiceDocs is not required by pop and may be deleted

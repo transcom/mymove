@@ -45,8 +45,8 @@ type ServiceItemParamKey struct {
 	ID          uuid.UUID              `json:"id" db:"id"`
 	Key         string                 `json:"key" db:"key"`
 	Description string                 `json:"description" db:"description"`
-	Type        ServiceItemParamType   `json:"service_item_param_type" db:"service_item_param_type"`
-	Origin      ServiceItemParamOrigin `json:"service_item_param_origin" db:"service_item_param_origin"`
+	Type        ServiceItemParamType   `json:"type" db:"type"`
+	Origin      ServiceItemParamOrigin `json:"origin" db:"origin"`
 	CreatedAt   time.Time              `db:"created_at"`
 	UpdatedAt   time.Time              `db:"updated_at"`
 }

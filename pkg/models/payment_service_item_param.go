@@ -10,15 +10,15 @@ import (
 )
 
 type PaymentServiceItemParam struct {
-	ID               uuid.UUID                `json:"id" db:"id"`
-	PaymentServiceItemID uuid.UUID                `json:"payment_service_item_id" db:"payment_service_item_id"`
-	ServiceItemParamKeyID    uuid.UUID                `json:"service_item_param_key_id" db:"service_item_param_key_id"`
-	Value string `json:"value" db:"value"`
-	CreatedAt        time.Time                `db:"created_at"`
-	UpdatedAt        time.Time                `db:"updated_at"`
+	ID                    uuid.UUID `json:"id" db:"id"`
+	PaymentServiceItemID  uuid.UUID `json:"payment_service_item_id" db:"payment_service_item_id"`
+	ServiceItemParamKeyID uuid.UUID `json:"service_item_param_key_id" db:"service_item_param_key_id"`
+	Value                 string    `json:"value" db:"value"`
+	CreatedAt             time.Time `db:"created_at"`
+	UpdatedAt             time.Time `db:"updated_at"`
 
 	//Associations
-	PaymentServiceItem PaymentServiceItem `belongs_to:"payment_service_items"`
+	PaymentServiceItem  PaymentServiceItem  `belongs_to:"payment_service_items"`
 	ServiceItemParamKey ServiceItemParamKey `belongs_to:"service_item_param_keys"`
 }
 
