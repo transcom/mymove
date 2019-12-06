@@ -11,7 +11,7 @@ import (
 
 func (suite *ModelSuite) TestMoveTaskOrderValidation() {
 	suite.T().Run("test valid MoveTaskOrder", func(t *testing.T) {
-		validMoveTaskOrder := models.MoveTaskOrder{}
+		validMoveTaskOrder := models.MoveTaskOrder{Status: models.MoveTaskOrderStatusDraft}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validMoveTaskOrder, expErrors)
 	})
