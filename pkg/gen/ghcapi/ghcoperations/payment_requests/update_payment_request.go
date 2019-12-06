@@ -29,7 +29,7 @@ func NewUpdatePaymentRequest(ctx *middleware.Context, handler UpdatePaymentReque
 	return &UpdatePaymentRequest{Context: ctx, Handler: handler}
 }
 
-/*UpdatePaymentRequest swagger:route PATCH /payment-requests/{paymentRequestID} paymentRequests prime updatePaymentRequest
+/*UpdatePaymentRequest swagger:route PATCH /payment-requests/{paymentRequestID} paymentRequests updatePaymentRequest
 
 Updates a payment request by id
 

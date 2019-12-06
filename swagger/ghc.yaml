@@ -613,7 +613,6 @@ paths:
             $ref: '#/definitions/Error'
       tags:
         - paymentRequests
-        - prime
         - gov
       description: Gets a list of payment requests
       operationId: listPaymentRequests
@@ -657,7 +656,6 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - paymentRequests
-        - prime
         - gov
       description: Fetches an instance of a payment request by id
       operationId: getPaymentRequest
@@ -700,7 +698,6 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - paymentRequests
-        - prime
       description: Updates a payment request by id
       operationId: updatePaymentRequest
       summary: Updates a payment request by id

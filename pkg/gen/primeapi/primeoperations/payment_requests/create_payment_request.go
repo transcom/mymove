@@ -29,7 +29,7 @@ func NewCreatePaymentRequest(ctx *middleware.Context, handler CreatePaymentReque
 	return &CreatePaymentRequest{Context: ctx, Handler: handler}
 }
 
-/*CreatePaymentRequest swagger:route POST /payment-requests paymentRequests prime createPaymentRequest
+/*CreatePaymentRequest swagger:route POST /payment-requests paymentRequests createPaymentRequest
 
 Creates a payment request
 

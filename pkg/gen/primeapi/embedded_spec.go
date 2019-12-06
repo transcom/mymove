@@ -547,8 +547,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "prime"
+          "paymentRequests"
         ],
         "summary": "Creates a payment request",
         "operationId": "createPaymentRequest",
@@ -1852,8 +1851,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "prime"
+          "paymentRequests"
         ],
         "summary": "Creates a payment request",
         "operationId": "createPaymentRequest",

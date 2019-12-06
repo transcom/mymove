@@ -879,7 +879,6 @@ func init() {
         ],
         "tags": [
           "paymentRequests",
-          "prime",
           "gov"
         ],
         "summary": "Gets payment requests",
@@ -932,7 +931,6 @@ func init() {
         ],
         "tags": [
           "paymentRequests",
-          "prime",
           "gov"
         ],
         "summary": "Fetches a payment request by id",
@@ -985,8 +983,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "prime"
+          "paymentRequests"
         ],
         "summary": "Updates a payment request by id",
         "operationId": "updatePaymentRequest",
@@ -2909,7 +2906,6 @@ func init() {
         ],
         "tags": [
           "paymentRequests",
-          "prime",
           "gov"
         ],
         "summary": "Gets payment requests",
@@ -2962,7 +2958,6 @@ func init() {
         ],
         "tags": [
           "paymentRequests",
-          "prime",
           "gov"
         ],
         "summary": "Fetches a payment request by id",
@@ -3030,8 +3025,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "prime"
+          "paymentRequests"
         ],
         "summary": "Updates a payment request by id",
         "operationId": "updatePaymentRequest",

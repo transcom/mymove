@@ -15,12 +15,13 @@ func (suite *PaymentRequestServiceSuite) TestPaymentRequestList() {
 		_ := suite.DB().All(&paymentRequests)
 		numPaymentRequests := len(paymentRequests)
 
-		for i := 0; i < 3; i++ {
+		numToMake := 3
+		for i := 0; i < numToMake; i++ {
 			testdatagen.MakeDefaultPaymentRequest(suite.DB())
 		}
 
 		allPaymentRequests, err := paymentRequestListFetcher.FetchPaymentRequestList()
-		expectedLength := numPaymentRequests + 3
+		expectedLength := numPaymentRequests + numToMake
 		suite.NoError(err)
 		suite.Equal(expectedLength, len(allPaymentRequests))
 	})
