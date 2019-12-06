@@ -3,4 +3,4 @@ ALTER TABLE customers
 ALTER TABLE customers
     ADD CONSTRAINT user_id_fk FOREIGN KEY (user_id) REFERENCES users (id);
 ALTER TABLE customers
-    ADD CONSTRAINT user_id_ukey UNIQUE (user_id);
+    ADD CONSTRAINT customers_user_id_ukey UNIQUE (user_id);
