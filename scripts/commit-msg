@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+COMMIT_FILE=$1
+COMMIT_MSG=$(cat "$1")
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+# Expected branch pattern initials_JIRA-123_branch_name
+# Break down of this command
+#  awk portion splits on underscores and returns second position
+#  grep portion makes sure that what is returned by awk is in the expected JIRA ID format
+# The command will be a no-op if not in that pattern in cluding initials_branch_name
+JIRA_ID=$(echo "$CURRENT_BRANCH" | awk '{split($0,a,"_"); print a[2]}' | grep -Eo "[A-Z0-9]{1,10}-?[A-Z0-9]+-\d+")
+
+if [ -n "$JIRA_ID" ]; then
+  echo "[$JIRA_ID] $COMMIT_MSG" > "$COMMIT_FILE"
+  echo "JIRA ID '[$JIRA_ID]' prepended to commit message. (Use --no-verify to skip)"
+else
+  echo "Skipping... No JIRA ID found in branch name: $CURRENT_BRANCH"
+fi
