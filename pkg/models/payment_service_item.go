@@ -39,7 +39,7 @@ type PaymentServiceItem struct {
 	ServiceItemID    uuid.UUID                `json:"service_item_id" db:"service_item_id"`
 	Status           PaymentServiceItemStatus `json:"status" db:"status"`
 	PriceCents       unit.Cents               `json:"price_cents" db:"price_cents"`
-	RejectReason     string                   `json:"reject_reason" db:"reject_reason"`
+	RejectionReason  string                   `json:"rejection_reason" db:"rejection_reason"`
 	RequestedAt      time.Time                `json:"requested_at" db:"requested_at"`
 	ReviewedAt       time.Time                `json:"reviewed_at" db:"reviewed_at"`
 	SentToGexAt      time.Time                `json:"sent_to_gex_at" db:"sent_to_gex_at"`

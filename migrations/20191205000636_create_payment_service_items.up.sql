@@ -14,7 +14,7 @@ CREATE TABLE payment_service_items
     service_item_id uuid,
     status payment_service_item_status NOT NULL,
     price_cents integer NOT NULL,
-    reject_reason varchar(255),
+    rejection_reason varchar(255),
     requested_at timestamp without time zone NOT NULL,
     approved_at timestamp without time zone,
     denied_at timestamp without time zone,
