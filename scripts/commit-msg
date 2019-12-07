@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -u -o pipefail
+
 COMMIT_FILE=$1
 COMMIT_MSG=$(cat "$1")
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
