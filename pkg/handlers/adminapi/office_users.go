@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/audit"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -140,7 +141,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 		return officeuserop.NewCreateOfficeUserInternalServerError()
 	}
 
-	logger.Info("Create Office User", zap.String("office_user_id", createdOfficeUser.ID.String()), zap.String("responsible_user_id", session.AdminUserID.String()), zap.String("event_type", "create_office_user"))
+	audit.Capture(createdOfficeUser, logger, session, "create_office_user")
 	returnPayload := payloadForOfficeUserModel(*createdOfficeUser)
 	return officeuserop.NewCreateOfficeUserCreated().WithPayload(returnPayload)
 }
@@ -177,7 +178,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 		return officeuserop.NewUpdateOfficeUserInternalServerError()
 	}
 
-	logger.Info("Update Office User", zap.String("office_user_id", updatedOfficeUser.ID.String()), zap.String("responsible_user_id", session.AdminUserID.String()), zap.String("event_type", "update_office_user"))
+	audit.Capture(updatedOfficeUser, logger, session, "update_office_user")
 	returnPayload := payloadForOfficeUserModel(*updatedOfficeUser)
 
 	return officeuserop.NewUpdateOfficeUserOK().WithPayload(returnPayload)

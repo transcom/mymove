@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/audit"
 )
 
 func payloadForAdminUserModel(o models.AdminUser) *adminmessages.AdminUser {
@@ -127,7 +128,7 @@ func (h CreateAdminUserHandler) Handle(params adminuserop.CreateAdminUserParams)
 		return adminuserop.NewCreateAdminUserInternalServerError()
 	}
 
-	logger.Info("Create Admin User", zap.String("admin_user_id", createdAdminUser.ID.String()), zap.String("responsible_user_id", session.AdminUserID.String()), zap.String("event_type", "create_admin_user"))
+	audit.Capture(createdAdminUser, logger, session, "create_admin_user")
 	returnPayload := payloadForAdminUserModel(*createdAdminUser)
 	return adminuserop.NewCreateAdminUserCreated().WithPayload(returnPayload)
 }
@@ -167,7 +168,7 @@ func (h UpdateAdminUserHandler) Handle(params adminuserop.UpdateAdminUserParams)
 		return adminuserop.NewUpdateAdminUserInternalServerError()
 	}
 
-	logger.Info("Update admin User", zap.String("admin_user_id", updatedAdminUser.ID.String()), zap.String("responsible_user_id", session.AdminUserID.String()), zap.String("event_type", "update_admin_user"))
+	audit.Capture(updatedAdminUser, logger, session, "update_admin_user")
 	returnPayload := payloadForAdminUserModel(*updatedAdminUser)
 
 	return adminuserop.NewUpdateAdminUserOK().WithPayload(returnPayload)
