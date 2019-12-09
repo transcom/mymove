@@ -40,10 +40,9 @@ type ShowPPMSitEstimateParams struct {
 	DaysInStorage int64
 	/*
 	  Required: true
-	  Pattern: ^(\d{5}([\-]\d{4})?)$
 	  In: query
 	*/
-	DestinationZip string
+	OrdersID strfmt.UUID
 	/*
 	  Required: true
 	  Pattern: ^(\d{5}([\-]\d{4})?)$
@@ -78,8 +77,8 @@ func (o *ShowPPMSitEstimateParams) BindRequest(r *http.Request, route *middlewar
 		res = append(res, err)
 	}
 
-	qDestinationZip, qhkDestinationZip, _ := qs.GetOK("destination_zip")
-	if err := o.bindDestinationZip(qDestinationZip, qhkDestinationZip, route.Formats); err != nil {
+	qOrdersID, qhkOrdersID, _ := qs.GetOK("ordersId")
+	if err := o.bindOrdersID(qOrdersID, qhkOrdersID, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -129,10 +128,10 @@ func (o *ShowPPMSitEstimateParams) bindDaysInStorage(rawData []string, hasKey bo
 	return nil
 }
 
-// bindDestinationZip binds and validates parameter DestinationZip from query.
-func (o *ShowPPMSitEstimateParams) bindDestinationZip(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindOrdersID binds and validates parameter OrdersID from query.
+func (o *ShowPPMSitEstimateParams) bindOrdersID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("destination_zip", "query")
+		return errors.Required("ordersId", "query")
 	}
 	var raw string
 	if len(rawData) > 0 {
@@ -141,26 +140,30 @@ func (o *ShowPPMSitEstimateParams) bindDestinationZip(rawData []string, hasKey b
 
 	// Required: true
 	// AllowEmptyValue: false
-	if err := validate.RequiredString("destination_zip", "query", raw); err != nil {
+	if err := validate.RequiredString("ordersId", "query", raw); err != nil {
 		return err
 	}
 
-	o.DestinationZip = raw
+	// Format: uuid
+	value, err := formats.Parse("uuid", raw)
+	if err != nil {
+		return errors.InvalidType("ordersId", "query", "strfmt.UUID", raw)
+	}
+	o.OrdersID = *(value.(*strfmt.UUID))
 
-	if err := o.validateDestinationZip(formats); err != nil {
+	if err := o.validateOrdersID(formats); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// validateDestinationZip carries on validations for parameter DestinationZip
-func (o *ShowPPMSitEstimateParams) validateDestinationZip(formats strfmt.Registry) error {
+// validateOrdersID carries on validations for parameter OrdersID
+func (o *ShowPPMSitEstimateParams) validateOrdersID(formats strfmt.Registry) error {
 
-	if err := validate.Pattern("destination_zip", "query", o.DestinationZip, `^(\d{5}([\-]\d{4})?)$`); err != nil {
+	if err := validate.FormatOf("ordersId", "query", "uuid", o.OrdersID.String(), formats); err != nil {
 		return err
 	}
-
 	return nil
 }
 
