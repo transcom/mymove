@@ -2,6 +2,8 @@ package authentication
 
 import (
 	"fmt"
+	"github.com/go-openapi/spec"
+	"github.com/stretchr/testify/mock"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -766,7 +768,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 	suite.Equal(uuid.Nil, session.OfficeUserID)
 }
 
-func (suite *AuthSuite) TestRoleAuthMiddleware() {
+func (suite *AuthSuite) TestRequireRoleAuthMiddleware() {
 	// Given: a logged in user
 	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
 	user := models.User{
@@ -790,7 +792,21 @@ func (suite *AuthSuite) TestRoleAuthMiddleware() {
 		handlerSession = auth.SessionFromRequestContext(r)
 	})
 	apiContext := &mocks.APIContext{}
-	apiContext.On("Context").Return(&middleware.Context{})
+	apiContextFunc := apiContext.On("Context").Return(&middleware.Context{})
+
+	matchedRouteMiddleware := middleware.MatchedRoute{}
+	matchedRouteMiddleware.Operation = &spec.Operation{}
+	matchedRouteMiddleware.Operation.VendorExtensible = spec.VendorExtensible{}
+	matchedRouteMiddleware.Operation.VendorExtensible.Extensions = spec.Extensions{}
+	matchedRouteMiddleware.Operation.VendorExtensible.Extensions["x-swagger-roles"] = map[string]interface{
+	{"customer":true }
+	}
+
+
+	apiContextFunc.On(
+		"RouteInfo",
+		mock.AnythingOfType("*http.Request")).Return(matchedRouteMiddleware, nil, nil)
+
 	middleware := RoleAuthMiddleware(suite.logger)(apiContext)(handler)
 
 	middleware.ServeHTTP(rr, req)

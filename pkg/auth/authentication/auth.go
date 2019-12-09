@@ -91,8 +91,9 @@ func RoleAuthMiddleware(logger Logger) func(api APIContext) func(handler http.Ha
 				userRoles := session.Roles
 
 				// We must have a logged in session and a user
-				route, r, _ := api.Context().RouteInfo(r)
+				route, _, _ := api.Context().RouteInfo(r)
 				endpointRoles, exists := route.Operation.VendorExtensible.Extensions["x-swagger-roles"]
+				fmt.Println("= ", route.Operation.VendorExtensible.Extensions["x-swagger-roles"])
 				if !exists {
 					next.ServeHTTP(w, r)
 					return
