@@ -16,13 +16,13 @@ func NewPaymentRequestListFetcher(db *pop.Connection) services.PaymentRequestLis
 	return &paymentRequestListFetcher{db}
 }
 
-func (f *paymentRequestListFetcher) FetchPaymentRequestList() ([]models.PaymentRequest, error) {
-	paymentRequests := []models.PaymentRequest{}
+func (f *paymentRequestListFetcher) FetchPaymentRequestList() (*models.PaymentRequests, error) {
+	paymentRequests := models.PaymentRequests{}
 
 	err := f.db.All(&paymentRequests)
 	if err != nil {
-		return paymentRequests, err
+		return &paymentRequests, err
 	}
 
-	return paymentRequests, err
+	return &paymentRequests, err
 }

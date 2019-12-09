@@ -15,5 +15,5 @@ type PaymentRequestCreator interface {
 // PaymentRequestListFetcher is the exported interface for fetching a list of payment requests
 //go:generate mockery -name PaymentRequestListFetcher
 type PaymentRequestListFetcher interface {
-	FetchPaymentRequestList() ([]models.PaymentRequest, error)
+	FetchPaymentRequestList() (*models.PaymentRequests, error)
 }

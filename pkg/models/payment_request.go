@@ -17,6 +17,8 @@ type PaymentRequest struct {
 	UpdatedAt time.Time `db:"updated_at"`
 }
 
+type PaymentRequests []PaymentRequest
+
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (p *PaymentRequest) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(), nil
