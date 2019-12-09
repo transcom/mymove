@@ -17,6 +17,7 @@ import (
 	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	fetch "github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	"github.com/transcom/mymove/pkg/services/pagination"
@@ -48,10 +49,10 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		handler := IndexOfficeUsersHandler{
-			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			NewQueryFilter:        query.NewQueryFilter,
-			OfficeUserListFetcher: officeuser.NewOfficeUserListFetcher(queryBuilder),
-			NewPagination:         pagination.NewPagination,
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			NewQueryFilter: query.NewQueryFilter,
+			ListFetcher:    fetch.NewListFetcher(queryBuilder),
+			NewPagination:  pagination.NewPagination,
 		}
 
 		response := handler.Handle(params)
@@ -62,59 +63,31 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		suite.Equal(uuidString, okResponse.Payload[0].ID.String())
 	})
 
-	queryFilter := mocks.QueryFilter{}
-	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
-
-	suite.T().Run("successful response", func(t *testing.T) {
-		officeUser := models.OfficeUser{ID: id}
-		params := officeuserop.IndexOfficeUsersParams{
-			HTTPRequest: req,
-		}
-		officeUserListFetcher := &mocks.OfficeUserListFetcher{}
-		officeUserListFetcher.On("FetchOfficeUserList",
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-			mock.Anything,
-		).Return(models.OfficeUsers{officeUser}, nil).Once()
-		officeUserListFetcher.On("FetchOfficeUserCount",
-			mock.Anything,
-		).Return(1, nil).Once()
-		handler := IndexOfficeUsersHandler{
-			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			NewQueryFilter:        newQueryFilter,
-			OfficeUserListFetcher: officeUserListFetcher,
-			NewPagination:         pagination.NewPagination,
-		}
-
-		response := handler.Handle(params)
-
-		suite.IsType(&officeuserop.IndexOfficeUsersOK{}, response)
-		okResponse := response.(*officeuserop.IndexOfficeUsersOK)
-		suite.Len(okResponse.Payload, 1)
-		suite.Equal(uuidString, okResponse.Payload[0].ID.String())
-	})
-
 	suite.T().Run("unsuccesful response when fetch fails", func(t *testing.T) {
+		queryFilter := mocks.QueryFilter{}
+		newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
+
 		params := officeuserop.IndexOfficeUsersParams{
 			HTTPRequest: req,
 		}
 		expectedError := models.ErrFetchNotFound
-		officeUserListFetcher := &mocks.OfficeUserListFetcher{}
-		officeUserListFetcher.On("FetchOfficeUserList",
+		officeUserListFetcher := &mocks.ListFetcher{}
+		officeUserListFetcher.On("FetchRecordList",
+			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 		).Return(nil, expectedError).Once()
-		officeUserListFetcher.On("FetchOfficeUserCount",
+		officeUserListFetcher.On("FetchRecordCount",
+			mock.Anything,
 			mock.Anything,
 		).Return(0, expectedError).Once()
 		handler := IndexOfficeUsersHandler{
-			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			NewQueryFilter:        newQueryFilter,
-			OfficeUserListFetcher: officeUserListFetcher,
-			NewPagination:         pagination.NewPagination,
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			NewQueryFilter: newQueryFilter,
+			ListFetcher:    officeUserListFetcher,
+			NewPagination:  pagination.NewPagination,
 		}
 
 		response := handler.Handle(params)

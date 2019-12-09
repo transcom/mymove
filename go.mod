@@ -6,7 +6,7 @@ require (
 	github.com/0xAX/notificator v0.0.0-20191016112426-3962a5ea8da1 // indirect
 	github.com/99designs/aws-vault v4.5.1+incompatible
 	github.com/99designs/keyring v1.1.3
-	github.com/aws/aws-sdk-go v1.25.41
+	github.com/aws/aws-sdk-go v1.25.43
 	github.com/cockroachdb/cockroach-go v0.0.0-20190925194419-606b3d062051 // indirect
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
@@ -75,7 +75,7 @@ require (
 	golang.org/x/text v0.3.2
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
-	gopkg.in/go-playground/validator.v9 v9.30.0
+	gopkg.in/go-playground/validator.v9 v9.30.2
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 	gopkg.in/ini.v1 v1.49.0 // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
