@@ -1,6 +1,8 @@
 package authentication
 
 import (
+	"strings"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/markbates/goth"
@@ -9,8 +11,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/query"
 )
 
 var ErrUnauthorized = errors.New("unauthorized user")
@@ -175,11 +175,7 @@ func (aua adminUserAssociator) AssociateAdminUser(user *models.User) (uuid.UUID,
 
 func (aua adminUserAssociator) FetchAdminUser(email string) (*models.AdminUser, error) {
 	var adminUser models.AdminUser
-	queryBuilder := query.NewQueryBuilder(aua.db)
-	filters := []services.QueryFilter{
-		query.NewQueryFilter("email", "=", email),
-	}
-	err := queryBuilder.FetchOne(&adminUser, filters)
+	err := aua.db.Where("LOWER(email) = $1", strings.ToLower(email)).First(&adminUser)
 	return &adminUser, err
 }
 

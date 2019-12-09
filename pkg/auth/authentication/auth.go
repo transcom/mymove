@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -380,13 +381,18 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		uua := NewUnknownUserAuthorizer(h.db, h.logger)
 		if err == models.ErrFetchNotFound {
 			err = uua.AuthorizeUnknownUser(openIDUser, session)
-			switch err {
-			case ErrUnauthorized:
-				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-			case ErrUserDeactivated:
-				http.Error(w, http.StatusText(403), http.StatusForbidden)
-			default:
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			if err != nil {
+				switch err {
+				case ErrUnauthorized:
+					http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+					return
+				case ErrUserDeactivated:
+					http.Error(w, http.StatusText(403), http.StatusForbidden)
+					return
+				default:
+					http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+					return
+				}
 			}
 			// redirect new toos to waiting page
 			if session.IsOfficeApp() {
@@ -416,6 +422,33 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
+}
+
+var authorizeUnknownUserNew = func(openIDUser goth.User, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
+	log.Println("using authorizeUnknownUserNew")
+	uua := NewUnknownUserAuthorizer(h.db, h.logger)
+	err := uua.AuthorizeUnknownUser(openIDUser, session)
+	if err != nil {
+		switch err {
+		case ErrUnauthorized:
+			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+			return
+		case ErrUserDeactivated:
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
+			return
+		default:
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
+	}
+	// redirect new toos to waiting page
+	if session.IsOfficeApp() {
+		http.Redirect(w, r, h.verificationInProgressURL(session), http.StatusTemporaryRedirect)
+		return
+	}
+	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
+	http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
+	return
 }
 
 func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
@@ -525,7 +558,8 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
 }
 
-func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
+var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
+	log.Println("using authorizeUnknownUser")
 	var officeUser *models.OfficeUser
 	var err error
 	if session.IsOfficeApp() { // Look to see if we have OfficeUser with this email address
