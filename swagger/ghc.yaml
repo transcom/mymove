@@ -1037,26 +1037,27 @@ definitions:
       - message
     type: object
   Contractor:
-    id:
-      example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-      format: uuid
-      type: string
-    name:
-      example: Contractor McContractor
-      type: string
-    type:
-      example: PRIME / NTS
-      type: string
-    contract_number:
-      example: HTC711-20-D-R030
-      type: string
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      name:
+        example: Contractor McContractor
+        type: string
+      type:
+        example: PRIME / NTS
+        type: string
+      contract_number:
+        example: HTC711-20-D-R030
+        type: string
   MoveTaskOrder:
     properties:
       code:
         example: USMC-0001
         type: string
       contractor:
-        $ref: '#/definitions/contractor'
+        $ref: '#/definitions/Contractor'
       createdAt:
         format: date
         type: string

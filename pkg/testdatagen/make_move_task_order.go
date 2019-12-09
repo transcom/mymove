@@ -21,6 +21,9 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 	if isZeroUUID(sm.ID) {
 		sm = move.Orders.ServiceMember
 	}
+
+	contractor := assertions.MoveTaskOrder.Contractor
+
 	pickupAddress := assertions.MoveTaskOrder.PickupAddress
 	if isZeroUUID(pickupAddress.ID) {
 		pickupAddress = MakeAddress(db, assertions)
@@ -41,6 +44,8 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 
 	moveTaskOrder := models.MoveTaskOrder{
 		MoveID:                   move.ID,
+		Contractor:               contractor,
+		ContractorID:             &contractor.ID,
 		CustomerID:               sm.ID,
 		Customer:                 sm,
 		OriginDutyStationID:      sm.DutyStation.ID,

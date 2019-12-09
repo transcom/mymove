@@ -26,6 +26,7 @@ type Assertions struct {
 	AdminUser                                models.AdminUser
 	BackupContact                            models.BackupContact
 	BlackoutDate                             models.BlackoutDate
+	Contractor                               models.Contractor
 	DistanceCalculation                      models.DistanceCalculation
 	Document                                 models.Document
 	DutyStation                              models.DutyStation

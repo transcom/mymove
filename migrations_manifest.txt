@@ -398,3 +398,4 @@
 20191204170511_remove-old-tables.up.sql
 20191204200540_create_and_populate_roles_table.up.sql
 20191209075343_add_contractor_id_to_mto.up.sql
+20191209162535_rename_contractor_to_contractors.up.sql
