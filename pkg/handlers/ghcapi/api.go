@@ -1,6 +1,7 @@
 package ghcapi
 
 import (
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"log"
 	"net/http"
 
@@ -20,5 +21,9 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 	}
 	ghcAPI := ghcops.NewMymoveAPI(ghcSpec)
 
+	ghcAPI.PaymentRequestsListPaymentRequestsHandler = ListPaymentRequestsHandler{
+		context,
+		paymentrequest.NewPaymentRequestListFetcher(context.DB()),
+	}
 	return ghcAPI.Serve(nil)
 }
