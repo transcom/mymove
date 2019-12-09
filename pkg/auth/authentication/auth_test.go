@@ -2,14 +2,15 @@ package authentication
 
 import (
 	"fmt"
-	"github.com/go-openapi/spec"
-	"github.com/stretchr/testify/mock"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strconv"
 	"testing"
+
+	"github.com/go-openapi/spec"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/markbates/goth"
 
@@ -793,15 +794,12 @@ func (suite *AuthSuite) TestRequireRoleAuthMiddleware() {
 	})
 	apiContext := &mocks.APIContext{}
 	apiContextFunc := apiContext.On("Context").Return(&middleware.Context{})
-
+	fmt.Println(apiContextFunc)
 	matchedRouteMiddleware := middleware.MatchedRoute{}
 	matchedRouteMiddleware.Operation = &spec.Operation{}
 	matchedRouteMiddleware.Operation.VendorExtensible = spec.VendorExtensible{}
 	matchedRouteMiddleware.Operation.VendorExtensible.Extensions = spec.Extensions{}
-	matchedRouteMiddleware.Operation.VendorExtensible.Extensions["x-swagger-roles"] = map[string]interface{
-	{"customer":true }
-	}
-
+	matchedRouteMiddleware.Operation.VendorExtensible.Extensions["x-swagger-roles"] = []string{"office", "contractingOfficer", "customer"}
 
 	apiContextFunc.On(
 		"RouteInfo",
