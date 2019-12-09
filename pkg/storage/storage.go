@@ -84,7 +84,7 @@ func InitStorage(v *viper.Viper, sess *awssession.Session, logger Logger) FileSt
 	localStorageWebRoot := v.GetString(cli.LocalStorageWebRootFlag)
 
 	var storer FileStorer
-	if storageBackend == "s3" {
+	if storageBackend == "s3" || storageBackend == "cdn" {
 		awsS3Bucket := v.GetString(cli.AWSS3BucketNameFlag)
 		awsS3Region := v.GetString(cli.AWSS3RegionFlag)
 		awsS3KeyNamespace := v.GetString(cli.AWSS3KeyNamespaceFlag)
@@ -95,13 +95,12 @@ func InitStorage(v *viper.Viper, sess *awssession.Session, logger Logger) FileSt
 			zap.String("key", awsS3KeyNamespace))
 
 		//init cdn related variables
-		cfBackend := v.GetString(cli.CDNBackendFlag)
 		cdnEnabled := false
 		cfPrivateKey := ""
 		cfPrivateKeyID := ""
 		assetsFQDN := url.URL{Scheme: "https"}
 
-		if cfBackend == "cloudfront" {
+		if storageBackend == "cdn" {
 			cdnEnabled = true
 			cfPrivateKey = v.GetString(cli.CFPrivateKeyFlag)
 			cfPrivateKeyID = v.GetString(cli.CFKeyIDFlag)

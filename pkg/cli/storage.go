@@ -39,8 +39,8 @@ func InitStorageFlags(flag *pflag.FlagSet) {
 func CheckStorage(v *viper.Viper) error {
 
 	storageBackend := v.GetString(StorageBackendFlag)
-	if !stringSliceContains([]string{"local", "memory", "s3"}, storageBackend) {
-		return fmt.Errorf("invalid storage-backend %s, expecting local, memory or s3", storageBackend)
+	if !stringSliceContains([]string{"local", "memory", "s3", "cdn"}, storageBackend) {
+		return fmt.Errorf("invalid storage-backend %s, expecting local, memory, s3 or cdn", storageBackend)
 	}
 
 	if storageBackend == "s3" {
