@@ -32,11 +32,9 @@ type Assertions struct {
 	ElectronicOrder                          models.ElectronicOrder
 	ElectronicOrdersRevision                 models.ElectronicOrdersRevision
 	FuelEIADieselPrice                       models.FuelEIADieselPrice
-	GHCEntitlement                           models.GHCEntitlement
 	Invoice                                  models.Invoice
 	Move                                     models.Move
 	MoveDocument                             models.MoveDocument
-	MoveTaskOrder                            models.MoveTaskOrder
 	MovingExpenseDocument                    models.MovingExpenseDocument
 	Notification                             models.Notification
 	WeightTicketSetDocument                  models.WeightTicketSetDocument
@@ -51,7 +49,6 @@ type Assertions struct {
 	Reimbursement                            models.Reimbursement
 	ReService                                models.ReService
 	SignedCertification                      models.SignedCertification
-	ServiceItem                              models.ServiceItem
 	ServiceMember                            models.ServiceMember
 	Tariff400ngServiceArea                   models.Tariff400ngServiceArea
 	Tariff400ngItem                          models.Tariff400ngItem
