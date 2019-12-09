@@ -207,7 +207,8 @@ class MoveInfo extends Component {
   };
 
   handleToolTipHover = () => {
-    this.setState({ hideTooltip: !this.state.hideTooltip });
+    // Temporarily disable due to bug: https://ustcdp3.slack.com/archives/CP4979J0G/p1575412461036700
+    // this.setState({ hideTooltip: !this.state.hideTooltip });
   };
 
   render() {
