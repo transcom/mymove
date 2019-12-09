@@ -2,7 +2,6 @@ package paymentrequest
 
 import (
 	"testing"
-	"time"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -10,9 +9,8 @@ import (
 func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 	paymentRequest := models.PaymentRequest{
-		IsFinal:     false,
-		Status:      "PENDING",
-		RequestedAt: time.Now(),
+		IsFinal: false,
+		Status:  "PENDING",
 	}
 
 	creator := NewPaymentRequestCreator(suite.DB())

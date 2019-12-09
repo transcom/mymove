@@ -54,6 +54,5 @@ type PaymentRequests []PaymentRequest
 func (p *PaymentRequest) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringInclusion{Field: p.Status.String(), Name: "Status", List: validPaymentRequestStatus},
-		&validators.TimeIsPresent{Field: p.RequestedAt, Name: "RequestedAt"},
 	), nil
 }
