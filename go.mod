@@ -58,7 +58,6 @@ require (
 	github.com/rickar/cal v1.0.1
 	github.com/rogpeppe/go-internal v1.5.0
 	github.com/segmentio/chamber/v2 v2.7.5
-	github.com/smartystreets/goconvey v0.0.0-20190731233626-505e41936337 // indirect
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/pflag v1.0.5
@@ -77,7 +76,6 @@ require (
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.30.2
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
-	gopkg.in/ini.v1 v1.49.0 // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
 )
 
