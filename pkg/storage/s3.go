@@ -4,6 +4,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"io"
+	url2 "net/url"
 	"path"
 	"time"
 
@@ -127,7 +128,13 @@ func (s *S3) PresignedURL(key string, contentType string) (string, error) {
 	if s.cfDistributionEnabled {
 		block, _ := pem.Decode([]byte(s.cfPrivateKey))
 		privKey, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
-		rawURL := path.Join(s.assetsDomainName, namespacedKey)
+		unSignedURL, err := url2.Parse(s.assetsDomainName)
+		if err != nil {
+			return "", errors.Wrap(err, "could not parse URL")
+		}
+
+		unSignedURL.Path = path.Join(unSignedURL.Path, namespacedKey)
+		rawURL := unSignedURL.String()
 
 		cfSigner := sign.NewURLSigner(s.cfPrivateKeyID, privKey)
 		url, err := cfSigner.Sign(rawURL, time.Now().Add(15*time.Minute))
