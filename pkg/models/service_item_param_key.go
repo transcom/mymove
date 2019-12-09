@@ -17,10 +17,10 @@ func (s ServiceItemParamType) String() string {
 }
 
 const (
-	ServiceItemParamTypeString   ServiceItemParamType   = "STRING"
-	ServiceItemParamTypeDate     ServiceItemParamType   = "DATE"
-	ServiceItemParamTypeInteger  ServiceItemParamType   = "INTEGER"
-	ServiceItemParamTypeDecimal  ServiceItemParamType   = "DECIMAL"
+	ServiceItemParamTypeString  ServiceItemParamType = "STRING"
+	ServiceItemParamTypeDate    ServiceItemParamType = "DATE"
+	ServiceItemParamTypeInteger ServiceItemParamType = "INTEGER"
+	ServiceItemParamTypeDecimal ServiceItemParamType = "DECIMAL"
 )
 
 type ServiceItemParamOrigin string

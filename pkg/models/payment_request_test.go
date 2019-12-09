@@ -30,7 +30,7 @@ func (suite *ModelSuite) TestPaymentRequestValidation() {
 
 	suite.T().Run("test invalid status for PaymentRequest", func(t *testing.T) {
 		invalidPaymentRequest := models.PaymentRequest{
-			Status: "Sleeping",
+			Status:      "Sleeping",
 			RequestedAt: time.Now(),
 		}
 		expErrors := map[string][]string{

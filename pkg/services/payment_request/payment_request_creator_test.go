@@ -10,8 +10,8 @@ import (
 func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 	paymentRequest := models.PaymentRequest{
-		IsFinal: false,
-		Status:  "PENDING",
+		IsFinal:     false,
+		Status:      "PENDING",
 		RequestedAt: time.Now(),
 	}
 
