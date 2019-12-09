@@ -16,7 +16,7 @@ import (
 
 // ShowPPMEstimateURL generates an URL for the show p p m estimate operation
 type ShowPPMEstimateURL struct {
-	DestinationZip       string
+	OrdersID             strfmt.UUID
 	OriginDutyStationZip string
 	OriginZip            string
 	OriginalMoveDate     strfmt.Date
@@ -56,9 +56,9 @@ func (o *ShowPPMEstimateURL) Build() (*url.URL, error) {
 
 	qs := make(url.Values)
 
-	destinationZipQ := o.DestinationZip
-	if destinationZipQ != "" {
-		qs.Set("destination_zip", destinationZipQ)
+	ordersIDQ := o.OrdersID.String()
+	if ordersIDQ != "" {
+		qs.Set("ordersId", ordersIDQ)
 	}
 
 	originDutyStationZipQ := o.OriginDutyStationZip
