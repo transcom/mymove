@@ -127,16 +127,19 @@ func (s *S3) PresignedURL(key string, contentType string) (string, error) {
 	//if cloudfront is enabled then generate url from cloudfront trusted signer otherwise use s3 signed url
 	if s.cfDistributionEnabled {
 		block, _ := pem.Decode([]byte(s.cfPrivateKey))
-		privKey, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
+		privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+		if err != nil {
+			return "", errors.Wrap(err, "could not parse key")
+		}
+
 		unSignedURL, err := url2.Parse(s.assetsDomainName)
 		if err != nil {
 			return "", errors.Wrap(err, "could not parse URL")
 		}
-
 		unSignedURL.Path = path.Join(unSignedURL.Path, namespacedKey)
 		rawURL := unSignedURL.String()
 
-		cfSigner := sign.NewURLSigner(s.cfPrivateKeyID, privKey)
+		cfSigner := sign.NewURLSigner(s.cfPrivateKeyID, privateKey)
 		url, err := cfSigner.Sign(rawURL, time.Now().Add(15*time.Minute))
 		if err != nil {
 			return "", errors.Wrap(err, "could not generate presigned URL")
