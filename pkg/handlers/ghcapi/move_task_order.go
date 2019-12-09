@@ -87,7 +87,7 @@ func payloadForMoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *ghcmessages.Mo
 	destinationAddress := payloadForAddress(&moveTaskOrder.DestinationAddress)
 	pickupAddress := payloadForAddress(&moveTaskOrder.PickupAddress)
 	entitlements := payloadForEntitlements(&moveTaskOrder.Entitlements)
-	contractor := payloadForContractor(&moveTaskOrder.Contractor)
+	contractor := payloadForContractor(moveTaskOrder.Contractor)
 	payload := &ghcmessages.MoveTaskOrder{
 		Contractor:             contractor,
 		CustomerID:             strfmt.UUID(moveTaskOrder.CustomerID.String()),

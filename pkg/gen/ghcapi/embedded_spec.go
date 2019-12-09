@@ -1287,6 +1287,27 @@ func init() {
         }
       }
     },
+    "Contractor": {
+      "properties": {
+        "contract_number": {
+          "type": "string",
+          "example": "HTC711-20-D-R030"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "name": {
+          "type": "string",
+          "example": "Contractor McContractor"
+        },
+        "type": {
+          "type": "string",
+          "example": "PRIME / NTS"
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -1464,6 +1485,9 @@ func init() {
         "code": {
           "type": "string",
           "example": "USMC-0001"
+        },
+        "contractor": {
+          "$ref": "#/definitions/Contractor"
         },
         "createdAt": {
           "type": "string",
@@ -3362,6 +3386,27 @@ func init() {
         }
       }
     },
+    "Contractor": {
+      "properties": {
+        "contract_number": {
+          "type": "string",
+          "example": "HTC711-20-D-R030"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "name": {
+          "type": "string",
+          "example": "Contractor McContractor"
+        },
+        "type": {
+          "type": "string",
+          "example": "PRIME / NTS"
+        }
+      }
+    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -3539,6 +3584,9 @@ func init() {
         "code": {
           "type": "string",
           "example": "USMC-0001"
+        },
+        "contractor": {
+          "$ref": "#/definitions/Contractor"
         },
         "createdAt": {
           "type": "string",

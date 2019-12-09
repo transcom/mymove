@@ -23,6 +23,9 @@ type MoveTaskOrder struct {
 	// code
 	Code string `json:"code,omitempty"`
 
+	// contractor
+	Contractor *Contractor `json:"contractor,omitempty"`
+
 	// created at
 	// Format: date
 	CreatedAt strfmt.Date `json:"createdAt,omitempty"`
@@ -102,6 +105,10 @@ type MoveTaskOrder struct {
 func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateContractor(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -177,6 +184,24 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MoveTaskOrder) validateContractor(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Contractor) { // not required
+		return nil
+	}
+
+	if m.Contractor != nil {
+		if err := m.Contractor.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("contractor")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 

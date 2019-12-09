@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"log"
 	"reflect"
 	"strconv"
 	"strings"
@@ -27,6 +26,7 @@ func (suite *ModelSuite) TestGenerateReferenceID() {
 }
 
 func (suite *ModelSuite) TestGenerateContractorID() {
+	// Different MTOs can have the same contractor
 	contractor := testdatagen.MakePrimeContractor(suite.DB(), testdatagen.Assertions{})
 	mto := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
@@ -35,12 +35,6 @@ func (suite *ModelSuite) TestGenerateContractorID() {
 			Contractor:   &contractor,
 		},
 	})
-	testdatagen.MakeServiceItem(suite.DB(), testdatagen.Assertions{
-		ServiceItem: models.ServiceItem{MoveTaskOrder: mto}},
-	)
-	testdatagen.MakeEntitlement(suite.DB(), testdatagen.Assertions{
-		GHCEntitlement: models.GHCEntitlement{MoveTaskOrder: &mto}},
-	)
 
 	testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
@@ -51,20 +45,17 @@ func (suite *ModelSuite) TestGenerateContractorID() {
 		},
 	})
 
-	mtoID := "1c030e51-b5be-40a2-80bf-97a330891308"
+	suite.Equal(&contractor.ID, mto.ContractorID)
 
+	// Able to generate a MTO without a contractor
+	mtoID := "1c030e51-b5be-40a2-80bf-97a330891308"
 	testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
 			ID:     uuid.FromStringOrNil(mtoID),
 			Status: models.MoveTaskOrderStatusDraft,
 		},
 	})
-
 	order := models.MoveTaskOrder{}
-
 	err := suite.DB().Find(&order, mtoID)
-	log.Println("Order Contractor", order.Contractor)
 	suite.NoError(err)
-
-	suite.Equal(&contractor.ID, mto.ContractorID)
 }

@@ -68,6 +68,8 @@ class CustomerDetails extends Component {
           <>
             <h2>Move Task Order</h2>
             <dl>
+              <dt>Contractor</dt>
+              <dd>{JSON.stringify(get(moveTaskOrder, 'contractor'))}</dd>
               <dt>Reference ID</dt>
               <dd>{get(moveTaskOrder, 'referenceId')}</dd>
               <dt>Origin Duty Station</dt>
