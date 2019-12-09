@@ -20,7 +20,7 @@ const (
 
 // InitCDNFlags initializes the Hosts command line flags
 func InitCDNFlags(flag *pflag.FlagSet) {
-	flag.String(AwsCfDomain, "", "Hostname according to environment.")
+	flag.String(AwsCfDomain, "assets.devlocal.move.mil", "Hostname according to environment.")
 	flag.String(CFPrivateKeyFlag, "", "Cloudfront private key")
 	flag.String(CFKeyIDFlag, "", "Cloudfront private key id")
 	flag.String(CDNBackendFlag, "s3", "CDN backend for serving files")
