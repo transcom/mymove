@@ -1,6 +1,7 @@
 package ghcapi
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -57,12 +58,26 @@ func (suite *HandlerSuite) TestListPaymentRequestsHandler() {
 
 		suite.IsType(&paymentrequestop.ListPaymentRequestsOK{}, response)
 		okResponse := response.(*paymentrequestop.ListPaymentRequestsOK)
-		suite.Len(okResponse.Payload, 3)
-		//suite.Equal(paymentRequestID1.String(), okResponse.Payload[0].ID.String())
+		suite.Equal(3, len(okResponse.Payload))
+		suite.Equal(paymentRequestID1.String(), okResponse.Payload[0].ID.String())
 	})
 
 	suite.T().Run("failed fetch of payment requests", func(t *testing.T) {
-		// to be implemented
-	})
+		paymentRequestListFetcher := &mocks.PaymentRequestListFetcher{}
+		paymentRequestListFetcher.On("FetchPaymentRequestList").Return(nil, errors.New("test failed to create with err returned")).Once()
 
+		req := httptest.NewRequest("GET", fmt.Sprintf("/payment_requests"), nil)
+
+		params := paymentrequestop.ListPaymentRequestsParams{
+			HTTPRequest: req,
+		}
+
+		handler := ListPaymentRequestsHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			paymentRequestListFetcher,
+		}
+		response := handler.Handle(params)
+
+		suite.IsType(&paymentrequestop.ListPaymentRequestsInternalServerError{}, response)
+	})
 }

@@ -1,9 +1,10 @@
 package ghcapi
 
 import (
-	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"log"
 	"net/http"
+
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 
 	"github.com/go-openapi/loads"
 
