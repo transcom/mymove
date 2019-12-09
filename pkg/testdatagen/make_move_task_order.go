@@ -3,6 +3,8 @@ package testdatagen
 import (
 	"time"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -23,6 +25,12 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 	}
 
 	contractor := assertions.MoveTaskOrder.Contractor
+	var contractorID *uuid.UUID
+	if contractor == nil || isZeroUUID(contractor.ID) {
+		contractorID = nil
+	} else {
+		contractorID = &contractor.ID
+	}
 
 	pickupAddress := assertions.MoveTaskOrder.PickupAddress
 	if isZeroUUID(pickupAddress.ID) {
@@ -45,7 +53,7 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 	moveTaskOrder := models.MoveTaskOrder{
 		MoveID:                   move.ID,
 		Contractor:               contractor,
-		ContractorID:             &contractor.ID,
+		ContractorID:             contractorID,
 		CustomerID:               sm.ID,
 		Customer:                 sm,
 		OriginDutyStationID:      sm.DutyStation.ID,
