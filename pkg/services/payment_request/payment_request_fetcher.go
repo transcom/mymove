@@ -18,11 +18,10 @@ func NewPaymentRequestFetcher(db *pop.Connection) services.PaymentRequestFetcher
 	return &paymentRequestFetcher{db}
 }
 
-func (p *paymentRequestFetcher) FetchPaymentRequest() (*models.PaymentRequest, *validate.Errors, error) {
+func (p *paymentRequestFetcher) FetchPaymentRequest(paymentRequestID uuid.UUID) (*models.PaymentRequest, *validate.Errors, error) {
 	// A mock payment request. This is temporary and will be replaced with real data eventually.
-	uuid, _ := uuid.NewV4()
 	mockPaymentRequest := models.PaymentRequest{
-		ID:              uuid,
+		ID:              paymentRequestID,
 		IsFinal:         false,
 		RejectionReason: "",
 		CreatedAt:       testdatagen.PeakRateCycleStart,
