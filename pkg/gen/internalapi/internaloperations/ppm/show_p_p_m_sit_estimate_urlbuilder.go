@@ -63,7 +63,7 @@ func (o *ShowPPMSitEstimateURL) Build() (*url.URL, error) {
 
 	ordersIDQ := o.OrdersID.String()
 	if ordersIDQ != "" {
-		qs.Set("ordersId", ordersIDQ)
+		qs.Set("orders_id", ordersIDQ)
 	}
 
 	originZipQ := o.OriginZip

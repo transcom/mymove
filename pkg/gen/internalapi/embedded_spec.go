@@ -617,7 +617,7 @@ func init() {
           {
             "type": "string",
             "format": "uuid",
-            "name": "ordersId",
+            "name": "orders_id",
             "in": "query",
             "required": true
           },
@@ -689,7 +689,7 @@ func init() {
           {
             "type": "string",
             "format": "uuid",
-            "name": "ordersId",
+            "name": "orders_id",
             "in": "query",
             "required": true
           },
@@ -6419,7 +6419,7 @@ func init() {
           {
             "type": "string",
             "format": "uuid",
-            "name": "ordersId",
+            "name": "orders_id",
             "in": "query",
             "required": true
           },
@@ -6491,7 +6491,7 @@ func init() {
           {
             "type": "string",
             "format": "uuid",
-            "name": "ordersId",
+            "name": "orders_id",
             "in": "query",
             "required": true
           },

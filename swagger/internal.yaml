@@ -2421,7 +2421,7 @@ paths:
           pattern: '^(\d{5}([\-]\d{4})?)$'
           required: true
         - in: query
-          name: ordersId
+          name: orders_id
           type: string
           format: uuid
           required: true
@@ -2470,7 +2470,7 @@ paths:
           pattern: '^(\d{5}([\-]\d{4})?)$'
           required: true
         - in: query
-          name: ordersId
+          name: orders_id
           type: string
           format: uuid
           required: true

@@ -77,7 +77,7 @@ func (o *ShowPPMSitEstimateParams) BindRequest(r *http.Request, route *middlewar
 		res = append(res, err)
 	}
 
-	qOrdersID, qhkOrdersID, _ := qs.GetOK("ordersId")
+	qOrdersID, qhkOrdersID, _ := qs.GetOK("orders_id")
 	if err := o.bindOrdersID(qOrdersID, qhkOrdersID, route.Formats); err != nil {
 		res = append(res, err)
 	}
@@ -131,7 +131,7 @@ func (o *ShowPPMSitEstimateParams) bindDaysInStorage(rawData []string, hasKey bo
 // bindOrdersID binds and validates parameter OrdersID from query.
 func (o *ShowPPMSitEstimateParams) bindOrdersID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
-		return errors.Required("ordersId", "query")
+		return errors.Required("orders_id", "query")
 	}
 	var raw string
 	if len(rawData) > 0 {
@@ -140,14 +140,14 @@ func (o *ShowPPMSitEstimateParams) bindOrdersID(rawData []string, hasKey bool, f
 
 	// Required: true
 	// AllowEmptyValue: false
-	if err := validate.RequiredString("ordersId", "query", raw); err != nil {
+	if err := validate.RequiredString("orders_id", "query", raw); err != nil {
 		return err
 	}
 
 	// Format: uuid
 	value, err := formats.Parse("uuid", raw)
 	if err != nil {
-		return errors.InvalidType("ordersId", "query", "strfmt.UUID", raw)
+		return errors.InvalidType("orders_id", "query", "strfmt.UUID", raw)
 	}
 	o.OrdersID = *(value.(*strfmt.UUID))
 
@@ -161,7 +161,7 @@ func (o *ShowPPMSitEstimateParams) bindOrdersID(rawData []string, hasKey bool, f
 // validateOrdersID carries on validations for parameter OrdersID
 func (o *ShowPPMSitEstimateParams) validateOrdersID(formats strfmt.Registry) error {
 
-	if err := validate.FormatOf("ordersId", "query", "uuid", o.OrdersID.String(), formats); err != nil {
+	if err := validate.FormatOf("orders_id", "query", "uuid", o.OrdersID.String(), formats); err != nil {
 		return err
 	}
 	return nil
