@@ -50,13 +50,13 @@ export async function GetPpmWeightEstimate(moveDate, originZip, originDutyStatio
   return response.body;
 }
 
-export async function GetPpmSitEstimate(moveDate, sitDays, originZip, destZip, weightEstimate) {
+export async function GetPpmSitEstimate(moveDate, sitDays, originZip, ordersID, weightEstimate) {
   const client = await getClient();
   const response = await client.apis.ppm.showPPMSitEstimate({
     original_move_date: formatDateString(moveDate),
     days_in_storage: sitDays,
     origin_zip: originZip,
-    destination_zip: destZip,
+    orders_id: ordersID,
     weight_estimate: weightEstimate,
   });
   checkResponse(response, 'failed to update ppm due to server error');
