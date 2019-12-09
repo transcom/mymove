@@ -92,17 +92,11 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 		advance = &a
 	}
 
-	order, err := models.FetchOrder(h.DB(), move.OrdersID)
+	destinationZip, err := GetDestionDutyStationPostalCode(h.DB(), move.OrdersID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	newDutyStationAdd, err := models.FetchDutyStation(h.DB(), order.NewDutyStationID)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
-
-	destDutyStationPostalCode := newDutyStationAdd.Address.PostalCode
 	newPPM, verrs, err := move.CreatePPM(h.DB(),
 		payload.Size,
 		handlers.PoundPtrFromInt64Ptr(payload.WeightEstimate),
@@ -110,7 +104,7 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 		payload.PickupPostalCode,
 		payload.HasAdditionalPostalCode,
 		payload.AdditionalPickupPostalCode,
-		&destDutyStationPostalCode,
+		&destinationZip,
 		payload.HasSit,
 		payload.DaysInStorage,
 		payload.EstimatedStorageReimbursement,
