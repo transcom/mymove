@@ -17,3 +17,8 @@ type PaymentRequestCreator interface {
 type PaymentRequestListFetcher interface {
 	FetchPaymentRequestList() (*models.PaymentRequests, error)
 }
+
+// PaymentRequestFetcher is the exported interface for fetching a payment request
+type PaymentRequestFetcher interface {
+	FetchPaymentRequest() (*models.PaymentRequest, *validate.Errors, error)
+}

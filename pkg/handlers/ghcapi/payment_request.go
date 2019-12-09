@@ -16,7 +16,7 @@ func payloadForPaymentRequestModel(pr models.PaymentRequest) *ghcmessages.Paymen
 	return &ghcmessages.PaymentRequest{
 		ID:              *handlers.FmtUUID(pr.ID),
 		IsFinal:         &pr.IsFinal,
-		RejectionReason: pr.RejectionReason,
+		RejectionReason: &pr.RejectionReason,
 	}
 }
 
@@ -41,4 +41,18 @@ func (h ListPaymentRequestsHandler) Handle(params paymentrequestop.ListPaymentRe
 	}
 
 	return paymentrequestop.NewListPaymentRequestsOK().WithPayload(paymentRequestsList)
+}
+
+type ShowPaymentRequestHandler struct {
+	handlers.HandlerContext
+	services.PaymentRequestFetcher
+}
+
+func (h ShowPaymentRequestHandler) Handle(params paymentrequestop.GetPaymentRequestParams) middleware.Responder {
+	paymentRequest, _, _ := h.FetchPaymentRequest()
+
+	returnPayload := payloadForPaymentRequestModel(*paymentRequest)
+	response := paymentrequestop.NewGetPaymentRequestOK().WithPayload(returnPayload)
+
+	return response
 }
