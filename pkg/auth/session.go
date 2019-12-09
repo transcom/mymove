@@ -38,17 +38,6 @@ func (s *Session) IsAdminApp() bool {
 	return s.ApplicationName == AdminApp
 }
 
-// Role defines a role for a user
-type Role string
-
-const (
-	RoleTIO                Role = "tio"
-	RoleTOO                Role = "too"
-	RoleContractingOfficer Role = "contractingOfficer"
-	RoleOffice             Role = "office"
-	RoleCustomer           Role = "customer"
-)
-
 // Session stores information about the currently logged in session
 type Session struct {
 	ApplicationName Application
@@ -64,7 +53,7 @@ type Session struct {
 	AdminUserID     uuid.UUID
 	AdminUserRole   string
 	DpsUserID       uuid.UUID
-	Roles           []Role
+	Roles           []string
 }
 
 // SetSessionInRequestContext modifies the request's Context() to add the session data

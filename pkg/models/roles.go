@@ -8,10 +8,21 @@ import (
 	"github.com/gobuffalo/validate/validators"
 )
 
+// RoleType defines a role type for a user
+type RoleType string
+
+const (
+	RoleTypeTio                RoleType = "tio"
+	RoleTypeToo                RoleType = "too"
+	RoleTypeContractingOfficer RoleType = "contractingOfficer"
+	RoleTypeOffice             RoleType = "office"
+	RoleTypeCustomer           RoleType = "customer"
+)
+
 // Role is an object representing the types of users who can authenticate in the admin app
 type Role struct {
 	ID        int       `json:"id" db:"id"`
-	RoleType  string    `json:"role_type" db:"role_type"`
+	RoleType  RoleType  `json:"role_type" db:"role_type"`
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }

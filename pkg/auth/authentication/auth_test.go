@@ -11,11 +11,14 @@ import (
 
 	"github.com/markbates/goth"
 
-	"github.com/transcom/mymove/pkg/testdatagen"
-
+	middleware "github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/testdatagen"
+
+	"github.com/transcom/mymove/pkg/auth/authentication/mocks"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
@@ -761,4 +764,38 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 	// Office app, so should only have office ID information
 	suite.Equal(adminUser.ID, session.AdminUserID)
 	suite.Equal(uuid.Nil, session.OfficeUserID)
+}
+
+func (suite *AuthSuite) TestRoleAuthMiddleware() {
+	// Given: a logged in user
+	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	user := models.User{
+		LoginGovUUID:  loginGovUUID,
+		LoginGovEmail: "email@example.com",
+		Active:        true,
+	}
+	suite.MustSave(&user)
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/logged_in", nil)
+
+	// And: the context contains the auth values
+	//roles := []string{string(models.RoleTypeContractingOfficer)}
+	session := auth.Session{UserID: user.ID, IDToken: "fake Token"}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	req = req.WithContext(ctx)
+
+	var handlerSession *auth.Session
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handlerSession = auth.SessionFromRequestContext(r)
+	})
+	apiContext := &mocks.APIContext{}
+	apiContext.On("Context").Return(&middleware.Context{})
+	middleware := RoleAuthMiddleware(suite.logger)(apiContext)(handler)
+
+	middleware.ServeHTTP(rr, req)
+
+	// We should be not be redirected since we're logged in
+	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
+	suite.Equal(handlerSession.UserID, user.ID, "the authenticated user is different from expected")
 }

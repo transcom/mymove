@@ -77,6 +77,7 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	}
 }
 
+//go:generate mockery -name APIContext
 type APIContext interface {
 	Context() *middleware.Context
 }
