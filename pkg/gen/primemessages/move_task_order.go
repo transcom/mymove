@@ -22,6 +22,9 @@ type MoveTaskOrder struct {
 	// code
 	Code string `json:"code,omitempty"`
 
+	// contract number
+	ContractNumber string `json:"contract_number,omitempty"`
+
 	// created at
 	// Format: date
 	CreatedAt strfmt.Date `json:"createdAt,omitempty"`

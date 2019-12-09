@@ -958,6 +958,10 @@ func init() {
           "type": "string",
           "example": "USMC-0001"
         },
+        "contract_number": {
+          "type": "string",
+          "example": "HTC111-11-1-1111"
+        },
         "createdAt": {
           "type": "string",
           "format": "date"
@@ -2277,6 +2281,10 @@ func init() {
         "code": {
           "type": "string",
           "example": "USMC-0001"
+        },
+        "contract_number": {
+          "type": "string",
+          "example": "HTC111-11-1-1111"
         },
         "createdAt": {
           "type": "string",
