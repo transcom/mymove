@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import RangeSlider, { CalculateSliderPositions } from '.';
+import RangeSlider, { calculateSliderPositions } from '.';
 
 const onChangeMock = () => {};
 
@@ -14,11 +14,12 @@ it('renders without crashing', () => {
 });
 
 it('calculateSliderPositions returns proper value', () => {
-  let calculations = CalculateSliderPositions(1007, 20, 500, 0, 10000, 500);
+  const calculations = calculateSliderPositions(1007, 20, 500, 0, 10000, 500);
   expect(calculations.isTooltipWithinBufferSpaceBoundary).toBe(true);
   expect(calculations.tooltipLeftMargin).toBe('43px');
+});
 
-  // situation where it should return false for isToolTipWithinBufferSpaceBoundary
-  calculations = CalculateSliderPositions(1007, 20, 10000, 0, 10000, 500);
+it('calculateSliderPositions identifies when the buffer space is outside the proper boundary', () => {
+  const calculations = calculateSliderPositions(1007, 20, 10000, 0, 10000, 500);
   expect(calculations.isTooltipWithinBufferSpaceBoundary).toBe(false);
 });

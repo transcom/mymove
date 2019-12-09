@@ -5,7 +5,7 @@ import { detectIE11 } from '../utils';
 
 const toolTipEOLBufferPercentageModifier = 0.01;
 
-const CalculateSliderPositions = (sliderOffset, tooltipWidth, numValue, min, max, step) => {
+const calculateSliderPositions = (sliderOffset, tooltipWidth, numValue, min, max, step) => {
   let ticks = numValue / step;
   let possibleTicks = max / step - 1;
   let pxPerTick = sliderOffset / possibleTicks;
@@ -23,18 +23,15 @@ const CalculateSliderPositions = (sliderOffset, tooltipWidth, numValue, min, max
       sliderOffset + halfToolTipWidth - sliderOffset * toolTipEOLBufferPercentageModifier &&
     leftMarginInPx > halfToolTipWidth;
 
-  return {
-    isTooltipWithinBufferSpaceBoundary: isTooltipWithinBufferSpaceBoundary,
-    tooltipLeftMargin: tooltipLeftMargin,
-  };
+  return { isTooltipWithinBufferSpaceBoundary, tooltipLeftMargin };
 };
 
 class RangeSlider extends Component {
   onInput = event => {
-    let output = document.getElementById('output-' + this.props.id);
-    let slider = document.getElementById(this.props.id);
+    const output = document.getElementById('output-' + this.props.id);
+    const slider = document.getElementById(this.props.id);
 
-    let calculations = CalculateSliderPositions(
+    const calculations = calculateSliderPositions(
       slider.offsetWidth,
       output.offsetWidth,
       event.target.valueAsNumber,
@@ -102,4 +99,4 @@ RangeSlider.propTypes = {
 };
 
 export default RangeSlider;
-export { CalculateSliderPositions };
+export { calculateSliderPositions };
