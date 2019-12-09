@@ -11,13 +11,8 @@ import (
 )
 
 type ServiceItemParamType string
-type ServiceItemParamOrigin string
 
 func (s ServiceItemParamType) String() string {
-	return string(s)
-}
-
-func (s ServiceItemParamOrigin) String() string {
 	return string(s)
 }
 
@@ -26,6 +21,15 @@ const (
 	ServiceItemParamTypeDate     ServiceItemParamType   = "DATE"
 	ServiceItemParamTypeInteger  ServiceItemParamType   = "INTEGER"
 	ServiceItemParamTypeDecimal  ServiceItemParamType   = "DECIMAL"
+)
+
+type ServiceItemParamOrigin string
+
+func (s ServiceItemParamOrigin) String() string {
+	return string(s)
+}
+
+const (
 	ServiceItemParamOriginPrime  ServiceItemParamOrigin = "PRIME"
 	ServiceItemParamOriginSystem ServiceItemParamOrigin = "SYSTEM"
 )

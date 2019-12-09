@@ -28,7 +28,7 @@ func (suite *ModelSuite) TestPaymentServiceItemValidation() {
 
 		expErrors := map[string][]string{
 			"payment_request_id": {"PaymentRequestID can not be blank."},
-			"status":             {"Status can not be blank.", "Status is not in the list [REQUESTED, APPROVED, DENIED, SENT_TO_GEX, PAID]."},
+			"status":             {"Status is not in the list [REQUESTED, APPROVED, DENIED, SENT_TO_GEX, PAID]."},
 			"requested_at":       {"RequestedAt can not be blank."},
 			"price_cents":        {"PriceCents can not be blank.", "0 is not greater than 0."},
 		}

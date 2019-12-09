@@ -34,14 +34,15 @@ var validPaymentRequestStatus = []string{
 type PaymentRequest struct {
 	ID              uuid.UUID            `json:"id" db:"id"`
 	IsFinal         bool                 `json:"is_final" db:"is_final"`
-	MoveTaskOrderID uuid.UUID            `json:"move_task_order_id" db:"move_task_order_id"`
+	//MoveTaskOrderID is temporarily nullable. Once the move_task_orders table is implemented, this will be a NOT NULL column.
+	MoveTaskOrderID *uuid.UUID            `json:"move_task_order_id" db:"move_task_order_id"`
 	Status          PaymentRequestStatus `json:"status" db:"status"`
-	RejectionReason string               `json:"rejection_reason" db:"rejection_reason"`
+	RejectionReason *string               `json:"rejection_reason" db:"rejection_reason"`
 	RequestedAt     time.Time            `json:"requested_at" db:"requested_at"`
-	ReviewedAt      time.Time            `json:"reviewed_at" db:"reviewed_at"`
-	SentToGexAt     time.Time            `json:"sent_to_gex_at" db:"sent_to_gex_at"`
-	ReceivedByGexAt time.Time            `json:"received_by_gex_at" db:"received_by_gex_at"`
-	PaidAt          time.Time            `json:"paid_at" db:"paid_at"`
+	ReviewedAt      *time.Time            `json:"reviewed_at" db:"reviewed_at"`
+	SentToGexAt     *time.Time            `json:"sent_to_gex_at" db:"sent_to_gex_at"`
+	ReceivedByGexAt *time.Time            `json:"received_by_gex_at" db:"received_by_gex_at"`
+	PaidAt          *time.Time            `json:"paid_at" db:"paid_at"`
 	CreatedAt       time.Time            `db:"created_at"`
 	UpdatedAt       time.Time            `db:"updated_at"`
 }
@@ -53,5 +54,6 @@ type PaymentRequests []PaymentRequest
 func (p *PaymentRequest) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringInclusion{Field: p.Status.String(), Name: "Status", List: validPaymentRequestStatus},
+		&validators.TimeIsPresent{Field: p.RequestedAt, Name: "RequestedAt"},
 	), nil
 }

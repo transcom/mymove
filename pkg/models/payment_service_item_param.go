@@ -18,8 +18,8 @@ type PaymentServiceItemParam struct {
 	UpdatedAt             time.Time `db:"updated_at"`
 
 	//Associations
-	PaymentServiceItem  PaymentServiceItem  `belongs_to:"payment_service_items"`
-	ServiceItemParamKey ServiceItemParamKey `belongs_to:"service_item_param_keys"`
+	PaymentServiceItem  PaymentServiceItem  `belongs_to:"payment_service_item"`
+	ServiceItemParamKey ServiceItemParamKey `belongs_to:"service_item_param_key"`
 }
 
 // PaymentServiceItemParams is not required by pop and may be deleted

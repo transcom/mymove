@@ -17,8 +17,8 @@ type ServiceParam struct {
 	UpdatedAt             time.Time `db:"updated_at"`
 
 	//Associations
-	Service             ReServices          `belongs_to:"re_services"`
-	ServiceItemParamKey ServiceItemParamKey `belongs_to:"service_item_param_keys"`
+	Service             ReServices          `belongs_to:"re_service"`
+	ServiceItemParamKey ServiceItemParamKey `belongs_to:"service_item_param_key"`
 }
 
 // ServiceParams is not required by pop and may be deleted
