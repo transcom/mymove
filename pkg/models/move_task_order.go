@@ -49,15 +49,15 @@ func generateReferenceID(tx *pop.Connection) (string, error) {
 	return newReferenceID, nil
 }
 
-func GenerateReferenceID(tx *pop.Connection) (*string, error) {
+func GenerateReferenceID(tx *pop.Connection) (string, error) {
 	const maxAttempts = 10
 	var referenceID string
 	var err error
 	for i := 0; i < maxAttempts; i++ {
 		referenceID, err = generateReferenceID(tx)
 		if err == nil {
-			return &referenceID, nil
+			return referenceID, nil
 		}
 	}
-	return nil, errors.New("move_task_order: failed to generate reference id")
+	return "", errors.New("move_task_order: failed to generate reference id")
 }

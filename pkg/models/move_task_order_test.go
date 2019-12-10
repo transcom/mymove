@@ -24,7 +24,7 @@ func (suite *ModelSuite) TestMoveTaskOrderValidation() {
 func (suite *ModelSuite) TestGenerateReferenceID() {
 	r, err := models.GenerateReferenceID(suite.DB())
 	suite.NotNil(r)
-	referenceID := *r
+	referenceID := r
 	suite.NoError(err)
 	firstNum, _ := strconv.Atoi(strings.Split(referenceID, "-")[0])
 	secondNum, _ := strconv.Atoi(strings.Split(referenceID, "-")[1])
