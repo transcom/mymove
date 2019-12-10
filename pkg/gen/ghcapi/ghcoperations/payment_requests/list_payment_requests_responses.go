@@ -25,7 +25,7 @@ type ListPaymentRequestsOK struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload ghcmessages.PaymentRequests `json:"body,omitempty"`
 }
 
 // NewListPaymentRequestsOK creates ListPaymentRequestsOK with default headers values
@@ -35,13 +35,13 @@ func NewListPaymentRequestsOK() *ListPaymentRequestsOK {
 }
 
 // WithPayload adds the payload to the list payment requests o k response
-func (o *ListPaymentRequestsOK) WithPayload(payload interface{}) *ListPaymentRequestsOK {
+func (o *ListPaymentRequestsOK) WithPayload(payload ghcmessages.PaymentRequests) *ListPaymentRequestsOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the list payment requests o k response
-func (o *ListPaymentRequestsOK) SetPayload(payload interface{}) {
+func (o *ListPaymentRequestsOK) SetPayload(payload ghcmessages.PaymentRequests) {
 	o.Payload = payload
 }
 
@@ -50,52 +50,13 @@ func (o *ListPaymentRequestsOK) WriteResponse(rw http.ResponseWriter, producer r
 
 	rw.WriteHeader(200)
 	payload := o.Payload
+	if payload == nil {
+		// return empty array
+		payload = ghcmessages.PaymentRequests{}
+	}
+
 	if err := producer.Produce(rw, payload); err != nil {
 		panic(err) // let the recovery middleware deal with this
-	}
-}
-
-// ListPaymentRequestsBadRequestCode is the HTTP code returned for type ListPaymentRequestsBadRequest
-const ListPaymentRequestsBadRequestCode int = 400
-
-/*ListPaymentRequestsBadRequest The request payload is invalid
-
-swagger:response listPaymentRequestsBadRequest
-*/
-type ListPaymentRequestsBadRequest struct {
-
-	/*
-	  In: Body
-	*/
-	Payload *ghcmessages.Error `json:"body,omitempty"`
-}
-
-// NewListPaymentRequestsBadRequest creates ListPaymentRequestsBadRequest with default headers values
-func NewListPaymentRequestsBadRequest() *ListPaymentRequestsBadRequest {
-
-	return &ListPaymentRequestsBadRequest{}
-}
-
-// WithPayload adds the payload to the list payment requests bad request response
-func (o *ListPaymentRequestsBadRequest) WithPayload(payload *ghcmessages.Error) *ListPaymentRequestsBadRequest {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the list payment requests bad request response
-func (o *ListPaymentRequestsBadRequest) SetPayload(payload *ghcmessages.Error) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *ListPaymentRequestsBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(400)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
 	}
 }
 
@@ -179,50 +140,6 @@ func (o *ListPaymentRequestsForbidden) SetPayload(payload *ghcmessages.Error) {
 func (o *ListPaymentRequestsForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(403)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
-	}
-}
-
-// ListPaymentRequestsNotFoundCode is the HTTP code returned for type ListPaymentRequestsNotFound
-const ListPaymentRequestsNotFoundCode int = 404
-
-/*ListPaymentRequestsNotFound The requested resource wasn't found
-
-swagger:response listPaymentRequestsNotFound
-*/
-type ListPaymentRequestsNotFound struct {
-
-	/*
-	  In: Body
-	*/
-	Payload *ghcmessages.Error `json:"body,omitempty"`
-}
-
-// NewListPaymentRequestsNotFound creates ListPaymentRequestsNotFound with default headers values
-func NewListPaymentRequestsNotFound() *ListPaymentRequestsNotFound {
-
-	return &ListPaymentRequestsNotFound{}
-}
-
-// WithPayload adds the payload to the list payment requests not found response
-func (o *ListPaymentRequestsNotFound) WithPayload(payload *ghcmessages.Error) *ListPaymentRequestsNotFound {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the list payment requests not found response
-func (o *ListPaymentRequestsNotFound) SetPayload(payload *ghcmessages.Error) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *ListPaymentRequestsNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(404)
 	if o.Payload != nil {
 		payload := o.Payload
 		if err := producer.Produce(rw, payload); err != nil {
