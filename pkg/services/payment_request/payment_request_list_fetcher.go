@@ -1,7 +1,10 @@
 package paymentrequest
 
 import (
+	"fmt"
+
 	"github.com/gobuffalo/pop"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/services"
 
@@ -21,7 +24,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList() (*models.PaymentRe
 
 	err := f.db.All(&paymentRequests)
 	if err != nil {
-		return &paymentRequests, err
+		return nil, errors.Wrap(err, fmt.Sprintf("Failure fetching payment requests"))
 	}
 
 	return &paymentRequests, err
