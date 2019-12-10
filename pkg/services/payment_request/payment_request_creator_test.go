@@ -15,6 +15,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	paymentRequest := models.PaymentRequest{
 		MoveTaskOrderID: moveTaskOrder.ID,
 		IsFinal:         false,
+		Status:          "PENDING",
 	}
 
 	creator := NewPaymentRequestCreator(suite.DB())
