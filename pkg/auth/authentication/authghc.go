@@ -94,13 +94,18 @@ func (uua UnknownUserAuthorizer) AuthorizeUnknownUser(openIDUser goth.User, sess
 	}
 	if session.IsOfficeApp() {
 		session.OfficeUserID, err = uua.AssociateOfficeUser(user)
-		if err == ErrUnauthorized {
-			// TODO for the moment treat all new office users as TOOs and redirect those not in
-			// TODO transportation_ordering_officers table to the verification in progress page
-			// TODO and don't log them in
-			_, tooErr := uua.AssociateTOOUser(user)
-			if tooErr != nil {
-				return tooErr
+		if err != nil {
+			switch err {
+			case ErrUnauthorized:
+				// TODO for the moment treat all new office users as TOOs and redirect those not in
+				// TODO transportation_ordering_officers table to the verification in progress page
+				// TODO and don't log them in
+				_, tooErr := uua.AssociateTOOUser(user)
+				if tooErr != nil {
+					return tooErr
+				}
+			default:
+				return err
 			}
 		}
 	}

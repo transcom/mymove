@@ -610,7 +610,12 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
 
 	authorizeUnknownUser(user, h, &session, rr, req.WithContext(ctx), "")
 
-	suite.Equal(http.StatusUnauthorized, rr.Code, "Office user not found")
+	if *useNewAuth {
+		suite.Equal(http.StatusTemporaryRedirect, rr.Code, "Office user not found")
+	} else {
+		suite.Equal(http.StatusUnauthorized, rr.Code, "Office user not found")
+	}
+
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
