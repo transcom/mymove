@@ -398,6 +398,7 @@
 20191204170511_remove-old-tables.up.sql
 20191204200540_create_and_populate_roles_table.up.sql
 20191204223817_alter_payment_requests.up.sql
+20191204231026_add_user_id_to_customers.up.sql
 20191205000048_create_proof_of_service_docs.up.sql
 20191205000636_create_payment_service_items.up.sql
 20191205000702_create_service_item_param_keys.up.sql
