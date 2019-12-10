@@ -63,13 +63,8 @@ func (suite *AuthSuite) TestCreateTOO() {
 
 func (suite *AuthSuite) TestCreateAndAssociateCustomer() {
 	user := testdatagen.MakeDefaultUser(suite.DB())
-	session := auth.Session{
-		ApplicationName: auth.MilApp,
-		UserID:          user.ID,
-		Hostname:        MilTestHost,
-	}
 	ra := customerAssociator{suite.DB(), suite.logger}
-	err := ra.CreateAndAssociateCustomer(session.UserID)
+	err := ra.CreateAndAssociateCustomer(user.ID)
 	suite.NoError(err)
 	c, err := suite.DB().Count(models.Customer{})
 	suite.NoError(err)
@@ -151,12 +146,17 @@ func (suite *AuthSuite) TestAuthorizeUnknownUser() {
 	uua := NewUnknownUserAuthorizer(suite.DB(), suite.logger)
 	session := auth.Session{ApplicationName: auth.MilApp}
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
-	user := goth.User{
+	loginGovUser := goth.User{
 		UserID: fakeUUID.String(),
 		Email:  "sample@email.com",
 	}
-	err := uua.AuthorizeUnknownUser(user, &session)
+	err := uua.AuthorizeUnknownUser(loginGovUser, &session)
 	suite.NoError(err)
+
+	user := &models.User{}
+	err = suite.DB().Where("login_gov_uuid = $1", loginGovUser.UserID).First(user)
+	suite.NoError(err)
+	suite.Equal(user.ID, session.UserID)
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserCreateUserFails() {
@@ -200,7 +200,8 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserIsSystemAdmin() {
 		CustomerCreatorAndAssociator: cca,
 	}
 	uc := &mocks.UserCreator{}
-	uc.On("CreateUser", mock.Anything, mock.Anything).Return(&models.User{}, nil)
+	uid, _ := uuid.NewV4()
+	uc.On("CreateUser", mock.Anything, mock.Anything).Return(&models.User{ID: uid}, nil)
 	uua := UnknownUserAuthorizer{
 		logger:         suite.logger,
 		UserCreator:    uc,
@@ -216,6 +217,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserIsSystemAdmin() {
 
 	suite.NoError(err)
 	aa.AssertNumberOfCalls(suite.T(), "AssociateAdminUser", 1)
+	suite.NotEqual(uuid.Nil, session.UserID)
 	suite.Equal(fakeUUID, session.AdminUserID)
 }
 
@@ -233,7 +235,8 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserIsOfficeUser() {
 		CustomerCreatorAndAssociator: cca,
 	}
 	uc := &mocks.UserCreator{}
-	uc.On("CreateUser", mock.Anything, mock.Anything).Return(&models.User{}, nil)
+	uid, _ := uuid.NewV4()
+	uc.On("CreateUser", mock.Anything, mock.Anything).Return(&models.User{ID: uid}, nil)
 	uua := UnknownUserAuthorizer{
 		logger:         suite.logger,
 		UserCreator:    uc,
@@ -251,6 +254,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserIsOfficeUser() {
 	suite.NoError(err)
 	oa.AssertNumberOfCalls(suite.T(), "AssociateOfficeUser", 1)
 	suite.Equal(fakeUUID, session.OfficeUserID)
+	suite.NotEqual(uuid.Nil, session.UserID)
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserIsCustomer() {

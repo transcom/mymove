@@ -134,7 +134,6 @@ type officeUserAssociator struct {
 	logger Logger
 }
 
-//TODO make idempotent
 func (oua officeUserAssociator) AssociateOfficeUser(user *models.User) (uuid.UUID, error) {
 	officeUser, err := oua.FetchOfficeUser(user.LoginGovEmail)
 	if err == models.ErrFetchNotFound {
@@ -170,7 +169,6 @@ type adminUserAssociator struct {
 	logger Logger
 }
 
-//TODO make idempotent
 func (aua adminUserAssociator) AssociateAdminUser(user *models.User) (uuid.UUID, error) {
 	adminUser, err := aua.FetchAdminUser(user.LoginGovEmail)
 	if err != nil {
