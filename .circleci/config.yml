@@ -826,7 +826,7 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: rd-cloudfront-trusted-signer
 
       - deploy_experimental_tasks:
           requires:
