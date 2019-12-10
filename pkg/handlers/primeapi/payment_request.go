@@ -16,7 +16,7 @@ func payloadForPaymentRequestModel(pr models.PaymentRequest) *primemessages.Paym
 	return &primemessages.PaymentRequest{
 		ID:              *handlers.FmtUUID(pr.ID),
 		IsFinal:         &pr.IsFinal,
-		RejectionReason: &pr.RejectionReason,
+		RejectionReason: pr.RejectionReason,
 	}
 }
 

@@ -16,6 +16,7 @@ import RadioButton from 'shared/RadioButton';
 import 'react-rangeslider/lib/index.css';
 import styles from './Weight.module.scss';
 import { withContext } from 'shared/AppContext';
+import RangeSlider from 'shared/RangeSlider';
 
 const WeightWizardForm = reduxifyWizardForm('weight-wizard-form');
 
@@ -24,7 +25,7 @@ export class PpmWeight extends Component {
     super(props);
 
     this.state = {
-      pendingPpmWeight: null,
+      pendingPpmWeight: 0,
     };
 
     this.onWeightSelected = this.onWeightSelected.bind(this);
@@ -181,19 +182,19 @@ export class PpmWeight extends Component {
           <div className="grid-container usa-prose">
             <h3>How much do you think you'll move?</h3>
             <p>Your weight entitlement: {this.props.entitlement.weight.toLocaleString()} lbs</p>
-            <div className={styles['progear-slider-container']}>
-              <Slider
-                min={0}
+            <div>
+              <RangeSlider
+                id="progear-estimation-slider"
                 max={this.props.entitlement.weight}
-                value={this.state.pendingPpmWeight}
-                onChange={this.onWeightSelecting}
-                onChangeComplete={this.onWeightSelected}
                 step={500}
-                labels={{
-                  0: `${0} lbs`,
-                  [this.props.entitlement.weight]: `${this.props.entitlement.weight.toLocaleString()} lbs`,
-                }}
+                min={0}
+                defaultValue={500}
+                prependTooltipText="about"
+                appendTooltipText="lbs"
+                stateChangeFunc={this.onWeightSelecting}
+                onChange={this.onWeightSelected}
               />
+
               {hasEstimateError && (
                 <Fragment>
                   <div className="error-message">
