@@ -21,5 +21,5 @@ type PaymentRequestListFetcher interface {
 
 // PaymentRequestFetcher is the exported interface for fetching a payment request
 type PaymentRequestFetcher interface {
-	FetchPaymentRequest(paymentRequestID uuid.UUID) (*models.PaymentRequest, *validate.Errors, error)
+	FetchPaymentRequest(paymentRequestID uuid.UUID) (*models.PaymentRequest, error)
 }

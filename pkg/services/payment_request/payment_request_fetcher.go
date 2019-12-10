@@ -3,7 +3,6 @@ package paymentrequest
 import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -19,7 +18,7 @@ func NewPaymentRequestFetcher(db *pop.Connection) services.PaymentRequestFetcher
 	return &paymentRequestFetcher{db}
 }
 
-func (p *paymentRequestFetcher) FetchPaymentRequest(paymentRequestID uuid.UUID) (*models.PaymentRequest, *validate.Errors, error) {
+func (p *paymentRequestFetcher) FetchPaymentRequest(paymentRequestID uuid.UUID) (*models.PaymentRequest, error) {
 	// A mock payment request. This is temporary and will be replaced with real data eventually.
 	mockPaymentRequest := models.PaymentRequest{
 		ID:              paymentRequestID,
@@ -29,5 +28,5 @@ func (p *paymentRequestFetcher) FetchPaymentRequest(paymentRequestID uuid.UUID) 
 		UpdatedAt:       testdatagen.PeakRateCycleStart,
 	}
 
-	return &mockPaymentRequest, nil, nil
+	return &mockPaymentRequest, nil
 }

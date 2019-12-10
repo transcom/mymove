@@ -51,7 +51,7 @@ type ShowPaymentRequestHandler struct {
 
 func (h ShowPaymentRequestHandler) Handle(params paymentrequestop.GetPaymentRequestParams) middleware.Responder {
 	paymentRequestID, _ := uuid.FromString(params.PaymentRequestID.String())
-	paymentRequest, _, _ := h.FetchPaymentRequest(paymentRequestID)
+	paymentRequest, _ := h.FetchPaymentRequest(paymentRequestID)
 
 	returnPayload := payloadForPaymentRequestModel(*paymentRequest)
 	response := paymentrequestop.NewGetPaymentRequestOK().WithPayload(returnPayload)
