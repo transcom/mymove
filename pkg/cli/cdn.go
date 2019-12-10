@@ -14,8 +14,6 @@ const (
 	CFPrivateKeyFlag string = "cloud-front-private-key"
 	// CFKeyIDFlag is cloudfront key id flag
 	CFKeyIDFlag string = "cloud-front-key-id"
-	// CDNBackendFlag is the CDN Backend Flag
-	CDNBackendFlag string = "cdn-backend"
 )
 
 // InitCDNFlags initializes the Hosts command line flags
@@ -23,7 +21,6 @@ func InitCDNFlags(flag *pflag.FlagSet) {
 	flag.String(AwsCfDomain, "assets.devlocal.move.mil", "Hostname according to environment.")
 	flag.String(CFPrivateKeyFlag, "", "Cloudfront private key")
 	flag.String(CFKeyIDFlag, "", "Cloudfront private key id")
-	flag.String(CDNBackendFlag, "s3", "CDN backend for serving files")
 }
 
 func CheckCDNValues(v *viper.Viper) error {
