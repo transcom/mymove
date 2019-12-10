@@ -1,6 +1,7 @@
 package testdatagen
 
 import (
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -12,7 +13,8 @@ func MakePaymentRequest(db *pop.Connection, assertions Assertions) models.Paymen
 	// Create new PaymentRequest if not provided
 	paymentRequest := models.PaymentRequest{
 		IsFinal:         false,
-		RejectionReason: "Not good enough",
+		RejectionReason: swag.String("Not good enough"),
+		Status:          models.PaymentRequestStatusPending,
 	}
 
 	// Overwrite values with those from assertions

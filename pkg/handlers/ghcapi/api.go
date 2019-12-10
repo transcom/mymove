@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+
 	"github.com/go-openapi/loads"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi"
@@ -20,5 +22,9 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 	}
 	ghcAPI := ghcops.NewMymoveAPI(ghcSpec)
 
+	ghcAPI.PaymentRequestsListPaymentRequestsHandler = ListPaymentRequestsHandler{
+		context,
+		paymentrequest.NewPaymentRequestListFetcher(context.DB()),
+	}
 	return ghcAPI.Serve(nil)
 }
