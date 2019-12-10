@@ -1,6 +1,7 @@
 package paymentrequest
 
 import (
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
@@ -23,7 +24,7 @@ func (p *paymentRequestFetcher) FetchPaymentRequest(paymentRequestID uuid.UUID) 
 	mockPaymentRequest := models.PaymentRequest{
 		ID:              paymentRequestID,
 		IsFinal:         false,
-		RejectionReason: "",
+		RejectionReason: swag.String(""),
 		CreatedAt:       testdatagen.PeakRateCycleStart,
 		UpdatedAt:       testdatagen.PeakRateCycleStart,
 	}

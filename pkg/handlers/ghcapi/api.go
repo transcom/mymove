@@ -8,8 +8,6 @@ import (
 
 	"github.com/go-openapi/loads"
 
-	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
-
 	"github.com/transcom/mymove/pkg/gen/ghcapi"
 	ghcops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
 	"github.com/transcom/mymove/pkg/handlers"

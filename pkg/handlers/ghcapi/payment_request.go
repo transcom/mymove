@@ -17,7 +17,7 @@ func payloadForPaymentRequestModel(pr models.PaymentRequest) *ghcmessages.Paymen
 	return &ghcmessages.PaymentRequest{
 		ID:              *handlers.FmtUUID(pr.ID),
 		IsFinal:         &pr.IsFinal,
-		RejectionReason: &pr.RejectionReason,
+		RejectionReason: pr.RejectionReason,
 	}
 }
 
