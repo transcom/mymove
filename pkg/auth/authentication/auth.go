@@ -115,7 +115,7 @@ func (context Context) landingURL(session *auth.Session) string {
 }
 
 func (context Context) verificationInProgressURL(session *auth.Session) string {
-	return fmt.Sprintf(context.callbackTemplate, session.Hostname) + "/verification-in-progress"
+	return fmt.Sprintf(context.callbackTemplate, session.Hostname) + "verification-in-progress"
 }
 
 func (context *Context) SetFeatureFlag(flag FeatureFlag) {
