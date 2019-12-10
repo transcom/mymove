@@ -59,7 +59,7 @@ func (suite *HandlerSuite) TestListPaymentRequestsHandler() {
 
 		suite.IsType(&paymentrequestop.ListPaymentRequestsOK{}, response)
 		okResponse := response.(*paymentrequestop.ListPaymentRequestsOK)
-		suite.Equal(3, len(okResponse.Payload))
+		suite.Equal(len(IDs), len(okResponse.Payload))
 		suite.Equal(paymentRequestID1.String(), okResponse.Payload[0].ID.String())
 	})
 
