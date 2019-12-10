@@ -10,6 +10,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 	paymentRequest := models.PaymentRequest{
 		IsFinal: false,
+		Status:  "PENDING",
 	}
 
 	creator := NewPaymentRequestCreator(suite.DB())
