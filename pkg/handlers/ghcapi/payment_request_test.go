@@ -34,6 +34,7 @@ func (suite *HandlerSuite) TestListPaymentRequestsHandler() {
 		paymentRequest := models.PaymentRequest{
 			ID:        id,
 			IsFinal:   false,
+			Status:    models.PaymentRequestStatusPending,
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		}
