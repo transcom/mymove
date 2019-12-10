@@ -24,7 +24,7 @@ func (p *paymentRequestFetcher) FetchPaymentRequest(paymentRequestID uuid.UUID) 
 	mockPaymentRequest := models.PaymentRequest{
 		ID:              paymentRequestID,
 		IsFinal:         false,
-		RejectionReason: swag.String(""),
+		RejectionReason: swag.String("I don't approve of this"),
 		CreatedAt:       testdatagen.PeakRateCycleStart,
 		UpdatedAt:       testdatagen.PeakRateCycleStart,
 	}
