@@ -21,6 +21,10 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 		log.Fatalln(err)
 	}
 	ghcAPI := ghcops.NewMymoveAPI(ghcSpec)
+	ghcAPI.PaymentRequestsGetPaymentRequestHandler = ShowPaymentRequestHandler{
+		context,
+		paymentrequest.NewPaymentRequestFetcher(context.DB()),
+	}
 
 	ghcAPI.PaymentRequestsListPaymentRequestsHandler = ListPaymentRequestsHandler{
 		context,
