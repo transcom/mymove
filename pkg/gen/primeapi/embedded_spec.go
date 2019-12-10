@@ -541,7 +541,7 @@ func init() {
       "post": {
         "description": "Creates a payment request",
         "consumes": [
-          "application/json"
+          "multipart/form-data"
         ],
         "produces": [
           "application/json"
@@ -1142,8 +1142,7 @@ func init() {
     "Upload": {
       "type": "object",
       "required": [
-        "id",
-        "url",
+        "binaryData",
         "filename",
         "contentType",
         "bytes",
@@ -1151,6 +1150,10 @@ func init() {
         "updatedAt"
       ],
       "properties": {
+        "binaryData": {
+          "type": "string",
+          "format": "binary"
+        },
         "bytes": {
           "type": "integer"
         },
@@ -1167,19 +1170,9 @@ func init() {
           "type": "string",
           "example": "filename.pdf"
         },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
         "updatedAt": {
           "type": "string",
           "format": "date-time"
-        },
-        "url": {
-          "type": "string",
-          "format": "uri",
-          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -1849,7 +1842,7 @@ func init() {
       "post": {
         "description": "Creates a payment request",
         "consumes": [
-          "application/json"
+          "multipart/form-data"
         ],
         "produces": [
           "application/json"
@@ -2465,8 +2458,7 @@ func init() {
     "Upload": {
       "type": "object",
       "required": [
-        "id",
-        "url",
+        "binaryData",
         "filename",
         "contentType",
         "bytes",
@@ -2474,6 +2466,10 @@ func init() {
         "updatedAt"
       ],
       "properties": {
+        "binaryData": {
+          "type": "string",
+          "format": "binary"
+        },
         "bytes": {
           "type": "integer"
         },
@@ -2490,19 +2486,9 @@ func init() {
           "type": "string",
           "example": "filename.pdf"
         },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
         "updatedAt": {
           "type": "string",
           "format": "date-time"
-        },
-        "url": {
-          "type": "string",
-          "format": "uri",
-          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
