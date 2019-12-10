@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getPaymentRequest } from 'shared/Entities/modules/paymentRequests';
+import { selectPaymentRequest, getPaymentRequest } from 'shared/Entities/modules/paymentRequests';
 
 class PaymentRequestShow extends React.Component {
   componentDidMount() {
@@ -9,13 +9,29 @@ class PaymentRequestShow extends React.Component {
   }
 
   render() {
-    const { id } = this.props;
-    return <h1>Payment Request Id {id}</h1>;
+    const {
+      id,
+      paymentRequest: { isFinal, rejectionReason, serviceItemIDs },
+    } = this.props;
+    return (
+      <div>
+        <h1>Payment Request Id {id}</h1>
+        <ul>
+          <li>isFinal: {`${isFinal}`}</li>
+          <li>rejectionReason: {rejectionReason}</li>
+          <li>serviceItemIds: {serviceItemIDs}</li>
+        </ul>
+      </div>
+    );
   }
 }
-const mapStateToProps = (_state, props) => ({
-  id: props.match.params.id,
-});
+const mapStateToProps = (state, props) => {
+  const id = props.match.params.id;
+  return {
+    id,
+    paymentRequest: selectPaymentRequest(state, id),
+  };
+};
 
 const mapDispatchToProps = dispatch => bindActionCreators({ getPaymentRequest }, dispatch);
 
