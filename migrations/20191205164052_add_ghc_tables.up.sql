@@ -28,7 +28,6 @@ CREATE TABLE move_task_orders
 	id uuid PRIMARY KEY NOT NULL,
 	move_order_id uuid REFERENCES move_orders,
 	reference_id varchar,
-	status ghc_approval_status NOT NULL,
 	is_available_to_prime bool NOT NULL,
 	is_cancelled bool NOT NULL,
 	created_at timestamp WITH TIME ZONE NOT NULL,

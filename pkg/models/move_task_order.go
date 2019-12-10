@@ -15,33 +15,19 @@ import (
 
 // MoveTaskOrder is an object representing the task orders for a move
 type MoveTaskOrder struct {
-	ID                 uuid.UUID           `db:"id"`
-	MoveOrder          MoveOrder           `belongs_to:"move_orders"`
-	MoveOrderID        uuid.UUID           `db:"move_order_id"`
-	ReferenceID        *string             `db:"reference_id"`
-	Status             MoveTaskOrderStatus `db:"status"`
-	IsAvailableToPrime bool                `db:"is_available_to_prime"`
-	IsCancelled        bool                `db:"is_cancelled"`
-	CreatedAt          time.Time           `db:"created_at"`
-	UpdatedAt          time.Time           `db:"updated_at"`
+	ID                 uuid.UUID `db:"id"`
+	MoveOrder          MoveOrder `belongs_to:"move_orders"`
+	MoveOrderID        uuid.UUID `db:"move_order_id"`
+	ReferenceID        *string   `db:"reference_id"`
+	IsAvailableToPrime bool      `db:"is_available_to_prime"`
+	IsCancelled        bool      `db:"is_cancelled"`
+	CreatedAt          time.Time `db:"created_at"`
+	UpdatedAt          time.Time `db:"updated_at"`
 }
-
-// MoveTaskOrderStatus is the status for a move task order
-type MoveTaskOrderStatus string
-
-const (
-	// MoveTaskOrderStatusApproved represents a move task order is available to the Prime
-	MoveTaskOrderStatusApproved MoveTaskOrderStatus = "APPROVED"
-	// MoveTaskOrderStatusDraft represents a move task order is still pending approval
-	MoveTaskOrderStatusDraft MoveTaskOrderStatus = "DRAFT"
-	// MoveTaskOrderStatusRejected represents a move task order that needs to be modified
-	MoveTaskOrderStatusRejected MoveTaskOrderStatus = "REJECTED"
-)
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (m *MoveTaskOrder) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
-	vs = append(vs, &validators.StringIsPresent{Field: string(m.Status), Name: "Status"})
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveOrderID, Name: "MoveOrderID"})
 	return validate.Validate(vs...), nil
 }

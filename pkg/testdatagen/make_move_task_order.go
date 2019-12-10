@@ -12,16 +12,11 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 	if isZeroUUID(moveOrder.ID) {
 		moveOrder = MakeMoveOrder(db, assertions)
 	}
-	mtoStatus := assertions.MoveTaskOrder.Status
-	if mtoStatus == "" {
-		mtoStatus = models.MoveTaskOrderStatusApproved
-	}
 	var referenceID *string
 	moveTaskOrder := models.MoveTaskOrder{
 		MoveOrder:          moveOrder,
 		MoveOrderID:        moveOrder.ID,
 		ReferenceID:        referenceID,
-		Status:             mtoStatus,
 		IsAvailableToPrime: false,
 		IsCancelled:        false,
 	}

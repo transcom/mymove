@@ -15,7 +15,6 @@ func (suite *ModelSuite) TestMoveTaskOrderValidation() {
 	suite.T().Run("test valid MoveTaskOrder", func(t *testing.T) {
 		validMoveTaskOrder := models.MoveTaskOrder{
 			MoveOrderID: uuid.Must(uuid.NewV4()),
-			Status:      models.MoveTaskOrderStatusDraft,
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validMoveTaskOrder, expErrors)
