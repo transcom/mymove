@@ -61,6 +61,28 @@ func TestGetCurrentPass(t *testing.T) {
 
 }
 
+func TestGetCurrentPassFail(t *testing.T) {
+	// This tests when the timeout is hit
+
+	assert := assert.New(t)
+
+	rdsu := RDSUTest{}
+	rdsu.passes = append(rdsu.passes, "") // set mocked pass to empty to simulate failed cred generation
+	logger, _ := zap.NewProduction()
+	iamConfig.currentIamPass = ""
+
+	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
+		credentials.NewStaticCredentials("id", "pass", "token"),
+		rdsu,
+		time.NewTicker(2*time.Second),
+		logger)
+
+	// this should block for 30s then return empty string
+	currentPass := GetCurrentPass()
+	assert.Equal(currentPass, "")
+
+}
+
 func TestEnableIAMNormal(t *testing.T) {
 	assert := assert.New(t)
 
