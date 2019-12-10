@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+var ErrTOOUnauthorized = errors.New("too unauthorized user")
 var ErrUnauthorized = errors.New("unauthorized user")
 var ErrUserDeactivated = errors.New("user is deactivated")
 
@@ -99,7 +100,7 @@ func (uua UnknownUserAuthorizer) AuthorizeUnknownUser(openIDUser goth.User, sess
 			// TODO and don't log them in
 			_, tooErr := uua.AssociateTOOUser(user)
 			if tooErr != nil {
-				return err
+				return tooErr
 			}
 		}
 	}
@@ -231,7 +232,7 @@ type tooUserAssociator struct {
 
 func (t tooUserAssociator) FetchTOOUser(email string) (*models.TransportationOrderingOfficer, error) {
 	var too models.TransportationOrderingOfficer
-	return &too, ErrUnauthorized
+	return &too, ErrTOOUnauthorized
 }
 
 func (t tooUserAssociator) AssociateTOOUser(user *models.User) (uuid.UUID, error) {

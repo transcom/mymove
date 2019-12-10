@@ -408,12 +408,14 @@ var authorizeUnknownUserNew = func(openIDUser goth.User, h CallbackHandler, sess
 	err := uua.AuthorizeUnknownUser(openIDUser, session)
 	if err != nil {
 		switch err {
-		case ErrUnauthorized:
-			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+		case ErrTOOUnauthorized:
 			// TODO for the moment treat all new office users as TOOs and redirect those not in
 			// TODO transportation_ordering_officers table to the verification in progress page
 			// TODO and don't log them in
 			http.Redirect(w, r, h.verificationInProgressURL(session), http.StatusTemporaryRedirect)
+			return
+		case ErrUnauthorized:
+			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 			return
 		case ErrUserDeactivated:
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
@@ -423,7 +425,6 @@ var authorizeUnknownUserNew = func(openIDUser goth.User, h CallbackHandler, sess
 			return
 		}
 	}
-
 	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
 	http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
 	return
