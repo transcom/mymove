@@ -31,7 +31,7 @@ func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams)
 		return handlers.ResponseForError(logger, err)
 	}
 
-	destinationZip, err := GetDestionDutyStationPostalCode(h.DB(), ordersID)
+	destinationZip, err := GetDestinationDutyStationPostalCode(h.DB(), ordersID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

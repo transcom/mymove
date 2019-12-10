@@ -10,8 +10,8 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
-// GetDestionDutyStationPostalCode returns the postal code associated with orders->new_duty_station->address
-func GetDestionDutyStationPostalCode(db *pop.Connection, ordersID uuid.UUID) (string, error) {
+// GetDestinationDutyStationPostalCode returns the postal code associated with orders->new_duty_station->address
+func GetDestinationDutyStationPostalCode(db *pop.Connection, ordersID uuid.UUID) (string, error) {
 	queryBuilder := query.NewQueryBuilder(db)
 
 	var orders models.Orders

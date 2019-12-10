@@ -29,7 +29,7 @@ func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middl
 		return handlers.ResponseForError(logger, err)
 	}
 
-	destinationZip, err := GetDestionDutyStationPostalCode(h.DB(), orderID)
+	destinationZip, err := GetDestinationDutyStationPostalCode(h.DB(), orderID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

@@ -34,7 +34,7 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveSharedTest(orderID uuid.UU
 	})
 }
 
-func (suite *HandlerSuite) TestGetDestionDutyStationPostalCode() {
+func (suite *HandlerSuite) GetDestinationDutyStationPostalCode() {
 	orderID := uuid.Must(uuid.NewV4())
 	invalidID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
 	suite.setupPersonallyProcuredMoveSharedTest(orderID)
@@ -49,7 +49,7 @@ func (suite *HandlerSuite) TestGetDestionDutyStationPostalCode() {
 	}
 
 	for _, ts := range tests {
-		destinationZip, err := GetDestionDutyStationPostalCode(suite.DB(), ts.lookupID)
+		destinationZip, err := GetDestinationDutyStationPostalCode(suite.DB(), ts.lookupID)
 		suite.Equal(ts.resultErr, err, "Wrong resultErr: %s", ts.lookupID)
 		suite.Equal(ts.resultZip, destinationZip, "Wrong moveID: %s", ts.lookupID)
 	}
