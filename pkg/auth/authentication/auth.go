@@ -410,6 +410,10 @@ var authorizeUnknownUserNew = func(openIDUser goth.User, h CallbackHandler, sess
 		switch err {
 		case ErrUnauthorized:
 			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+			// TODO for the moment treat all new office users as TOOs and redirect those not in
+			// TODO transportation_ordering_officers table to the verification in progress page
+			// TODO and don't log them in
+			http.Redirect(w, r, h.verificationInProgressURL(session), http.StatusTemporaryRedirect)
 			return
 		case ErrUserDeactivated:
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
@@ -419,11 +423,7 @@ var authorizeUnknownUserNew = func(openIDUser goth.User, h CallbackHandler, sess
 			return
 		}
 	}
-	// redirect new toos to waiting page
-	if session.IsOfficeApp() {
-		http.Redirect(w, r, h.verificationInProgressURL(session), http.StatusTemporaryRedirect)
-		return
-	}
+
 	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
 	http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
 	return

@@ -26,6 +26,7 @@ type RoleAssociator interface {
 	AdminUserAssociator
 	OfficeUserAssociator
 	CustomerCreatorAndAssociator
+	TOOUserAssociator
 }
 
 //go:generate mockery -name CustomerCreatorAndAssociator
@@ -45,6 +46,12 @@ type AdminUserAssociator interface {
 	AssociateAdminUser(user *models.User) (uuid.UUID, error)
 }
 
+//go:generate mockery -name AdminUserAssociator
+type TOOUserAssociator interface {
+	FetchTOOUser(email string) (*models.TransportationOrderingOfficer, error)
+	AssociateTOOUser(user *models.User) (uuid.UUID, error)
+}
+
 type UnknownUserAuthorizer struct {
 	logger Logger
 	UserCreator
@@ -56,12 +63,14 @@ func NewUnknownUserAuthorizer(db *pop.Connection, logger Logger) *UnknownUserAut
 	oa := officeUserAssociator{db, logger}
 	ca := customerAssociator{db, logger}
 	aa := adminUserAssociator{db, logger}
+	ta := tooUserAssociator{db, logger}
 	ra := roleAssociator{
 		db:                           db,
 		logger:                       logger,
 		OfficeUserAssociator:         oa,
 		AdminUserAssociator:          aa,
 		CustomerCreatorAndAssociator: ca,
+		TOOUserAssociator:            ta,
 	}
 	return &UnknownUserAuthorizer{
 		logger:         logger,
@@ -85,7 +94,13 @@ func (uua UnknownUserAuthorizer) AuthorizeUnknownUser(openIDUser goth.User, sess
 	if session.IsOfficeApp() {
 		session.OfficeUserID, err = uua.AssociateOfficeUser(user)
 		if err != nil {
-			return err
+			// TODO for the moment treat all new office users as TOOs and redirect those not in
+			// TODO transportation_ordering_officers table to the verification in progress page
+			// TODO and don't log them in
+			_, tooErr := uua.AssociateTOOUser(user)
+			if tooErr != nil {
+				return err
+			}
 		}
 	}
 	if session.IsMilApp() {
@@ -104,6 +119,7 @@ type roleAssociator struct {
 	OfficeUserAssociator
 	AdminUserAssociator
 	CustomerCreatorAndAssociator
+	TOOUserAssociator
 }
 
 type officeUserAssociator struct {
@@ -206,4 +222,35 @@ type userCreator struct {
 
 func (uc userCreator) CreateUser(id string, email string) (*models.User, error) {
 	return models.CreateUser(uc.db, id, email)
+}
+
+type tooUserAssociator struct {
+	db     *pop.Connection
+	logger Logger
+}
+
+func (t tooUserAssociator) FetchTOOUser(email string) (*models.TransportationOrderingOfficer, error) {
+	var too models.TransportationOrderingOfficer
+	return &too, ErrUnauthorized
+}
+
+func (t tooUserAssociator) AssociateTOOUser(user *models.User) (uuid.UUID, error) {
+	too, err := t.FetchTOOUser(user.LoginGovEmail)
+	if err == models.ErrFetchNotFound {
+		t.logger.Error("no too user found", zap.String("email", user.LoginGovEmail))
+		return uuid.UUID{}, ErrUnauthorized
+	}
+	if err != nil {
+		t.logger.Error("checking for transportation office user", zap.String("email", user.LoginGovEmail), zap.Error(err))
+		return uuid.UUID{}, err
+	}
+	if too.ID != uuid.Nil {
+		too.UserID = &user.ID
+		err = t.db.UpdateColumns(too, "user_id")
+		if err != nil {
+			t.logger.Error("associating user_id", zap.Error(err))
+			return uuid.UUID{}, err
+		}
+	}
+	return too.ID, nil
 }

@@ -283,3 +283,17 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserIsCustomer() {
 	suite.NoError(err)
 	cca.AssertNumberOfCalls(suite.T(), "CreateAndAssociateCustomer", 1)
 }
+
+func (suite *AuthSuite) TestAssociateTOOUser() {
+	user := testdatagen.MakeDefaultUser(suite.DB())
+	too := models.TransportationOrderingOfficer{}
+	err := suite.DB().Save(&too)
+	suite.NoError(err)
+
+	ta := tooUserAssociator{suite.DB(), suite.logger}
+	_, err = ta.AssociateTOOUser(&user)
+	suite.Error(err)
+	// TODO transportation_ordering_officers table does have an email to lookup by
+	// TODO not sure how we'll handle for now always return ErrUnauthorized
+	suite.IsType(err, ErrUnauthorized)
+}
