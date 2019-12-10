@@ -60,6 +60,29 @@ func (_m *RoleAssociator) AssociateOfficeUser(user *models.User) (uuid.UUID, err
 	return r0, r1
 }
 
+// AssociateTOOUser provides a mock function with given fields: user
+func (_m *RoleAssociator) AssociateTOOUser(user *models.User) (uuid.UUID, error) {
+	ret := _m.Called(user)
+
+	var r0 uuid.UUID
+	if rf, ok := ret.Get(0).(func(*models.User) uuid.UUID); ok {
+		r0 = rf(user)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(uuid.UUID)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*models.User) error); ok {
+		r1 = rf(user)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // CreateAndAssociateCustomer provides a mock function with given fields: userID
 func (_m *RoleAssociator) CreateAndAssociateCustomer(userID uuid.UUID) error {
 	ret := _m.Called(userID)
@@ -107,6 +130,29 @@ func (_m *RoleAssociator) FetchOfficeUser(email string) (*models.OfficeUser, err
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.OfficeUser)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(email)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// FetchTOOUser provides a mock function with given fields: email
+func (_m *RoleAssociator) FetchTOOUser(email string) (*models.TransportationOrderingOfficer, error) {
+	ret := _m.Called(email)
+
+	var r0 *models.TransportationOrderingOfficer
+	if rf, ok := ret.Get(0).(func(string) *models.TransportationOrderingOfficer); ok {
+		r0 = rf(email)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.TransportationOrderingOfficer)
 		}
 	}
 
