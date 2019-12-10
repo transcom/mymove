@@ -385,7 +385,6 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - paymentRequests
-        - prime
       description: Creates a payment request
       operationId: createPaymentRequest
       summary: Creates a payment request

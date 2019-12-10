@@ -47,7 +47,6 @@ type PaymentRequest struct {
 	UpdatedAt       time.Time            `db:"updated_at"`
 }
 
-// PaymentRequests is not required by pop and may be deleted
 type PaymentRequests []PaymentRequest
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
