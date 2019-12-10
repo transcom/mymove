@@ -9,12 +9,12 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *ModelSuite) TestMtoShipmentValidation() {
-	suite.T().Run("test valid MtoShipment", func(t *testing.T) {
+func (suite *ModelSuite) TestMTOShipmentValidation() {
+	suite.T().Run("test valid MTOShipment", func(t *testing.T) {
 		// mock weights
 		estimatedWeight := unit.Pound(1000)
 		actualWeight := unit.Pound(980)
-		validMtoShipment := models.MtoShipment{
+		validMTOShipment := models.MTOShipment{
 			MoveTaskOrderID:      uuid.Must(uuid.NewV4()),
 			PickupAddressID:      uuid.Must(uuid.NewV4()),
 			DestinationAddressID: uuid.Must(uuid.NewV4()),
@@ -22,6 +22,6 @@ func (suite *ModelSuite) TestMtoShipmentValidation() {
 			PrimeActualWeight:    &actualWeight,
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validMtoShipment, expErrors)
+		suite.verifyValidationErrors(&validMTOShipment, expErrors)
 	})
 }

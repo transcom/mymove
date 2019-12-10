@@ -14,12 +14,11 @@ func MakeCustomer(db *pop.Connection, assertions Assertions) models.Customer {
 		LastName:  "Cruz",
 		Email:     "ccruz@example.com",
 		Phone:     "1234567890",
-		DodID:     models.StringPointer(randomEdipi()),
+		DODID:     models.StringPointer(randomEdipi()),
 	}
 
 	// Overwrite values with those from assertions
 	mergeModels(&customer, assertions.Customer)
-
 	mustCreate(db, &customer)
 
 	return customer

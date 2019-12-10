@@ -7,34 +7,34 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeMtoServiceItem creates a single MtoServiceItem and associated set relationships
-func MakeMtoServiceItem(db *pop.Connection, assertions Assertions) models.MtoServiceItem {
+// MakeMTOServiceItem creates a single MTOServiceItem and associated set relationships
+func MakeMTOServiceItem(db *pop.Connection, assertions Assertions) models.MTOServiceItem {
 	moveTaskOrder := assertions.MoveTaskOrder
 	if isZeroUUID(moveTaskOrder.ID) {
 		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
 	}
-	mtoShipment := assertions.MtoShipment
-	if isZeroUUID(mtoShipment.ID) {
-		mtoShipment = MakeMtoShipment(db, assertions)
+	MTOShipment := assertions.MTOShipment
+	if isZeroUUID(MTOShipment.ID) {
+		MTOShipment = MakeMTOShipment(db, assertions)
 	}
 	reService := assertions.ReService
 	if isZeroUUID(reService.ID) {
 		reService = MakeReService(db, assertions)
 	}
-	MtoServiceItem := models.MtoServiceItem{
+	MTOServiceItem := models.MTOServiceItem{
 		MoveTaskOrder:   moveTaskOrder,
 		MoveTaskOrderID: moveTaskOrder.ID,
-		MtoShipment:     mtoShipment,
-		MtoShipmentID:   mtoShipment.ID,
+		MTOShipment:     MTOShipment,
+		MTOShipmentID:   MTOShipment.ID,
 		ReService:       reService,
 		ReServiceID:     reService.ID,
 		MetaID:          uuid.Must(uuid.NewV4()),
 		MetaType:        "unknown",
 	}
 	// Overwrite values with those from assertions
-	mergeModels(&MtoServiceItem, assertions.MtoServiceItem)
+	mergeModels(&MTOServiceItem, assertions.MTOServiceItem)
 
-	mustCreate(db, &MtoServiceItem)
+	mustCreate(db, &MTOServiceItem)
 
-	return MtoServiceItem
+	return MTOServiceItem
 }
