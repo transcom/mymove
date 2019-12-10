@@ -86,6 +86,7 @@ func (uua UnknownUserAuthorizer) AuthorizeUnknownUser(openIDUser goth.User, sess
 		uua.logger.Error("Error creating user", zap.Error(err))
 		return err
 	}
+	session.UserID = user.ID
 	if session.IsAdminApp() {
 		session.AdminUserID, err = uua.AssociateAdminUser(user)
 		if err != nil {
