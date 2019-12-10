@@ -128,7 +128,11 @@ func (h CreateAdminUserHandler) Handle(params adminuserop.CreateAdminUserParams)
 		return adminuserop.NewCreateAdminUserInternalServerError()
 	}
 
-	audit.Capture(createdAdminUser, logger, session, "create_admin_user")
+	_, err = audit.Capture(createdAdminUser, logger, session, "create_admin_user")
+	if err != nil {
+		logger.Error("Error capturing audit record", zap.Error(err))
+	}
+
 	returnPayload := payloadForAdminUserModel(*createdAdminUser)
 	return adminuserop.NewCreateAdminUserCreated().WithPayload(returnPayload)
 }
@@ -168,7 +172,11 @@ func (h UpdateAdminUserHandler) Handle(params adminuserop.UpdateAdminUserParams)
 		return adminuserop.NewUpdateAdminUserInternalServerError()
 	}
 
-	audit.Capture(updatedAdminUser, logger, session, "update_admin_user")
+	_, err = audit.Capture(updatedAdminUser, logger, session, "update_admin_user")
+	if err != nil {
+		logger.Error("Error capturing audit record", zap.Error(err))
+	}
+
 	returnPayload := payloadForAdminUserModel(*updatedAdminUser)
 
 	return adminuserop.NewUpdateAdminUserOK().WithPayload(returnPayload)
