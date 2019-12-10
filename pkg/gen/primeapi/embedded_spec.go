@@ -799,6 +799,12 @@ func init() {
         },
         "proofOfServicePackage": {
           "$ref": "#/definitions/ProofOfServicePackage"
+        },
+        "serviceItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ServiceItem"
+          }
         }
       }
     },
@@ -1136,6 +1142,37 @@ func init() {
           "items": {
             "$ref": "#/definitions/Upload"
           }
+        }
+      }
+    },
+    "ServiceItem": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "Service Item Code",
+          "type": "string",
+          "example": "DLH"
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "example": "Service Item Parameter Name"
+              },
+              "value": {
+                "type": "string",
+                "example": "Service Item Parameter Value"
+              }
+            }
+          }
+        },
+        "price": {
+          "description": "price in cents",
+          "type": "integer",
+          "example": 150
         }
       }
     },
@@ -2115,6 +2152,12 @@ func init() {
         },
         "proofOfServicePackage": {
           "$ref": "#/definitions/ProofOfServicePackage"
+        },
+        "serviceItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ServiceItem"
+          }
         }
       }
     },
@@ -2452,6 +2495,37 @@ func init() {
           "items": {
             "$ref": "#/definitions/Upload"
           }
+        }
+      }
+    },
+    "ServiceItem": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "Service Item Code",
+          "type": "string",
+          "example": "DLH"
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "example": "Service Item Parameter Name"
+              },
+              "value": {
+                "type": "string",
+                "example": "Service Item Parameter Value"
+              }
+            }
+          }
+        },
+        "price": {
+          "description": "price in cents",
+          "type": "integer",
+          "example": 150
         }
       }
     },

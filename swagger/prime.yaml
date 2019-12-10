@@ -566,6 +566,10 @@ definitions:
         type: string
       proofOfServicePackage:
         $ref: '#/definitions/ProofOfServicePackage'
+      serviceItems:
+        items:
+          $ref: '#/definitions/ServiceItem'
+        type: array
   Customer:
     type: object
     properties:
@@ -824,6 +828,28 @@ definitions:
       - REJECTED
     title: Payment Request Status
     type: string
+  ServiceItem:
+    properties:
+      price:
+        type: integer
+        example: 150
+        description: price in cents
+      code:
+        type: string
+        example: DLH
+        description: Service Item Code
+      params:
+        type: array
+        items:
+          properties:
+            key:
+              type: string
+              example: Service Item Parameter Name
+            value:
+              type: string
+              example: Service Item Parameter Value
+          type: object
+    type: object
   Upload:
     properties:
       bytes:
