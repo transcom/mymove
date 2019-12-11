@@ -2,7 +2,6 @@ package paymentrequest
 
 import (
 	"errors"
-	"github.com/gofrs/uuid"
 	"reflect"
 	"testing"
 
