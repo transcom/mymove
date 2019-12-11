@@ -7,8 +7,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeMtoServiceItem creates a single MtoServiceItem and associated set relationships
-func MakeMtoServiceItem(db *pop.Connection, assertions Assertions) models.MtoServiceItem {
+// MakeMTOServiceItem creates a single MtoServiceItem and associated set relationships
+func MakeMTOServiceItem(db *pop.Connection, assertions Assertions) models.MTOServiceItem {
 	moveTaskOrder := assertions.MoveTaskOrder
 	if isZeroUUID(moveTaskOrder.ID) {
 		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
@@ -21,7 +21,7 @@ func MakeMtoServiceItem(db *pop.Connection, assertions Assertions) models.MtoSer
 	if isZeroUUID(reService.ID) {
 		reService = MakeReService(db, assertions)
 	}
-	MtoServiceItem := models.MtoServiceItem{
+	MtoServiceItem := models.MTOServiceItem{
 		MoveTaskOrder:   moveTaskOrder,
 		MoveTaskOrderID: moveTaskOrder.ID,
 		MtoShipment:     mtoShipment,
@@ -32,7 +32,7 @@ func MakeMtoServiceItem(db *pop.Connection, assertions Assertions) models.MtoSer
 		MetaType:        "unknown",
 	}
 	// Overwrite values with those from assertions
-	mergeModels(&MtoServiceItem, assertions.MtoServiceItem)
+	mergeModels(&MtoServiceItem, assertions.MTOServiceItem)
 
 	mustCreate(db, &MtoServiceItem)
 

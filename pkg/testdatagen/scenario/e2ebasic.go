@@ -861,7 +861,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		MoveTaskOrder: mto,
 	})
 
-	testdatagen.MakeMtoServiceItem(db, testdatagen.Assertions{
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MoveTaskOrder: mto,
 		MtoShipment:   mtoShipment,
 	})
