@@ -4,6 +4,8 @@ import (
 	"log"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testingsuite"
 
 	"github.com/stretchr/testify/suite"
@@ -42,4 +44,10 @@ func TestHandlerSuite(t *testing.T) {
 	}
 
 	suite.Run(t, hs)
+}
+
+func newMockQueryFilterBuilder(filter *mocks.QueryFilter) services.NewQueryFilter {
+	return func(column string, comparator string, value interface{}) services.QueryFilter {
+		return filter
+	}
 }
