@@ -5,6 +5,11 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/go-openapi/strfmt"
+	"github.com/stretchr/testify/mock"
+
+	"github.com/transcom/mymove/pkg/testdatagen"
+
 	"github.com/gofrs/uuid"
 
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
@@ -80,5 +85,62 @@ func (suite *HandlerSuite) TestListPaymentRequestsHandler() {
 		response := handler.Handle(params)
 
 		suite.IsType(&paymentrequestop.ListPaymentRequestsInternalServerError{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestFetchPaymentRequest() {
+
+	paymentRequestID, _ := uuid.FromString("00000000-0000-0000-0000-000000000001")
+
+	paymentRequest := models.PaymentRequest{
+		ID:        paymentRequestID,
+		IsFinal:   false,
+		Status:    models.PaymentRequestStatusPending,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	suite.T().Run("successful fetch of payment request", func(t *testing.T) {
+		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
+		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
+
+		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		req := httptest.NewRequest("GET", fmt.Sprintf("/payment_request"), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		params := paymentrequestop.GetPaymentRequestParams{
+			HTTPRequest:      req,
+			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
+		}
+
+		handler := GetPaymentRequestHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			paymentRequestFetcher,
+		}
+		response := handler.Handle(params)
+
+		suite.IsType(&paymentrequestop.GetPaymentRequestOK{}, response)
+		okResponse := response.(*paymentrequestop.GetPaymentRequestOK)
+		suite.Equal(paymentRequestID.String(), okResponse.Payload.ID.String())
+	})
+
+	suite.T().Run("failed fetch of payment request", func(t *testing.T) {
+		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
+		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(models.PaymentRequest{}, errors.New("test failed to create with err returned")).Once()
+
+		req := httptest.NewRequest("GET", fmt.Sprintf("/payment_request"), nil)
+
+		params := paymentrequestop.GetPaymentRequestParams{
+			HTTPRequest:      req,
+			PaymentRequestID: strfmt.UUID(paymentRequestID.String()),
+		}
+
+		handler := GetPaymentRequestHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			paymentRequestFetcher,
+		}
+		response := handler.Handle(params)
+
+		suite.IsType(&paymentrequestop.GetPaymentRequestInternalServerError{}, response)
 	})
 }

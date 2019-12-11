@@ -1,9 +1,13 @@
 package ghcapi
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/services/query"
 
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
@@ -44,16 +48,30 @@ func (h ListPaymentRequestsHandler) Handle(params paymentrequestop.ListPaymentRe
 	return paymentrequestop.NewListPaymentRequestsOK().WithPayload(paymentRequestsList)
 }
 
-type ShowPaymentRequestHandler struct {
+type GetPaymentRequestHandler struct {
 	handlers.HandlerContext
 	services.PaymentRequestFetcher
 }
 
-func (h ShowPaymentRequestHandler) Handle(params paymentrequestop.GetPaymentRequestParams) middleware.Responder {
-	paymentRequestID, _ := uuid.FromString(params.PaymentRequestID.String())
-	paymentRequest, _ := h.FetchPaymentRequest(paymentRequestID)
+func (h GetPaymentRequestHandler) Handle(params paymentrequestop.GetPaymentRequestParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	paymentRequestID, err := uuid.FromString(params.PaymentRequestID.String())
 
-	returnPayload := payloadForPaymentRequestModel(*paymentRequest)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error parsing payment request id: %s", params.PaymentRequestID.String()), zap.Error(err))
+		return paymentrequestop.NewGetPaymentRequestInternalServerError()
+	}
+
+	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", paymentRequestID.String())}
+
+	paymentRequest, err := h.FetchPaymentRequest(filters)
+
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error fetching Payment Request with ID: %s", params.PaymentRequestID.String()), zap.Error(err))
+		return paymentrequestop.NewGetPaymentRequestInternalServerError()
+	}
+
+	returnPayload := payloadForPaymentRequestModel(paymentRequest)
 	response := paymentrequestop.NewGetPaymentRequestOK().WithPayload(returnPayload)
 
 	return response
