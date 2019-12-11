@@ -747,8 +747,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		primeMux := goji.SubMux()
 		primeDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.GHCPrimeServername)
 		primeMux.Use(primeDetectionMiddleware)
-		primeMux.Use(middleware.NoCache(logger))
 		primeMux.Use(clientCertMiddleware)
+		primeMux.Use(authentication.GHCPrimeAuthorizationMiddleware(logger))
+		primeMux.Use(middleware.NoCache(logger))
 		primeMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.PrimeSwaggerFlag)))
 		if v.GetBool(cli.ServeSwaggerUIFlag) {
 			logger.Info("Prime API Swagger UI serving is enabled")

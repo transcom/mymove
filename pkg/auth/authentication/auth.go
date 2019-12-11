@@ -92,6 +92,27 @@ func AdminAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	}
 }
 
+func GHCPrimeAuthorizationMiddleware(logger Logger) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			clientCert := ClientCertFromContext(r.Context())
+			if clientCert == nil {
+				logger.Error("unauthorized user for ghc prime")
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			}
+			if !clientCert.AllowGHCPrime {
+				logger.Error("forbidden user for ghc prime")
+				http.Error(w, http.StatusText(403), http.StatusForbidden)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		}
+
+		return http.HandlerFunc(mw)
+	}
+}
 func (context Context) landingURL(session *auth.Session) string {
 	return fmt.Sprintf(context.callbackTemplate, session.Hostname)
 }
