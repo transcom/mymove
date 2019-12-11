@@ -20,5 +20,6 @@ export function selectPaymentRequest(state, id) {
 }
 
 export function selectPaymentRequests(state) {
-  return get(state, 'entities.paymentRequests') || [];
+  const paymentRequests = get(state, 'entities.paymentRequests') || {};
+  return Object.values(paymentRequests);
 }
