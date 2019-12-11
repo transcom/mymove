@@ -18,3 +18,7 @@ export function getPaymentRequestList(label = getPaymentRequestListLabel) {
 export function selectPaymentRequest(state, id) {
   return get(state, `entities.paymentRequests.${id}`) || {};
 }
+
+export function selectPaymentRequests(state) {
+  return get(state, 'entities.paymentRequests') || [];
+}
