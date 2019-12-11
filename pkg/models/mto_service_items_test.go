@@ -8,9 +8,9 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *ModelSuite) TestMtoServiceItemValidation() {
+func (suite *ModelSuite) TestMTOServiceItemValidation() {
 	suite.T().Run("test valid MtoServiceItem", func(t *testing.T) {
-		validMtoServiceItem := models.MtoServiceItem{
+		validMTOServiceItem := models.MTOServiceItem{
 			MoveTaskOrderID: uuid.Must(uuid.NewV4()),
 			MtoShipmentID:   uuid.Must(uuid.NewV4()),
 			ReServiceID:     uuid.Must(uuid.NewV4()),
@@ -18,6 +18,6 @@ func (suite *ModelSuite) TestMtoServiceItemValidation() {
 			MetaType:        "unknown",
 		}
 		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validMtoServiceItem, expErrors)
+		suite.verifyValidationErrors(&validMTOServiceItem, expErrors)
 	})
 }
