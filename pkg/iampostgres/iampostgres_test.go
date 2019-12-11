@@ -27,10 +27,12 @@ func TestEnableIamNilCreds(t *testing.T) {
 	rdsu := RDSUTest{}
 	logger, _ := zap.NewProduction()
 
+	tmr := time.NewTicker(1 * time.Second)
+
 	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		nil,
 		rdsu,
-		time.NewTicker(1*time.Second),
+		tmr,
 		logger)
 	time.Sleep(2 * time.Second)
 
@@ -38,6 +40,7 @@ func TestEnableIamNilCreds(t *testing.T) {
 	t.Logf("Current password: %s", iamConfig.currentIamPass)
 	assert.Equal(iamConfig.currentIamPass, "")
 	iamConfig.currentPassMutex.Unlock()
+	tmr.Stop()
 
 }
 
@@ -49,15 +52,19 @@ func TestGetCurrentPassword(t *testing.T) {
 	logger, _ := zap.NewProduction()
 	iamConfig.currentIamPass = "" // ensure iamConfig is in new state
 
+	tmr := time.NewTicker(2 * time.Second)
+
 	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		credentials.NewStaticCredentials("id", "pass", "token"),
 		rdsu,
-		time.NewTicker(2*time.Second),
+		tmr,
 		logger)
 
 	// this should block for ~ 250ms and then continue
 	currentPass := GetCurrentPass()
 	assert.Equal(currentPass, "abc")
+
+	tmr.Stop()
 
 }
 
@@ -71,15 +78,18 @@ func TestGetCurrentPasswordFail(t *testing.T) {
 	logger, _ := zap.NewProduction()
 	iamConfig.currentIamPass = ""
 
+	tmr := time.NewTicker(1 * time.Second)
+
 	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		credentials.NewStaticCredentials("id", "pass", "token"),
 		rdsu,
-		time.NewTicker(2*time.Second),
+		tmr,
 		logger)
 
 	// this should block for 30s then return empty string
 	currentPass := GetCurrentPass()
 	assert.Equal(currentPass, "")
+	tmr.Stop()
 
 }
 
@@ -91,11 +101,13 @@ func TestEnableIAMNormal(t *testing.T) {
 	rdsu.passes = append(rdsu.passes, testData...)
 	logger, _ := zap.NewProduction()
 
+	tmr := time.NewTicker(2 * time.Second)
+
 	// We use 2 second timer since that builds in a buffer so we have stable tests
 	EnableIAM("server", "8080", "us-east-1", "dbuser", "***",
 		credentials.NewStaticCredentials("id", "pass", "token"),
 		rdsu,
-		time.NewTicker(2*time.Second),
+		tmr,
 		logger)
 
 	lenTestData := len(testData) - 1
@@ -130,6 +142,7 @@ func TestEnableIAMNormal(t *testing.T) {
 
 	// Check that all the passwords have been checked
 	assert.Equal(3, counter)
+	tmr.Stop()
 }
 
 func TestUpdateDSN(t *testing.T) {
