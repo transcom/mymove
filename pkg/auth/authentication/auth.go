@@ -77,9 +77,13 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	}
 }
 
+type CContext interface {
+	RouteInfo(r *http.Request) (*middleware.MatchedRoute, *http.Request, bool)
+}
+
 //go:generate mockery -name APIContext
 type APIContext interface {
-	Context() *middleware.Context
+	Context() CContext
 }
 
 // RoleAuthMiddleware enforces that the incoming request is tied to a user session
@@ -89,11 +93,14 @@ func RoleAuthMiddleware(logger Logger) func(api APIContext) func(handler http.Ha
 			mw := func(w http.ResponseWriter, r *http.Request) {
 				session := auth.SessionFromRequestContext(r)
 				userRoles := session.Roles
+				context := api.Context()
 
 				// We must have a logged in session and a user
-				route, _, _ := api.Context().RouteInfo(r)
+				route, _, _ := context.RouteInfo(r)
+
 				endpointRoles, exists := route.Operation.VendorExtensible.Extensions["x-swagger-roles"]
-				fmt.Println("= ", route.Operation.VendorExtensible.Extensions["x-swagger-roles"])
+				fmt.Println(endpointRoles)
+				fmt.Printf("%T", endpointRoles)
 				if !exists {
 					next.ServeHTTP(w, r)
 					return

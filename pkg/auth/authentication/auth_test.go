@@ -823,11 +823,20 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 	suite.Equal(uuid.Nil, session.OfficeUserID)
 }
 
-type MockAPIContext struct {
+type MockAPIContext struct{}
+type MockContext struct{}
+
+func (m MockAPIContext) Context() CContext {
+	return MockContext{}
 }
 
-func (m MockAPIContext) Context() *middleware.Context {
-	return &middleware.Context{}
+func (m MockContext) RouteInfo(r *http.Request) (*middleware.MatchedRoute, *http.Request, bool) {
+	matchedRouteMiddleware := middleware.MatchedRoute{}
+	matchedRouteMiddleware.Operation = &spec.Operation{}
+	matchedRouteMiddleware.Operation.VendorExtensible = spec.VendorExtensible{}
+	matchedRouteMiddleware.Operation.VendorExtensible.Extensions = spec.Extensions{}
+	matchedRouteMiddleware.Operation.VendorExtensible.Extensions["x-swagger-roles"] = []string{"office", "contractingOfficer", "customer"}
+	return &matchedRouteMiddleware, nil, false
 }
 
 func (suite *AuthSuite) TestRequireRoleAuthMiddleware() {
@@ -844,32 +853,20 @@ func (suite *AuthSuite) TestRequireRoleAuthMiddleware() {
 	req := httptest.NewRequest("GET", "/logged_in", nil)
 
 	// And: the context contains the auth values
-	//roles := []string{string(models.RoleTypeContractingOfficer)}
-	session := auth.Session{UserID: user.ID, IDToken: "fake Token"}
+	roles := []string{string(models.RoleTypeContractingOfficer)}
+	session := auth.Session{UserID: user.ID, IDToken: "fake Token", Roles: roles}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	req = req.WithContext(ctx)
 
 	var handlerSession *auth.Session
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("IS SOMETHING HAPPENING?")
 		handlerSession = auth.SessionFromRequestContext(r)
 	})
-	apiContext := MockAPIContext{}
-	context := apiContext.Context()
-	fmt.Println("Got the context")
-	mockRouteInfo := context.RouteInfo
-	// old := mockRouteInfo
-	// defer func() { mockRouteInfo = old }()
+	fmt.Println(handlerSession)
+	mockAPIContext := MockAPIContext{}
 
-	mockRouteInfo = func(r *http.Request) (*middleware.MatchedRoute, *http.Request, bool) {
-		matchedRouteMiddleware := middleware.MatchedRoute{}
-		matchedRouteMiddleware.Operation = &spec.Operation{}
-		matchedRouteMiddleware.Operation.VendorExtensible = spec.VendorExtensible{}
-		matchedRouteMiddleware.Operation.VendorExtensible.Extensions = spec.Extensions{}
-		matchedRouteMiddleware.Operation.VendorExtensible.Extensions["x-swagger-roles"] = []string{"office", "contractingOfficer", "customer"}
-		return &matchedRouteMiddleware, nil, false
-	}
-
-	middleware := RoleAuthMiddleware(suite.logger)(apiContext)(handler)
+	middleware := RoleAuthMiddleware(suite.logger)(mockAPIContext)(handler)
 
 	middleware.ServeHTTP(rr, req)
 
