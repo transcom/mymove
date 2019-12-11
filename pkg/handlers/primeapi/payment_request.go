@@ -2,6 +2,7 @@ package primeapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_requests"
@@ -15,6 +16,7 @@ func payloadForPaymentRequestModel(pr models.PaymentRequest) *primemessages.Paym
 
 	return &primemessages.PaymentRequest{
 		ID:              *handlers.FmtUUID(pr.ID),
+		MoveTaskOrderID: *handlers.FmtUUID(pr.MoveTaskOrderID),
 		IsFinal:         &pr.IsFinal,
 		RejectionReason: pr.RejectionReason,
 	}
@@ -25,7 +27,7 @@ type CreatePaymentRequestHandler struct {
 	services.PaymentRequestCreator
 }
 
-func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymentRequestParams) (m middleware.Responder) {
+func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymentRequestParams) middleware.Responder {
 	// TODO: authorization to create payment request
 
 	logger := h.LoggerFromRequest(params.HTTPRequest)
@@ -35,9 +37,27 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		return paymentrequestop.NewCreatePaymentRequestBadRequest()
 	}
 
-	paymentRequest := models.PaymentRequest{
-		IsFinal: *params.Body.IsFinal,
+	moveTaskOrderIDString := params.Body.MoveTaskOrderID.String()
+	mtoID, err := uuid.FromString(moveTaskOrderIDString)
+	if err != nil {
+		logger.Error("Invalid payment request: params MoveTaskOrderID cannot be converted to a UUID",
+			zap.String("MoveTaskOrderID", moveTaskOrderIDString), zap.Error(err))
+		return paymentrequestop.NewCreatePaymentRequestBadRequest()
 	}
+
+	paymentRequest := models.PaymentRequest{
+		IsFinal:         *params.Body.IsFinal,
+		MoveTaskOrderID: mtoID,
+	}
+
+	moveTaskOrder := models.MoveTaskOrder{}
+	err = h.DB().Find(&moveTaskOrder, paymentRequest.MoveTaskOrderID)
+	if err != nil {
+		logger.Error("Error finding MTO with ID request", zap.Error(err), zap.Any("MoveTaskOrderID", paymentRequest.MoveTaskOrderID))
+		return paymentrequestop.NewCreatePaymentRequestNotFound()
+	}
+
+	paymentRequest.MoveTaskOrder = moveTaskOrder
 
 	createdPaymentRequest, verrs, err := h.PaymentRequestCreator.CreatePaymentRequest(&paymentRequest)
 	if verrs.HasAny() {
@@ -52,7 +72,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 
 	logger.Info("Payment Request params",
 		zap.Bool("is_final", *params.Body.IsFinal),
-		// TODO: add MoveTaskOrder
+		zap.String("move_task_order_id", moveTaskOrderIDString),
 		// TODO: add ServiceItems
 		// TODO add ProofOfService object to log
 	)
