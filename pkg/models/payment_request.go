@@ -31,11 +31,12 @@ var validPaymentRequestStatus = []string{
 	string(PaymentRequestStatusPaid),
 }
 
+// PaymentRequest is an object representing a payment request on a move task order
 type PaymentRequest struct {
-	ID      uuid.UUID `json:"id" db:"id"`
-	IsFinal bool      `json:"is_final" db:"is_final"`
-	//MoveTaskOrderID is temporarily nullable. Once the move_task_orders table is implemented, this will be a NOT NULL column.
-	MoveTaskOrderID *uuid.UUID           `json:"move_task_order_id" db:"move_task_order_id"`
+	ID              uuid.UUID            `json:"id" db:"id"`
+	MoveTaskOrder   MoveTaskOrder        `belongs_to:"move_task_orders"`
+	MoveTaskOrderID uuid.UUID            `db:"move_task_order_id"`
+	IsFinal         bool                 `json:"is_final" db:"is_final"`
 	Status          PaymentRequestStatus `json:"status" db:"status"`
 	RejectionReason *string              `json:"rejection_reason" db:"rejection_reason"`
 	RequestedAt     time.Time            `json:"requested_at" db:"requested_at"`
@@ -52,6 +53,7 @@ type PaymentRequests []PaymentRequest
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (p *PaymentRequest) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
+		&validators.UUIDIsPresent{Field: p.MoveTaskOrderID, Name: "MoveTaskOrderID"},
 		&validators.StringInclusion{Field: p.Status.String(), Name: "Status", List: validPaymentRequestStatus},
 	), nil
 }
