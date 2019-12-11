@@ -10,7 +10,7 @@ import (
 func MakeCustomer(db *pop.Connection, assertions Assertions) models.Customer {
 
 	customer := models.Customer{
-		DODID:     randomEdipi(),
+		DODID: randomEdipi(),
 	}
 
 	// Overwrite values with those from assertions
