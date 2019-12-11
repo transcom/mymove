@@ -799,7 +799,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		internalAPIMux.Use(middleware.NoCache(logger))
 		api := internalapi.NewInternalAPI(handlerContext)
 		internalAPIMux.Handle(pat.New("/*"), api.Serve(nil))
-		internalAPIMux.Use(roleAuthMiddleware(api))
+		internalAPIMux.Use(roleAuthMiddleware(api.Context()))
 	}
 
 	if v.GetBool(cli.ServeAdminFlag) {
@@ -839,7 +839,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		ghcAPIMux.Use(userAuthMiddleware)
 		ghcAPIMux.Use(middleware.NoCache(logger))
 		api := ghcapi.NewGhcAPI(handlerContext)
-		ghcAPIMux.Use(roleAuthMiddleware(api))
+		ghcAPIMux.Use(roleAuthMiddleware(api.Context()))
 		ghcAPIMux.Handle(pat.New("/*"), api.Serve(nil))
 	}
 

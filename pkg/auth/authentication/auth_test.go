@@ -824,18 +824,13 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 }
 
 type MockAPIContext struct{}
-type MockContext struct{}
 
-func (m MockAPIContext) Context() CContext {
-	return MockContext{}
-}
-
-func (m MockContext) RouteInfo(r *http.Request) (*middleware.MatchedRoute, *http.Request, bool) {
+func (m MockAPIContext) RouteInfo(r *http.Request) (*middleware.MatchedRoute, *http.Request, bool) {
 	matchedRouteMiddleware := middleware.MatchedRoute{}
 	matchedRouteMiddleware.Operation = &spec.Operation{}
 	matchedRouteMiddleware.Operation.VendorExtensible = spec.VendorExtensible{}
 	matchedRouteMiddleware.Operation.VendorExtensible.Extensions = spec.Extensions{}
-	matchedRouteMiddleware.Operation.VendorExtensible.Extensions["x-swagger-roles"] = []string{"office", "contractingOfficer", "customer"}
+	matchedRouteMiddleware.Operation.VendorExtensible.Extensions["x-swagger-roles"] = []interface{}{"office", "contractingOfficer", "customer"}
 	return &matchedRouteMiddleware, nil, false
 }
 
@@ -860,10 +855,9 @@ func (suite *AuthSuite) TestRequireRoleAuthMiddleware() {
 
 	var handlerSession *auth.Session
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("IS SOMETHING HAPPENING?")
 		handlerSession = auth.SessionFromRequestContext(r)
 	})
-	fmt.Println(handlerSession)
+
 	mockAPIContext := MockAPIContext{}
 
 	middleware := RoleAuthMiddleware(suite.logger)(mockAPIContext)(handler)
