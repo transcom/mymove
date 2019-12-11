@@ -12,14 +12,16 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // ServiceItem service item
 // swagger:model ServiceItem
 type ServiceItem struct {
 
-	// Service Item Code
-	Code string `json:"code,omitempty"`
+	// id
+	// Format: uuid
+	ID strfmt.UUID `json:"id,omitempty"`
 
 	// params
 	Params []*ServiceItemParamsItems0 `json:"params"`
@@ -29,6 +31,10 @@ type ServiceItem struct {
 func (m *ServiceItem) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateParams(formats); err != nil {
 		res = append(res, err)
 	}
@@ -36,6 +42,19 @@ func (m *ServiceItem) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *ServiceItem) validateID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
