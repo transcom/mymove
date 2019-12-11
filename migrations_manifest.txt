@@ -397,6 +397,8 @@
 20191204160349_add_new_user_type_tables.up.sql
 20191204170511_remove-old-tables.up.sql
 20191204200540_create_and_populate_roles_table.up.sql
+20191205190530_jppso-assignment-tables.up.sql
+20191205211911_jppso-assignment-data.up.sql
 20191204223817_alter_payment_requests.up.sql
 20191204231026_add_user_id_to_customers.up.sql
 20191205000048_create_proof_of_service_docs.up.sql
