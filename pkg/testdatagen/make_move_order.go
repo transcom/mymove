@@ -18,19 +18,11 @@ func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.MoveOrder {
 	}
 	originDutyStation := assertions.OriginDutyStation
 	if isZeroUUID(originDutyStation.ID) {
-		originDutyStation = MakeDutyStation(db, Assertions{
-			DutyStation: models.DutyStation{
-				Name: "Alamo",
-			},
-		})
+		originDutyStation = MakeDutyStation(db, assertions)
 	}
 	destinationDutyStation := assertions.DestinationDutyStation
 	if isZeroUUID(destinationDutyStation.ID) {
-		destinationDutyStation = MakeDutyStation(db, Assertions{
-			DutyStation: models.DutyStation{
-				Name: "Versailles",
-			},
-		})
+		destinationDutyStation = MakeDutyStation(db, assertions)
 	}
 	moveOrder := models.MoveOrder{
 		Customer:                 customer,

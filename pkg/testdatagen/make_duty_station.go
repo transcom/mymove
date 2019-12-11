@@ -33,7 +33,7 @@ func MakeDutyStation(db *pop.Connection, assertions Assertions) models.DutyStati
 		})
 	}
 	station := models.DutyStation{
-		Name:                   "Yuma AFB",
+		Name:                   makeRandomString(10),
 		Affiliation:            internalmessages.AffiliationAIRFORCE,
 		AddressID:              address.ID,
 		Address:                address,
@@ -52,7 +52,10 @@ func FetchOrMakeDefaultCurrentDutyStation(db *pop.Connection) models.DutyStation
 	// Check if Yuma Duty Station exists, if not, create it.
 	defaultStation, err := models.FetchDutyStationByName(db, "Yuma AFB")
 	if err != nil {
-		return MakeDutyStation(db, Assertions{})
+		return MakeDutyStation(db, Assertions{
+			DutyStation: models.DutyStation{
+				Name: "Yuma AFB",
+			}})
 	}
 	return defaultStation
 }
