@@ -129,3 +129,8 @@ export const customer = new schema.Entity('customer');
 export const customerMoveItem = new schema.Entity('customerMoveItem');
 
 export const customerMoveItems = new schema.Array(customerMoveItem);
+
+// Payment Requests
+export const paymentRequest = new schema.Entity('paymentRequests');
+
+export const paymentRequests = new schema.Array(paymentRequest);

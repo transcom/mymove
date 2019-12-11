@@ -20,6 +20,7 @@ func MakePaymentRequest(db *pop.Connection, assertions Assertions) models.Paymen
 		MoveTaskOrderID: moveTaskOrder.ID,
 		IsFinal:         false,
 		RejectionReason: swag.String("Not good enough"),
+		Status:          models.PaymentRequestStatusPending,
 	}
 
 	// Overwrite values with those from assertions

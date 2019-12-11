@@ -7,12 +7,15 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
+	"time"
 )
 
 // Customer is an object representing data for a customer
 type Customer struct {
 	ID        uuid.UUID `db:"id"`
 	DODID     string    `db:"dod_id"`
+	UserID    uuid.UUID `json:"user_id" db:"user_id"`
+	User      User      `belongs_to:"users"`
 	CreatedAt time.Time `db:"created_at"`
 	UpdatedAt time.Time `db:"updated_at"`
 }
