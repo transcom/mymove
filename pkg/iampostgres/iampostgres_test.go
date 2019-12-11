@@ -41,7 +41,7 @@ func TestEnableIamNilCreds(t *testing.T) {
 
 }
 
-func TestGetCurrentPass(t *testing.T) {
+func TestGetCurrentPassword(t *testing.T) {
 	assert := assert.New(t)
 
 	rdsu := RDSUTest{}
@@ -61,7 +61,7 @@ func TestGetCurrentPass(t *testing.T) {
 
 }
 
-func TestGetCurrentPassFail(t *testing.T) {
+func TestGetCurrentPasswordFail(t *testing.T) {
 	// This tests when the timeout is hit
 
 	assert := assert.New(t)
