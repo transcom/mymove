@@ -538,7 +538,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "MTOserviceItem"
+          "mtoServiceItem"
         ],
         "summary": "Updates a service item by ID for a move order by ID",
         "operationId": "updateMTOServiceItem",
@@ -2524,7 +2524,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "MTOserviceItem"
+          "mtoServiceItem"
         ],
         "summary": "Updates a service item by ID for a move order by ID",
         "operationId": "updateMTOServiceItem",

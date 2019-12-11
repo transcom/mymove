@@ -12,7 +12,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
-	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/m_t_oservice_item"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
@@ -98,9 +97,9 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation payment_requests.ListPaymentRequests has not yet been implemented")
 		})
 	}
-	if api.MtOserviceItemUpdateMTOServiceItemHandler == nil {
-		api.MtOserviceItemUpdateMTOServiceItemHandler = m_t_oservice_item.UpdateMTOServiceItemHandlerFunc(func(params m_t_oservice_item.UpdateMTOServiceItemParams) middleware.Responder {
-			return middleware.NotImplemented("operation m_t_oservice_item.UpdateMTOServiceItem has not yet been implemented")
+	if api.MtoServiceItemUpdateMTOServiceItemHandler == nil {
+		api.MtoServiceItemUpdateMTOServiceItemHandler = mto_service_item.UpdateMTOServiceItemHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItem has not yet been implemented")
 		})
 	}
 	if api.MtoServiceItemUpdateMTOServiceItemstatusHandler == nil {

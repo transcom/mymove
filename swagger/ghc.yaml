@@ -445,7 +445,7 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - MTOserviceItem
+        - mtoServiceItem
       description: Updates a service item by ID for a move order by ID
       operationId: updateMTOServiceItem
       summary: Updates a service item by ID for a move order by ID
