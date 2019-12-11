@@ -96,7 +96,7 @@ commands:
             DB_USER: ecs_user
             DB_NAME: app
             DB_SSL_MODE: verify-full
-            DB_SSL_ROOT_CERT: /bin/rds-combined-ca-bundle.pem
+            DB_SSL_ROOT_CERT: /bin/rds-ca-2019-root.pem
           no_output_timeout: 20m
       - announce_failure
       - deploy:
@@ -107,7 +107,7 @@ commands:
             DB_USER: ecs_user
             DB_NAME: app
             DB_SSL_MODE: verify-full
-            DB_SSL_ROOT_CERT: /bin/rds-combined-ca-bundle.pem
+            DB_SSL_ROOT_CERT: /bin/rds-ca-2019-root.pem
           no_output_timeout: 20m
       - announce_failure
   deploy_app_steps:
@@ -496,6 +496,7 @@ jobs:
             - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: make bin/chamber
       - run: make bin/rds-combined-ca-bundle.pem
+      - run: make bin/rds-ca-2019-root.pem
       - run: make client_build
       - run: make server_build
       - build_tag_push:
@@ -531,6 +532,7 @@ jobs:
           docker_layer_caching: false
       - run: make bin/chamber
       - run: make bin/rds-combined-ca-bundle.pem
+      - run: make bin/rds-ca-2019-root.pem
       - run: make server_build
       - build_tag_push:
           dockerfile: Dockerfile.migrations
@@ -550,6 +552,7 @@ jobs:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
       - run: make bin/chamber
       - run: make bin/rds-combined-ca-bundle.pem
+      - run: make bin/rds-ca-2019-root.pem
       - run: make tasks_build
       - build_tag_push:
           dockerfile: Dockerfile.tasks
