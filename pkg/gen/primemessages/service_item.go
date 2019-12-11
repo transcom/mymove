@@ -23,9 +23,6 @@ type ServiceItem struct {
 
 	// params
 	Params []*ServiceItemParamsItems0 `json:"params"`
-
-	// price in cents
-	Price int64 `json:"price,omitempty"`
 }
 
 // Validate validates this service item

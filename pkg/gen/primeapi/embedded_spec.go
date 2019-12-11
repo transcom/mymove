@@ -1163,11 +1163,6 @@ func init() {
               }
             }
           }
-        },
-        "price": {
-          "description": "price in cents",
-          "type": "integer",
-          "example": 150
         }
       }
     },
@@ -2511,11 +2506,6 @@ func init() {
               }
             }
           }
-        },
-        "price": {
-          "description": "price in cents",
-          "type": "integer",
-          "example": 150
         }
       }
     },

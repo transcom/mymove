@@ -826,10 +826,6 @@ definitions:
     type: string
   ServiceItem:
     properties:
-      price:
-        type: integer
-        example: 150
-        description: price in cents
       code:
         type: string
         example: DLH
