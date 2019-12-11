@@ -87,7 +87,7 @@ paths:
       tags:
         - Customer
       description: Returns a given customer
-      operationId: getCustomerInfo
+      operationId: getCustomer
       summary: Returns a given customer
   /move-task-orders:
     get:
@@ -894,47 +894,12 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      customer_name:
+      dodID:
         type: string
-        example: George Washington
-        x-nullable: true
-        title: Customer Name
-      agency:
+      userID:
         type: string
-        example: Some Agency
-        x-nullable: true
-        title: Agency
-      grade:
-        type: string
-        example: Some Grade
-        x-nullable: true
-        title: Grade
-      email:
-        type: string
-        format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        example: john_bob@example.com
-        x-nullable: true
-        title: Email Address
-      telephone:
-        type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-555-5555
-        x-nullable: true
-        title: Best Contact Phone
-      origin_duty_station:
-        type: string
-        example: Dover AFB
-        title: Origin
-        x-nullable: true
-      destination_duty_station:
-        type: string
-        example: Dover AFB
-        title: Destination
-        x-nullable: true
-      pickup_address:
-        $ref: '#/definitions/Address'
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
   Entitlements:
     properties:
       id:
@@ -995,10 +960,12 @@ definitions:
         example: 1001-3456
         type: string
         x-nullable: true
-      isAvaiableToPrime:
+      isAvailableToPrime:
         type: boolean
+        x-nullable: true
       isCanceled:
         type: boolean
+        x-nullable: true
       updatedAt:
         format: date
         type: string

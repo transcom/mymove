@@ -97,7 +97,7 @@ func init() {
           "Customer"
         ],
         "summary": "Returns a given customer",
-        "operationId": "getCustomerInfo",
+        "operationId": "getCustomer",
         "responses": {
           "200": {
             "description": "Successfully retrieved information on an individual customer",
@@ -1204,59 +1204,18 @@ func init() {
     "Customer": {
       "type": "object",
       "properties": {
-        "agency": {
-          "type": "string",
-          "title": "Agency",
-          "x-nullable": true,
-          "example": "Some Agency"
-        },
-        "customer_name": {
-          "type": "string",
-          "title": "Customer Name",
-          "x-nullable": true,
-          "example": "George Washington"
-        },
-        "destination_duty_station": {
-          "type": "string",
-          "title": "Destination",
-          "x-nullable": true,
-          "example": "Dover AFB"
-        },
-        "email": {
-          "type": "string",
-          "format": "x-email",
-          "title": "Email Address",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-          "x-nullable": true,
-          "example": "john_bob@example.com"
-        },
-        "grade": {
-          "type": "string",
-          "title": "Grade",
-          "x-nullable": true,
-          "example": "Some Grade"
+        "dodID": {
+          "type": "string"
         },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "origin_duty_station": {
+        "userID": {
           "type": "string",
-          "title": "Origin",
-          "x-nullable": true,
-          "example": "Dover AFB"
-        },
-        "pickup_address": {
-          "$ref": "#/definitions/Address"
-        },
-        "telephone": {
-          "type": "string",
-          "format": "telephone",
-          "title": "Best Contact Phone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
-          "x-nullable": true,
-          "example": "212-555-5555"
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -1384,11 +1343,13 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "isAvaiableToPrime": {
-          "type": "boolean"
+        "isAvailableToPrime": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "isCanceled": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true
         },
         "moveOrdersID": {
           "type": "string",
@@ -1770,7 +1731,7 @@ func init() {
           "Customer"
         ],
         "summary": "Returns a given customer",
-        "operationId": "getCustomerInfo",
+        "operationId": "getCustomer",
         "responses": {
           "200": {
             "description": "Successfully retrieved information on an individual customer",
@@ -3102,59 +3063,18 @@ func init() {
     "Customer": {
       "type": "object",
       "properties": {
-        "agency": {
-          "type": "string",
-          "title": "Agency",
-          "x-nullable": true,
-          "example": "Some Agency"
-        },
-        "customer_name": {
-          "type": "string",
-          "title": "Customer Name",
-          "x-nullable": true,
-          "example": "George Washington"
-        },
-        "destination_duty_station": {
-          "type": "string",
-          "title": "Destination",
-          "x-nullable": true,
-          "example": "Dover AFB"
-        },
-        "email": {
-          "type": "string",
-          "format": "x-email",
-          "title": "Email Address",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-          "x-nullable": true,
-          "example": "john_bob@example.com"
-        },
-        "grade": {
-          "type": "string",
-          "title": "Grade",
-          "x-nullable": true,
-          "example": "Some Grade"
+        "dodID": {
+          "type": "string"
         },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "origin_duty_station": {
+        "userID": {
           "type": "string",
-          "title": "Origin",
-          "x-nullable": true,
-          "example": "Dover AFB"
-        },
-        "pickup_address": {
-          "$ref": "#/definitions/Address"
-        },
-        "telephone": {
-          "type": "string",
-          "format": "telephone",
-          "title": "Best Contact Phone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
-          "x-nullable": true,
-          "example": "212-555-5555"
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -3282,11 +3202,13 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "isAvaiableToPrime": {
-          "type": "boolean"
+        "isAvailableToPrime": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "isCanceled": {
-          "type": "boolean"
+          "type": "boolean",
+          "x-nullable": true
         },
         "moveOrdersID": {
           "type": "string",

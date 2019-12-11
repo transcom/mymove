@@ -21,13 +21,19 @@ export function updateMoveTaskOrderStatus(moveTaskOrderID, status, label = updat
   );
 }
 
+const getMoveTaskOrderLabel = 'moveTaskOrder.updateMoveTaskOrderStatus';
+export function getMoveTaskOrder(moveTaskOrderID, label = getMoveTaskOrderLabel) {
+  const swaggerTag = 'moveTaskOrder.getMoveTaskOrder';
+  return swaggerRequest(getGHCClient, swaggerTag, { moveTaskOrderID }, { getMoveTaskOrder }, { label });
+}
+
 export function selectMoveTaskOrder(state, moveTaskOrderId) {
   return get(state, `entities.moveTaskOrders.${moveTaskOrderId}`, {});
 }
 
-const getCustomerInfoOperation = 'Customer.getCustomerInfo';
-export function getCustomerInfo(customerID, label = getCustomerInfoOperation) {
-  return swaggerRequest(getGHCClient, getCustomerInfoOperation, { customerID }, { label });
+const getCustomerOperation = 'Customer.getCustomer';
+export function getCustomer(customerID, label = getCustomerOperation) {
+  return swaggerRequest(getGHCClient, getCustomerOperation, { customerID }, { label });
 }
 
 const getAllCustomerMovesOperation = 'Customer.getAllCustomerMoves';

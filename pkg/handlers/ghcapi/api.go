@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 
 	"github.com/go-openapi/loads"
@@ -30,5 +32,13 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		paymentrequest.NewPaymentRequestListFetcher(context.DB()),
 	}
+	ghcAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
+		context,
+		movetaskorder.NewMoveTaskOrderFetcher(context.DB()),
+	}
+	ghcAPI.CustomerGetCustomerHandler = GetCustomerHandler{
+		context,
+	}
+
 	return ghcAPI.Serve(nil)
 }

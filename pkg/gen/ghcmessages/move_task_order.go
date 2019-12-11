@@ -25,11 +25,11 @@ type MoveTaskOrder struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// is avaiable to prime
-	IsAvaiableToPrime bool `json:"isAvaiableToPrime,omitempty"`
+	// is available to prime
+	IsAvailableToPrime *bool `json:"isAvailableToPrime,omitempty"`
 
 	// is canceled
-	IsCanceled bool `json:"isCanceled,omitempty"`
+	IsCanceled *bool `json:"isCanceled,omitempty"`
 
 	// move orders ID
 	// Format: uuid

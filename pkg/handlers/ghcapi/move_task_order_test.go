@@ -14,7 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
-func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegration() {
+func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 	moveOrder := testdatagen.MakeMoveOrder(suite.DB(), testdatagen.Assertions{})
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
 		MoveOrder: moveOrder,
@@ -39,8 +39,8 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegration() {
 
 	suite.Assertions.IsType(&move_task_order.GetMoveTaskOrderOK{}, response)
 	suite.Equal(strfmt.UUID(moveTaskOrder.ID.String()), moveTaskOrdersPayload.ID)
-	suite.False(moveTaskOrdersPayload.IsAvaiableToPrime)
-	suite.False(moveTaskOrdersPayload.IsCanceled)
+	suite.False(*moveTaskOrdersPayload.IsAvailableToPrime)
+	suite.False(*moveTaskOrdersPayload.IsCanceled)
 	suite.Equal(strfmt.UUID(moveTaskOrder.MoveOrderID.String()), moveTaskOrdersPayload.MoveOrdersID)
 	suite.Nil(moveTaskOrdersPayload.ReferenceID)
 }

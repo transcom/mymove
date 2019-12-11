@@ -4,48 +4,33 @@ import { get, isEmpty } from 'lodash';
 import {
   getEntitlements,
   updateMoveTaskOrderStatus,
-  getCustomerInfo,
+  getMoveTaskOrder,
+  getCustomer,
   selectMoveTaskOrder,
 } from 'shared/Entities/modules/moveTaskOrders';
 import { selectCustomer } from 'shared/Entities/modules/customer';
 
+const fakeMoveTaskOrderID = '5d4b25bb-eb04-4c03-9a81-ee0398cb779e';
 class CustomerDetails extends Component {
   componentDidMount() {
     this.props.getEntitlements('fake_move_task_order_id');
-    this.props.getCustomerInfo(this.props.match.params.customerId);
+    this.props.getMoveTaskOrder(fakeMoveTaskOrderID);
+    this.props.getCustomer(this.props.match.params.customerId);
   }
 
   render() {
     const { entitlements, moveTaskOrder, customer } = this.props;
-    const fakeMoveTaskOrderID = '5d4b25bb-eb04-4c03-9a81-ee0398cb779e';
-    const depsAuth = get(moveTaskOrder, 'entitlements.dependentsAuthorized') ? 'Y' : 'N';
-    const NTS = entitlements && entitlements.nonTemporaryStorage ? 'Y' : 'N';
-    const POV = entitlements && entitlements.privatelyOwnedVehicle ? 'Y' : 'N';
-    const moveTaskOrderNonTemporaryStorage = get(moveTaskOrder, 'entitlements.nonTemporaryStorage') ? 'Y' : 'N';
-    const moveTaskOrderPrivatelyOwnedVehicle = get(moveTaskOrder, 'entitlements.privatelyOwnedVehicle') ? 'Y' : 'N';
     return (
       <>
-        <h1>Customer Deets Page</h1>
+        <h1>Customer Details Page</h1>
         {customer && (
           <>
             <h2>Customer Info</h2>
             <dl>
-              <dt>Full Name</dt>
-              <dd>{customer.customer_name}</dd>
-              <dt>Service Branch / Agency</dt>
-              <dd>{customer.agency}</dd>
-              <dt>Rank / Grade</dt>
-              <dd>{customer.grade}</dd>
-              <dt>Email</dt>
-              <dd>{customer.email}</dd>
-              <dt>Phone</dt>
-              <dd>{customer.telephone}</dd>
-              <dt>Origin Duty Station</dt>
-              <dd>{customer.origin_duty_station}</dd>
-              <dt>Destination Duty Station</dt>
-              <dd>{customer.destination_duty_station}</dd>
-              <dt>Pickup Address</dt>
-              <dd>{customer.pickup_address}</dd>
+              <dt>ID</dt>
+              <dd>{get(customer, 'id')}</dd>
+              <dt>DOD ID</dt>
+              <dd>{get(customer, 'dodID')}</dd>
             </dl>
           </>
         )}
@@ -57,10 +42,6 @@ class CustomerDetails extends Component {
               <dd>{entitlements.totalWeightSelf}</dd>
               <dt>SIT Entitlement</dt>
               <dd>{entitlements.storageInTransit}</dd>
-              <dt>NTS Entitlement</dt>
-              <dd>{NTS}</dd>
-              <dt>POV Entitlement</dt>
-              <dd>{POV}</dd>
             </dl>
           </>
         )}
@@ -68,38 +49,14 @@ class CustomerDetails extends Component {
           <>
             <h2>Move Task Order</h2>
             <dl>
+              <dt>ID</dt>
+              <dd>{get(moveTaskOrder, 'id')}</dd>
               <dt>Reference ID</dt>
               <dd>{get(moveTaskOrder, 'referenceId')}</dd>
-              <dt>Origin Duty Station</dt>
-              <dd>{get(moveTaskOrder, 'originDutyStation')}</dd>
-              <dt>Destination Duty Station</dt>
-              <dd>{get(moveTaskOrder, 'destinationDutyStation')}</dd>
-              <dt>Pickup Address</dt>
-              <dd>{JSON.stringify(get(moveTaskOrder, 'pickupAddress'))}</dd>
-              <dt>Destination Address</dt>
-              <dd>{JSON.stringify(get(moveTaskOrder, 'destinationAddress'))}</dd>
-              <dt>Requested Pickup Date</dt>
-              <dd>{get(moveTaskOrder, 'requestedPickupDate')}</dd>
-              <dt>Customer Remarks</dt>
-              <dd>{get(moveTaskOrder, 'remarks')}</dd>
-              <dt>Service Items</dt>
-              <dd>{JSON.stringify(get(moveTaskOrder, 'serviceItems'))}</dd>
-              <dt>Status</dt>
-              <dd>{get(moveTaskOrder, 'status')}</dd>
-              <dt>Dependents Authorized</dt>
-              <dd>{depsAuth}</dd>
-              <dt>Progear Weight</dt>
-              <dd>{get(moveTaskOrder, 'entitlements.proGearWeight')}</dd>
-              <dt>Progear Weight Spouse</dt>
-              <dd>{get(moveTaskOrder, 'entitlements.proGearWeightSpouse')}</dd>
-              <dt>SIT Entitlement (days)</dt>
-              <dd>{get(moveTaskOrder, 'entitlements.storageInTransit')}</dd>
-              <dt>Total Dependents</dt>
-              <dd>{get(moveTaskOrder, 'entitlements.totalDependents')}</dd>
-              <dt>NTS Entitlement</dt>
-              <dd>{moveTaskOrderNonTemporaryStorage}</dd>
-              <dt>POV Entitlement</dt>
-              <dd>{moveTaskOrderPrivatelyOwnedVehicle}</dd>
+              <dt>Is Available to Prime</dt>
+              <dd>{get(moveTaskOrder, 'isAvailableToPrime').toString()}</dd>
+              <dt>Is Canceled</dt>
+              <dd>{get(moveTaskOrder, 'isCanceled').toString()}</dd>
             </dl>
           </>
         )}
@@ -127,8 +84,9 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = {
   getEntitlements,
+  getMoveTaskOrder,
   updateMoveTaskOrderStatus,
-  getCustomerInfo,
+  getCustomer,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CustomerDetails);
