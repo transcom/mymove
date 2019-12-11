@@ -688,77 +688,6 @@ func init() {
         }
       ]
     },
-    "/move-task-orders/{moveTaskOrderID}/status": {
-      "patch": {
-        "description": "Changes move order status",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder"
-        ],
-        "summary": "Change the status of a move order",
-        "operationId": "updateMoveTaskOrderStatus",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "ID of move order to use",
-            "name": "moveTaskOrderID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrderStatus"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully updated move task order status",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
-          }
-        }
-      }
-    },
     "/move_task_orders/{moveTaskOrderID}/service_items": {
       "get": {
         "description": "Gets all line items for a move orders",
@@ -1446,116 +1375,34 @@ func init() {
     "MoveTaskOrder": {
       "type": "object",
       "properties": {
-        "code": {
-          "type": "string",
-          "example": "USMC-0001"
-        },
         "createdAt": {
           "type": "string",
           "format": "date"
-        },
-        "customerId": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date"
-        },
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "destinationDutyStation": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "destinationPPSO": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "entitlements": {
-          "$ref": "#/definitions/Entitlements"
         },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "moveDate": {
-          "type": "string",
-          "format": "date"
+        "isAvaiableToPrime": {
+          "type": "boolean"
         },
-        "moveID": {
+        "isCanceled": {
+          "type": "boolean"
+        },
+        "moveOrdersID": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "moveTaskOrdersType": {
-          "type": "string",
-          "enum": [
-            "NON_TEMPORARY_STORAGE",
-            "PRIME"
-          ]
-        },
-        "originDutyStation": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "originPPSO": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "pickupAddress": {
-          "$ref": "#/definitions/Address"
         },
         "referenceId": {
           "type": "string",
           "x-nullable": true,
           "example": "1001-3456"
         },
-        "remarks": {
-          "type": "string",
-          "example": "Requires more gentle care"
-        },
-        "requestedPickupDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "serviceItems": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/ServiceItem"
-          }
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "REJECTED",
-            "DRAFT"
-          ]
-        },
         "updatedAt": {
           "type": "string",
           "format": "date"
-        }
-      }
-    },
-    "MoveTaskOrderStatus": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "DRAFT",
-            "REJECTED"
-          ]
         }
       }
     },
@@ -2664,92 +2511,6 @@ func init() {
         }
       ]
     },
-    "/move-task-orders/{moveTaskOrderID}/status": {
-      "patch": {
-        "description": "Changes move order status",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "moveTaskOrder"
-        ],
-        "summary": "Change the status of a move order",
-        "operationId": "updateMoveTaskOrderStatus",
-        "parameters": [
-          {
-            "type": "string",
-            "description": "ID of move order to use",
-            "name": "moveTaskOrderID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrderStatus"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully updated move task order status",
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrder"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          }
-        }
-      }
-    },
     "/move_task_orders/{moveTaskOrderID}/service_items": {
       "get": {
         "description": "Gets all line items for a move orders",
@@ -3512,116 +3273,34 @@ func init() {
     "MoveTaskOrder": {
       "type": "object",
       "properties": {
-        "code": {
-          "type": "string",
-          "example": "USMC-0001"
-        },
         "createdAt": {
           "type": "string",
           "format": "date"
-        },
-        "customerId": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date"
-        },
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "destinationDutyStation": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "destinationPPSO": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "entitlements": {
-          "$ref": "#/definitions/Entitlements"
         },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "moveDate": {
-          "type": "string",
-          "format": "date"
+        "isAvaiableToPrime": {
+          "type": "boolean"
         },
-        "moveID": {
+        "isCanceled": {
+          "type": "boolean"
+        },
+        "moveOrdersID": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "moveTaskOrdersType": {
-          "type": "string",
-          "enum": [
-            "NON_TEMPORARY_STORAGE",
-            "PRIME"
-          ]
-        },
-        "originDutyStation": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "originPPSO": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "pickupAddress": {
-          "$ref": "#/definitions/Address"
         },
         "referenceId": {
           "type": "string",
           "x-nullable": true,
           "example": "1001-3456"
         },
-        "remarks": {
-          "type": "string",
-          "example": "Requires more gentle care"
-        },
-        "requestedPickupDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "serviceItems": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/ServiceItem"
-          }
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "REJECTED",
-            "DRAFT"
-          ]
-        },
         "updatedAt": {
           "type": "string",
           "format": "date"
-        }
-      }
-    },
-    "MoveTaskOrderStatus": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "DRAFT",
-            "REJECTED"
-          ]
         }
       }
     },

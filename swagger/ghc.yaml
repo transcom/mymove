@@ -493,53 +493,6 @@ paths:
       description: Changes the status of a line item for a move order by ID
       operationId: updateServiceItemStatus
       summary: Change the status of a line item for a move order by ID
-  '/move-task-orders/{moveTaskOrderID}/status':
-    patch:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - description: ID of move order to use
-          in: path
-          name: moveTaskOrderID
-          required: true
-          type: string
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/MoveTaskOrderStatus'
-      responses:
-        '200':
-          description: Successfully updated move task order status
-          schema:
-            $ref: '#/definitions/MoveTaskOrder'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - moveTaskOrder
-      description: Changes move order status
-      operationId: updateMoveTaskOrderStatus
-      summary: Change the status of a move order
   '/move-task-orders/{moveTaskOrderID}/entitlements':
     parameters:
       - description: ID of move order to use
@@ -1027,88 +980,27 @@ definitions:
     type: object
   MoveTaskOrder:
     properties:
-      code:
-        example: USMC-0001
-        type: string
-      createdAt:
-        format: date
-        type: string
-      customerId:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      deletedAt:
-        format: date
-        type: string
-      destinationAddress:
-        $ref: '#/definitions/Address'
-      destinationDutyStation:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      destinationPPSO:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      entitlements:
-        $ref: '#/definitions/Entitlements'
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-      moveDate:
+      createdAt:
         format: date
         type: string
-      moveID:
+      moveOrdersID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-      moveTaskOrdersType:
-        enum:
-          - NON_TEMPORARY_STORAGE
-          - PRIME
-        type: string
-      originDutyStation:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      originPPSO:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      pickupAddress:
-        $ref: '#/definitions/Address'
       referenceId:
         example: 1001-3456
         type: string
         x-nullable: true
-      remarks:
-        example: Requires more gentle care
-        type: string
-      requestedPickupDate:
-        format: date
-        type: string
-      serviceItems:
-        items:
-          $ref: '#/definitions/ServiceItem'
-        type: array
-      status:
-        enum:
-          - APPROVED
-          - REJECTED
-          - DRAFT
-        type: string
+      isAvaiableToPrime:
+        type: boolean
+      isCanceled:
+        type: boolean
       updatedAt:
         format: date
-        type: string
-    type: object
-  MoveTaskOrderStatus:
-    properties:
-      status:
-        enum:
-          - APPROVED
-          - DRAFT
-          - REJECTED
         type: string
     type: object
   MoveTaskOrders:
