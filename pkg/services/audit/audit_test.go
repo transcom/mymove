@@ -61,8 +61,14 @@ func TestCapture(t *testing.T) {
 		session := auth.Session{}
 		_, err := Capture(model, logger, &session, "create_office_user")
 
-		if err == nil {
-			t.Error("Expected pointer error")
-		}
+		assert.Equal(t, "must pass a pointer to a struct", err.Error())
+	})
+
+	t.Run("failure when a non-struct is passed in", func(t *testing.T) {
+		session := auth.Session{}
+		invalidArg := 5
+		_, err := Capture(&invalidArg, logger, &session, "create_office_user")
+
+		assert.Equal(t, "must pass a pointer to a struct", err.Error())
 	})
 }

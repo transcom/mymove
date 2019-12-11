@@ -15,13 +15,18 @@ import (
 
 func Capture(model interface{}, logger Logger, session *auth.Session, eventType string) ([]zap.Field, error) {
 	msg := flect.Titleize(eventType)
-	t := reflect.TypeOf(model)
 
+	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
-		return nil, errors.New("must pass a pointer to a record")
+		return nil, errors.New("must pass a pointer to a struct")
 	}
 
-	recordType := parseRecordType(t.Elem().String())
+	t = t.Elem()
+	if t.Kind() != reflect.Struct {
+		return nil, errors.New("must pass a pointer to a struct")
+	}
+
+	recordType := parseRecordType(t.String())
 	elem := reflect.ValueOf(model).Elem()
 	createdAt := elem.FieldByName("CreatedAt").Interface().(time.Time).String()
 	updatedAt := elem.FieldByName("UpdatedAt").Interface().(time.Time).String()
