@@ -9,8 +9,9 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-// MTOServiceItem is an object representing service items for a move task order
-type MTOServiceItem struct {
+// MtoServiceItem is an object representing service items for a move task order.
+// "Mto" is sentence-cased because of the way how pop parses the name to link to the db table.
+type MtoServiceItem struct {
 	ID              uuid.UUID     `db:"id"`
 	MoveTaskOrder   MoveTaskOrder `belongs_to:"move_task_orders"`
 	MoveTaskOrderID uuid.UUID     `db:"move_task_order_id"`
@@ -24,11 +25,11 @@ type MTOServiceItem struct {
 	UpdatedAt       time.Time     `db:"updated_at"`
 }
 
-// MTOServiceItems is not required by pop and may be deleted
-type MTOServiceItems []MTOServiceItem
+// MtoServiceItems is not required by pop and may be deleted
+type MtoServiceItems []MtoServiceItem
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (m *MTOServiceItem) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (m *MtoServiceItem) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveTaskOrderID, Name: "MoveTaskOrderID"})
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MtoShipmentID, Name: "MtoShipmentID"})

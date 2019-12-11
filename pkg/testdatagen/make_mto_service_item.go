@@ -8,7 +8,7 @@ import (
 )
 
 // MakeMTOServiceItem creates a single MtoServiceItem and associated set relationships
-func MakeMTOServiceItem(db *pop.Connection, assertions Assertions) models.MTOServiceItem {
+func MakeMTOServiceItem(db *pop.Connection, assertions Assertions) models.MtoServiceItem {
 	moveTaskOrder := assertions.MoveTaskOrder
 	if isZeroUUID(moveTaskOrder.ID) {
 		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
@@ -21,7 +21,7 @@ func MakeMTOServiceItem(db *pop.Connection, assertions Assertions) models.MTOSer
 	if isZeroUUID(reService.ID) {
 		reService = MakeReService(db, assertions)
 	}
-	MtoServiceItem := models.MTOServiceItem{
+	MtoServiceItem := models.MtoServiceItem{
 		MoveTaskOrder:   moveTaskOrder,
 		MoveTaskOrderID: moveTaskOrder.ID,
 		MtoShipment:     mtoShipment,
@@ -32,7 +32,7 @@ func MakeMTOServiceItem(db *pop.Connection, assertions Assertions) models.MTOSer
 		MetaType:        "unknown",
 	}
 	// Overwrite values with those from assertions
-	mergeModels(&MtoServiceItem, assertions.MTOServiceItem)
+	mergeModels(&MtoServiceItem, assertions.MtoServiceItem)
 
 	mustCreate(db, &MtoServiceItem)
 

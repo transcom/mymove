@@ -7,14 +7,14 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	mtoserviceitemop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
-func payloadForMTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
+func payloadForMTOServiceItemModel(s *models.MtoServiceItem) *ghcmessages.MTOServiceItem {
 	if s == nil {
 		return nil
 	}
@@ -43,7 +43,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOSer
 		logger.Error(fmt.Sprintf("UUID Parsing for %s", params.ReServiceID), zap.Error(err))
 	}
 
-	serviceItem := models.MTOServiceItem{
+	serviceItem := models.MtoServiceItem{
 		MoveTaskOrderID: moveTaskOrderID,
 		ReServiceID:     reServiceID,
 	}

@@ -10,7 +10,7 @@ import (
 
 func (suite *ModelSuite) TestMTOServiceItemValidation() {
 	suite.T().Run("test valid MtoServiceItem", func(t *testing.T) {
-		validMTOServiceItem := models.MTOServiceItem{
+		validMTOServiceItem := models.MtoServiceItem{
 			MoveTaskOrderID: uuid.Must(uuid.NewV4()),
 			MtoShipmentID:   uuid.Must(uuid.NewV4()),
 			ReServiceID:     uuid.Must(uuid.NewV4()),
