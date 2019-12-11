@@ -463,12 +463,13 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	// Collect the servernames into a handy struct
 	appnames := auth.ApplicationServername{
-		MilServername:    v.GetString(cli.HTTPMyServerNameFlag),
-		OfficeServername: v.GetString(cli.HTTPOfficeServerNameFlag),
-		AdminServername:  v.GetString(cli.HTTPAdminServerNameFlag),
-		OrdersServername: v.GetString(cli.HTTPOrdersServerNameFlag),
-		DpsServername:    v.GetString(cli.HTTPDPSServerNameFlag),
-		SddcServername:   v.GetString(cli.HTTPSDDCServerNameFlag),
+		MilServername:      v.GetString(cli.HTTPMyServerNameFlag),
+		OfficeServername:   v.GetString(cli.HTTPOfficeServerNameFlag),
+		AdminServername:    v.GetString(cli.HTTPAdminServerNameFlag),
+		OrdersServername:   v.GetString(cli.HTTPOrdersServerNameFlag),
+		DpsServername:      v.GetString(cli.HTTPDPSServerNameFlag),
+		SddcServername:     v.GetString(cli.HTTPSDDCServerNameFlag),
+		GHCPrimeServername: v.GetString(cli.HTTPGHCPrimeServerNameFlag),
 	}
 
 	// Register Login.gov authentication provider for My.(move.mil)
@@ -744,9 +745,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	if v.GetBool(cli.ServePrimeFlag) {
 		primeMux := goji.SubMux()
-		// TODO # will need to add hostname detector middleware here
-		//primeDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.PrimeServername)
-		//primeMux.Use(primeDetectionMiddleware)
+		primeDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.GHCPrimeServername)
+		primeMux.Use(primeDetectionMiddleware)
 		primeMux.Use(middleware.NoCache(logger))
 		primeMux.Use(clientCertMiddleware)
 		primeMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.PrimeSwaggerFlag)))

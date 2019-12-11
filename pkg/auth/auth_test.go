@@ -23,17 +23,20 @@ const (
 	SddcTestHost string = "sddc.example.com"
 	// AdminTestHost
 	AdminTestHost string = "admin.example.com"
+	// GHCPrimeTestHost
+	GHCPrimeTestHost string = "ghcprime.example.com"
 )
 
 // ApplicationTestServername is a collection of the test servernames
 func ApplicationTestServername() ApplicationServername {
 	appnames := ApplicationServername{
-		MilServername:    MilTestHost,
-		OfficeServername: OfficeTestHost,
-		AdminServername:  AdminTestHost,
-		OrdersServername: OrdersTestHost,
-		DpsServername:    DpsTestHost,
-		SddcServername:   SddcTestHost,
+		MilServername:      MilTestHost,
+		OfficeServername:   OfficeTestHost,
+		AdminServername:    AdminTestHost,
+		OrdersServername:   OrdersTestHost,
+		DpsServername:      DpsTestHost,
+		SddcServername:     SddcTestHost,
+		GHCPrimeServername: GHCPrimeTestHost,
 	}
 	return appnames
 }
