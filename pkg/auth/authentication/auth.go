@@ -77,7 +77,6 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	}
 }
 
-//go:generate mockery -name APIContext
 type APIContext interface {
 	RouteInfo(r *http.Request) (*middleware.MatchedRoute, *http.Request, bool)
 }
