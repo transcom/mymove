@@ -15,13 +15,9 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// ServiceItem service item
-// swagger:model ServiceItem
-type ServiceItem struct {
-
-	// move task order ID
-	// Format: uuid
-	MoveTaskOrderID strfmt.UUID `json:"MoveTaskOrderID,omitempty"`
+// MTOServiceItem m t o service item
+// swagger:model MTOServiceItem
+type MTOServiceItem struct {
 
 	// approved at
 	// Format: date
@@ -47,11 +43,27 @@ type ServiceItem struct {
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
 
+	// move task order ID
+	// Required: true
+	// Format: uuid
+	MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
+
 	// quantity
 	Quantity int64 `json:"quantity,omitempty"`
 
 	// rate
 	Rate int64 `json:"rate,omitempty"`
+
+	// re service code
+	ReServiceCode string `json:"reServiceCode,omitempty"`
+
+	// re service ID
+	// Required: true
+	// Format: uuid
+	ReServiceID *strfmt.UUID `json:"reServiceID"`
+
+	// re service name
+	ReServiceName string `json:"reServiceName,omitempty"`
 
 	// rejected at
 	// Format: date
@@ -73,13 +85,9 @@ type ServiceItem struct {
 	UpdatedAt strfmt.Date `json:"updatedAt,omitempty"`
 }
 
-// Validate validates this service item
-func (m *ServiceItem) Validate(formats strfmt.Registry) error {
+// Validate validates this m t o service item
+func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := m.validateMoveTaskOrderID(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := m.validateApprovedAt(formats); err != nil {
 		res = append(res, err)
@@ -98,6 +106,14 @@ func (m *ServiceItem) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMoveTaskOrderID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateReServiceID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -123,20 +139,7 @@ func (m *ServiceItem) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *ServiceItem) validateMoveTaskOrderID(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.MoveTaskOrderID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("MoveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *ServiceItem) validateApprovedAt(formats strfmt.Registry) error {
+func (m *MTOServiceItem) validateApprovedAt(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ApprovedAt) { // not required
 		return nil
@@ -149,7 +152,7 @@ func (m *ServiceItem) validateApprovedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *ServiceItem) validateCreatedAt(formats strfmt.Registry) error {
+func (m *MTOServiceItem) validateCreatedAt(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
@@ -162,7 +165,7 @@ func (m *ServiceItem) validateCreatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *ServiceItem) validateDeletedAt(formats strfmt.Registry) error {
+func (m *MTOServiceItem) validateDeletedAt(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.DeletedAt) { // not required
 		return nil
@@ -175,7 +178,7 @@ func (m *ServiceItem) validateDeletedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-var serviceItemTypeFeeTypePropEnum []interface{}
+var mTOServiceItemTypeFeeTypePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -183,34 +186,34 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		serviceItemTypeFeeTypePropEnum = append(serviceItemTypeFeeTypePropEnum, v)
+		mTOServiceItemTypeFeeTypePropEnum = append(mTOServiceItemTypeFeeTypePropEnum, v)
 	}
 }
 
 const (
 
-	// ServiceItemFeeTypeCOUNSELING captures enum value "COUNSELING"
-	ServiceItemFeeTypeCOUNSELING string = "COUNSELING"
+	// MTOServiceItemFeeTypeCOUNSELING captures enum value "COUNSELING"
+	MTOServiceItemFeeTypeCOUNSELING string = "COUNSELING"
 
-	// ServiceItemFeeTypeCRATING captures enum value "CRATING"
-	ServiceItemFeeTypeCRATING string = "CRATING"
+	// MTOServiceItemFeeTypeCRATING captures enum value "CRATING"
+	MTOServiceItemFeeTypeCRATING string = "CRATING"
 
-	// ServiceItemFeeTypeTRUCKING captures enum value "TRUCKING"
-	ServiceItemFeeTypeTRUCKING string = "TRUCKING"
+	// MTOServiceItemFeeTypeTRUCKING captures enum value "TRUCKING"
+	MTOServiceItemFeeTypeTRUCKING string = "TRUCKING"
 
-	// ServiceItemFeeTypeSHUTTLE captures enum value "SHUTTLE"
-	ServiceItemFeeTypeSHUTTLE string = "SHUTTLE"
+	// MTOServiceItemFeeTypeSHUTTLE captures enum value "SHUTTLE"
+	MTOServiceItemFeeTypeSHUTTLE string = "SHUTTLE"
 )
 
 // prop value enum
-func (m *ServiceItem) validateFeeTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, serviceItemTypeFeeTypePropEnum); err != nil {
+func (m *MTOServiceItem) validateFeeTypeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, mTOServiceItemTypeFeeTypePropEnum); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *ServiceItem) validateFeeType(formats strfmt.Registry) error {
+func (m *MTOServiceItem) validateFeeType(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.FeeType) { // not required
 		return nil
@@ -224,7 +227,7 @@ func (m *ServiceItem) validateFeeType(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *ServiceItem) validateID(formats strfmt.Registry) error {
+func (m *MTOServiceItem) validateID(formats strfmt.Registry) error {
 
 	if err := validate.Required("id", "body", m.ID); err != nil {
 		return err
@@ -237,7 +240,33 @@ func (m *ServiceItem) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *ServiceItem) validateRejectedAt(formats strfmt.Registry) error {
+func (m *MTOServiceItem) validateMoveTaskOrderID(formats strfmt.Registry) error {
+
+	if err := validate.Required("moveTaskOrderID", "body", m.MoveTaskOrderID); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) validateReServiceID(formats strfmt.Registry) error {
+
+	if err := validate.Required("reServiceID", "body", m.ReServiceID); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("reServiceID", "body", "uuid", m.ReServiceID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) validateRejectedAt(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.RejectedAt) { // not required
 		return nil
@@ -250,7 +279,7 @@ func (m *ServiceItem) validateRejectedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-var serviceItemTypeStatusPropEnum []interface{}
+var mTOServiceItemTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -258,31 +287,31 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		serviceItemTypeStatusPropEnum = append(serviceItemTypeStatusPropEnum, v)
+		mTOServiceItemTypeStatusPropEnum = append(mTOServiceItemTypeStatusPropEnum, v)
 	}
 }
 
 const (
 
-	// ServiceItemStatusAPPROVED captures enum value "APPROVED"
-	ServiceItemStatusAPPROVED string = "APPROVED"
+	// MTOServiceItemStatusAPPROVED captures enum value "APPROVED"
+	MTOServiceItemStatusAPPROVED string = "APPROVED"
 
-	// ServiceItemStatusSUBMITTED captures enum value "SUBMITTED"
-	ServiceItemStatusSUBMITTED string = "SUBMITTED"
+	// MTOServiceItemStatusSUBMITTED captures enum value "SUBMITTED"
+	MTOServiceItemStatusSUBMITTED string = "SUBMITTED"
 
-	// ServiceItemStatusREJECTED captures enum value "REJECTED"
-	ServiceItemStatusREJECTED string = "REJECTED"
+	// MTOServiceItemStatusREJECTED captures enum value "REJECTED"
+	MTOServiceItemStatusREJECTED string = "REJECTED"
 )
 
 // prop value enum
-func (m *ServiceItem) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, serviceItemTypeStatusPropEnum); err != nil {
+func (m *MTOServiceItem) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, mTOServiceItemTypeStatusPropEnum); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *ServiceItem) validateStatus(formats strfmt.Registry) error {
+func (m *MTOServiceItem) validateStatus(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Status) { // not required
 		return nil
@@ -296,7 +325,7 @@ func (m *ServiceItem) validateStatus(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *ServiceItem) validateSubmittedAt(formats strfmt.Registry) error {
+func (m *MTOServiceItem) validateSubmittedAt(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.SubmittedAt) { // not required
 		return nil
@@ -309,7 +338,7 @@ func (m *ServiceItem) validateSubmittedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *ServiceItem) validateUpdatedAt(formats strfmt.Registry) error {
+func (m *MTOServiceItem) validateUpdatedAt(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
@@ -323,7 +352,7 @@ func (m *ServiceItem) validateUpdatedAt(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (m *ServiceItem) MarshalBinary() ([]byte, error) {
+func (m *MTOServiceItem) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -331,8 +360,8 @@ func (m *ServiceItem) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *ServiceItem) UnmarshalBinary(b []byte) error {
-	var res ServiceItem
+func (m *MTOServiceItem) UnmarshalBinary(b []byte) error {
+	var res MTOServiceItem
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

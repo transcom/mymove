@@ -14,12 +14,12 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// ServiceItems service items
-// swagger:model ServiceItems
-type ServiceItems []*ServiceItem
+// MTOServiceItems m t o service items
+// swagger:model MTOServiceItems
+type MTOServiceItems []*MTOServiceItem
 
-// Validate validates this service items
-func (m ServiceItems) Validate(formats strfmt.Registry) error {
+// Validate validates this m t o service items
+func (m MTOServiceItems) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	for i := 0; i < len(m); i++ {

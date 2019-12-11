@@ -240,9 +240,9 @@ paths:
       description: Updates a move order by ID
       operationId: updateMoveTaskOrder
       summary: Updates a move order by ID
-  '/move_task_orders/{moveTaskOrderID}/service_items':
+  '/move_task_orders/{moveTaskOrderID}/mto_service_items':
     parameters:
-      - description: ID of move order for service item to use
+      - description: ID of move order for mto service item to use
         in: path
         name: moveTaskOrderID
         required: true
@@ -255,7 +255,7 @@ paths:
         '200':
           description: Successfully retrieved all line items for a move task order
           schema:
-            $ref: '#/definitions/ServiceItems'
+            $ref: '#/definitions/MTOServiceItems'
         '400':
           description: The request payload is invalid
           schema:
@@ -277,21 +277,32 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - serviceItem
+        - mtoServiceItem
       description: Gets all line items for a move orders
-      operationId: listServiceItems
+      operationId: listMTOServiceItems
       summary: Gets all line items for a move order
     post:
       consumes:
         - application/json
       produces:
         - application/json
-      parameters: []
+      parameters:
+        - description: ID of move order to use
+          in: path
+          name: moveTaskOrderID
+          required: true
+          type: string
+        - description: ID of the rate engine services
+          in: body
+          name: reServiceID
+          required: true
+          schema:
+            type: string
       responses:
         '201':
           description: Successfully created service item for move task order
           schema:
-            $ref: '#/definitions/ServiceItem'
+            $ref: '#/definitions/MTOServiceItem'
         '400':
           description: The request payload is invalid
           schema:
@@ -313,11 +324,11 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - serviceItem
+        - mtoServiceItem
       description: Creates a service item for a move order by id
-      operationId: createServiceItem
+      operationId: createMTOServiceItem
       summary: Creates a service item for a move order by id
-  '/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}':
+  '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}':
     parameters:
       - description: ID of move order to use
         in: path
@@ -326,7 +337,7 @@ paths:
         type: string
       - description: ID of line item to use
         in: path
-        name: serviceItemID
+        name: mtoServiceItemID
         required: true
         type: string
     delete:
@@ -359,9 +370,9 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - serviceItem
+        - mtoServiceItem
       description: Deletes a line item by ID for a move order by ID
-      operationId: deleteServiceItem
+      operationId: deleteMTOServiceItem
       summary: Deletes a line item by ID for a move order by ID
     get:
       produces:
@@ -371,7 +382,7 @@ paths:
         '200':
           description: Successfully retrieved a line item for a move task order by ID
           schema:
-            $ref: '#/definitions/ServiceItem'
+            $ref: '#/definitions/MTOServiceItem'
         '400':
           description: The request payload is invalid
           schema:
@@ -393,9 +404,9 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - serviceItem
+        - mtoServiceItem
       description: Gets a line item by ID for a move order by ID
-      operationId: getServiceItem
+      operationId: getMTOServiceItem
       summary: Gets a line item by ID for a move order by ID
     patch:
       consumes:
@@ -407,7 +418,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/ServiceItem'
+            $ref: '#/definitions/MTOServiceItem'
       responses:
         '200':
           description: Successfully updated move task order status
@@ -434,11 +445,11 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - serviceItem
+        - MTOserviceItem
       description: Updates a service item by ID for a move order by ID
-      operationId: updateServiceItem
+      operationId: updateMTOServiceItem
       summary: Updates a service item by ID for a move order by ID
-  '/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}/status':
+  '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status':
     parameters:
       - description: ID of move order to use
         in: path
@@ -447,7 +458,7 @@ paths:
         type: string
       - description: ID of line item to use
         in: path
-        name: serviceItemID
+        name: mtoServiceItemID
         required: true
         type: string
     patch:
@@ -460,14 +471,14 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/ServiceItemStatus'
+            $ref: '#/definitions/MTOServiceItemstatus'
       responses:
         '200':
           description: >-
             Successfully updated status for a line item for a move task order by
             ID
           schema:
-            $ref: '#/definitions/ServiceItem'
+            $ref: '#/definitions/MTOServiceItem'
         '400':
           description: The request payload is invalid
           schema:
@@ -489,9 +500,9 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - serviceItem
+        - mtoServiceItem
       description: Changes the status of a line item for a move order by ID
-      operationId: updateServiceItemStatus
+      operationId: updateMTOServiceItemstatus
       summary: Change the status of a line item for a move order by ID
   '/move-task-orders/{moveTaskOrderID}/status':
     patch:
@@ -1099,9 +1110,9 @@ definitions:
       requestedPickupDate:
         format: date
         type: string
-      serviceItems:
+      MTOServiceItems:
         items:
-          $ref: '#/definitions/ServiceItem'
+          $ref: '#/definitions/MTOServiceItem'
         type: array
       status:
         enum:
@@ -1173,11 +1184,19 @@ definitions:
           $ref: '#/definitions/Upload'
         type: array
     type: object
-  ServiceItem:
+  MTOServiceItem:
     properties:
-      MoveTaskOrderID:
+      moveTaskOrderID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
+        type: string
+      reServiceID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reServiceCode:
+        type: string
+      reServiceName:
         type: string
       approvedAt:
         format: date
@@ -1225,12 +1244,14 @@ definitions:
         type: string
     required:
       - id
+      - moveTaskOrderID
+      - reServiceID
     type: object
-  ServiceItems:
+  MTOServiceItems:
     type: array
     items:
-      $ref: '#/definitions/ServiceItem'
-  ServiceItemStatus:
+      $ref: '#/definitions/MTOServiceItem'
+  MTOServiceItemstatus:
     properties:
       status:
         enum:

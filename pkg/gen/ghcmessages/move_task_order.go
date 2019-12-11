@@ -20,6 +20,9 @@ import (
 // swagger:model MoveTaskOrder
 type MoveTaskOrder struct {
 
+	// m t o service items
+	MTOServiceItems []*MTOServiceItem `json:"MTOServiceItems"`
+
 	// code
 	Code string `json:"code,omitempty"`
 
@@ -86,9 +89,6 @@ type MoveTaskOrder struct {
 	// Format: date
 	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
 
-	// service items
-	ServiceItems []*ServiceItem `json:"serviceItems"`
-
 	// status
 	// Enum: [APPROVED REJECTED DRAFT]
 	Status string `json:"status,omitempty"`
@@ -101,6 +101,10 @@ type MoveTaskOrder struct {
 // Validate validates this move task order
 func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateMTOServiceItems(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
@@ -162,10 +166,6 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateServiceItems(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
@@ -177,6 +177,31 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MoveTaskOrder) validateMTOServiceItems(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.MTOServiceItems) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.MTOServiceItems); i++ {
+		if swag.IsZero(m.MTOServiceItems[i]) { // not required
+			continue
+		}
+
+		if m.MTOServiceItems[i] != nil {
+			if err := m.MTOServiceItems[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("MTOServiceItems" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 
@@ -415,31 +440,6 @@ func (m *MoveTaskOrder) validateRequestedPickupDate(formats strfmt.Registry) err
 
 	if err := validate.FormatOf("requestedPickupDate", "body", "date", m.RequestedPickupDate.String(), formats); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-func (m *MoveTaskOrder) validateServiceItems(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ServiceItems) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(m.ServiceItems); i++ {
-		if swag.IsZero(m.ServiceItems[i]) { // not required
-			continue
-		}
-
-		if m.ServiceItems[i] != nil {
-			if err := m.ServiceItems[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("serviceItems" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
 	}
 
 	return nil
