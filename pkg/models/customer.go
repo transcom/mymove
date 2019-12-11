@@ -22,6 +22,7 @@ type Customer struct {
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (c *Customer) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
+	vs = append(vs, &validators.UUIDIsPresent{Field: c.UserID, Name: "UserID"})
 	vs = append(vs, &validators.StringIsPresent{Field: c.DODID, Name: "DODID"})
 	return validate.Validate(vs...), nil
 }

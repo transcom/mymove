@@ -8,9 +8,14 @@ import (
 
 // MakeCustomer creates a single Customer
 func MakeCustomer(db *pop.Connection, assertions Assertions) models.Customer {
-
+	user := assertions.User
+	if isZeroUUID(user.ID) {
+		user = MakeUser(db, assertions)
+	}
 	customer := models.Customer{
-		DODID: randomEdipi(),
+		User:   user,
+		UserID: user.ID,
+		DODID:  randomEdipi(),
 	}
 
 	// Overwrite values with those from assertions
