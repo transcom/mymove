@@ -164,8 +164,8 @@ export class OfficeWrapper extends Component {
                     {too && <PrivateRoute path="/too/placeholder" component={TOO} />}
                     {too && <PrivateRoute path="/too/customer/:customerId/details" component={CustomerDetails} />}
                     {tio && <PrivateRoute path="/tio/placeholder" component={TIO} />}
-                    {tio && <PrivateRoute path="/payment_requests" component={PaymentRequestIndex} />}
                     {tio && <PrivateRoute path="/payment_requests/:id" component={PaymentRequestShow} />}
+                    {tio && <PrivateRoute path="/payment_requests" component={PaymentRequestIndex} />}
                   </Switch>
                 </Suspense>
               </Switch>
