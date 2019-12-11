@@ -31,6 +31,7 @@ var validPaymentRequestStatus = []string{
 	string(PaymentRequestStatusPaid),
 }
 
+// PaymentRequest is an object representing a payment request on a move task order
 type PaymentRequest struct {
 	ID              uuid.UUID            `json:"id" db:"id"`
 	MoveTaskOrder   MoveTaskOrder        `belongs_to:"move_task_orders"`
