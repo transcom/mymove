@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getPaymentRequestList, selectPaymentRequests } from 'shared/Entities/modules/paymentRequests';
+import { Link } from 'react-router-dom';
 
 class PaymentRequestIndex extends React.Component {
   componentDidMount() {
@@ -9,7 +10,6 @@ class PaymentRequestIndex extends React.Component {
   }
 
   render() {
-    console.log(this.props.paymentRequests);
     return (
       <>
         <h1>Payment Requests</h1>
@@ -24,7 +24,9 @@ class PaymentRequestIndex extends React.Component {
           </thead>
           {this.props.paymentRequests.map(pr => (
             <tr>
-              <td>{pr.id}</td>
+              <td>
+                <Link to={`/payment_requests/${pr.id}`}>{pr.id}</Link>
+              </td>
               <td>{pr.isFinal}</td>
               <td>{pr.rejectionReason}</td>
               <td>{pr.serviceItemIDs}</td>
