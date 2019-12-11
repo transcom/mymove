@@ -7,7 +7,7 @@
 set -eu -o pipefail
 
 if [[ $# -ne 2 ]]; then
-  echo "Usage: ${0##*/} <repo-name> <git-commit> <region>"
+  echo "Usage: ${0##*/} <repo-name> <git-commit>"
   exit 1
 fi
 
@@ -19,9 +19,12 @@ findings=$(aws ecr describe-image-scan-findings --repository-name "${repoName}" 
 status=$(echo "${findings}" | jq -r ".imageScanStatus.status")
 numberOfFindings=$(echo "${findings}" | jq -r ".imageScanFindings.findings | length")
 echo "${findings}" | jq .
-if [[ "${status}" != "COMPLETE" ]]; then
+echo
+if [[ "${status}" != *COMPLETE* ]]; then
+  echo "Scan does not appear COMPLETE"
   exit 1
 fi
 if [[ "${numberOfFindings}" -gt 0 ]]; then
+  echo "Scan found ${numberOfFindings} findings!"
   exit 1
 fi
