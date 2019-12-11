@@ -22,16 +22,18 @@ class PaymentRequestIndex extends React.Component {
               <th>Service Item IDs</th>
             </tr>
           </thead>
-          {this.props.paymentRequests.map(pr => (
-            <tr>
-              <td>
-                <Link to={`/payment_requests/${pr.id}`}>{pr.id}</Link>
-              </td>
-              <td>{pr.isFinal}</td>
-              <td>{pr.rejectionReason}</td>
-              <td>{pr.serviceItemIDs}</td>
-            </tr>
-          ))}
+          <tbody>
+            {this.props.paymentRequests.map(pr => (
+              <tr>
+                <td>
+                  <Link to={`/payment_requests/${pr.id}`}>{pr.id}</Link>
+                </td>
+                <td>{pr.isFinal}</td>
+                <td>{pr.rejectionReason}</td>
+                <td>{pr.serviceItemIDs}</td>
+              </tr>
+            ))}
+          </tbody>
         </table>
       </>
     );
