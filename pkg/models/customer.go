@@ -7,7 +7,6 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
-	"time"
 )
 
 // Customer is an object representing data for a customer
