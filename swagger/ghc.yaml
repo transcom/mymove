@@ -590,11 +590,7 @@ paths:
         '200':
           description: fetched list of payment requests
           schema:
-            type: object
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/definitions/Error'
+            $ref: '#/definitions/PaymentRequests'
         '401':
           description: The request was denied
           schema:
@@ -603,62 +599,16 @@ paths:
           description: The request was denied
           schema:
             $ref: '#/definitions/Error'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/definitions/Error'
         '500':
           description: A server error occurred
           schema:
             $ref: '#/definitions/Error'
       tags:
         - paymentRequests
-        - prime
         - gov
       description: Gets a list of payment requests
       operationId: listPaymentRequests
       summary: Gets payment requests
-    post:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          schema:
-            $ref: '#/definitions/CreatePaymentRequestPayload'
-      responses:
-        '201':
-          description: created instance of payment request
-          schema:
-            $ref: '#/definitions/PaymentRequest'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - paymentRequests
-        - prime
-      description: Creates a payment request
-      operationId: createPaymentRequest
-      summary: Creates a payment request
   '/payment-requests/{paymentRequestID}':
     parameters:
       - description: UUID of payment request
@@ -698,7 +648,6 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - paymentRequests
-        - prime
         - gov
       description: Fetches an instance of a payment request by id
       operationId: getPaymentRequest
@@ -741,7 +690,6 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - paymentRequests
-        - prime
       description: Updates a payment request by id
       operationId: updatePaymentRequest
       summary: Updates a payment request by id
@@ -944,24 +892,6 @@ definitions:
       - city
       - state
       - postal_code
-  CreatePaymentRequestPayload:
-    properties:
-      isFinal:
-        default: false
-        type: boolean
-      moveOrderID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-      proofOfServicePackage:
-        $ref: '#/definitions/ProofOfServicePackage'
-      serviceItemIDs:
-        items:
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
-          format: uuid
-          type: string
-        type: array
-    type: object
   CustomerMoveItem:
     type: object
     properties:
@@ -1197,7 +1127,7 @@ definitions:
       isFinal:
         default: false
         type: boolean
-      moveOrderID:
+      moveTaskOrderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
@@ -1214,6 +1144,10 @@ definitions:
       status:
         $ref: '#/definitions/PaymentRequestStatus'
     type: object
+  PaymentRequests:
+    items:
+      $ref: '#/definitions/PaymentRequest'
+    type: array
   PaymentRequestStatus:
     enum:
       - PAYMENT_SUBMITTED

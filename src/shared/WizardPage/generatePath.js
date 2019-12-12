@@ -1,6 +1,6 @@
 // this is borrowed from https://github.com/ReactTraining/react-router/blob/e6f9017c947b3ae49affa24cc320d0a86f765b55/packages/react-router/modules/generatePath.js
 // which has not been released yet
-import pathToRegexp from 'path-to-regexp';
+import { compile } from 'path-to-regexp';
 
 const patternCache = {};
 const cacheLimit = 10000;
@@ -13,7 +13,7 @@ const compileGenerator = pattern => {
 
   if (cache[pattern]) return cache[pattern];
 
-  const compiledGenerator = pathToRegexp.compile(pattern);
+  const compiledGenerator = compile(pattern);
 
   if (cacheCount < cacheLimit) {
     cache[pattern] = compiledGenerator;

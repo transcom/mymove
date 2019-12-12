@@ -12,6 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_requests"
 )
 
 //go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/prime.yaml --api-package primeoperations --model-package primemessages --server-package primeapi --exclude-main
@@ -32,8 +33,15 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 
 	api.JSONConsumer = runtime.JSONConsumer()
 
+	api.MultipartformConsumer = runtime.DiscardConsumer
+
 	api.JSONProducer = runtime.JSONProducer()
 
+	if api.PaymentRequestsCreatePaymentRequestHandler == nil {
+		api.PaymentRequestsCreatePaymentRequestHandler = payment_requests.CreatePaymentRequestHandlerFunc(func(params payment_requests.CreatePaymentRequestParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_requests.CreatePaymentRequest has not yet been implemented")
+		})
+	}
 	if api.MoveTaskOrderGetMoveTaskOrderCustomerHandler == nil {
 		api.MoveTaskOrderGetMoveTaskOrderCustomerHandler = move_task_order.GetMoveTaskOrderCustomerHandlerFunc(func(params move_task_order.GetMoveTaskOrderCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrderCustomer has not yet been implemented")

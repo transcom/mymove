@@ -879,7 +879,6 @@ func init() {
         ],
         "tags": [
           "paymentRequests",
-          "prime",
           "gov"
         ],
         "summary": "Gets payment requests",
@@ -888,13 +887,7 @@ func init() {
           "200": {
             "description": "fetched list of payment requests",
             "schema": {
-              "type": "object"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/PaymentRequests"
             }
           },
           "401": {
@@ -909,78 +902,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
           "500": {
             "description": "A server error occurred",
             "schema": {
               "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a payment request",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "paymentRequests",
-          "prime"
-        ],
-        "summary": "Creates a payment request",
-        "operationId": "createPaymentRequest",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/CreatePaymentRequestPayload"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "created instance of payment request",
-            "schema": {
-              "$ref": "#/definitions/PaymentRequest"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/responses/ServerError"
             }
           }
         }
@@ -994,7 +919,6 @@ func init() {
         ],
         "tags": [
           "paymentRequests",
-          "prime",
           "gov"
         ],
         "summary": "Fetches a payment request by id",
@@ -1047,8 +971,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "prime"
+          "paymentRequests"
         ],
         "summary": "Updates a payment request by id",
         "operationId": "updatePaymentRequest",
@@ -1346,31 +1269,6 @@ func init() {
           "title": "Address Line 3",
           "x-nullable": true,
           "example": "Montmârtre"
-        }
-      }
-    },
-    "CreatePaymentRequestPayload": {
-      "type": "object",
-      "properties": {
-        "isFinal": {
-          "type": "boolean",
-          "default": false
-        },
-        "moveOrderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "proofOfServicePackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
-        },
-        "serviceItemIDs": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
         }
       }
     },
@@ -1683,7 +1581,7 @@ func init() {
           "type": "boolean",
           "default": false
         },
-        "moveOrderID": {
+        "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -1714,6 +1612,12 @@ func init() {
         "APPROVED",
         "REJECTED"
       ]
+    },
+    "PaymentRequests": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentRequest"
+      }
     },
     "ProofOfServicePackage": {
       "type": "object",
@@ -2996,7 +2900,6 @@ func init() {
         ],
         "tags": [
           "paymentRequests",
-          "prime",
           "gov"
         ],
         "summary": "Gets payment requests",
@@ -3005,13 +2908,7 @@ func init() {
           "200": {
             "description": "fetched list of payment requests",
             "schema": {
-              "type": "object"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/PaymentRequests"
             }
           },
           "401": {
@@ -3026,93 +2923,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
           "500": {
             "description": "A server error occurred",
             "schema": {
               "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a payment request",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "paymentRequests",
-          "prime"
-        ],
-        "summary": "Creates a payment request",
-        "operationId": "createPaymentRequest",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/CreatePaymentRequestPayload"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "created instance of payment request",
-            "schema": {
-              "$ref": "#/definitions/PaymentRequest"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
             }
           }
         }
@@ -3126,7 +2940,6 @@ func init() {
         ],
         "tags": [
           "paymentRequests",
-          "prime",
           "gov"
         ],
         "summary": "Fetches a payment request by id",
@@ -3194,8 +3007,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "prime"
+          "paymentRequests"
         ],
         "summary": "Updates a payment request by id",
         "operationId": "updatePaymentRequest",
@@ -3526,31 +3338,6 @@ func init() {
         }
       }
     },
-    "CreatePaymentRequestPayload": {
-      "type": "object",
-      "properties": {
-        "isFinal": {
-          "type": "boolean",
-          "default": false
-        },
-        "moveOrderID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "proofOfServicePackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
-        },
-        "serviceItemIDs": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid",
-            "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-          }
-        }
-      }
-    },
     "Customer": {
       "type": "object",
       "properties": {
@@ -3860,7 +3647,7 @@ func init() {
           "type": "boolean",
           "default": false
         },
-        "moveOrderID": {
+        "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -3891,6 +3678,12 @@ func init() {
         "APPROVED",
         "REJECTED"
       ]
+    },
+    "PaymentRequests": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentRequest"
+      }
     },
     "ProofOfServicePackage": {
       "type": "object",

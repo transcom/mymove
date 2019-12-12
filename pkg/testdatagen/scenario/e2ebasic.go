@@ -856,17 +856,22 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	mto := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{ID: uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e")},
 	})
-	testdatagen.MakeServiceItem(db, testdatagen.Assertions{
-		ServiceItem: models.ServiceItem{MoveTaskOrder: mto}},
-	)
-	testdatagen.MakeEntitlement(db, testdatagen.Assertions{
-		GHCEntitlement: models.GHCEntitlement{MoveTaskOrder: &mto}},
-	)
 
-	testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{
-			ID:     uuid.FromStringOrNil("1c030e51-b5be-40a2-80bf-97a330891307"),
-			Status: models.MoveTaskOrderStatusDraft,
+	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MoveTaskOrder: mto,
+	})
+
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MoveTaskOrder: mto,
+		MTOShipment:   MTOShipment,
+	})
+
+	testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			ID:            uuid.FromStringOrNil("a2c34dba-015f-4f96-a38b-0c0b9272e208"),
+			MoveTaskOrder: mto,
+			IsFinal:       false,
+			Status:        "PENDING",
 		},
 	})
 }
