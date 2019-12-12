@@ -61,7 +61,7 @@ type fetchCustomer struct {
 	db *pop.Connection
 }
 
-// NewMoveTaskOrderFetcher creates a new struct with the service dependencies
+// NewCustomerFetcher creates a new struct with the service dependencies
 func NewCustomerFetcher(db *pop.Connection) services.CustomerFetcher {
 	return &fetchCustomer{db}
 }

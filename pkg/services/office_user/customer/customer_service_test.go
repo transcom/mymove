@@ -16,7 +16,7 @@ func (suite *CustomerServiceSuite) SetupTest() {
 	suite.DB().TruncateAll()
 }
 
-func TestAccessCodeServiceSuite(t *testing.T) {
+func TestCustomerServiceSuite(t *testing.T) {
 	ts := &CustomerServiceSuite{
 		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 	}

@@ -4,7 +4,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *CustomerServiceSuite) TestMoveTaskOrderFetcher() {
+func (suite *CustomerServiceSuite) TestCustomerFetcher() {
 	customer := testdatagen.MakeDefaultCustomer(suite.DB())
 	mtoFetcher := NewCustomerFetcher(suite.DB())
 
