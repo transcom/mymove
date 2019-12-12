@@ -15,7 +15,7 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *ghcmessages.MoveTaskOrd
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
 		IsAvailableToPrime: &moveTaskOrder.IsAvailableToPrime,
-		IsCanceled:         &moveTaskOrder.IsCancelled,
+		IsCanceled:         &moveTaskOrder.IsCanceled,
 		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
 		ReferenceID:        moveTaskOrder.ReferenceID,
 		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),

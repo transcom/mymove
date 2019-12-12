@@ -19,5 +19,5 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 	suite.NotZero(actualMTO.MoveOrder)
 	suite.Nil(expectedMTO.ReferenceID)
 	suite.False(expectedMTO.IsAvailableToPrime)
-	suite.False(expectedMTO.IsCancelled)
+	suite.False(expectedMTO.IsCanceled)
 }
