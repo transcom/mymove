@@ -1,5 +1,6 @@
 import { getClient, checkResponse } from 'shared/Swagger/api';
-import { formatPayload, formatDateString } from 'shared/utils';
+import { formatPayload } from 'shared/utils';
+import { formatDateForSwagger } from 'shared/dates';
 
 export async function GetPpm(moveId) {
   const client = await getClient();
@@ -40,7 +41,7 @@ export async function UpdatePpm(
 export async function GetPpmWeightEstimate(moveDate, originZip, originDutyStationZip, destZip, weightEstimate) {
   const client = await getClient();
   const response = await client.apis.ppm.showPPMEstimate({
-    original_move_date: formatDateString(moveDate),
+    original_move_date: formatDateForSwagger(moveDate),
     origin_zip: originZip,
     origin_duty_station_zip: originDutyStationZip,
     destination_zip: destZip,
@@ -53,7 +54,7 @@ export async function GetPpmWeightEstimate(moveDate, originZip, originDutyStatio
 export async function GetPpmSitEstimate(moveDate, sitDays, originZip, destZip, weightEstimate) {
   const client = await getClient();
   const response = await client.apis.ppm.showPPMSitEstimate({
-    original_move_date: formatDateString(moveDate),
+    original_move_date: formatDateForSwagger(moveDate),
     days_in_storage: sitDays,
     origin_zip: originZip,
     destination_zip: destZip,
