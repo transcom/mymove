@@ -15,7 +15,7 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
 		IsAvailableToPrime: &moveTaskOrder.IsAvailableToPrime,
-		isCanceled:        &moveTaskOrder.isCanceled,
+		IsCanceled:         &moveTaskOrder.IsCanceled,
 		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
 		ReferenceID:        moveTaskOrder.ReferenceID,
 		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),

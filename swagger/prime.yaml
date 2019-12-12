@@ -670,7 +670,7 @@ definitions:
       isAvailableToPrime:
         type: boolean
         x-nullable: true
-      isCancelled:
+      isCanceled:
         type: boolean
         x-nullable: true
       updatedAt:
