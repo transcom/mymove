@@ -115,7 +115,7 @@ func RoleAuthMiddleware(logger Logger) func(context APIContext) func(handler htt
 						}
 					}
 				}
-				http.Error(w, http.StatusText(403), http.StatusForbidden)
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
 			return http.HandlerFunc(mw)

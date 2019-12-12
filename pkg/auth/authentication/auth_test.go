@@ -864,7 +864,7 @@ func (suite *AuthSuite) TestRequireRoleAuthMiddlewareAuthorized() {
 	suite.Equal(http.StatusOK, rr.Code)
 }
 
-func (suite *AuthSuite) TestRequireRoleAuthMiddlewareUnauthorized() {
+func (suite *AuthSuite) TestRequireRoleAuthMiddleware() {
 	// Given: a logged in user
 	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
 	user := models.User{
@@ -890,5 +890,5 @@ func (suite *AuthSuite) TestRequireRoleAuthMiddlewareUnauthorized() {
 
 	middleware.ServeHTTP(rr, req)
 
-	suite.Equal(http.StatusForbidden, rr.Code)
+	suite.Equal(http.StatusUnauthorized, rr.Code)
 }
