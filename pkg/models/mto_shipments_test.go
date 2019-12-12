@@ -14,7 +14,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 		// mock weights
 		estimatedWeight := unit.Pound(1000)
 		actualWeight := unit.Pound(980)
-		validMTOShipment := models.MtoShipment{
+		validMTOShipment := models.MTOShipment{
 			MoveTaskOrderID:      uuid.Must(uuid.NewV4()),
 			PickupAddressID:      uuid.Must(uuid.NewV4()),
 			DestinationAddressID: uuid.Must(uuid.NewV4()),

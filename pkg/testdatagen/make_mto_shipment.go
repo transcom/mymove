@@ -10,7 +10,7 @@ import (
 )
 
 // MakeMTOShipment creates a single MTOShipment and associated set relationships
-func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MtoShipment {
+func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipment {
 	moveTaskOrder := assertions.MoveTaskOrder
 	if isZeroUUID(moveTaskOrder.ID) {
 		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
@@ -36,7 +36,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MtoShipme
 	requestedPickupDate := time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 	primeEstimatedWeightDate := time.Date(TestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
 
-	MTOShipment := models.MtoShipment{
+	MTOShipment := models.MTOShipment{
 		MoveTaskOrder:                    moveTaskOrder,
 		MoveTaskOrderID:                  moveTaskOrder.ID,
 		ScheduledPickupDate:              &scheduledPickupDate,

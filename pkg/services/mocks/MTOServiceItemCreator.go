@@ -15,20 +15,20 @@ type MTOServiceItemCreator struct {
 }
 
 // CreateMTOServiceItem provides a mock function with given fields: serviceItem
-func (_m *MTOServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MtoServiceItem) (*models.MtoServiceItem, *validate.Errors, error) {
+func (_m *MTOServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServiceItem) (*models.MTOServiceItem, *validate.Errors, error) {
 	ret := _m.Called(serviceItem)
 
-	var r0 *models.MtoServiceItem
-	if rf, ok := ret.Get(0).(func(*models.MtoServiceItem) *models.MtoServiceItem); ok {
+	var r0 *models.MTOServiceItem
+	if rf, ok := ret.Get(0).(func(*models.MTOServiceItem) *models.MTOServiceItem); ok {
 		r0 = rf(serviceItem)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.MtoServiceItem)
+			r0 = ret.Get(0).(*models.MTOServiceItem)
 		}
 	}
 
 	var r1 *validate.Errors
-	if rf, ok := ret.Get(1).(func(*models.MtoServiceItem) *validate.Errors); ok {
+	if rf, ok := ret.Get(1).(func(*models.MTOServiceItem) *validate.Errors); ok {
 		r1 = rf(serviceItem)
 	} else {
 		if ret.Get(1) != nil {
@@ -37,7 +37,7 @@ func (_m *MTOServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MtoSer
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(*models.MtoServiceItem) error); ok {
+	if rf, ok := ret.Get(2).(func(*models.MTOServiceItem) error); ok {
 		r2 = rf(serviceItem)
 	} else {
 		r2 = ret.Error(2)

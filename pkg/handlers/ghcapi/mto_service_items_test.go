@@ -23,7 +23,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	reServiceID, _ := uuid.NewV4()
 	mtoShipmentID, _ := uuid.NewV4()
 	metaID, _ := uuid.NewV4()
-	serviceItem := models.MtoServiceItem{
+	serviceItem := models.MTOServiceItem{
 		ID: serviceItemID, MoveTaskOrderID: moveTaskOrderID, ReServiceID: reServiceID, MTOShipmentID: mtoShipmentID, MetaID: metaID, MetaType: "unknown",
 	}
 	queryFilter := mocks.QueryFilter{}

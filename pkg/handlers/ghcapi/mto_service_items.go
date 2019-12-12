@@ -14,7 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-func payloadForMTOServiceItemModel(s *models.MtoServiceItem) *ghcmessages.MTOServiceItem {
+func payloadForMTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
 	if s == nil {
 		return nil
 	}
@@ -62,7 +62,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOSer
 
 	metaType := *params.CreateMTOServiceItemBody.MetaType
 
-	serviceItem := models.MtoServiceItem{
+	serviceItem := models.MTOServiceItem{
 		MoveTaskOrderID: moveTaskOrderID,
 		ReServiceID:     reServiceID,
 		MTOShipmentID:   mtoShipmentID,

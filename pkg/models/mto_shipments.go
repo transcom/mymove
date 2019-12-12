@@ -11,8 +11,8 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// MtoShipment is an object representing data for a move task order shipment
-type MtoShipment struct {
+// MTOShipment is an object representing data for a move task order shipment
+type MTOShipment struct {
 	ID                               uuid.UUID     `db:"id"`
 	MoveTaskOrder                    MoveTaskOrder `belongs_to:"move_task_orders"`
 	MoveTaskOrderID                  uuid.UUID     `db:"move_task_order_id"`
@@ -35,7 +35,7 @@ type MtoShipment struct {
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (m *MtoShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveTaskOrderID, Name: "MoveTaskOrderID"})
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.PickupAddressID, Name: "PickupAddressID"})
@@ -50,6 +50,6 @@ func (m *MtoShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 // TableName overrides the table name used by Pop.
-func (m MtoShipment) TableName() string {
+func (m MTOShipment) TableName() string {
 	return "mto_shipments"
 }

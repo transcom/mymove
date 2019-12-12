@@ -17,7 +17,7 @@ type mtoServiceItemCreator struct {
 	builder createMTOServiceItemQueryBuilder
 }
 
-func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MtoServiceItem) (*models.MtoServiceItem, *validate.Errors, error) {
+func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServiceItem) (*models.MTOServiceItem, *validate.Errors, error) {
 	verrs, err := o.builder.CreateOne(serviceItem)
 	fmt.Println(verrs, err)
 	if verrs != nil || err != nil {

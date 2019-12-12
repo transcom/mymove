@@ -20,7 +20,7 @@ func (t *testMTOServiceItemQueryBuilder) CreateOne(model interface{}) (*validate
 
 func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
-	serviceItem := models.MtoServiceItem{
+	serviceItem := models.MTOServiceItem{
 		MoveTaskOrderID: moveTaskOrder.ID,
 		MoveTaskOrder:   moveTaskOrder,
 	}
