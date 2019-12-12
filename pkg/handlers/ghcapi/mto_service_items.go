@@ -20,7 +20,12 @@ func payloadForMTOServiceItemModel(s *models.MtoServiceItem) *ghcmessages.MTOSer
 	}
 
 	return &ghcmessages.MTOServiceItem{
-		ID: handlers.FmtUUID(s.ID),
+		ID:              handlers.FmtUUID(s.ID),
+		MoveTaskOrderID: handlers.FmtUUID(s.MoveTaskOrderID),
+		MtoShipmentID:   handlers.FmtUUID(s.MtoShipmentID),
+		ReServiceID:     handlers.FmtUUID(s.ReServiceID),
+		MetaID:          handlers.FmtUUID(s.MetaID),
+		MetaType:        &s.MetaType,
 	}
 }
 
@@ -38,14 +43,29 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOSer
 		logger.Error(fmt.Sprintf("UUID Parsing for %s", params.MoveTaskOrderID), zap.Error(err))
 	}
 
-	reServiceID, err := uuid.FromString(params.ReServiceID)
+	reServiceID, err := uuid.FromString(params.CreateMTOServiceItemBody.ReServiceID.String())
 	if err != nil {
-		logger.Error(fmt.Sprintf("UUID Parsing for %s", params.ReServiceID), zap.Error(err))
+		logger.Error(fmt.Sprintf("UUID Parsing for %s", params.CreateMTOServiceItemBody.ReServiceID), zap.Error(err))
 	}
+
+	mtoShipmentID, err := uuid.FromString(params.CreateMTOServiceItemBody.MtoShipmentID.String())
+	if err != nil {
+		logger.Error(fmt.Sprintf("UUID Parsing for %s", *params.CreateMTOServiceItemBody.MtoShipmentID), zap.Error(err))
+	}
+
+	metaID, err := uuid.FromString(params.CreateMTOServiceItemBody.MetaID.String())
+	if err != nil {
+		logger.Error(fmt.Sprintf("UUID Parsing for %s", params.CreateMTOServiceItemBody.MetaID), zap.Error(err))
+	}
+
+	metaType := *params.CreateMTOServiceItemBody.MetaType
 
 	serviceItem := models.MtoServiceItem{
 		MoveTaskOrderID: moveTaskOrderID,
 		ReServiceID:     reServiceID,
+		MtoShipmentID:   mtoShipmentID,
+		MetaID:          metaID,
+		MetaType:        metaType,
 	}
 
 	createdServiceItem, verrs, err := h.MTOServiceItemCreator.CreateMTOServiceItem(&serviceItem)
