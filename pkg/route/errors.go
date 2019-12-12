@@ -20,6 +20,8 @@ const (
 	GeocodeResponseDecodingError ErrorCode = "GEOCODE_RESPONSE_DECODE_ERROR"
 	// RoutingResponseDecodingError happens when attempting to decode a routing response
 	RoutingResponseDecodingError ErrorCode = "ROUTING_RESPONSE_DECODE_ERROR"
+	// ShortHaulError - no moves under 50 miles
+	ShortHaulError ErrorCode = "SHORT_HAUL_ERROR"
 	// UnknownError is for when the cause of the error can't be ascertained
 	UnknownError ErrorCode = "UNKNOWN_ERROR"
 )
@@ -135,4 +137,20 @@ func NewRoutingResponseDecodingError(r RoutingResponseBody) Error {
 		baseError{RoutingResponseDecodingError},
 		r,
 	}
+}
+
+type shortHaulError struct {
+	baseError
+	distance int
+}
+
+func NewShortHaulError(moveDistance int) Error {
+	return &shortHaulError{
+		baseError{ShortHaulError},
+		moveDistance,
+	}
+}
+
+func (e *shortHaulError) Error() string {
+	return fmt.Sprintf("Unsupported short haul move distance (%d)", e.distance)
 }
