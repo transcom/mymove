@@ -97,7 +97,6 @@ class CustomerDetails extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  //TODO hard coding mto for now
   const moveTaskOrder = selectMoveTaskOrder(state, ownProps.match.params.moveTaskOrderId);
   const moveOrder = selectMoveOrder(state, moveTaskOrder.moveOrdersID);
   return {

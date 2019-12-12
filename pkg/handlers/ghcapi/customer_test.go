@@ -24,14 +24,14 @@ func (suite *HandlerSuite) TestGetCustomerHandlerIntegration() {
 	handler := GetCustomerHandler{
 		context,
 	}
+
 	response := handler.Handle(params)
-
 	suite.IsNotErrResponse(response)
-	moveTaskOrdersResponse := response.(*customerops.GetCustomerOK)
-	moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
 
+	getCustomerResponse := response.(*customerops.GetCustomerOK)
+	getCustomerPayload := getCustomerResponse.Payload
 	suite.Assertions.IsType(&customerops.GetCustomerOK{}, response)
-	suite.Equal(strfmt.UUID(customer.ID.String()), moveTaskOrdersPayload.ID)
-	suite.Equal(customer.DODID, moveTaskOrdersPayload.DodID)
-	suite.Equal(strfmt.UUID(customer.UserID.String()), moveTaskOrdersPayload.UserID)
+	suite.Equal(strfmt.UUID(customer.ID.String()), getCustomerPayload.ID)
+	suite.Equal(customer.DODID, getCustomerPayload.DodID)
+	suite.Equal(strfmt.UUID(customer.UserID.String()), getCustomerPayload.UserID)
 }

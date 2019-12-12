@@ -28,13 +28,11 @@ func (suite *HandlerSuite) TestGetMoveOrderHandlerIntegration() {
 		MoveOrderID: strfmt.UUID(moveOrder.ID.String()),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-
-	// make the request
 	handler := GetMoveOrdersHandler{
 		context,
 	}
-	response := handler.Handle(params)
 
+	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
 	moveOrderOK := response.(*moveorderop.GetMoveOrderOK)
 	moveOrdersPayload := moveOrderOK.Payload

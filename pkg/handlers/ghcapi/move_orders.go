@@ -23,10 +23,7 @@ func (h GetMoveOrdersHandler) Handle(params moveorderop.GetMoveOrderParams) midd
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	moveOrderID, _ := uuid.FromString(params.MoveOrderID.String())
 	moveOrder := &models.MoveOrder{}
-	// TODO move into service object b/c of duty station stuff
-	err := h.DB().Eager().Find(moveOrder, moveOrderID)
-	h.DB().Find(&moveOrder.DestinationDutyStation.Address, moveOrder.DestinationDutyStation.AddressID)
-	h.DB().Find(&moveOrder.OriginDutyStation.Address, moveOrder.OriginDutyStation.AddressID)
+	err := h.DB().Eager("DestinationDutyStation.Address", "OriginDutyStation.Address", "Entitlement").Find(moveOrder, moveOrderID)
 	if err != nil {
 		logger.Error("fetching move order", zap.Error(err))
 		switch err {

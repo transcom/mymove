@@ -16,31 +16,30 @@ export function updateMoveTaskOrderStatus(moveTaskOrderID, status, label = updat
 
 const getMoveOrderLabel = 'moveOrder.getMoveOrder';
 export function getMoveOrder(moveOrderID, label = getMoveOrderLabel) {
-  console.log(moveOrderID);
   const swaggerTag = 'moveOrder.getMoveOrder';
-  return swaggerRequest(getGHCClient, swaggerTag, { moveOrderID }, { getMoveOrder }, { label });
+  return swaggerRequest(getGHCClient, swaggerTag, { moveOrderID }, { label });
 }
 
 export function selectMoveOrder(state, moveOrderId) {
   return get(state, `entities.moveOrders.${moveOrderId}`, {});
 }
 
-const getMoveTaskOrderLabel = 'moveTaskOrder.updateMoveTaskOrderStatus';
+const getMoveTaskOrderLabel = 'moveTaskOrder.getMoveTaskOrder';
 export function getMoveTaskOrder(moveTaskOrderID, label = getMoveTaskOrderLabel) {
   const swaggerTag = 'moveTaskOrder.getMoveTaskOrder';
-  return swaggerRequest(getGHCClient, swaggerTag, { moveTaskOrderID }, { getMoveTaskOrder }, { label });
+  return swaggerRequest(getGHCClient, swaggerTag, { moveTaskOrderID }, { label });
 }
 
 export function selectMoveTaskOrder(state, moveTaskOrderId) {
   return get(state, `entities.moveTaskOrders.${moveTaskOrderId}`, {});
 }
 
-const getCustomerOperation = 'Customer.getCustomer';
+const getCustomerOperation = 'customer.getCustomer';
 export function getCustomer(customerID, label = getCustomerOperation) {
   return swaggerRequest(getGHCClient, getCustomerOperation, { customerID }, { label });
 }
 
-const getAllCustomerMovesOperation = 'Customer.getAllCustomerMoves';
+const getAllCustomerMovesOperation = 'customer.getAllCustomerMoves';
 export function getAllCustomerMoves(label = getAllCustomerMovesOperation) {
   return swaggerRequest(getGHCClient, getAllCustomerMovesOperation, {}, { label });
 }

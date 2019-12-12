@@ -94,7 +94,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Customer"
+          "customer"
         ],
         "summary": "Returns a given customer",
         "operationId": "getCustomer",
@@ -748,6 +748,77 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/move-task-orders/{moveTaskOrderID}/status": {
+      "patch": {
+        "description": "Changes move order status",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "Change the status of a move order",
+        "operationId": "updateMoveTaskOrderStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of move order to use",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrderStatus"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated move task order status",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
     },
     "/move_task_orders/{moveTaskOrderID}/service_items": {
       "get": {
@@ -1467,6 +1538,19 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date"
+        }
+      }
+    },
+    "MoveTaskOrderStatus": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "DRAFT",
+            "REJECTED"
+          ]
         }
       }
     },
@@ -1831,7 +1915,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "Customer"
+          "customer"
         ],
         "summary": "Returns a given customer",
         "operationId": "getCustomer",
@@ -2651,6 +2735,92 @@ func init() {
         }
       ]
     },
+    "/move-task-orders/{moveTaskOrderID}/status": {
+      "patch": {
+        "description": "Changes move order status",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveTaskOrder"
+        ],
+        "summary": "Change the status of a move order",
+        "operationId": "updateMoveTaskOrderStatus",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of move order to use",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrderStatus"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated move task order status",
+            "schema": {
+              "$ref": "#/definitions/MoveTaskOrder"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
     "/move_task_orders/{moveTaskOrderID}/service_items": {
       "get": {
         "description": "Gets all line items for a move orders",
@@ -3444,6 +3614,19 @@ func init() {
         "updatedAt": {
           "type": "string",
           "format": "date"
+        }
+      }
+    },
+    "MoveTaskOrderStatus": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "DRAFT",
+            "REJECTED"
+          ]
         }
       }
     },

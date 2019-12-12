@@ -7,7 +7,10 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func MoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *ghcmessages.MoveTaskOrder {
+func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *ghcmessages.MoveTaskOrder {
+	if moveTaskOrder == nil {
+		return nil
+	}
 	payload := &ghcmessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
@@ -20,16 +23,22 @@ func MoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *ghcmessages.MoveTaskOrde
 	return payload
 }
 
-func Customer(Customer *models.Customer) *ghcmessages.Customer {
+func Customer(customer *models.Customer) *ghcmessages.Customer {
+	if customer == nil {
+		return nil
+	}
 	payload := ghcmessages.Customer{
-		DodID:  Customer.DODID,
-		ID:     strfmt.UUID(Customer.ID.String()),
-		UserID: strfmt.UUID(Customer.UserID.String()),
+		DodID:  customer.DODID,
+		ID:     strfmt.UUID(customer.ID.String()),
+		UserID: strfmt.UUID(customer.UserID.String()),
 	}
 	return &payload
 }
 
 func MoveOrders(moveOrders *models.MoveOrder) *ghcmessages.MoveOrder {
+	if moveOrders == nil {
+		return nil
+	}
 	destinationDutyStation := DutyStation(&moveOrders.DestinationDutyStation)
 	originDutyStation := DutyStation(&moveOrders.OriginDutyStation)
 	entitlements := Entitlements(&moveOrders.Entitlement)

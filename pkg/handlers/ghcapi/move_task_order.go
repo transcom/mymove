@@ -38,6 +38,6 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 			return movetaskorderops.NewGetMoveTaskOrderInternalServerError()
 		}
 	}
-	moveTaskOrderPayload := payloads.MoveTaskOrder(*mto)
+	moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
 	return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload)
 }

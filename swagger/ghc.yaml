@@ -85,7 +85,7 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - Customer
+        - customer
       description: Returns a given customer
       operationId: getCustomer
       summary: Returns a given customer
@@ -535,6 +535,53 @@ paths:
       description: Changes the status of a line item for a move order by ID
       operationId: updateServiceItemStatus
       summary: Change the status of a line item for a move order by ID
+  '/move-task-orders/{moveTaskOrderID}/status':
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - description: ID of move order to use
+          in: path
+          name: moveTaskOrderID
+          required: true
+          type: string
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/MoveTaskOrderStatus'
+      responses:
+        '200':
+          description: Successfully updated move task order status
+          schema:
+            $ref: '#/definitions/MoveTaskOrder'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveTaskOrder
+      description: Changes move order status
+      operationId: updateMoveTaskOrderStatus
+      summary: Change the status of a move order
   '/move-task-orders/{moveTaskOrderID}/entitlements':
     parameters:
       - description: ID of move order to use
@@ -1040,6 +1087,15 @@ definitions:
         x-nullable: true
       updatedAt:
         format: date
+        type: string
+    type: object
+  MoveTaskOrderStatus:
+    properties:
+      status:
+        enum:
+          - APPROVED
+          - DRAFT
+          - REJECTED
         type: string
     type: object
   MoveTaskOrders:

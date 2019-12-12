@@ -25,22 +25,20 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 		MoveTaskOrderID: moveTaskOrder.ID.String(),
 	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-
-	// make the request
 	handler := GetMoveTaskOrderHandler{
 		context,
 		movetaskorder.NewMoveTaskOrderFetcher(suite.DB()),
 	}
-	response := handler.Handle(params)
 
+	response := handler.Handle(params)
 	suite.IsNotErrResponse(response)
-	moveTaskOrdersResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
-	moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
+	moveTaskOrderResponse := response.(*movetaskorderops.GetMoveTaskOrderOK)
+	moveTaskOrderPayload := moveTaskOrderResponse.Payload
 
 	suite.Assertions.IsType(&move_task_order.GetMoveTaskOrderOK{}, response)
-	suite.Equal(strfmt.UUID(moveTaskOrder.ID.String()), moveTaskOrdersPayload.ID)
-	suite.False(*moveTaskOrdersPayload.IsAvailableToPrime)
-	suite.False(*moveTaskOrdersPayload.IsCanceled)
-	suite.Equal(strfmt.UUID(moveTaskOrder.MoveOrderID.String()), moveTaskOrdersPayload.MoveOrdersID)
-	suite.Nil(moveTaskOrdersPayload.ReferenceID)
+	suite.Equal(strfmt.UUID(moveTaskOrder.ID.String()), moveTaskOrderPayload.ID)
+	suite.False(*moveTaskOrderPayload.IsAvailableToPrime)
+	suite.False(*moveTaskOrderPayload.IsCanceled)
+	suite.Equal(strfmt.UUID(moveTaskOrder.MoveOrderID.String()), moveTaskOrderPayload.MoveOrdersID)
+	suite.Nil(moveTaskOrderPayload.ReferenceID)
 }
