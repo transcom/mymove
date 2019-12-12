@@ -3512,10 +3512,9 @@ paths:
           pattern: '^(\d{5}([\-]\d{4})?)$'
           required: true
         - in: query
-          name: destination_zip
+          name: orders_id
           type: string
-          format: zip
-          pattern: '^(\d{5}([\-]\d{4})?)$'
+          format: uuid
           required: true
         - in: query
           name: weight
