@@ -15,6 +15,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	paymentRequest := models.PaymentRequest{
 		MoveTaskOrderID: moveTaskOrder.ID,
 		IsFinal:         false,
+		Status:          "PENDING",
 	}
 
 	creator := NewPaymentRequestCreator(suite.DB())
@@ -32,8 +33,10 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		invalidPaymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: mtoID,
 			IsFinal:         false,
+			Status:          "PENDING",
 		}
-		_, _, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
+		_, verrs, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
+		suite.NoVerrs(verrs)
 	})
 }

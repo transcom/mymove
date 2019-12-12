@@ -48,3 +48,8 @@ func (m *MtoShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	}
 	return validate.Validate(vs...), nil
 }
+
+// TableName overrides the table name used by Pop.
+func (m MtoShipment) TableName() string {
+	return "mto_shipments"
+}

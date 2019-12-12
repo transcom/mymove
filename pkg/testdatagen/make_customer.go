@@ -8,18 +8,18 @@ import (
 
 // MakeCustomer creates a single Customer
 func MakeCustomer(db *pop.Connection, assertions Assertions) models.Customer {
-
+	user := assertions.User
+	if isZeroUUID(user.ID) {
+		user = MakeUser(db, assertions)
+	}
 	customer := models.Customer{
-		FirstName: "Carmen",
-		LastName:  "Cruz",
-		Email:     "ccruz@example.com",
-		Phone:     "1234567890",
-		DodID:     models.StringPointer(randomEdipi()),
+		User:   user,
+		UserID: user.ID,
+		DODID:  randomEdipi(),
 	}
 
 	// Overwrite values with those from assertions
 	mergeModels(&customer, assertions.Customer)
-
 	mustCreate(db, &customer)
 
 	return customer

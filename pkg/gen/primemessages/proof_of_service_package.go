@@ -12,16 +12,11 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // ProofOfServicePackage proof of service package
 // swagger:model ProofOfServicePackage
 type ProofOfServicePackage struct {
-
-	// id
-	// Format: uuid
-	ID strfmt.UUID `json:"id,omitempty"`
 
 	// uploads
 	Uploads []*Upload `json:"uploads"`
@@ -31,10 +26,6 @@ type ProofOfServicePackage struct {
 func (m *ProofOfServicePackage) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateUploads(formats); err != nil {
 		res = append(res, err)
 	}
@@ -42,19 +33,6 @@ func (m *ProofOfServicePackage) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *ProofOfServicePackage) validateID(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 

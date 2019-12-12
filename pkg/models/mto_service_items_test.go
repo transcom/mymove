@@ -12,7 +12,7 @@ func (suite *ModelSuite) TestMTOServiceItemValidation() {
 	suite.T().Run("test valid MtoServiceItem", func(t *testing.T) {
 		validMTOServiceItem := models.MtoServiceItem{
 			MoveTaskOrderID: uuid.Must(uuid.NewV4()),
-			MtoShipmentID:   uuid.Must(uuid.NewV4()),
+			MTOShipmentID:   uuid.Must(uuid.NewV4()),
 			ReServiceID:     uuid.Must(uuid.NewV4()),
 			MetaID:          uuid.Must(uuid.NewV4()),
 			MetaType:        "unknown",

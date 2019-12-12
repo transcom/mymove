@@ -18,7 +18,7 @@ func payloadForPaymentRequestModel(pr models.PaymentRequest) *primemessages.Paym
 		ID:              *handlers.FmtUUID(pr.ID),
 		MoveTaskOrderID: *handlers.FmtUUID(pr.MoveTaskOrderID),
 		IsFinal:         &pr.IsFinal,
-		RejectionReason: &pr.RejectionReason,
+		RejectionReason: pr.RejectionReason,
 	}
 }
 
@@ -27,7 +27,7 @@ type CreatePaymentRequestHandler struct {
 	services.PaymentRequestCreator
 }
 
-func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymentRequestParams) (m middleware.Responder) {
+func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymentRequestParams) middleware.Responder {
 	// TODO: authorization to create payment request
 
 	logger := h.LoggerFromRequest(params.HTTPRequest)

@@ -9,17 +9,17 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// MakeMtoShipment creates a single MtoShipment and associated set relationships
-func MakeMtoShipment(db *pop.Connection, assertions Assertions) models.MtoShipment {
+// MakeMTOShipment creates a single MTOShipment and associated set relationships
+func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MtoShipment {
 	moveTaskOrder := assertions.MoveTaskOrder
 	if isZeroUUID(moveTaskOrder.ID) {
 		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
 	}
-	pickupAddress := assertions.MtoShipment.PickupAddress
+	pickupAddress := assertions.MTOShipment.PickupAddress
 	if isZeroUUID(pickupAddress.ID) {
 		pickupAddress = MakeAddress(db, assertions)
 	}
-	destinationAddress := assertions.MtoShipment.DestinationAddress
+	destinationAddress := assertions.MTOShipment.DestinationAddress
 	if isZeroUUID(destinationAddress.ID) {
 		destinationAddress = MakeAddress2(db, assertions)
 	}
@@ -36,7 +36,7 @@ func MakeMtoShipment(db *pop.Connection, assertions Assertions) models.MtoShipme
 	requestedPickupDate := time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 	primeEstimatedWeightDate := time.Date(TestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
 
-	mtoShipment := models.MtoShipment{
+	MTOShipment := models.MtoShipment{
 		MoveTaskOrder:                    moveTaskOrder,
 		MoveTaskOrderID:                  moveTaskOrder.ID,
 		ScheduledPickupDate:              &scheduledPickupDate,
@@ -51,9 +51,9 @@ func MakeMtoShipment(db *pop.Connection, assertions Assertions) models.MtoShipme
 		PrimeActualWeight:                &actualWeight,
 	}
 	// Overwrite values with those from assertions
-	mergeModels(&mtoShipment, assertions.MtoShipment)
+	mergeModels(&MTOShipment, assertions.MTOShipment)
 
-	mustCreate(db, &mtoShipment)
+	mustCreate(db, &MTOShipment)
 
-	return mtoShipment
+	return MTOShipment
 }

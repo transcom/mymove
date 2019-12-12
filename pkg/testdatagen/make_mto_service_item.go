@@ -13,28 +13,28 @@ func MakeMTOServiceItem(db *pop.Connection, assertions Assertions) models.MtoSer
 	if isZeroUUID(moveTaskOrder.ID) {
 		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
 	}
-	mtoShipment := assertions.MtoShipment
-	if isZeroUUID(mtoShipment.ID) {
-		mtoShipment = MakeMtoShipment(db, assertions)
+	MTOShipment := assertions.MTOShipment
+	if isZeroUUID(MTOShipment.ID) {
+		MTOShipment = MakeMTOShipment(db, assertions)
 	}
 	reService := assertions.ReService
 	if isZeroUUID(reService.ID) {
 		reService = MakeReService(db, assertions)
 	}
-	MtoServiceItem := models.MtoServiceItem{
+	MTOServiceItem := models.MtoServiceItem{
 		MoveTaskOrder:   moveTaskOrder,
 		MoveTaskOrderID: moveTaskOrder.ID,
-		MtoShipment:     mtoShipment,
-		MtoShipmentID:   mtoShipment.ID,
+		MTOShipment:     MTOShipment,
+		MTOShipmentID:   MTOShipment.ID,
 		ReService:       reService,
 		ReServiceID:     reService.ID,
 		MetaID:          uuid.Must(uuid.NewV4()),
 		MetaType:        "unknown",
 	}
 	// Overwrite values with those from assertions
-	mergeModels(&MtoServiceItem, assertions.MtoServiceItem)
+	mergeModels(&MTOServiceItem, assertions.MTOServiceItem)
 
-	mustCreate(db, &MtoServiceItem)
+	mustCreate(db, &MTOServiceItem)
 
-	return MtoServiceItem
+	return MTOServiceItem
 }
