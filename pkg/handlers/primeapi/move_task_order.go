@@ -14,10 +14,12 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
+// ListMoveTaskOrdersHandler lists move task orders with the option to filter since a particular date
 type ListMoveTaskOrdersHandler struct {
 	handlers.HandlerContext
 }
 
+// Handle fetches all move task orders with the option to filter since a particular date
 func (h ListMoveTaskOrdersHandler) Handle(params movetaskorderops.ListMoveTaskOrdersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
