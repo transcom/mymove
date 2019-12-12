@@ -134,7 +134,6 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 
 		response := handler.Handle(params)
 		suite.IsType(&paymentrequestop.CreatePaymentRequestInternalServerError{}, response)
-
 	})
 
 	suite.T().Run("failed create payment request -- non-existent MTO ID", func(t *testing.T) {
@@ -166,5 +165,4 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		response := handler.Handle(params)
 		suite.IsType(&paymentrequestop.CreatePaymentRequestNotFound{}, response)
 	})
-
 }

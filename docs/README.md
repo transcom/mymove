@@ -30,6 +30,7 @@ If you are looking to understand choices made in this project, see the list of [
 * [Access a Global Application Variable](how-to/access-global-variables.md#how-to-access-a-global-application-variable)
 * [Call Swagger Endpoints from React](how-to/access-swagger-endpoints-from-react.md#how-to-call-swagger-endpoints-from-react)
 * [Add Application Logging](how-to/add-application-logging.md#how-to-add-application-logging)
+* [Automatically add JIRA ID to Commit Message](how-to/automatically-add-jira-id-to-commit-message.md#how-to-automatically-add-jira-id-to-commit-message)
 * [Backup and Restore the Development Database](how-to/backup-and-restore-dev-database.md#how-to-backup-and-restore-the-development-database)
 * [Create An ECS Scheduled Task](how-to/create-an-ecs-scheduled-task.md#how-to-create-an-ecs-scheduled-task)
 * [Create or Deactivate Users](how-to/create-or-deactivate-users.md#how-to-create-or-deactivate-users)
@@ -104,5 +105,6 @@ If you are looking to understand choices made in this project, see the list of [
 * 0038 [Use Soft Delete Instead of Hard Delete](adr/0038-soft-delete.md#use-soft-delete-instead-of-hard-delete)
 * 0039 [Use React Lazy for code splitting](adr/0039-react-lazy-and-code-splitting.md#use-react-lazy-for-code-splitting)
 * 0040 [Add Role-Based Authorization](adr/0040-role-base-authorization.md#add-role-based-authorization)
+* 0041 [Front End Form Library](adr/0041-front-end-form-library.md#front-end-form-library)
 
 <!--endindex-->

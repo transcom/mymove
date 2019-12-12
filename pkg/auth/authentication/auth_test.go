@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/cli"
+
 	"github.com/markbates/goth"
 
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -648,6 +650,61 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 	// Office app, so should only have office ID information
 	suite.Equal(officeUser.ID, session.OfficeUserID)
 	suite.Equal(uuid.Nil, session.AdminUserID)
+}
+
+func (suite *AuthSuite) TestCustomerCreatedOnlyWhenRoleBasedAuthFeatureFlagEnabled() {
+	user := testdatagen.MakeDefaultUser(suite.DB())
+	session := auth.Session{
+		ApplicationName: auth.MilApp,
+		UserID:          user.ID,
+		Hostname:        MilTestHost,
+	}
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		FakeRSAKey,
+		false,
+		false,
+	}
+	rr := httptest.NewRecorder()
+
+	createCustomer(h, &session, rr)
+	c, err := suite.DB().Count(models.Customer{})
+
+	suite.NoError(err)
+	suite.Equal(c, 0)
+}
+
+func (suite *AuthSuite) TestCreateCustomer() {
+	user := testdatagen.MakeDefaultUser(suite.DB())
+	session := auth.Session{
+		ApplicationName: auth.MilApp,
+		UserID:          user.ID,
+		Hostname:        MilTestHost,
+	}
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		FakeRSAKey,
+		false,
+		false,
+	}
+	h.SetFeatureFlag(FeatureFlag{Name: cli.FeatureFlagRoleBasedAuth, Active: true})
+	rr := httptest.NewRecorder()
+
+	createCustomer(h, &session, rr)
+	c, err := suite.DB().Count(models.Customer{})
+	suite.NoError(err)
+	customer := &models.Customer{}
+	err = suite.DB().Where("user_id=$1", user.ID).First(customer)
+	suite.NoError(err)
+
+	suite.Equal(1, c)
+	suite.Equal(user.ID, customer.UserID)
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDeactivated() {

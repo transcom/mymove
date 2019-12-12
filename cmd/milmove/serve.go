@@ -859,6 +859,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
+	authContext.SetFeatureFlag(
+		authentication.FeatureFlag{
+			Name:   cli.FeatureFlagRoleBasedAuth,
+			Active: v.GetBool(cli.FeatureFlagRoleBasedAuth),
+		},
+	)
 	authMux := goji.SubMux()
 	root.Handle(pat.New("/auth/*"), authMux)
 	authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{Context: authContext, UseSecureCookie: useSecureCookie})

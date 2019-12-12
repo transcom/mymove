@@ -5,16 +5,17 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+
+	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
-
 	paymentRequest := models.PaymentRequest{
 		MoveTaskOrderID: moveTaskOrder.ID,
 		IsFinal:         false,
+		Status:          "PENDING",
 	}
 
 	creator := NewPaymentRequestCreator(suite.DB())
@@ -32,8 +33,10 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		invalidPaymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: mtoID,
 			IsFinal:         false,
+			Status:          "PENDING",
 		}
-		_, _, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
+		_, verrs, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
+		suite.NoVerrs(verrs)
 	})
 }

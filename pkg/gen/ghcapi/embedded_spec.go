@@ -879,7 +879,6 @@ func init() {
         ],
         "tags": [
           "paymentRequests",
-          "prime",
           "gov"
         ],
         "summary": "Gets payment requests",
@@ -888,13 +887,7 @@ func init() {
           "200": {
             "description": "fetched list of payment requests",
             "schema": {
-              "type": "object"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/PaymentRequests"
             }
           },
           "401": {
@@ -905,12 +898,6 @@ func init() {
           },
           "403": {
             "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -932,7 +919,6 @@ func init() {
         ],
         "tags": [
           "paymentRequests",
-          "prime",
           "gov"
         ],
         "summary": "Fetches a payment request by id",
@@ -985,8 +971,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "prime"
+          "paymentRequests"
         ],
         "summary": "Updates a payment request by id",
         "operationId": "updatePaymentRequest",
@@ -1627,6 +1612,12 @@ func init() {
         "APPROVED",
         "REJECTED"
       ]
+    },
+    "PaymentRequests": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentRequest"
+      }
     },
     "ProofOfServicePackage": {
       "type": "object",
@@ -2909,7 +2900,6 @@ func init() {
         ],
         "tags": [
           "paymentRequests",
-          "prime",
           "gov"
         ],
         "summary": "Gets payment requests",
@@ -2918,13 +2908,7 @@ func init() {
           "200": {
             "description": "fetched list of payment requests",
             "schema": {
-              "type": "object"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
+              "$ref": "#/definitions/PaymentRequests"
             }
           },
           "401": {
@@ -2935,12 +2919,6 @@ func init() {
           },
           "403": {
             "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -2962,7 +2940,6 @@ func init() {
         ],
         "tags": [
           "paymentRequests",
-          "prime",
           "gov"
         ],
         "summary": "Fetches a payment request by id",
@@ -3030,8 +3007,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "prime"
+          "paymentRequests"
         ],
         "summary": "Updates a payment request by id",
         "operationId": "updatePaymentRequest",
@@ -3702,6 +3678,12 @@ func init() {
         "APPROVED",
         "REJECTED"
       ]
+    },
+    "PaymentRequests": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentRequest"
+      }
     },
     "ProofOfServicePackage": {
       "type": "object",
