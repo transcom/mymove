@@ -4,49 +4,112 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
-	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func Address(a *models.Address) *primemessages.Address {
-	if a == nil {
+func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskOrder {
+	if moveTaskOrder == nil {
 		return nil
 	}
-	return &primemessages.Address{
-		ID:             strfmt.UUID(a.ID.String()),
-		StreetAddress1: &a.StreetAddress1,
-		StreetAddress2: a.StreetAddress2,
-		StreetAddress3: a.StreetAddress3,
-		City:           &a.City,
-		State:          &a.State,
-		PostalCode:     &a.PostalCode,
-		Country:        a.Country,
+	payload := &primemessages.MoveTaskOrder{
+		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
+		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
+		IsAvailableToPrime: &moveTaskOrder.IsAvailableToPrime,
+		IsCancelled:        &moveTaskOrder.IsCancelled,
+		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
+		ReferenceID:        moveTaskOrder.ReferenceID,
+		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
+	}
+	return payload
+}
+
+func Customer(customer *models.Customer) *primemessages.Customer {
+	if customer == nil {
+		return nil
+	}
+	payload := primemessages.Customer{
+		DodID:  customer.DODID,
+		ID:     strfmt.UUID(customer.ID.String()),
+		UserID: strfmt.UUID(customer.UserID.String()),
+	}
+	return &payload
+}
+
+func MoveOrder(moveOrders *models.MoveOrder) *primemessages.MoveOrder {
+	if moveOrders == nil {
+		return nil
+	}
+	destinationDutyStation := DutyStation(&moveOrders.DestinationDutyStation)
+	originDutyStation := DutyStation(&moveOrders.OriginDutyStation)
+	entitlements := Entitlement(&moveOrders.Entitlement)
+	payload := primemessages.MoveOrder{
+		CustomerID:             strfmt.UUID(moveOrders.CustomerID.String()),
+		DestinationDutyStation: destinationDutyStation,
+		Entitlement:            entitlements,
+		ID:                     strfmt.UUID(moveOrders.ID.String()),
+		OriginDutyStation:      originDutyStation,
+	}
+	return &payload
+}
+
+func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
+	if entitlement == nil {
+		return nil
+	}
+	var proGearWeight int64
+	if entitlement.ProGearWeight != nil {
+		proGearWeight = int64(*entitlement.ProGearWeight)
+	}
+	var proGearWeightSpouse int64
+	if entitlement.ProGearWeightSpouse != nil {
+		proGearWeightSpouse = int64(*entitlement.ProGearWeightSpouse)
+	}
+	var sit int64
+	if entitlement.StorageInTransit != nil {
+		sit = int64(*entitlement.StorageInTransit)
+	}
+	var totalDependents int64
+	if entitlement.TotalDependents != nil {
+		totalDependents = int64(*entitlement.TotalDependents)
+	}
+	return &primemessages.Entitlements{
+		ID:                    strfmt.UUID(entitlement.ID.String()),
+		DependentsAuthorized:  entitlement.DependentsAuthorized,
+		NonTemporaryStorage:   entitlement.NonTemporaryStorage,
+		PrivatelyOwnedVehicle: entitlement.PrivatelyOwnedVehicle,
+		ProGearWeight:         proGearWeight,
+		ProGearWeightSpouse:   proGearWeightSpouse,
+		StorageInTransit:      sit,
+		TotalDependents:       totalDependents,
 	}
 }
 
-func Customer(serviceMember *models.ServiceMember) *primemessages.Customer {
-	if serviceMember == nil {
+func DutyStation(dutyStation *models.DutyStation) *primemessages.DutyStation {
+	if dutyStation == nil {
 		return nil
 	}
-	var agency *string
-	if serviceMember.Affiliation != nil {
-		agency = handlers.FmtString(string(*serviceMember.Affiliation))
+	address := Address(&dutyStation.Address)
+	payload := primemessages.DutyStation{
+		Address:   address,
+		AddressID: address.ID,
+		ID:        strfmt.UUID(dutyStation.ID.String()),
+		Name:      dutyStation.Name,
 	}
-	var rank *string
-	if serviceMember.Rank != nil {
-		rank = handlers.FmtString(string(*serviceMember.Rank))
-	}
+	return &payload
+}
 
-	return &primemessages.Customer{
-		ID:            strfmt.UUID(serviceMember.ID.String()),
-		Agency:        agency,
-		Email:         serviceMember.PersonalEmail,
-		FirstName:     serviceMember.FirstName,
-		Grade:         rank,
-		LastName:      serviceMember.LastName,
-		MiddleName:    serviceMember.MiddleName,
-		PickupAddress: Address(serviceMember.ResidentialAddress),
-		Suffix:        serviceMember.Suffix,
-		Telephone:     serviceMember.Telephone,
+func Address(address *models.Address) *primemessages.Address {
+	if address == nil {
+		return nil
+	}
+	return &primemessages.Address{
+		ID:             strfmt.UUID(address.ID.String()),
+		StreetAddress1: &address.StreetAddress1,
+		StreetAddress2: address.StreetAddress2,
+		StreetAddress3: address.StreetAddress3,
+		City:           &address.City,
+		State:          &address.State,
+		PostalCode:     &address.PostalCode,
+		Country:        address.Country,
 	}
 }
