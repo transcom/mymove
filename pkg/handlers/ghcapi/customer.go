@@ -3,6 +3,8 @@ package ghcapi
 import (
 	"database/sql"
 
+	"github.com/transcom/mymove/pkg/services"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -10,20 +12,19 @@ import (
 	customercodeop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
-	"github.com/transcom/mymove/pkg/models"
 )
 
 // GetCustomerInfoHandler fetches the information of a specific customer
 type GetCustomerHandler struct {
 	handlers.HandlerContext
+	services.CustomerFetcher
 }
 
 // Handle getting the information of a specific customer
 func (h GetCustomerHandler) Handle(params customercodeop.GetCustomerParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	customerID, _ := uuid.FromString(params.CustomerID.String())
-	customer := &models.Customer{}
-	err := h.DB().Find(customer, customerID)
+	customer, err := h.FetchCustomer(customerID)
 	if err != nil {
 		logger.Error("Loading Customer Info", zap.Error(err))
 		switch err {

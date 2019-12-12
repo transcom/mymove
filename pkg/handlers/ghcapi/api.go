@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/transcom/mymove/pkg/services/office_user/customer"
+
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
@@ -38,6 +40,7 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 	}
 	ghcAPI.CustomerGetCustomerHandler = GetCustomerHandler{
 		context,
+		customer.NewCustomerFetcher(context.DB()),
 	}
 	ghcAPI.MoveOrderGetMoveOrderHandler = GetMoveOrdersHandler{
 		context,

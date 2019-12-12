@@ -15,8 +15,8 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *ghcmessages.MoveTaskOrd
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
 		IsAvailableToPrime: &moveTaskOrder.IsAvailableToPrime,
-		IsCanceled:         &moveTaskOrder.IsCancelled,
-		MoveOrdersID:       strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
+		IsCanceled:         &moveTaskOrder.IsCanceled,
+		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
 		ReferenceID:        moveTaskOrder.ReferenceID,
 		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
 	}
@@ -35,24 +35,24 @@ func Customer(customer *models.Customer) *ghcmessages.Customer {
 	return &payload
 }
 
-func MoveOrders(moveOrders *models.MoveOrder) *ghcmessages.MoveOrder {
-	if moveOrders == nil {
+func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
+	if moveOrder == nil {
 		return nil
 	}
-	destinationDutyStation := DutyStation(&moveOrders.DestinationDutyStation)
-	originDutyStation := DutyStation(&moveOrders.OriginDutyStation)
-	entitlements := Entitlements(&moveOrders.Entitlement)
+	destinationDutyStation := DutyStation(&moveOrder.DestinationDutyStation)
+	originDutyStation := DutyStation(&moveOrder.OriginDutyStation)
+	entitlements := Entitlement(&moveOrder.Entitlement)
 	payload := ghcmessages.MoveOrder{
-		CustomerID:             strfmt.UUID(moveOrders.CustomerID.String()),
+		CustomerID:             strfmt.UUID(moveOrder.CustomerID.String()),
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            entitlements,
-		ID:                     strfmt.UUID(moveOrders.ID.String()),
+		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 	}
 	return &payload
 }
 
-func Entitlements(entitlement *models.Entitlement) *ghcmessages.Entitlements {
+func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	if entitlement == nil {
 		return nil
 	}

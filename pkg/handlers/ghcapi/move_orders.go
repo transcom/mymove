@@ -13,7 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// GetCustomerInfoHandler fetches the information of a specific customer
+// GetMoveOrdersHandler fetches the information of a specific customer
 type GetMoveOrdersHandler struct {
 	handlers.HandlerContext
 }
@@ -33,6 +33,6 @@ func (h GetMoveOrdersHandler) Handle(params moveorderop.GetMoveOrderParams) midd
 			return moveorderop.NewGetMoveOrderInternalServerError()
 		}
 	}
-	moveOrderPayload := payloads.MoveOrders(moveOrder)
+	moveOrderPayload := payloads.MoveOrder(moveOrder)
 	return moveorderop.NewGetMoveOrderOK().WithPayload(moveOrderPayload)
 }
