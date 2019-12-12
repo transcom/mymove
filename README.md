@@ -39,6 +39,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Setup: AdminLocal client](#setup-adminlocal-client)
   * [Setup: DPS user](#setup-dps-user)
   * [Setup: Orders Gateway](#setup-orders-gateway)
+  * [Setup: Prime API](#setup-prime-api)
   * [Setup: AWS Services (Optional)](#setup-aws-services-optional)
 * [Development](#development)
   * [TSP Award Queue](#tsp-award-queue)
@@ -241,6 +242,7 @@ Here are the steps:
   echo "127.0.0.1 officelocal" | sudo tee -a /etc/hosts
   echo "127.0.0.1 orderslocal" | sudo tee -a /etc/hosts
   echo "127.0.0.1 adminlocal" | sudo tee -a /etc/hosts
+  echo "127.0.0.1 primelocal" | sudo tee -a /etc/hosts
   ```
 
 Check that the file looks correct with `cat /etc/hosts`:
@@ -259,7 +261,10 @@ Check that the file looks correct with `cat /etc/hosts`:
   127.0.0.1   officelocal
   127.0.0.1   orderslocal
   127.0.0.1   adminlocal
-  ```
+  127.0.0.1   primelocal
+```
+
+You can also verify this by running `scripts/check-hosts-file`.
 
 ### Setup: Dependencies
 
@@ -326,6 +331,17 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 ### Setup: Orders Gateway
 
 Nothing to do.
+
+### Setup: Prime API
+
+The API that the Prime will use is authenticated via mutual TSL so there are a few things you need to do to interact with it in a local environment.
+
+1. Set the `MUTUAL_TLS_ENABLED` environment variable to a truthy value. One way to do this is to modify your .envrc.local with this content: `export MUTUAL_TLS_ENABLED=1`
+2. Make sure that the `primelocal` alias is setup for localhost. See [Setup:Hosts](#setup-hosts)
+3. run `make server_run`
+4. Access the Prime API using the devlocal-mtls certs. There is a script that shows you how to do this with curl at `./scripts/prime-api`. For instance to call the `move-task-orders` endpoint, call `./scripts/prime-api move-task-orders`
+
+
 
 ### Setup: AWS Services (Optional)
 
