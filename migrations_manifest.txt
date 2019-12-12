@@ -415,3 +415,4 @@
 20191210171752_alter_customers.up.sql
 20191210171828_alter_payment_requests_move_task_order_reference.up.sql
 20191212225704_add_allow_prime.up.sql
+20191212230438_add_devlocal-mtls_client_cert.up.sql
