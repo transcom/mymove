@@ -30,10 +30,40 @@ func TestCapture(t *testing.T) {
 			AdminUserID: adminUserID,
 		}
 
-		zapFields, _ := Capture(&model, logger, &session, "create_office_user")
+		zapFields, _ := Capture(&model, nil, logger, &session, "create_office_user")
 
 		if assert.NotEmpty(t, zapFields) {
 			assert.Equal(t, "record_id", zapFields[0].Key)
+		}
+	})
+
+	t.Run("success with optional patch payload", func(t *testing.T) {
+		uuidString := "88c9922f-58c7-45cd-8c10-48f2a52bbabc"
+		adminUserID, _ := uuid.FromString(uuidString)
+
+		type fakePatchPayload struct {
+			Active         bool    `json:"active,omitempty"`
+			FirstName      string  `json:"first_name,omitempty"`
+			LastName       string  `json:"last_name,omitempty"`
+			MiddleInitials *string `json:"middle_initials,omitempty"`
+			Telephone      string  `json:"telephone,omitempty"`
+		}
+
+		payload := fakePatchPayload{
+			Active:    true,
+			FirstName: "Leo",
+			LastName:  "Spaceman",
+			Telephone: "800-588-2300",
+		}
+
+		session := auth.Session{
+			AdminUserID: adminUserID,
+		}
+
+		zapFields, _ := Capture(&model, &payload, logger, &session, "create_office_user")
+
+		if assert.NotEmpty(t, zapFields) {
+			assert.Equal(t, "patch_payload", zapFields[len(zapFields)-1].Key)
 		}
 	})
 
@@ -45,7 +75,7 @@ func TestCapture(t *testing.T) {
 			ServiceMemberID: serviceMemberID,
 		}
 
-		zapFields, _ := Capture(&model, logger, &session, "create_office_user")
+		zapFields, _ := Capture(&model, nil, logger, &session, "create_office_user")
 
 		if assert.NotEmpty(t, zapFields) {
 			var keys []string
@@ -59,7 +89,7 @@ func TestCapture(t *testing.T) {
 
 	t.Run("failure when a non-pointer is passed in", func(t *testing.T) {
 		session := auth.Session{}
-		_, err := Capture(model, logger, &session, "create_office_user")
+		_, err := Capture(model, nil, logger, &session, "create_office_user")
 
 		assert.Equal(t, "must pass a pointer to a struct", err.Error())
 	})
@@ -67,7 +97,7 @@ func TestCapture(t *testing.T) {
 	t.Run("failure when a non-struct is passed in", func(t *testing.T) {
 		session := auth.Session{}
 		invalidArg := 5
-		_, err := Capture(&invalidArg, logger, &session, "create_office_user")
+		_, err := Capture(&invalidArg, nil, logger, &session, "create_office_user")
 
 		assert.Equal(t, "must pass a pointer to a struct", err.Error())
 	})

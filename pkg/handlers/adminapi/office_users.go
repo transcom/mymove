@@ -141,7 +141,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 		return officeuserop.NewCreateOfficeUserInternalServerError()
 	}
 
-	_, err = audit.Capture(createdOfficeUser, logger, session, "create_office_user")
+	_, err = audit.Capture(createdOfficeUser, nil, logger, session, "create_office_user")
 	if err != nil {
 		logger.Error("Error capturing audit record", zap.Error(err))
 	}
@@ -182,7 +182,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 		return officeuserop.NewUpdateOfficeUserInternalServerError()
 	}
 
-	_, err = audit.Capture(updatedOfficeUser, logger, session, "update_office_user")
+	_, err = audit.Capture(updatedOfficeUser, payload, logger, session, "update_office_user")
 	if err != nil {
 		logger.Error("Error capturing audit record", zap.Error(err))
 	}
