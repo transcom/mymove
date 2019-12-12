@@ -13,7 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// GetCustomerInfoHandler fetches the information of a specific customer
+// GetMoveOrdersHandler fetches the information of a specific customer
 type GetMoveOrdersHandler struct {
 	handlers.HandlerContext
 }
