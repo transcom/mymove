@@ -33,7 +33,6 @@ func payloadForMTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOSer
 type CreateMTOServiceItemHandler struct {
 	handlers.HandlerContext
 	services.MTOServiceItemCreator
-	services.NewQueryFilter
 }
 
 // Handle handler that creates a mto service item

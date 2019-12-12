@@ -26,8 +26,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	serviceItem := models.MTOServiceItem{
 		ID: serviceItemID, MoveTaskOrderID: moveTaskOrderID, ReServiceID: reServiceID, MTOShipmentID: mtoShipmentID, MetaID: metaID, MetaType: "unknown",
 	}
-	queryFilter := mocks.QueryFilter{}
-	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 
 	req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/%s/mto_service_items", moveTaskOrderID.String()), nil)
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())
@@ -54,7 +52,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			serviceItemCreator,
-			newQueryFilter,
 		}
 
 		response := handler.Handle(params)
@@ -70,7 +67,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			serviceItemCreator,
-			newQueryFilter,
 		}
 
 		response := handler.Handle(params)

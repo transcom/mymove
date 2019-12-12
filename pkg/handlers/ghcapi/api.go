@@ -27,7 +27,6 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 	ghcAPI.MtoServiceItemCreateMTOServiceItemHandler = CreateMTOServiceItemHandler{
 		context,
 		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder),
-		query.NewQueryFilter,
 	}
 
 	ghcAPI.PaymentRequestsGetPaymentRequestHandler = ShowPaymentRequestHandler{
