@@ -28,7 +28,7 @@ class PaymentRequestIndex extends React.Component {
                 <td>
                   <Link to={`/payment_requests/${pr.id}`}>{pr.id}</Link>
                 </td>
-                <td>{pr.isFinal}</td>
+                <td>{`${pr.isFinal}`}</td>
                 <td>{pr.rejectionReason}</td>
                 <td>{pr.serviceItemIDs}</td>
               </tr>
