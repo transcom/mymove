@@ -32,6 +32,7 @@ const TOO = lazy(() => import('./TOO/too'));
 const TIO = lazy(() => import('./TIO/tio'));
 const TOOVerificationInProgress = lazy(() => import('./TOO/tooVerificationInProgress'));
 const PaymentRequestShow = lazy(() => import('./TIO/paymentRequestShow'));
+const PaymentRequestIndex = lazy(() => import('./TIO/paymentRequestIndex'));
 
 export class RenderWithOrWithoutHeader extends Component {
   render() {
@@ -166,6 +167,7 @@ export class OfficeWrapper extends Component {
                     {too && <Route path="/verification-in-progress" component={TOOVerificationInProgress} />}
                     {tio && <PrivateRoute path="/tio/placeholder" component={TIO} />}
                     {tio && <PrivateRoute path="/payment_requests/:id" component={PaymentRequestShow} />}
+                    {tio && <PrivateRoute path="/payment_requests" component={PaymentRequestIndex} />}
                   </Switch>
                 </Suspense>
               </Switch>
