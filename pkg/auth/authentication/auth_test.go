@@ -861,7 +861,7 @@ func (suite *AuthSuite) TestRequireRoleAuthMiddlewareAuthorized() {
 
 	middleware.ServeHTTP(rr, req)
 
-	suite.Equal(http.StatusOK, rr.Code, "handler returned correct status code")
+	suite.Equal(http.StatusOK, rr.Code)
 }
 
 func (suite *AuthSuite) TestRequireRoleAuthMiddlewareUnauthorized() {
@@ -890,5 +890,5 @@ func (suite *AuthSuite) TestRequireRoleAuthMiddlewareUnauthorized() {
 
 	middleware.ServeHTTP(rr, req)
 
-	suite.Equal(http.StatusForbidden, rr.Code, "handler returned correct status code")
+	suite.Equal(http.StatusForbidden, rr.Code)
 }
