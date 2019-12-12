@@ -3,7 +3,6 @@ package ghcapi
 import (
 	"errors"
 	"fmt"
-	"net/http"
 	"net/http/httptest"
 	"testing"
 
@@ -22,7 +21,11 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	moveTaskOrderID, _ := uuid.NewV4()
 	serviceItemID, _ := uuid.NewV4()
 	reServiceID, _ := uuid.NewV4()
-	serviceItem := models.MTOServiceItem{ID: serviceItemID, MoveTaskOrderID: moveTaskOrderID, ReServiceID: reServiceID}
+	mtoShipmentID, _ := uuid.NewV4()
+	metaID, _ := uuid.NewV4()
+	serviceItem := models.MtoServiceItem{
+		ID: serviceItemID, MoveTaskOrderID: moveTaskOrderID, ReServiceID: reServiceID, MtoShipmentID: mtoShipmentID, MetaID: metaID, MetaType: "unknown",
+	}
 	queryFilter := mocks.QueryFilter{}
 	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
 
@@ -33,7 +36,12 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	params := mtoserviceitemop.CreateMTOServiceItemParams{
 		HTTPRequest:     req,
 		MoveTaskOrderID: serviceItem.MoveTaskOrderID.String(),
-		ReServiceID:     serviceItem.ReServiceID.String(),
+		CreateMTOServiceItemBody: mtoserviceitemop.CreateMTOServiceItemBody{
+			ReServiceID:   handlers.FmtUUID(serviceItem.ReServiceID),
+			MtoShipmentID: handlers.FmtUUID(serviceItem.MtoShipmentID),
+			MetaID:        handlers.FmtUUID(serviceItem.MetaID),
+			MetaType:      handlers.FmtString(serviceItem.MetaType),
+		},
 	}
 
 	serviceItemCreator := &mocks.MTOServiceItemCreator{}
@@ -43,7 +51,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			mock.Anything,
 		).Return(&serviceItem, nil, nil).Once()
 
-		handler := CreateServiceItemHandler{
+		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			serviceItemCreator,
 			newQueryFilter,
@@ -59,7 +67,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			mock.Anything,
 		).Return(nil, validate.NewErrors(), err).Once()
 
-		handler := CreateServiceItemHandler{
+		handler := CreateMTOServiceItemHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			serviceItemCreator,
 			newQueryFilter,

@@ -10,9 +10,17 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+type testMTOServiceItemQueryBuilder struct {
+	fakeCreateOne func(model interface{}) (*validate.Errors, error)
+}
+
+func (t *testMTOServiceItemQueryBuilder) CreateOne(model interface{}) (*validate.Errors, error) {
+	return t.fakeCreateOne(model)
+}
+
 func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
-	serviceItem := models.MTOServiceItem{
+	serviceItem := models.MtoServiceItem{
 		MoveTaskOrderID: moveTaskOrder.ID,
 		MoveTaskOrder:   moveTaskOrder,
 	}
