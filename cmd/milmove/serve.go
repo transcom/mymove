@@ -761,6 +761,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		site.Handle(pat.New("/prime/v1/*"), primeMux)
 	}
 
+	// Handlers under mutual TLS need to go before this section that sets up middleware that shouldn't be enabled for mutual TLS (such as CSRF)
 	root := goji.NewMux()
 	root.Use(middleware.Recovery(logger))
 	root.Use(middleware.Trace(logger, &handlerContext))            // injects http request trace id
