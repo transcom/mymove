@@ -43,10 +43,24 @@ type MTOServiceItem struct {
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
 
+	// meta ID
+	// Required: true
+	// Format: uuid
+	MetaID *strfmt.UUID `json:"metaID"`
+
+	// meta type
+	// Required: true
+	MetaType *string `json:"metaType"`
+
 	// move task order ID
 	// Required: true
 	// Format: uuid
 	MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
+
+	// mto shipment ID
+	// Required: true
+	// Format: uuid
+	MtoShipmentID *strfmt.UUID `json:"mtoShipmentID"`
 
 	// quantity
 	Quantity int64 `json:"quantity,omitempty"`
@@ -109,7 +123,19 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateMetaID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMetaType(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateMoveTaskOrderID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMtoShipmentID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -240,6 +266,28 @@ func (m *MTOServiceItem) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MTOServiceItem) validateMetaID(formats strfmt.Registry) error {
+
+	if err := validate.Required("metaID", "body", m.MetaID); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("metaID", "body", "uuid", m.MetaID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) validateMetaType(formats strfmt.Registry) error {
+
+	if err := validate.Required("metaType", "body", m.MetaType); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOServiceItem) validateMoveTaskOrderID(formats strfmt.Registry) error {
 
 	if err := validate.Required("moveTaskOrderID", "body", m.MoveTaskOrderID); err != nil {
@@ -247,6 +295,19 @@ func (m *MTOServiceItem) validateMoveTaskOrderID(formats strfmt.Registry) error 
 	}
 
 	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) validateMtoShipmentID(formats strfmt.Registry) error {
+
+	if err := validate.Required("mtoShipmentID", "body", m.MtoShipmentID); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("mtoShipmentID", "body", "uuid", m.MtoShipmentID.String(), formats); err != nil {
 		return err
 	}
 

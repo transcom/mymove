@@ -832,11 +832,34 @@ func init() {
           },
           {
             "description": "ID of the rate engine services",
-            "name": "reServiceID",
+            "name": "createMTOServiceItemBody",
             "in": "body",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "object",
+              "required": [
+                "reServiceID",
+                "mtoShipmentID",
+                "metaID",
+                "metaType"
+              ],
+              "properties": {
+                "metaID": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "metaType": {
+                  "type": "string"
+                },
+                "mtoShipmentID": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "reServiceID": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
             }
           }
         ],
@@ -1481,7 +1504,10 @@ func init() {
       "required": [
         "id",
         "moveTaskOrderID",
-        "reServiceID"
+        "reServiceID",
+        "mtoShipmentID",
+        "metaID",
+        "metaType"
       ],
       "properties": {
         "approvedAt": {
@@ -1513,7 +1539,21 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "metaID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "metaType": {
+          "type": "string",
+          "example": "TBD"
+        },
         "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoShipmentID": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
@@ -2878,11 +2918,34 @@ func init() {
           },
           {
             "description": "ID of the rate engine services",
-            "name": "reServiceID",
+            "name": "createMTOServiceItemBody",
             "in": "body",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "object",
+              "required": [
+                "reServiceID",
+                "mtoShipmentID",
+                "metaID",
+                "metaType"
+              ],
+              "properties": {
+                "metaID": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "metaType": {
+                  "type": "string"
+                },
+                "mtoShipmentID": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "reServiceID": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
             }
           }
         ],
@@ -3587,7 +3650,10 @@ func init() {
       "required": [
         "id",
         "moveTaskOrderID",
-        "reServiceID"
+        "reServiceID",
+        "mtoShipmentID",
+        "metaID",
+        "metaType"
       ],
       "properties": {
         "approvedAt": {
@@ -3619,7 +3685,21 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "metaID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "metaType": {
+          "type": "string",
+          "example": "TBD"
+        },
         "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mtoShipmentID": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"

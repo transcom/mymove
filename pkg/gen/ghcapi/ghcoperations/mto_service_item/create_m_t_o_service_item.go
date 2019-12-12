@@ -8,7 +8,11 @@ package mto_service_item
 import (
 	"net/http"
 
+	errors "github.com/go-openapi/errors"
 	middleware "github.com/go-openapi/runtime/middleware"
+	strfmt "github.com/go-openapi/strfmt"
+	swag "github.com/go-openapi/swag"
+	validate "github.com/go-openapi/validate"
 )
 
 // CreateMTOServiceItemHandlerFunc turns a function with the right signature into a create m t o service item handler
@@ -57,4 +61,120 @@ func (o *CreateMTOServiceItem) ServeHTTP(rw http.ResponseWriter, r *http.Request
 
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
+}
+
+// CreateMTOServiceItemBody create m t o service item body
+// swagger:model CreateMTOServiceItemBody
+type CreateMTOServiceItemBody struct {
+
+	// meta ID
+	// Required: true
+	// Format: uuid
+	MetaID *strfmt.UUID `json:"metaID"`
+
+	// meta type
+	// Required: true
+	MetaType *string `json:"metaType"`
+
+	// mto shipment ID
+	// Required: true
+	// Format: uuid
+	MtoShipmentID *strfmt.UUID `json:"mtoShipmentID"`
+
+	// re service ID
+	// Required: true
+	// Format: uuid
+	ReServiceID *strfmt.UUID `json:"reServiceID"`
+}
+
+// Validate validates this create m t o service item body
+func (o *CreateMTOServiceItemBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateMetaID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMetaType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMtoShipmentID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateReServiceID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *CreateMTOServiceItemBody) validateMetaID(formats strfmt.Registry) error {
+
+	if err := validate.Required("createMTOServiceItemBody"+"."+"metaID", "body", o.MetaID); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("createMTOServiceItemBody"+"."+"metaID", "body", "uuid", o.MetaID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *CreateMTOServiceItemBody) validateMetaType(formats strfmt.Registry) error {
+
+	if err := validate.Required("createMTOServiceItemBody"+"."+"metaType", "body", o.MetaType); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *CreateMTOServiceItemBody) validateMtoShipmentID(formats strfmt.Registry) error {
+
+	if err := validate.Required("createMTOServiceItemBody"+"."+"mtoShipmentID", "body", o.MtoShipmentID); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("createMTOServiceItemBody"+"."+"mtoShipmentID", "body", "uuid", o.MtoShipmentID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *CreateMTOServiceItemBody) validateReServiceID(formats strfmt.Registry) error {
+
+	if err := validate.Required("createMTOServiceItemBody"+"."+"reServiceID", "body", o.ReServiceID); err != nil {
+		return err
+	}
+
+	if err := validate.FormatOf("createMTOServiceItemBody"+"."+"reServiceID", "body", "uuid", o.ReServiceID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *CreateMTOServiceItemBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *CreateMTOServiceItemBody) UnmarshalBinary(b []byte) error {
+	var res CreateMTOServiceItemBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
 }

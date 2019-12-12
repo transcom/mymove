@@ -294,10 +294,27 @@ paths:
           type: string
         - description: ID of the rate engine services
           in: body
-          name: reServiceID
+          name: createMTOServiceItemBody
           required: true
           schema:
-            type: string
+            type: object
+            required:
+              - reServiceID
+              - mtoShipmentID
+              - metaID
+              - metaType
+            properties:
+              reServiceID:
+                format: uuid
+                type: string
+              mtoShipmentID:
+                format: uuid
+                type: string
+              metaID:
+                format: uuid
+                type: string
+              metaType:
+                type: string
       responses:
         '201':
           description: Successfully created service item for move task order
@@ -1190,6 +1207,17 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      metaID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      metaType:
+        example: TBD
+        type: string
       reServiceID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
@@ -1246,6 +1274,9 @@ definitions:
       - id
       - moveTaskOrderID
       - reServiceID
+      - mtoShipmentID
+      - metaID
+      - metaType
     type: object
   MTOServiceItems:
     type: array

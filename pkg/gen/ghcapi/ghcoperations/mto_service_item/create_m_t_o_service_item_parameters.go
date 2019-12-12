@@ -32,16 +32,16 @@ type CreateMTOServiceItemParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
+	/*ID of the rate engine services
+	  Required: true
+	  In: body
+	*/
+	CreateMTOServiceItemBody CreateMTOServiceItemBody
 	/*ID of move order to use
 	  Required: true
 	  In: path
 	*/
 	MoveTaskOrderID string
-	/*ID of the rate engine services
-	  Required: true
-	  In: body
-	*/
-	ReServiceID string
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -53,27 +53,33 @@ func (o *CreateMTOServiceItemParams) BindRequest(r *http.Request, route *middlew
 
 	o.HTTPRequest = r
 
+	if runtime.HasBody(r) {
+		defer r.Body.Close()
+		var body CreateMTOServiceItemBody
+		if err := route.Consumer.Consume(r.Body, &body); err != nil {
+			if err == io.EOF {
+				res = append(res, errors.Required("createMTOServiceItemBody", "body"))
+			} else {
+				res = append(res, errors.NewParseError("createMTOServiceItemBody", "body", "", err))
+			}
+		} else {
+			// validate body object
+			if err := body.Validate(route.Formats); err != nil {
+				res = append(res, err)
+			}
+
+			if len(res) == 0 {
+				o.CreateMTOServiceItemBody = body
+			}
+		}
+	} else {
+		res = append(res, errors.Required("createMTOServiceItemBody", "body"))
+	}
 	rMoveTaskOrderID, rhkMoveTaskOrderID, _ := route.Params.GetOK("moveTaskOrderID")
 	if err := o.bindMoveTaskOrderID(rMoveTaskOrderID, rhkMoveTaskOrderID, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
-	if runtime.HasBody(r) {
-		defer r.Body.Close()
-		var body string
-		if err := route.Consumer.Consume(r.Body, &body); err != nil {
-			if err == io.EOF {
-				res = append(res, errors.Required("reServiceId", "body"))
-			} else {
-				res = append(res, errors.NewParseError("reServiceId", "body", "", err))
-			}
-		} else {
-			// no validation required on inline body
-			o.ReServiceID = body
-		}
-	} else {
-		res = append(res, errors.Required("reServiceId", "body"))
-	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
