@@ -932,7 +932,7 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "isCancelled": {
+        "isCanceled": {
           "type": "boolean",
           "x-nullable": true
         },
@@ -2130,7 +2130,7 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "isCancelled": {
+        "isCanceled": {
           "type": "boolean",
           "x-nullable": true
         },
