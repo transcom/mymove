@@ -29,12 +29,14 @@ func payloadForMTOServiceItemModel(s *models.MtoServiceItem) *ghcmessages.MTOSer
 	}
 }
 
+// CreateMTOServiceItemHandler struct that describes creating a mto service item handler
 type CreateMTOServiceItemHandler struct {
 	handlers.HandlerContext
 	services.MTOServiceItemCreator
 	services.NewQueryFilter
 }
 
+// Handle handler that creates a mto service item
 func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOServiceItemParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
