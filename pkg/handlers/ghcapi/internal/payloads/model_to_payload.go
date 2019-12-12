@@ -7,7 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func PayloadForMoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *ghcmessages.MoveTaskOrder {
+func MoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *ghcmessages.MoveTaskOrder {
 	payload := &ghcmessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
@@ -20,11 +20,87 @@ func PayloadForMoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *ghcmessages.Mo
 	return payload
 }
 
-func PayloadForCustomer(Customer *models.Customer) *ghcmessages.Customer {
+func Customer(Customer *models.Customer) *ghcmessages.Customer {
 	payload := ghcmessages.Customer{
 		DodID:  Customer.DODID,
 		ID:     strfmt.UUID(Customer.ID.String()),
 		UserID: strfmt.UUID(Customer.UserID.String()),
 	}
 	return &payload
+}
+
+func MoveOrders(moveOrders *models.MoveOrder) *ghcmessages.MoveOrder {
+	destinationDutyStation := DutyStation(&moveOrders.DestinationDutyStation)
+	originDutyStation := DutyStation(&moveOrders.OriginDutyStation)
+	entitlements := Entitlements(&moveOrders.Entitlement)
+	payload := ghcmessages.MoveOrder{
+		CustomerID:             strfmt.UUID(moveOrders.CustomerID.String()),
+		DestinationDutyStation: destinationDutyStation,
+		Entitlement:            entitlements,
+		ID:                     strfmt.UUID(moveOrders.ID.String()),
+		OriginDutyStation:      originDutyStation,
+	}
+	return &payload
+}
+
+func Entitlements(entitlement *models.Entitlement) *ghcmessages.Entitlements {
+	if entitlement == nil {
+		return nil
+	}
+	var proGearWeight int64
+	if entitlement.ProGearWeight != nil {
+		proGearWeight = int64(*entitlement.ProGearWeight)
+	}
+	var proGearWeightSpouse int64
+	if entitlement.ProGearWeightSpouse != nil {
+		proGearWeightSpouse = int64(*entitlement.ProGearWeightSpouse)
+	}
+	var sit int64
+	if entitlement.StorageInTransit != nil {
+		sit = int64(*entitlement.StorageInTransit)
+	}
+	var totalDependents int64
+	if entitlement.TotalDependents != nil {
+		totalDependents = int64(*entitlement.TotalDependents)
+	}
+	return &ghcmessages.Entitlements{
+		ID:                    strfmt.UUID(entitlement.ID.String()),
+		DependentsAuthorized:  entitlement.DependentsAuthorized,
+		NonTemporaryStorage:   entitlement.NonTemporaryStorage,
+		PrivatelyOwnedVehicle: entitlement.PrivatelyOwnedVehicle,
+		ProGearWeight:         proGearWeight,
+		ProGearWeightSpouse:   proGearWeightSpouse,
+		StorageInTransit:      sit,
+		TotalDependents:       totalDependents,
+	}
+}
+
+func DutyStation(dutyStation *models.DutyStation) *ghcmessages.DutyStation {
+	if dutyStation == nil {
+		return nil
+	}
+	address := Address(&dutyStation.Address)
+	payload := ghcmessages.DutyStation{
+		Address:   address,
+		AddressID: address.ID,
+		ID:        strfmt.UUID(dutyStation.ID.String()),
+		Name:      dutyStation.Name,
+	}
+	return &payload
+}
+
+func Address(address *models.Address) *ghcmessages.Address {
+	if address == nil {
+		return nil
+	}
+	return &ghcmessages.Address{
+		ID:             strfmt.UUID(address.ID.String()),
+		StreetAddress1: &address.StreetAddress1,
+		StreetAddress2: address.StreetAddress2,
+		StreetAddress3: address.StreetAddress3,
+		City:           &address.City,
+		State:          &address.State,
+		PostalCode:     &address.PostalCode,
+		Country:        address.Country,
+	}
 }

@@ -33,6 +33,6 @@ func (h GetCustomerHandler) Handle(params customercodeop.GetCustomerParams) midd
 			return customercodeop.NewGetCustomerInternalServerError()
 		}
 	}
-	customerInfoPayload := payloads.PayloadForCustomer(customer)
+	customerInfoPayload := payloads.Customer(customer)
 	return customercodeop.NewGetCustomerOK().WithPayload(customerInfoPayload)
 }

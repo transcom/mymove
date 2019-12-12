@@ -39,6 +39,9 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 	ghcAPI.CustomerGetCustomerHandler = GetCustomerHandler{
 		context,
 	}
+	ghcAPI.MoveOrderGetMoveOrderHandler = GetMoveOrdersHandler{
+		context,
+	}
 
 	return ghcAPI.Serve(nil)
 }

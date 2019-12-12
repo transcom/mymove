@@ -2,13 +2,6 @@ import { swaggerRequest } from 'shared/Swagger/request';
 import { getGHCClient } from 'shared/Swagger/api';
 import { get } from 'lodash';
 
-const getEntitlementsLabel = 'moveTaskOrder.getEntitlements';
-
-export function getEntitlements(moveTaskOrderID, label = getEntitlementsLabel) {
-  const swaggerTag = 'moveTaskOrder.getEntitlements';
-  return swaggerRequest(getGHCClient, swaggerTag, { moveTaskOrderID }, { label });
-}
-
 const updateMoveTaskOrders = 'moveTaskOrder.updateMoveTaskOrderStatus';
 export function updateMoveTaskOrderStatus(moveTaskOrderID, status, label = updateMoveTaskOrders) {
   const swaggerTag = 'moveTaskOrder.updateMoveTaskOrderStatus';
@@ -19,6 +12,17 @@ export function updateMoveTaskOrderStatus(moveTaskOrderID, status, label = updat
     { updateMoveTaskOrders },
     { label },
   );
+}
+
+const getMoveOrderLabel = 'moveOrder.getMoveOrder';
+export function getMoveOrder(moveOrderID, label = getMoveOrderLabel) {
+  console.log(moveOrderID);
+  const swaggerTag = 'moveOrder.getMoveOrder';
+  return swaggerRequest(getGHCClient, swaggerTag, { moveOrderID }, { getMoveOrder }, { label });
+}
+
+export function selectMoveOrder(state, moveOrderId) {
+  return get(state, `entities.moveOrders.${moveOrderId}`, {});
 }
 
 const getMoveTaskOrderLabel = 'moveTaskOrder.updateMoveTaskOrderStatus';

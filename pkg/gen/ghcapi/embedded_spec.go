@@ -148,6 +148,67 @@ func init() {
         }
       ]
     },
+    "/move-orders/{moveOrderID}": {
+      "get": {
+        "description": "Gets a move order",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveOrder"
+        ],
+        "summary": "Gets a move order by ID",
+        "operationId": "getMoveOrder",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved move order",
+            "schema": {
+              "$ref": "#/definitions/MoveOrder"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of customer to use",
+          "name": "moveOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move-task-orders": {
       "get": {
         "description": "Gets all move orders",
@@ -1273,11 +1334,34 @@ func init() {
         "$ref": "#/definitions/CustomerMoveItem"
       }
     },
+    "DutyStation": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "address_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "example": "Fort Bragg North Station"
+        }
+      }
+    },
     "Entitlements": {
       "type": "object",
       "properties": {
         "dependentsAuthorized": {
           "type": "boolean",
+          "x-nullable": true,
           "example": true
         },
         "id": {
@@ -1312,11 +1396,6 @@ func init() {
         "totalDependents": {
           "type": "integer",
           "example": 2
-        },
-        "totalWeightSelf": {
-          "type": "integer",
-          "x-formatting": "weight",
-          "example": 18000
         }
       }
     },
@@ -1328,6 +1407,30 @@ func init() {
       "properties": {
         "message": {
           "type": "string"
+        }
+      }
+    },
+    "MoveOrder": {
+      "type": "object",
+      "properties": {
+        "customerID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "destinationDutyStation": {
+          "$ref": "#/definitions/DutyStation"
+        },
+        "entitlement": {
+          "$ref": "#/definitions/Entitlements"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "originDutyStation": {
+          "$ref": "#/definitions/DutyStation"
         }
       }
     },
@@ -1797,6 +1900,82 @@ func init() {
         }
       ]
     },
+    "/move-orders/{moveOrderID}": {
+      "get": {
+        "description": "Gets a move order",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveOrder"
+        ],
+        "summary": "Gets a move order by ID",
+        "operationId": "getMoveOrder",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved move order",
+            "schema": {
+              "$ref": "#/definitions/MoveOrder"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of customer to use",
+          "name": "moveOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/move-task-orders": {
       "get": {
         "description": "Gets all move orders",
@@ -3132,11 +3311,34 @@ func init() {
         "$ref": "#/definitions/CustomerMoveItem"
       }
     },
+    "DutyStation": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "address_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "example": "Fort Bragg North Station"
+        }
+      }
+    },
     "Entitlements": {
       "type": "object",
       "properties": {
         "dependentsAuthorized": {
           "type": "boolean",
+          "x-nullable": true,
           "example": true
         },
         "id": {
@@ -3171,11 +3373,6 @@ func init() {
         "totalDependents": {
           "type": "integer",
           "example": 2
-        },
-        "totalWeightSelf": {
-          "type": "integer",
-          "x-formatting": "weight",
-          "example": 18000
         }
       }
     },
@@ -3187,6 +3384,30 @@ func init() {
       "properties": {
         "message": {
           "type": "string"
+        }
+      }
+    },
+    "MoveOrder": {
+      "type": "object",
+      "properties": {
+        "customerID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "destinationDutyStation": {
+          "$ref": "#/definitions/DutyStation"
+        },
+        "entitlement": {
+          "$ref": "#/definitions/Entitlements"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "originDutyStation": {
+          "$ref": "#/definitions/DutyStation"
         }
       }
     },
