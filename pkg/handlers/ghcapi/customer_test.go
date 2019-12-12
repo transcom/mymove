@@ -3,6 +3,8 @@ package ghcapi
 import (
 	"net/http/httptest"
 
+	customerservice "github.com/transcom/mymove/pkg/services/office_user/customer"
+
 	customerops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
 
 	"github.com/go-openapi/strfmt"
@@ -23,6 +25,7 @@ func (suite *HandlerSuite) TestGetCustomerHandlerIntegration() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetCustomerHandler{
 		context,
+		customerservice.NewCustomerFetcher(suite.DB()),
 	}
 
 	response := handler.Handle(params)
