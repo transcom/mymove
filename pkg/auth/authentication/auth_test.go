@@ -834,7 +834,7 @@ func (m MockAPIContext) RouteInfo(r *http.Request) (*middleware.MatchedRoute, *h
 	return &matchedRouteMiddleware, nil, false
 }
 
-func (suite *AuthSuite) TestRequireRoleAuthMiddleware() {
+func (suite *AuthSuite) TestRequireRoleAuthMiddlewareAuthorized() {
 	// Given: a logged in user
 	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
 	user := models.User{
@@ -851,12 +851,9 @@ func (suite *AuthSuite) TestRequireRoleAuthMiddleware() {
 	roles := []string{string(models.RoleTypeContractingOfficer)}
 	session := auth.Session{UserID: user.ID, IDToken: "fake Token", Roles: roles}
 	ctx := auth.SetSessionInRequestContext(req, &session)
-	req = req.WithContext(ctx)
 
-	var handlerSession *auth.Session
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		handlerSession = auth.SessionFromRequestContext(r)
-	})
+	req = req.WithContext(ctx)
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
 
 	mockAPIContext := MockAPIContext{}
 
@@ -864,7 +861,34 @@ func (suite *AuthSuite) TestRequireRoleAuthMiddleware() {
 
 	middleware.ServeHTTP(rr, req)
 
-	// We should be not be redirected since we're logged in
-	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
-	suite.Equal(handlerSession.UserID, user.ID, "the authenticated user is different from expected")
+	suite.Equal(http.StatusOK, rr.Code, "handler returned correct status code")
+}
+
+func (suite *AuthSuite) TestRequireRoleAuthMiddlewareUnauthorized() {
+	// Given: a logged in user
+	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	user := models.User{
+		LoginGovUUID:  loginGovUUID,
+		LoginGovEmail: "email@example.com",
+		Active:        true,
+	}
+	suite.MustSave(&user)
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/logged_in", nil)
+
+	// And: the context contains the auth values
+	session := auth.Session{UserID: user.ID, IDToken: "fake Token"}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+
+	req = req.WithContext(ctx)
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+
+	mockAPIContext := MockAPIContext{}
+
+	middleware := RoleAuthMiddleware(suite.logger)(mockAPIContext)(handler)
+
+	middleware.ServeHTTP(rr, req)
+
+	suite.Equal(http.StatusForbidden, rr.Code, "handler returned correct status code")
 }
