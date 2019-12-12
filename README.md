@@ -336,10 +336,9 @@ Nothing to do.
 
 The API that the Prime will use is authenticated via mutual TSL so there are a few things you need to do to interact with it in a local environment.
 
-1. Set the `MUTUAL_TLS_ENABLED` environment variable to a truthy value. One way to do this is to modify your .envrc.local with this content: `export MUTUAL_TLS_ENABLED=1`
-2. Make sure that the `primelocal` alias is setup for localhost. See [Setup:Hosts](#setup-hosts)
-3. run `make server_run`
-4. Access the Prime API using the devlocal-mtls certs. There is a script that shows you how to do this with curl at `./scripts/prime-api`. For instance to call the `move-task-orders` endpoint, call `./scripts/prime-api move-task-orders`
+1. Make sure that the `primelocal` alias is setup for localhost. See [Setup:Hosts](#setup-hosts)
+2. run `make server_run`
+3. Access the Prime API using the devlocal-mtls certs. There is a script that shows you how to do this with curl at `./scripts/prime-api`. For instance to call the `move-task-orders` endpoint, call `./scripts/prime-api move-task-orders`
 
 
 
