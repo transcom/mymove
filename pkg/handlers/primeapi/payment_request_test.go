@@ -23,17 +23,22 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
+	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+	moveTaskOrderID := moveTaskOrder.ID
 	paymentRequestID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
 
 	paymentRequest := models.PaymentRequest{
-		IsFinal: false,
+		MoveTaskOrderID: moveTaskOrderID,
+		IsFinal:         false,
 	}
 
 	suite.T().Run("successful create payment request", func(t *testing.T) {
 		returnedPaymentRequest := models.PaymentRequest{
-			ID:        paymentRequestID,
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
+			ID:              paymentRequestID,
+			MoveTaskOrderID: moveTaskOrderID,
+			MoveTaskOrder:   moveTaskOrder,
+			CreatedAt:       time.Now(),
+			UpdatedAt:       time.Now(),
 		}
 
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
@@ -53,7 +58,8 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequestPayload{
-				IsFinal: &paymentRequest.IsFinal,
+				IsFinal:         &paymentRequest.IsFinal,
+				MoveTaskOrderID: *handlers.FmtUUID(paymentRequest.MoveTaskOrderID),
 			},
 		}
 		response := handler.Handle(params)
@@ -64,11 +70,13 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		if suite.NotNil(typedResponse.Payload.IsFinal) {
 			suite.Equal(returnedPaymentRequest.IsFinal, *typedResponse.Payload.IsFinal)
 		}
+		suite.Equal(returnedPaymentRequest.MoveTaskOrderID.String(), typedResponse.Payload.MoveTaskOrderID.String())
 	})
 
 	suite.T().Run("failed create payment request", func(t *testing.T) {
 		badPaymentRequest := models.PaymentRequest{
-			ID: paymentRequestID,
+			ID:              paymentRequestID,
+			MoveTaskOrderID: uuid.UUID{},
 		}
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 
@@ -95,9 +103,11 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 
 	suite.T().Run("failed create payment request -- err is returned", func(t *testing.T) {
 		returnedPaymentRequest := models.PaymentRequest{
-			ID:        paymentRequestID,
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
+			ID:              paymentRequestID,
+			MoveTaskOrderID: moveTaskOrderID,
+			MoveTaskOrder:   moveTaskOrder,
+			CreatedAt:       time.Now(),
+			UpdatedAt:       time.Now(),
 		}
 
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
@@ -117,11 +127,42 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		params := paymentrequestop.CreatePaymentRequestParams{
 			HTTPRequest: req,
 			Body: &primemessages.CreatePaymentRequestPayload{
-				IsFinal: &paymentRequest.IsFinal,
+				IsFinal:         &paymentRequest.IsFinal,
+				MoveTaskOrderID: *handlers.FmtUUID(paymentRequest.MoveTaskOrderID),
 			},
 		}
 
 		response := handler.Handle(params)
 		suite.IsType(&paymentrequestop.CreatePaymentRequestInternalServerError{}, response)
+	})
+
+	suite.T().Run("failed create payment request -- non-existent MTO ID", func(t *testing.T) {
+		returnedPaymentRequest := models.PaymentRequest{}
+
+		paymentRequestCreator := &mocks.PaymentRequestCreator{}
+
+		paymentRequestCreator.On("CreatePaymentRequest",
+			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, validate.NewErrors(), nil).Once()
+
+		handler := CreatePaymentRequestHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			paymentRequestCreator,
+		}
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests"), nil)
+		requestUser := testdatagen.MakeDefaultUser(suite.DB())
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		badMTOID, _ := uuid.FromString("23000000-0000-0000-0000-000000000000")
+		params := paymentrequestop.CreatePaymentRequestParams{
+			HTTPRequest: req,
+			Body: &primemessages.CreatePaymentRequestPayload{
+				IsFinal:         &paymentRequest.IsFinal,
+				MoveTaskOrderID: *handlers.FmtUUID(badMTOID),
+			},
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&paymentrequestop.CreatePaymentRequestNotFound{}, response)
 	})
 }

@@ -541,14 +541,13 @@ func init() {
       "post": {
         "description": "Creates a payment request",
         "consumes": [
-          "application/json"
+          "multipart/form-data"
         ],
         "produces": [
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "prime"
+          "paymentRequests"
         ],
         "summary": "Creates a payment request",
         "operationId": "createPaymentRequest",
@@ -796,6 +795,15 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proofOfServicePackage": {
+          "$ref": "#/definitions/ProofOfServicePackage"
+        },
+        "serviceItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ServiceItem"
+          }
         }
       }
     },
@@ -1123,11 +1131,6 @@ func init() {
     "ProofOfServicePackage": {
       "type": "object",
       "properties": {
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
         "uploads": {
           "type": "array",
           "items": {
@@ -1136,11 +1139,36 @@ func init() {
         }
       }
     },
+    "ServiceItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "example": "Service Item Parameter Name"
+              },
+              "value": {
+                "type": "string",
+                "example": "Service Item Parameter Value"
+              }
+            }
+          }
+        }
+      }
+    },
     "Upload": {
       "type": "object",
       "required": [
-        "id",
-        "url",
+        "binaryData",
         "filename",
         "contentType",
         "bytes",
@@ -1148,6 +1176,10 @@ func init() {
         "updatedAt"
       ],
       "properties": {
+        "binaryData": {
+          "type": "string",
+          "format": "binary"
+        },
         "bytes": {
           "type": "integer"
         },
@@ -1164,19 +1196,9 @@ func init() {
           "type": "string",
           "example": "filename.pdf"
         },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
         "updatedAt": {
           "type": "string",
           "format": "date-time"
-        },
-        "url": {
-          "type": "string",
-          "format": "uri",
-          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -1846,14 +1868,13 @@ func init() {
       "post": {
         "description": "Creates a payment request",
         "consumes": [
-          "application/json"
+          "multipart/form-data"
         ],
         "produces": [
           "application/json"
         ],
         "tags": [
-          "paymentRequests",
-          "prime"
+          "paymentRequests"
         ],
         "summary": "Creates a payment request",
         "operationId": "createPaymentRequest",
@@ -2116,6 +2137,15 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "proofOfServicePackage": {
+          "$ref": "#/definitions/ProofOfServicePackage"
+        },
+        "serviceItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ServiceItem"
+          }
         }
       }
     },
@@ -2443,11 +2473,6 @@ func init() {
     "ProofOfServicePackage": {
       "type": "object",
       "properties": {
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
         "uploads": {
           "type": "array",
           "items": {
@@ -2456,11 +2481,36 @@ func init() {
         }
       }
     },
+    "ServiceItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "params": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string",
+                "example": "Service Item Parameter Name"
+              },
+              "value": {
+                "type": "string",
+                "example": "Service Item Parameter Value"
+              }
+            }
+          }
+        }
+      }
+    },
     "Upload": {
       "type": "object",
       "required": [
-        "id",
-        "url",
+        "binaryData",
         "filename",
         "contentType",
         "bytes",
@@ -2468,6 +2518,10 @@ func init() {
         "updatedAt"
       ],
       "properties": {
+        "binaryData": {
+          "type": "string",
+          "format": "binary"
+        },
         "bytes": {
           "type": "integer"
         },
@@ -2484,19 +2538,9 @@ func init() {
           "type": "string",
           "example": "filename.pdf"
         },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
         "updatedAt": {
           "type": "string",
           "format": "date-time"
-        },
-        "url": {
-          "type": "string",
-          "format": "uri",
-          "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
