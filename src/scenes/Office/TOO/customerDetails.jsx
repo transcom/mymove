@@ -16,7 +16,7 @@ class CustomerDetails extends Component {
     this.props.getCustomer(this.props.match.params.customerId);
     this.props.getMoveTaskOrder(this.props.match.params.moveTaskOrderId).then(response => {
       //TODO doesn't seem correct to reponse the response like this double check it.
-      this.props.getMoveOrder(response.response.obj.moveOrdersID);
+      this.props.getMoveOrder(response.response.obj.moveOrderID);
     });
   }
 
@@ -98,7 +98,7 @@ class CustomerDetails extends Component {
 
 const mapStateToProps = (state, ownProps) => {
   const moveTaskOrder = selectMoveTaskOrder(state, ownProps.match.params.moveTaskOrderId);
-  const moveOrder = selectMoveOrder(state, moveTaskOrder.moveOrdersID);
+  const moveOrder = selectMoveOrder(state, moveTaskOrder.moveOrderID);
   return {
     moveTaskOrder,
     moveOrder,

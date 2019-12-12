@@ -39,6 +39,6 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 	suite.Equal(strfmt.UUID(moveTaskOrder.ID.String()), moveTaskOrderPayload.ID)
 	suite.False(*moveTaskOrderPayload.IsAvailableToPrime)
 	suite.False(*moveTaskOrderPayload.IsCanceled)
-	suite.Equal(strfmt.UUID(moveTaskOrder.MoveOrderID.String()), moveTaskOrderPayload.MoveOrdersID)
+	suite.Equal(strfmt.UUID(moveTaskOrder.MoveOrderID.String()), moveTaskOrderPayload.MoveOrderID)
 	suite.Nil(moveTaskOrderPayload.ReferenceID)
 }

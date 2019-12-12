@@ -33,6 +33,6 @@ func (h GetMoveOrdersHandler) Handle(params moveorderop.GetMoveOrderParams) midd
 			return moveorderop.NewGetMoveOrderInternalServerError()
 		}
 	}
-	moveOrderPayload := payloads.MoveOrders(moveOrder)
+	moveOrderPayload := payloads.MoveOrder(moveOrder)
 	return moveorderop.NewGetMoveOrderOK().WithPayload(moveOrderPayload)
 }
