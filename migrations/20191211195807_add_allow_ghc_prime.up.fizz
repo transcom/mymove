@@ -1,2 +1,0 @@
-add_column("client_certs", "allow_ghc_prime", "bool", {"default": false})
-sql("UPDATE client_certs SET allow_ghc_prime=true WHERE id='9ca7b372-3dc9-46f9-8010-e66889420544';")

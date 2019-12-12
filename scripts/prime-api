@@ -12,7 +12,7 @@
 
 set -eu -o pipefail
 
-HOSTNAME=ghcprimelocal
+HOSTNAME=primelocal
 
 readonly endpoint=$1
 curl -k --cert ./config/tls/devlocal-mtls.cer --key ./config/tls/devlocal-mtls.key "https://${HOSTNAME}:9443/prime/v1/${endpoint}"

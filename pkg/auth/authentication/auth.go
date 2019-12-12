@@ -92,7 +92,7 @@ func AdminAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	}
 }
 
-func GHCPrimeAuthorizationMiddleware(logger Logger) func(next http.Handler) http.Handler {
+func PrimeAuthorizationMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			clientCert := ClientCertFromContext(r.Context())
@@ -101,7 +101,7 @@ func GHCPrimeAuthorizationMiddleware(logger Logger) func(next http.Handler) http
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
-			if !clientCert.AllowGHCPrime {
+			if !clientCert.AllowPrime {
 				logger.Error("forbidden user for ghc prime")
 				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
