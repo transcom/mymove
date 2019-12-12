@@ -11,11 +11,10 @@ import {
 import { selectCustomer } from 'shared/Entities/modules/customer';
 import { selectMoveOrder } from 'shared/Entities/modules/moveTaskOrders';
 
-const fakeMoveTaskOrderID = '5d4b25bb-eb04-4c03-9a81-ee0398cb779e';
 class CustomerDetails extends Component {
   componentDidMount() {
     this.props.getCustomer(this.props.match.params.customerId);
-    this.props.getMoveTaskOrder(fakeMoveTaskOrderID).then(response => {
+    this.props.getMoveTaskOrder(this.props.match.params.moveTaskOrderId).then(response => {
       //TODO doesn't seem correct to reponse the response like this double check it.
       this.props.getMoveOrder(response.response.obj.moveOrdersID);
     });
@@ -24,10 +23,6 @@ class CustomerDetails extends Component {
   render() {
     const { moveTaskOrder, customer, moveOrder } = this.props;
     const entitlements = get(moveOrder, 'entitlement', {});
-    console.log('entitlements', entitlements);
-    console.log('moveTaskOrder', moveTaskOrder);
-    console.log('customer', customer);
-    console.log('moveOrders', moveOrder);
     return (
       <>
         <h1>Customer Details Page</h1>
@@ -90,7 +85,9 @@ class CustomerDetails extends Component {
           </>
         )}
         <div>
-          <button onClick={() => this.props.updateMoveTaskOrderStatus(fakeMoveTaskOrderID, 'DRAFT')}>
+          <button
+            onClick={() => this.props.updateMoveTaskOrderStatus(this.props.match.params.moveTaskOrderId, 'DRAFT')}
+          >
             Generate MTO
           </button>
         </div>
@@ -101,8 +98,7 @@ class CustomerDetails extends Component {
 
 const mapStateToProps = (state, ownProps) => {
   //TODO hard coding mto for now
-  const fakeMoveTaskOrderID = '5d4b25bb-eb04-4c03-9a81-ee0398cb779e';
-  const moveTaskOrder = selectMoveTaskOrder(state, fakeMoveTaskOrderID);
+  const moveTaskOrder = selectMoveTaskOrder(state, ownProps.match.params.moveTaskOrderId);
   const moveOrder = selectMoveOrder(state, moveTaskOrder.moveOrdersID);
   return {
     moveTaskOrder,
