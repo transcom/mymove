@@ -88,6 +88,7 @@ const (
 	imageTagFlag           string = "image-tag"
 	commandFlag            string = "command"
 	commandArgsFlag        string = "command-args"
+	variablesFileFlag      string = "variables-file"
 )
 
 func initFlags(flag *pflag.FlagSet) {
@@ -114,6 +115,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String(imageTagFlag, "", "The name of the image tag referenced in the task definition")
 	flag.String(commandFlag, "", fmt.Sprintf("The name of the command to run inside the docker container (choose %q)", commands))
 	flag.String(commandArgsFlag, "", "The space separated arguments for the command")
+	flag.String(variablesFileFlag, "", "A file containing variables for the task definiton")
 
 	// Verbose
 	cli.InitVerboseFlags(flag)
@@ -236,7 +238,38 @@ func quit(logger *log.Logger, flag *pflag.FlagSet, err error) {
 	os.Exit(1)
 }
 
-func buildContainerEnvironment(v *viper.Viper, environmentName string, dbHost string) []*ecs.KeyValuePair {
+func varFromCtxOrEnv(varName string, ctx map[string]string) string {
+	// Return the value if it is in the context
+	if i, ok := ctx[varName]; ok {
+		return i
+	}
+	// Default to whatever exists in the environment
+	return os.Getenv("DB_PORT")
+}
+
+func buildContainerEnvironment(v *viper.Viper, environmentName string, dbHost string, variablesFile string) []*ecs.KeyValuePair {
+
+	// Construct variables from a file for the task def
+	// These variables should always be preferred over env vars
+	ctx := map[string]string{}
+	if len(variablesFile) > 0 {
+		// Read contents of variables file into vars
+		vars, readFileErr := ioutil.ReadFile(variablesFile)
+		if readFileErr != nil {
+			log.Fatal(errors.New("error reading variables file"))
+		}
+
+		// Adds variables from file into context
+		for _, x := range strings.Split(string(vars), "\n") {
+			// If a line is empty or starts with #, then skip.
+			if len(x) > 0 && x[0] != '#' {
+				// Split each line on the first equals sign into [name, value]
+				pair := strings.SplitAfterN(x, "=", 2)
+				ctx[pair[0][0:len(pair[0])-1]] = pair[1]
+			}
+		}
+	}
+
 	chamberKMSKeyAlias := v.GetString(chamberKMSKeyAliasFlag)
 	chamberUsePaths := v.GetInt(chamberUsePathsFlag)
 	return []*ecs.KeyValuePair{
@@ -266,23 +299,23 @@ func buildContainerEnvironment(v *viper.Viper, environmentName string, dbHost st
 		},
 		{
 			Name:  aws.String("DB_PORT"),
-			Value: aws.String(os.Getenv("DB_PORT")),
+			Value: aws.String(varFromCtxOrEnv("DB_PORT", ctx)),
 		},
 		{
 			Name:  aws.String("DB_USER"),
-			Value: aws.String(os.Getenv("DB_USER")),
+			Value: aws.String(varFromCtxOrEnv("DB_USER", ctx)),
 		},
 		{
 			Name:  aws.String("DB_NAME"),
-			Value: aws.String(os.Getenv("DB_NAME")),
+			Value: aws.String(varFromCtxOrEnv("DB_NAME", ctx)),
 		},
 		{
 			Name:  aws.String("DB_SSL_MODE"),
-			Value: aws.String(os.Getenv("DB_SSL_MODE")),
+			Value: aws.String(varFromCtxOrEnv("DB_SSL_MODE", ctx)),
 		},
 		{
 			Name:  aws.String("DB_SSL_ROOT_CERT"),
-			Value: aws.String(os.Getenv("DB_SSL_ROOT_CERT")),
+			Value: aws.String(varFromCtxOrEnv("DB_SSL_ROOT_CERT", ctx)),
 		},
 	}
 }
@@ -438,6 +471,7 @@ func main() {
 	}
 
 	// Register the new task definition
+	variablesFile := v.GetString(variablesFileFlag)
 	newTaskDefOutput, err := serviceECS.RegisterTaskDefinition(&ecs.RegisterTaskDefinitionInput{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
 			{
@@ -446,7 +480,7 @@ func main() {
 				Essential:   aws.Bool(true),
 				EntryPoint:  aws.StringSlice(entryPoint),
 				Command:     []*string{},
-				Environment: buildContainerEnvironment(v, environmentName, dbHost),
+				Environment: buildContainerEnvironment(v, environmentName, dbHost, variablesFile),
 				LogConfiguration: &ecs.LogConfiguration{
 					LogDriver: aws.String("awslogs"),
 					Options: map[string]*string{
