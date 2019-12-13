@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { get, isEmpty } from 'lodash';
+import { denormalize } from 'normalizr';
+import { moveTaskOrder } from 'shared/Entities/schema';
 import {
   updateMoveTaskOrderStatus,
   getMoveTaskOrder,
@@ -15,8 +17,8 @@ class CustomerDetails extends Component {
   componentDidMount() {
     this.props.getCustomer(this.props.match.params.customerId);
     this.props.getMoveTaskOrder(this.props.match.params.moveTaskOrderId).then(response => {
-      //TODO doesn't seem correct to reponse the response like this double check it.
-      this.props.getMoveOrder(response.response.obj.moveOrderID);
+      const mto = denormalize(this.props.match.params.moveTaskOrderId, moveTaskOrder, response.entities);
+      this.props.getMoveOrder(mto.moveOrderID);
     });
   }
 

@@ -3,6 +3,8 @@ package ghcapi
 import (
 	"net/http/httptest"
 
+	moveorder "github.com/transcom/mymove/pkg/services/move_order"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/go-openapi/strfmt"
@@ -30,6 +32,7 @@ func (suite *HandlerSuite) TestGetMoveOrderHandlerIntegration() {
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	handler := GetMoveOrdersHandler{
 		context,
+		moveorder.NewMoveOrderFetcher(suite.DB()),
 	}
 
 	response := handler.Handle(params)
