@@ -1,7 +1,6 @@
 package audit
 
 import (
-	"encoding/json"
 	"errors"
 	"reflect"
 	"strings"
@@ -50,9 +49,19 @@ func Capture(model interface{}, payload interface{}, logger Logger, session *aut
 			return nil, err
 		}
 
-		patchPayload, _ := json.Marshal(payload)
+		var payloadFields []string
+		payloadValue := reflect.ValueOf(payload).Elem()
+		for i := 0; i < payloadValue.NumField(); i++ {
+			fieldFromType := payloadValue.Type().Field(i)
+			fieldFromValue := payloadValue.Field(i)
+			fieldName := flect.Underscore(fieldFromType.Name)
 
-		logItems = append(logItems, zap.String("patch_payload", string(patchPayload)))
+			if !fieldFromValue.IsZero() {
+				payloadFields = append(payloadFields, fieldName)
+			}
+		}
+
+		logItems = append(logItems, zap.String("fields_changed", strings.Join(payloadFields, ",")))
 	}
 
 	logger.Info(msg, logItems...)

@@ -63,7 +63,8 @@ func TestCapture(t *testing.T) {
 		zapFields, _ := Capture(&model, &payload, logger, &session, "create_office_user")
 
 		if assert.NotEmpty(t, zapFields) {
-			assert.Equal(t, "patch_payload", zapFields[len(zapFields)-1].Key)
+			assert.Equal(t, "fields_changed", zapFields[len(zapFields)-1].Key)
+			assert.Equal(t, "active,first_name,last_name,telephone", zapFields[len(zapFields)-1].String)
 		}
 	})
 
