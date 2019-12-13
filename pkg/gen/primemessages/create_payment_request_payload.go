@@ -6,6 +6,8 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"strconv"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -23,6 +25,12 @@ type CreatePaymentRequestPayload struct {
 	// move task order ID
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
+
+	// proof of service package
+	ProofOfServicePackage *ProofOfServicePackage `json:"proofOfServicePackage,omitempty"`
+
+	// service items
+	ServiceItems []*ServiceItem `json:"serviceItems"`
 }
 
 // Validate validates this create payment request payload
@@ -30,6 +38,14 @@ func (m *CreatePaymentRequestPayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateMoveTaskOrderID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateProofOfServicePackage(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateServiceItems(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -47,6 +63,49 @@ func (m *CreatePaymentRequestPayload) validateMoveTaskOrderID(formats strfmt.Reg
 
 	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *CreatePaymentRequestPayload) validateProofOfServicePackage(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ProofOfServicePackage) { // not required
+		return nil
+	}
+
+	if m.ProofOfServicePackage != nil {
+		if err := m.ProofOfServicePackage.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("proofOfServicePackage")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *CreatePaymentRequestPayload) validateServiceItems(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ServiceItems) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.ServiceItems); i++ {
+		if swag.IsZero(m.ServiceItems[i]) { // not required
+			continue
+		}
+
+		if m.ServiceItems[i] != nil {
+			if err := m.ServiceItems[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("serviceItems" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
