@@ -6,6 +6,9 @@ set -eu -o pipefail
 # Deploy the app tasks
 #
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly DIR
+
 usage() {
   echo "$0 <environment>"
   exit 1
@@ -31,19 +34,13 @@ case "${environment}" in
 	  ;;
 esac
 
-export DB_PORT=5432
-export DB_USER=ecs_user
-export DB_NAME=app
-export DB_SSL_MODE=verify-full
-export DB_SSL_ROOT_CERT=/bin/rds-ca-2019-root.pem
-
 APP_ENVIRONMENT="${environment}"
 AWS_DEFAULT_REGION=us-west-2
 CIRCLE_SHA1=$(curl -s "https://${compare_host}/health" | jq -r .gitCommit)
 
 scripts/compare-deployed-commit "${compare_host}" "${CIRCLE_SHA1}"
 
-echo bin/ecs-deploy-task-container \
+bin/ecs-deploy-task-container \
   --aws-account-id "${AWS_ACCOUNT_ID}" \
   --aws-region "${AWS_DEFAULT_REGION}" \
   --service app \
@@ -51,10 +48,11 @@ echo bin/ecs-deploy-task-container \
   --repository-name app-tasks \
   --image-tag "git-${CIRCLE_SHA1}" \
   --command "milmove-tasks save-fuel-price-data" \
-  --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2" \
-  --variables-file "../config/env/${APP_ENVIRONMENT}.save-fuel-price-data.env"
+  --variables-file "${DIR}/../config/env/${APP_ENVIRONMENT}.save-fuel-price-data.env" \
+  --debug-logging \
+  --dry-run
 
-echo bin/ecs-deploy-task-container \
+bin/ecs-deploy-task-container \
   --aws-account-id "${AWS_ACCOUNT_ID}" \
   --aws-region "${AWS_DEFAULT_REGION}" \
   --service app \
@@ -62,5 +60,7 @@ echo bin/ecs-deploy-task-container \
   --repository-name app-tasks \
   --image-tag "git-${CIRCLE_SHA1}" \
   --command "milmove-tasks send-post-move-survey" \
-  --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2 --email-backend=ses --offset-days 15" \
-  --variables-file "../config/env/${APP_ENVIRONMENT}.send-post-move-survey.env"
+  --command-args "--email-backend=ses --offset-days 15" \
+  --variables-file "${DIR}/../config/env/${APP_ENVIRONMENT}.send-post-move-survey.env" \
+  --debug-logging \
+  --dry-run
