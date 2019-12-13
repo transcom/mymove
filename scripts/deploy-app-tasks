@@ -49,8 +49,7 @@ bin/ecs-deploy-task-container \
   --image-tag "git-${CIRCLE_SHA1}" \
   --command "milmove-tasks save-fuel-price-data" \
   --variables-file "${DIR}/../config/env/${APP_ENVIRONMENT}.save-fuel-price-data.env" \
-  --debug-logging \
-  --dry-run
+  --debug-logging
 
 bin/ecs-deploy-task-container \
   --aws-account-id "${AWS_ACCOUNT_ID}" \
@@ -62,5 +61,4 @@ bin/ecs-deploy-task-container \
   --command "milmove-tasks send-post-move-survey" \
   --command-args "--email-backend=ses --offset-days 15" \
   --variables-file "${DIR}/../config/env/${APP_ENVIRONMENT}.send-post-move-survey.env" \
-  --debug-logging \
-  --dry-run
+  --debug-logging
