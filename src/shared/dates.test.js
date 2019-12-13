@@ -39,7 +39,7 @@ describe('dates', () => {
     });
     describe('when parsing a date that does the match allowed date formats', () => {
       const result = formatDateForSwagger('8-23-2019');
-      it('should return undefined', () => {
+      it('should return a date in the format swagger accepts', () => {
         expect(result).toEqual('2019-08-23');
       });
     });
