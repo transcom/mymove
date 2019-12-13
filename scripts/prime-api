@@ -7,7 +7,7 @@
 #
 # Example:
 #
-#   prime-api move-task-orders/
+#   prime-api move-task-orders GET
 #
 
 set -eu -o pipefail
@@ -15,4 +15,5 @@ set -eu -o pipefail
 HOSTNAME=primelocal
 
 readonly endpoint=$1
-curl -k --cert ./config/tls/devlocal-mtls.cer --key ./config/tls/devlocal-mtls.key "https://${HOSTNAME}:9443/prime/v1/${endpoint}"
+readonly METHOD=${2:-GET}
+curl -k --cert ./config/tls/devlocal-mtls.cer --key ./config/tls/devlocal-mtls.key -X "${METHOD}" "https://${HOSTNAME}:9443/prime/v1/${endpoint}"
