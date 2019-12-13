@@ -30,6 +30,7 @@ const ScratchPad = lazy(() => import('shared/ScratchPad'));
 const CustomerDetails = lazy(() => import('./TOO/customerDetails'));
 const TOO = lazy(() => import('./TOO/too'));
 const TIO = lazy(() => import('./TIO/tio'));
+const TOOVerificationInProgress = lazy(() => import('./TOO/tooVerificationInProgress'));
 const PaymentRequestShow = lazy(() => import('./TIO/paymentRequestShow'));
 const PaymentRequestIndex = lazy(() => import('./TIO/paymentRequestIndex'));
 
@@ -163,6 +164,7 @@ export class OfficeWrapper extends Component {
                   <Switch>
                     {too && <PrivateRoute path="/too/placeholder" component={TOO} />}
                     {too && <PrivateRoute path="/too/customer/:customerId/details" component={CustomerDetails} />}
+                    {too && <Route path="/verification-in-progress" component={TOOVerificationInProgress} />}
                     {tio && <PrivateRoute path="/tio/placeholder" component={TIO} />}
                     {tio && <PrivateRoute path="/payment_requests/:id" component={PaymentRequestShow} />}
                     {tio && <PrivateRoute path="/payment_requests" component={PaymentRequestIndex} />}
