@@ -25,7 +25,7 @@ INSERT INTO public.client_certs
 VALUES
     (
         '190b1e07-eef8-445a-9696-5a2b49ee488d',
-        'b14cf2cc5ea41887f2718b791c9aa5e9c7fa0afa4e60f2b0e63f7e84d49df4b0',
+        '2c0c1fc67a294443292a9e71de0c71cc374fe310e8073f8cdc15510f6b0ef4db',
         '/C=US/ST=DC/L=Washington/O=Truss/OU=AppClientTLS/CN=devlocal',
         false,
         true,
