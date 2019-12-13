@@ -48,6 +48,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	paymentRequest := models.PaymentRequest{
 		IsFinal:         *params.Body.IsFinal,
 		MoveTaskOrderID: mtoID,
+		Status:          "PENDING",
 	}
 
 	moveTaskOrder := models.MoveTaskOrder{}
