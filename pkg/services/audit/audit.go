@@ -1,6 +1,7 @@
 package audit
 
 import (
+	"encoding/json"
 	"errors"
 	"reflect"
 	"strings"
@@ -14,6 +15,7 @@ import (
 )
 
 func Capture(model interface{}, payload interface{}, logger Logger, session *auth.Session, eventType string) ([]zap.Field, error) {
+	eventType = "audit_" + eventType
 	msg := flect.Titleize(eventType)
 
 	t, err := validateInterface(model)
@@ -26,7 +28,6 @@ func Capture(model interface{}, payload interface{}, logger Logger, session *aut
 	createdAt := elem.FieldByName("CreatedAt").Interface().(time.Time).String()
 	updatedAt := elem.FieldByName("UpdatedAt").Interface().(time.Time).String()
 	uuid := elem.FieldByName("ID").Interface().(uuid.UUID).String()
-	eventType = "audit_" + eventType
 
 	logItems := []zap.Field{
 		zap.String("record_id", uuid),
@@ -63,6 +64,14 @@ func Capture(model interface{}, payload interface{}, logger Logger, session *aut
 		}
 
 		logItems = append(logItems, zap.String("fields_changed", strings.Join(payloadFields, ",")))
+
+		payloadJSON, err := json.Marshal(payload)
+
+		if err != nil {
+			return nil, err
+		}
+
+		logger.Debug("Audit patch payload", zap.String("patch_payload", string(payloadJSON)))
 	}
 
 	logger.Info(msg, logItems...)
