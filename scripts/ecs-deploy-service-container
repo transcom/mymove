@@ -99,8 +99,23 @@ echo "* Looking up client auth CA certificate"
 move_mil_dod_ca_cert=$(awk '{printf "%s\\n", $0}' "$DIR"/../config/tls/dod-sw-ca-54.pem)
 
 # renderer builds its template context from (1) environment variables, (2) file at -v FILE, and (3) positional command line args.
+echo "Get the container definition from template ${template} for environment ${environment} with image ${image} and db host ${db_host}"
+echo
+echo "===== START ENV FILE ===="
+echo "$DIR"/../config/env/"${environment}".env
+cat "$DIR"/../config/env/"${environment}".env
+echo "===== END ENV FILE ===="
+
+# renderer builds its template context from (1) environment variables, (2) file at -v FILE, and (3) positional command line args.
 container_definition_json=$("$DIR"/../bin/renderer -t "$template" -v "$DIR"/../config/env/"${environment}".env environment="$environment" image="$image" db_host="$db_host" domain="$domain" move_mil_dod_ca_cert="$move_mil_dod_ca_cert")
 readonly container_definition_json
+
+# output the definition
+echo
+echo "===== START TASK DEF ===="
+jq . <<< "${container_definition_json}"
+echo "===== END TASK DEF ===="
+echo
 
 # create new task definition with the given image
 echo "* Registering new task definition"
