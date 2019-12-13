@@ -25,7 +25,9 @@ do
       deployed_commit=$(curl -s "https://$host/health" | jq -r .gitCommit)
     fi
     if [[ "$deployed_commit" != "$target_commit" ]]; then
-      echo "On host $host, the commit returned from the health check does not match what we expected to have deployed. Found: $deployed_commit, Expected: $target_commit."
+      echo "* On host $host, the deployed commit ($deployed_commit) DOES NOT match the given commit ($target_commit)."
       exit 1
+    else
+      echo "* On host $host, the deployed commit ($deployed_commit) matches given commit ($target_commit)."
     fi
 done

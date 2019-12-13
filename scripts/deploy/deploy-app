@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-set -eux -o pipefail
+set -eu -o pipefail
 
 #
 # Deploy the app
@@ -45,5 +45,3 @@ echo scripts/ecs-deploy-service-container app config/app.container-definition.js
 bin/health-checker --schemes http,https --hosts "${health_check_hosts}" --tries 10 --backoff 3 --log-level info --timeout 15m
 
 scripts/check-deployed-commit "${health_check_hosts}" "${CIRCLE_SHA1}"
-
-
