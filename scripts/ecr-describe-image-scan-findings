@@ -14,16 +14,26 @@ fi
 repoName=$1
 gitCommit=$2
 
-findings=$(aws ecr describe-image-scan-findings --repository-name "${repoName}" --image-id "imageTag=\"git-${gitCommit}\"")
+get_findings() {
+  findings=$(aws ecr describe-image-scan-findings --repository-name "${repoName}" --image-id "imageTag=\"git-${gitCommit}\"")
+  echo "${findings}" | jq .
+  echo
+  status=$(echo "${findings}" | jq -r ".imageScanStatus.status")
+  numberOfFindings=$(echo "${findings}" | jq -r ".imageScanFindings.findings | length")
+}
 
-status=$(echo "${findings}" | jq -r ".imageScanStatus.status")
-numberOfFindings=$(echo "${findings}" | jq -r ".imageScanFindings.findings | length")
-echo "${findings}" | jq .
-echo
+# Get the results of the scan or wait until they are ready
+get_findings
+while [[ "${status}" == "IN_PROGRESS" ]]; do
+  sleep 15
+  get_findings
+done
+
 if [[ "${status}" != *COMPLETE* ]]; then
   echo "Scan does not appear COMPLETE"
   exit 1
 fi
+
 if [[ "${numberOfFindings}" -gt 0 ]]; then
   echo "Scan found ${numberOfFindings} findings!"
   exit 1
