@@ -113,6 +113,10 @@ func (context Context) landingURL(session *auth.Session) string {
 	return fmt.Sprintf(context.callbackTemplate, session.Hostname)
 }
 
+func (context Context) verificationInProgressURL(session *auth.Session) string {
+	return fmt.Sprintf(context.callbackTemplate, session.Hostname) + "verification-in-progress"
+}
+
 func (context *Context) SetFeatureFlag(flag FeatureFlag) {
 	if context.featureFlags == nil {
 		context.featureFlags = make(map[string]bool)
@@ -372,19 +376,57 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.logger.Info("New Login", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email), zap.String("Host", session.Hostname))
 
 	userIdentity, err := models.FetchUserIdentity(h.db, openIDUser.UserID)
+	if h.Context.GetFeatureFlag(cli.FeatureFlagRoleBasedAuth) {
+		if err == models.ErrFetchNotFound {
+			authorizeUnknownUserNew(openIDUser, h, session, w, r, landingURL.String())
+			return
+		}
+		if err != nil {
+			h.logger.Error("Error loading Identity.", zap.Error(err))
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
+		authorizeKnownUser(userIdentity, h, session, w, r, landingURL.String())
+		return
+	}
 	if err == nil { // Someone we know already
 		authorizeKnownUser(userIdentity, h, session, w, r, landingURL.String())
 		return
 	} else if err == models.ErrFetchNotFound { // Never heard of them so far
 		authorizeUnknownUser(openIDUser, h, session, w, r, landingURL.String())
-		// noop when feature flag not enabled or not milmove
-		createCustomer(h, session, w)
 		return
 	} else {
 		h.logger.Error("Error loading Identity.", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
+}
+
+var authorizeUnknownUserNew = func(openIDUser goth.User, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
+	uua := NewUnknownUserAuthorizer(h.db, h.logger)
+	err := uua.AuthorizeUnknownUser(openIDUser, session)
+	if err != nil {
+		switch err {
+		case ErrTOOUnauthorized:
+			// TODO for the moment treat all new office users as TOOs and redirect those not in
+			// TODO transportation_ordering_officers table to the verification in progress page
+			// TODO and don't log them in
+			http.Redirect(w, r, h.verificationInProgressURL(session), http.StatusTemporaryRedirect)
+			return
+		case ErrUnauthorized:
+			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+			return
+		case ErrUserDeactivated:
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
+			return
+		default:
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
+	}
+	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
+	http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
+	return
 }
 
 func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
@@ -494,7 +536,7 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
 }
 
-func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
+var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
 	var officeUser *models.OfficeUser
 	var err error
 	if session.IsOfficeApp() { // Look to see if we have OfficeUser with this email address
@@ -563,26 +605,6 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 
 	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
 	http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
-}
-
-func createCustomer(h CallbackHandler, session *auth.Session, w http.ResponseWriter) {
-	if !session.IsMilApp() || !h.Context.GetFeatureFlag(cli.FeatureFlagRoleBasedAuth) {
-		return
-	}
-	if session.UserID == uuid.Nil {
-		h.logger.Error("error creating customer, user id cannot be nil")
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return
-	}
-	customer := models.Customer{}
-	customer.UserID = session.UserID
-	err := h.db.Create(&customer)
-	if err != nil {
-		h.logger.Error("error creating customer", zap.Error(err))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return
-	}
-	return
 }
 
 func fetchToken(logger Logger, code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
