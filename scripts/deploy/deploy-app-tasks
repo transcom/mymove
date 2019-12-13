@@ -1,0 +1,64 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+#
+# Deploy the app tasks
+#
+
+usage() {
+  echo "$0 <environment>"
+  exit 1
+}
+
+readonly environment="${1:-experimental}"
+
+[[ -z "${environment}" ]] && usage
+
+case "${environment}" in
+  experimental)
+    compare_host=my.experimental.move.mil
+    ;;
+  staging)
+    compare_host=my.staging.move.mil
+    ;;
+  prod)
+    compare_host=my.move.mil
+    ;;
+  *)
+    echo "<environment> must be one of experimental, staging, or prod"
+	  exit 1
+	  ;;
+esac
+
+export DB_PORT=5432
+export DB_USER=ecs_user
+export DB_NAME=app
+export DB_SSL_MODE=verify-full
+export DB_SSL_ROOT_CERT=/bin/rds-ca-2019-root.pem
+
+APP_ENVIRONMENT="${environment}"
+AWS_DEFAULT_REGION=us-west-2
+CIRCLE_SHA1=$(curl -s "https://${compare_host}/health" | jq -r .gitCommit)
+
+scripts/compare-deployed-commit "${compare_host}" "${CIRCLE_SHA1}"
+
+echo bin/ecs-deploy-task-container \
+  --aws-account-id "${AWS_ACCOUNT_ID}" \
+  --aws-region "${AWS_DEFAULT_REGION}" \
+  --service app \
+  --environment "${APP_ENVIRONMENT}" \
+  --repository-name app-tasks \
+  --image-tag "git-${CIRCLE_SHA1}" \
+  --command "milmove-tasks save-fuel-price-data" \
+  --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2"
+
+echo bin/ecs-deploy-task-container \
+  --aws-account-id "${AWS_ACCOUNT_ID}" \
+  --aws-region "${AWS_DEFAULT_REGION}" \
+  --service app \
+  --environment "${APP_ENVIRONMENT}" \
+  --repository-name app-tasks \
+  --image-tag "git-${CIRCLE_SHA1}" \
+  --command "milmove-tasks send-post-move-survey" \
+  --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2 --email-backend=ses --offset-days 15"
