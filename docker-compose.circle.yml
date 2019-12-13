@@ -2,7 +2,7 @@ version: '3.3'
 
 services:
   database:
-    image: postgres:10.9
+    image: postgres:10.10
     deploy:
       resources:
         limits:
@@ -14,7 +14,7 @@ services:
       - POSTGRES_DB=test_db
 
   server_test:
-    image: trussworks/circleci-docker-primary:0a7bcc19642337bcfb16d5d1a1f05da646b7ec27
+    image: trussworks/circleci-docker-primary:6f138d780444b35181e0048282616f75a451d7b4
     deploy:
       resources:
         limits:

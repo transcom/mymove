@@ -350,7 +350,7 @@ paths:
   /payment-requests:
     post:
       consumes:
-        - application/json
+        - multipart/form-data
       produces:
         - application/json
       parameters:
@@ -562,8 +562,12 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-  #      proofOfServicePackage:
-  #        $ref: '#/definitions/ProofOfServicePackage'
+      proofOfServicePackage:
+        $ref: '#/definitions/ProofOfServicePackage'
+      serviceItems:
+        items:
+          $ref: '#/definitions/ServiceItem'
+        type: array
   Customer:
     type: object
     properties:
@@ -683,10 +687,6 @@ definitions:
     type: array
   ProofOfServicePackage:
     properties:
-      id:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
       uploads:
         items:
           $ref: '#/definitions/Upload'
@@ -722,12 +722,26 @@ definitions:
       - REJECTED
     title: Payment Request Status
     type: string
-  Upload:
+  ServiceItem:
     properties:
       id:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
         type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      params:
+        type: array
+        items:
+          properties:
+            key:
+              type: string
+              example: Service Item Parameter Name
+            value:
+              type: string
+              example: Service Item Parameter Value
+          type: object
+    type: object
+  Upload:
+    properties:
       bytes:
         type: integer
       contentType:
@@ -743,13 +757,11 @@ definitions:
       updatedAt:
         format: date-time
         type: string
-      url:
-        example: 'https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538'
-        format: uri
+      binaryData:
         type: string
+        format: binary
     required:
-      - id
-      - url
+      - binaryData
       - filename
       - contentType
       - bytes
