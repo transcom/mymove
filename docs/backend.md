@@ -241,7 +241,11 @@ The error is created and passed along at the lowest level, logged and passed alo
 
 #### Use `fmt.Errorf` and `%w` verb when using external libraries
 
-[`fmt.Errorf() with %w`](https://blog.golang.org/go1.13-errors) provides greater error context and a stack trace, making it especially useful when dealing with the opacity that sometimes comes with external libraries. As of go 1.13 `fmt.Errorf()` provides a new `%w` verb that replaces the need for `errors.Wrap()`. It takes a string with the `%w` in it and the error as parameters: the string and error to provide context and explanation. Keep the string brief and clear, assuming that the fuller cause will be provided by the context `%w` verb brings. It can also add useful context for errors related to internal code if there might otherwise be unhelpful opacity. `fmt.Errorf()` in combination with `%w` also capture stack traces with the additional function of string substitution/formatting for output. Instead of just returning the error, offer greater context with something like this:
+[`fmt.Errorf() with %w`](https://blog.golang.org/go1.13-errors) provides greater error context and a stack trace, making it especially useful when dealing with the opacity that sometimes comes with external libraries. As of go 1.13 `fmt.Errorf()` provides a new `%w` verb that replaces the need for `errors.Wrap()`. It takes a string with the `%w` in it and the error as parameters: the string and error to provide context and explanation. Keep the string brief and clear, assuming that the fuller cause will be provided by the context `%w` verb brings. It can also add useful context for errors related to internal code if there might otherwise be unhelpful opacity. `fmt.Errorf()` in combination with `%w` also capture stack traces with the additional function of string substitution/formatting for output.
+
+Instead of just returning the error, offer greater context with something like this:
+
+_Current Recommendation:_
 
 ```golang
 if err != nil {
@@ -249,7 +253,17 @@ if err != nil {
 }
 ```
 
-For more on the changes in go 1.13 see [this official blog post](https://blog.golang.org/go1.13-errors) and [this article](https://medium.com/@felipedutratine/golang-how-to-handle-errors-in-v1-13-fda7f035d027) that go into more depth.
+As this is a recent change in golang standards you will see many uses of the `errors.Wrap` still in the code, which had been the old recommendation. It is safe to change code that wraps errors as below to the new standard in the example above.
+
+_Old Recommendation:_
+
+```golang
+if err != nil {
+        return errors.Wrap(err, "Pop validate failed")
+}
+```
+
+Using the new `%w` provides access to some new features such as the new `errors.Is` and `errors.As` functions. For more on the changes in go 1.13 see [this official blog post](https://blog.golang.org/go1.13-errors) and [this article](https://medium.com/@felipedutratine/golang-how-to-handle-errors-in-v1-13-fda7f035d027) that go into more depth.
 
 #### Don't `fmt` errors; log instead
 
