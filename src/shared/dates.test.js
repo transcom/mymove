@@ -29,12 +29,11 @@ describe('dates', () => {
       });
     });
   });
-  describe('formatDateString', () => {
+  describe('formatDateForSwagger', () => {
     describe('when formatting a date that does not match the allowed date formats', () => {
       const result = formatDateForSwagger('8');
       it('should return something random', () => {
-        //TODO: this does not seem the correct behavior
-        expect(result).toEqual('2019-08-01');
+        expect(result).toEqual('Invalid date');
       });
     });
     describe('when parsing a date that does the match allowed date formats', () => {
