@@ -22,6 +22,7 @@ type User struct {
 	LoginGovUUID  uuid.UUID `json:"login_gov_uuid" db:"login_gov_uuid"`
 	LoginGovEmail string    `json:"login_gov_email" db:"login_gov_email"`
 	Active        bool      `json:"active" db:"active"`
+	Roles         []Role    `many_to_many:"users_roles"`
 }
 
 // Users is not required by pop and may be deleted
@@ -110,6 +111,7 @@ type UserIdentity struct {
 	AdminUserActive        *bool      `db:"au_active"`
 	DpsUserID              *uuid.UUID `db:"du_id"`
 	DpsActive              *bool      `db:"du_active"`
+	Roles                  []Role     `many_to_many:"users_roles" primary_id:"user_id"`
 }
 
 // FetchUserIdentity queries the database for information about the logged in user
@@ -146,7 +148,12 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 	} else if len(identities) == 0 {
 		return nil, ErrFetchNotFound
 	}
-	return &identities[0], nil
+	identity := &identities[0]
+	roleError := db.Load(identity, "Roles")
+	if roleError != nil {
+		return nil, roleError
+	}
+	return identity, nil
 }
 
 // FetchAppUserIdentities returns a limited set of user records based on application

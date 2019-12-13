@@ -1,8 +1,16 @@
 /* eslint no-use-before-define: 0 */
 import { schema } from 'normalizr';
 
+// Role
+export const role = new schema.Entity('roles');
+export const roles = new schema.Array(role);
+
 // User
 export const user = new schema.Entity('users');
+
+user.define({
+  roles,
+});
 
 // Uploads
 export const upload = new schema.Entity('uploads');
@@ -95,7 +103,13 @@ export const signedCertification = new schema.Entity('signedCertifications');
 export const signedCertifications = new schema.Array(signedCertification);
 
 // AvailableMoveDates
-export const availableMoveDates = new schema.Entity('availableMoveDates', {}, { idAttribute: 'start_date' });
+export const availableMoveDates = new schema.Entity(
+  'availableMoveDates',
+  {},
+  {
+    idAttribute: 'start_date',
+  },
+);
 
 // MoveDatesSummary
 export const moveDatesSummary = new schema.Entity('moveDatesSummaries');

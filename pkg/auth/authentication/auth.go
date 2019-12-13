@@ -375,7 +375,9 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 		http.Error(w, http.StatusText(403), http.StatusForbidden)
 		return
 	}
-
+	for _, role := range userIdentity.Roles {
+		session.Roles = append(session.Roles, auth.Role(role))
+	}
 	session.UserID = userIdentity.ID
 
 	if userIdentity.ServiceMemberID != nil {
