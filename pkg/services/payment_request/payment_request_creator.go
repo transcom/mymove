@@ -23,7 +23,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequest *models.Paym
 		return nil, fmt.Errorf("failure creating payment request: %w", err)
 	}
 	if verrs.HasAny() {
-		return nil, fmt.Errorf("validation error saving PaymentRequest: %w",  verrs)
+		return nil, fmt.Errorf("validation error saving PaymentRequest: %w", verrs)
 	}
 
 	return paymentRequest, err
