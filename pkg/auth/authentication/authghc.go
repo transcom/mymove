@@ -205,7 +205,6 @@ type customerAssociator struct {
 	logger Logger
 }
 
-//TODO make idempotent
 func (ca customerAssociator) CreateAndAssociateCustomer(userID uuid.UUID) error {
 	if userID == uuid.Nil {
 		ca.logger.Error("error creating customer, user id cannot be nil")
