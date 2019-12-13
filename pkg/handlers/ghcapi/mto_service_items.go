@@ -25,10 +25,10 @@ func payloadForMTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOSer
 	return &ghcmessages.MTOServiceItem{
 		ID:              handlers.FmtUUID(s.ID),
 		MoveTaskOrderID: handlers.FmtUUID(s.MoveTaskOrderID),
-		MtoShipmentID:   handlers.FmtUUID(s.MTOShipmentID),
+		MtoShipmentID:   handlers.FmtUUIDPtr(s.MTOShipmentID),
 		ReServiceID:     handlers.FmtUUID(s.ReServiceID),
-		MetaID:          handlers.FmtUUID(s.MetaID),
-		MetaType:        &s.MetaType,
+		MetaID:          handlers.FmtUUIDPtr(s.MetaID),
+		MetaType:        s.MetaType,
 	}
 }
 
@@ -92,9 +92,9 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOSer
 	serviceItem := models.MTOServiceItem{
 		MoveTaskOrderID: moveTaskOrderID,
 		ReServiceID:     reServiceID,
-		MTOShipmentID:   mtoShipmentID,
-		MetaID:          metaID,
-		MetaType:        metaType,
+		MTOShipmentID:   &mtoShipmentID,
+		MetaID:          &metaID,
+		MetaType:        &metaType,
 	}
 
 	createdServiceItem, verrs, err := h.MTOServiceItemCreator.CreateMTOServiceItem(&serviceItem)

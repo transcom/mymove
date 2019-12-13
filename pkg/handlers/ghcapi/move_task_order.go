@@ -28,7 +28,7 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
 	mto, err := h.moveTaskOrderFetcher.FetchMoveTaskOrder(moveTaskOrderID)
 	if err != nil {
-		logger.Error("ghciap.GetMoveTaskOrderHandler error", zap.Error(err))
+		logger.Error("ghcapi.GetMoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {
 		case movetaskorderservice.ErrNotFound:
 			return movetaskorderops.NewGetMoveTaskOrderNotFound()

@@ -15,11 +15,11 @@ type MTOServiceItem struct {
 	MoveTaskOrder   MoveTaskOrder `belongs_to:"move_task_orders"`
 	MoveTaskOrderID uuid.UUID     `db:"move_task_order_id"`
 	MTOShipment     MTOShipment   `belongs_to:"mto_shipments"`
-	MTOShipmentID   uuid.UUID     `db:"mto_shipment_id"`
+	MTOShipmentID   *uuid.UUID    `db:"mto_shipment_id"`
 	ReService       ReService     `belongs_to:"re_services"`
 	ReServiceID     uuid.UUID     `db:"re_service_id"`
-	MetaID          uuid.UUID     `db:"meta_id"`
-	MetaType        string        `db:"meta_type"`
+	MetaID          *uuid.UUID    `db:"meta_id"`
+	MetaType        *string       `db:"meta_type"`
 	CreatedAt       time.Time     `db:"created_at"`
 	UpdatedAt       time.Time     `db:"updated_at"`
 }
@@ -31,10 +31,7 @@ type MTOServiceItems []MTOServiceItem
 func (m *MTOServiceItem) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveTaskOrderID, Name: "MoveTaskOrderID"})
-	vs = append(vs, &validators.UUIDIsPresent{Field: m.MTOShipmentID, Name: "MTOShipmentID"})
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.ReServiceID, Name: "ReServiceID"})
-	vs = append(vs, &validators.UUIDIsPresent{Field: m.MetaID, Name: "MetaID"})
-	vs = append(vs, &validators.StringIsPresent{Field: m.MetaType, Name: "MetaType"})
 	return validate.Validate(vs...), nil
 }
 

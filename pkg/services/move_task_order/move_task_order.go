@@ -77,5 +77,48 @@ func (f fetchMoveTaskOrder) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*mode
 			return &models.MoveTaskOrder{}, err
 		}
 	}
+
+	var defaultServiceItems models.MTOServiceItems
+	for _, item := range mto.MTOServiceItems {
+		defaultServiceItemIDs := []uuid.UUID{
+			uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"),
+			uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"),
+		}
+
+		for _, id := range defaultServiceItemIDs {
+			if item.ReServiceID == id {
+				defaultServiceItems = append(defaultServiceItems, item)
+			}
+		}
+	}
+
+	if len(defaultServiceItems) == 0 {
+		serviceItems := []models.MTOServiceItem{
+			{
+				ReServiceID:     uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // Shipment Management Services
+				MoveTaskOrderID: mto.ID,
+			},
+			{
+				ReServiceID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // Counseling Services
+
+				MoveTaskOrderID: mto.ID,
+			},
+		}
+
+		_, err := f.db.ValidateAndCreate(&serviceItems[0])
+
+		if err != nil {
+			return nil, err
+		}
+
+		_, err = f.db.ValidateAndCreate(&serviceItems[1])
+
+		if err != nil {
+			return nil, err
+		}
+
+		return mto, nil
+	}
+
 	return mto, nil
 }

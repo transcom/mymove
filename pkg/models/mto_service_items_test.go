@@ -10,12 +10,12 @@ import (
 
 func (suite *ModelSuite) TestMTOServiceItemValidation() {
 	suite.T().Run("test valid MTOServiceItem", func(t *testing.T) {
+		moveTaskOrderID := uuid.Must(uuid.NewV4())
+		reServiceID := uuid.Must(uuid.NewV4())
+
 		validMTOServiceItem := models.MTOServiceItem{
-			MoveTaskOrderID: uuid.Must(uuid.NewV4()),
-			MTOShipmentID:   uuid.Must(uuid.NewV4()),
-			ReServiceID:     uuid.Must(uuid.NewV4()),
-			MetaID:          uuid.Must(uuid.NewV4()),
-			MetaType:        "unknown",
+			MoveTaskOrderID: moveTaskOrderID,
+			ReServiceID:     reServiceID,
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validMTOServiceItem, expErrors)
