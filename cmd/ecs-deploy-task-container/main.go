@@ -76,6 +76,14 @@ func (e *errInvalidCommand) Error() string {
 	return fmt.Sprintf("invalid command in the /bin folder %q", e.Command)
 }
 
+type errInvalidFile struct {
+	File string
+}
+
+func (e *errInvalidFile) Error() string {
+	return fmt.Sprintf("invalid file path %q", e.File)
+}
+
 const (
 	awsAccountIDFlag       string = "aws-account-id"
 	chamberBinaryFlag      string = "chamber-binary"
@@ -89,6 +97,7 @@ const (
 	commandFlag            string = "command"
 	commandArgsFlag        string = "command-args"
 	variablesFileFlag      string = "variables-file"
+	dryRunFlag             string = "dry-run"
 )
 
 func initFlags(flag *pflag.FlagSet) {
@@ -119,6 +128,7 @@ func initFlags(flag *pflag.FlagSet) {
 
 	// Verbose
 	cli.InitVerboseFlags(flag)
+	flag.Bool(dryRunFlag, false, "Execute as a dry-run without modifying AWS.")
 
 	// Don't sort flags
 	flag.SortFlags = false
@@ -226,6 +236,12 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(&errInvalidCommand{Command: commandName}, fmt.Sprintf("%q is invalid", commandFlag))
 	}
 
+	if variablesFile := v.GetString(variablesFileFlag); len(variablesFile) > 0 {
+		if _, err := os.Stat(variablesFile); err != nil {
+			return errors.Wrap(&errInvalidFile{File: variablesFile}, fmt.Sprintf("%q is invalid", variablesFileFlag))
+		}
+	}
+
 	return nil
 }
 
@@ -317,6 +333,18 @@ func buildContainerEnvironment(v *viper.Viper, environmentName string, dbHost st
 			Name:  aws.String("DB_SSL_ROOT_CERT"),
 			Value: aws.String(varFromCtxOrEnv("DB_SSL_ROOT_CERT", ctx)),
 		},
+		{
+			Name:  aws.String("DB_IAM"),
+			Value: aws.String(varFromCtxOrEnv("DB_IAM", ctx)),
+		},
+		{
+			Name:  aws.String("DB_IAM_ROLE"),
+			Value: aws.String(varFromCtxOrEnv("DB_IAM_ROLE", ctx)),
+		},
+		{
+			Name:  aws.String("DB_REGION"),
+			Value: aws.String(varFromCtxOrEnv("DB_REGION", ctx)),
+		},
 	}
 }
 
@@ -349,6 +377,9 @@ func main() {
 		// Remove the flags for the logger
 		logger.SetFlags(0)
 	}
+
+	// Flag for Dry Run
+	dryRun := v.GetBool(dryRunFlag)
 
 	checkConfigErr := checkConfig(v)
 	if checkConfigErr != nil {
@@ -472,7 +503,7 @@ func main() {
 
 	// Register the new task definition
 	variablesFile := v.GetString(variablesFileFlag)
-	newTaskDefOutput, err := serviceECS.RegisterTaskDefinition(&ecs.RegisterTaskDefinitionInput{
+	newTaskDefInput := ecs.RegisterTaskDefinitionInput{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
 			{
 				Name:        aws.String(containerDefName),
@@ -498,7 +529,18 @@ func main() {
 		NetworkMode:             currentTaskDef.NetworkMode,
 		RequiresCompatibilities: currentTaskDef.RequiresCompatibilities,
 		TaskRoleArn:             currentTaskDef.TaskRoleArn,
-	})
+	}
+	if verbose {
+		logger.Println(newTaskDefInput.String())
+	}
+
+	if dryRun {
+		logger.Println("Dry run: ECS Task Definition not registered! CloudWatch Target Not Updated!")
+		return
+	}
+
+	// Register the new task definition
+	newTaskDefOutput, err := serviceECS.RegisterTaskDefinition(&newTaskDefInput)
 	if err != nil {
 		quit(logger, nil, errors.Wrap(err, "error registering new task definition"))
 	}
