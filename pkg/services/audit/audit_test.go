@@ -31,9 +31,16 @@ func TestCapture(t *testing.T) {
 		}
 
 		zapFields, _ := Capture(&model, nil, logger, &session, "create_office_user")
+		var eventType string
+		for _, field := range zapFields {
+			if field.Key == "event_type" {
+				eventType = field.String
+			}
+		}
 
 		if assert.NotEmpty(t, zapFields) {
 			assert.Equal(t, "record_id", zapFields[0].Key)
+			assert.Contains(t, eventType, "audit_")
 		}
 	})
 
@@ -62,9 +69,15 @@ func TestCapture(t *testing.T) {
 
 		zapFields, _ := Capture(&model, &payload, logger, &session, "create_office_user")
 
+		var fieldsChanged string
+		for _, field := range zapFields {
+			if field.Key == "fields_changed" {
+				fieldsChanged = field.String
+			}
+		}
+
 		if assert.NotEmpty(t, zapFields) {
-			assert.Equal(t, "fields_changed", zapFields[len(zapFields)-1].Key)
-			assert.Equal(t, "active,first_name,last_name,telephone", zapFields[len(zapFields)-1].String)
+			assert.Equal(t, "active,first_name,last_name,telephone", fieldsChanged)
 		}
 	})
 

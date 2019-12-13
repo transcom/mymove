@@ -26,6 +26,7 @@ func Capture(model interface{}, payload interface{}, logger Logger, session *aut
 	createdAt := elem.FieldByName("CreatedAt").Interface().(time.Time).String()
 	updatedAt := elem.FieldByName("UpdatedAt").Interface().(time.Time).String()
 	uuid := elem.FieldByName("ID").Interface().(uuid.UUID).String()
+	eventType = "audit_" + eventType
 
 	logItems := []zap.Field{
 		zap.String("record_id", uuid),
