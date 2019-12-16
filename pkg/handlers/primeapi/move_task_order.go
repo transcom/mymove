@@ -6,7 +6,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 
@@ -38,11 +37,7 @@ func (h ListMoveTaskOrdersHandler) Handle(params movetaskorderops.ListMoveTaskOr
 		return movetaskorderops.NewListMoveTaskOrdersInternalServerError()
 	}
 
-	payload := make(primemessages.MoveTaskOrders, len(mtos))
-
-	for i, m := range mtos {
-		payload[i] = payloads.MoveTaskOrder(&m)
-	}
+	payload := payloads.MoveTaskOrders(&mtos)
 
 	return movetaskorderops.NewListMoveTaskOrdersOK().WithPayload(payload)
 }

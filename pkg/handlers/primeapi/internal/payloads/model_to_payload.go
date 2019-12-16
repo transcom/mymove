@@ -23,6 +23,15 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 	return payload
 }
 
+func MoveTaskOrders(moveTaskOrders *models.MoveTaskOrders) []*primemessages.MoveTaskOrder {
+	payload := make(primemessages.MoveTaskOrders, len(*moveTaskOrders))
+
+	for i, m := range *moveTaskOrders {
+		payload[i] = MoveTaskOrder(&m)
+	}
+	return payload
+}
+
 func Customer(customer *models.Customer) *primemessages.Customer {
 	if customer == nil {
 		return nil
