@@ -768,7 +768,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: rd-cloudfront-trusted-signer
+              ignore: placeholder_branch_name
 
       - client_test:
           requires:
@@ -776,7 +776,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: rd-cloudfront-trusted-signer
+              ignore: placeholder_branch_name
 
       - server_test:
           requires:
@@ -784,7 +784,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: rd-cloudfront-trusted-signer
+              ignore: placeholder_branch_name
 
       - build_app:
           requires:
