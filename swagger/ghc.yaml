@@ -600,9 +600,9 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
-      description: Changes move order status
+      description: Changes move task order status to make it available to prime
       operationId: updateMoveTaskOrderStatus
-      summary: Change the status of a move order
+      summary: Change the status of a move task order to make it available to prime
   '/move-task-orders/{moveTaskOrderID}/entitlements':
     parameters:
       - description: ID of move order to use
@@ -1137,12 +1137,8 @@ definitions:
     type: object
   MoveTaskOrderStatus:
     properties:
-      status:
-        enum:
-          - APPROVED
-          - DRAFT
-          - REJECTED
-        type: string
+      is_available_to_prime:
+        type: boolean
     type: object
   MoveTaskOrders:
     items:

@@ -11,3 +11,9 @@ import (
 type MoveTaskOrderFetcher interface {
 	FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error)
 }
+
+//MoveTaskOrderStatusUpdater is the service object interface for MoveTaskOrderUpdate
+//go:generate mockery -name MoveTaskOrderStatusUpdater
+type MoveTaskOrderStatusUpdater interface {
+	UpdateMoveTaskOrderStatus(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error)
+}

@@ -751,7 +751,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/status": {
       "patch": {
-        "description": "Changes move order status",
+        "description": "Changes move task order status to make it available to prime",
         "consumes": [
           "application/json"
         ],
@@ -761,7 +761,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Change the status of a move order",
+        "summary": "Change the status of a move task order to make it available to prime",
         "operationId": "updateMoveTaskOrderStatus",
         "parameters": [
           {
@@ -1715,13 +1715,8 @@ func init() {
     "MoveTaskOrderStatus": {
       "type": "object",
       "properties": {
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "DRAFT",
-            "REJECTED"
-          ]
+        "is_available_to_prime": {
+          "type": "boolean"
         }
       }
     },
@@ -2838,7 +2833,7 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/status": {
       "patch": {
-        "description": "Changes move order status",
+        "description": "Changes move task order status to make it available to prime",
         "consumes": [
           "application/json"
         ],
@@ -2848,7 +2843,7 @@ func init() {
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Change the status of a move order",
+        "summary": "Change the status of a move task order to make it available to prime",
         "operationId": "updateMoveTaskOrderStatus",
         "parameters": [
           {
@@ -3880,13 +3875,8 @@ func init() {
     "MoveTaskOrderStatus": {
       "type": "object",
       "properties": {
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "DRAFT",
-            "REJECTED"
-          ]
+        "is_available_to_prime": {
+          "type": "boolean"
         }
       }
     },

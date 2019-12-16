@@ -23,6 +23,18 @@ type MoveTaskOrder struct {
 	IsCanceled         bool      `db:"is_canceled"`
 	CreatedAt          time.Time `db:"created_at"`
 	UpdatedAt          time.Time `db:"updated_at"`
+	Customer		   Customer	 `belongs_to:customer`
+	CustomerID		   uuid.UUID `db:"customer_id"`
+	DestinationAddress       Address             `belongs_to:"addresses"`
+	DestinationAddressID     uuid.UUID           `db:"destination_address_id"`
+	DestinationDutyStation   DutyStation         `belongs_to:"duty_stations"`
+	DestinationDutyStationID uuid.UUID           `db:"destination_duty_station_id"`
+	Entitlements             GHCEntitlement      `has_one:"entitlements"`
+	OriginDutyStation        DutyStation         `belongs_to:"duty_stations"`
+	OriginDutyStationID      uuid.UUID           `db:"origin_duty_station_id"`
+	PickupAddress            Address             `belongs_to:"addresses"`
+	PickupAddressID          uuid.UUID           `db:"pickup_address_id"`
+	RequestedPickupDate      time.Time           `db:"requested_pickup_date"`
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
