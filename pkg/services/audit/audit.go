@@ -3,7 +3,10 @@ package audit
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"net/http"
 	"reflect"
+	"regexp"
 	"strings"
 	"time"
 
@@ -14,8 +17,8 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 )
 
-func Capture(model interface{}, payload interface{}, logger Logger, session *auth.Session, eventType string) ([]zap.Field, error) {
-	eventType = "audit_" + eventType
+func Capture(model interface{}, payload interface{}, logger Logger, session *auth.Session, request *http.Request) ([]zap.Field, error) {
+	eventType := extractEventType(request)
 	msg := flect.Titleize(eventType)
 
 	t, err := validateInterface(model)
@@ -101,4 +104,12 @@ func validateInterface(thing interface{}) (reflect.Type, error) {
 	}
 
 	return t, nil
+}
+
+func extractEventType(request *http.Request) string {
+	path := request.URL.Path
+	apiRegex := regexp.MustCompile("\\/[a-zA-Z]+\\/v1")
+	uuidRegex := regexp.MustCompile("/([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}){1}") // https://adamscheller.com/regular-expressions/uuid-regex/
+	cleanPath := uuidRegex.ReplaceAllString(apiRegex.ReplaceAllString(path, ""), "")
+	return fmt.Sprintf("audit_%s_%s", strings.ToLower(request.Method), flect.Underscore(cleanPath))
 }

@@ -1,6 +1,8 @@
 package audit
 
 import (
+	"net/http"
+	"net/url"
 	"testing"
 	"time"
 
@@ -20,6 +22,11 @@ func TestCapture(t *testing.T) {
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
+	dummyRequest := http.Request{
+		URL: &url.URL{
+			Path: "",
+		},
+	}
 	logger := zap.NewNop()
 
 	t.Run("success", func(t *testing.T) {
@@ -30,7 +37,14 @@ func TestCapture(t *testing.T) {
 			AdminUserID: adminUserID,
 		}
 
-		zapFields, _ := Capture(&model, nil, logger, &session, "create_office_user")
+		req := &http.Request{
+			URL: &url.URL{
+				Path: "/admin/v1/admin_users",
+			},
+			Method: "POST",
+		}
+
+		zapFields, _ := Capture(&model, nil, logger, &session, req)
 		var eventType string
 		for _, field := range zapFields {
 			if field.Key == "event_type" {
@@ -40,7 +54,7 @@ func TestCapture(t *testing.T) {
 
 		if assert.NotEmpty(t, zapFields) {
 			assert.Equal(t, "record_id", zapFields[0].Key)
-			assert.Contains(t, eventType, "audit_")
+			assert.Equal(t, "audit_post_admin_users", eventType)
 		}
 	})
 
@@ -67,17 +81,30 @@ func TestCapture(t *testing.T) {
 			AdminUserID: adminUserID,
 		}
 
-		zapFields, _ := Capture(&model, &payload, logger, &session, "create_office_user")
+		req := &http.Request{
+			URL: &url.URL{
+				Path: "/admin/v1/admin_users/778acee1-bb04-4ccf-80bf-eae3c66e8c22",
+			},
+			Method: "PATCH",
+		}
+
+		zapFields, _ := Capture(&model, &payload, logger, &session, req)
 
 		var fieldsChanged string
+		var eventType string
 		for _, field := range zapFields {
 			if field.Key == "fields_changed" {
 				fieldsChanged = field.String
+			}
+
+			if field.Key == "event_type" {
+				eventType = field.String
 			}
 		}
 
 		if assert.NotEmpty(t, zapFields) {
 			assert.Equal(t, "active,first_name,last_name,telephone", fieldsChanged)
+			assert.Equal(t, "audit_patch_admin_users", eventType)
 		}
 	})
 
@@ -89,7 +116,7 @@ func TestCapture(t *testing.T) {
 			ServiceMemberID: serviceMemberID,
 		}
 
-		zapFields, _ := Capture(&model, nil, logger, &session, "create_office_user")
+		zapFields, _ := Capture(&model, nil, logger, &session, &dummyRequest)
 
 		if assert.NotEmpty(t, zapFields) {
 			var keys []string
@@ -103,7 +130,7 @@ func TestCapture(t *testing.T) {
 
 	t.Run("failure when a non-pointer is passed in", func(t *testing.T) {
 		session := auth.Session{}
-		_, err := Capture(model, nil, logger, &session, "create_office_user")
+		_, err := Capture(model, nil, logger, &session, &dummyRequest)
 
 		assert.Equal(t, "must pass a pointer to a struct", err.Error())
 	})
@@ -111,7 +138,7 @@ func TestCapture(t *testing.T) {
 	t.Run("failure when a non-struct is passed in", func(t *testing.T) {
 		session := auth.Session{}
 		invalidArg := 5
-		_, err := Capture(&invalidArg, nil, logger, &session, "create_office_user")
+		_, err := Capture(&invalidArg, nil, logger, &session, &dummyRequest)
 
 		assert.Equal(t, "must pass a pointer to a struct", err.Error())
 	})
