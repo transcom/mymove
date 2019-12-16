@@ -684,9 +684,9 @@ db_e2e_up: bin/generate-test-data ## Truncate Test DB and Generate e2e (end-to-e
 db_e2e_init: db_test_reset db_test_migrate db_e2e_up ## Initialize e2e (end-to-end) DB (reset, migrate, up)
 
 .PHONY: db_dev_e2e_populate
-db_dev_e2e_populate: db_dev_reset db_dev_migrate build_tools ## Populate Dev DB with generated e2e (end-to-end) data
+db_dev_e2e_populate: db_dev_reset db_dev_migrate ## Populate Dev DB with generated e2e (end-to-end) data
 	@echo "Populate the ${DB_NAME_DEV} database with docker command..."
-	bin/generate-test-data --named-scenario="e2e_basic" --db-env="development"
+	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="e2e_basic" --db-env="development"
 
 .PHONY: db_test_e2e_populate
 db_test_e2e_populate: db_test_reset db_test_migrate build_tools db_e2e_up ## Populate Test DB with generated e2e (end-to-end) data
