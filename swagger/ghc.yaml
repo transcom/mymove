@@ -680,10 +680,6 @@ paths:
           description: The request was denied
           schema:
             $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
         '500':
           description: A server error occurred
           schema:
