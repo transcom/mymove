@@ -33,6 +33,8 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 
 	api.JSONConsumer = runtime.JSONConsumer()
 
+	api.MultipartformConsumer = runtime.DiscardConsumer
+
 	api.JSONProducer = runtime.JSONProducer()
 
 	if api.PaymentRequestsCreatePaymentRequestHandler == nil {

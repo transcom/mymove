@@ -6,6 +6,8 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"io"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -16,6 +18,11 @@ import (
 // Upload upload
 // swagger:model Upload
 type Upload struct {
+
+	// binary data
+	// Required: true
+	// Format: binary
+	BinaryData io.ReadCloser `json:"binaryData"`
 
 	// bytes
 	// Required: true
@@ -34,25 +41,19 @@ type Upload struct {
 	// Required: true
 	Filename *string `json:"filename"`
 
-	// id
-	// Required: true
-	// Format: uuid
-	ID *strfmt.UUID `json:"id"`
-
 	// updated at
 	// Required: true
 	// Format: date-time
 	UpdatedAt *strfmt.DateTime `json:"updatedAt"`
-
-	// url
-	// Required: true
-	// Format: uri
-	URL *strfmt.URI `json:"url"`
 }
 
 // Validate validates this upload
 func (m *Upload) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateBinaryData(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateBytes(formats); err != nil {
 		res = append(res, err)
@@ -70,21 +71,22 @@ func (m *Upload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateUpdatedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateURL(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Upload) validateBinaryData(formats strfmt.Registry) error {
+
+	if err := validate.Required("binaryData", "body", io.ReadCloser(m.BinaryData)); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -128,19 +130,6 @@ func (m *Upload) validateFilename(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Upload) validateID(formats strfmt.Registry) error {
-
-	if err := validate.Required("id", "body", m.ID); err != nil {
-		return err
-	}
-
-	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *Upload) validateUpdatedAt(formats strfmt.Registry) error {
 
 	if err := validate.Required("updatedAt", "body", m.UpdatedAt); err != nil {
@@ -148,19 +137,6 @@ func (m *Upload) validateUpdatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("updatedAt", "body", "date-time", m.UpdatedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *Upload) validateURL(formats strfmt.Registry) error {
-
-	if err := validate.Required("url", "body", m.URL); err != nil {
-		return err
-	}
-
-	if err := validate.FormatOf("url", "body", "uri", m.URL.String(), formats); err != nil {
 		return err
 	}
 
