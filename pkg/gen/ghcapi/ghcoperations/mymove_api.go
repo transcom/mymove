@@ -476,10 +476,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	}
 	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}"] = mto_service_item.NewUpdateMTOServiceItem(o.context, o.MtoServiceItemUpdateMTOServiceItemHandler)
 
-	if o.handlers["PATCH"] == nil {
-		o.handlers["PATCH"] = make(map[string]http.Handler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status"] = mto_service_item.NewUpdateMTOServiceItemstatus(o.context, o.MtoServiceItemUpdateMTOServiceItemstatusHandler)
+	o.handlers["POST"]["/move-task-orders/{moveTaskOrderID}/status"] = move_task_order.NewUpdateMoveTaskOrderStatus(o.context, o.MoveTaskOrderUpdateMoveTaskOrderStatusHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)

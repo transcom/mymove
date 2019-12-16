@@ -5,13 +5,7 @@ import { get } from 'lodash';
 const updateMoveTaskOrders = 'moveTaskOrder.updateMoveTaskOrderStatus';
 export function updateMoveTaskOrderStatus(moveTaskOrderID, isAvailableToPrime, label = updateMoveTaskOrders) {
   const swaggerTag = 'moveTaskOrder.updateMoveTaskOrderStatus';
-  return swaggerRequest(
-    getGHCClient,
-    swaggerTag,
-    { moveTaskOrderID, body: { isAvailableToPrime } },
-    { updateMoveTaskOrders },
-    { label },
-  );
+  return swaggerRequest(getGHCClient, swaggerTag, { moveTaskOrderID }, { updateMoveTaskOrders }, { label });
 }
 
 const getMoveOrderLabel = 'moveOrder.getMoveOrder';

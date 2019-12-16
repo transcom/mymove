@@ -59,9 +59,8 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 	// TODO how are we going to handle auth in new api? Do we need some sort of placeholder to remind us to
 	// TODO to revisit?
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
-	isAvailableToPrime := true
 
-	mto, err := h.moveTaskOrderStatusUpdater.UpdateMoveTaskOrderStatus(moveTaskOrderID, isAvailableToPrime)
+	mto, err := h.moveTaskOrderStatusUpdater.UpdateMoveTaskOrderStatus(moveTaskOrderID)
 	if err != nil {
 		logger.Error("ghciap.MoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {

@@ -557,7 +557,7 @@ paths:
       operationId: updateMTOServiceItemstatus
       summary: Change the status of a line item for a move order by ID
   '/move-task-orders/{moveTaskOrderID}/status':
-    patch:
+    post:
       consumes:
         - application/json
       produces:
@@ -568,11 +568,6 @@ paths:
           name: moveTaskOrderID
           required: true
           type: string
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/MoveTaskOrderStatus'
       responses:
         '200':
           description: Successfully updated move task order status

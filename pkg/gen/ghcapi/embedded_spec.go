@@ -750,7 +750,7 @@ func init() {
       ]
     },
     "/move-task-orders/{moveTaskOrderID}/status": {
-      "patch": {
+      "post": {
         "description": "Changes move task order status to make it available to prime",
         "consumes": [
           "application/json"
@@ -770,14 +770,6 @@ func init() {
             "name": "moveTaskOrderID",
             "in": "path",
             "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrderStatus"
-            }
           }
         ],
         "responses": {
@@ -2855,7 +2847,7 @@ func init() {
       ]
     },
     "/move-task-orders/{moveTaskOrderID}/status": {
-      "patch": {
+      "post": {
         "description": "Changes move task order status to make it available to prime",
         "consumes": [
           "application/json"
@@ -2875,14 +2867,6 @@ func init() {
             "name": "moveTaskOrderID",
             "in": "path",
             "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/MoveTaskOrderStatus"
-            }
           }
         ],
         "responses": {

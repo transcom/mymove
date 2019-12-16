@@ -29,7 +29,7 @@ func NewUpdateMoveTaskOrderStatus(ctx *middleware.Context, handler UpdateMoveTas
 	return &UpdateMoveTaskOrderStatus{Context: ctx, Handler: handler}
 }
 
-/*UpdateMoveTaskOrderStatus swagger:route PATCH /move-task-orders/{moveTaskOrderID}/status moveTaskOrder updateMoveTaskOrderStatus
+/*UpdateMoveTaskOrderStatus swagger:route POST /move-task-orders/{moveTaskOrderID}/status moveTaskOrder updateMoveTaskOrderStatus
 
 Change the status of a move task order to make it available to prime
 
