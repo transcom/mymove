@@ -899,7 +899,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			ID:            uuid.FromStringOrNil("a2c34dba-015f-4f96-a38b-0c0b9272e208"),
 			MoveTaskOrder: mto,
 			IsFinal:       false,
-			Status:        "PENDING",
+			Status:        models.PaymentRequestStatusPending,
 		},
 	})
 

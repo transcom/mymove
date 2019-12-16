@@ -51,7 +51,6 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	paymentRequest := models.PaymentRequest{
 		IsFinal:         *payload.IsFinal,
 		MoveTaskOrderID: mtoID,
-		Status:          "PENDING",
 	}
 
 	paymentRequest.PaymentServiceItems, err = h.buildPaymentServiceItems(payload)
