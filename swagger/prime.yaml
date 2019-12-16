@@ -388,7 +388,6 @@ paths:
       description: Creates a payment request
       operationId: createPaymentRequest
       summary: Creates a payment request
-
 definitions:
   Address:
     type: object
@@ -576,76 +575,28 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      first_name:
+      dodID:
         type: string
-        example: John
-        x-nullable: true
-        title: First Name
-      middle_name:
+      userID:
         type: string
-        example: L.
-        x-nullable: true
-        title: Middle Name
-      last_name:
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+  DutyStation:
+    type: object
+    properties:
+      id:
         type: string
-        example: Donut
-        x-nullable: true
-        title: Last Name
-      suffix:
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
         type: string
-        example: Jr.
-        x-nullable: true
-        title: Suffix
-      agency:
+        example: Fort Bragg North Station
+      address_id:
         type: string
-        example: Some Agency
-        x-nullable: true
-        title: Agency
-      grade:
-        type: string
-        example: Some Grade
-        x-nullable: true
-        title: Grade
-      email:
-        type: string
-        format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        example: john_bob@example.com
-        x-nullable: true
-        title: Email Address
-      telephone:
-        type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-555-5555
-        x-nullable: true
-        title: Best Contact Phone
-      #TODO confirm that we actually want all items below repeated on response, since already on mto
-      originDutyStation:
-        type: string
-        example: Dover AFB
-        title: Origin
-        x-nullable: true
-      destinationDutyStation:
-        type: string
-        example: Dover AFB
-        title: Destination
-        x-nullable: true
-      pickup_address:
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      address:
         $ref: '#/definitions/Address'
-      destination_address:
-        $ref: '#/definitions/Address'
-        x-nullable: true
-      referenceId:
-        example: 1001-3456
-        type: string
-        x-nullable: true
-      remarks:
-        example: Requires more gentle care
-        type: string
-      requestedPickupDate:
-        format: date
-        type: string
   Entitlements:
     properties:
       id:
@@ -655,6 +606,7 @@ definitions:
       dependentsAuthorized:
         example: true
         type: boolean
+        x-nullable: true
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -677,10 +629,6 @@ definitions:
       totalDependents:
         example: 2
         type: integer
-      totalWeightSelf:
-        example: 18000
-        type: integer
-        x-formatting: weight
     type: object
   Error:
     properties:
@@ -689,98 +637,49 @@ definitions:
     required:
       - message
     type: object
-  MoveTaskOrder:
+  MoveOrder:
     properties:
-      code:
-        example: USMC-0001
-        type: string
-      createdAt:
-        format: date
-        type: string
-      customerId:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      deletedAt:
-        format: date
-        type: string
-      destinationAddress:
-        $ref: '#/definitions/Address'
-      destinationDutyStation:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      destinationPPSO:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      entitlements:
-        $ref: '#/definitions/Entitlements'
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-      moveDate:
-        format: date
-        type: string
-      moveID:
+      customerID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-      moveTaskOrdersType:
-        enum:
-          - NON_TEMPORARY_STORAGE
-          - PRIME
-        type: string
+      entitlement:
+        $ref: '#/definitions/Entitlements'
+      destinationDutyStation:
+        $ref: '#/definitions/DutyStation'
       originDutyStation:
+        $ref: '#/definitions/DutyStation'
+    type: object
+  MoveTaskOrder:
+    properties:
+      id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-      originPPSO:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+      createdAt:
+        format: date
+        type: string
+      moveOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-      primeActualWeight:
-        type: integer
-        example: 1000
-        x-formatting: weight
-        x-nullable: true
-      primeEstimatedWeight:
-        type: integer
-        example: 1000
-        x-formatting: weight
-        x-nullable: true
-      primeEstimatedWeightRecordedDate:
-        format: date
+      referenceId:
+        example: 1001-3456
         type: string
         x-nullable: true
-      pickupAddress:
-        $ref: '#/definitions/Address'
-      remarks:
-        example: Requires more gentle care
-        type: string
-      requestedPickupDate:
-        format: date
-        type: string
-      status:
-        enum:
-          - APPROVED # This now is the status for made available to Prime (not previously used DRAFT)
-          - REJECTED
-          - DRAFT
-        type: string
+      isAvailableToPrime:
+        type: boolean
+        x-nullable: true
+      isCanceled:
+        type: boolean
+        x-nullable: true
       updatedAt:
         format: date
         type: string
-      scheduled-move-date:
-        type: string
-        format: date
-        example: '2018-04-26'
-      secondary-pickup-address:
-        $ref: '#/definitions/Address'
-      secondary-delivery-address:
-        $ref: '#/definitions/Address'
-      ppm-is-included:
-        type: boolean
     type: object
   MoveTaskOrders:
     items:
