@@ -141,16 +141,16 @@ func NewRoutingResponseDecodingError(r RoutingResponseBody) Error {
 
 type shortHaulError struct {
 	baseError
-	distance int
+	routingInfo string
 }
 
-func NewShortHaulError(moveDistance int) Error {
+func NewShortHaulError(source LatLong, dest LatLong, moveDistance int) Error {
 	return &shortHaulError{
 		baseError{ShortHaulError},
-		moveDistance,
+		fmt.Sprintf("source: (%s), dest: (%s), distance: (%d)", source.Coords(), dest.Coords(), moveDistance),
 	}
 }
 
 func (e *shortHaulError) Error() string {
-	return fmt.Sprintf("Unsupported short haul move distance (%d)", e.distance)
+	return fmt.Sprintf("Unsupported short haul move distance: (error_code: (%s), routing_info: %s)", e.code, e.routingInfo)
 }
