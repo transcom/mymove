@@ -48,6 +48,36 @@ func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser
 	return officeUser
 }
 
+// MakeOfficeUser creates a single office user and associated TransportOffice
+func MakeOfficeUserWithNoUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
+	// There's a uniqueness constraint on office user emails so add some randomness
+	email := fmt.Sprintf("leo_spaceman_office_%s@example.com", makeRandomString(5))
+
+	if assertions.User.LoginGovEmail != "" {
+		email = assertions.User.LoginGovEmail
+	}
+
+	office := assertions.OfficeUser.TransportationOffice
+	if isZeroUUID(office.ID) {
+		office = MakeTransportationOffice(db, assertions)
+	}
+
+	officeUser := models.OfficeUser{
+		TransportationOffice:   office,
+		TransportationOfficeID: office.ID,
+		FirstName:              "Leo",
+		LastName:               "Spaceman",
+		Email:                  email,
+		Telephone:              "415-555-1212",
+	}
+
+	mergeModels(&officeUser, assertions.OfficeUser)
+
+	mustCreate(db, &officeUser)
+
+	return officeUser
+}
+
 // MakeDefaultOfficeUser makes an OfficeUser with default values
 func MakeDefaultOfficeUser(db *pop.Connection) models.OfficeUser {
 	return MakeOfficeUser(db, Assertions{})

@@ -93,6 +93,23 @@ class WeightTicket extends Component {
     } else return !this.hasWeightTicket(uploader.uploaderRef);
   };
 
+  carTrailerText = isValidTrailer => {
+    if (this.isCarTrailer && isValidTrailer === 'Yes') {
+      return (
+        <div style={{ marginBottom: '1em' }}>
+          You can claim this trailer's weight as part of the total weight of your trip.
+        </div>
+      );
+    } else if (this.isCarTrailer) {
+      return (
+        <div style={{ marginBottom: '1em' }}>
+          The weight of this trailer should be <strong>excluded</strong> from the total weight of this trip.
+          <p>{documentSizeLimitMsg}</p>
+        </div>
+      );
+    }
+  };
+
   uploaderWithInvalidState = () => {
     // Validation for the vehicle type
     if (this.state.isValidTrailer === 'Yes' && this.isCarTrailer && this.invalidState(this.uploaders.trailer)) {
@@ -327,17 +344,7 @@ class WeightTicket extends Component {
 
                     <div className="grid-row">
                       <div className="grid-col-12" style={{ marginTop: '1em' }}>
-                        {this.isCarTrailer && isValidTrailer === 'Yes' ? (
-                          <div style={{ marginBottom: '1em' }}>
-                            You can claim this trailer's weight as part of the total weight of your trip.
-                          </div>
-                        ) : (
-                          <div style={{ marginBottom: '1em' }}>
-                            The weight of this trailer should be <strong>excluded</strong> from the total weight of this
-                            trip.
-                            <p>{documentSizeLimitMsg}</p>
-                          </div>
-                        )}
+                        {this.carTrailerText(isValidTrailer)}
                         <div className="grid-row grid-gap">
                           <div className="grid-col-4 input-group">
                             <strong className="input-header">
