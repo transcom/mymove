@@ -165,16 +165,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 		logger.Error(fmt.Sprintf("UUID Parsing for %s", params.OfficeUserID.String()), zap.Error(err))
 	}
 
-	officeUser := models.OfficeUser{
-		ID:             officeUserID,
-		MiddleInitials: handlers.FmtStringPtr(payload.MiddleInitials),
-		LastName:       payload.LastName,
-		FirstName:      payload.FirstName,
-		Telephone:      payload.Telephone,
-		Active:         payload.Active,
-	}
-
-	updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(&officeUser)
+	updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(officeUserID, payload)
 
 	if err != nil || verrs != nil {
 		fmt.Printf("%#v", verrs)

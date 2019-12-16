@@ -153,18 +153,11 @@ func (h UpdateAdminUserHandler) Handle(params adminuserop.UpdateAdminUserParams)
 	}
 
 	// Don't allow Admin Users to deactivate themselves
-	if adminUserID == session.AdminUserID && payload.Active {
+	if adminUserID == session.AdminUserID && payload.Active != nil {
 		return adminuserop.NewUpdateAdminUserForbidden()
 	}
 
-	adminUser := models.AdminUser{
-		ID:        adminUserID,
-		LastName:  payload.LastName,
-		FirstName: payload.FirstName,
-		Active:    payload.Active,
-	}
-
-	updatedAdminUser, verrs, err := h.AdminUserUpdater.UpdateAdminUser(&adminUser)
+	updatedAdminUser, verrs, err := h.AdminUserUpdater.UpdateAdminUser(adminUserID, payload)
 
 	if err != nil || verrs != nil {
 		fmt.Printf("%#v", verrs)

@@ -16,13 +16,13 @@ import (
 type AdminUserUpdatePayload struct {
 
 	// active
-	Active bool `json:"active,omitempty"`
+	Active *bool `json:"active,omitempty"`
 
 	// First Name
-	FirstName string `json:"first_name,omitempty"`
+	FirstName *string `json:"first_name,omitempty"`
 
 	// Last Name
-	LastName string `json:"last_name,omitempty"`
+	LastName *string `json:"last_name,omitempty"`
 }
 
 // Validate validates this admin user update payload
