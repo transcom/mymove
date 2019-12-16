@@ -15,18 +15,18 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 )
 
-// NewGetCustomerInfoParams creates a new GetCustomerInfoParams object
+// NewGetCustomerParams creates a new GetCustomerParams object
 // no default values defined in spec.
-func NewGetCustomerInfoParams() GetCustomerInfoParams {
+func NewGetCustomerParams() GetCustomerParams {
 
-	return GetCustomerInfoParams{}
+	return GetCustomerParams{}
 }
 
-// GetCustomerInfoParams contains all the bound params for the get customer info operation
+// GetCustomerParams contains all the bound params for the get customer operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters getCustomerInfo
-type GetCustomerInfoParams struct {
+// swagger:parameters getCustomer
+type GetCustomerParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
@@ -41,8 +41,8 @@ type GetCustomerInfoParams struct {
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewGetCustomerInfoParams() beforehand.
-func (o *GetCustomerInfoParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewGetCustomerParams() beforehand.
+func (o *GetCustomerParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
@@ -59,7 +59,7 @@ func (o *GetCustomerInfoParams) BindRequest(r *http.Request, route *middleware.M
 }
 
 // bindCustomerID binds and validates parameter CustomerID from path.
-func (o *GetCustomerInfoParams) bindCustomerID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *GetCustomerParams) bindCustomerID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -83,7 +83,7 @@ func (o *GetCustomerInfoParams) bindCustomerID(rawData []string, hasKey bool, fo
 }
 
 // validateCustomerID carries on validations for parameter CustomerID
-func (o *GetCustomerInfoParams) validateCustomerID(formats strfmt.Registry) error {
+func (o *GetCustomerParams) validateCustomerID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("customerID", "path", "uuid", o.CustomerID.String(), formats); err != nil {
 		return err

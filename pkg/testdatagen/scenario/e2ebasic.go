@@ -853,8 +853,20 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Uploader: loader,
 	})
 
+	customer := testdatagen.MakeCustomer(db, testdatagen.Assertions{
+		Customer: models.Customer{
+			ID: uuid.FromStringOrNil("6ac40a00-e762-4f5f-b08d-3ea72a8e4b63"),
+		},
+	})
+	moveOrders := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
+		MoveOrder: models.MoveOrder{ID: uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4988")},
+		Customer:  customer,
+	})
 	mto := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{ID: uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e")},
+		MoveTaskOrder: models.MoveTaskOrder{
+			ID:          uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e"),
+			MoveOrderID: moveOrders.ID,
+		},
 	})
 
 	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{

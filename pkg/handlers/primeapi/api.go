@@ -22,6 +22,10 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 	}
 	primeAPI := primeops.NewMymoveAPI(primeSpec)
 
+	primeAPI.MoveTaskOrderListMoveTaskOrdersHandler = ListMoveTaskOrdersHandler{
+		context,
+	}
+
 	primeAPI.PaymentRequestsCreatePaymentRequestHandler = CreatePaymentRequestHandler{
 		context,
 		paymentrequest.NewPaymentRequestCreator(context.DB()),

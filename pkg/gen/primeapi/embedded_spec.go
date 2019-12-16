@@ -807,94 +807,40 @@ func init() {
     "Customer": {
       "type": "object",
       "properties": {
-        "agency": {
-          "type": "string",
-          "title": "Agency",
-          "x-nullable": true,
-          "example": "Some Agency"
-        },
-        "destinationDutyStation": {
-          "type": "string",
-          "title": "Destination",
-          "x-nullable": true,
-          "example": "Dover AFB"
-        },
-        "destination_address": {
-          "x-nullable": true,
-          "$ref": "#/definitions/Address"
-        },
-        "email": {
-          "type": "string",
-          "format": "x-email",
-          "title": "Email Address",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-          "x-nullable": true,
-          "example": "john_bob@example.com"
-        },
-        "first_name": {
-          "type": "string",
-          "title": "First Name",
-          "x-nullable": true,
-          "example": "John"
-        },
-        "grade": {
-          "type": "string",
-          "title": "Grade",
-          "x-nullable": true,
-          "example": "Some Grade"
+        "dodID": {
+          "type": "string"
         },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "last_name": {
+        "userID": {
           "type": "string",
-          "title": "Last Name",
-          "x-nullable": true,
-          "example": "Donut"
-        },
-        "middle_name": {
-          "type": "string",
-          "title": "Middle Name",
-          "x-nullable": true,
-          "example": "L."
-        },
-        "originDutyStation": {
-          "type": "string",
-          "title": "Origin",
-          "x-nullable": true,
-          "example": "Dover AFB"
-        },
-        "pickup_address": {
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "DutyStation": {
+      "type": "object",
+      "properties": {
+        "address": {
           "$ref": "#/definitions/Address"
         },
-        "referenceId": {
+        "address_id": {
           "type": "string",
-          "x-nullable": true,
-          "example": "1001-3456"
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "remarks": {
+        "id": {
           "type": "string",
-          "example": "Requires more gentle care"
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "requestedPickupDate": {
+        "name": {
           "type": "string",
-          "format": "date"
-        },
-        "suffix": {
-          "type": "string",
-          "title": "Suffix",
-          "x-nullable": true,
-          "example": "Jr."
-        },
-        "telephone": {
-          "type": "string",
-          "format": "telephone",
-          "title": "Best Contact Phone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
-          "x-nullable": true,
-          "example": "212-555-5555"
+          "example": "Fort Bragg North Station"
         }
       }
     },
@@ -903,6 +849,7 @@ func init() {
       "properties": {
         "dependentsAuthorized": {
           "type": "boolean",
+          "x-nullable": true,
           "example": true
         },
         "id": {
@@ -937,11 +884,6 @@ func init() {
         "totalDependents": {
           "type": "integer",
           "example": 2
-        },
-        "totalWeightSelf": {
-          "type": "integer",
-          "x-formatting": "weight",
-          "example": 18000
         }
       }
     },
@@ -956,40 +898,18 @@ func init() {
         }
       }
     },
-    "MoveTaskOrder": {
+    "MoveOrder": {
       "type": "object",
       "properties": {
-        "code": {
-          "type": "string",
-          "example": "USMC-0001"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date"
-        },
-        "customerId": {
+        "customerID": {
           "type": "string",
           "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date"
-        },
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "destinationDutyStation": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+          "$ref": "#/definitions/DutyStation"
         },
-        "destinationPPSO": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "entitlements": {
+        "entitlement": {
           "$ref": "#/definitions/Entitlements"
         },
         "id": {
@@ -997,81 +917,40 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "moveDate": {
+        "originDutyStation": {
+          "$ref": "#/definitions/DutyStation"
+        }
+      }
+    },
+    "MoveTaskOrder": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
           "type": "string",
           "format": "date"
         },
-        "moveID": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isAvailableToPrime": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "isCanceled": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "moveOrderID": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "moveTaskOrdersType": {
+        "referenceId": {
           "type": "string",
-          "enum": [
-            "NON_TEMPORARY_STORAGE",
-            "PRIME"
-          ]
-        },
-        "originDutyStation": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "originPPSO": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "pickupAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "ppm-is-included": {
-          "type": "boolean"
-        },
-        "primeActualWeight": {
-          "type": "integer",
-          "x-formatting": "weight",
           "x-nullable": true,
-          "example": 1000
-        },
-        "primeEstimatedWeight": {
-          "type": "integer",
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 1000
-        },
-        "primeEstimatedWeightRecordedDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "remarks": {
-          "type": "string",
-          "example": "Requires more gentle care"
-        },
-        "requestedPickupDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "scheduled-move-date": {
-          "type": "string",
-          "format": "date",
-          "example": "2018-04-26"
-        },
-        "secondary-delivery-address": {
-          "$ref": "#/definitions/Address"
-        },
-        "secondary-pickup-address": {
-          "$ref": "#/definitions/Address"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "REJECTED",
-            "DRAFT"
-          ]
+          "example": "1001-3456"
         },
         "updatedAt": {
           "type": "string",
@@ -2146,94 +2025,40 @@ func init() {
     "Customer": {
       "type": "object",
       "properties": {
-        "agency": {
-          "type": "string",
-          "title": "Agency",
-          "x-nullable": true,
-          "example": "Some Agency"
-        },
-        "destinationDutyStation": {
-          "type": "string",
-          "title": "Destination",
-          "x-nullable": true,
-          "example": "Dover AFB"
-        },
-        "destination_address": {
-          "x-nullable": true,
-          "$ref": "#/definitions/Address"
-        },
-        "email": {
-          "type": "string",
-          "format": "x-email",
-          "title": "Email Address",
-          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
-          "x-nullable": true,
-          "example": "john_bob@example.com"
-        },
-        "first_name": {
-          "type": "string",
-          "title": "First Name",
-          "x-nullable": true,
-          "example": "John"
-        },
-        "grade": {
-          "type": "string",
-          "title": "Grade",
-          "x-nullable": true,
-          "example": "Some Grade"
+        "dodID": {
+          "type": "string"
         },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "last_name": {
+        "userID": {
           "type": "string",
-          "title": "Last Name",
-          "x-nullable": true,
-          "example": "Donut"
-        },
-        "middle_name": {
-          "type": "string",
-          "title": "Middle Name",
-          "x-nullable": true,
-          "example": "L."
-        },
-        "originDutyStation": {
-          "type": "string",
-          "title": "Origin",
-          "x-nullable": true,
-          "example": "Dover AFB"
-        },
-        "pickup_address": {
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "DutyStation": {
+      "type": "object",
+      "properties": {
+        "address": {
           "$ref": "#/definitions/Address"
         },
-        "referenceId": {
+        "address_id": {
           "type": "string",
-          "x-nullable": true,
-          "example": "1001-3456"
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "remarks": {
+        "id": {
           "type": "string",
-          "example": "Requires more gentle care"
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "requestedPickupDate": {
+        "name": {
           "type": "string",
-          "format": "date"
-        },
-        "suffix": {
-          "type": "string",
-          "title": "Suffix",
-          "x-nullable": true,
-          "example": "Jr."
-        },
-        "telephone": {
-          "type": "string",
-          "format": "telephone",
-          "title": "Best Contact Phone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
-          "x-nullable": true,
-          "example": "212-555-5555"
+          "example": "Fort Bragg North Station"
         }
       }
     },
@@ -2242,6 +2067,7 @@ func init() {
       "properties": {
         "dependentsAuthorized": {
           "type": "boolean",
+          "x-nullable": true,
           "example": true
         },
         "id": {
@@ -2276,11 +2102,6 @@ func init() {
         "totalDependents": {
           "type": "integer",
           "example": 2
-        },
-        "totalWeightSelf": {
-          "type": "integer",
-          "x-formatting": "weight",
-          "example": 18000
         }
       }
     },
@@ -2295,40 +2116,18 @@ func init() {
         }
       }
     },
-    "MoveTaskOrder": {
+    "MoveOrder": {
       "type": "object",
       "properties": {
-        "code": {
-          "type": "string",
-          "example": "USMC-0001"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date"
-        },
-        "customerId": {
+        "customerID": {
           "type": "string",
           "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "deletedAt": {
-          "type": "string",
-          "format": "date"
-        },
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "destinationDutyStation": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+          "$ref": "#/definitions/DutyStation"
         },
-        "destinationPPSO": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "entitlements": {
+        "entitlement": {
           "$ref": "#/definitions/Entitlements"
         },
         "id": {
@@ -2336,81 +2135,40 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "moveDate": {
+        "originDutyStation": {
+          "$ref": "#/definitions/DutyStation"
+        }
+      }
+    },
+    "MoveTaskOrder": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
           "type": "string",
           "format": "date"
         },
-        "moveID": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isAvailableToPrime": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "isCanceled": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "moveOrderID": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "moveTaskOrdersType": {
+        "referenceId": {
           "type": "string",
-          "enum": [
-            "NON_TEMPORARY_STORAGE",
-            "PRIME"
-          ]
-        },
-        "originDutyStation": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "originPPSO": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "pickupAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "ppm-is-included": {
-          "type": "boolean"
-        },
-        "primeActualWeight": {
-          "type": "integer",
-          "x-formatting": "weight",
           "x-nullable": true,
-          "example": 1000
-        },
-        "primeEstimatedWeight": {
-          "type": "integer",
-          "x-formatting": "weight",
-          "x-nullable": true,
-          "example": 1000
-        },
-        "primeEstimatedWeightRecordedDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "remarks": {
-          "type": "string",
-          "example": "Requires more gentle care"
-        },
-        "requestedPickupDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "scheduled-move-date": {
-          "type": "string",
-          "format": "date",
-          "example": "2018-04-26"
-        },
-        "secondary-delivery-address": {
-          "$ref": "#/definitions/Address"
-        },
-        "secondary-pickup-address": {
-          "$ref": "#/definitions/Address"
-        },
-        "status": {
-          "type": "string",
-          "enum": [
-            "APPROVED",
-            "REJECTED",
-            "DRAFT"
-          ]
+          "example": "1001-3456"
         },
         "updatedAt": {
           "type": "string",

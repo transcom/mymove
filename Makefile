@@ -115,7 +115,7 @@ check_docker_size: ## Check the amount of disk space used by docker
 	scripts/check-docker-size
 
 .PHONY: deps
-deps: prereqs ensure_pre_commit client_deps bin/rds-combined-ca-bundle.pem ## Run all checks and install all depdendencies
+deps: prereqs ensure_pre_commit client_deps bin/rds-combined-ca-bundle.pem bin/rds-ca-2019-root.pem ## Run all checks and install all depdendencies
 
 .PHONY: test
 test: client_test server_test e2e_test ## Run all tests
@@ -208,6 +208,10 @@ bin/mockery: .check_go_version.stamp .check_gopath.stamp
 bin/rds-combined-ca-bundle.pem:
 	mkdir -p bin/
 	curl -sSo bin/rds-combined-ca-bundle.pem https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
+
+bin/rds-ca-2019-root.pem:
+	mkdir -p bin/
+	curl -sSo bin/rds-ca-2019-root.pem https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem
 
 ### MilMove Targets
 
@@ -342,6 +346,7 @@ build_tools: bin/chamber \
 	bin/swagger \
 	bin/mockery \
 	bin/rds-combined-ca-bundle.pem \
+	bin/rds-ca-2019-root.pem \
 	bin/big-cat \
 	bin/compare-secure-migrations \
 	bin/ecs-deploy-task-container \
@@ -366,7 +371,7 @@ build: server_build build_tools client_build ## Build the server, tools, and cli
 # webserver_test runs a few acceptance tests against a local or remote environment.
 # This can help identify potential errors before deploying a container.
 .PHONY: webserver_test
-webserver_test: bin/rds-combined-ca-bundle.pem bin/chamber  ## Run acceptance tests
+webserver_test: bin/rds-combined-ca-bundle.pem bin/rds-ca-2019-root.pem bin/chamber  ## Run acceptance tests
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
