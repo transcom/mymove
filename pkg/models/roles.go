@@ -1,20 +1,15 @@
 package models
 
 import (
-	"time"
-
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+
+	"github.com/transcom/mymove/pkg/auth"
 )
 
 // Role is an object representing the types of users who can authenticate in the admin app
-type Role struct {
-	ID        int       `json:"id" db:"id"`
-	RoleType  string    `json:"role_type" db:"role_type"`
-	CreatedAt time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
-}
+type Role auth.Role
 
 type Roles []Role
 
@@ -22,7 +17,7 @@ type Roles []Role
 // This method is not required and may be deleted.
 func (r *Role) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.IntIsPresent{Field: int(r.ID), Name: "ID"},
+		&validators.UUIDIsPresent{Field: (r.ID), Name: "ID"},
 		&validators.StringIsPresent{Field: string(r.RoleType), Name: "RoleType"},
 	), nil
 }
