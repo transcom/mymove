@@ -1,8 +1,6 @@
 package mtoserviceitem
 
 import (
-	"fmt"
-
 	"github.com/gobuffalo/validate"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -19,7 +17,6 @@ type mtoServiceItemCreator struct {
 
 func (o *mtoServiceItemCreator) CreateMTOServiceItem(serviceItem *models.MTOServiceItem) (*models.MTOServiceItem, *validate.Errors, error) {
 	verrs, err := o.builder.CreateOne(serviceItem)
-	fmt.Println(verrs, err)
 	if verrs != nil || err != nil {
 		return nil, verrs, err
 	}
