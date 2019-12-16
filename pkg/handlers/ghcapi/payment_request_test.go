@@ -88,7 +88,7 @@ func (suite *HandlerSuite) TestListPaymentRequestsHandler() {
 	})
 }
 
-func (suite *HandlerSuite) TestFetchPaymentRequest() {
+func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 
 	paymentRequestID, _ := uuid.FromString("00000000-0000-0000-0000-000000000001")
 
