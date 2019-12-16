@@ -15,7 +15,7 @@
   * [Errors](#errors)
     * [Don't bury your errors in underscores](#dont-bury-your-errors-in-underscores)
     * [Log at the top level; create and pass along errors below](#log-at-the-top-level-create-and-pass-along-errors-below)
-    * [Use `errors.Wrap()` when using external libraries](#use-errorswrap-when-using-external-libraries)
+    * [Use `fmt.Errorf` and `%w` verb when using external libraries](#use-fmterrorf-and-%25w-verb-when-using-external-libraries)
     * [Don't `fmt` errors; log instead](#dont-fmt-errors-log-instead)
     * [If some of your errors are predictable, pattern match on them to provide more error detail](#if-some-of-your-errors-are-predictable-pattern-match-on-them-to-provide-more-error-detail)
   * [Libraries](#libraries)
@@ -186,7 +186,7 @@ _Do:_
 ```golang
     myVal, err := functionThatShouldReturnAnInt()
     if err != nil {
-         return myVal, errors.Wrap(err, "function didn't return an int")
+         return myVal, fmt.Errorf("function didn't return an int: %w", err)
    }
 ```
 
@@ -201,7 +201,7 @@ func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment Shipmen
   ...
   err = query.All(&blackoutDates)
   if err != nil {
-    return blackoutDates, errors.Wrap(err, "Blackout dates query failed")
+    return blackoutDates, fmt.Errorf("Blackout dates query failed: %w", err)
   }
 
   return blackoutDates, err
@@ -215,7 +215,7 @@ func ShipmentWithinBlackoutDates(tspID uuid.UUID, shipment models.Shipment) (boo
   blackoutDates, err := models.FetchTSPBlackoutDates(aq.db, tspID, shipment)
 
   if err != nil {
-    return false, errors.Wrap(err, "Error retrieving blackout dates from database")
+    return false, fmt.Errorf("Error retrieving blackout dates from database: %w", err)
   }
 
   return len(blackoutDates) != 0, nil
@@ -239,9 +239,23 @@ func (aq *AwardQueue) attemptShipmentOffer(shipment models.Shipment) (*models.Sh
 
 The error is created and passed along at the lowest level, logged and passed along at the middle level (along with other errors that can happen within that function), and logged again at the highest level before finally halting the progress of the process if an error is present.
 
-#### Use `errors.Wrap()` when using external libraries
+#### Use `fmt.Errorf` and `%w` verb when using external libraries
 
-[`errors.Wrap()`](https://godoc.org/github.com/pkg/errors) provides greater error context and a stack trace, making it especially useful when dealing with the opacity that sometimes comes with external libraries. `errors.Wrap()` takes two parameters: the error and a string to provide context and explanation. Keep the string brief and clear, assuming that the fuller cause will be provided by the context `errors.Wrap()` brings. It can also add useful context for errors related to internal code if there might otherwise be unhelpful opacity. `errors.Errorf()` and `errors.Wrapf()` also capture stack traces with the additional function of string substitution/formatting for output. Instead of just returning the error, offer greater context with something like this:
+[`fmt.Errorf() with %w`](https://blog.golang.org/go1.13-errors) provides greater error context and a stack trace, making it especially useful when dealing with the opacity that sometimes comes with external libraries. As of go 1.13 `fmt.Errorf()` provides a new `%w` verb that replaces the need for `errors.Wrap()`. It takes a string with the `%w` in it and the error as parameters: the string and error to provide context and explanation. Keep the string brief and clear, assuming that the fuller cause will be provided by the context `%w` verb brings. It can also add useful context for errors related to internal code if there might otherwise be unhelpful opacity. `fmt.Errorf()` in combination with `%w` also capture stack traces with the additional function of string substitution/formatting for output.
+
+Instead of just returning the error, offer greater context with something like this:
+
+_Current Recommendation:_
+
+```golang
+if err != nil {
+        return fmt.Errorf("Pop validate failed: %w", err)
+}
+```
+
+As this is a recent change in golang standards you will see many uses of the `errors.Wrap` still in the code, which had been the old recommendation. It is safe to change code that wraps errors as below to the new standard in the example above.
+
+_Old Recommendation:_
 
 ```golang
 if err != nil {
@@ -249,9 +263,11 @@ if err != nil {
 }
 ```
 
+Using the new `%w` provides access to some new features such as the new `errors.Is` and `errors.As` functions. For more on the changes in go 1.13 see [this official blog post](https://blog.golang.org/go1.13-errors) and [this article](https://medium.com/@felipedutratine/golang-how-to-handle-errors-in-v1-13-fda7f035d027) that go into more depth.
+
 #### Don't `fmt` errors; log instead
 
-`fmt` can provide useful error handling during initial debugging, but we strongly suggest logging instead, from when you write the initial lines of a new function. Using logging creates structured logs instead of the unstructured, human-friendly-only output that `fmt` does. If an `fmt` statement offers usefulness beyond your initial troubleshooting while working, switch it to `errors.Wrap()` or `logger.Error()`, perhaps with [Zap](https://github.com/uber-go/zap).
+`fmt` can provide useful error handling during initial debugging, but we strongly suggest logging instead, from when you write the initial lines of a new function. Using logging creates structured logs instead of the unstructured, human-friendly-only output that `fmt` does. If an `fmt` statement offers usefulness beyond your initial troubleshooting while working, switch it to `fmt.Errorf("text: %w", err)` or `logger.Error()`, perhaps with [Zap](https://github.com/uber-go/zap).
 
 _Don't:_
 `fmt.Println("Blackout dates fetch failed: ", err)`
@@ -284,7 +300,7 @@ Some errors are predictable, such as those from the database that Pop returns to
  }
 ```
 
-You can also use `errors.Wrap()` in this situation to provide access to even more information, beyond the breadcrumbs left here.
+You can also use `fmt.Errorf("text: %w", err)` in this situation to provide access to even more information, beyond the breadcrumbs left here.
 
 ### Libraries
 
