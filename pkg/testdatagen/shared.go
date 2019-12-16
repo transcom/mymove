@@ -56,6 +56,7 @@ type Assertions struct {
 	ReDomesticServiceArea                    models.ReDomesticServiceArea
 	Reimbursement                            models.Reimbursement
 	ReService                                models.ReService
+	ServiceItemParamKey                      models.ServiceItemParamKey
 	SignedCertification                      models.SignedCertification
 	ServiceMember                            models.ServiceMember
 	Tariff400ngServiceArea                   models.Tariff400ngServiceArea
