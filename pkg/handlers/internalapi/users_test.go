@@ -30,13 +30,19 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 
 func (suite *HandlerSuite) TestServiceMemberLoggedInUserRequiringAccessCodeHandler() {
 	firstName := "Joseph"
+	smRole := models.Role{
+		RoleType: "customer",
+	}
+	suite.NoError(suite.DB().Save(&smRole))
 	sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			FirstName:          &firstName,
 			RequiresAccessCode: true,
 		},
+		User: models.User{
+			Roles: []models.Role{smRole},
+		},
 	})
-
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
 	req = suite.AuthenticateRequest(req, sm)
 
@@ -55,6 +61,8 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserRequiringAccessCodeHandl
 	suite.True(ok)
 	suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
 	suite.Equal("Joseph", *okResponse.Payload.ServiceMember.FirstName)
+	suite.Equal("customer", *okResponse.Payload.Roles[0].RoleType)
+	suite.Equal(1, len(okResponse.Payload.Roles))
 	suite.True(okResponse.Payload.ServiceMember.RequiresAccessCode)
 }
 
