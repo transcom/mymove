@@ -1134,6 +1134,27 @@ definitions:
       updatedAt:
         format: date
         type: string
+      customerID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      destinationAddress:
+        $ref: '#/definitions/Address'
+      pickupAddress:
+        $ref: '#/definitions/Address'
+      destinationDutyStation:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      originDutyStation:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      entitlements:
+        $ref: '#/definitions/Entitlements'
+      requestedPickupDate:
+        format: date
+        type: string
     type: object
   MoveTaskOrderStatus:
     properties:

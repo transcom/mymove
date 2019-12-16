@@ -1683,6 +1683,22 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "customerID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "destinationDutyStation": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "entitlements": {
+          "$ref": "#/definitions/Entitlements"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -1701,10 +1717,22 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "originDutyStation": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "referenceId": {
           "type": "string",
           "x-nullable": true,
           "example": "1001-3456"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
         },
         "updatedAt": {
           "type": "string",
@@ -3843,6 +3871,22 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "customerID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "destinationDutyStation": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "entitlements": {
+          "$ref": "#/definitions/Entitlements"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -3861,10 +3905,22 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "originDutyStation": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "referenceId": {
           "type": "string",
           "x-nullable": true,
           "example": "1001-3456"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
         },
         "updatedAt": {
           "type": "string",

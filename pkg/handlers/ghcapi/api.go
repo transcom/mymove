@@ -59,5 +59,10 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 		moveorder.NewMoveOrderFetcher(context.DB()),
 	}
 
+	ghcAPI.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = UpdateMoveTaskOrderStatusHandlerFunc{
+		context,
+		movetaskorder.NewMoveTaskOrderStatusUpdater(context.DB()),
+	}
+
 	return ghcAPI.Serve(nil)
 }

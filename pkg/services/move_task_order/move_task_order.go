@@ -79,3 +79,31 @@ func (f fetchMoveTaskOrder) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*mode
 	}
 	return mto, nil
 }
+
+type updateMoveTaskOrderStatus struct {
+	db *pop.Connection
+	fetchMoveTaskOrder
+}
+
+// NewMoveTaskOrderFetcher creates a new struct with the service dependencies
+func NewMoveTaskOrderStatusUpdater(db *pop.Connection) services.MoveTaskOrderStatusUpdater {
+	moveTaskOrderFetcher := fetchMoveTaskOrder{db}
+	return &updateMoveTaskOrderStatus{db, moveTaskOrderFetcher}
+}
+
+//UpdateMoveTaskOrderStatus updates the status of a MoveTaskOrder for a given UUID
+func (f fetchMoveTaskOrder) UpdateMoveTaskOrderStatus(moveTaskOrderID uuid.UUID, isAvailableToPrime bool) (*models.MoveTaskOrder, error) {
+	mto, err := f.FetchMoveTaskOrder(moveTaskOrderID)
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
+	mto.IsAvailableToPrime = isAvailableToPrime
+	vErrors, err := f.db.ValidateAndUpdate(mto)
+	if vErrors.HasAny() {
+		return &models.MoveTaskOrder{}, ErrInvalidInput{}
+	}
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
+	return mto, nil
+}
