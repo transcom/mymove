@@ -85,9 +85,9 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - Customer
+        - customer
       description: Returns a given customer
-      operationId: getCustomerInfo
+      operationId: getCustomer
       summary: Returns a given customer
   /move-task-orders:
     get:
@@ -124,6 +124,48 @@ paths:
       description: Gets all move orders
       operationId: listMoveTaskOrders
       summary: Gets all move orders
+  '/move-orders/{moveOrderID}':
+    parameters:
+      - description: ID of customer to use
+        in: path
+        name: moveOrderID
+        required: true
+        type: string
+        format: uuid
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved move order
+          schema:
+            $ref: '#/definitions/MoveOrder'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveOrder
+      description: Gets a move order
+      operationId: getMoveOrder
+      summary: Gets a move order by ID
   '/move-task-orders/{moveTaskOrderID}':
     parameters:
       - description: ID of move order to use
@@ -941,46 +983,27 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      customer_name:
+      dodID:
         type: string
-        example: George Washington
-        x-nullable: true
-        title: Customer Name
-      agency:
+      userID:
         type: string
-        example: Some Agency
-        x-nullable: true
-        title: Agency
-      grade:
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+  DutyStation:
+    type: object
+    properties:
+      id:
         type: string
-        example: Some Grade
-        x-nullable: true
-        title: Grade
-      email:
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
         type: string
-        format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        example: john_bob@example.com
-        x-nullable: true
-        title: Email Address
-      telephone:
+        example: Fort Bragg North Station
+      address_id:
         type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-555-5555
-        x-nullable: true
-        title: Best Contact Phone
-      origin_duty_station:
-        type: string
-        example: Dover AFB
-        title: Origin
-        x-nullable: true
-      destination_duty_station:
-        type: string
-        example: Dover AFB
-        title: Destination
-        x-nullable: true
-      pickup_address:
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      address:
         $ref: '#/definitions/Address'
   Entitlements:
     properties:
@@ -991,6 +1014,7 @@ definitions:
       dependentsAuthorized:
         example: true
         type: boolean
+        x-nullable: true
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -1013,10 +1037,6 @@ definitions:
       totalDependents:
         example: 2
         type: integer
-      totalWeightSelf:
-        example: 18000
-        type: integer
-        x-formatting: weight
     type: object
   Error:
     properties:
@@ -1025,79 +1045,46 @@ definitions:
     required:
       - message
     type: object
-  MoveTaskOrder:
+  MoveOrder:
     properties:
-      code:
-        example: USMC-0001
-        type: string
-      createdAt:
-        format: date
-        type: string
-      customerId:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      deletedAt:
-        format: date
-        type: string
-      destinationAddress:
-        $ref: '#/definitions/Address'
-      destinationDutyStation:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      destinationPPSO:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      entitlements:
-        $ref: '#/definitions/Entitlements'
       id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-      moveDate:
-        format: date
-        type: string
-      moveID:
+      customerID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-      moveTaskOrdersType:
-        enum:
-          - NON_TEMPORARY_STORAGE
-          - PRIME
-        type: string
+      entitlement:
+        $ref: '#/definitions/Entitlements'
+      destinationDutyStation:
+        $ref: '#/definitions/DutyStation'
       originDutyStation:
+        $ref: '#/definitions/DutyStation'
+    type: object
+  MoveTaskOrder:
+    properties:
+      id:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-      originPPSO:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+      createdAt:
+        format: date
+        type: string
+      moveOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-      pickupAddress:
-        $ref: '#/definitions/Address'
       referenceId:
         example: 1001-3456
         type: string
         x-nullable: true
-      remarks:
-        example: Requires more gentle care
-        type: string
-      requestedPickupDate:
-        format: date
-        type: string
-      serviceItems:
-        items:
-          $ref: '#/definitions/ServiceItem'
-        type: array
-      status:
-        enum:
-          - APPROVED
-          - REJECTED
-          - DRAFT
-        type: string
+      isAvailableToPrime:
+        type: boolean
+        x-nullable: true
+      isCanceled:
+        type: boolean
+        x-nullable: true
       updatedAt:
         format: date
         type: string

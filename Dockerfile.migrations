@@ -1,6 +1,7 @@
 FROM alpine:3.10.3
 
 COPY bin/rds-combined-ca-bundle.pem /bin/rds-combined-ca-bundle.pem
+COPY bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
 COPY bin/chamber /bin/chamber
 COPY bin/milmove /bin/milmove
 

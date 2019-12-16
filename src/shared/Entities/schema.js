@@ -131,11 +131,8 @@ export const serviceItems = new schema.Entity('serviceItems');
 // Move Task Orders
 export const moveTaskOrder = new schema.Entity('moveTaskOrders');
 
-moveTaskOrder.define({
-  service_item: serviceItems,
-  delivery_address: address,
-  partial_sit_delivery_address: address,
-});
+// Move Orders
+export const moveOrder = new schema.Entity('moveOrders');
 
 // Customer
 export const customer = new schema.Entity('customer');
@@ -143,3 +140,8 @@ export const customer = new schema.Entity('customer');
 export const customerMoveItem = new schema.Entity('customerMoveItem');
 
 export const customerMoveItems = new schema.Array(customerMoveItem);
+
+// Payment Requests
+export const paymentRequest = new schema.Entity('paymentRequests');
+
+export const paymentRequests = new schema.Array(paymentRequest);

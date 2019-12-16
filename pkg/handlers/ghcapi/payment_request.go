@@ -2,6 +2,7 @@ package ghcapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
@@ -41,4 +42,19 @@ func (h ListPaymentRequestsHandler) Handle(params paymentrequestop.ListPaymentRe
 	}
 
 	return paymentrequestop.NewListPaymentRequestsOK().WithPayload(paymentRequestsList)
+}
+
+type ShowPaymentRequestHandler struct {
+	handlers.HandlerContext
+	services.PaymentRequestFetcher
+}
+
+func (h ShowPaymentRequestHandler) Handle(params paymentrequestop.GetPaymentRequestParams) middleware.Responder {
+	paymentRequestID, _ := uuid.FromString(params.PaymentRequestID.String())
+	paymentRequest, _ := h.FetchPaymentRequest(paymentRequestID)
+
+	returnPayload := payloadForPaymentRequestModel(*paymentRequest)
+	response := paymentrequestop.NewGetPaymentRequestOK().WithPayload(returnPayload)
+
+	return response
 }

@@ -17,73 +17,33 @@ import (
 // swagger:model Customer
 type Customer struct {
 
-	// Agency
-	Agency *string `json:"agency,omitempty"`
-
-	// Customer Name
-	CustomerName *string `json:"customer_name,omitempty"`
-
-	// Destination
-	DestinationDutyStation *string `json:"destination_duty_station,omitempty"`
-
-	// Email Address
-	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
-	Email *string `json:"email,omitempty"`
-
-	// Grade
-	Grade *string `json:"grade,omitempty"`
+	// dod ID
+	DodID string `json:"dodID,omitempty"`
 
 	// id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// Origin
-	OriginDutyStation *string `json:"origin_duty_station,omitempty"`
-
-	// pickup address
-	PickupAddress *Address `json:"pickup_address,omitempty"`
-
-	// Best Contact Phone
-	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
-	Telephone *string `json:"telephone,omitempty"`
+	// user ID
+	// Format: uuid
+	UserID strfmt.UUID `json:"userID,omitempty"`
 }
 
 // Validate validates this customer
 func (m *Customer) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateEmail(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validatePickupAddress(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateTelephone(formats); err != nil {
+	if err := m.validateUserID(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *Customer) validateEmail(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Email) { // not required
-		return nil
-	}
-
-	if err := validate.Pattern("email", "body", string(*m.Email), `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -100,31 +60,13 @@ func (m *Customer) validateID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Customer) validatePickupAddress(formats strfmt.Registry) error {
+func (m *Customer) validateUserID(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.PickupAddress) { // not required
+	if swag.IsZero(m.UserID) { // not required
 		return nil
 	}
 
-	if m.PickupAddress != nil {
-		if err := m.PickupAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("pickup_address")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *Customer) validateTelephone(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Telephone) { // not required
-		return nil
-	}
-
-	if err := validate.Pattern("telephone", "body", string(*m.Telephone), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.FormatOf("userID", "body", "uuid", m.UserID.String(), formats); err != nil {
 		return err
 	}
 

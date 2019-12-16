@@ -18,7 +18,7 @@ import (
 type Entitlements struct {
 
 	// dependents authorized
-	DependentsAuthorized bool `json:"dependentsAuthorized,omitempty"`
+	DependentsAuthorized *bool `json:"dependentsAuthorized,omitempty"`
 
 	// id
 	// Format: uuid
@@ -41,9 +41,6 @@ type Entitlements struct {
 
 	// total dependents
 	TotalDependents int64 `json:"totalDependents,omitempty"`
-
-	// total weight self
-	TotalWeightSelf int64 `json:"totalWeightSelf,omitempty"`
 }
 
 // Validate validates this entitlements

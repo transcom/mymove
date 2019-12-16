@@ -2,7 +2,7 @@
 
 set -eu -o pipefail
 
-VERSION="v3.15.0"
+VERSION="3.16.0"
 
 GO_BINDATA_VERSION=$(go-bindata --version)
 # shellcheck disable=SC2203

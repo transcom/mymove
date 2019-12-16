@@ -41,18 +41,28 @@ func GetCurrentPass() string {
 	// Blocks until the password from the dbConnectionDetails has a non blank password
 	currentPass := ""
 
+	counter := 0
+	maxCount := 120 // pauses for 30s
+
 	for {
+		counter++
+
 		iamConfig.currentPassMutex.Lock()
 		currentPass = iamConfig.currentIamPass
 		iamConfig.currentPassMutex.Unlock()
 
 		if currentPass == "" {
-			iamConfig.logger.Warn("Waiting 250ms for IAM password to populate")
+			iamConfig.logger.Info(fmt.Sprintf("Wait %d of %d, sleeping for 250ms for IAM loop to populate RDS credentials.", counter, maxCount))
 		} else {
+			break
+		}
+		if counter > maxCount {
+			iamConfig.logger.Error("Waited 30s for IAM creds to populate and giving up, returning empty password.")
 			break
 		}
 
 		time.Sleep(time.Millisecond * 250)
+
 	}
 
 	return currentPass
@@ -60,7 +70,7 @@ func GetCurrentPass() string {
 
 func updateDSN(dsn string) (string, error) {
 	if !strings.Contains(dsn, iamConfig.passHolder) {
-		return "", errors.New("dsn does not contain password holder")
+		return "", errors.New("DSN does not contain password holder")
 	}
 
 	dsn = strings.Replace(dsn, iamConfig.passHolder, GetCurrentPass(), 1)
@@ -83,7 +93,7 @@ func EnableIAM(host string, port string, region string, user string, passTemplat
 		minDur := 100
 		maxDur := 5000
 		wait := time.Millisecond * time.Duration(rand.Intn(maxDur-minDur)+minDur)
-		logger.Info(fmt.Sprintf("Waiting %v before enabling IAM access", wait))
+		logger.Info(fmt.Sprintf("Waiting %v before enabling IAM access for entropy", wait))
 		time.Sleep(wait)
 
 		// This for loop immediately runs the first tick then on interval
