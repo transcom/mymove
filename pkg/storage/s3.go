@@ -137,6 +137,10 @@ func (s *S3) PresignedURL(key string, contentType string) (string, error) {
 			return "", errors.Wrap(err, "could not parse URL")
 		}
 		unSignedURL.Path = path.Join(unSignedURL.Path, namespacedKey)
+		query := unSignedURL.Query()
+		query.Set("response-content-type", contentType)
+		unSignedURL.RawQuery = query.Encode()
+
 		rawURL := unSignedURL.String()
 
 		cfSigner := sign.NewURLSigner(s.cfPrivateKeyID, privateKey)
