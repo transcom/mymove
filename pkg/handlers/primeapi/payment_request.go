@@ -56,7 +56,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	paymentRequest.PaymentServiceItems, err = h.buildPaymentServiceItems(payload)
 	if err != nil {
 		logger.Error("could not build service items", zap.Error(err))
-		return paymentrequestop.NewCreatePaymentRequestInternalServerError()
+		return paymentrequestop.NewCreatePaymentRequestBadRequest()
 	}
 
 	createdPaymentRequest, verrs, err := h.PaymentRequestCreator.CreatePaymentRequest(&paymentRequest)

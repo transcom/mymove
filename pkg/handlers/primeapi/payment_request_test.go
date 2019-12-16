@@ -114,10 +114,38 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		suite.IsType(&paymentrequestop.CreatePaymentRequestBadRequest{}, response)
 	})
 
-	suite.T().Run("failed create payment request -- creator failed", func(t *testing.T) {
+	suite.T().Run("failed create payment request -- creator failed with error", func(t *testing.T) {
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
 			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, validate.NewErrors(), errors.New("creator failed")).Once()
+
+		handler := CreatePaymentRequestHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			paymentRequestCreator,
+		}
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests"), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		params := paymentrequestop.CreatePaymentRequestParams{
+			HTTPRequest: req,
+			Body: &primemessages.CreatePaymentRequestPayload{
+				IsFinal:         swag.Bool(false),
+				MoveTaskOrderID: *handlers.FmtUUID(moveTaskOrderID),
+			},
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&paymentrequestop.CreatePaymentRequestInternalServerError{}, response)
+	})
+
+	suite.T().Run("failed create payment request -- creator failed with validation errors", func(t *testing.T) {
+		verrs := validate.NewErrors()
+		verrs.Add("test_field", "Cannot be blank")
+
+		paymentRequestCreator := &mocks.PaymentRequestCreator{}
+		paymentRequestCreator.On("CreatePaymentRequest",
+			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, verrs, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -158,6 +186,43 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 			Body: &primemessages.CreatePaymentRequestPayload{
 				IsFinal:         swag.Bool(false),
 				MoveTaskOrderID: badFormatID,
+			},
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&paymentrequestop.CreatePaymentRequestBadRequest{}, response)
+	})
+
+	suite.T().Run("failed create payment request -- invalid service item ID format", func(t *testing.T) {
+		paymentRequestCreator := &mocks.PaymentRequestCreator{}
+		paymentRequestCreator.On("CreatePaymentRequest",
+			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, validate.NewErrors(), nil).Once()
+
+		handler := CreatePaymentRequestHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			paymentRequestCreator,
+		}
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests"), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		badFormatID := strfmt.UUID("gb7b134a-7c44-45f2-9114-bb0831cc5db3")
+		params := paymentrequestop.CreatePaymentRequestParams{
+			HTTPRequest: req,
+			Body: &primemessages.CreatePaymentRequestPayload{
+				IsFinal:         swag.Bool(false),
+				MoveTaskOrderID: *handlers.FmtUUID(moveTaskOrderID),
+				ServiceItems: []*primemessages.ServiceItem{
+					{
+						ID: badFormatID,
+						Params: []*primemessages.ServiceItemParamsItems0{
+							{
+								Key:   "weight",
+								Value: "5678",
+							},
+						},
+					},
+				},
 			},
 		}
 
