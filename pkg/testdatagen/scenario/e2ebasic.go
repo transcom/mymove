@@ -905,4 +905,21 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
+	/* A user with too role */
+	tooRole := models.Role{}
+	err = db.Where("role_type = $1", "transportation_ordering_officer").First(&smRole)
+	if err != nil {
+		log.Fatal(err)
+	}
+	email = "too_role@office.mil"
+	uuidStr = "dcf86235-53d3-43dd-8ee8-54212ae3078f"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []models.Role{tooRole},
+		},
+	})
+
 }
