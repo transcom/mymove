@@ -24,8 +24,8 @@ type S3 struct {
 	fs                    *afero.Afero
 	tempFs                *afero.Afero
 	assetsDomainName      string
-	cfPrivateKey          string
-	cfPrivateKeyID        string
+	cfPrivateKey          *string
+	cfPrivateKeyID        *string
 	cfDistributionEnabled bool
 }
 
@@ -38,8 +38,8 @@ func NewS3(bucket, keyNamespace, assetsDomainName, cfPrivateKey, cfPrivateKeyID 
 		bucket:                bucket,
 		keyNamespace:          keyNamespace,
 		assetsDomainName:      assetsDomainName,
-		cfPrivateKey:          cfPrivateKey,
-		cfPrivateKeyID:        cfPrivateKeyID,
+		cfPrivateKey:          &cfPrivateKey,
+		cfPrivateKeyID:        &cfPrivateKeyID,
 		cfDistributionEnabled: cfDistributionEnabled,
 		logger:                logger,
 		client:                client,
@@ -126,7 +126,7 @@ func (s *S3) PresignedURL(key string, contentType string) (string, error) {
 
 	//if cloudfront is enabled then generate url from cloudfront trusted signer otherwise use s3 signed url
 	if s.cfDistributionEnabled {
-		block, _ := pem.Decode([]byte(s.cfPrivateKey))
+		block, _ := pem.Decode([]byte(*s.cfPrivateKey))
 		privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 		if err != nil {
 			return "", errors.Wrap(err, "could not parse key")
@@ -143,7 +143,7 @@ func (s *S3) PresignedURL(key string, contentType string) (string, error) {
 
 		rawURL := unSignedURL.String()
 
-		cfSigner := sign.NewURLSigner(s.cfPrivateKeyID, privateKey)
+		cfSigner := sign.NewURLSigner(*s.cfPrivateKeyID, privateKey)
 		url, err := cfSigner.Sign(rawURL, time.Now().Add(15*time.Minute))
 		if err != nil {
 			return "", errors.Wrap(err, "could not generate presigned URL")
