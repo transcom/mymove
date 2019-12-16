@@ -1683,11 +1683,6 @@ func init() {
           "type": "string",
           "format": "date"
         },
-        "customerID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -3870,11 +3865,6 @@ func init() {
         "createdAt": {
           "type": "string",
           "format": "date"
-        },
-        "customerID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
