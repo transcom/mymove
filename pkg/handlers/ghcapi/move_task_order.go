@@ -4,11 +4,11 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
-	"github.com/transcom/mymove/pkg/models"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/models"
 
 	movetaskorderservice "github.com/transcom/mymove/pkg/services/move_task_order"
 
@@ -46,7 +46,6 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 	return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload)
 }
 
-
 // UpdateMoveTaskOrderStatusHandlerFunc updates the status of a Move Task Order
 type UpdateMoveTaskOrderStatusHandlerFunc struct {
 	handlers.HandlerContext
@@ -59,8 +58,10 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 
 	// TODO how are we going to handle auth in new api? Do we need some sort of placeholder to remind us to
 	// TODO to revisit?
-	moveTaskOrderID, status := requestToModels(params)
-	mto, err := h.moveTaskOrderStatusUpdater.UpdateMoveTaskOrderStatus(moveTaskOrderID, status)
+	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+	isAvailableToPrime := true
+
+	mto, err := h.moveTaskOrderStatusUpdater.UpdateMoveTaskOrderStatus(moveTaskOrderID, isAvailableToPrime)
 	if err != nil {
 		logger.Error("ghciap.MoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {
@@ -74,12 +75,6 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 	}
 	moveTaskOrderPayload := payloadForMoveTaskOrder(*mto)
 	return movetaskorderops.NewUpdateMoveTaskOrderStatusOK().WithPayload(moveTaskOrderPayload)
-}
-
-func requestToModels(params movetaskorderops.UpdateMoveTaskOrderStatusParams) (uuid.UUID, bool) {
-	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
-	isAvailableToPrime :=params.Body.IsAvailableToPrime
-	return moveTaskOrderID, isAvailableToPrime
 }
 
 // TODO it might make sense to create a package for these various mappers, rather than making them all private

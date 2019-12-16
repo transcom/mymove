@@ -1,8 +1,9 @@
 package testdatagen
 
 import (
-	"github.com/gobuffalo/pop"
 	"time"
+
+	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -26,11 +27,11 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 	}
 
 	moveTaskOrder := models.MoveTaskOrder{
-		MoveOrder:          moveOrder,
-		MoveOrderID:        moveOrder.ID,
-		ReferenceID:        referenceID,
-		IsAvailableToPrime: false,
-		IsCanceled:         false,
+		MoveOrder:                moveOrder,
+		MoveOrderID:              moveOrder.ID,
+		ReferenceID:              referenceID,
+		IsAvailableToPrime:       false,
+		IsCanceled:               false,
 		OriginDutyStationID:      moveOrder.OriginDutyStationID,
 		OriginDutyStation:        moveOrder.OriginDutyStation,
 		DestinationDutyStation:   moveOrder.DestinationDutyStation,

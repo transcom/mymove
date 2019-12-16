@@ -97,7 +97,7 @@ func (f fetchMoveTaskOrder) UpdateMoveTaskOrderStatus(moveTaskOrderID uuid.UUID,
 	if err != nil {
 		return &models.MoveTaskOrder{}, err
 	}
-	mto.IsAvailableToPrime = isAvailableToPrime
+	mto.IsAvailableToPrime = true
 	vErrors, err := f.db.ValidateAndUpdate(mto)
 	if vErrors.HasAny() {
 		return &models.MoveTaskOrder{}, ErrInvalidInput{}

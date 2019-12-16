@@ -419,3 +419,5 @@
 20191212203155_fix_spelling_is_canceled.up.sql
 20191212225704_add_allow_prime.up.sql
 20191212230438_add_devlocal-mtls_client_cert.up.sql
+20191216153941_create-mto-required-fields-v2.up.sql
+20191216155742_add-back-ghc-entitlements.up.sql

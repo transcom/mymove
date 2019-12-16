@@ -1,15 +1,16 @@
 package ghcapi
 
 import (
-	"fmt"
+	"net/http/httptest"
+
 	"github.com/go-openapi/strfmt"
+
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"net/http/httptest"
 )
 
 func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
@@ -41,11 +42,8 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 	suite.Nil(moveTaskOrderPayload.ReferenceID)
 }
 
-
-
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegration() {
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
-	fmt.Print(moveTaskOrder)
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
 	params := move_task_order.UpdateMoveTaskOrderStatusParams{
 		HTTPRequest:     request,
@@ -66,5 +64,5 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegration() {
 
 	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusOK{}, response)
 	suite.Equal(moveTaskOrdersPayload.ID, strfmt.UUID(moveTaskOrder.ID.String()))
-	suite.Equal(moveTaskOrdersPayload.IsAvailableToPrime, true)
+	suite.Equal(*moveTaskOrdersPayload.IsAvailableToPrime, true)
 }
