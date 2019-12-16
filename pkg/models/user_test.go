@@ -3,7 +3,6 @@ package models_test
 import (
 	"testing"
 
-	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -89,7 +88,6 @@ func (suite *ModelSuite) TestCreateUser() {
 
 func (suite *ModelSuite) TestFetchUserIdentity() {
 	const goodUUID = "39b28c92-0506-4bef-8b57-e39519f42dc2"
-	pop.Debug = true
 	// First check that it all works with no record
 	identity, err := FetchUserIdentity(suite.DB(), goodUUID)
 	suite.Equal(ErrFetchNotFound, err, "Expected not to find missing Identity")
