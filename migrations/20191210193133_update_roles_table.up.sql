@@ -17,6 +17,9 @@ ALTER TABLE roles
     ALTER COLUMN id TYPE UUID
     USING (uuid_generate_v4 ());
 
+ALTER TABLE roles
+    ADD CONSTRAINT unique_roles UNIQUE (role_type);
+
 ALTER TABLE users_roles
     ALTER COLUMN role_id TYPE UUID
     USING (uuid_generate_v4 ());

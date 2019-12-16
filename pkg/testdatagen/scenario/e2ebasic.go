@@ -863,10 +863,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	/* A user with Roles */
-	smRole := models.Role{
-		RoleType: "customer",
-	}
-	err := db.Save(&smRole)
+	smRole := models.Role{}
+	err := db.Where("role_type = $1", "customer").First(&smRole)
 	if err != nil {
 		log.Fatal(err)
 	}
