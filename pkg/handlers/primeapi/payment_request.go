@@ -70,13 +70,11 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	}
 
 	logger.Info("Payment Request params",
-		zap.Bool("is_final", *payload.IsFinal),
-		zap.String("move_task_order_id", moveTaskOrderIDString),
-		// TODO: add ServiceItems
+		zap.Any("payload", payload),
 		// TODO add ProofOfService object to log
 	)
-	returnPayload := payloadForPaymentRequestModel(*createdPaymentRequest)
 
+	returnPayload := payloadForPaymentRequestModel(*createdPaymentRequest)
 	return paymentrequestop.NewCreatePaymentRequestCreated().WithPayload(returnPayload)
 }
 
