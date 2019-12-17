@@ -33,7 +33,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 
 	params := mtoserviceitemop.CreateMTOServiceItemParams{
 		HTTPRequest:     req,
-		MoveTaskOrderID: serviceItem.MoveTaskOrderID.String(),
+		MoveTaskOrderID: *handlers.FmtUUID(serviceItem.MoveTaskOrderID),
 		CreateMTOServiceItemBody: mtoserviceitemop.CreateMTOServiceItemBody{
 			ReServiceID:   handlers.FmtUUID(serviceItem.ReServiceID),
 			MtoShipmentID: handlers.FmtUUID(serviceItem.MTOShipmentID),
@@ -58,7 +58,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		suite.IsType(&mtoserviceitemop.CreateMTOServiceItemCreated{}, response)
 	})
 
-	suite.T().Run("Failed create", func(t *testing.T) {
+	suite.T().Run("Failed create: InternalServiceError", func(t *testing.T) {
 		err := errors.New("cannot create service item")
 		serviceItemCreator.On("CreateMTOServiceItem",
 			mock.Anything,
@@ -71,5 +71,57 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemop.CreateMTOServiceItemInternalServerError{}, response)
+	})
+
+	suite.T().Run("Failed create: UnprocessableEntity", func(t *testing.T) {
+		verrs := validate.NewErrors()
+		verrs.Add("error", "error test")
+		serviceItemCreator.On("CreateMTOServiceItem",
+			mock.Anything,
+		).Return(nil, verrs, nil).Once()
+
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			serviceItemCreator,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemop.CreateMTOServiceItemUnprocessableEntity{}, response)
+	})
+
+	suite.T().Run("Failed create: UnprocessableEntity - UUID parsing error", func(t *testing.T) {
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			serviceItemCreator,
+		}
+
+		newParams := mtoserviceitemop.CreateMTOServiceItemParams{
+			HTTPRequest:     req,
+			MoveTaskOrderID: *handlers.FmtUUID(serviceItem.MoveTaskOrderID),
+			CreateMTOServiceItemBody: mtoserviceitemop.CreateMTOServiceItemBody{
+				ReServiceID:   handlers.FmtUUID(serviceItem.ReServiceID),
+				MtoShipmentID: handlers.FmtUUID(serviceItem.MTOShipmentID),
+				MetaID:        handlers.FmtUUID(serviceItem.MetaID),
+				MetaType:      handlers.FmtString(serviceItem.MetaType),
+			},
+		}
+		newParams.MoveTaskOrderID = "blah"
+
+		response := handler.Handle(newParams)
+		suite.IsType(&mtoserviceitemop.CreateMTOServiceItemUnprocessableEntity{}, response)
+	})
+
+	suite.T().Run("Failed create: UnprocessableEntity - Violates foreign key constraints", func(t *testing.T) {
+		serviceItemCreator.On("CreateMTOServiceItem",
+			mock.Anything,
+		).Return(nil, validate.NewErrors(), errors.New(models.ViolatesForeignKeyConstraint)).Once()
+
+		handler := CreateMTOServiceItemHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			serviceItemCreator,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemop.CreateMTOServiceItemNotFound{}, response)
 	})
 }
