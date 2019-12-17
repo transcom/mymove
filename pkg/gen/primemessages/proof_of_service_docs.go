@@ -14,16 +14,16 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// ProofOfServicePackage proof of service package
-// swagger:model ProofOfServicePackage
-type ProofOfServicePackage struct {
+// ProofOfServiceDocs proof of service docs
+// swagger:model ProofOfServiceDocs
+type ProofOfServiceDocs struct {
 
 	// uploads
 	Uploads []*Upload `json:"uploads"`
 }
 
-// Validate validates this proof of service package
-func (m *ProofOfServicePackage) Validate(formats strfmt.Registry) error {
+// Validate validates this proof of service docs
+func (m *ProofOfServiceDocs) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateUploads(formats); err != nil {
@@ -36,7 +36,7 @@ func (m *ProofOfServicePackage) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *ProofOfServicePackage) validateUploads(formats strfmt.Registry) error {
+func (m *ProofOfServiceDocs) validateUploads(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Uploads) { // not required
 		return nil
@@ -62,7 +62,7 @@ func (m *ProofOfServicePackage) validateUploads(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (m *ProofOfServicePackage) MarshalBinary() ([]byte, error) {
+func (m *ProofOfServiceDocs) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -70,8 +70,8 @@ func (m *ProofOfServicePackage) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *ProofOfServicePackage) UnmarshalBinary(b []byte) error {
-	var res ProofOfServicePackage
+func (m *ProofOfServiceDocs) UnmarshalBinary(b []byte) error {
+	var res ProofOfServiceDocs
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

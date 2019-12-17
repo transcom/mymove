@@ -796,6 +796,9 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "proofOfServiceDocs": {
+          "$ref": "#/definitions/ProofOfServiceDocs"
+        },
         "serviceItems": {
           "type": "array",
           "items": {
@@ -982,8 +985,8 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "proofOfServicePackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
+        "proofOfServiceDocs": {
+          "$ref": "#/definitions/ProofOfServiceDocs"
         },
         "rejectionReason": {
           "type": "string",
@@ -1004,7 +1007,7 @@ func init() {
         "REJECTED"
       ]
     },
-    "ProofOfServicePackage": {
+    "ProofOfServiceDocs": {
       "type": "object",
       "properties": {
         "uploads": {
@@ -2014,6 +2017,9 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "proofOfServiceDocs": {
+          "$ref": "#/definitions/ProofOfServiceDocs"
+        },
         "serviceItems": {
           "type": "array",
           "items": {
@@ -2200,8 +2206,8 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "proofOfServicePackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
+        "proofOfServiceDocs": {
+          "$ref": "#/definitions/ProofOfServiceDocs"
         },
         "rejectionReason": {
           "type": "string",
@@ -2222,7 +2228,7 @@ func init() {
         "REJECTED"
       ]
     },
-    "ProofOfServicePackage": {
+    "ProofOfServiceDocs": {
       "type": "object",
       "properties": {
         "uploads": {

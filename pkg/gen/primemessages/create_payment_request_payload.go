@@ -26,6 +26,9 @@ type CreatePaymentRequestPayload struct {
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
+	// proof of service docs
+	ProofOfServiceDocs *ProofOfServiceDocs `json:"proofOfServiceDocs,omitempty"`
+
 	// service items
 	ServiceItems []*ServiceItem `json:"serviceItems"`
 }
@@ -35,6 +38,10 @@ func (m *CreatePaymentRequestPayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateMoveTaskOrderID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateProofOfServiceDocs(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -56,6 +63,24 @@ func (m *CreatePaymentRequestPayload) validateMoveTaskOrderID(formats strfmt.Reg
 
 	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *CreatePaymentRequestPayload) validateProofOfServiceDocs(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ProofOfServiceDocs) { // not required
+		return nil
+	}
+
+	if m.ProofOfServiceDocs != nil {
+		if err := m.ProofOfServiceDocs.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("proofOfServiceDocs")
+			}
+			return err
+		}
 	}
 
 	return nil
