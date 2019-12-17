@@ -30,8 +30,8 @@ case "${environment}" in
     ;;
   *)
     echo "<environment> must be one of experimental, staging, or prod"
-	  exit 1
-	  ;;
+    exit 1
+    ;;
 esac
 
 APP_ENVIRONMENT="${environment}"
