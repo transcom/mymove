@@ -88,6 +88,12 @@ func RoleAuthMiddleware(logger Logger) func(context APIContext) func(handler htt
 			mw := func(w http.ResponseWriter, r *http.Request) {
 				session := auth.SessionFromRequestContext(r)
 				userRoles := session.Roles
+				userRoleTypes := make([]auth.RoleType, len(userRoles))
+				for index, role := range userRoles {
+					userRoleTypes[index] = role.RoleType
+				}
+				fmt.Println("IN ROLE AUTH")
+				fmt.Println(session.Roles)
 
 				// We must have a logged in session and a user
 				route, _, _ := context.RouteInfo(r)
@@ -106,10 +112,10 @@ func RoleAuthMiddleware(logger Logger) func(context APIContext) func(handler htt
 				for i, v := range endpointRolesAsInterfaceArray {
 					endpointRolesAsStringArray[i] = v.(string)
 				}
-				for _, userRole := range userRoles {
+				for _, userRoleType := range userRoleTypes {
 					for _, endpointRole := range endpointRolesAsStringArray {
-						userRoleString := string(userRole)
-						if userRoleString == endpointRole {
+						userRoleTypeString := string(userRoleType)
+						if userRoleTypeString == endpointRole {
 							next.ServeHTTP(w, r)
 							return
 						}

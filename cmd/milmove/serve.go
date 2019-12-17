@@ -799,9 +799,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		internalAPIMux.Use(middleware.NoCache(logger))
 		api := internalapi.NewInternalAPI(handlerContext)
 		internalAPIMux.Handle(pat.New("/*"), api.Serve(nil))
-		flagOn := handlerContext.GetFeatureFlag(cli.FeatureFlagRoleBasedAuth)
-		fmt.Println(flagOn)
-		if flagOn {
+		if handlerContext.GetFeatureFlag(cli.FeatureFlagRoleBasedAuth) {
 			internalAPIMux.Use(roleAuthMiddleware(api.Context()))
 		}
 	}
