@@ -655,7 +655,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'staging'
     steps:
-      - deploy_tasks_steps
+      - deploy_tasks_steps_rds_ca_2019
 
   # `deploy_staging_app` updates the server-TLS app service in staging environment
   deploy_staging_app:
