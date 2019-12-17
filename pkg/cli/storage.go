@@ -46,7 +46,7 @@ func CheckStorage(v *viper.Viper) error {
 	if storageBackend == "s3" {
 		r := v.GetString(AWSS3RegionFlag)
 		if err := CheckAWSRegionForService(r, s3.ServiceName); err != nil {
-			return errors.Wrap(err, fmt.Sprintf("%s is invalid", AWSS3RegionFlag))
+			return errors.Wrap(err, fmt.Sprintf("%s is invalid, value for region: %s", AWSS3RegionFlag, r))
 		}
 	} else if storageBackend == "local" {
 		localStorageRoot := v.GetString(LocalStorageRootFlag)
