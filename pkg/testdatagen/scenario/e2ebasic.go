@@ -1,6 +1,7 @@
 package scenario
 
 import (
+	"log"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -886,4 +887,22 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Status:        "PENDING",
 		},
 	})
+
+	/* A user with Roles */
+	smRole := models.Role{}
+	err := db.Where("role_type = $1", "customer").First(&smRole)
+	if err != nil {
+		log.Fatal(err)
+	}
+	email = "role_tester@service.mil"
+	uuidStr = "3b9360a3-3304-4c60-90f4-83d687884079"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []models.Role{smRole},
+		},
+	})
+
 }

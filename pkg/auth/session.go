@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/gofrs/uuid"
 )
@@ -38,6 +39,25 @@ func (s *Session) IsAdminApp() bool {
 	return s.ApplicationName == AdminApp
 }
 
+// RoleType defines a role type for a user
+type RoleType string
+
+const (
+	RoleTypeTio                RoleType = "tio"
+	RoleTypeToo                RoleType = "too"
+	RoleTypeContractingOfficer RoleType = "contractingOfficer"
+	RoleTypeOffice             RoleType = "office"
+	RoleTypeCustomer           RoleType = "customer"
+)
+
+// Role is an object representing the types of users who can authenticate in the admin app
+type Role struct {
+	ID        uuid.UUID `json:"id" db:"id"`
+	RoleType  RoleType  `json:"role_type" db:"role_type"`
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+}
+
 // Session stores information about the currently logged in session
 type Session struct {
 	ApplicationName Application
@@ -53,7 +73,7 @@ type Session struct {
 	AdminUserID     uuid.UUID
 	AdminUserRole   string
 	DpsUserID       uuid.UUID
-	Roles           []string
+	Roles           []Role
 }
 
 // SetSessionInRequestContext modifies the request's Context() to add the session data

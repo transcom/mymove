@@ -4192,6 +4192,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Role"
+          }
+        },
         "service_member": {
           "x-nullable": true,
           "$ref": "#/definitions/ServiceMemberPayload"
@@ -5380,6 +5386,38 @@ func init() {
         "PAID"
       ],
       "x-nullable": true
+    },
+    "Role": {
+      "type": "object",
+      "required": [
+        "id",
+        "roleType",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "createdAt": {
+          "description": "when the role was created",
+          "type": "string",
+          "format": "datetime",
+          "example": "2018-04-12T23:20:50.52Z"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "roleType": {
+          "type": "string",
+          "example": "customer"
+        },
+        "updatedAt": {
+          "description": "when the role was updated",
+          "type": "string",
+          "format": "datetime",
+          "example": "2018-04-12T23:20:50.52Z"
+        }
+      }
     },
     "SelectedMoveType": {
       "type": "string",
@@ -10250,6 +10288,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Role"
+          }
+        },
         "service_member": {
           "x-nullable": true,
           "$ref": "#/definitions/ServiceMemberPayload"
@@ -11444,6 +11488,38 @@ func init() {
         "PAID"
       ],
       "x-nullable": true
+    },
+    "Role": {
+      "type": "object",
+      "required": [
+        "id",
+        "roleType",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "createdAt": {
+          "description": "when the role was created",
+          "type": "string",
+          "format": "datetime",
+          "example": "2018-04-12T23:20:50.52Z"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "roleType": {
+          "type": "string",
+          "example": "customer"
+        },
+        "updatedAt": {
+          "description": "when the role was updated",
+          "type": "string",
+          "format": "datetime",
+          "example": "2018-04-12T23:20:50.52Z"
+        }
+      }
     },
     "SelectedMoveType": {
       "type": "string",
