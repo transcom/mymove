@@ -48,8 +48,13 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		return paymentrequestop.NewCreatePaymentRequestBadRequest()
 	}
 
+	isFinal := false
+	if payload.IsFinal != nil {
+		isFinal = *payload.IsFinal
+	}
+
 	paymentRequest := models.PaymentRequest{
-		IsFinal:         *payload.IsFinal,
+		IsFinal:         isFinal,
 		MoveTaskOrderID: mtoID,
 	}
 
