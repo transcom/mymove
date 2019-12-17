@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	moveorder "github.com/transcom/mymove/pkg/services/move_order"
+	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/transcom/mymove/pkg/services/office_user/customer"
 
@@ -18,26 +19,27 @@ import (
 	ghcops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
 	"github.com/transcom/mymove/pkg/handlers"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
-	"github.com/transcom/mymove/pkg/services/query"
 )
 
 // NewGhcAPIHandler returns a handler for the GHC API
 func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
+
+	queryBuilder := query.NewQueryBuilder(context.DB())
 
 	ghcSpec, err := loads.Analyzed(ghcapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
 	}
 	ghcAPI := ghcops.NewMymoveAPI(ghcSpec)
-	queryBuilder := query.NewQueryBuilder(context.DB())
+
 	ghcAPI.MtoServiceItemCreateMTOServiceItemHandler = CreateMTOServiceItemHandler{
 		context,
 		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder),
 	}
 
-	ghcAPI.PaymentRequestsGetPaymentRequestHandler = ShowPaymentRequestHandler{
+	ghcAPI.PaymentRequestsGetPaymentRequestHandler = GetPaymentRequestHandler{
 		context,
-		paymentrequest.NewPaymentRequestFetcher(context.DB()),
+		paymentrequest.NewPaymentRequestFetcher(queryBuilder),
 	}
 
 	ghcAPI.PaymentRequestsListPaymentRequestsHandler = ListPaymentRequestsHandler{
