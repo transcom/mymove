@@ -18,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi"
 	ghcops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
 	"github.com/transcom/mymove/pkg/handlers"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 )
 
 // NewGhcAPIHandler returns a handler for the GHC API
@@ -30,6 +31,12 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 		log.Fatalln(err)
 	}
 	ghcAPI := ghcops.NewMymoveAPI(ghcSpec)
+
+	ghcAPI.MtoServiceItemCreateMTOServiceItemHandler = CreateMTOServiceItemHandler{
+		context,
+		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder),
+	}
+
 	ghcAPI.PaymentRequestsGetPaymentRequestHandler = GetPaymentRequestHandler{
 		context,
 		paymentrequest.NewPaymentRequestFetcher(queryBuilder),
