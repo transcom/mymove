@@ -123,10 +123,9 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 		okResponse := response.(*paymentrequestop.GetPaymentRequestOK)
 		suite.Equal(paymentRequestID.String(), okResponse.Payload.ID.String())
 	})
-
-	suite.T().Run("failed fetch of payment request", func(t *testing.T) {
+	suite.T().Run("payment request not found", func(t *testing.T) {
 		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
-		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(models.PaymentRequest{}, errors.New("test failed to create with err returned")).Once()
+		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(models.PaymentRequest{}, nil).Once()
 
 		req := httptest.NewRequest("GET", fmt.Sprintf("/payment_request"), nil)
 
@@ -141,6 +140,6 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 		}
 		response := handler.Handle(params)
 
-		suite.IsType(&paymentrequestop.GetPaymentRequestInternalServerError{}, response)
+		suite.IsType(&paymentrequestop.GetPaymentRequestNotFound{}, response)
 	})
 }

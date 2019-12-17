@@ -2,6 +2,7 @@ package ghcapi
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -69,6 +70,11 @@ func (h GetPaymentRequestHandler) Handle(params paymentrequestop.GetPaymentReque
 	if err != nil {
 		logger.Error(fmt.Sprintf("Error fetching Payment Request with ID: %s", params.PaymentRequestID.String()), zap.Error(err))
 		return paymentrequestop.NewGetPaymentRequestInternalServerError()
+	}
+
+	if reflect.DeepEqual(paymentRequest, models.PaymentRequest{}) {
+		logger.Info(fmt.Sprintf("Could not find a Payment Request with ID: %s", params.PaymentRequestID.String()))
+		return paymentrequestop.NewGetPaymentRequestNotFound()
 	}
 
 	returnPayload := payloadForPaymentRequestModel(paymentRequest)

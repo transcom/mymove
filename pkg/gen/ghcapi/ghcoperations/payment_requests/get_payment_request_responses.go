@@ -183,6 +183,48 @@ func (o *GetPaymentRequestForbidden) WriteResponse(rw http.ResponseWriter, produ
 	}
 }
 
+// GetPaymentRequestNotFoundCode is the HTTP code returned for type GetPaymentRequestNotFound
+const GetPaymentRequestNotFoundCode int = 404
+
+/*GetPaymentRequestNotFound The requested resource wasn't found
+
+swagger:response getPaymentRequestNotFound
+*/
+type GetPaymentRequestNotFound struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
+}
+
+// NewGetPaymentRequestNotFound creates GetPaymentRequestNotFound with default headers values
+func NewGetPaymentRequestNotFound() *GetPaymentRequestNotFound {
+
+	return &GetPaymentRequestNotFound{}
+}
+
+// WithPayload adds the payload to the get payment request not found response
+func (o *GetPaymentRequestNotFound) WithPayload(payload interface{}) *GetPaymentRequestNotFound {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the get payment request not found response
+func (o *GetPaymentRequestNotFound) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *GetPaymentRequestNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(404)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
+}
+
 // GetPaymentRequestInternalServerErrorCode is the HTTP code returned for type GetPaymentRequestInternalServerError
 const GetPaymentRequestInternalServerErrorCode int = 500
 
