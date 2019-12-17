@@ -32,7 +32,7 @@ describe('dates', () => {
   describe('formatDateForSwagger', () => {
     describe('when formatting a date that does not match the allowed date formats', () => {
       const result = formatDateForSwagger('8');
-      it('should return something random', () => {
+      it('should return invalid date', () => {
         expect(result).toEqual('Invalid date');
       });
     });
