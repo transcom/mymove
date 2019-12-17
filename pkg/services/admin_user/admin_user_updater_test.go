@@ -6,22 +6,16 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *AdminUserServiceSuite) TestUpdateAdminUser() {
-	organization := testdatagen.MakeOrganization(suite.DB(), testdatagen.Assertions{})
-
 	newUUID, _ := uuid.NewV4()
 
-	userInfo := models.AdminUser{
-		ID:             newUUID,
-		LastName:       "Spaceman",
-		FirstName:      "Leo",
-		Email:          "spaceman@leo.org",
-		OrganizationID: &organization.ID,
-		Organization:   organization,
+	firstName := "Leo"
+	payload := &adminmessages.AdminUserUpdatePayload{
+		FirstName: &firstName,
 	}
 
 	// Happy path
@@ -40,7 +34,7 @@ func (suite *AdminUserServiceSuite) TestUpdateAdminUser() {
 		}
 
 		updater := NewAdminUserUpdater(builder)
-		_, verrs, err := updater.UpdateAdminUser(&userInfo)
+		_, verrs, err := updater.UpdateAdminUser(newUUID, payload)
 		suite.NoError(err)
 		suite.Nil(verrs)
 	})
@@ -61,7 +55,7 @@ func (suite *AdminUserServiceSuite) TestUpdateAdminUser() {
 		}
 
 		updater := NewAdminUserUpdater(builder)
-		_, _, err := updater.UpdateAdminUser(&userInfo)
+		_, _, err := updater.UpdateAdminUser(newUUID, payload)
 		suite.Error(err)
 		suite.Equal(models.ErrFetchNotFound.Error(), err.Error())
 
