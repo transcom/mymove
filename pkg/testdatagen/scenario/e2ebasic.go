@@ -911,6 +911,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	if err != nil {
 		log.Fatal(err)
 	}
+	testdatagen.MakeDefaultTransportationOrderingOfficer(db)
+
 	email = "too_role@office.mil"
 	uuidStr = "dcf86235-53d3-43dd-8ee8-54212ae3078f"
 	testdatagen.MakeUser(db, testdatagen.Assertions{

@@ -48,20 +48,21 @@ type Role struct {
 
 // Session stores information about the currently logged in session
 type Session struct {
-	ApplicationName Application
-	Hostname        string
-	IDToken         string
-	UserID          uuid.UUID
-	Email           string
-	FirstName       string
-	Middle          string
-	LastName        string
-	ServiceMemberID uuid.UUID
-	OfficeUserID    uuid.UUID
-	AdminUserID     uuid.UUID
-	AdminUserRole   string
-	DpsUserID       uuid.UUID
-	Roles           []Role
+	ApplicationName                 Application
+	Hostname                        string
+	IDToken                         string
+	UserID                          uuid.UUID
+	Email                           string
+	FirstName                       string
+	Middle                          string
+	LastName                        string
+	ServiceMemberID                 uuid.UUID
+	OfficeUserID                    uuid.UUID
+	TransportationOrderingOfficerID uuid.UUID
+	AdminUserID                     uuid.UUID
+	AdminUserRole                   string
+	DpsUserID                       uuid.UUID
+	Roles                           []Role
 }
 
 // SetSessionInRequestContext modifies the request's Context() to add the session data

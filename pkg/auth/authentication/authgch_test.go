@@ -288,6 +288,46 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserIsCustomer() {
 	cca.AssertNumberOfCalls(suite.T(), "CreateAndAssociateCustomer", 1)
 }
 
+func (suite *AuthSuite) TestAuthorizeUnknownUserIsTOOUser() {
+	oa := &mocks.OfficeUserAssociator{}
+	oa.On("AssociateOfficeUser", mock.Anything).Return(nil, ErrUnauthorized)
+	id2, _ := uuid.NewV4()
+	ta := &mocks.TOOUserAssociator{}
+	ta.On("AssociateTOOUser", mock.Anything).Return(id2, nil)
+	aa := &mocks.AdminUserAssociator{}
+	cca := &mocks.CustomerCreatorAndAssociator{}
+	ra := roleAssociator{
+		db:                           suite.DB(),
+		logger:                       suite.logger,
+		OfficeUserAssociator:         oa,
+		AdminUserAssociator:          aa,
+		CustomerCreatorAndAssociator: cca,
+		TOOUserAssociator:            ta,
+	}
+	uc := &mocks.UserCreator{}
+	uid, _ := uuid.NewV4()
+	uc.On("CreateUser", mock.Anything, mock.Anything).Return(&models.User{ID: uid}, nil)
+	uua := UnknownUserAuthorizer{
+		logger:         suite.logger,
+		UserCreator:    uc,
+		RoleAssociator: ra,
+	}
+	user := goth.User{
+		UserID: "id",
+		Email:  "sample@email.com",
+	}
+	session := auth.Session{ApplicationName: auth.OfficeApp}
+	suite.True(session.IsOfficeApp())
+
+	err := uua.AuthorizeUnknownUser(user, &session)
+
+	suite.NoError(err)
+	oa.AssertNumberOfCalls(suite.T(), "AssociateOfficeUser", 1)
+	ta.AssertNumberOfCalls(suite.T(), "AssociateTOOUser", 1)
+	//suite.Contains(sroles, "")
+	//suite.NotEqual(uuid.Nil, session.UserID)
+}
+
 func (suite *AuthSuite) TestAssociateTOOUser() {
 	user := testdatagen.MakeDefaultUser(suite.DB())
 	too := models.TransportationOrderingOfficer{}

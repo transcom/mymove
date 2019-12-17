@@ -377,6 +377,8 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	userIdentity, err := models.FetchUserIdentity(h.db, openIDUser.UserID)
 	if h.Context.GetFeatureFlag(cli.FeatureFlagRoleBasedAuth) {
+		//TODO do role based auth login
+		//TODO for new users it's always going to be a redirect on office side?
 		if err == models.ErrFetchNotFound {
 			authorizeUnknownUserNew(openIDUser, h, session, w, r, landingURL.String())
 			return
@@ -542,6 +544,9 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 	var officeUser *models.OfficeUser
 	var err error
 	if session.IsOfficeApp() { // Look to see if we have OfficeUser with this email address
+		//identity, err = models.FetchUserIdentity(h.db, openIDUser.UserID)
+		//// lookup roles for user
+		//// if roles is too, tio, ppm_office then login?
 		officeUser, err = models.FetchOfficeUserByEmail(h.db, session.Email)
 		if err == models.ErrFetchNotFound {
 			h.logger.Error("No Office user found", zap.String("email", session.Email))

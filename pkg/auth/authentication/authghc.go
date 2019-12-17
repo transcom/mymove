@@ -47,7 +47,7 @@ type AdminUserAssociator interface {
 	AssociateAdminUser(user *models.User) (uuid.UUID, error)
 }
 
-//go:generate mockery -name AdminUserAssociator
+//go:generate mockery -name TOOUserAssociator
 type TOOUserAssociator interface {
 	FetchTOOUser(email string) (*models.TransportationOrderingOfficer, error)
 	AssociateTOOUser(user *models.User) (uuid.UUID, error)
@@ -82,6 +82,7 @@ func NewUnknownUserAuthorizer(db *pop.Connection, logger Logger) *UnknownUserAut
 
 func (uua UnknownUserAuthorizer) AuthorizeUnknownUser(openIDUser goth.User, session *auth.Session) error {
 	user, err := uua.CreateUser(openIDUser.UserID, openIDUser.Email)
+
 	if err != nil {
 		uua.logger.Error("Error creating user", zap.Error(err))
 		return err
@@ -98,12 +99,9 @@ func (uua UnknownUserAuthorizer) AuthorizeUnknownUser(openIDUser goth.User, sess
 		if err != nil {
 			switch err {
 			case ErrUnauthorized:
-				// TODO for the moment treat all new office users as TOOs and redirect those not in
-				// TODO transportation_ordering_officers table to the verification in progress page
-				// TODO and don't log them in
-				_, tooErr := uua.AssociateTOOUser(user)
-				if tooErr != nil {
-					return tooErr
+				session.TransportationOrderingOfficerID, err = uua.AssociateTOOUser(user)
+				if err != nil {
+					return err
 				}
 			default:
 				return err
