@@ -1,13 +1,14 @@
 {
-  "name": "milmove-cypress-tests",
-  "private": "true",
-  "version": "0.0.1",
-  "description": "cypress requirements",
+  "dependencies": {
+    "moment": "^2.24.0"
+  },
+  "name": "mymove-cypress-tests",
+  "private": true,
+  "version": "0.1.0",
   "devDependencies": {
     "cypress": "~3.6.1",
+    "cypress-multi-reporters": "^1.2.3",
     "mocha": "^6.2.2",
-    "mocha-junit-reporter": "^1.18.0",
-    "mocha-multi-reporters": "^1.1.7",
-    "moment": "^2.22.1"
+    "mocha-junit-reporter": "^1.23.0"
   }
 }
