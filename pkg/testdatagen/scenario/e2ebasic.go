@@ -871,12 +871,13 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment:   models.MTOShipment{ID: uuid.FromStringOrNil("475579d5-aaa4-4755-8c43-c510381ff9b5")},
 		MoveTaskOrder: mto,
 	})
 
 	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID: uuid.FromStringOrNil("e1645da5-33d6-42ae-8a31-2af04d43a46c"),
+			ID: uuid.FromStringOrNil("9db1bf43-0964-44ff-8384-3297951f6781"),
 		},
 		MoveTaskOrder: mto,
 		MTOShipment:   MTOShipment,
