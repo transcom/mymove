@@ -116,3 +116,17 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(payloadServic
 
 	return paymentServiceItemParams
 }
+
+//func (h CreatePaymentRequestHandler) buildProofOfServiceDocs(payload *primemessages.CreatePaymentRequestPayload) (models.ProofOfServiceDocs, error) {
+//	var proofOfServiceDocs models.ProofOfServiceDocs
+//
+//	for _, payloadProofOfServiceDocs := range payload.ProofOfServiceDocs {
+//		paymentRequestID, err := uuid.FromString(payloadProofOfServiceDocs.ID.String())
+//	}
+//}
+
+//Loop through the uploads (ProofofServicePackage)
+//For each one create a ProofOfServiceDoc
+//	payment_request_id
+//	uplaod_id
+//Add comment for saving the actual uploaded files in the future
