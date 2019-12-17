@@ -2,7 +2,9 @@ package services
 
 import (
 	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -21,5 +23,5 @@ type OfficeUserCreator interface {
 // OfficeUserUpdater is the exported interface for creating an office user
 //go:generate mockery -name OfficeUserUpdater
 type OfficeUserUpdater interface {
-	UpdateOfficeUser(user *models.OfficeUser) (*models.OfficeUser, *validate.Errors, error)
+	UpdateOfficeUser(id uuid.UUID, payload *adminmessages.OfficeUserUpdatePayload) (*models.OfficeUser, *validate.Errors, error)
 }

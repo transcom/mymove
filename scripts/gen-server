@@ -4,12 +4,27 @@ set -eu -o pipefail
 
 gendir=./pkg/gen
 
+# Clean out the old generated files
 rm -rf $gendir
 mkdir -p $gendir
-./bin/swagger generate server -q -f swagger/internal.yaml -t $gendir --model-package internalmessages --server-package internalapi --api-package internaloperations --exclude-main -A mymove
-./bin/swagger generate server -q -f swagger/api.yaml -t $gendir --model-package apimessages --server-package restapi --api-package apioperations --exclude-main -A mymove
-./bin/swagger generate server -q -f swagger/orders.yaml -t $gendir --model-package ordersmessages --server-package ordersapi --api-package ordersoperations --exclude-main -A mymove
-./bin/swagger generate server -q -f swagger/dps.yaml -t $gendir --model-package dpsmessages --server-package dpsapi --api-package dpsoperations --exclude-main -A mymove
-./bin/swagger generate server -q -f swagger/admin.yaml -t $gendir --model-package adminmessages --server-package adminapi --api-package adminoperations --exclude-main -A mymove
-./bin/swagger generate server -q -f swagger/ghc.yaml -t $gendir --model-package ghcmessages --server-package ghcapi --api-package ghcoperations --exclude-main -A mymove
-./bin/swagger generate server -q -f swagger/prime.yaml -t $gendir --model-package primemessages --server-package primeapi --api-package primeoperations --exclude-main -A mymove
+
+# Run each swagger process in the background and wait for them to finish
+./bin/swagger generate server -q -f swagger/internal.yaml -t $gendir --model-package internalmessages --server-package internalapi --api-package internaloperations --exclude-main -A mymove &
+pids[0]=$!
+./bin/swagger generate server -q -f swagger/api.yaml -t $gendir --model-package apimessages --server-package restapi --api-package apioperations --exclude-main -A mymove &
+pids[1]=$!
+./bin/swagger generate server -q -f swagger/orders.yaml -t $gendir --model-package ordersmessages --server-package ordersapi --api-package ordersoperations --exclude-main -A mymove &
+pids[2]=$!
+./bin/swagger generate server -q -f swagger/dps.yaml -t $gendir --model-package dpsmessages --server-package dpsapi --api-package dpsoperations --exclude-main -A mymove &
+pids[3]=$!
+./bin/swagger generate server -q -f swagger/admin.yaml -t $gendir --model-package adminmessages --server-package adminapi --api-package adminoperations --exclude-main -A mymove &
+pids[4]=$!
+./bin/swagger generate server -q -f swagger/ghc.yaml -t $gendir --model-package ghcmessages --server-package ghcapi --api-package ghcoperations --exclude-main -A mymove &
+pids[5]=$!
+./bin/swagger generate server -q -f swagger/prime.yaml -t $gendir --model-package primemessages --server-package primeapi --api-package primeoperations --exclude-main -A mymove &
+pids[6]=$!
+
+# Wait for all processes to finish
+for pid in ${pids[*]}; do
+  wait $pid
+done

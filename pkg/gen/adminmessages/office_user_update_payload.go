@@ -18,20 +18,20 @@ import (
 type OfficeUserUpdatePayload struct {
 
 	// active
-	Active bool `json:"active,omitempty"`
+	Active *bool `json:"active,omitempty"`
 
 	// First Name
-	FirstName string `json:"first_name,omitempty"`
+	FirstName *string `json:"first_name,omitempty"`
 
 	// Last Name
-	LastName string `json:"last_name,omitempty"`
+	LastName *string `json:"last_name,omitempty"`
 
 	// Middle Initials
 	MiddleInitials *string `json:"middle_initials,omitempty"`
 
 	// telephone
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
-	Telephone string `json:"telephone,omitempty"`
+	Telephone *string `json:"telephone,omitempty"`
 }
 
 // Validate validates this office user update payload
@@ -54,7 +54,7 @@ func (m *OfficeUserUpdatePayload) validateTelephone(formats strfmt.Registry) err
 		return nil
 	}
 
-	if err := validate.Pattern("telephone", "body", string(m.Telephone), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Pattern("telephone", "body", string(*m.Telephone), `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
 		return err
 	}
 

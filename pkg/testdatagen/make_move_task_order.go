@@ -18,7 +18,7 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 		MoveOrderID:        moveOrder.ID,
 		ReferenceID:        referenceID,
 		IsAvailableToPrime: false,
-		IsCancelled:        false,
+		IsCanceled:         false,
 	}
 
 	// Overwrite values with those from assertions
