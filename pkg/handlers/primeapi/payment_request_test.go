@@ -44,7 +44,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, validate.NewErrors(), nil).Once()
+			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -113,7 +113,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, validate.NewErrors(), errors.New("test failed to create with err returned")).Once()
+			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, errors.New("test failed to create with err returned")).Once()
 
 		handler := CreatePaymentRequestHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),

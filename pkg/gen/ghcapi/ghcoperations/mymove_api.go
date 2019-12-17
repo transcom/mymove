@@ -20,6 +20,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
@@ -54,14 +55,17 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		CustomerGetAllCustomerMovesHandler: customer.GetAllCustomerMovesHandlerFunc(func(params customer.GetAllCustomerMovesParams) middleware.Responder {
 			return middleware.NotImplemented("operation CustomerGetAllCustomerMoves has not yet been implemented")
 		}),
-		CustomerGetCustomerInfoHandler: customer.GetCustomerInfoHandlerFunc(func(params customer.GetCustomerInfoParams) middleware.Responder {
-			return middleware.NotImplemented("operation CustomerGetCustomerInfo has not yet been implemented")
+		CustomerGetCustomerHandler: customer.GetCustomerHandlerFunc(func(params customer.GetCustomerParams) middleware.Responder {
+			return middleware.NotImplemented("operation CustomerGetCustomer has not yet been implemented")
 		}),
 		MoveTaskOrderGetEntitlementsHandler: move_task_order.GetEntitlementsHandlerFunc(func(params move_task_order.GetEntitlementsParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderGetEntitlements has not yet been implemented")
 		}),
 		MtoServiceItemGetMTOServiceItemHandler: mto_service_item.GetMTOServiceItemHandlerFunc(func(params mto_service_item.GetMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation MtoServiceItemGetMTOServiceItem has not yet been implemented")
+		}),
+		MoveOrderGetMoveOrderHandler: move_order.GetMoveOrderHandlerFunc(func(params move_order.GetMoveOrderParams) middleware.Responder {
+			return middleware.NotImplemented("operation MoveOrderGetMoveOrder has not yet been implemented")
 		}),
 		MoveTaskOrderGetMoveTaskOrderHandler: move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderGetMoveTaskOrder has not yet been implemented")
@@ -135,12 +139,14 @@ type MymoveAPI struct {
 	MoveTaskOrderDeleteMoveTaskOrderHandler move_task_order.DeleteMoveTaskOrderHandler
 	// CustomerGetAllCustomerMovesHandler sets the operation handler for the get all customer moves operation
 	CustomerGetAllCustomerMovesHandler customer.GetAllCustomerMovesHandler
-	// CustomerGetCustomerInfoHandler sets the operation handler for the get customer info operation
-	CustomerGetCustomerInfoHandler customer.GetCustomerInfoHandler
+	// CustomerGetCustomerHandler sets the operation handler for the get customer operation
+	CustomerGetCustomerHandler customer.GetCustomerHandler
 	// MoveTaskOrderGetEntitlementsHandler sets the operation handler for the get entitlements operation
 	MoveTaskOrderGetEntitlementsHandler move_task_order.GetEntitlementsHandler
 	// MtoServiceItemGetMTOServiceItemHandler sets the operation handler for the get m t o service item operation
 	MtoServiceItemGetMTOServiceItemHandler mto_service_item.GetMTOServiceItemHandler
+	// MoveOrderGetMoveOrderHandler sets the operation handler for the get move order operation
+	MoveOrderGetMoveOrderHandler move_order.GetMoveOrderHandler
 	// MoveTaskOrderGetMoveTaskOrderHandler sets the operation handler for the get move task order operation
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
 	// PaymentRequestsGetPaymentRequestHandler sets the operation handler for the get payment request operation
@@ -242,8 +248,8 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "customer.GetAllCustomerMovesHandler")
 	}
 
-	if o.CustomerGetCustomerInfoHandler == nil {
-		unregistered = append(unregistered, "customer.GetCustomerInfoHandler")
+	if o.CustomerGetCustomerHandler == nil {
+		unregistered = append(unregistered, "customer.GetCustomerHandler")
 	}
 
 	if o.MoveTaskOrderGetEntitlementsHandler == nil {
@@ -252,6 +258,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.MtoServiceItemGetMTOServiceItemHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.GetMTOServiceItemHandler")
+	}
+
+	if o.MoveOrderGetMoveOrderHandler == nil {
+		unregistered = append(unregistered, "move_order.GetMoveOrderHandler")
 	}
 
 	if o.MoveTaskOrderGetMoveTaskOrderHandler == nil {
@@ -419,7 +429,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/customer/{customerID}"] = customer.NewGetCustomerInfo(o.context, o.CustomerGetCustomerInfoHandler)
+	o.handlers["GET"]["/customer/{customerID}"] = customer.NewGetCustomer(o.context, o.CustomerGetCustomerHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -430,6 +440,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}"] = mto_service_item.NewGetMTOServiceItem(o.context, o.MtoServiceItemGetMTOServiceItemHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/move-orders/{moveOrderID}"] = move_order.NewGetMoveOrder(o.context, o.MoveOrderGetMoveOrderHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

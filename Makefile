@@ -115,7 +115,7 @@ check_docker_size: ## Check the amount of disk space used by docker
 	scripts/check-docker-size
 
 .PHONY: deps
-deps: prereqs ensure_pre_commit client_deps bin/rds-combined-ca-bundle.pem ## Run all checks and install all depdendencies
+deps: prereqs ensure_pre_commit client_deps bin/rds-combined-ca-bundle.pem bin/rds-ca-2019-root.pem ## Run all checks and install all depdendencies
 
 .PHONY: test
 test: client_test server_test e2e_test ## Run all tests
@@ -208,6 +208,10 @@ bin/mockery: .check_go_version.stamp .check_gopath.stamp
 bin/rds-combined-ca-bundle.pem:
 	mkdir -p bin/
 	curl -sSo bin/rds-combined-ca-bundle.pem https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
+
+bin/rds-ca-2019-root.pem:
+	mkdir -p bin/
+	curl -sSo bin/rds-ca-2019-root.pem https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem
 
 ### MilMove Targets
 
@@ -342,6 +346,7 @@ build_tools: bin/chamber \
 	bin/swagger \
 	bin/mockery \
 	bin/rds-combined-ca-bundle.pem \
+	bin/rds-ca-2019-root.pem \
 	bin/big-cat \
 	bin/compare-secure-migrations \
 	bin/ecs-deploy-task-container \
@@ -366,7 +371,7 @@ build: server_build build_tools client_build ## Build the server, tools, and cli
 # webserver_test runs a few acceptance tests against a local or remote environment.
 # This can help identify potential errors before deploying a container.
 .PHONY: webserver_test
-webserver_test: bin/rds-combined-ca-bundle.pem bin/chamber  ## Run acceptance tests
+webserver_test: bin/rds-combined-ca-bundle.pem bin/rds-ca-2019-root.pem bin/chamber  ## Run acceptance tests
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
@@ -679,9 +684,9 @@ db_e2e_up: bin/generate-test-data ## Truncate Test DB and Generate e2e (end-to-e
 db_e2e_init: db_test_reset db_test_migrate db_e2e_up ## Initialize e2e (end-to-end) DB (reset, migrate, up)
 
 .PHONY: db_dev_e2e_populate
-db_dev_e2e_populate: db_dev_reset db_dev_migrate build_tools ## Populate Dev DB with generated e2e (end-to-end) data
+db_dev_e2e_populate: db_dev_reset db_dev_migrate ## Populate Dev DB with generated e2e (end-to-end) data
 	@echo "Populate the ${DB_NAME_DEV} database with docker command..."
-	bin/generate-test-data --named-scenario="e2e_basic" --db-env="development"
+	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="e2e_basic" --db-env="development"
 
 .PHONY: db_test_e2e_populate
 db_test_e2e_populate: db_test_reset db_test_migrate build_tools db_e2e_up ## Populate Test DB with generated e2e (end-to-end) data

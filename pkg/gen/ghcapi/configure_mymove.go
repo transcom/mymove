@@ -12,6 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
@@ -57,9 +58,9 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation customer.GetAllCustomerMoves has not yet been implemented")
 		})
 	}
-	if api.CustomerGetCustomerInfoHandler == nil {
-		api.CustomerGetCustomerInfoHandler = customer.GetCustomerInfoHandlerFunc(func(params customer.GetCustomerInfoParams) middleware.Responder {
-			return middleware.NotImplemented("operation customer.GetCustomerInfo has not yet been implemented")
+	if api.CustomerGetCustomerHandler == nil {
+		api.CustomerGetCustomerHandler = customer.GetCustomerHandlerFunc(func(params customer.GetCustomerParams) middleware.Responder {
+			return middleware.NotImplemented("operation customer.GetCustomer has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderGetEntitlementsHandler == nil {
@@ -70,6 +71,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.MtoServiceItemGetMTOServiceItemHandler == nil {
 		api.MtoServiceItemGetMTOServiceItemHandler = mto_service_item.GetMTOServiceItemHandlerFunc(func(params mto_service_item.GetMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.GetMTOServiceItem has not yet been implemented")
+		})
+	}
+	if api.MoveOrderGetMoveOrderHandler == nil {
+		api.MoveOrderGetMoveOrderHandler = move_order.GetMoveOrderHandlerFunc(func(params move_order.GetMoveOrderParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_order.GetMoveOrder has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderGetMoveTaskOrderHandler == nil {
