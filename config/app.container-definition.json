@@ -111,7 +111,7 @@
     },
     {
       "name": "STORAGE_BACKEND",
-      "value": "{ .STORAGE_BACKEND }"
+      "value": "{{ .STORAGE_BACKEND }}"
     },
     {
       "name": "EMAIL_BACKEND",
