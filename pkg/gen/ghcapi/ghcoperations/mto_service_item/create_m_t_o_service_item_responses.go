@@ -57,132 +57,6 @@ func (o *CreateMTOServiceItemCreated) WriteResponse(rw http.ResponseWriter, prod
 	}
 }
 
-// CreateMTOServiceItemBadRequestCode is the HTTP code returned for type CreateMTOServiceItemBadRequest
-const CreateMTOServiceItemBadRequestCode int = 400
-
-/*CreateMTOServiceItemBadRequest The request payload is invalid
-
-swagger:response createMTOServiceItemBadRequest
-*/
-type CreateMTOServiceItemBadRequest struct {
-
-	/*
-	  In: Body
-	*/
-	Payload interface{} `json:"body,omitempty"`
-}
-
-// NewCreateMTOServiceItemBadRequest creates CreateMTOServiceItemBadRequest with default headers values
-func NewCreateMTOServiceItemBadRequest() *CreateMTOServiceItemBadRequest {
-
-	return &CreateMTOServiceItemBadRequest{}
-}
-
-// WithPayload adds the payload to the create m t o service item bad request response
-func (o *CreateMTOServiceItemBadRequest) WithPayload(payload interface{}) *CreateMTOServiceItemBadRequest {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the create m t o service item bad request response
-func (o *CreateMTOServiceItemBadRequest) SetPayload(payload interface{}) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *CreateMTOServiceItemBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(400)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
-	}
-}
-
-// CreateMTOServiceItemUnauthorizedCode is the HTTP code returned for type CreateMTOServiceItemUnauthorized
-const CreateMTOServiceItemUnauthorizedCode int = 401
-
-/*CreateMTOServiceItemUnauthorized The request was denied
-
-swagger:response createMTOServiceItemUnauthorized
-*/
-type CreateMTOServiceItemUnauthorized struct {
-
-	/*
-	  In: Body
-	*/
-	Payload interface{} `json:"body,omitempty"`
-}
-
-// NewCreateMTOServiceItemUnauthorized creates CreateMTOServiceItemUnauthorized with default headers values
-func NewCreateMTOServiceItemUnauthorized() *CreateMTOServiceItemUnauthorized {
-
-	return &CreateMTOServiceItemUnauthorized{}
-}
-
-// WithPayload adds the payload to the create m t o service item unauthorized response
-func (o *CreateMTOServiceItemUnauthorized) WithPayload(payload interface{}) *CreateMTOServiceItemUnauthorized {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the create m t o service item unauthorized response
-func (o *CreateMTOServiceItemUnauthorized) SetPayload(payload interface{}) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *CreateMTOServiceItemUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(401)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
-	}
-}
-
-// CreateMTOServiceItemForbiddenCode is the HTTP code returned for type CreateMTOServiceItemForbidden
-const CreateMTOServiceItemForbiddenCode int = 403
-
-/*CreateMTOServiceItemForbidden The request was denied
-
-swagger:response createMTOServiceItemForbidden
-*/
-type CreateMTOServiceItemForbidden struct {
-
-	/*
-	  In: Body
-	*/
-	Payload interface{} `json:"body,omitempty"`
-}
-
-// NewCreateMTOServiceItemForbidden creates CreateMTOServiceItemForbidden with default headers values
-func NewCreateMTOServiceItemForbidden() *CreateMTOServiceItemForbidden {
-
-	return &CreateMTOServiceItemForbidden{}
-}
-
-// WithPayload adds the payload to the create m t o service item forbidden response
-func (o *CreateMTOServiceItemForbidden) WithPayload(payload interface{}) *CreateMTOServiceItemForbidden {
-	o.Payload = payload
-	return o
-}
-
-// SetPayload sets the payload to the create m t o service item forbidden response
-func (o *CreateMTOServiceItemForbidden) SetPayload(payload interface{}) {
-	o.Payload = payload
-}
-
-// WriteResponse to the client
-func (o *CreateMTOServiceItemForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.WriteHeader(403)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
-	}
-}
-
 // CreateMTOServiceItemNotFoundCode is the HTTP code returned for type CreateMTOServiceItemNotFound
 const CreateMTOServiceItemNotFoundCode int = 404
 
@@ -195,7 +69,7 @@ type CreateMTOServiceItemNotFound struct {
 	/*
 	  In: Body
 	*/
-	Payload interface{} `json:"body,omitempty"`
+	Payload *ghcmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewCreateMTOServiceItemNotFound creates CreateMTOServiceItemNotFound with default headers values
@@ -205,13 +79,13 @@ func NewCreateMTOServiceItemNotFound() *CreateMTOServiceItemNotFound {
 }
 
 // WithPayload adds the payload to the create m t o service item not found response
-func (o *CreateMTOServiceItemNotFound) WithPayload(payload interface{}) *CreateMTOServiceItemNotFound {
+func (o *CreateMTOServiceItemNotFound) WithPayload(payload *ghcmessages.ClientError) *CreateMTOServiceItemNotFound {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create m t o service item not found response
-func (o *CreateMTOServiceItemNotFound) SetPayload(payload interface{}) {
+func (o *CreateMTOServiceItemNotFound) SetPayload(payload *ghcmessages.ClientError) {
 	o.Payload = payload
 }
 
@@ -219,9 +93,55 @@ func (o *CreateMTOServiceItemNotFound) SetPayload(payload interface{}) {
 func (o *CreateMTOServiceItemNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(404)
-	payload := o.Payload
-	if err := producer.Produce(rw, payload); err != nil {
-		panic(err) // let the recovery middleware deal with this
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
+// CreateMTOServiceItemUnprocessableEntityCode is the HTTP code returned for type CreateMTOServiceItemUnprocessableEntity
+const CreateMTOServiceItemUnprocessableEntityCode int = 422
+
+/*CreateMTOServiceItemUnprocessableEntity Validation error
+
+swagger:response createMTOServiceItemUnprocessableEntity
+*/
+type CreateMTOServiceItemUnprocessableEntity struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.ValidationError `json:"body,omitempty"`
+}
+
+// NewCreateMTOServiceItemUnprocessableEntity creates CreateMTOServiceItemUnprocessableEntity with default headers values
+func NewCreateMTOServiceItemUnprocessableEntity() *CreateMTOServiceItemUnprocessableEntity {
+
+	return &CreateMTOServiceItemUnprocessableEntity{}
+}
+
+// WithPayload adds the payload to the create m t o service item unprocessable entity response
+func (o *CreateMTOServiceItemUnprocessableEntity) WithPayload(payload *ghcmessages.ValidationError) *CreateMTOServiceItemUnprocessableEntity {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create m t o service item unprocessable entity response
+func (o *CreateMTOServiceItemUnprocessableEntity) SetPayload(payload *ghcmessages.ValidationError) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *CreateMTOServiceItemUnprocessableEntity) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(422)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
 	}
 }
 

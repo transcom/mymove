@@ -12,6 +12,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -41,7 +42,7 @@ type CreateMTOServiceItemParams struct {
 	  Required: true
 	  In: path
 	*/
-	MoveTaskOrderID string
+	MoveTaskOrderID strfmt.UUID
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -96,7 +97,25 @@ func (o *CreateMTOServiceItemParams) bindMoveTaskOrderID(rawData []string, hasKe
 	// Required: true
 	// Parameter is provided by construction from the route
 
-	o.MoveTaskOrderID = raw
+	// Format: uuid
+	value, err := formats.Parse("uuid", raw)
+	if err != nil {
+		return errors.InvalidType("moveTaskOrderID", "path", "strfmt.UUID", raw)
+	}
+	o.MoveTaskOrderID = *(value.(*strfmt.UUID))
 
+	if err := o.validateMoveTaskOrderID(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateMoveTaskOrderID carries on validations for parameter MoveTaskOrderID
+func (o *CreateMTOServiceItemParams) validateMoveTaskOrderID(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("moveTaskOrderID", "path", "uuid", o.MoveTaskOrderID.String(), formats); err != nil {
+		return err
+	}
 	return nil
 }

@@ -291,6 +291,7 @@ paths:
           in: path
           name: moveTaskOrderID
           required: true
+          format: uuid
           type: string
         - description: ID of the rate engine services
           in: body
@@ -320,22 +321,14 @@ paths:
           description: Successfully created service item for move task order
           schema:
             $ref: '#/definitions/MTOServiceItem'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
         '404':
           description: The requested resource wasn't found
           schema:
-            $ref: '#/responses/NotFound'
+            $ref: '#/definitions/ClientError'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
         '500':
           description: A server error occurred
           schema:
@@ -771,6 +764,31 @@ paths:
       operationId: updatePaymentRequestStatus
       summary: Updates status of a payment request by id
 definitions:
+  ClientError:
+    type: object
+    properties:
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
+    required:
+      - title
+      - detail
+      - instance
+  ValidationError:
+    allOf:
+      - $ref: '#/definitions/ClientError'
+      - type: object
+    properties:
+      invalid_fields:
+        type: object
+        additionalProperties:
+          type: string
+    required:
+      - invalid_fields
   Address:
     type: object
     properties:
