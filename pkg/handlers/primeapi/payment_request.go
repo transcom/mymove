@@ -64,13 +64,9 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		return paymentrequestop.NewCreatePaymentRequestBadRequest()
 	}
 
-	createdPaymentRequest, verrs, err := h.PaymentRequestCreator.CreatePaymentRequest(&paymentRequest)
-	if verrs.HasAny() {
-		logger.Error("Error creating payment request verrs", zap.Error(verrs))
-		return paymentrequestop.NewCreatePaymentRequestInternalServerError()
-	}
+	createdPaymentRequest, err := h.PaymentRequestCreator.CreatePaymentRequest(&paymentRequest)
 	if err != nil {
-		logger.Error("Error creating payment request err", zap.Error(err))
+		logger.Error("Error creating payment request", zap.Error(err))
 		return paymentrequestop.NewCreatePaymentRequestInternalServerError()
 	}
 

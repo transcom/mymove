@@ -73,9 +73,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}
 
-		_, verrs, err := creator.CreatePaymentRequest(&paymentRequest)
+		_, err := creator.CreatePaymentRequest(&paymentRequest)
 		suite.FatalNoError(err)
-		suite.NoVerrs(verrs)
 
 		// Verify some of the data that came back
 		suite.NotEqual(paymentRequest.ID, uuid.Nil)
@@ -122,9 +121,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}
 
-		_, verrs, err := creator.CreatePaymentRequest(&paymentRequest)
+		_, err := creator.CreatePaymentRequest(&paymentRequest)
 		suite.FatalNoError(err)
-		suite.NoVerrs(verrs)
 
 		// Verify some of the data that came back
 		suite.NotEqual(paymentRequest.ID, uuid.Nil)
@@ -148,9 +146,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			MoveTaskOrderID: badID,
 			IsFinal:         false,
 		}
-		_, verrs, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
+		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
-		suite.NoVerrs(verrs)
 	})
 
 	suite.T().Run("Given a non-existent service item id, the create should fail", func(t *testing.T) {
@@ -163,9 +160,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}
-		_, verrs, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
+		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
-		suite.NoVerrs(verrs)
 	})
 
 	suite.T().Run("Given a non-existent service item param key id, the create should fail", func(t *testing.T) {
@@ -184,9 +180,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}
-		_, verrs, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
+		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
-		suite.NoVerrs(verrs)
 	})
 
 	suite.T().Run("Given a non-existent service item param key name, the create should fail", func(t *testing.T) {
@@ -205,8 +200,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 				},
 			},
 		}
-		_, verrs, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
+		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
-		suite.NoVerrs(verrs)
 	})
 }

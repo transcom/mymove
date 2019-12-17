@@ -9,8 +9,6 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/validate"
-
 	"github.com/stretchr/testify/mock"
 
 	"github.com/gofrs/uuid"
@@ -39,7 +37,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 		}
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, validate.NewErrors(), nil).Once()
+			mock.AnythingOfType("*models.PaymentRequest")).Return(&returnedPaymentRequest, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -96,7 +94,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 	suite.T().Run("failed create payment request -- nil body", func(t *testing.T) {
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil, nil).Once()
+			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -117,35 +115,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 	suite.T().Run("failed create payment request -- creator failed with error", func(t *testing.T) {
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, validate.NewErrors(), errors.New("creator failed")).Once()
-
-		handler := CreatePaymentRequestHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			paymentRequestCreator,
-		}
-
-		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests"), nil)
-		req = suite.AuthenticateUserRequest(req, requestUser)
-
-		params := paymentrequestop.CreatePaymentRequestParams{
-			HTTPRequest: req,
-			Body: &primemessages.CreatePaymentRequestPayload{
-				IsFinal:         swag.Bool(false),
-				MoveTaskOrderID: *handlers.FmtUUID(moveTaskOrderID),
-			},
-		}
-
-		response := handler.Handle(params)
-		suite.IsType(&paymentrequestop.CreatePaymentRequestInternalServerError{}, response)
-	})
-
-	suite.T().Run("failed create payment request -- creator failed with validation errors", func(t *testing.T) {
-		verrs := validate.NewErrors()
-		verrs.Add("test_field", "Cannot be blank")
-
-		paymentRequestCreator := &mocks.PaymentRequestCreator{}
-		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, verrs, nil).Once()
+			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, errors.New("creator failed")).Once()
 
 		handler := CreatePaymentRequestHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -170,7 +140,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 	suite.T().Run("failed create payment request -- invalid MTO ID format", func(t *testing.T) {
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, validate.NewErrors(), nil).Once()
+			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -196,7 +166,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandler() {
 	suite.T().Run("failed create payment request -- invalid service item ID format", func(t *testing.T) {
 		paymentRequestCreator := &mocks.PaymentRequestCreator{}
 		paymentRequestCreator.On("CreatePaymentRequest",
-			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, validate.NewErrors(), nil).Once()
+			mock.AnythingOfType("*models.PaymentRequest")).Return(&models.PaymentRequest{}, nil).Once()
 
 		handler := CreatePaymentRequestHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),

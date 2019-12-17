@@ -415,5 +415,6 @@
 20191210171655_create_mto_service_items.up.sql
 20191210171752_alter_customers.up.sql
 20191210171828_alter_payment_requests_move_task_order_reference.up.sql
+20191210193133_update_roles_table.up.sql
 20191212160348_add_fk_to_payment_service_items.up.sql
 20191212203155_fix_spelling_is_canceled.up.sql

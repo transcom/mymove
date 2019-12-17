@@ -1,12 +1,10 @@
 package paymentrequest
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -22,21 +20,15 @@ func NewPaymentRequestCreator(db *pop.Connection) services.PaymentRequestCreator
 	return &paymentRequestCreator{db}
 }
 
-func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequest *models.PaymentRequest) (*models.PaymentRequest, *validate.Errors, error) {
-	responseVErrors := validate.NewErrors()
-	var responseError error
-
+func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequest *models.PaymentRequest) (*models.PaymentRequest, error) {
 	transactionError := p.db.Transaction(func(tx *pop.Connection) error {
-		transactionError := errors.New("rollback the transaction")
-
 		now := time.Now()
 
 		// Verify that the MTO ID exists
 		var moveTaskOrder models.MoveTaskOrder
 		err := p.db.Find(&moveTaskOrder, paymentRequest.MoveTaskOrderID)
 		if err != nil {
-			responseError = fmt.Errorf("could not find MoveTaskOrderID [%s]: %w", paymentRequest.MoveTaskOrderID, err)
-			return transactionError
+			return fmt.Errorf("could not find MoveTaskOrderID [%s]: %w", paymentRequest.MoveTaskOrderID, err)
 		}
 		paymentRequest.MoveTaskOrder = moveTaskOrder
 
@@ -45,10 +37,11 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequest *models.Paym
 
 		// Create the payment request first
 		verrs, err := p.db.ValidateAndCreate(paymentRequest)
-		if err != nil || verrs.HasAny() {
-			responseVErrors.Append(verrs)
-			responseError = err
-			return transactionError
+		if err != nil {
+			return fmt.Errorf("failure creating payment request: %w", err)
+		}
+		if verrs.HasAny() {
+			return fmt.Errorf("validation error creating payment request: %w", verrs)
 		}
 
 		// Create each payment service item for the payment request
@@ -58,8 +51,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequest *models.Paym
 			var mtoServiceItem models.MTOServiceItem
 			err := p.db.Find(&mtoServiceItem, paymentServiceItem.ServiceItemID)
 			if err != nil {
-				responseError = fmt.Errorf("could not find ServiceItemID [%s]: %w", paymentServiceItem.ServiceItemID, err)
-				return transactionError
+				return fmt.Errorf("could not find ServiceItemID [%s]: %w", paymentServiceItem.ServiceItemID, err)
 			}
 			paymentServiceItem.ServiceItem = mtoServiceItem
 
@@ -70,10 +62,11 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequest *models.Paym
 			paymentServiceItem.RequestedAt = now
 
 			verrs, err := p.db.ValidateAndCreate(&paymentServiceItem)
-			if err != nil || verrs.HasAny() {
-				responseVErrors.Append(verrs)
-				responseError = err
-				return transactionError
+			if err != nil {
+				return fmt.Errorf("failure creating payment service item: %w", err)
+			}
+			if verrs.HasAny() {
+				return fmt.Errorf("validation error creating payment service item: %w", verrs)
 			}
 
 			// Create each payment service item parameter for the payment service item
@@ -85,14 +78,12 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequest *models.Paym
 				if paymentServiceItemParam.ServiceItemParamKeyID != uuid.Nil {
 					err := p.db.Find(&serviceItemParamKey, paymentServiceItemParam.ServiceItemParamKeyID)
 					if err != nil {
-						responseError = fmt.Errorf("could not find ServiceItemParamKeyID [%s]: %w", paymentServiceItemParam.ServiceItemParamKeyID, err)
-						return transactionError
+						return fmt.Errorf("could not find ServiceItemParamKeyID [%s]: %w", paymentServiceItemParam.ServiceItemParamKeyID, err)
 					}
 				} else {
 					err := p.db.Where("key = ?", paymentServiceItemParam.IncomingKey).First(&serviceItemParamKey)
 					if err != nil {
-						responseError = fmt.Errorf("could not find param key [%s]: %w", paymentServiceItemParam.IncomingKey, err)
-						return transactionError
+						return fmt.Errorf("could not find param key [%s]: %w", paymentServiceItemParam.IncomingKey, err)
 					}
 				}
 				paymentServiceItemParam.ServiceItemParamKeyID = serviceItemParamKey.ID
@@ -102,10 +93,11 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequest *models.Paym
 				paymentServiceItemParam.PaymentServiceItem = paymentServiceItem
 
 				verrs, err := p.db.ValidateAndCreate(&paymentServiceItemParam)
-				if err != nil || verrs.HasAny() {
-					responseVErrors.Append(verrs)
-					responseError = err
-					return transactionError
+				if err != nil {
+					return fmt.Errorf("failure creating payment service item param: %w", err)
+				}
+				if verrs.HasAny() {
+					return fmt.Errorf("validation error creating payment service item param: %w", verrs)
 				}
 
 				newPaymentServiceItemParams = append(newPaymentServiceItemParams, paymentServiceItemParam)
@@ -120,8 +112,8 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequest *models.Paym
 	})
 
 	if transactionError != nil {
-		return nil, responseVErrors, responseError
+		return nil, transactionError
 	}
 
-	return paymentRequest, responseVErrors, responseError
+	return paymentRequest, nil
 }
