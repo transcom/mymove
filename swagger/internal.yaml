@@ -34,6 +34,10 @@ definitions:
       service_member:
         $ref: '#/definitions/ServiceMemberPayload'
         x-nullable: true
+      roles:
+        type: array
+        items:
+          $ref: '#/definitions/Role'
     required:
       - id
   Affiliation:
@@ -2394,6 +2398,31 @@ definitions:
       - code
       - move_type
       - created_at
+  Role:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      roleType:
+        type: string
+        example: customer
+      createdAt:
+        type: string
+        format: datetime
+        example: 2018-04-12T23:20:50.52Z
+        description: when the role was created
+      updatedAt:
+        type: string
+        format: datetime
+        example: 2018-04-12T23:20:50.52Z
+        description: when the role was updated
+    required:
+      - id
+      - roleType
+      - createdAt
+      - updatedAt
 paths:
   /estimates/ppm:
     get:

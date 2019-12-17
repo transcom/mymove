@@ -263,10 +263,10 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 	params := officeuserop.UpdateOfficeUserParams{
 		HTTPRequest: req,
 		OfficeUser: &adminmessages.OfficeUserUpdatePayload{
-			FirstName:      officeUser.FirstName,
+			FirstName:      &officeUser.FirstName,
 			MiddleInitials: officeUser.MiddleInitials,
-			LastName:       officeUser.LastName,
-			Telephone:      officeUser.Telephone,
+			LastName:       &officeUser.LastName,
+			Telephone:      &officeUser.Telephone,
 		},
 	}
 
@@ -274,7 +274,8 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		officeUserUpdater := &mocks.OfficeUserUpdater{}
 
 		officeUserUpdater.On("UpdateOfficeUser",
-			&officeUser,
+			mock.Anything,
+			params.OfficeUser,
 		).Return(&officeUser, nil, nil).Once()
 
 		handler := UpdateOfficeUserHandler{
@@ -291,7 +292,8 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		officeUserUpdater := &mocks.OfficeUserUpdater{}
 
 		officeUserUpdater.On("UpdateOfficeUser",
-			&officeUser,
+			mock.Anything,
+			params.OfficeUser,
 		).Return(&officeUser, nil, nil).Once()
 
 		handler := UpdateOfficeUserHandler{
@@ -308,7 +310,8 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 	err := validate.NewErrors()
 
 	officeUserUpdater.On("UpdateOfficeUser",
-		&officeUser,
+		mock.Anything,
+		params.OfficeUser,
 	).Return(nil, err, nil).Once()
 
 	handler := UpdateOfficeUserHandler{

@@ -20,7 +20,7 @@ type MoveTaskOrder struct {
 	MoveOrderID        uuid.UUID `db:"move_order_id"`
 	ReferenceID        *string   `db:"reference_id"`
 	IsAvailableToPrime bool      `db:"is_available_to_prime"`
-	IsCancelled        bool      `db:"is_cancelled"`
+	IsCanceled         bool      `db:"is_canceled"`
 	CreatedAt          time.Time `db:"created_at"`
 	UpdatedAt          time.Time `db:"updated_at"`
 }

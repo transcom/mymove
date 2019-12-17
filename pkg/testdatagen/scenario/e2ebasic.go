@@ -1,6 +1,7 @@
 package scenario
 
 import (
+	"log"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -853,17 +854,31 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Uploader: loader,
 	})
 
+	customer := testdatagen.MakeCustomer(db, testdatagen.Assertions{
+		Customer: models.Customer{
+			ID: uuid.FromStringOrNil("6ac40a00-e762-4f5f-b08d-3ea72a8e4b63"),
+		},
+	})
+	moveOrders := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
+		MoveOrder: models.MoveOrder{ID: uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4988")},
+		Customer:  customer,
+	})
 	mto := testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
-		MoveTaskOrder: models.MoveTaskOrder{ID: uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e")},
+		MoveTaskOrder: models.MoveTaskOrder{
+			ID:          uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb779e"),
+			MoveOrderID: moveOrders.ID,
+		},
 	})
 
 	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
+		MTOShipment:   models.MTOShipment{ID: uuid.FromStringOrNil("475579d5-aaa4-4755-8c43-c510381ff9b5")},
 		MoveTaskOrder: mto,
 	})
 
 	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MoveTaskOrder: mto,
-		MTOShipment:   MTOShipment,
+		MTOServiceItem: models.MTOServiceItem{ID: uuid.FromStringOrNil("9db1bf43-0964-44ff-8384-3297951f6781")},
+		MoveTaskOrder:  mto,
+		MTOShipment:    MTOShipment,
 	})
 
 	testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
@@ -874,4 +889,22 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Status:        "PENDING",
 		},
 	})
+
+	/* A user with Roles */
+	smRole := models.Role{}
+	err := db.Where("role_type = $1", "customer").First(&smRole)
+	if err != nil {
+		log.Fatal(err)
+	}
+	email = "role_tester@service.mil"
+	uuidStr = "3b9360a3-3304-4c60-90f4-83d687884079"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []models.Role{smRole},
+		},
+	})
+
 }

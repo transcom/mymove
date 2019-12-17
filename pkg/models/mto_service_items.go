@@ -9,7 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-// MTOServiceItem is an object representing service items for a move task order
+// MTOServiceItem is an object representing service items for a move task order.
 type MTOServiceItem struct {
 	ID              uuid.UUID     `db:"id"`
 	MoveTaskOrder   MoveTaskOrder `belongs_to:"move_task_orders"`
@@ -23,6 +23,9 @@ type MTOServiceItem struct {
 	CreatedAt       time.Time     `db:"created_at"`
 	UpdatedAt       time.Time     `db:"updated_at"`
 }
+
+// MTOServiceItems is not required by pop and may be deleted
+type MTOServiceItems []MTOServiceItem
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (m *MTOServiceItem) Validate(tx *pop.Connection) (*validate.Errors, error) {

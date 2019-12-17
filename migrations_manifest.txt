@@ -405,6 +405,7 @@
 20191205000713_create_service_params.up.sql
 20191205000726_create_payment_service_item_params.up.sql
 20191205190530_jppso-assignment-tables.up.sql
+20191205201215_add_user_id_to_too.up.sql
 20191205211911_jppso-assignment-data.up.sql
 20191209140000_set_max_length_on_rejection_reason.up.sql
 20191210171244_create_entitlements.up.sql
@@ -414,5 +415,7 @@
 20191210171655_create_mto_service_items.up.sql
 20191210171752_alter_customers.up.sql
 20191210171828_alter_payment_requests_move_task_order_reference.up.sql
+20191210193133_update_roles_table.up.sql
+20191212203155_fix_spelling_is_canceled.up.sql
 20191212225704_add_allow_prime.up.sql
 20191212230438_add_devlocal-mtls_client_cert.up.sql

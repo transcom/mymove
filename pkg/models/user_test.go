@@ -88,7 +88,6 @@ func (suite *ModelSuite) TestCreateUser() {
 
 func (suite *ModelSuite) TestFetchUserIdentity() {
 	const goodUUID = "39b28c92-0506-4bef-8b57-e39519f42dc2"
-
 	// First check that it all works with no record
 	identity, err := FetchUserIdentity(suite.DB(), goodUUID)
 	suite.Equal(ErrFetchNotFound, err, "Expected not to find missing Identity")
@@ -133,6 +132,22 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(systemAdmin.User.LoginGovEmail, identity.Email)
 	suite.Nil(identity.ServiceMemberID)
 	suite.Nil(identity.OfficeUserID)
+	role := Role{
+		ID:       uuid.FromStringOrNil("ed2d2cd7-d427-412a-98bb-a9b391d98d32"),
+		RoleType: "customer",
+	}
+	suite.NoError(suite.DB().Create(&role))
+	pat := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
+		User: User{
+			Active: true,
+			Roles:  []Role{role},
+		},
+	})
+
+	identity, err = FetchUserIdentity(suite.DB(), pat.LoginGovUUID.String())
+	suite.Nil(err, "loading pat's identity")
+	suite.NotNil(identity)
+	suite.Equal(len(identity.Roles), 1)
 }
 
 func (suite *ModelSuite) TestFetchAppUserIdentities() {

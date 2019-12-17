@@ -1,110 +1,95 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { get, isEmpty } from 'lodash';
+import { denormalize } from 'normalizr';
+import { moveTaskOrder } from 'shared/Entities/schema';
 import {
-  getEntitlements,
   updateMoveTaskOrderStatus,
-  getCustomerInfo,
+  getMoveTaskOrder,
+  getMoveOrder,
+  getCustomer,
   selectMoveTaskOrder,
 } from 'shared/Entities/modules/moveTaskOrders';
 import { selectCustomer } from 'shared/Entities/modules/customer';
+import { selectMoveOrder } from 'shared/Entities/modules/moveTaskOrders';
 
 class CustomerDetails extends Component {
   componentDidMount() {
-    this.props.getEntitlements('fake_move_task_order_id');
-    this.props.getCustomerInfo(this.props.match.params.customerId);
+    this.props.getCustomer(this.props.match.params.customerId);
+    this.props.getMoveTaskOrder(this.props.match.params.moveTaskOrderId).then(response => {
+      const mto = denormalize(this.props.match.params.moveTaskOrderId, moveTaskOrder, response.entities);
+      this.props.getMoveOrder(mto.moveOrderID);
+    });
   }
 
   render() {
-    const { entitlements, moveTaskOrder, customer } = this.props;
-    const fakeMoveTaskOrderID = '5d4b25bb-eb04-4c03-9a81-ee0398cb779e';
-    const depsAuth = get(moveTaskOrder, 'entitlements.dependentsAuthorized') ? 'Y' : 'N';
-    const NTS = entitlements && entitlements.nonTemporaryStorage ? 'Y' : 'N';
-    const POV = entitlements && entitlements.privatelyOwnedVehicle ? 'Y' : 'N';
-    const moveTaskOrderNonTemporaryStorage = get(moveTaskOrder, 'entitlements.nonTemporaryStorage') ? 'Y' : 'N';
-    const moveTaskOrderPrivatelyOwnedVehicle = get(moveTaskOrder, 'entitlements.privatelyOwnedVehicle') ? 'Y' : 'N';
+    const { moveTaskOrder, customer, moveOrder } = this.props;
+    const entitlements = get(moveOrder, 'entitlement', {});
     return (
       <>
-        <h1>Customer Deets Page</h1>
+        <h1>Customer Details Page</h1>
         {customer && (
           <>
             <h2>Customer Info</h2>
             <dl>
-              <dt>Full Name</dt>
-              <dd>{customer.customer_name}</dd>
-              <dt>Service Branch / Agency</dt>
-              <dd>{customer.agency}</dd>
-              <dt>Rank / Grade</dt>
-              <dd>{customer.grade}</dd>
-              <dt>Email</dt>
-              <dd>{customer.email}</dd>
-              <dt>Phone</dt>
-              <dd>{customer.telephone}</dd>
-              <dt>Origin Duty Station</dt>
-              <dd>{customer.origin_duty_station}</dd>
-              <dt>Destination Duty Station</dt>
-              <dd>{customer.destination_duty_station}</dd>
-              <dt>Pickup Address</dt>
-              <dd>{customer.pickup_address}</dd>
+              <dt>ID</dt>
+              <dd>{get(customer, 'id')}</dd>
+              <dt>DOD ID</dt>
+              <dd>{get(customer, 'dodID')}</dd>
             </dl>
           </>
         )}
-        {entitlements && (
+        {moveOrder && (
           <>
-            <h2>Customer Entitlements</h2>
-            <dl>
-              <dt>Weight Entitlement</dt>
-              <dd>{entitlements.totalWeightSelf}</dd>
-              <dt>SIT Entitlement</dt>
-              <dd>{entitlements.storageInTransit}</dd>
-              <dt>NTS Entitlement</dt>
-              <dd>{NTS}</dd>
-              <dt>POV Entitlement</dt>
-              <dd>{POV}</dd>
-            </dl>
+            <h2>Move Orders</h2>
+            <dt>Destination Duty Station</dt>
+            <dd>{get(moveOrder, 'destinationDutyStation.name', '')}</dd>
+            <dt>Destination Duty Station Address</dt>
+            <dd>{JSON.stringify(get(moveOrder, 'destinationDutyStation.address', {}))} </dd>
+            <dt>Origin Duty Station</dt>
+            <dd>{get(moveOrder, 'originDutyStation.name', '')}</dd>
+            <dt>Origin Duty Station Address</dt>
+            <dd>{JSON.stringify(get(moveOrder, 'originDutyStation.address', {}))} </dd>
+            {entitlements && (
+              <>
+                <h2>Customer Entitlements</h2>
+                <dl>
+                  <dt>Dependents Authorized</dt>
+                  <dd>{get(entitlements, 'dependentsAuthorized', '').toString()}</dd>
+                  <dt>Non Temporary Storage</dt>
+                  <dd>{get(entitlements, 'nonTemporaryStorage', '').toString()}</dd>
+                  <dt>Privately Owned Vehicle</dt>
+                  <dd>{get(entitlements, 'privatelyOwnedVehicle', '').toString()}</dd>
+                  <dt>ProGear Weight Spouse</dt>
+                  <dd>{get(entitlements, 'proGearWeightSpouse')}</dd>
+                  <dt>Storage In Transit</dt>
+                  <dd>{get(entitlements, 'storageInTransit', '').toString()}</dd>
+                  <dt>Total Dependents</dt>
+                  <dd>{get(entitlements, 'totalDependents')}</dd>
+                </dl>
+              </>
+            )}
           </>
         )}
         {!isEmpty(moveTaskOrder) && (
           <>
             <h2>Move Task Order</h2>
             <dl>
+              <dt>ID</dt>
+              <dd>{get(moveTaskOrder, 'id')}</dd>
               <dt>Reference ID</dt>
               <dd>{get(moveTaskOrder, 'referenceId')}</dd>
-              <dt>Origin Duty Station</dt>
-              <dd>{get(moveTaskOrder, 'originDutyStation')}</dd>
-              <dt>Destination Duty Station</dt>
-              <dd>{get(moveTaskOrder, 'destinationDutyStation')}</dd>
-              <dt>Pickup Address</dt>
-              <dd>{JSON.stringify(get(moveTaskOrder, 'pickupAddress'))}</dd>
-              <dt>Destination Address</dt>
-              <dd>{JSON.stringify(get(moveTaskOrder, 'destinationAddress'))}</dd>
-              <dt>Requested Pickup Date</dt>
-              <dd>{get(moveTaskOrder, 'requestedPickupDate')}</dd>
-              <dt>Customer Remarks</dt>
-              <dd>{get(moveTaskOrder, 'remarks')}</dd>
-              <dt>Service Items</dt>
-              <dd>{JSON.stringify(get(moveTaskOrder, 'serviceItems'))}</dd>
-              <dt>Status</dt>
-              <dd>{get(moveTaskOrder, 'status')}</dd>
-              <dt>Dependents Authorized</dt>
-              <dd>{depsAuth}</dd>
-              <dt>Progear Weight</dt>
-              <dd>{get(moveTaskOrder, 'entitlements.proGearWeight')}</dd>
-              <dt>Progear Weight Spouse</dt>
-              <dd>{get(moveTaskOrder, 'entitlements.proGearWeightSpouse')}</dd>
-              <dt>SIT Entitlement (days)</dt>
-              <dd>{get(moveTaskOrder, 'entitlements.storageInTransit')}</dd>
-              <dt>Total Dependents</dt>
-              <dd>{get(moveTaskOrder, 'entitlements.totalDependents')}</dd>
-              <dt>NTS Entitlement</dt>
-              <dd>{moveTaskOrderNonTemporaryStorage}</dd>
-              <dt>POV Entitlement</dt>
-              <dd>{moveTaskOrderPrivatelyOwnedVehicle}</dd>
+              <dt>Is Available to Prime</dt>
+              <dd>{get(moveTaskOrder, 'isAvailableToPrime').toString()}</dd>
+              <dt>Is Canceled</dt>
+              <dd>{get(moveTaskOrder, 'isCanceled').toString()}</dd>
             </dl>
           </>
         )}
         <div>
-          <button onClick={() => this.props.updateMoveTaskOrderStatus(fakeMoveTaskOrderID, 'DRAFT')}>
+          <button
+            onClick={() => this.props.updateMoveTaskOrderStatus(this.props.match.params.moveTaskOrderId, 'DRAFT')}
+          >
             Generate MTO
           </button>
         </div>
@@ -114,21 +99,20 @@ class CustomerDetails extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  //TODO hard coding mto for now
-  const fakeMoveTaskOrderID = '5d4b25bb-eb04-4c03-9a81-ee0398cb779e';
-  const entitlements = get(state, 'entities.entitlements');
-  const moveTaskOrder = selectMoveTaskOrder(state, fakeMoveTaskOrderID);
+  const moveTaskOrder = selectMoveTaskOrder(state, ownProps.match.params.moveTaskOrderId);
+  const moveOrder = selectMoveOrder(state, moveTaskOrder.moveOrderID);
   return {
-    entitlements: entitlements && Object.values(entitlements).length > 0 ? Object.values(entitlements)[0] : null,
     moveTaskOrder,
+    moveOrder,
     customer: selectCustomer(state, ownProps.match.params.customerId),
   };
 };
 
 const mapDispatchToProps = {
-  getEntitlements,
+  getMoveOrder,
+  getMoveTaskOrder,
   updateMoveTaskOrderStatus,
-  getCustomerInfo,
+  getCustomer,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CustomerDetails);

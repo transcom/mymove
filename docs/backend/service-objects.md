@@ -100,7 +100,7 @@ type FormCreator interface {
 Service objects should return as many return values as appropriate. In the case of a service object like the CreateForm, the first parameter is whatever the service object is responsible for creating. If the first parameter returns a created entity, the second parameter should be an error.
 In the case of a simple entity fetch by ID, the first parameter could be model validation errors. There are some situations that require more complex returns. For those, use your best judgment.
 
-*Remember all `errors` should be Wrapped by using `errors.Wrap` so that the underlying error is propagated properly*
+*Remember all `errors` should be Wrapped by using `fmt.Errorf` using the `%w` verb so that the underlying error is propagated properly*
 
 ```go
 // create_form.go
@@ -110,7 +110,7 @@ func (c createForm) CreateForm(template services.FormTemplate) (afero.File, erro
   // Populate form fields with data
   err := c.FormFiller.AppendPage(template.Buffer, template.FieldsLayout, template.Data)
   if err != nil {
-    return nil, errors.Wrap(err, fmt.Sprintf("Failure writing %s data to form.", template.FormType.String()))
+    return nil, fmt.Errorf("Failure writing %s data to form: %w", template.FormType.String(), err))
   }
   ...
 }
