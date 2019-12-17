@@ -22,9 +22,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 	// Happy path
 	suite.T().Run("Payment request is created successfully", func(t *testing.T) {
-		_, verrs, err := creator.CreatePaymentRequest(&paymentRequest)
+		_, err := creator.CreatePaymentRequest(&paymentRequest)
 		suite.NoError(err)
-		suite.NoVerrs(verrs)
 	})
 
 	// Bad move task order ID
@@ -35,8 +34,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			IsFinal:         false,
 			Status:          "PENDING",
 		}
-		_, verrs, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
+		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
-		suite.NoVerrs(verrs)
 	})
 }
