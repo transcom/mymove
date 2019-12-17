@@ -166,6 +166,36 @@ export class PpmWeight extends Component {
     this.setState({ [type]: event.target.value });
   };
 
+  chooseEstimateErrorText(hasEstimateError, rateEngineError) {
+    if (rateEngineError) {
+      return (
+        <Fragment>
+          <div className="error-message">
+            <Alert type="warning" heading="Could not retrieve estimate">
+              MilMove does not presently support short-haul PPM moves. Please contact your PPPO.
+            </Alert>
+          </div>
+        </Fragment>
+      );
+    }
+
+    if (hasEstimateError) {
+      return (
+        <Fragment>
+          <div className="error-message">
+            <Alert type="warning" heading="Could not retrieve estimate">
+              There was an issue retrieving an estimate for your incentive. You still qualify, but need to talk with
+              your local transportation office which you can look up on{' '}
+              <a href="move.mil" className="usa-link">
+                move.mil
+              </a>
+            </Alert>
+          </div>
+        </Fragment>
+      );
+    }
+  }
+
   render() {
     const {
       incentive_estimate_min,
@@ -177,6 +207,7 @@ export class PpmWeight extends Component {
       error,
       hasEstimateError,
       selectedWeightInfo,
+      rateEngineError,
     } = this.props;
     const { context: { flags: { progearChanges } } = { flags: { progearChanges: null } } } = this.props;
     const { includesProgear, isProgearMoreThan1000 } = this.state;
@@ -209,20 +240,7 @@ export class PpmWeight extends Component {
                   stateChangeFunc={this.onWeightSelecting}
                   onChange={this.onWeightSelected}
                 />
-
-                {hasEstimateError && (
-                  <Fragment>
-                    <div className="error-message">
-                      <Alert type="warning" heading="Could not retrieve estimate">
-                        There was an issue retrieving an estimate for your incentive. You still qualify, but need to
-                        talk with your local transportation office which you can look up on{' '}
-                        <a href="move.mil" className="usa-link">
-                          move.mil
-                        </a>
-                      </Alert>
-                    </div>
-                  </Fragment>
-                )}
+                {this.chooseEstimateErrorText(hasEstimateError, rateEngineError)}
               </div>
               <div className={`${styles['incentive-estimate-box']} border radius-lg border-base`}>
                 {this.chooseVehicleIcon(this.state.pendingPpmWeight)}
@@ -357,19 +375,7 @@ export class PpmWeight extends Component {
                           }}
                         />
                       </div>
-                      {hasEstimateError && (
-                        <Fragment>
-                          <div className="error-message">
-                            <Alert type="warning" heading="Could not retrieve estimate">
-                              There was an issue retrieving an estimate for your incentive. You still qualify, but need
-                              to talk with your local transportation office which you can look up on{' '}
-                              <a href="move.mil" className="usa-link">
-                                move.mil
-                              </a>
-                            </Alert>
-                          </div>
-                        </Fragment>
-                      )}
+                      {this.chooseEstimateErrorText(hasEstimateError, rateEngineError)}
                       <table className="numeric-info">
                         <tbody>
                           <tr>
