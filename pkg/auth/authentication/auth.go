@@ -45,6 +45,16 @@ func IsLoggedInMiddleware(logger Logger) http.HandlerFunc {
 	}
 }
 
+// RoleAuthMiddleware enforces that the incoming request is tied to a user session
+func RoleAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			next.ServeHTTP(w, r)
+		}
+		return http.HandlerFunc(mw)
+	}
+}
+
 // UserAuthMiddleware enforces that the incoming request is tied to a user session
 func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
@@ -52,6 +62,7 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 
 			session := auth.SessionFromRequestContext(r)
 			// We must have a logged in session and a user
+
 			if session == nil || session.UserID == uuid.Nil {
 				logger.Error("unauthorized access, no session token or user id")
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
@@ -383,13 +394,20 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			authorizeUnknownUserNew(openIDUser, h, session, w, r, landingURL.String())
 			return
 		}
-		if err != nil {
-			h.logger.Error("Error loading Identity.", zap.Error(err))
-			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-			return
-		}
-		authorizeKnownUser(userIdentity, h, session, w, r, landingURL.String())
+		checkRole()
+		http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
 		return
+		//if err == models.ErrFetchNotFound {
+		//	authorizeUnknownUserNew(openIDUser, h, session, w, r, landingURL.String())
+		//	return
+		//}
+		//if err != nil {
+		//	h.logger.Error("Error loading Identity.", zap.Error(err))
+		//	http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		//	return
+		//}
+		//authorizeKnownUser(userIdentity, h, session, w, r, landingURL.String())
+		//return
 	}
 	if err == nil { // Someone we know already
 		authorizeKnownUser(userIdentity, h, session, w, r, landingURL.String())
@@ -402,6 +420,9 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
+}
+
+func checkRole() {
 }
 
 var authorizeUnknownUserNew = func(openIDUser goth.User, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {

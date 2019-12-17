@@ -237,6 +237,8 @@ func (t tooUserAssociator) FetchTOOUser(email string) (*models.TransportationOrd
 }
 
 func (t tooUserAssociator) AssociateTOOUser(user *models.User) (uuid.UUID, error) {
+	smRole := models.Role{}
+	err := t.db.Where("role_type = $1", "customer").First(&smRole)
 	too, err := t.FetchTOOUser(user.LoginGovEmail)
 	if err == models.ErrFetchNotFound {
 		t.logger.Error("no too user found", zap.String("email", user.LoginGovEmail))
