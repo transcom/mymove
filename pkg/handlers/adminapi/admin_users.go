@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/audit"
 )
 
 func payloadForAdminUserModel(o models.AdminUser) *adminmessages.AdminUser {
@@ -127,7 +128,11 @@ func (h CreateAdminUserHandler) Handle(params adminuserop.CreateAdminUserParams)
 		return adminuserop.NewCreateAdminUserInternalServerError()
 	}
 
-	logger.Info("Create Admin User", zap.String("admin_user_id", createdAdminUser.ID.String()), zap.String("responsible_user_id", session.AdminUserID.String()), zap.String("event_type", "create_admin_user"))
+	_, err = audit.Capture(createdAdminUser, nil, logger, session, params.HTTPRequest)
+	if err != nil {
+		logger.Error("Error capturing audit record", zap.Error(err))
+	}
+
 	returnPayload := payloadForAdminUserModel(*createdAdminUser)
 	return adminuserop.NewCreateAdminUserCreated().WithPayload(returnPayload)
 }
@@ -148,18 +153,11 @@ func (h UpdateAdminUserHandler) Handle(params adminuserop.UpdateAdminUserParams)
 	}
 
 	// Don't allow Admin Users to deactivate themselves
-	if adminUserID == session.AdminUserID && payload.Active {
+	if adminUserID == session.AdminUserID && payload.Active != nil {
 		return adminuserop.NewUpdateAdminUserForbidden()
 	}
 
-	adminUser := models.AdminUser{
-		ID:        adminUserID,
-		LastName:  payload.LastName,
-		FirstName: payload.FirstName,
-		Active:    payload.Active,
-	}
-
-	updatedAdminUser, verrs, err := h.AdminUserUpdater.UpdateAdminUser(&adminUser)
+	updatedAdminUser, verrs, err := h.AdminUserUpdater.UpdateAdminUser(adminUserID, payload)
 
 	if err != nil || verrs != nil {
 		fmt.Printf("%#v", verrs)
@@ -167,7 +165,11 @@ func (h UpdateAdminUserHandler) Handle(params adminuserop.UpdateAdminUserParams)
 		return adminuserop.NewUpdateAdminUserInternalServerError()
 	}
 
-	logger.Info("Update admin User", zap.String("admin_user_id", updatedAdminUser.ID.String()), zap.String("responsible_user_id", session.AdminUserID.String()), zap.String("event_type", "update_admin_user"))
+	_, err = audit.Capture(updatedAdminUser, payload, logger, session, params.HTTPRequest)
+	if err != nil {
+		logger.Error("Error capturing audit record", zap.Error(err))
+	}
+
 	returnPayload := payloadForAdminUserModel(*updatedAdminUser)
 
 	return adminuserop.NewUpdateAdminUserOK().WithPayload(returnPayload)
