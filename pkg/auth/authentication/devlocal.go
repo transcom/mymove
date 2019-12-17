@@ -468,6 +468,10 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 		return nil, errors.Wrapf(err, "Unable to fetch user identity from LoginGovUUID %s", lgUUID)
 	}
 
+	for _, role := range userIdentity.Roles {
+		session.Roles = append(session.Roles, auth.Role(role))
+	}
+
 	// Assign user identity to session
 	session.IDToken = "devlocal"
 	session.UserID = userIdentity.ID

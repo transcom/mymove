@@ -1,8 +1,16 @@
 /* eslint no-use-before-define: 0 */
 import { schema } from 'normalizr';
 
+// Role
+export const role = new schema.Entity('roles');
+export const roles = new schema.Array(role);
+
 // User
 export const user = new schema.Entity('users');
+
+user.define({
+  roles,
+});
 
 // Uploads
 export const upload = new schema.Entity('uploads');
@@ -95,7 +103,13 @@ export const signedCertification = new schema.Entity('signedCertifications');
 export const signedCertifications = new schema.Array(signedCertification);
 
 // AvailableMoveDates
-export const availableMoveDates = new schema.Entity('availableMoveDates', {}, { idAttribute: 'start_date' });
+export const availableMoveDates = new schema.Entity(
+  'availableMoveDates',
+  {},
+  {
+    idAttribute: 'start_date',
+  },
+);
 
 // MoveDatesSummary
 export const moveDatesSummary = new schema.Entity('moveDatesSummaries');
@@ -117,11 +131,8 @@ export const serviceItems = new schema.Entity('serviceItems');
 // Move Task Orders
 export const moveTaskOrder = new schema.Entity('moveTaskOrders');
 
-moveTaskOrder.define({
-  service_item: serviceItems,
-  delivery_address: address,
-  partial_sit_delivery_address: address,
-});
+// Move Orders
+export const moveOrder = new schema.Entity('moveOrders');
 
 // Customer
 export const customer = new schema.Entity('customer');
