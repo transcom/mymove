@@ -119,10 +119,6 @@
       "value": "app"
     },
     {
-      "name": "STORAGE_BACKEND",
-      "value": "cdn"
-    },
-    {
       "name": "EMAIL_BACKEND",
       "value": "ses"
     },
