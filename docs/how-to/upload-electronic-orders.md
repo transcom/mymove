@@ -42,7 +42,7 @@ Now you need to generate the secure migration with these scripts:
 ```sh
 FINGERPRINT=`cac-extract-fingerprint`
 SUBJECT=`cac-extract-subject`
-milmove gen orders-migration --name "${USER}_cac" -f "${FINGERPRINT}" -s "${SUBJECT}"
+milmove gen certs-migration --name "${USER}_cac" -f "${FINGERPRINT}" -s "${SUBJECT}"
 ```
 
 You will see output like:

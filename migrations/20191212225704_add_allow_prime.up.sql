@@ -1,0 +1,1 @@
+ALTER TABLE client_certs ADD COLUMN allow_prime boolean DEFAULT false NOT NULL;
