@@ -8,6 +8,7 @@ import (
 	*/
 	"crypto/md5"
 	"encoding/base64"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -96,29 +97,30 @@ func InitStorage(v *viper.Viper, sess *awssession.Session, logger Logger) FileSt
 
 		//init cdn related variables
 		cdnEnabled := false
-		cfPrivateKey := ""
-		cfPrivateKeyID := ""
+		var cfPrivateKey, cfPrivateKeyID *string
 		assetsFQDN := url.URL{Scheme: "https"}
 
 		if storageBackend == "cdn" {
 			cdnEnabled = true
-			cfPrivateKey = v.GetString(cli.CFPrivateKeyFlag)
-			cfPrivateKeyID = v.GetString(cli.CFKeyIDFlag)
+			privateKey := v.GetString(cli.CFPrivateKeyFlag)
+			privateKeyID := v.GetString(cli.CFKeyIDFlag)
+			cfPrivateKey = &privateKey
+			cfPrivateKeyID = &privateKeyID
 			assetsDomain := v.GetString(cli.AwsCfDomain)
 			assetsFQDN.Host = assetsDomain
 
 			logger.Info("Using cloudfront as CDN for distribution",
 				zap.String("assets domain", assetsDomain),
-				zap.String("key", cfPrivateKeyID))
+				zap.String("key", privateKeyID))
 
-			if len(cfPrivateKey) == 0 {
-				logger.Fatal("must provide cloud-front-private-key parameter, exiting")
+			if cfPrivateKey == nil {
+				logger.Fatal(fmt.Sprintf("cloudfront private key flag %q cannot be empty when using CDN for %q flag, exiting", cli.CFPrivateKeyFlag, cli.StorageBackendFlag))
 			}
-			if len(cfPrivateKeyID) == 0 {
-				logger.Fatal("must provide cloud-front-key-id parameter, exiting")
+			if cfPrivateKeyID == nil {
+				logger.Fatal(fmt.Sprintf("cloudfront key id flag %q cannot be empty when using CDN for %q flag, exiting", cli.CFKeyIDFlag, cli.StorageBackendFlag))
 			}
 			if len(assetsDomain) == 0 {
-				logger.Fatal("must provide aws-cf-domain parameter, exiting")
+				logger.Fatal(fmt.Sprintf("assets domain key flag %q cannot be empty when using CDN for %q flag, exiting", cli.AwsCfDomain, cli.StorageBackendFlag))
 			}
 		}
 

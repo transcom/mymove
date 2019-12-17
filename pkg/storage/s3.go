@@ -30,7 +30,7 @@ type S3 struct {
 }
 
 // NewS3 creates a new S3 using the provided AWS session.
-func NewS3(bucket, keyNamespace, assetsDomainName, cfPrivateKey, cfPrivateKeyID string, cfDistributionEnabled bool, logger Logger, session *session.Session) *S3 {
+func NewS3(bucket, keyNamespace, assetsDomainName string, cfPrivateKey, cfPrivateKeyID *string, cfDistributionEnabled bool, logger Logger, session *session.Session) *S3 {
 	var fs = afero.NewMemMapFs()
 	var tempFs = afero.NewMemMapFs()
 	client := s3.New(session)
@@ -38,8 +38,8 @@ func NewS3(bucket, keyNamespace, assetsDomainName, cfPrivateKey, cfPrivateKeyID 
 		bucket:                bucket,
 		keyNamespace:          keyNamespace,
 		assetsDomainName:      assetsDomainName,
-		cfPrivateKey:          &cfPrivateKey,
-		cfPrivateKeyID:        &cfPrivateKeyID,
+		cfPrivateKey:          cfPrivateKey,
+		cfPrivateKeyID:        cfPrivateKeyID,
 		cfDistributionEnabled: cfDistributionEnabled,
 		logger:                logger,
 		client:                client,
