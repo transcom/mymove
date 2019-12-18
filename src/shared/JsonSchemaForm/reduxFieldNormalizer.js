@@ -6,7 +6,8 @@
   For more information: https://redux-form.com/7.4.2/examples/normalizing/
 */
 
-import { parseDate } from 'shared/dates';
+import { swaggerDateFormat } from 'shared/utils';
+import moment from 'moment';
 
 const normalizePhone = value => {
   if (!value) {
@@ -63,7 +64,7 @@ const normalizeZip = value => {
 };
 
 const normalizeDates = value => {
-  return parseDate(value);
+  return value ? moment(value).format(swaggerDateFormat) : value;
 };
 
 const createDigitNormalizer = maxLength => {

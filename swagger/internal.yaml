@@ -694,7 +694,7 @@ definitions:
   VehicleOptions:
     type: string
     x-nullable: true
-    title: What type of vehicle are these weight tickets for?
+    title: Select weight ticket type
     enum: &VehicleOptions
       - CAR
       - CAR_TRAILER
@@ -756,7 +756,7 @@ definitions:
         type: boolean
         x-nullable: true
       vehicle_options:
-        title: What type of vehicle are these weight tickets for?
+        title: Select weight ticket type
         type: string
         enum: *VehicleOptions
         x-display-value:
@@ -973,7 +973,7 @@ definitions:
           format: uuid
           example: c56a4180-65aa-42ec-a945-5fd21dec0538
       vehicle_options:
-        title: What type of vehicle are these weight tickets for?
+        title: Select weight ticket type
         type: string
         enum: *VehicleOptions
         x-display-value:
