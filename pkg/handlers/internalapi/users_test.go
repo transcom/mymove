@@ -33,7 +33,7 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 func (suite *HandlerSuite) TestServiceMemberLoggedInUserRequiringAccessCodeHandler() {
 	firstName := "Joseph"
 	smRole := roles.Role{
-		RoleType: "customer",
+		RoleType: roles.Customer,
 	}
 	suite.NoError(suite.DB().Save(&smRole))
 	sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
@@ -63,7 +63,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserRequiringAccessCodeHandl
 	suite.True(ok)
 	suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
 	suite.Equal("Joseph", *okResponse.Payload.ServiceMember.FirstName)
-	suite.Equal("customer", *okResponse.Payload.Roles[0].RoleType)
+	suite.Equal(string(roles.Customer), *okResponse.Payload.Roles[0].RoleType)
 	suite.Equal(1, len(okResponse.Payload.Roles))
 	suite.True(okResponse.Payload.ServiceMember.RequiresAccessCode)
 }

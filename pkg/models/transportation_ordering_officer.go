@@ -6,7 +6,6 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-//TODO might need to add email here....
 type TransportationOrderingOfficer struct {
 	ID        uuid.UUID  `json:"id" db:"id"`
 	CreatedAt time.Time  `json:"created_at" db:"created_at"`

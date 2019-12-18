@@ -326,7 +326,6 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserIsTOOUser() {
 	suite.NoError(err)
 	oa.AssertNumberOfCalls(suite.T(), "AssociateOfficeUser", 1)
 	tr.AssertNumberOfCalls(suite.T(), "VerifyHasTOORole", 1)
-	//TODO think about this assertion
 	suite.True(session.Roles.HasRole(roles.TOO))
 	suite.NotEqual(uuid.Nil, session.UserID)
 }
@@ -334,7 +333,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserIsTOOUser() {
 func (suite *AuthSuite) TestVerifyHasTOORole() {
 	rs := []roles.Role{{
 		ID:       uuid.FromStringOrNil("ed2d2cd7-d427-412a-98bb-a9b391d98d32"),
-		RoleType: "customer",
+		RoleType: roles.Customer,
 	},
 		{
 			ID:       uuid.FromStringOrNil("9dc423b6-33b8-493a-a59b-6a823660cb07"),
@@ -360,7 +359,7 @@ func (suite *AuthSuite) TestVerifyHasTOORole() {
 func (suite *AuthSuite) TestVerifyHasTOORoleError() {
 	rs := []roles.Role{{
 		ID:       uuid.FromStringOrNil("ed2d2cd7-d427-412a-98bb-a9b391d98d32"),
-		RoleType: "customer",
+		RoleType: roles.Customer,
 	},
 		{
 			ID:       uuid.FromStringOrNil("9dc423b6-33b8-493a-a59b-6a823660cb07"),

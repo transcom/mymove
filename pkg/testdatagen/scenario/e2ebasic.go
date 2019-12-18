@@ -894,7 +894,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 
 	/* A user with Roles */
 	smRole := roles.Role{}
-	err := db.Where("role_type = $1", "customer").First(&smRole)
+	err := db.Where("role_type = $1", roles.Customer).First(&smRole)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -911,11 +911,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 
 	/* A user with too role */
 	tooRole := roles.Role{}
-	err = db.Where("role_type = $1", "transportation_ordering_officer").First(&smRole)
+	err = db.Where("role_type = $1", roles.TOO).First(&smRole)
 	if err != nil {
 		log.Fatal(err)
 	}
-	testdatagen.MakeDefaultTransportationOrderingOfficer(db)
 
 	email = "too_role@office.mil"
 	uuidStr = "dcf86235-53d3-43dd-8ee8-54212ae3078f"
