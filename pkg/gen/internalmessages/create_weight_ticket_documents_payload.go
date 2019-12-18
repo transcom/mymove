@@ -52,7 +52,7 @@ type CreateWeightTicketDocumentsPayload struct {
 	// Required: true
 	VehicleNickname *string `json:"vehicle_nickname"`
 
-	// What type of vehicle are these weight tickets for?
+	// Select weight ticket type
 	// Required: true
 	// Enum: [CAR CAR_TRAILER BOX_TRUCK]
 	VehicleOptions *string `json:"vehicle_options"`
