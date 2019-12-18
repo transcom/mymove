@@ -23,10 +23,6 @@ func MakeTransportationOrderingOfficer(db *pop.Connection, assertions Assertions
 		user = &u
 	}
 
-	if assertions.User.LoginGovEmail != "" {
-		email = assertions.User.LoginGovEmail
-	}
-
 	transportationOrderingOfficer := models.TransportationOrderingOfficer{
 		UserID: &user.ID,
 		User:   user,

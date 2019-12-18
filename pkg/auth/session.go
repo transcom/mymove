@@ -39,16 +39,22 @@ func (s *Session) IsAdminApp() bool {
 	return s.ApplicationName == AdminApp
 }
 
+type RoleType string
+
+const (
+	TOO RoleType = "transportation_ordering_officer"
+)
+
 type Role struct {
 	ID        uuid.UUID `json:"id" db:"id"`
-	RoleType  string    `json:"role_type" db:"role_type"`
+	RoleType  RoleType  `json:"role_type" db:"role_type"`
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
 
 type Roles []Role
 
-func (rs Roles) HasRole(roleType string) bool {
+func (rs Roles) HasRole(roleType RoleType) bool {
 	for _, r := range rs {
 		if r.RoleType == roleType {
 			return true

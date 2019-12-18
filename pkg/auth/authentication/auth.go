@@ -60,7 +60,7 @@ func RoleAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 			}
 			// DO NOT CHECK MILMOVE SESSION BECAUSE NEW SERVICE MEMBERS WON'T HAVE AN ID RIGHT AWAY
 			// This must be the right type of user for the application
-			if session.IsOfficeApp() && !session.IsOfficeUser() && !session.Roles.HasRole("transportation_ordering_officer") {
+			if session.IsOfficeApp() && !session.IsOfficeUser() && !session.Roles.HasRole(auth.TOO) {
 				logger.Error("unauthorized user for office.move.mil", zap.String("email", session.Email))
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
@@ -440,9 +440,6 @@ var authorizeUnknownUserNew = func(openIDUser goth.User, h CallbackHandler, sess
 	if err != nil {
 		switch err {
 		case ErrTOOUnauthorized:
-			// TODO for the moment treat all new office users as TOOs and redirect those not in
-			// TODO transportation_ordering_officers table to the verification in progress page
-			// TODO and don't log them in
 			http.Redirect(w, r, h.verificationInProgressURL(session), http.StatusTemporaryRedirect)
 			return
 		case ErrUnauthorized:
@@ -486,10 +483,10 @@ var authorizeKnownUserNew = func(userIdentity *models.UserIdentity, h CallbackHa
 	}
 	trc := tooRoleChecker{h.db, h.logger}
 	tooRole, err := trc.VerifyHasTOORole(userIdentity)
-	if err == nil && !session.Roles.HasRole("transportation_ordering_officer") {
+	if err == nil && !session.Roles.HasRole(auth.TOO) {
 		session.Roles = append(session.Roles, auth.Role(tooRole))
 	}
-	if session.IsOfficeApp() && !session.Roles.HasRole("transportation_ordering_officer") {
+	if session.IsOfficeApp() && !session.Roles.HasRole(auth.TOO) {
 		if userIdentity.OfficeActive != nil && !*userIdentity.OfficeActive {
 			h.logger.Error("Office user is deactivated", zap.String("email", session.Email))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)

@@ -15,7 +15,7 @@ type Roles []Role
 
 func (rs Roles) HasRole(roleType string) (Role, bool) {
 	for _, r := range rs {
-		if r.RoleType == roleType {
+		if string(r.RoleType) == roleType {
 			return r, true
 		}
 	}
@@ -26,7 +26,7 @@ func (rs Roles) HasRole(roleType string) (Role, bool) {
 // This method is not required and may be deleted.
 func (r *Role) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.UUIDIsPresent{Field: (r.ID), Name: "ID"},
+		&validators.UUIDIsPresent{Field: r.ID, Name: "ID"},
 		&validators.StringIsPresent{Field: string(r.RoleType), Name: "RoleType"},
 	), nil
 }
