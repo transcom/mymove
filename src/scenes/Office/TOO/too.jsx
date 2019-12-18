@@ -10,8 +10,8 @@ class TOO extends Component {
     this.props.getAllMoveOrders();
   }
 
-  handleCustomerInfoClick = customerId => {
-    this.props.history.push(`/too/customer/${customerId}/details`);
+  handleCustomerInfoClick = (moveOrderId, customerId) => {
+    this.props.history.push(`/too/customer-moves/${moveOrderId}/customer/${customerId}`);
   };
 
   render() {
@@ -31,15 +31,19 @@ class TOO extends Component {
           <tbody>
             {moveOrders.map(
               ({
-                id,
+                id: moveOrderId,
                 first_name,
                 last_name,
-                customer_id,
                 confirmation_number,
                 branch_of_service,
                 originDutyStation,
+                customerID,
               }) => (
-                <tr data-cy="too-row" onClick={() => this.handleCustomerInfoClick(customer_id)} key={id}>
+                <tr
+                  data-cy="too-row"
+                  onClick={() => this.handleCustomerInfoClick(moveOrderId, customerID)}
+                  key={moveOrderId}
+                >
                   <td>{`${last_name}, ${first_name}`}</td>
                   <td>{confirmation_number}</td>
                   <td>{branch_of_service}</td>

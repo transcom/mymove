@@ -15,7 +15,8 @@ export function getMoveOrder(moveOrderID, label = getMoveOrderLabel) {
 }
 
 export function selectMoveOrder(state, moveOrderId) {
-  return get(state, `entities.moveOrders.${moveOrderId}`, {});
+  console.log('whga', moveOrderId);
+  return get(state, `entities.moveOrder.${moveOrderId}`, {});
 }
 
 const getMoveTaskOrderLabel = 'moveTaskOrder.getMoveTaskOrder';
@@ -31,4 +32,8 @@ export function selectMoveTaskOrder(state, moveTaskOrderId) {
 const getCustomerOperation = 'customer.getCustomer';
 export function getCustomer(customerID, label = getCustomerOperation) {
   return swaggerRequest(getGHCClient, getCustomerOperation, { customerID }, { label });
+}
+
+export function selectCustomer(state, customerId) {
+  return get(state, `entities.customer.${customerId}`, {});
 }

@@ -7,10 +7,16 @@ import {
   getMoveOrder,
   getCustomer,
   selectMoveTaskOrder,
+  selectCustomer,
 } from 'shared/Entities/modules/moveTaskOrders';
 import { selectMoveOrder } from 'shared/Entities/modules/moveTaskOrders';
 
 class CustomerDetails extends Component {
+  componentDidMount() {
+    const { customerId, moveOrderId } = this.props.match.params;
+    this.props.getCustomer(customerId);
+    this.props.getMoveOrder(moveOrderId).then(moveOrder => this.props.getMoveTaskOrder(moveOrder.moveTaskOrderId));
+  }
   render() {
     const { moveTaskOrder, customer, moveOrder } = this.props;
     const entitlements = get(moveOrder, 'entitlement', {});
@@ -87,8 +93,10 @@ class CustomerDetails extends Component {
 
 const mapStateToProps = (state, ownProps) => {
   const moveTaskOrder = selectMoveTaskOrder(state, '5d4b25bb-eb04-4c03-9a81-ee0398cb779e');
-  const moveOrder = selectMoveOrder(state, moveTaskOrder.moveOrderID);
+  const moveOrder = selectMoveOrder(state, ownProps.match.params.moveOrderId);
+  const customer = selectCustomer(state, ownProps.match.params.customerId);
   return {
+    customer,
     moveTaskOrder,
     moveOrder,
   };
