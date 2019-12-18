@@ -3,11 +3,11 @@ import { arrayOf, shape, string } from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
-import { getAllCustomerMoves } from 'shared/Entities/modules/moveTaskOrders';
+import { getAllMoveOrders } from 'shared/Entities/modules/moveOrders';
 
 class TOO extends Component {
   componentDidMount() {
-    this.props.getAllCustomerMoves();
+    this.props.getAllMoveOrders();
   }
 
   handleCustomerInfoClick = customerId => {
@@ -15,7 +15,7 @@ class TOO extends Component {
   };
 
   render() {
-    const { customerMoves } = this.props;
+    const { moveOrders } = this.props;
     return (
       <div>
         <h2>All Customer Moves</h2>
@@ -29,7 +29,7 @@ class TOO extends Component {
             </tr>
           </thead>
           <tbody>
-            {customerMoves.map(
+            {moveOrders.map(
               ({
                 id,
                 first_name,
@@ -56,23 +56,26 @@ class TOO extends Component {
 
 const customerMoveProps = shape({
   id: string.isRequired,
-  customer_name: string.isRequired,
+  first_name: string.isRequired,
+  last_name: string.isRequired,
   confirmation_number: string.isRequired,
-  branch_of_service: string.isRequired,
-  origin_duty_station_name: string.isRequired,
+  branch_of_service: string,
+  originDutyStation: shape({
+    name: string.isRequired,
+  }).isRequired,
 });
 
 TOO.propTypes = {
-  customerMoves: arrayOf(customerMoveProps),
+  moveOrders: arrayOf(customerMoveProps),
 };
 
 const mapStateToProps = state => {
   return {
-    customerMoves: Object.values(get(state, 'entities.moveOrder', {})),
+    moveOrders: Object.values(get(state, 'entities.moveOrder', {})),
   };
 };
 const mapDispatchToProps = {
-  getAllCustomerMoves,
+  getAllMoveOrders,
 };
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(TOO));
