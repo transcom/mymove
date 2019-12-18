@@ -499,7 +499,7 @@ var authorizeKnownUserNew = func(userIdentity *models.UserIdentity, h CallbackHa
 			officeUser, err := models.FetchOfficeUserByEmail(h.db, session.Email)
 			if err == models.ErrFetchNotFound {
 				h.logger.Error("Non-office user authenticated at office site", zap.String("email", session.Email))
-				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				http.Redirect(w, r, h.verificationInProgressURL(session), http.StatusTemporaryRedirect)
 				return
 			} else if err != nil {
 				h.logger.Error("Checking for office user", zap.String("email", session.Email), zap.Error(err))
