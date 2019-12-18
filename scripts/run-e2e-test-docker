@@ -91,7 +91,9 @@ fi
 
 # Build a small tools dockerfile
 make bin_linux/generate-test-data
-docker build -f Dockerfile.tools --tag tools:latest .
+cp -v bin_linux/generate-test-data ./tools
+cp -v pkg/testdatagen/testdata/test.pdf ./tools
+docker build -f tools/Dockerfile.tools --tag tools:latest ./tools
 
 # Truncate the DB
 $DOCKER_RUN \
