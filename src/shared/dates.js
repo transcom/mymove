@@ -29,5 +29,11 @@ export function formatDate(date, format = defaultDateFormat, locale = 'en') {
     .format(format);
 }
 export function formatDateForSwagger(dateString) {
-  return formatDate(dateString, swaggerDateFormat);
+  let parsed = moment(dateString, defaultDateFormat);
+  if (parsed.isValid()) {
+    return parsed.format(swaggerDateFormat);
+  }
+
+  return dateString;
+  // return formatDate(dateString, swaggerDateFormat);
 }
