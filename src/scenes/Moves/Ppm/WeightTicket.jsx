@@ -256,8 +256,7 @@ class WeightTicket extends Component {
               )}
               <div className="expenses-container">
                 <h3 className="expenses-header">Weight Tickets - {weightTicketSetOrdinal} set</h3>
-                Upload an <strong>empty</strong> & <strong>full</strong> weight ticket below for <em>only</em>{' '}
-                <strong>one</strong> vehicle or trip at a time until they're all uploaded.{' '}
+                Upload weight tickets for each vehicle trip and pro-gear weigh.{' '}
                 <Link to="/weight-ticket-examples" className="usa-link">
                   <FontAwesomeIcon aria-hidden className="color_blue_link" icon={faQuestionCircle} />
                 </Link>
