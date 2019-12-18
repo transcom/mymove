@@ -103,7 +103,6 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOSer
 	if err != nil {
 		logger.Error("Auditing service error for service item creation.", zap.Error(err))
 		return mtoserviceitemop.NewCreateMTOServiceItemInternalServerError()
-
 	}
 
 	createdServiceItem, verrs, err := h.MTOServiceItemCreator.CreateMTOServiceItem(&serviceItem)
