@@ -1,32 +1,24 @@
 package paymentrequest
 
 import (
-	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/pop"
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+type paymentRequestQueryBuilder interface {
+	FetchOne(model interface{}, filters []services.QueryFilter) error
+}
+
 type paymentRequestFetcher struct {
-	db *pop.Connection
+	builder paymentRequestQueryBuilder
 }
 
-func NewPaymentRequestFetcher(db *pop.Connection) services.PaymentRequestFetcher {
-	return &paymentRequestFetcher{db}
+func NewPaymentRequestFetcher(builder paymentRequestQueryBuilder) services.PaymentRequestFetcher {
+	return &paymentRequestFetcher{builder}
 }
 
-func (p *paymentRequestFetcher) FetchPaymentRequest(paymentRequestID uuid.UUID) (*models.PaymentRequest, error) {
-	// A mock payment request. This is temporary and will be replaced with real data eventually.
-	mockPaymentRequest := models.PaymentRequest{
-		ID:              paymentRequestID,
-		IsFinal:         false,
-		RejectionReason: swag.String("I don't approve of this"),
-		CreatedAt:       testdatagen.PeakRateCycleStart,
-		UpdatedAt:       testdatagen.PeakRateCycleStart,
-	}
-
-	return &mockPaymentRequest, nil
+func (p *paymentRequestFetcher) FetchPaymentRequest(filters []services.QueryFilter) (models.PaymentRequest, error) {
+	var paymentRequest models.PaymentRequest
+	err := p.builder.FetchOne(&paymentRequest, filters)
+	return paymentRequest, err
 }
