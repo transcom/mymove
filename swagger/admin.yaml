@@ -59,6 +59,31 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/AccessCode'
+  Role:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      roleType:
+        type: string
+        example: customer
+      createdAt:
+        type: string
+        format: datetime
+        example: 2018-04-12T23:20:50.52Z
+        description: when the role was created
+      updatedAt:
+        type: string
+        format: datetime
+        example: 2018-04-12T23:20:50.52Z
+        description: when the role was updated
+    required:
+      - id
+      - roleType
+      - createdAt
+      - updatedAt
   OfficeUser:
     type: object
     properties:
@@ -85,6 +110,10 @@ definitions:
         format: uuid
       active:
         type: boolean
+      roles:
+        type: array
+        items:
+          $ref: '#/definitions/Role'
       created_at:
         type: string
         format: datetime
@@ -100,6 +129,7 @@ definitions:
       - telephone
       - transportation_office_id
       - active
+      - roles
       - created_at
       - updated_at
   OfficeUsers:

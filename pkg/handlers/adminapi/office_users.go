@@ -16,8 +16,21 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
+func payloadForRole(r models.Role) *adminmessages.Role {
+	return &adminmessages.Role{
+		ID:        handlers.FmtUUID(r.ID),
+		RoleType:  &r.RoleType,
+		CreatedAt: handlers.FmtDateTime(r.CreatedAt),
+		UpdatedAt: handlers.FmtDateTime(r.UpdatedAt),
+	}
+}
+
 func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
-	return &adminmessages.OfficeUser{
+	var user models.User
+	if o.UserID != nil {
+		user = o.User
+	}
+	payload := &adminmessages.OfficeUser{
 		ID:                     handlers.FmtUUID(o.ID),
 		FirstName:              handlers.FmtString(o.FirstName),
 		MiddleInitials:         handlers.FmtStringPtr(o.MiddleInitials),
@@ -29,6 +42,12 @@ func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 		CreatedAt:              handlers.FmtDateTime(o.CreatedAt),
 		UpdatedAt:              handlers.FmtDateTime(o.UpdatedAt),
 	}
+	if len(user.Roles) > 0 {
+		for _, role := range user.Roles {
+			payload.Roles = append(payload.Roles, payloadForRole(role))
+		}
+	}
+	return payload
 }
 
 // IndexOfficeUsersHandler returns a list of office users via GET /office_users
@@ -88,7 +107,14 @@ func (h GetOfficeUserHandler) Handle(params officeuserop.GetOfficeUserParams) mi
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-
+	userError := h.DB().Load(&officeUser, "User")
+	if userError != nil {
+		return handlers.ResponseForError(logger, userError)
+	}
+	roleError := h.DB().Load(&officeUser.User, "Roles")
+	if roleError != nil {
+		return handlers.ResponseForError(logger, roleError)
+	}
 	payload := payloadForOfficeUserModel(officeUser)
 
 	return officeuserop.NewGetOfficeUserOK().WithPayload(payload)
