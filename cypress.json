@@ -1,6 +1,6 @@
 {
   "baseUrl": "http://milmovelocal:4000",
-  "reporter": "mocha-multi-reporters",
+  "reporter": "cypress-multi-reporters",
   "reporterOptions": {
     "configFile": "mocha-reporter-config.json"
   },
