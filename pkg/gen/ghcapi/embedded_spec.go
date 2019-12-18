@@ -838,28 +838,10 @@ func init() {
               "$ref": "#/definitions/MTOServiceItems"
             }
           },
-          "400": {
-            "description": "The request payload is invalid",
+          "422": {
+            "description": "Validation error",
             "schema": {
-              "$ref": "#/responses/InvalidRequest"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -955,6 +937,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
+          "format": "uuid",
           "description": "ID of move order for mto service item to use",
           "name": "moveTaskOrderID",
           "in": "path",
@@ -2940,40 +2923,10 @@ func init() {
               "$ref": "#/definitions/MTOServiceItems"
             }
           },
-          "400": {
-            "description": "The request payload is invalid",
+          "422": {
+            "description": "Validation error",
             "schema": {
-              "description": "The request payload is invalid",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
+              "$ref": "#/definitions/ValidationError"
             }
           },
           "500": {
@@ -3075,6 +3028,7 @@ func init() {
       "parameters": [
         {
           "type": "string",
+          "format": "uuid",
           "description": "ID of move order for mto service item to use",
           "name": "moveTaskOrderID",
           "in": "path",

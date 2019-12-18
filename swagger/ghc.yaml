@@ -288,6 +288,7 @@ paths:
         in: path
         name: moveTaskOrderID
         required: true
+        format: uuid
         type: string
     get:
       produces:
@@ -298,22 +299,10 @@ paths:
           description: Successfully retrieved all line items for a move task order
           schema:
             $ref: '#/definitions/MTOServiceItems'
-        '400':
-          description: The request payload is invalid
+        '422':
+          description: Validation error
           schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
+            $ref: '#/definitions/ValidationError'
         '500':
           description: A server error occurred
           schema:
