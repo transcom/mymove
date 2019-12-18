@@ -221,6 +221,9 @@ bin/big-cat:
 bin/compare-secure-migrations:
 	go build -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare-secure-migrations
 
+bin/ecs-deploy:
+	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy ./cmd/ecs-deploy
+
 bin/ecs-deploy-task-container:
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy-task-container ./cmd/ecs-deploy-task-container
 
@@ -349,6 +352,7 @@ build_tools: bin/chamber \
 	bin/rds-ca-2019-root.pem \
 	bin/big-cat \
 	bin/compare-secure-migrations \
+	bin/ecs-deploy \
 	bin/ecs-deploy-task-container \
 	bin/ecs-service-logs \
 	bin/find-guardduty-user \
