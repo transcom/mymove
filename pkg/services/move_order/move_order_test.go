@@ -27,7 +27,7 @@ func (suite *MoveOrderServiceSuite) TestListMoveOrder() {
 
 	moveOrders, err := moveOrderFetcher.ListMoveOrders()
 	suite.NoError(err)
-	suite.Len(moveOrders,1 )
+	suite.Len(moveOrders, 1)
 
 	moveOrder := moveOrders[0]
 	suite.Equal(expectedMoveOrder.Customer.FirstName, moveOrder.Customer.FirstName)

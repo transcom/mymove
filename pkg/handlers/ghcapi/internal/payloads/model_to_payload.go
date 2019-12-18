@@ -45,8 +45,8 @@ func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
 	payload := ghcmessages.MoveOrder{
 		Agency:                 moveOrder.Customer.Agency,
 		CustomerID:             strfmt.UUID(moveOrder.CustomerID.String()),
-		FirstName: 				moveOrder.Customer.FirstName,
-		LastName:				moveOrder.Customer.LastName,
+		FirstName:              moveOrder.Customer.FirstName,
+		LastName:               moveOrder.Customer.LastName,
 		ConfirmationNumber:     moveOrder.ConfirmationNumber,
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            entitlements,

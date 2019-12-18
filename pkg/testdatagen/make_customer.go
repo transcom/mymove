@@ -25,10 +25,10 @@ func MakeCustomer(db *pop.Connection, assertions Assertions) models.Customer {
 	}
 	customer := models.Customer{
 		FirstName: firstName,
-		LastName: lastName,
-		User:   user,
-		UserID: user.ID,
-		DODID:  randomEdipi(),
+		LastName:  lastName,
+		User:      user,
+		UserID:    user.ID,
+		DODID:     randomEdipi(),
 	}
 
 	// Overwrite values with those from assertions

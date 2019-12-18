@@ -64,7 +64,7 @@ type fetchMoveOrder struct {
 //Last, First Name | Confirmation # | Branch of Service | Origin Duty Station
 func (f fetchMoveOrder) ListMoveOrders() ([]models.MoveOrder, error) {
 	var moveOrders []models.MoveOrder
-	err := f.db.Eager("Customer", "ConfirmationNumber","DestinationDutyStation.Address", "OriginDutyStation.Address", "Entitlement").All(&moveOrders)
+	err := f.db.Eager("Customer", "ConfirmationNumber", "DestinationDutyStation.Address", "OriginDutyStation.Address", "Entitlement").All(&moveOrders)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:

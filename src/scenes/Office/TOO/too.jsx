@@ -26,7 +26,6 @@ class TOO extends Component {
               <th>Confirmation #</th>
               <th>Branch of Service</th>
               <th>Origin Duty Station</th>
-              <th>MTO Reference ID</th>
             </tr>
           </thead>
           <tbody>
@@ -38,15 +37,13 @@ class TOO extends Component {
                 customer_id,
                 confirmation_number,
                 branch_of_service,
-                origin_duty_station_name,
-                reference_id,
+                originDutyStation,
               }) => (
                 <tr data-cy="too-row" onClick={() => this.handleCustomerInfoClick(customer_id)} key={id}>
                   <td>{`${last_name}, ${first_name}`}</td>
                   <td>{confirmation_number}</td>
                   <td>{branch_of_service}</td>
-                  <td>{origin_duty_station_name}</td>
-                  <td>{reference_id}</td>
+                  <td>{originDutyStation.name}</td>
                 </tr>
               ),
             )}
@@ -71,7 +68,7 @@ TOO.propTypes = {
 
 const mapStateToProps = state => {
   return {
-    customerMoves: Object.values(get(state, 'entities.customerMoveItem', {})),
+    customerMoves: Object.values(get(state, 'entities.moveOrder', {})),
   };
 };
 const mapDispatchToProps = {

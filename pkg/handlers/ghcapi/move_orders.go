@@ -2,6 +2,7 @@ package ghcapi
 
 import (
 	"database/sql"
+
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/services"
 

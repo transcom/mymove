@@ -155,7 +155,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "moveOrders"
+          "moveOrder"
         ],
         "summary": "Gets all move orders",
         "operationId": "listMoveOrders",
@@ -1698,6 +1698,14 @@ func init() {
     "MoveOrder": {
       "type": "object",
       "properties": {
+        "agency": {
+          "type": "string",
+          "example": "civilian"
+        },
+        "confirmation_number": {
+          "type": "string",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "customerID": {
           "type": "string",
           "format": "uuid",
@@ -1709,10 +1717,29 @@ func init() {
         "entitlement": {
           "$ref": "#/definitions/Entitlements"
         },
+        "first_name": {
+          "type": "string",
+          "readOnly": true,
+          "example": "John"
+        },
+        "grade": {
+          "type": "string",
+          "example": "E_1"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "last_name": {
+          "type": "string",
+          "readOnly": true,
+          "example": "Doe"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
@@ -2159,7 +2186,7 @@ func init() {
           "application/json"
         ],
         "tags": [
-          "moveOrders"
+          "moveOrder"
         ],
         "summary": "Gets all move orders",
         "operationId": "listMoveOrders",
@@ -3945,6 +3972,14 @@ func init() {
     "MoveOrder": {
       "type": "object",
       "properties": {
+        "agency": {
+          "type": "string",
+          "example": "civilian"
+        },
+        "confirmation_number": {
+          "type": "string",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
         "customerID": {
           "type": "string",
           "format": "uuid",
@@ -3956,10 +3991,29 @@ func init() {
         "entitlement": {
           "$ref": "#/definitions/Entitlements"
         },
+        "first_name": {
+          "type": "string",
+          "readOnly": true,
+          "example": "John"
+        },
+        "grade": {
+          "type": "string",
+          "example": "E_1"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "last_name": {
+          "type": "string",
+          "readOnly": true,
+          "example": "Doe"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
