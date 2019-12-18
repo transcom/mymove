@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 func payloadForMTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
@@ -30,6 +31,15 @@ func payloadForMTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOSer
 		MetaID:          handlers.FmtUUID(s.MetaID),
 		MetaType:        &s.MetaType,
 	}
+}
+
+func payloadForMTOServiceItemModels(s models.MTOServiceItems) ghcmessages.MTOServiceItems {
+	serviceItems := ghcmessages.MTOServiceItems{}
+	for _, item := range s {
+		serviceItems = append(serviceItems, payloadForMTOServiceItemModel(&item))
+	}
+
+	return serviceItems
 }
 
 func payloadForClientError(title string, detail string, instance uuid.UUID) *ghcmessages.ClientError {
@@ -120,4 +130,45 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOSer
 
 	returnPayload := payloadForMTOServiceItemModel(createdServiceItem)
 	return mtoserviceitemop.NewCreateMTOServiceItemCreated().WithPayload(returnPayload)
+}
+
+// ListMTOServiceItemsHandler struct that describes listing service items for the move task order
+type ListMTOServiceItemsHandler struct {
+	handlers.HandlerContext
+	services.ListFetcher
+}
+
+// Handle handler that lists mto service items for the move task order
+func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServiceItemsParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	moveTaskOrderID, err := uuid.FromString(params.MoveTaskOrderID.String())
+	// return any parsing error
+	if err != nil {
+		parsingError := fmt.Errorf("UUID Parsing for %s: %w", "MoveTaskOrderID", err).Error()
+		logger.Error(parsingError)
+		payload := payloadForValidationError("UUID(s) parsing error", parsingError, h.GetTraceID(), validate.NewErrors())
+
+		return mtoserviceitemop.NewListMTOServiceItemsUnprocessableEntity().WithPayload(payload)
+	}
+
+	queryFilters := []services.QueryFilter{
+		query.NewQueryFilter("move_task_order_id", "=", moveTaskOrderID.String()),
+	}
+	queryAssociations := query.NewQueryAssociations([]services.QueryAssociation{
+		query.NewQueryAssociation("ReService"),
+	})
+
+	var serviceItems models.MTOServiceItems
+	// TODO: FIGURE OUT IF WE CAN PASS IN THE NILS
+	err = h.ListFetcher.FetchRecordList(&serviceItems, queryFilters, queryAssociations, nil, nil)
+	// return any errors
+	if err != nil {
+		logger.Error("Error fetching mto service items: ", zap.Error(err))
+
+		return mtoserviceitemop.NewCreateMTOServiceItemInternalServerError()
+	}
+
+	returnPayload := payloadForMTOServiceItemModels(serviceItems)
+	return mtoserviceitemop.NewListMTOServiceItemsOK().WithPayload(returnPayload)
 }
