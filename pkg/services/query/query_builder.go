@@ -82,12 +82,16 @@ func buildQuery(query *pop.Query, filters []services.QueryFilter, pagination ser
 }
 
 func paginatedQuery(query *pop.Query, pagination services.Pagination, t reflect.Type) (*pop.Query, error) {
+	if pagination == nil {
+		return query, nil
+	}
+
 	return query.Paginate(pagination.Page(), pagination.PerPage()), nil
 }
 
 func orderedQuery(query *pop.Query, order services.QueryOrder, t reflect.Type) (*pop.Query, error) {
 	//omit sorting if no column specified
-	if order.Column() == nil || order.SortOrder() == nil {
+	if order == nil || order.Column() == nil || order.SortOrder() == nil {
 		return query, nil
 	}
 
@@ -185,6 +189,10 @@ func categoricalCountsQueryOneModel(conn *pop.Connection, filters []services.Que
 }
 
 func filteredQuery(query *pop.Query, filters []services.QueryFilter, t reflect.Type) (*pop.Query, error) {
+	if filters == nil {
+		return query, nil
+	}
+
 	invalidFields := make([]string, 0)
 	likeFilters := []services.QueryFilter{}
 
