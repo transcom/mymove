@@ -2,7 +2,6 @@ package primeapi
 
 import (
 	"fmt"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -64,6 +63,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		return paymentrequestop.NewCreatePaymentRequestBadRequest()
 	}
 
+	paymentRequest.ProofOfServiceDocs, err = h.buildProofOfServiceDocs(payload)
 	createdPaymentRequest, err := h.PaymentRequestCreator.CreatePaymentRequest(&paymentRequest)
 	if err != nil {
 		logger.Error("Error creating payment request", zap.Error(err))
@@ -117,13 +117,17 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(payloadServic
 	return paymentServiceItemParams
 }
 
-//func (h CreatePaymentRequestHandler) buildProofOfServiceDocs(payload *primemessages.CreatePaymentRequestPayload) (models.ProofOfServiceDocs, error) {
-//	var proofOfServiceDocs models.ProofOfServiceDocs
-//
-//	for _, payloadProofOfServiceDocs := range payload.ProofOfServiceDocs {
-//		paymentRequestID, err := uuid.FromString(payloadProofOfServiceDocs.ID.String())
-//	}
-//}
+func (h CreatePaymentRequestHandler) buildProofOfServiceDocs(payload *primemessages.CreatePaymentRequestPayload) (models.ProofOfServiceDocs, error) {
+	proofOfServiceDocs := models.ProofOfServiceDocs{}
+	//for _, upload := range payload.ProofOfServiceDocs.Uploads {
+	//	doc := models.ProofOfServiceDoc{
+	//		Upload:           *upload,
+	//		}
+	//	proofOfServiceDocs = append(proofOfServiceDocs, doc)
+	//}
+
+	return proofOfServiceDocs, nil
+}
 
 //Loop through the uploads (ProofofServicePackage)
 //For each one create a ProofOfServiceDoc
