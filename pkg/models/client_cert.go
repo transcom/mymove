@@ -29,7 +29,6 @@ type ClientCert struct {
 	AllowMarineCorpsOrdersWrite bool      `db:"allow_marine_corps_orders_write"`
 	AllowNavyOrdersRead         bool      `db:"allow_navy_orders_read"`
 	AllowNavyOrdersWrite        bool      `db:"allow_navy_orders_write"`
-	AllowPrime                  bool      `db:"allow_prime"`
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

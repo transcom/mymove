@@ -92,17 +92,12 @@ func AdminAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	}
 }
 
-func PrimeAuthorizationMiddleware(logger Logger) func(next http.Handler) http.Handler {
+func PrimeAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			clientCert := ClientCertFromContext(r.Context())
-			if clientCert == nil {
-				logger.Error("unauthorized user for ghc prime")
-				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-				return
-			}
-			if !clientCert.AllowPrime {
-				logger.Error("forbidden user for ghc prime")
+			session := auth.SessionFromRequestContext(r)
+
+			if session == nil || !session.IsOfficeUser() {
 				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
 			}
@@ -113,6 +108,7 @@ func PrimeAuthorizationMiddleware(logger Logger) func(next http.Handler) http.Ha
 		return http.HandlerFunc(mw)
 	}
 }
+
 func (context Context) landingURL(session *auth.Session) string {
 	return fmt.Sprintf(context.callbackTemplate, session.Hostname)
 }

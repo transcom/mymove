@@ -81,6 +81,3 @@ storybook-static
 *.sfp
 *.ign
 *.ign2
-
-# Certs
-*.srl

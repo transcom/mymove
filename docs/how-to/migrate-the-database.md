@@ -26,7 +26,7 @@ use `milmove gen`.  Those subcommands include:
 * `disable-user-migration`: creates a migration for disabling a user given their e-mail address
 * `duty-stations-migration`: creates a migration to update duty stations given a CSV of duty station data
 * `office-user-migration`: creates a migration to add office users given a CSV of new office user data
-* `certs-migration`: creates a migration to add a certificate for access to electronic orders and the prime api
+* `orders-migration`: creates a migration to add a certificate for access to electronic orders
 
 > **We don't use down-migrations to revert changes to the schema; any problems are to be fixed by a follow-up migration.**
 

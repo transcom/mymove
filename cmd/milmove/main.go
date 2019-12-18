@@ -87,16 +87,16 @@ func main() {
 	initGenOfficeUserMigrationFlags(genOfficeUserMigrationCommand.Flags())
 	genCommand.AddCommand(genOfficeUserMigrationCommand)
 
-	genCertsMigrationCommand := &cobra.Command{
-		Use:                   "certs-migration -f FINGERPRINT -s SUBJECT -n MIGRATION_NAME",
-		Short:                 "Generate migrations required for adding client certificates",
-		Long:                  "Generate migrations required for adding client certificates",
-		RunE:                  genCertsMigration,
+	genOrdersMigrationCommand := &cobra.Command{
+		Use:                   "orders-migration -f FINGERPRINT -n MIGRATION_NAME",
+		Short:                 "Generate migrations required for adding orders certificates",
+		Long:                  "Generate migrations required for adding orders certificates",
+		RunE:                  genOrdersMigration,
 		DisableFlagsInUseLine: true,
 		SilenceErrors:         true, // not needed
 	}
-	initGenCertsMigrationFlags(genCertsMigrationCommand.Flags())
-	genCommand.AddCommand(genCertsMigrationCommand)
+	initGenOrdersMigrationFlags(genOrdersMigrationCommand.Flags())
+	genCommand.AddCommand(genOrdersMigrationCommand)
 
 	genDutyStationsMigrationCommand := &cobra.Command{
 		Use:                   "duty-stations-migration -f CSV_FILENAME -n MIGRATION_NAME",
