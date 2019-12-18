@@ -112,7 +112,7 @@
     },
     {
       "name": "AWS_S3_REGION",
-      "value": "us-west-2"
+      "value": "{{ .AWS_S3_REGION }}"
     },
     {
       "name": "AWS_S3_KEY_NAMESPACE",
