@@ -9,10 +9,23 @@ import (
 // MakeCustomer creates a single Customer
 func MakeCustomer(db *pop.Connection, assertions Assertions) models.Customer {
 	user := assertions.User
+	firstName := assertions.Customer.FirstName
+	lastName := assertions.Customer.LastName
+
+	if firstName == "" {
+		firstName = "Bob"
+	}
+
+	if lastName == "" {
+		lastName = "Vance"
+	}
+
 	if isZeroUUID(user.ID) {
 		user = MakeUser(db, assertions)
 	}
 	customer := models.Customer{
+		FirstName: firstName,
+		LastName: lastName,
 		User:   user,
 		UserID: user.ID,
 		DODID:  randomEdipi(),

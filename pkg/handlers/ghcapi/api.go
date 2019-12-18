@@ -55,6 +55,7 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		customer.NewCustomerFetcher(context.DB()),
 	}
+	ghcAPI.MoveOrderListMoveOrdersHandler = ListMoveOrdersHandler{context, moveorder.NewMoveOrderFetcher(context.DB())}
 	ghcAPI.MoveOrderGetMoveOrderHandler = GetMoveOrdersHandler{
 		context,
 		moveorder.NewMoveOrderFetcher(context.DB()),

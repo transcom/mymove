@@ -33,7 +33,8 @@ class TOO extends Component {
             {customerMoves.map(
               ({
                 id,
-                customer_name,
+                first_name,
+                last_name,
                 customer_id,
                 confirmation_number,
                 branch_of_service,
@@ -41,7 +42,7 @@ class TOO extends Component {
                 reference_id,
               }) => (
                 <tr data-cy="too-row" onClick={() => this.handleCustomerInfoClick(customer_id)} key={id}>
-                  <td>{customer_name}</td>
+                  <td>{`${last_name}, ${first_name}`}</td>
                   <td>{confirmation_number}</td>
                   <td>{branch_of_service}</td>
                   <td>{origin_duty_station_name}</td>

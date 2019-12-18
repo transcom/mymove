@@ -27,6 +27,7 @@ func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.MoveOrder {
 	moveOrder := models.MoveOrder{
 		Customer:                 customer,
 		CustomerID:               customer.ID,
+		ConfirmationNumber:       models.GenerateLocator(),
 		Entitlement:              entitlement,
 		EntitlementID:            entitlement.ID,
 		DestinationDutyStation:   destinationDutyStation,

@@ -61,6 +61,21 @@ type fetchMoveOrder struct {
 	db *pop.Connection
 }
 
+//Last, First Name | Confirmation # | Branch of Service | Origin Duty Station
+func (f fetchMoveOrder) ListMoveOrders() ([]models.MoveOrder, error) {
+	var moveOrders []models.MoveOrder
+	err := f.db.Eager("Customer", "ConfirmationNumber","DestinationDutyStation.Address", "OriginDutyStation.Address", "Entitlement").All(&moveOrders)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return []models.MoveOrder{}, ErrNotFound{}
+		default:
+			return []models.MoveOrder{}, err
+		}
+	}
+	return moveOrders, nil
+}
+
 // NewMoveOrderFetcher creates a new struct with the service dependencies
 func NewMoveOrderFetcher(db *pop.Connection) services.MoveOrderFetcher {
 	return &fetchMoveOrder{db}

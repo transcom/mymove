@@ -33,7 +33,7 @@ export function getCustomer(customerID, label = getCustomerOperation) {
   return swaggerRequest(getGHCClient, getCustomerOperation, { customerID }, { label });
 }
 
-const getAllCustomerMovesOperation = 'customer.getAllCustomerMoves';
+const getAllCustomerMovesOperation = 'moveOrder.listMoveOrders';
 export function getAllCustomerMoves(label = getAllCustomerMovesOperation) {
   return swaggerRequest(getGHCClient, getAllCustomerMovesOperation, {}, { label });
 }

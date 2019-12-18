@@ -15,6 +15,9 @@ type Customer struct {
 	DODID     string    `db:"dod_id"`
 	UserID    uuid.UUID `json:"user_id" db:"user_id"`
 	User      User      `belongs_to:"users"`
+	FirstName string    `db:"first_name"`
+	LastName  string    `db:"last_name"`
+	Agency    string    `db:"agency"`
 	CreatedAt time.Time `db:"created_at"`
 	UpdatedAt time.Time `db:"updated_at"`
 }

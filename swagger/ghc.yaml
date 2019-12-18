@@ -155,7 +155,7 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - moveOrders
+        - moveOrder
       description: Gets all move orders
       operationId: listMoveOrders
       summary: Gets all move orders
@@ -1131,6 +1131,23 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      confirmation_number:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        type: string
+      first_name:
+        type: string
+        example: John
+        readOnly: true
+      last_name:
+        type: string
+        example: Doe
+        readOnly: true
+      grade:
+        type: string
+        example: E_1
+      agency:
+        type: string
+        example: civilian
       entitlement:
         $ref: '#/definitions/Entitlements'
       destinationDutyStation:

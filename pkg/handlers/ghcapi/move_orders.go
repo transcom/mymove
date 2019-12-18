@@ -2,7 +2,7 @@ package ghcapi
 
 import (
 	"database/sql"
-
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -38,26 +38,28 @@ func (h GetMoveOrdersHandler) Handle(params moveorderop.GetMoveOrderParams) midd
 	return moveorderop.NewGetMoveOrderOK().WithPayload(moveOrderPayload)
 }
 
-// GetMoveOrdersHandler fetches the information of a specific customer
+// ListMoveOrders fetches all the move orders
 type ListMoveOrdersHandler struct {
 	handlers.HandlerContext
 	services.MoveOrderFetcher
 }
 
 // Handle getting the all move orders
-func (h ListMoveOrdersHandler) Handle(params moveorderop.GetMoveOrderParams) middleware.Responder {
+func (h ListMoveOrdersHandler) Handle(params moveorderop.ListMoveOrdersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	moveOrderID, _ := uuid.FromString(params.MoveOrderID.String())
-	moveOrder, err := h.FetchMoveOrder(moveOrderID)
+	moveOrders, err := h.ListMoveOrders()
 	if err != nil {
-		logger.Error("fetching move order", zap.Error(err))
+		logger.Error("fetching all move orders", zap.Error(err))
 		switch err {
 		case sql.ErrNoRows:
-			return moveorderop.NewGetMoveOrderNotFound()
+			return moveorderop.NewListMoveOrdersNotFound()
 		default:
-			return moveorderop.NewGetMoveOrderInternalServerError()
+			return moveorderop.NewListMoveOrdersInternalServerError()
 		}
 	}
-	moveOrderPayload := payloads.MoveOrder(moveOrder)
-	return moveorderop.NewGetMoveOrderOK().WithPayload(moveOrderPayload)
+	moveOrdersPayload := make(ghcmessages.MoveOrders, len(moveOrders))
+	for i, moveOrder := range moveOrders {
+		moveOrdersPayload[i] = payloads.MoveOrder(&moveOrder)
+	}
+	return moveorderop.NewListMoveOrdersOK().WithPayload(moveOrdersPayload)
 }
