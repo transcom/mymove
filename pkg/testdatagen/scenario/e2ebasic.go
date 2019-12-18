@@ -4,6 +4,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
@@ -891,7 +893,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	/* A user with Roles */
-	smRole := models.Role{}
+	smRole := roles.Role{}
 	err := db.Where("role_type = $1", "customer").First(&smRole)
 	if err != nil {
 		log.Fatal(err)
@@ -903,12 +905,12 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
 			Active:        true,
-			Roles:         []models.Role{smRole},
+			Roles:         []roles.Role{smRole},
 		},
 	})
 
 	/* A user with too role */
-	tooRole := models.Role{}
+	tooRole := roles.Role{}
 	err = db.Where("role_type = $1", "transportation_ordering_officer").First(&smRole)
 	if err != nil {
 		log.Fatal(err)
@@ -922,7 +924,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
 			Active:        true,
-			Roles:         []models.Role{tooRole},
+			Roles:         []roles.Role{tooRole},
 		},
 	})
 

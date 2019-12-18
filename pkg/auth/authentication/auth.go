@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/markbates/goth"
@@ -60,7 +62,7 @@ func RoleAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 			}
 			// DO NOT CHECK MILMOVE SESSION BECAUSE NEW SERVICE MEMBERS WON'T HAVE AN ID RIGHT AWAY
 			// This must be the right type of user for the application
-			if session.IsOfficeApp() && !session.IsOfficeUser() && !session.Roles.HasRole(auth.TOO) {
+			if session.IsOfficeApp() && !session.IsOfficeUser() && !session.Roles.HasRole(roles.TOO) {
 				logger.Error("unauthorized user for office.move.mil", zap.String("email", session.Email))
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
@@ -474,7 +476,7 @@ var authorizeKnownUserNew = func(userIdentity *models.UserIdentity, h CallbackHa
 		return
 	}
 	for _, role := range userIdentity.Roles {
-		session.Roles = append(session.Roles, auth.Role(role))
+		session.Roles = append(session.Roles, role)
 	}
 	session.UserID = userIdentity.ID
 
@@ -487,10 +489,10 @@ var authorizeKnownUserNew = func(userIdentity *models.UserIdentity, h CallbackHa
 	}
 	trc := tooRoleChecker{h.db, h.logger}
 	tooRole, err := trc.VerifyHasTOORole(userIdentity)
-	if err == nil && !session.Roles.HasRole(auth.TOO) {
-		session.Roles = append(session.Roles, auth.Role(tooRole))
+	if err == nil && !session.Roles.HasRole(roles.TOO) {
+		session.Roles = append(session.Roles, tooRole)
 	}
-	if session.IsOfficeApp() && !session.Roles.HasRole(auth.TOO) {
+	if session.IsOfficeApp() && !session.Roles.HasRole(roles.TOO) {
 		if userIdentity.OfficeActive != nil && !*userIdentity.OfficeActive {
 			h.logger.Error("Office user is deactivated", zap.String("email", session.Email))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)
@@ -587,7 +589,7 @@ var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandl
 		return
 	}
 	for _, role := range userIdentity.Roles {
-		session.Roles = append(session.Roles, auth.Role(role))
+		session.Roles = append(session.Roles, role)
 	}
 	session.UserID = userIdentity.ID
 

@@ -3,9 +3,10 @@ package auth
 import (
 	"context"
 	"net/http"
-	"time"
 
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/models/roles"
 )
 
 type authSessionKey string
@@ -39,30 +40,6 @@ func (s *Session) IsAdminApp() bool {
 	return s.ApplicationName == AdminApp
 }
 
-type RoleType string
-
-const (
-	TOO RoleType = "transportation_ordering_officer"
-)
-
-type Role struct {
-	ID        uuid.UUID `json:"id" db:"id"`
-	RoleType  RoleType  `json:"role_type" db:"role_type"`
-	CreatedAt time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
-}
-
-type Roles []Role
-
-func (rs Roles) HasRole(roleType RoleType) bool {
-	for _, r := range rs {
-		if r.RoleType == roleType {
-			return true
-		}
-	}
-	return false
-}
-
 // Session stores information about the currently logged in session
 type Session struct {
 	ApplicationName Application
@@ -78,7 +55,7 @@ type Session struct {
 	AdminUserID     uuid.UUID
 	AdminUserRole   string
 	DpsUserID       uuid.UUID
-	Roles           Roles
+	Roles           roles.Roles
 }
 
 // SetSessionInRequestContext modifies the request's Context() to add the session data

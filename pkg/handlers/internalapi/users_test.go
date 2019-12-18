@@ -3,6 +3,8 @@ package internalapi
 import (
 	"net/http/httptest"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -30,7 +32,7 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 
 func (suite *HandlerSuite) TestServiceMemberLoggedInUserRequiringAccessCodeHandler() {
 	firstName := "Joseph"
-	smRole := models.Role{
+	smRole := roles.Role{
 		RoleType: "customer",
 	}
 	suite.NoError(suite.DB().Save(&smRole))
@@ -40,7 +42,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserRequiringAccessCodeHandl
 			RequiresAccessCode: true,
 		},
 		User: models.User{
-			Roles: []models.Role{smRole},
+			Roles: []roles.Role{smRole},
 		},
 	})
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)

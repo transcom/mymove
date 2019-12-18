@@ -3,6 +3,8 @@ package models_test
 import (
 	"testing"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -133,7 +135,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Nil(identity.ServiceMemberID)
 	suite.Nil(identity.OfficeUserID)
 
-	roles := []Role{{
+	rs := []roles.Role{{
 		ID:       uuid.FromStringOrNil("ed2d2cd7-d427-412a-98bb-a9b391d98d32"),
 		RoleType: "customer",
 	}, {
@@ -141,12 +143,12 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 		RoleType: "transportation_ordering_officer",
 	},
 	}
-	suite.NoError(suite.DB().Create(&roles))
-	customerRole := roles[0]
+	suite.NoError(suite.DB().Create(&rs))
+	customerRole := rs[0]
 	pat := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
 		User: User{
 			Active: true,
-			Roles:  []Role{customerRole},
+			Roles:  []roles.Role{customerRole},
 		},
 	})
 
@@ -155,12 +157,12 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.NotNil(identity)
 	suite.Equal(len(identity.Roles), 1)
 
-	tooRole := roles[1]
+	tooRole := rs[1]
 	suite.NoError(err)
 	billy := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
 		User: User{
 			Active: true,
-			Roles:  []Role{tooRole},
+			Roles:  []roles.Role{tooRole},
 		},
 	})
 

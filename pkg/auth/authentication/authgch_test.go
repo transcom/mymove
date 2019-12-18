@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	"github.com/transcom/mymove/pkg/cli"
 
 	"github.com/gofrs/uuid"
@@ -292,7 +294,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserIsTOOUser() {
 	oa := &mocks.OfficeUserAssociator{}
 	oa.On("AssociateOfficeUser", mock.Anything).Return(nil, ErrUnauthorized)
 	tr := &mocks.TOORoleChecker{}
-	tr.On("VerifyHasTOORole", mock.Anything).Return(models.Role{RoleType: auth.TOO}, nil)
+	tr.On("VerifyHasTOORole", mock.Anything).Return(roles.Role{RoleType: roles.TOO}, nil)
 	tr.On("FetchUserIdentity", mock.Anything).Return(&models.UserIdentity{}, nil)
 	aa := &mocks.AdminUserAssociator{}
 	cca := &mocks.CustomerCreatorAndAssociator{}
@@ -325,25 +327,25 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserIsTOOUser() {
 	oa.AssertNumberOfCalls(suite.T(), "AssociateOfficeUser", 1)
 	tr.AssertNumberOfCalls(suite.T(), "VerifyHasTOORole", 1)
 	//TODO think about this assertion
-	suite.True(session.Roles.HasRole(auth.TOO))
+	suite.True(session.Roles.HasRole(roles.TOO))
 	suite.NotEqual(uuid.Nil, session.UserID)
 }
 
 func (suite *AuthSuite) TestVerifyHasTOORole() {
-	roles := []models.Role{{
+	rs := []roles.Role{{
 		ID:       uuid.FromStringOrNil("ed2d2cd7-d427-412a-98bb-a9b391d98d32"),
 		RoleType: "customer",
 	},
 		{
 			ID:       uuid.FromStringOrNil("9dc423b6-33b8-493a-a59b-6a823660cb07"),
-			RoleType: auth.TOO,
+			RoleType: roles.TOO,
 		},
 	}
-	suite.NoError(suite.DB().Create(&roles))
+	suite.NoError(suite.DB().Create(&rs))
 	user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
 		User: models.User{
 			Active: true,
-			Roles:  []models.Role{roles[1]},
+			Roles:  []roles.Role{rs[1]},
 		},
 	})
 	ta := tooRoleChecker{suite.DB(), suite.logger}
@@ -352,20 +354,20 @@ func (suite *AuthSuite) TestVerifyHasTOORole() {
 	role, err := ta.VerifyHasTOORole(ui)
 
 	suite.NoError(err)
-	suite.Equal(role.RoleType, auth.TOO)
+	suite.Equal(role.RoleType, roles.TOO)
 }
 
 func (suite *AuthSuite) TestVerifyHasTOORoleError() {
-	roles := []models.Role{{
+	rs := []roles.Role{{
 		ID:       uuid.FromStringOrNil("ed2d2cd7-d427-412a-98bb-a9b391d98d32"),
 		RoleType: "customer",
 	},
 		{
 			ID:       uuid.FromStringOrNil("9dc423b6-33b8-493a-a59b-6a823660cb07"),
-			RoleType: auth.TOO,
+			RoleType: roles.TOO,
 		},
 	}
-	suite.NoError(suite.DB().Create(&roles))
+	suite.NoError(suite.DB().Create(&rs))
 	user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{})
 	ta := tooRoleChecker{suite.DB(), suite.logger}
 	ui, err := ta.FetchUserIdentity(&user)

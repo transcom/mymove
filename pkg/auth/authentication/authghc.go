@@ -3,6 +3,8 @@ package authentication
 import (
 	"strings"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/markbates/goth"
@@ -50,7 +52,7 @@ type AdminUserAssociator interface {
 //go:generate mockery -name TOORoleChecker
 type TOORoleChecker interface {
 	FetchUserIdentity(user *models.User) (*models.UserIdentity, error)
-	VerifyHasTOORole(identity *models.UserIdentity) (models.Role, error)
+	VerifyHasTOORole(identity *models.UserIdentity) (roles.Role, error)
 }
 
 type UnknownUserAuthorizer struct {
@@ -104,8 +106,8 @@ func (uua UnknownUserAuthorizer) AuthorizeUnknownUser(openIDUser goth.User, sess
 					return tooErr
 				}
 				tooRole, tooErr := uua.VerifyHasTOORole(userIdentity)
-				if tooErr == nil && !session.Roles.HasRole(auth.TOO) {
-					session.Roles = append(session.Roles, auth.Role(tooRole))
+				if tooErr == nil && !session.Roles.HasRole(roles.TOO) {
+					session.Roles = append(session.Roles, tooRole)
 				}
 				if tooErr != nil {
 					return tooErr
@@ -243,9 +245,9 @@ func (t tooRoleChecker) FetchUserIdentity(user *models.User) (*models.UserIdenti
 }
 
 //Probably want to update this to return roles to add to session
-func (t tooRoleChecker) VerifyHasTOORole(identity *models.UserIdentity) (models.Role, error) {
-	if role, ok := identity.Roles.HasRole("transportation_ordering_officer"); ok {
+func (t tooRoleChecker) VerifyHasTOORole(identity *models.UserIdentity) (roles.Role, error) {
+	if role, ok := identity.Roles.GetRole(roles.TOO); ok {
 		return role, nil
 	}
-	return models.Role{}, ErrTOOUnauthorized
+	return roles.Role{}, ErrTOOUnauthorized
 }

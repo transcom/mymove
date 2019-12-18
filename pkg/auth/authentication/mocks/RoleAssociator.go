@@ -6,6 +6,8 @@ import (
 	mock "github.com/stretchr/testify/mock"
 	models "github.com/transcom/mymove/pkg/models"
 
+	roles "github.com/transcom/mymove/pkg/models/roles"
+
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -144,14 +146,14 @@ func (_m *RoleAssociator) FetchUserIdentity(user *models.User) (*models.UserIden
 }
 
 // VerifyHasTOORole provides a mock function with given fields: identity
-func (_m *RoleAssociator) VerifyHasTOORole(identity *models.UserIdentity) (models.Role, error) {
+func (_m *RoleAssociator) VerifyHasTOORole(identity *models.UserIdentity) (roles.Role, error) {
 	ret := _m.Called(identity)
 
-	var r0 models.Role
-	if rf, ok := ret.Get(0).(func(*models.UserIdentity) models.Role); ok {
+	var r0 roles.Role
+	if rf, ok := ret.Get(0).(func(*models.UserIdentity) roles.Role); ok {
 		r0 = rf(identity)
 	} else {
-		r0 = ret.Get(0).(models.Role)
+		r0 = ret.Get(0).(roles.Role)
 	}
 
 	var r1 error
