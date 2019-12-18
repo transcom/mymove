@@ -78,11 +78,20 @@ func (f fetchMoveTaskOrder) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*mode
 		}
 	}
 
+	f.createDefaultServiceItems(mto)
+
+	return mto, nil
+}
+
+func (f fetchMoveTaskOrder) createDefaultServiceItems(mto *models.MoveTaskOrder) error {
+	counselingItemUUID := uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50")
+	managementItemUUID := uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551")
+
 	var defaultServiceItems models.MTOServiceItems
 	for _, item := range mto.MTOServiceItems {
 		defaultServiceItemIDs := []uuid.UUID{
-			uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"),
-			uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"),
+			counselingItemUUID,
+			managementItemUUID,
 		}
 
 		for _, id := range defaultServiceItemIDs {
@@ -95,30 +104,23 @@ func (f fetchMoveTaskOrder) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*mode
 	if len(defaultServiceItems) == 0 {
 		serviceItems := []models.MTOServiceItem{
 			{
-				ReServiceID:     uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // Shipment Management Services
+				ReServiceID:     counselingItemUUID,
 				MoveTaskOrderID: mto.ID,
 			},
 			{
-				ReServiceID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // Counseling Services
-
+				ReServiceID:     managementItemUUID,
 				MoveTaskOrderID: mto.ID,
 			},
 		}
 
-		_, err := f.db.ValidateAndCreate(&serviceItems[0])
+		for _, item := range serviceItems {
+			_, err := f.db.ValidateAndCreate(&item)
 
-		if err != nil {
-			return nil, err
+			if err != nil {
+				return err
+			}
 		}
-
-		_, err = f.db.ValidateAndCreate(&serviceItems[1])
-
-		if err != nil {
-			return nil, err
-		}
-
-		return mto, nil
 	}
 
-	return mto, nil
+	return nil
 }
