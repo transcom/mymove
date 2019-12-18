@@ -46,6 +46,7 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		paymentrequest.NewPaymentRequestListFetcher(context.DB()),
 	}
+
 	ghcAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
 		context,
 		movetaskorder.NewMoveTaskOrderFetcher(context.DB()),

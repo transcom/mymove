@@ -121,8 +121,43 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
-      description: Gets all move orders
+      description: Gets all move task orders
       operationId: listMoveTaskOrders
+      summary: Gets all move task orders
+  /move-orders:
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved all move orders
+          schema:
+            $ref: '#/definitions/MoveOrders'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveOrders
+      description: Gets all move orders
+      operationId: listMoveOrders
       summary: Gets all move orders
   '/move-orders/{moveOrderID}':
     parameters:
@@ -1152,6 +1187,10 @@ definitions:
       is_available_to_prime:
         type: boolean
     type: object
+  MoveOrders:
+    items:
+      $ref: '#/definitions/MoveOrder'
+    type: array
   MoveTaskOrders:
     items:
       $ref: '#/definitions/MoveTaskOrder'

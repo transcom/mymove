@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_order"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_orders"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
@@ -91,6 +92,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.MtoServiceItemListMTOServiceItemsHandler == nil {
 		api.MtoServiceItemListMTOServiceItemsHandler = mto_service_item.ListMTOServiceItemsHandlerFunc(func(params mto_service_item.ListMTOServiceItemsParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.ListMTOServiceItems has not yet been implemented")
+		})
+	}
+	if api.MoveOrdersListMoveOrdersHandler == nil {
+		api.MoveOrdersListMoveOrdersHandler = move_orders.ListMoveOrdersHandlerFunc(func(params move_orders.ListMoveOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_orders.ListMoveOrders has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderListMoveTaskOrdersHandler == nil {

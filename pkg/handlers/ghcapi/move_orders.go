@@ -37,3 +37,27 @@ func (h GetMoveOrdersHandler) Handle(params moveorderop.GetMoveOrderParams) midd
 	moveOrderPayload := payloads.MoveOrder(moveOrder)
 	return moveorderop.NewGetMoveOrderOK().WithPayload(moveOrderPayload)
 }
+
+// GetMoveOrdersHandler fetches the information of a specific customer
+type ListMoveOrdersHandler struct {
+	handlers.HandlerContext
+	services.MoveOrderFetcher
+}
+
+// Handle getting the all move orders
+func (h ListMoveOrdersHandler) Handle(params moveorderop.GetMoveOrderParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	moveOrderID, _ := uuid.FromString(params.MoveOrderID.String())
+	moveOrder, err := h.FetchMoveOrder(moveOrderID)
+	if err != nil {
+		logger.Error("fetching move order", zap.Error(err))
+		switch err {
+		case sql.ErrNoRows:
+			return moveorderop.NewGetMoveOrderNotFound()
+		default:
+			return moveorderop.NewGetMoveOrderInternalServerError()
+		}
+	}
+	moveOrderPayload := payloads.MoveOrder(moveOrder)
+	return moveorderop.NewGetMoveOrderOK().WithPayload(moveOrderPayload)
+}

@@ -148,6 +148,57 @@ func init() {
         }
       ]
     },
+    "/move-orders": {
+      "get": {
+        "description": "Gets all move orders",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveOrders"
+        ],
+        "summary": "Gets all move orders",
+        "operationId": "listMoveOrders",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all move orders",
+            "schema": {
+              "$ref": "#/definitions/MoveOrders"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
+    },
     "/move-orders/{moveOrderID}": {
       "get": {
         "description": "Gets a move order",
@@ -211,14 +262,14 @@ func init() {
     },
     "/move-task-orders": {
       "get": {
-        "description": "Gets all move orders",
+        "description": "Gets all move task orders",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets all move orders",
+        "summary": "Gets all move task orders",
         "operationId": "listMoveTaskOrders",
         "responses": {
           "200": {
@@ -1666,6 +1717,12 @@ func init() {
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
         }
+      }
+    },
+    "MoveOrders": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveOrder"
       }
     },
     "MoveTaskOrder": {
@@ -2095,6 +2152,72 @@ func init() {
         }
       ]
     },
+    "/move-orders": {
+      "get": {
+        "description": "Gets all move orders",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "moveOrders"
+        ],
+        "summary": "Gets all move orders",
+        "operationId": "listMoveOrders",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all move orders",
+            "schema": {
+              "$ref": "#/definitions/MoveOrders"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
     "/move-orders/{moveOrderID}": {
       "get": {
         "description": "Gets a move order",
@@ -2173,14 +2296,14 @@ func init() {
     },
     "/move-task-orders": {
       "get": {
-        "description": "Gets all move orders",
+        "description": "Gets all move task orders",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moveTaskOrder"
         ],
-        "summary": "Gets all move orders",
+        "summary": "Gets all move task orders",
         "operationId": "listMoveTaskOrders",
         "responses": {
           "200": {
@@ -3841,6 +3964,12 @@ func init() {
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
         }
+      }
+    },
+    "MoveOrders": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MoveOrder"
       }
     },
     "MoveTaskOrder": {
