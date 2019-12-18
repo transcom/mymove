@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/audit"
 )
 
 func payloadForMTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOServiceItem {
@@ -56,7 +57,7 @@ type CreateMTOServiceItemHandler struct {
 // Handle handler that creates a mto service item
 func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOServiceItemParams) middleware.Responder {
 	var errs []string
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	moveTaskOrderID, err := uuid.FromString(params.MoveTaskOrderID.String())
 	if err != nil {
@@ -101,6 +102,14 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOSer
 	if verrs != nil && verrs.HasAny() {
 		logger.Error("Error validating mto service item: ", zap.Error(verrs))
 		payload := payloadForValidationError(handlers.ValidationErrMessage, "The information you provided is invalid.", h.GetTraceID(), verrs)
+
+		// Capture creation attempt in audit log
+		_, err = audit.Capture(&serviceItem, payload, logger, session, params.HTTPRequest)
+		if err != nil {
+			logger.Error("Auditing service error for service item creation.", zap.Error(err))
+			return mtoserviceitemop.NewCreateMTOServiceItemInternalServerError()
+
+		}
 
 		return mtoserviceitemop.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payload)
 	}
