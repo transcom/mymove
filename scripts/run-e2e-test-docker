@@ -36,6 +36,7 @@ if [[ -n "${CIRCLECI+x}" ]]; then
   # CI/CD allows us to use pre-built images using the branch name
 
   # Let's clean things up before starting
+  # This may show an error locally but can be safely ignored, its only for CircleCI
   docker-compose down --rmi all || true
 
   # Docker Compose Setup

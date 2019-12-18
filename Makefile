@@ -33,7 +33,10 @@ DB_PORT_DEPLOYED_MIGRATIONS=5434
 DB_PORT_DOCKER=5432
 ifdef CIRCLECI
 	DB_PORT_TEST=5432
-	LDFLAGS=-linkmode external -extldflags -static
+	UNAME_S := $(shell uname -s)
+	ifeq ($(UNAME_S),Linux)
+		LDFLAGS=-linkmode external -extldflags -static
+	endif
 endif
 
 ifdef GOLAND
