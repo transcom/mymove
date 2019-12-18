@@ -465,7 +465,9 @@ var authorizeUnknownUserNew = func(openIDUser goth.User, h CallbackHandler, sess
 }
 
 var authorizeKnownUserNew = func(userIdentity *models.UserIdentity, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
-
+	// This is a seam to start adding in the new role based auth / login
+	// At the moment it's largely the same as authorizeKnownUser
+	// except that it also checks for TOO role for office users
 	if !userIdentity.Active {
 		h.logger.Error("Active user requesting authentication",
 			zap.String("application_name", string(session.ApplicationName)),
@@ -578,7 +580,6 @@ var authorizeKnownUserNew = func(userIdentity *models.UserIdentity, h CallbackHa
 }
 
 var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
-
 	if !userIdentity.Active {
 		h.logger.Error("Active user requesting authentication",
 			zap.String("application_name", string(session.ApplicationName)),
@@ -690,9 +691,6 @@ var authorizeUnknownUser = func(openIDUser goth.User, h CallbackHandler, session
 	var officeUser *models.OfficeUser
 	var err error
 	if session.IsOfficeApp() { // Look to see if we have OfficeUser with this email address
-		//identity, err = models.FetchUserIdentity(h.db, openIDUser.UserID)
-		//// lookup roles for user
-		//// if roles is too, tio, ppm_office then login?
 		officeUser, err = models.FetchOfficeUserByEmail(h.db, session.Email)
 		if err == models.ErrFetchNotFound {
 			h.logger.Error("No Office user found", zap.String("email", session.Email))
