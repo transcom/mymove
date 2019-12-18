@@ -98,18 +98,18 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOSer
 		MetaType:        metaType,
 	}
 
+	// Capture creation attempt in audit log
+	_, err = audit.Capture(&serviceItem, nil, logger, session, params.HTTPRequest)
+	if err != nil {
+		logger.Error("Auditing service error for service item creation.", zap.Error(err))
+		return mtoserviceitemop.NewCreateMTOServiceItemInternalServerError()
+
+	}
+
 	createdServiceItem, verrs, err := h.MTOServiceItemCreator.CreateMTOServiceItem(&serviceItem)
 	if verrs != nil && verrs.HasAny() {
 		logger.Error("Error validating mto service item: ", zap.Error(verrs))
 		payload := payloadForValidationError(handlers.ValidationErrMessage, "The information you provided is invalid.", h.GetTraceID(), verrs)
-
-		// Capture creation attempt in audit log
-		_, err = audit.Capture(&serviceItem, payload, logger, session, params.HTTPRequest)
-		if err != nil {
-			logger.Error("Auditing service error for service item creation.", zap.Error(err))
-			return mtoserviceitemop.NewCreateMTOServiceItemInternalServerError()
-
-		}
 
 		return mtoserviceitemop.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payload)
 	}
