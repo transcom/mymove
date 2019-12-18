@@ -100,15 +100,15 @@ func (uua UnknownUserAuthorizer) AuthorizeUnknownUser(openIDUser goth.User, sess
 			case ErrUnauthorized:
 				var tooErr error
 				userIdentity, tooErr := uua.FetchUserIdentity(user)
-				if err != nil {
-					return err
+				if tooErr != nil {
+					return tooErr
 				}
 				tooRole, tooErr := uua.VerifyHasTOORole(userIdentity)
-				if err == nil && !session.Roles.HasRole("transportation_ordering_officer") {
+				if tooErr == nil && !session.Roles.HasRole(auth.TOO) {
 					session.Roles = append(session.Roles, auth.Role(tooRole))
 				}
-				if err != nil {
-					return err
+				if tooErr != nil {
+					return tooErr
 				}
 			default:
 				return err
