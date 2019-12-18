@@ -3664,7 +3664,7 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. \"My car\")"
+          "title": "Vehicle nickname (ex. 'My car')"
         },
         "vehicle_options": {
           "type": "string",
@@ -3672,12 +3672,14 @@ func init() {
           "enum": [
             "CAR",
             "CAR_TRAILER",
-            "BOX_TRUCK"
+            "BOX_TRUCK",
+            "PRO_GEAR"
           ],
           "x-display-value": {
             "BOX_TRUCK": "Box truck",
             "CAR": "Car",
-            "CAR_TRAILER": "Car + Trailer"
+            "CAR_TRAILER": "Car + Trailer",
+            "PRO_GEAR": "Pro-gear"
           }
         },
         "weight_ticket_date": {
@@ -4155,7 +4157,7 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. \"My car\")"
+          "title": "Vehicle nickname (ex. 'My car')"
         },
         "vehicle_options": {
           "type": "string",
@@ -4163,12 +4165,14 @@ func init() {
           "enum": [
             "CAR",
             "CAR_TRAILER",
-            "BOX_TRUCK"
+            "BOX_TRUCK",
+            "PRO_GEAR"
           ],
           "x-display-value": {
             "BOX_TRUCK": "Box truck",
             "CAR": "Car",
-            "CAR_TRAILER": "Car + Trailer"
+            "CAR_TRAILER": "Car + Trailer",
+            "PRO_GEAR": "Pro-gear"
           }
         },
         "weight_ticket_date": {
@@ -5821,12 +5825,14 @@ func init() {
       "enum": [
         "CAR",
         "CAR_TRAILER",
-        "BOX_TRUCK"
+        "BOX_TRUCK",
+        "PRO_GEAR"
       ],
       "x-display-value": {
         "BOX_TRUCK": "Box truck",
         "CAR": "Car",
-        "CAR_TRAILER": "Car + Trailer"
+        "CAR_TRAILER": "Car + Trailer",
+        "PRO_GEAR": "Pro-gear"
       },
       "x-nullable": true
     },
@@ -9510,7 +9516,7 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. \"My car\")"
+          "title": "Vehicle nickname (ex. 'My car')"
         },
         "vehicle_options": {
           "type": "string",
@@ -9518,12 +9524,14 @@ func init() {
           "enum": [
             "CAR",
             "CAR_TRAILER",
-            "BOX_TRUCK"
+            "BOX_TRUCK",
+            "PRO_GEAR"
           ],
           "x-display-value": {
             "BOX_TRUCK": "Box truck",
             "CAR": "Car",
-            "CAR_TRAILER": "Car + Trailer"
+            "CAR_TRAILER": "Car + Trailer",
+            "PRO_GEAR": "Pro-gear"
           }
         },
         "weight_ticket_date": {
@@ -10003,7 +10011,7 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. \"My car\")"
+          "title": "Vehicle nickname (ex. 'My car')"
         },
         "vehicle_options": {
           "type": "string",
@@ -10011,12 +10019,14 @@ func init() {
           "enum": [
             "CAR",
             "CAR_TRAILER",
-            "BOX_TRUCK"
+            "BOX_TRUCK",
+            "PRO_GEAR"
           ],
           "x-display-value": {
             "BOX_TRUCK": "Box truck",
             "CAR": "Car",
-            "CAR_TRAILER": "Car + Trailer"
+            "CAR_TRAILER": "Car + Trailer",
+            "PRO_GEAR": "Pro-gear"
           }
         },
         "weight_ticket_date": {
@@ -11676,12 +11686,14 @@ func init() {
       "enum": [
         "CAR",
         "CAR_TRAILER",
-        "BOX_TRUCK"
+        "BOX_TRUCK",
+        "PRO_GEAR"
       ],
       "x-display-value": {
         "BOX_TRUCK": "Box truck",
         "CAR": "Car",
-        "CAR_TRAILER": "Car + Trailer"
+        "CAR_TRAILER": "Car + Trailer",
+        "PRO_GEAR": "Pro-gear"
       },
       "x-nullable": true
     },

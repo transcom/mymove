@@ -699,10 +699,12 @@ definitions:
       - CAR
       - CAR_TRAILER
       - BOX_TRUCK
+      - PRO_GEAR
     x-display-value:
       CAR: Car
       CAR_TRAILER: Car + Trailer
       BOX_TRUCK: Box truck
+      PRO_GEAR: Pro-gear
   MoveDocumentPayload:
     type: object
     properties:
@@ -763,9 +765,10 @@ definitions:
           CAR: Car
           CAR_TRAILER: Car + Trailer
           BOX_TRUCK: Box truck
+          PRO_GEAR: Pro-gear
       vehicle_nickname:
         type: string
-        title: Vehicle nickname (ex. "My car")
+        title: Vehicle nickname (ex. 'My car')
       empty_weight:
         title: Empty Weight
         type: integer
@@ -980,9 +983,10 @@ definitions:
           CAR: Car
           CAR_TRAILER: Car + Trailer
           BOX_TRUCK: Box truck
+          PRO_GEAR: Pro-gear
       vehicle_nickname:
         type: string
-        title: Vehicle nickname (ex. "My car")
+        title: Vehicle nickname (ex. 'My car')
       empty_weight_ticket_missing:
         title: missing empty weight ticket
         type: boolean
