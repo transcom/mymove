@@ -3668,7 +3668,7 @@ func init() {
         },
         "vehicle_options": {
           "type": "string",
-          "title": "What type of vehicle are these weight tickets for?",
+          "title": "Select weight ticket type",
           "enum": [
             "CAR",
             "CAR_TRAILER",
@@ -4159,7 +4159,7 @@ func init() {
         },
         "vehicle_options": {
           "type": "string",
-          "title": "What type of vehicle are these weight tickets for?",
+          "title": "Select weight ticket type",
           "enum": [
             "CAR",
             "CAR_TRAILER",
@@ -5817,7 +5817,7 @@ func init() {
     },
     "VehicleOptions": {
       "type": "string",
-      "title": "What type of vehicle are these weight tickets for?",
+      "title": "Select weight ticket type",
       "enum": [
         "CAR",
         "CAR_TRAILER",
@@ -9514,7 +9514,7 @@ func init() {
         },
         "vehicle_options": {
           "type": "string",
-          "title": "What type of vehicle are these weight tickets for?",
+          "title": "Select weight ticket type",
           "enum": [
             "CAR",
             "CAR_TRAILER",
@@ -10007,7 +10007,7 @@ func init() {
         },
         "vehicle_options": {
           "type": "string",
-          "title": "What type of vehicle are these weight tickets for?",
+          "title": "Select weight ticket type",
           "enum": [
             "CAR",
             "CAR_TRAILER",
@@ -11672,7 +11672,7 @@ func init() {
     },
     "VehicleOptions": {
       "type": "string",
-      "title": "What type of vehicle are these weight tickets for?",
+      "title": "Select weight ticket type",
       "enum": [
         "CAR",
         "CAR_TRAILER",
