@@ -14,13 +14,13 @@ type MoveTaskOrderStatusUpdater struct {
 	mock.Mock
 }
 
-// UpdateMoveTaskOrderStatus provides a mock function with given fields: moveTaskOrderID, isAvailableToPrime
-func (_m *MoveTaskOrderStatusUpdater) UpdateMoveTaskOrderStatus(moveTaskOrderID uuid.UUID, isAvailableToPrime bool) (*models.MoveTaskOrder, error) {
-	ret := _m.Called(moveTaskOrderID, isAvailableToPrime)
+// UpdateMoveTaskOrderStatus provides a mock function with given fields: moveTaskOrderID
+func (_m *MoveTaskOrderStatusUpdater) UpdateMoveTaskOrderStatus(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error) {
+	ret := _m.Called(moveTaskOrderID)
 
 	var r0 *models.MoveTaskOrder
-	if rf, ok := ret.Get(0).(func(uuid.UUID, bool) *models.MoveTaskOrder); ok {
-		r0 = rf(moveTaskOrderID, isAvailableToPrime)
+	if rf, ok := ret.Get(0).(func(uuid.UUID) *models.MoveTaskOrder); ok {
+		r0 = rf(moveTaskOrderID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MoveTaskOrder)
@@ -28,8 +28,8 @@ func (_m *MoveTaskOrderStatusUpdater) UpdateMoveTaskOrderStatus(moveTaskOrderID 
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID, bool) error); ok {
-		r1 = rf(moveTaskOrderID, isAvailableToPrime)
+	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
+		r1 = rf(moveTaskOrderID)
 	} else {
 		r1 = ret.Error(1)
 	}

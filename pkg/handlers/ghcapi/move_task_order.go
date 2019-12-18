@@ -1,6 +1,8 @@
 package ghcapi
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
@@ -59,7 +61,7 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 	// TODO how are we going to handle auth in new api? Do we need some sort of placeholder to remind us to
 	// TODO to revisit?
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
-
+	fmt.Print("HEY", moveTaskOrderID)
 	mto, err := h.moveTaskOrderStatusUpdater.UpdateMoveTaskOrderStatus(moveTaskOrderID)
 	if err != nil {
 		logger.Error("ghciap.MoveTaskOrderHandler error", zap.Error(err))
@@ -81,11 +83,9 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 func payloadForMoveTaskOrder(moveTaskOrder models.MoveTaskOrder) *ghcmessages.MoveTaskOrder {
 	destinationAddress := payloadForAddress(&moveTaskOrder.DestinationAddress)
 	pickupAddress := payloadForAddress(&moveTaskOrder.PickupAddress)
-	entitlements := payloadForEntitlements(&moveTaskOrder.Entitlements)
 	payload := &ghcmessages.MoveTaskOrder{
 		DestinationAddress:     destinationAddress,
 		DestinationDutyStation: strfmt.UUID(moveTaskOrder.DestinationDutyStation.ID.String()),
-		Entitlements:           entitlements,
 		ID:                     strfmt.UUID(moveTaskOrder.ID.String()),
 		OriginDutyStation:      strfmt.UUID(moveTaskOrder.OriginDutyStationID.String()),
 		PickupAddress:          pickupAddress,
@@ -109,19 +109,5 @@ func payloadForAddress(a *models.Address) *ghcmessages.Address {
 		State:          swag.String(a.State),
 		PostalCode:     swag.String(a.PostalCode),
 		Country:        a.Country,
-	}
-}
-
-func payloadForEntitlements(entitlement *models.GHCEntitlement) *ghcmessages.Entitlements {
-	if entitlement == nil {
-		return nil
-	}
-	return &ghcmessages.Entitlements{
-		NonTemporaryStorage:   handlers.FmtBool(entitlement.NonTemporaryStorage),
-		PrivatelyOwnedVehicle: handlers.FmtBool(entitlement.PrivatelyOwnedVehicle),
-		ProGearWeight:         int64(entitlement.ProGearWeight),
-		ProGearWeightSpouse:   int64(entitlement.ProGearWeightSpouse),
-		StorageInTransit:      int64(entitlement.StorageInTransit),
-		TotalDependents:       int64(entitlement.TotalDependents),
 	}
 }
