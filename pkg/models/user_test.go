@@ -169,7 +169,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Nil(err, "loading billy's identity")
 	suite.NotNil(identity)
 	suite.Equal(len(identity.Roles), 1)
-	suite.Equal(identity.Roles[0], tooRole)
+	suite.Equal(identity.Roles[0].RoleType, tooRole.RoleType)
 }
 
 func (suite *ModelSuite) TestFetchAppUserIdentities() {

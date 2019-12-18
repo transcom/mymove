@@ -46,23 +46,33 @@ type Role struct {
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
 
+type Roles []Role
+
+func (rs Roles) HasRole(roleType string) bool {
+	for _, r := range rs {
+		if r.RoleType == roleType {
+			return true
+		}
+	}
+	return false
+}
+
 // Session stores information about the currently logged in session
 type Session struct {
-	ApplicationName                 Application
-	Hostname                        string
-	IDToken                         string
-	UserID                          uuid.UUID
-	Email                           string
-	FirstName                       string
-	Middle                          string
-	LastName                        string
-	ServiceMemberID                 uuid.UUID
-	OfficeUserID                    uuid.UUID
-	TransportationOrderingOfficerID uuid.UUID
-	AdminUserID                     uuid.UUID
-	AdminUserRole                   string
-	DpsUserID                       uuid.UUID
-	Roles                           []Role
+	ApplicationName Application
+	Hostname        string
+	IDToken         string
+	UserID          uuid.UUID
+	Email           string
+	FirstName       string
+	Middle          string
+	LastName        string
+	ServiceMemberID uuid.UUID
+	OfficeUserID    uuid.UUID
+	AdminUserID     uuid.UUID
+	AdminUserRole   string
+	DpsUserID       uuid.UUID
+	Roles           Roles
 }
 
 // SetSessionInRequestContext modifies the request's Context() to add the session data

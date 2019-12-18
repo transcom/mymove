@@ -22,7 +22,7 @@ type User struct {
 	LoginGovUUID  uuid.UUID `json:"login_gov_uuid" db:"login_gov_uuid"`
 	LoginGovEmail string    `json:"login_gov_email" db:"login_gov_email"`
 	Active        bool      `json:"active" db:"active"`
-	Roles         []Role    `many_to_many:"users_roles"`
+	Roles         Roles     `many_to_many:"users_roles"`
 }
 
 // Users is not required by pop and may be deleted
@@ -111,7 +111,7 @@ type UserIdentity struct {
 	AdminUserActive        *bool      `db:"au_active"`
 	DpsUserID              *uuid.UUID `db:"du_id"`
 	DpsActive              *bool      `db:"du_active"`
-	Roles                  []Role     `many_to_many:"users_roles" primary_id:"user_id"`
+	Roles                  Roles      `many_to_many:"users_roles" primary_id:"user_id"`
 }
 
 // FetchUserIdentity queries the database for information about the logged in user
