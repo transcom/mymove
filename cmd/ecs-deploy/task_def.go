@@ -61,12 +61,12 @@ func (e *errinvalidRepositoryName) Error() string {
 	return fmt.Sprintf("invalid AWS ECR respository name %q", e.RepositoryName)
 }
 
-type errinvalidImageTag struct {
-	ImageTag string
+type errInvalidImage struct {
+	Image string
 }
 
-func (e *errinvalidImageTag) Error() string {
-	return fmt.Sprintf("invalid AWS ECR image tag %q", e.ImageTag)
+func (e *errInvalidImage) Error() string {
+	return fmt.Sprintf("invalid AWS ECR image tag %q", e.Image)
 }
 
 type errInvalidCommand struct {
@@ -93,13 +93,37 @@ const (
 	chamberUsePathsFlag    string = "chamber-use-paths"
 	serviceFlag            string = "service"
 	environmentFlag        string = "environment"
-	repositoryNameFlag     string = "repository-name"
-	imageTagFlag           string = "image-tag"
-	commandFlag            string = "command"
-	commandArgsFlag        string = "command-args"
+	imageFlag              string = "image"
 	variablesFileFlag      string = "variables-file"
 	dryRunFlag             string = "dry-run"
 )
+
+type ECRImage struct {
+	AWSRegion      string
+	ImageArn       string
+	ImageTag       string
+	RegistryId     string
+	RepositoryArn  string
+	RepositoryName string
+}
+
+func NewECRImage(imageName string) *ECRImage {
+	imageParts := strings.Split(imageName, ":")
+	repositoryArn, imageTag := imageParts[0], imageParts[1]
+	repositoryArnParts := strings.Split(repositoryArn, "/")
+	repositoryName := repositoryArnParts[1]
+	repositoryDomainParts := strings.Split(repositoryArnParts[0], ".")
+	registryID, awsRegion := repositoryDomainParts[0], repositoryDomainParts[3]
+
+	return &ECRImage{
+		AWSRegion:      awsRegion,
+		ImageArn:       imageName,
+		ImageTag:       imageTag,
+		RegistryId:     registryID,
+		RepositoryArn:  repositoryArn,
+		RepositoryName: repositoryName,
+	}
+}
 
 func initTaskDefFlags(flag *pflag.FlagSet) {
 
@@ -119,12 +143,9 @@ func initTaskDefFlags(flag *pflag.FlagSet) {
 	flag.Int(chamberUsePathsFlag, 1, "Chamber Use Paths")
 
 	// Task Definition Settings
-	flag.String(serviceFlag, "", fmt.Sprintf("The service name (choose %q)", services))
+	flag.String(serviceFlag, "app", fmt.Sprintf("The service name (choose %q)", services))
 	flag.String(environmentFlag, "", fmt.Sprintf("The environment name (choose %q)", environments))
-	flag.String(repositoryNameFlag, "", fmt.Sprintf("The name of the repository where the tagged image resides"))
-	flag.String(imageTagFlag, "", "The name of the image tag referenced in the task definition")
-	flag.String(commandFlag, "", fmt.Sprintf("The name of the command to run inside the docker container (choose %q)", commands))
-	flag.String(commandArgsFlag, "", "The space separated arguments for the command")
+	flag.String(imageFlag, "", "The name of the image referenced in the task definition")
 	flag.String(variablesFileFlag, "", "A file containing variables for the task definiton")
 
 	// Verbose
@@ -212,29 +233,9 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(&errInvalidEnvironment{Environment: environmentName}, fmt.Sprintf("%q is invalid", environmentFlag))
 	}
 
-	repositoryName := v.GetString(repositoryNameFlag)
-	if len(repositoryName) == 0 {
-		return errors.Wrap(&errinvalidRepositoryName{RepositoryName: repositoryName}, fmt.Sprintf("%q is invalid", repositoryNameFlag))
-	}
-
-	imageTag := v.GetString(imageTagFlag)
-	if len(imageTag) == 0 {
-		return errors.Wrap(&errinvalidImageTag{ImageTag: imageTag}, fmt.Sprintf("%q is invalid", imageTagFlag))
-	}
-
-	commandName := v.GetString(commandFlag)
-	if len(commandName) == 0 {
-		return errors.Wrap(&errInvalidCommand{Command: commandName}, fmt.Sprintf("%q is invalid", commandFlag))
-	}
-	validRule := false
-	for _, str := range commands {
-		if commandName == str {
-			validRule = true
-			break
-		}
-	}
-	if !validRule {
-		return errors.Wrap(&errInvalidCommand{Command: commandName}, fmt.Sprintf("%q is invalid", commandFlag))
+	image := v.GetString(imageFlag)
+	if len(image) == 0 {
+		return errors.Wrap(&errInvalidImage{Image: image}, fmt.Sprintf("%q is invalid", imageFlag))
 	}
 
 	if variablesFile := v.GetString(variablesFileFlag); len(variablesFile) > 0 {
@@ -264,7 +265,7 @@ func varFromCtxOrEnv(varName string, ctx map[string]string) string {
 	return os.Getenv("DB_PORT")
 }
 
-func buildContainerEnvironment(v *viper.Viper, environmentName string, dbHost string, variablesFile string) []*ecs.KeyValuePair {
+func buildContainerEnvironment(environmentName string, dbHost string, variablesFile string) []*ecs.KeyValuePair {
 
 	// Construct variables from a file for the task def
 	// These variables should always be preferred over env vars
@@ -287,16 +288,14 @@ func buildContainerEnvironment(v *viper.Viper, environmentName string, dbHost st
 		}
 	}
 
-	chamberKMSKeyAlias := v.GetString(chamberKMSKeyAliasFlag)
-	chamberUsePaths := v.GetInt(chamberUsePathsFlag)
 	return []*ecs.KeyValuePair{
 		{
 			Name:  aws.String("CHAMBER_KMS_KEY_ALIAS"),
-			Value: aws.String(chamberKMSKeyAlias),
+			Value: aws.String(varFromCtxOrEnv("CHAMBER_KMS_KEY_ALIAS", ctx)),
 		},
 		{
 			Name:  aws.String("CHAMBER_USE_PATHS"),
-			Value: aws.String(strconv.Itoa(chamberUsePaths)),
+			Value: aws.String(varFromCtxOrEnv("CHAMBER_USE_PATHS", ctx)),
 		},
 		{
 			Name:  aws.String("DB_ENV"),
@@ -383,16 +382,17 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	// Flag for Dry Run
 	dryRun := v.GetBool(dryRunFlag)
 
+	// Ensure the configuration works against the variables
 	checkConfigErr := checkConfig(v)
 	if checkConfigErr != nil {
 		quit(logger, flag, checkConfigErr)
 	}
 
+	// Get the AWS configuration so we can build a session
 	awsConfig, err := cli.GetAWSConfig(v, verbose)
 	if err != nil {
 		quit(logger, nil, err)
 	}
-
 	sess, err := awssession.NewSession(awsConfig)
 	if err != nil {
 		quit(logger, nil, errors.Wrap(err, "failed to create AWS session"))
@@ -404,70 +404,95 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	serviceECR := ecr.New(sess)
 	serviceRDS := rds.New(sess)
 
-	// Get the current task definition (for rollback)
-	commandName := v.GetString(commandFlag)
-	cmds := strings.Fields(commandName)
-	subCommandName := cmds[0]
-	if len(cmds) > 1 {
-		subCommandName = cmds[1]
-	}
-	commandArgs := []string{}
-	if str := v.GetString(commandArgsFlag); len(str) > 0 {
-		commandArgs = strings.Split(str, " ")
-	}
-	ruleName := fmt.Sprintf("%s-%s", subCommandName, v.GetString(environmentFlag))
-	targetsOutput, err := serviceCloudWatchEvents.ListTargetsByRule(&cloudwatchevents.ListTargetsByRuleInput{
-		Rule: aws.String(ruleName),
-	})
-	if err != nil {
-		quit(logger, nil, errors.Wrap(err, "error retrieving targets for rule"))
-	}
-
-	currentTarget := targetsOutput.Targets[0]
-
-	// Get the current task definition
-	currentTaskDefArnStr := *currentTarget.EcsParameters.TaskDefinitionArn
-	if verbose {
-		logger.Println(fmt.Sprintf("Current Task Def Arn: %s", currentTaskDefArnStr))
-	}
-	currentTaskDefArn, err := arn.Parse(currentTaskDefArnStr)
-	if err != nil {
-		quit(logger, nil, errors.Wrap(err, "Unable to parse current task definition arn"))
-	}
-
-	currentTaskDefName := strings.Split(currentTaskDefArn.Resource, ":")[0]
-	currentTaskDefName = strings.Split(currentTaskDefName, "/")[1]
-	currentDescribeTaskDefinitionOutput, err := serviceECS.DescribeTaskDefinition(&ecs.DescribeTaskDefinitionInput{
-		TaskDefinition: aws.String(currentTaskDefName),
-	})
-	if err != nil {
-		quit(logger, nil, errors.Wrapf(err, "unable to parse current task arn %s", currentTaskDefArnStr))
-	}
-	currentTaskDef := *currentDescribeTaskDefinitionOutput.TaskDefinition
+	// ===== This stuff should come from the CLI or function =====
+	// Take inputs from lambda
+	environmentName := v.GetString(environmentFlag)
+	serviceName := v.GetString(serviceFlag)
+	imageName := v.GetString(imageFlag)
+	// =====
 
 	// Confirm the image exists
-	awsRegion := v.GetString(cli.AWSRegionFlag)
-	imageTag := v.GetString(imageTagFlag)
-	registryID := v.GetString(awsAccountIDFlag)
-	repositoryName := v.GetString(repositoryNameFlag)
-	imageName := fmt.Sprintf("%s.dkr.ecr.%s.amazonaws.com/%s:%s", registryID, awsRegion, repositoryName, imageTag)
+	ecrImage := NewECRImage(imageName)
+	imageIdentifier := ecr.ImageIdentifier{}
+	imageIdentifier.SetImageTag(ecrImage.ImageTag)
+	errImageIdentifierValidate := imageIdentifier.Validate()
+	if errImageIdentifierValidate != nil {
+		quit(logger, nil, errors.Wrapf(errImageIdentifierValidate, "image identifier tag invalid %s", ecrImage.ImageTag))
+	}
 
 	_, err = serviceECR.DescribeImages(&ecr.DescribeImagesInput{
 		ImageIds: []*ecr.ImageIdentifier{
 			{
-				ImageTag: aws.String(imageTag),
+				ImageTag: aws.String(ecrImage.ImageTag),
 			},
 		},
-		RegistryId:     aws.String(registryID),
-		RepositoryName: aws.String(repositoryName),
+		RegistryId:     aws.String(ecrImage.RegistryId),
+		RepositoryName: aws.String(ecrImage.RepositoryName),
 	})
 	if err != nil {
 		quit(logger, nil, errors.Wrapf(err, "unable retrieving image from %s", imageName))
 	}
 
+	// Get the current task definition
+	var currentTaskDef ecs.TaskDefinition
+	scheduledTask := false
+	var commandName, subCommandName string
+	if scheduledTask {
+		commandName = "milmove-tasks"
+		subCommandName = "send-post-move-survey"
+		ruleName := fmt.Sprintf("%s-%s", subCommandName, environmentName)
+		targetsOutput, err := serviceCloudWatchEvents.ListTargetsByRule(&cloudwatchevents.ListTargetsByRuleInput{
+			Rule: aws.String(ruleName),
+		})
+		if err != nil {
+			quit(logger, nil, errors.Wrap(err, "error retrieving targets for rule"))
+		}
+
+		currentTarget := targetsOutput.Targets[0]
+
+		// Get the current task definition
+		currentTaskDefArnStr := *currentTarget.EcsParameters.TaskDefinitionArn
+		if verbose {
+			logger.Println(fmt.Sprintf("Current Task Def Arn: %s", currentTaskDefArnStr))
+		}
+		currentTaskDefArn, err := arn.Parse(currentTaskDefArnStr)
+		if err != nil {
+			quit(logger, nil, errors.Wrap(err, "Unable to parse current task definition arn"))
+		}
+
+		currentTaskDefName := strings.Split(currentTaskDefArn.Resource, ":")[0]
+		currentTaskDefName = strings.Split(currentTaskDefName, "/")[1]
+		currentDescribeTaskDefinitionOutput, err := serviceECS.DescribeTaskDefinition(&ecs.DescribeTaskDefinitionInput{
+			TaskDefinition: aws.String(currentTaskDefName),
+		})
+		if err != nil {
+			quit(logger, nil, errors.Wrapf(err, "unable to parse current task arn %s", currentTaskDefArnStr))
+		}
+		currentTaskDef = *currentDescribeTaskDefinitionOutput.TaskDefinition
+	} else {
+		commandName = "milmove"
+		subCommandName = "serve"
+	}
+
+	// Register the new task definition
+	variablesFile := v.GetString(variablesFileFlag)
+	newTaskDefInput := renderTaskDefinition(ecrImage, serviceName, environmentName, subCommandName, variablesFile, currentTaskDef)
+
+	if verbose {
+		logger.Println(newTaskDefInput.String())
+	}
+
+	if dryRun {
+		logger.Println("Dry run: ECS Task Definition not registered! CloudWatch Target Not Updated!")
+		return nil
+	}
+
+	return nil
+}
+
+func renderTaskDefinition(ecrImage *ECRImage, serviceRDS, environmentName, subCommandName, variablesFile string, currentTaskDef ecs.TaskDefinition) ecs.RegisterTaskDefinitionInput {
+
 	// Get the database host using the instance identifier
-	serviceName := v.GetString(serviceFlag)
-	environmentName := v.GetString(environmentFlag)
 	dbInstanceIdentifier := fmt.Sprintf("%s-%s", serviceName, environmentName)
 	dbInstancesOutput, err := serviceRDS.DescribeDBInstances(&rds.DescribeDBInstancesInput{
 		DBInstanceIdentifier: aws.String(dbInstanceIdentifier),
@@ -478,50 +503,31 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	dbHost := *dbInstancesOutput.DBInstances[0].Endpoint.Address
 
 	// Name the container definition and verify it exists
-	containerDefName := fmt.Sprintf("%s-tasks-%s-%s", serviceName, subCommandName, environmentName)
+	containerDefName := fmt.Sprintf("%s-%s-%s", ecrImage.RepositoryName, subCommandName, environmentName)
 
 	// AWS Logs Group is related to the cluster and should not be changed
-	awsLogsGroup := fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
-	awsLogsStreamPrefix := fmt.Sprintf("%s-tasks", serviceName)
+	awsLogsGroup := fmt.Sprintf("ecs-%s-%s", ecrImage.RepositoryName, environmentName)
 
-	// Chamber Settings
-	chamberBinary := v.GetString(chamberBinaryFlag)
-	chamberRetries := v.GetInt(chamberRetriesFlag)
-	chamberStore := fmt.Sprintf("%s-%s", serviceName, environmentName)
-
+	// Entrypoint
 	entryPoint := []string{
-		chamberBinary,
-		"-r",
-		strconv.Itoa(chamberRetries),
-		"exec",
-		chamberStore,
-		"--",
-		fmt.Sprintf("/bin/%s", cmds[0]),
-	}
-	if len(cmds) > 1 {
-		entryPoint = append(entryPoint, cmds[1:]...)
-	}
-	if len(commandArgs) > 0 {
-		entryPoint = append(entryPoint, commandArgs...)
+		fmt.Sprintf("/bin/%s", commandName),
 	}
 
-	// Register the new task definition
-	variablesFile := v.GetString(variablesFileFlag)
 	newTaskDefInput := ecs.RegisterTaskDefinitionInput{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
 			{
 				Name:        aws.String(containerDefName),
-				Image:       aws.String(imageName),
+				Image:       aws.String(ecrImage.ImageArn),
 				Essential:   aws.Bool(true),
 				EntryPoint:  aws.StringSlice(entryPoint),
 				Command:     []*string{},
-				Environment: buildContainerEnvironment(v, environmentName, dbHost, variablesFile),
+				Environment: buildContainerEnvironment(environmentName, dbHost, variablesFile),
 				LogConfiguration: &ecs.LogConfiguration{
 					LogDriver: aws.String("awslogs"),
 					Options: map[string]*string{
 						"awslogs-group":         aws.String(awsLogsGroup),
-						"awslogs-region":        aws.String(awsRegion),
-						"awslogs-stream-prefix": aws.String(awsLogsStreamPrefix),
+						"awslogs-region":        aws.String(ecrImage.AWSRegion),
+						"awslogs-stream-prefix": aws.String(ecrImage.RepositoryName),
 					},
 				},
 			},
@@ -534,14 +540,5 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		RequiresCompatibilities: currentTaskDef.RequiresCompatibilities,
 		TaskRoleArn:             currentTaskDef.TaskRoleArn,
 	}
-	if verbose {
-		logger.Println(newTaskDefInput.String())
-	}
-
-	if dryRun {
-		logger.Println("Dry run: ECS Task Definition not registered! CloudWatch Target Not Updated!")
-		return nil
-	}
-
-	return nil
+	return newTaskDefInput
 }
