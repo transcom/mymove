@@ -14,48 +14,20 @@ To interact and use the prime api you will need a client that can send the appro
 
 It is expected that you have the server running using `make server_run` before any of the following directions will work.
 
+### Hostname setup
+
+You will need `primelocal` setup as a host in your `/etc/hosts` file. To check run `check-hosts-file` to verify if you have this set or not. If it is missing follow the directions specified by `check-hosts-file` to complete the setup.
+
+### E2E Data
+
+The examples below rely on the E2E test data, for these examples to work you will need to ensure that data is populated in the database.
+
+To do so run `make db_dev_e2e_populate`
+
 ### General Postman settings
 
-If you are planning to use [Postman](https://www.getpostman.com/) you will need to make the following changes that apply to all prime api requests.
+If you are planning to use [Postman](https://www.getpostman.com/) you will need to follow the setup directions in [How to setup Postman for Mutual TLS API calls](setup-postman-to-make-mutual-tls-api-calls.md).
 
-Open the general settings panel by clicking the wrench icon in the upper left corner
-
-![Postman Settings Menu Upper Right Corner](../images/postman_settings_menu.png)
-
-Under the _General_ tab turn off **SSL certificate verification**
-
-![Postman SSL certification verification switch](../images/postman_ssl_verification.png)
-
-Switch to the **Certificates** tab and add the development certificate with the following settings:
-
-* **Host** `primelocal`
-* **Port** `9443`
-* **CRT File** `config/tls/devlocal-mtls.cer`
-* **KEY File** `config/tls/devlocal-mtls.key`
-
-![Postman client cert settings](../images/postman_client_cert.png)
-
-### Postman Environment settings
-
-You will need to configure the base url for development or other environment you plan to connect to. Click on the gear icon near the environment pull down in the upper right of the application.
-
-![Postman open environment dialog](../images/postman_environment.png)
-
-This will open the _Manage Environments_ dialog. Select **Add** in the lower right corner
-
-![Postman environment dialog](../images/postman_manage_environment_dialog.png)
-
-Fill in the following details in the add new dialog and click **Add**
-
-* **Variable** `baseUrl`
-* **Initial Value** `https://primelocal:9443/prime/v1`
-* **Current Value** `https://primelocal:9443/prime/v1`
-
-![Postman environment add dialog](../images/postman_manage_environment_add.png)
-
-Once you have added this environment and closed the dialog select the new environment from the pull down.
-
-![Postman select environment](../images/postman_set_environment.png)
 
 ## Payment Request API
 
