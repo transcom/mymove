@@ -19,8 +19,7 @@ const (
 	// HTTPOrdersServerNameFlag is the HTTP Orders Server Name Flag
 	HTTPOrdersServerNameFlag string = "http-orders-server-name"
 	// HTTPPrimeServerNameFlag is the HTTP GHC Prime Server Name Flag
-	HTTPPrimeServerNameFlag  string = "http-prime-server-name"
-	HTTPAssetsServerNameFlag string = "http-assets-server-name" // #nosec so gosec doesn't claim its a hard coded cred
+	HTTPPrimeServerNameFlag string = "http-prime-server-name"
 
 	// HTTPMyServerNameLocal is the HTTP My Server Name for Local
 	HTTPMyServerNameLocal string = "milmovelocal"
@@ -49,7 +48,6 @@ func InitHostFlags(flag *pflag.FlagSet) {
 	flag.String(HTTPAdminServerNameFlag, HTTPAdminServerNameLocal, "Hostname according to environment.")
 	flag.String(HTTPOrdersServerNameFlag, HTTPOrdersServerNameLocal, "Hostname according to environment.")
 	flag.String(HTTPPrimeServerNameFlag, HTTPPrimeServerNameLocal, "Hostname according to environment.")
-	flag.String(HTTPAssetsServerNameFlag, "", "Hostname according to environment.")
 }
 
 // CheckHosts validates the Hosts command line flags
