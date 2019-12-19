@@ -24,6 +24,8 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testingsuite"
+
+	"github.com/transcom/mymove/pkg/models/roles"
 )
 
 const (
