@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { get, isEmpty } from 'lodash';
-import { denormalize } from 'normalizr';
-import { moveTaskOrder } from 'shared/Entities/schema';
 import {
   updateMoveTaskOrderStatus,
   getMoveTaskOrder,
@@ -10,18 +8,9 @@ import {
   getCustomer,
   selectMoveTaskOrder,
 } from 'shared/Entities/modules/moveTaskOrders';
-import { selectCustomer } from 'shared/Entities/modules/customer';
 import { selectMoveOrder } from 'shared/Entities/modules/moveTaskOrders';
 
 class CustomerDetails extends Component {
-  componentDidMount() {
-    this.props.getCustomer(this.props.match.params.customerId);
-    this.props.getMoveTaskOrder(this.props.match.params.moveTaskOrderId).then(response => {
-      const mto = denormalize(this.props.match.params.moveTaskOrderId, moveTaskOrder, response.entities);
-      this.props.getMoveOrder(mto.moveOrderID);
-    });
-  }
-
   render() {
     const { moveTaskOrder, customer, moveOrder } = this.props;
     const entitlements = get(moveOrder, 'entitlement', {});
@@ -82,14 +71,12 @@ class CustomerDetails extends Component {
               <dt>Is Available to Prime</dt>
               <dd>{get(moveTaskOrder, 'isAvailableToPrime').toString()}</dd>
               <dt>Is Canceled</dt>
-              <dd>{get(moveTaskOrder, 'isCanceled').toString()}</dd>
+              <dd>{get(moveTaskOrder, 'isCanceled', false).toString()}</dd>
             </dl>
           </>
         )}
         <div>
-          <button
-            onClick={() => this.props.updateMoveTaskOrderStatus(this.props.match.params.moveTaskOrderId, 'DRAFT')}
-          >
+          <button onClick={() => this.props.updateMoveTaskOrderStatus('5d4b25bb-eb04-4c03-9a81-ee0398cb779e', true)}>
             Generate MTO
           </button>
         </div>
@@ -99,12 +86,11 @@ class CustomerDetails extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  const moveTaskOrder = selectMoveTaskOrder(state, ownProps.match.params.moveTaskOrderId);
+  const moveTaskOrder = selectMoveTaskOrder(state, '5d4b25bb-eb04-4c03-9a81-ee0398cb779e');
   const moveOrder = selectMoveOrder(state, moveTaskOrder.moveOrderID);
   return {
     moveTaskOrder,
     moveOrder,
-    customer: selectCustomer(state, ownProps.match.params.customerId),
   };
 };
 
