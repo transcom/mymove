@@ -160,13 +160,12 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 	})
 
 	var serviceItems models.MTOServiceItems
-	// TODO: FIGURE OUT IF WE CAN PASS IN THE NILS
 	err = h.ListFetcher.FetchRecordList(&serviceItems, queryFilters, queryAssociations, nil, nil)
 	// return any errors
 	if err != nil {
 		logger.Error("Error fetching mto service items: ", zap.Error(err))
 
-		return mtoserviceitemop.NewCreateMTOServiceItemInternalServerError()
+		return mtoserviceitemop.NewListMTOServiceItemsInternalServerError()
 	}
 
 	returnPayload := payloadForMTOServiceItemModels(serviceItems)
