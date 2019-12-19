@@ -28,9 +28,11 @@ func Customer(customer *models.Customer) *ghcmessages.Customer {
 		return nil
 	}
 	payload := ghcmessages.Customer{
-		DodID:  customer.DODID,
-		ID:     strfmt.UUID(customer.ID.String()),
-		UserID: strfmt.UUID(customer.UserID.String()),
+		DodID:     customer.DODID,
+		FirstName: customer.FirstName,
+		LastName:  customer.LastName,
+		ID:        strfmt.UUID(customer.ID.String()),
+		UserID:    strfmt.UUID(customer.UserID.String()),
 	}
 	return &payload
 }

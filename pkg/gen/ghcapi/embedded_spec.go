@@ -1442,10 +1442,18 @@ func init() {
         "dodID": {
           "type": "string"
         },
+        "first_name": {
+          "type": "string",
+          "example": "John"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "last_name": {
+          "type": "string",
+          "example": "Doe"
         },
         "userID": {
           "type": "string",
@@ -3726,10 +3734,18 @@ func init() {
         "dodID": {
           "type": "string"
         },
+        "first_name": {
+          "type": "string",
+          "example": "John"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "last_name": {
+          "type": "string",
+          "example": "Doe"
         },
         "userID": {
           "type": "string",

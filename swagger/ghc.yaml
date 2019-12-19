@@ -1062,6 +1062,12 @@ definitions:
   Customer:
     type: object
     properties:
+      first_name:
+        type: string
+        example: John
+      last_name:
+        type: string
+        example: Doe
       id:
         type: string
         format: uuid
