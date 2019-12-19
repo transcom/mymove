@@ -15,7 +15,6 @@ export function getMoveOrder(moveOrderID, label = getMoveOrderLabel) {
 }
 
 export function selectMoveOrder(state, moveOrderId) {
-  console.log('whga', moveOrderId);
   return get(state, `entities.moveOrder.${moveOrderId}`, {});
 }
 
@@ -25,8 +24,10 @@ export function getMoveTaskOrder(moveTaskOrderID, label = getMoveTaskOrderLabel)
   return swaggerRequest(getGHCClient, swaggerTag, { moveTaskOrderID }, { label });
 }
 
-export function selectMoveTaskOrder(state, moveTaskOrderId) {
-  return get(state, `entities.moveTaskOrders.${moveTaskOrderId}`, {});
+const getAllMoveTaskOrdersLabel = 'moveOrder.listMoveTaskOrders';
+export function getAllMoveTaskOrders(moveOrderID, label = getAllMoveTaskOrdersLabel) {
+  const swaggerTag = 'moveOrder.listMoveTaskOrders';
+  return swaggerRequest(getGHCClient, swaggerTag, { moveOrderID }, { label });
 }
 
 const getCustomerOperation = 'customer.getCustomer';

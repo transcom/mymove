@@ -3,10 +3,9 @@ import { connect } from 'react-redux';
 import { get, isEmpty } from 'lodash';
 import {
   updateMoveTaskOrderStatus,
-  getMoveTaskOrder,
+  getAllMoveTaskOrders,
   getMoveOrder,
   getCustomer,
-  selectMoveTaskOrder,
   selectCustomer,
 } from 'shared/Entities/modules/moveTaskOrders';
 import { selectMoveOrder } from 'shared/Entities/modules/moveTaskOrders';
@@ -15,7 +14,9 @@ class CustomerDetails extends Component {
   componentDidMount() {
     const { customerId, moveOrderId } = this.props.match.params;
     this.props.getCustomer(customerId);
-    this.props.getMoveOrder(moveOrderId).then(moveOrder => this.props.getMoveTaskOrder(moveOrder.moveTaskOrderId));
+    this.props.getMoveOrder(moveOrderId).then(({ response: { body: moveOrder } }) => {
+      this.props.getAllMoveTaskOrders(moveOrder.id);
+    });
   }
   render() {
     const { moveTaskOrder, customer, moveOrder } = this.props;
@@ -72,8 +73,6 @@ class CustomerDetails extends Component {
             <dl>
               <dt>ID</dt>
               <dd>{get(moveTaskOrder, 'id')}</dd>
-              <dt>Reference ID</dt>
-              <dd>{get(moveTaskOrder, 'referenceId')}</dd>
               <dt>Is Available to Prime</dt>
               <dd>{get(moveTaskOrder, 'isAvailableToPrime').toString()}</dd>
               <dt>Is Canceled</dt>
@@ -82,9 +81,7 @@ class CustomerDetails extends Component {
           </>
         )}
         <div>
-          <button onClick={() => this.props.updateMoveTaskOrderStatus('5d4b25bb-eb04-4c03-9a81-ee0398cb779e', true)}>
-            Generate MTO
-          </button>
+          <button onClick={() => this.props.updateMoveTaskOrderStatus(moveTaskOrder.id)}>Send to Prime</button>
         </div>
       </>
     );
@@ -92,19 +89,19 @@ class CustomerDetails extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  const moveTaskOrder = selectMoveTaskOrder(state, '5d4b25bb-eb04-4c03-9a81-ee0398cb779e');
   const moveOrder = selectMoveOrder(state, ownProps.match.params.moveOrderId);
   const customer = selectCustomer(state, ownProps.match.params.customerId);
   return {
     customer,
-    moveTaskOrder,
     moveOrder,
+    // TODO: Change when we start making use of multiple move task orders
+    moveTaskOrder: Object.values(get(state, 'entities.moveTaskOrder', {}))[0],
   };
 };
 
 const mapDispatchToProps = {
   getMoveOrder,
-  getMoveTaskOrder,
+  getAllMoveTaskOrders,
   updateMoveTaskOrderStatus,
   getCustomer,
 };

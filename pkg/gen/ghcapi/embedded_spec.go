@@ -260,20 +260,20 @@ func init() {
         }
       ]
     },
-    "/move-task-orders": {
+    "/move-orders/{moveOrderID}/move-task-orders": {
       "get": {
-        "description": "Gets all move task orders",
+        "description": "Gets move task orders associated with a move order",
         "produces": [
           "application/json"
         ],
         "tags": [
-          "moveTaskOrder"
+          "moveOrder"
         ],
-        "summary": "Gets all move task orders",
+        "summary": "Gets move task orders associated with a move order",
         "operationId": "listMoveTaskOrders",
         "responses": {
           "200": {
-            "description": "Successfully retrieved all move task orders",
+            "description": "Successfully retrieved all move task orders associated with a move order",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrders"
             }
@@ -309,7 +309,17 @@ func init() {
             }
           }
         }
-      }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of move order to use",
+          "name": "moveOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
@@ -2321,20 +2331,20 @@ func init() {
         }
       ]
     },
-    "/move-task-orders": {
+    "/move-orders/{moveOrderID}/move-task-orders": {
       "get": {
-        "description": "Gets all move task orders",
+        "description": "Gets move task orders associated with a move order",
         "produces": [
           "application/json"
         ],
         "tags": [
-          "moveTaskOrder"
+          "moveOrder"
         ],
-        "summary": "Gets all move task orders",
+        "summary": "Gets move task orders associated with a move order",
         "operationId": "listMoveTaskOrders",
         "responses": {
           "200": {
-            "description": "Successfully retrieved all move task orders",
+            "description": "Successfully retrieved all move task orders associated with a move order",
             "schema": {
               "$ref": "#/definitions/MoveTaskOrders"
             }
@@ -2385,7 +2395,17 @@ func init() {
             }
           }
         }
-      }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of move order to use",
+          "name": "moveOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {

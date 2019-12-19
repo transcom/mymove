@@ -129,7 +129,8 @@ export const accessCode = new schema.Entity('accessCodes');
 export const serviceItems = new schema.Entity('serviceItems');
 
 // Move Task Orders
-export const moveTaskOrder = new schema.Entity('moveTaskOrders');
+export const moveTaskOrder = new schema.Entity('moveTaskOrder');
+export const moveTaskOrders = new schema.Array(moveTaskOrder);
 
 // Move Orders
 export const moveOrder = new schema.Entity('moveOrder');

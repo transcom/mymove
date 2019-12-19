@@ -89,41 +89,6 @@ paths:
       description: Returns a given customer
       operationId: getCustomer
       summary: Returns a given customer
-  /move-task-orders:
-    get:
-      produces:
-        - application/json
-      parameters: []
-      responses:
-        '200':
-          description: Successfully retrieved all move task orders
-          schema:
-            $ref: '#/definitions/MoveTaskOrders'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '404':
-          description: The requested resource wasn't found
-          schema:
-            $ref: '#/responses/NotFound'
-        '500':
-          description: A server error occurred
-          schema:
-            $ref: '#/responses/ServerError'
-      tags:
-        - moveTaskOrder
-      description: Gets all move task orders
-      operationId: listMoveTaskOrders
-      summary: Gets all move task orders
   /move-orders:
     get:
       produces:
@@ -201,6 +166,48 @@ paths:
       description: Gets a move order
       operationId: getMoveOrder
       summary: Gets a move order by ID
+  '/move-orders/{moveOrderID}/move-task-orders':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveOrderID
+        required: true
+        type: string
+        format: uuid
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved all move task orders associated with a move order
+          schema:
+            $ref: '#/definitions/MoveTaskOrders'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveOrder
+      description: Gets move task orders associated with a move order
+      operationId: listMoveTaskOrders
+      summary: Gets move task orders associated with a move order
   '/move-task-orders/{moveTaskOrderID}':
     parameters:
       - description: ID of move order to use

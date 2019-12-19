@@ -98,9 +98,9 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation move_order.ListMoveOrders has not yet been implemented")
 		})
 	}
-	if api.MoveTaskOrderListMoveTaskOrdersHandler == nil {
-		api.MoveTaskOrderListMoveTaskOrdersHandler = move_task_order.ListMoveTaskOrdersHandlerFunc(func(params move_task_order.ListMoveTaskOrdersParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_task_order.ListMoveTaskOrders has not yet been implemented")
+	if api.MoveOrderListMoveTaskOrdersHandler == nil {
+		api.MoveOrderListMoveTaskOrdersHandler = move_order.ListMoveTaskOrdersHandlerFunc(func(params move_order.ListMoveTaskOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_order.ListMoveTaskOrders has not yet been implemented")
 		})
 	}
 	if api.PaymentRequestsListPaymentRequestsHandler == nil {
