@@ -82,11 +82,11 @@ class CustomerDetails extends Component {
               <dt>Is Canceled</dt>
               <dd>{get(moveTaskOrder, 'isCanceled', false).toString()}</dd>
             </dl>
+            <div>
+              <button onClick={() => this.props.updateMoveTaskOrderStatus(moveTaskOrder.id)}>Send to Prime</button>
+            </div>
           </>
         )}
-        <div>
-          <button onClick={() => this.props.updateMoveTaskOrderStatus(moveTaskOrder.id)}>Send to Prime</button>
-        </div>
       </>
     );
   }
