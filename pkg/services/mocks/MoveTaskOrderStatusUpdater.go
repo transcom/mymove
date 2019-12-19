@@ -14,8 +14,8 @@ type MoveTaskOrderStatusUpdater struct {
 	mock.Mock
 }
 
-// UpdateMoveTaskOrderStatus provides a mock function with given fields: moveTaskOrderID
-func (_m *MoveTaskOrderStatusUpdater) UpdateMoveTaskOrderStatus(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error) {
+// MakeAvailableToPrime provides a mock function with given fields: moveTaskOrderID
+func (_m *MoveTaskOrderStatusUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error) {
 	ret := _m.Called(moveTaskOrderID)
 
 	var r0 *models.MoveTaskOrder

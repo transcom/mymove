@@ -15,23 +15,14 @@ import (
 
 // MoveTaskOrder is an object representing the task orders for a move
 type MoveTaskOrder struct {
-	ID                       uuid.UUID   `db:"id"`
-	MoveOrder                MoveOrder   `belongs_to:"move_orders"`
-	MoveOrderID              uuid.UUID   `db:"move_order_id"`
-	ReferenceID              *string     `db:"reference_id"`
-	IsAvailableToPrime       bool        `db:"is_available_to_prime"`
-	IsCanceled               bool        `db:"is_canceled"`
-	CreatedAt                time.Time   `db:"created_at"`
-	UpdatedAt                time.Time   `db:"updated_at"`
-	DestinationAddress       Address     `belongs_to:"addresses"`
-	DestinationAddressID     uuid.UUID   `db:"destination_address_id"`
-	DestinationDutyStation   DutyStation `belongs_to:"duty_stations"`
-	DestinationDutyStationID uuid.UUID   `db:"destination_duty_station_id"`
-	OriginDutyStation        DutyStation `belongs_to:"duty_stations"`
-	OriginDutyStationID      uuid.UUID   `db:"origin_duty_station_id"`
-	PickupAddress            Address     `belongs_to:"addresses"`
-	PickupAddressID          uuid.UUID   `db:"pickup_address_id"`
-	RequestedPickupDate      time.Time   `db:"requested_pickup_date"`
+	ID                 uuid.UUID `db:"id"`
+	MoveOrder          MoveOrder `belongs_to:"move_orders"`
+	MoveOrderID        uuid.UUID `db:"move_order_id"`
+	ReferenceID        *string   `db:"reference_id"`
+	IsAvailableToPrime bool      `db:"is_available_to_prime"`
+	IsCanceled         bool      `db:"is_canceled"`
+	CreatedAt          time.Time `db:"created_at"`
+	UpdatedAt          time.Time `db:"updated_at"`
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

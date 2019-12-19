@@ -12,8 +12,8 @@ type MoveTaskOrderFetcher interface {
 	FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error)
 }
 
-//MoveTaskOrderStatusUpdater is the service object interface for UpdateMoveTaskOrderStatus
+//MoveTaskOrderStatusUpdater is the service object interface for MakeAvailableToPrime
 //go:generate mockery -name MoveTaskOrderStatusUpdater
 type MoveTaskOrderStatusUpdater interface {
-	UpdateMoveTaskOrderStatus(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error)
+	MakeAvailableToPrime(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error)
 }

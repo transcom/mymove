@@ -1,8 +1,6 @@
 package testdatagen
 
 import (
-	"time"
-
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -16,31 +14,12 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 	}
 	var referenceID *string
 
-	pickupAddress := assertions.MoveTaskOrder.PickupAddress
-	if isZeroUUID(pickupAddress.ID) {
-		pickupAddress = MakeAddress(db, assertions)
-	}
-
-	destinationAddress := assertions.MoveTaskOrder.DestinationAddress
-	if isZeroUUID(destinationAddress.ID) {
-		destinationAddress = MakeAddress2(db, assertions)
-	}
-
 	moveTaskOrder := models.MoveTaskOrder{
-		MoveOrder:                moveOrder,
-		MoveOrderID:              moveOrder.ID,
-		ReferenceID:              referenceID,
-		IsAvailableToPrime:       false,
-		IsCanceled:               false,
-		OriginDutyStationID:      moveOrder.OriginDutyStationID,
-		OriginDutyStation:        moveOrder.OriginDutyStation,
-		DestinationDutyStation:   moveOrder.DestinationDutyStation,
-		DestinationDutyStationID: moveOrder.DestinationDutyStation.ID,
-		PickupAddress:            pickupAddress,
-		PickupAddressID:          pickupAddress.ID,
-		DestinationAddress:       destinationAddress,
-		DestinationAddressID:     destinationAddress.ID,
-		RequestedPickupDate:      time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
+		MoveOrder:          moveOrder,
+		MoveOrderID:        moveOrder.ID,
+		ReferenceID:        referenceID,
+		IsAvailableToPrime: false,
+		IsCanceled:         false,
 	}
 
 	// Overwrite values with those from assertions

@@ -557,7 +557,7 @@ paths:
       operationId: updateMTOServiceItemstatus
       summary: Change the status of a line item for a move order by ID
   '/move-task-orders/{moveTaskOrderID}/status':
-    post:
+    patch:
       consumes:
         - application/json
       produces:

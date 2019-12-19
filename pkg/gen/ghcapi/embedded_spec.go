@@ -750,7 +750,7 @@ func init() {
       ]
     },
     "/move-task-orders/{moveTaskOrderID}/status": {
-      "post": {
+      "patch": {
         "description": "Changes move task order status to make it available to prime",
         "consumes": [
           "application/json"
@@ -2847,7 +2847,7 @@ func init() {
       ]
     },
     "/move-task-orders/{moveTaskOrderID}/status": {
-      "post": {
+      "patch": {
         "description": "Changes move task order status to make it available to prime",
         "consumes": [
           "application/json"

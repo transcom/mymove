@@ -91,8 +91,8 @@ func NewMoveTaskOrderStatusUpdater(db *pop.Connection) services.MoveTaskOrderSta
 	return &updateMoveTaskOrderStatus{db, moveTaskOrderFetcher}
 }
 
-//UpdateMoveTaskOrderStatus updates the status of a MoveTaskOrder for a given UUID to make it available to prime
-func (f fetchMoveTaskOrder) UpdateMoveTaskOrderStatus(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error) {
+//MakeAvailableToPrime updates the status of a MoveTaskOrder for a given UUID to make it available to prime
+func (f fetchMoveTaskOrder) MakeAvailableToPrime(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error) {
 	mto, err := f.FetchMoveTaskOrder(moveTaskOrderID)
 	if err != nil {
 		return &models.MoveTaskOrder{}, err
