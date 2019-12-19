@@ -33,6 +33,18 @@ func main() {
 
 	ctx := map[string]string{}
 
+	// Adds environment vairables to context
+	// os.Environ() returns a copy of strings representing the environment, in the form "key=value".
+	// https://golang.org/pkg/os/#Environ
+	for _, x := range os.Environ() {
+		// Split each environment variable on the first equals sign into [name, value]
+		pair := strings.SplitAfterN(x, "=", 2)
+		// Add to context
+		ctx[pair[0][0:len(pair[0])-1]] = pair[1]
+	}
+
+	// Variables in file should always overwrite the env vars as a source of truth
+	// This is especially important in local (non remote) environments where developer env vars may conflict
 	if len(variablesFile) > 0 {
 		// Read contents of variables file into vars
 		vars, readFileErr := ioutil.ReadFile(variablesFile)
@@ -49,16 +61,6 @@ func main() {
 				ctx[pair[0][0:len(pair[0])-1]] = pair[1]
 			}
 		}
-	}
-
-	// Adds environment vairables to context
-	// os.Environ() returns a copy of strings representing the environment, in the form "key=value".
-	// https://golang.org/pkg/os/#Environ
-	for _, x := range os.Environ() {
-		// Split each environment variable on the first equals sign into [name, value]
-		pair := strings.SplitAfterN(x, "=", 2)
-		// Add to context
-		ctx[pair[0][0:len(pair[0])-1]] = pair[1]
 	}
 
 	// Adds command line arguments to context

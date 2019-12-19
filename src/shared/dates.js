@@ -28,6 +28,9 @@ export function formatDate(date, format = defaultDateFormat, locale = 'en') {
     .locale(locale)
     .format(format);
 }
+
 export function formatDateForSwagger(dateString) {
-  return formatDate(dateString, swaggerDateFormat);
+  if (dateString) {
+    return formatDate(dateString, swaggerDateFormat); //
+  }
 }

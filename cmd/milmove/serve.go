@@ -484,6 +484,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, clientAuthSecretKey, noSessionTimeout, appnames, useSecureCookie)
 	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, useSecureCookie)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
+	if v.GetBool(cli.FeatureFlagRoleBasedAuth) {
+		userAuthMiddleware = authentication.RoleAuthMiddleware(logger)
+	}
 	isLoggedInMiddleware := authentication.IsLoggedInMiddleware(logger)
 	clientCertMiddleware := authentication.ClientCertMiddleware(logger, dbConnection)
 

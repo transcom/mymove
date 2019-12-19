@@ -6,6 +6,8 @@ import (
 	mock "github.com/stretchr/testify/mock"
 	models "github.com/transcom/mymove/pkg/models"
 
+	roles "github.com/transcom/mymove/pkg/models/roles"
+
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -39,29 +41,6 @@ func (_m *RoleAssociator) AssociateAdminUser(user *models.User) (uuid.UUID, erro
 
 // AssociateOfficeUser provides a mock function with given fields: user
 func (_m *RoleAssociator) AssociateOfficeUser(user *models.User) (uuid.UUID, error) {
-	ret := _m.Called(user)
-
-	var r0 uuid.UUID
-	if rf, ok := ret.Get(0).(func(*models.User) uuid.UUID); ok {
-		r0 = rf(user)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(uuid.UUID)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.User) error); ok {
-		r1 = rf(user)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// AssociateTOOUser provides a mock function with given fields: user
-func (_m *RoleAssociator) AssociateTOOUser(user *models.User) (uuid.UUID, error) {
 	ret := _m.Called(user)
 
 	var r0 uuid.UUID
@@ -143,22 +122,43 @@ func (_m *RoleAssociator) FetchOfficeUser(email string) (*models.OfficeUser, err
 	return r0, r1
 }
 
-// FetchTOOUser provides a mock function with given fields: email
-func (_m *RoleAssociator) FetchTOOUser(email string) (*models.TransportationOrderingOfficer, error) {
-	ret := _m.Called(email)
+// FetchUserIdentity provides a mock function with given fields: user
+func (_m *RoleAssociator) FetchUserIdentity(user *models.User) (*models.UserIdentity, error) {
+	ret := _m.Called(user)
 
-	var r0 *models.TransportationOrderingOfficer
-	if rf, ok := ret.Get(0).(func(string) *models.TransportationOrderingOfficer); ok {
-		r0 = rf(email)
+	var r0 *models.UserIdentity
+	if rf, ok := ret.Get(0).(func(*models.User) *models.UserIdentity); ok {
+		r0 = rf(user)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.TransportationOrderingOfficer)
+			r0 = ret.Get(0).(*models.UserIdentity)
 		}
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(email)
+	if rf, ok := ret.Get(1).(func(*models.User) error); ok {
+		r1 = rf(user)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// VerifyHasTOORole provides a mock function with given fields: identity
+func (_m *RoleAssociator) VerifyHasTOORole(identity *models.UserIdentity) (roles.Role, error) {
+	ret := _m.Called(identity)
+
+	var r0 roles.Role
+	if rf, ok := ret.Get(0).(func(*models.UserIdentity) roles.Role); ok {
+		r0 = rf(identity)
+	} else {
+		r0 = ret.Get(0).(roles.Role)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*models.UserIdentity) error); ok {
+		r1 = rf(identity)
 	} else {
 		r1 = ret.Error(1)
 	}

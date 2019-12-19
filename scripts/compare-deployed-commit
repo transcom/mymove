@@ -16,9 +16,9 @@ nargs=$#
 deployed_commit=""
 
 if [[ "$nargs" -eq 5 ]]; then
-  deployed_commit=$(curl -vk --key <(echo "$3" | base64 --decode) --cert <(echo "$4" | base64 --decode) --cacert <(echo "$5" | base64 --decode) "https://$host/health"  | jq -r .gitCommit)
+  deployed_commit=$(curl -sk --key <(echo "$3" | base64 --decode) --cert <(echo "$4" | base64 --decode) --cacert <(echo "$5" | base64 --decode) "https://$host/health"  | jq -r .gitCommit)
 else
-  deployed_commit=$(curl "https://$host/health" | jq -r .gitCommit)
+  deployed_commit=$(curl -s "https://$host/health" | jq -r .gitCommit)
 fi
 
 if [[ -z "$deployed_commit" ]]; then

@@ -41,3 +41,32 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 	moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
 	return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload)
 }
+
+// UpdateMoveTaskOrderStatusHandlerFunc updates the status of a Move Task Order
+type UpdateMoveTaskOrderStatusHandlerFunc struct {
+	handlers.HandlerContext
+	moveTaskOrderStatusUpdater services.MoveTaskOrderStatusUpdater
+}
+
+// UpdateMoveTaskOrderStatusHandlerFunc updates the status of a MoveTaskOrder
+func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.UpdateMoveTaskOrderStatusParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	// TODO how are we going to handle auth in new api? Do we need some sort of placeholder to remind us to
+	// TODO to revisit?
+	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+	mto, err := h.moveTaskOrderStatusUpdater.MakeAvailableToPrime(moveTaskOrderID)
+	if err != nil {
+		logger.Error("ghciap.MoveTaskOrderHandler error", zap.Error(err))
+		switch err.(type) {
+		case movetaskorderservice.ErrNotFound:
+			return movetaskorderops.NewUpdateMoveTaskOrderStatusNotFound()
+		case movetaskorderservice.ErrInvalidInput:
+			return movetaskorderops.NewUpdateMoveTaskOrderStatusBadRequest()
+		default:
+			return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError()
+		}
+	}
+	moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
+	return movetaskorderops.NewUpdateMoveTaskOrderStatusOK().WithPayload(moveTaskOrderPayload)
+}

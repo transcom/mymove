@@ -6,14 +6,12 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
-
-	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
-
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
@@ -56,4 +54,28 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 	suite.False(*moveTaskOrderPayload.IsCanceled)
 	suite.Equal(strfmt.UUID(moveTaskOrder.MoveOrderID.String()), moveTaskOrderPayload.MoveOrderID)
 	suite.Nil(moveTaskOrderPayload.ReferenceID)
+}
+
+func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegration() {
+	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
+	params := move_task_order.UpdateMoveTaskOrderStatusParams{
+		HTTPRequest:     request,
+		MoveTaskOrderID: moveTaskOrder.ID.String(),
+	}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+
+	// make the request
+	handler := UpdateMoveTaskOrderStatusHandlerFunc{context,
+		movetaskorder.NewMoveTaskOrderStatusUpdater(suite.DB()),
+	}
+	response := handler.Handle(params)
+
+	suite.IsNotErrResponse(response)
+	moveTaskOrdersResponse := response.(*movetaskorderops.UpdateMoveTaskOrderStatusOK)
+	moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
+
+	suite.Assertions.IsType(&move_task_order.UpdateMoveTaskOrderStatusOK{}, response)
+	suite.Equal(moveTaskOrdersPayload.ID, strfmt.UUID(moveTaskOrder.ID.String()))
+	suite.Equal(*moveTaskOrdersPayload.IsAvailableToPrime, true)
 }

@@ -4,6 +4,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
@@ -870,15 +872,98 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
+	customer2 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
+		Customer: models.Customer{
+			ID: uuid.FromStringOrNil("a5cc1277-37dd-4588-a982-df3c9fa7fc20"),
+		},
+	})
+	moveOrders2 := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
+		MoveOrder: models.MoveOrder{ID: uuid.FromStringOrNil("42f9cd3b-d630-4762-9762-542e9a3a67e4")},
+		Customer:  customer2,
+	})
+
+	testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			ID:          uuid.FromStringOrNil("302f3509-562c-4f5c-81c5-b770f4af30e8"),
+			MoveOrderID: moveOrders2.ID,
+		},
+	})
+
+	customer3 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
+		Customer: models.Customer{
+			ID: uuid.FromStringOrNil("08606458-cee9-4529-a2e6-9121e67dac72"),
+		},
+	})
+	moveOrders3 := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
+		MoveOrder: models.MoveOrder{ID: uuid.FromStringOrNil("eb6b0c75-3972-4a09-a453-3a7b257aa7f7")},
+		Customer:  customer3,
+	})
+
+	testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			ID:          uuid.FromStringOrNil("a97557cd-ec31-4f00-beed-01ac6e4c0976"),
+			MoveOrderID: moveOrders3.ID,
+		},
+	})
+
+	customer4 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
+		Customer: models.Customer{
+			ID: uuid.FromStringOrNil("1a13ee6b-3e21-4170-83bc-0d41f60edb99"),
+		},
+	})
+	moveOrders4 := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
+		MoveOrder: models.MoveOrder{ID: uuid.FromStringOrNil("8779beda-f69a-43bf-8606-ebd22973d474")},
+		Customer:  customer4,
+	})
+
+	testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			ID:          uuid.FromStringOrNil("c251267f-dbe1-42b9-8239-4f628fa7279f"),
+			MoveOrderID: moveOrders4.ID,
+		},
+	})
+
+	customer5 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
+		Customer: models.Customer{
+			ID: uuid.FromStringOrNil("25a90fef-301e-4682-9758-60f0c76ea8b4"),
+		},
+	})
+	moveOrders5 := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
+		MoveOrder: models.MoveOrder{ID: uuid.FromStringOrNil("f2473488-2504-4872-a6b6-dd385dad4bf9")},
+		Customer:  customer5,
+	})
+
+	testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			ID:          uuid.FromStringOrNil("2b485ded-a395-4dbb-9aa7-3f902dd4ccea"),
+			MoveOrderID: moveOrders5.ID,
+		},
+	})
+
 	MTOShipment := testdatagen.MakeMTOShipment(db, testdatagen.Assertions{
 		MTOShipment:   models.MTOShipment{ID: uuid.FromStringOrNil("475579d5-aaa4-4755-8c43-c510381ff9b5")},
 		MoveTaskOrder: mto,
 	})
 
 	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{ID: uuid.FromStringOrNil("9db1bf43-0964-44ff-8384-3297951f6781")},
-		MoveTaskOrder:  mto,
-		MTOShipment:    MTOShipment,
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("9db1bf43-0964-44ff-8384-3297951f6781"),
+		},
+		MoveTaskOrder: mto,
+		MTOShipment:   MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH
+		},
+	})
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("d886431c-c357-46b7-a084-a0c85dd496d3"),
+		},
+		MoveTaskOrder: mto,
+		MTOShipment:   MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("2bc3e5cb-adef-46b1-bde9-55570bfdd43e"), // DOP
+		},
 	})
 
 	testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
@@ -886,13 +971,32 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			ID:            uuid.FromStringOrNil("a2c34dba-015f-4f96-a38b-0c0b9272e208"),
 			MoveTaskOrder: mto,
 			IsFinal:       false,
-			Status:        "PENDING",
+			Status:        models.PaymentRequestStatusPending,
+		},
+	})
+
+	testdatagen.MakeServiceItemParamKey(db, testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			ID:          uuid.FromStringOrNil("9ea783db-ebc8-4a99-93dd-56b507678a07"),
+			Key:         "weight",
+			Description: "actual weight",
+			Type:        models.ServiceItemParamTypeInteger,
+			Origin:      models.ServiceItemParamOriginPrime,
+		},
+	})
+	testdatagen.MakeServiceItemParamKey(db, testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			ID:          uuid.FromStringOrNil("421530ab-9c84-4207-8faf-f39a2f92ddaa"),
+			Key:         "pickup",
+			Description: "requested pickup date",
+			Type:        models.ServiceItemParamTypeDate,
+			Origin:      models.ServiceItemParamOriginPrime,
 		},
 	})
 
 	/* A user with Roles */
-	smRole := models.Role{}
-	err := db.Where("role_type = $1", "customer").First(&smRole)
+	smRole := roles.Role{}
+	err := db.Where("role_type = $1", roles.Customer).First(&smRole)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -903,8 +1007,44 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
 			Active:        true,
-			Roles:         []models.Role{smRole},
+			Roles:         []roles.Role{smRole},
 		},
 	})
 
+	/* A user with too role */
+	tooRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.TOO).First(&tooRole)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	email = "too_role@office.mil"
+	uuidStr = "dcf86235-53d3-43dd-8ee8-54212ae3078f"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{tooRole},
+		},
+	})
+
+	// A more recent MTO for demonstrating the since parameter
+	customer6 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
+		Customer: models.Customer{
+			ID: uuid.FromStringOrNil("6ac40a00-e762-4f5f-b08d-3ea72a8e4b61"),
+		},
+	})
+	moveOrders6 := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
+		MoveOrder: models.MoveOrder{ID: uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4981")},
+		Customer:  customer6,
+	})
+	testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			ID:                 uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb7791"),
+			MoveOrderID:        moveOrders6.ID,
+			UpdatedAt:          time.Unix(1576779681256, 0),
+			IsAvailableToPrime: true,
+		},
+	})
 }

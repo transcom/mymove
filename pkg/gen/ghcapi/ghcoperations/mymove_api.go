@@ -76,8 +76,11 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MtoServiceItemListMTOServiceItemsHandler: mto_service_item.ListMTOServiceItemsHandlerFunc(func(params mto_service_item.ListMTOServiceItemsParams) middleware.Responder {
 			return middleware.NotImplemented("operation MtoServiceItemListMTOServiceItems has not yet been implemented")
 		}),
-		MoveTaskOrderListMoveTaskOrdersHandler: move_task_order.ListMoveTaskOrdersHandlerFunc(func(params move_task_order.ListMoveTaskOrdersParams) middleware.Responder {
-			return middleware.NotImplemented("operation MoveTaskOrderListMoveTaskOrders has not yet been implemented")
+		MoveOrderListMoveOrdersHandler: move_order.ListMoveOrdersHandlerFunc(func(params move_order.ListMoveOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation MoveOrderListMoveOrders has not yet been implemented")
+		}),
+		MoveOrderListMoveTaskOrdersHandler: move_order.ListMoveTaskOrdersHandlerFunc(func(params move_order.ListMoveTaskOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation MoveOrderListMoveTaskOrders has not yet been implemented")
 		}),
 		PaymentRequestsListPaymentRequestsHandler: payment_requests.ListPaymentRequestsHandlerFunc(func(params payment_requests.ListPaymentRequestsParams) middleware.Responder {
 			return middleware.NotImplemented("operation PaymentRequestsListPaymentRequests has not yet been implemented")
@@ -153,8 +156,10 @@ type MymoveAPI struct {
 	PaymentRequestsGetPaymentRequestHandler payment_requests.GetPaymentRequestHandler
 	// MtoServiceItemListMTOServiceItemsHandler sets the operation handler for the list m t o service items operation
 	MtoServiceItemListMTOServiceItemsHandler mto_service_item.ListMTOServiceItemsHandler
-	// MoveTaskOrderListMoveTaskOrdersHandler sets the operation handler for the list move task orders operation
-	MoveTaskOrderListMoveTaskOrdersHandler move_task_order.ListMoveTaskOrdersHandler
+	// MoveOrderListMoveOrdersHandler sets the operation handler for the list move orders operation
+	MoveOrderListMoveOrdersHandler move_order.ListMoveOrdersHandler
+	// MoveOrderListMoveTaskOrdersHandler sets the operation handler for the list move task orders operation
+	MoveOrderListMoveTaskOrdersHandler move_order.ListMoveTaskOrdersHandler
 	// PaymentRequestsListPaymentRequestsHandler sets the operation handler for the list payment requests operation
 	PaymentRequestsListPaymentRequestsHandler payment_requests.ListPaymentRequestsHandler
 	// MtoServiceItemUpdateMTOServiceItemHandler sets the operation handler for the update m t o service item operation
@@ -276,8 +281,12 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "mto_service_item.ListMTOServiceItemsHandler")
 	}
 
-	if o.MoveTaskOrderListMoveTaskOrdersHandler == nil {
-		unregistered = append(unregistered, "move_task_order.ListMoveTaskOrdersHandler")
+	if o.MoveOrderListMoveOrdersHandler == nil {
+		unregistered = append(unregistered, "move_order.ListMoveOrdersHandler")
+	}
+
+	if o.MoveOrderListMoveTaskOrdersHandler == nil {
+		unregistered = append(unregistered, "move_order.ListMoveTaskOrdersHandler")
 	}
 
 	if o.PaymentRequestsListPaymentRequestsHandler == nil {
@@ -464,7 +473,12 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/move-task-orders"] = move_task_order.NewListMoveTaskOrders(o.context, o.MoveTaskOrderListMoveTaskOrdersHandler)
+	o.handlers["GET"]["/move-orders"] = move_order.NewListMoveOrders(o.context, o.MoveOrderListMoveOrdersHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/move-orders/{moveOrderID}/move-task-orders"] = move_order.NewListMoveTaskOrders(o.context, o.MoveOrderListMoveTaskOrdersHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
