@@ -4,6 +4,7 @@ To interact and use the prime api you will need a client that can send the appro
 
 * [Prerequisites](#prerequisites)
   * [General Postman settings](#general-postman-settings)
+  * [Postman Environment settings](#postman-environment-settings)
 * [Payment Request API](#payment-request-api)
   * [Create a Payment Request](#create-a-payment-request)
     * [Curl](#curl)
@@ -33,6 +34,28 @@ Switch to the **Certificates** tab and add the development certificate with the 
 * **KEY File** `config/tls/devlocal-mtls.key`
 
 ![Postman client cert settings](../images/postman_client_cert.png)
+
+### Postman Environment settings
+
+You will need to configure the base url for development or other environment you plan to connect to. Click on the gear icon near the environment pull down in the upper right of the application.
+
+![Postman open environment dialog](../images/postman_environment.png)
+
+This will open the _Manage Environments_ dialog. Select **Add** in the lower right corner
+
+![Postman environment dialog](../images/postman_manage_environment_dialog.png)
+
+Fill in the following details in the add new dialog and click **Add**
+
+* **Variable** `baseUrl`
+* **Initial Value** `https://primelocal:9443/prime/v1`
+* **Current Value** `https://primelocal:9443/prime/v1`
+
+![Postman environment add dialog](../images/postman_manage_environment_add.png)
+
+Once you have added this environment and closed the dialog select the new environment from the pull down.
+
+![Postman select environment](../images/postman_set_environment.png)
 
 ## Payment Request API
 
@@ -84,11 +107,29 @@ Open the Import dialog
 
 ![Postman import button upper left](../images/postman_import.png)
 
-Use the Import dialog to import the `docs/postman/primeapi.postman_collection.json` file
+Use the Import dialog to import the `swagger/prime.yaml` file
 
 ![Postman import dialog](../images/postman_import_dialog.png)
 
-You should now have a `primeapi` collection which will contain a sample create prime payment request that could be sent.  Select the `Prime Payment Request Create` and click **Send**. The image below also includes the sample successful response.
+You should now have a `move.mil API` collection which will contain sample requests for all endpoints defined by the api swagger file. Select the `Creates a payment request`, modify the sample request as below, and click **Send**. The image below also includes the sample successful response.
+
+```json
+{
+  "isFinal": false,
+    "moveTaskOrderID": "5d4b25bb-eb04-4c03-9a81-ee0398cb779e",
+    "serviceItems": [
+      {
+        "id": "94a63112-922e-4038-96c6-8e6736fb1ed9",
+        "params": [
+          {
+            "key": "Service Item Parameter Name",
+            "value": "Service Item Parameter Value"
+          }
+        ]
+      }
+    ]
+}
+```
 
 ![Postman collections and sample response](../images/postman_collections_response.png)
 
