@@ -4,6 +4,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
@@ -891,8 +893,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	/* A user with Roles */
-	smRole := models.Role{}
-	err := db.Where("role_type = $1", "customer").First(&smRole)
+	smRole := roles.Role{}
+	err := db.Where("role_type = $1", roles.Customer).First(&smRole)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -903,7 +905,25 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
 			Active:        true,
-			Roles:         []models.Role{smRole},
+			Roles:         []roles.Role{smRole},
+		},
+	})
+
+	/* A user with too role */
+	tooRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.TOO).First(&tooRole)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	email = "too_role@office.mil"
+	uuidStr = "dcf86235-53d3-43dd-8ee8-54212ae3078f"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{tooRole},
 		},
 	})
 

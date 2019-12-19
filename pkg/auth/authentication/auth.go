@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/markbates/goth"
@@ -45,6 +47,40 @@ func IsLoggedInMiddleware(logger Logger) http.HandlerFunc {
 	}
 }
 
+// RoleAuthMiddleware enforces that the incoming request is tied to a user session
+func RoleAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
+	// This is a seam to start adding in the new role based auth / login
+	// At the moment it's largely the same as UserAuthMiddleware
+	// except that it also checks for TOO role for office users
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+
+			session := auth.SessionFromRequestContext(r)
+			// We must have a logged in session and a user
+
+			if session == nil || session.UserID == uuid.Nil {
+				logger.Error("unauthorized access, no session token or user id")
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			}
+			// DO NOT CHECK MILMOVE SESSION BECAUSE NEW SERVICE MEMBERS WON'T HAVE AN ID RIGHT AWAY
+			// This must be the right type of user for the application
+			if session.IsOfficeApp() && !session.IsOfficeUser() && !session.Roles.HasRole(roles.TOO) {
+				logger.Error("unauthorized user for office.move.mil", zap.String("email", session.Email))
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			} else if session.IsAdminApp() && !session.IsAdminUser() {
+				logger.Error("unauthorized user for admin.move.mil", zap.String("email", session.Email))
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		}
+		return http.HandlerFunc(mw)
+	}
+}
+
 // UserAuthMiddleware enforces that the incoming request is tied to a user session
 func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
@@ -52,6 +88,7 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 
 			session := auth.SessionFromRequestContext(r)
 			// We must have a logged in session and a user
+
 			if session == nil || session.UserID == uuid.Nil {
 				logger.Error("unauthorized access, no session token or user id")
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
@@ -390,7 +427,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
-		authorizeKnownUser(userIdentity, h, session, w, r, landingURL.String())
+		authorizeKnownUserNew(userIdentity, h, session, w, r, landingURL.String())
 		return
 	}
 	if err == nil { // Someone we know already
@@ -412,9 +449,6 @@ var authorizeUnknownUserNew = func(openIDUser goth.User, h CallbackHandler, sess
 	if err != nil {
 		switch err {
 		case ErrTOOUnauthorized:
-			// TODO for the moment treat all new office users as TOOs and redirect those not in
-			// TODO transportation_ordering_officers table to the verification in progress page
-			// TODO and don't log them in
 			http.Redirect(w, r, h.verificationInProgressURL(session), http.StatusTemporaryRedirect)
 			return
 		case ErrUnauthorized:
@@ -433,8 +467,10 @@ var authorizeUnknownUserNew = func(openIDUser goth.User, h CallbackHandler, sess
 	return
 }
 
-func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
-
+var authorizeKnownUserNew = func(userIdentity *models.UserIdentity, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
+	// This is a seam to start adding in the new role based auth / login
+	// At the moment it's largely the same as authorizeKnownUser
+	// except that it also checks for TOO role for office users
 	if !userIdentity.Active {
 		h.logger.Error("Active user requesting authentication",
 			zap.String("application_name", string(session.ApplicationName)),
@@ -445,7 +481,119 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 		return
 	}
 	for _, role := range userIdentity.Roles {
-		session.Roles = append(session.Roles, auth.Role(role))
+		session.Roles = append(session.Roles, role)
+	}
+	session.UserID = userIdentity.ID
+
+	if userIdentity.ServiceMemberID != nil {
+		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
+	}
+
+	if userIdentity.DpsUserID != nil && (userIdentity.DpsActive != nil && *userIdentity.DpsActive) {
+		session.DpsUserID = *(userIdentity.DpsUserID)
+	}
+	trc := tooRoleChecker{h.db, h.logger}
+	tooRole, err := trc.VerifyHasTOORole(userIdentity)
+	if err == nil && !session.Roles.HasRole(roles.TOO) {
+		session.Roles = append(session.Roles, tooRole)
+	}
+	if session.IsOfficeApp() && !session.Roles.HasRole(roles.TOO) {
+		if userIdentity.OfficeActive != nil && !*userIdentity.OfficeActive {
+			h.logger.Error("Office user is deactivated", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
+			return
+		}
+		if userIdentity.OfficeUserID != nil {
+			session.OfficeUserID = *(userIdentity.OfficeUserID)
+		} else {
+			// In case they managed to login before the office_user record was created
+			officeUser, err := models.FetchOfficeUserByEmail(h.db, session.Email)
+			if err == models.ErrFetchNotFound {
+				h.logger.Error("Non-office user authenticated at office site", zap.String("email", session.Email))
+				http.Redirect(w, r, h.verificationInProgressURL(session), http.StatusTemporaryRedirect)
+				return
+			} else if err != nil {
+				h.logger.Error("Checking for office user", zap.String("email", session.Email), zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
+			session.OfficeUserID = officeUser.ID
+			officeUser.UserID = &userIdentity.ID
+			err = h.db.Save(officeUser)
+			if err != nil {
+				h.logger.Error("Updating office user", zap.String("email", session.Email), zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
+		}
+	}
+
+	if session.IsAdminApp() {
+		if userIdentity.AdminUserActive != nil && !*userIdentity.AdminUserActive {
+			h.logger.Error("Admin user is deactivated", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
+			return
+		}
+		if userIdentity.AdminUserID != nil {
+			session.AdminUserID = *(userIdentity.AdminUserID)
+			session.AdminUserRole = userIdentity.AdminUserRole.String()
+		} else {
+			// In case they managed to login before the admin_user record was created
+			var adminUser models.AdminUser
+			queryBuilder := query.NewQueryBuilder(h.db)
+			filters := []services.QueryFilter{
+				query.NewQueryFilter("email", "=", strings.ToLower(userIdentity.Email)),
+			}
+			err := queryBuilder.FetchOne(&adminUser, filters)
+			if err == models.ErrFetchNotFound {
+				h.logger.Error("Non-admin user authenticated at admin site", zap.String("email", session.Email))
+				http.Error(w, http.StatusText(403), http.StatusForbidden)
+				return
+			} else if err != nil {
+				h.logger.Error("Checking for admin user", zap.String("email", session.Email), zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
+
+			session.AdminUserID = adminUser.ID
+			session.AdminUserRole = adminUser.Role.String()
+			adminUser.UserID = &userIdentity.ID
+			verrs, err := h.db.ValidateAndSave(&adminUser)
+			if err != nil {
+				h.logger.Error("Updating admin user", zap.String("email", session.Email), zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
+
+			if verrs != nil {
+				h.logger.Error("Admin user validation errors", zap.String("email", session.Email), zap.Error(verrs))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
+		}
+	}
+	session.FirstName = userIdentity.FirstName()
+	session.LastName = userIdentity.LastName()
+	session.Middle = userIdentity.Middle()
+
+	h.logger.Info("logged in", zap.Any("session", session))
+
+	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
+	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
+}
+
+var authorizeKnownUser = func(userIdentity *models.UserIdentity, h CallbackHandler, session *auth.Session, w http.ResponseWriter, r *http.Request, lURL string) {
+	if !userIdentity.Active {
+		h.logger.Error("Active user requesting authentication",
+			zap.String("application_name", string(session.ApplicationName)),
+			zap.String("hostname", session.Hostname),
+			zap.String("user_id", session.UserID.String()),
+			zap.String("email", session.Email))
+		http.Error(w, http.StatusText(403), http.StatusForbidden)
+		return
+	}
+	for _, role := range userIdentity.Roles {
+		session.Roles = append(session.Roles, role)
 	}
 	session.UserID = userIdentity.ID
 
