@@ -787,7 +787,7 @@ func (m MockAPIContext) RouteInfo(r *http.Request) (*middleware.MatchedRoute, *h
 	matchedRouteMiddleware.Operation = &spec.Operation{}
 	matchedRouteMiddleware.Operation.VendorExtensible = spec.VendorExtensible{}
 	matchedRouteMiddleware.Operation.VendorExtensible.Extensions = spec.Extensions{}
-	matchedRouteMiddleware.Operation.VendorExtensible.Extensions["x-swagger-roles"] = []interface{}{"office", "contractingOfficer", "customer"}
+	matchedRouteMiddleware.Operation.VendorExtensible.Extensions["x-swagger-roles"] = []interface{}{"office", "contracting_officer", "customer"}
 	return &matchedRouteMiddleware, nil, false
 }
 
@@ -805,7 +805,7 @@ func (suite *AuthSuite) TestRequireRoleAuthMiddlewareAuthorized() {
 	req := httptest.NewRequest("GET", "/logged_in", nil)
 
 	// And: the context contains the auth values
-	role := roles.Role{RoleType: roles.RoleTypeCustomer}
+	role := roles.Role{RoleType: roles.RoleTypeContractingOfficer}
 	session := auth.Session{
 		UserID:  user.ID,
 		IDToken: "fake Token",
