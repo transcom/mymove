@@ -2,6 +2,7 @@ package primeapi
 
 import (
 	"fmt"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -64,6 +65,11 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	}
 
 	paymentRequest.ProofOfServiceDocs, err = h.buildProofOfServiceDocs(payload)
+	if err != nil {
+		logger.Error("Error building proof of service doc", zap.Error(err))
+		return paymentrequestop.NewCreatePaymentRequestInternalServerError()
+	}
+
 	createdPaymentRequest, err := h.PaymentRequestCreator.CreatePaymentRequest(&paymentRequest)
 	if err != nil {
 		logger.Error("Error creating payment request", zap.Error(err))

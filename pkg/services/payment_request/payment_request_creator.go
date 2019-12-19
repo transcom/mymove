@@ -2,8 +2,6 @@ package paymentrequest
 
 import (
 	"fmt"
-	"github.com/transcom/mymove/pkg/storage"
-	"github.com/transcom/mymove/pkg/uploader"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -16,13 +14,14 @@ import (
 
 type paymentRequestCreator struct {
 	db *pop.Connection
-	logger storage.Logger
-	fileStorer storage.FileStorer
-	fileSizeLimit uploader.ByteSize
+	//logger storage.Logger
+	//fileStorer storage.FileStorer
+	//fileSizeLimit uploader.ByteSize
 }
 
-func NewPaymentRequestCreator(db *pop.Connection, logger storage.Logger, fileStorer storage.FileStorer, fileSizeLimit uploader.ByteSize) services.PaymentRequestCreator {
-	return &paymentRequestCreator{db, logger, fileStorer, uploader.MaxFileSizeLimit}
+func NewPaymentRequestCreator(db *pop.Connection) services.PaymentRequestCreator {
+	//return &paymentRequestCreator{db, logger, fileStorer, uploader.MaxFileSizeLimit}
+	return &paymentRequestCreator{db}
 }
 
 func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequest *models.PaymentRequest) (*models.PaymentRequest, error) {
