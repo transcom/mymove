@@ -407,6 +407,8 @@ github.com/onsi/gomega v1.6.0/go.mod h1:ex+gbHU/CVuBBDIJjb2X0qEXbFg53c61hWP/1Cpa
 github.com/pborman/uuid v1.2.0/go.mod h1:X/NO0urCmaxf9VXbdlT7C2Yzkj2IKimNn4k+gtPdI/k=
 github.com/pdfcpu/pdfcpu v0.2.5 h1:7jBh0EOQgxxpe35XjTtEzjHJzVMHO3ZwUn8EYNEA6Ng=
 github.com/pdfcpu/pdfcpu v0.2.5/go.mod h1:VLoFmLCCnUkneQe2uTjK1ZgPveTUZKGgIb2OP20+W5c=
+github.com/pdfcpu/pdfcpu v0.3.1 h1:VAhouW6u0drME5i0XEi9tlrwIX9VIFt9fkthZjuoX1c=
+github.com/pdfcpu/pdfcpu v0.3.1/go.mod h1:VLoFmLCCnUkneQe2uTjK1ZgPveTUZKGgIb2OP20+W5c=
 github.com/pelletier/go-toml v1.2.0/go.mod h1:5z9KED0ma1S8pY6P1sdut58dfprrGBbd/94hg7ilaic=
 github.com/pelletier/go-toml v1.4.0 h1:u3Z1r+oOXJIkxqw34zVhyPgjBsm6X2wn21NWs/HfSeg=
 github.com/pelletier/go-toml v1.4.0/go.mod h1:PN7xzY2wHTK0K9p34ErDQMlFxa51Fk0OUruD3k1mMwo=
