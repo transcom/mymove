@@ -219,7 +219,7 @@ export class PpmWeight extends Component {
               <p className="text-gray-50">Final payment will be based on the weight you actually move.</p>
             </div>
             <div className="radio-group-wrapper normalize-margins">
-              <h3>Does that weight include pro-gear?</h3>
+              <h3>Do you have also have pro-gear to move?</h3>
               <RadioButton
                 inputClassName="usa-radio__input inline_radio"
                 labelClassName="usa-radio__label inline_radio"
@@ -237,6 +237,15 @@ export class PpmWeight extends Component {
                 value="No"
                 name="includesProgear"
                 checked={includesProgear === 'No'}
+                onChange={event => this.handleChange(event, 'includesProgear')}
+              />
+              <RadioButton
+                inputClassName="usa-radio__input inline_radio"
+                labelClassName="usa-radio__label inline_radio"
+                label="Not Sure"
+                value="Not Sure"
+                name="includesProgear"
+                checked={includesProgear === 'Not Sure'}
                 onChange={event => this.handleChange(event, 'includesProgear')}
               />
               <p>
