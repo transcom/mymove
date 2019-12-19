@@ -3,14 +3,21 @@ import { connect } from 'react-redux';
 import { get, isEmpty } from 'lodash';
 import {
   updateMoveTaskOrderStatus,
-  getMoveTaskOrder,
+  getAllMoveTaskOrders,
   getMoveOrder,
   getCustomer,
-  selectMoveTaskOrder,
+  selectCustomer,
 } from 'shared/Entities/modules/moveTaskOrders';
 import { selectMoveOrder } from 'shared/Entities/modules/moveTaskOrders';
 
 class CustomerDetails extends Component {
+  componentDidMount() {
+    const { customerId, moveOrderId } = this.props.match.params;
+    this.props.getCustomer(customerId);
+    this.props.getMoveOrder(moveOrderId).then(({ response: { body: moveOrder } }) => {
+      this.props.getAllMoveTaskOrders(moveOrder.id);
+    });
+  }
   render() {
     const { moveTaskOrder, customer, moveOrder } = this.props;
     const entitlements = get(moveOrder, 'entitlement', {});
@@ -21,6 +28,10 @@ class CustomerDetails extends Component {
           <>
             <h2>Customer Info</h2>
             <dl>
+              <dt>First Name</dt>
+              <dd>{get(customer, 'first_name')}</dd>
+              <dt>Last Name</dt>
+              <dd>{get(customer, 'last_name')}</dd>
               <dt>ID</dt>
               <dd>{get(customer, 'id')}</dd>
               <dt>DOD ID</dt>
@@ -66,37 +77,35 @@ class CustomerDetails extends Component {
             <dl>
               <dt>ID</dt>
               <dd>{get(moveTaskOrder, 'id')}</dd>
-              <dt>Reference ID</dt>
-              <dd>{get(moveTaskOrder, 'referenceId')}</dd>
               <dt>Is Available to Prime</dt>
               <dd>{get(moveTaskOrder, 'isAvailableToPrime').toString()}</dd>
               <dt>Is Canceled</dt>
               <dd>{get(moveTaskOrder, 'isCanceled', false).toString()}</dd>
             </dl>
+            <div>
+              <button onClick={() => this.props.updateMoveTaskOrderStatus(moveTaskOrder.id)}>Send to Prime</button>
+            </div>
           </>
         )}
-        <div>
-          <button onClick={() => this.props.updateMoveTaskOrderStatus('5d4b25bb-eb04-4c03-9a81-ee0398cb779e', true)}>
-            Generate MTO
-          </button>
-        </div>
       </>
     );
   }
 }
 
 const mapStateToProps = (state, ownProps) => {
-  const moveTaskOrder = selectMoveTaskOrder(state, '5d4b25bb-eb04-4c03-9a81-ee0398cb779e');
-  const moveOrder = selectMoveOrder(state, moveTaskOrder.moveOrderID);
+  const moveOrder = selectMoveOrder(state, ownProps.match.params.moveOrderId);
+  const customer = selectCustomer(state, ownProps.match.params.customerId);
   return {
-    moveTaskOrder,
+    customer,
     moveOrder,
+    // TODO: Change when we start making use of multiple move task orders
+    moveTaskOrder: Object.values(get(state, 'entities.moveTaskOrder', {}))[0],
   };
 };
 
 const mapDispatchToProps = {
   getMoveOrder,
-  getMoveTaskOrder,
+  getAllMoveTaskOrders,
   updateMoveTaskOrderStatus,
   getCustomer,
 };
