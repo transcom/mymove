@@ -56,7 +56,7 @@ require (
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.8.1
 	github.com/rickar/cal v1.0.1
-	github.com/rogpeppe/go-internal v1.5.0
+	github.com/rogpeppe/go-internal v1.5.1
 	github.com/segmentio/chamber/v2 v2.7.5
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/cobra v0.0.5
