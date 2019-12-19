@@ -21,10 +21,9 @@ type ShowLoggedInUserHandler struct {
 // decoratePayloadWithRoles will add session roles to the logged in user payload and return it
 func decoratePayloadWithRoles(s *auth.Session, p *internalmessages.LoggedInUserPayload) {
 	for _, role := range s.Roles {
-		roleType := string(role.RoleType)
 		p.Roles = append(p.Roles, &internalmessages.Role{
 			ID:        handlers.FmtUUID(s.UserID),
-			RoleType:  &roleType,
+			RoleType:  handlers.FmtString(string(role.RoleType)),
 			CreatedAt: handlers.FmtDateTime(role.CreatedAt),
 			UpdatedAt: handlers.FmtDateTime(role.UpdatedAt),
 		})

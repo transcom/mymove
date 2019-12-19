@@ -96,7 +96,7 @@ type MoveDocumentPayload struct {
 	// Vehicle nickname (ex. "My car")
 	VehicleNickname string `json:"vehicle_nickname,omitempty"`
 
-	// What type of vehicle are these weight tickets for?
+	// Select weight ticket type
 	// Enum: [CAR CAR_TRAILER BOX_TRUCK]
 	VehicleOptions string `json:"vehicle_options,omitempty"`
 

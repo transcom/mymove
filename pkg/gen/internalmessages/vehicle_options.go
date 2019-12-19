@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// VehicleOptions What type of vehicle are these weight tickets for?
+// VehicleOptions Select weight ticket type
 // swagger:model VehicleOptions
 type VehicleOptions string
 
