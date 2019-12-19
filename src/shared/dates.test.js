@@ -17,8 +17,12 @@ describe('dates', () => {
   });
   describe('formatDate', () => {
     describe('when formatting a date that does not match the allowed date formats', () => {
-      const result = formatDate('8');
       it('should return "invalid date"', () => {
+        const result = formatDate('8');
+        expect(result).toEqual('Invalid date');
+      });
+      it('should return undefined', () => {
+        const result = formatDate();
         expect(result).toEqual('Invalid date');
       });
     });
