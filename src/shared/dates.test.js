@@ -21,7 +21,7 @@ describe('dates', () => {
         const result = formatDate('8');
         expect(result).toEqual('Invalid date');
       });
-      it('should return undefined', () => {
+      it('should return "invalid date"', () => {
         const result = formatDate();
         expect(result).toEqual('Invalid date');
       });
@@ -35,9 +35,13 @@ describe('dates', () => {
   });
   describe('formatDateForSwagger', () => {
     describe('when formatting a date that does not match the allowed date formats', () => {
-      const result = formatDateForSwagger('8');
       it('should return invalid date', () => {
+        const result = formatDateForSwagger('8');
         expect(result).toEqual('Invalid date');
+      });
+      it('should return undefined', () => {
+        const result = formatDateForSwagger();
+        expect(result).toEqual(undefined);
       });
     });
     describe('when parsing a date that does the match allowed date formats', () => {
