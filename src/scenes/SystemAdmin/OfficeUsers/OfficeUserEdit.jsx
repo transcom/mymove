@@ -1,16 +1,7 @@
 import React from 'react';
+import { RolesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesCheckboxes';
 import { phoneValidators } from 'scenes/SystemAdmin/shared/form_validators';
-import {
-  Edit,
-  SimpleForm,
-  TextInput,
-  DisabledInput,
-  SelectInput,
-  required,
-  Toolbar,
-  SaveButton,
-  CheckboxGroupInput,
-} from 'react-admin';
+import { Edit, SimpleForm, TextInput, DisabledInput, SelectInput, required, Toolbar, SaveButton } from 'react-admin';
 
 const OfficeUserEditToolbar = props => (
   <Toolbar {...props}>
@@ -34,17 +25,7 @@ const OfficeUserEdit = props => (
           { id: false, name: 'No' },
         ]}
       />
-      <CheckboxGroupInput
-        source="roles"
-        choices={[
-          { roleType: 'customer', name: 'Customer' },
-          { roleType: 'transportation_ordering_officer', name: 'Transportation Ordering Officer' },
-          { roleType: 'transportation_invoicing_officer', name: 'Transportation Invoicing Officer' },
-          { roleType: 'contracting_officer', name: 'Contracting Officer' },
-          { roleType: 'ppm_office_users', name: 'PPM Office Users' },
-        ]}
-        optionValue="roleType"
-      />
+      <RolesCheckboxInput source="roles" />
       <DisabledInput source="created_at" />
       <DisabledInput source="updated_at" />
     </SimpleForm>
