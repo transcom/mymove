@@ -113,12 +113,6 @@ func InitStorage(v *viper.Viper, sess *awssession.Session, logger Logger) FileSt
 				zap.String("assets domain", assetsDomain),
 				zap.String("key", privateKeyID))
 
-			if cfPrivateKey == nil {
-				logger.Fatal(fmt.Sprintf("cloudfront private key flag %q cannot be empty when using CDN for %q flag, exiting", cli.CFPrivateKeyFlag, cli.StorageBackendFlag))
-			}
-			if cfPrivateKeyID == nil {
-				logger.Fatal(fmt.Sprintf("cloudfront key id flag %q cannot be empty when using CDN for %q flag, exiting", cli.CFKeyIDFlag, cli.StorageBackendFlag))
-			}
 			if len(assetsDomain) == 0 {
 				logger.Fatal(fmt.Sprintf("assets domain key flag %q cannot be empty when using CDN for %q flag, exiting", cli.AwsCfDomain, cli.StorageBackendFlag))
 			}
