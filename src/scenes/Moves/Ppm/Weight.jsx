@@ -176,6 +176,8 @@ export class PpmWeight extends Component {
     } = this.props;
     const { context: { flags: { progearChanges } } = { flags: { progearChanges: null } } } = this.props;
     const { includesProgear = 'No' } = this.state;
+    const { isProgearMoreThan1000 = 'No' } = this.state;
+
     return (
       <div>
         {progearChanges && (
@@ -252,6 +254,52 @@ export class PpmWeight extends Component {
                 Books, papers, and equipment needed for official duties. <a href="#">What counts as pro-gear?</a>{' '}
               </p>
             </div>
+            {(includesProgear === 'Yes' || includesProgear === 'Not Sure') && (
+              <>
+                <div className={`${styles['incentive-estimate-box']} border radius-lg border-base`}>
+                  You can be paid for moving up to 2,500 lbs of pro-gear, in addition to your weight entitlement of
+                  [rate engine calculated entitlement amount].
+                </div>
+                <div className="radio-group-wrapper normalize-margins">
+                  <h3>Do you think your pro-gear weighs 1000 lbs or more?</h3>
+                  <RadioButton
+                    inputClassName="usa-radio__input inline_radio"
+                    labelClassName="usa-radio__label inline_radio"
+                    label="Yes"
+                    value="Yes"
+                    name="isProgearMoreThan1000"
+                    checked={isProgearMoreThan1000 === 'Yes'}
+                    onChange={event => this.handleChange(event, 'isProgearMoreThan1000')}
+                  />
+
+                  <RadioButton
+                    inputClassName="usa-radio__input inline_radio"
+                    labelClassName="usa-radio__label inline_radio"
+                    label="No"
+                    value="No"
+                    name="isProgearMoreThan1000"
+                    checked={isProgearMoreThan1000 === 'No'}
+                    onChange={event => this.handleChange(event, 'isProgearMoreThan1000')}
+                  />
+                  <RadioButton
+                    inputClassName="usa-radio__input inline_radio"
+                    labelClassName="usa-radio__label inline_radio"
+                    label="Not Sure"
+                    value="Not Sure"
+                    name="isProgearMoreThan1000"
+                    checked={isProgearMoreThan1000 === 'Not Sure'}
+                    onChange={event => this.handleChange(event, 'isProgearMoreThan1000')}
+                  />
+                </div>
+              </>
+            )}
+            {(isProgearMoreThan1000 === 'Yes' || isProgearMoreThan1000 === 'Not Sure') && (
+              <>
+                <div className={`${styles['incentive-estimate-box']} border radius-lg border-base`}>
+                  Pack your pro-gear separately. It might need to be weighed and verified.
+                </div>
+              </>
+            )}
           </div>
         )}
         {!progearChanges && (
