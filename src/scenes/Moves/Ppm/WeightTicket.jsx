@@ -272,17 +272,16 @@ class WeightTicket extends Component {
                   value={vehicleType}
                   required
                 />
-                {vehicleType && this.isProGear && (
-                  <SwaggerField
-                    fieldName="vehicle_nickname"
-                    title="Pro-gear type (ex. 'My Pro-gear', 'Spouse Pro-Gear', 'Both')"
-                    swagger={schema}
-                    required
-                  />
-                )}
-                {vehicleType && !this.isProGear && (
-                  <SwaggerField fieldName="vehicle_nickname" swagger={schema} required />
-                )}
+                <SwaggerField
+                  fieldName="vehicle_nickname"
+                  title={
+                    this.isProGear
+                      ? "Pro-gear type (ex. 'My Pro-gear', 'Spouse Pro-Gear', 'Both')"
+                      : "Vehicle nickname (ex. 'My car')"
+                  }
+                  swagger={schema}
+                  required
+                />
                 {vehicleType && this.isCarTrailer && (
                   <>
                     <div className="radio-group-wrapper normalize-margins">
