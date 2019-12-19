@@ -66,7 +66,7 @@ Once you have added this environment and closed the dialog select the new enviro
 Sample create payment request call
 
 ```sh
-curl -X POST \
+curl --request POST \
   --insecure \
   --cert ./config/tls/devlocal-mtls.cer  \
   --key ./config/tls/devlocal-mtls.key \
@@ -77,11 +77,24 @@ curl -X POST \
       "moveTaskOrderID": "5d4b25bb-eb04-4c03-9a81-ee0398cb779e",
       "serviceItems": [
         {
-          "id": "94a63112-922e-4038-96c6-8e6736fb1ed9",
+          "id": "9db1bf43-0964-44ff-8384-3297951f6781",
           "params": [
             {
-              "key": "Service Item Parameter Name",
-              "value": "Service Item Parameter Value"
+              "key": "weight",
+              "value": "1234"
+            },
+            {
+              "key": "pickup",
+              "value": "2019-12-16"
+            }
+          ]
+        },
+        {
+          "id": "d886431c-c357-46b7-a084-a0c85dd496d3",
+          "params": [
+            {
+              "key": "weight",
+              "value": "5678"
             }
           ]
         }
@@ -116,18 +129,31 @@ You should now have a `move.mil API` collection which will contain sample reques
 ```json
 {
   "isFinal": false,
-    "moveTaskOrderID": "5d4b25bb-eb04-4c03-9a81-ee0398cb779e",
-    "serviceItems": [
-      {
-        "id": "94a63112-922e-4038-96c6-8e6736fb1ed9",
-        "params": [
-          {
-            "key": "Service Item Parameter Name",
-            "value": "Service Item Parameter Value"
-          }
-        ]
-      }
-    ]
+  "moveTaskOrderID": "5d4b25bb-eb04-4c03-9a81-ee0398cb779e",
+  "serviceItems": [
+    {
+      "id": "9db1bf43-0964-44ff-8384-3297951f6781",
+      "params": [
+        {
+          "key": "weight",
+          "value": "1234"
+        },
+        {
+          "key": "pickup",
+          "value": "2019-12-16"
+        }
+      ]
+    },
+    {
+      "id": "d886431c-c357-46b7-a084-a0c85dd496d3",
+      "params": [
+        {
+          "key": "weight",
+          "value": "5678"
+        }
+      ]
+    }
+  ]
 }
 ```
 
