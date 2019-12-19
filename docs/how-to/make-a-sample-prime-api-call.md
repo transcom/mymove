@@ -49,7 +49,21 @@ curl -X POST \
   --key ./config/tls/devlocal-mtls.key \
   https://primelocal:9443/prime/v1/payment-requests \
   --header 'Content-Type: application/json' \
-  --data '{ "isFinal": false, "moveTaskOrderID": "5d4b25bb-eb04-4c03-9a81-ee0398cb779e" }'
+  --data '{
+      "isFinal": false,
+      "moveTaskOrderID": "5d4b25bb-eb04-4c03-9a81-ee0398cb779e",
+      "serviceItems": [
+        {
+          "id": "94a63112-922e-4038-96c6-8e6736fb1ed9",
+          "params": [
+            {
+              "key": "Service Item Parameter Name",
+              "value": "Service Item Parameter Value"
+            }
+          ]
+        }
+      ]
+    }'
 ```
 
 Sample successful response
