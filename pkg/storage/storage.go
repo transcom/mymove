@@ -8,7 +8,6 @@ import (
 	*/
 	"crypto/md5"
 	"encoding/base64"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -112,10 +111,6 @@ func InitStorage(v *viper.Viper, sess *awssession.Session, logger Logger) FileSt
 			logger.Info("Using cloudfront as CDN for distribution",
 				zap.String("assets domain", assetsDomain),
 				zap.String("key", privateKeyID))
-
-			if len(assetsDomain) == 0 {
-				logger.Fatal(fmt.Sprintf("assets domain key flag %q cannot be empty when using CDN for %q flag, exiting", cli.AWSCfDomain, cli.StorageBackendFlag))
-			}
 		}
 
 		if len(awsS3Bucket) == 0 {
