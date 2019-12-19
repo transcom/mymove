@@ -803,11 +803,11 @@ func (suite *AuthSuite) TestRequireRoleAuthMiddlewareAuthorized() {
 	req := httptest.NewRequest("GET", "/logged_in", nil)
 
 	// And: the context contains the auth values
-	role := auth.Role{RoleType: auth.RoleTypeContractingOfficer}
+	role := roles.Role{RoleType: roles.RoleTypeContractingOfficer}
 	session := auth.Session{
 		UserID:  user.ID,
 		IDToken: "fake Token",
-		Roles:   []auth.Role{role},
+		Roles:   roles.Roles{role},
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 

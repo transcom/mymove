@@ -68,8 +68,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer",
+          "ppm_office_users",
+          "contracting_officer",
           "customer"
         ]
       }
@@ -122,8 +122,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer",
+          "ppm_office_users",
+          "contracting_officer",
           "customer"
         ]
       }
@@ -167,8 +167,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer",
+          "ppm_office_users",
+          "contracting_officer",
           "customer"
         ]
       }
@@ -212,8 +212,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -259,8 +259,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       },
       "put": {
@@ -312,8 +312,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -356,8 +356,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -394,8 +394,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -441,8 +441,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -486,8 +486,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -532,8 +532,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -579,8 +579,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -601,8 +601,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -636,8 +636,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -715,8 +715,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -786,8 +786,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -841,8 +841,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       },
       "delete": {
@@ -883,8 +883,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -930,8 +930,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       },
       "patch": {
@@ -983,8 +983,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -1033,8 +1033,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -1091,8 +1091,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -1143,8 +1143,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -1184,8 +1184,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       },
       "post": {
@@ -1234,8 +1234,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -1286,8 +1286,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -1333,8 +1333,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -1374,8 +1374,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       },
       "post": {
@@ -1427,8 +1427,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -1476,8 +1476,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       },
       "put": {
@@ -1534,8 +1534,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       },
       "patch": {
@@ -1598,8 +1598,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -1656,8 +1656,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -1718,8 +1718,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -1764,8 +1764,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       },
       "post": {
@@ -1817,8 +1817,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -1875,8 +1875,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer",
+          "ppm_office_users",
+          "contracting_officer",
           "customer"
         ]
       }
@@ -1928,8 +1928,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -1972,8 +1972,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -2019,8 +2019,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       },
       "put": {
@@ -2072,8 +2072,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -2119,8 +2119,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -2166,8 +2166,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -2221,8 +2221,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -2294,8 +2294,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -2346,8 +2346,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -2418,8 +2418,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -2471,8 +2471,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -2525,8 +2525,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -2569,8 +2569,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -2616,8 +2616,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -2663,8 +2663,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       },
       "patch": {
@@ -2716,8 +2716,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -2763,8 +2763,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       },
       "post": {
@@ -2816,8 +2816,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -2863,8 +2863,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -2922,8 +2922,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       },
       "delete": {
@@ -2967,8 +2967,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -3011,8 +3011,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -3039,8 +3039,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer",
+          "ppm_office_users",
+          "contracting_officer",
           "customer"
         ]
       }
@@ -3071,8 +3071,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer",
+          "ppm_office_users",
+          "contracting_officer",
           "customer"
         ]
       }
@@ -6160,8 +6160,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer",
+          "ppm_office_users",
+          "contracting_officer",
           "customer"
         ]
       }
@@ -6214,8 +6214,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer",
+          "ppm_office_users",
+          "contracting_officer",
           "customer"
         ]
       }
@@ -6259,8 +6259,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer",
+          "ppm_office_users",
+          "contracting_officer",
           "customer"
         ]
       }
@@ -6304,8 +6304,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -6351,8 +6351,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       },
       "put": {
@@ -6404,8 +6404,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -6448,8 +6448,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -6486,8 +6486,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -6533,8 +6533,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -6578,8 +6578,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -6624,8 +6624,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -6671,8 +6671,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -6693,8 +6693,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -6728,8 +6728,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -6807,8 +6807,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -6878,8 +6878,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -6933,8 +6933,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       },
       "delete": {
@@ -6975,8 +6975,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -7022,8 +7022,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       },
       "patch": {
@@ -7075,8 +7075,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -7125,8 +7125,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -7183,8 +7183,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -7235,8 +7235,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -7276,8 +7276,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       },
       "post": {
@@ -7326,8 +7326,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -7378,8 +7378,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -7425,8 +7425,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -7466,8 +7466,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       },
       "post": {
@@ -7519,8 +7519,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -7568,8 +7568,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       },
       "put": {
@@ -7626,8 +7626,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       },
       "patch": {
@@ -7690,8 +7690,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -7748,8 +7748,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -7810,8 +7810,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -7856,8 +7856,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       },
       "post": {
@@ -7909,8 +7909,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -7967,8 +7967,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer",
+          "ppm_office_users",
+          "contracting_officer",
           "customer"
         ]
       }
@@ -8020,8 +8020,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -8064,8 +8064,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -8111,8 +8111,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       },
       "put": {
@@ -8164,8 +8164,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -8211,8 +8211,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -8258,8 +8258,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -8313,8 +8313,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -8386,8 +8386,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -8438,8 +8438,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -8510,8 +8510,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -8563,8 +8563,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -8617,8 +8617,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -8661,8 +8661,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -8708,8 +8708,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -8755,8 +8755,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       },
       "patch": {
@@ -8808,8 +8808,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -8855,8 +8855,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       },
       "post": {
@@ -8908,8 +8908,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -8955,8 +8955,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -9014,8 +9014,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       },
       "delete": {
@@ -9059,8 +9059,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -9103,8 +9103,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer"
+          "ppm_office_users",
+          "contracting_officer"
         ]
       }
     },
@@ -9131,8 +9131,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer",
+          "ppm_office_users",
+          "contracting_officer",
           "customer"
         ]
       }
@@ -9163,8 +9163,8 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "office",
-          "contractingOfficer",
+          "ppm_office_users",
+          "contracting_officer",
           "customer"
         ]
       }

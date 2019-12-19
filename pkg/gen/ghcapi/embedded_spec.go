@@ -86,10 +86,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       }
     },
@@ -143,10 +143,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       },
       "parameters": [
@@ -210,10 +210,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       }
     },
@@ -389,10 +389,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       },
       "delete": {
@@ -444,10 +444,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       },
       "patch": {
@@ -512,10 +512,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       },
       "parameters": [
@@ -638,10 +638,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       },
       "delete": {
@@ -693,10 +693,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       },
       "patch": {
@@ -761,10 +761,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       },
       "parameters": [
@@ -847,10 +847,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       },
       "parameters": [
@@ -932,10 +932,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       }
     },
@@ -989,10 +989,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       },
       "post": {
@@ -1077,10 +1077,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       },
       "parameters": [
@@ -1184,10 +1184,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       },
       "patch": {
@@ -1252,10 +1252,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       },
       "parameters": [
@@ -1341,10 +1341,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       }
     }
@@ -2216,10 +2216,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       }
     },
@@ -2288,10 +2288,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       },
       "parameters": [
@@ -2370,10 +2370,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       }
     },
@@ -2594,10 +2594,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       },
       "delete": {
@@ -2664,10 +2664,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       },
       "patch": {
@@ -2747,10 +2747,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       },
       "parameters": [
@@ -2903,10 +2903,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       },
       "delete": {
@@ -2973,10 +2973,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       },
       "patch": {
@@ -3056,10 +3056,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       },
       "parameters": [
@@ -3157,10 +3157,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       },
       "parameters": [
@@ -3257,10 +3257,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       }
     },
@@ -3329,10 +3329,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       },
       "post": {
@@ -3420,10 +3420,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       },
       "parameters": [
@@ -3542,10 +3542,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       },
       "patch": {
@@ -3625,10 +3625,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       },
       "parameters": [
@@ -3729,10 +3729,10 @@ func init() {
           }
         },
         "x-swagger-roles": [
-          "tio",
-          "too",
-          "contractingOfficer",
-          "office"
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
         ]
       }
     }

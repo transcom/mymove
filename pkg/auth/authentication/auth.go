@@ -50,7 +50,7 @@ func IsLoggedInMiddleware(logger Logger) http.HandlerFunc {
 }
 
 // RoleAuthMiddleware enforces that the incoming request is tied to a user session
-func RoleAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
+func RoleAuthLogin(logger Logger) func(next http.Handler) http.Handler {
 	// This is a seam to start adding in the new role based auth / login
 	// At the moment it's largely the same as UserAuthMiddleware
 	// except that it also checks for TOO role for office users
@@ -67,7 +67,7 @@ func RoleAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 			}
 			// DO NOT CHECK MILMOVE SESSION BECAUSE NEW SERVICE MEMBERS WON'T HAVE AN ID RIGHT AWAY
 			// This must be the right type of user for the application
-			if session.IsOfficeApp() && !session.IsOfficeUser() && !session.Roles.HasRole(roles.TOO) {
+			if session.IsOfficeApp() && !session.IsOfficeUser() && !session.Roles.HasRole(roles.RoleTypeTOO) {
 				logger.Error("unauthorized user for office.move.mil", zap.String("email", session.Email))
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
@@ -125,7 +125,7 @@ func RoleAuthMiddleware(logger Logger) func(context APIContext) func(handler htt
 			mw := func(w http.ResponseWriter, r *http.Request) {
 				session := auth.SessionFromRequestContext(r)
 				userRoles := session.Roles
-				userRoleTypes := make([]auth.RoleType, len(userRoles))
+				userRoleTypes := make([]roles.RoleType, len(userRoles))
 				for index, role := range userRoles {
 					userRoleTypes[index] = role.RoleType
 				}
@@ -547,10 +547,10 @@ var authorizeKnownUserNew = func(userIdentity *models.UserIdentity, h CallbackHa
 	}
 	trc := tooRoleChecker{h.db, h.logger}
 	tooRole, err := trc.VerifyHasTOORole(userIdentity)
-	if err == nil && !session.Roles.HasRole(roles.TOO) {
+	if err == nil && !session.Roles.HasRole(roles.RoleTypeTOO) {
 		session.Roles = append(session.Roles, tooRole)
 	}
-	if session.IsOfficeApp() && !session.Roles.HasRole(roles.TOO) {
+	if session.IsOfficeApp() && !session.Roles.HasRole(roles.RoleTypeTOO) {
 		if userIdentity.OfficeActive != nil && !*userIdentity.OfficeActive {
 			h.logger.Error("Office user is deactivated", zap.String("email", session.Email))
 			http.Error(w, http.StatusText(403), http.StatusForbidden)

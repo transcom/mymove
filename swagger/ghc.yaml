@@ -20,10 +20,10 @@ paths:
       description: Gets all customers
       summary: Gets all customers
       x-swagger-roles:
-        - tio
-        - too
-        - contractingOfficer
-        - office
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
       produces:
         - application/json
       parameters: []
@@ -94,10 +94,10 @@ paths:
       description: Returns a given customer
       operationId: getCustomer
       x-swagger-roles:
-        - tio
-        - too
-        - contractingOfficer
-        - office
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
       summary: Returns a given customer
   /move-orders:
     get:
@@ -133,10 +133,10 @@ paths:
         - moveOrder
       description: Gets all move orders
       x-swagger-roles:
-        - tio
-        - too
-        - contractingOfficer
-        - office
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
       operationId: listMoveOrders
       summary: Gets all move orders
   '/move-orders/{moveOrderID}':
@@ -264,10 +264,10 @@ paths:
       description: Deletes a move order by ID
       operationId: deleteMoveTaskOrder
       x-swagger-roles:
-        - tio
-        - too
-        - contractingOfficer
-        - office
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
       summary: Deletes a move order by ID
     get:
       produces:
@@ -303,10 +303,10 @@ paths:
       description: Gets a move order
       operationId: getMoveTaskOrder
       x-swagger-roles:
-        - tio
-        - too
-        - contractingOfficer
-        - office
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
       summary: Gets a move order by ID
     patch:
       consumes:
@@ -349,10 +349,10 @@ paths:
       description: Updates a move order by ID
       operationId: updateMoveTaskOrder
       x-swagger-roles:
-        - tio
-        - too
-        - contractingOfficer
-        - office
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
       summary: Updates a move order by ID
   '/move_task_orders/{moveTaskOrderID}/mto_service_items':
     parameters:
@@ -394,10 +394,10 @@ paths:
         - mtoServiceItem
       description: Gets all line items for a move orders
       x-swagger-roles:
-        - tio
-        - too
-        - contractingOfficer
-        - office
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
       operationId: listMTOServiceItems
       summary: Gets all line items for a move order
     post:
@@ -456,10 +456,10 @@ paths:
         - mtoServiceItem
       description: Creates a service item for a move order by id
       x-swagger-roles:
-        - tio
-        - too
-        - contractingOfficer
-        - office
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
       operationId: createMTOServiceItem
       summary: Creates a service item for a move order by id
   '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}':
@@ -507,10 +507,10 @@ paths:
         - mtoServiceItem
       description: Deletes a line item by ID for a move order by ID
       x-swagger-roles:
-        - tio
-        - too
-        - contractingOfficer
-        - office
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
       operationId: deleteMTOServiceItem
       summary: Deletes a line item by ID for a move order by ID
     get:
@@ -546,10 +546,10 @@ paths:
         - mtoServiceItem
       description: Gets a line item by ID for a move order by ID
       x-swagger-roles:
-        - tio
-        - too
-        - contractingOfficer
-        - office
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
       operationId: getMTOServiceItem
       summary: Gets a line item by ID for a move order by ID
     patch:
@@ -592,10 +592,10 @@ paths:
         - mtoServiceItem
       description: Updates a service item by ID for a move order by ID
       x-swagger-roles:
-        - tio
-        - too
-        - contractingOfficer
-        - office
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
       operationId: updateMTOServiceItem
       summary: Updates a service item by ID for a move order by ID
   '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status':
@@ -652,10 +652,10 @@ paths:
         - mtoServiceItem
       description: Changes the status of a line item for a move order by ID
       x-swagger-roles:
-        - tio
-        - too
-        - contractingOfficer
-        - office
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
       operationId: updateMTOServiceItemstatus
       summary: Change the status of a line item for a move order by ID
   '/move-task-orders/{moveTaskOrderID}/status':
@@ -700,10 +700,10 @@ paths:
       description: Changes move task order status to make it available to prime
       operationId: updateMoveTaskOrderStatus
       x-swagger-roles:
-        - tio
-        - too
-        - contractingOfficer
-        - office
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
       summary: Change the status of a move task order to make it available to prime
   '/move-task-orders/{moveTaskOrderID}/entitlements':
     parameters:
@@ -817,10 +817,10 @@ paths:
       description: Fetches an instance of a payment request by id
       operationId: getPaymentRequest
       x-swagger-roles:
-        - tio
-        - too
-        - contractingOfficer
-        - office
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
       summary: Fetches a payment request by id
     patch:
       consumes:
@@ -863,10 +863,10 @@ paths:
       description: Updates a payment request by id
       operationId: updatePaymentRequest
       x-swagger-roles:
-        - tio
-        - too
-        - contractingOfficer
-        - office
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
       summary: Updates a payment request by id
   '/payment-requests/{paymentRequestID}/status':
     patch:
@@ -917,10 +917,10 @@ paths:
       description: Updates status of a payment request by id
       operationId: updatePaymentRequestStatus
       x-swagger-roles:
-        - tio
-        - too
-        - contractingOfficer
-        - office
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
       summary: Updates status of a payment request by id
 definitions:
   ClientError:
