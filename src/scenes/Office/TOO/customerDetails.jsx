@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { get, isEmpty } from 'lodash';
 import { denormalize } from 'normalizr';
@@ -9,9 +9,10 @@ import {
   getMoveOrder,
   getCustomer,
   selectMoveTaskOrder,
+  selectMoveOrder,
 } from 'shared/Entities/modules/moveTaskOrders';
 import { selectCustomer } from 'shared/Entities/modules/customer';
-import { selectMoveOrder } from 'shared/Entities/modules/moveTaskOrders';
+import { getMTOServiceItems, selectMTOServiceItems } from 'shared/Entities/modules/mtoServiceItems';
 
 class CustomerDetails extends Component {
   componentDidMount() {
@@ -19,11 +20,12 @@ class CustomerDetails extends Component {
     this.props.getMoveTaskOrder(this.props.match.params.moveTaskOrderId).then(response => {
       const mto = denormalize(this.props.match.params.moveTaskOrderId, moveTaskOrder, response.entities);
       this.props.getMoveOrder(mto.moveOrderID);
+      this.props.getMTOServiceItems(this.props.match.params.moveTaskOrderId);
     });
   }
 
   render() {
-    const { moveTaskOrder, customer, moveOrder } = this.props;
+    const { moveTaskOrder, customer, moveOrder, mtoServiceItems } = this.props;
     const entitlements = get(moveOrder, 'entitlement', {});
     return (
       <>
@@ -84,6 +86,36 @@ class CustomerDetails extends Component {
               <dt>Is Canceled</dt>
               <dd>{get(moveTaskOrder, 'isCanceled').toString()}</dd>
             </dl>
+
+            <h2>MTO Service Items</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Move Task Order ID</th>
+                  <th>Rate Engine Service ID</th>
+                  <th>Rate Engine Service Code</th>
+                  <th>Rate Engine Service Name</th>
+                  <th>MTO Shipment ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                {mtoServiceItems.map(items => {
+                  return (
+                    <Fragment key={items.id}>
+                      <tr>
+                        <td>{items.id}</td>
+                        <td>{items.moveTaskOrderID}</td>
+                        <td>{items.reServiceID}</td>
+                        <td>{items.reServiceCode}</td>
+                        <td>{items.reServiceName}</td>
+                        <td>{items.mtoShipmentID}</td>
+                      </tr>
+                    </Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
           </>
         )}
         <div>
@@ -105,6 +137,7 @@ const mapStateToProps = (state, ownProps) => {
     moveTaskOrder,
     moveOrder,
     customer: selectCustomer(state, ownProps.match.params.customerId),
+    mtoServiceItems: selectMTOServiceItems(state, moveTaskOrder.id),
   };
 };
 
@@ -113,6 +146,7 @@ const mapDispatchToProps = {
   getMoveTaskOrder,
   updateMoveTaskOrderStatus,
   getCustomer,
+  getMTOServiceItems,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CustomerDetails);
