@@ -911,7 +911,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 
 	/* A user with too role */
 	tooRole := roles.Role{}
-	err = db.Where("role_type = $1", roles.TOO).First(&smRole)
+	err = db.Where("role_type = $1", roles.TOO).First(&tooRole)
 	if err != nil {
 		log.Fatal(err)
 	}
