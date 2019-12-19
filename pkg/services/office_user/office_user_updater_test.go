@@ -6,23 +6,16 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
-	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{})
-
 	newUUID, _ := uuid.NewV4()
 
-	userInfo := models.OfficeUser{
-		ID:                     newUUID,
-		LastName:               "Spaceman",
-		FirstName:              "Leo",
-		Email:                  "spaceman@leo.org",
-		TransportationOfficeID: transportationOffice.ID,
-		Telephone:              "312-111-1111",
-		TransportationOffice:   transportationOffice,
+	firstName := "Leo"
+	payload := &adminmessages.OfficeUserUpdatePayload{
+		FirstName: &firstName,
 	}
 
 	// Happy path
@@ -41,7 +34,7 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 		}
 
 		updater := NewOfficeUserUpdater(builder)
-		_, verrs, err := updater.UpdateOfficeUser(&userInfo)
+		_, verrs, err := updater.UpdateOfficeUser(newUUID, payload)
 		suite.NoError(err)
 		suite.Nil(verrs)
 	})
@@ -62,7 +55,7 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 		}
 
 		updater := NewOfficeUserUpdater(builder)
-		_, _, err := updater.UpdateOfficeUser(&userInfo)
+		_, _, err := updater.UpdateOfficeUser(newUUID, payload)
 		suite.Error(err)
 		suite.Equal(models.ErrFetchNotFound.Error(), err.Error())
 

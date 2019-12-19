@@ -23,6 +23,8 @@ const (
 	SddcTestHost string = "sddc.example.com"
 	// AdminTestHost
 	AdminTestHost string = "admin.example.com"
+	// PrimeTestHost
+	PrimeTestHost string = "prime.example.com"
 )
 
 // ApplicationTestServername is a collection of the test servernames
@@ -34,6 +36,7 @@ func ApplicationTestServername() ApplicationServername {
 		OrdersServername: OrdersTestHost,
 		DpsServername:    DpsTestHost,
 		SddcServername:   SddcTestHost,
+		PrimeServername:  PrimeTestHost,
 	}
 	return appnames
 }
