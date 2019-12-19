@@ -40,4 +40,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 	var serviceItems models.MTOServiceItems
 	suite.DB().All(&serviceItems)
 	suite.Equal(2, len(serviceItems))
+
+	// Make sure we don't create more default service items
+	serviceItems = models.MTOServiceItems{}
+	actualMTO, err = mtoFetcher.FetchMoveTaskOrder(expectedMTO.ID)
+	suite.NoError(err)
+
+	suite.DB().All(&serviceItems)
+	suite.Equal(2, len(serviceItems))
 }

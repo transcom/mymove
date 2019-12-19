@@ -84,41 +84,35 @@ func (f fetchMoveTaskOrder) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*mode
 }
 
 func (f fetchMoveTaskOrder) createDefaultServiceItems(mto *models.MoveTaskOrder) error {
-	counselingItemUUID := uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50")
-	managementItemUUID := uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551")
+	var reServices []models.ReService
+	err := f.db.Where("code in (?)", []string{"MS", "CS"}).All(&reServices)
 
-	var defaultServiceItems models.MTOServiceItems
-	for _, item := range mto.MTOServiceItems {
-		defaultServiceItemIDs := []uuid.UUID{
-			counselingItemUUID,
-			managementItemUUID,
+	if err != nil {
+		return err
+	}
+
+	defaultServiceItems := make(map[uuid.UUID]models.MTOServiceItem)
+	for _, reService := range reServices {
+		defaultServiceItems[reService.ID] = models.MTOServiceItem{
+			ReServiceID:     reService.ID,
+			MoveTaskOrderID: mto.ID,
 		}
+	}
 
-		for _, id := range defaultServiceItemIDs {
-			if item.ReServiceID == id {
-				defaultServiceItems = append(defaultServiceItems, item)
+	// Remove the ones that exist on the mto
+	for _, item := range mto.MTOServiceItems {
+		for _, reService := range reServices {
+			if item.ReServiceID == reService.ID {
+				delete(defaultServiceItems, reService.ID)
 			}
 		}
 	}
 
-	if len(defaultServiceItems) == 0 {
-		serviceItems := []models.MTOServiceItem{
-			{
-				ReServiceID:     counselingItemUUID,
-				MoveTaskOrderID: mto.ID,
-			},
-			{
-				ReServiceID:     managementItemUUID,
-				MoveTaskOrderID: mto.ID,
-			},
-		}
+	for _, serviceItem := range defaultServiceItems {
+		_, err := f.db.ValidateAndCreate(&serviceItem)
 
-		for _, item := range serviceItems {
-			_, err := f.db.ValidateAndCreate(&item)
-
-			if err != nil {
-				return err
-			}
+		if err != nil {
+			return err
 		}
 	}
 
