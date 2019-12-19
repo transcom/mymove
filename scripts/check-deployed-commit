@@ -20,12 +20,14 @@ do
     deployed_commit=""
     # If
     if [[ "$nargs" -eq 5 ]]; then
-      deployed_commit=$(curl -vk --key <(echo "$3" | base64 --decode) --cert <(echo "$4" | base64 --decode) --cacert <(echo "$5" | base64 --decode) "https://$host/health"  | jq -r .gitCommit)
+      deployed_commit=$(curl -sk --key <(echo "$3" | base64 --decode) --cert <(echo "$4" | base64 --decode) --cacert <(echo "$5" | base64 --decode) "https://$host/health"  | jq -r .gitCommit)
     else
-      deployed_commit=$(curl "https://$host/health" | jq -r .gitCommit)
+      deployed_commit=$(curl -s "https://$host/health" | jq -r .gitCommit)
     fi
     if [[ "$deployed_commit" != "$target_commit" ]]; then
-      echo "On host $host, the commit returned from the health check does not match what we expected to have deployed. Found: $deployed_commit, Expected: $target_commit."
+      echo "* On host $host, the deployed commit ($deployed_commit) DOES NOT match the given commit ($target_commit)."
       exit 1
+    else
+      echo "* On host $host, the deployed commit ($deployed_commit) matches given commit ($target_commit)."
     fi
 done
