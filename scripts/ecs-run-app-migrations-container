@@ -62,20 +62,22 @@ readonly db_host
 # renderer builds its template context from (1) environment variables, (2) file at -v FILE, and (3) positional command line args.
 echo "Get the container definition from template ${template} for environment ${environment} with image ${image} and db host ${db_host}"
 echo
-echo "===== START ENV FILE ===="
-echo "$DIR"/../config/env/"${environment}".env
-cat "$DIR"/../config/env/"${environment}".env
-echo "===== END ENV FILE ===="
+# WARNING: Use this for debugging only. It may expose secrets.
+# echo "===== START ENV FILE ===="
+# echo "$DIR"/../config/env/"${environment}".env
+# cat "$DIR"/../config/env/"${environment}".env
+# echo "===== END ENV FILE ===="
 
 container_definition_json=$("$DIR"/../bin/renderer -t "$template" -v "$DIR"/../config/env/"${environment}".env environment="$environment" image="$image" db_host="$db_host")
 readonly container_definition_json
 
 # output the definition
-echo
-echo "===== START TASK DEF ===="
-jq . <<< "${container_definition_json}"
-echo "===== END TASK DEF ===="
-echo
+# WARNING: Use this for debugging only. It may expose secrets.
+# echo
+# echo "===== START TASK DEF ===="
+# jq . <<< "${container_definition_json}"
+# echo "===== END TASK DEF ===="
+# echo
 
 # create new task definition with the given image
 echo "Create a new task definition for task family ${task_family}"
