@@ -1,6 +1,8 @@
 package primeapi
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -13,7 +15,6 @@ import (
 )
 
 func payloadForPaymentRequestModel(pr models.PaymentRequest) *primemessages.PaymentRequest {
-
 	return &primemessages.PaymentRequest{
 		ID:              *handlers.FmtUUID(pr.ID),
 		MoveTaskOrderID: *handlers.FmtUUID(pr.MoveTaskOrderID),
@@ -32,12 +33,14 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	if params.Body == nil {
+	payload := params.Body
+
+	if payload == nil {
 		logger.Error("Invalid payment request: params Body is nil")
 		return paymentrequestop.NewCreatePaymentRequestBadRequest()
 	}
 
-	moveTaskOrderIDString := params.Body.MoveTaskOrderID.String()
+	moveTaskOrderIDString := payload.MoveTaskOrderID.String()
 	mtoID, err := uuid.FromString(moveTaskOrderIDString)
 	if err != nil {
 		logger.Error("Invalid payment request: params MoveTaskOrderID cannot be converted to a UUID",
@@ -45,20 +48,21 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		return paymentrequestop.NewCreatePaymentRequestBadRequest()
 	}
 
+	isFinal := false
+	if payload.IsFinal != nil {
+		isFinal = *payload.IsFinal
+	}
+
 	paymentRequest := models.PaymentRequest{
-		IsFinal:         *params.Body.IsFinal,
+		IsFinal:         isFinal,
 		MoveTaskOrderID: mtoID,
-		Status:          "PENDING",
 	}
 
-	moveTaskOrder := models.MoveTaskOrder{}
-	err = h.DB().Find(&moveTaskOrder, paymentRequest.MoveTaskOrderID)
+	paymentRequest.PaymentServiceItems, err = h.buildPaymentServiceItems(payload)
 	if err != nil {
-		logger.Error("Error finding MTO with ID request", zap.Error(err), zap.Any("MoveTaskOrderID", paymentRequest.MoveTaskOrderID))
-		return paymentrequestop.NewCreatePaymentRequestNotFound()
+		logger.Error("could not build service items", zap.Error(err))
+		return paymentrequestop.NewCreatePaymentRequestBadRequest()
 	}
-
-	paymentRequest.MoveTaskOrder = moveTaskOrder
 
 	createdPaymentRequest, err := h.PaymentRequestCreator.CreatePaymentRequest(&paymentRequest)
 	if err != nil {
@@ -67,12 +71,48 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	}
 
 	logger.Info("Payment Request params",
-		zap.Bool("is_final", *params.Body.IsFinal),
-		zap.String("move_task_order_id", moveTaskOrderIDString),
-		// TODO: add ServiceItems
+		zap.Any("payload", payload),
 		// TODO add ProofOfService object to log
 	)
-	returnPayload := payloadForPaymentRequestModel(*createdPaymentRequest)
 
+	returnPayload := payloadForPaymentRequestModel(*createdPaymentRequest)
 	return paymentrequestop.NewCreatePaymentRequestCreated().WithPayload(returnPayload)
+}
+
+func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemessages.CreatePaymentRequestPayload) (models.PaymentServiceItems, error) {
+	var paymentServiceItems models.PaymentServiceItems
+
+	for _, payloadServiceItem := range payload.ServiceItems {
+		serviceItemID, err := uuid.FromString(payloadServiceItem.ID.String())
+		if err != nil {
+			return nil, fmt.Errorf("could not convert service item ID [%v] to UUID: %w", payloadServiceItem.ID, err)
+		}
+
+		paymentServiceItem := models.PaymentServiceItem{
+			// The rest of the model will be filled in when the payment request is created
+			ServiceItemID: serviceItemID,
+		}
+
+		paymentServiceItem.PaymentServiceItemParams = h.buildPaymentServiceItemParams(payloadServiceItem)
+
+		paymentServiceItems = append(paymentServiceItems, paymentServiceItem)
+	}
+
+	return paymentServiceItems, nil
+}
+
+func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(payloadServiceItem *primemessages.ServiceItem) models.PaymentServiceItemParams {
+	var paymentServiceItemParams models.PaymentServiceItemParams
+
+	for _, payloadServiceItemParam := range payloadServiceItem.Params {
+		paymentServiceItemParam := models.PaymentServiceItemParam{
+			// ID and PaymentServiceItemID to be filled in when payment request is created
+			IncomingKey: payloadServiceItemParam.Key,
+			Value:       payloadServiceItemParam.Value,
+		}
+
+		paymentServiceItemParams = append(paymentServiceItemParams, paymentServiceItemParam)
+	}
+
+	return paymentServiceItemParams
 }

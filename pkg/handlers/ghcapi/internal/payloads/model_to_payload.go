@@ -28,9 +28,11 @@ func Customer(customer *models.Customer) *ghcmessages.Customer {
 		return nil
 	}
 	payload := ghcmessages.Customer{
-		DodID:  customer.DODID,
-		ID:     strfmt.UUID(customer.ID.String()),
-		UserID: strfmt.UUID(customer.UserID.String()),
+		DodID:     customer.DODID,
+		FirstName: customer.FirstName,
+		LastName:  customer.LastName,
+		ID:        strfmt.UUID(customer.ID.String()),
+		UserID:    strfmt.UUID(customer.UserID.String()),
 	}
 	return &payload
 }
@@ -43,9 +45,14 @@ func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
 	originDutyStation := DutyStation(&moveOrder.OriginDutyStation)
 	entitlements := Entitlement(&moveOrder.Entitlement)
 	payload := ghcmessages.MoveOrder{
+		Agency:                 moveOrder.Customer.Agency,
 		CustomerID:             strfmt.UUID(moveOrder.CustomerID.String()),
+		FirstName:              moveOrder.Customer.FirstName,
+		LastName:               moveOrder.Customer.LastName,
+		ConfirmationNumber:     moveOrder.ConfirmationNumber,
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            entitlements,
+		Grade:                  moveOrder.Grade,
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 	}

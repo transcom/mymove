@@ -151,7 +151,7 @@
     },
     {
       "name": "HTTP_SDDC_PORT",
-      "value": ""
+      "value": "{{ .HTTP_SDDC_PORT }}"
     },
     {
       "name": "GEX_URL",

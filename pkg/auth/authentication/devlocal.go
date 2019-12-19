@@ -469,7 +469,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 	}
 
 	for _, role := range userIdentity.Roles {
-		session.Roles = append(session.Roles, auth.Role(role))
+		session.Roles = append(session.Roles, role)
 	}
 
 	// Assign user identity to session

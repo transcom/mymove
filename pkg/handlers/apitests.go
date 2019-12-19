@@ -127,7 +127,7 @@ func (suite *BaseHandlerTestSuite) AuthenticateRequest(req *http.Request, servic
 		Email:           serviceMember.User.LoginGovEmail,
 	}
 	for _, role := range serviceMember.User.Roles {
-		session.Roles = append(session.Roles, auth.Role(role))
+		session.Roles = append(session.Roles, role)
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	return req.WithContext(ctx)

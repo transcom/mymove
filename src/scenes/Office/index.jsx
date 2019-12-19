@@ -162,15 +162,14 @@ export class OfficeWrapper extends Component {
                 )}
                 <Suspense fallback={<LoadingPlaceholder />}>
                   <Switch>
-                    {too && <PrivateRoute path="/too/placeholder" component={TOO} />}
-                    {too && <PrivateRoute path="/too/customer/:customerId/details" component={CustomerDetails} />}
-                    {too && <Route path="/verification-in-progress" component={TOOVerificationInProgress} />}
+                    {too && <PrivateRoute path="/too/customer-moves" exact component={TOO} />}
                     {too && (
                       <PrivateRoute
-                        path="/too/customer/:customerId/move-task-order/:moveTaskOrderId"
+                        path="/too/customer-moves/:moveOrderId/customer/:customerId"
                         component={CustomerDetails}
                       />
                     )}
+                    {too && <Route path="/verification-in-progress" component={TOOVerificationInProgress} />}
                     {tio && <PrivateRoute path="/tio/placeholder" component={TIO} />}
                     {tio && <PrivateRoute path="/payment_requests/:id" component={PaymentRequestShow} />}
                     {tio && <PrivateRoute path="/payment_requests" component={PaymentRequestIndex} />}

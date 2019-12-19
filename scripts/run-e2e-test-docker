@@ -36,6 +36,7 @@ if [[ -n "${CIRCLECI+x}" ]]; then
   # CI/CD allows us to use pre-built images using the branch name
 
   # Let's clean things up before starting
+  # This may show an error locally but can be safely ignored, its only for CircleCI
   docker-compose down --rmi all || true
 
   # Docker Compose Setup
@@ -125,7 +126,7 @@ $DOCKER_RUN \
 E2E_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${CONTAINER})
 
 # Run the cypress tests
-docker build -f Dockerfile.cypress --tag ${CONTAINER_CYPRESS}:latest .
+docker build -f cypress/Dockerfile.cypress --tag ${CONTAINER_CYPRESS}:latest ./cypress
 
 # Confirm app container is still running before running tests
 # See note above about what to do if you need to debug

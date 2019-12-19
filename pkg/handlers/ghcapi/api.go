@@ -46,6 +46,7 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		paymentrequest.NewPaymentRequestListFetcher(context.DB()),
 	}
+
 	ghcAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
 		context,
 		movetaskorder.NewMoveTaskOrderFetcher(context.DB()),
@@ -54,9 +55,16 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		customer.NewCustomerFetcher(context.DB()),
 	}
+	ghcAPI.MoveOrderListMoveOrdersHandler = ListMoveOrdersHandler{context, moveorder.NewMoveOrderFetcher(context.DB())}
 	ghcAPI.MoveOrderGetMoveOrderHandler = GetMoveOrdersHandler{
 		context,
 		moveorder.NewMoveOrderFetcher(context.DB()),
+	}
+	ghcAPI.MoveOrderListMoveTaskOrdersHandler = ListMoveTaskOrdersHandler{context, movetaskorder.NewMoveTaskOrderFetcher(context.DB())}
+
+	ghcAPI.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = UpdateMoveTaskOrderStatusHandlerFunc{
+		context,
+		movetaskorder.NewMoveTaskOrderStatusUpdater(context.DB()),
 	}
 
 	return ghcAPI.Serve(nil)

@@ -12,6 +12,7 @@ import RadioButton from 'shared/RadioButton';
 import Checkbox from 'shared/Checkbox';
 import Uploader from 'shared/Uploader';
 import Alert from 'shared/Alert';
+import { formatDateForSwagger } from 'shared/dates';
 import { documentSizeLimitMsg } from 'shared/constants';
 
 import carTrailerImg from 'shared/images/car-trailer_mobile.png';
@@ -177,7 +178,7 @@ class WeightTicket extends Component {
       empty_weight: formValues.empty_weight,
       full_weight_ticket_missing: this.state.missingFullWeightTicket,
       full_weight: formValues.full_weight,
-      weight_ticket_date: formValues.weight_ticket_date,
+      weight_ticket_date: formatDateForSwagger(formValues.weight_ticket_date),
       trailer_ownership_missing: this.state.missingDocumentation,
       move_document_type: 'WEIGHT_TICKET_SET',
       notes: formValues.notes,
