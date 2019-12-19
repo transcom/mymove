@@ -1520,6 +1520,8 @@ func init() {
         "id",
         "moveTaskOrderID",
         "reServiceID",
+        "reServiceCode",
+        "reServiceName",
         "mtoShipmentID",
         "metaID",
         "metaType"
@@ -3656,6 +3658,8 @@ func init() {
         "id",
         "moveTaskOrderID",
         "reServiceID",
+        "reServiceCode",
+        "reServiceName",
         "mtoShipmentID",
         "metaID",
         "metaType"

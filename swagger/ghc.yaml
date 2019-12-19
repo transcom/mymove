@@ -1261,6 +1261,8 @@ definitions:
       - id
       - moveTaskOrderID
       - reServiceID
+      - reServiceCode
+      - reServiceName
       - mtoShipmentID
       - metaID
       - metaType
