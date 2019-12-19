@@ -17,6 +17,7 @@ class CustomerDetails extends Component {
     this.props.getCustomer(customerId);
     this.props.getMoveOrder(moveOrderId).then(({ response: { body: moveOrder } }) => {
       this.props.getAllMoveTaskOrders(moveOrder.id).then(({ response: { body: moveTaskOrder } }) => {
+        // TODO: would like to do batch fetching later
         moveTaskOrder.forEach(item => this.props.getMTOServiceItems(item.id));
       });
     });
