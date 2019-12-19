@@ -35,7 +35,7 @@ If you are planning to use [Postman](https://www.getpostman.com/) you will need 
 
 #### Curl
 
-Sample create payment request call
+Sample create payment request call using curl. Note there is `scripts/prime-api` script which can make GET requests against the prime API, once it supports taking additional POST data it could be used in place of this.
 
 ```sh
 curl --request POST \
