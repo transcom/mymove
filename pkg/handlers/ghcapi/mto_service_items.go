@@ -28,6 +28,8 @@ func payloadForMTOServiceItemModel(s *models.MTOServiceItem) *ghcmessages.MTOSer
 		MoveTaskOrderID: handlers.FmtUUID(s.MoveTaskOrderID),
 		MtoShipmentID:   handlers.FmtUUID(s.MTOShipmentID),
 		ReServiceID:     handlers.FmtUUID(s.ReServiceID),
+		ReServiceCode:   &s.ReService.Code,
+		ReServiceName:   &s.ReService.Name,
 		MetaID:          handlers.FmtUUID(s.MetaID),
 		MetaType:        &s.MetaType,
 	}
