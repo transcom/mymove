@@ -130,17 +130,15 @@ export const mtoServiceItem = new schema.Entity('mtoServiceItem');
 export const mtoServiceItems = new schema.Array(mtoServiceItem);
 
 // Move Task Orders
-export const moveTaskOrder = new schema.Entity('moveTaskOrders');
+export const moveTaskOrder = new schema.Entity('moveTaskOrder');
+export const moveTaskOrders = new schema.Array(moveTaskOrder);
 
 // Move Orders
-export const moveOrder = new schema.Entity('moveOrders');
+export const moveOrder = new schema.Entity('moveOrder');
+export const moveOrders = new schema.Array(moveOrder);
 
 // Customer
 export const customer = new schema.Entity('customer');
-
-export const customerMoveItem = new schema.Entity('customerMoveItem');
-
-export const customerMoveItems = new schema.Array(customerMoveItem);
 
 // Payment Requests
 export const paymentRequest = new schema.Entity('paymentRequests');

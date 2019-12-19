@@ -1,29 +1,26 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { get, isEmpty } from 'lodash';
-import { denormalize } from 'normalizr';
-import { moveTaskOrder } from 'shared/Entities/schema';
 import {
   updateMoveTaskOrderStatus,
-  getMoveTaskOrder,
+  getAllMoveTaskOrders,
   getMoveOrder,
   getCustomer,
-  selectMoveTaskOrder,
+  selectCustomer,
   selectMoveOrder,
 } from 'shared/Entities/modules/moveTaskOrders';
-import { selectCustomer } from 'shared/Entities/modules/customer';
 import { getMTOServiceItems, selectMTOServiceItems } from 'shared/Entities/modules/mtoServiceItems';
 
 class CustomerDetails extends Component {
   componentDidMount() {
-    this.props.getCustomer(this.props.match.params.customerId);
-    this.props.getMoveTaskOrder(this.props.match.params.moveTaskOrderId).then(response => {
-      const mto = denormalize(this.props.match.params.moveTaskOrderId, moveTaskOrder, response.entities);
-      this.props.getMoveOrder(mto.moveOrderID);
-      this.props.getMTOServiceItems(this.props.match.params.moveTaskOrderId);
+    const { customerId, moveOrderId } = this.props.match.params;
+    this.props.getCustomer(customerId);
+    this.props.getMoveOrder(moveOrderId).then(({ response: { body: moveOrder } }) => {
+      this.props.getAllMoveTaskOrders(moveOrder.id).then(({ response: { body: moveTaskOrder } }) => {
+        moveTaskOrder.forEach(item => this.props.getMTOServiceItems(item.id));
+      });
     });
   }
-
   render() {
     const { moveTaskOrder, customer, moveOrder, mtoServiceItems } = this.props;
     const entitlements = get(moveOrder, 'entitlement', {});
@@ -34,6 +31,10 @@ class CustomerDetails extends Component {
           <>
             <h2>Customer Info</h2>
             <dl>
+              <dt>First Name</dt>
+              <dd>{get(customer, 'first_name')}</dd>
+              <dt>Last Name</dt>
+              <dd>{get(customer, 'last_name')}</dd>
               <dt>ID</dt>
               <dd>{get(customer, 'id')}</dd>
               <dt>DOD ID</dt>
@@ -79,12 +80,10 @@ class CustomerDetails extends Component {
             <dl>
               <dt>ID</dt>
               <dd>{get(moveTaskOrder, 'id')}</dd>
-              <dt>Reference ID</dt>
-              <dd>{get(moveTaskOrder, 'referenceId')}</dd>
               <dt>Is Available to Prime</dt>
               <dd>{get(moveTaskOrder, 'isAvailableToPrime').toString()}</dd>
               <dt>Is Canceled</dt>
-              <dd>{get(moveTaskOrder, 'isCanceled').toString()}</dd>
+              <dd>{get(moveTaskOrder, 'isCanceled', false).toString()}</dd>
             </dl>
 
             <h2>MTO Service Items</h2>
@@ -116,34 +115,33 @@ class CustomerDetails extends Component {
                 })}
               </tbody>
             </table>
+
+            <div>
+              <button onClick={() => this.props.updateMoveTaskOrderStatus(moveTaskOrder.id)}>Send to Prime</button>
+            </div>
           </>
         )}
-        <div>
-          <button
-            onClick={() => this.props.updateMoveTaskOrderStatus(this.props.match.params.moveTaskOrderId, 'DRAFT')}
-          >
-            Generate MTO
-          </button>
-        </div>
       </>
     );
   }
 }
 
 const mapStateToProps = (state, ownProps) => {
-  const moveTaskOrder = selectMoveTaskOrder(state, ownProps.match.params.moveTaskOrderId);
-  const moveOrder = selectMoveOrder(state, moveTaskOrder.moveOrderID);
+  const moveOrder = selectMoveOrder(state, ownProps.match.params.moveOrderId);
+  const mto = Object.values(get(state, 'entities.moveTaskOrder', {}))[0];
   return {
-    moveTaskOrder,
     moveOrder,
     customer: selectCustomer(state, ownProps.match.params.customerId),
-    mtoServiceItems: selectMTOServiceItems(state, moveTaskOrder.id),
+
+    // TODO: Change when we start making use of multiple move task orders
+    mtoServiceItems: selectMTOServiceItems(state, new Set([mto?.id])),
+    moveTaskOrder: mto,
   };
 };
 
 const mapDispatchToProps = {
   getMoveOrder,
-  getMoveTaskOrder,
+  getAllMoveTaskOrders,
   updateMoveTaskOrderStatus,
   getCustomer,
   getMTOServiceItems,

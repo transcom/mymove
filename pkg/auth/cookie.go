@@ -23,6 +23,7 @@ type ApplicationServername struct {
 	OrdersServername string
 	DpsServername    string
 	SddcServername   string
+	PrimeServername  string
 }
 
 type errInvalidHostname struct {

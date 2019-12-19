@@ -3,6 +3,7 @@ package ghcapi
 import (
 	"database/sql"
 
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -36,4 +37,57 @@ func (h GetMoveOrdersHandler) Handle(params moveorderop.GetMoveOrderParams) midd
 	}
 	moveOrderPayload := payloads.MoveOrder(moveOrder)
 	return moveorderop.NewGetMoveOrderOK().WithPayload(moveOrderPayload)
+}
+
+// ListMoveOrders fetches all the move orders
+type ListMoveOrdersHandler struct {
+	handlers.HandlerContext
+	services.MoveOrderFetcher
+}
+
+// Handle getting the all move orders
+func (h ListMoveOrdersHandler) Handle(params moveorderop.ListMoveOrdersParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	moveOrders, err := h.ListMoveOrders()
+	if err != nil {
+		logger.Error("fetching all move orders", zap.Error(err))
+		switch err {
+		case sql.ErrNoRows:
+			return moveorderop.NewListMoveOrdersNotFound()
+		default:
+			return moveorderop.NewListMoveOrdersInternalServerError()
+		}
+	}
+	moveOrdersPayload := make(ghcmessages.MoveOrders, len(moveOrders))
+	for i, moveOrder := range moveOrders {
+		moveOrdersPayload[i] = payloads.MoveOrder(&moveOrder)
+	}
+	return moveorderop.NewListMoveOrdersOK().WithPayload(moveOrdersPayload)
+}
+
+// ListMoveOrders fetches all the move orders
+type ListMoveTaskOrdersHandler struct {
+	handlers.HandlerContext
+	services.MoveTaskOrderFetcher
+}
+
+// Handle getting the all move orders
+func (h ListMoveTaskOrdersHandler) Handle(params moveorderop.ListMoveTaskOrdersParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	moveOrderID, _ := uuid.FromString(params.MoveOrderID.String())
+	moveTaskOrders, err := h.ListMoveTaskOrders(moveOrderID)
+	if err != nil {
+		logger.Error("fetching all move orders", zap.Error(err))
+		switch err {
+		case sql.ErrNoRows:
+			return moveorderop.NewListMoveTaskOrdersNotFound()
+		default:
+			return moveorderop.NewListMoveTaskOrdersInternalServerError()
+		}
+	}
+	moveTaskOrdersPayload := make(ghcmessages.MoveTaskOrders, len(moveTaskOrders))
+	for i, moveTaskOrder := range moveTaskOrders {
+		moveTaskOrdersPayload[i] = payloads.MoveTaskOrder(&moveTaskOrder)
+	}
+	return moveorderop.NewListMoveTaskOrdersOK().WithPayload(moveTaskOrdersPayload)
 }

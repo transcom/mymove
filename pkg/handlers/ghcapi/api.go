@@ -6,6 +6,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/services/fetch"
 	moveorder "github.com/transcom/mymove/pkg/services/move_order"
+	"github.com/transcom/mymove/pkg/services/query"
 
 	"github.com/transcom/mymove/pkg/services/office_user/customer"
 
@@ -19,12 +20,10 @@ import (
 	ghcops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
 	"github.com/transcom/mymove/pkg/handlers"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
-	"github.com/transcom/mymove/pkg/services/query"
 )
 
 // NewGhcAPIHandler returns a handler for the GHC API
 func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
-
 	ghcSpec, err := loads.Analyzed(ghcapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
@@ -42,15 +41,16 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 		fetch.NewListFetcher(queryBuilder),
 	}
 
-	ghcAPI.PaymentRequestsGetPaymentRequestHandler = ShowPaymentRequestHandler{
+	ghcAPI.PaymentRequestsGetPaymentRequestHandler = GetPaymentRequestHandler{
 		context,
-		paymentrequest.NewPaymentRequestFetcher(context.DB()),
+		paymentrequest.NewPaymentRequestFetcher(queryBuilder),
 	}
 
 	ghcAPI.PaymentRequestsListPaymentRequestsHandler = ListPaymentRequestsHandler{
 		context,
 		paymentrequest.NewPaymentRequestListFetcher(context.DB()),
 	}
+
 	ghcAPI.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
 		context,
 		movetaskorder.NewMoveTaskOrderFetcher(context.DB()),
@@ -59,9 +59,16 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		customer.NewCustomerFetcher(context.DB()),
 	}
+	ghcAPI.MoveOrderListMoveOrdersHandler = ListMoveOrdersHandler{context, moveorder.NewMoveOrderFetcher(context.DB())}
 	ghcAPI.MoveOrderGetMoveOrderHandler = GetMoveOrdersHandler{
 		context,
 		moveorder.NewMoveOrderFetcher(context.DB()),
+	}
+	ghcAPI.MoveOrderListMoveTaskOrdersHandler = ListMoveTaskOrdersHandler{context, movetaskorder.NewMoveTaskOrderFetcher(context.DB())}
+
+	ghcAPI.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = UpdateMoveTaskOrderStatusHandlerFunc{
+		context,
+		movetaskorder.NewMoveTaskOrderStatusUpdater(context.DB()),
 	}
 
 	return ghcAPI.Serve(nil)

@@ -12,8 +12,8 @@ export function getMTOServiceItems(
   return swaggerRequest(getGHCClient, getMTOServiceItemsOperation, { moveTaskOrderID }, { label, schemaKey });
 }
 
-export function selectMTOServiceItems(state, moveTaskOrderId) {
+export function selectMTOServiceItems(state, moveTaskOrderIds = new Set()) {
   return filter(state.entities.mtoServiceItem, item => {
-    return item.moveTaskOrderID === moveTaskOrderId;
+    return moveTaskOrderIds.has(item.moveTaskOrderID);
   });
 }
