@@ -19,7 +19,7 @@ const (
 	// HTTPOrdersServerNameFlag is the HTTP Orders Server Name Flag
 	HTTPOrdersServerNameFlag string = "http-orders-server-name"
 	// HTTPPrimeServerNameFlag is the HTTP GHC Prime Server Name Flag
-	HTTPPrimeServerNameFlag string = "http-prime-server-name"
+	HTTPPrimeServerNameFlag  string = "http-prime-server-name"
 	HTTPAssetsServerNameFlag string = "http-assets-server-name" // #nosec so gosec doesn't claim its a hard coded cred
 
 	// HTTPMyServerNameLocal is the HTTP My Server Name for Local
