@@ -74,6 +74,7 @@ class CustomerDetails extends Component {
         {!isEmpty(moveTaskOrder) && (
           <>
             <h2>Move Task Order</h2>
+            <h3>Status: {moveTaskOrder.isAvailableToPrime ? 'Available to Prime' : 'Draft'}</h3>
             <dl>
               <dt>ID</dt>
               <dd>{get(moveTaskOrder, 'id')}</dd>
