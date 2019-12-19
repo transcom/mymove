@@ -1029,4 +1029,22 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
+	// A more recent MTO for demonstrating the since parameter
+	customer2 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
+		Customer: models.Customer{
+			ID: uuid.FromStringOrNil("6ac40a00-e762-4f5f-b08d-3ea72a8e4b61"),
+		},
+	})
+	moveOrders2 := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
+		MoveOrder: models.MoveOrder{ID: uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4981")},
+		Customer:  customer2,
+	})
+	testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			ID:                 uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb7791"),
+			MoveOrderID:        moveOrders2.ID,
+			UpdatedAt:          time.Unix(1576779681256, 0),
+			IsAvailableToPrime: true,
+		},
+	})
 }
