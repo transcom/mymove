@@ -115,6 +115,10 @@
       "value": "{{ .AWS_S3_REGION }}"
     },
     {
+      "name": "STORAGE_BACKEND",
+      "value": "{{ .STORAGE_BACKEND }}"
+    },
+    {
       "name": "AWS_S3_KEY_NAMESPACE",
       "value": "app"
     },
