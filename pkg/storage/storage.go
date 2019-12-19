@@ -106,7 +106,7 @@ func InitStorage(v *viper.Viper, sess *awssession.Session, logger Logger) FileSt
 			privateKeyID := v.GetString(cli.CFKeyIDFlag)
 			cfPrivateKey = &privateKey
 			cfPrivateKeyID = &privateKeyID
-			assetsDomain := v.GetString(cli.AwsCfDomain)
+			assetsDomain := v.GetString(cli.AWSCfDomain)
 			assetsFQDN.Host = assetsDomain
 
 			logger.Info("Using cloudfront as CDN for distribution",
@@ -114,7 +114,7 @@ func InitStorage(v *viper.Viper, sess *awssession.Session, logger Logger) FileSt
 				zap.String("key", privateKeyID))
 
 			if len(assetsDomain) == 0 {
-				logger.Fatal(fmt.Sprintf("assets domain key flag %q cannot be empty when using CDN for %q flag, exiting", cli.AwsCfDomain, cli.StorageBackendFlag))
+				logger.Fatal(fmt.Sprintf("assets domain key flag %q cannot be empty when using CDN for %q flag, exiting", cli.AWSCfDomain, cli.StorageBackendFlag))
 			}
 		}
 
