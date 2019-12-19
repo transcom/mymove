@@ -805,7 +805,7 @@ func (suite *AuthSuite) TestRequireRoleAuthMiddlewareAuthorized() {
 	req := httptest.NewRequest("GET", "/logged_in", nil)
 
 	// And: the context contains the auth values
-	role := roles.Role{RoleType: roles.RoleTypeContractingOfficer}
+	role := roles.Role{RoleType: roles.RoleTypeCustomer}
 	session := auth.Session{
 		UserID:  user.ID,
 		IDToken: "fake Token",
