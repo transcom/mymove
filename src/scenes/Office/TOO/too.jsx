@@ -24,7 +24,7 @@ class TOO extends Component {
             <tr>
               <th>Customer Name</th>
               <th>Confirmation #</th>
-              <th>Branch of Service</th>
+              <th>Agency</th>
               <th>Origin Duty Station</th>
             </tr>
           </thead>
@@ -35,7 +35,7 @@ class TOO extends Component {
                 first_name,
                 last_name,
                 confirmation_number,
-                branch_of_service,
+                agency,
                 originDutyStation,
                 customerID,
               }) => (
@@ -46,7 +46,7 @@ class TOO extends Component {
                 >
                   <td>{`${last_name}, ${first_name}`}</td>
                   <td>{confirmation_number}</td>
-                  <td>{branch_of_service}</td>
+                  <td>{agency}</td>
                   <td>{originDutyStation.name}</td>
                 </tr>
               ),

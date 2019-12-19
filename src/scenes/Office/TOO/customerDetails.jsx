@@ -28,6 +28,10 @@ class CustomerDetails extends Component {
           <>
             <h2>Customer Info</h2>
             <dl>
+              <dt>First Name</dt>
+              <dd>{get(customer, 'first_name')}</dd>
+              <dt>Last Name</dt>
+              <dd>{get(customer, 'last_name')}</dd>
               <dt>ID</dt>
               <dd>{get(customer, 'id')}</dd>
               <dt>DOD ID</dt>
