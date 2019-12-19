@@ -13,7 +13,9 @@ import (
 	mtoserviceitemop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -123,5 +125,75 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemop.CreateMTOServiceItemNotFound{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
+	reServiceID, _ := uuid.NewV4()
+	serviceItemID, _ := uuid.NewV4()
+	mtoShipmentID, _ := uuid.NewV4()
+	metaID, _ := uuid.NewV4()
+
+	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	reService := testdatagen.MakeReService(suite.DB(), testdatagen.Assertions{
+		ReService: models.ReService{
+			ID:   reServiceID,
+			Code: "TEST10000",
+		},
+	})
+	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MTOShipment: models.MTOShipment{ID: mtoShipmentID},
+	})
+	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: serviceItemID, MoveTaskOrderID: mto.ID, ReServiceID: reService.ID, MTOShipmentID: mtoShipment.ID, MetaID: metaID, MetaType: "unknown",
+		},
+	})
+	serviceItems := models.MTOServiceItems{serviceItem}
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_service_items", mto.ID.String()), nil)
+	req = suite.AuthenticateUserRequest(req, requestUser)
+
+	params := mtoserviceitemop.ListMTOServiceItemsParams{
+		HTTPRequest:     req,
+		MoveTaskOrderID: *handlers.FmtUUID(serviceItem.MoveTaskOrderID),
+	}
+
+	suite.T().Run("Successful list fetch - Integration Test", func(t *testing.T) {
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+		listFetcher := fetch.NewListFetcher(queryBuilder)
+		handler := ListMTOServiceItemsHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			listFetcher,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemop.ListMTOServiceItemsOK{}, response)
+
+		okResponse := response.(*mtoserviceitemop.ListMTOServiceItemsOK)
+		suite.Len(okResponse.Payload, 1)
+		suite.Equal(serviceItems[0].ID.String(), okResponse.Payload[0].ID.String())
+	})
+
+	suite.T().Run("Failure list fetch - Internal Server Error", func(t *testing.T) {
+		mockListFetcher := mocks.ListFetcher{}
+		handler := ListMTOServiceItemsHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockListFetcher,
+		}
+
+		internalServerErr := errors.New("ServerError")
+
+		mockListFetcher.On("FetchRecordList",
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Return(internalServerErr)
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemop.ListMTOServiceItemsInternalServerError{}, response)
 	})
 }
