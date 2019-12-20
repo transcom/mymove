@@ -1,7 +1,13 @@
 package fetch
 
 import (
+	"errors"
+	"fmt"
+	"reflect"
+
+	"github.com/gofrs/uuid"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 type fetcherQueryBuilder interface {
@@ -13,9 +19,25 @@ type fetcher struct {
 }
 
 // FetchRecord uses the passed query builder to fetch a record
-func (o *fetcher) FetchRecord(model interface{}, filters []services.QueryFilter) (interface{}, error) {
-	error := o.builder.FetchOne(model, filters)
-	return model, error
+func (o *fetcher) FetchRecord(model interface{}, filters []services.QueryFilter) error {
+	t := reflect.TypeOf(model)
+	if t.Kind() != reflect.Ptr {
+		return errors.New(query.FetchOneReflectionMessage)
+	}
+	t = t.Elem()
+	if t.Kind() != reflect.Struct {
+		return errors.New(query.FetchOneReflectionMessage)
+	}
+
+	err := o.builder.FetchOne(model, filters)
+
+	elem := reflect.ValueOf(model).Elem()
+	id := elem.FieldByName("ID").Interface().(uuid.UUID)
+	if id == uuid.Nil {
+		err = fmt.Errorf("Resource not found: %w", err)
+	}
+
+	return err
 }
 
 // NewFetcher returns an implementation of ListFetcher
