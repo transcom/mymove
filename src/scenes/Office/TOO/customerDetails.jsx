@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { get, isEmpty } from 'lodash';
 import {
@@ -101,20 +101,18 @@ class CustomerDetails extends Component {
                 </tr>
               </thead>
               <tbody>
-                {mtoServiceItems.map(items => {
-                  return (
-                    <>
-                      <tr>
-                        <td>{items.id}</td>
-                        <td>{items.moveTaskOrderID}</td>
-                        <td>{items.reServiceID}</td>
-                        <td>{items.reServiceCode}</td>
-                        <td>{items.reServiceName}</td>
-                        <td>{items.mtoShipmentID}</td>
-                      </tr>
-                    </>
-                  );
-                })}
+                {mtoServiceItems.map(items => (
+                  <Fragment key={items.id}>
+                    <tr>
+                      <td>{items.id}</td>
+                      <td>{items.moveTaskOrderID}</td>
+                      <td>{items.reServiceID}</td>
+                      <td>{items.reServiceCode}</td>
+                      <td>{items.reServiceName}</td>
+                      <td>{items.mtoShipmentID}</td>
+                    </tr>
+                  </Fragment>
+                ))}
               </tbody>
             </table>
 
