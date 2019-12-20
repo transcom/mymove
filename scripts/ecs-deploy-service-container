@@ -109,8 +109,6 @@ echo
 
 # renderer builds its template context from (1) environment variables, (2) file at -v FILE, and (3) positional command line args.
 ssm_secrets=$(aws ssm get-parameters-by-path --path "/app-${environment}" | jq '[.Parameters | to_entries[].value | {"valueFrom": .ARN, "name": .Name}]')
-echo "${ssm_secrets}"
-echo
 container_definition_json=$("$DIR"/../bin/renderer -t "$template" -v "$DIR"/../config/env/"${environment}".env environment="$environment" image="$image" db_host="$db_host" domain="$domain" move_mil_dod_ca_cert="$move_mil_dod_ca_cert" secrets="$ssm_secrets")
 readonly container_definition_json
 
