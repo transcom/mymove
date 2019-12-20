@@ -126,13 +126,14 @@ class CustomerDetails extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  const moveOrder = selectMoveOrder(state, ownProps.match.params.moveOrderId);
-  const moveTaskOrders = selectMoveTaskOrders(state, ownProps.match.params.moveOrderId);
+  const moveOrderId = ownProps.match.params.moveOrderId;
+  const moveOrder = selectMoveOrder(state, moveOrderId);
+  const moveTaskOrders = selectMoveTaskOrders(state, moveOrderId);
   return {
     moveOrder,
     customer: selectCustomer(state, ownProps.match.params.customerId),
 
-    mtoServiceItems: selectMTOServiceItems(state, moveOrder.id),
+    mtoServiceItems: selectMTOServiceItems(state, moveOrderId),
     // TODO: Change when we start making use of multiple move task orders
     moveTaskOrder: moveTaskOrders[0],
   };
