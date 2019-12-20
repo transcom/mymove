@@ -70,7 +70,6 @@
       "value": "{{ .DEVLOCAL_AUTH }}"
     },
     {
-    {
       "name": "MOVE_MIL_DOD_CA_CERT",
       "value": "{{ .move_mil_dod_ca_cert }}"
     },
