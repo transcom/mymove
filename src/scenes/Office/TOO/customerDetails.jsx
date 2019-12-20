@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { get, isEmpty } from 'lodash';
 import {
@@ -8,6 +8,7 @@ import {
   getCustomer,
   selectCustomer,
   selectMoveOrder,
+  selectMoveTaskOrders,
 } from 'shared/Entities/modules/moveTaskOrders';
 import { getMTOServiceItems, selectMTOServiceItems } from 'shared/Entities/modules/mtoServiceItems';
 
@@ -102,7 +103,7 @@ class CustomerDetails extends Component {
               <tbody>
                 {mtoServiceItems.map(items => {
                   return (
-                    <Fragment key={items.id}>
+                    <>
                       <tr>
                         <td>{items.id}</td>
                         <td>{items.moveTaskOrderID}</td>
@@ -111,7 +112,7 @@ class CustomerDetails extends Component {
                         <td>{items.reServiceName}</td>
                         <td>{items.mtoShipmentID}</td>
                       </tr>
-                    </Fragment>
+                    </>
                   );
                 })}
               </tbody>
@@ -129,14 +130,14 @@ class CustomerDetails extends Component {
 
 const mapStateToProps = (state, ownProps) => {
   const moveOrder = selectMoveOrder(state, ownProps.match.params.moveOrderId);
-  const mto = Object.values(get(state, 'entities.moveTaskOrder', {}))[0];
+  const moveTaskOrders = selectMoveTaskOrders(state, ownProps.match.params.moveOrderId);
   return {
     moveOrder,
     customer: selectCustomer(state, ownProps.match.params.customerId),
 
+    mtoServiceItems: selectMTOServiceItems(state, moveOrder.id),
     // TODO: Change when we start making use of multiple move task orders
-    mtoServiceItems: selectMTOServiceItems(state, new Set([mto?.id])),
-    moveTaskOrder: mto,
+    moveTaskOrder: moveTaskOrders[0],
   };
 };
 
