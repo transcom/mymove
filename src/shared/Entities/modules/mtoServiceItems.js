@@ -16,5 +16,5 @@ export function getMTOServiceItems(
 export function selectMTOServiceItems(state, moveOrderId) {
   const moveTaskOrders = selectMoveTaskOrders(state, moveOrderId);
 
-  return filter(state.entities.mtoServiceItem, item => moveTaskOrders.find(mto => mto.id === item.moveTaskOrderID));
+  return filter(state.entities.mtoServiceItems, item => moveTaskOrders.find(mto => mto.id === item.moveTaskOrderID));
 }
