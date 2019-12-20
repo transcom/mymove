@@ -25,8 +25,9 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	reServiceID, _ := uuid.NewV4()
 	mtoShipmentID, _ := uuid.NewV4()
 	metaID, _ := uuid.NewV4()
+	metaType := "unknown"
 	serviceItem := models.MTOServiceItem{
-		ID: serviceItemID, MoveTaskOrderID: moveTaskOrderID, ReServiceID: reServiceID, MTOShipmentID: mtoShipmentID, MetaID: metaID, MetaType: "unknown",
+		ID: serviceItemID, MoveTaskOrderID: moveTaskOrderID, ReServiceID: reServiceID, MTOShipmentID: &mtoShipmentID, MetaID: &metaID, MetaType: &metaType,
 	}
 
 	req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/%s/mto_service_items", moveTaskOrderID.String()), nil)
@@ -38,9 +39,9 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		MoveTaskOrderID: *handlers.FmtUUID(serviceItem.MoveTaskOrderID),
 		CreateMTOServiceItemBody: mtoserviceitemop.CreateMTOServiceItemBody{
 			ReServiceID:   handlers.FmtUUID(serviceItem.ReServiceID),
-			MtoShipmentID: handlers.FmtUUID(serviceItem.MTOShipmentID),
-			MetaID:        handlers.FmtUUID(serviceItem.MetaID),
-			MetaType:      handlers.FmtString(serviceItem.MetaType),
+			MtoShipmentID: handlers.FmtUUIDPtr(serviceItem.MTOShipmentID),
+			MetaID:        handlers.FmtUUIDPtr(serviceItem.MetaID),
+			MetaType:      handlers.FmtStringPtr(serviceItem.MetaType),
 		},
 	}
 
@@ -102,9 +103,9 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			MoveTaskOrderID: *handlers.FmtUUID(serviceItem.MoveTaskOrderID),
 			CreateMTOServiceItemBody: mtoserviceitemop.CreateMTOServiceItemBody{
 				ReServiceID:   handlers.FmtUUID(serviceItem.ReServiceID),
-				MtoShipmentID: handlers.FmtUUID(serviceItem.MTOShipmentID),
-				MetaID:        handlers.FmtUUID(serviceItem.MetaID),
-				MetaType:      handlers.FmtString(serviceItem.MetaType),
+				MtoShipmentID: handlers.FmtUUIDPtr(serviceItem.MTOShipmentID),
+				MetaID:        handlers.FmtUUIDPtr(serviceItem.MetaID),
+				MetaType:      handlers.FmtStringPtr(serviceItem.MetaType),
 			},
 		}
 		newParams.MoveTaskOrderID = "blah"

@@ -420,4 +420,5 @@
 20191212203155_fix_spelling_is_canceled.up.sql
 20191212225704_add_allow_prime.up.sql
 20191212230438_add_devlocal-mtls_client_cert.up.sql
+20191216184630_make_mto_service_items_meta_optional.up.sql
 20191218163024_add_required_moveorder_and_customer_fields.up.sql

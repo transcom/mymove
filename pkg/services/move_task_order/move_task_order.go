@@ -91,7 +91,46 @@ func (f fetchMoveTaskOrder) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*mode
 			return &models.MoveTaskOrder{}, err
 		}
 	}
+
+	f.createDefaultServiceItems(mto)
+
 	return mto, nil
+}
+
+func (f fetchMoveTaskOrder) createDefaultServiceItems(mto *models.MoveTaskOrder) error {
+	var reServices []models.ReService
+	err := f.db.Where("code in (?)", []string{"MS", "CS"}).All(&reServices)
+
+	if err != nil {
+		return err
+	}
+
+	defaultServiceItems := make(map[uuid.UUID]models.MTOServiceItem)
+	for _, reService := range reServices {
+		defaultServiceItems[reService.ID] = models.MTOServiceItem{
+			ReServiceID:     reService.ID,
+			MoveTaskOrderID: mto.ID,
+		}
+	}
+
+	// Remove the ones that exist on the mto
+	for _, item := range mto.MTOServiceItems {
+		for _, reService := range reServices {
+			if item.ReServiceID == reService.ID {
+				delete(defaultServiceItems, reService.ID)
+			}
+		}
+	}
+
+	for _, serviceItem := range defaultServiceItems {
+		_, err := f.db.ValidateAndCreate(&serviceItem)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 type updateMoveTaskOrderStatus struct {
