@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { get, isEmpty } from 'lodash';
 import {
@@ -7,19 +7,24 @@ import {
   getMoveOrder,
   getCustomer,
   selectCustomer,
+  selectMoveOrder,
+  selectMoveTaskOrders,
 } from 'shared/Entities/modules/moveTaskOrders';
-import { selectMoveOrder } from 'shared/Entities/modules/moveTaskOrders';
+import { getMTOServiceItems, selectMTOServiceItems } from 'shared/Entities/modules/mtoServiceItems';
 
 class CustomerDetails extends Component {
   componentDidMount() {
     const { customerId, moveOrderId } = this.props.match.params;
     this.props.getCustomer(customerId);
     this.props.getMoveOrder(moveOrderId).then(({ response: { body: moveOrder } }) => {
-      this.props.getAllMoveTaskOrders(moveOrder.id);
+      this.props.getAllMoveTaskOrders(moveOrder.id).then(({ response: { body: moveTaskOrder } }) => {
+        // TODO: would like to do batch fetching later
+        moveTaskOrder.forEach(item => this.props.getMTOServiceItems(item.id));
+      });
     });
   }
   render() {
-    const { moveTaskOrder, customer, moveOrder } = this.props;
+    const { moveTaskOrder, customer, moveOrder, mtoServiceItems } = this.props;
     const entitlements = get(moveOrder, 'entitlement', {});
     return (
       <>
@@ -74,6 +79,7 @@ class CustomerDetails extends Component {
         {!isEmpty(moveTaskOrder) && (
           <>
             <h2>Move Task Order</h2>
+            <h3>Status: {moveTaskOrder.isAvailableToPrime ? 'Available to Prime' : 'Draft'}</h3>
             <dl>
               <dt>ID</dt>
               <dd>{get(moveTaskOrder, 'id')}</dd>
@@ -82,6 +88,33 @@ class CustomerDetails extends Component {
               <dt>Is Canceled</dt>
               <dd>{get(moveTaskOrder, 'isCanceled', false).toString()}</dd>
             </dl>
+
+            <h2>MTO Service Items</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Move Task Order ID</th>
+                  <th>Rate Engine Service ID</th>
+                  <th>Rate Engine Service Code</th>
+                  <th>Rate Engine Service Name</th>
+                </tr>
+              </thead>
+              <tbody>
+                {mtoServiceItems.map(items => (
+                  <Fragment key={items.id}>
+                    <tr>
+                      <td>{items.id}</td>
+                      <td>{items.moveTaskOrderID}</td>
+                      <td>{items.reServiceID}</td>
+                      <td>{items.reServiceCode}</td>
+                      <td>{items.reServiceName}</td>
+                    </tr>
+                  </Fragment>
+                ))}
+              </tbody>
+            </table>
+
             <div>
               <button onClick={() => this.props.updateMoveTaskOrderStatus(moveTaskOrder.id)}>Send to Prime</button>
             </div>
@@ -93,13 +126,16 @@ class CustomerDetails extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => {
-  const moveOrder = selectMoveOrder(state, ownProps.match.params.moveOrderId);
-  const customer = selectCustomer(state, ownProps.match.params.customerId);
+  const moveOrderId = ownProps.match.params.moveOrderId;
+  const moveOrder = selectMoveOrder(state, moveOrderId);
+  const moveTaskOrders = selectMoveTaskOrders(state, moveOrderId);
   return {
-    customer,
     moveOrder,
+    customer: selectCustomer(state, ownProps.match.params.customerId),
+
+    mtoServiceItems: selectMTOServiceItems(state, moveOrderId),
     // TODO: Change when we start making use of multiple move task orders
-    moveTaskOrder: Object.values(get(state, 'entities.moveTaskOrder', {}))[0],
+    moveTaskOrder: moveTaskOrders[0],
   };
 };
 
@@ -108,6 +144,7 @@ const mapDispatchToProps = {
   getAllMoveTaskOrders,
   updateMoveTaskOrderStatus,
   getCustomer,
+  getMTOServiceItems,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CustomerDetails);

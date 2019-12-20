@@ -946,9 +946,24 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
-		MTOServiceItem: models.MTOServiceItem{ID: uuid.FromStringOrNil("9db1bf43-0964-44ff-8384-3297951f6781")},
-		MoveTaskOrder:  mto,
-		MTOShipment:    MTOShipment,
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("9db1bf43-0964-44ff-8384-3297951f6781"),
+		},
+		MoveTaskOrder: mto,
+		MTOShipment:   MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH
+		},
+	})
+	testdatagen.MakeMTOServiceItem(db, testdatagen.Assertions{
+		MTOServiceItem: models.MTOServiceItem{
+			ID: uuid.FromStringOrNil("d886431c-c357-46b7-a084-a0c85dd496d3"),
+		},
+		MoveTaskOrder: mto,
+		MTOShipment:   MTOShipment,
+		ReService: models.ReService{
+			ID: uuid.FromStringOrNil("2bc3e5cb-adef-46b1-bde9-55570bfdd43e"), // DOP
+		},
 	})
 
 	testdatagen.MakePaymentRequest(db, testdatagen.Assertions{
@@ -956,7 +971,26 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			ID:            uuid.FromStringOrNil("a2c34dba-015f-4f96-a38b-0c0b9272e208"),
 			MoveTaskOrder: mto,
 			IsFinal:       false,
-			Status:        "PENDING",
+			Status:        models.PaymentRequestStatusPending,
+		},
+	})
+
+	testdatagen.MakeServiceItemParamKey(db, testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			ID:          uuid.FromStringOrNil("9ea783db-ebc8-4a99-93dd-56b507678a07"),
+			Key:         "weight",
+			Description: "actual weight",
+			Type:        models.ServiceItemParamTypeInteger,
+			Origin:      models.ServiceItemParamOriginPrime,
+		},
+	})
+	testdatagen.MakeServiceItemParamKey(db, testdatagen.Assertions{
+		ServiceItemParamKey: models.ServiceItemParamKey{
+			ID:          uuid.FromStringOrNil("421530ab-9c84-4207-8faf-f39a2f92ddaa"),
+			Key:         "pickup",
+			Description: "requested pickup date",
+			Type:        models.ServiceItemParamTypeDate,
+			Origin:      models.ServiceItemParamOriginPrime,
 		},
 	})
 
@@ -995,4 +1029,22 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
+	// A more recent MTO for demonstrating the since parameter
+	customer6 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
+		Customer: models.Customer{
+			ID: uuid.FromStringOrNil("6ac40a00-e762-4f5f-b08d-3ea72a8e4b61"),
+		},
+	})
+	moveOrders6 := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
+		MoveOrder: models.MoveOrder{ID: uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4981")},
+		Customer:  customer6,
+	})
+	testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			ID:                 uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb7791"),
+			MoveOrderID:        moveOrders6.ID,
+			UpdatedAt:          time.Unix(1576779681256, 0),
+			IsAvailableToPrime: true,
+		},
+	})
 }

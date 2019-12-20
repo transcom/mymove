@@ -23,7 +23,9 @@ const desc = "desc"
 
 // Error message constants
 const fetchManyReflectionMessage = "Model should be pointer to slice of structs"
-const fetchOneReflectionMessage = "Model should be pointer to struct"
+
+// FetchOneReflectionMessage error message for fetching one struct by reflection
+const FetchOneReflectionMessage = "Model should be pointer to struct"
 
 // Builder is a wrapper around pop
 // with more flexible query patterns to MilMove
@@ -82,12 +84,16 @@ func buildQuery(query *pop.Query, filters []services.QueryFilter, pagination ser
 }
 
 func paginatedQuery(query *pop.Query, pagination services.Pagination, t reflect.Type) (*pop.Query, error) {
+	if pagination == nil {
+		return query, nil
+	}
+
 	return query.Paginate(pagination.Page(), pagination.PerPage()), nil
 }
 
 func orderedQuery(query *pop.Query, order services.QueryOrder, t reflect.Type) (*pop.Query, error) {
 	//omit sorting if no column specified
-	if order.Column() == nil || order.SortOrder() == nil {
+	if order == nil || order.Column() == nil || order.SortOrder() == nil {
 		return query, nil
 	}
 
@@ -185,6 +191,10 @@ func categoricalCountsQueryOneModel(conn *pop.Connection, filters []services.Que
 }
 
 func filteredQuery(query *pop.Query, filters []services.QueryFilter, t reflect.Type) (*pop.Query, error) {
+	if filters == nil {
+		return query, nil
+	}
+
 	invalidFields := make([]string, 0)
 	likeFilters := []services.QueryFilter{}
 
@@ -235,11 +245,11 @@ func filteredQuery(query *pop.Query, filters []services.QueryFilter, t reflect.T
 func (p *Builder) FetchOne(model interface{}, filters []services.QueryFilter) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
-		return errors.New(fetchOneReflectionMessage)
+		return errors.New(FetchOneReflectionMessage)
 	}
 	t = t.Elem()
 	if t.Kind() != reflect.Struct {
-		return errors.New(fetchOneReflectionMessage)
+		return errors.New(FetchOneReflectionMessage)
 	}
 	query := p.db.Q()
 	query, err := filteredQuery(query, filters, t)
@@ -306,7 +316,7 @@ func (p *Builder) Count(model interface{}, filters []services.QueryFilter) (int,
 func (p *Builder) CreateOne(model interface{}) (*validate.Errors, error) {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
-		return nil, errors.New(fetchOneReflectionMessage)
+		return nil, errors.New(FetchOneReflectionMessage)
 	}
 
 	verrs, err := p.db.ValidateAndCreate(model)
@@ -319,7 +329,7 @@ func (p *Builder) CreateOne(model interface{}) (*validate.Errors, error) {
 func (p *Builder) UpdateOne(model interface{}) (*validate.Errors, error) {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
-		return nil, errors.New(fetchOneReflectionMessage)
+		return nil, errors.New(FetchOneReflectionMessage)
 	}
 
 	verrs, err := p.db.ValidateAndUpdate(model)
@@ -343,7 +353,7 @@ func (p *Builder) FetchCategoricalCountsFromOneModel(model interface{}, filters 
 func (p *Builder) QueryForAssociations(model interface{}, associations services.QueryAssociations, filters []services.QueryFilter, pagination services.Pagination, ordering services.QueryOrder) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
-		return errors.New(fetchOneReflectionMessage)
+		return errors.New(FetchOneReflectionMessage)
 	}
 	t = t.Elem()
 	if t.Kind() != reflect.Slice {

@@ -12,7 +12,7 @@ func (suite *ModelSuite) TestPaymentRequestValidation() {
 	suite.T().Run("test valid PaymentRequest", func(t *testing.T) {
 		validPaymentRequest := models.PaymentRequest{
 			MoveTaskOrderID: uuid.Must(uuid.NewV4()),
-			Status:          "PENDING",
+			Status:          models.PaymentRequestStatusPending,
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validPaymentRequest, expErrors)
