@@ -7,7 +7,7 @@ To interact and use the prime api you will need a client that can send the appro
   * [Postman Environment settings](#postman-environment-settings)
 * [Payment Request API](#payment-request-api)
   * [Create a Payment Request](#create-a-payment-request)
-    * [Curl](#curl)
+    * [Prime API helper script](#prime-api-helper-script)
     * [Postman](#postman)
 
 ## Prerequisites
@@ -33,45 +33,45 @@ If you are planning to use [Postman](https://www.getpostman.com/) you will need 
 
 ### Create a Payment Request
 
-#### Curl
+#### Prime API helper script
 
-Sample create payment request call using curl. Note there is `scripts/prime-api` script which can make GET requests against the prime API, once it supports taking additional POST data it could be used in place of this.
+Sample create payment request call using `scripts/prime-api` to hit the api endpoint. First save the following json to a file called `data.json`.
 
-```sh
-curl --request POST \
-  --insecure \
-  --cert ./config/tls/devlocal-mtls.cer  \
-  --key ./config/tls/devlocal-mtls.key \
-  https://primelocal:9443/prime/v1/payment-requests \
-  --header 'Content-Type: application/json' \
-  --data '{
-      "isFinal": false,
-      "moveTaskOrderID": "5d4b25bb-eb04-4c03-9a81-ee0398cb779e",
-      "serviceItems": [
+```json
+{
+  "isFinal": false,
+  "moveTaskOrderID": "5d4b25bb-eb04-4c03-9a81-ee0398cb779e",
+  "serviceItems": [
+    {
+      "id": "9db1bf43-0964-44ff-8384-3297951f6781",
+      "params": [
         {
-          "id": "9db1bf43-0964-44ff-8384-3297951f6781",
-          "params": [
-            {
-              "key": "weight",
-              "value": "1234"
-            },
-            {
-              "key": "pickup",
-              "value": "2019-12-16"
-            }
-          ]
+          "key": "weight",
+          "value": "1234"
         },
         {
-          "id": "d886431c-c357-46b7-a084-a0c85dd496d3",
-          "params": [
-            {
-              "key": "weight",
-              "value": "5678"
-            }
-          ]
+          "key": "pickup",
+          "value": "2019-12-16"
         }
       ]
-    }'
+    },
+    {
+      "id": "d886431c-c357-46b7-a084-a0c85dd496d3",
+      "params": [
+        {
+          "key": "weight",
+          "value": "5678"
+        }
+      ]
+    }
+  ]
+}
+```
+
+Once the file is created you can run the following command to hit the api
+
+```sh
+prime-api payment-requests POST data.json
 ```
 
 Sample successful response
