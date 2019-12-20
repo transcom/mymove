@@ -82,3 +82,74 @@ func (h GetPaymentRequestHandler) Handle(params paymentrequestop.GetPaymentReque
 
 	return response
 }
+
+type UpdatePaymentRequestStatusHandler struct {
+	handlers.HandlerContext
+	services.PaymentRequestStatusUpdater
+	services.PaymentRequestFetcher
+}
+
+func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.UpdatePaymentRequestStatusParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	paymentRequestID, err := uuid.FromString(params.PaymentRequestID.String())
+
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error parsing payment request id: %s", params.PaymentRequestID.String()), zap.Error(err))
+		return paymentrequestop.NewGetPaymentRequestInternalServerError()
+	}
+
+	// Let's fetch the existing payment request using the PaymentRequestFetcher service object
+
+	filter := []services.QueryFilter{query.NewQueryFilter("id", "=", paymentRequestID.String())}
+	existingPaymentRequest, err := h.PaymentRequestFetcher.FetchPaymentRequest(filter)
+
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error finding Payment Request for status update with ID: %s", params.PaymentRequestID.String()), zap.Error(err))
+		return paymentrequestop.NewGetPaymentRequestInternalServerError()
+	}
+
+	// Let's map the incoming status to our enumeration type
+	status := existingPaymentRequest.Status
+	switch params.Body.Status {
+	case "PENDING":
+		status = models.PaymentRequestStatusPending
+	case "REVIEWED":
+		status = models.PaymentRequestStatusReviewed
+	case "SENT_TO_GEX":
+		status = models.PaymentRequestStatusSentToGex
+	case "RECEIVED_BY_GEX":
+		status = models.PaymentRequestStatusReceivedByGex
+	case "PAID":
+		status = models.PaymentRequestStatusPaid
+	}
+
+	// If we got a rejection reason let's use it
+	rejectionReason := existingPaymentRequest.RejectionReason
+	if params.Body.RejectionReason != nil {
+		rejectionReason = params.Body.RejectionReason
+	}
+
+	paymentRequestForUpdate := models.PaymentRequest{
+		ID:              existingPaymentRequest.ID,
+		MoveTaskOrder:   existingPaymentRequest.MoveTaskOrder,
+		MoveTaskOrderID: existingPaymentRequest.MoveTaskOrderID,
+		IsFinal:         existingPaymentRequest.IsFinal,
+		Status:          status,
+		RejectionReason: rejectionReason,
+		RequestedAt:     existingPaymentRequest.RequestedAt,
+		ReviewedAt:      existingPaymentRequest.ReviewedAt,
+		SentToGexAt:     existingPaymentRequest.SentToGexAt,
+		ReceivedByGexAt: existingPaymentRequest.ReceivedByGexAt,
+		PaidAt:          existingPaymentRequest.PaidAt,
+	}
+
+	// And now let's save our updated model object using the PaymentRequestUpdater service object.
+	err = h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&paymentRequestForUpdate)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error saving payment request status for ID: %s", paymentRequestID))
+		return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError()
+	}
+
+	returnPayload := payloadForPaymentRequestModel(paymentRequestForUpdate)
+	return paymentrequestop.NewUpdatePaymentRequestStatusOK().WithPayload(returnPayload)
+}
