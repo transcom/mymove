@@ -163,9 +163,11 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 	suite.T().Run("Successful list fetch - Integration Test", func(t *testing.T) {
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		listFetcher := fetch.NewListFetcher(queryBuilder)
+		fetcher := fetch.NewFetcher(queryBuilder)
 		handler := ListMTOServiceItemsHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			listFetcher,
+			fetcher,
 		}
 
 		response := handler.Handle(params)
@@ -178,12 +180,19 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 
 	suite.T().Run("Failure list fetch - Internal Server Error", func(t *testing.T) {
 		mockListFetcher := mocks.ListFetcher{}
+		mockFetcher := mocks.Fetcher{}
 		handler := ListMTOServiceItemsHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			&mockListFetcher,
+			&mockFetcher,
 		}
 
 		internalServerErr := errors.New("ServerError")
+
+		mockFetcher.On("FetchRecord",
+			mock.Anything,
+			mock.Anything,
+		).Return(nil)
 
 		mockListFetcher.On("FetchRecordList",
 			mock.Anything,
@@ -195,5 +204,25 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemop.ListMTOServiceItemsInternalServerError{}, response)
+	})
+
+	suite.T().Run("Failure list fetch - 404 Not Found - Move Task Order ID", func(t *testing.T) {
+		mockListFetcher := mocks.ListFetcher{}
+		mockFetcher := mocks.Fetcher{}
+		handler := ListMTOServiceItemsHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockListFetcher,
+			&mockFetcher,
+		}
+
+		notfound := errors.New("Not found error")
+
+		mockFetcher.On("FetchRecord",
+			mock.Anything,
+			mock.Anything,
+		).Return(notfound)
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemop.ListMTOServiceItemsNotFound{}, response)
 	})
 }
