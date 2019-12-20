@@ -146,6 +146,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemop.CreateMTOSer
 type ListMTOServiceItemsHandler struct {
 	handlers.HandlerContext
 	services.ListFetcher
+	services.Fetcher
 }
 
 // Handle handler that lists mto service items for the move task order
@@ -162,7 +163,19 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 		return mtoserviceitemop.NewListMTOServiceItemsUnprocessableEntity().WithPayload(payload)
 	}
 
+	// check if move task order exists first
 	queryFilters := []services.QueryFilter{
+		query.NewQueryFilter("id", "=", moveTaskOrderID.String()),
+	}
+	var moveTaskOrder models.MoveTaskOrder
+	err = h.Fetcher.FetchRecord(&moveTaskOrder, queryFilters)
+	if err != nil {
+		logger.Error("Error fetching move task order: ", zap.Error(err))
+
+		return mtoserviceitemop.NewListMTOServiceItemsNotFound()
+	}
+
+	queryFilters = []services.QueryFilter{
 		query.NewQueryFilter("move_task_order_id", "=", moveTaskOrderID.String()),
 	}
 	queryAssociations := query.NewQueryAssociations([]services.QueryAssociation{
