@@ -39,8 +39,8 @@ func (suite *FetchServiceSuite) TestFetchRecord() {
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		var officeUser models.OfficeUser
-		err = fetcher.FetchRecord(&officeUser, filters)
+		ou, err := fetcher.FetchRecord(&models.OfficeUser{}, filters)
+		officeUser := ou.(*models.OfficeUser)
 
 		suite.NoError(err)
 		suite.Equal(id, officeUser.ID)
@@ -56,11 +56,11 @@ func (suite *FetchServiceSuite) TestFetchRecord() {
 
 		fetcher := NewFetcher(builder)
 
-		var officeUser models.OfficeUser
-		err := fetcher.FetchRecord(&officeUser, []services.QueryFilter{})
+		ou, err := fetcher.FetchRecord(&models.OfficeUser{}, []services.QueryFilter{})
+		officeUser := ou.(*models.OfficeUser)
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")
-		suite.Equal(models.OfficeUser{}, officeUser)
+		suite.Equal(models.OfficeUser{}, *officeUser)
 	})
 }

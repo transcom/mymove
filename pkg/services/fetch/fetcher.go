@@ -13,9 +13,9 @@ type fetcher struct {
 }
 
 // FetchRecord uses the passed query builder to fetch a record
-func (o *fetcher) FetchRecord(model interface{}, filters []services.QueryFilter) error {
+func (o *fetcher) FetchRecord(model interface{}, filters []services.QueryFilter) (interface{}, error) {
 	error := o.builder.FetchOne(model, filters)
-	return error
+	return model, error
 }
 
 // NewFetcher returns an implementation of ListFetcher
