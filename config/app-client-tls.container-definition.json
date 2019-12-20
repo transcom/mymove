@@ -3,12 +3,6 @@
   "image": "{{ .image }}",
   "essential": true,
   "entryPoint": [
-    "/bin/chamber",
-    "-r",
-    "{{ .CHAMBER_RETRIES }}",
-    "exec",
-    "app-{{ .environment }}",
-    "--",
     "/bin/milmove",
     "serve",
     "--db-env",
@@ -29,6 +23,7 @@
     }
   ],
   "command": [],
+  "secrets": {{ .secrets }},
   "environment": [
     {
       "name": "DB_IAM",
@@ -75,13 +70,6 @@
       "value": "{{ .DEVLOCAL_AUTH }}"
     },
     {
-      "name": "CHAMBER_KMS_KEY_ALIAS",
-      "value": "alias/aws/ssm"
-    },
-    {
-      "name": "CHAMBER_USE_PATHS",
-      "value": "1"
-    },
     {
       "name": "MOVE_MIL_DOD_CA_CERT",
       "value": "{{ .move_mil_dod_ca_cert }}"
