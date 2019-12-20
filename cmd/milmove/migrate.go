@@ -266,6 +266,10 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 	migrationTableName := dbConnection.MigrationTableName()
 	logger.Info(fmt.Sprintf("tracking migrations using table %q", migrationTableName))
 
+	var latestMigrationVersion string
+	dbConnection.RawQuery("SELECT version FROM schema_migration order by version desc").First(&latestMigrationVersion)
+	logger.Info(fmt.Sprintf("latest migration version: %q", latestMigrationVersion))
+
 	migrationManifest := expandPath(v.GetString(cli.MigrationManifestFlag))
 	logger.Info(fmt.Sprintf("using migration manifest %q", migrationManifest))
 
