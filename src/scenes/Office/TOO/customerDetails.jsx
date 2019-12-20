@@ -109,7 +109,6 @@ class CustomerDetails extends Component {
                       <td>{items.reServiceID}</td>
                       <td>{items.reServiceCode}</td>
                       <td>{items.reServiceName}</td>
-                      <td>{items.mtoShipmentID}</td>
                     </tr>
                   </Fragment>
                 ))}
