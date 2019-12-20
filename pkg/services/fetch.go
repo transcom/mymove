@@ -3,7 +3,7 @@ package services
 // Fetcher is the exported interface for fetching a record
 //go:generate mockery -name Fetcher
 type Fetcher interface {
-	FetchRecord(model interface{}, filters []QueryFilter) (interface{}, error)
+	FetchRecord(model interface{}, filters []QueryFilter) error
 }
 
 // ListFetcher is the exported interface for fetching multiple records

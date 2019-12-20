@@ -13,24 +13,15 @@ type Fetcher struct {
 }
 
 // FetchRecord provides a mock function with given fields: model, filters
-func (_m *Fetcher) FetchRecord(model interface{}, filters []services.QueryFilter) (interface{}, error) {
+func (_m *Fetcher) FetchRecord(model interface{}, filters []services.QueryFilter) error {
 	ret := _m.Called(model, filters)
 
-	var r0 interface{}
-	if rf, ok := ret.Get(0).(func(interface{}, []services.QueryFilter) interface{}); ok {
+	var r0 error
+	if rf, ok := ret.Get(0).(func(interface{}, []services.QueryFilter) error); ok {
 		r0 = rf(model, filters)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(interface{})
-		}
+		r0 = ret.Error(0)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(interface{}, []services.QueryFilter) error); ok {
-		r1 = rf(model, filters)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
