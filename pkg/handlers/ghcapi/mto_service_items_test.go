@@ -148,7 +148,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())
 	serviceItem := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		MTOServiceItem: models.MTOServiceItem{
-			ID: serviceItemID, MoveTaskOrderID: mto.ID, ReServiceID: reService.ID, MTOShipmentID: mtoShipment.ID, MetaID: metaID, MetaType: "unknown",
+			ID: serviceItemID, MoveTaskOrderID: mto.ID, ReServiceID: reService.ID, MTOShipmentID: &mtoShipment.ID, MetaID: &metaID, MetaType: handlers.FmtString("unknown"),
 		},
 	})
 	serviceItems := models.MTOServiceItems{serviceItem}
