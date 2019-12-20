@@ -267,8 +267,8 @@ export class PpmWeight extends Component {
               {(includesProgear === 'Yes' || includesProgear === 'Not Sure') && (
                 <>
                   <div className={`${styles['incentive-estimate-box']} border radius-lg border-base`}>
-                    You can be paid for moving up to 2,500 lbs of pro-gear, in addition to your weight entitlement of
-                    [rate engine calculated entitlement amount].
+                    You can be paid for moving up to 2,500 lbs of pro-gear, in addition to your weight entitlement of{' '}
+                    {formatCentsRange(incentive_estimate_min, incentive_estimate_max)}.
                   </div>
                   <div className="radio-group-wrapper normalize-margins">
                     <h3>Do you think your pro-gear weighs 1000 lbs or more?</h3>
