@@ -1,6 +1,7 @@
 import { get } from 'lodash';
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
+import { formatDateForSwagger } from 'shared/dates';
 
 const approvePpmLabel = 'PPMs.approvePPM';
 export const downloadPPMAttachmentsLabel = 'PPMs.downloadAttachments';
@@ -36,6 +37,8 @@ export function updatePPM(
   label = updatePPMLabel,
 ) {
   const swaggerTag = 'ppm.patchPersonallyProcuredMove';
+  payload.original_move_date = formatDateForSwagger(payload.original_move_date);
+  payload.actual_move_date = formatDateForSwagger(payload.actual_move_date);
   return swaggerRequest(
     getClient,
     swaggerTag,

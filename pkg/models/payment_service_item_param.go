@@ -17,9 +17,12 @@ type PaymentServiceItemParam struct {
 	CreatedAt             time.Time `db:"created_at"`
 	UpdatedAt             time.Time `db:"updated_at"`
 
-	//Associations
+	// Associations
 	PaymentServiceItem  PaymentServiceItem  `belongs_to:"payment_service_item"`
 	ServiceItemParamKey ServiceItemParamKey `belongs_to:"service_item_param_key"`
+
+	// Used to lookup the appropriate ServiceItemParamKeyID when creating a PaymentServiceItemParam
+	IncomingKey string `db:"-"`
 }
 
 // PaymentServiceItemParams is not required by pop and may be deleted

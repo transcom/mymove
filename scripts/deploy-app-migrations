@@ -1,0 +1,40 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+#
+# Deploy the app migrations
+#
+
+usage() {
+  echo "$0 <environment>"
+  exit 1
+}
+
+readonly environment="${1:-experimental}"
+
+[[ -z "${environment}" ]] && usage
+
+case "${environment}" in
+  experimental)
+    compare_host=my.experimental.move.mil
+    ;;
+  staging)
+    compare_host=my.staging.move.mil
+    ;;
+  prod)
+    compare_host=my.move.mil
+    ;;
+  *)
+    echo "<environment> must be one of experimental, staging, or prod"
+    exit 1
+    ;;
+esac
+
+APP_ENVIRONMENT="${environment}"
+AWS_DEFAULT_REGION=us-west-2
+CIRCLE_SHA1=$(curl -s "https://${compare_host}/health" | jq -r .gitCommit)
+
+scripts/compare-deployed-commit "${compare_host}" "${CIRCLE_SHA1}"
+
+scripts/ecs-run-app-migrations-container config/app-migrations.container-definition.json "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}"

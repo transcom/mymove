@@ -17,6 +17,12 @@ import (
 // swagger:model MoveOrder
 type MoveOrder struct {
 
+	// agency
+	Agency string `json:"agency,omitempty"`
+
+	// confirmation number
+	ConfirmationNumber string `json:"confirmation_number,omitempty"`
+
 	// customer ID
 	// Format: uuid
 	CustomerID strfmt.UUID `json:"customerID,omitempty"`
@@ -27,9 +33,24 @@ type MoveOrder struct {
 	// entitlement
 	Entitlement *Entitlements `json:"entitlement,omitempty"`
 
+	// first name
+	// Read Only: true
+	FirstName string `json:"first_name,omitempty"`
+
+	// grade
+	Grade string `json:"grade,omitempty"`
+
 	// id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
+
+	// last name
+	// Read Only: true
+	LastName string `json:"last_name,omitempty"`
+
+	// move task order ID
+	// Format: uuid
+	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
 	// origin duty station
 	OriginDutyStation *DutyStation `json:"originDutyStation,omitempty"`
@@ -52,6 +73,10 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMoveTaskOrderID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -121,6 +146,19 @@ func (m *MoveOrder) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveOrder) validateMoveTaskOrderID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.MoveTaskOrderID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
 		return err
 	}
 

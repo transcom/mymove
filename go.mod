@@ -46,8 +46,8 @@ require (
 	github.com/jstemmer/go-junit-report v0.9.1
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/leodido/go-urn v1.2.0
-	github.com/lib/pq v1.2.0
-	github.com/markbates/goth v1.59.0
+	github.com/lib/pq v1.3.0
+	github.com/markbates/goth v1.60.0
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.10 // indirect
 	github.com/mattn/go-shellwords v1.0.6 // indirect
@@ -56,7 +56,7 @@ require (
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.8.1
 	github.com/rickar/cal v1.0.1
-	github.com/rogpeppe/go-internal v1.5.0
+	github.com/rogpeppe/go-internal v1.5.1
 	github.com/segmentio/chamber/v2 v2.7.5
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/cobra v0.0.5

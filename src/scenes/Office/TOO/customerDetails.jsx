@@ -1,29 +1,30 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { get, isEmpty } from 'lodash';
-import { denormalize } from 'normalizr';
-import { moveTaskOrder } from 'shared/Entities/schema';
 import {
   updateMoveTaskOrderStatus,
-  getMoveTaskOrder,
+  getAllMoveTaskOrders,
   getMoveOrder,
   getCustomer,
-  selectMoveTaskOrder,
+  selectCustomer,
+  selectMoveOrder,
+  selectMoveTaskOrders,
 } from 'shared/Entities/modules/moveTaskOrders';
-import { selectCustomer } from 'shared/Entities/modules/customer';
-import { selectMoveOrder } from 'shared/Entities/modules/moveTaskOrders';
+import { getMTOServiceItems, selectMTOServiceItems } from 'shared/Entities/modules/mtoServiceItems';
 
 class CustomerDetails extends Component {
   componentDidMount() {
-    this.props.getCustomer(this.props.match.params.customerId);
-    this.props.getMoveTaskOrder(this.props.match.params.moveTaskOrderId).then(response => {
-      const mto = denormalize(this.props.match.params.moveTaskOrderId, moveTaskOrder, response.entities);
-      this.props.getMoveOrder(mto.moveOrderID);
+    const { customerId, moveOrderId } = this.props.match.params;
+    this.props.getCustomer(customerId);
+    this.props.getMoveOrder(moveOrderId).then(({ response: { body: moveOrder } }) => {
+      this.props.getAllMoveTaskOrders(moveOrder.id).then(({ response: { body: moveTaskOrder } }) => {
+        // TODO: would like to do batch fetching later
+        moveTaskOrder.forEach(item => this.props.getMTOServiceItems(item.id));
+      });
     });
   }
-
   render() {
-    const { moveTaskOrder, customer, moveOrder } = this.props;
+    const { moveTaskOrder, customer, moveOrder, mtoServiceItems } = this.props;
     const entitlements = get(moveOrder, 'entitlement', {});
     return (
       <>
@@ -32,6 +33,10 @@ class CustomerDetails extends Component {
           <>
             <h2>Customer Info</h2>
             <dl>
+              <dt>First Name</dt>
+              <dd>{get(customer, 'first_name')}</dd>
+              <dt>Last Name</dt>
+              <dd>{get(customer, 'last_name')}</dd>
               <dt>ID</dt>
               <dd>{get(customer, 'id')}</dd>
               <dt>DOD ID</dt>
@@ -74,45 +79,72 @@ class CustomerDetails extends Component {
         {!isEmpty(moveTaskOrder) && (
           <>
             <h2>Move Task Order</h2>
+            <h3>Status: {moveTaskOrder.isAvailableToPrime ? 'Available to Prime' : 'Draft'}</h3>
             <dl>
               <dt>ID</dt>
               <dd>{get(moveTaskOrder, 'id')}</dd>
-              <dt>Reference ID</dt>
-              <dd>{get(moveTaskOrder, 'referenceId')}</dd>
               <dt>Is Available to Prime</dt>
               <dd>{get(moveTaskOrder, 'isAvailableToPrime').toString()}</dd>
               <dt>Is Canceled</dt>
-              <dd>{get(moveTaskOrder, 'isCanceled').toString()}</dd>
+              <dd>{get(moveTaskOrder, 'isCanceled', false).toString()}</dd>
             </dl>
+
+            <h2>MTO Service Items</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Move Task Order ID</th>
+                  <th>Rate Engine Service ID</th>
+                  <th>Rate Engine Service Code</th>
+                  <th>Rate Engine Service Name</th>
+                </tr>
+              </thead>
+              <tbody>
+                {mtoServiceItems.map(items => (
+                  <Fragment key={items.id}>
+                    <tr>
+                      <td>{items.id}</td>
+                      <td>{items.moveTaskOrderID}</td>
+                      <td>{items.reServiceID}</td>
+                      <td>{items.reServiceCode}</td>
+                      <td>{items.reServiceName}</td>
+                    </tr>
+                  </Fragment>
+                ))}
+              </tbody>
+            </table>
+
+            <div>
+              <button onClick={() => this.props.updateMoveTaskOrderStatus(moveTaskOrder.id)}>Send to Prime</button>
+            </div>
           </>
         )}
-        <div>
-          <button
-            onClick={() => this.props.updateMoveTaskOrderStatus(this.props.match.params.moveTaskOrderId, 'DRAFT')}
-          >
-            Generate MTO
-          </button>
-        </div>
       </>
     );
   }
 }
 
 const mapStateToProps = (state, ownProps) => {
-  const moveTaskOrder = selectMoveTaskOrder(state, ownProps.match.params.moveTaskOrderId);
-  const moveOrder = selectMoveOrder(state, moveTaskOrder.moveOrderID);
+  const moveOrderId = ownProps.match.params.moveOrderId;
+  const moveOrder = selectMoveOrder(state, moveOrderId);
+  const moveTaskOrders = selectMoveTaskOrders(state, moveOrderId);
   return {
-    moveTaskOrder,
     moveOrder,
     customer: selectCustomer(state, ownProps.match.params.customerId),
+
+    mtoServiceItems: selectMTOServiceItems(state, moveOrderId),
+    // TODO: Change when we start making use of multiple move task orders
+    moveTaskOrder: moveTaskOrders[0],
   };
 };
 
 const mapDispatchToProps = {
   getMoveOrder,
-  getMoveTaskOrder,
+  getAllMoveTaskOrders,
   updateMoveTaskOrderStatus,
   getCustomer,
+  getMTOServiceItems,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CustomerDetails);

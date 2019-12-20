@@ -29,6 +29,7 @@ export async function UpdatePpm(
 ) {
   const client = await getClient();
   const payloadDef = client.spec.definitions.PatchPersonallyProcuredMovePayload;
+  payload.original_move_date = formatDateForSwagger(payload.original_move_date);
   const response = await client.apis.ppm.patchPersonallyProcuredMove({
     moveId,
     personallyProcuredMoveId,
