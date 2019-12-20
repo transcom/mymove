@@ -39,6 +39,7 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 	ghcAPI.MtoServiceItemListMTOServiceItemsHandler = ListMTOServiceItemsHandler{
 		context,
 		fetch.NewListFetcher(queryBuilder),
+		fetch.NewFetcher(queryBuilder),
 	}
 
 	ghcAPI.PaymentRequestsGetPaymentRequestHandler = GetPaymentRequestHandler{
