@@ -24,7 +24,7 @@ type MTOServiceItem struct {
 	UpdatedAt       time.Time     `db:"updated_at"`
 }
 
-// MTOServiceItems is not required by pop and may be deleted
+// MTOServiceItems is a slice containing MTOServiceItems
 type MTOServiceItems []MTOServiceItem
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
