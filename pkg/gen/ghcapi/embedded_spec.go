@@ -891,6 +891,12 @@ func init() {
               "$ref": "#/definitions/MTOServiceItems"
             }
           },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
           "422": {
             "description": "Validation error",
             "schema": {
@@ -3103,6 +3109,15 @@ func init() {
             "description": "Successfully retrieved all line items for a move task order",
             "schema": {
               "$ref": "#/definitions/MTOServiceItems"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
             }
           },
           "422": {

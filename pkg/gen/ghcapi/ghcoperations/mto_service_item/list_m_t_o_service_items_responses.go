@@ -60,6 +60,48 @@ func (o *ListMTOServiceItemsOK) WriteResponse(rw http.ResponseWriter, producer r
 	}
 }
 
+// ListMTOServiceItemsNotFoundCode is the HTTP code returned for type ListMTOServiceItemsNotFound
+const ListMTOServiceItemsNotFoundCode int = 404
+
+/*ListMTOServiceItemsNotFound The requested resource wasn't found
+
+swagger:response listMTOServiceItemsNotFound
+*/
+type ListMTOServiceItemsNotFound struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
+}
+
+// NewListMTOServiceItemsNotFound creates ListMTOServiceItemsNotFound with default headers values
+func NewListMTOServiceItemsNotFound() *ListMTOServiceItemsNotFound {
+
+	return &ListMTOServiceItemsNotFound{}
+}
+
+// WithPayload adds the payload to the list m t o service items not found response
+func (o *ListMTOServiceItemsNotFound) WithPayload(payload interface{}) *ListMTOServiceItemsNotFound {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the list m t o service items not found response
+func (o *ListMTOServiceItemsNotFound) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *ListMTOServiceItemsNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(404)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
+}
+
 // ListMTOServiceItemsUnprocessableEntityCode is the HTTP code returned for type ListMTOServiceItemsUnprocessableEntity
 const ListMTOServiceItemsUnprocessableEntityCode int = 422
 
