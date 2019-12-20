@@ -262,6 +262,7 @@ export class PpmWeight extends Component {
                 </div>
                 <div className="radio-group-wrapper normalize-margins">
                   <h3>Do you think your pro-gear weighs 1000 lbs or more?</h3>
+                  <p>You can move up to 2000 lbs of qualified pro-gear, plus 500 pounds for your spouse.</p>
                   <RadioButton
                     inputClassName="usa-radio__input inline_radio"
                     labelClassName="usa-radio__label inline_radio"
@@ -271,7 +272,6 @@ export class PpmWeight extends Component {
                     checked={isProgearMoreThan1000 === 'Yes'}
                     onChange={event => this.handleChange(event, 'isProgearMoreThan1000')}
                   />
-
                   <RadioButton
                     inputClassName="usa-radio__input inline_radio"
                     labelClassName="usa-radio__label inline_radio"
