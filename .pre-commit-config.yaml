@@ -15,6 +15,7 @@ repos:
         exclude: >
           (?x)^(
             config/app-client-tls.container-definition.json|
+            config/app-migrations.container-definition.json|
             config/app.container-definition.json|
           )$
       - id: check-merge-conflict

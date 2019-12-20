@@ -18,6 +18,7 @@
     "production"
   ],
   "command": [],
+  "secrets": {{ .secrets }},
   "environment": [
     {
       "name": "DB_IAM",

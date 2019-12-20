@@ -68,7 +68,8 @@ echo
 # cat "$DIR"/../config/env/"${environment}".env
 # echo "===== END ENV FILE ===="
 
-container_definition_json=$("$DIR"/../bin/renderer -t "$template" -v "$DIR"/../config/env/"${environment}".env environment="$environment" image="$image" db_host="$db_host")
+ssm_secrets=$(aws ssm get-parameters-by-path --path "/app-${environment}" | jq '[.Parameters | to_entries[].value | {"valueFrom": .ARN, "name": .Name}]')
+container_definition_json=$("$DIR"/../bin/renderer -t "$template" -v "$DIR"/../config/env/"${environment}".env environment="$environment" image="$image" db_host="$db_host" secrets="${ssm_secrets}")
 readonly container_definition_json
 
 # output the definition
