@@ -160,7 +160,7 @@ and struct. The service object execution method should be a method of the servic
 a struct of parameters that the service object requires, and returning values, as appropriate.
 
 ```go
-// create_form.go
+// form_creator.go
 package paperwork
 
 import (
@@ -191,7 +191,7 @@ import (
   "github.com/transcom/mymove/pkg/services"
 )
 
-type createForm struct {
+type formCreator struct {
   fileStorer Storer
   formFiller Filler
 }
