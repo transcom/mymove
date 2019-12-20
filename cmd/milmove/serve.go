@@ -864,9 +864,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		ghcAPIMux.Use(userAuthMiddleware)
 		ghcAPIMux.Use(middleware.NoCache(logger))
 		api := ghcapi.NewGhcAPIHandler(handlerContext)
-		ghcAPIMux.Handle(pat.New("/*"), api)
+		ghcAPIMux.Handle(pat.New("/*"), api.Serve(nil))
 		if handlerContext.GetFeatureFlag(cli.FeatureFlagRoleBasedAuth) {
-			ghcAPIMux.Use(roleAuthMiddleware)
+			ghcAPIMux.Use(roleAuthMiddleware(api.Context()))
 		}
 	}
 
