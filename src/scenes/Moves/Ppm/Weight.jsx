@@ -182,124 +182,135 @@ export class PpmWeight extends Component {
       <div>
         {progearChanges && (
           <div className="grid-container usa-prose">
-            <h3>How much do you think you'll move?</h3>
-            <p>Your weight entitlement: {this.props.entitlement.weight.toLocaleString()} lbs</p>
-            <div>
-              <RangeSlider
-                id="progear-estimation-slider"
-                max={this.props.entitlement.weight}
-                step={500}
-                min={0}
-                defaultValue={500}
-                prependTooltipText="about"
-                appendTooltipText="lbs"
-                stateChangeFunc={this.onWeightSelecting}
-                onChange={this.onWeightSelected}
-              />
+            <WeightWizardForm
+              handleSubmit={this.handleSubmit}
+              pageList={pages}
+              pageKey={pageKey}
+              serverError={error}
+              additionalValues={{
+                hasEstimateInProgress,
+                incentive_estimate_max,
+              }}
+            >
+              <h3>How much do you think you'll move?</h3>
+              <p>Your weight entitlement: {this.props.entitlement.weight.toLocaleString()} lbs</p>
+              <div>
+                <RangeSlider
+                  id="progear-estimation-slider"
+                  max={this.props.entitlement.weight}
+                  step={500}
+                  min={0}
+                  defaultValue={500}
+                  prependTooltipText="about"
+                  appendTooltipText="lbs"
+                  stateChangeFunc={this.onWeightSelecting}
+                  onChange={this.onWeightSelected}
+                />
 
-              {hasEstimateError && (
-                <Fragment>
-                  <div className="error-message">
-                    <Alert type="warning" heading="Could not retrieve estimate">
-                      There was an issue retrieving an estimate for your incentive. You still qualify, but need to talk
-                      with your local transportation office which you can look up on{' '}
-                      <a href="move.mil" className="usa-link">
-                        move.mil
-                      </a>
-                    </Alert>
+                {hasEstimateError && (
+                  <Fragment>
+                    <div className="error-message">
+                      <Alert type="warning" heading="Could not retrieve estimate">
+                        There was an issue retrieving an estimate for your incentive. You still qualify, but need to
+                        talk with your local transportation office which you can look up on{' '}
+                        <a href="move.mil" className="usa-link">
+                          move.mil
+                        </a>
+                      </Alert>
+                    </div>
+                  </Fragment>
+                )}
+              </div>
+              <div className={`${styles['incentive-estimate-box']} border radius-lg border-base`}>
+                {this.chooseVehicleIcon(this.state.pendingPpmWeight)}
+                {this.chooseEstimateText(this.state.pendingPpmWeight)}
+                <h4>Your incentive for moving {this.state.pendingPpmWeight} lbs:</h4>
+                <h3 className={styles['incentive-range-text']}>
+                  {formatCentsRange(incentive_estimate_min, incentive_estimate_max)}
+                </h3>
+                <p className="text-gray-50">Final payment will be based on the weight you actually move.</p>
+              </div>
+              <div className="radio-group-wrapper normalize-margins">
+                <h3>Do you have also have pro-gear to move?</h3>
+                <RadioButton
+                  inputClassName="usa-radio__input inline_radio"
+                  labelClassName="usa-radio__label inline_radio"
+                  label="Yes"
+                  value="Yes"
+                  name="includesProgear"
+                  checked={includesProgear === 'Yes'}
+                  onChange={event => this.handleChange(event, 'includesProgear')}
+                />
+
+                <RadioButton
+                  inputClassName="usa-radio__input inline_radio"
+                  labelClassName="usa-radio__label inline_radio"
+                  label="No"
+                  value="No"
+                  name="includesProgear"
+                  checked={includesProgear === 'No'}
+                  onChange={event => this.handleChange(event, 'includesProgear')}
+                />
+                <RadioButton
+                  inputClassName="usa-radio__input inline_radio"
+                  labelClassName="usa-radio__label inline_radio"
+                  label="Not Sure"
+                  value="Not Sure"
+                  name="includesProgear"
+                  checked={includesProgear === 'Not Sure'}
+                  onChange={event => this.handleChange(event, 'includesProgear')}
+                />
+                <p>
+                  Books, papers, and equipment needed for official duties. <a href="#">What counts as pro-gear?</a>{' '}
+                </p>
+              </div>
+              {(includesProgear === 'Yes' || includesProgear === 'Not Sure') && (
+                <>
+                  <div className={`${styles['incentive-estimate-box']} border radius-lg border-base`}>
+                    You can be paid for moving up to 2,500 lbs of pro-gear, in addition to your weight entitlement of
+                    [rate engine calculated entitlement amount].
                   </div>
-                </Fragment>
+                  <div className="radio-group-wrapper normalize-margins">
+                    <h3>Do you think your pro-gear weighs 1000 lbs or more?</h3>
+                    <p>You can move up to 2000 lbs of qualified pro-gear, plus 500 pounds for your spouse.</p>
+                    <RadioButton
+                      inputClassName="usa-radio__input inline_radio"
+                      labelClassName="usa-radio__label inline_radio"
+                      label="Yes"
+                      value="Yes"
+                      name="isProgearMoreThan1000"
+                      checked={isProgearMoreThan1000 === 'Yes'}
+                      onChange={event => this.handleChange(event, 'isProgearMoreThan1000')}
+                    />
+                    <RadioButton
+                      inputClassName="usa-radio__input inline_radio"
+                      labelClassName="usa-radio__label inline_radio"
+                      label="No"
+                      value="No"
+                      name="isProgearMoreThan1000"
+                      checked={isProgearMoreThan1000 === 'No'}
+                      onChange={event => this.handleChange(event, 'isProgearMoreThan1000')}
+                    />
+                    <RadioButton
+                      inputClassName="usa-radio__input inline_radio"
+                      labelClassName="usa-radio__label inline_radio"
+                      label="Not Sure"
+                      value="Not Sure"
+                      name="isProgearMoreThan1000"
+                      checked={isProgearMoreThan1000 === 'Not Sure'}
+                      onChange={event => this.handleChange(event, 'isProgearMoreThan1000')}
+                    />
+                  </div>
+                </>
               )}
-            </div>
-            <div className={`${styles['incentive-estimate-box']} border radius-lg border-base`}>
-              {this.chooseVehicleIcon(this.state.pendingPpmWeight)}
-              {this.chooseEstimateText(this.state.pendingPpmWeight)}
-              <h4>Your incentive for moving {this.state.pendingPpmWeight} lbs:</h4>
-              <h3 className={styles['incentive-range-text']}>
-                {formatCentsRange(incentive_estimate_min, incentive_estimate_max)}
-              </h3>
-              <p className="text-gray-50">Final payment will be based on the weight you actually move.</p>
-            </div>
-            <div className="radio-group-wrapper normalize-margins">
-              <h3>Do you have also have pro-gear to move?</h3>
-              <RadioButton
-                inputClassName="usa-radio__input inline_radio"
-                labelClassName="usa-radio__label inline_radio"
-                label="Yes"
-                value="Yes"
-                name="includesProgear"
-                checked={includesProgear === 'Yes'}
-                onChange={event => this.handleChange(event, 'includesProgear')}
-              />
-
-              <RadioButton
-                inputClassName="usa-radio__input inline_radio"
-                labelClassName="usa-radio__label inline_radio"
-                label="No"
-                value="No"
-                name="includesProgear"
-                checked={includesProgear === 'No'}
-                onChange={event => this.handleChange(event, 'includesProgear')}
-              />
-              <RadioButton
-                inputClassName="usa-radio__input inline_radio"
-                labelClassName="usa-radio__label inline_radio"
-                label="Not Sure"
-                value="Not Sure"
-                name="includesProgear"
-                checked={includesProgear === 'Not Sure'}
-                onChange={event => this.handleChange(event, 'includesProgear')}
-              />
-              <p>
-                Books, papers, and equipment needed for official duties. <a href="#">What counts as pro-gear?</a>{' '}
-              </p>
-            </div>
-            {(includesProgear === 'Yes' || includesProgear === 'Not Sure') && (
-              <>
-                <div className={`${styles['incentive-estimate-box']} border radius-lg border-base`}>
-                  You can be paid for moving up to 2,500 lbs of pro-gear, in addition to your weight entitlement of
-                  [rate engine calculated entitlement amount].
-                </div>
-                <div className="radio-group-wrapper normalize-margins">
-                  <h3>Do you think your pro-gear weighs 1000 lbs or more?</h3>
-                  <p>You can move up to 2000 lbs of qualified pro-gear, plus 500 pounds for your spouse.</p>
-                  <RadioButton
-                    inputClassName="usa-radio__input inline_radio"
-                    labelClassName="usa-radio__label inline_radio"
-                    label="Yes"
-                    value="Yes"
-                    name="isProgearMoreThan1000"
-                    checked={isProgearMoreThan1000 === 'Yes'}
-                    onChange={event => this.handleChange(event, 'isProgearMoreThan1000')}
-                  />
-                  <RadioButton
-                    inputClassName="usa-radio__input inline_radio"
-                    labelClassName="usa-radio__label inline_radio"
-                    label="No"
-                    value="No"
-                    name="isProgearMoreThan1000"
-                    checked={isProgearMoreThan1000 === 'No'}
-                    onChange={event => this.handleChange(event, 'isProgearMoreThan1000')}
-                  />
-                  <RadioButton
-                    inputClassName="usa-radio__input inline_radio"
-                    labelClassName="usa-radio__label inline_radio"
-                    label="Not Sure"
-                    value="Not Sure"
-                    name="isProgearMoreThan1000"
-                    checked={isProgearMoreThan1000 === 'Not Sure'}
-                    onChange={event => this.handleChange(event, 'isProgearMoreThan1000')}
-                  />
-                </div>
-              </>
-            )}
-            {(isProgearMoreThan1000 === 'Yes' || isProgearMoreThan1000 === 'Not Sure') && (
-              <>
-                <div className={`${styles['incentive-estimate-box']} border radius-lg border-base`}>
-                  Pack your pro-gear separately. It might need to be weighed and verified.
-                </div>
-              </>
-            )}
+              {(isProgearMoreThan1000 === 'Yes' || isProgearMoreThan1000 === 'Not Sure') && (
+                <>
+                  <div className={`${styles['incentive-estimate-box']} border radius-lg border-base`}>
+                    Pack your pro-gear separately. It might need to be weighed and verified.
+                  </div>
+                </>
+              )}
+            </WeightWizardForm>
           </div>
         )}
         {!progearChanges && (
