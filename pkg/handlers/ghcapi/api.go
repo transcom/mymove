@@ -42,6 +42,12 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 		paymentrequest.NewPaymentRequestFetcher(queryBuilder),
 	}
 
+	ghcAPI.PaymentRequestsUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{
+		HandlerContext:              context,
+		PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
+		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(queryBuilder),
+	}
+
 	ghcAPI.PaymentRequestsListPaymentRequestsHandler = ListPaymentRequestsHandler{
 		context,
 		paymentrequest.NewPaymentRequestListFetcher(context.DB()),

@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/gobuffalo/validate"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -13,13 +15,13 @@ import (
 )
 
 type testPaymentRequestStatusQueryBuilder struct {
-	fakeUpdateOne func(model interface{}) error
+	fakeUpdateOne func(model interface{}) (*validate.Errors, error)
 	fakeFetchOne  func(model interface{}) error
 }
 
-func (t *testPaymentRequestStatusQueryBuilder) UpdateOne(model interface{}) error {
-	m := t.fakeUpdateOne(model)
-	return m
+func (t *testPaymentRequestStatusQueryBuilder) UpdateOne(model interface{}) (*validate.Errors, error) {
+	v, m := t.fakeUpdateOne(model)
+	return v, m
 }
 
 func (t *testPaymentRequestStatusQueryBuilder) FetchOne(model interface{}, filters []services.QueryFilter) error {
@@ -39,9 +41,9 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 			return nil
 		}
 
-		fakeUpdateOne := func(model interface{}) error {
+		fakeUpdateOne := func(model interface{}) (*validate.Errors, error) {
 			reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(id))
-			return nil
+			return &validate.Errors{}, nil
 		}
 
 		builder := &testPaymentRequestStatusQueryBuilder{
@@ -51,8 +53,9 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 
 		updater := NewPaymentRequestStatusUpdater(builder)
 
-		err = updater.UpdatePaymentRequestStatus(&paymentRequest)
+		verrs, err := updater.UpdatePaymentRequestStatus(&paymentRequest)
 		suite.NoError(err)
+		suite.NoVerrs(verrs)
 
 	})
 
@@ -60,8 +63,8 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 		paymentRequest.Status = models.PaymentRequestStatusReviewed
 
-		fakeUpdateOne := func(model interface{}) error {
-			return errors.New("Update error")
+		fakeUpdateOne := func(model interface{}) (*validate.Errors, error) {
+			return nil, errors.New("Update error")
 		}
 
 		builder := &testPaymentRequestStatusQueryBuilder{
@@ -70,7 +73,7 @@ func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 
 		updater := NewPaymentRequestStatusUpdater(builder)
 
-		err := updater.UpdatePaymentRequestStatus(&paymentRequest)
+		_, err := updater.UpdatePaymentRequestStatus(&paymentRequest)
 		suite.Error(err)
 		suite.Equal(err.Error(), "Update error")
 

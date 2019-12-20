@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/pkg/errors"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -144,9 +146,17 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	}
 
 	// And now let's save our updated model object using the PaymentRequestUpdater service object.
-	err = h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&paymentRequestForUpdate)
+	verrs, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(&paymentRequestForUpdate)
 	if err != nil {
+		if errors.Cause(err).Error() == "sql: no rows in result set" {
+			payload := payloadForClientError("Unknown UUID(s)", "Unknown UUID(s) used to update a payment request ", h.GetTraceID())
+			return paymentrequestop.NewUpdatePaymentRequestStatusNotFound().WithPayload(payload)
+		}
 		logger.Error(fmt.Sprintf("Error saving payment request status for ID: %s", paymentRequestID))
+		return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError()
+	}
+	if verrs != nil {
+		logger.Error(fmt.Sprintf("Validation error saving payment request status for ID: %s", paymentRequestID))
 		return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError()
 	}
 
