@@ -97,7 +97,6 @@ class CustomerDetails extends Component {
                   <th>Rate Engine Service ID</th>
                   <th>Rate Engine Service Code</th>
                   <th>Rate Engine Service Name</th>
-                  <th>MTO Shipment ID</th>
                 </tr>
               </thead>
               <tbody>
