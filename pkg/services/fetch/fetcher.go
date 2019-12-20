@@ -6,6 +6,7 @@ import (
 	"reflect"
 
 	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 )

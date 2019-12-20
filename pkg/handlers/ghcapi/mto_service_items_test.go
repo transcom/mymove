@@ -189,11 +189,10 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 
 		internalServerErr := errors.New("ServerError")
 
-		id, _ := uuid.NewV4()
 		mockFetcher.On("FetchRecord",
 			mock.Anything,
 			mock.Anything,
-		).Return(&models.MoveTaskOrder{ID: id}, nil)
+		).Return(nil)
 
 		mockListFetcher.On("FetchRecordList",
 			mock.Anything,
@@ -221,7 +220,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		mockFetcher.On("FetchRecord",
 			mock.Anything,
 			mock.Anything,
-		).Return(&models.MoveTaskOrder{}, notfound)
+		).Return(notfound)
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemop.ListMTOServiceItemsNotFound{}, response)

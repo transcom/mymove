@@ -168,9 +168,9 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 		query.NewQueryFilter("id", "=", moveTaskOrderID.String()),
 	}
 
-	mto, err := h.Fetcher.FetchRecord(&models.MoveTaskOrder{}, queryFilters)
-	moveTaskOrder := mto.(*models.MoveTaskOrder)
-	if moveTaskOrder.ID == uuid.Nil || err != nil {
+	moveTaskOrder := &models.MoveTaskOrder{}
+	err = h.Fetcher.FetchRecord(moveTaskOrder, queryFilters)
+	if err != nil {
 		logger.Error("Error fetching move task order: ", zap.Error(fmt.Errorf("Move Task Order ID: %s", moveTaskOrder.ID)), zap.Error(err))
 
 		return mtoserviceitemop.NewListMTOServiceItemsNotFound()
