@@ -390,6 +390,52 @@ paths:
       description: Creates a payment request
       operationId: createPaymentRequest
       summary: Creates a payment request
+  /uploads:
+    post:
+      summary: Create a new upload for a payment request
+      description: Uploads represent a single digital file, such as a JPEG, PNG, or PDF.
+      operationId: createUpload
+      tags:
+        - uploads
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: query
+          name: paymentRequestID
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the document to add an upload to
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload
+          required: true
+      responses:
+        '201':
+          description: Created upload
+          schema:
+            $ref: '#/definitions/Upload'
+        '400':
+          description: Invalid request
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
 definitions:
   Address:
     type: object
@@ -564,9 +610,6 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-      # Remove until ProofOfService documents are ready to be passed in
-      proofOfServiceDocs:
-        $ref: '#/definitions/ProofOfServiceDocs'
       serviceItems:
         items:
           $ref: '#/definitions/ServiceItem'
@@ -744,13 +787,14 @@ definitions:
           type: object
     type: object
   Upload:
+    type: object
     properties:
       bytes:
         type: integer
       contentType:
-        example: application/pdf
-        format: mime-type
         type: string
+        format: mime-type
+        example: application/pdf
       filename:
         example: filename.pdf
         type: string
@@ -770,7 +814,6 @@ definitions:
       - bytes
       - createdAt
       - updatedAt
-    type: object
   ValidationError:
     allOf:
       - $ref: '#/definitions/ClientError'
