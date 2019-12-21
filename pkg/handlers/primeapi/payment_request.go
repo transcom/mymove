@@ -38,7 +38,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 	payload := params.Body
 
 	// Capture creation attempt in audit log
-	_, err := audit.Capture(payload, nil, logger, session, params.HTTPRequest)
+	_, err := audit.Capture(&payload, nil, logger, session, params.HTTPRequest)
 	if err != nil {
 		logger.Error("Auditing service error for payment request creation.", zap.Error(err))
 		return paymentrequestop.NewCreatePaymentRequestInternalServerError()

@@ -128,18 +128,39 @@ func TestCapture(t *testing.T) {
 		}
 	})
 
-	t.Run("failure when a non-pointer is passed in", func(t *testing.T) {
+	t.Run("success when a non-pointer is passed in", func(t *testing.T) {
 		session := auth.Session{}
-		_, err := Capture(model, nil, logger, &session, &dummyRequest)
 
-		assert.Equal(t, "must pass a pointer to a struct", err.Error())
+		zapFields, err := Capture(model, nil, logger, &session, &dummyRequest)
+
+		var eventType string
+		for _, field := range zapFields {
+			if field.Key == "event_type" {
+				eventType = field.String
+			}
+		}
+		assert.Nil(t, err)
+		if assert.NotEmpty(t, zapFields) {
+			assert.Equal(t, "record_id", zapFields[0].Key)
+			assert.Equal(t, "audit_post_admin_users", eventType)
+		}
 	})
 
-	t.Run("failure when a non-struct is passed in", func(t *testing.T) {
+	t.Run("success when a non-struct is passed in", func(t *testing.T) {
 		session := auth.Session{}
 		invalidArg := 5
-		_, err := Capture(&invalidArg, nil, logger, &session, &dummyRequest)
+		zapFields, err := Capture(&invalidArg, nil, logger, &session, &dummyRequest)
 
-		assert.Equal(t, "must pass a pointer to a struct", err.Error())
+		var eventType string
+		for _, field := range zapFields {
+			if field.Key == "event_type" {
+				eventType = field.String
+			}
+		}
+		assert.Nil(t, err)
+		if assert.NotEmpty(t, zapFields) {
+			assert.Equal(t, "record_id", zapFields[0].Key)
+			assert.Equal(t, "audit_post_admin_users", eventType)
+		}
 	})
 }
