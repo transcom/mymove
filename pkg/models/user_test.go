@@ -3,6 +3,8 @@ package models_test
 import (
 	"testing"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -132,15 +134,21 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(systemAdmin.User.LoginGovEmail, identity.Email)
 	suite.Nil(identity.ServiceMemberID)
 	suite.Nil(identity.OfficeUserID)
-	role := Role{
+
+	rs := []roles.Role{{
 		ID:       uuid.FromStringOrNil("ed2d2cd7-d427-412a-98bb-a9b391d98d32"),
-		RoleType: "customer",
+		RoleType: roles.Customer,
+	}, {
+		ID:       uuid.FromStringOrNil("9dc423b6-33b8-493a-a59b-6a823660cb07"),
+		RoleType: roles.TOO,
+	},
 	}
-	suite.NoError(suite.DB().Create(&role))
+	suite.NoError(suite.DB().Create(&rs))
+	customerRole := rs[0]
 	pat := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
 		User: User{
 			Active: true,
-			Roles:  []Role{role},
+			Roles:  []roles.Role{customerRole},
 		},
 	})
 
@@ -148,6 +156,22 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Nil(err, "loading pat's identity")
 	suite.NotNil(identity)
 	suite.Equal(len(identity.Roles), 1)
+
+	tooRole := rs[1]
+	suite.NoError(err)
+	billy := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
+		User: User{
+			Active: true,
+			Roles:  []roles.Role{tooRole},
+		},
+	})
+
+	suite.DB().MigrationURL()
+	identity, err = FetchUserIdentity(suite.DB(), billy.LoginGovUUID.String())
+	suite.Nil(err, "loading billy's identity")
+	suite.NotNil(identity)
+	suite.Equal(len(identity.Roles), 1)
+	suite.Equal(identity.Roles[0].RoleType, tooRole.RoleType)
 }
 
 func (suite *ModelSuite) TestFetchAppUserIdentities() {

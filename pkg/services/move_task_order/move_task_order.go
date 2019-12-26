@@ -61,6 +61,20 @@ type fetchMoveTaskOrder struct {
 	db *pop.Connection
 }
 
+func (f fetchMoveTaskOrder) ListMoveTaskOrders(moveOrderID uuid.UUID) ([]models.MoveTaskOrder, error) {
+	var moveTaskOrders []models.MoveTaskOrder
+	err := f.db.Where("move_order_id = $1", moveOrderID).Eager().All(&moveTaskOrders)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return []models.MoveTaskOrder{}, ErrNotFound{}
+		default:
+			return []models.MoveTaskOrder{}, err
+		}
+	}
+	return moveTaskOrders, nil
+}
+
 // NewMoveTaskOrderFetcher creates a new struct with the service dependencies
 func NewMoveTaskOrderFetcher(db *pop.Connection) services.MoveTaskOrderFetcher {
 	return &fetchMoveTaskOrder{db}
@@ -76,6 +90,73 @@ func (f fetchMoveTaskOrder) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*mode
 		default:
 			return &models.MoveTaskOrder{}, err
 		}
+	}
+
+	f.createDefaultServiceItems(mto)
+
+	return mto, nil
+}
+
+func (f fetchMoveTaskOrder) createDefaultServiceItems(mto *models.MoveTaskOrder) error {
+	var reServices []models.ReService
+	err := f.db.Where("code in (?)", []string{"MS", "CS"}).All(&reServices)
+
+	if err != nil {
+		return err
+	}
+
+	defaultServiceItems := make(map[uuid.UUID]models.MTOServiceItem)
+	for _, reService := range reServices {
+		defaultServiceItems[reService.ID] = models.MTOServiceItem{
+			ReServiceID:     reService.ID,
+			MoveTaskOrderID: mto.ID,
+		}
+	}
+
+	// Remove the ones that exist on the mto
+	for _, item := range mto.MTOServiceItems {
+		for _, reService := range reServices {
+			if item.ReServiceID == reService.ID {
+				delete(defaultServiceItems, reService.ID)
+			}
+		}
+	}
+
+	for _, serviceItem := range defaultServiceItems {
+		_, err := f.db.ValidateAndCreate(&serviceItem)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+type updateMoveTaskOrderStatus struct {
+	db *pop.Connection
+	fetchMoveTaskOrder
+}
+
+// NewMoveTaskOrderFetcher creates a new struct with the service dependencies
+func NewMoveTaskOrderStatusUpdater(db *pop.Connection) services.MoveTaskOrderStatusUpdater {
+	moveTaskOrderFetcher := fetchMoveTaskOrder{db}
+	return &updateMoveTaskOrderStatus{db, moveTaskOrderFetcher}
+}
+
+//MakeAvailableToPrime updates the status of a MoveTaskOrder for a given UUID to make it available to prime
+func (f fetchMoveTaskOrder) MakeAvailableToPrime(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error) {
+	mto, err := f.FetchMoveTaskOrder(moveTaskOrderID)
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
+	mto.IsAvailableToPrime = true
+	vErrors, err := f.db.ValidateAndUpdate(mto)
+	if vErrors.HasAny() {
+		return &models.MoveTaskOrder{}, ErrInvalidInput{}
+	}
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
 	}
 	return mto, nil
 }

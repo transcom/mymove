@@ -350,7 +350,9 @@ paths:
   /payment-requests:
     post:
       consumes:
-        - multipart/form-data
+        # Change until ProofOfService documents are ready to be passed in
+        # - multipart/form-data
+        - application/json
       produces:
         - application/json
       parameters:
@@ -562,8 +564,9 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
-      proofOfServicePackage:
-        $ref: '#/definitions/ProofOfServicePackage'
+      # Remove until ProofOfService documents are ready to be passed in
+      # proofOfServicePackage:
+      #   $ref: '#/definitions/ProofOfServicePackage'
       serviceItems:
         items:
           $ref: '#/definitions/ServiceItem'

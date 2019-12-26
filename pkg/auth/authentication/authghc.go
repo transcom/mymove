@@ -3,6 +3,8 @@ package authentication
 import (
 	"strings"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/markbates/goth"
@@ -27,7 +29,7 @@ type RoleAssociator interface {
 	AdminUserAssociator
 	OfficeUserAssociator
 	CustomerCreatorAndAssociator
-	TOOUserAssociator
+	TOORoleChecker
 }
 
 //go:generate mockery -name CustomerCreatorAndAssociator
@@ -47,10 +49,10 @@ type AdminUserAssociator interface {
 	AssociateAdminUser(user *models.User) (uuid.UUID, error)
 }
 
-//go:generate mockery -name AdminUserAssociator
-type TOOUserAssociator interface {
-	FetchTOOUser(email string) (*models.TransportationOrderingOfficer, error)
-	AssociateTOOUser(user *models.User) (uuid.UUID, error)
+//go:generate mockery -name TOORoleChecker
+type TOORoleChecker interface {
+	FetchUserIdentity(user *models.User) (*models.UserIdentity, error)
+	VerifyHasTOORole(identity *models.UserIdentity) (roles.Role, error)
 }
 
 type UnknownUserAuthorizer struct {
@@ -64,14 +66,14 @@ func NewUnknownUserAuthorizer(db *pop.Connection, logger Logger) *UnknownUserAut
 	oa := officeUserAssociator{db, logger}
 	ca := customerAssociator{db, logger}
 	aa := adminUserAssociator{db, logger}
-	ta := tooUserAssociator{db, logger}
+	ta := tooRoleChecker{db, logger}
 	ra := roleAssociator{
 		db:                           db,
 		logger:                       logger,
 		OfficeUserAssociator:         oa,
 		AdminUserAssociator:          aa,
 		CustomerCreatorAndAssociator: ca,
-		TOOUserAssociator:            ta,
+		TOORoleChecker:               ta,
 	}
 	return &UnknownUserAuthorizer{
 		logger:         logger,
@@ -98,10 +100,15 @@ func (uua UnknownUserAuthorizer) AuthorizeUnknownUser(openIDUser goth.User, sess
 		if err != nil {
 			switch err {
 			case ErrUnauthorized:
-				// TODO for the moment treat all new office users as TOOs and redirect those not in
-				// TODO transportation_ordering_officers table to the verification in progress page
-				// TODO and don't log them in
-				_, tooErr := uua.AssociateTOOUser(user)
+				var tooErr error
+				userIdentity, tooErr := uua.FetchUserIdentity(user)
+				if tooErr != nil {
+					return tooErr
+				}
+				tooRole, tooErr := uua.VerifyHasTOORole(userIdentity)
+				if tooErr == nil && !session.Roles.HasRole(roles.TOO) {
+					session.Roles = append(session.Roles, tooRole)
+				}
 				if tooErr != nil {
 					return tooErr
 				}
@@ -126,7 +133,7 @@ type roleAssociator struct {
 	OfficeUserAssociator
 	AdminUserAssociator
 	CustomerCreatorAndAssociator
-	TOOUserAssociator
+	TOORoleChecker
 }
 
 type officeUserAssociator struct {
@@ -148,7 +155,7 @@ func (oua officeUserAssociator) AssociateOfficeUser(user *models.User) (uuid.UUI
 		oua.logger.Error("Office user is deactivated", zap.String("email", user.LoginGovEmail))
 		return uuid.UUID{}, ErrUserDeactivated
 	}
-	if officeUser.ID != uuid.Nil {
+	if officeUser.ID != uuid.Nil && officeUser.UserID == nil {
 		officeUser.UserID = &user.ID
 		err = oua.db.UpdateColumns(officeUser, "user_id")
 		if err != nil {
@@ -183,7 +190,7 @@ func (aua adminUserAssociator) AssociateAdminUser(user *models.User) (uuid.UUID,
 		aua.logger.Error("admin user is deactivated", zap.String("email", user.LoginGovEmail))
 		return uuid.UUID{}, ErrUserDeactivated
 	}
-	if adminUser.ID != uuid.Nil && adminUser.UserID != nil {
+	if adminUser.ID != uuid.Nil && adminUser.UserID == nil {
 		adminUser.UserID = &user.ID
 		err = aua.db.UpdateColumns(adminUser, "user_id")
 		if err != nil {
@@ -228,33 +235,19 @@ func (uc userCreator) CreateUser(id string, email string) (*models.User, error) 
 	return models.CreateUser(uc.db, id, email)
 }
 
-type tooUserAssociator struct {
+type tooRoleChecker struct {
 	db     *pop.Connection
 	logger Logger
 }
 
-func (t tooUserAssociator) FetchTOOUser(email string) (*models.TransportationOrderingOfficer, error) {
-	var too models.TransportationOrderingOfficer
-	return &too, ErrTOOUnauthorized
+func (t tooRoleChecker) FetchUserIdentity(user *models.User) (*models.UserIdentity, error) {
+	return models.FetchUserIdentity(t.db, user.LoginGovUUID.String())
 }
 
-func (t tooUserAssociator) AssociateTOOUser(user *models.User) (uuid.UUID, error) {
-	too, err := t.FetchTOOUser(user.LoginGovEmail)
-	if err == models.ErrFetchNotFound {
-		t.logger.Error("no too user found", zap.String("email", user.LoginGovEmail))
-		return uuid.UUID{}, ErrUnauthorized
+//Probably want to update this to return roles to add to session
+func (t tooRoleChecker) VerifyHasTOORole(identity *models.UserIdentity) (roles.Role, error) {
+	if role, ok := identity.Roles.GetRole(roles.TOO); ok {
+		return role, nil
 	}
-	if err != nil {
-		t.logger.Error("checking for transportation office user", zap.String("email", user.LoginGovEmail), zap.Error(err))
-		return uuid.UUID{}, err
-	}
-	if too.ID != uuid.Nil {
-		too.UserID = &user.ID
-		err = t.db.UpdateColumns(too, "user_id")
-		if err != nil {
-			t.logger.Error("associating user_id", zap.Error(err))
-			return uuid.UUID{}, err
-		}
-	}
-	return too.ID, nil
+	return roles.Role{}, ErrTOOUnauthorized
 }

@@ -46,8 +46,8 @@ require (
 	github.com/jstemmer/go-junit-report v0.9.1
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/leodido/go-urn v1.2.0
-	github.com/lib/pq v1.2.0
-	github.com/markbates/goth v1.59.0
+	github.com/lib/pq v1.3.0
+	github.com/markbates/goth v1.60.0
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.10 // indirect
 	github.com/mattn/go-shellwords v1.0.6 // indirect
@@ -56,7 +56,7 @@ require (
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.8.1
 	github.com/rickar/cal v1.0.1
-	github.com/rogpeppe/go-internal v1.5.0
+	github.com/rogpeppe/go-internal v1.5.1
 	github.com/segmentio/chamber/v2 v2.7.5
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/cobra v0.0.5
@@ -74,7 +74,7 @@ require (
 	golang.org/x/text v0.3.2
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
-	gopkg.in/go-playground/validator.v9 v9.30.2
+	gopkg.in/go-playground/validator.v9 v9.31.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
 )

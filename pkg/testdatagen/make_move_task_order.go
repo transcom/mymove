@@ -13,6 +13,7 @@ func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTas
 		moveOrder = MakeMoveOrder(db, assertions)
 	}
 	var referenceID *string
+
 	moveTaskOrder := models.MoveTaskOrder{
 		MoveOrder:          moveOrder,
 		MoveOrderID:        moveOrder.ID,

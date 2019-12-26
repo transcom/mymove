@@ -20,9 +20,15 @@ type Customer struct {
 	// dod ID
 	DodID string `json:"dodID,omitempty"`
 
+	// first name
+	FirstName string `json:"first_name,omitempty"`
+
 	// id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
+
+	// last name
+	LastName string `json:"last_name,omitempty"`
 
 	// user ID
 	// Format: uuid
