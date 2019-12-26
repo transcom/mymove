@@ -3,6 +3,8 @@ package services
 import (
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/uploader"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -21,4 +23,9 @@ type PaymentRequestListFetcher interface {
 // PaymentRequestFetcher is the exported interface for fetching a payment request
 type PaymentRequestFetcher interface {
 	FetchPaymentRequest(paymentRequestID uuid.UUID) (*models.PaymentRequest, error)
+}
+
+// PaymentRequestUploadCreator is the exported interface for creating a payment request upload
+type PaymentRequestUploadCreator interface {
+	CreateUpload(file uploader.File, paymentRequestID uuid.UUID, userID uuid.UUID) (*models.Upload, error)
 }
