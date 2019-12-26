@@ -20,6 +20,7 @@ class PaymentRequestIndex extends React.Component {
               <th>Final</th>
               <th>Rejection Reason</th>
               <th>Service Item IDs</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
@@ -31,6 +32,7 @@ class PaymentRequestIndex extends React.Component {
                 <td>{`${pr.isFinal}`}</td>
                 <td>{pr.rejectionReason}</td>
                 <td>{pr.serviceItemIDs}</td>
+                <td>{}</td>
               </tr>
             ))}
           </tbody>
