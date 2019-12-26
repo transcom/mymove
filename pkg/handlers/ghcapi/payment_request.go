@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services/audit"
+
 	"github.com/pkg/errors"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -93,7 +95,7 @@ type UpdatePaymentRequestStatusHandler struct {
 }
 
 func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.UpdatePaymentRequestStatusParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	paymentRequestID, err := uuid.FromString(params.PaymentRequestID.String())
 
 	if err != nil {
@@ -166,6 +168,13 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 		SentToGexAt:     &sentGexDate,
 		ReceivedByGexAt: &recGexDate,
 		PaidAt:          &paidAtDate,
+	}
+
+	// Capture update attempt in audit log
+	_, err = audit.Capture(&paymentRequestForUpdate, nil, logger, session, params.HTTPRequest)
+	if err != nil {
+		logger.Error("Auditing service error for payment request update.", zap.Error(err))
+		return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError()
 	}
 
 	// And now let's save our updated model object using the PaymentRequestUpdater service object.

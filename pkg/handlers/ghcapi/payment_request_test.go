@@ -165,7 +165,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		paymentRequestFetcher.On("FetchPaymentRequest", mock.Anything).Return(paymentRequest, nil).Once()
 
 		requestUser := testdatagen.MakeDefaultUser(suite.DB())
-		req := httptest.NewRequest("GET", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
+		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_request/%s/status", paymentRequestID), nil)
 		req = suite.AuthenticateUserRequest(req, requestUser)
 
 		params := paymentrequestop.UpdatePaymentRequestStatusParams{
