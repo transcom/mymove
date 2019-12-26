@@ -118,11 +118,9 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	var recGexDate time.Time
 	var sentGexDate time.Time
 	var paidAtDate time.Time
+
 	if existingPaymentRequest.ReviewedAt != nil {
 		reviewedDate = *existingPaymentRequest.ReviewedAt
-	}
-	if existingPaymentRequest.ReceivedByGexAt != nil {
-		recGexDate = *existingPaymentRequest.ReceivedByGexAt
 	}
 	if existingPaymentRequest.ReceivedByGexAt != nil {
 		recGexDate = *existingPaymentRequest.ReceivedByGexAt
@@ -133,6 +131,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	if existingPaymentRequest.PaidAt != nil {
 		paidAtDate = *existingPaymentRequest.PaidAt
 	}
+
 	switch params.Body.Status {
 	case "PENDING":
 		status = models.PaymentRequestStatusPending
