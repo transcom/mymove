@@ -3,6 +3,7 @@ package ghcapi
 import (
 	"fmt"
 	"reflect"
+	"time"
 
 	"github.com/pkg/errors"
 
@@ -111,17 +112,40 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 
 	// Let's map the incoming status to our enumeration type
 	status := existingPaymentRequest.Status
+	var reviewedDate time.Time
+	var recGexDate time.Time
+	var sentGexDate time.Time
+	var paidAtDate time.Time
+	if existingPaymentRequest.ReviewedAt != nil {
+		reviewedDate = *existingPaymentRequest.ReviewedAt
+	}
+	if existingPaymentRequest.ReceivedByGexAt != nil {
+		recGexDate = *existingPaymentRequest.ReceivedByGexAt
+	}
+	if existingPaymentRequest.ReceivedByGexAt != nil {
+		recGexDate = *existingPaymentRequest.ReceivedByGexAt
+	}
+	if existingPaymentRequest.SentToGexAt != nil {
+		sentGexDate = *existingPaymentRequest.SentToGexAt
+	}
+	if existingPaymentRequest.PaidAt != nil {
+		paidAtDate = *existingPaymentRequest.PaidAt
+	}
 	switch params.Body.Status {
 	case "PENDING":
 		status = models.PaymentRequestStatusPending
 	case "REVIEWED":
 		status = models.PaymentRequestStatusReviewed
+		reviewedDate = time.Now()
 	case "SENT_TO_GEX":
 		status = models.PaymentRequestStatusSentToGex
+		sentGexDate = time.Now()
 	case "RECEIVED_BY_GEX":
 		status = models.PaymentRequestStatusReceivedByGex
+		recGexDate = time.Now()
 	case "PAID":
 		status = models.PaymentRequestStatusPaid
+		paidAtDate = time.Now()
 	}
 
 	// If we got a rejection reason let's use it
@@ -138,10 +162,10 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 		Status:          status,
 		RejectionReason: rejectionReason,
 		RequestedAt:     existingPaymentRequest.RequestedAt,
-		ReviewedAt:      existingPaymentRequest.ReviewedAt,
-		SentToGexAt:     existingPaymentRequest.SentToGexAt,
-		ReceivedByGexAt: existingPaymentRequest.ReceivedByGexAt,
-		PaidAt:          existingPaymentRequest.PaidAt,
+		ReviewedAt:      &reviewedDate,
+		SentToGexAt:     &sentGexDate,
+		ReceivedByGexAt: &recGexDate,
+		PaidAt:          &paidAtDate,
 	}
 
 	// And now let's save our updated model object using the PaymentRequestUpdater service object.
