@@ -14,13 +14,9 @@ import (
 
 type paymentRequestCreator struct {
 	db *pop.Connection
-	//logger storage.Logger
-	//fileStorer storage.FileStorer
-	//fileSizeLimit uploader.ByteSize
 }
 
 func NewPaymentRequestCreator(db *pop.Connection) services.PaymentRequestCreator {
-	//return &paymentRequestCreator{db, logger, fileStorer, uploader.MaxFileSizeLimit}
 	return &paymentRequestCreator{db}
 }
 
@@ -111,34 +107,6 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequest *models.Paym
 			newPaymentServiceItems = append(newPaymentServiceItems, paymentServiceItem)
 		}
 		paymentRequest.PaymentServiceItems = newPaymentServiceItems
-
-		//newUploader, err := uploader.NewUploader(p.db, p.logger, p.fileStorer, p.fileSizeLimit)
-		//if err != nil {
-		//	return fmt.Errorf("cannot create uploader in paymentRequestCreator: %w", err)
-		//}
-		//
-		//stubbedUserID, err := uuid.FromString("d7b09d8d-541b-4f30-bd59-c5f5ba87ac2e")
-		//if err != nil {
-		//	return fmt.Errorf("cannot create uuid form string in paymentRequestCreator %w", err)
-		//}
-		//
-		//// loop through proof of service docs and create uploads and proof of service docs
-		//for _, doc := range paymentRequest.ProofOfServiceDocs {
-		//	// call CreateUpload (pass in proofOfServiceID)
-		//	upload := newUploader.CreateUpload(stubbedUserID, doc.Upload, uploader.AllowedTypesServiceMember) // figure out what file types we accept
-		//	// create proof of service doc
-		//	proofOfServiceDoc := models.ProofOfServiceDoc{
-		//		PaymentRequestID: paymentRequest.ID,
-		//		UploadID: upload.ID,
-		//	}
-		//	verrs, err := tx.ValidateAndCreate(&proofOfServiceDoc)
-		//	if err != nil {
-		//		return fmt.Errorf("failure creating proof of service doc: %w", err)
-		//	}
-		//	if verrs.HasAny() {
-		//		return fmt.Errorf("validation error creating proof of service doc: %w", verrs)
-		//	}
-		//}
 
 		return nil
 	})

@@ -390,7 +390,7 @@ paths:
       description: Creates a payment request
       operationId: createPaymentRequest
       summary: Creates a payment request
-  /uploads:
+  /payment-requests/{paymentRequestID}/uploads:
     post:
       summary: Create a new upload for a payment request
       description: Uploads represent a single digital file, such as a JPEG, PNG, or PDF.
@@ -400,12 +400,11 @@ paths:
       consumes:
         - multipart/form-data
       parameters:
-        - in: query
+        - in: path
           name: paymentRequestID
           type: string
-          format: uuid
+          description: ID of payment request to use
           required: true
-          description: UUID of the document to add an upload to
         - in: formData
           name: file
           type: file
