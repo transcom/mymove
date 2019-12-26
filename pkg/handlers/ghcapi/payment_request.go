@@ -112,7 +112,6 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 		return paymentrequestop.NewGetPaymentRequestInternalServerError()
 	}
 
-	// Let's map the incoming status to our enumeration type
 	status := existingPaymentRequest.Status
 	var reviewedDate time.Time
 	var recGexDate time.Time
@@ -132,6 +131,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 		paidAtDate = *existingPaymentRequest.PaidAt
 	}
 
+	// Let's map the incoming status to our enumeration type
 	switch params.Body.Status {
 	case "PENDING":
 		status = models.PaymentRequestStatusPending
