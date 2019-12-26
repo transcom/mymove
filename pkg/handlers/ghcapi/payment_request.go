@@ -101,7 +101,6 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 	}
 
 	// Let's fetch the existing payment request using the PaymentRequestFetcher service object
-
 	filter := []services.QueryFilter{query.NewQueryFilter("id", "=", paymentRequestID.String())}
 	existingPaymentRequest, err := h.PaymentRequestFetcher.FetchPaymentRequest(filter)
 
