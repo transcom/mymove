@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/transcom/mymove/pkg/services/fetch"
 	moveorder "github.com/transcom/mymove/pkg/services/move_order"
 	"github.com/transcom/mymove/pkg/services/query"
 
@@ -23,18 +24,22 @@ import (
 
 // NewGhcAPIHandler returns a handler for the GHC API
 func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
-
-	queryBuilder := query.NewQueryBuilder(context.DB())
-
 	ghcSpec, err := loads.Analyzed(ghcapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
 	}
 	ghcAPI := ghcops.NewMymoveAPI(ghcSpec)
+	queryBuilder := query.NewQueryBuilder(context.DB())
 
 	ghcAPI.MtoServiceItemCreateMTOServiceItemHandler = CreateMTOServiceItemHandler{
 		context,
 		mtoserviceitem.NewMTOServiceItemCreator(queryBuilder),
+	}
+
+	ghcAPI.MtoServiceItemListMTOServiceItemsHandler = ListMTOServiceItemsHandler{
+		context,
+		fetch.NewListFetcher(queryBuilder),
+		fetch.NewFetcher(queryBuilder),
 	}
 
 	ghcAPI.PaymentRequestsGetPaymentRequestHandler = GetPaymentRequestHandler{

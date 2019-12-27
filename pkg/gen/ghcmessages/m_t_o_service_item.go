@@ -69,7 +69,8 @@ type MTOServiceItem struct {
 	Rate int64 `json:"rate,omitempty"`
 
 	// re service code
-	ReServiceCode string `json:"reServiceCode,omitempty"`
+	// Required: true
+	ReServiceCode *string `json:"reServiceCode"`
 
 	// re service ID
 	// Required: true
@@ -77,7 +78,8 @@ type MTOServiceItem struct {
 	ReServiceID *strfmt.UUID `json:"reServiceID"`
 
 	// re service name
-	ReServiceName string `json:"reServiceName,omitempty"`
+	// Required: true
+	ReServiceName *string `json:"reServiceName"`
 
 	// rejected at
 	// Format: date
@@ -139,7 +141,15 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateReServiceCode(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateReServiceID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateReServiceName(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -314,6 +324,15 @@ func (m *MTOServiceItem) validateMtoShipmentID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MTOServiceItem) validateReServiceCode(formats strfmt.Registry) error {
+
+	if err := validate.Required("reServiceCode", "body", m.ReServiceCode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOServiceItem) validateReServiceID(formats strfmt.Registry) error {
 
 	if err := validate.Required("reServiceID", "body", m.ReServiceID); err != nil {
@@ -321,6 +340,15 @@ func (m *MTOServiceItem) validateReServiceID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("reServiceID", "body", "uuid", m.ReServiceID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOServiceItem) validateReServiceName(formats strfmt.Registry) error {
+
+	if err := validate.Required("reServiceName", "body", m.ReServiceName); err != nil {
 		return err
 	}
 

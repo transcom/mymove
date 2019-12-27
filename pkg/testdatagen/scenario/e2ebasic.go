@@ -429,7 +429,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("687e3ee4-62ff-44b3-a5cb-73338c9fdf95"),
-			Locator: "EXCLDE",
+			Locator: "PMTRVW",
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			ID:               uuid.FromStringOrNil("38c4fc15-062f-4325-bceb-13ea167001da"),
@@ -453,7 +453,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			MoveID:                   ppmExcludedCalculations.Move.ID,
 			Move:                     ppmExcludedCalculations.Move,
 			MoveDocumentType:         models.MoveDocumentTypeEXPENSE,
-			Status:                   models.MoveDocumentStatusOK,
+			Status:                   models.MoveDocumentStatusAWAITINGREVIEW,
 			PersonallyProcuredMoveID: &assertions.PersonallyProcuredMove.ID,
 			Title:                    "Expense Document",
 			ID:                       uuid.FromStringOrNil("02021626-20ee-4c65-9194-87e6455f385e"),
@@ -1029,4 +1029,22 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
+	// A more recent MTO for demonstrating the since parameter
+	customer6 := testdatagen.MakeCustomer(db, testdatagen.Assertions{
+		Customer: models.Customer{
+			ID: uuid.FromStringOrNil("6ac40a00-e762-4f5f-b08d-3ea72a8e4b61"),
+		},
+	})
+	moveOrders6 := testdatagen.MakeMoveOrder(db, testdatagen.Assertions{
+		MoveOrder: models.MoveOrder{ID: uuid.FromStringOrNil("6fca843a-a87e-4752-b454-0fac67aa4981")},
+		Customer:  customer6,
+	})
+	testdatagen.MakeMoveTaskOrder(db, testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			ID:                 uuid.FromStringOrNil("5d4b25bb-eb04-4c03-9a81-ee0398cb7791"),
+			MoveOrderID:        moveOrders6.ID,
+			UpdatedAt:          time.Unix(1576779681256, 0),
+			IsAvailableToPrime: true,
+		},
+	})
 }

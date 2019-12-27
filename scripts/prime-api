@@ -8,6 +8,7 @@
 # Example:
 #
 #   prime-api move-task-orders GET
+#   prime-api payment-requests POST data.json
 #
 
 set -eu -o pipefail
@@ -16,4 +17,26 @@ HOSTNAME=primelocal
 
 readonly endpoint=$1
 readonly METHOD=${2:-GET}
-curl -k --cert ./config/tls/devlocal-mtls.cer --key ./config/tls/devlocal-mtls.key -X "${METHOD}" "https://${HOSTNAME}:9443/prime/v1/${endpoint}"
+readonly DATA=${3:-}
+
+if [ -z "${DATA}" ]; then
+  curl \
+    --insecure \
+    --cert ./config/tls/devlocal-mtls.cer \
+    --key ./config/tls/devlocal-mtls.key \
+    --request "${METHOD}" \
+    "https://${HOSTNAME}:9443/prime/v1/${endpoint}"
+else
+  if [ ! -f "${DATA}" ]; then
+    echo "File '${DATA}' does not exist"
+    exit 1
+  fi
+  curl \
+    --insecure \
+    --cert ./config/tls/devlocal-mtls.cer \
+    --key ./config/tls/devlocal-mtls.key \
+    --request "${METHOD}" \
+    --header 'Content-Type: application/json' \
+    --data @"${DATA}" \
+    "https://${HOSTNAME}:9443/prime/v1/${endpoint}"
+fi
