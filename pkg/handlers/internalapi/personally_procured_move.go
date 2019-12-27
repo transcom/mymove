@@ -69,7 +69,6 @@ func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models
 		hasProGear := string(*personallyProcuredMove.HasProGear)
 		ppmPayload.HasProGear = &hasProGear
 	}
-	fmt.Println(personallyProcuredMove.HasProGearOverThousand)
 	if personallyProcuredMove.HasProGearOverThousand != nil {
 		hasProGearOverThousand := string(*personallyProcuredMove.HasProGearOverThousand)
 		ppmPayload.HasProGearOverThousand = &hasProGearOverThousand
