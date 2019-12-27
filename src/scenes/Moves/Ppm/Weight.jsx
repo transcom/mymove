@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { get } from 'lodash';
+import { get, toUpper } from 'lodash';
 import PropTypes from 'prop-types';
 import Slider from 'react-rangeslider'; //todo: pull from node_modules, override
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
@@ -26,6 +26,8 @@ export class PpmWeight extends Component {
 
     this.state = {
       pendingPpmWeight: 0,
+      includesProgear: 'No',
+      isProgearMoreThan1000: 'No',
     };
 
     this.onWeightSelected = this.onWeightSelected.bind(this);
@@ -85,6 +87,8 @@ export class PpmWeight extends Component {
     const ppmBody = {
       weight_estimate: this.state.pendingPpmWeight,
       has_requested_advance: false,
+      has_pro_gear: toUpper(this.state.includesProgear),
+      has_pro_gear_over_thousand: toUpper(this.state.isProgearMoreThan1000),
     };
     return this.props
       .createOrUpdatePpm(moveId, ppmBody)
@@ -175,8 +179,7 @@ export class PpmWeight extends Component {
       selectedWeightInfo,
     } = this.props;
     const { context: { flags: { progearChanges } } = { flags: { progearChanges: null } } } = this.props;
-    const { includesProgear = 'No' } = this.state;
-    const { isProgearMoreThan1000 = 'No' } = this.state;
+    const { includesProgear, isProgearMoreThan1000 } = this.state;
 
     return (
       <div>
@@ -231,7 +234,7 @@ export class PpmWeight extends Component {
                 <p className="text-gray-50">Final payment will be based on the weight you actually move.</p>
               </div>
               <div className="radio-group-wrapper normalize-margins">
-                <h3>Do you have also have pro-gear to move?</h3>
+                <h3>Do you also have pro-gear to move?</h3>
                 <RadioButton
                   inputClassName="usa-radio__input inline_radio"
                   labelClassName="usa-radio__label inline_radio"

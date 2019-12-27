@@ -65,6 +65,15 @@ func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models
 		max := (*personallyProcuredMove.SITMax).Int64()
 		ppmPayload.SitMax = &max
 	}
+	fmt.Println(personallyProcuredMove.HasProGear)
+	if personallyProcuredMove.HasProGear != nil {
+		hasProGear := string(*personallyProcuredMove.HasProGear)
+		ppmPayload.HasProGear = &hasProGear
+	}
+	if personallyProcuredMove.HasProGearOverThousand != nil {
+		hasProGearOverThousand := string(*personallyProcuredMove.HasProGearOverThousand)
+		ppmPayload.HasProGearOverThousand = &hasProGearOverThousand
+	}
 	return &ppmPayload, nil
 }
 
