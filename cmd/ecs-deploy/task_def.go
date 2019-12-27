@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -476,7 +475,19 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 
 	// Register the new task definition
 	variablesFile := v.GetString(variablesFileFlag)
-	newTaskDefInput := renderTaskDefinition(ecrImage, serviceName, environmentName, subCommandName, variablesFile, currentTaskDef)
+	newTaskDefInput, err := renderTaskDefinition(
+		ecrImage,
+		serviceRDS,
+		serviceName,
+		environmentName,
+		commandName,
+		subCommandName,
+		variablesFile,
+		currentTaskDef.ExecutionRoleArn,
+		currentTaskDef.TaskRoleArn)
+	if err != nil {
+		quit(logger, nil, err)
+	}
 
 	if verbose {
 		logger.Println(newTaskDefInput.String())
@@ -490,7 +501,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func renderTaskDefinition(ecrImage *ECRImage, serviceRDS, environmentName, subCommandName, variablesFile string, currentTaskDef ecs.TaskDefinition) ecs.RegisterTaskDefinitionInput {
+func renderTaskDefinition(ecrImage *ECRImage, serviceRDS *rds.RDS, serviceName, environmentName, commandName, subCommandName, variablesFile, executionRoleArn, taskRoleArn string) (*ecs.RegisterTaskDefinitionInput, error) {
 
 	// Get the database host using the instance identifier
 	dbInstanceIdentifier := fmt.Sprintf("%s-%s", serviceName, environmentName)
@@ -498,7 +509,7 @@ func renderTaskDefinition(ecrImage *ECRImage, serviceRDS, environmentName, subCo
 		DBInstanceIdentifier: aws.String(dbInstanceIdentifier),
 	})
 	if err != nil {
-		quit(logger, nil, errors.Wrapf(err, "error retrieving database definition for %s", dbInstanceIdentifier))
+		return nil, errors.Wrapf(err, "error retrieving database definition for %s", dbInstanceIdentifier)
 	}
 	dbHost := *dbInstancesOutput.DBInstances[0].Endpoint.Address
 
@@ -532,13 +543,13 @@ func renderTaskDefinition(ecrImage *ECRImage, serviceRDS, environmentName, subCo
 				},
 			},
 		},
-		Cpu:                     currentTaskDef.Cpu,
-		ExecutionRoleArn:        currentTaskDef.ExecutionRoleArn,
-		Family:                  currentTaskDef.Family,
-		Memory:                  currentTaskDef.Memory,
-		NetworkMode:             currentTaskDef.NetworkMode,
-		RequiresCompatibilities: currentTaskDef.RequiresCompatibilities,
-		TaskRoleArn:             currentTaskDef.TaskRoleArn,
+		Cpu:                     aws.String("512"),
+		ExecutionRoleArn:        aws.String(executionRoleArn),
+		Family:                  aws.String(fmt.Sprintf("%s-%s", serviceName, environmentName)),
+		Memory:                  aws.String("2048"),
+		NetworkMode:             aws.String("awsvpc"),
+		RequiresCompatibilities: []*string{aws.String("FARGATE")},
+		TaskRoleArn:             aws.String(taskRoleArn),
 	}
-	return newTaskDefInput
+	return &newTaskDefInput, nil
 }
