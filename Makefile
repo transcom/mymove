@@ -12,9 +12,12 @@ DB_DOCKER_CONTAINER_IMAGE = postgres:10.10
 TASKS_DOCKER_CONTAINER = tasks
 export PGPASSWORD=mysecretpassword
 
-# if S3 access is enabled, wrap webserver in aws-vault command
+# if S3 or CDN access is enabled, wrap webserver in aws-vault command
 # to pass temporary AWS credentials to the binary.
 ifeq ($(STORAGE_BACKEND),s3)
+	USE_AWS:=true
+endif
+ifeq ($(STORAGE_BACKEND),cdn)
 	USE_AWS:=true
 endif
 ifeq ($(EMAIL_BACKEND),ses)
