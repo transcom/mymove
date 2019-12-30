@@ -3,6 +3,8 @@ package paymentrequest
 import (
 	"fmt"
 
+	"github.com/gobuffalo/validate"
+
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/gobuffalo/pop"
@@ -25,14 +27,14 @@ func NewUploadCreator(db *pop.Connection, logger storage.Logger, fileStorer stor
 }
 
 func (p *paymentRequestUploadCreator) CreateUpload(file uploader.File, paymentRequestID uuid.UUID, userID uuid.UUID) (*models.Upload, error) {
-	upload := models.Upload{}
+	var upload *models.Upload
 	transactionError := p.db.Transaction(func(tx *pop.Connection) error {
 		newUploader, err := uploader.NewUploader(tx, p.logger, p.fileStorer, p.fileSizeLimit)
 		if err != nil {
 			return fmt.Errorf("cannot create uploader in payment request uploadCreator: %w", err)
 		}
-
-		upload, verrs, err := newUploader.CreateUpload(userID, file, uploader.AllowedTypesPaymentRequest)
+		var verrs *validate.Errors
+		upload, verrs, err = newUploader.CreateUpload(userID, file, uploader.AllowedTypesPaymentRequest)
 		if err != nil {
 			return fmt.Errorf("failure creating payment request upload: %w", err)
 		}
@@ -67,5 +69,5 @@ func (p *paymentRequestUploadCreator) CreateUpload(file uploader.File, paymentRe
 		return nil, transactionError
 	}
 
-	return &upload, nil
+	return upload, nil
 }

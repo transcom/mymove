@@ -35,18 +35,19 @@ func (suite *PaymentRequestServiceSuite) openLocalFile(path string) (afero.File,
 	return outputFile, nil
 }
 
-func (suite *PaymentRequestServiceSuite) TestCreateUpload() {
+func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 	storer := &mocks.FileStorer{}
 	storer.On("Store",
 		mock.AnythingOfType("string"),
-		mock.AnythingOfType("*os.File"),
+		mock.AnythingOfType("*mem.File"),
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("*string"),
 	).Return(&storage.StoreResult{}, nil).Once()
 
 	activeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{}) // temp user-- will need to be connected to prime
 	paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-	file, _ := suite.openLocalFile("../../uploader/testdata/test.pdf")
+	file, err := suite.openLocalFile("../../uploader/testdata/test.pdf")
+	suite.NoError(err)
 
 	uploaderFile := uploader.File{
 		File: file,
@@ -57,6 +58,40 @@ func (suite *PaymentRequestServiceSuite) TestCreateUpload() {
 		upload, err := uploadCreator.CreateUpload(uploaderFile, paymentRequest.ID, *activeUser.UserID)
 
 		suite.NoError(err)
-		suite.Equal("test.pdf", upload.Filename)
+		suite.Equal("../../uploader/testdata/test.pdf", upload.Filename)
+		suite.Equal(int64(10596), upload.Bytes)
+		suite.Equal("application/pdf", upload.ContentType)
+
+	})
+}
+
+func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
+	storer := &mocks.FileStorer{}
+	storer.On("Store",
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("*mem.File"),
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("*string"),
+	).Return(&storage.StoreResult{}, nil).Once()
+
+	//activeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{}) // temp user-- will need to be connected to prime
+	//paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+	//file, err := suite.openLocalFile("../../uploader/testdata/test.pdf")
+	//suite.NoError(err)
+	//
+	//uploaderFile := uploader.File{
+	//	File: file,
+	//}
+
+	suite.T().Run("invalid payment request ID", func(t *testing.T) {
+
+	})
+
+	suite.T().Run("invalid user ID", func(t *testing.T) {
+
+	})
+
+	suite.T().Run("", func(t *testing.T) {
+
 	})
 }
