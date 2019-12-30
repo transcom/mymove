@@ -40,10 +40,17 @@ func (p *paymentRequestUploadCreator) CreateUpload(file uploader.File, paymentRe
 			return fmt.Errorf("validation error creating payment request upload: %w", verrs)
 		}
 
+		var paymentRequest models.PaymentRequest
+		err = tx.Find(&paymentRequest, paymentRequestID)
+		if err != nil {
+			return fmt.Errorf("could not find PaymentRequestID [%s]: %w", paymentRequestID, err)
+		}
 		// create proof of service doc
 		proofOfServiceDoc := models.ProofOfServiceDoc{
 			PaymentRequestID: paymentRequestID,
+			PaymentRequest:   paymentRequest,
 			UploadID:         upload.ID,
+			Upload:           *upload,
 		}
 
 		verrs, err = tx.ValidateAndCreate(&proofOfServiceDoc)
