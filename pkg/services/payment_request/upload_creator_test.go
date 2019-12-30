@@ -1,8 +1,12 @@
 package paymentrequest
 
 import (
+	"io"
 	"os"
 	"testing"
+
+	"github.com/spf13/afero"
+	"go.uber.org/zap"
 
 	"github.com/stretchr/testify/mock"
 
@@ -11,6 +15,25 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
+
+func (suite *PaymentRequestServiceSuite) openLocalFile(path string) (afero.File, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		suite.logger.Fatal("Error opening local file", zap.Error(err))
+	}
+
+	outputFile, err := suite.fs.Create(path)
+	if err != nil {
+		suite.logger.Fatal("Error creating afero file", zap.Error(err))
+	}
+
+	_, err = io.Copy(outputFile, file)
+	if err != nil {
+		suite.logger.Fatal("Error copying to afero file", zap.Error(err))
+	}
+
+	return outputFile, nil
+}
 
 func (suite *PaymentRequestServiceSuite) TestCreateUpload() {
 	storer := &mocks.FileStorer{}
@@ -23,7 +46,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUpload() {
 
 	activeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{}) // temp user-- will need to be connected to prime
 	paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-	file, _ := os.Open("../../uploader/testdata/test.pdf")
+	file, _ := suite.openLocalFile("../../uploader/testdata/test.pdf")
 
 	uploaderFile := uploader.File{
 		File: file,
