@@ -53,7 +53,7 @@ func TestCapture(t *testing.T) {
 		}
 
 		if assert.NotEmpty(t, zapFields) {
-			assert.Equal(t, "record_id", zapFields[0].Key)
+			assert.Equal(t, "event_type", zapFields[0].Key)
 			assert.Equal(t, "audit_post_admin_users", eventType)
 		}
 	})
@@ -141,8 +141,8 @@ func TestCapture(t *testing.T) {
 		}
 		assert.Nil(t, err)
 		if assert.NotEmpty(t, zapFields) {
-			assert.Equal(t, "record_id", zapFields[0].Key)
-			assert.Equal(t, "audit_post_admin_users", eventType)
+			assert.Equal(t, "event_type", zapFields[0].Key)
+			assert.Equal(t, "audit__", eventType)
 		}
 	})
 
@@ -159,8 +159,8 @@ func TestCapture(t *testing.T) {
 		}
 		assert.Nil(t, err)
 		if assert.NotEmpty(t, zapFields) {
-			assert.Equal(t, "record_id", zapFields[0].Key)
-			assert.Equal(t, "audit_post_admin_users", eventType)
+			assert.Equal(t, "event_type", zapFields[0].Key)
+			assert.Equal(t, "audit__", eventType)
 		}
 	})
 }
