@@ -534,4 +534,7 @@ Jira
 truthy
 cloudfront
 devlocal-mtls
+aws-vault
+aws-vault-wrapper
+aws
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
