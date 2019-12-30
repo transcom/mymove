@@ -416,7 +416,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	var session *awssession.Session
-	if v.GetBool(cli.DbIamFlag) || (v.GetString(cli.EmailBackendFlag) == "ses") || (v.GetString(cli.StorageBackendFlag) == "s3") {
+	if v.GetBool(cli.DbIamFlag) || (v.GetString(cli.EmailBackendFlag) == "ses") || (v.GetString(cli.StorageBackendFlag) == "s3") || (v.GetString(cli.StorageBackendFlag) == "cdn") {
 		c, errorConfig := cli.GetAWSConfig(v, v.GetBool(cli.VerboseFlag))
 		if errorConfig != nil {
 			logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())

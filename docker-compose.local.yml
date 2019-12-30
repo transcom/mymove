@@ -74,6 +74,7 @@ services:
       - HTTP_MY_SERVER_NAME=milmovelocal
       - HTTP_OFFICE_SERVER_NAME=officelocal
       - HTTP_ORDERS_SERVER_NAME=orderslocal
+      - AWS_CF_DOMAIN=assets.devlocal.move.mil
       - IWS_RBS_HOST
       - LOCAL_STORAGE_ROOT=/tmp
       - LOCAL_STORAGE_WEB_ROOT=storage
