@@ -471,6 +471,7 @@ definitions:
       first_name:
         type: string
         title: First Name
+        x-nullable: true
       middle_initials:
         type: string
         title: Middle Initials
@@ -479,13 +480,16 @@ definitions:
       last_name:
         type: string
         title: Last Name
+        x-nullable: true
       telephone:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
+        x-nullable: true
       active:
         type: boolean
+        x-nullable: true
   AdminUserCreatePayload:
     type: object
     properties:
@@ -509,11 +513,14 @@ definitions:
       first_name:
         type: string
         title: First Name
+        x-nullable: true
       last_name:
         type: string
         title: Last Name
+        x-nullable: true
       active:
         type: boolean
+        x-nullable: true
   ElectronicOrder:
     type: object
     required:

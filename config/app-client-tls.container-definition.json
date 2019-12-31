@@ -112,15 +112,15 @@
     },
     {
       "name": "AWS_S3_REGION",
-      "value": "us-west-2"
+      "value": "{{ .AWS_S3_REGION }}"
+    },
+    {
+      "name": "STORAGE_BACKEND",
+      "value": "{{ .STORAGE_BACKEND }}"
     },
     {
       "name": "AWS_S3_KEY_NAMESPACE",
       "value": "app"
-    },
-    {
-      "name": "STORAGE_BACKEND",
-      "value": "s3"
     },
     {
       "name": "EMAIL_BACKEND",
@@ -165,6 +165,10 @@
     {
       "name": "SERVE_ORDERS",
       "value": "{{ .SERVE_ORDERS }}"
+    },
+    {
+      "name": "AWS_CF_DOMAIN",
+      "value": "assets.{{ .domain }}"
     }
   ],
   "logConfiguration": {

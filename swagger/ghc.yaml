@@ -89,16 +89,16 @@ paths:
       description: Returns a given customer
       operationId: getCustomer
       summary: Returns a given customer
-  /move-task-orders:
+  /move-orders:
     get:
       produces:
         - application/json
       parameters: []
       responses:
         '200':
-          description: Successfully retrieved all move task orders
+          description: Successfully retrieved all move orders
           schema:
-            $ref: '#/definitions/MoveTaskOrders'
+            $ref: '#/definitions/MoveOrders'
         '400':
           description: The request payload is invalid
           schema:
@@ -120,9 +120,9 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - moveTaskOrder
+        - moveOrder
       description: Gets all move orders
-      operationId: listMoveTaskOrders
+      operationId: listMoveOrders
       summary: Gets all move orders
   '/move-orders/{moveOrderID}':
     parameters:
@@ -166,6 +166,48 @@ paths:
       description: Gets a move order
       operationId: getMoveOrder
       summary: Gets a move order by ID
+  '/move-orders/{moveOrderID}/move-task-orders':
+    parameters:
+      - description: ID of move order to use
+        in: path
+        name: moveOrderID
+        required: true
+        type: string
+        format: uuid
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved all move task orders associated with a move order
+          schema:
+            $ref: '#/definitions/MoveTaskOrders'
+        '400':
+          description: The request payload is invalid
+          schema:
+            $ref: '#/responses/InvalidRequest'
+        '401':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '403':
+          description: The request was denied
+          schema:
+            $ref: '#/responses/PermissionDenied'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - moveOrder
+      description: Gets move task orders associated with a move order
+      operationId: listMoveTaskOrders
+      summary: Gets move task orders associated with a move order
   '/move-task-orders/{moveTaskOrderID}':
     parameters:
       - description: ID of move order to use
@@ -282,12 +324,13 @@ paths:
       description: Updates a move order by ID
       operationId: updateMoveTaskOrder
       summary: Updates a move order by ID
-  '/move_task_orders/{moveTaskOrderID}/service_items':
+  '/move_task_orders/{moveTaskOrderID}/mto_service_items':
     parameters:
-      - description: ID of move order for service item to use
+      - description: ID of move order for mto service item to use
         in: path
         name: moveTaskOrderID
         required: true
+        format: uuid
         type: string
     get:
       produces:
@@ -297,69 +340,82 @@ paths:
         '200':
           description: Successfully retrieved all line items for a move task order
           schema:
-            $ref: '#/definitions/ServiceItems'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+            $ref: '#/definitions/MTOServiceItems'
         '404':
           description: The requested resource wasn't found
           schema:
             $ref: '#/responses/NotFound'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
         '500':
           description: A server error occurred
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - serviceItem
+        - mtoServiceItem
       description: Gets all line items for a move orders
-      operationId: listServiceItems
+      operationId: listMTOServiceItems
       summary: Gets all line items for a move order
     post:
       consumes:
         - application/json
       produces:
         - application/json
-      parameters: []
+      parameters:
+        - description: ID of move order to use
+          in: path
+          name: moveTaskOrderID
+          required: true
+          format: uuid
+          type: string
+        - description: ID of the rate engine services
+          in: body
+          name: createMTOServiceItemBody
+          required: true
+          schema:
+            type: object
+            required:
+              - reServiceID
+              - mtoShipmentID
+              - metaID
+              - metaType
+            properties:
+              reServiceID:
+                format: uuid
+                type: string
+              mtoShipmentID:
+                format: uuid
+                type: string
+              metaID:
+                format: uuid
+                type: string
+              metaType:
+                type: string
       responses:
         '201':
           description: Successfully created service item for move task order
           schema:
-            $ref: '#/definitions/ServiceItem'
-        '400':
-          description: The request payload is invalid
-          schema:
-            $ref: '#/responses/InvalidRequest'
-        '401':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
-        '403':
-          description: The request was denied
-          schema:
-            $ref: '#/responses/PermissionDenied'
+            $ref: '#/definitions/MTOServiceItem'
         '404':
           description: The requested resource wasn't found
           schema:
-            $ref: '#/responses/NotFound'
+            $ref: '#/definitions/ClientError'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
         '500':
           description: A server error occurred
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - serviceItem
+        - mtoServiceItem
       description: Creates a service item for a move order by id
-      operationId: createServiceItem
+      operationId: createMTOServiceItem
       summary: Creates a service item for a move order by id
-  '/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}':
+  '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}':
     parameters:
       - description: ID of move order to use
         in: path
@@ -368,7 +424,7 @@ paths:
         type: string
       - description: ID of line item to use
         in: path
-        name: serviceItemID
+        name: mtoServiceItemID
         required: true
         type: string
     delete:
@@ -401,9 +457,9 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - serviceItem
+        - mtoServiceItem
       description: Deletes a line item by ID for a move order by ID
-      operationId: deleteServiceItem
+      operationId: deleteMTOServiceItem
       summary: Deletes a line item by ID for a move order by ID
     get:
       produces:
@@ -413,7 +469,7 @@ paths:
         '200':
           description: Successfully retrieved a line item for a move task order by ID
           schema:
-            $ref: '#/definitions/ServiceItem'
+            $ref: '#/definitions/MTOServiceItem'
         '400':
           description: The request payload is invalid
           schema:
@@ -435,9 +491,9 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - serviceItem
+        - mtoServiceItem
       description: Gets a line item by ID for a move order by ID
-      operationId: getServiceItem
+      operationId: getMTOServiceItem
       summary: Gets a line item by ID for a move order by ID
     patch:
       consumes:
@@ -449,7 +505,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/ServiceItem'
+            $ref: '#/definitions/MTOServiceItem'
       responses:
         '200':
           description: Successfully updated move task order status
@@ -476,11 +532,11 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - serviceItem
+        - mtoServiceItem
       description: Updates a service item by ID for a move order by ID
-      operationId: updateServiceItem
+      operationId: updateMTOServiceItem
       summary: Updates a service item by ID for a move order by ID
-  '/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}/status':
+  '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status':
     parameters:
       - description: ID of move order to use
         in: path
@@ -489,7 +545,7 @@ paths:
         type: string
       - description: ID of line item to use
         in: path
-        name: serviceItemID
+        name: mtoServiceItemID
         required: true
         type: string
     patch:
@@ -502,14 +558,14 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/ServiceItemStatus'
+            $ref: '#/definitions/MTOServiceItemstatus'
       responses:
         '200':
           description: >-
             Successfully updated status for a line item for a move task order by
             ID
           schema:
-            $ref: '#/definitions/ServiceItem'
+            $ref: '#/definitions/MTOServiceItem'
         '400':
           description: The request payload is invalid
           schema:
@@ -531,9 +587,9 @@ paths:
           schema:
             $ref: '#/responses/ServerError'
       tags:
-        - serviceItem
+        - mtoServiceItem
       description: Changes the status of a line item for a move order by ID
-      operationId: updateServiceItemStatus
+      operationId: updateMTOServiceItemstatus
       summary: Change the status of a line item for a move order by ID
   '/move-task-orders/{moveTaskOrderID}/status':
     patch:
@@ -547,11 +603,6 @@ paths:
           name: moveTaskOrderID
           required: true
           type: string
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/MoveTaskOrderStatus'
       responses:
         '200':
           description: Successfully updated move task order status
@@ -579,9 +630,9 @@ paths:
             $ref: '#/responses/ServerError'
       tags:
         - moveTaskOrder
-      description: Changes move order status
+      description: Changes move task order status to make it available to prime
       operationId: updateMoveTaskOrderStatus
-      summary: Change the status of a move order
+      summary: Change the status of a move task order to make it available to prime
   '/move-task-orders/{moveTaskOrderID}/entitlements':
     parameters:
       - description: ID of move order to use
@@ -785,6 +836,31 @@ paths:
       operationId: updatePaymentRequestStatus
       summary: Updates status of a payment request by id
 definitions:
+  ClientError:
+    type: object
+    properties:
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+        format: uuid
+    required:
+      - title
+      - detail
+      - instance
+  ValidationError:
+    allOf:
+      - $ref: '#/definitions/ClientError'
+      - type: object
+    properties:
+      invalid_fields:
+        type: object
+        additionalProperties:
+          type: string
+    required:
+      - invalid_fields
   Address:
     type: object
     properties:
@@ -979,6 +1055,12 @@ definitions:
   Customer:
     type: object
     properties:
+      first_name:
+        type: string
+        example: John
+      last_name:
+        type: string
+        example: Doe
       id:
         type: string
         format: uuid
@@ -1055,12 +1137,33 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      confirmation_number:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        type: string
+      first_name:
+        type: string
+        example: John
+        readOnly: true
+      last_name:
+        type: string
+        example: Doe
+        readOnly: true
+      grade:
+        type: string
+        example: E_1
+      agency:
+        type: string
+        example: civilian
       entitlement:
         $ref: '#/definitions/Entitlements'
       destinationDutyStation:
         $ref: '#/definitions/DutyStation'
       originDutyStation:
         $ref: '#/definitions/DutyStation'
+      moveTaskOrderID:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
     type: object
   MoveTaskOrder:
     properties:
@@ -1088,16 +1191,33 @@ definitions:
       updatedAt:
         format: date
         type: string
+      destinationAddress:
+        $ref: '#/definitions/Address'
+      pickupAddress:
+        $ref: '#/definitions/Address'
+      destinationDutyStation:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      originDutyStation:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      entitlements:
+        $ref: '#/definitions/Entitlements'
+      requestedPickupDate:
+        format: date
+        type: string
     type: object
   MoveTaskOrderStatus:
     properties:
-      status:
-        enum:
-          - APPROVED
-          - DRAFT
-          - REJECTED
-        type: string
+      is_available_to_prime:
+        type: boolean
     type: object
+  MoveOrders:
+    items:
+      $ref: '#/definitions/MoveOrder'
+    type: array
   MoveTaskOrders:
     items:
       $ref: '#/definitions/MoveTaskOrder'
@@ -1153,11 +1273,30 @@ definitions:
           $ref: '#/definitions/Upload'
         type: array
     type: object
-  ServiceItem:
+  MTOServiceItem:
     properties:
-      MoveTaskOrderID:
+      moveTaskOrderID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
+        type: string
+      mtoShipmentID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      metaID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      metaType:
+        example: TBD
+        type: string
+      reServiceID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reServiceCode:
+        type: string
+      reServiceName:
         type: string
       approvedAt:
         format: date
@@ -1205,12 +1344,19 @@ definitions:
         type: string
     required:
       - id
+      - moveTaskOrderID
+      - reServiceID
+      - reServiceCode
+      - reServiceName
+      - mtoShipmentID
+      - metaID
+      - metaType
     type: object
-  ServiceItems:
+  MTOServiceItems:
     type: array
     items:
-      $ref: '#/definitions/ServiceItem'
-  ServiceItemStatus:
+      $ref: '#/definitions/MTOServiceItem'
+  MTOServiceItemstatus:
     properties:
       status:
         enum:

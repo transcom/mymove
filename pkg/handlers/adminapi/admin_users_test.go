@@ -290,8 +290,8 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 	params := adminuserop.UpdateAdminUserParams{
 		HTTPRequest: req,
 		AdminUser: &adminmessages.AdminUserUpdatePayload{
-			FirstName: adminUser.FirstName,
-			LastName:  adminUser.LastName,
+			FirstName: &adminUser.FirstName,
+			LastName:  &adminUser.LastName,
 		},
 	}
 
@@ -299,7 +299,8 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 		adminUserUpdater := &mocks.AdminUserUpdater{}
 
 		adminUserUpdater.On("UpdateAdminUser",
-			&adminUser,
+			mock.Anything,
+			params.AdminUser,
 		).Return(&adminUser, nil, nil).Once()
 
 		handler := UpdateAdminUserHandler{
@@ -316,7 +317,8 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 		adminUserUpdater := &mocks.AdminUserUpdater{}
 
 		adminUserUpdater.On("UpdateAdminUser",
-			&adminUser,
+			mock.Anything,
+			params.AdminUser,
 		).Return(&adminUser, nil, nil).Once()
 
 		handler := UpdateAdminUserHandler{
@@ -333,7 +335,8 @@ func (suite *HandlerSuite) TestUpdateAdminUserHandler() {
 	err := validate.NewErrors()
 
 	adminUserUpdater.On("UpdateAdminUser",
-		&adminUser,
+		mock.Anything,
+		params.AdminUser,
 	).Return(nil, err, nil).Once()
 
 	handler := UpdateAdminUserHandler{

@@ -94,12 +94,16 @@
       "value": "admin.{{ .domain }}"
     },
     {
+      "name": "AWS_CF_DOMAIN",
+      "value": "assets.{{ .domain }}"
+    },
+    {
       "name": "AWS_S3_BUCKET_NAME",
       "value": "transcom-ppp-app-{{ .environment }}-us-west-2"
     },
     {
       "name": "AWS_S3_REGION",
-      "value": "us-west-2"
+      "value": "{{ .AWS_S3_REGION }}"
     },
     {
       "name": "AWS_S3_KEY_NAMESPACE",
@@ -107,7 +111,7 @@
     },
     {
       "name": "STORAGE_BACKEND",
-      "value": "s3"
+      "value": "{{ .STORAGE_BACKEND }}"
     },
     {
       "name": "EMAIL_BACKEND",
@@ -151,7 +155,7 @@
     },
     {
       "name": "HTTP_SDDC_PORT",
-      "value": ""
+      "value": "{{ .HTTP_SDDC_PORT }}"
     },
     {
       "name": "GEX_URL",

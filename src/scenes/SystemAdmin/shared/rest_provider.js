@@ -1,4 +1,5 @@
 import { stringify } from 'query-string';
+import { diff } from 'deep-object-diff';
 import {
   fetchUtils,
   GET_LIST,
@@ -81,7 +82,8 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
       case UPDATE:
         url = `${apiUrl}/${resource}/${params.id}`;
         options.method = 'PATCH';
-        options.body = JSON.stringify(params.data);
+        const paramsDiff = diff(params.previousData, params.data);
+        options.body = JSON.stringify(paramsDiff);
         break;
       case CREATE:
         url = `${apiUrl}/${resource}`;

@@ -1,0 +1,10 @@
+{
+  "baseUrl": "http://milmovelocal:4000",
+  "reporter": "cypress-multi-reporters",
+  "reporterOptions": {
+    "configFile": "mocha-reporter-config.json"
+  },
+  "viewportWidth": 1440,
+  "viewportHeight": 900,
+  "videoUploadOnPasses": false
+}
