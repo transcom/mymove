@@ -30,10 +30,10 @@ require (
 	github.com/go-swagger/go-swagger v0.21.0
 	github.com/gobuffalo/envy v1.8.1
 	github.com/gobuffalo/fizz v1.9.5
-	github.com/gobuffalo/flect v0.1.7
+	github.com/gobuffalo/flect v0.2.0
 	github.com/gobuffalo/nulls v0.1.0 // indirect
 	github.com/gobuffalo/packr v1.30.1
-	github.com/gobuffalo/pop v4.12.2+incompatible
+	github.com/gobuffalo/pop v4.13.0+incompatible
 	github.com/gobuffalo/validate v2.0.3+incompatible
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
 	github.com/gofrs/flock v0.7.1
@@ -74,7 +74,7 @@ require (
 	golang.org/x/text v0.3.2
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
-	gopkg.in/go-playground/validator.v9 v9.30.2
+	gopkg.in/go-playground/validator.v9 v9.31.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
 )

@@ -125,8 +125,9 @@ export const storageInTransits = new schema.Array(storageInTransit);
 // AccessCodes
 export const accessCode = new schema.Entity('accessCodes');
 
-// Service Items
-export const serviceItems = new schema.Entity('serviceItems');
+// MTO Service Items
+export const mtoServiceItem = new schema.Entity('mtoServiceItems');
+export const mtoServiceItems = new schema.Array(mtoServiceItem);
 
 // Move Task Orders
 export const moveTaskOrder = new schema.Entity('moveTaskOrder');

@@ -30,7 +30,7 @@
     },
     {
       "name": "DB_REGION",
-      "value": "us-west-2"
+      "value": "{{ .AWS_S3_REGION }}"
     },
     {
       "name": "ENVIRONMENT",

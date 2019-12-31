@@ -45,7 +45,7 @@ If you are looking to understand choices made in this project, see the list of [
 * [Migrate the Database](how-to/migrate-the-database.md#how-to-migrate-the-database)
 * [revert a change](how-to/revert-a-change.md#how-to-revert-a-change)
 * [Run Acceptance Tests](how-to/run-acceptance-tests.md#how-to-run-acceptance-tests)
-* [Run Against S3 Locally](how-to/run-against-s3-locally.md#how-to-run-against-s3-locally)
+* [Run Against S3 & CDN Locally](how-to/run-against-s3-locally.md#how-to-run-against-s3-cdn-locally)
 * [Run End to End (Cypress) Tests](how-to/run-e2e-tests.md#how-to-run-end-to-end-cypress-tests)
 * [Run Go Tests](how-to/run-go-tests.md#how-to-run-go-tests)
 * [Run JavaScript (Jest) Tests](how-to/run-js-tests.md#how-to-run-javascript-jest-tests)

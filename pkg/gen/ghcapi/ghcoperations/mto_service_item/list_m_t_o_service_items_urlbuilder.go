@@ -10,11 +10,13 @@ import (
 	"net/url"
 	golangswaggerpaths "path"
 	"strings"
+
+	"github.com/go-openapi/strfmt"
 )
 
 // ListMTOServiceItemsURL generates an URL for the list m t o service items operation
 type ListMTOServiceItemsURL struct {
-	MoveTaskOrderID string
+	MoveTaskOrderID strfmt.UUID
 
 	_basePath string
 	// avoid unkeyed usage
@@ -42,7 +44,7 @@ func (o *ListMTOServiceItemsURL) Build() (*url.URL, error) {
 
 	var _path = "/move_task_orders/{moveTaskOrderID}/mto_service_items"
 
-	moveTaskOrderID := o.MoveTaskOrderID
+	moveTaskOrderID := o.MoveTaskOrderID.String()
 	if moveTaskOrderID != "" {
 		_path = strings.Replace(_path, "{moveTaskOrderID}", moveTaskOrderID, -1)
 	} else {
