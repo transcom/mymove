@@ -12,15 +12,17 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
-func payloadForRole(r models.Role) *adminmessages.Role {
+func payloadForRole(r roles.Role) *adminmessages.Role {
+	roleType := string(r.RoleType)
 	return &adminmessages.Role{
 		ID:        handlers.FmtUUID(r.ID),
-		RoleType:  &r.RoleType,
+		RoleType:  &roleType,
 		CreatedAt: handlers.FmtDateTime(r.CreatedAt),
 		UpdatedAt: handlers.FmtDateTime(r.UpdatedAt),
 	}
