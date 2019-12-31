@@ -137,7 +137,7 @@ func checkConfig(v *viper.Viper) error {
 	}
 
 	if err := cli.CheckAWSRegionForService(region, cloudwatchevents.ServiceName); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecs.ServiceName))
+		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, cloudwatchevents.ServiceName))
 	}
 
 	if err := cli.CheckAWSRegionForService(region, ecs.ServiceName); err != nil {
@@ -145,11 +145,15 @@ func checkConfig(v *viper.Viper) error {
 	}
 
 	if err := cli.CheckAWSRegionForService(region, ecr.ServiceName); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecs.ServiceName))
+		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecr.ServiceName))
 	}
 
 	if err := cli.CheckAWSRegionForService(region, rds.ServiceName); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecs.ServiceName))
+		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, rds.ServiceName))
+	}
+
+	if err := cli.CheckAWSRegionForService(region, ssm.ServiceName); err != nil {
+		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ssm.ServiceName))
 	}
 
 	if err := cli.CheckVault(v); err != nil {
@@ -238,19 +242,34 @@ func varFromCtxOrEnv(varName string, ctx map[string]string) string {
 	return os.Getenv("DB_PORT")
 }
 
-func buildSecrets(serviceSSM *ssm.SSM, serviceName, environmentName string) []*ecs.Secret {
+func buildSecrets(serviceSSM *ssm.SSM, awsRegion, registryID, serviceName, environmentName string) []*ecs.Secret {
 
 	var secrets []*ecs.Secret
 
-	parametersOutput, err := serviceSSM.GetParametersByPath(&ssm.GetParametersByPathInput{
-		Path:      aws.String(fmt.Sprintf("/%s-%s", serviceName, environmentName)),
-		Recursive: aws.Bool(true),
-	})
-	if err != nil {
-		log.Fatal(errors.Wrap(err, "error reading secrets from SSM"))
-	}
-	for _, parameter := range parametersOutput.Parameters {
-		secrets = append(secrets, &ecs.Secret{Name: parameter.Name, ValueFrom: parameter.ARN})
+	var describeParametersNextToken *string
+
+	for {
+		parametersOutput, err := serviceSSM.DescribeParameters(&ssm.DescribeParametersInput{
+			MaxResults: aws.Int64(50),
+			NextToken:  describeParametersNextToken,
+		})
+		if err != nil {
+			log.Fatal(errors.Wrap(err, "error reading secrets from SSM"))
+		}
+
+		for _, parameter := range parametersOutput.Parameters {
+			if strings.HasPrefix(*parameter.Name, fmt.Sprintf("/%s-%s", serviceName, environmentName)) {
+				secrets = append(secrets, &ecs.Secret{
+					Name:      parameter.Name,
+					ValueFrom: aws.String(fmt.Sprintf("arn:aws:ssm:%s:%s:parameter:%s", awsRegion, registryID, *parameter.Name)),
+				})
+			}
+		}
+		describeParametersNextToken = parametersOutput.NextToken
+
+		if describeParametersNextToken == nil || *describeParametersNextToken == "" {
+			break
+		}
 	}
 	return secrets
 }
@@ -483,7 +502,7 @@ func main() {
 				Essential:   aws.Bool(true),
 				EntryPoint:  aws.StringSlice(entryPoint),
 				Command:     []*string{},
-				Secrets:     buildSecrets(serviceSSM, serviceName, environmentName),
+				Secrets:     buildSecrets(serviceSSM, awsRegion, registryID, serviceName, environmentName),
 				Environment: buildContainerEnvironment(v, environmentName, dbHost, variablesFile),
 				LogConfiguration: &ecs.LogConfiguration{
 					LogDriver: aws.String("awslogs"),

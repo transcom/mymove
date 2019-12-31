@@ -68,7 +68,7 @@ echo
 # cat "$DIR"/../config/env/"${environment}".env
 # echo "===== END ENV FILE ===="
 
-ssm_secrets=$(aws ssm get-parameters-by-path --path "/app-${environment}" | jq '[.Parameters | to_entries[].value | {"valueFrom": .ARN, "name": .Name}]')
+ssm_secrets=$(aws ssm describe-parameters --parameter-filters Key=Path,Values=["/app-${environment}"] | jq '[.Parameters | to_entries[].value | .ARN = "arn:aws:ssm:${AWS_DEFAULT_REGION}:${AWS_ACCOUNT_ID}:parameter" + .Name | {"valueFrom": .ARN, "name": .Name}]')
 container_definition_json=$("$DIR"/../bin/renderer -t "$template" -v "$DIR"/../config/env/"${environment}".env environment="$environment" image="$image" db_host="$db_host" secrets="${ssm_secrets}")
 readonly container_definition_json
 
