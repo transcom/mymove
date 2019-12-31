@@ -29,6 +29,9 @@ type OfficeUserUpdatePayload struct {
 	// Middle Initials
 	MiddleInitials *string `json:"middle_initials,omitempty"`
 
+	// roles
+	Roles []*Role `json:"roles"`
+
 	// telephone
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
 	Telephone *string `json:"telephone,omitempty"`

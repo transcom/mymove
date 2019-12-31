@@ -490,6 +490,10 @@ definitions:
       active:
         type: boolean
         x-nullable: true
+      roles:
+        type: array
+        items:
+          $ref: '#/definitions/Role'
   AdminUserCreatePayload:
     type: object
     properties:

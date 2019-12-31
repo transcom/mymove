@@ -3,6 +3,7 @@ package adminapi
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -199,6 +200,38 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 		fmt.Printf("%#v", verrs)
 		logger.Error("Error saving user", zap.Error(err))
 		return officeuserop.NewUpdateOfficeUserInternalServerError()
+	}
+	if len(payload.Roles) != 0 {
+		//TODO Not right need to account for multiple roles.
+		pRole := payload.Roles[0]
+		//TODO add created at
+		role := roles.Role{
+			ID:       uuid.FromStringOrNil(pRole.ID.String()),
+			RoleType: roles.RoleType(*pRole.RoleType),
+		}
+		user := models.User{}
+		err := h.DB().Find(&user, updatedOfficeUser.UserID)
+		if err != nil {
+			logger.Error("Error saving user", zap.Error(err))
+			return officeuserop.NewUpdateOfficeUserInternalServerError()
+		}
+		user.Roles = append(user.Roles, role)
+		type UsersRoles struct {
+			ID        uuid.UUID `db:"id"`
+			UserID    uuid.UUID `db:"user_id"`
+			RoleID    uuid.UUID `db:"role_id"`
+			CreatedAt time.Time `db:"created_at"`
+			UpdateAt  time.Time `db:"updated_at"`
+		}
+		ur := UsersRoles{
+			UserID: user.ID,
+			RoleID: role.ID,
+		}
+		err = h.DB().Eager("Roles").Create(&ur)
+		if err != nil {
+			logger.Error("Error saving role", zap.Error(err))
+			return officeuserop.NewUpdateOfficeUserInternalServerError()
+		}
 	}
 
 	_, err = audit.Capture(updatedOfficeUser, payload, logger, session, params.HTTPRequest)

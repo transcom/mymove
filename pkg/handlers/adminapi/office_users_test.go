@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate"
 
@@ -269,6 +271,67 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 			Telephone:      &officeUser.Telephone,
 		},
 	}
+	suite.T().Run("If the user is updated successfully it should be returned", func(t *testing.T) {
+		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUserUpdater := &mocks.OfficeUserUpdater{}
+		updatedParams := officeuserop.UpdateOfficeUserParams{
+			HTTPRequest: req,
+			OfficeUser: &adminmessages.OfficeUserUpdatePayload{
+				FirstName:      &officeUser.FirstName,
+				MiddleInitials: officeUser.MiddleInitials,
+				LastName:       &officeUser.LastName,
+				Telephone:      &officeUser.Telephone,
+			},
+		}
+		updatedParams.OfficeUserID = strfmt.UUID(officeUser.ID.String())
+
+		id, _ := uuid.NewV4()
+		role := &roles.Role{
+			ID:       id,
+			RoleType: "role",
+		}
+		err := suite.DB().Create(role)
+		suite.NoError(err)
+		roleID := strfmt.UUID(role.ID.String())
+		roleType := string(role.RoleType)
+		payloadRole := &adminmessages.Role{
+			ID:       &roleID,
+			RoleType: &roleType,
+		}
+		payloadRoles := []*adminmessages.Role{payloadRole}
+		updatedParams.OfficeUser.Roles = payloadRoles
+
+		officeUserUpdater.On("UpdateOfficeUser",
+			mock.Anything,
+			updatedParams.OfficeUser,
+		).Return(&officeUser, nil, nil).Once()
+
+		handler := UpdateOfficeUserHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			officeUserUpdater,
+			newQueryFilter,
+		}
+
+		response := handler.Handle(updatedParams)
+		suite.IsType(&officeuserop.UpdateOfficeUserOK{}, response)
+
+		type UsersRoles struct {
+			ID     uuid.UUID `db:"id"`
+			UserID uuid.UUID `db:"user_id"`
+			RoleID uuid.UUID `db:"role_id"`
+		}
+
+		ur := UsersRoles{}
+		n, err := suite.DB().Count(&ur)
+		suite.NoError(err)
+		suite.Equal(1, n)
+
+		user := models.User{}
+		err = suite.DB().Eager("Roles").Find(&user, officeUser.UserID)
+		suite.NoError(err)
+		suite.Require().Len(user.Roles, 1)
+		suite.Equal(user.Roles[0].ID, role.ID)
+	})
 
 	suite.T().Run("Successful update", func(t *testing.T) {
 		officeUserUpdater := &mocks.OfficeUserUpdater{}
