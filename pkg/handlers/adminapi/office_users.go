@@ -3,7 +3,6 @@ package adminapi
 import (
 	"encoding/json"
 	"fmt"
-	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -183,6 +182,7 @@ type UpdateOfficeUserHandler struct {
 	handlers.HandlerContext
 	services.OfficeUserUpdater
 	services.NewQueryFilter
+	services.UserRoleAssociator
 }
 
 func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserParams) middleware.Responder {
@@ -201,35 +201,11 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 		logger.Error("Error saving user", zap.Error(err))
 		return officeuserop.NewUpdateOfficeUserInternalServerError()
 	}
-	if len(payload.Roles) != 0 {
-		//TODO Not right need to account for multiple roles.
-		pRole := payload.Roles[0]
-		//TODO add created at
-		role := roles.Role{
-			ID:       uuid.FromStringOrNil(pRole.ID.String()),
-			RoleType: roles.RoleType(*pRole.RoleType),
-		}
-		user := models.User{}
-		err := h.DB().Find(&user, updatedOfficeUser.UserID)
+	if len(payload.Roles) > 0 {
+		rs := rolesPayloadToModel(payload)
+		_, err = h.UserRoleAssociator.AssociateUserRoles(*updatedOfficeUser.UserID, rs)
 		if err != nil {
-			logger.Error("Error saving user", zap.Error(err))
-			return officeuserop.NewUpdateOfficeUserInternalServerError()
-		}
-		user.Roles = append(user.Roles, role)
-		type UsersRoles struct {
-			ID        uuid.UUID `db:"id"`
-			UserID    uuid.UUID `db:"user_id"`
-			RoleID    uuid.UUID `db:"role_id"`
-			CreatedAt time.Time `db:"created_at"`
-			UpdateAt  time.Time `db:"updated_at"`
-		}
-		ur := UsersRoles{
-			UserID: user.ID,
-			RoleID: role.ID,
-		}
-		err = h.DB().Eager("Roles").Create(&ur)
-		if err != nil {
-			logger.Error("Error saving role", zap.Error(err))
+			logger.Error("error associating user roles", zap.Error(err))
 			return officeuserop.NewUpdateOfficeUserInternalServerError()
 		}
 	}
@@ -242,6 +218,22 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 	returnPayload := payloadForOfficeUserModel(*updatedOfficeUser)
 
 	return officeuserop.NewUpdateOfficeUserOK().WithPayload(returnPayload)
+}
+
+func rolesPayloadToModel(payload *adminmessages.OfficeUserUpdatePayload) roles.Roles {
+	rs := roles.Roles{}
+	for _, role := range payload.Roles {
+		var roleType roles.RoleType
+		if role.RoleType != nil {
+			roleType = roles.RoleType(*role.RoleType)
+		}
+		r := roles.Role{
+			ID:       uuid.FromStringOrNil(role.ID.String()),
+			RoleType: roleType,
+		}
+		rs = append(rs, r)
+	}
+	return rs
 }
 
 // generateQueryFilters is helper to convert filter params from a json string
