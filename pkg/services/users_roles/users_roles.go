@@ -10,21 +10,20 @@ import (
 )
 
 type usersRolesCreator struct {
-	//logger Logger
 	db *pop.Connection
 }
 
-// NewMoveTaskOrderFetcher creates a new struct with the service dependencies
+// NewNewUsersRolesCreator creates a new struct with the service dependencies
 func NewUsersRolesCreator(db *pop.Connection) services.UserRoleAssociator {
 	return usersRolesCreator{db}
 }
 
+//AssociateUserRoles associates a given user with a set of roles
 func (u usersRolesCreator) AssociateUserRoles(userID uuid.UUID, rs roles.Roles) ([]models.UsersRoles, error) {
 	var usersRoles []models.UsersRoles
 	user := models.User{}
 	err := u.db.Find(&user, userID)
 	if err != nil {
-		//logger.Error("Error saving user", zap.Error(err))
 		return usersRoles, err
 	}
 	var allRoles []models.UsersRoles
@@ -37,7 +36,6 @@ func (u usersRolesCreator) AssociateUserRoles(userID uuid.UUID, rs roles.Roles) 
 	}
 	err = u.db.Create(allRoles)
 	if err != nil {
-		//logger.Error("Error saving role", zap.Error(err))
 		return usersRoles, err
 	}
 	return allRoles, err
