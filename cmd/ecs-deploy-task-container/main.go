@@ -260,7 +260,7 @@ func buildSecrets(serviceSSM *ssm.SSM, awsRegion, registryID, serviceName, envir
 		for _, parameter := range parametersOutput.Parameters {
 			if strings.HasPrefix(*parameter.Name, fmt.Sprintf("/%s-%s", serviceName, environmentName)) {
 				secrets = append(secrets, &ecs.Secret{
-					Name:      parameter.Name,
+					Name:      aws.String(strings.ToUpper(strings.Split(*parameter.Name, "/")[2])),
 					ValueFrom: aws.String(fmt.Sprintf("arn:aws:ssm:%s:%s:parameter:%s", awsRegion, registryID, *parameter.Name)),
 				})
 			}
