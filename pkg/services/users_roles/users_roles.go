@@ -29,7 +29,7 @@ func (u usersRolesCreator) AssociateUserRoles(userID uuid.UUID, rs []roles.RoleT
 	var roleIDs []uuid.UUID
 	for _, roleType := range rs {
 		var roleID uuid.UUID
-		err := u.db.Where("role_type = $1", roleType).First(&roleID)
+		err := u.db.RawQuery("select id from roles where role_type = $1", roleType).First(&roleID)
 		if err == nil {
 			roleIDs = append(roleIDs, roleID)
 		}
