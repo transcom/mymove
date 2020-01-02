@@ -51,7 +51,7 @@ func main() {
 	// This is especially important in local (non remote) environments where developer env vars may conflict
 	if len(variablesFile) > 0 {
 		if _, variablesFileStatErr := os.Stat(variablesFile); os.IsNotExist(variablesFileStatErr) {
-			log.Fatal(fmt.Errorf("File %q does not exist: %w", variablesFile, variableFilesStatErr))
+			log.Fatal(fmt.Errorf("File %q does not exist: %w", variablesFile, variablesFileStatErr))
 		}
 		// Read contents of variables file into vars
 		vars, readFileErr := ioutil.ReadFile(variablesFile)
