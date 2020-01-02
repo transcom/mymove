@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/arn"
+	"github.com/aws/aws-sdk-go/aws/request"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatchevents"
 	"github.com/aws/aws-sdk-go/service/ecr"
@@ -246,18 +248,24 @@ func buildSecrets(serviceSSM *ssm.SSM, awsRegion, registryID, serviceName, envir
 
 	var secrets []*ecs.Secret
 
-	var describeParametersNextToken *string
+	params := ssm.DescribeParametersInput{
+		MaxResults: aws.Int64(50),
+	}
 
-	for {
-		parametersOutput, err := serviceSSM.DescribeParameters(&ssm.DescribeParametersInput{
-			MaxResults: aws.Int64(50),
-			NextToken:  describeParametersNextToken,
-		})
-		if err != nil {
-			log.Fatal(errors.Wrap(err, "error reading secrets from SSM"))
-		}
+	ctx := context.Background()
 
-		for _, parameter := range parametersOutput.Parameters {
+	p := request.Pagination{
+		NewRequest: func() (*request.Request, error) {
+			req, _ := serviceSSM.DescribeParametersRequest(&params)
+			req.SetContext(ctx)
+			return req, nil
+		},
+	}
+
+	for p.Next() {
+		page := p.Page().(*ssm.DescribeParametersOutput)
+
+		for _, parameter := range page.Parameters {
 			if strings.HasPrefix(*parameter.Name, fmt.Sprintf("/%s-%s", serviceName, environmentName)) {
 				secrets = append(secrets, &ecs.Secret{
 					Name:      aws.String(strings.ToUpper(strings.Split(*parameter.Name, "/")[2])),
@@ -265,12 +273,8 @@ func buildSecrets(serviceSSM *ssm.SSM, awsRegion, registryID, serviceName, envir
 				})
 			}
 		}
-		describeParametersNextToken = parametersOutput.NextToken
-
-		if describeParametersNextToken == nil || *describeParametersNextToken == "" {
-			break
-		}
 	}
+
 	return secrets
 }
 
