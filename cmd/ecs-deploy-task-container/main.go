@@ -342,10 +342,6 @@ func buildContainerEnvironment(v *viper.Viper, environmentName string, dbHost st
 			Name:  aws.String("DB_IAM"),
 			Value: aws.String(varFromCtxOrEnv("DB_IAM", ctx)),
 		},
-		{
-			Name:  aws.String("DB_IAM_ROLE"),
-			Value: aws.String(varFromCtxOrEnv("DB_IAM_ROLE", ctx)),
-		},
 	}
 }
 
