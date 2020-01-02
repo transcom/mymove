@@ -56,7 +56,7 @@ type errInvalidVault struct {
 }
 
 func (e *errInvalidVault) Error() string {
-	return fmt.Sprintf("invalid keychain name '%s' or profile '%s'", e.KeychainName, e.Profile)
+	return fmt.Sprintf("invalid keychain name %q or profile %q", e.KeychainName, e.Profile)
 }
 
 // InitVaultFlags initializes Vault command line flags
@@ -74,31 +74,31 @@ func CheckVault(v *viper.Viper) error {
 		if sessionToken := v.GetString(VaultAWSSessionTokenFlag); len(sessionToken) == 0 {
 			return errors.New("in aws-vault session, but missing aws-session-token")
 		}
-	}
+	} else {
+		// Both keychain name and profile are required or both must be missing
+		keychainName := v.GetString(VaultAWSKeychainNameFlag)
+		keychainNames := []string{
+			VaultAWSKeychainNameDefault,
+		}
+		if len(keychainName) > 0 && !stringSliceContains(keychainNames, keychainName) {
+			return errors.Wrap(&errInvalidKeychainName{KeychainName: keychainName},
+				fmt.Sprintf("%s is invalid, expected %v", VaultAWSKeychainNameFlag, keychainNames))
+		}
 
-	// Both keychain name and profile are required or both must be missing
-	keychainName := v.GetString(VaultAWSKeychainNameFlag)
-	keychainNames := []string{
-		VaultAWSKeychainNameDefault,
-	}
-	if len(keychainName) > 0 && !stringSliceContains(keychainNames, keychainName) {
-		return errors.Wrap(&errInvalidKeychainName{KeychainName: keychainName},
-			fmt.Sprintf("%s is invalid, expected %v", VaultAWSKeychainNameFlag, keychainNames))
-	}
+		awsProfile := v.GetString(VaultAWSProfileFlag)
+		awsProfiles := []string{
+			VaultAWSProfileDefault,
+		}
+		if len(awsProfile) > 0 && !stringSliceContains(awsProfiles, awsProfile) {
+			return errors.Wrap(&errInvalidAWSProfile{Profile: awsProfile},
+				fmt.Sprintf("%s is invalid, expected %v", VaultAWSProfileFlag, awsProfiles))
+		}
 
-	awsProfile := v.GetString(VaultAWSProfileFlag)
-	awsProfiles := []string{
-		VaultAWSProfileDefault,
-	}
-	if len(awsProfile) > 0 && !stringSliceContains(awsProfiles, awsProfile) {
-		return errors.Wrap(&errInvalidAWSProfile{Profile: awsProfile},
-			fmt.Sprintf("%s is invalid, expected %v", VaultAWSProfileFlag, awsProfiles))
-	}
-
-	// Require both are set or neither are set
-	if (len(keychainName) != 0 && len(awsProfile) == 0) || (len(keychainName) == 0 && len(awsProfile) != 0) {
-		return errors.Wrap(&errInvalidVault{KeychainName: keychainName, Profile: awsProfile},
-			fmt.Sprintf("If either %s or %s is is set the other is required", VaultAWSKeychainNameFlag, VaultAWSProfileFlag))
+		// Require both are set or neither are set
+		if (len(keychainName) != 0 && len(awsProfile) == 0) || (len(keychainName) == 0 && len(awsProfile) != 0) {
+			return errors.Wrap(&errInvalidVault{KeychainName: keychainName, Profile: awsProfile},
+				fmt.Sprintf("If either %s or %s is set the other is required", VaultAWSKeychainNameFlag, VaultAWSProfileFlag))
+		}
 	}
 	return nil
 }
