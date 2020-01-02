@@ -201,14 +201,14 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 		logger.Error("Error saving user", zap.Error(err))
 		return officeuserop.NewUpdateOfficeUserInternalServerError()
 	}
-	// if len(payload.Roles) > 0 {
-	// 	rt := rolesPayloadToModel(payload.Roles)
-	// 	_, err = h.UserRoleAssociator.AssociateUserRoles(*updatedOfficeUser.UserID, rt)
-	// 	if err != nil {
-	// 		logger.Error("error associating user roles", zap.Error(err))
-	// 		return officeuserop.NewUpdateOfficeUserInternalServerError()
-	// 	}
-	// }
+	if len(payload.Roles) > 0 {
+		rt := rolesPayloadToModel(payload.Roles)
+		_, err = h.UserRoleAssociator.AssociateUserRoles(*updatedOfficeUser.UserID, rt)
+		if err != nil {
+			logger.Error("error associating user roles", zap.Error(err))
+			return officeuserop.NewUpdateOfficeUserInternalServerError()
+		}
+	}
 
 	_, err = audit.Capture(updatedOfficeUser, payload, logger, session, params.HTTPRequest)
 	if err != nil {
@@ -223,8 +223,9 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 func rolesPayloadToModel(payload []*adminmessages.OfficeUserRolePayload) []roles.RoleType {
 	var rt []roles.RoleType
 	for _, role := range payload {
-		roleType := roles.RoleType(role.RoleType)
-		rt = append(rt, roleType)
+		if role.RoleType != nil {
+			rt = append(rt, roles.RoleType(*role.RoleType))
+		}
 	}
 	return rt
 }

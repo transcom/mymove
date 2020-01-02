@@ -1574,11 +1574,13 @@ func init() {
         "name": {
           "type": "string",
           "title": "name",
+          "x-nullable": true,
           "example": "Transportation Ordering Officer"
         },
         "roleType": {
           "type": "string",
           "title": "roleType",
+          "x-nullable": true,
           "example": "transporation_ordering_officer"
         }
       }
@@ -1610,8 +1612,7 @@ func init() {
           "type": "array",
           "items": {
             "$ref": "#/definitions/OfficeUserRolePayload"
-          },
-          "x-nullable": true
+          }
         },
         "telephone": {
           "type": "string",
@@ -3524,11 +3525,13 @@ func init() {
         "name": {
           "type": "string",
           "title": "name",
+          "x-nullable": true,
           "example": "Transportation Ordering Officer"
         },
         "roleType": {
           "type": "string",
           "title": "roleType",
+          "x-nullable": true,
           "example": "transporation_ordering_officer"
         }
       }
@@ -3560,8 +3563,7 @@ func init() {
           "type": "array",
           "items": {
             "$ref": "#/definitions/OfficeUserRolePayload"
-          },
-          "x-nullable": true
+          }
         },
         "telephone": {
           "type": "string",

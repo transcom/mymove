@@ -16,10 +16,10 @@ import (
 type OfficeUserRolePayload struct {
 
 	// name
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 
 	// roleType
-	RoleType string `json:"roleType,omitempty"`
+	RoleType *string `json:"roleType,omitempty"`
 }
 
 // Validate validates this office user role payload
