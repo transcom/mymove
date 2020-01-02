@@ -1,0 +1,7 @@
+services_schedule,service_provided,non_peak_price_per_cwt,peak_price_per_cwt
+1,Packing (per cwt),$63.33,$65.44
+2,Packing (per cwt),$72.50,$73.20
+3,Packing (per cwt),$73.95,$80.00
+1,Unpack (per cwt),$83.34,$85.44
+2,Unpack (per cwt),$5.97,$6.50
+3,Unpack (per cwt),$5.97,$6.50
