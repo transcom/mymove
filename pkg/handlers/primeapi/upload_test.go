@@ -45,7 +45,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 			mock.AnythingOfType("uploader.File"),
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
-			).Return(
+		).Return(
 			&upload, nil).Once()
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests/%s/uploads", paymentRequest.ID), nil)
@@ -59,8 +59,9 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 		suite.NoError(err)
 
 		params := uploadop.CreateUploadParams{
-			HTTPRequest: req,
-			File: file,
+			HTTPRequest:      req,
+			File:             file,
+			PaymentRequestID: paymentRequest.ID.String(),
 		}
 		response := handler.Handle(params)
 		file.Close()

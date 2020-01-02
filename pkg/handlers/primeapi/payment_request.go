@@ -116,4 +116,3 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(payloadServic
 
 	return paymentServiceItemParams
 }
-
