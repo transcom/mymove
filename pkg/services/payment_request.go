@@ -26,6 +26,7 @@ type PaymentRequestFetcher interface {
 }
 
 // PaymentRequestUploadCreator is the exported interface for creating a payment request upload
+//go:generate mockery -name PaymentRequestUploadCreator
 type PaymentRequestUploadCreator interface {
 	CreateUpload(file uploader.File, paymentRequestID uuid.UUID, userID uuid.UUID) (*models.Upload, error)
 }
