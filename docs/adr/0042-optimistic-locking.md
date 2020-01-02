@@ -12,36 +12,42 @@ Any user who is attempting to update stale data, i.e. a record that has already 
 
 ## Considered Alternatives
 
-- _[alternative 1]_
-- _[alternative 2]_
-- _[alternative 3]_
-- _[...]_ <!-- numbers of alternatives can vary -->
+- _[Use E-tags for optimistic locking]_
+- _[Opt-in concurrency control]_
+- _[do nothing or last request wins]_
+
 
 ## Decision Outcome
 
-- Chosen Alternative: _[alternative 1]_
+- Chosen Alternative: _[Use E-tags for optimistic locking]_
 - _[justification. e.g., only alternative, which meets KO criterion decision driver | which resolves force force | ... | comes out best (see below)]_
 - _[consequences. e.g., negative impact on quality attribute, follow-up decisions required, ...]_ <!-- optional -->
 
 ## Pros and Cons of the Alternatives <!-- optional -->
 
-### _[alternative 1]_
+### _[Use E-tags for optimistic locking]_
 
-- `+` _[argument 1 pro]_
-- `+` _[argument 2 pro]_
-- `-` _[argument 1 con]_
-- _[...]_ <!-- numbers of pros and cons can vary -->
+We implement optimistic locking using the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a 412 Precondition Failed error. The client is therefore notified of the error, and can try the request again after updating their local copy of the resource.
 
-### _[alternative 2]_
+- `+` _[This takes advantage of ETag HTTP header and follows standard/best conventions for REST APIs ]_
+- `+` _[This guarantees that data is coherent and current]_
+- `-` _[This will require more work on the client to handle rejection. In particular we will need to make sure the prime understands how this works]_
+- `-` _[Updates will require a read to confirm that the client was working with the most recent copy]_
 
-- `+` _[argument 1 pro]_
-- `+` _[argument 2 pro]_
-- `-` _[argument 1 con]_
-- _[...]_ <!-- numbers of pros and cons can vary -->
 
-### _[alternative 3]_
+### _[opt-in concurrency control]_
 
-- `+` _[argument 1 pro]_
-- `+` _[argument 2 pro]_
-- `-` _[argument 1 con]_
-- _[...]_ <!-- numbers of pros and cons can vary -->
+The user can pass in an optional tag on update requests. If tag is provided, it is checked as above. If not, then the update happens.
+
+- `+` _[it's a common solution]_
+- `-` _[this is not a sound strategy if multiple parties can manipulate the same resource.]_
+
+### _[do nothing or last request wins]_
+
+- `+` _[Locking may not be needed if most resources are immutable, or if changes made by different parties are on different attributes]_
+- `+` _[Since we will have a complete change record, we will be able to detect cases where one user has overridden the changes of another user]_
+- `-` _[since the contractor will be developing an independent system there is a greater, uncontrollable risk that they will work with stale data]_
+
+## References
+
+[Optimistic Locking in a REST API](https://sookocheff.com/post/api/optimistic-locking-in-a-rest-api/)
