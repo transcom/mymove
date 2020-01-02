@@ -19,17 +19,15 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 	}
 
 	//Int'l O->O Shipping & LH
-	var serviceIOOLH models.ReService
-	err = dbTx.Where("code = 'IOOLH'").First(&serviceIOOLH)
-	if err != nil {
-		return fmt.Errorf("failed importing re_intl_prices from StageOconousToOconus with code IOOLH: %w", err)
+	serviceIOOLH, foundService := gre.serviceToIDMap["IOOLH"]
+	if !foundService {
+		return fmt.Errorf("missing service IOOLH in map of services")
 	}
 
 	//Int'l O->O UB
-	var serviceIOOUB models.ReService
-	err = dbTx.Where("code = 'IOOUB'").First(&serviceIOOUB)
-	if err != nil {
-		return fmt.Errorf("failed importing re_intl_prices from StageOconousToOconus with code IOOUB: %w", err)
+	serviceIOOUB, foundService := gre.serviceToIDMap["IOOUB"]
+	if !foundService {
+		return fmt.Errorf("missing service IOOUB in map of services")
 	}
 
 	//loop through the OCONUS to OCONUS data and store in db
@@ -67,7 +65,7 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 
 		intlPricingModelIOOLH := models.ReIntlPrice{
 			ContractID:            gre.contractID,
-			ServiceID:             serviceIOOLH.ID,
+			ServiceID:             serviceIOOLH,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
 			IsPeakPeriod:          peakPeriod,
@@ -78,7 +76,7 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 
 		intlPricingModelIOOUB := models.ReIntlPrice{
 			ContractID:            gre.contractID,
-			ServiceID:             serviceIOOUB.ID,
+			ServiceID:             serviceIOOUB,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
 			IsPeakPeriod:          peakPeriod,
@@ -106,17 +104,15 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 	}
 
 	//Int'l C->O Shipping & LH
-	var serviceICOLH models.ReService
-	err = dbTx.Where("code = 'ICOLH'").First(&serviceICOLH)
-	if err != nil {
-		return fmt.Errorf("failed importing re_intl_prices from StageConousToOconus with code ICOLH: %w", err)
+	serviceICOLH, foundService := gre.serviceToIDMap["ICOLH"]
+	if !foundService {
+		return fmt.Errorf("missing service ICOLH in map of services")
 	}
 
 	//Int'l C->O UB
-	var serviceICOUB models.ReService
-	err = dbTx.Where("code = 'ICOUB'").First(&serviceICOUB)
-	if err != nil {
-		return fmt.Errorf("failed importing re_intl_prices from StageConousToOconus with code ICOUB: %w", err)
+	serviceICOUB, foundService := gre.serviceToIDMap["ICOUB"]
+	if !foundService {
+		return fmt.Errorf("missing service ICOUB in map of services")
 	}
 
 	//loop through the CONUS to OCONUS data and store in db
@@ -154,7 +150,7 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 
 		intlPricingModelICOLH := models.ReIntlPrice{
 			ContractID:            gre.contractID,
-			ServiceID:             serviceICOLH.ID,
+			ServiceID:             serviceICOLH,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
 			IsPeakPeriod:          peakPeriod,
@@ -165,7 +161,7 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 
 		intlPricingModelICOUB := models.ReIntlPrice{
 			ContractID:            gre.contractID,
-			ServiceID:             serviceICOUB.ID,
+			ServiceID:             serviceICOUB,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
 			IsPeakPeriod:          peakPeriod,
@@ -193,17 +189,15 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 	}
 
 	//Int'l O->C Shipping & LH
-	var serviceIOCLH models.ReService
-	err = dbTx.Where("code = 'IOCLH'").First(&serviceIOCLH)
-	if err != nil {
-		return fmt.Errorf("failed importing re_intl_prices from StageOconousToConus with code IOCLH: %w", err)
+	serviceIOCLH, foundService := gre.serviceToIDMap["IOCLH"]
+	if !foundService {
+		return fmt.Errorf("missing service IOCLH in map of services")
 	}
 
 	//Int'l O->C UB
-	var serviceIOCUB models.ReService
-	err = dbTx.Where("code = 'IOCUB'").First(&serviceIOCUB)
-	if err != nil {
-		return fmt.Errorf("failed importing re_intl_prices from StageOconousToConus with code IOCUB: %w", err)
+	serviceIOCUB, foundService := gre.serviceToIDMap["IOCUB"]
+	if !foundService {
+		return fmt.Errorf("missing service IOCUB in map of services")
 	}
 
 	//loop through the OCONUS to CONUS data and store in db
@@ -238,7 +232,7 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 
 		intlPricingModelIOCLH := models.ReIntlPrice{
 			ContractID:            gre.contractID,
-			ServiceID:             serviceIOCLH.ID,
+			ServiceID:             serviceIOCLH,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
 			IsPeakPeriod:          isPeakPeriod,
@@ -249,7 +243,7 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 
 		intlPricingModelIOCUB := models.ReIntlPrice{
 			ContractID:            gre.contractID,
-			ServiceID:             serviceIOCUB.ID,
+			ServiceID:             serviceIOCUB,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
 			IsPeakPeriod:          isPeakPeriod,

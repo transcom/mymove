@@ -11,19 +11,17 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func appendDomesticServiceAreaPrice(
+func (gre *GHCRateEngineImporter) appendDomesticServiceAreaPrice(
 	domPricingModels models.ReDomesticServiceAreaPrices,
-	db *pop.Connection,
 	code string,
 	contractID uuid.UUID,
 	isPeakPeriod bool,
 	serviceAreaID uuid.UUID,
 	price string,
 ) (models.ReDomesticServiceAreaPrices, error) {
-	var service models.ReService
-	err := db.Where("code = ?", code).First(&service)
-	if err != nil {
-		return domPricingModels, fmt.Errorf("failed importing re_service from StageDomesticServiceAreaPrice with code %s: %w", code, err)
+	serviceID, found := gre.serviceToIDMap[code]
+	if !found {
+		return domPricingModels, fmt.Errorf("missing service [%s] in map of services", code)
 	}
 
 	cents, convErr := priceToCents(price)
@@ -33,7 +31,7 @@ func appendDomesticServiceAreaPrice(
 
 	domPricingModel := models.ReDomesticServiceAreaPrice{
 		ContractID:            contractID,
-		ServiceID:             service.ID,
+		ServiceID:             serviceID,
 		IsPeakPeriod:          isPeakPeriod,
 		DomesticServiceAreaID: serviceAreaID,
 		PriceCents:            unit.Cents(cents),
@@ -69,43 +67,43 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Conn
 
 		//DSH - ShorthaulPrice
 		var err error
-		domPricingModels, err = appendDomesticServiceAreaPrice(domPricingModels, db, "DSH", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.ShorthaulPrice)
+		domPricingModels, err = gre.appendDomesticServiceAreaPrice(domPricingModels, "DSH", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.ShorthaulPrice)
 		if err != nil {
 			return err
 		}
 
 		//DOP - OriginPrice
-		domPricingModels, err = appendDomesticServiceAreaPrice(domPricingModels, db, "DOP", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.OriginDestinationPrice)
+		domPricingModels, err = gre.appendDomesticServiceAreaPrice(domPricingModels, "DOP", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.OriginDestinationPrice)
 		if err != nil {
 			return err
 		}
 
 		//DDP - DestinationPrice
-		domPricingModels, err = appendDomesticServiceAreaPrice(domPricingModels, db, "DDP", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.OriginDestinationPrice)
+		domPricingModels, err = gre.appendDomesticServiceAreaPrice(domPricingModels, "DDP", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.OriginDestinationPrice)
 		if err != nil {
 			return err
 		}
 
 		//DOFSIT - OriginSITFirstDayWarehouse
-		domPricingModels, err = appendDomesticServiceAreaPrice(domPricingModels, db, "DOFSIT", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.OriginDestinationSITFirstDayWarehouse)
+		domPricingModels, err = gre.appendDomesticServiceAreaPrice(domPricingModels, "DOFSIT", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.OriginDestinationSITFirstDayWarehouse)
 		if err != nil {
 			return err
 		}
 
 		//DDFSIT - DestinationSITFirstDayWarehouse
-		domPricingModels, err = appendDomesticServiceAreaPrice(domPricingModels, db, "DDFSIT", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.OriginDestinationSITFirstDayWarehouse)
+		domPricingModels, err = gre.appendDomesticServiceAreaPrice(domPricingModels, "DDFSIT", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.OriginDestinationSITFirstDayWarehouse)
 		if err != nil {
 			return err
 		}
 
 		//DOASIT - OriginSITAddlDays
-		domPricingModels, err = appendDomesticServiceAreaPrice(domPricingModels, db, "DOASIT", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.OriginDestinationSITAddlDays)
+		domPricingModels, err = gre.appendDomesticServiceAreaPrice(domPricingModels, "DOASIT", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.OriginDestinationSITAddlDays)
 		if err != nil {
 			return err
 		}
 
 		//DDASIT - DestinationSITAddlDays
-		domPricingModels, err = appendDomesticServiceAreaPrice(domPricingModels, db, "DDASIT", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.OriginDestinationSITAddlDays)
+		domPricingModels, err = gre.appendDomesticServiceAreaPrice(domPricingModels, "DDASIT", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.OriginDestinationSITAddlDays)
 		if err != nil {
 			return err
 		}

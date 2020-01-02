@@ -60,7 +60,7 @@ func (gre *GHCRateEngineImporter) importREInternationalOtherPrices(dbTx *pop.Con
 			}
 			serviceID, found := gre.serviceToIDMap[service]
 			if !found {
-				return fmt.Errorf("missing service [%s] in list of services", service)
+				return fmt.Errorf("missing service [%s] in map of services", service)
 			}
 
 			intlOtherPrice := models.ReIntlOtherPrice{
