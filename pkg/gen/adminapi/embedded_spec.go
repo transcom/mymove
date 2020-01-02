@@ -1568,6 +1568,21 @@ func init() {
         }
       }
     },
+    "OfficeUserRolePayload": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name",
+          "example": "Transportation Ordering Officer"
+        },
+        "roleType": {
+          "type": "string",
+          "title": "roleType",
+          "example": "transporation_ordering_officer"
+        }
+      }
+    },
     "OfficeUserUpdatePayload": {
       "type": "object",
       "properties": {
@@ -1594,8 +1609,9 @@ func init() {
         "roles": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Role"
-          }
+            "$ref": "#/definitions/OfficeUserRolePayload"
+          },
+          "x-nullable": true
         },
         "telephone": {
           "type": "string",
@@ -3502,6 +3518,21 @@ func init() {
         }
       }
     },
+    "OfficeUserRolePayload": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name",
+          "example": "Transportation Ordering Officer"
+        },
+        "roleType": {
+          "type": "string",
+          "title": "roleType",
+          "example": "transporation_ordering_officer"
+        }
+      }
+    },
     "OfficeUserUpdatePayload": {
       "type": "object",
       "properties": {
@@ -3528,8 +3559,9 @@ func init() {
         "roles": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Role"
-          }
+            "$ref": "#/definitions/OfficeUserRolePayload"
+          },
+          "x-nullable": true
         },
         "telephone": {
           "type": "string",

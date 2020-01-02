@@ -201,14 +201,14 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 		logger.Error("Error saving user", zap.Error(err))
 		return officeuserop.NewUpdateOfficeUserInternalServerError()
 	}
-	if len(payload.Roles) > 0 {
-		rs := rolesPayloadToModel(payload)
-		_, err = h.UserRoleAssociator.AssociateUserRoles(*updatedOfficeUser.UserID, rs)
-		if err != nil {
-			logger.Error("error associating user roles", zap.Error(err))
-			return officeuserop.NewUpdateOfficeUserInternalServerError()
-		}
-	}
+	// if len(payload.Roles) > 0 {
+	// 	rt := rolesPayloadToModel(payload.Roles)
+	// 	_, err = h.UserRoleAssociator.AssociateUserRoles(*updatedOfficeUser.UserID, rt)
+	// 	if err != nil {
+	// 		logger.Error("error associating user roles", zap.Error(err))
+	// 		return officeuserop.NewUpdateOfficeUserInternalServerError()
+	// 	}
+	// }
 
 	_, err = audit.Capture(updatedOfficeUser, payload, logger, session, params.HTTPRequest)
 	if err != nil {
@@ -220,20 +220,13 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 	return officeuserop.NewUpdateOfficeUserOK().WithPayload(returnPayload)
 }
 
-func rolesPayloadToModel(payload *adminmessages.OfficeUserUpdatePayload) roles.Roles {
-	rs := roles.Roles{}
-	for _, role := range payload.Roles {
-		var roleType roles.RoleType
-		if role.RoleType != nil {
-			roleType = roles.RoleType(*role.RoleType)
-		}
-		r := roles.Role{
-			ID:       uuid.FromStringOrNil(role.ID.String()),
-			RoleType: roleType,
-		}
-		rs = append(rs, r)
+func rolesPayloadToModel(payload []*adminmessages.OfficeUserRolePayload) []roles.RoleType {
+	var rt []roles.RoleType
+	for _, role := range payload {
+		roleType := roles.RoleType(role.RoleType)
+		rt = append(rt, roleType)
 	}
-	return rs
+	return rt
 }
 
 // generateQueryFilters is helper to convert filter params from a json string

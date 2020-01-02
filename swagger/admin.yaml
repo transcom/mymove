@@ -493,7 +493,20 @@ definitions:
       roles:
         type: array
         items:
-          $ref: '#/definitions/Role'
+          $ref: '#/definitions/OfficeUserRolePayload'
+  OfficeUserRolePayload:
+    type: object
+    properties:
+      name:
+        type: string
+        example: 'Transportation Ordering Officer'
+        x-nullable: true
+        title: name
+      roleType:
+        type: string
+        example: 'transporation_ordering_officer'
+        x-nullable: true
+        title: roleType
   AdminUserCreatePayload:
     type: object
     properties:

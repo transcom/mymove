@@ -10,5 +10,5 @@ import (
 // UserRoleAssociator is the service object interface for AssociateUserRoles
 //go:generate mockery -name UserRoleAssociator
 type UserRoleAssociator interface {
-	AssociateUserRoles(userID uuid.UUID, roles roles.Roles) ([]models.UsersRoles, error)
+	AssociateUserRoles(userID uuid.UUID, roles []roles.RoleType) ([]models.UsersRoles, error)
 }
