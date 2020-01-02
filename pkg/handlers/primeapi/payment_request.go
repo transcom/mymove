@@ -64,12 +64,6 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		return paymentrequestop.NewCreatePaymentRequestBadRequest()
 	}
 
-	paymentRequest.ProofOfServiceDocs, err = h.buildProofOfServiceDocs(payload)
-	if err != nil {
-		logger.Error("Error building proof of service doc", zap.Error(err))
-		return paymentrequestop.NewCreatePaymentRequestInternalServerError()
-	}
-
 	createdPaymentRequest, err := h.PaymentRequestCreator.CreatePaymentRequest(&paymentRequest)
 	if err != nil {
 		logger.Error("Error creating payment request", zap.Error(err))
@@ -123,20 +117,3 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(payloadServic
 	return paymentServiceItemParams
 }
 
-func (h CreatePaymentRequestHandler) buildProofOfServiceDocs(payload *primemessages.CreatePaymentRequestPayload) (models.ProofOfServiceDocs, error) {
-	proofOfServiceDocs := models.ProofOfServiceDocs{}
-	//for _, upload := range payload.ProofOfServiceDocs.Uploads {
-	//	doc := models.ProofOfServiceDoc{
-	//		Upload:           *upload,
-	//		}
-	//	proofOfServiceDocs = append(proofOfServiceDocs, doc)
-	//}
-
-	return proofOfServiceDocs, nil
-}
-
-//Loop through the uploads (ProofofServicePackage)
-//For each one create a ProofOfServiceDoc
-//	payment_request_id
-//	uplaod_id
-//Add comment for saving the actual uploaded files in the future
