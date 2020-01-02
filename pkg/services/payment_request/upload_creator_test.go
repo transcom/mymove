@@ -54,7 +54,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 	}
 
 	suite.T().Run("Upload is created successfully", func(t *testing.T) {
-		uploadCreator := NewUploadCreator(suite.DB(), suite.logger, storer)
+		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, storer)
 		upload, err := uploadCreator.CreateUpload(uploaderFile, paymentRequest.ID, *activeUser.UserID)
 
 		suite.NoError(err)

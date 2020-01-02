@@ -22,7 +22,7 @@ type paymentRequestUploadCreator struct {
 	fileSizeLimit uploader.ByteSize
 }
 
-func NewUploadCreator(db *pop.Connection, logger storage.Logger, fileStorer storage.FileStorer) services.PaymentRequestUploadCreator {
+func NewPaymentRequestUploadCreator(db *pop.Connection, logger storage.Logger, fileStorer storage.FileStorer) services.PaymentRequestUploadCreator {
 	return &paymentRequestUploadCreator{db, logger, fileStorer, uploader.MaxFileSizeLimit}
 }
 
