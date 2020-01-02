@@ -34,10 +34,6 @@
       "value": "{{ .DB_IAM_ROLE }}"
     },
     {
-      "name": "DB_REGION",
-      "value": "us-west-2"
-    },
-    {
       "name": "ENVIRONMENT",
       "value": "{{ .environment }}"
     },
@@ -70,10 +66,6 @@
       "value": "{{ .DEVLOCAL_AUTH }}"
     },
     {
-      "name": "MOVE_MIL_DOD_CA_CERT",
-      "value": "{{ .move_mil_dod_ca_cert }}"
-    },
-    {
       "name": "DPS_REDIRECT_URL",
       "value": "{{ .DPS_REDIRECT_URL }}"
     },
@@ -102,12 +94,12 @@
       "value": "{{ .AWS_S3_REGION }}"
     },
     {
-      "name": "STORAGE_BACKEND",
-      "value": "{{ .STORAGE_BACKEND }}"
-    },
-    {
       "name": "AWS_S3_KEY_NAMESPACE",
       "value": "app"
+    },
+    {
+      "name": "STORAGE_BACKEND",
+      "value": "{{ .STORAGE_BACKEND }}"
     },
     {
       "name": "EMAIL_BACKEND",
@@ -120,14 +112,6 @@
     {
       "name": "HERE_MAPS_ROUTING_ENDPOINT",
       "value": "https://route.cit.api.here.com/routing/7.2/calculateroute.json"
-    },
-    {
-      "name": "AWS_SES_DOMAIN",
-      "value": "{{ .domain }}"
-    },
-    {
-      "name": "AWS_SES_REGION",
-      "value": "us-west-2"
     },
     {
       "name": "LOGIN_GOV_HOSTNAME",

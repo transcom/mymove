@@ -23,10 +23,6 @@
       "value": "{{ .DB_IAM_ROLE }}"
     },
     {
-      "name": "DB_REGION",
-      "value": "{{ .AWS_S3_REGION }}"
-    },
-    {
       "name": "ENVIRONMENT",
       "value": "{{ .environment }}"
     },

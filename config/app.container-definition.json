@@ -33,10 +33,6 @@
       "value": "{{ .DB_IAM_ROLE }}"
     },
     {
-      "name": "DB_REGION",
-      "value": "us-west-2"
-    },
-    {
       "name": "ENVIRONMENT",
       "value": "{{ .environment }}"
     },
@@ -111,14 +107,6 @@
     {
       "name": "HERE_MAPS_ROUTING_ENDPOINT",
       "value": "https://route.cit.api.here.com/routing/7.2/calculateroute.json"
-    },
-    {
-      "name": "AWS_SES_DOMAIN",
-      "value": "{{ .domain }}"
-    },
-    {
-      "name": "AWS_SES_REGION",
-      "value": "us-west-2"
     },
     {
       "name": "LOGIN_GOV_HOSTNAME",
