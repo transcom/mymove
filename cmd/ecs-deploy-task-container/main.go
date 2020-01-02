@@ -284,10 +284,13 @@ func buildContainerEnvironment(v *viper.Viper, environmentName string, dbHost st
 	// These variables should always be preferred over env vars
 	ctx := map[string]string{}
 	if len(variablesFile) > 0 {
+		if _, err := os.Stat(variablesFile); os.IsNotExist(err) {
+			log.Fatal(fmt.Errorf("File %q does not exist: %w", variablesFile, err))
+		}
 		// Read contents of variables file into vars
 		vars, readFileErr := ioutil.ReadFile(variablesFile)
 		if readFileErr != nil {
-			log.Fatal(errors.New("error reading variables file"))
+			log.Fatal(fmt.Errorf("error reading variables file %q: %w", variablesFile, readFileErr))
 		}
 
 		// Adds variables from file into context
