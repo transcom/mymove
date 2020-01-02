@@ -55,14 +55,6 @@
       "value": "{{ .DB_SSL_ROOT_CERT }}"
     },
     {
-      "name": "CHAMBER_KMS_KEY_ALIAS",
-      "value": "alias/aws/ssm"
-    },
-    {
-      "name": "CHAMBER_USE_PATHS",
-      "value": "1"
-    },
-    {
       "name": "AWS_S3_BUCKET_NAME",
       "value": "transcom-ppp-app-{{ .environment }}-us-west-2"
     }
