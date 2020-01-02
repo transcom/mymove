@@ -64,12 +64,12 @@ echo "Get the container definition from template ${template} for environment ${e
 echo
 # WARNING: Use this for debugging only. It may expose secrets.
 # echo "===== START ENV FILE ===="
-# echo "$DIR"/../config/env/"${environment}".env
-# cat "$DIR"/../config/env/"${environment}".env
+# echo "$DIR"/../config/env/"${environment}".migrations.env
+# cat "$DIR"/../config/env/"${environment}".migrations.env
 # echo "===== END ENV FILE ===="
 
 ssm_secrets=$(aws ssm describe-parameters --parameter-filters Key=Path,Values=["/app-${environment}"] | jq "[.Parameters | to_entries[].value | .ARN = \"arn:aws:ssm:${AWS_DEFAULT_REGION}:${AWS_ACCOUNT_ID}:parameter\" + .Name | .ENVNAME = (.Name | ascii_upcase | split(\"/\")[2]) | {\"valueFrom\": .ARN, \"name\": .ENVNAME}]")
-container_definition_json=$("$DIR"/../bin/renderer -t "$template" -v "$DIR"/../config/env/"${environment}".env environment="$environment" image="$image" db_host="$db_host" secrets="${ssm_secrets}")
+container_definition_json=$("$DIR"/../bin/renderer -t "$template" -v "$DIR"/../config/env/"${environment}".migrations.env environment="$environment" image="$image" db_host="$db_host" secrets="${ssm_secrets}")
 readonly container_definition_json
 
 # output the definition
