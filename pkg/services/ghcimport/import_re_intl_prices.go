@@ -62,7 +62,7 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 		var perUnitCentsUB int
 		perUnitCentsUB, err = priceToCents(stageOconusToOconusPrice.UBPrice)
 		if err != nil {
-			return fmt.Errorf("could not process linehaul price [%s]: %w", stageOconusToOconusPrice.HHGShippingLinehaulPrice, err)
+			return fmt.Errorf("could not process UB price [%s]: %w", stageOconusToOconusPrice.HHGShippingLinehaulPrice, err)
 		}
 
 		intlPricingModelIOOLH := models.ReIntlPrice{
@@ -149,7 +149,7 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 		var perUnitCentsUB int
 		perUnitCentsUB, err = priceToCents(stageConusToOconusPrice.UBPrice)
 		if err != nil {
-			return fmt.Errorf("could not process linehaul price [%s]: %w", stageConusToOconusPrice.HHGShippingLinehaulPrice, err)
+			return fmt.Errorf("could not process UB price [%s]: %w", stageConusToOconusPrice.HHGShippingLinehaulPrice, err)
 		}
 
 		intlPricingModelICOLH := models.ReIntlPrice{
@@ -233,7 +233,7 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(dbTx *pop.Connecti
 
 		perUnitCentsUB, err := priceToCents(stageOconusToConusPrice.UBPrice)
 		if err != nil {
-			return fmt.Errorf("could not process linehaul price [%s]: %w", stageOconusToConusPrice.HHGShippingLinehaulPrice, err)
+			return fmt.Errorf("could not process UB price [%s]: %w", stageOconusToConusPrice.HHGShippingLinehaulPrice, err)
 		}
 
 		intlPricingModelIOCLH := models.ReIntlPrice{
