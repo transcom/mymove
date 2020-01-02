@@ -120,6 +120,13 @@ readonly container_definition_json
 # echo "===== END TASK DEF ===="
 # echo
 
+# Validate the template after it has been constructed
+if ! jq empty <<< "${container_definition_json}"; then
+  echo
+  echo "Invalid JSON produced from task definiton template ${template}!"
+  exit 1
+fi
+
 # create new task definition with the given image
 echo "* Registering new task definition"
 
