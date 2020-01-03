@@ -26,8 +26,8 @@ type FormFiller interface {
 	Output(io.Writer) error
 }
 
-// createForm is a service object to create a form with data
-type createForm struct {
+// formCreator is a service object to create a form with data
+type formCreator struct {
 	fileStorer FileStorer
 	formFiller FormFiller
 }
@@ -55,11 +55,11 @@ func MakeFormTemplate(data interface{}, fileName string, formLayout paperworkfor
 
 // NewFormCreator creates a new struct with service dependencies
 func NewFormCreator(fileStorer FileStorer, formFiller FormFiller) services.FormCreator {
-	return &createForm{fileStorer, formFiller}
+	return &formCreator{fileStorer, formFiller}
 }
 
 // Call creates a form with the given data
-func (c createForm) CreateForm(template services.FormTemplate) (afero.File, error) {
+func (c formCreator) CreateForm(template services.FormTemplate) (afero.File, error) {
 	// Populate form fields with data
 	err := c.formFiller.AppendPage(template.Buffer, template.FieldsLayout, template.Data)
 	if err != nil {

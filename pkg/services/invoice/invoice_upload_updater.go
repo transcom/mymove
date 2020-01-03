@@ -11,14 +11,14 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
-// UpdateInvoiceUpload is a service object to invoices adding an Upload
-type UpdateInvoiceUpload struct {
+// UploadUpdater is a service object to invoices adding an Upload
+type UploadUpdater struct {
 	DB       *pop.Connection
 	Uploader *uploader.Uploader
 }
 
 // saveInvoice using DB Transaction
-func (u UpdateInvoiceUpload) saveInvoice(invoice *models.Invoice) error {
+func (u UploadUpdater) saveInvoice(invoice *models.Invoice) error {
 	if invoice == nil {
 		return errors.New("Invoice is nil")
 	}
@@ -40,7 +40,7 @@ func (u UpdateInvoiceUpload) saveInvoice(invoice *models.Invoice) error {
 // DeleteUpload deletes an existing Upload
 // This function should be called before adding an Upload to an Invoice so that the
 // Upload is removed from the database and from S3 storage before adding a new Upload to Invoice
-func (u UpdateInvoiceUpload) DeleteUpload(invoice *models.Invoice) error {
+func (u UploadUpdater) DeleteUpload(invoice *models.Invoice) error {
 
 	// Check that there is an upload object
 	if invoice.Upload != nil {
@@ -70,7 +70,7 @@ func (u UpdateInvoiceUpload) DeleteUpload(invoice *models.Invoice) error {
 }
 
 // Call updates the Invoice Upload and removes an old Upload if present
-func (u UpdateInvoiceUpload) Call(invoice *models.Invoice, upload *models.Upload) (*validate.Errors, error) {
+func (u UploadUpdater) Call(invoice *models.Invoice, upload *models.Upload) (*validate.Errors, error) {
 	verrs := validate.NewErrors()
 	if upload == nil {
 		return verrs, errors.New("upload is nil")
@@ -85,7 +85,7 @@ func (u UpdateInvoiceUpload) Call(invoice *models.Invoice, upload *models.Upload
 	invoice.UploadID = &upload.ID
 	err = u.saveInvoice(invoice)
 	if err != nil {
-		return verrs, errors.Wrap(err, "Could not save Invoice for UpdateInvoiceUpload -- save new upload")
+		return verrs, errors.Wrap(err, "Could not save Invoice for UploadUpdater -- save new upload")
 	}
 
 	return verrs, nil

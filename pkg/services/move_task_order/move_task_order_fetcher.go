@@ -57,11 +57,11 @@ func (e ErrInvalidInput) InvalidFields() map[string]string {
 	return es
 }
 
-type fetchMoveTaskOrder struct {
+type moveTaskOrderFetcher struct {
 	db *pop.Connection
 }
 
-func (f fetchMoveTaskOrder) ListMoveTaskOrders(moveOrderID uuid.UUID) ([]models.MoveTaskOrder, error) {
+func (f moveTaskOrderFetcher) ListMoveTaskOrders(moveOrderID uuid.UUID) ([]models.MoveTaskOrder, error) {
 	var moveTaskOrders []models.MoveTaskOrder
 	err := f.db.Where("move_order_id = $1", moveOrderID).Eager().All(&moveTaskOrders)
 	if err != nil {
@@ -77,11 +77,11 @@ func (f fetchMoveTaskOrder) ListMoveTaskOrders(moveOrderID uuid.UUID) ([]models.
 
 // NewMoveTaskOrderFetcher creates a new struct with the service dependencies
 func NewMoveTaskOrderFetcher(db *pop.Connection) services.MoveTaskOrderFetcher {
-	return &fetchMoveTaskOrder{db}
+	return &moveTaskOrderFetcher{db}
 }
 
 //FetchMoveTaskOrder retrieves a MoveTaskOrder for a given UUID
-func (f fetchMoveTaskOrder) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error) {
+func (f moveTaskOrderFetcher) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error) {
 	mto := &models.MoveTaskOrder{}
 	if err := f.db.Eager().Find(mto, moveTaskOrderID); err != nil {
 		switch err {
@@ -97,7 +97,7 @@ func (f fetchMoveTaskOrder) FetchMoveTaskOrder(moveTaskOrderID uuid.UUID) (*mode
 	return mto, nil
 }
 
-func (f fetchMoveTaskOrder) createDefaultServiceItems(mto *models.MoveTaskOrder) error {
+func (f moveTaskOrderFetcher) createDefaultServiceItems(mto *models.MoveTaskOrder) error {
 	var reServices []models.ReService
 	err := f.db.Where("code in (?)", []string{"MS", "CS"}).All(&reServices)
 
@@ -133,19 +133,18 @@ func (f fetchMoveTaskOrder) createDefaultServiceItems(mto *models.MoveTaskOrder)
 	return nil
 }
 
-type updateMoveTaskOrderStatus struct {
+type moveTaskOrderStatusUpdater struct {
 	db *pop.Connection
-	fetchMoveTaskOrder
+	moveTaskOrderFetcher
 }
 
 // NewMoveTaskOrderFetcher creates a new struct with the service dependencies
 func NewMoveTaskOrderStatusUpdater(db *pop.Connection) services.MoveTaskOrderStatusUpdater {
-	moveTaskOrderFetcher := fetchMoveTaskOrder{db}
-	return &updateMoveTaskOrderStatus{db, moveTaskOrderFetcher}
+	return &moveTaskOrderStatusUpdater{db, moveTaskOrderFetcher{db}}
 }
 
 //MakeAvailableToPrime updates the status of a MoveTaskOrder for a given UUID to make it available to prime
-func (f fetchMoveTaskOrder) MakeAvailableToPrime(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error) {
+func (f moveTaskOrderFetcher) MakeAvailableToPrime(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error) {
 	mto, err := f.FetchMoveTaskOrder(moveTaskOrderID)
 	if err != nil {
 		return &models.MoveTaskOrder{}, err
