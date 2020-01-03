@@ -2,12 +2,16 @@
 
 set -eu -o pipefail
 
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
 prereqs_found=true
 
 function has() {
     local tool=$1
     local tool_install_direction=$2
-    tool_location=$(type -p "${tool}")
+    tool_location=$(type -p "${tool}" || true)
     if [[ -n ${tool_location} ]]; then
         if [[ -L ${tool_location} ]]; then
           # In the case of the aws-vault-wrapper being used we want to specifically
@@ -24,7 +28,7 @@ function has() {
           echo "${tool} installed."
         fi
     else
-        echo "WARNING: ${tool} not found, install via: ${tool_install_direction}"
+        echo -e "${YELLOW}WARNING: ${tool} not found, install via: ${tool_install_direction}${NC}"
         prereqs_found=false
     fi
 }
@@ -66,7 +70,7 @@ fi
 if [[ $prereqs_found == "true" ]]; then
     echo "OK: all prereqs found"
 else
-    echo "ERROR: some prereqs missing, please install them"
+    echo -e "${RED}ERROR: some prereqs missing, please install them.${NC}"
     exit 1
 fi
 
