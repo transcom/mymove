@@ -6,7 +6,7 @@ require (
 	github.com/0xAX/notificator v0.0.0-20191016112426-3962a5ea8da1 // indirect
 	github.com/99designs/aws-vault v4.5.1+incompatible
 	github.com/99designs/keyring v1.1.3
-	github.com/aws/aws-sdk-go v1.25.43
+	github.com/aws/aws-sdk-go v1.27.0
 	github.com/cockroachdb/cockroach-go v0.0.0-20190925194419-606b3d062051 // indirect
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
@@ -30,10 +30,10 @@ require (
 	github.com/go-swagger/go-swagger v0.21.0
 	github.com/gobuffalo/envy v1.8.1
 	github.com/gobuffalo/fizz v1.9.5
-	github.com/gobuffalo/flect v0.1.7
+	github.com/gobuffalo/flect v0.2.0
 	github.com/gobuffalo/nulls v0.1.0 // indirect
 	github.com/gobuffalo/packr v1.30.1
-	github.com/gobuffalo/pop v4.12.2+incompatible
+	github.com/gobuffalo/pop v4.13.0+incompatible
 	github.com/gobuffalo/validate v2.0.3+incompatible
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
 	github.com/gofrs/flock v0.7.1
