@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/arn"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatchevents"
 	"github.com/aws/aws-sdk-go/service/ecr"
@@ -85,16 +84,12 @@ func (e *errInvalidFile) Error() string {
 }
 
 const (
-	awsAccountIDFlag       string = "aws-account-id"
-	chamberBinaryFlag      string = "chamber-binary"
-	chamberRetriesFlag     string = "chamber-retries"
-	chamberKMSKeyAliasFlag string = "chamber-kms-key-alias"
-	chamberUsePathsFlag    string = "chamber-use-paths"
-	serviceFlag            string = "service"
-	environmentFlag        string = "environment"
-	imageFlag              string = "image"
-	variablesFileFlag      string = "variables-file"
-	dryRunFlag             string = "dry-run"
+	awsAccountIDFlag  string = "aws-account-id"
+	serviceFlag       string = "service"
+	environmentFlag   string = "environment"
+	imageFlag         string = "image"
+	variablesFileFlag string = "variables-file"
+	dryRunFlag        string = "dry-run"
 )
 
 type ECRImage struct {
@@ -107,11 +102,12 @@ type ECRImage struct {
 }
 
 func NewECRImage(imageName string) *ECRImage {
+	// TODO: Need validation here
 	imageParts := strings.Split(imageName, ":")
-	repositoryArn, imageTag := imageParts[0], imageParts[1]
-	repositoryArnParts := strings.Split(repositoryArn, "/")
-	repositoryName := repositoryArnParts[1]
-	repositoryDomainParts := strings.Split(repositoryArnParts[0], ".")
+	repositoryURI, imageTag := imageParts[0], imageParts[1]
+	repositoryURIParts := strings.Split(repositoryURI, "/")
+	repositoryName := repositoryURIParts[1]
+	repositoryDomainParts := strings.Split(repositoryURIParts[0], ".")
 	registryID, awsRegion := repositoryDomainParts[0], repositoryDomainParts[3]
 
 	return &ECRImage{
@@ -119,7 +115,7 @@ func NewECRImage(imageName string) *ECRImage {
 		ImageArn:       imageName,
 		ImageTag:       imageTag,
 		RegistryId:     registryID,
-		RepositoryArn:  repositoryArn,
+		RepositoryArn:  repositoryURI, // TODO: This is also wrong
 		RepositoryName: repositoryName,
 	}
 }
@@ -134,12 +130,6 @@ func initTaskDefFlags(flag *pflag.FlagSet) {
 
 	// Vault Flags
 	cli.InitVaultFlags(flag)
-
-	// Chamber Settings
-	flag.String(chamberBinaryFlag, "/bin/chamber", "Chamber Binary")
-	flag.Int(chamberRetriesFlag, 20, "Chamber Retries")
-	flag.String(chamberKMSKeyAliasFlag, "alias/aws/ssm", "Chamber KMS Key Alias")
-	flag.Int(chamberUsePathsFlag, 1, "Chamber Use Paths")
 
 	// Task Definition Settings
 	flag.String(serviceFlag, "app", fmt.Sprintf("The service name (choose %q)", services))
@@ -185,21 +175,6 @@ func checkConfig(v *viper.Viper) error {
 
 	if err := cli.CheckVault(v); err != nil {
 		return err
-	}
-
-	chamberRetries := v.GetInt(chamberRetriesFlag)
-	if chamberRetries < 1 && chamberRetries > 20 {
-		return errors.New("Chamber Retries must be greater than or equal to 1 and less than or equal to 20")
-	}
-
-	chamberKMSKeyAlias := v.GetString(chamberKMSKeyAliasFlag)
-	if len(chamberKMSKeyAlias) == 0 {
-		return errors.New("Chamber KMS Key Alias must be set")
-	}
-
-	chamberUsePaths := v.GetInt(chamberUsePathsFlag)
-	if chamberUsePaths < 1 && chamberUsePaths > 20 {
-		return errors.New("Chamber Use Paths must be greater than or equal to 1 and less than or equal to 20")
 	}
 
 	serviceName := v.GetString(serviceFlag)
@@ -340,10 +315,6 @@ func buildContainerEnvironment(environmentName string, dbHost string, variablesF
 			Name:  aws.String("DB_IAM_ROLE"),
 			Value: aws.String(varFromCtxOrEnv("DB_IAM_ROLE", ctx)),
 		},
-		{
-			Name:  aws.String("DB_REGION"),
-			Value: aws.String(varFromCtxOrEnv("DB_REGION", ctx)),
-		},
 	}
 }
 
@@ -399,7 +370,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 
 	// Create the Services
 	serviceCloudWatchEvents := cloudwatchevents.New(sess)
-	serviceECS := ecs.New(sess)
+	// serviceECS := ecs.New(sess)
 	serviceECR := ecr.New(sess)
 	serviceRDS := rds.New(sess)
 
@@ -432,42 +403,19 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		quit(logger, nil, errors.Wrapf(err, "unable retrieving image from %s", imageName))
 	}
 
-	// Get the current task definition
-	var currentTaskDef ecs.TaskDefinition
+	// Set the command name
 	scheduledTask := false
 	var commandName, subCommandName string
 	if scheduledTask {
 		commandName = "milmove-tasks"
 		subCommandName = "send-post-move-survey"
 		ruleName := fmt.Sprintf("%s-%s", subCommandName, environmentName)
-		targetsOutput, err := serviceCloudWatchEvents.ListTargetsByRule(&cloudwatchevents.ListTargetsByRuleInput{
+		_, err := serviceCloudWatchEvents.ListTargetsByRule(&cloudwatchevents.ListTargetsByRuleInput{
 			Rule: aws.String(ruleName),
 		})
 		if err != nil {
 			quit(logger, nil, errors.Wrap(err, "error retrieving targets for rule"))
 		}
-
-		currentTarget := targetsOutput.Targets[0]
-
-		// Get the current task definition
-		currentTaskDefArnStr := *currentTarget.EcsParameters.TaskDefinitionArn
-		if verbose {
-			logger.Println(fmt.Sprintf("Current Task Def Arn: %s", currentTaskDefArnStr))
-		}
-		currentTaskDefArn, err := arn.Parse(currentTaskDefArnStr)
-		if err != nil {
-			quit(logger, nil, errors.Wrap(err, "Unable to parse current task definition arn"))
-		}
-
-		currentTaskDefName := strings.Split(currentTaskDefArn.Resource, ":")[0]
-		currentTaskDefName = strings.Split(currentTaskDefName, "/")[1]
-		currentDescribeTaskDefinitionOutput, err := serviceECS.DescribeTaskDefinition(&ecs.DescribeTaskDefinitionInput{
-			TaskDefinition: aws.String(currentTaskDefName),
-		})
-		if err != nil {
-			quit(logger, nil, errors.Wrapf(err, "unable to parse current task arn %s", currentTaskDefArnStr))
-		}
-		currentTaskDef = *currentDescribeTaskDefinitionOutput.TaskDefinition
 	} else {
 		commandName = "milmove"
 		subCommandName = "serve"
@@ -475,6 +423,8 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 
 	// Register the new task definition
 	variablesFile := v.GetString(variablesFileFlag)
+	executionRoleArn := "asdf"
+	taskRoleArn := "asdf"
 	newTaskDefInput, err := renderTaskDefinition(
 		ecrImage,
 		serviceRDS,
@@ -483,8 +433,8 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		commandName,
 		subCommandName,
 		variablesFile,
-		currentTaskDef.ExecutionRoleArn,
-		currentTaskDef.TaskRoleArn)
+		executionRoleArn,
+		taskRoleArn)
 	if err != nil {
 		quit(logger, nil, err)
 	}
@@ -522,6 +472,7 @@ func renderTaskDefinition(ecrImage *ECRImage, serviceRDS *rds.RDS, serviceName, 
 	// Entrypoint
 	entryPoint := []string{
 		fmt.Sprintf("/bin/%s", commandName),
+		subCommandName,
 	}
 
 	newTaskDefInput := ecs.RegisterTaskDefinitionInput{
