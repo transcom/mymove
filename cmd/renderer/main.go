@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -24,11 +25,14 @@ func main() {
 	if len(templateFile) == 0 {
 		log.Fatal(errors.New("error: no template file given"))
 	}
+	if _, err := os.Stat(templateFile); os.IsNotExist(err) {
+		log.Fatal(fmt.Errorf("File %q does not exist: %w", templateFile, err))
+	}
 
 	// Read contents of template file into tmpl
 	tmpl, err := ioutil.ReadFile(templateFile)
 	if err != nil {
-		log.Fatal(errors.New("error reading template file"))
+		log.Fatal(fmt.Errorf("error reading template file %q: %w", templateFile, err))
 	}
 
 	ctx := map[string]string{}
@@ -46,10 +50,13 @@ func main() {
 	// Variables in file should always overwrite the env vars as a source of truth
 	// This is especially important in local (non remote) environments where developer env vars may conflict
 	if len(variablesFile) > 0 {
+		if _, variablesFileStatErr := os.Stat(variablesFile); os.IsNotExist(variablesFileStatErr) {
+			log.Fatal(fmt.Errorf("File %q does not exist: %w", variablesFile, variablesFileStatErr))
+		}
 		// Read contents of variables file into vars
 		vars, readFileErr := ioutil.ReadFile(variablesFile)
 		if readFileErr != nil {
-			log.Fatal(errors.New("error reading variables file"))
+			log.Fatal(fmt.Errorf("error reading variables file %q: %w", variablesFile, readFileErr))
 		}
 
 		// Adds variables from file into context

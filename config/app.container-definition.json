@@ -3,12 +3,6 @@
   "image": "{{ .image }}",
   "essential": true,
   "entryPoint": [
-    "/bin/chamber",
-    "-r",
-    "{{ .CHAMBER_RETRIES }}",
-    "exec",
-    "app-{{ .environment }}",
-    "--",
     "/bin/milmove",
     "serve",
     "--db-env",
@@ -28,18 +22,11 @@
     }
   ],
   "command": [],
+  "secrets": {{ .secrets }},
   "environment": [
     {
       "name": "DB_IAM",
       "value": "{{ .DB_IAM }}"
-    },
-    {
-      "name": "DB_IAM_ROLE",
-      "value": "{{ .DB_IAM_ROLE }}"
-    },
-    {
-      "name": "DB_REGION",
-      "value": "us-west-2"
     },
     {
       "name": "ENVIRONMENT",
@@ -72,14 +59,6 @@
     {
       "name": "DEVLOCAL_AUTH",
       "value": "{{ .DEVLOCAL_AUTH }}"
-    },
-    {
-      "name": "CHAMBER_KMS_KEY_ALIAS",
-      "value": "alias/aws/ssm"
-    },
-    {
-      "name": "CHAMBER_USE_PATHS",
-      "value": "1"
     },
     {
       "name": "HTTP_MY_SERVER_NAME",
@@ -124,14 +103,6 @@
     {
       "name": "HERE_MAPS_ROUTING_ENDPOINT",
       "value": "https://route.cit.api.here.com/routing/7.2/calculateroute.json"
-    },
-    {
-      "name": "AWS_SES_DOMAIN",
-      "value": "{{ .domain }}"
-    },
-    {
-      "name": "AWS_SES_REGION",
-      "value": "us-west-2"
     },
     {
       "name": "LOGIN_GOV_HOSTNAME",

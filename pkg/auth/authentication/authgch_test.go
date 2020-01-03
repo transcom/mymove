@@ -294,7 +294,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserIsTOOUser() {
 	oa := &mocks.OfficeUserAssociator{}
 	oa.On("AssociateOfficeUser", mock.Anything).Return(nil, ErrUnauthorized)
 	tr := &mocks.TOORoleChecker{}
-	tr.On("VerifyHasTOORole", mock.Anything).Return(roles.Role{RoleType: roles.TOO}, nil)
+	tr.On("VerifyHasTOORole", mock.Anything).Return(roles.Role{RoleType: roles.RoleTypeTOO}, nil)
 	tr.On("FetchUserIdentity", mock.Anything).Return(&models.UserIdentity{}, nil)
 	aa := &mocks.AdminUserAssociator{}
 	cca := &mocks.CustomerCreatorAndAssociator{}
@@ -326,18 +326,18 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserIsTOOUser() {
 	suite.NoError(err)
 	oa.AssertNumberOfCalls(suite.T(), "AssociateOfficeUser", 1)
 	tr.AssertNumberOfCalls(suite.T(), "VerifyHasTOORole", 1)
-	suite.True(session.Roles.HasRole(roles.TOO))
+	suite.True(session.Roles.HasRole(roles.RoleTypeTOO))
 	suite.NotEqual(uuid.Nil, session.UserID)
 }
 
 func (suite *AuthSuite) TestVerifyHasTOORole() {
 	rs := []roles.Role{{
 		ID:       uuid.FromStringOrNil("ed2d2cd7-d427-412a-98bb-a9b391d98d32"),
-		RoleType: roles.Customer,
+		RoleType: roles.RoleTypeCustomer,
 	},
 		{
 			ID:       uuid.FromStringOrNil("9dc423b6-33b8-493a-a59b-6a823660cb07"),
-			RoleType: roles.TOO,
+			RoleType: roles.RoleTypeTOO,
 		},
 	}
 	suite.NoError(suite.DB().Create(&rs))
@@ -353,17 +353,17 @@ func (suite *AuthSuite) TestVerifyHasTOORole() {
 	role, err := ta.VerifyHasTOORole(ui)
 
 	suite.NoError(err)
-	suite.Equal(role.RoleType, roles.TOO)
+	suite.Equal(role.RoleType, roles.RoleTypeTOO)
 }
 
 func (suite *AuthSuite) TestVerifyHasTOORoleError() {
 	rs := []roles.Role{{
 		ID:       uuid.FromStringOrNil("ed2d2cd7-d427-412a-98bb-a9b391d98d32"),
-		RoleType: roles.Customer,
+		RoleType: roles.RoleTypeCustomer,
 	},
 		{
 			ID:       uuid.FromStringOrNil("9dc423b6-33b8-493a-a59b-6a823660cb07"),
-			RoleType: roles.TOO,
+			RoleType: roles.RoleTypeTOO,
 		},
 	}
 	suite.NoError(suite.DB().Create(&rs))
