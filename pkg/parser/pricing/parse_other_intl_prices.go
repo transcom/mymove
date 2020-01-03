@@ -20,6 +20,8 @@ var parseOtherIntlPrices processXlsxSheet = func(params ParamConfig, sheetIndex 
 		return nil, fmt.Errorf("parseOtherIntlPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
+	log.Println("Parsing Other International Prices")
+
 	var otherIntlPrices []models.StageOtherIntlPrice
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
 
