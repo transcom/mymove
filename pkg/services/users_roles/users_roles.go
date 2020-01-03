@@ -21,23 +21,9 @@ func NewUsersRolesCreator(db *pop.Connection) services.UserRoleAssociator {
 //AssociateUserRoles associates a given user with a set of roles
 func (u usersRolesCreator) AssociateUserRoles(userID uuid.UUID, rs []roles.RoleType) ([]models.UsersRoles, error) {
 	var usersRoles []models.UsersRoles
-	user := models.User{}
-	err := u.db.Find(&user, userID)
+	usersRoles, err := u.fetchUnassociatedRoles(userID, rs)
 	if err != nil {
 		return usersRoles, err
-	}
-	roleMap, err := u.fetchUnassociatedRoles(userID)
-	if err != nil {
-		return usersRoles, err
-	}
-	for _, r := range rs {
-		if rID, ok := roleMap[r]; ok {
-			ur := models.UsersRoles{
-				UserID: user.ID,
-				RoleID: rID,
-			}
-			usersRoles = append(usersRoles, ur)
-		}
 	}
 	err = u.db.Create(usersRoles)
 	if err != nil {
@@ -46,23 +32,25 @@ func (u usersRolesCreator) AssociateUserRoles(userID uuid.UUID, rs []roles.RoleT
 	return usersRoles, err
 }
 
-func (u usersRolesCreator) fetchUnassociatedRoles(userID uuid.UUID) (map[roles.RoleType]uuid.UUID, error) {
-	var allRoles roles.Roles
-	var roleMap = make(map[roles.RoleType]uuid.UUID)
+func (u usersRolesCreator) fetchUnassociatedRoles(userID uuid.UUID, rs []roles.RoleType) ([]models.UsersRoles, error) {
+	// select all roles not already associated with this user
+	var userRoles []models.UsersRoles
+	rss := make([]interface{}, len(rs))
+	for i := 1; i < len(rss); {
+		rss[i] = rs[i]
+		i++
+	}
 	err := u.db.RawQuery(
-		`SELECT *
+		`SELECT $1::uuid as user_id,
+					  roles.id as role_id
 	FROM roles
 	WHERE role_type NOT IN (
-    	SELECT role_type
-    	FROM roles
-        	JOIN users_roles ur ON roles.id = ur.role_id
-    	WHERE user_id = $1);`, userID).
-		All(&allRoles)
+		SELECT role_type
+		FROM roles
+				 JOIN users_roles ur ON roles.id = ur.role_id
+		WHERE user_id = $1)`, userID).All(&userRoles)
 	if err != nil {
-		return roleMap, err
+		return userRoles, err
 	}
-	for _, role := range allRoles {
-		roleMap[role.RoleType] = role.ID
-	}
-	return roleMap, nil
+	return userRoles, nil
 }
