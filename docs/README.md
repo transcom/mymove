@@ -106,6 +106,6 @@ If you are looking to understand choices made in this project, see the list of [
 * 0039 [Use React Lazy for code splitting](adr/0039-react-lazy-and-code-splitting.md#use-react-lazy-for-code-splitting)
 * 0040 [Add Role-Based Authorization](adr/0040-role-base-authorization.md#add-role-based-authorization)
 * 0041 [Front End Form Library](adr/0041-front-end-form-library.md#front-end-form-library)
-* 0042 [_Use E-tags for optimistic locking_](adr/0042-optimistic-locking.md#use-e-tags-for-optimistic-locking)
+* 0042 [Use E-tags for optimistic locking](adr/0042-optimistic-locking.md#use-e-tags-for-optimistic-locking)
 
 <!--endindex-->

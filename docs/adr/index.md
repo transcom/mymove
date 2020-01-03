@@ -46,7 +46,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0039](0039-react-lazy-and-code-splitting.md) - Use React Lazy for code splitting
 - [ADR-0040](0040-role-base-authorization.md) - Add Role-Based Authorization
 - [ADR-0041](0041-front-end-form-library.md) - Front End Form Library
-- [ADR-0042](0042-optimistic-locking.md) - _Use E-tags for optimistic locking_
+- [ADR-0042](0042-optimistic-locking.md) - Use E-tags for optimistic locking
 
 <!-- adrlogstop -->
 
