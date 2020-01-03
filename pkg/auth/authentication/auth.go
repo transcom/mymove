@@ -49,7 +49,7 @@ func IsLoggedInMiddleware(logger Logger) http.HandlerFunc {
 	}
 }
 
-// RoleAuthMiddleware enforces that the incoming request is tied to a user session
+// RoleAuthLogin enforces that the incoming request is tied to a user session
 func RoleAuthLogin(logger Logger) func(next http.Handler) http.Handler {
 	// This is a seam to start adding in the new role based auth / login
 	// At the moment it's largely the same as UserAuthMiddleware
