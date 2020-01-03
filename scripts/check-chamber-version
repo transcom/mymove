@@ -15,14 +15,14 @@ fi
 
 VERSION="2.7"
 
-CHAMBER_VERSION=$(chamber version)
+CHAMBER_VERSION=$(type -p chamber && chamber version)
 
 # Knocks off everything after the last decimal
 SHORT_VERSION=${CHAMBER_VERSION%.*}
 if [[ $SHORT_VERSION = *$VERSION* ]]; then
   echo "${CHAMBER_VERSION} installed"
 else
-  echo -e "${YELLOW}chamber ${VERSION}.x is required to run this project! Found ${CHAMBER_VERSION}.${NC}"
+  echo -e "${YELLOW}chamber ${VERSION}.x is required to run this project! Found '${CHAMBER_VERSION}'.${NC}"
   echo "Run 'brew install chamber' or 'brew upgrade chamber'"
   exit 1
 fi
