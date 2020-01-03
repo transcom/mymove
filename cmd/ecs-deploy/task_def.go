@@ -26,8 +26,12 @@ import (
 	"github.com/transcom/mymove/pkg/cli"
 )
 
-var services = []string{"app"}
+var services = []string{"app", "app-client-tls"}
 var environments = []string{"prod", "staging", "experimental"}
+var appPorts = map[string]int64{
+	"app":            int64(8443),
+	"app-client-tls": int64(9443),
+}
 
 // Commands should be the name of the binary found in the /bin directory in the container
 //var commands = []string{"milmove-tasks save-fuel-price-data", "milmove-tasks send-post-move-survey"}
@@ -383,6 +387,10 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	imageURI := v.GetString(imageURIFlag)
 	variablesFile := v.GetString(variablesFileFlag)
 
+	// Short service name needed for RDS, CloudWatch Logs, and SSM
+	serviceNameParts := strings.Split(serviceName, "-")
+	serviceNameShort := serviceNameParts[0]
+
 	// Confirm the image exists
 	ecrImage := NewECRImage(imageURI)
 	imageIdentifier := ecr.ImageIdentifier{}
@@ -416,7 +424,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 			Rule: aws.String(ruleName),
 		})
 		if listTargetsByRuleErr != nil {
-			quit(logger, nil, fmt.Errorf("error retrieving targets for rule %q: %w", ruleName, listTargetsByRuleERr))
+			quit(logger, nil, fmt.Errorf("error retrieving targets for rule %q: %w", ruleName, listTargetsByRuleErr))
 		}
 	} else {
 		commandName = "milmove"
@@ -428,7 +436,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	taskRoleArn := fmt.Sprintf("ecs-task-role-%s-%s", serviceName, environmentName)
 
 	// Get the database host using the instance identifier
-	dbInstanceIdentifier := fmt.Sprintf("%s-%s", serviceName, environmentName)
+	dbInstanceIdentifier := fmt.Sprintf("%s-%s", serviceNameShort, environmentName)
 	dbInstancesOutput, err := serviceRDS.DescribeDBInstances(&rds.DescribeDBInstancesInput{
 		DBInstanceIdentifier: aws.String(dbInstanceIdentifier),
 	})
@@ -449,6 +457,9 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		subCommandName,
 	}
 
+	// Ports
+	port := appPorts[serviceName]
+
 	newTaskDefInput := ecs.RegisterTaskDefinitionInput{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
 			{
@@ -457,20 +468,20 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 				Essential:   aws.Bool(true),
 				EntryPoint:  aws.StringSlice(entryPoint),
 				Command:     []*string{},
-				Secrets:     buildSecrets(serviceSSM, awsRegion, awsAccountID, serviceName, environmentName),
+				Secrets:     buildSecrets(serviceSSM, awsRegion, awsAccountID, serviceNameShort, environmentName),
 				Environment: buildContainerEnvironment(environmentName, dbHost, variablesFile),
 				LogConfiguration: &ecs.LogConfiguration{
 					LogDriver: aws.String("awslogs"),
 					Options: map[string]*string{
 						"awslogs-group":         aws.String(awsLogsGroup),
 						"awslogs-region":        aws.String(awsRegion),
-						"awslogs-stream-prefix": aws.String(serviceName),
+						"awslogs-stream-prefix": aws.String(serviceNameShort),
 					},
 				},
 				PortMappings: []*ecs.PortMapping{
 					{
-						ContainerPort: aws.Int64(8443),
-						HostPort:      aws.Int64(8443),
+						ContainerPort: aws.Int64(port),
+						HostPort:      aws.Int64(port),
 						Protocol:      aws.String("tcp"),
 					},
 				},
