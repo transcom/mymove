@@ -2,6 +2,7 @@ package pricing
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -14,6 +15,10 @@ var parseDomesticOtherPricesPack processXlsxSheet = func(params ParamConfig, she
 	const serviceProvidedColumn int = 3
 	const nonPeakPriceColumn int = 4
 	const peakPriceColumn int = 5
+
+	if params.ShowOutput == true {
+		log.Println("Parsing Domestic Other (Pack/Unpack) Prices")
+	}
 
 	if xlsxDataSheetNum != sheetIndex {
 		return nil, fmt.Errorf("parseDomesticOtherPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
@@ -31,7 +36,13 @@ var parseDomesticOtherPricesPack processXlsxSheet = func(params ParamConfig, she
 
 		if packPrice.ServicesSchedule != "" {
 			packUnpackPrices = append(packUnpackPrices, packPrice)
+			if params.ShowOutput == true {
+				log.Printf("%+v\n", packPrice)
+			}
 		} else {
+			if params.ShowOutput == true {
+				log.Println("Parse of Domestic Other (Pack/Unpack) Prices Complete")
+			}
 			break
 		}
 	}
@@ -47,6 +58,10 @@ var parseDomesticOtherPricesSit processXlsxSheet = func(params ParamConfig, shee
 	const serviceProvidedColumn int = 3
 	const nonPeakPriceColumn int = 4
 	const peakPriceColumn int = 5
+
+	if params.ShowOutput == true {
+		log.Println("Parsing Domestic Other (SIT Pickup/Delivery) Prices")
+	}
 
 	if xlsxDataSheetNum != sheetIndex {
 		return nil, fmt.Errorf("parseDomesticOtherPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
@@ -64,7 +79,13 @@ var parseDomesticOtherPricesSit processXlsxSheet = func(params ParamConfig, shee
 
 		if sitPrice.SITPickupDeliverySchedule != "" {
 			sitPrices = append(sitPrices, sitPrice)
+			if params.ShowOutput == true {
+				log.Printf("%+v\n", sitPrice)
+			}
 		} else {
+			if params.ShowOutput == true {
+				log.Println("Parse of Domestic Other (Pack/Unpack) Prices Complete")
+			}
 			break
 		}
 	}
