@@ -301,20 +301,20 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		rs := roles.Roles{role1, role2}
 		err := suite.DB().Create(rs)
 		suite.NoError(err)
-		payloadRoleID1 := strfmt.UUID(role1.ID.String())
+		payloadRoleName1 := "name1"
 		payloadRoleType1 := string(role1.RoleType)
-		payloadRole1 := &adminmessages.Role{
-			ID:       &payloadRoleID1,
+		payloadRole1 := &adminmessages.OfficeUserRolePayload{
+			Name:     &payloadRoleName1,
 			RoleType: &payloadRoleType1,
 		}
-		payloadRoleID2 := strfmt.UUID(role2.ID.String())
+		payloadRoleName2 := "name2"
 		payloadRoleType2 := string(role2.RoleType)
-		payloadRole2 := &adminmessages.Role{
-			ID:       &payloadRoleID2,
+		payloadRole2 := &adminmessages.OfficeUserRolePayload{
+			Name:     &payloadRoleName2,
 			RoleType: &payloadRoleType2,
 		}
 
-		payloadRoles := []*adminmessages.Role{payloadRole1, payloadRole2}
+		payloadRoles := []*adminmessages.OfficeUserRolePayload{payloadRole1, payloadRole2}
 		updatedParams.OfficeUser.Roles = payloadRoles
 
 		officeUserUpdater.On("UpdateOfficeUser",

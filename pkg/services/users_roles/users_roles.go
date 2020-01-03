@@ -26,26 +26,35 @@ func (u usersRolesCreator) AssociateUserRoles(userID uuid.UUID, rs []roles.RoleT
 	if err != nil {
 		return usersRoles, err
 	}
-	var roleIDs []uuid.UUID
-	for _, roleType := range rs {
-		var roleID uuid.UUID
-		err := u.db.RawQuery("select id from roles where role_type = $1", roleType).First(&roleID)
-		if err == nil {
-			roleIDs = append(roleIDs, roleID)
-		}
-	}
-
-	var allRoles []models.UsersRoles
-	for _, r := range roleIDs {
-		ur := models.UsersRoles{
-			UserID: user.ID,
-			RoleID: r,
-		}
-		allRoles = append(allRoles, ur)
-	}
-	err = u.db.Create(allRoles)
+	roleMap, err := u.fetchAllRoles()
 	if err != nil {
 		return usersRoles, err
 	}
-	return allRoles, err
+	for _, r := range rs {
+		if rID, ok := roleMap[r]; ok {
+			ur := models.UsersRoles{
+				UserID: user.ID,
+				RoleID: rID,
+			}
+			usersRoles = append(usersRoles, ur)
+		}
+	}
+	err = u.db.Create(usersRoles)
+	if err != nil {
+		return usersRoles, err
+	}
+	return usersRoles, err
+}
+
+func (u usersRolesCreator) fetchAllRoles() (map[roles.RoleType]uuid.UUID, error) {
+	var allRoles roles.Roles
+	var roleMap = make(map[roles.RoleType]uuid.UUID)
+	err := u.db.All(&allRoles)
+	if err != nil {
+		return roleMap, err
+	}
+	for _, role := range allRoles {
+		roleMap[role.RoleType] = role.ID
+	}
+	return roleMap, nil
 }

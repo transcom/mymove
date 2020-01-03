@@ -22,10 +22,14 @@ func (suite *UsersRolesServiceSuite) TestUsersRoleCreateUserRole() {
 	}
 	rs := roles.Roles{role1, role2}
 	err := suite.DB().Create(rs)
+	var roleTypes []roles.RoleType
+	for _, r := range rs {
+		roleTypes = append(roleTypes, r.RoleType)
+	}
 	suite.NoError(err)
 	urc := NewUsersRolesCreator(suite.DB())
 
-	_, err = urc.AssociateUserRoles(*officeUser.UserID, rs)
+	_, err = urc.AssociateUserRoles(*officeUser.UserID, roleTypes)
 	suite.NoError(err)
 
 	ur := models.UsersRoles{}
