@@ -23,7 +23,7 @@ func NewAccessCodeClaimer(db *pop.Connection) services.AccessCodeClaimer {
 	return &accessCodeClaimer{db}
 }
 
-// fetchAccessCode gets an access code based upon the code given to determine whether or not it is a used code
+// fetchAccessCodeForUpdate gets an access code based upon the code given to determine whether or not it is a used code
 func fetchAccessCodeForUpdate(code string, db *pop.Connection) (*models.AccessCode, error) {
 	ac := models.AccessCode{}
 
