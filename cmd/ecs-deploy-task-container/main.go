@@ -241,7 +241,7 @@ func varFromCtxOrEnv(varName string, ctx map[string]string) string {
 		return i
 	}
 	// Default to whatever exists in the environment
-	return os.Getenv("DB_PORT")
+	return os.Getenv(varName)
 }
 
 func buildSecrets(serviceSSM *ssm.SSM, awsRegion, registryID, serviceName, environmentName string) []*ecs.Secret {

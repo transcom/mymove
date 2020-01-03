@@ -1,18 +1,23 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/request"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/private/protocol/json/jsonutil"
 	"github.com/aws/aws-sdk-go/service/cloudwatchevents"
 	"github.com/aws/aws-sdk-go/service/ecr"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/aws/aws-sdk-go/service/rds"
+	"github.com/aws/aws-sdk-go/service/ssm"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -25,7 +30,7 @@ var services = []string{"app"}
 var environments = []string{"prod", "staging", "experimental"}
 
 // Commands should be the name of the binary found in the /bin directory in the container
-var commands = []string{"milmove-tasks save-fuel-price-data", "milmove-tasks send-post-move-survey"}
+//var commands = []string{"milmove-tasks save-fuel-price-data", "milmove-tasks send-post-move-survey"}
 
 type errInvalidAccountID struct {
 	AwsAccountID string
@@ -87,23 +92,21 @@ const (
 	awsAccountIDFlag  string = "aws-account-id"
 	serviceFlag       string = "service"
 	environmentFlag   string = "environment"
-	imageFlag         string = "image"
+	imageURIFlag      string = "image"
 	variablesFileFlag string = "variables-file"
-	dryRunFlag        string = "dry-run"
 )
 
 type ECRImage struct {
 	AWSRegion      string
-	ImageArn       string
+	imageURI       string
 	ImageTag       string
-	RegistryId     string
-	RepositoryArn  string
+	RegistryID     string
+	RepositoryURI  string
 	RepositoryName string
 }
 
-func NewECRImage(imageName string) *ECRImage {
-	// TODO: Need validation here
-	imageParts := strings.Split(imageName, ":")
+func NewECRImage(imageURI string) *ECRImage {
+	imageParts := strings.Split(imageURI, ":")
 	repositoryURI, imageTag := imageParts[0], imageParts[1]
 	repositoryURIParts := strings.Split(repositoryURI, "/")
 	repositoryName := repositoryURIParts[1]
@@ -112,10 +115,10 @@ func NewECRImage(imageName string) *ECRImage {
 
 	return &ECRImage{
 		AWSRegion:      awsRegion,
-		ImageArn:       imageName,
+		imageURI:       imageURI,
 		ImageTag:       imageTag,
-		RegistryId:     registryID,
-		RepositoryArn:  repositoryURI, // TODO: This is also wrong
+		RegistryID:     registryID,
+		RepositoryURI:  repositoryURI,
 		RepositoryName: repositoryName,
 	}
 }
@@ -134,15 +137,14 @@ func initTaskDefFlags(flag *pflag.FlagSet) {
 	// Task Definition Settings
 	flag.String(serviceFlag, "app", fmt.Sprintf("The service name (choose %q)", services))
 	flag.String(environmentFlag, "", fmt.Sprintf("The environment name (choose %q)", environments))
-	flag.String(imageFlag, "", "The name of the image referenced in the task definition")
+	flag.String(imageURIFlag, "", "The URI of the container image to use in the task definition")
 	flag.String(variablesFileFlag, "", "A file containing variables for the task definiton")
 
 	// Verbose
 	cli.InitVerboseFlags(flag)
-	flag.Bool(dryRunFlag, false, "Execute as a dry-run without modifying AWS.")
 
-	// Don't sort flags
-	flag.SortFlags = false
+	// Sort flags
+	flag.SortFlags = true
 }
 
 func checkConfig(v *viper.Viper) error {
@@ -158,7 +160,7 @@ func checkConfig(v *viper.Viper) error {
 	}
 
 	if err := cli.CheckAWSRegionForService(region, cloudwatchevents.ServiceName); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecs.ServiceName))
+		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, cloudwatchevents.ServiceName))
 	}
 
 	if err := cli.CheckAWSRegionForService(region, ecs.ServiceName); err != nil {
@@ -166,11 +168,15 @@ func checkConfig(v *viper.Viper) error {
 	}
 
 	if err := cli.CheckAWSRegionForService(region, ecr.ServiceName); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecs.ServiceName))
+		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecr.ServiceName))
 	}
 
 	if err := cli.CheckAWSRegionForService(region, rds.ServiceName); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecs.ServiceName))
+		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, rds.ServiceName))
+	}
+
+	if err := cli.CheckAWSRegionForService(region, ssm.ServiceName); err != nil {
+		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ssm.ServiceName))
 	}
 
 	if err := cli.CheckVault(v); err != nil {
@@ -207,9 +213,9 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(&errInvalidEnvironment{Environment: environmentName}, fmt.Sprintf("%q is invalid", environmentFlag))
 	}
 
-	image := v.GetString(imageFlag)
+	image := v.GetString(imageURIFlag)
 	if len(image) == 0 {
-		return errors.Wrap(&errInvalidImage{Image: image}, fmt.Sprintf("%q is invalid", imageFlag))
+		return errors.Wrap(&errInvalidImage{Image: image}, fmt.Sprintf("%q is invalid", imageURIFlag))
 	}
 
 	if variablesFile := v.GetString(variablesFileFlag); len(variablesFile) > 0 {
@@ -230,21 +236,55 @@ func quit(logger *log.Logger, flag *pflag.FlagSet, err error) {
 	os.Exit(1)
 }
 
-func varFromCtxOrEnv(varName string, ctx map[string]string) string {
-	// Return the value if it is in the context
-	if i, ok := ctx[varName]; ok {
-		return i
+func buildSecrets(serviceSSM *ssm.SSM, awsRegion, awsAccountID, serviceName, environmentName string) []*ecs.Secret {
+
+	var secrets []*ecs.Secret
+
+	params := ssm.DescribeParametersInput{
+		MaxResults: aws.Int64(50),
 	}
-	// Default to whatever exists in the environment
-	return os.Getenv("DB_PORT")
+
+	ctx := context.Background()
+
+	p := request.Pagination{
+		NewRequest: func() (*request.Request, error) {
+			req, _ := serviceSSM.DescribeParametersRequest(&params)
+			req.SetContext(ctx)
+			return req, nil
+		},
+	}
+
+	for p.Next() {
+		page := p.Page().(*ssm.DescribeParametersOutput)
+
+		for _, parameter := range page.Parameters {
+			if strings.HasPrefix(*parameter.Name, fmt.Sprintf("/%s-%s", serviceName, environmentName)) {
+				secrets = append(secrets, &ecs.Secret{
+					Name:      aws.String(strings.ToUpper(strings.Split(*parameter.Name, "/")[2])),
+					ValueFrom: aws.String(fmt.Sprintf("arn:aws:ssm:%s:%s:parameter%s", awsRegion, awsAccountID, *parameter.Name)),
+				})
+			}
+		}
+	}
+
+	return secrets
 }
 
 func buildContainerEnvironment(environmentName string, dbHost string, variablesFile string) []*ecs.KeyValuePair {
 
+	envVars := map[string]string{
+		"DB_ENV":      cli.DbEnvContainer,
+		"DB_HOST":     dbHost,
+		"ENVIRONMENT": environmentName,
+		"LOGGING_ENV": cli.LoggingEnvProduction,
+	}
+
 	// Construct variables from a file for the task def
 	// These variables should always be preferred over env vars
-	ctx := map[string]string{}
 	if len(variablesFile) > 0 {
+		if _, err := os.Stat(variablesFile); os.IsNotExist(err) {
+			log.Fatal(fmt.Errorf("File %q does not exist: %w", variablesFile, err))
+		}
 		// Read contents of variables file into vars
 		vars, readFileErr := ioutil.ReadFile(variablesFile)
 		if readFileErr != nil {
@@ -257,65 +297,28 @@ func buildContainerEnvironment(environmentName string, dbHost string, variablesF
 			if len(x) > 0 && x[0] != '#' {
 				// Split each line on the first equals sign into [name, value]
 				pair := strings.SplitAfterN(x, "=", 2)
-				ctx[pair[0][0:len(pair[0])-1]] = pair[1]
+				envVars[pair[0][0:len(pair[0])-1]] = pair[1]
 			}
 		}
 	}
 
-	return []*ecs.KeyValuePair{
-		{
-			Name:  aws.String("CHAMBER_KMS_KEY_ALIAS"),
-			Value: aws.String(varFromCtxOrEnv("CHAMBER_KMS_KEY_ALIAS", ctx)),
-		},
-		{
-			Name:  aws.String("CHAMBER_USE_PATHS"),
-			Value: aws.String(varFromCtxOrEnv("CHAMBER_USE_PATHS", ctx)),
-		},
-		{
-			Name:  aws.String("DB_ENV"),
-			Value: aws.String(cli.DbEnvContainer),
-		},
-		{
-			Name:  aws.String("LOGGING_ENV"),
-			Value: aws.String(cli.LoggingEnvProduction),
-		},
-		{
-			Name:  aws.String("ENVIRONMENT"),
-			Value: aws.String(environmentName),
-		},
-		{
-			Name:  aws.String("DB_HOST"),
-			Value: aws.String(dbHost),
-		},
-		{
-			Name:  aws.String("DB_PORT"),
-			Value: aws.String(varFromCtxOrEnv("DB_PORT", ctx)),
-		},
-		{
-			Name:  aws.String("DB_USER"),
-			Value: aws.String(varFromCtxOrEnv("DB_USER", ctx)),
-		},
-		{
-			Name:  aws.String("DB_NAME"),
-			Value: aws.String(varFromCtxOrEnv("DB_NAME", ctx)),
-		},
-		{
-			Name:  aws.String("DB_SSL_MODE"),
-			Value: aws.String(varFromCtxOrEnv("DB_SSL_MODE", ctx)),
-		},
-		{
-			Name:  aws.String("DB_SSL_ROOT_CERT"),
-			Value: aws.String(varFromCtxOrEnv("DB_SSL_ROOT_CERT", ctx)),
-		},
-		{
-			Name:  aws.String("DB_IAM"),
-			Value: aws.String(varFromCtxOrEnv("DB_IAM", ctx)),
-		},
-		{
-			Name:  aws.String("DB_IAM_ROLE"),
-			Value: aws.String(varFromCtxOrEnv("DB_IAM_ROLE", ctx)),
-		},
+	var ecsKVPair []*ecs.KeyValuePair
+
+	// Sort these for easier reading
+	keys := make([]string, 0, len(envVars))
+	for k := range envVars {
+		keys = append(keys, k)
 	}
+	sort.Strings(keys)
+
+	for _, key := range keys {
+		ecsKVPair = append(ecsKVPair, &ecs.KeyValuePair{
+			Name:  aws.String(key),
+			Value: aws.String(envVars[key]),
+		})
+	}
+	return ecsKVPair
+
 }
 
 func taskDefFunction(cmd *cobra.Command, args []string) error {
@@ -349,9 +352,6 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		logger.SetFlags(0)
 	}
 
-	// Flag for Dry Run
-	dryRun := v.GetBool(dryRunFlag)
-
 	// Ensure the configuration works against the variables
 	checkConfigErr := checkConfig(v)
 	if checkConfigErr != nil {
@@ -373,16 +373,18 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	// serviceECS := ecs.New(sess)
 	serviceECR := ecr.New(sess)
 	serviceRDS := rds.New(sess)
+	serviceSSM := ssm.New(sess)
 
-	// ===== This stuff should come from the CLI or function =====
-	// Take inputs from lambda
+	// ===== Limit the variables required =====
+	awsAccountID := v.GetString(awsAccountIDFlag)
+	awsRegion := v.GetString(cli.AWSRegionFlag)
 	environmentName := v.GetString(environmentFlag)
 	serviceName := v.GetString(serviceFlag)
-	imageName := v.GetString(imageFlag)
-	// =====
+	imageURI := v.GetString(imageURIFlag)
+	variablesFile := v.GetString(variablesFileFlag)
 
 	// Confirm the image exists
-	ecrImage := NewECRImage(imageName)
+	ecrImage := NewECRImage(imageURI)
 	imageIdentifier := ecr.ImageIdentifier{}
 	imageIdentifier.SetImageTag(ecrImage.ImageTag)
 	errImageIdentifierValidate := imageIdentifier.Validate()
@@ -396,11 +398,11 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 				ImageTag: aws.String(ecrImage.ImageTag),
 			},
 		},
-		RegistryId:     aws.String(ecrImage.RegistryId),
+		RegistryId:     aws.String(ecrImage.RegistryID),
 		RepositoryName: aws.String(ecrImage.RepositoryName),
 	})
 	if err != nil {
-		quit(logger, nil, errors.Wrapf(err, "unable retrieving image from %s", imageName))
+		quit(logger, nil, errors.Wrapf(err, "unable retrieving image from %s", imageURI))
 	}
 
 	// Set the command name
@@ -410,11 +412,11 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		commandName = "milmove-tasks"
 		subCommandName = "send-post-move-survey"
 		ruleName := fmt.Sprintf("%s-%s", subCommandName, environmentName)
-		_, err := serviceCloudWatchEvents.ListTargetsByRule(&cloudwatchevents.ListTargetsByRuleInput{
+		_, listTargetsByRuleErr := serviceCloudWatchEvents.ListTargetsByRule(&cloudwatchevents.ListTargetsByRuleInput{
 			Rule: aws.String(ruleName),
 		})
-		if err != nil {
-			quit(logger, nil, errors.Wrap(err, "error retrieving targets for rule"))
+		if listTargetsByRuleErr != nil {
+			quit(logger, nil, fmt.Errorf("error retrieving targets for rule %q: %w", ruleName, listTargetsByRuleERr))
 		}
 	} else {
 		commandName = "milmove"
@@ -422,36 +424,8 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Register the new task definition
-	variablesFile := v.GetString(variablesFileFlag)
-	executionRoleArn := "asdf"
-	taskRoleArn := "asdf"
-	newTaskDefInput, err := renderTaskDefinition(
-		ecrImage,
-		serviceRDS,
-		serviceName,
-		environmentName,
-		commandName,
-		subCommandName,
-		variablesFile,
-		executionRoleArn,
-		taskRoleArn)
-	if err != nil {
-		quit(logger, nil, err)
-	}
-
-	if verbose {
-		logger.Println(newTaskDefInput.String())
-	}
-
-	if dryRun {
-		logger.Println("Dry run: ECS Task Definition not registered! CloudWatch Target Not Updated!")
-		return nil
-	}
-
-	return nil
-}
-
-func renderTaskDefinition(ecrImage *ECRImage, serviceRDS *rds.RDS, serviceName, environmentName, commandName, subCommandName, variablesFile, executionRoleArn, taskRoleArn string) (*ecs.RegisterTaskDefinitionInput, error) {
+	executionRoleArn := fmt.Sprintf("ecs-task-execution-role-%s-%s", serviceName, environmentName)
+	taskRoleArn := fmt.Sprintf("ecs-task-role-%s-%s", serviceName, environmentName)
 
 	// Get the database host using the instance identifier
 	dbInstanceIdentifier := fmt.Sprintf("%s-%s", serviceName, environmentName)
@@ -459,15 +433,15 @@ func renderTaskDefinition(ecrImage *ECRImage, serviceRDS *rds.RDS, serviceName, 
 		DBInstanceIdentifier: aws.String(dbInstanceIdentifier),
 	})
 	if err != nil {
-		return nil, errors.Wrapf(err, "error retrieving database definition for %s", dbInstanceIdentifier)
+		quit(logger, nil, fmt.Errorf("error retrieving database definition for %q: %w", dbInstanceIdentifier, err))
 	}
 	dbHost := *dbInstancesOutput.DBInstances[0].Endpoint.Address
 
 	// Name the container definition and verify it exists
-	containerDefName := fmt.Sprintf("%s-%s-%s", ecrImage.RepositoryName, subCommandName, environmentName)
+	containerDefName := fmt.Sprintf("%s-%s", serviceName, environmentName)
 
 	// AWS Logs Group is related to the cluster and should not be changed
-	awsLogsGroup := fmt.Sprintf("ecs-%s-%s", ecrImage.RepositoryName, environmentName)
+	awsLogsGroup := fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
 
 	// Entrypoint
 	entryPoint := []string{
@@ -479,28 +453,45 @@ func renderTaskDefinition(ecrImage *ECRImage, serviceRDS *rds.RDS, serviceName, 
 		ContainerDefinitions: []*ecs.ContainerDefinition{
 			{
 				Name:        aws.String(containerDefName),
-				Image:       aws.String(ecrImage.ImageArn),
+				Image:       aws.String(ecrImage.imageURI),
 				Essential:   aws.Bool(true),
 				EntryPoint:  aws.StringSlice(entryPoint),
 				Command:     []*string{},
+				Secrets:     buildSecrets(serviceSSM, awsRegion, awsAccountID, serviceName, environmentName),
 				Environment: buildContainerEnvironment(environmentName, dbHost, variablesFile),
 				LogConfiguration: &ecs.LogConfiguration{
 					LogDriver: aws.String("awslogs"),
 					Options: map[string]*string{
 						"awslogs-group":         aws.String(awsLogsGroup),
-						"awslogs-region":        aws.String(ecrImage.AWSRegion),
-						"awslogs-stream-prefix": aws.String(ecrImage.RepositoryName),
+						"awslogs-region":        aws.String(awsRegion),
+						"awslogs-stream-prefix": aws.String(serviceName),
 					},
 				},
+				PortMappings: []*ecs.PortMapping{
+					{
+						ContainerPort: aws.Int64(8443),
+						HostPort:      aws.Int64(8443),
+						Protocol:      aws.String("tcp"),
+					},
+				},
+				ReadonlyRootFilesystem: aws.Bool(true),
 			},
 		},
-		Cpu:                     aws.String("512"),
 		ExecutionRoleArn:        aws.String(executionRoleArn),
 		Family:                  aws.String(fmt.Sprintf("%s-%s", serviceName, environmentName)),
-		Memory:                  aws.String("2048"),
 		NetworkMode:             aws.String("awsvpc"),
 		RequiresCompatibilities: []*string{aws.String("FARGATE")},
 		TaskRoleArn:             aws.String(taskRoleArn),
+		Cpu:                     aws.String("512"),
+		Memory:                  aws.String("2048"),
 	}
-	return &newTaskDefInput, nil
+
+	newTaskDefJSON, jsonErr := jsonutil.BuildJSON(newTaskDefInput)
+	if jsonErr != nil {
+		quit(logger, nil, err)
+	}
+	logger.Println(string(newTaskDefJSON))
+	// logger.Println(newTaskDefInput.GoString())
+
+	return nil
 }
