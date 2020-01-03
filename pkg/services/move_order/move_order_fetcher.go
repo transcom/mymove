@@ -57,12 +57,12 @@ func (e ErrInvalidInput) InvalidFields() map[string]string {
 	return es
 }
 
-type fetchMoveOrder struct {
+type moveOrderFetcher struct {
 	db *pop.Connection
 }
 
 //Last, First Name | Confirmation # | Branch of Service | Origin Duty Station
-func (f fetchMoveOrder) ListMoveOrders() ([]models.MoveOrder, error) {
+func (f moveOrderFetcher) ListMoveOrders() ([]models.MoveOrder, error) {
 	var moveOrders []models.MoveOrder
 	err := f.db.Eager("Customer", "ConfirmationNumber", "DestinationDutyStation.Address", "OriginDutyStation.Address", "Entitlement").All(&moveOrders)
 	if err != nil {
@@ -78,11 +78,11 @@ func (f fetchMoveOrder) ListMoveOrders() ([]models.MoveOrder, error) {
 
 // NewMoveOrderFetcher creates a new struct with the service dependencies
 func NewMoveOrderFetcher(db *pop.Connection) services.MoveOrderFetcher {
-	return &fetchMoveOrder{db}
+	return &moveOrderFetcher{db}
 }
 
 //FetchMoveOrder retrieves a MoveOrder for a given UUID
-func (f fetchMoveOrder) FetchMoveOrder(moveOrderID uuid.UUID) (*models.MoveOrder, error) {
+func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.MoveOrder, error) {
 	moveOrder := &models.MoveOrder{}
 	err := f.db.Eager("DestinationDutyStation.Address", "OriginDutyStation.Address", "Entitlement").Find(moveOrder, moveOrderID)
 	if err != nil {

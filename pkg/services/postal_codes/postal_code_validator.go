@@ -8,14 +8,14 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-type validatePostalCode struct {
+type postalCodeValidator struct {
 	DB *pop.Connection
 }
 
 // make sure the zipcode is in the route zip_locations
 // need the FetchRateAreaForZip5 (db, origin)
 // FetchRegionForZip5 (db, destination)
-func (v validatePostalCode) ValidatePostalCode(postalCode string, postalCodeType services.PostalCodeType) (bool, error) {
+func (v postalCodeValidator) ValidatePostalCode(postalCode string, postalCodeType services.PostalCodeType) (bool, error) {
 	_, err := route.Zip5ToLatLong(postalCode)
 	if err != nil {
 		return false, err
@@ -37,5 +37,5 @@ func (v validatePostalCode) ValidatePostalCode(postalCode string, postalCodeType
 // NewPostalCodeValidator is the public constructor for a `NewPostalCodeValidator`
 // using Pop
 func NewPostalCodeValidator(db *pop.Connection) services.PostalCodeValidator {
-	return &validatePostalCode{db}
+	return &postalCodeValidator{db}
 }

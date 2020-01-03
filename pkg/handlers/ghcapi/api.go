@@ -2,7 +2,6 @@ package ghcapi
 
 import (
 	"log"
-	"net/http"
 
 	"github.com/transcom/mymove/pkg/services/fetch"
 	moveorder "github.com/transcom/mymove/pkg/services/move_order"
@@ -23,7 +22,7 @@ import (
 )
 
 // NewGhcAPIHandler returns a handler for the GHC API
-func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
+func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 	ghcSpec, err := loads.Analyzed(ghcapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
@@ -45,6 +44,12 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 	ghcAPI.PaymentRequestsGetPaymentRequestHandler = GetPaymentRequestHandler{
 		context,
 		paymentrequest.NewPaymentRequestFetcher(queryBuilder),
+	}
+
+	ghcAPI.PaymentRequestsUpdatePaymentRequestStatusHandler = UpdatePaymentRequestStatusHandler{
+		HandlerContext:              context,
+		PaymentRequestStatusUpdater: paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
+		PaymentRequestFetcher:       paymentrequest.NewPaymentRequestFetcher(queryBuilder),
 	}
 
 	ghcAPI.PaymentRequestsListPaymentRequestsHandler = ListPaymentRequestsHandler{
@@ -72,5 +77,5 @@ func NewGhcAPIHandler(context handlers.HandlerContext) http.Handler {
 		movetaskorder.NewMoveTaskOrderStatusUpdater(context.DB()),
 	}
 
-	return ghcAPI.Serve(nil)
+	return ghcAPI
 }

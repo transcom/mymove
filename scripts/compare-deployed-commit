@@ -31,8 +31,12 @@ if [[ "$deployed_commit" == "null" ]]; then
   exit 1
 fi
 
+if [[ "${deployed_commit}" == "${local_commit}" ]]; then
+  echo "* Deployed commit ($deployed_commit) is the local commit ($local_commit)."
+  echo "* Deploy can continue."
+  exit 0
 # See pattern at https://git-scm.com/docs/git-merge-base
-if git merge-base --is-ancestor "$deployed_commit" "$local_commit"; then
+elif git merge-base --is-ancestor "$deployed_commit" "$local_commit"; then
   echo "* Deployed commit ($deployed_commit) is an ancestor of the local commit ($local_commit)."
   echo "* Deploy can continue."
   exit 0

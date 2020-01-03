@@ -3,7 +3,6 @@ package internalapi
 import (
 	"io"
 	"log"
-	"net/http"
 
 	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
@@ -18,8 +17,8 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
-// NewInternalAPIHandler returns a handler for the internal API
-func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
+// NewInternalAPI returns the internal API
+func NewInternalAPI(context handlers.HandlerContext) *internalops.MymoveAPI {
 
 	internalSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")
 	if err != nil {
@@ -114,7 +113,7 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.AccesscodeValidateAccessCodeHandler = ValidateAccessCodeHandler{context, accesscodeservice.NewAccessCodeValidator(context.DB())}
 	internalAPI.AccesscodeClaimAccessCodeHandler = ClaimAccessCodeHandler{context, accesscodeservice.NewAccessCodeClaimer(context.DB())}
 
-	return internalAPI.Serve(nil)
+	return internalAPI
 }
 
 // PDFProducer creates a new PDF producer

@@ -64,11 +64,12 @@ echo "Get the container definition from template ${template} for environment ${e
 echo
 # WARNING: Use this for debugging only. It may expose secrets.
 # echo "===== START ENV FILE ===="
-# echo "$DIR"/../config/env/"${environment}".env
-# cat "$DIR"/../config/env/"${environment}".env
+# echo "$DIR"/../config/env/"${environment}".migrations.env
+# cat "$DIR"/../config/env/"${environment}".migrations.env
 # echo "===== END ENV FILE ===="
 
-container_definition_json=$("$DIR"/../bin/renderer -t "$template" -v "$DIR"/../config/env/"${environment}".env environment="$environment" image="$image" db_host="$db_host")
+ssm_secrets=$(aws ssm describe-parameters --parameter-filters Key=Path,Values=["/app-${environment}"] | jq "[.Parameters | to_entries[].value | .ARN = \"arn:aws:ssm:${AWS_DEFAULT_REGION}:${AWS_ACCOUNT_ID}:parameter\" + .Name | .ENVNAME = (.Name | ascii_upcase | split(\"/\")[2]) | {\"valueFrom\": .ARN, \"name\": .ENVNAME}]")
+container_definition_json=$("${DIR}/../bin/renderer" -t "${template}" -v "${DIR}/../config/env/${environment}.migrations.env" environment="${environment}" image="${image}" db_host="${db_host}" secrets="${ssm_secrets}")
 readonly container_definition_json
 
 # output the definition
@@ -78,6 +79,13 @@ readonly container_definition_json
 # jq . <<< "${container_definition_json}"
 # echo "===== END TASK DEF ===="
 # echo
+
+# Validate the template after it has been constructed
+if ! jq empty <<< "${container_definition_json}"; then
+  echo
+  echo "Invalid JSON produced from task definiton template ${template}!"
+  exit 1
+fi
 
 # create new task definition with the given image
 echo "Create a new task definition for task family ${task_family}"
