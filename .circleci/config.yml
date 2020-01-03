@@ -554,9 +554,6 @@ jobs:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run:
-          name: Build Chamber
-          command: make bin/chamber
-      - run:
           name: Run acceptance tests
           command: make webserver_test
           environment:
@@ -622,9 +619,6 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
-      - run:
-          name: Build Chamber
-          command: make bin/chamber
       - run:
           name: Run acceptance tests
           command: make webserver_test
