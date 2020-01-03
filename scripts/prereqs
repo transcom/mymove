@@ -2,25 +2,46 @@
 
 set -eu -o pipefail
 
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
 prereqs_found=true
 
 function has() {
     local tool=$1
     local tool_install_direction=$2
-    if [[ -n $(type -p "${tool}") ]]; then
-        echo "${tool} installed."
+    tool_location=$(type -p "${tool}" || true)
+    if [[ -n ${tool_location} ]]; then
+        if [[ -L ${tool_location} ]]; then
+          # In the case of the aws-vault-wrapper being used we want to specifically
+          # check that the tool exists in /usr/local/bin
+          symtool=$(readlink "${tool_location}")
+          if [[ "${symtool}" == "aws-vault-wrapper" ]]; then
+            has "/usr/local/bin/${tool}" "${tool_install_direction}"
+          else
+            # A symlink that is not aws-vault-wrapper
+            echo "${tool} installed."
+          fi
+        else
+          # Not a symlink
+          echo "${tool} installed."
+        fi
     else
-        echo "WARNING: ${tool} not found, install via: ${tool_install_direction}"
+        echo -e "${YELLOW}WARNING: ${tool} not found, install via: ${tool_install_direction}${NC}"
         prereqs_found=false
     fi
 }
 
-has go "brew install go"
+has aws "brew install awscli"
 has bash "brew install bash"
+has chamber "brew install chamber"
+has docker "Get Docker CE for Mac from https://download.docker.com/mac/stable/Docker.dmg"
+has jq "brew install jq"
+has go "brew install go"
 has yarn "brew install yarn"
 has pre-commit "brew install pre-commit"
 has shellcheck "brew install shellcheck"
-has docker "Get Docker CE for Mac from https://download.docker.com/mac/stable/Docker.dmg"
 has psql "brew install postgresql"
 has go-bindata "brew install go-bindata"
 has node "brew install node@10 && brew link --force node@10"
@@ -31,9 +52,9 @@ if [[ -z ${CIRCLECI-} ]]; then
   has pkcs11-tool "brew install opensc; chmod go+w /usr/local/bin/pkcs11-tool; brew link opensc"
   has pkcs15-tool "brew install opensc; chmod go+w /usr/local/bin/pkcs15-tool; brew link opensc"
 
+  has circleci "brew install circleci"
   has direnv "brew install direnv"
   has entr "brew install entr"
-  has circleci "brew install circleci"
 
   if [[ $(uname -s) = Darwin ]]; then
     # macOS only
@@ -49,15 +70,17 @@ fi
 if [[ $prereqs_found == "true" ]]; then
     echo "OK: all prereqs found"
 else
-    echo "ERROR: some prereqs missing, please install them"
+    echo -e "${RED}ERROR: some prereqs missing, please install them.${NC}"
     exit 1
 fi
 
 # Now check versions are correct for prereqs
 echo
-check-hosts-file
+check-aws-vault-version
 check-bash-version
+check-chamber-version
+check-go-bindata-version
 check-go-version
 check-gopath
+check-hosts-file
 check-node-version
-check-go-bindata-version

@@ -12,9 +12,12 @@ DB_DOCKER_CONTAINER_IMAGE = postgres:10.10
 TASKS_DOCKER_CONTAINER = tasks
 export PGPASSWORD=mysecretpassword
 
-# if S3 access is enabled, wrap webserver in aws-vault command
+# if S3 or CDN access is enabled, wrap webserver in aws-vault command
 # to pass temporary AWS credentials to the binary.
 ifeq ($(STORAGE_BACKEND),s3)
+	USE_AWS:=true
+endif
+ifeq ($(STORAGE_BACKEND),cdn)
 	USE_AWS:=true
 endif
 ifeq ($(EMAIL_BACKEND),ses)
@@ -186,9 +189,6 @@ admin_client_run: .client_deps.stamp ## Run MilMove Admin client
 
 ### Go Tool Targets
 
-bin/chamber: .check_go_version.stamp .check_gopath.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber/v2
-
 bin/gin: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
 
@@ -347,8 +347,7 @@ server_run_debug: ## Debug the server
 	$(AWS_VAULT) dlv debug cmd/milmove/*.go -- serve
 
 .PHONY: build_tools
-build_tools: bin/chamber \
-	bin/gin \
+build_tools: bin/gin \
 	bin/swagger \
 	bin/mockery \
 	bin/rds-combined-ca-bundle.pem \
@@ -378,7 +377,7 @@ build: server_build build_tools client_build ## Build the server, tools, and cli
 # webserver_test runs a few acceptance tests against a local or remote environment.
 # This can help identify potential errors before deploying a container.
 .PHONY: webserver_test
-webserver_test: bin/rds-combined-ca-bundle.pem bin/rds-ca-2019-root.pem bin/chamber  ## Run acceptance tests
+webserver_test: bin/rds-combined-ca-bundle.pem bin/rds-ca-2019-root.pem ## Run acceptance tests
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
@@ -397,9 +396,10 @@ ifndef CIRCLECI
 	TEST_ACC_CWD=$(PWD) \
 	DISABLE_AWS_VAULT_WRAPPER=1 \
 	aws-vault exec $(AWS_PROFILE) -- \
-	bin/chamber -r $(CHAMBER_RETRIES) exec app-$(TEST_ACC_ENV) -- \
+	chamber -r $(CHAMBER_RETRIES) exec app-$(TEST_ACC_ENV) -- \
 	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 else
+	go build -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber/v2
 	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
 	TEST_ACC_CWD=$(PWD) \
 	bin/chamber -r $(CHAMBER_RETRIES) exec app-$(TEST_ACC_ENV) -- \
@@ -729,7 +729,7 @@ tasks_clean: ## Clean Scheduled Task files and docker images
 tasks_build: server_generate bin/milmove-tasks ## Build Scheduled Task dependencies
 
 .PHONY: tasks_build_docker
-tasks_build_docker: bin/chamber server_generate bin/milmove-tasks ## Build Scheduled Task dependencies and Docker image
+tasks_build_docker: server_generate bin/milmove-tasks ## Build Scheduled Task dependencies and Docker image
 	@echo "Build the docker scheduled tasks container..."
 	docker build -f Dockerfile.tasks --tag $(TASKS_DOCKER_CONTAINER):latest .
 

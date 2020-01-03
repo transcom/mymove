@@ -23,6 +23,12 @@ const (
 	AWSS3RegionFlag string = "aws-s3-region"
 	// AWSS3KeyNamespaceFlag is the AWS S3 Key Namespace Flag
 	AWSS3KeyNamespaceFlag string = "aws-s3-key-namespace"
+	// AWSCfDomain is domain assets use
+	AWSCfDomain string = "aws-cf-domain" // #nosec so gosec doesn't claim its a hard coded cred
+	// CFPrivateKeyFlag is cloudfront private key flag
+	CFPrivateKeyFlag string = "cloud-front-private-key"
+	// CFKeyIDFlag is cloudfront key id flag
+	CFKeyIDFlag string = "cloud-front-key-id"
 )
 
 // InitStorageFlags initializes Storage command line flags
@@ -33,21 +39,39 @@ func InitStorageFlags(flag *pflag.FlagSet) {
 	flag.String(AWSS3BucketNameFlag, "", "S3 bucket used for file storage")
 	flag.String(AWSS3RegionFlag, "", "AWS region used for S3 file storage")
 	flag.String(AWSS3KeyNamespaceFlag, "", "Key prefix for all objects written to S3")
+	flag.String(AWSCfDomain, "assets.devlocal.move.mil", "Hostname according to environment.")
+	flag.String(CFPrivateKeyFlag, "", "Cloudfront private key")
+	flag.String(CFKeyIDFlag, "", "Cloudfront private key id")
 }
 
 // CheckStorage validates Storage command line flags
 func CheckStorage(v *viper.Viper) error {
 
 	storageBackend := v.GetString(StorageBackendFlag)
-	if !stringSliceContains([]string{"local", "memory", "s3"}, storageBackend) {
-		return fmt.Errorf("invalid storage-backend %s, expecting local, memory or s3", storageBackend)
+	if !stringSliceContains([]string{"local", "memory", "s3", "cdn"}, storageBackend) {
+		return fmt.Errorf("invalid storage-backend %s, expecting local, memory, s3 or cdn", storageBackend)
 	}
 
 	if storageBackend == "s3" {
 		r := v.GetString(AWSS3RegionFlag)
 		if err := CheckAWSRegionForService(r, s3.ServiceName); err != nil {
-			return errors.Wrap(err, fmt.Sprintf("%s is invalid", AWSS3RegionFlag))
+			return errors.Wrap(err, fmt.Sprintf("%s is invalid, value for region: %s", AWSS3RegionFlag, r))
 		}
+	} else if storageBackend == "cdn" {
+		privateKey := v.GetString(CFPrivateKeyFlag)
+		privateKeyID := v.GetString(CFKeyIDFlag)
+		cfDomain := v.GetString(AWSCfDomain)
+
+		if len(privateKeyID) == 0 {
+			return fmt.Errorf("cloudfront key id flag %q cannot be empty when using CDN for %q flag, exiting", CFKeyIDFlag, StorageBackendFlag)
+		}
+		if len(privateKey) == 0 {
+			return fmt.Errorf("cloudfront private key flag %q cannot be empty when using CDN for %q flag, exiting", CFKeyIDFlag, StorageBackendFlag)
+		}
+		if len(cfDomain) == 0 {
+			return fmt.Errorf("cloudfront domain flag %q cannot be empty when using CDN for %q flag, exiting", AWSCfDomain, StorageBackendFlag)
+		}
+
 	} else if storageBackend == "local" {
 		localStorageRoot := v.GetString(LocalStorageRootFlag)
 		if _, err := filepath.Abs(localStorageRoot); err != nil {
