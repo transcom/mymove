@@ -7,8 +7,22 @@ prereqs_found=true
 function has() {
     local tool=$1
     local tool_install_direction=$2
-    if [[ -n $(type -p "${tool}") ]]; then
-        echo "${tool} installed."
+    tool_location=$(type -p "${tool}")
+    if [[ -n ${tool_location} ]]; then
+        if [[ -L ${tool_location} ]]; then
+          # In the case of the aws-vault-wrapper being used we want to specifically
+          # check that the tool exists in /usr/local/bin
+          symtool=$(readlink "${tool_location}")
+          if [[ "${symtool}" == "aws-vault-wrapper" ]]; then
+            has "/usr/local/bin/${tool}" "${tool_install_direction}"
+          else
+            # A symlink that is not aws-vault-wrapper
+            echo "${tool} installed."
+          fi
+        else
+          # Not a symlink
+          echo "${tool} installed."
+        fi
     else
         echo "WARNING: ${tool} not found, install via: ${tool_install_direction}"
         prereqs_found=false
@@ -58,10 +72,11 @@ fi
 
 # Now check versions are correct for prereqs
 echo
-check-hosts-file
 check-aws-vault-version
 check-bash-version
+check-chamber-version
+check-go-bindata-version
 check-go-version
 check-gopath
+check-hosts-file
 check-node-version
-check-go-bindata-version
