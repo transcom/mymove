@@ -106,7 +106,7 @@ func (uua UnknownUserAuthorizer) AuthorizeUnknownUser(openIDUser goth.User, sess
 					return tooErr
 				}
 				tooRole, tooErr := uua.VerifyHasTOORole(userIdentity)
-				if tooErr == nil && !session.Roles.HasRole(roles.TOO) {
+				if tooErr == nil && !session.Roles.HasRole(roles.RoleTypeTOO) {
 					session.Roles = append(session.Roles, tooRole)
 				}
 				if tooErr != nil {
@@ -246,7 +246,7 @@ func (t tooRoleChecker) FetchUserIdentity(user *models.User) (*models.UserIdenti
 
 //Probably want to update this to return roles to add to session
 func (t tooRoleChecker) VerifyHasTOORole(identity *models.UserIdentity) (roles.Role, error) {
-	if role, ok := identity.Roles.GetRole(roles.TOO); ok {
+	if role, ok := identity.Roles.GetRole(roles.RoleTypeTOO); ok {
 		return role, nil
 	}
 	return roles.Role{}, ErrTOOUnauthorized
