@@ -34,7 +34,7 @@ case "${environment}" in
     ;;
 esac
 
-if [ -n "${AWS_ACCOUNT_ID}" ]; then
+if [ -z "${AWS_ACCOUNT_ID}" ]; then
   echo "AWS_ACCOUNT_ID not found!"
   echo "Please add 'AWS_ACCOUNT_ID' to your .envrc.local"
   exit 1
