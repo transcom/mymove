@@ -83,6 +83,9 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
         url = `${apiUrl}/${resource}/${params.id}`;
         options.method = 'PATCH';
         const paramsDiff = diff(params.previousData, params.data);
+        if (paramsDiff.roles) {
+          paramsDiff.roles = params.data.roles;
+        }
         options.body = JSON.stringify(paramsDiff);
         break;
       case CREATE:
