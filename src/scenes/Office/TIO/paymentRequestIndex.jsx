@@ -32,7 +32,7 @@ class PaymentRequestIndex extends React.Component {
                 <td>{`${pr.isFinal}`}</td>
                 <td>{pr.rejectionReason}</td>
                 <td>{pr.serviceItemIDs}</td>
-                <td>{}</td>
+                <td>{pr.rejectionReason}</td>
               </tr>
             ))}
           </tbody>

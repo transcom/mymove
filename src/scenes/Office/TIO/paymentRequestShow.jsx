@@ -20,6 +20,7 @@ class PaymentRequestShow extends React.Component {
           <li>isFinal: {`${isFinal}`}</li>
           <li>rejectionReason: {rejectionReason}</li>
           <li>serviceItemIds: {serviceItemIDs}</li>
+          <li></li>
         </ul>
       </div>
     );
