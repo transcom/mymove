@@ -2,11 +2,12 @@ package pricing
 
 import (
 	"strconv"
+	"testing"
 	"time"
 )
 
 // Test_parseDomesticOtherPricesPack
-func (suite *PricingParserSuite) Test_parseDomesticOtherPricesPack() {
+func (suite *PricingParserSuite) Test_parseDomesticOtherPrices() {
 	const sheetIndex = 8
 	xlsxDataSheets := InitDataSheetInfo()
 	dataSheet := xlsxDataSheets[sheetIndex]
@@ -22,23 +23,34 @@ func (suite *PricingParserSuite) Test_parseDomesticOtherPricesPack() {
 		RunVerify:    true,
 	}
 
-	slice, err := parseDomesticOtherPricesPack(params, sheetIndex)
-	suite.NoError(err, "parseDomesticOtherPricesPack function failed")
+	suite.T().Run("parseDomesticOtherPricesPack", func(t *testing.T) {
+		slice, err := parseDomesticOtherPricesPack(params, sheetIndex)
+		suite.NoError(err, "parseDomesticOtherPricesPack function failed")
 
-	outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, nil)
-	err = createCSV(outputFilename, slice)
-	suite.NoError(err, "could not create CSV")
+		outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, nil)
+		err = createCSV(outputFilename, slice)
+		suite.NoError(err, "could not create CSV")
 
-	const goldenFilename string = "8_2c_domestic_other_prices_pack_golden.csv"
-	suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)
+		const goldenFilename string = "8_2c_domestic_other_prices_pack_golden.csv"
+		suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)
+	})
+
+	suite.T().Run("parseDomesticOtherPricesSit", func(t *testing.T) {
+		slice, err := parseDomesticOtherPricesSit(params, sheetIndex)
+		suite.NoError(err, "parseDomesticOtherPricesSit function failed")
+
+		outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, nil)
+		err = createCSV(outputFilename, slice)
+		suite.NoError(err, "could not create CSV")
+
+		const goldenFilename string = "8_2c_domestic_other_prices_sit_golden.csv"
+		suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)
+	})
 }
 
-// Test_parseDomesticOtherPricesSit
-func (suite *PricingParserSuite) Test_parseDomesticOtherPricesSit() {
-	const sheetIndex = 8
-	xlsxDataSheets := InitDataSheetInfo()
-	dataSheet := xlsxDataSheets[sheetIndex]
-
+// Test_verifyDomesticOtherPrices
+func (suite *PricingParserSuite) Test_verifyDomesticOtherPrices() {
+	sheetIndex := 8
 	params := ParamConfig{
 		ProcessAll:   false,
 		ShowOutput:   false,
@@ -50,13 +62,15 @@ func (suite *PricingParserSuite) Test_parseDomesticOtherPricesSit() {
 		RunVerify:    true,
 	}
 
-	slice, err := parseDomesticOtherPricesSit(params, sheetIndex)
-	suite.NoError(err, "parseDomesticOtherPricesSit function failed")
+	suite.T().Run("verifyDomesticOtherPrices success", func(t *testing.T) {
+		err := verifyDomesticOtherPrices(params, sheetIndex)
+		suite.NoError(err)
+	})
 
-	outputFilename := dataSheet.generateOutputFilename(sheetIndex, params.RunTime, nil)
-	err = createCSV(outputFilename, slice)
-	suite.NoError(err, "could not create CSV")
-
-	const goldenFilename string = "8_2c_domestic_other_prices_sit_golden.csv"
-	suite.helperTestExpectedFileOutput(goldenFilename, outputFilename)
+	suite.T().Run("verifyDomesticOtherPrices with invalid sheetIndex", func(t *testing.T) {
+		err := verifyDomesticOtherPrices(params, 7)
+		if suite.Error(err) {
+			suite.Equal("verifyDomesticOtherPrices expected to process sheet 8, but received sheetIndex 7", err.Error())
+		}
+	})
 }
