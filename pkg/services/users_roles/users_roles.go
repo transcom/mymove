@@ -26,7 +26,7 @@ func (u usersRolesCreator) AssociateUserRoles(userID uuid.UUID, rs []roles.RoleT
 	if err != nil {
 		return usersRoles, err
 	}
-	roleMap, err := u.fetchAllRoles()
+	roleMap, err := u.fetchUnassociatedRoles(userID)
 	if err != nil {
 		return usersRoles, err
 	}
@@ -46,10 +46,18 @@ func (u usersRolesCreator) AssociateUserRoles(userID uuid.UUID, rs []roles.RoleT
 	return usersRoles, err
 }
 
-func (u usersRolesCreator) fetchAllRoles() (map[roles.RoleType]uuid.UUID, error) {
+func (u usersRolesCreator) fetchUnassociatedRoles(userID uuid.UUID) (map[roles.RoleType]uuid.UUID, error) {
 	var allRoles roles.Roles
 	var roleMap = make(map[roles.RoleType]uuid.UUID)
-	err := u.db.All(&allRoles)
+	err := u.db.RawQuery(
+		`SELECT *
+	FROM roles
+	WHERE role_type NOT IN (
+    	SELECT role_type
+    	FROM roles
+        	JOIN users_roles ur ON roles.id = ur.role_id
+    	WHERE user_id = $1);`, userID).
+		All(&allRoles)
 	if err != nil {
 		return roleMap, err
 	}
