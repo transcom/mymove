@@ -38,43 +38,41 @@ func (u usersRolesCreator) AssociateUserRoles(userID uuid.UUID, rs []roles.RoleT
 	toAdd := Difference(rs, dbRoles)
 	log.Println("ToADD", toAdd)
 	toRemove := Difference(dbRoles, rs)
-	rToAdd := UserRoles(allRoles, toAdd, userID)
-	err = u.db.Create(rToAdd)
-	if err != nil {
-		return usersRoles, err
-	}
-	rToRemove := UserRoles(allRoles, toRemove, userID)
-	var rIDSTOdelete []uuid.UUID
-	for _, m := range rToRemove {
-		rIDSTOdelete = append(rIDSTOdelete, m.RoleID)
-	}
-	var ur []models.UsersRoles
-	err = u.db.Where("role_id in (?)", rIDSTOdelete).Where("user_id = ?", userID).All(&ur)
-	if err != nil {
-		return usersRoles, err
-	}
-	log.Println("ToRemove", toRemove)
-	err = u.db.Destroy(ur)
-	if err != nil {
-		return usersRoles, err
-	}
-	return usersRoles, nil
-}
+	//SELECT r.id AS role_id, userID::uuid AS user_id,
+	//	FROM roles r
+	//LEFT JOIN users_roles ur ON ur.user_id = userID
+	//AND r.id = ur.role_id`;
+	var rolesToAdd []models.UsersRoles
+	if len(toAdd) > 0 {
+		err = u.db.Select("r.id as role_id, ? as user_id").
+			RightJoin("roles r", "r.id=users_roles.role_id", userID).
+			Where(`role_type IN (?) and users_roles.id IS NULL`, toAdd).All(&rolesToAdd)
+		if err != nil {
+			return usersRoles, err
 
-func UserRoles(all roles.Roles, filterOn []roles.RoleType, userID uuid.UUID) []models.UsersRoles {
-	var output []models.UsersRoles
-	for _, s := range filterOn {
-		for _, role := range all {
-			if s == role.RoleType {
-				record := models.UsersRoles{
-					UserID: userID,
-					RoleID: role.ID,
-				}
-				output = append(output, record)
-			}
+		}
+		err = u.db.Create(rolesToAdd)
+		if err != nil {
+			return usersRoles, err
+
 		}
 	}
-	return output
+	var ur []models.UsersRoles
+	if len(toRemove) > 0 {
+		err = u.db.Select("users_roles.id, r.id as role_id, ? as user_id").
+			RightJoin("roles r", "r.id=users_roles.role_id", userID).
+			Where(`role_type NOT IN (?) and users_roles.id IS NOT NULL`, toRemove).All(&ur)
+		if err != nil {
+			return usersRoles, err
+		}
+		err = u.db.Destroy(ur)
+		if err != nil {
+			return usersRoles, err
+		}
+	}
+	log.Println("ToRemove", toRemove)
+
+	return usersRoles, nil
 }
 
 // Set Difference: A - B
