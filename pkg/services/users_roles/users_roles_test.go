@@ -138,13 +138,53 @@ func (suite *UsersRolesServiceSuite) TestAssociateUserRolesMultiple() {
 	_, err = urc.UpdateUserRoles(*officeUser.UserID, origRoleTypes)
 	suite.NoError(err)
 
-	//rsOut := roles.Roles{}
-	//err = suite.DB().Where("role_type in (?)", []string{"role1", "role2"}).All(&rsOut)
-	//suite.NoError(err)
-	//log.Println(rsOut)
-	//
-	//var ur []models.UsersRoles
-	//err = suite.DB().Where("role_id in (?)", []uuid.UUID{rs[0].ID, rs[1].ID}).Where("user_id = ?", officeUser.UserID).All(&ur)
-	//suite.NoError(err)
-	//log.Println("ur", ur)
+	ur := models.UsersRoles{}
+	n, err := suite.DB().Count(&ur)
+	suite.NoError(err)
+	suite.Equal(2, n)
+
+	user := models.User{}
+	err = suite.DB().Eager("Roles").Find(&user, officeUser.UserID)
+	suite.NoError(err)
+	suite.Require().Len(user.Roles, 2)
+	var ids []uuid.UUID
+	for _, role := range user.Roles {
+		ids = append(ids, role.ID)
+
+	}
+	suite.Contains(ids, role1.ID, role2.ID)
+}
+
+func (suite *UsersRolesServiceSuite) TestAssociateUserRolesRemoveAllRoles() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	id1, _ := uuid.NewV4()
+	role1 := roles.Role{
+		ID:       id1,
+		RoleType: "role1",
+	}
+	id2, _ := uuid.NewV4()
+	role2 := roles.Role{
+		ID:       id2,
+		RoleType: "role2",
+	}
+	rs := roles.Roles{role1, role2}
+	err := suite.DB().Create(rs)
+	suite.NoError(err)
+	urc := NewUsersRolesCreator(suite.DB())
+
+	// add two roles for this user
+	_, err = urc.UpdateUserRoles(*officeUser.UserID, []roles.RoleType{role1.RoleType, role2.RoleType})
+	suite.NoError(err)
+	ur := models.UsersRoles{}
+	n, err := suite.DB().Count(&ur)
+	suite.NoError(err)
+	suite.Equal(2, n)
+
+	// confirm both roles are removed when empty no roles passed in
+	_, err = urc.UpdateUserRoles(*officeUser.UserID, []roles.RoleType{})
+	suite.NoError(err)
+	ur = models.UsersRoles{}
+	n, err = suite.DB().Count(&ur)
+	suite.NoError(err)
+	suite.Equal(0, n)
 }

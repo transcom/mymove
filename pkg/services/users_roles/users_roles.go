@@ -51,15 +51,17 @@ func (u usersRolesCreator) addUserRoles(userID uuid.UUID, rs []roles.RoleType) (
 	//WHERE role_type IN ('transportation_ordering_officer', 'contracting_officer', 'customer')
 	//	AND ur.user_id ISNULL;
 	var userRolesToAdd []models.UsersRoles
-	err := u.db.Select("r.id as role_id, ? as user_id").
-		RightJoin("roles r", "r.id=users_roles.role_id AND users_roles.user_id = ?", userID, userID).
-		Where("role_type IN (?) AND users_roles.user_id IS NULL", rs).
-		All(&userRolesToAdd)
-	if err != nil {
-		return []models.UsersRoles{}, err
+	if len(rs) > 0 {
+		err := u.db.Select("r.id as role_id, ? as user_id").
+			RightJoin("roles r", "r.id=users_roles.role_id AND users_roles.user_id = ?", userID, userID).
+			Where("role_type IN (?) AND users_roles.user_id IS NULL", rs).
+			All(&userRolesToAdd)
+		if err != nil {
+			return []models.UsersRoles{}, err
 
+		}
 	}
-	err = u.db.Create(userRolesToAdd)
+	err := u.db.Create(userRolesToAdd)
 	if err != nil {
 		return []models.UsersRoles{}, err
 
@@ -81,14 +83,25 @@ func (u usersRolesCreator) removeUserRoles(userID uuid.UUID, rs []roles.RoleType
 	//WHERE role_type NOT IN ('transportation_ordering_officer', 'contracting_officer')
 	//	AND ur.user_id IS NOT NULL;
 	var userRolesToDelete []models.UsersRoles
-	err := u.db.Select("users_roles.id, r.id as role_id, ? as user_id").
-		RightJoin("roles r", "r.id=users_roles.role_id AND users_roles.user_id = ?", userID, userID).
-		Where("role_type NOT IN (?) AND users_roles.id IS NOT NULL", rs).
-		All(&userRolesToDelete)
-	if err != nil {
-		return []models.UsersRoles{}, err
+	if len(rs) > 0 {
+		err := u.db.Select("users_roles.id, r.id as role_id, ? as user_id").
+			RightJoin("roles r", "r.id=users_roles.role_id AND users_roles.user_id = ?", userID, userID).
+			Where("role_type NOT IN (?) AND users_roles.id IS NOT NULL", rs).
+			All(&userRolesToDelete)
+		if err != nil {
+			return []models.UsersRoles{}, err
+		}
 	}
-	err = u.db.Destroy(userRolesToDelete)
+	// query above wont work if nothing in rs array (i.e this user should have no roles)
+	// b/c of how pop expands empty array rs, below just removes all roles in this situation
+	if len(rs) == 0 {
+		err := u.db.Where("user_id = ?", userID).
+			All(&userRolesToDelete)
+		if err != nil {
+			return []models.UsersRoles{}, err
+		}
+	}
+	err := u.db.Destroy(userRolesToDelete)
 	if err != nil {
 		return []models.UsersRoles{}, err
 	}
