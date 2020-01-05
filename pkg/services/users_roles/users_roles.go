@@ -1,8 +1,6 @@
 package usersroles
 
 import (
-	"log"
-
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
@@ -20,111 +18,79 @@ func NewUsersRolesCreator(db *pop.Connection) services.UserRoleAssociator {
 	return usersRolesCreator{db}
 }
 
-//AssociateUserRoles associates a given user with a set of roles
-func (u usersRolesCreator) AssociateUserRoles(userID uuid.UUID, rs []roles.RoleType) ([]models.UsersRoles, error) {
+//UpdateUserRoles associates a given user with a set of roles
+func (u usersRolesCreator) UpdateUserRoles(userID uuid.UUID, rs []roles.RoleType) ([]models.UsersRoles, error) {
+	_, err := u.addUserRoles(userID, rs)
+	if err != nil {
+		return []models.UsersRoles{}, err
+	}
+	_, err = u.removeUserRoles(userID, rs)
+	if err != nil {
+		return []models.UsersRoles{}, err
+	}
 	var usersRoles []models.UsersRoles
-	allRoles := roles.Roles{}
-	err := u.db.All(&allRoles)
-	log.Println("allRoles", allRoles)
+	// fetch + return updated roles
+	err = u.db.Where("user_id = ?", userID).All(&usersRoles)
 	if err != nil {
-		return usersRoles, err
+		return []models.UsersRoles{}, err
 	}
-	dbRoles, err := u.FetchUserRoles(userID)
-	if err != nil {
-		return usersRoles, err
-	}
-	log.Println("dbRoles", dbRoles)
-	log.Println("rs", rs)
-	toAdd := Difference(rs, dbRoles)
-	log.Println("ToADD", toAdd)
-	toRemove := Difference(dbRoles, rs)
-	//SELECT r.id AS role_id, userID::uuid AS user_id,
-	//	FROM roles r
-	//LEFT JOIN users_roles ur ON ur.user_id = userID
-	//AND r.id = ur.role_id`;
-	var rolesToAdd []models.UsersRoles
-	if len(toAdd) > 0 {
-		err = u.db.Select("r.id as role_id, ? as user_id").
-			RightJoin("roles r", "r.id=users_roles.role_id", userID).
-			Where(`role_type IN (?) and users_roles.id IS NULL`, toAdd).All(&rolesToAdd)
-		if err != nil {
-			return usersRoles, err
-
-		}
-		err = u.db.Create(rolesToAdd)
-		if err != nil {
-			return usersRoles, err
-
-		}
-	}
-	var ur []models.UsersRoles
-	if len(toRemove) > 0 {
-		err = u.db.Select("users_roles.id, r.id as role_id, ? as user_id").
-			RightJoin("roles r", "r.id=users_roles.role_id", userID).
-			Where(`role_type NOT IN (?) and users_roles.id IS NOT NULL`, toRemove).All(&ur)
-		if err != nil {
-			return usersRoles, err
-		}
-		err = u.db.Destroy(ur)
-		if err != nil {
-			return usersRoles, err
-		}
-	}
-	log.Println("ToRemove", toRemove)
-
 	return usersRoles, nil
 }
 
-// Set Difference: A - B
-func Difference(a, b []roles.RoleType) (diff []roles.RoleType) {
-	m := make(map[roles.RoleType]bool)
+func (u usersRolesCreator) addUserRoles(userID uuid.UUID, rs []roles.RoleType) ([]models.UsersRoles, error) {
+	//Having to use somewhat convoluted right join syntax b/c FROM clause in pop is derived from the model
+	//and for the RawQuery was having trouble passing in array into the in clause with additional params
+	//ideally would just be the query below
+	//SELECT r.id                              AS role_id,
+	//	'3b9360a3-3304-4c60-90f4-83d687884079' AS user_id,
+	//	ur.user_id,
+	//	role_type
+	//FROM roles r
+	//		LEFT JOIN users_roles ur ON r.id = ur.role_id
+	//	AND ur.user_id = '3b9360a3-3304-4c60-90f4-83d687884079'
+	//WHERE role_type IN ('transportation_ordering_officer', 'contracting_officer', 'customer')
+	//	AND ur.user_id ISNULL;
+	var userRolesToAdd []models.UsersRoles
+	err := u.db.Select("r.id as role_id, ? as user_id").
+		RightJoin("roles r", "r.id=users_roles.role_id AND users_roles.user_id = ?", userID, userID).
+		Where("role_type IN (?) AND users_roles.user_id IS NULL", rs).
+		All(&userRolesToAdd)
+	if err != nil {
+		return []models.UsersRoles{}, err
 
-	for _, item := range b {
-		m[item] = true
 	}
+	err = u.db.Create(userRolesToAdd)
+	if err != nil {
+		return []models.UsersRoles{}, err
 
-	for _, item := range a {
-		if _, ok := m[item]; !ok {
-			diff = append(diff, item)
-		}
 	}
-	return
+	return userRolesToAdd, nil
 }
 
-func (u usersRolesCreator) FetchUserRoles(userID uuid.UUID) ([]roles.RoleType, error) {
-	// select all roles not already associated with this user
-	var userRoles []roles.RoleType
-	err := u.db.RawQuery(
-		`SELECT role_type
-		FROM roles
-		JOIN users_roles ur ON roles.id = ur.role_id
-		WHERE user_id = $1`, userID).All(&userRoles)
+func (u usersRolesCreator) removeUserRoles(userID uuid.UUID, rs []roles.RoleType) ([]models.UsersRoles, error) {
+	//Having to use somewhat convoluted right join syntax b/c FROM clause in pop is derived from the model
+	//and for the RawQuery was having trouble passing in array into the in clause with additional params
+	//ideally would just be the query below
+	//SELECT r.id                              AS role_id,
+	//	'3b9360a3-3304-4c60-90f4-83d687884079' AS user_id,
+	//	ur.user_id,
+	//	role_type
+	//FROM roles r
+	//		LEFT JOIN users_roles ur ON r.id = ur.role_id
+	//	AND ur.user_id = '3b9360a3-3304-4c60-90f4-83d687884079'
+	//WHERE role_type NOT IN ('transportation_ordering_officer', 'contracting_officer')
+	//	AND ur.user_id IS NOT NULL;
+	var userRolesToDelete []models.UsersRoles
+	err := u.db.Select("users_roles.id, r.id as role_id, ? as user_id").
+		RightJoin("roles r", "r.id=users_roles.role_id AND users_roles.user_id = ?", userID, userID).
+		Where("role_type NOT IN (?) AND users_roles.id IS NOT NULL", rs).
+		All(&userRolesToDelete)
 	if err != nil {
-		return userRoles, err
+		return []models.UsersRoles{}, err
 	}
-	return userRoles, nil
-}
-
-func (u usersRolesCreator) fetchUnassociatedRoles(userID uuid.UUID, rs []roles.RoleType) ([]models.UsersRoles, error) {
-	// select all roles not already associated with this user
-	var userRoles []models.UsersRoles
-	rss := make([]interface{}, len(rs))
-	for i := 1; i < len(rss); {
-		rss[i] = rs[i]
-		i++
-	}
-	err := u.db.RawQuery(
-		`SELECT $1::uuid as user_id,
-					  roles.id as role_id
-	FROM roles
-	WHERE role_type NOT IN (
-		SELECT role_type
-		FROM roles
-				 JOIN users_roles ur ON roles.id = ur.role_id
-		WHERE user_id = $1)`, userID).All(&userRoles)
-	log.Println("fetchUnassociatedRoles.userRoles", userRoles)
+	err = u.db.Destroy(userRolesToDelete)
 	if err != nil {
-		return userRoles, err
+		return []models.UsersRoles{}, err
 	}
-	return userRoles, nil
+	return userRolesToDelete, nil
 }

@@ -203,7 +203,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 	}
 	if len(payload.Roles) > 0 {
 		rt := rolesPayloadToModel(payload.Roles)
-		_, err = h.UserRoleAssociator.AssociateUserRoles(*updatedOfficeUser.UserID, rt)
+		_, err = h.UserRoleAssociator.UpdateUserRoles(*updatedOfficeUser.UserID, rt)
 		if err != nil {
 			logger.Error("error associating user roles", zap.Error(err))
 			return officeuserop.NewUpdateOfficeUserInternalServerError()

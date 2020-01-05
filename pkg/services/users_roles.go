@@ -7,8 +7,8 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-// UserRoleAssociator is the service object interface for AssociateUserRoles
+// UserRoleAssociator is the service object interface for UpdateUserRoles
 //go:generate mockery -name UserRoleAssociator
 type UserRoleAssociator interface {
-	AssociateUserRoles(userID uuid.UUID, roles []roles.RoleType) ([]models.UsersRoles, error)
+	UpdateUserRoles(userID uuid.UUID, roles []roles.RoleType) ([]models.UsersRoles, error)
 }
