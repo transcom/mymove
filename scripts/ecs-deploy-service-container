@@ -34,6 +34,7 @@ check_arn() {
 
 update_service() {
     local arn="$1"
+    echo "* Updating services with ARN ${arn}"
 
     local network_config
     network_config=$(aws ecs describe-services --services "$name" --cluster "$cluster" --query 'services[0].networkConfiguration')
@@ -83,11 +84,7 @@ green_task_def_arn=$(ecs-deploy task-def \
   --entrypoint "/bin/milmove serve" \
   --cpu "${RESERVATION_CPU}" \
   --memory "${RESERVATION_MEM}" \
-  --register \
-  --dry-run)
-# TODO: This is broken until tested
-echo "${green_task_def_arn}"
-exit 1
+  --register)
 
 readonly green_task_def_arn
 check_arn "$green_task_def_arn"

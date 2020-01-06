@@ -106,7 +106,7 @@ const (
 	variablesFileFlag string = "variables-file"
 	entryPointFlag    string = "entrypoint"
 	cpuFlag           string = "cpu"
-	memFlag           string = "mem"
+	memFlag           string = "memory"
 	registerFlag      string = "register"
 )
 
