@@ -163,32 +163,32 @@ func checkConfig(v *viper.Viper) error {
 
 	awsAccountID := v.GetString(awsAccountIDFlag)
 	if len(awsAccountID) == 0 {
-		return errors.Wrap(&errInvalidAccountID{AwsAccountID: awsAccountID}, fmt.Sprintf("%q is invalid", awsAccountIDFlag))
+		return fmt.Errorf("%q is invalid: %w", awsAccountIDFlag, &errInvalidAccountID{AwsAccountID: awsAccountID})
 	}
 
 	region, err := cli.CheckAWSRegion(v)
 	if err != nil {
-		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid", cli.AWSRegionFlag))
+		return fmt.Errorf("%q is invalid: %w", cli.AWSRegionFlag, err)
 	}
 
 	if err := cli.CheckAWSRegionForService(region, cloudwatchevents.ServiceName); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, cloudwatchevents.ServiceName))
+		return fmt.Errorf("%q is invalid for service %s: %w", cli.AWSRegionFlag, cloudwatchevents.ServiceName, err)
 	}
 
 	if err := cli.CheckAWSRegionForService(region, ecs.ServiceName); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecs.ServiceName))
+		return fmt.Errorf("%q is invalid for service %s: %w", cli.AWSRegionFlag, ecs.ServiceName, err)
 	}
 
 	if err := cli.CheckAWSRegionForService(region, ecr.ServiceName); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecr.ServiceName))
+		return fmt.Errorf("%q is invalid for service %s: %w", cli.AWSRegionFlag, ecr.ServiceName, err)
 	}
 
 	if err := cli.CheckAWSRegionForService(region, rds.ServiceName); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, rds.ServiceName))
+		return fmt.Errorf("%q is invalid for service %s: %w", cli.AWSRegionFlag, rds.ServiceName, err)
 	}
 
 	if err := cli.CheckAWSRegionForService(region, ssm.ServiceName); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ssm.ServiceName))
+		return fmt.Errorf("%q is invalid for service %s: %w", cli.AWSRegionFlag, ssm.ServiceName, err)
 	}
 
 	if err := cli.CheckVault(v); err != nil {
@@ -197,7 +197,7 @@ func checkConfig(v *viper.Viper) error {
 
 	serviceName := v.GetString(serviceFlag)
 	if len(serviceName) == 0 {
-		return errors.Wrap(&errInvalidService{Service: serviceName}, fmt.Sprintf("%q is invalid", serviceFlag))
+		return fmt.Errorf("%q is invalid: %w", serviceFlag, &errInvalidService{Service: serviceName})
 	}
 	validService := false
 	for _, str := range services {
@@ -207,12 +207,12 @@ func checkConfig(v *viper.Viper) error {
 		}
 	}
 	if !validService {
-		return errors.Wrap(&errInvalidService{Service: serviceName}, fmt.Sprintf("%q is invalid", serviceFlag))
+		return fmt.Errorf("%q is invalid: %w", serviceFlag, &errInvalidService{Service: serviceName})
 	}
 
 	environmentName := v.GetString(environmentFlag)
 	if len(environmentName) == 0 {
-		return errors.Wrap(&errInvalidEnvironment{Environment: environmentName}, fmt.Sprintf("%q is invalid", environmentFlag))
+		return fmt.Errorf("%q is invalid: %w", environmentFlag, &errInvalidEnvironment{Environment: environmentName})
 	}
 	validEnvironment := false
 	for _, str := range environments {
@@ -222,17 +222,17 @@ func checkConfig(v *viper.Viper) error {
 		}
 	}
 	if !validEnvironment {
-		return errors.Wrap(&errInvalidEnvironment{Environment: environmentName}, fmt.Sprintf("%q is invalid", environmentFlag))
+		return fmt.Errorf("%q is invalid: %w", environmentFlag, &errInvalidEnvironment{Environment: environmentName})
 	}
 
 	image := v.GetString(imageURIFlag)
 	if len(image) == 0 {
-		return errors.Wrap(&errInvalidImage{Image: image}, fmt.Sprintf("%q is invalid", imageURIFlag))
+		return fmt.Errorf("%q is invalid: %w", imageURIFlag, &errInvalidImage{Image: image})
 	}
 
 	if variablesFile := v.GetString(variablesFileFlag); len(variablesFile) > 0 {
 		if _, err := os.Stat(variablesFile); err != nil {
-			return errors.Wrap(&errInvalidFile{File: variablesFile}, fmt.Sprintf("%q is invalid", variablesFileFlag))
+			return fmt.Errorf("%q is invalid: %w", variablesFileFlag, &errInvalidFile{File: variablesFile})
 		}
 	}
 
@@ -352,7 +352,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 
 	err := cmd.ParseFlags(args)
 	if err != nil {
-		return errors.Wrap(err, "could not parse flags")
+		return fmt.Errorf("could not parse flags: %w", err)
 	}
 
 	flag := cmd.Flags()
@@ -360,7 +360,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 	err = v.BindPFlags(flag)
 	if err != nil {
-		return errors.Wrap(err, "could not bind flags")
+		return fmt.Errorf("could not bind flags: %w", err)
 	}
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
@@ -392,7 +392,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	}
 	sess, err := awssession.NewSession(awsConfig)
 	if err != nil {
-		quit(logger, nil, errors.Wrap(err, "failed to create AWS session"))
+		quit(logger, nil, fmt.Errorf("failed to create AWS session: %w", err))
 	}
 
 	// Create the Services
@@ -420,7 +420,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	imageIdentifier.SetImageTag(ecrImage.ImageTag)
 	errImageIdentifierValidate := imageIdentifier.Validate()
 	if errImageIdentifierValidate != nil {
-		quit(logger, nil, errors.Wrapf(errImageIdentifierValidate, "image identifier tag invalid %s", ecrImage.ImageTag))
+		quit(logger, nil, fmt.Errorf("image identifier tag invalid %q: %w", ecrImage.ImageTag, errImageIdentifierValidate))
 	}
 
 	_, err = serviceECR.DescribeImages(&ecr.DescribeImagesInput{
@@ -433,7 +433,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		RepositoryName: aws.String(ecrImage.RepositoryName),
 	})
 	if err != nil {
-		quit(logger, nil, errors.Wrapf(err, "unable retrieving image from %s", imageURI))
+		quit(logger, nil, fmt.Errorf("unable retrieving image from %q: %w", imageURI, err))
 	}
 
 	// Entrypoint
