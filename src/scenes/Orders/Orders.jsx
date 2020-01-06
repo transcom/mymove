@@ -1,6 +1,6 @@
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
@@ -29,8 +29,6 @@ export class Orders extends Component {
       pendingValues['service_member_id'] = this.props.serviceMemberId;
       pendingValues['new_duty_station_id'] = pendingValues.new_duty_station.id;
       pendingValues['has_dependents'] = pendingValues.has_dependents || false;
-      pendingValues['spouse_has_pro_gear'] =
-        (pendingValues.has_dependents && pendingValues.spouse_has_pro_gear) || false;
       if (this.props.currentOrders) {
         return this.props.updateOrders(this.props.currentOrders.id, pendingValues);
       } else {
@@ -66,16 +64,6 @@ export class Orders extends Component {
         </div>
         <SwaggerField fieldName="report_by_date" swagger={this.props.schema} required />
         <SwaggerField fieldName="has_dependents" swagger={this.props.schema} component={YesNoBoolean} />
-        {get(this.props, 'formValues.has_dependents', false) && (
-          <Fragment>
-            <SwaggerField
-              fieldName="spouse_has_pro_gear"
-              swagger={this.props.schema}
-              component={YesNoBoolean}
-              className="wider-label"
-            />
-          </Fragment>
-        )}
         <Field
           name="new_duty_station"
           component={DutyStationSearchBox}

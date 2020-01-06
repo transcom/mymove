@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get, concat, includes, map, reject } from 'lodash';
@@ -62,16 +62,6 @@ let EditOrdersForm = props => {
             <SwaggerField fieldName="issue_date" swagger={schema} required />
             <SwaggerField fieldName="report_by_date" swagger={schema} required />
             <SwaggerField fieldName="has_dependents" swagger={schema} component={YesNoBoolean} />
-            {get(props, 'formValues.has_dependents', false) && (
-              <Fragment>
-                <SwaggerField
-                  fieldName="spouse_has_pro_gear"
-                  swagger={props.schema}
-                  component={YesNoBoolean}
-                  className="wider-label"
-                />
-              </Fragment>
-            )}
             <br />
             <Field name="new_duty_station" component={DutyStationSearchBox} />
             <p>Uploads:</p>
