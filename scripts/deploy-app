@@ -46,7 +46,7 @@ CIRCLE_SHA1=$(curl -s "https://${compare_host}/health" | jq -r .gitCommit)
 
 scripts/compare-deployed-commit "${compare_host}" "${CIRCLE_SHA1}"
 
-scripts/ecs-deploy-service-container app config/app.container-definition.json "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}" FARGATE
+scripts/ecs-deploy-service-container app "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}"
 
 bin/health-checker --schemes http,https --hosts "${health_check_hosts}" --tries 10 --backoff 3 --log-level info --timeout 15m
 

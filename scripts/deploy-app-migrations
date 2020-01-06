@@ -43,4 +43,4 @@ CIRCLE_SHA1=$(curl -s "https://${compare_host}/health" | jq -r .gitCommit)
 
 scripts/compare-deployed-commit "${compare_host}" "${CIRCLE_SHA1}"
 
-scripts/ecs-run-app-migrations-container config/app-migrations.container-definition.json "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}"
+scripts/ecs-run-app-migrations-container "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}"
