@@ -26,26 +26,39 @@ import (
 	"github.com/transcom/mymove/pkg/cli"
 )
 
+const (
+	binMilMove      string = "/bin/milmove"
+	binMilMoveTasks string = "/bin/milmove-tasks"
+)
+
+// Valid services names
 var services = []string{
 	"app",
 	"app-client-tls",
 	"app-migrations",
 	"app-tasks",
 }
-var environments = []string{"prod", "staging", "experimental"}
-var entryPoints = []string{
-	"/bin/milmove serve",
-	"/bin/milmove migrate",
-	"/bin/milmove-tasks save-fuel-price-data",
-	"/bin/milmove-tasks send-post-move-survey",
+
+// Services mapped to Entry Points
+// This prevents using an illegal entry point against a service
+var servicesToEntryPoints = map[string][]string{
+	"app":            {fmt.Sprintf("%s serve", binMilMove)},
+	"app-client-tls": {fmt.Sprintf("%s serve", binMilMove)},
+	"app-migrations": {fmt.Sprintf("%s migrate", binMilMove)},
+	"app-tasks": {
+		fmt.Sprintf("%s save-fuel-price-data", binMilMoveTasks),
+		fmt.Sprintf("%s send-post-move-survey", binMilMoveTasks),
+	},
 }
-var appPorts = map[string]int64{
+
+// Services mapped to App Ports
+// This ensures app ports are correct for a service that requires port mappings
+var servicesToAppPorts = map[string]int64{
 	"app":            int64(8443),
 	"app-client-tls": int64(9443),
 }
 
-// Commands should be the name of the binary found in the /bin directory in the container
-//var commands = []string{"milmove-tasks save-fuel-price-data", "milmove-tasks send-post-move-survey"}
+var environments = []string{"prod", "staging", "experimental"}
 
 type errInvalidAccountID struct {
 	AwsAccountID string
@@ -155,7 +168,7 @@ func initTaskDefFlags(flag *pflag.FlagSet) {
 	flag.String(environmentFlag, "", fmt.Sprintf("The environment name (choose %q)", environments))
 	flag.String(imageURIFlag, "", "The URI of the container image to use in the task definition")
 	flag.String(variablesFileFlag, "", "A file containing variables for the task definiton")
-	flag.String(entryPointFlag, "milmove serve", "The entryPoint for the container")
+	flag.String(entryPointFlag, fmt.Sprintf("%s serve", binMilMove), "The entryPoint for the container")
 
 	// Verbose
 	cli.InitVerboseFlags(flag)
@@ -246,6 +259,7 @@ func checkConfig(v *viper.Viper) error {
 		return fmt.Errorf("%q is invalid: %w", entryPointFlag, &errInvalidEntryPoint{EntryPoint: entryPoint})
 	}
 	validEntryPoint := false
+	entryPoints := servicesToEntryPoints[serviceName]
 	for _, str := range entryPoints {
 		if entryPoint == str {
 			validEntryPoint = true
@@ -452,7 +466,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	var awsLogsGroup string
 	var portMappings []*ecs.PortMapping
 	var containerDefName string
-	if commandName == "/bin/milmove-tasks" {
+	if commandName == binMilMoveTasks {
 		awsLogsStreamPrefix = serviceName
 		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceNameShort, environmentName)
 		containerDefName = fmt.Sprintf("%s-%s-%s", serviceName, subCommandName, environmentName)
@@ -474,7 +488,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		containerDefName = fmt.Sprintf("%s-%s", serviceName, environmentName)
 
 		// Ports
-		port := appPorts[serviceName]
+		port := servicesToAppPorts[serviceName]
 		portMappings = []*ecs.PortMapping{
 			{
 				ContainerPort: aws.Int64(port),
