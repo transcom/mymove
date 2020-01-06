@@ -1,27 +1,28 @@
 #! /usr/bin/env bash
 #
-#   Creates and runs a migration task using the given container definition
-#   template, image, and environment.
+#   Creates and runs a migration task using the given name, image, and environment.
 #
 set -eo pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 readonly DIR
 
 usage() {
-    echo "$0 <template> <image> <environment>"
+    echo "$0 <image> <environment>"
     exit 1
 }
 [[ -z $1 || -z $2 || -z $3 ]] && usage
 
 set -u
 
-readonly template=$1
-readonly image=$2
-readonly environment=$3
+readonly name=app-migrations
+readonly image=$1
+readonly environment=$2
 
-readonly log_prefix=app-migrations
-readonly container_name=app-migrations-${environment}
-readonly task_family=app-migrations-${environment}
+readonly RESERVATION_CPU=256
+readonly RESERVATION_MEM=512
+
+readonly log_prefix="${name}"
+readonly container_name="${name}-${environment}"
 readonly cluster=app-${environment}
 
 check_arn() {
@@ -49,51 +50,26 @@ put_metric() {
     aws cloudwatch put-metric-data --metric-name "${metric_name}" --namespace "${namespace}" --value 1 --timestamp "${timestamp}"
 }
 
-# get network configuration from the cluster we'll run on
-echo "Get the network configuration for ${cluster}"
-network_configuration=$(aws ecs describe-services --services app --cluster "$cluster" --query 'services[0].networkConfiguration')
-readonly network_configuration
-
-# get the DB address
-echo "Get the DB address for app-${environment}"
-db_host=$(aws rds describe-db-instances --db-instance-identifier "app-$environment" --query 'DBInstances[0].Endpoint.Address' | jq -r .)
-readonly db_host
-
-# renderer builds its template context from (1) environment variables, (2) file at -v FILE, and (3) positional command line args.
-echo "Get the container definition from template ${template} for environment ${environment} with image ${image} and db host ${db_host}"
-echo
-# WARNING: Use this for debugging only. It may expose secrets.
-# echo "===== START ENV FILE ===="
-# echo "$DIR"/../config/env/"${environment}".migrations.env
-# cat "$DIR"/../config/env/"${environment}".migrations.env
-# echo "===== END ENV FILE ===="
-
-ssm_secrets=$(aws ssm describe-parameters --parameter-filters Key=Path,Values=["/app-${environment}"] | jq "[.Parameters | to_entries[].value | .ARN = \"arn:aws:ssm:${AWS_DEFAULT_REGION}:${AWS_ACCOUNT_ID}:parameter\" + .Name | .ENVNAME = (.Name | ascii_upcase | split(\"/\")[2]) | {\"valueFrom\": .ARN, \"name\": .ENVNAME}]")
-container_definition_json=$("${DIR}/../bin/renderer" -t "${template}" -v "${DIR}/../config/env/${environment}.migrations.env" environment="${environment}" image="${image}" db_host="${db_host}" secrets="${ssm_secrets}")
-readonly container_definition_json
-
-# output the definition
-# WARNING: Use this for debugging only. It may expose secrets.
-# echo
-# echo "===== START TASK DEF ===="
-# jq . <<< "${container_definition_json}"
-# echo "===== END TASK DEF ===="
-# echo
-
-# Validate the template after it has been constructed
-if ! jq empty <<< "${container_definition_json}"; then
-  echo
-  echo "Invalid JSON produced from task definiton template ${template}!"
-  exit 1
-fi
-
 # create new task definition with the given image
-echo "Create a new task definition for task family ${task_family}"
-task_definition_arn=$(aws ecs register-task-definition --network-mode awsvpc --task-role-arn "ecs-task-role-app-migration-$environment" --family "$task_family" --container-definitions "$container_definition_json" --requires-compatibilities FARGATE --execution-role-arn "ecs-task-execution-role-app-$environment" --cpu 256 --memory 512 --query 'taskDefinition.taskDefinitionArn' --output text)
+echo "* Registering new task definition"
+task_definition_arn=$(ecs-deploy task-def \
+  --aws-account-id "${AWS_ACCOUNT_ID}" \
+  --aws-region us-west-2 \
+  --service "${name}" \
+  --environment "${environment}" \
+  --image "${image}" \
+  --variables-file "config/env/${environment}.migrations.env" \
+  --entrypoint "/bin/milmove migrate" \
+  --cpu "${RESERVATION_CPU}" \
+  --memory "${RESERVATION_MEM}" \
+  --register \
+  --dry-run)
+# TODO: This is broken until tested
+exit 1
+
 readonly task_definition_arn
 check_arn "$task_definition_arn"
 
-# run the task
 echo "Running task definition $task_definition_arn ..."
 task_arn=$(aws ecs run-task --launch-type FARGATE --network-configuration "$network_configuration" --task-definition "$task_definition_arn" --cluster "$cluster" --query 'tasks[].taskArn' --output text)
 readonly task_arn

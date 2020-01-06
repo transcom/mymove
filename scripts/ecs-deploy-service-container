@@ -1,7 +1,6 @@
 #! /usr/bin/env bash
 #
-#   Updates the named service with the given name, image, and environment
-#   image, and environment.
+#   Updates the named service with the given name, image, and environment.
 #
 set -eo pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
