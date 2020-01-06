@@ -1,0 +1,43 @@
+#! /usr/bin/env bash
+#
+#   Updates the named task with the given name, image, and environment.
+#
+set -eo pipefail
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly DIR
+
+usage() {
+    echo "$0 <name> <image> <environment>"
+    exit 1
+}
+[[ -z $1 || -z $2 || -z $3 ]] && usage
+
+# Display command being run
+echo "$0 $*"
+
+set -u
+
+readonly name=$1
+readonly image=$2
+readonly environment=$3
+
+echo "Deploying ${name}"
+
+task_def_arn=$(bin/ecs-deploy-task-container \
+  --aws-account-id "${AWS_ACCOUNT_ID}" \
+  --aws-region "${AWS_DEFAULT_REGION}" \
+  --service app-tasks \
+  --environment "${environment}" \
+  --image-tag "${image}" \
+  --variables-file "${DIR}/../config/env/${environment}.${name}.env" \
+  --entrypoint "/bin/milmove-tasks ${name}")
+readonly task_def_arn
+
+bin/ecs-deploy put-target \
+  --aws-account-id "${AWS_ACCOUNT_ID}" \
+  --aws-region "${AWS_DEFAULT_REGION}" \
+  --environment "${environment}" \
+  --name "${name}" \
+  --task-def-arn "${task_def_arn}" \
+  --dry-run

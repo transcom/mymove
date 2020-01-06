@@ -227,9 +227,6 @@ bin/compare-secure-migrations:
 bin/ecs-deploy:
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy ./cmd/ecs-deploy
 
-bin/ecs-deploy-task-container:
-	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy-task-container ./cmd/ecs-deploy-task-container
-
 bin/ecs-service-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
 
@@ -355,7 +352,6 @@ build_tools: bin/gin \
 	bin/big-cat \
 	bin/compare-secure-migrations \
 	bin/ecs-deploy \
-	bin/ecs-deploy-task-container \
 	bin/ecs-service-logs \
 	bin/find-guardduty-user \
 	bin/generate-access-codes \

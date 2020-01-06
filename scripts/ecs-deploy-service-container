@@ -3,6 +3,7 @@
 #   Updates the named service with the given name, image, and environment.
 #
 set -eo pipefail
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 readonly DIR
 
@@ -10,7 +11,7 @@ usage() {
     echo "$0 <name> <image> <environment>"
     exit 1
 }
-[[ -z $1 || -z $2 || -z $3 || -z $4 ]] && usage
+[[ -z $1 || -z $2 || -z $3 ]] && usage
 
 # Display command being run
 echo "$0 $*"
@@ -85,6 +86,7 @@ green_task_def_arn=$(ecs-deploy task-def \
   --register \
   --dry-run)
 # TODO: This is broken until tested
+echo "${green_task_def_arn}"
 exit 1
 
 readonly green_task_def_arn
