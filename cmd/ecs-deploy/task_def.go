@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -123,6 +124,8 @@ const (
 	imageURIFlag      string = "image"
 	variablesFileFlag string = "variables-file"
 	entryPointFlag    string = "entrypoint"
+	cpuFlag           string = "cpu"
+	memFlag           string = "mem"
 	dryRunFlag        string = "dry-run"
 	registerFlag      string = "register"
 )
@@ -171,6 +174,8 @@ func initTaskDefFlags(flag *pflag.FlagSet) {
 	flag.String(imageURIFlag, "", "The URI of the container image to use in the task definition")
 	flag.String(variablesFileFlag, "", "A file containing variables for the task definiton")
 	flag.String(entryPointFlag, fmt.Sprintf("%s serve", binMilMove), "The entryPoint for the container")
+	flag.Int(cpuFlag, int(512), "The CPU reservation")
+	flag.Int(memFlag, int(2048), "The memory reservation")
 
 	// Verbose
 	cli.InitVerboseFlags(flag)
@@ -518,6 +523,10 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	}
 	dbHost := *dbInstancesOutput.DBInstances[0].Endpoint.Address
 
+	// CPU / MEM
+	cpu := strconv.Itoa(v.GetInt(cpuFlag))
+	mem := strconv.Itoa(v.GetInt(memFlag))
+
 	newTaskDefInput := ecs.RegisterTaskDefinitionInput{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
 			{
@@ -540,10 +549,10 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 				ReadonlyRootFilesystem: aws.Bool(true),
 			},
 		},
-		Cpu:                     aws.String("512"),
+		Cpu:                     aws.String(cpu),
 		ExecutionRoleArn:        aws.String(executionRoleArn),
 		Family:                  aws.String(fmt.Sprintf("%s-%s", serviceName, environmentName)),
-		Memory:                  aws.String("2048"),
+		Memory:                  aws.String(mem),
 		NetworkMode:             aws.String("awsvpc"),
 		RequiresCompatibilities: []*string{aws.String("FARGATE")},
 		TaskRoleArn:             aws.String(taskRoleArn),
