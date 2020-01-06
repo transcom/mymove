@@ -3564,6 +3564,26 @@ func init() {
           "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
         "has_requested_advance": {
           "type": "boolean",
           "title": "Would you like an advance of up to 60% of your PPM incentive?"
@@ -3914,7 +3934,7 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. \"My car\")"
+          "title": "Vehicle nickname (ex. 'My car')"
         },
         "vehicle_options": {
           "type": "string",
@@ -3922,12 +3942,14 @@ func init() {
           "enum": [
             "CAR",
             "CAR_TRAILER",
-            "BOX_TRUCK"
+            "BOX_TRUCK",
+            "PRO_GEAR"
           ],
           "x-display-value": {
             "BOX_TRUCK": "Box truck",
             "CAR": "Car",
-            "CAR_TRAILER": "Car + Trailer"
+            "CAR_TRAILER": "Car + Trailer",
+            "PRO_GEAR": "Pro-gear"
           }
         },
         "weight_ticket_date": {
@@ -4405,7 +4427,7 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. \"My car\")"
+          "title": "Vehicle nickname (ex. 'My car')"
         },
         "vehicle_options": {
           "type": "string",
@@ -4413,12 +4435,14 @@ func init() {
           "enum": [
             "CAR",
             "CAR_TRAILER",
-            "BOX_TRUCK"
+            "BOX_TRUCK",
+            "PRO_GEAR"
           ],
           "x-display-value": {
             "BOX_TRUCK": "Box truck",
             "CAR": "Car",
-            "CAR_TRAILER": "Car + Trailer"
+            "CAR_TRAILER": "Car + Trailer",
+            "PRO_GEAR": "Pro-gear"
           }
         },
         "weight_ticket_date": {
@@ -4974,6 +4998,26 @@ func init() {
           "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
         "has_requested_advance": {
           "type": "boolean",
           "title": "Would you like an advance of up to 60% of your PPM incentive?",
@@ -5202,6 +5246,26 @@ func init() {
         "has_additional_postal_code": {
           "type": "boolean",
           "title": "Do you have stuff at another pickup location?",
+          "x-nullable": true
+        },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
           "x-nullable": true
         },
         "has_requested_advance": {
@@ -5934,6 +5998,26 @@ func init() {
           "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
         "has_requested_advance": {
           "type": "boolean",
           "title": "Would you like an advance of up to 60% of your PPM incentive?",
@@ -6071,12 +6155,14 @@ func init() {
       "enum": [
         "CAR",
         "CAR_TRAILER",
-        "BOX_TRUCK"
+        "BOX_TRUCK",
+        "PRO_GEAR"
       ],
       "x-display-value": {
         "BOX_TRUCK": "Box truck",
         "CAR": "Car",
-        "CAR_TRAILER": "Car + Trailer"
+        "CAR_TRAILER": "Car + Trailer",
+        "PRO_GEAR": "Pro-gear"
       },
       "x-nullable": true
     },
@@ -9657,6 +9743,26 @@ func init() {
           "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
         "has_requested_advance": {
           "type": "boolean",
           "title": "Would you like an advance of up to 60% of your PPM incentive?"
@@ -10010,7 +10116,7 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. \"My car\")"
+          "title": "Vehicle nickname (ex. 'My car')"
         },
         "vehicle_options": {
           "type": "string",
@@ -10018,12 +10124,14 @@ func init() {
           "enum": [
             "CAR",
             "CAR_TRAILER",
-            "BOX_TRUCK"
+            "BOX_TRUCK",
+            "PRO_GEAR"
           ],
           "x-display-value": {
             "BOX_TRUCK": "Box truck",
             "CAR": "Car",
-            "CAR_TRAILER": "Car + Trailer"
+            "CAR_TRAILER": "Car + Trailer",
+            "PRO_GEAR": "Pro-gear"
           }
         },
         "weight_ticket_date": {
@@ -10503,7 +10611,7 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. \"My car\")"
+          "title": "Vehicle nickname (ex. 'My car')"
         },
         "vehicle_options": {
           "type": "string",
@@ -10511,12 +10619,14 @@ func init() {
           "enum": [
             "CAR",
             "CAR_TRAILER",
-            "BOX_TRUCK"
+            "BOX_TRUCK",
+            "PRO_GEAR"
           ],
           "x-display-value": {
             "BOX_TRUCK": "Box truck",
             "CAR": "Car",
-            "CAR_TRAILER": "Car + Trailer"
+            "CAR_TRAILER": "Car + Trailer",
+            "PRO_GEAR": "Pro-gear"
           }
         },
         "weight_ticket_date": {
@@ -11073,6 +11183,26 @@ func init() {
           "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
         "has_requested_advance": {
           "type": "boolean",
           "title": "Would you like an advance of up to 60% of your PPM incentive?",
@@ -11303,6 +11433,26 @@ func init() {
         "has_additional_postal_code": {
           "type": "boolean",
           "title": "Do you have stuff at another pickup location?",
+          "x-nullable": true
+        },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
           "x-nullable": true
         },
         "has_requested_advance": {
@@ -12037,6 +12187,26 @@ func init() {
           "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
         "has_requested_advance": {
           "type": "boolean",
           "title": "Would you like an advance of up to 60% of your PPM incentive?",
@@ -12176,12 +12346,14 @@ func init() {
       "enum": [
         "CAR",
         "CAR_TRAILER",
-        "BOX_TRUCK"
+        "BOX_TRUCK",
+        "PRO_GEAR"
       ],
       "x-display-value": {
         "BOX_TRUCK": "Box truck",
         "CAR": "Car",
-        "CAR_TRAILER": "Car + Trailer"
+        "CAR_TRAILER": "Car + Trailer",
+        "PRO_GEAR": "Pro-gear"
       },
       "x-nullable": true
     },

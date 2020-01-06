@@ -204,6 +204,22 @@ definitions:
         $ref: '#/definitions/CreateReimbursement'
       advance_worksheet:
         $ref: '#/definitions/DocumentPayload'
+      has_pro_gear:
+        type: string
+        title: Has Pro-Gear
+        enum:
+          - NOT SURE
+          - 'YES'
+          - 'NO'
+        x-nullable: true
+      has_pro_gear_over_thousand:
+        type: string
+        title: Has Pro-Gear Over Thousand Pounds
+        enum:
+          - NOT SURE
+          - 'YES'
+          - 'NO'
+        x-nullable: true
   UpdatePersonallyProcuredMovePayload:
     type: object
     properties:
@@ -283,6 +299,22 @@ definitions:
         $ref: '#/definitions/Reimbursement'
       advance_worksheet:
         $ref: '#/definitions/DocumentPayload'
+      has_pro_gear:
+        type: string
+        title: Has Pro-Gear
+        enum:
+          - NOT SURE
+          - 'YES'
+          - 'NO'
+        x-nullable: true
+      has_pro_gear_over_thousand:
+        type: string
+        title: Has Pro-Gear Over Thousand Pounds
+        enum:
+          - NOT SURE
+          - 'YES'
+          - 'NO'
+        x-nullable: true
   PatchPersonallyProcuredMovePayload:
     type: object
     properties:
@@ -358,6 +390,22 @@ definitions:
         $ref: '#/definitions/Reimbursement'
       advance_worksheet:
         $ref: '#/definitions/DocumentPayload'
+      has_pro_gear:
+        type: string
+        title: Has Pro-Gear
+        enum:
+          - NOT SURE
+          - 'YES'
+          - 'NO'
+        x-nullable: true
+      has_pro_gear_over_thousand:
+        type: string
+        title: Has Pro-Gear Over Thousand Pounds
+        enum:
+          - NOT SURE
+          - 'YES'
+          - 'NO'
+        x-nullable: true
   PersonallyProcuredMovePayload:
     type: object
     properties:
@@ -481,6 +529,22 @@ definitions:
         $ref: '#/definitions/Reimbursement'
       advance_worksheet:
         $ref: '#/definitions/DocumentPayload'
+      has_pro_gear:
+        type: string
+        title: Has Pro-Gear
+        enum:
+          - NOT SURE
+          - 'YES'
+          - 'NO'
+        x-nullable: true
+      has_pro_gear_over_thousand:
+        type: string
+        title: Has Pro-Gear Over Thousand Pounds
+        enum:
+          - NOT SURE
+          - 'YES'
+          - 'NO'
+        x-nullable: true
       created_at:
         type: string
         format: date-time
@@ -699,10 +763,12 @@ definitions:
       - CAR
       - CAR_TRAILER
       - BOX_TRUCK
+      - PRO_GEAR
     x-display-value:
       CAR: Car
       CAR_TRAILER: Car + Trailer
       BOX_TRUCK: Box truck
+      PRO_GEAR: Pro-gear
   MoveDocumentPayload:
     type: object
     properties:
@@ -763,9 +829,10 @@ definitions:
           CAR: Car
           CAR_TRAILER: Car + Trailer
           BOX_TRUCK: Box truck
+          PRO_GEAR: Pro-gear
       vehicle_nickname:
         type: string
-        title: Vehicle nickname (ex. "My car")
+        title: Vehicle nickname (ex. 'My car')
       empty_weight:
         title: Empty Weight
         type: integer
@@ -980,9 +1047,10 @@ definitions:
           CAR: Car
           CAR_TRAILER: Car + Trailer
           BOX_TRUCK: Box truck
+          PRO_GEAR: Pro-gear
       vehicle_nickname:
         type: string
-        title: Vehicle nickname (ex. "My car")
+        title: Vehicle nickname (ex. 'My car')
       empty_weight_ticket_missing:
         title: missing empty weight ticket
         type: boolean

@@ -422,5 +422,6 @@
 20191212230438_add_devlocal-mtls_client_cert.up.sql
 20191216184630_make_mto_service_items_meta_optional.up.sql
 20191218163024_add_required_moveorder_and_customer_fields.up.sql
+20191227144832_add_has_progear_to_personally_procured_moves.up.sql
 20191229183600_add_top_tsp_for_ppms.up.sql
 20191229234501_import_rates_jan_2020.up.sql

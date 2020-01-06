@@ -28,6 +28,9 @@ const (
 
 	// VehicleOptionsBOXTRUCK captures enum value "BOX_TRUCK"
 	VehicleOptionsBOXTRUCK VehicleOptions = "BOX_TRUCK"
+
+	// VehicleOptionsPROGEAR captures enum value "PRO_GEAR"
+	VehicleOptionsPROGEAR VehicleOptions = "PRO_GEAR"
 )
 
 // for schema
@@ -35,7 +38,7 @@ var vehicleOptionsEnum []interface{}
 
 func init() {
 	var res []VehicleOptions
-	if err := json.Unmarshal([]byte(`["CAR","CAR_TRAILER","BOX_TRUCK"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["CAR","CAR_TRAILER","BOX_TRUCK","PRO_GEAR"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
