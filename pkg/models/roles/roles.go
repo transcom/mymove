@@ -13,8 +13,11 @@ import (
 type RoleType string
 
 const (
-	TOO      RoleType = "transportation_ordering_officer"
-	Customer RoleType = "customer"
+	RoleTypeTOO                RoleType = "transportation_ordering_officer"
+	RoleTypeCustomer           RoleType = "customer"
+	RoleTypeTIO                RoleType = "transportation_invoicing_officer"
+	RoleTypeContractingOfficer RoleType = "contracting_officer"
+	RoleTypePPMOfficeUsers     RoleType = "ppm_office_users"
 )
 
 type Role struct {

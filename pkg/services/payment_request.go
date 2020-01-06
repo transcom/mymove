@@ -1,6 +1,8 @@
 package services
 
 import (
+	"github.com/gobuffalo/validate"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -20,4 +22,10 @@ type PaymentRequestListFetcher interface {
 //go:generate mockery -name PaymentRequestFetcher
 type PaymentRequestFetcher interface {
 	FetchPaymentRequest(filters []QueryFilter) (models.PaymentRequest, error)
+}
+
+// PaymentRequestStatusUpdater is the exported interface for updating the status of a payment request
+//go:generate mockery -name PaymentRequestStatusUpdater
+type PaymentRequestStatusUpdater interface {
+	UpdatePaymentRequestStatus(*models.PaymentRequest) (*validate.Errors, error)
 }

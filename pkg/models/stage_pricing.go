@@ -37,6 +37,20 @@ type StageDomesticServiceAreaPrice struct {
 	OriginDestinationSITAddlDays          string `db:"origin_destination_sit_addl_days" csv:"origin_destination_sit_addl_days"`
 }
 
+type StageDomesticOtherPackPrice struct {
+	ServicesSchedule   string `db:"services_schedule" csv:"services_schedule"`
+	ServiceProvided    string `db:"service_provided" csv:"service_provided"`
+	NonPeakPricePerCwt string `db:"non_peak_price_per_cwt" csv:"non_peak_price_per_cwt"`
+	PeakPricePerCwt    string `db:"peak_price_per_cwt" csv:"peak_price_per_cwt"`
+}
+
+type StageDomesticOtherSitPrice struct {
+	SITPickupDeliverySchedule string `db:"sit_pickup_delivery_schedule" csv:"sit_pickup_delivery_schedule"`
+	ServiceProvided           string `db:"service_provided" csv:"service_provided"`
+	NonPeakPricePerCwt        string `db:"non_peak_price_per_cwt" csv:"non_peak_price_per_cwt"`
+	PeakPricePerCwt           string `db:"peak_price_per_cwt" csv:"peak_price_per_cwt"`
+}
+
 type StageOconusToOconusPrice struct {
 	OriginIntlPriceAreaID      string `db:"origin_intl_price_area_id" csv:"origin_intl_price_area_id"`
 	OriginIntlPriceArea        string `db:"origin_intl_price_area" csv:"origin_intl_price_area"`

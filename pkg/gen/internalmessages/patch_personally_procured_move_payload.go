@@ -6,6 +6,8 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -42,6 +44,14 @@ type PatchPersonallyProcuredMovePayload struct {
 
 	// Do you have stuff at another pickup location?
 	HasAdditionalPostalCode *bool `json:"has_additional_postal_code,omitempty"`
+
+	// Has Pro-Gear
+	// Enum: [NOT SURE YES NO]
+	HasProGear *string `json:"has_pro_gear,omitempty"`
+
+	// Has Pro-Gear Over Thousand Pounds
+	// Enum: [NOT SURE YES NO]
+	HasProGearOverThousand *string `json:"has_pro_gear_over_thousand,omitempty"`
 
 	// Would you like an advance of up to 60% of your PPM incentive?
 	HasRequestedAdvance *bool `json:"has_requested_advance,omitempty"`
@@ -98,6 +108,14 @@ func (m *PatchPersonallyProcuredMovePayload) Validate(formats strfmt.Registry) e
 	}
 
 	if err := m.validateDestinationPostalCode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateHasProGear(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateHasProGearOverThousand(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -217,6 +235,98 @@ func (m *PatchPersonallyProcuredMovePayload) validateDestinationPostalCode(forma
 	}
 
 	if err := validate.Pattern("destination_postal_code", "body", string(*m.DestinationPostalCode), `^(\d{5}([\-]\d{4})?)$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var patchPersonallyProcuredMovePayloadTypeHasProGearPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["NOT SURE","YES","NO"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		patchPersonallyProcuredMovePayloadTypeHasProGearPropEnum = append(patchPersonallyProcuredMovePayloadTypeHasProGearPropEnum, v)
+	}
+}
+
+const (
+
+	// PatchPersonallyProcuredMovePayloadHasProGearNOTSURE captures enum value "NOT SURE"
+	PatchPersonallyProcuredMovePayloadHasProGearNOTSURE string = "NOT SURE"
+
+	// PatchPersonallyProcuredMovePayloadHasProGearYES captures enum value "YES"
+	PatchPersonallyProcuredMovePayloadHasProGearYES string = "YES"
+
+	// PatchPersonallyProcuredMovePayloadHasProGearNO captures enum value "NO"
+	PatchPersonallyProcuredMovePayloadHasProGearNO string = "NO"
+)
+
+// prop value enum
+func (m *PatchPersonallyProcuredMovePayload) validateHasProGearEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, patchPersonallyProcuredMovePayloadTypeHasProGearPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *PatchPersonallyProcuredMovePayload) validateHasProGear(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.HasProGear) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateHasProGearEnum("has_pro_gear", "body", *m.HasProGear); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var patchPersonallyProcuredMovePayloadTypeHasProGearOverThousandPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["NOT SURE","YES","NO"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		patchPersonallyProcuredMovePayloadTypeHasProGearOverThousandPropEnum = append(patchPersonallyProcuredMovePayloadTypeHasProGearOverThousandPropEnum, v)
+	}
+}
+
+const (
+
+	// PatchPersonallyProcuredMovePayloadHasProGearOverThousandNOTSURE captures enum value "NOT SURE"
+	PatchPersonallyProcuredMovePayloadHasProGearOverThousandNOTSURE string = "NOT SURE"
+
+	// PatchPersonallyProcuredMovePayloadHasProGearOverThousandYES captures enum value "YES"
+	PatchPersonallyProcuredMovePayloadHasProGearOverThousandYES string = "YES"
+
+	// PatchPersonallyProcuredMovePayloadHasProGearOverThousandNO captures enum value "NO"
+	PatchPersonallyProcuredMovePayloadHasProGearOverThousandNO string = "NO"
+)
+
+// prop value enum
+func (m *PatchPersonallyProcuredMovePayload) validateHasProGearOverThousandEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, patchPersonallyProcuredMovePayloadTypeHasProGearOverThousandPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *PatchPersonallyProcuredMovePayload) validateHasProGearOverThousand(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.HasProGearOverThousand) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateHasProGearOverThousandEnum("has_pro_gear_over_thousand", "body", *m.HasProGearOverThousand); err != nil {
 		return err
 	}
 

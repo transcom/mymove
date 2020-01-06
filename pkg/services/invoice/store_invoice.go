@@ -64,7 +64,7 @@ func (s StoreInvoice858C) Call(edi string, invoice *models.Invoice, userID uuid.
 	// Delete of previous upload, if it exist
 	// If Delete of Upload fails, ignoring this error because we still have a new Upload that needs to be saved
 	// to the Invoice
-	err = UpdateInvoiceUpload{DB: s.DB, Uploader: loader}.DeleteUpload(invoice)
+	err = UploadUpdater{DB: s.DB, Uploader: loader}.DeleteUpload(invoice)
 	if err != nil {
 		logStr := ""
 		if invoice != nil && invoice.UploadID != nil {
@@ -86,7 +86,7 @@ func (s StoreInvoice858C) Call(edi string, invoice *models.Invoice, userID uuid.
 	}
 
 	// Save Upload to Invoice
-	verrs2, err = UpdateInvoiceUpload{DB: s.DB, Uploader: loader}.Call(invoice, upload)
+	verrs2, err = UploadUpdater{DB: s.DB, Uploader: loader}.Call(invoice, upload)
 	verrs.Append(verrs2)
 	if err != nil {
 		return verrs, errors.New("Failed to save Upload to Invoice: " + invoiceID)
