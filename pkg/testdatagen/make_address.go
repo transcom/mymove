@@ -64,6 +64,25 @@ func MakeAddress3(db *pop.Connection, assertions Assertions) models.Address {
 	return address
 }
 
+// MakeAddress4 creates a different single Address and associated service member.
+func MakeAddress4(db *pop.Connection, assertions Assertions) models.Address {
+	address := models.Address{
+		StreetAddress1: "987 Over There Avenue",
+		StreetAddress2: swag.String("P.O. Box 1234"),
+		StreetAddress3: swag.String("c/o Another Person"),
+		City:           "Houston",
+		State:          "TX",
+		PostalCode:     "77083",
+		Country:        swag.String("US"),
+	}
+
+	mergeModels(&address, assertions.Address)
+
+	mustCreate(db, &address)
+
+	return address
+}
+
 // MakeDefaultAddress makes an Address with default values
 func MakeDefaultAddress(db *pop.Connection) models.Address {
 	// Make associated lookup table records.

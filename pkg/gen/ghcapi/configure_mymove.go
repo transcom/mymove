@@ -12,9 +12,10 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
-	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/service_item"
 )
 
 //go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/ghc.yaml --api-package ghcoperations --model-package ghcmessages --server-package ghcapi --exclude-main
@@ -37,9 +38,14 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
-	if api.ServiceItemCreateServiceItemHandler == nil {
-		api.ServiceItemCreateServiceItemHandler = service_item.CreateServiceItemHandlerFunc(func(params service_item.CreateServiceItemParams) middleware.Responder {
-			return middleware.NotImplemented("operation service_item.CreateServiceItem has not yet been implemented")
+	if api.MtoServiceItemCreateMTOServiceItemHandler == nil {
+		api.MtoServiceItemCreateMTOServiceItemHandler = mto_service_item.CreateMTOServiceItemHandlerFunc(func(params mto_service_item.CreateMTOServiceItemParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_service_item.CreateMTOServiceItem has not yet been implemented")
+		})
+	}
+	if api.MtoServiceItemDeleteMTOServiceItemHandler == nil {
+		api.MtoServiceItemDeleteMTOServiceItemHandler = mto_service_item.DeleteMTOServiceItemHandlerFunc(func(params mto_service_item.DeleteMTOServiceItemParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_service_item.DeleteMTOServiceItem has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderDeleteMoveTaskOrderHandler == nil {
@@ -47,24 +53,29 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation move_task_order.DeleteMoveTaskOrder has not yet been implemented")
 		})
 	}
-	if api.ServiceItemDeleteServiceItemHandler == nil {
-		api.ServiceItemDeleteServiceItemHandler = service_item.DeleteServiceItemHandlerFunc(func(params service_item.DeleteServiceItemParams) middleware.Responder {
-			return middleware.NotImplemented("operation service_item.DeleteServiceItem has not yet been implemented")
-		})
-	}
 	if api.CustomerGetAllCustomerMovesHandler == nil {
 		api.CustomerGetAllCustomerMovesHandler = customer.GetAllCustomerMovesHandlerFunc(func(params customer.GetAllCustomerMovesParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.GetAllCustomerMoves has not yet been implemented")
 		})
 	}
-	if api.CustomerGetCustomerInfoHandler == nil {
-		api.CustomerGetCustomerInfoHandler = customer.GetCustomerInfoHandlerFunc(func(params customer.GetCustomerInfoParams) middleware.Responder {
-			return middleware.NotImplemented("operation customer.GetCustomerInfo has not yet been implemented")
+	if api.CustomerGetCustomerHandler == nil {
+		api.CustomerGetCustomerHandler = customer.GetCustomerHandlerFunc(func(params customer.GetCustomerParams) middleware.Responder {
+			return middleware.NotImplemented("operation customer.GetCustomer has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderGetEntitlementsHandler == nil {
 		api.MoveTaskOrderGetEntitlementsHandler = move_task_order.GetEntitlementsHandlerFunc(func(params move_task_order.GetEntitlementsParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetEntitlements has not yet been implemented")
+		})
+	}
+	if api.MtoServiceItemGetMTOServiceItemHandler == nil {
+		api.MtoServiceItemGetMTOServiceItemHandler = mto_service_item.GetMTOServiceItemHandlerFunc(func(params mto_service_item.GetMTOServiceItemParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_service_item.GetMTOServiceItem has not yet been implemented")
+		})
+	}
+	if api.MoveOrderGetMoveOrderHandler == nil {
+		api.MoveOrderGetMoveOrderHandler = move_order.GetMoveOrderHandlerFunc(func(params move_order.GetMoveOrderParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_order.GetMoveOrder has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderGetMoveTaskOrderHandler == nil {
@@ -77,14 +88,19 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation payment_requests.GetPaymentRequest has not yet been implemented")
 		})
 	}
-	if api.ServiceItemGetServiceItemHandler == nil {
-		api.ServiceItemGetServiceItemHandler = service_item.GetServiceItemHandlerFunc(func(params service_item.GetServiceItemParams) middleware.Responder {
-			return middleware.NotImplemented("operation service_item.GetServiceItem has not yet been implemented")
+	if api.MtoServiceItemListMTOServiceItemsHandler == nil {
+		api.MtoServiceItemListMTOServiceItemsHandler = mto_service_item.ListMTOServiceItemsHandlerFunc(func(params mto_service_item.ListMTOServiceItemsParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_service_item.ListMTOServiceItems has not yet been implemented")
 		})
 	}
-	if api.MoveTaskOrderListMoveTaskOrdersHandler == nil {
-		api.MoveTaskOrderListMoveTaskOrdersHandler = move_task_order.ListMoveTaskOrdersHandlerFunc(func(params move_task_order.ListMoveTaskOrdersParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_task_order.ListMoveTaskOrders has not yet been implemented")
+	if api.MoveOrderListMoveOrdersHandler == nil {
+		api.MoveOrderListMoveOrdersHandler = move_order.ListMoveOrdersHandlerFunc(func(params move_order.ListMoveOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_order.ListMoveOrders has not yet been implemented")
+		})
+	}
+	if api.MoveOrderListMoveTaskOrdersHandler == nil {
+		api.MoveOrderListMoveTaskOrdersHandler = move_order.ListMoveTaskOrdersHandlerFunc(func(params move_order.ListMoveTaskOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_order.ListMoveTaskOrders has not yet been implemented")
 		})
 	}
 	if api.PaymentRequestsListPaymentRequestsHandler == nil {
@@ -92,9 +108,14 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation payment_requests.ListPaymentRequests has not yet been implemented")
 		})
 	}
-	if api.ServiceItemListServiceItemsHandler == nil {
-		api.ServiceItemListServiceItemsHandler = service_item.ListServiceItemsHandlerFunc(func(params service_item.ListServiceItemsParams) middleware.Responder {
-			return middleware.NotImplemented("operation service_item.ListServiceItems has not yet been implemented")
+	if api.MtoServiceItemUpdateMTOServiceItemHandler == nil {
+		api.MtoServiceItemUpdateMTOServiceItemHandler = mto_service_item.UpdateMTOServiceItemHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItem has not yet been implemented")
+		})
+	}
+	if api.MtoServiceItemUpdateMTOServiceItemstatusHandler == nil {
+		api.MtoServiceItemUpdateMTOServiceItemstatusHandler = mto_service_item.UpdateMTOServiceItemstatusHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemstatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_service_item.UpdateMTOServiceItemstatus has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderUpdateMoveTaskOrderHandler == nil {
@@ -115,16 +136,6 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.PaymentRequestsUpdatePaymentRequestStatusHandler == nil {
 		api.PaymentRequestsUpdatePaymentRequestStatusHandler = payment_requests.UpdatePaymentRequestStatusHandlerFunc(func(params payment_requests.UpdatePaymentRequestStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.UpdatePaymentRequestStatus has not yet been implemented")
-		})
-	}
-	if api.ServiceItemUpdateServiceItemHandler == nil {
-		api.ServiceItemUpdateServiceItemHandler = service_item.UpdateServiceItemHandlerFunc(func(params service_item.UpdateServiceItemParams) middleware.Responder {
-			return middleware.NotImplemented("operation service_item.UpdateServiceItem has not yet been implemented")
-		})
-	}
-	if api.ServiceItemUpdateServiceItemStatusHandler == nil {
-		api.ServiceItemUpdateServiceItemStatusHandler = service_item.UpdateServiceItemStatusHandlerFunc(func(params service_item.UpdateServiceItemStatusParams) middleware.Responder {
-			return middleware.NotImplemented("operation service_item.UpdateServiceItemStatus has not yet been implemented")
 		})
 	}
 

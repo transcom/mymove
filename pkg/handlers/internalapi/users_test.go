@@ -3,6 +3,8 @@ package internalapi
 import (
 	"net/http/httptest"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -30,13 +32,19 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 
 func (suite *HandlerSuite) TestServiceMemberLoggedInUserRequiringAccessCodeHandler() {
 	firstName := "Joseph"
+	smRole := roles.Role{
+		RoleType: roles.RoleTypeCustomer,
+	}
+	suite.NoError(suite.DB().Save(&smRole))
 	sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			FirstName:          &firstName,
 			RequiresAccessCode: true,
 		},
+		User: models.User{
+			Roles: []roles.Role{smRole},
+		},
 	})
-
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
 	req = suite.AuthenticateRequest(req, sm)
 
@@ -55,6 +63,8 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserRequiringAccessCodeHandl
 	suite.True(ok)
 	suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
 	suite.Equal("Joseph", *okResponse.Payload.ServiceMember.FirstName)
+	suite.Equal(string(roles.RoleTypeCustomer), *okResponse.Payload.Roles[0].RoleType)
+	suite.Equal(1, len(okResponse.Payload.Roles))
 	suite.True(okResponse.Payload.ServiceMember.RequiresAccessCode)
 }
 

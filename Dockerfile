@@ -1,7 +1,7 @@
 FROM gcr.io/distroless/base:latest
 
 COPY bin/rds-combined-ca-bundle.pem /bin/rds-combined-ca-bundle.pem
-COPY bin/chamber /bin/chamber
+COPY bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
 COPY bin/milmove /bin/milmove
 
 COPY config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b /config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b

@@ -12,6 +12,7 @@ import RadioButton from 'shared/RadioButton';
 import Checkbox from 'shared/Checkbox';
 import Uploader from 'shared/Uploader';
 import Alert from 'shared/Alert';
+import { formatDateForSwagger } from 'shared/dates';
 import { documentSizeLimitMsg } from 'shared/constants';
 
 import carTrailerImg from 'shared/images/car-trailer_mobile.png';
@@ -36,6 +37,7 @@ const vehicleTypes = {
   CarAndTrailer: 'CAR_TRAILER',
   Car: 'CAR',
   BoxTruck: 'BOX_TRUCK',
+  ProGear: 'PRO_GEAR',
 };
 
 const nextBtnLabels = {
@@ -83,6 +85,10 @@ class WeightTicket extends Component {
     return this.state.vehicleType === vehicleTypes.CarAndTrailer;
   }
 
+  get isProGear() {
+    return this.state.vehicleType === vehicleTypes.ProGear;
+  }
+
   hasWeightTicket = uploaderRef => {
     return !!(uploaderRef && !uploaderRef.isEmpty());
   };
@@ -91,6 +97,23 @@ class WeightTicket extends Component {
     if (uploader.isMissingChecked()) {
       return true;
     } else return !this.hasWeightTicket(uploader.uploaderRef);
+  };
+
+  carTrailerText = isValidTrailer => {
+    if (this.isCarTrailer && isValidTrailer === 'Yes') {
+      return (
+        <div style={{ marginBottom: '1em' }}>
+          You can claim this trailer's weight as part of the total weight of your trip.
+        </div>
+      );
+    } else if (this.isCarTrailer) {
+      return (
+        <div style={{ marginBottom: '1em' }}>
+          The weight of this trailer should be <strong>excluded</strong> from the total weight of this trip.
+          <p>{documentSizeLimitMsg}</p>
+        </div>
+      );
+    }
   };
 
   uploaderWithInvalidState = () => {
@@ -160,7 +183,7 @@ class WeightTicket extends Component {
       empty_weight: formValues.empty_weight,
       full_weight_ticket_missing: this.state.missingFullWeightTicket,
       full_weight: formValues.full_weight,
-      weight_ticket_date: formValues.weight_ticket_date,
+      weight_ticket_date: formatDateForSwagger(formValues.weight_ticket_date),
       trailer_ownership_missing: this.state.missingDocumentation,
       move_document_type: 'WEIGHT_TICKET_SET',
       notes: formValues.notes,
@@ -239,8 +262,7 @@ class WeightTicket extends Component {
               )}
               <div className="expenses-container">
                 <h3 className="expenses-header">Weight Tickets - {weightTicketSetOrdinal} set</h3>
-                Upload an <strong>empty</strong> & <strong>full</strong> weight ticket below for <em>only</em>{' '}
-                <strong>one</strong> vehicle or trip at a time until they're all uploaded.{' '}
+                Upload weight tickets for each vehicle trip and pro-gear weigh.{' '}
                 <Link to="/weight-ticket-examples" className="usa-link">
                   <FontAwesomeIcon aria-hidden className="color_blue_link" icon={faQuestionCircle} />
                 </Link>
@@ -251,7 +273,16 @@ class WeightTicket extends Component {
                   value={vehicleType}
                   required
                 />
-                <SwaggerField fieldName="vehicle_nickname" swagger={schema} required />
+                <SwaggerField
+                  fieldName="vehicle_nickname"
+                  title={
+                    this.isProGear
+                      ? "Pro-gear type (ex. 'My Pro-gear', 'Spouse Pro-Gear', 'Both')"
+                      : "Vehicle nickname (ex. 'My car')"
+                  }
+                  swagger={schema}
+                  required
+                />
                 {vehicleType && this.isCarTrailer && (
                   <>
                     <div className="radio-group-wrapper normalize-margins">
@@ -327,17 +358,7 @@ class WeightTicket extends Component {
 
                     <div className="grid-row">
                       <div className="grid-col-12" style={{ marginTop: '1em' }}>
-                        {this.isCarTrailer && isValidTrailer === 'Yes' ? (
-                          <div style={{ marginBottom: '1em' }}>
-                            You can claim this trailer's weight as part of the total weight of your trip.
-                          </div>
-                        ) : (
-                          <div style={{ marginBottom: '1em' }}>
-                            The weight of this trailer should be <strong>excluded</strong> from the total weight of this
-                            trip.
-                            <p>{documentSizeLimitMsg}</p>
-                          </div>
-                        )}
+                        {this.carTrailerText(isValidTrailer)}
                         <div className="grid-row grid-gap">
                           <div className="grid-col-4 input-group">
                             <strong className="input-header">

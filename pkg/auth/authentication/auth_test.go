@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,19 +10,22 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/transcom/mymove/pkg/cli"
-
 	"github.com/markbates/goth"
 
-	"github.com/transcom/mymove/pkg/testdatagen"
+	middleware "github.com/go-openapi/runtime/middleware"
+	spec "github.com/go-openapi/spec"
 
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/testdatagen"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testingsuite"
+
+	"github.com/transcom/mymove/pkg/models/roles"
 )
 
 const (
@@ -86,8 +90,13 @@ type AuthSuite struct {
 	logger Logger
 }
 
+var useNewAuth = flag.Bool("new_auth", false, "use new auth code for tests")
+
 func (suite *AuthSuite) SetupTest() {
 	suite.DB().TruncateAll()
+	if *useNewAuth {
+		authorizeUnknownUser = authorizeUnknownUserNew
+	}
 }
 
 func TestAuthSuite(t *testing.T) {
@@ -221,7 +230,7 @@ func (suite *AuthSuite) TestIsLoggedInWhenUserLoggedIn() {
 	req = req.WithContext(ctx)
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(IsLoggedInMiddleware(suite.logger))
+	handler := IsLoggedInMiddleware(suite.logger)
 
 	handler.ServeHTTP(rr, req)
 
@@ -536,27 +545,25 @@ func (suite *AuthSuite) TestAuthorizeDeactivateAdmin() {
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeDeactivated() {
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
+	// deactivated office user exists, but user has never logged it (and therefore first need to create a new user).
+	officeUser := testdatagen.MakeOfficeUserWithNoUser(suite.DB(), testdatagen.Assertions{
 		OfficeUser: models.OfficeUser{
 			Active: false,
 		},
 	})
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback", OfficeTestHost), nil)
-	fakeToken := "some_token"
-	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		UserID:          fakeUUID,
-		IDToken:         fakeToken,
 		Hostname:        OfficeTestHost,
 		Email:           officeUser.Email,
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 
+	fakeUUID2, _ := uuid.NewV4()
 	user := goth.User{
-		UserID: "id",
-		Email:  "sample@email.com",
+		UserID: fakeUUID2.String(),
+		Email:  officeUser.Email,
 	}
 
 	callbackPort := 1234
@@ -589,8 +596,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 
+	id, _ := uuid.NewV4()
 	user := goth.User{
-		UserID: "id",
+		UserID: id.String(),
 		Email:  "sample@email.com",
 	}
 
@@ -607,11 +615,17 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
 
 	authorizeUnknownUser(user, h, &session, rr, req.WithContext(ctx), "")
 
-	suite.Equal(http.StatusUnauthorized, rr.Code, "Office user not found")
+	if *useNewAuth {
+		suite.Equal(http.StatusTemporaryRedirect, rr.Code, "Office user not found")
+	} else {
+		suite.Equal(http.StatusUnauthorized, rr.Code, "Office user not found")
+	}
+
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
+	// user is in office_users but has never logged into the app
+	officeUser := testdatagen.MakeOfficeUserWithNoUser(suite.DB(), testdatagen.Assertions{
 		OfficeUser: models.OfficeUser{
 			Active: true,
 		},
@@ -629,9 +643,10 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 
+	id, _ := uuid.NewV4()
 	user := goth.User{
-		UserID: "39b28c92-0506-4bef-8b57-e39519f42dc2",
-		Email:  "sample@email.com",
+		UserID: id.String(),
+		Email:  officeUser.Email,
 	}
 
 	callbackPort := 1234
@@ -652,79 +667,22 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 	suite.Equal(uuid.Nil, session.AdminUserID)
 }
 
-func (suite *AuthSuite) TestCustomerCreatedOnlyWhenRoleBasedAuthFeatureFlagEnabled() {
-	user := testdatagen.MakeDefaultUser(suite.DB())
-	session := auth.Session{
-		ApplicationName: auth.MilApp,
-		UserID:          user.ID,
-		Hostname:        MilTestHost,
-	}
-	callbackPort := 1234
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
-	h := CallbackHandler{
-		authContext,
-		suite.DB(),
-		FakeRSAKey,
-		false,
-		false,
-	}
-	rr := httptest.NewRecorder()
-
-	createCustomer(h, &session, rr)
-	c, err := suite.DB().Count(models.Customer{})
-
-	suite.NoError(err)
-	suite.Equal(c, 0)
-}
-
-func (suite *AuthSuite) TestCreateCustomer() {
-	user := testdatagen.MakeDefaultUser(suite.DB())
-	session := auth.Session{
-		ApplicationName: auth.MilApp,
-		UserID:          user.ID,
-		Hostname:        MilTestHost,
-	}
-	callbackPort := 1234
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
-	h := CallbackHandler{
-		authContext,
-		suite.DB(),
-		FakeRSAKey,
-		false,
-		false,
-	}
-	h.SetFeatureFlag(FeatureFlag{Name: cli.FeatureFlagRoleBasedAuth, Active: true})
-	rr := httptest.NewRecorder()
-
-	createCustomer(h, &session, rr)
-	c, err := suite.DB().Count(models.Customer{})
-	suite.NoError(err)
-	customer := &models.Customer{}
-	err = suite.DB().Where("user_id=$1", user.ID).First(customer)
-	suite.NoError(err)
-
-	suite.Equal(1, c)
-	suite.Equal(user.ID, customer.UserID)
-}
-
 func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDeactivated() {
-	adminUser := testdatagen.MakeDefaultAdminUser(suite.DB())
+	// user is in office_users but is inactive and has never logged into the app
+	adminUser := testdatagen.MakeAdminUserWithNoUser(suite.DB(), testdatagen.Assertions{})
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", AdminTestHost), nil)
-	fakeToken := "some_token"
-	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 	session := auth.Session{
 		ApplicationName: auth.AdminApp,
-		UserID:          fakeUUID,
-		IDToken:         fakeToken,
 		Hostname:        AdminTestHost,
 		Email:           adminUser.Email,
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 
+	fakeUUID2, _ := uuid.NewV4()
 	user := goth.User{
-		UserID: "id",
-		Email:  "sample@email.com",
+		UserID: fakeUUID2.String(),
+		Email:  adminUser.Email,
 	}
 
 	callbackPort := 1234
@@ -744,7 +702,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDeactivated() {
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserAdminNotFound() {
-
+	// user not admin_users and has never logged into the app
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", AdminTestHost), nil)
 	fakeToken := "some_token"
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
@@ -757,8 +715,9 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminNotFound() {
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 
+	id, _ := uuid.NewV4()
 	user := goth.User{
-		UserID: "id",
+		UserID: id.String(),
 		Email:  "sample@email.com",
 	}
 
@@ -779,6 +738,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminNotFound() {
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
+	// user is in admin_users but has not logged into the app before
 	adminUser := testdatagen.MakeAdminUser(suite.DB(), testdatagen.Assertions{
 		AdminUser: models.AdminUser{
 			Active: true,
@@ -799,7 +759,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 
 	user := goth.User{
 		UserID: "39b28c92-0506-4bef-8b57-e39519f42dc2",
-		Email:  "sample@email.com",
+		Email:  adminUser.Email,
 	}
 
 	callbackPort := 1234
@@ -807,7 +767,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 	h := CallbackHandler{
 		authContext,
 		suite.DB(),
-		"fake key",
+		FakeRSAKey,
 		false,
 		false,
 	}
@@ -818,4 +778,78 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 	// Office app, so should only have office ID information
 	suite.Equal(adminUser.ID, session.AdminUserID)
 	suite.Equal(uuid.Nil, session.OfficeUserID)
+}
+
+type MockAPIContext struct{}
+
+func (m MockAPIContext) RouteInfo(r *http.Request) (*middleware.MatchedRoute, *http.Request, bool) {
+	matchedRouteMiddleware := middleware.MatchedRoute{}
+	matchedRouteMiddleware.Operation = &spec.Operation{}
+	matchedRouteMiddleware.Operation.VendorExtensible = spec.VendorExtensible{}
+	matchedRouteMiddleware.Operation.VendorExtensible.Extensions = spec.Extensions{}
+	matchedRouteMiddleware.Operation.VendorExtensible.Extensions["x-swagger-roles"] = []interface{}{"office", "contracting_officer", "customer"}
+	return &matchedRouteMiddleware, nil, false
+}
+
+func (suite *AuthSuite) TestRequireRoleAuthMiddlewareAuthorized() {
+	// Given: a logged in user
+	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	user := models.User{
+		LoginGovUUID:  loginGovUUID,
+		LoginGovEmail: "email@example.com",
+		Active:        true,
+	}
+	suite.MustSave(&user)
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/logged_in", nil)
+
+	// And: the context contains the auth values
+	role := roles.Role{RoleType: roles.RoleTypeContractingOfficer}
+	session := auth.Session{
+		UserID:  user.ID,
+		IDToken: "fake Token",
+		Roles:   roles.Roles{role},
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+
+	req = req.WithContext(ctx)
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+
+	mockAPIContext := MockAPIContext{}
+
+	middleware := RoleAuthMiddleware(suite.logger)(mockAPIContext)(handler)
+
+	middleware.ServeHTTP(rr, req)
+
+	suite.Equal(http.StatusOK, rr.Code)
+}
+
+func (suite *AuthSuite) TestRequireRoleAuthMiddleware() {
+	// Given: a logged in user
+	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	user := models.User{
+		LoginGovUUID:  loginGovUUID,
+		LoginGovEmail: "email@example.com",
+		Active:        true,
+	}
+	suite.MustSave(&user)
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/logged_in", nil)
+
+	// And: the context contains the auth values
+	session := auth.Session{UserID: user.ID, IDToken: "fake Token"}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+
+	req = req.WithContext(ctx)
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+
+	mockAPIContext := MockAPIContext{}
+
+	middleware := RoleAuthMiddleware(suite.logger)(mockAPIContext)(handler)
+
+	middleware.ServeHTTP(rr, req)
+
+	suite.Equal(http.StatusUnauthorized, rr.Code)
 }

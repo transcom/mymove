@@ -1,8 +1,16 @@
 /* eslint no-use-before-define: 0 */
 import { schema } from 'normalizr';
 
+// Role
+export const role = new schema.Entity('roles');
+export const roles = new schema.Array(role);
+
 // User
 export const user = new schema.Entity('users');
+
+user.define({
+  roles,
+});
 
 // Uploads
 export const upload = new schema.Entity('uploads');
@@ -95,7 +103,13 @@ export const signedCertification = new schema.Entity('signedCertifications');
 export const signedCertifications = new schema.Array(signedCertification);
 
 // AvailableMoveDates
-export const availableMoveDates = new schema.Entity('availableMoveDates', {}, { idAttribute: 'start_date' });
+export const availableMoveDates = new schema.Entity(
+  'availableMoveDates',
+  {},
+  {
+    idAttribute: 'start_date',
+  },
+);
 
 // MoveDatesSummary
 export const moveDatesSummary = new schema.Entity('moveDatesSummaries');
@@ -111,24 +125,20 @@ export const storageInTransits = new schema.Array(storageInTransit);
 // AccessCodes
 export const accessCode = new schema.Entity('accessCodes');
 
-// Service Items
-export const serviceItems = new schema.Entity('serviceItems');
+// MTO Service Items
+export const mtoServiceItem = new schema.Entity('mtoServiceItems');
+export const mtoServiceItems = new schema.Array(mtoServiceItem);
 
 // Move Task Orders
-export const moveTaskOrder = new schema.Entity('moveTaskOrders');
+export const moveTaskOrder = new schema.Entity('moveTaskOrder');
+export const moveTaskOrders = new schema.Array(moveTaskOrder);
 
-moveTaskOrder.define({
-  service_item: serviceItems,
-  delivery_address: address,
-  partial_sit_delivery_address: address,
-});
+// Move Orders
+export const moveOrder = new schema.Entity('moveOrder');
+export const moveOrders = new schema.Array(moveOrder);
 
 // Customer
 export const customer = new schema.Entity('customer');
-
-export const customerMoveItem = new schema.Entity('customerMoveItem');
-
-export const customerMoveItems = new schema.Array(customerMoveItem);
 
 // Payment Requests
 export const paymentRequest = new schema.Entity('paymentRequests');

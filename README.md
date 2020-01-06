@@ -39,6 +39,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Setup: AdminLocal client](#setup-adminlocal-client)
   * [Setup: DPS user](#setup-dps-user)
   * [Setup: Orders Gateway](#setup-orders-gateway)
+  * [Setup: Prime API](#setup-prime-api)
   * [Setup: AWS Services (Optional)](#setup-aws-services-optional)
 * [Development](#development)
   * [TSP Award Queue](#tsp-award-queue)
@@ -216,7 +217,8 @@ For managing local environment variables, we're using [direnv](https://direnv.ne
 
 Run `direnv allow` to load up the `.envrc` file. It should complain that you have missing variables which you will rectify in one of the following ways.
 
-You can add a `.envrc.local` file. One way to do this is using the [chamber tool](https://github.com/segmentio/chamber) to read secrets from AWS vault.  You must have the infra-com repo already cloned and must add the path to it in your .envrc.local (`PPP_INFRA_PATH='~/yourlocalpath/ppp-infra'`) Then run `chamber env app-devlocal >> .envrc.local`. If you don't have access to chamber you can also `touch .envrc.local` and add any values that the output from direnv asks you to define. Instructions are in the error messages.
+You can add a `.envrc.local` file. One way to do this is using the [chamber tool](https://github.com/segmentio/chamber) to read secrets from AWS vault.
+Then run `chamber env app-devlocal >> .envrc.local`. If you don't have access to chamber you can also `touch .envrc.local` and add any values that the output from direnv asks you to define. Instructions are in the error messages.
 
 If you wish to not maintain a `.envrc.local` you can alternatively run `cp .envrc.chamber.template .envrc.chamber` to enable getting secret values from `chamber`. **Note** that this method does not work for users of the `fish` shell unless you replace `direnv allow` with `direnv export fish | source`.
 
@@ -241,6 +243,7 @@ Here are the steps:
   echo "127.0.0.1 officelocal" | sudo tee -a /etc/hosts
   echo "127.0.0.1 orderslocal" | sudo tee -a /etc/hosts
   echo "127.0.0.1 adminlocal" | sudo tee -a /etc/hosts
+  echo "127.0.0.1 primelocal" | sudo tee -a /etc/hosts
   ```
 
 Check that the file looks correct with `cat /etc/hosts`:
@@ -259,7 +262,10 @@ Check that the file looks correct with `cat /etc/hosts`:
   127.0.0.1   officelocal
   127.0.0.1   orderslocal
   127.0.0.1   adminlocal
-  ```
+  127.0.0.1   primelocal
+```
+
+You can also verify this by running `scripts/check-hosts-file`.
 
 ### Setup: Dependencies
 
@@ -327,9 +333,19 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 
 Nothing to do.
 
+### Setup: Prime API
+
+The API that the Prime will use is authenticated via mutual TSL so there are a few things you need to do to interact with it in a local environment.
+
+1. Make sure that the `primelocal` alias is setup for localhost. See [Setup:Hosts](#setup-hosts)
+2. run `make server_run`
+3. Access the Prime API using the devlocal-mtls certs. There is a script that shows you how to do this with curl at `./scripts/prime-api`. For instance to call the `move-task-orders` endpoint, call `./scripts/prime-api move-task-orders`
+
+
+
 ### Setup: AWS Services (Optional)
 
-If you want to develop against AWS services you will need an AWS user account with `engineering` privileges. Then you will need to configure the `PPP_INFRA_PATH` in your `.envrc.local`.
+If you want to develop against AWS services you will need an AWS user account with `engineering` privileges.
 
 AWS credentials are managed via `aws-vault`. See the [the instructions in transcom-ppp](https://github.com/transcom/ppp-infra/blob/master/transcom-ppp/README.md#setup) to set things up.
 

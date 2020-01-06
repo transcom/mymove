@@ -55,15 +55,15 @@ does not necessarily easily map to a model entity name, then it might be best to
 1. Create the appropriate file(s) for the service object file, service object test file, and service object directory file.
 
 Create a file with a name that captures what the service object is responsible for. Choose this name carefully as it will also be
-the name of the service object execution method.
+the name of the service object struct.
 
 ```bash
 /mymove
   /pkg
     /services
       /paperwork
-        create_form.go
-        create_form_test.go
+        form_creator.go
+        form_creator_test.go
       paperwork.go
 ```
 
@@ -73,8 +73,8 @@ the name of the service object execution method.
 Remember that service objects should be reusable. Try to abstract as much out of the logic specific parameters to achieve this.
 Pass as many parameters as make sense. Use your best judgment. In the following example from the codebase, we are only passing in one parameter to the `CreateForm` execution method, a
 `template` variable with the type `FormTemplate`. This is because the `FormTemplate` is more complex than most service objects and this use case works for use here.
- Some service objects will only require only one or two parameters and a struct is not appropriate.`FormTemplate` only holds relatively abstract parameters such that the service
-object can be reused if needed. Regarding `CreateForm`, this service object can be reused to generate another PDF by passing
+ Some service objects will only require one or two parameters and a struct is not appropriate.`FormTemplate` only holds relatively abstract parameters such that the service
+object can be reused if needed. Regarding `FormCreator`, this service object can be reused to generate another PDF by passing
 different valid parameters.
 
 ```go
@@ -100,17 +100,17 @@ type FormCreator interface {
 Service objects should return as many return values as appropriate. In the case of a service object like the CreateForm, the first parameter is whatever the service object is responsible for creating. If the first parameter returns a created entity, the second parameter should be an error.
 In the case of a simple entity fetch by ID, the first parameter could be model validation errors. There are some situations that require more complex returns. For those, use your best judgment.
 
-*Remember all `errors` should be Wrapped by using `errors.Wrap` so that the underlying error is propagated properly*
+*Remember all `errors` should be Wrapped by using `fmt.Errorf` using the `%w` verb so that the underlying error is propagated properly*
 
 ```go
-// create_form.go
+// form_creator.go
 package paperwork
 
-func (c createForm) CreateForm(template services.FormTemplate) (afero.File, error) {
+func (c formCreator) CreateForm(template services.FormTemplate) (afero.File, error) {
   // Populate form fields with data
   err := c.FormFiller.AppendPage(template.Buffer, template.FieldsLayout, template.Data)
   if err != nil {
-    return nil, errors.Wrap(err, fmt.Sprintf("Failure writing %s data to form.", template.FormType.String()))
+    return nil, fmt.Errorf("Failure writing %s data to form: %w", template.FormType.String(), err))
   }
   ...
 }
@@ -160,7 +160,7 @@ and struct. The service object execution method should be a method of the servic
 a struct of parameters that the service object requires, and returning values, as appropriate.
 
 ```go
-// create_form.go
+// form_creator.go
 package paperwork
 
 import (
@@ -173,7 +173,7 @@ type createForm struct {
   formFiller FormFiller
 }
 
-func (c createForm) CreateForm(template services.FormTemplate) (afero.File, error) {
+func (c formCreator) CreateForm(template services.FormTemplate) (afero.File, error) {
   ...
 }
 ```
@@ -183,7 +183,7 @@ func (c createForm) CreateForm(template services.FormTemplate) (afero.File, erro
 1. Create a `NewServiceObjectStruct` method that is responsible for creating a new service object. This method should be used whenever a new service object struct is needed. One of the main benefits of using service objects is abstracting implementation and returning an interface, then only using the interface in our codebase elsewhere. This allows us to separate interface from implementation.
 
 ```go
-// create_form.go
+// form_creator.go
 package paperwork
 
 import (
@@ -191,13 +191,13 @@ import (
   "github.com/transcom/mymove/pkg/services"
 )
 
-type createForm struct {
+type formCreator struct {
   fileStorer Storer
   formFiller Filler
 }
 
 func NewFormCreator(FileStorer Storer, FormFiller Filler) services.FormCreator {
-  return &createForm{FileStorer: FileStorer, FormFiller: FormFiller}
+  return &formCreator{FileStorer: FileStorer, FormFiller: FormFiller}
 }
 
 ```
@@ -210,7 +210,7 @@ package publicapi
 // CreateGovBillOfLadingHandler creates a GBL PDF & uploads it as a document associated to a move doc, shipment and move
 type CreateGovBillOfLadingHandler struct {
   handlers.HandlerContext
-  createForm services.FormCreator
+  formCreator services.FormCreator
 }
 ```
 
@@ -298,9 +298,9 @@ func (suite *CreateFormSuite) TestCreateFormServiceFormFillerAppendPageFailure()
     mock.AnythingOfType("models.GovBillOfLadingFormValues"),
   ).Return(errors.New("Error for FormFiller.AppendPage()")).Times(1)
 
-  createForm := NewCreateForm(FileStorer, FormFiller)
+  formCreator := NewFormCreator(FileStorer, FormFiller)
   template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, services.GBL)
-  file, err := createForm.CreateForm(template)
+  file, err := formCreator.CreateForm(template)
 
   suite.NotNil(suite.T(), err)
   suite.Nil(suite.T(), file)

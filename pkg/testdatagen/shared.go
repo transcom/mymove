@@ -26,21 +26,29 @@ type Assertions struct {
 	AdminUser                                models.AdminUser
 	BackupContact                            models.BackupContact
 	BlackoutDate                             models.BlackoutDate
+	Customer                                 models.Customer
+	DestinationDutyStation                   models.DutyStation
 	DistanceCalculation                      models.DistanceCalculation
 	Document                                 models.Document
 	DutyStation                              models.DutyStation
 	ElectronicOrder                          models.ElectronicOrder
 	ElectronicOrdersRevision                 models.ElectronicOrdersRevision
+	Entitlement                              models.Entitlement
 	FuelEIADieselPrice                       models.FuelEIADieselPrice
 	Invoice                                  models.Invoice
 	Move                                     models.Move
 	MoveDocument                             models.MoveDocument
+	MoveOrder                                models.MoveOrder
+	MoveTaskOrder                            models.MoveTaskOrder
 	MovingExpenseDocument                    models.MovingExpenseDocument
+	MTOServiceItem                           models.MTOServiceItem
+	MTOShipment                              models.MTOShipment
 	Notification                             models.Notification
 	WeightTicketSetDocument                  models.WeightTicketSetDocument
 	OfficeUser                               models.OfficeUser
 	Order                                    models.Order
 	Organization                             models.Organization
+	OriginDutyStation                        models.DutyStation
 	PaymentRequest                           models.PaymentRequest
 	PersonallyProcuredMove                   models.PersonallyProcuredMove
 	ReContract                               models.ReContract
@@ -48,6 +56,7 @@ type Assertions struct {
 	ReDomesticServiceArea                    models.ReDomesticServiceArea
 	Reimbursement                            models.Reimbursement
 	ReService                                models.ReService
+	ServiceItemParamKey                      models.ServiceItemParamKey
 	SignedCertification                      models.SignedCertification
 	ServiceMember                            models.ServiceMember
 	Tariff400ngServiceArea                   models.Tariff400ngServiceArea
@@ -56,6 +65,7 @@ type Assertions struct {
 	Tariff400ngZip3                          models.Tariff400ngZip3
 	TrafficDistributionList                  models.TrafficDistributionList
 	TransportationOffice                     models.TransportationOffice
+	TransportationOrderingOfficer            models.TransportationOrderingOfficer
 	TransportationServiceProvider            models.TransportationServiceProvider
 	TransportationServiceProviderPerformance models.TransportationServiceProviderPerformance
 	Upload                                   models.Upload

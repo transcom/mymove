@@ -5,6 +5,7 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -15,6 +16,18 @@ import (
 // ShowLoggedInUserHandler returns the logged in user
 type ShowLoggedInUserHandler struct {
 	handlers.HandlerContext
+}
+
+// decoratePayloadWithRoles will add session roles to the logged in user payload and return it
+func decoratePayloadWithRoles(s *auth.Session, p *internalmessages.LoggedInUserPayload) {
+	for _, role := range s.Roles {
+		p.Roles = append(p.Roles, &internalmessages.Role{
+			ID:        handlers.FmtUUID(s.UserID),
+			RoleType:  handlers.FmtString(string(role.RoleType)),
+			CreatedAt: handlers.FmtDateTime(role.CreatedAt),
+			UpdatedAt: handlers.FmtDateTime(role.UpdatedAt),
+		})
+	}
 }
 
 // Handle returns the logged in user
@@ -29,6 +42,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 			FirstName: session.FirstName,
 			Email:     session.Email,
 		}
+		decoratePayloadWithRoles(session, &userPayload)
 		return userop.NewShowLoggedInUserOK().WithPayload(&userPayload)
 	}
 	// Load Servicemember and first level associations
@@ -104,5 +118,6 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		FirstName:     session.FirstName,
 		Email:         session.Email,
 	}
+	decoratePayloadWithRoles(session, &userPayload)
 	return userop.NewShowLoggedInUserOK().WithPayload(&userPayload)
 }

@@ -3,6 +3,8 @@ package models
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	"strings"
 
 	"github.com/gobuffalo/pop"
@@ -16,12 +18,13 @@ import (
 
 // User is an entity with a registered uuid and email at login.gov
 type User struct {
-	ID            uuid.UUID `json:"id" db:"id"`
-	CreatedAt     time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at" db:"updated_at"`
-	LoginGovUUID  uuid.UUID `json:"login_gov_uuid" db:"login_gov_uuid"`
-	LoginGovEmail string    `json:"login_gov_email" db:"login_gov_email"`
-	Active        bool      `json:"active" db:"active"`
+	ID            uuid.UUID   `json:"id" db:"id"`
+	CreatedAt     time.Time   `json:"created_at" db:"created_at"`
+	UpdatedAt     time.Time   `json:"updated_at" db:"updated_at"`
+	LoginGovUUID  uuid.UUID   `json:"login_gov_uuid" db:"login_gov_uuid"`
+	LoginGovEmail string      `json:"login_gov_email" db:"login_gov_email"`
+	Active        bool        `json:"active" db:"active"`
+	Roles         roles.Roles `many_to_many:"users_roles"`
 }
 
 // Users is not required by pop and may be deleted
@@ -91,25 +94,26 @@ func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, err
 
 // UserIdentity is summary of the information about a user from the database
 type UserIdentity struct {
-	ID                     uuid.UUID  `db:"id"`
-	Active                 bool       `db:"active"`
-	Email                  string     `db:"email"`
-	ServiceMemberID        *uuid.UUID `db:"sm_id"`
-	ServiceMemberFirstName *string    `db:"sm_fname"`
-	ServiceMemberLastName  *string    `db:"sm_lname"`
-	ServiceMemberMiddle    *string    `db:"sm_middle"`
-	OfficeUserID           *uuid.UUID `db:"ou_id"`
-	OfficeUserFirstName    *string    `db:"ou_fname"`
-	OfficeUserLastName     *string    `db:"ou_lname"`
-	OfficeUserMiddle       *string    `db:"ou_middle"`
-	OfficeActive           *bool      `db:"ou_active"`
-	AdminUserID            *uuid.UUID `db:"au_id"`
-	AdminUserRole          *AdminRole `db:"au_role"`
-	AdminUserFirstName     *string    `db:"au_fname"`
-	AdminUserLastName      *string    `db:"au_lname"`
-	AdminUserActive        *bool      `db:"au_active"`
-	DpsUserID              *uuid.UUID `db:"du_id"`
-	DpsActive              *bool      `db:"du_active"`
+	ID                     uuid.UUID   `db:"id"`
+	Active                 bool        `db:"active"`
+	Email                  string      `db:"email"`
+	ServiceMemberID        *uuid.UUID  `db:"sm_id"`
+	ServiceMemberFirstName *string     `db:"sm_fname"`
+	ServiceMemberLastName  *string     `db:"sm_lname"`
+	ServiceMemberMiddle    *string     `db:"sm_middle"`
+	OfficeUserID           *uuid.UUID  `db:"ou_id"`
+	OfficeUserFirstName    *string     `db:"ou_fname"`
+	OfficeUserLastName     *string     `db:"ou_lname"`
+	OfficeUserMiddle       *string     `db:"ou_middle"`
+	OfficeActive           *bool       `db:"ou_active"`
+	AdminUserID            *uuid.UUID  `db:"au_id"`
+	AdminUserRole          *AdminRole  `db:"au_role"`
+	AdminUserFirstName     *string     `db:"au_fname"`
+	AdminUserLastName      *string     `db:"au_lname"`
+	AdminUserActive        *bool       `db:"au_active"`
+	DpsUserID              *uuid.UUID  `db:"du_id"`
+	DpsActive              *bool       `db:"du_active"`
+	Roles                  roles.Roles `many_to_many:"users_roles" primary_id:"user_id"`
 }
 
 // FetchUserIdentity queries the database for information about the logged in user
@@ -146,7 +150,12 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 	} else if len(identities) == 0 {
 		return nil, ErrFetchNotFound
 	}
-	return &identities[0], nil
+	identity := &identities[0]
+	roleError := db.Load(identity, "Roles")
+	if roleError != nil {
+		return nil, roleError
+	}
+	return identity, nil
 }
 
 // FetchAppUserIdentities returns a limited set of user records based on application
@@ -212,12 +221,12 @@ func firstValue(vals ...*string) string {
 
 // FirstName gets the firstname of the user from either the ServiceMember or OfficeUser identity
 func (ui *UserIdentity) FirstName() string {
-	return firstValue(ui.ServiceMemberFirstName, ui.OfficeUserFirstName)
+	return firstValue(ui.ServiceMemberFirstName, ui.OfficeUserFirstName, ui.AdminUserFirstName)
 }
 
 // LastName gets the firstname of the user from either the ServiceMember or OfficeUser or TspUser identity
 func (ui *UserIdentity) LastName() string {
-	return firstValue(ui.ServiceMemberLastName, ui.OfficeUserLastName)
+	return firstValue(ui.ServiceMemberLastName, ui.OfficeUserLastName, ui.AdminUserLastName)
 }
 
 // Middle gets the MiddleName or Initials from the ServiceMember or OfficeUser or TspUser Identity

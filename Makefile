@@ -8,13 +8,16 @@ DB_DOCKER_CONTAINER_TEST = milmove-db-test
 # The version of the postgres container should match production as closely
 # as possible.
 # https://github.com/transcom/ppp-infra/blob/7ba2e1086ab1b2a0d4f917b407890817327ffb3d/modules/aws-app-environment/database/variables.tf#L48
-DB_DOCKER_CONTAINER_IMAGE = postgres:10.9
+DB_DOCKER_CONTAINER_IMAGE = postgres:10.10
 TASKS_DOCKER_CONTAINER = tasks
 export PGPASSWORD=mysecretpassword
 
-# if S3 access is enabled, wrap webserver in aws-vault command
+# if S3 or CDN access is enabled, wrap webserver in aws-vault command
 # to pass temporary AWS credentials to the binary.
 ifeq ($(STORAGE_BACKEND),s3)
+	USE_AWS:=true
+endif
+ifeq ($(STORAGE_BACKEND),cdn)
 	USE_AWS:=true
 endif
 ifeq ($(EMAIL_BACKEND),ses)
@@ -33,7 +36,10 @@ DB_PORT_DEPLOYED_MIGRATIONS=5434
 DB_PORT_DOCKER=5432
 ifdef CIRCLECI
 	DB_PORT_TEST=5432
-	LDFLAGS=-linkmode external -extldflags -static
+	UNAME_S := $(shell uname -s)
+	ifeq ($(UNAME_S),Linux)
+		LDFLAGS=-linkmode external -extldflags -static
+	endif
 endif
 
 ifdef GOLAND
@@ -115,7 +121,7 @@ check_docker_size: ## Check the amount of disk space used by docker
 	scripts/check-docker-size
 
 .PHONY: deps
-deps: prereqs ensure_pre_commit client_deps bin/rds-combined-ca-bundle.pem ## Run all checks and install all depdendencies
+deps: prereqs ensure_pre_commit client_deps bin/rds-combined-ca-bundle.pem bin/rds-ca-2019-root.pem ## Run all checks and install all depdendencies
 
 .PHONY: test
 test: client_test server_test e2e_test ## Run all tests
@@ -183,9 +189,6 @@ admin_client_run: .client_deps.stamp ## Run MilMove Admin client
 
 ### Go Tool Targets
 
-bin/chamber: .check_go_version.stamp .check_gopath.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber/v2
-
 bin/gin: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
 
@@ -208,6 +211,10 @@ bin/mockery: .check_go_version.stamp .check_gopath.stamp
 bin/rds-combined-ca-bundle.pem:
 	mkdir -p bin/
 	curl -sSo bin/rds-combined-ca-bundle.pem https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
+
+bin/rds-ca-2019-root.pem:
+	mkdir -p bin/
+	curl -sSo bin/rds-ca-2019-root.pem https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem
 
 ### MilMove Targets
 
@@ -337,11 +344,11 @@ server_run_debug: ## Debug the server
 	$(AWS_VAULT) dlv debug cmd/milmove/*.go -- serve
 
 .PHONY: build_tools
-build_tools: bin/chamber \
-	bin/gin \
+build_tools: bin/gin \
 	bin/swagger \
 	bin/mockery \
 	bin/rds-combined-ca-bundle.pem \
+	bin/rds-ca-2019-root.pem \
 	bin/big-cat \
 	bin/compare-secure-migrations \
 	bin/ecs-deploy-task-container \
@@ -366,7 +373,7 @@ build: server_build build_tools client_build ## Build the server, tools, and cli
 # webserver_test runs a few acceptance tests against a local or remote environment.
 # This can help identify potential errors before deploying a container.
 .PHONY: webserver_test
-webserver_test: bin/rds-combined-ca-bundle.pem bin/chamber  ## Run acceptance tests
+webserver_test: bin/rds-combined-ca-bundle.pem bin/rds-ca-2019-root.pem ## Run acceptance tests
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
@@ -385,9 +392,10 @@ ifndef CIRCLECI
 	TEST_ACC_CWD=$(PWD) \
 	DISABLE_AWS_VAULT_WRAPPER=1 \
 	aws-vault exec $(AWS_PROFILE) -- \
-	bin/chamber -r $(CHAMBER_RETRIES) exec app-$(TEST_ACC_ENV) -- \
+	chamber -r $(CHAMBER_RETRIES) exec app-$(TEST_ACC_ENV) -- \
 	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 else
+	go build -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber/v2
 	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
 	TEST_ACC_CWD=$(PWD) \
 	bin/chamber -r $(CHAMBER_RETRIES) exec app-$(TEST_ACC_ENV) -- \
@@ -679,9 +687,9 @@ db_e2e_up: bin/generate-test-data ## Truncate Test DB and Generate e2e (end-to-e
 db_e2e_init: db_test_reset db_test_migrate db_e2e_up ## Initialize e2e (end-to-end) DB (reset, migrate, up)
 
 .PHONY: db_dev_e2e_populate
-db_dev_e2e_populate: db_dev_reset db_dev_migrate build_tools ## Populate Dev DB with generated e2e (end-to-end) data
+db_dev_e2e_populate: db_dev_reset db_dev_migrate ## Populate Dev DB with generated e2e (end-to-end) data
 	@echo "Populate the ${DB_NAME_DEV} database with docker command..."
-	bin/generate-test-data --named-scenario="e2e_basic" --db-env="development"
+	go run github.com/transcom/mymove/cmd/generate-test-data --named-scenario="e2e_basic" --db-env="development"
 
 .PHONY: db_test_e2e_populate
 db_test_e2e_populate: db_test_reset db_test_migrate build_tools db_e2e_up ## Populate Test DB with generated e2e (end-to-end) data
@@ -717,7 +725,7 @@ tasks_clean: ## Clean Scheduled Task files and docker images
 tasks_build: server_generate bin/milmove-tasks ## Build Scheduled Task dependencies
 
 .PHONY: tasks_build_docker
-tasks_build_docker: bin/chamber server_generate bin/milmove-tasks ## Build Scheduled Task dependencies and Docker image
+tasks_build_docker: server_generate bin/milmove-tasks ## Build Scheduled Task dependencies and Docker image
 	@echo "Build the docker scheduled tasks container..."
 	docker build -f Dockerfile.tasks --tag $(TASKS_DOCKER_CONTAINER):latest .
 

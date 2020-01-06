@@ -3,6 +3,8 @@ package models_test
 import (
 	"testing"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -88,7 +90,6 @@ func (suite *ModelSuite) TestCreateUser() {
 
 func (suite *ModelSuite) TestFetchUserIdentity() {
 	const goodUUID = "39b28c92-0506-4bef-8b57-e39519f42dc2"
-
 	// First check that it all works with no record
 	identity, err := FetchUserIdentity(suite.DB(), goodUUID)
 	suite.Equal(ErrFetchNotFound, err, "Expected not to find missing Identity")
@@ -133,6 +134,44 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(systemAdmin.User.LoginGovEmail, identity.Email)
 	suite.Nil(identity.ServiceMemberID)
 	suite.Nil(identity.OfficeUserID)
+
+	rs := []roles.Role{{
+		ID:       uuid.FromStringOrNil("ed2d2cd7-d427-412a-98bb-a9b391d98d32"),
+		RoleType: roles.RoleTypeCustomer,
+	}, {
+		ID:       uuid.FromStringOrNil("9dc423b6-33b8-493a-a59b-6a823660cb07"),
+		RoleType: roles.RoleTypeTOO,
+	},
+	}
+	suite.NoError(suite.DB().Create(&rs))
+	customerRole := rs[0]
+	pat := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
+		User: User{
+			Active: true,
+			Roles:  []roles.Role{customerRole},
+		},
+	})
+
+	identity, err = FetchUserIdentity(suite.DB(), pat.LoginGovUUID.String())
+	suite.Nil(err, "loading pat's identity")
+	suite.NotNil(identity)
+	suite.Equal(len(identity.Roles), 1)
+
+	tooRole := rs[1]
+	suite.NoError(err)
+	billy := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
+		User: User{
+			Active: true,
+			Roles:  []roles.Role{tooRole},
+		},
+	})
+
+	suite.DB().MigrationURL()
+	identity, err = FetchUserIdentity(suite.DB(), billy.LoginGovUUID.String())
+	suite.Nil(err, "loading billy's identity")
+	suite.NotNil(identity)
+	suite.Equal(len(identity.Roles), 1)
+	suite.Equal(identity.Roles[0].RoleType, tooRole.RoleType)
 }
 
 func (suite *ModelSuite) TestFetchAppUserIdentities() {

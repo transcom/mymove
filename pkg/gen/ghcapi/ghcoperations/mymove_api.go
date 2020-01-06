@@ -20,9 +20,10 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
-	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/service_item"
 )
 
 // NewMymoveAPI creates a new Mymove instance
@@ -42,23 +43,29 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		BearerAuthenticator: security.BearerAuth,
 		JSONConsumer:        runtime.JSONConsumer(),
 		JSONProducer:        runtime.JSONProducer(),
-		ServiceItemCreateServiceItemHandler: service_item.CreateServiceItemHandlerFunc(func(params service_item.CreateServiceItemParams) middleware.Responder {
-			return middleware.NotImplemented("operation ServiceItemCreateServiceItem has not yet been implemented")
+		MtoServiceItemCreateMTOServiceItemHandler: mto_service_item.CreateMTOServiceItemHandlerFunc(func(params mto_service_item.CreateMTOServiceItemParams) middleware.Responder {
+			return middleware.NotImplemented("operation MtoServiceItemCreateMTOServiceItem has not yet been implemented")
+		}),
+		MtoServiceItemDeleteMTOServiceItemHandler: mto_service_item.DeleteMTOServiceItemHandlerFunc(func(params mto_service_item.DeleteMTOServiceItemParams) middleware.Responder {
+			return middleware.NotImplemented("operation MtoServiceItemDeleteMTOServiceItem has not yet been implemented")
 		}),
 		MoveTaskOrderDeleteMoveTaskOrderHandler: move_task_order.DeleteMoveTaskOrderHandlerFunc(func(params move_task_order.DeleteMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderDeleteMoveTaskOrder has not yet been implemented")
 		}),
-		ServiceItemDeleteServiceItemHandler: service_item.DeleteServiceItemHandlerFunc(func(params service_item.DeleteServiceItemParams) middleware.Responder {
-			return middleware.NotImplemented("operation ServiceItemDeleteServiceItem has not yet been implemented")
-		}),
 		CustomerGetAllCustomerMovesHandler: customer.GetAllCustomerMovesHandlerFunc(func(params customer.GetAllCustomerMovesParams) middleware.Responder {
 			return middleware.NotImplemented("operation CustomerGetAllCustomerMoves has not yet been implemented")
 		}),
-		CustomerGetCustomerInfoHandler: customer.GetCustomerInfoHandlerFunc(func(params customer.GetCustomerInfoParams) middleware.Responder {
-			return middleware.NotImplemented("operation CustomerGetCustomerInfo has not yet been implemented")
+		CustomerGetCustomerHandler: customer.GetCustomerHandlerFunc(func(params customer.GetCustomerParams) middleware.Responder {
+			return middleware.NotImplemented("operation CustomerGetCustomer has not yet been implemented")
 		}),
 		MoveTaskOrderGetEntitlementsHandler: move_task_order.GetEntitlementsHandlerFunc(func(params move_task_order.GetEntitlementsParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderGetEntitlements has not yet been implemented")
+		}),
+		MtoServiceItemGetMTOServiceItemHandler: mto_service_item.GetMTOServiceItemHandlerFunc(func(params mto_service_item.GetMTOServiceItemParams) middleware.Responder {
+			return middleware.NotImplemented("operation MtoServiceItemGetMTOServiceItem has not yet been implemented")
+		}),
+		MoveOrderGetMoveOrderHandler: move_order.GetMoveOrderHandlerFunc(func(params move_order.GetMoveOrderParams) middleware.Responder {
+			return middleware.NotImplemented("operation MoveOrderGetMoveOrder has not yet been implemented")
 		}),
 		MoveTaskOrderGetMoveTaskOrderHandler: move_task_order.GetMoveTaskOrderHandlerFunc(func(params move_task_order.GetMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderGetMoveTaskOrder has not yet been implemented")
@@ -66,17 +73,23 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PaymentRequestsGetPaymentRequestHandler: payment_requests.GetPaymentRequestHandlerFunc(func(params payment_requests.GetPaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation PaymentRequestsGetPaymentRequest has not yet been implemented")
 		}),
-		ServiceItemGetServiceItemHandler: service_item.GetServiceItemHandlerFunc(func(params service_item.GetServiceItemParams) middleware.Responder {
-			return middleware.NotImplemented("operation ServiceItemGetServiceItem has not yet been implemented")
+		MtoServiceItemListMTOServiceItemsHandler: mto_service_item.ListMTOServiceItemsHandlerFunc(func(params mto_service_item.ListMTOServiceItemsParams) middleware.Responder {
+			return middleware.NotImplemented("operation MtoServiceItemListMTOServiceItems has not yet been implemented")
 		}),
-		MoveTaskOrderListMoveTaskOrdersHandler: move_task_order.ListMoveTaskOrdersHandlerFunc(func(params move_task_order.ListMoveTaskOrdersParams) middleware.Responder {
-			return middleware.NotImplemented("operation MoveTaskOrderListMoveTaskOrders has not yet been implemented")
+		MoveOrderListMoveOrdersHandler: move_order.ListMoveOrdersHandlerFunc(func(params move_order.ListMoveOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation MoveOrderListMoveOrders has not yet been implemented")
+		}),
+		MoveOrderListMoveTaskOrdersHandler: move_order.ListMoveTaskOrdersHandlerFunc(func(params move_order.ListMoveTaskOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation MoveOrderListMoveTaskOrders has not yet been implemented")
 		}),
 		PaymentRequestsListPaymentRequestsHandler: payment_requests.ListPaymentRequestsHandlerFunc(func(params payment_requests.ListPaymentRequestsParams) middleware.Responder {
 			return middleware.NotImplemented("operation PaymentRequestsListPaymentRequests has not yet been implemented")
 		}),
-		ServiceItemListServiceItemsHandler: service_item.ListServiceItemsHandlerFunc(func(params service_item.ListServiceItemsParams) middleware.Responder {
-			return middleware.NotImplemented("operation ServiceItemListServiceItems has not yet been implemented")
+		MtoServiceItemUpdateMTOServiceItemHandler: mto_service_item.UpdateMTOServiceItemHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemParams) middleware.Responder {
+			return middleware.NotImplemented("operation MtoServiceItemUpdateMTOServiceItem has not yet been implemented")
+		}),
+		MtoServiceItemUpdateMTOServiceItemstatusHandler: mto_service_item.UpdateMTOServiceItemstatusHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemstatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation MtoServiceItemUpdateMTOServiceItemstatus has not yet been implemented")
 		}),
 		MoveTaskOrderUpdateMoveTaskOrderHandler: move_task_order.UpdateMoveTaskOrderHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderUpdateMoveTaskOrder has not yet been implemented")
@@ -89,12 +102,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		PaymentRequestsUpdatePaymentRequestStatusHandler: payment_requests.UpdatePaymentRequestStatusHandlerFunc(func(params payment_requests.UpdatePaymentRequestStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation PaymentRequestsUpdatePaymentRequestStatus has not yet been implemented")
-		}),
-		ServiceItemUpdateServiceItemHandler: service_item.UpdateServiceItemHandlerFunc(func(params service_item.UpdateServiceItemParams) middleware.Responder {
-			return middleware.NotImplemented("operation ServiceItemUpdateServiceItem has not yet been implemented")
-		}),
-		ServiceItemUpdateServiceItemStatusHandler: service_item.UpdateServiceItemStatusHandlerFunc(func(params service_item.UpdateServiceItemStatusParams) middleware.Responder {
-			return middleware.NotImplemented("operation ServiceItemUpdateServiceItemStatus has not yet been implemented")
 		}),
 	}
 }
@@ -127,30 +134,38 @@ type MymoveAPI struct {
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
-	// ServiceItemCreateServiceItemHandler sets the operation handler for the create service item operation
-	ServiceItemCreateServiceItemHandler service_item.CreateServiceItemHandler
+	// MtoServiceItemCreateMTOServiceItemHandler sets the operation handler for the create m t o service item operation
+	MtoServiceItemCreateMTOServiceItemHandler mto_service_item.CreateMTOServiceItemHandler
+	// MtoServiceItemDeleteMTOServiceItemHandler sets the operation handler for the delete m t o service item operation
+	MtoServiceItemDeleteMTOServiceItemHandler mto_service_item.DeleteMTOServiceItemHandler
 	// MoveTaskOrderDeleteMoveTaskOrderHandler sets the operation handler for the delete move task order operation
 	MoveTaskOrderDeleteMoveTaskOrderHandler move_task_order.DeleteMoveTaskOrderHandler
-	// ServiceItemDeleteServiceItemHandler sets the operation handler for the delete service item operation
-	ServiceItemDeleteServiceItemHandler service_item.DeleteServiceItemHandler
 	// CustomerGetAllCustomerMovesHandler sets the operation handler for the get all customer moves operation
 	CustomerGetAllCustomerMovesHandler customer.GetAllCustomerMovesHandler
-	// CustomerGetCustomerInfoHandler sets the operation handler for the get customer info operation
-	CustomerGetCustomerInfoHandler customer.GetCustomerInfoHandler
+	// CustomerGetCustomerHandler sets the operation handler for the get customer operation
+	CustomerGetCustomerHandler customer.GetCustomerHandler
 	// MoveTaskOrderGetEntitlementsHandler sets the operation handler for the get entitlements operation
 	MoveTaskOrderGetEntitlementsHandler move_task_order.GetEntitlementsHandler
+	// MtoServiceItemGetMTOServiceItemHandler sets the operation handler for the get m t o service item operation
+	MtoServiceItemGetMTOServiceItemHandler mto_service_item.GetMTOServiceItemHandler
+	// MoveOrderGetMoveOrderHandler sets the operation handler for the get move order operation
+	MoveOrderGetMoveOrderHandler move_order.GetMoveOrderHandler
 	// MoveTaskOrderGetMoveTaskOrderHandler sets the operation handler for the get move task order operation
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
 	// PaymentRequestsGetPaymentRequestHandler sets the operation handler for the get payment request operation
 	PaymentRequestsGetPaymentRequestHandler payment_requests.GetPaymentRequestHandler
-	// ServiceItemGetServiceItemHandler sets the operation handler for the get service item operation
-	ServiceItemGetServiceItemHandler service_item.GetServiceItemHandler
-	// MoveTaskOrderListMoveTaskOrdersHandler sets the operation handler for the list move task orders operation
-	MoveTaskOrderListMoveTaskOrdersHandler move_task_order.ListMoveTaskOrdersHandler
+	// MtoServiceItemListMTOServiceItemsHandler sets the operation handler for the list m t o service items operation
+	MtoServiceItemListMTOServiceItemsHandler mto_service_item.ListMTOServiceItemsHandler
+	// MoveOrderListMoveOrdersHandler sets the operation handler for the list move orders operation
+	MoveOrderListMoveOrdersHandler move_order.ListMoveOrdersHandler
+	// MoveOrderListMoveTaskOrdersHandler sets the operation handler for the list move task orders operation
+	MoveOrderListMoveTaskOrdersHandler move_order.ListMoveTaskOrdersHandler
 	// PaymentRequestsListPaymentRequestsHandler sets the operation handler for the list payment requests operation
 	PaymentRequestsListPaymentRequestsHandler payment_requests.ListPaymentRequestsHandler
-	// ServiceItemListServiceItemsHandler sets the operation handler for the list service items operation
-	ServiceItemListServiceItemsHandler service_item.ListServiceItemsHandler
+	// MtoServiceItemUpdateMTOServiceItemHandler sets the operation handler for the update m t o service item operation
+	MtoServiceItemUpdateMTOServiceItemHandler mto_service_item.UpdateMTOServiceItemHandler
+	// MtoServiceItemUpdateMTOServiceItemstatusHandler sets the operation handler for the update m t o service itemstatus operation
+	MtoServiceItemUpdateMTOServiceItemstatusHandler mto_service_item.UpdateMTOServiceItemstatusHandler
 	// MoveTaskOrderUpdateMoveTaskOrderHandler sets the operation handler for the update move task order operation
 	MoveTaskOrderUpdateMoveTaskOrderHandler move_task_order.UpdateMoveTaskOrderHandler
 	// MoveTaskOrderUpdateMoveTaskOrderStatusHandler sets the operation handler for the update move task order status operation
@@ -159,10 +174,6 @@ type MymoveAPI struct {
 	PaymentRequestsUpdatePaymentRequestHandler payment_requests.UpdatePaymentRequestHandler
 	// PaymentRequestsUpdatePaymentRequestStatusHandler sets the operation handler for the update payment request status operation
 	PaymentRequestsUpdatePaymentRequestStatusHandler payment_requests.UpdatePaymentRequestStatusHandler
-	// ServiceItemUpdateServiceItemHandler sets the operation handler for the update service item operation
-	ServiceItemUpdateServiceItemHandler service_item.UpdateServiceItemHandler
-	// ServiceItemUpdateServiceItemStatusHandler sets the operation handler for the update service item status operation
-	ServiceItemUpdateServiceItemStatusHandler service_item.UpdateServiceItemStatusHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -226,28 +237,36 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
-	if o.ServiceItemCreateServiceItemHandler == nil {
-		unregistered = append(unregistered, "service_item.CreateServiceItemHandler")
+	if o.MtoServiceItemCreateMTOServiceItemHandler == nil {
+		unregistered = append(unregistered, "mto_service_item.CreateMTOServiceItemHandler")
+	}
+
+	if o.MtoServiceItemDeleteMTOServiceItemHandler == nil {
+		unregistered = append(unregistered, "mto_service_item.DeleteMTOServiceItemHandler")
 	}
 
 	if o.MoveTaskOrderDeleteMoveTaskOrderHandler == nil {
 		unregistered = append(unregistered, "move_task_order.DeleteMoveTaskOrderHandler")
 	}
 
-	if o.ServiceItemDeleteServiceItemHandler == nil {
-		unregistered = append(unregistered, "service_item.DeleteServiceItemHandler")
-	}
-
 	if o.CustomerGetAllCustomerMovesHandler == nil {
 		unregistered = append(unregistered, "customer.GetAllCustomerMovesHandler")
 	}
 
-	if o.CustomerGetCustomerInfoHandler == nil {
-		unregistered = append(unregistered, "customer.GetCustomerInfoHandler")
+	if o.CustomerGetCustomerHandler == nil {
+		unregistered = append(unregistered, "customer.GetCustomerHandler")
 	}
 
 	if o.MoveTaskOrderGetEntitlementsHandler == nil {
 		unregistered = append(unregistered, "move_task_order.GetEntitlementsHandler")
+	}
+
+	if o.MtoServiceItemGetMTOServiceItemHandler == nil {
+		unregistered = append(unregistered, "mto_service_item.GetMTOServiceItemHandler")
+	}
+
+	if o.MoveOrderGetMoveOrderHandler == nil {
+		unregistered = append(unregistered, "move_order.GetMoveOrderHandler")
 	}
 
 	if o.MoveTaskOrderGetMoveTaskOrderHandler == nil {
@@ -258,20 +277,28 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "payment_requests.GetPaymentRequestHandler")
 	}
 
-	if o.ServiceItemGetServiceItemHandler == nil {
-		unregistered = append(unregistered, "service_item.GetServiceItemHandler")
+	if o.MtoServiceItemListMTOServiceItemsHandler == nil {
+		unregistered = append(unregistered, "mto_service_item.ListMTOServiceItemsHandler")
 	}
 
-	if o.MoveTaskOrderListMoveTaskOrdersHandler == nil {
-		unregistered = append(unregistered, "move_task_order.ListMoveTaskOrdersHandler")
+	if o.MoveOrderListMoveOrdersHandler == nil {
+		unregistered = append(unregistered, "move_order.ListMoveOrdersHandler")
+	}
+
+	if o.MoveOrderListMoveTaskOrdersHandler == nil {
+		unregistered = append(unregistered, "move_order.ListMoveTaskOrdersHandler")
 	}
 
 	if o.PaymentRequestsListPaymentRequestsHandler == nil {
 		unregistered = append(unregistered, "payment_requests.ListPaymentRequestsHandler")
 	}
 
-	if o.ServiceItemListServiceItemsHandler == nil {
-		unregistered = append(unregistered, "service_item.ListServiceItemsHandler")
+	if o.MtoServiceItemUpdateMTOServiceItemHandler == nil {
+		unregistered = append(unregistered, "mto_service_item.UpdateMTOServiceItemHandler")
+	}
+
+	if o.MtoServiceItemUpdateMTOServiceItemstatusHandler == nil {
+		unregistered = append(unregistered, "mto_service_item.UpdateMTOServiceItemstatusHandler")
 	}
 
 	if o.MoveTaskOrderUpdateMoveTaskOrderHandler == nil {
@@ -288,14 +315,6 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.PaymentRequestsUpdatePaymentRequestStatusHandler == nil {
 		unregistered = append(unregistered, "payment_requests.UpdatePaymentRequestStatusHandler")
-	}
-
-	if o.ServiceItemUpdateServiceItemHandler == nil {
-		unregistered = append(unregistered, "service_item.UpdateServiceItemHandler")
-	}
-
-	if o.ServiceItemUpdateServiceItemStatusHandler == nil {
-		unregistered = append(unregistered, "service_item.UpdateServiceItemStatusHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -399,17 +418,17 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/move_task_orders/{moveTaskOrderID}/service_items"] = service_item.NewCreateServiceItem(o.context, o.ServiceItemCreateServiceItemHandler)
+	o.handlers["POST"]["/move_task_orders/{moveTaskOrderID}/mto_service_items"] = mto_service_item.NewCreateMTOServiceItem(o.context, o.MtoServiceItemCreateMTOServiceItemHandler)
+
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}"] = mto_service_item.NewDeleteMTOServiceItem(o.context, o.MtoServiceItemDeleteMTOServiceItemHandler)
 
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/move-task-orders/{moveTaskOrderID}"] = move_task_order.NewDeleteMoveTaskOrder(o.context, o.MoveTaskOrderDeleteMoveTaskOrderHandler)
-
-	if o.handlers["DELETE"] == nil {
-		o.handlers["DELETE"] = make(map[string]http.Handler)
-	}
-	o.handlers["DELETE"]["/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}"] = service_item.NewDeleteServiceItem(o.context, o.ServiceItemDeleteServiceItemHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -419,12 +438,22 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/customer/{customerID}"] = customer.NewGetCustomerInfo(o.context, o.CustomerGetCustomerInfoHandler)
+	o.handlers["GET"]["/customer/{customerID}"] = customer.NewGetCustomer(o.context, o.CustomerGetCustomerHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/entitlements"] = move_task_order.NewGetEntitlements(o.context, o.MoveTaskOrderGetEntitlementsHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}"] = mto_service_item.NewGetMTOServiceItem(o.context, o.MtoServiceItemGetMTOServiceItemHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/move-orders/{moveOrderID}"] = move_order.NewGetMoveOrder(o.context, o.MoveOrderGetMoveOrderHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -439,22 +468,32 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}"] = service_item.NewGetServiceItem(o.context, o.ServiceItemGetServiceItemHandler)
+	o.handlers["GET"]["/move_task_orders/{moveTaskOrderID}/mto_service_items"] = mto_service_item.NewListMTOServiceItems(o.context, o.MtoServiceItemListMTOServiceItemsHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/move-task-orders"] = move_task_order.NewListMoveTaskOrders(o.context, o.MoveTaskOrderListMoveTaskOrdersHandler)
+	o.handlers["GET"]["/move-orders"] = move_order.NewListMoveOrders(o.context, o.MoveOrderListMoveOrdersHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/move-orders/{moveOrderID}/move-task-orders"] = move_order.NewListMoveTaskOrders(o.context, o.MoveOrderListMoveTaskOrdersHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/payment-requests"] = payment_requests.NewListPaymentRequests(o.context, o.PaymentRequestsListPaymentRequestsHandler)
 
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/move_task_orders/{moveTaskOrderID}/service_items"] = service_item.NewListServiceItems(o.context, o.ServiceItemListServiceItemsHandler)
+	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}"] = mto_service_item.NewUpdateMTOServiceItem(o.context, o.MtoServiceItemUpdateMTOServiceItemHandler)
+
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}/status"] = mto_service_item.NewUpdateMTOServiceItemstatus(o.context, o.MtoServiceItemUpdateMTOServiceItemstatusHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
@@ -475,16 +514,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/payment-requests/{paymentRequestID}/status"] = payment_requests.NewUpdatePaymentRequestStatus(o.context, o.PaymentRequestsUpdatePaymentRequestStatusHandler)
-
-	if o.handlers["PATCH"] == nil {
-		o.handlers["PATCH"] = make(map[string]http.Handler)
-	}
-	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}"] = service_item.NewUpdateServiceItem(o.context, o.ServiceItemUpdateServiceItemHandler)
-
-	if o.handlers["PATCH"] == nil {
-		o.handlers["PATCH"] = make(map[string]http.Handler)
-	}
-	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/service-items/{serviceItemID}/status"] = service_item.NewUpdateServiceItemStatus(o.context, o.ServiceItemUpdateServiceItemStatusHandler)
 
 }
 

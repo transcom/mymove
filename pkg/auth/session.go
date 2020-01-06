@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/models/roles"
 )
 
 type authSessionKey string
@@ -53,6 +55,7 @@ type Session struct {
 	AdminUserID     uuid.UUID
 	AdminUserRole   string
 	DpsUserID       uuid.UUID
+	Roles           roles.Roles
 }
 
 // SetSessionInRequestContext modifies the request's Context() to add the session data

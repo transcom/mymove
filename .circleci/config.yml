@@ -17,29 +17,29 @@ executors:
     resource_class: small
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:25d81729429ccbc79c6a7fc29cbffff68f7369fc
+      - image: trussworks/circleci-docker-primary:6f138d780444b35181e0048282616f75a451d7b4
   mymove_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:25d81729429ccbc79c6a7fc29cbffff68f7369fc
+      - image: trussworks/circleci-docker-primary:6f138d780444b35181e0048282616f75a451d7b4
   mymove_medium_plus:
     resource_class: medium+
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:25d81729429ccbc79c6a7fc29cbffff68f7369fc
+      - image: trussworks/circleci-docker-primary:6f138d780444b35181e0048282616f75a451d7b4
   mymove_large:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:25d81729429ccbc79c6a7fc29cbffff68f7369fc
+      - image: trussworks/circleci-docker-primary:6f138d780444b35181e0048282616f75a451d7b4
   # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
   mymove_and_postgres_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:25d81729429ccbc79c6a7fc29cbffff68f7369fc
-      - image: postgres:10.9
+      - image: trussworks/circleci-docker-primary:6f138d780444b35181e0048282616f75a451d7b4
+      - image: postgres:10.10
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
@@ -48,8 +48,8 @@ executors:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:25d81729429ccbc79c6a7fc29cbffff68f7369fc
-      - image: postgres:10.9
+      - image: trussworks/circleci-docker-primary:6f138d780444b35181e0048282616f75a451d7b4
+      - image: postgres:10.10
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
@@ -90,24 +90,12 @@ commands:
           at: bin
       - deploy:
           name: Deploy fuel price data task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command "milmove-tasks save-fuel-price-data" --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2"
-          environment:
-            DB_PORT: 5432
-            DB_USER: ecs_user
-            DB_NAME: app
-            DB_SSL_MODE: verify-full
-            DB_SSL_ROOT_CERT: /bin/rds-combined-ca-bundle.pem
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command "milmove-tasks save-fuel-price-data" --command-args "" --variables-file "./config/env/${APP_ENVIRONMENT}.save-fuel-price-data.env"
           no_output_timeout: 20m
       - announce_failure
       - deploy:
           name: Deploy post move email survey task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command "milmove-tasks send-post-move-survey" --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2 --email-backend=ses --offset-days 15"
-          environment:
-            DB_PORT: 5432
-            DB_USER: ecs_user
-            DB_NAME: app
-            DB_SSL_MODE: verify-full
-            DB_SSL_ROOT_CERT: /bin/rds-combined-ca-bundle.pem
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command "milmove-tasks send-post-move-survey" --command-args "--email-backend=ses --offset-days 15" --variables-file "./config/env/${APP_ENVIRONMENT}.send-post-move-survey.env"
           no_output_timeout: 20m
       - announce_failure
   deploy_app_steps:
@@ -198,6 +186,9 @@ commands:
             shopt -s extglob
             docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
+      - run:
+          name: 'Describe image scan findings'
+          command: scripts/ecr-describe-image-scan-findings << parameters.repo >> ${CIRCLE_SHA1}
   e2e_tests:
     steps:
       - run:
@@ -491,8 +482,8 @@ jobs:
       - restore_cache:
           keys:
             - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - run: make bin/chamber
       - run: make bin/rds-combined-ca-bundle.pem
+      - run: make bin/rds-ca-2019-root.pem
       - run: make client_build
       - run: make server_build
       - build_tag_push:
@@ -526,8 +517,8 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
-      - run: make bin/chamber
       - run: make bin/rds-combined-ca-bundle.pem
+      - run: make bin/rds-ca-2019-root.pem
       - run: make server_build
       - build_tag_push:
           dockerfile: Dockerfile.migrations
@@ -545,8 +536,8 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
-      - run: make bin/chamber
       - run: make bin/rds-combined-ca-bundle.pem
+      - run: make bin/rds-ca-2019-root.pem
       - run: make tasks_build
       - build_tag_push:
           dockerfile: Dockerfile.tasks
@@ -562,9 +553,6 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
-      - run:
-          name: Build Chamber
-          command: make bin/chamber
       - run:
           name: Run acceptance tests
           command: make webserver_test
@@ -631,9 +619,6 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
-      - run:
-          name: Build Chamber
-          command: make bin/chamber
       - run:
           name: Run acceptance tests
           command: make webserver_test
