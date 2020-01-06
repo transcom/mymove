@@ -204,6 +204,22 @@ definitions:
         $ref: '#/definitions/CreateReimbursement'
       advance_worksheet:
         $ref: '#/definitions/DocumentPayload'
+      has_pro_gear:
+        type: string
+        title: Has Pro-Gear
+        enum:
+          - NOT SURE
+          - 'YES'
+          - 'NO'
+        x-nullable: true
+      has_pro_gear_over_thousand:
+        type: string
+        title: Has Pro-Gear Over Thousand Pounds
+        enum:
+          - NOT SURE
+          - 'YES'
+          - 'NO'
+        x-nullable: true
   UpdatePersonallyProcuredMovePayload:
     type: object
     properties:
@@ -283,6 +299,22 @@ definitions:
         $ref: '#/definitions/Reimbursement'
       advance_worksheet:
         $ref: '#/definitions/DocumentPayload'
+      has_pro_gear:
+        type: string
+        title: Has Pro-Gear
+        enum:
+          - NOT SURE
+          - 'YES'
+          - 'NO'
+        x-nullable: true
+      has_pro_gear_over_thousand:
+        type: string
+        title: Has Pro-Gear Over Thousand Pounds
+        enum:
+          - NOT SURE
+          - 'YES'
+          - 'NO'
+        x-nullable: true
   PatchPersonallyProcuredMovePayload:
     type: object
     properties:
@@ -358,6 +390,22 @@ definitions:
         $ref: '#/definitions/Reimbursement'
       advance_worksheet:
         $ref: '#/definitions/DocumentPayload'
+      has_pro_gear:
+        type: string
+        title: Has Pro-Gear
+        enum:
+          - NOT SURE
+          - 'YES'
+          - 'NO'
+        x-nullable: true
+      has_pro_gear_over_thousand:
+        type: string
+        title: Has Pro-Gear Over Thousand Pounds
+        enum:
+          - NOT SURE
+          - 'YES'
+          - 'NO'
+        x-nullable: true
   PersonallyProcuredMovePayload:
     type: object
     properties:
@@ -481,6 +529,22 @@ definitions:
         $ref: '#/definitions/Reimbursement'
       advance_worksheet:
         $ref: '#/definitions/DocumentPayload'
+      has_pro_gear:
+        type: string
+        title: Has Pro-Gear
+        enum:
+          - NOT SURE
+          - 'YES'
+          - 'NO'
+        x-nullable: true
+      has_pro_gear_over_thousand:
+        type: string
+        title: Has Pro-Gear Over Thousand Pounds
+        enum:
+          - NOT SURE
+          - 'YES'
+          - 'NO'
+        x-nullable: true
       created_at:
         type: string
         format: date-time

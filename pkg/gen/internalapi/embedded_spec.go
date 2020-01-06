@@ -3564,6 +3564,26 @@ func init() {
           "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
         "has_requested_advance": {
           "type": "boolean",
           "title": "Would you like an advance of up to 60% of your PPM incentive?"
@@ -4978,6 +4998,26 @@ func init() {
           "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
         "has_requested_advance": {
           "type": "boolean",
           "title": "Would you like an advance of up to 60% of your PPM incentive?",
@@ -5206,6 +5246,26 @@ func init() {
         "has_additional_postal_code": {
           "type": "boolean",
           "title": "Do you have stuff at another pickup location?",
+          "x-nullable": true
+        },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
           "x-nullable": true
         },
         "has_requested_advance": {
@@ -5936,6 +5996,26 @@ func init() {
         "has_additional_postal_code": {
           "type": "boolean",
           "title": "Do you have stuff at another pickup location?",
+          "x-nullable": true
+        },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
           "x-nullable": true
         },
         "has_requested_advance": {
@@ -9663,6 +9743,26 @@ func init() {
           "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
         "has_requested_advance": {
           "type": "boolean",
           "title": "Would you like an advance of up to 60% of your PPM incentive?"
@@ -11083,6 +11183,26 @@ func init() {
           "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
         "has_requested_advance": {
           "type": "boolean",
           "title": "Would you like an advance of up to 60% of your PPM incentive?",
@@ -11313,6 +11433,26 @@ func init() {
         "has_additional_postal_code": {
           "type": "boolean",
           "title": "Do you have stuff at another pickup location?",
+          "x-nullable": true
+        },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
           "x-nullable": true
         },
         "has_requested_advance": {
@@ -12045,6 +12185,26 @@ func init() {
         "has_additional_postal_code": {
           "type": "boolean",
           "title": "Do you have stuff at another pickup location?",
+          "x-nullable": true
+        },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
           "x-nullable": true
         },
         "has_requested_advance": {
