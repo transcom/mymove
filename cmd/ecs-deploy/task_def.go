@@ -28,6 +28,12 @@ import (
 
 var services = []string{"app", "app-client-tls"}
 var environments = []string{"prod", "staging", "experimental"}
+var entryPoints = []string{
+	"/bin/milmove serve",
+	"/bin/milmove migrate",
+	"/bin/milmove-tasks save-fuel-price-data",
+	"/bin/milmove-tasks send-post-move-survey",
+}
 var appPorts = map[string]int64{
 	"app":            int64(8443),
 	"app-client-tls": int64(9443),
@@ -76,12 +82,12 @@ func (e *errInvalidImage) Error() string {
 	return fmt.Sprintf("invalid AWS ECR image tag %q", e.Image)
 }
 
-type errInvalidCommand struct {
-	Command string
+type errInvalidEntryPoint struct {
+	EntryPoint string
 }
 
-func (e *errInvalidCommand) Error() string {
-	return fmt.Sprintf("invalid command in the /bin folder %q", e.Command)
+func (e *errInvalidEntryPoint) Error() string {
+	return fmt.Sprintf("invalid entry point in the /bin folder %q", e.EntryPoint)
 }
 
 type errInvalidFile struct {
@@ -98,6 +104,7 @@ const (
 	environmentFlag   string = "environment"
 	imageURIFlag      string = "image"
 	variablesFileFlag string = "variables-file"
+	entryPointFlag    string = "entrypoint"
 )
 
 type ECRImage struct {
@@ -143,6 +150,7 @@ func initTaskDefFlags(flag *pflag.FlagSet) {
 	flag.String(environmentFlag, "", fmt.Sprintf("The environment name (choose %q)", environments))
 	flag.String(imageURIFlag, "", "The URI of the container image to use in the task definition")
 	flag.String(variablesFileFlag, "", "A file containing variables for the task definiton")
+	flag.String(entryPointFlag, "milmove serve", "The entryPoint for the container")
 
 	// Verbose
 	cli.InitVerboseFlags(flag)
@@ -226,6 +234,21 @@ func checkConfig(v *viper.Viper) error {
 		if _, err := os.Stat(variablesFile); err != nil {
 			return errors.Wrap(&errInvalidFile{File: variablesFile}, fmt.Sprintf("%q is invalid", variablesFileFlag))
 		}
+	}
+
+	entryPoint := v.GetString(entryPointFlag)
+	if len(entryPointFlag) == 0 {
+		return fmt.Errorf("%q is invalid: %w", entryPointFlag, &errInvalidEntryPoint{EntryPoint: entryPoint})
+	}
+	validEntryPoint := false
+	for _, str := range entryPoints {
+		if entryPoint == str {
+			validEntryPoint = true
+			break
+		}
+	}
+	if !validEntryPoint {
+		return fmt.Errorf("%q is invalid: %w", entryPointFlag, &errInvalidEntryPoint{EntryPoint: entryPoint})
 	}
 
 	return nil
@@ -413,12 +436,14 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		quit(logger, nil, errors.Wrapf(err, "unable retrieving image from %s", imageURI))
 	}
 
+	// Entrypoint
+	entryPoint := v.GetString(entryPointFlag)
+	entryPointList := strings.Split(entryPoint, " ")
+
 	// Set the command name
 	scheduledTask := false
-	var commandName, subCommandName string
 	if scheduledTask {
-		commandName = "milmove-tasks"
-		subCommandName = "send-post-move-survey"
+		subCommandName := entryPointList[1]
 		ruleName := fmt.Sprintf("%s-%s", subCommandName, environmentName)
 		_, listTargetsByRuleErr := serviceCloudWatchEvents.ListTargetsByRule(&cloudwatchevents.ListTargetsByRuleInput{
 			Rule: aws.String(ruleName),
@@ -427,8 +452,6 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 			quit(logger, nil, fmt.Errorf("error retrieving targets for rule %q: %w", ruleName, listTargetsByRuleErr))
 		}
 	} else {
-		commandName = "milmove"
-		subCommandName = "serve"
 	}
 
 	// Register the new task definition
@@ -451,12 +474,6 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	// AWS Logs Group is related to the cluster and should not be changed
 	awsLogsGroup := fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
 
-	// Entrypoint
-	entryPoint := []string{
-		fmt.Sprintf("/bin/%s", commandName),
-		subCommandName,
-	}
-
 	// Ports
 	port := appPorts[serviceName]
 
@@ -466,7 +483,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 				Name:        aws.String(containerDefName),
 				Image:       aws.String(ecrImage.imageURI),
 				Essential:   aws.Bool(true),
-				EntryPoint:  aws.StringSlice(entryPoint),
+				EntryPoint:  aws.StringSlice(entryPointList),
 				Command:     []*string{},
 				Secrets:     buildSecrets(serviceSSM, awsRegion, awsAccountID, serviceNameShort, environmentName),
 				Environment: buildContainerEnvironment(environmentName, dbHost, variablesFile),
