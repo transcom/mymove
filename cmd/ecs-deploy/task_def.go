@@ -123,6 +123,8 @@ const (
 	imageURIFlag      string = "image"
 	variablesFileFlag string = "variables-file"
 	entryPointFlag    string = "entrypoint"
+	dryRunFlag        string = "dry-run"
+	registerFlag      string = "register"
 )
 
 type ECRImage struct {
@@ -172,6 +174,10 @@ func initTaskDefFlags(flag *pflag.FlagSet) {
 
 	// Verbose
 	cli.InitVerboseFlags(flag)
+
+	// Dry Run or Registration
+	flag.Bool(dryRunFlag, false, "Execute as a dry-run without modifying AWS.")
+	flag.Bool(registerFlag, false, "Execute and register task defintion in AWS.")
 
 	// Sort flags
 	flag.SortFlags = true
@@ -275,8 +281,8 @@ func checkConfig(v *viper.Viper) error {
 
 func quit(logger *log.Logger, flag *pflag.FlagSet, err error) {
 	logger.Println(err.Error())
-	logger.Println("Usage of ecs-service-logs:")
 	if flag != nil {
+		logger.Println("Usage of ecs-service-logs:")
 		flag.PrintDefaults()
 	}
 	os.Exit(1)
@@ -416,7 +422,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 
 	// Create the Services
 	serviceCloudWatchEvents := cloudwatchevents.New(sess)
-	// serviceECS := ecs.New(sess)
+	serviceECS := ecs.New(sess)
 	serviceECR := ecr.New(sess)
 	serviceRDS := rds.New(sess)
 	serviceSSM := ssm.New(sess)
@@ -534,21 +540,35 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 				ReadonlyRootFilesystem: aws.Bool(true),
 			},
 		},
+		Cpu:                     aws.String("512"),
 		ExecutionRoleArn:        aws.String(executionRoleArn),
 		Family:                  aws.String(fmt.Sprintf("%s-%s", serviceName, environmentName)),
+		Memory:                  aws.String("2048"),
 		NetworkMode:             aws.String("awsvpc"),
 		RequiresCompatibilities: []*string{aws.String("FARGATE")},
 		TaskRoleArn:             aws.String(taskRoleArn),
-		Cpu:                     aws.String("512"),
-		Memory:                  aws.String("2048"),
 	}
 
-	newTaskDefJSON, jsonErr := jsonutil.BuildJSON(newTaskDefInput)
-	if jsonErr != nil {
-		quit(logger, nil, err)
+	// Registration is never allowed by default and requires a flag
+	if v.GetBool(dryRunFlag) {
+		// Format the new task def as JSON for viewing
+		newTaskDefJSON, jsonErr := jsonutil.BuildJSON(newTaskDefInput)
+		if jsonErr != nil {
+			quit(logger, nil, err)
+		}
+
+		logger.Println(string(newTaskDefJSON))
+	} else if v.GetBool(registerFlag) {
+		// Register the new task definition
+		newTaskDefOutput, err := serviceECS.RegisterTaskDefinition(&newTaskDefInput)
+		if err != nil {
+			quit(logger, nil, fmt.Errorf("error registering new task definition: %w", err))
+		}
+		newTaskDefArn := *newTaskDefOutput.TaskDefinition.TaskDefinitionArn
+		logger.Println(newTaskDefArn)
+	} else {
+		quit(logger, flag, errors.New(fmt.Sprintf("Please provide either %q or %q flags when running", dryRunFlag, registerFlag)))
 	}
-	logger.Println(string(newTaskDefJSON))
-	// logger.Println(newTaskDefInput.GoString())
 
 	return nil
 }
