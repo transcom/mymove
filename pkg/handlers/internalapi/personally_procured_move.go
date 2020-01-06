@@ -20,6 +20,16 @@ import (
 func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models.PersonallyProcuredMove) (*internalmessages.PersonallyProcuredMovePayload, error) {
 
 	documentPayload, err := payloadForDocumentModel(storer, personallyProcuredMove.AdvanceWorksheet)
+	var hasProGear *string
+	if personallyProcuredMove.HasProGear != nil {
+		hpg := string(*personallyProcuredMove.HasProGear)
+		hasProGear = &hpg
+	}
+	var hasProGearOverThousand *string
+	if personallyProcuredMove.HasProGearOverThousand != nil {
+		hpgot := string(*personallyProcuredMove.HasProGearOverThousand)
+		hasProGearOverThousand = &hpgot
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -48,6 +58,8 @@ func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models
 		AdvanceWorksheet:              documentPayload,
 		Mileage:                       personallyProcuredMove.Mileage,
 		TotalSitCost:                  handlers.FmtCost(personallyProcuredMove.TotalSITCost),
+		HasProGear:                    hasProGear,
+		HasProGearOverThousand:        hasProGearOverThousand,
 	}
 	if personallyProcuredMove.IncentiveEstimateMin != nil {
 		min := (*personallyProcuredMove.IncentiveEstimateMin).Int64()
