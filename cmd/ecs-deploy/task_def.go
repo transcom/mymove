@@ -26,7 +26,12 @@ import (
 	"github.com/transcom/mymove/pkg/cli"
 )
 
-var services = []string{"app", "app-client-tls", "app-migrations"}
+var services = []string{
+	"app",
+	"app-client-tls",
+	"app-migrations",
+	"app-tasks",
+}
 var environments = []string{"prod", "staging", "experimental"}
 var entryPoints = []string{
 	"/bin/milmove serve",
@@ -446,9 +451,11 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	var awsLogsStreamPrefix string
 	var awsLogsGroup string
 	var portMappings []*ecs.PortMapping
+	var containerDefName string
 	if commandName == "/bin/milmove-tasks" {
-		awsLogsStreamPrefix = serviceNameShort
-		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
+		awsLogsStreamPrefix = serviceName
+		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceNameShort, environmentName)
+		containerDefName = fmt.Sprintf("%s-%s-%s", serviceName, subCommandName, environmentName)
 
 		ruleName := fmt.Sprintf("%s-%s", subCommandName, environmentName)
 		_, listTargetsByRuleErr := serviceCloudWatchEvents.ListTargetsByRule(&cloudwatchevents.ListTargetsByRuleInput{
@@ -460,9 +467,11 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	} else if subCommandName == "migrate" {
 		awsLogsStreamPrefix = serviceName
 		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceNameShort, environmentName)
+		containerDefName = fmt.Sprintf("%s-%s", serviceName, environmentName)
 	} else {
 		awsLogsStreamPrefix = serviceNameShort
 		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
+		containerDefName = fmt.Sprintf("%s-%s", serviceName, environmentName)
 
 		// Ports
 		port := appPorts[serviceName]
@@ -488,9 +497,6 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		quit(logger, nil, fmt.Errorf("error retrieving database definition for %q: %w", dbInstanceIdentifier, err))
 	}
 	dbHost := *dbInstancesOutput.DBInstances[0].Endpoint.Address
-
-	// Name the container definition and verify it exists
-	containerDefName := fmt.Sprintf("%s-%s", serviceName, environmentName)
 
 	newTaskDefInput := ecs.RegisterTaskDefinitionInput{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
