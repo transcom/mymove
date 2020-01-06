@@ -5256,6 +5256,11 @@ func init() {
             "YES",
             "NO"
           ],
+          "x-display-value": {
+            "NO": false,
+            "NOT SURE": "Not Sure",
+            "YES": true
+          },
           "x-nullable": true
         },
         "has_pro_gear_over_thousand": {
@@ -5266,6 +5271,11 @@ func init() {
             "YES",
             "NO"
           ],
+          "x-display-value": {
+            "NO": false,
+            "NOT SURE": "Not Sure",
+            "YES": true
+          },
           "x-nullable": true
         },
         "has_requested_advance": {
@@ -11443,6 +11453,11 @@ func init() {
             "YES",
             "NO"
           ],
+          "x-display-value": {
+            "NO": false,
+            "NOT SURE": "Not Sure",
+            "YES": true
+          },
           "x-nullable": true
         },
         "has_pro_gear_over_thousand": {
@@ -11453,6 +11468,11 @@ func init() {
             "YES",
             "NO"
           ],
+          "x-display-value": {
+            "NO": false,
+            "NOT SURE": "Not Sure",
+            "YES": true
+          },
           "x-nullable": true
         },
         "has_requested_advance": {
