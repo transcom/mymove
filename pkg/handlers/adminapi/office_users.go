@@ -201,7 +201,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 		logger.Error("Error saving user", zap.Error(err))
 		return officeuserop.NewUpdateOfficeUserInternalServerError()
 	}
-	if updatedOfficeUser.UserID != nil {
+	if updatedOfficeUser.UserID != nil && payload.Roles != nil {
 		updatedRoles := rolesPayloadToModel(payload.Roles)
 		_, err = h.UserRoleAssociator.UpdateUserRoles(*updatedOfficeUser.UserID, updatedRoles)
 		if err != nil {
