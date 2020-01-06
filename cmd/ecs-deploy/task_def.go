@@ -26,7 +26,7 @@ import (
 	"github.com/transcom/mymove/pkg/cli"
 )
 
-var services = []string{"app", "app-client-tls"}
+var services = []string{"app", "app-client-tls", "app-migrations"}
 var environments = []string{"prod", "staging", "experimental"}
 var entryPoints = []string{
 	"/bin/milmove serve",
@@ -439,11 +439,17 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	// Entrypoint
 	entryPoint := v.GetString(entryPointFlag)
 	entryPointList := strings.Split(entryPoint, " ")
+	commandName := entryPointList[0]
+	subCommandName := entryPointList[1]
 
-	// Set the command name
-	scheduledTask := false
-	if scheduledTask {
-		subCommandName := entryPointList[1]
+	// handle entrypoint specific logic
+	var awsLogsStreamPrefix string
+	var awsLogsGroup string
+	var portMappings []*ecs.PortMapping
+	if commandName == "/bin/milmove-tasks" {
+		awsLogsStreamPrefix = serviceNameShort
+		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
+
 		ruleName := fmt.Sprintf("%s-%s", subCommandName, environmentName)
 		_, listTargetsByRuleErr := serviceCloudWatchEvents.ListTargetsByRule(&cloudwatchevents.ListTargetsByRuleInput{
 			Rule: aws.String(ruleName),
@@ -451,7 +457,22 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		if listTargetsByRuleErr != nil {
 			quit(logger, nil, fmt.Errorf("error retrieving targets for rule %q: %w", ruleName, listTargetsByRuleErr))
 		}
+	} else if subCommandName == "migrate" {
+		awsLogsStreamPrefix = serviceName
+		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceNameShort, environmentName)
 	} else {
+		awsLogsStreamPrefix = serviceNameShort
+		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
+
+		// Ports
+		port := appPorts[serviceName]
+		portMappings = []*ecs.PortMapping{
+			{
+				ContainerPort: aws.Int64(port),
+				HostPort:      aws.Int64(port),
+				Protocol:      aws.String("tcp"),
+			},
+		}
 	}
 
 	// Register the new task definition
@@ -471,12 +492,6 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	// Name the container definition and verify it exists
 	containerDefName := fmt.Sprintf("%s-%s", serviceName, environmentName)
 
-	// AWS Logs Group is related to the cluster and should not be changed
-	awsLogsGroup := fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
-
-	// Ports
-	port := appPorts[serviceName]
-
 	newTaskDefInput := ecs.RegisterTaskDefinitionInput{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
 			{
@@ -492,16 +507,10 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 					Options: map[string]*string{
 						"awslogs-group":         aws.String(awsLogsGroup),
 						"awslogs-region":        aws.String(awsRegion),
-						"awslogs-stream-prefix": aws.String(serviceNameShort),
+						"awslogs-stream-prefix": aws.String(awsLogsStreamPrefix),
 					},
 				},
-				PortMappings: []*ecs.PortMapping{
-					{
-						ContainerPort: aws.Int64(port),
-						HostPort:      aws.Int64(port),
-						Protocol:      aws.String("tcp"),
-					},
-				},
+				PortMappings:           portMappings,
 				ReadonlyRootFilesystem: aws.Bool(true),
 			},
 		},
