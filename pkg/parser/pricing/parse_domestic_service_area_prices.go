@@ -23,6 +23,8 @@ var parseDomesticServiceAreaPrices processXlsxSheet = func(params ParamConfig, s
 		return nil, fmt.Errorf("parseDomesticServiceAreaPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
+	log.Println("Parsing Domestic Service Area Prices")
+
 	var domPrices []models.StageDomesticServiceAreaPrice
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
 	for _, row := range dataRows {

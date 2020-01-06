@@ -4,12 +4,6 @@
   "portMappings": [],
   "essential": true,
   "entryPoint": [
-    "/bin/chamber",
-    "-r",
-    "{{ .CHAMBER_RETRIES }}",
-    "exec",
-    "app-{{ .environment }}",
-    "--",
     "/bin/milmove",
     "migrate",
     "--db-env",
@@ -18,18 +12,11 @@
     "production"
   ],
   "command": [],
+  "secrets": {{ .secrets }},
   "environment": [
     {
       "name": "DB_IAM",
       "value": "{{ .DB_IAM }}"
-    },
-    {
-      "name": "DB_IAM_ROLE",
-      "value": "{{ .DB_IAM_ROLE }}"
-    },
-    {
-      "name": "DB_REGION",
-      "value": "us-west-2"
     },
     {
       "name": "ENVIRONMENT",
@@ -66,14 +53,6 @@
     {
       "name": "DB_SSL_ROOT_CERT",
       "value": "{{ .DB_SSL_ROOT_CERT }}"
-    },
-    {
-      "name": "CHAMBER_KMS_KEY_ALIAS",
-      "value": "alias/aws/ssm"
-    },
-    {
-      "name": "CHAMBER_USE_PATHS",
-      "value": "1"
     },
     {
       "name": "AWS_S3_BUCKET_NAME",

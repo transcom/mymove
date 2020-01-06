@@ -416,7 +416,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	var session *awssession.Session
-	if v.GetBool(cli.DbIamFlag) || (v.GetString(cli.EmailBackendFlag) == "ses") || (v.GetString(cli.StorageBackendFlag) == "s3") {
+	if v.GetBool(cli.DbIamFlag) || (v.GetString(cli.EmailBackendFlag) == "ses") || (v.GetString(cli.StorageBackendFlag) == "s3") || (v.GetString(cli.StorageBackendFlag) == "cdn") {
 		c, errorConfig := cli.GetAWSConfig(v, v.GetBool(cli.VerboseFlag))
 		if errorConfig != nil {
 			logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())
@@ -469,6 +469,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		OrdersServername: v.GetString(cli.HTTPOrdersServerNameFlag),
 		DpsServername:    v.GetString(cli.HTTPDPSServerNameFlag),
 		SddcServername:   v.GetString(cli.HTTPSDDCServerNameFlag),
+		PrimeServername:  v.GetString(cli.HTTPPrimeServerNameFlag),
 	}
 
 	// Register Login.gov authentication provider for My.(move.mil)
@@ -483,8 +484,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, clientAuthSecretKey, noSessionTimeout, appnames, useSecureCookie)
 	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, useSecureCookie)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
+	if v.GetBool(cli.FeatureFlagRoleBasedAuth) {
+		userAuthMiddleware = authentication.RoleAuthLogin(logger)
+	}
 	isLoggedInMiddleware := authentication.IsLoggedInMiddleware(logger)
 	clientCertMiddleware := authentication.ClientCertMiddleware(logger, dbConnection)
+	roleAuthMiddleware := authentication.RoleAuthMiddleware(logger)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
 	handlerContext.SetCookieSecret(clientAuthSecretKey)
@@ -742,6 +747,25 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 				dpsCookieExpires))
 	}
 
+	if v.GetBool(cli.ServePrimeFlag) {
+		primeMux := goji.SubMux()
+		primeDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.PrimeServername)
+		primeMux.Use(primeDetectionMiddleware)
+		primeMux.Use(clientCertMiddleware)
+		primeMux.Use(authentication.PrimeAuthorizationMiddleware(logger))
+		primeMux.Use(middleware.NoCache(logger))
+		primeMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.PrimeSwaggerFlag)))
+		if v.GetBool(cli.ServeSwaggerUIFlag) {
+			logger.Info("Prime API Swagger UI serving is enabled")
+			primeMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "prime.html")))
+		} else {
+			primeMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+		}
+		primeMux.Handle(pat.New("/*"), primeapi.NewPrimeAPIHandler(handlerContext))
+		site.Handle(pat.New("/prime/v1/*"), primeMux)
+	}
+
+	// Handlers under mutual TLS need to go before this section that sets up middleware that shouldn't be enabled for mutual TLS (such as CSRF)
 	root := goji.NewMux()
 	root.Use(middleware.Recovery(logger))
 	root.Use(middleware.Trace(logger, &handlerContext))            // injects http request trace id
@@ -796,7 +820,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		internalMux.Handle(pat.New("/*"), internalAPIMux)
 		internalAPIMux.Use(userAuthMiddleware)
 		internalAPIMux.Use(middleware.NoCache(logger))
-		internalAPIMux.Handle(pat.New("/*"), internalapi.NewInternalAPIHandler(handlerContext))
+		api := internalapi.NewInternalAPI(handlerContext)
+		internalAPIMux.Handle(pat.New("/*"), api.Serve(nil))
+		if handlerContext.GetFeatureFlag(cli.FeatureFlagRoleBasedAuth) {
+			internalAPIMux.Use(roleAuthMiddleware(api.Context()))
+		}
 	}
 
 	if v.GetBool(cli.ServeAdminFlag) {
@@ -835,27 +863,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		ghcMux.Handle(pat.New("/*"), ghcAPIMux)
 		ghcAPIMux.Use(userAuthMiddleware)
 		ghcAPIMux.Use(middleware.NoCache(logger))
-		ghcAPIMux.Handle(pat.New("/*"), ghcapi.NewGhcAPIHandler(handlerContext))
-	}
-
-	if v.GetBool(cli.ServePrimeFlag) {
-		primeMux := goji.SubMux()
-		root.Handle(pat.New("/prime/v1/*"), primeMux)
-		primeMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.PrimeSwaggerFlag)))
-		if v.GetBool(cli.ServeSwaggerUIFlag) {
-			logger.Info("Prime API Swagger UI serving is enabled")
-			primeMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "prime.html")))
-		} else {
-			primeMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+		api := ghcapi.NewGhcAPIHandler(handlerContext)
+		ghcAPIMux.Handle(pat.New("/*"), api.Serve(nil))
+		if handlerContext.GetFeatureFlag(cli.FeatureFlagRoleBasedAuth) {
+			ghcAPIMux.Use(roleAuthMiddleware(api.Context()))
 		}
-
-		// Mux for GHC API that enforces auth
-		primeAPIMux := goji.SubMux()
-		primeMux.Handle(pat.New("/*"), primeAPIMux)
-		primeAPIMux.Use(userAuthMiddleware)
-		primeAPIMux.Use(authentication.PrimeAuthMiddleware(logger))
-		primeAPIMux.Use(middleware.NoCache(logger))
-		primeAPIMux.Handle(pat.New("/*"), primeapi.NewPrimeAPIHandler(handlerContext))
 	}
 
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
