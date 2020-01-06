@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/arn"
 	"github.com/aws/aws-sdk-go/aws/request"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/private/protocol/json/jsonutil"
@@ -59,30 +60,12 @@ var servicesToAppPorts = map[string]int64{
 	"app-client-tls": int64(9443),
 }
 
-var environments = []string{"prod", "staging", "experimental"}
-
-type errInvalidAccountID struct {
-	AwsAccountID string
-}
-
-func (e *errInvalidAccountID) Error() string {
-	return fmt.Sprintf("invalid AWS account ID %q", e.AwsAccountID)
-}
-
 type errInvalidService struct {
 	Service string
 }
 
 func (e *errInvalidService) Error() string {
 	return fmt.Sprintf("invalid AWS ECS service %q, expecting one of %q", e.Service, services)
-}
-
-type errInvalidEnvironment struct {
-	Environment string
-}
-
-func (e *errInvalidEnvironment) Error() string {
-	return fmt.Sprintf("invalid MilMove environment %q, expecting one of %q", e.Environment, environments)
 }
 
 type errinvalidRepositoryName struct {
@@ -118,15 +101,12 @@ func (e *errInvalidFile) Error() string {
 }
 
 const (
-	awsAccountIDFlag  string = "aws-account-id"
 	serviceFlag       string = "service"
-	environmentFlag   string = "environment"
 	imageURIFlag      string = "image"
 	variablesFileFlag string = "variables-file"
 	entryPointFlag    string = "entrypoint"
 	cpuFlag           string = "cpu"
 	memFlag           string = "mem"
-	dryRunFlag        string = "dry-run"
 	registerFlag      string = "register"
 )
 
@@ -188,7 +168,7 @@ func initTaskDefFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = true
 }
 
-func checkConfig(v *viper.Viper) error {
+func checkTaskDefConfig(v *viper.Viper) error {
 
 	awsAccountID := v.GetString(awsAccountIDFlag)
 	if len(awsAccountID) == 0 {
@@ -284,15 +264,6 @@ func checkConfig(v *viper.Viper) error {
 	return nil
 }
 
-func quit(logger *log.Logger, flag *pflag.FlagSet, err error) {
-	logger.Println(err.Error())
-	if flag != nil {
-		logger.Println("Usage of ecs-service-logs:")
-		flag.PrintDefaults()
-	}
-	os.Exit(1)
-}
-
 func buildSecrets(serviceSSM *ssm.SSM, awsRegion, awsAccountID, serviceName, environmentName string) []*ecs.Secret {
 
 	var secrets []*ecs.Secret
@@ -316,9 +287,16 @@ func buildSecrets(serviceSSM *ssm.SSM, awsRegion, awsAccountID, serviceName, env
 
 		for _, parameter := range page.Parameters {
 			if strings.HasPrefix(*parameter.Name, fmt.Sprintf("/%s-%s", serviceName, environmentName)) {
+				parameterARN := arn.ARN{
+					Partition: "aws",
+					Service:   "ssm",
+					Region:    awsRegion,
+					AccountID: awsAccountID,
+					Resource:  fmt.Sprintf("parameter%s", *parameter.Name),
+				}
 				secrets = append(secrets, &ecs.Secret{
 					Name:      aws.String(strings.ToUpper(strings.Split(*parameter.Name, "/")[2])),
-					ValueFrom: aws.String(fmt.Sprintf("arn:aws:ssm:%s:%s:parameter%s", awsRegion, awsAccountID, *parameter.Name)),
+					ValueFrom: aws.String(parameterARN.String()),
 				})
 			}
 		}
@@ -380,6 +358,10 @@ func buildContainerEnvironment(environmentName string, dbHost string, variablesF
 
 func taskDefFunction(cmd *cobra.Command, args []string) error {
 
+	// Create the logger
+	// Remove the prefix and any datetime data
+	logger := log.New(os.Stdout, "", log.LstdFlags)
+
 	err := cmd.ParseFlags(args)
 	if err != nil {
 		return fmt.Errorf("could not parse flags: %w", err)
@@ -388,16 +370,12 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	flag := cmd.Flags()
 
 	v := viper.New()
-	err = v.BindPFlags(flag)
-	if err != nil {
-		return fmt.Errorf("could not bind flags: %w", err)
+	errBindPFlags := v.BindPFlags(flag)
+	if errBindPFlags != nil {
+		quit(logger, flag, errBindPFlags)
 	}
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
-
-	// Create the logger
-	// Remove the prefix and any datetime data
-	logger := log.New(os.Stdout, "", log.LstdFlags)
 
 	verbose := v.GetBool(cli.VerboseFlag)
 	if !verbose {
@@ -410,7 +388,7 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Ensure the configuration works against the variables
-	checkConfigErr := checkConfig(v)
+	checkConfigErr := checkTaskDefConfig(v)
 	if checkConfigErr != nil {
 		quit(logger, flag, checkConfigErr)
 	}

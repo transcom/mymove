@@ -1,10 +1,46 @@
 package main
 
 import (
+	"fmt"
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
+
+const (
+	awsAccountIDFlag string = "aws-account-id"
+	dryRunFlag       string = "dry-run"
+	environmentFlag  string = "environment"
+)
+
+var environments = []string{"prod", "staging", "experimental"}
+
+type errInvalidAccountID struct {
+	AwsAccountID string
+}
+
+func (e *errInvalidAccountID) Error() string {
+	return fmt.Sprintf("invalid AWS account ID %q", e.AwsAccountID)
+}
+
+type errInvalidEnvironment struct {
+	Environment string
+}
+
+func (e *errInvalidEnvironment) Error() string {
+	return fmt.Sprintf("invalid MilMove environment %q, expecting one of %q", e.Environment, environments)
+}
+
+func quit(logger *log.Logger, flag *pflag.FlagSet, err error) {
+	logger.Println(err.Error())
+	if flag != nil {
+		logger.Println("Usage:")
+		flag.PrintDefaults()
+	}
+	os.Exit(1)
+}
 
 func main() {
 
@@ -13,6 +49,16 @@ func main() {
 		Short: "ecs-deploy tool",
 		Long:  "ecs-deploy tool",
 	}
+
+	putTargetCommand := &cobra.Command{
+		Use:          "put-target",
+		Short:        "Put ECS Scheduled Task Target",
+		Long:         "Put ECS Scheduled Task Target",
+		RunE:         putTargetFunction,
+		SilenceUsage: true,
+	}
+	initPutTargetFlags(putTargetCommand.Flags())
+	root.AddCommand(putTargetCommand)
 
 	taskDefCommand := &cobra.Command{
 		Use:          "task-def",
