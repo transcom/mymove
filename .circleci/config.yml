@@ -90,54 +90,12 @@ commands:
           at: bin
       - deploy:
           name: Deploy fuel price data task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command "milmove-tasks save-fuel-price-data" --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2"
-          environment:
-            DB_PORT: 5432
-            DB_USER: ecs_user
-            DB_NAME: app
-            DB_SSL_MODE: verify-full
-            DB_SSL_ROOT_CERT: /bin/rds-combined-ca-bundle.pem
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command "milmove-tasks save-fuel-price-data" --command-args "" --variables-file "./config/env/${APP_ENVIRONMENT}.save-fuel-price-data.env"
           no_output_timeout: 20m
       - announce_failure
       - deploy:
           name: Deploy post move email survey task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command "milmove-tasks send-post-move-survey" --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2 --email-backend=ses --offset-days 15"
-          environment:
-            DB_PORT: 5432
-            DB_USER: ecs_user
-            DB_NAME: app
-            DB_SSL_MODE: verify-full
-            DB_SSL_ROOT_CERT: /bin/rds-combined-ca-bundle.pem
-          no_output_timeout: 20m
-      - announce_failure
-  deploy_tasks_steps_rds_ca_2019:
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
-      - attach_workspace:
-          at: bin
-      - deploy:
-          name: Deploy fuel price data task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command "milmove-tasks save-fuel-price-data" --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2"
-          environment:
-            DB_PORT: 5432
-            DB_USER: ecs_user
-            DB_NAME: app
-            DB_SSL_MODE: verify-full
-            DB_SSL_ROOT_CERT: /bin/rds-ca-2019-root.pem
-          no_output_timeout: 20m
-      - announce_failure
-      - deploy:
-          name: Deploy post move email survey task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command "milmove-tasks send-post-move-survey" --command-args "--db-iam --db-iam-role arn:aws:iam::923914045601:role/ecs-rds-role-app-${APP_ENVIRONMENT} --db-region us-west-2 --email-backend=ses --offset-days 15"
-          environment:
-            DB_PORT: 5432
-            DB_USER: ecs_user
-            DB_NAME: app
-            DB_SSL_MODE: verify-full
-            DB_SSL_ROOT_CERT: /bin/rds-ca-2019-root.pem
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command "milmove-tasks send-post-move-survey" --command-args "--email-backend=ses --offset-days 15" --variables-file "./config/env/${APP_ENVIRONMENT}.send-post-move-survey.env"
           no_output_timeout: 20m
       - announce_failure
   deploy_app_steps:
@@ -524,7 +482,6 @@ jobs:
       - restore_cache:
           keys:
             - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - run: make bin/chamber
       - run: make bin/rds-combined-ca-bundle.pem
       - run: make bin/rds-ca-2019-root.pem
       - run: make client_build
@@ -560,7 +517,6 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
-      - run: make bin/chamber
       - run: make bin/rds-combined-ca-bundle.pem
       - run: make bin/rds-ca-2019-root.pem
       - run: make server_build
@@ -580,7 +536,6 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
-      - run: make bin/chamber
       - run: make bin/rds-combined-ca-bundle.pem
       - run: make bin/rds-ca-2019-root.pem
       - run: make tasks_build
@@ -598,9 +553,6 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
-      - run:
-          name: Build Chamber
-          command: make bin/chamber
       - run:
           name: Run acceptance tests
           command: make webserver_test
@@ -629,7 +581,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'experimental'
     steps:
-      - deploy_tasks_steps_rds_ca_2019
+      - deploy_tasks_steps
 
   # `deploy_experimental_app` updates the server-TLS app service in the experimental environment
   deploy_experimental_app:
@@ -668,9 +620,6 @@ jobs:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run:
-          name: Build Chamber
-          command: make bin/chamber
-      - run:
           name: Run acceptance tests
           command: make webserver_test
           environment:
@@ -697,7 +646,7 @@ jobs:
     environment:
       - APP_ENVIRONMENT: 'staging'
     steps:
-      - deploy_tasks_steps_rds_ca_2019
+      - deploy_tasks_steps
 
   # `deploy_staging_app` updates the server-TLS app service in staging environment
   deploy_staging_app:

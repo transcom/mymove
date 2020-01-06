@@ -21,6 +21,9 @@ func (suite *GHCRateEngineImportSuite) Test_importREInternationalPrices() {
 		err = gre.importRERateArea(suite.DB())
 		suite.NoError(err)
 
+		err = gre.loadServiceMap(suite.DB())
+		suite.NoError(err)
+
 		err = gre.importREInternationalPrices(suite.DB())
 		suite.NoError(err)
 		suite.helperVerifyInternationalPrices()

@@ -24,6 +24,8 @@ var parseOconusToOconusPrices processXlsxSheet = func(params ParamConfig, sheetI
 		return nil, fmt.Errorf("parseOconusToOconusPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
+	log.Println("Parsing Oconus To Oconus Prices")
+
 	var oconusToOconusPrices []models.StageOconusToOconusPrice
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
 	for _, row := range dataRows {
@@ -62,6 +64,8 @@ var parseConusToOconusPrices processXlsxSheet = func(params ParamConfig, sheetIn
 		return nil, fmt.Errorf("parseConusToOconusPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
 
+	log.Println("Parsing Conus To Oconus Prices")
+
 	var conusToOconusPrices []models.StageConusToOconusPrice
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]
 	for _, row := range dataRows {
@@ -99,6 +103,8 @@ var parseOconusToConusPrices processXlsxSheet = func(params ParamConfig, sheetIn
 	if xlsxDataSheetNum != sheetIndex {
 		return nil, fmt.Errorf("parseOconusToConusPrices expected to process sheet %d, but received sheetIndex %d", xlsxDataSheetNum, sheetIndex)
 	}
+
+	log.Println("Parsing Oconus To Conus Prices")
 
 	var oconusToConusPrices []models.StageOconusToConusPrice
 	dataRows := params.XlsxFile.Sheets[xlsxDataSheetNum].Rows[feeRowIndexStart:]

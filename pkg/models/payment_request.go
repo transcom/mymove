@@ -34,7 +34,6 @@ var validPaymentRequestStatus = []string{
 // PaymentRequest is an object representing a payment request on a move task order
 type PaymentRequest struct {
 	ID              uuid.UUID            `json:"id" db:"id"`
-	MoveTaskOrder   MoveTaskOrder        `belongs_to:"move_task_orders"`
 	MoveTaskOrderID uuid.UUID            `db:"move_task_order_id"`
 	IsFinal         bool                 `json:"is_final" db:"is_final"`
 	Status          PaymentRequestStatus `json:"status" db:"status"`
@@ -46,6 +45,10 @@ type PaymentRequest struct {
 	PaidAt          *time.Time           `json:"paid_at" db:"paid_at"`
 	CreatedAt       time.Time            `db:"created_at"`
 	UpdatedAt       time.Time            `db:"updated_at"`
+
+	// Associations
+	MoveTaskOrder       MoveTaskOrder       `belongs_to:"move_task_orders"`
+	PaymentServiceItems PaymentServiceItems `has_many:"payment_service_items"`
 }
 
 type PaymentRequests []PaymentRequest
