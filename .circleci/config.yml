@@ -878,13 +878,6 @@ workflows:
             branches:
               ignore: app-lee
 
-      - server_test_coverage:
-          requires:
-            - pre_deps_golang
-          filters:
-            branches:
-              ignore: app-lee
-
       - build_app:
           requires:
             - anti_virus
