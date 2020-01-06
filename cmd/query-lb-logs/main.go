@@ -283,6 +283,10 @@ func createLogTable(serviceAthena *athena.Athena, logger, infoLogger *log.Logger
 			redirect_url string,
 			lambda_error_reason string,
 			new_field string)
+			PARTITIONED BY (
+  				year int,
+  				month int
+			)
 		ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.RegexSerDe'
 		WITH SERDEPROPERTIES ('input.regex'='([^ ]*) ([^ ]*) ([^ ]*) ([^ ]*):([0-9]*) ([^ ]*)[:-]([0-9]*) ([-.0-9]*) ([-.0-9]*) ([-.0-9]*) (|[-0-9]*) (-|[-0-9]*) ([-0-9]*) ([-0-9]*) \"([^ ]*) ([^ ]*) (- |[^ ]*)\" \"([^\"]*)\" ([A-Z0-9-]+) ([A-Za-z0-9.-]*) ([^ ]*) \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" ([-.0-9]*) ([^ ]*) \"([^\"]*)\" \"([^\"]*)\"($| \"[^ ]*\")(.*)')
 		STORED AS INPUTFORMAT 'org.apache.hadoop.mapred.TextInputFormat'
