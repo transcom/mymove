@@ -103,8 +103,9 @@ func main() {
 
 	serviceAthena := athena.New(session)
 
-	// check if table in db already exists, if no table exists then create it
+	// check if table in db already exists, if no table exists then create it and add partitions
 	CheckEnv(serviceAthena, logger, infoLogger, v)
+
 	getAthenaQuery(serviceAthena, logger, infoLogger, v)
 
 }
@@ -247,6 +248,11 @@ func CheckEnv(serviceAthena *athena.Athena, logger, infoLogger *log.Logger, v *v
 		if err != nil {
 			logger.Fatalf("Failed to create table: %v", err)
 		}
+		logger.Println("creating monthly partitions....")
+		err = createPartitions(serviceAthena, logger, infoLogger, dbName, logBucket)
+		if err != nil {
+			logger.Fatalf("Failed to create partitions: %v", err)
+		}
 	}
 }
 
@@ -334,6 +340,71 @@ func createLogTable(serviceAthena *athena.Athena, logger, infoLogger *log.Logger
 	} else {
 		infoLogger.Printf("Query status details: %v", *queryExecutionOutput.QueryExecution.Status)
 	}
+	return nil
+}
+
+func createPartitions(serviceAthena *athena.Athena, logger, infoLogger *log.Logger, dbName, s3Path string) error {
+
+	var startQueryExecutionInput athena.StartQueryExecutionInput
+	startDate := time.Now().AddDate(-1, 0, 0)
+	endDate := time.Now().AddDate(6, 0, 0)
+
+	infoLogger.Println(fmt.Sprintf("Partition start date: %s", startDate.String()))
+	infoLogger.Println(fmt.Sprintf("Partition end date: %s", endDate.String()))
+
+	query := "ALTER TABLE alb_logs ADD IF NOT EXISTS"
+	for startDate.Before(endDate) {
+		infoLogger.Println(fmt.Sprintf("year: %d month: %d", startDate.Year(), startDate.Month()))
+		partitionPath := fmt.Sprintf(s3Path+`/%d/%s`, startDate.Year(), fmt.Sprintf("%02d", startDate.Month()))
+		query += fmt.Sprintf(`
+		PARTITION (year=%d, month=%d)
+		LOCATION '%s'`, startDate.Year(), startDate.Month(), partitionPath)
+
+		startDate = startDate.AddDate(0, 1, 0)
+	}
+
+	startQueryExecutionInput.SetWorkGroup(AthenaWorkGroup)
+	startQueryExecutionInput.SetQueryString(query)
+	var queryExecutionContext athena.QueryExecutionContext
+	queryExecutionContext.SetDatabase(dbName)
+	startQueryExecutionInput.SetQueryExecutionContext(&queryExecutionContext)
+
+	var resultConfiguration athena.ResultConfiguration
+	resultConfiguration.SetOutputLocation(s3Path)
+	startQueryExecutionInput.SetResultConfiguration(&resultConfiguration)
+
+	result, err := serviceAthena.StartQueryExecution(&startQueryExecutionInput)
+	if err != nil {
+		logger.Fatal(err)
+		return err
+	}
+
+	infoLogger.Printf("Start Query Execution: %s", result.GoString())
+
+	var queryExecutionInput athena.GetQueryExecutionInput
+	queryExecutionInput.SetQueryExecutionId(*result.QueryExecutionId)
+
+	var queryExecutionOutput *athena.GetQueryExecutionOutput
+	duration := time.Duration(2) * time.Second // Pause for 2 seconds
+
+	for {
+		queryExecutionOutput, err = serviceAthena.GetQueryExecution(&queryExecutionInput)
+		if err != nil {
+			logger.Fatalf("Query execution failed with error: %v", err)
+			return err
+		}
+		if *queryExecutionOutput.QueryExecution.Status.State != "RUNNING" {
+			infoLogger.Print("waiting")
+			break
+		}
+		time.Sleep(duration)
+	}
+	if *queryExecutionOutput.QueryExecution.Status.State == "SUCCEEDED" {
+		infoLogger.Printf("Query status details: %v", *queryExecutionOutput.QueryExecution.Status)
+	} else {
+		infoLogger.Printf("Query status details: %v", *queryExecutionOutput.QueryExecution.Status)
+	}
+
 	return nil
 }
 
