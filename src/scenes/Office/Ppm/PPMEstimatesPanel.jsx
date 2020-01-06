@@ -32,6 +32,16 @@ const EstimatesDisplay = props => {
           {formatCentsRange(ppm.incentive_estimate_min, ppm.incentive_estimate_max)}
         </PanelField>
         <PanelSwaggerField fieldName="weight_estimate" {...fieldProps} />
+        {fieldProps.values.has_pro_gear && (
+          <PanelSwaggerField title="Is there pro-gear?" fieldName="has_pro_gear" {...fieldProps} />
+        )}
+        {fieldProps.values.has_pro_gear_over_thousand && (
+          <PanelSwaggerField
+            title="Does the pro-gear weigh more then 1,000 lbs?"
+            fieldName="has_pro_gear_over_thousand"
+            {...fieldProps}
+          />
+        )}
         <PanelSwaggerField title="Planned departure" fieldName="original_move_date" {...fieldProps} />
         <PanelField title="Storage planned" fieldName="has_sit">
           {fieldProps.values.has_sit ? 'Yes' : 'No'}
