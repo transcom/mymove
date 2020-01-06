@@ -3,8 +3,6 @@
 #   Creates and runs a migration task using the given name, image, and environment.
 #
 set -eo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-readonly DIR
 
 usage() {
     echo "$0 <image> <environment>"
@@ -69,6 +67,10 @@ exit 1
 
 readonly task_definition_arn
 check_arn "$task_definition_arn"
+
+echo "Obtaining the current network configuration"
+network_configuration=$(aws ecs describe-services --services app --cluster "$cluster" --query 'services[0].networkConfiguration')
+readonly network_configuration
 
 echo "Running task definition $task_definition_arn ..."
 task_arn=$(aws ecs run-task --launch-type FARGATE --network-configuration "$network_configuration" --task-definition "$task_definition_arn" --cluster "$cluster" --query 'tasks[].taskArn' --output text)
