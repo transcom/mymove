@@ -54,5 +54,5 @@ We implement optimistic locking using the `If-Match` header. If the ETag header 
 
 ## References
 
-[Optimistic Locking in a REST API](https://sookocheff.com/post/api/optimistic-locking-in-a-rest-api/)
-[RESTful API and Event Scheme Guidelines](https://opensource.zalando.com/restful-api-guidelines/index.html#optimistic-locking)
+- [Optimistic Locking in a REST API](https://sookocheff.com/post/api/optimistic-locking-in-a-rest-api/)
+- [RESTful API and Event Scheme Guidelines](https://opensource.zalando.com/restful-api-guidelines/index.html#optimistic-locking)
