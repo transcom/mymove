@@ -37,6 +37,7 @@ const vehicleTypes = {
   CarAndTrailer: 'CAR_TRAILER',
   Car: 'CAR',
   BoxTruck: 'BOX_TRUCK',
+  ProGear: 'PRO_GEAR',
 };
 
 const nextBtnLabels = {
@@ -82,6 +83,10 @@ class WeightTicket extends Component {
 
   get isCarTrailer() {
     return this.state.vehicleType === vehicleTypes.CarAndTrailer;
+  }
+
+  get isProGear() {
+    return this.state.vehicleType === vehicleTypes.ProGear;
   }
 
   hasWeightTicket = uploaderRef => {
@@ -268,7 +273,16 @@ class WeightTicket extends Component {
                   value={vehicleType}
                   required
                 />
-                <SwaggerField fieldName="vehicle_nickname" swagger={schema} required />
+                <SwaggerField
+                  fieldName="vehicle_nickname"
+                  title={
+                    this.isProGear
+                      ? "Pro-gear type (ex. 'My Pro-gear', 'Spouse Pro-Gear', 'Both')"
+                      : "Vehicle nickname (ex. 'My car')"
+                  }
+                  swagger={schema}
+                  required
+                />
                 {vehicleType && this.isCarTrailer && (
                   <>
                     <div className="radio-group-wrapper normalize-margins">
