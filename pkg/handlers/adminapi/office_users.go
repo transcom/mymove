@@ -201,11 +201,13 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 		logger.Error("Error saving user", zap.Error(err))
 		return officeuserop.NewUpdateOfficeUserInternalServerError()
 	}
-	rt := rolesPayloadToModel(payload.Roles)
-	_, err = h.UserRoleAssociator.UpdateUserRoles(*updatedOfficeUser.UserID, rt)
-	if err != nil {
-		logger.Error("error associating user roles", zap.Error(err))
-		return officeuserop.NewUpdateOfficeUserInternalServerError()
+	if updatedOfficeUser.UserID != nil {
+		updatedRoles := rolesPayloadToModel(payload.Roles)
+		_, err = h.UserRoleAssociator.UpdateUserRoles(*updatedOfficeUser.UserID, updatedRoles)
+		if err != nil {
+			logger.Error("error updatine user roles", zap.Error(err))
+			return officeuserop.NewUpdateOfficeUserInternalServerError()
+		}
 	}
 
 	_, err = audit.Capture(updatedOfficeUser, payload, logger, session, params.HTTPRequest)
