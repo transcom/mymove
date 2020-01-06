@@ -11,7 +11,7 @@ class PaymentRequestShow extends React.Component {
   render() {
     const {
       id,
-      paymentRequest: { isFinal, rejectionReason, serviceItemIDs },
+      paymentRequest: { isFinal, rejectionReason, serviceItemIDs, status },
     } = this.props;
     return (
       <div>
@@ -20,7 +20,7 @@ class PaymentRequestShow extends React.Component {
           <li>isFinal: {`${isFinal}`}</li>
           <li>rejectionReason: {rejectionReason}</li>
           <li>serviceItemIds: {serviceItemIDs}</li>
-          <li></li>
+          <li>status: {status}</li>
         </ul>
       </div>
     );

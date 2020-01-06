@@ -33,6 +33,7 @@ class PaymentRequestIndex extends React.Component {
                 <td>{pr.rejectionReason}</td>
                 <td>{pr.serviceItemIDs}</td>
                 <td>{pr.rejectionReason}</td>
+                <td>{pr.status}</td>
               </tr>
             ))}
           </tbody>
