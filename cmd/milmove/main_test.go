@@ -55,33 +55,43 @@ func TestWebServerSuite(t *testing.T) {
 		logger: logger,
 	}
 
-	if testEnv := os.Getenv("TEST_ACC_ENV"); len(testEnv) > 0 {
-		// Test against app vars
-		filenameApp := fmt.Sprintf("%s/config/env/%s.app.env", os.Getenv("TEST_ACC_CWD"), testEnv)
-		logger.Info(fmt.Sprintf("Loading environment variables from file %s", filenameApp))
-		ss.applyContext(ss.patchContext(ss.loadContext(filenameApp)))
-
-		suite.Run(t, ss)
-
-		// Test against app-client-tls vars
-		filenameAppClientTLS := fmt.Sprintf("%s/config/env/%s.app-client-tls.env", os.Getenv("TEST_ACC_CWD"), testEnv)
-		logger.Info(fmt.Sprintf("Loading environment variables from file %s", filenameAppClientTLS))
-		ss.applyContext(ss.patchContext(ss.loadContext(filenameAppClientTLS)))
-
-		suite.Run(t, ss)
-
-		return
-
-	}
-
 	suite.Run(t, ss)
 }
 
-// TestCheckServeConfig is the acceptance test for the milmove webserver
+// TestCheckServeConfigApp is the acceptance test for the milmove webserver
 // This will run all checks against the local environment and fail if something isn't configured
-func (suite *webServerSuite) TestCheckServeConfig() {
+func (suite *webServerSuite) TestCheckServeConfigApp() {
+	if testEnv := os.Getenv("TEST_ACC_ENV"); len(testEnv) > 0 {
+		filenameApp := fmt.Sprintf("%s/config/env/%s.app.env", os.Getenv("TEST_ACC_CWD"), testEnv)
+		suite.logger.Info(fmt.Sprintf("Loading environment variables from file %s", filenameApp))
+		suite.applyContext(suite.patchContext(suite.loadContext(filenameApp)))
+	}
 
 	suite.Nil(checkServeConfig(suite.viper, suite.logger))
+}
+
+// TestCheckServeConfigAppClientTLS is the acceptance test for the milmove webserver
+// This will run all checks against the local environment and fail if something isn't configured
+func (suite *webServerSuite) TestCheckServeConfigAppClientTLS() {
+	if testEnv := os.Getenv("TEST_ACC_ENV"); len(testEnv) > 0 {
+		filenameApp := fmt.Sprintf("%s/config/env/%s.app-client-tls.env", os.Getenv("TEST_ACC_CWD"), testEnv)
+		suite.logger.Info(fmt.Sprintf("Loading environment variables from file %s", filenameApp))
+		suite.applyContext(suite.patchContext(suite.loadContext(filenameApp)))
+	}
+
+	suite.Nil(checkServeConfig(suite.viper, suite.logger))
+}
+
+// TestCheckServeConfigMigrate is the acceptance test for the milmove migration command
+// This will run all checks against the local environment and fail if something isn't configured
+func (suite *webServerSuite) TestCheckServeConfigMigrate() {
+	if testEnv := os.Getenv("TEST_ACC_ENV"); len(testEnv) > 0 {
+		filenameApp := fmt.Sprintf("%s/config/env/%s.migrations.env", os.Getenv("TEST_ACC_CWD"), testEnv)
+		suite.logger.Info(fmt.Sprintf("Loading environment variables from file %s", filenameApp))
+		suite.applyContext(suite.patchContext(suite.loadContext(filenameApp)))
+	}
+
+	suite.Nil(checkMigrateConfig(suite.viper, suite.logger))
 }
 
 func (suite *webServerSuite) loadContext(variablesFile string) map[string]string {

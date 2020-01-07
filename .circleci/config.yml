@@ -342,13 +342,13 @@ jobs:
             source $BASH_ENV
             make webserver_test
           environment:
+            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
+            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
             ENV: test
             ENVIRONMENT: test
-            PWD: /home/circleci/transcom/mymove
             LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
-            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
-            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
             NO_TLS_ENABLED: true
+            PWD: /home/circleci/transcom/mymove
       - announce_failure
 
   # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
@@ -557,14 +557,15 @@ jobs:
           name: Run acceptance tests
           command: make webserver_test
           environment:
+            CHAMBER_RETRIES: 20
+            DB_REGION: us-west-2
+            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
+            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
             ENV: test
             ENVIRONMENT: experimental
-            CHAMBER_RETRIES: 20
-            PWD: /home/circleci/transcom/mymove
-            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
-            TEST_ACC_ENV: experimental
             NO_TLS_ENABLED: true
-            DB_REGION: us-west-2
+            PWD: /home/circleci/transcom/mymove
+            TEST_ACC_ENV: experimental
       - announce_failure
 
   # `deploy_experimental_migrations` deploys migrations to the experimental environment
@@ -623,13 +624,14 @@ jobs:
           name: Run acceptance tests
           command: make webserver_test
           environment:
+            CHAMBER_RETRIES: 20
+            DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
+            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
             ENV: test
             ENVIRONMENT: staging
-            CHAMBER_RETRIES: 20
-            PWD: /home/circleci/transcom/mymove
-            DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
-            TEST_ACC_ENV: staging
             NO_TLS_ENABLED: true
+            PWD: /home/circleci/transcom/mymove
+            TEST_ACC_ENV: staging
       - announce_failure
 
   # `deploy_staging_migrations` deploys migrations to the staging environment
