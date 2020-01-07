@@ -54,11 +54,21 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
         url = `${apiUrl}/${resource}/${params.id}`;
         break;
       case GET_MANY: {
+        if (resource === 'offices') {
+          const query = {
+            page: 1,
+            perPage: 10000,
+          };
+          url = `${apiUrl}/${resource}?${stringify(query)}`;
+          break;
+        }
         if (params.ids !== undefined) {
           params.id = params.ids[0];
         }
         const query = {
-          filter: JSON.stringify({ id: params.id }),
+          filter: JSON.stringify({
+            id: params.id,
+          }),
         };
         url = `${apiUrl}/${resource}?${stringify(query)}`;
         break;
@@ -100,7 +110,10 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
       default:
         throw new Error(`Unsupported fetch action type ${type}`);
     }
-    return { url, options };
+    return {
+      url,
+      options,
+    };
   };
 
   /**
@@ -131,12 +144,21 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
           ),
         };
       case CREATE:
-        return { data: { ...params.data, id: json.id } };
+        return {
+          data: {
+            ...params.data,
+            id: json.id,
+          },
+        };
       case DELETE_MANY: {
-        return { data: json || [] };
+        return {
+          data: json || [],
+        };
       }
       default:
-        return { data: json };
+        return {
+          data: json,
+        };
     }
   };
 
