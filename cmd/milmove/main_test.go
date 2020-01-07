@@ -56,17 +56,31 @@ func TestWebServerSuite(t *testing.T) {
 	}
 
 	if testEnv := os.Getenv("TEST_ACC_ENV"); len(testEnv) > 0 {
-		filename := fmt.Sprintf("%s/config/env/%s.env", os.Getenv("TEST_ACC_CWD"), testEnv)
-		logger.Info(fmt.Sprintf("Loading environment variables from file %s", filename))
-		ss.applyContext(ss.patchContext(ss.loadContext(filename)))
+		// Test against app vars
+		filenameApp := fmt.Sprintf("%s/config/env/%s.app.env", os.Getenv("TEST_ACC_CWD"), testEnv)
+		logger.Info(fmt.Sprintf("Loading environment variables from file %s", filenameApp))
+		ss.applyContext(ss.patchContext(ss.loadContext(filenameApp)))
+
+		suite.Run(t, ss)
+
+		// Test against app-client-tls vars
+		filenameAppClientTLS := fmt.Sprintf("%s/config/env/%s.app-client-tls.env", os.Getenv("TEST_ACC_CWD"), testEnv)
+		logger.Info(fmt.Sprintf("Loading environment variables from file %s", filenameAppClientTLS))
+		ss.applyContext(ss.patchContext(ss.loadContext(filenameAppClientTLS)))
+
+		suite.Run(t, ss)
+
+		return
+
 	}
 
 	suite.Run(t, ss)
 }
 
-// TestCheckConfig is the acceptance test for the milmove webserver
+// TestCheckServeConfig is the acceptance test for the milmove webserver
 // This will run all checks against the local environment and fail if something isn't configured
-func (suite *webServerSuite) TestCheckConfig() {
+func (suite *webServerSuite) TestCheckServeConfig() {
+
 	suite.Nil(checkServeConfig(suite.viper, suite.logger))
 }
 
