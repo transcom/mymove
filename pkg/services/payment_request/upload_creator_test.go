@@ -65,7 +65,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 	})
 }
 
-ffunc (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
+func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 	storer := &mocks.FileStorer{}
 	storer.On("Store",
 		mock.AnythingOfType("string"),
