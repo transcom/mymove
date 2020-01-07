@@ -2,6 +2,7 @@ package primeapi
 
 import (
 	"fmt"
+
 	"net/http/httptest"
 	"os"
 	"testing"
@@ -16,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -24,6 +26,10 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 	uploadID, _ := uuid.FromString("e2e79f36-de9e-4a52-9566-47fa3834b359")
 
 	paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	context.SetFileStorer(fakeS3)
 
 	suite.T().Run("successful create upload", func(t *testing.T) {
 		upload := models.Upload{
@@ -44,7 +50,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 		paymentRequestUploadCreator := &mocks.PaymentRequestUploadCreator{}
 		paymentRequestUploadCreator.On(
 			"CreateUpload",
-			mock.AnythingOfType("uploader.File"),
+			mock.AnythingOfType("io.ReadCloser"),
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
 		).Return(
@@ -54,10 +60,11 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 		req = suite.AuthenticateUserRequest(req, primeUser)
 
 		handler := CreateUploadHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			context,
 			paymentRequestUploadCreator,
 		}
-		file, err := os.Open("../fixtures/test.pdf")
+
+		file, err := os.Open("./testdata/test.pdf")
 		suite.NoError(err)
 
 		params := uploadop.CreateUploadParams{
@@ -66,9 +73,8 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 			PaymentRequestID: paymentRequest.ID.String(),
 		}
 		response := handler.Handle(params)
-		file.Close()
 
-		suite.IsType(&uploadop.CreateUpload{}, response)
+		suite.IsType(&uploadop.CreateUploadCreated{}, response)
 	})
 
 	suite.T().Run("create upload fail - invalid payment request ID format", func(t *testing.T) {
@@ -76,17 +82,17 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 		paymentRequestUploadCreator := &mocks.PaymentRequestUploadCreator{}
 		paymentRequestUploadCreator.On(
 			"CreateUpload",
-			mock.AnythingOfType("uploader.File"),
+			mock.AnythingOfType("io.ReadCloser"),
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
 		).Return(
 			&models.Upload{}, nil).Once()
 
 		handler := CreateUploadHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			context,
 			paymentRequestUploadCreator,
 		}
-		file, err := os.Open("../fixtures/test.pdf")
+		file, err := os.Open("./testdata/test.pdf")
 		suite.NoError(err)
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests/%s/uploads", paymentRequest.ID), nil)
@@ -97,37 +103,6 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 			PaymentRequestID: badFormatID.String(),
 		}
 		response := handler.Handle(params)
-		file.Close()
-		suite.IsType(&uploadop.CreateUploadBadRequest{}, response)
-	})
-
-	suite.T().Run("create upload fail - invalid file format", func(t *testing.T) {
-		paymentRequestUploadCreator := &mocks.PaymentRequestUploadCreator{}
-		paymentRequestUploadCreator.On(
-			"CreateUpload",
-			mock.AnythingOfType("uploader.File"),
-			mock.AnythingOfType("string"),
-			mock.AnythingOfType("string"),
-		).Return(
-			&models.Upload{}, nil).Once()
-
-		handler := CreateUploadHandler{
-			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			paymentRequestUploadCreator,
-		}
-		badFile, err := os.Open("../fixtures/test.pdf") // TODO: make this a failing file
-		suite.NoError(err)
-
-		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests/%s/uploads", paymentRequest.ID), nil)
-		req = suite.AuthenticateUserRequest(req, primeUser)
-
-		params := uploadop.CreateUploadParams{
-			HTTPRequest:      req,
-			File:             badFile,
-			PaymentRequestID: paymentRequest.ID.String(),
-		}
-		response := handler.Handle(params)
-		badFile.Close()
 
 		suite.IsType(&uploadop.CreateUploadBadRequest{}, response)
 	})

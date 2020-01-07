@@ -2,6 +2,12 @@ package paymentrequest
 
 import (
 	"fmt"
+	"io"
+	"os"
+	"path"
+	"time"
+
+	"github.com/spf13/afero"
 
 	"github.com/gobuffalo/validate"
 
@@ -26,15 +32,46 @@ func NewPaymentRequestUploadCreator(db *pop.Connection, logger storage.Logger, f
 	return &paymentRequestUploadCreator{db, logger, fileStorer, uploader.MaxFileSizeLimit}
 }
 
-func (p *paymentRequestUploadCreator) CreateUpload(file uploader.File, paymentRequestID uuid.UUID, userID uuid.UUID) (*models.Upload, error) {
+func (p *paymentRequestUploadCreator) convertFileReadCloserToAfero(file io.ReadCloser, paymentRequestID uuid.UUID) (afero.File, error) {
+	fs := afero.NewMemMapFs()
+
+	file, err := os.Open("placeholderfilename") // TODO: figure out how to open file w/o path
+	if err != nil {
+		return nil, fmt.Errorf("unable to open file: %w", err)
+	}
+
+	filename := paymentRequestID.String() + "datetime-" + time.Now().String()
+	paymentRequestFilePath := "/app/payment-request-uploads/"
+	paymentRequestTmpFileName := path.Join(paymentRequestFilePath, filename)
+	aferoFile, err := fs.Create(paymentRequestTmpFileName)
+	if err != nil {
+		return nil, fmt.Errorf("afero.Create Failed in payment request upload creation: %w", err)
+	}
+	defer aferoFile.Close()
+
+	_, err = io.Copy(aferoFile, file)
+	if err != nil {
+		return nil, fmt.Errorf("Error copying to afero file %w", err)
+	}
+
+	return aferoFile, err
+}
+
+func (p *paymentRequestUploadCreator) CreateUpload(file io.ReadCloser, paymentRequestID uuid.UUID, userID uuid.UUID) (*models.Upload, error) {
 	var upload *models.Upload
 	transactionError := p.db.Transaction(func(tx *pop.Connection) error {
 		newUploader, err := uploader.NewUploader(tx, p.logger, p.fileStorer, p.fileSizeLimit)
 		if err != nil {
 			return fmt.Errorf("cannot create uploader in payment request uploadCreator: %w", err)
 		}
+
+		aferoFile, err := p.convertFileReadCloserToAfero(file, paymentRequestID)
+		if err != nil {
+			return fmt.Errorf("failure to convert payment request upload to afero file: %w", err)
+		}
+
 		var verrs *validate.Errors
-		upload, verrs, err = newUploader.CreateUpload(userID, file, uploader.AllowedTypesPaymentRequest)
+		upload, verrs, err = newUploader.CreateUpload(userID, uploader.File{File: aferoFile}, uploader.AllowedTypesPaymentRequest)
 		if err != nil {
 			return fmt.Errorf("failure creating payment request upload: %w", err)
 		}

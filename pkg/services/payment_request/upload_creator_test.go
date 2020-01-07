@@ -31,7 +31,7 @@ func (suite *PaymentRequestServiceSuite) openLocalFile(path string) (afero.File,
 	if err != nil {
 		suite.logger.Fatal("Error copying to afero file", zap.Error(err))
 	}
-
+	defer file.Close()
 	return outputFile, nil
 }
 
@@ -46,6 +46,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 
 	activeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{}) // temp user-- will need to be connected to prime
 	paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+
 	file, err := suite.openLocalFile("../../uploader/testdata/test.pdf")
 	suite.NoError(err)
 

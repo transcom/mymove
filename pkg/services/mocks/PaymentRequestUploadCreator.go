@@ -3,10 +3,10 @@
 package mocks
 
 import (
+	io "io"
+
 	mock "github.com/stretchr/testify/mock"
 	models "github.com/transcom/mymove/pkg/models"
-
-	uploader "github.com/transcom/mymove/pkg/uploader"
 
 	uuid "github.com/gofrs/uuid"
 )
@@ -17,11 +17,11 @@ type PaymentRequestUploadCreator struct {
 }
 
 // CreateUpload provides a mock function with given fields: file, paymentRequestID, userID
-func (_m *PaymentRequestUploadCreator) CreateUpload(file uploader.File, paymentRequestID uuid.UUID, userID uuid.UUID) (*models.Upload, error) {
+func (_m *PaymentRequestUploadCreator) CreateUpload(file io.ReadCloser, paymentRequestID uuid.UUID, userID uuid.UUID) (*models.Upload, error) {
 	ret := _m.Called(file, paymentRequestID, userID)
 
 	var r0 *models.Upload
-	if rf, ok := ret.Get(0).(func(uploader.File, uuid.UUID, uuid.UUID) *models.Upload); ok {
+	if rf, ok := ret.Get(0).(func(io.ReadCloser, uuid.UUID, uuid.UUID) *models.Upload); ok {
 		r0 = rf(file, paymentRequestID, userID)
 	} else {
 		if ret.Get(0) != nil {
@@ -30,7 +30,7 @@ func (_m *PaymentRequestUploadCreator) CreateUpload(file uploader.File, paymentR
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uploader.File, uuid.UUID, uuid.UUID) error); ok {
+	if rf, ok := ret.Get(1).(func(io.ReadCloser, uuid.UUID, uuid.UUID) error); ok {
 		r1 = rf(file, paymentRequestID, userID)
 	} else {
 		r1 = ret.Error(1)
