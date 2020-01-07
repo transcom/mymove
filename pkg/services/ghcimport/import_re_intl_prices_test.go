@@ -3,6 +3,8 @@ package ghcimport
 import (
 	"testing"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -42,6 +44,41 @@ func (suite *GHCRateEngineImportSuite) Test_importREInternationalPrices() {
 		suite.helperVerifyInternationalPrices()
 		suite.helperCheckInternationalPriceValues()
 	})
+
+	// Doing this here instead of a separate test function so we don't have to reload prerequisite tables
+	suite.T().Run("tests for getRateAreaIDForKind", func(t *testing.T) {
+		testCases := []struct {
+			name        string
+			rateArea    string
+			kind        string
+			shouldError bool
+		}{
+			{"good NSRA", "NSRA2", "NSRA", false},
+			{"good OCONUS", "US8101000", "OCONUS", false},
+			{"good CONUS", "US47", "CONUS", false},
+			{"bad NSRA", "XYZ", "NSRA", true},
+			{"bad OCONUS", "US47", "OCONUS", true},
+			{"bad CONUS", "NSRA13", "CONUS", true},
+			{"bad kind", "NSRA2", "NNNN", true},
+		}
+
+		for _, testCase := range testCases {
+			suite.T().Run(testCase.name, func(t *testing.T) {
+				id, err := gre.getRateAreaIDForKind(testCase.rateArea, testCase.kind)
+				if testCase.shouldError {
+					suite.Error(err)
+					suite.Equal(uuid.Nil, id)
+				} else {
+					suite.NoError(err)
+
+					// Fetch the UUID from the database and see if it matches
+					origin, err := models.FetchReRateAreaItem(suite.DB(), testCase.rateArea)
+					suite.NoError(err)
+					suite.Equal(origin.ID, id)
+				}
+			})
+		}
+	})
 }
 
 func (suite *GHCRateEngineImportSuite) helperVerifyInternationalPrices() {
@@ -57,7 +94,7 @@ func (suite *GHCRateEngineImportSuite) helperCheckInternationalPriceValues() {
 	suite.NoError(err)
 
 	// Spot check one non-peak/peak record of each type
-	servicesToInsert := []struct {
+	testCases := []struct {
 		serviceCode         string
 		originRateArea      string
 		destinationRateArea string
@@ -106,19 +143,17 @@ func (suite *GHCRateEngineImportSuite) helperCheckInternationalPriceValues() {
 		{"NSTUB", "US68", "NSRA13", true, 1993},
 	}
 
-	for _, serviceToInsert := range servicesToInsert {
+	for _, testCase := range testCases {
 		var service models.ReService
-		err = suite.DB().Where("code = ?", serviceToInsert.serviceCode).First(&service)
+		err = suite.DB().Where("code = ?", testCase.serviceCode).First(&service)
 		suite.NoError(err)
 
 		// Get origin rate area UUID.
-		var origin *models.ReRateArea
-		origin, err = models.FetchReRateAreaItem(suite.DB(), serviceToInsert.originRateArea)
+		origin, err := models.FetchReRateAreaItem(suite.DB(), testCase.originRateArea)
 		suite.NoError(err)
 
 		// Get destination rate area UUID.
-		var destination *models.ReRateArea
-		destination, err = models.FetchReRateAreaItem(suite.DB(), serviceToInsert.destinationRateArea)
+		destination, err := models.FetchReRateAreaItem(suite.DB(), testCase.destinationRateArea)
 		suite.NoError(err)
 
 		var intlPrice models.ReIntlPrice
@@ -127,9 +162,9 @@ func (suite *GHCRateEngineImportSuite) helperCheckInternationalPriceValues() {
 			Where("service_id = ?", service.ID).
 			Where("origin_rate_area_id = ?", origin.ID).
 			Where("destination_rate_area_id = ?", destination.ID).
-			Where("is_peak_period = ?", serviceToInsert.isPeakPeriod).
+			Where("is_peak_period = ?", testCase.isPeakPeriod).
 			First(&intlPrice)
 		suite.NoError(err)
-		suite.Equal(unit.Cents(serviceToInsert.expectedPrice), intlPrice.PerUnitCents)
+		suite.Equal(unit.Cents(testCase.expectedPrice), intlPrice.PerUnitCents, "test case: %+v", testCase)
 	}
 }
