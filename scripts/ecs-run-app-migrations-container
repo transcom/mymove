@@ -53,7 +53,7 @@ put_metric() {
 
 # create new task definition with the given image
 echo "* Registering new task definition"
-task_definition_arn=$(ecs-deploy task-def \
+task_definition_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --aws-account-id "${AWS_ACCOUNT_ID}" \
   --aws-region us-west-2 \
   --service "${name}" \

@@ -24,7 +24,7 @@ readonly environment=$3
 
 echo "Deploying ${name}"
 
-task_def_arn=$(bin/ecs-deploy task-def\
+task_def_arn=$("${DIR}/../bin/ecs-deploy" task-def\
   --aws-account-id "${AWS_ACCOUNT_ID}" \
   --aws-region "${AWS_DEFAULT_REGION}" \
   --service app-tasks \
@@ -37,7 +37,7 @@ task_def_arn=$(bin/ecs-deploy task-def\
 readonly task_def_arn
 echo "Registered ${task_def_arn}"
 
-bin/ecs-deploy put-target \
+"${DIR}/../bin/ecs-deploy" put-target \
   --aws-account-id "${AWS_ACCOUNT_ID}" \
   --aws-region "${AWS_DEFAULT_REGION}" \
   --environment "${environment}" \
