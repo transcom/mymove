@@ -80,7 +80,7 @@ green_task_def_arn=$(ecs-deploy task-def \
   --service "${name}" \
   --environment "${environment}" \
   --image "${image}" \
-  --variables-file "config/env/${environment}.app.env" \
+  --variables-file "${DIR}/../config/env/${environment}.${name}.env" \
   --entrypoint "/bin/milmove serve" \
   --cpu "${RESERVATION_CPU}" \
   --memory "${RESERVATION_MEM}" \
