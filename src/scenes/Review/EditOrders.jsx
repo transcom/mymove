@@ -7,6 +7,7 @@ import { push } from 'react-router-redux';
 import { getFormValues, reduxForm, Field } from 'redux-form';
 
 import Alert from 'shared/Alert'; // eslint-disable-line
+import { withContext } from 'shared/AppContext';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
@@ -36,6 +37,7 @@ let EditOrdersForm = props => {
     initialValues,
     existingUploads,
     deleteQueue,
+    progearChanges,
   } = props;
   const visibleUploads = reject(existingUploads, upload => {
     return includes(deleteQueue, upload.id);
@@ -62,7 +64,8 @@ let EditOrdersForm = props => {
             <SwaggerField fieldName="issue_date" swagger={schema} required />
             <SwaggerField fieldName="report_by_date" swagger={schema} required />
             <SwaggerField fieldName="has_dependents" swagger={schema} component={YesNoBoolean} />
-            {get(props, 'formValues.has_dependents', false) && (
+            <br />
+            {!progearChanges && get(props, 'formValues.has_dependents', false) && (
               <Fragment>
                 <SwaggerField
                   fieldName="spouse_has_pro_gear"
@@ -72,7 +75,6 @@ let EditOrdersForm = props => {
                 />
               </Fragment>
             )}
-            <br />
             <Field name="new_duty_station" component={DutyStationSearchBox} />
             <p>Uploads:</p>
             {Boolean(visibleUploads.length) && <UploadsTable uploads={visibleUploads} onDelete={onDelete} />}
@@ -164,6 +166,7 @@ class EditOrders extends Component {
 
   render() {
     const { error, schema, currentOrders, formValues, existingUploads, moveIsApproved } = this.props;
+    const { context: { flags: { progearChanges } } = { flags: { progearChanges: null } } } = this.props;
 
     return (
       <div className="usa-grid">
@@ -193,6 +196,7 @@ class EditOrders extends Component {
               onUpload={this.handleNewUpload}
               onDelete={this.handleDelete}
               formValues={formValues}
+              progearChanges={progearChanges}
             />
           </div>
         )}
@@ -232,4 +236,4 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(EditOrders);
+export default withContext(connect(mapStateToProps, mapDispatchToProps)(EditOrders));
