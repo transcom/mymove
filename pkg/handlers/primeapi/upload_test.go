@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/strfmt"
+
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -18,7 +20,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateUploadHandler() {
-	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	primeUser := testdatagen.MakeDefaultUser(suite.DB())
 	uploadID, _ := uuid.FromString("e2e79f36-de9e-4a52-9566-47fa3834b359")
 
 	paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
@@ -28,7 +30,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 			ID:          uploadID,
 			DocumentID:  nil,
 			Document:    models.Document{},
-			UploaderID:  requestUser.ID,
+			UploaderID:  primeUser.ID,
 			Filename:    "test.pdf",
 			Bytes:       42330,
 			ContentType: "application/json",
@@ -49,7 +51,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 			&upload, nil).Once()
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests/%s/uploads", paymentRequest.ID), nil)
-		req = suite.AuthenticateUserRequest(req, requestUser)
+		req = suite.AuthenticateUserRequest(req, primeUser)
 
 		handler := CreateUploadHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -67,5 +69,66 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 		file.Close()
 
 		suite.IsType(&uploadop.CreateUpload{}, response)
+	})
+
+	suite.T().Run("create upload fail - invalid payment request ID format", func(t *testing.T) {
+		badFormatID := strfmt.UUID("gb7b134a-7c44-45f2-9114-bb0831cc5db3")
+		paymentRequestUploadCreator := &mocks.PaymentRequestUploadCreator{}
+		paymentRequestUploadCreator.On(
+			"CreateUpload",
+			mock.AnythingOfType("uploader.File"),
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("string"),
+		).Return(
+			&models.Upload{}, nil).Once()
+
+		handler := CreateUploadHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			paymentRequestUploadCreator,
+		}
+		file, err := os.Open("../fixtures/test.pdf")
+		suite.NoError(err)
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests/%s/uploads", paymentRequest.ID), nil)
+		req = suite.AuthenticateUserRequest(req, primeUser)
+		params := uploadop.CreateUploadParams{
+			HTTPRequest:      req,
+			File:             file,
+			PaymentRequestID: badFormatID.String(),
+		}
+		response := handler.Handle(params)
+		file.Close()
+		suite.IsType(&uploadop.CreateUploadBadRequest{}, response)
+	})
+
+	suite.T().Run("create upload fail - invalid file format", func(t *testing.T) {
+		paymentRequestUploadCreator := &mocks.PaymentRequestUploadCreator{}
+		paymentRequestUploadCreator.On(
+			"CreateUpload",
+			mock.AnythingOfType("uploader.File"),
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("string"),
+		).Return(
+			&models.Upload{}, nil).Once()
+
+		handler := CreateUploadHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			paymentRequestUploadCreator,
+		}
+		badFile, err := os.Open("../fixtures/test.pdf") // TODO: make this a failing file
+		suite.NoError(err)
+
+		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests/%s/uploads", paymentRequest.ID), nil)
+		req = suite.AuthenticateUserRequest(req, primeUser)
+
+		params := uploadop.CreateUploadParams{
+			HTTPRequest:      req,
+			File:             badFile,
+			PaymentRequestID: paymentRequest.ID.String(),
+		}
+		response := handler.Handle(params)
+		badFile.Close()
+
+		suite.IsType(&uploadop.CreateUploadBadRequest{}, response)
 	})
 }

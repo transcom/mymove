@@ -19,7 +19,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func payloadForPaymentRequestUploadModel(u models.Upload) *primemessages.Upload {
@@ -54,16 +53,12 @@ func (h *CreateUploadHandler) convertFileReadCloserToAfero(file io.ReadCloser, l
 }
 
 func (h *CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	userID := session.UserID // TODO: restrict to prime user when prime auth is implemented
 	paymentRequestID, err := uuid.FromString(params.PaymentRequestID)
 	if err != nil {
 		logger.Error("error creating uuid from string", zap.Error(err))
 	}
-	stubbedUser := testdatagen.MakeOfficeUser(h.DB(), testdatagen.Assertions{
-		User: models.User{
-			LoginGovEmail: "fakeuploaduser@example.com",
-		},
-	})
 
 	aferoFile, err := h.convertFileReadCloserToAfero(params.File, logger)
 	if err != nil {
@@ -74,7 +69,7 @@ func (h *CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlew
 		File: aferoFile,
 	}
 	uploadCreator := paymentrequest.NewPaymentRequestUploadCreator(h.DB(), logger, h.FileStorer())
-	createdUpload, err := uploadCreator.CreateUpload(file, paymentRequestID, stubbedUser.ID)
+	createdUpload, err := uploadCreator.CreateUpload(file, paymentRequestID, userID)
 	if err != nil {
 		logger.Error("cannot create payment request upload", zap.Error(err))
 		return uploadop.NewCreateUploadBadRequest()
