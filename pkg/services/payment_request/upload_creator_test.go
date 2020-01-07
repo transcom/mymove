@@ -65,7 +65,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 	})
 }
 
-func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
+ffunc (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 	storer := &mocks.FileStorer{}
 	storer.On("Store",
 		mock.AnythingOfType("string"),
@@ -73,25 +73,24 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("*string"),
 	).Return(&storage.StoreResult{}, nil).Once()
-
-	//activeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{}) // temp user-- will need to be connected to prime
-	//paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
-	//file, err := suite.openLocalFile("../../uploader/testdata/test.pdf")
-	//suite.NoError(err)
-	//
-	//uploaderFile := uploader.File{
-	//	File: file,
-	//}
-
+	activeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{}) // temp user-- will need to be connected to prime
+	testdatagen.MakeDefaultPaymentRequest(suite.DB())
+	file, err := suite.openLocalFile("../../uploader/testdata/test.pdf")
+	suite.NoError(err)
+	uploaderFile := uploader.File{
+		File: file,
+	}
 	suite.T().Run("invalid payment request ID", func(t *testing.T) {
-
+		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, storer)
+		_, err := uploadCreator.CreateUpload(uploaderFile, uuid.FromStringOrNil("96b77644-4028-48c2-9ab8-754f33309db9"), *activeUser.UserID)
+		suite.Error(err)
 	})
-
 	suite.T().Run("invalid user ID", func(t *testing.T) {
-
+		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, storer)
+		_, err := uploadCreator.CreateUpload(uploaderFile, paymentRequest.ID, uuid.FromStringOrNil("806e2f96-f9f9-4cbb-9a3d-d2f488539a1f"))
+		suite.Error(err)
 	})
-
 	suite.T().Run("", func(t *testing.T) {
-
 	})
 }
