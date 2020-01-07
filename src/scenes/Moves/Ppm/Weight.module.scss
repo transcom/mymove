@@ -26,7 +26,6 @@ div.progear-slider-container {
   margin-top: 1em;
 }
 :global {
-
   label.inline_radio {
     padding-bottom: 1em;
   }
@@ -91,4 +90,8 @@ table.numeric-info th {
   th {
     font-weight: bold;
   }
+}
+
+:global .rangeslider-horizontal .rangeslider__fill {
+  background-color: #005ea2;
 }
