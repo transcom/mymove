@@ -213,7 +213,7 @@ Run `make prereqs` and install everything it tells you to. Most of the prerequis
 
 ### Setup: Direnv
 
-For managing local environment variables, we're using [direnv](https://direnv.net/). You need to [configure your shell to use it](https://direnv.net/). For bash, add the command `eval "$(direnv hook bash)"` to whichever file loads upon opening bash (likely `~/.bash_profile`, though instructions say `~/.bashrc`).
+For managing local environment variables, we're using [direnv](https://direnv.net/). You need to [configure your shell to use it](https://direnv.net/). For bash, add the command `eval "$(direnv hook bash)"` to whichever file loads upon opening bash (likely `~/.bash_profile`, though instructions say `~/.bashrc`). For zsh, add `eval "$(direnv hook zsh)"` to `~/.zshrc`.
 
 Run `direnv allow` to load up the `.envrc` file. It should complain that you have missing variables which you will rectify in one of the following ways.
 
