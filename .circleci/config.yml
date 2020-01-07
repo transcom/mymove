@@ -342,11 +342,13 @@ jobs:
             source $BASH_ENV
             make webserver_test
           environment:
+            CHAMBER_RETRIES: 20
+            DB_REGION: us-west-2
+            DB_RETRY_INTERVAL: 5s
             DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
             DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
             ENV: test
             ENVIRONMENT: test
-            LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
             NO_TLS_ENABLED: true
             PWD: /home/circleci/transcom/mymove
       - announce_failure
@@ -559,6 +561,7 @@ jobs:
           environment:
             CHAMBER_RETRIES: 20
             DB_REGION: us-west-2
+            DB_RETRY_INTERVAL: 5s
             DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
             DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
             ENV: test
@@ -625,6 +628,8 @@ jobs:
           command: make webserver_test
           environment:
             CHAMBER_RETRIES: 20
+            DB_REGION: us-west-2
+            DB_RETRY_INTERVAL: 5s
             DEVLOCAL_CA: /home/circleci/transcom/mymove/config/tls/devlocal-ca.pem
             DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
             ENV: test

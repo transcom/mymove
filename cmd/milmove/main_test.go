@@ -116,10 +116,15 @@ func (suite *webServerSuite) loadContext(variablesFile string) map[string]string
 	return ctx
 }
 
+// patchContext updates specific variables based on value
 func (suite *webServerSuite) patchContext(ctx map[string]string) map[string]string {
 	for k, v := range ctx {
 		if strings.HasPrefix(v, "/bin/") {
 			ctx[k] = filepath.Join(os.Getenv("TEST_ACC_CWD"), v[1:])
+		}
+		// Overwrite the migration path to something on the local system
+		if k == "MIGRATION_PATH" {
+			ctx[k] = "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
 		}
 	}
 	return ctx
