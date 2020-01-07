@@ -349,6 +349,8 @@ jobs:
             DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
             ENV: test
             ENVIRONMENT: test
+            MIGRATION_MANIFEST: /migrate/migrations_manifest.txt
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations'
             NO_TLS_ENABLED: true
             PWD: /home/circleci/transcom/mymove
       - announce_failure
