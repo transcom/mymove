@@ -3,9 +3,7 @@ package paymentrequest
 import (
 	"fmt"
 	"io"
-	"os"
 	"path"
-	"time"
 
 	"github.com/spf13/afero"
 
@@ -35,19 +33,14 @@ func NewPaymentRequestUploadCreator(db *pop.Connection, logger storage.Logger, f
 func (p *paymentRequestUploadCreator) convertFileReadCloserToAfero(file io.ReadCloser, paymentRequestID uuid.UUID) (afero.File, error) {
 	fs := afero.NewMemMapFs()
 
-	file, err := os.Open("placeholderfilename") // TODO: figure out how to open file w/o path
-	if err != nil {
-		return nil, fmt.Errorf("unable to open file: %w", err)
-	}
-
-	filename := paymentRequestID.String() + "datetime-" + time.Now().String()
-	paymentRequestFilePath := "/app/payment-request-uploads/"
+	filename := "tempfile" //TODO: figure out a unique, meaningful file name
+	paymentRequestFilePath := "/app/payment-request-uploads/mto-"
 	paymentRequestTmpFileName := path.Join(paymentRequestFilePath, filename)
+
 	aferoFile, err := fs.Create(paymentRequestTmpFileName)
 	if err != nil {
 		return nil, fmt.Errorf("afero.Create Failed in payment request upload creation: %w", err)
 	}
-	defer aferoFile.Close()
 
 	_, err = io.Copy(aferoFile, file)
 	if err != nil {
@@ -78,6 +71,8 @@ func (p *paymentRequestUploadCreator) CreateUpload(file io.ReadCloser, paymentRe
 		if verrs.HasAny() {
 			return fmt.Errorf("validation error creating payment request upload: %w", verrs)
 		}
+
+		aferoFile.Close()
 
 		var paymentRequest models.PaymentRequest
 		err = tx.Find(&paymentRequest, paymentRequestID)
