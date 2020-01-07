@@ -25,7 +25,7 @@ class PaymentRequestIndex extends React.Component {
           </thead>
           <tbody>
             {this.props.paymentRequests.map(pr => (
-              <tr>
+              <tr key={pr.id}>
                 <td>
                   <Link to={`/payment_requests/${pr.id}`}>{pr.id}</Link>
                 </td>
