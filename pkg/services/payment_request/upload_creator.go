@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"path"
+	"time"
 
 	"github.com/spf13/afero"
 
@@ -31,13 +32,14 @@ func NewPaymentRequestUploadCreator(db *pop.Connection, logger storage.Logger, f
 }
 
 func (p *paymentRequestUploadCreator) convertFileReadCloserToAfero(file io.ReadCloser, paymentRequestID uuid.UUID) (afero.File, error) {
+
 	fs := afero.NewMemMapFs()
 
-	filename := "tempfile" //TODO: figure out a unique, meaningful file name
-	paymentRequestFilePath := "/app/payment-request-uploads/mto-"
-	paymentRequestTmpFileName := path.Join(paymentRequestFilePath, filename)
-
-	aferoFile, err := fs.Create(paymentRequestTmpFileName)
+	fileName, err := p.assembleUploadFilePathName(paymentRequestID)
+	if err != nil {
+		return nil, fmt.Errorf("could not assemble upload filepath name %w", err)
+	}
+	aferoFile, err := fs.Create(fileName)
 	if err != nil {
 		return nil, fmt.Errorf("afero.Create Failed in payment request upload creation: %w", err)
 	}
@@ -48,6 +50,18 @@ func (p *paymentRequestUploadCreator) convertFileReadCloserToAfero(file io.ReadC
 	}
 
 	return aferoFile, err
+}
+
+func (p *paymentRequestUploadCreator) assembleUploadFilePathName(paymentRequestID uuid.UUID) (string, error) {
+	paymentRequest, err := models.FetchPaymentRequestByID(p.db, paymentRequestID)
+	if err != nil {
+		return "", err
+	}
+	filename := "timestamp-" + time.Now().String()
+	uploadFilePath := fmt.Sprintf("/app/payment-request-uploads/mto-%s/payment-request-%s", paymentRequest.MoveTaskOrderID, paymentRequestID)
+	uploadFileName := path.Join(uploadFilePath, filename)
+
+	return uploadFileName, err
 }
 
 func (p *paymentRequestUploadCreator) CreateUpload(file io.ReadCloser, paymentRequestID uuid.UUID, userID uuid.UUID) (*models.Upload, error) {
