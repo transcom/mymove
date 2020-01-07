@@ -450,6 +450,10 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 	commandName := entryPointList[0]
 	subCommandName := entryPointList[1]
 
+	// Register the new task definition
+	executionRoleArn := fmt.Sprintf("ecs-task-execution-role-%s-%s", serviceName, environmentName)
+	taskRoleArn := fmt.Sprintf("ecs-task-role-%s-%s", serviceName, environmentName)
+
 	// handle entrypoint specific logic
 	var awsLogsStreamPrefix string
 	var awsLogsGroup string
@@ -471,6 +475,13 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 		awsLogsStreamPrefix = serviceName
 		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceNameShort, environmentName)
 		containerDefName = fmt.Sprintf("%s-%s", serviceName, environmentName)
+
+		// TODO: The execution role needs to be split from the app
+		// This needs to be fixed in terraform
+		executionRoleArn = fmt.Sprintf("ecs-task-execution-role-%s-%s", serviceNameShort, environmentName)
+		// TODO: The task role is missing an (s) so we can't use service name
+		// This needs to be fixed in terraform
+		taskRoleArn = fmt.Sprintf("ecs-task-role-app-migration-%s", environmentName)
 	} else {
 		awsLogsStreamPrefix = serviceNameShort
 		awsLogsGroup = fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
@@ -486,10 +497,6 @@ func taskDefFunction(cmd *cobra.Command, args []string) error {
 			},
 		}
 	}
-
-	// Register the new task definition
-	executionRoleArn := fmt.Sprintf("ecs-task-execution-role-%s-%s", serviceName, environmentName)
-	taskRoleArn := fmt.Sprintf("ecs-task-role-%s-%s", serviceName, environmentName)
 
 	// Get the database host using the instance identifier
 	dbInstanceIdentifier := fmt.Sprintf("%s-%s", serviceNameShort, environmentName)

@@ -4,11 +4,14 @@
 #
 set -eo pipefail
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly DIR
+
 usage() {
     echo "$0 <image> <environment>"
     exit 1
 }
-[[ -z $1 || -z $2 || -z $3 ]] && usage
+[[ -z $1 || -z $2 ]] && usage
 
 set -u
 
@@ -56,14 +59,11 @@ task_definition_arn=$(ecs-deploy task-def \
   --service "${name}" \
   --environment "${environment}" \
   --image "${image}" \
-  --variables-file "config/env/${environment}.migrations.env" \
+  --variables-file "${DIR}/../config/env/${environment}.migrations.env" \
   --entrypoint "/bin/milmove migrate" \
   --cpu "${RESERVATION_CPU}" \
   --memory "${RESERVATION_MEM}" \
-  --register \
-  --dry-run)
-# TODO: This is broken until tested
-exit 1
+  --register)
 
 readonly task_definition_arn
 check_arn "$task_definition_arn"
@@ -72,7 +72,7 @@ echo "Obtaining the current network configuration"
 network_configuration=$(aws ecs describe-services --services app --cluster "$cluster" --query 'services[0].networkConfiguration')
 readonly network_configuration
 
-echo "Running task definition $task_definition_arn ..."
+echo "Running migration with task definition $task_definition_arn ..."
 task_arn=$(aws ecs run-task --launch-type FARGATE --network-configuration "$network_configuration" --task-definition "$task_definition_arn" --cluster "$cluster" --query 'tasks[].taskArn' --output text)
 readonly task_arn
 check_arn "$task_arn"
