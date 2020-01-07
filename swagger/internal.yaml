@@ -537,6 +537,10 @@ definitions:
           - 'YES'
           - 'NO'
         x-nullable: true
+        x-display-value:
+          NOT SURE: Not Sure
+          'YES': Yes
+          'NO': No
       has_pro_gear_over_thousand:
         type: string
         title: Has Pro-Gear Over Thousand Pounds
@@ -545,6 +549,10 @@ definitions:
           - 'YES'
           - 'NO'
         x-nullable: true
+        x-display-value:
+          NOT SURE: Not Sure
+          'YES': Yes
+          'NO': No
       created_at:
         type: string
         format: date-time
