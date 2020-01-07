@@ -275,11 +275,6 @@ bin/query-lb-logs:
 bin/read-alb-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/read-alb-logs ./cmd/read-alb-logs
 
-bin/renderer:
-	# do not build with LDFLAGS since errors on alpine and dynamic linking is fine
-	# throws errors loadinternal: cannot find runtime/cgo
-	go build -o bin/renderer ./cmd/renderer
-
 bin/report-ecs:
 	go build -ldflags "$(LDFLAGS)" -o bin/report-ecs ./cmd/report-ecs
 
@@ -363,7 +358,6 @@ build_tools: bin/gin \
 	bin/query-cloudwatch-logs \
 	bin/query-lb-logs \
 	bin/read-alb-logs \
-	bin/renderer \
 	bin/report-ecs \
 	bin/send-to-gex ## Build all tools
 

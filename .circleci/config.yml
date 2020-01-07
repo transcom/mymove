@@ -463,7 +463,6 @@ jobs:
       - persist_to_workspace:
           root: bin
           paths:
-            - renderer # for rendering ECS task definition
             - health-checker # for confirming deploy success.
             - ecs-service-logs # for showing logs on failed deploy
             - ecs-deploy # for registering task defs and deploying task container

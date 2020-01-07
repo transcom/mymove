@@ -97,6 +97,9 @@ func (suite *webServerSuite) TestCheckServeConfigMigrate() {
 func (suite *webServerSuite) loadContext(variablesFile string) map[string]string {
 	ctx := map[string]string{}
 	if len(variablesFile) > 0 {
+		if _, variablesFileStatErr := os.Stat(variablesFile); os.IsNotExist(variablesFileStatErr) {
+			suite.logger.Fatal(fmt.Sprintf("File %q does not exist", variablesFile))
+		}
 		// Read contents of variables file into vars
 		vars, err := ioutil.ReadFile(variablesFile)
 		if err != nil {
