@@ -298,10 +298,6 @@ pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
 # ----- START SERVER TARGETS -----
 #
 
-.PHONY: go_deps_update
-go_deps_update: .check_gopath.stamp server_generate mocks_generate ## Update golang dependencies
-	go run cmd/update_deps/main.go
-
 .PHONY: server_generate
 server_generate: .check_go_version.stamp .check_gopath.stamp pkg/gen/ ## Generate golang server code from Swagger files
 pkg/gen/: pkg/assets/assets.go bin/swagger $(shell find swagger -type f -name *.yaml)
@@ -822,23 +818,6 @@ run_experimental_migrations: bin/milmove db_deployed_migrations_reset ## Run Exp
 
 #
 # ----- END PROD_MIGRATION TARGETS -----
-#
-
-#
-# ----- START DEPENDENCY UPDATE TARGETS -----
-#
-
-.PHONY: dependency_update
-dependency_update: go_deps_update client_deps_update ## Update golang and client dependencies
-	git --no-pager status
-	git --no-pager diff --ignore-all-space --color
-
-.PHONY: dependency_update_test
-dependency_update_test: ## Test dependency updater
-	docker build . -f Dockerfile.dep_updater
-
-#
-# ----- END DEPENDENCY UPDATE TARGETS -----
 #
 
 #
