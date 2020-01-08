@@ -1,8 +1,11 @@
 package paymentrequest
 
 import (
+	"fmt"
 	"os"
 	"testing"
+
+	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/gofrs/uuid"
 
@@ -23,17 +26,34 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 	).Return(&storage.StoreResult{}, nil).Once()
 
 	activeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{}) // temp user-- will need to be connected to prime
-	paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+	paymentRequestID, err := uuid.FromString("9b873071-149f-43c2-8971-e93348ebc5e3")
+	suite.NoError(err)
 
-	testFile, err := os.Open("../../uploader/testdata/test.pdf")
+	moveTaskOrderID, err := uuid.FromString("cc4523e2-e418-48cc-804e-57a507fff093")
+	suite.NoError(err)
+
+	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{ID: moveTaskOrderID},
+	})
+
+	paymentRequest := testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: moveTaskOrder,
+		PaymentRequest: models.PaymentRequest{
+			ID:            paymentRequestID,
+			MoveTaskOrder: moveTaskOrder,
+		},
+	})
+
+	testFile, err := os.Open("./testdata/test.pdf")
 	suite.NoError(err)
 
 	suite.T().Run("Upload is created successfully", func(t *testing.T) {
 		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, storer)
 		upload, err := uploadCreator.CreateUpload(testFile, paymentRequest.ID, *activeUser.UserID)
 
+		expectedFilename := fmt.Sprintf("/app/payment-request-uploads/mto-%s/payment-request-%s", moveTaskOrderID, paymentRequestID)
 		suite.NoError(err)
-		suite.Equal("/app/payment-request-uploads/tempfile", upload.Filename)
+		suite.Contains(upload.Filename, expectedFilename)
 		suite.Equal(int64(10596), upload.Bytes)
 		suite.Equal("application/pdf", upload.ContentType)
 	})
@@ -52,7 +72,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 	activeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{}) // temp user-- will need to be connected to prime
 	testdatagen.MakeDefaultPaymentRequest(suite.DB())
 
-	testFile, err := os.Open("../../uploader/testdata/test.pdf")
+	testFile, err := os.Open("./testdata/test.pdf")
 	suite.NoError(err)
 
 	suite.T().Run("invalid payment request ID", func(t *testing.T) {

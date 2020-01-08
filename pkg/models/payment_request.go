@@ -63,10 +63,11 @@ func (p *PaymentRequest) Validate(tx *pop.Connection) (*validate.Errors, error) 
 	), nil
 }
 
-func FetchPaymentRequestByID(db *pop.Connection, paymentRequestID uuid.UUID) (paymentRequest *PaymentRequest, err error) {
-	err = db.Where("id=$1", paymentRequestID).First(paymentRequest)
+func FetchPaymentRequestByID(db *pop.Connection, paymentRequestID uuid.UUID) (*PaymentRequest, error) {
+	var paymentRequest PaymentRequest
+	err := db.Where("id=$1", paymentRequestID).First(&paymentRequest)
 	if err != nil {
 		return nil, fmt.Errorf("cannot fetch payment request: %w", err)
 	}
-	return paymentRequest, nil
+	return &paymentRequest, nil
 }
