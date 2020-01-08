@@ -37,6 +37,8 @@ const (
 	EnvFlag string = "ENV"
 	// AlbTable holds string value for athena table name
 	AlbTable string = "alb_logs"
+	// AddPartitions holds string value that indicates if partitions need to be added
+	AddPartitions string = "add-partitions"
 
 	// AthenaWorkGroup holds the string value for work group to use for running queries
 	AthenaWorkGroup string = "log-query"
@@ -44,12 +46,13 @@ const (
 
 // initialize flags
 func initFlags(flag *pflag.FlagSet) {
+	flag.BoolP(AddPartitions, "p", false, "Add partitions by month and year")
 	flag.String(AWSProfileFlag, "", "The aws-vault profile")
 	flag.String(AWSRegionFlag, "us-west-2", "The default aws region")
-	flag.BoolP(VerboseFlag, "v", false, "Show extra output for debugging")
+	flag.String(EnvFlag, "experimental", "Environment against which query would be executed. (staging, experimental, prod)")
 	flag.IntP(LimitFlag, "n", int(10), "Limit number of query results")
 	flag.IntP(StatusCodeFlag, "s", int(0), "Filter by an exact status code. Defaults to '> 499'")
-	flag.String(EnvFlag, "experimental", "Environment against which query would be executed. (staging, experimental, prod)")
+	flag.BoolP(VerboseFlag, "v", false, "Show extra output for debugging")
 	flag.SortFlags = false
 }
 
@@ -220,9 +223,9 @@ func CheckEnv(serviceAthena *athena.Athena, logger, infoLogger *log.Logger, v *v
 		var ip athena.GetQueryResultsInput
 		ip.SetQueryExecutionId(*result.QueryExecutionId)
 
-		op, err := serviceAthena.GetQueryResults(&ip)
-		if err != nil {
-			logger.Fatalf("Get Query results failed with error: %v", err)
+		op, getResultsErr := serviceAthena.GetQueryResults(&ip)
+		if getResultsErr != nil {
+			logger.Fatalf("Get Query results failed with error: %v", getResultsErr)
 			return
 		}
 
@@ -244,7 +247,7 @@ func CheckEnv(serviceAthena *athena.Athena, logger, infoLogger *log.Logger, v *v
 
 	if !isTableFound {
 		logger.Println("Table not found, creating table....")
-		err := createLogTable(serviceAthena, logger, infoLogger, dbName, logBucket)
+		err = createLogTable(serviceAthena, logger, infoLogger, dbName, logBucket)
 		if err != nil {
 			logger.Fatalf("Failed to create table: %v", err)
 		}
@@ -253,6 +256,13 @@ func CheckEnv(serviceAthena *athena.Athena, logger, infoLogger *log.Logger, v *v
 		if err != nil {
 			logger.Fatalf("Failed to create partitions: %v", err)
 		}
+	} else if v.GetBool(AddPartitions) { // If add partitions flag is set to true then try adding partitions
+		logger.Println("creating monthly partitions....")
+		err = createPartitions(serviceAthena, logger, infoLogger, dbName, logBucket)
+		if err != nil {
+			logger.Fatalf("Failed to create partitions: %v", err)
+		}
+		os.Exit(0)
 	}
 }
 
