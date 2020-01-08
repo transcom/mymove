@@ -20,6 +20,16 @@ import (
 func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models.PersonallyProcuredMove) (*internalmessages.PersonallyProcuredMovePayload, error) {
 
 	documentPayload, err := payloadForDocumentModel(storer, personallyProcuredMove.AdvanceWorksheet)
+	var hasProGear *string
+	if personallyProcuredMove.HasProGear != nil {
+		hpg := string(*personallyProcuredMove.HasProGear)
+		hasProGear = &hpg
+	}
+	var hasProGearOverThousand *string
+	if personallyProcuredMove.HasProGearOverThousand != nil {
+		hpgot := string(*personallyProcuredMove.HasProGearOverThousand)
+		hasProGearOverThousand = &hpgot
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -48,6 +58,8 @@ func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models
 		AdvanceWorksheet:              documentPayload,
 		Mileage:                       personallyProcuredMove.Mileage,
 		TotalSitCost:                  handlers.FmtCost(personallyProcuredMove.TotalSITCost),
+		HasProGear:                    hasProGear,
+		HasProGearOverThousand:        hasProGearOverThousand,
 	}
 	if personallyProcuredMove.IncentiveEstimateMin != nil {
 		min := (*personallyProcuredMove.IncentiveEstimateMin).Int64()
@@ -64,6 +76,14 @@ func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models
 	if personallyProcuredMove.SITMax != nil {
 		max := (*personallyProcuredMove.SITMax).Int64()
 		ppmPayload.SitMax = &max
+	}
+	if personallyProcuredMove.HasProGear != nil {
+		hasProGear := string(*personallyProcuredMove.HasProGear)
+		ppmPayload.HasProGear = &hasProGear
+	}
+	if personallyProcuredMove.HasProGearOverThousand != nil {
+		hasProGearOverThousand := string(*personallyProcuredMove.HasProGearOverThousand)
+		ppmPayload.HasProGearOverThousand = &hasProGearOverThousand
 	}
 	return &ppmPayload, nil
 }
@@ -217,6 +237,14 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 				ppm.Advance = &advance
 			}
 		}
+	}
+	if payload.HasProGear != nil {
+		hasProGear := models.ProGearStatus(*payload.HasProGear)
+		ppm.HasProGear = &hasProGear
+	}
+	if payload.HasProGearOverThousand != nil {
+		hasProGearOverThousand := models.ProGearStatus(*payload.HasProGearOverThousand)
+		ppm.HasProGearOverThousand = &hasProGearOverThousand
 	}
 }
 

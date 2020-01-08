@@ -5,42 +5,9 @@ import (
 
 	"github.com/gobuffalo/pop"
 
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
-
-func appendDomesticServiceAreaPrice(
-	domPricingModels models.ReDomesticServiceAreaPrices,
-	db *pop.Connection,
-	code string,
-	contractID uuid.UUID,
-	isPeakPeriod bool,
-	serviceAreaID uuid.UUID,
-	price string,
-) (models.ReDomesticServiceAreaPrices, error) {
-	var service models.ReService
-	err := db.Where("code = ?", code).First(&service)
-	if err != nil {
-		return domPricingModels, fmt.Errorf("failed importing re_service from StageDomesticServiceAreaPrice with code %s: %w", code, err)
-	}
-
-	cents, convErr := priceToCents(price)
-	if convErr != nil {
-		return domPricingModels, fmt.Errorf("failed to parse price for service code %s: %+v error: %w", code, price, convErr)
-	}
-
-	domPricingModel := models.ReDomesticServiceAreaPrice{
-		ContractID:            contractID,
-		ServiceID:             service.ID,
-		IsPeakPeriod:          isPeakPeriod,
-		DomesticServiceAreaID: serviceAreaID,
-		PriceCents:            unit.Cents(cents),
-	}
-
-	return append(domPricingModels, domPricingModel), nil
-}
 
 func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Connection) error {
 	var stageDomPricingModels []models.StageDomesticServiceAreaPrice
@@ -50,8 +17,6 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Conn
 	}
 
 	for _, stageDomPricingModel := range stageDomPricingModels {
-		var domPricingModels models.ReDomesticServiceAreaPrices
-
 		isPeakPeriod, ippErr := isPeakPeriod(stageDomPricingModel.Season)
 		if ippErr != nil {
 			return ippErr
@@ -67,56 +32,47 @@ func (gre *GHCRateEngineImporter) importREDomesticServiceAreaPrices(db *pop.Conn
 			return fmt.Errorf("could not find service area [%s] in map", serviceAreaNumber)
 		}
 
-		//DSH - ShorthaulPrice
-		var err error
-		domPricingModels, err = appendDomesticServiceAreaPrice(domPricingModels, db, "DSH", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.ShorthaulPrice)
-		if err != nil {
-			return err
+		servicesToInsert := []struct {
+			service string
+			price   string
+		}{
+			{"DSH", stageDomPricingModel.ShorthaulPrice},
+			{"DOP", stageDomPricingModel.OriginDestinationPrice},
+			{"DDP", stageDomPricingModel.OriginDestinationPrice},
+			{"DOFSIT", stageDomPricingModel.OriginDestinationSITFirstDayWarehouse},
+			{"DDFSIT", stageDomPricingModel.OriginDestinationSITFirstDayWarehouse},
+			{"DOASIT", stageDomPricingModel.OriginDestinationSITAddlDays},
+			{"DDASIT", stageDomPricingModel.OriginDestinationSITAddlDays},
 		}
 
-		//DOP - OriginPrice
-		domPricingModels, err = appendDomesticServiceAreaPrice(domPricingModels, db, "DOP", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.OriginDestinationPrice)
-		if err != nil {
-			return err
-		}
+		for _, serviceToInsert := range servicesToInsert {
+			service := serviceToInsert.service
+			price := serviceToInsert.price
 
-		//DDP - DestinationPrice
-		domPricingModels, err = appendDomesticServiceAreaPrice(domPricingModels, db, "DDP", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.OriginDestinationPrice)
-		if err != nil {
-			return err
-		}
+			serviceID, found := gre.serviceToIDMap[service]
+			if !found {
+				return fmt.Errorf("missing service [%s] in map of services", service)
+			}
 
-		//DOFSIT - OriginSITFirstDayWarehouse
-		domPricingModels, err = appendDomesticServiceAreaPrice(domPricingModels, db, "DOFSIT", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.OriginDestinationSITFirstDayWarehouse)
-		if err != nil {
-			return err
-		}
+			cents, convErr := priceToCents(price)
+			if convErr != nil {
+				return fmt.Errorf("failed to parse price for service code %s: %+v error: %w", service, price, convErr)
+			}
 
-		//DDFSIT - DestinationSITFirstDayWarehouse
-		domPricingModels, err = appendDomesticServiceAreaPrice(domPricingModels, db, "DDFSIT", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.OriginDestinationSITFirstDayWarehouse)
-		if err != nil {
-			return err
-		}
+			domPricingModel := models.ReDomesticServiceAreaPrice{
+				ContractID:            gre.contractID,
+				ServiceID:             serviceID,
+				IsPeakPeriod:          isPeakPeriod,
+				DomesticServiceAreaID: serviceAreaID,
+				PriceCents:            unit.Cents(cents),
+			}
 
-		//DOASIT - OriginSITAddlDays
-		domPricingModels, err = appendDomesticServiceAreaPrice(domPricingModels, db, "DOASIT", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.OriginDestinationSITAddlDays)
-		if err != nil {
-			return err
-		}
-
-		//DDASIT - DestinationSITAddlDays
-		domPricingModels, err = appendDomesticServiceAreaPrice(domPricingModels, db, "DDASIT", gre.contractID, isPeakPeriod, serviceAreaID, stageDomPricingModel.OriginDestinationSITAddlDays)
-		if err != nil {
-			return err
-		}
-
-		for _, model := range domPricingModels {
-			verrs, err := db.ValidateAndSave(&model)
+			verrs, err := db.ValidateAndSave(&domPricingModel)
 			if verrs.HasAny() {
-				return fmt.Errorf("error saving ReDomesticServiceAreaPrices: %+v with validation errors: %w", model, verrs)
+				return fmt.Errorf("error saving ReDomesticServiceAreaPrices: %+v with validation errors: %w", domPricingModel, verrs)
 			}
 			if err != nil {
-				return fmt.Errorf("error saving ReDomesticServiceAreaPrices: %+v with error: %w", model, err)
+				return fmt.Errorf("error saving ReDomesticServiceAreaPrices: %+v with error: %w", domPricingModel, err)
 			}
 		}
 	}

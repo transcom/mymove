@@ -429,7 +429,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("687e3ee4-62ff-44b3-a5cb-73338c9fdf95"),
-			Locator: "EXCLDE",
+			Locator: "PMTRVW",
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			ID:               uuid.FromStringOrNil("38c4fc15-062f-4325-bceb-13ea167001da"),
@@ -453,7 +453,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			MoveID:                   ppmExcludedCalculations.Move.ID,
 			Move:                     ppmExcludedCalculations.Move,
 			MoveDocumentType:         models.MoveDocumentTypeEXPENSE,
-			Status:                   models.MoveDocumentStatusOK,
+			Status:                   models.MoveDocumentStatusAWAITINGREVIEW,
 			PersonallyProcuredMoveID: &assertions.PersonallyProcuredMove.ID,
 			Title:                    "Expense Document",
 			ID:                       uuid.FromStringOrNil("02021626-20ee-4c65-9194-87e6455f385e"),
@@ -996,7 +996,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 
 	/* A user with Roles */
 	smRole := roles.Role{}
-	err := db.Where("role_type = $1", roles.Customer).First(&smRole)
+	err := db.Where("role_type = $1", roles.RoleTypeCustomer).First(&smRole)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -1013,7 +1013,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 
 	/* A user with too role */
 	tooRole := roles.Role{}
-	err = db.Where("role_type = $1", roles.TOO).First(&tooRole)
+	err = db.Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
 	if err != nil {
 		log.Fatal(err)
 	}

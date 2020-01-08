@@ -1,8 +1,8 @@
-# How To Run Against S3 Locally
+# How To Run Against S3 & CDN Locally
 
 The app defaults to using the local filesystem to store uploaded files in development mode. This is to simplify development setup and
 make it easy to inspect uploaded files while developing features. In some situations, though, it is desirable to instead have
-uploaded files stored on the real S3 service.
+uploaded files stored on the real S3 service and served either by S3 directly or through a CDN like cloudfront.
 
 ## Prerequisites
 
@@ -10,7 +10,7 @@ You need to have followed [the instructions to setup your AWS developer credenti
 
 ## Upload Files to S3
 
-The environment variable `STORAGE_BACKEND` specifies if files should be stored on `s3`, on the `local` filesystem, or in `memory`. The default value is `local` in development and `s3` when the app is running in any deployed environment.
+The environment variable `STORAGE_BACKEND` specifies if files should be stored on `s3`, on s3 but using `cdn`, on the `local` filesystem, or in `memory`. The default value is `local` in development and `s3` when the app is running in any deployed environment.
 
 ### Using the DevLocal Bucket
 
@@ -21,6 +21,14 @@ $ env STORAGE_BACKEND=s3 make server_run_standalone
 ```
 
 _Please note that this does not use our usual setup to automatically reload changes to files in the `swagger` directory. Other code changes should still be detected, however._
+
+### Upload Files to S3 but serve from CDN
+
+Instead of serving files from S3 bucket you can also use the CDN. Your files still upload to S3 but get served from CDN as a signed [URL](https://assets.devlocal.move.mil/your-user/user/xxxxxx-xxx-xxx-xxx) instead of S3 bucket [URL]. To use CDN:
+
+```bash
+ env STORAGE_BACKEND=cdn make server_run_standalone
+```
 
 ### Listing Files on S3
 

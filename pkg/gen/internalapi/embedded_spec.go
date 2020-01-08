@@ -66,7 +66,12 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer",
+          "customer"
+        ]
       }
     },
     "/access_codes/invalid": {
@@ -115,7 +120,12 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer",
+          "customer"
+        ]
       }
     },
     "/access_codes/valid": {
@@ -155,7 +165,12 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer",
+          "customer"
+        ]
       }
     },
     "/addresses/{addressId}": {
@@ -195,7 +210,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/backup_contacts/{backupContactId}": {
@@ -238,7 +257,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       },
       "put": {
         "description": "Any fields sent in this request will be set on the backup contact referenced",
@@ -287,7 +310,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/calendar/available_move_dates": {
@@ -327,7 +354,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/documents": {
@@ -361,7 +392,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/documents/{documentId}": {
@@ -404,7 +439,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/dps_auth/cookie_url": {
@@ -445,7 +484,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/duty_stations": {
@@ -487,7 +530,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/duty_stations/{dutyStationId}/transportation_office": {
@@ -530,7 +577,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/entitlements": {
@@ -548,7 +599,11 @@ func init() {
               "$ref": "#/definitions/IndexEntitlements"
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/entitlements/{moveId}": {
@@ -579,7 +634,11 @@ func init() {
           "409": {
             "description": "Requested weight estimate is above allotted entitlement"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/estimates/ppm": {
@@ -654,7 +713,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/estimates/ppm_sit": {
@@ -721,7 +784,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/move_documents/{moveDocumentId}": {
@@ -772,7 +839,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       },
       "delete": {
         "description": "Deletes a move document with the given information",
@@ -810,7 +881,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}": {
@@ -853,7 +928,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       },
       "patch": {
         "description": "Any fields sent in this request will be set on the move referenced",
@@ -902,7 +981,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}/approve": {
@@ -948,7 +1031,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}/cancel": {
@@ -1002,7 +1089,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}/move_dates_summary": {
@@ -1050,7 +1141,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}/move_documents": {
@@ -1087,7 +1182,11 @@ func init() {
           "403": {
             "description": "user is not authorized"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       },
       "post": {
         "description": "Created a move document with the given information",
@@ -1133,7 +1232,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}/moving_expense_documents": {
@@ -1181,7 +1284,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}/orders": {
@@ -1224,7 +1331,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}/personally_procured_move": {
@@ -1261,7 +1372,11 @@ func init() {
           "403": {
             "description": "user is not authorized"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       },
       "post": {
         "description": "Create an instance of personally_procured_move tied to the move ID",
@@ -1310,7 +1425,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}": {
@@ -1355,7 +1474,11 @@ func init() {
           "403": {
             "description": "user is not authorized"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       },
       "put": {
         "description": "This replaces the current version of the PPM with the version sent.",
@@ -1409,7 +1532,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       },
       "patch": {
         "description": "Any fields sent in this request will be set on the PPM referenced",
@@ -1469,7 +1596,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}/estimate": {
@@ -1523,7 +1654,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}/shipment_summary_worksheet": {
@@ -1581,7 +1716,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}/signed_certifications": {
@@ -1623,7 +1762,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       },
       "post": {
         "description": "Create an instance of signed_certification tied to the move ID",
@@ -1672,7 +1815,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}/submit": {
@@ -1726,7 +1873,12 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer",
+          "customer"
+        ]
       }
     },
     "/moves/{moveId}/weight_ticket": {
@@ -1774,7 +1926,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/orders": {
@@ -1814,7 +1970,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/orders/{ordersId}": {
@@ -1857,7 +2017,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       },
       "put": {
         "description": "All fields sent in this request will be set on the orders referenced",
@@ -1906,7 +2070,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/personally_procured_move/{personallyProcuredMoveId}/expense_summary": {
@@ -1949,7 +2117,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/personally_procured_move/{personallyProcuredMoveId}/request_payment": {
@@ -1992,7 +2164,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/personally_procured_move/{personallyProcuredMoveId}/submit": {
@@ -2043,7 +2219,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/personally_procured_moves/incentive": {
@@ -2112,7 +2292,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/personally_procured_moves/{personallyProcuredMoveId}/approve": {
@@ -2160,7 +2344,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments": {
@@ -2228,7 +2416,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/queues/{queueType}": {
@@ -2277,7 +2469,11 @@ func init() {
           "404": {
             "description": "move queue item is not found"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/rate_engine_postal_codes/{postal_code}": {
@@ -2327,7 +2523,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/reimbursement/{reimbursementId}/approve": {
@@ -2367,7 +2567,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/service_members": {
@@ -2410,7 +2614,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/service_members/{serviceMemberId}": {
@@ -2453,7 +2661,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       },
       "patch": {
         "description": "Any fields sent in this request will be set on the service member referenced",
@@ -2502,7 +2714,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/service_members/{serviceMemberId}/backup_contacts": {
@@ -2545,7 +2761,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       },
       "post": {
         "description": "Creates an instance of a backup contact tied to a service member user",
@@ -2594,7 +2814,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/service_members/{serviceMemberId}/current_orders": {
@@ -2637,7 +2861,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/uploads": {
@@ -2692,7 +2920,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       },
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -2733,7 +2965,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/uploads/{uploadId}": {
@@ -2773,7 +3009,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/users/is_logged_in": {
@@ -2797,7 +3037,12 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer",
+          "customer"
+        ]
       }
     },
     "/users/logged_in": {
@@ -2824,7 +3069,12 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer",
+          "customer"
+        ]
       }
     }
   },
@@ -3314,6 +3564,26 @@ func init() {
           "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
         "has_requested_advance": {
           "type": "boolean",
           "title": "Would you like an advance of up to 60% of your PPM incentive?"
@@ -3664,7 +3934,7 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. \"My car\")"
+          "title": "Vehicle nickname (ex. 'My car')"
         },
         "vehicle_options": {
           "type": "string",
@@ -3672,12 +3942,14 @@ func init() {
           "enum": [
             "CAR",
             "CAR_TRAILER",
-            "BOX_TRUCK"
+            "BOX_TRUCK",
+            "PRO_GEAR"
           ],
           "x-display-value": {
             "BOX_TRUCK": "Box truck",
             "CAR": "Car",
-            "CAR_TRAILER": "Car + Trailer"
+            "CAR_TRAILER": "Car + Trailer",
+            "PRO_GEAR": "Pro-gear"
           }
         },
         "weight_ticket_date": {
@@ -4155,7 +4427,7 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. \"My car\")"
+          "title": "Vehicle nickname (ex. 'My car')"
         },
         "vehicle_options": {
           "type": "string",
@@ -4163,12 +4435,14 @@ func init() {
           "enum": [
             "CAR",
             "CAR_TRAILER",
-            "BOX_TRUCK"
+            "BOX_TRUCK",
+            "PRO_GEAR"
           ],
           "x-display-value": {
             "BOX_TRUCK": "Box truck",
             "CAR": "Car",
-            "CAR_TRAILER": "Car + Trailer"
+            "CAR_TRAILER": "Car + Trailer",
+            "PRO_GEAR": "Pro-gear"
           }
         },
         "weight_ticket_date": {
@@ -4724,6 +4998,26 @@ func init() {
           "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
         "has_requested_advance": {
           "type": "boolean",
           "title": "Would you like an advance of up to 60% of your PPM incentive?",
@@ -4952,6 +5246,36 @@ func init() {
         "has_additional_postal_code": {
           "type": "boolean",
           "title": "Do you have stuff at another pickup location?",
+          "x-nullable": true
+        },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-display-value": {
+            "NO": false,
+            "NOT SURE": "Not Sure",
+            "YES": true
+          },
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-display-value": {
+            "NO": false,
+            "NOT SURE": "Not Sure",
+            "YES": true
+          },
           "x-nullable": true
         },
         "has_requested_advance": {
@@ -5684,6 +6008,26 @@ func init() {
           "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
         "has_requested_advance": {
           "type": "boolean",
           "title": "Would you like an advance of up to 60% of your PPM incentive?",
@@ -5821,12 +6165,14 @@ func init() {
       "enum": [
         "CAR",
         "CAR_TRAILER",
-        "BOX_TRUCK"
+        "BOX_TRUCK",
+        "PRO_GEAR"
       ],
       "x-display-value": {
         "BOX_TRUCK": "Box truck",
         "CAR": "Car",
-        "CAR_TRAILER": "Car + Trailer"
+        "CAR_TRAILER": "Car + Trailer",
+        "PRO_GEAR": "Pro-gear"
       },
       "x-nullable": true
     },
@@ -5908,7 +6254,12 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer",
+          "customer"
+        ]
       }
     },
     "/access_codes/invalid": {
@@ -5957,7 +6308,12 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer",
+          "customer"
+        ]
       }
     },
     "/access_codes/valid": {
@@ -5997,7 +6353,12 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer",
+          "customer"
+        ]
       }
     },
     "/addresses/{addressId}": {
@@ -6037,7 +6398,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/backup_contacts/{backupContactId}": {
@@ -6080,7 +6445,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       },
       "put": {
         "description": "Any fields sent in this request will be set on the backup contact referenced",
@@ -6129,7 +6498,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/calendar/available_move_dates": {
@@ -6169,7 +6542,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/documents": {
@@ -6203,7 +6580,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/documents/{documentId}": {
@@ -6246,7 +6627,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/dps_auth/cookie_url": {
@@ -6287,7 +6672,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/duty_stations": {
@@ -6329,7 +6718,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/duty_stations/{dutyStationId}/transportation_office": {
@@ -6372,7 +6765,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/entitlements": {
@@ -6390,7 +6787,11 @@ func init() {
               "$ref": "#/definitions/IndexEntitlements"
             }
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/entitlements/{moveId}": {
@@ -6421,7 +6822,11 @@ func init() {
           "409": {
             "description": "Requested weight estimate is above allotted entitlement"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/estimates/ppm": {
@@ -6496,7 +6901,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/estimates/ppm_sit": {
@@ -6563,7 +6972,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/move_documents/{moveDocumentId}": {
@@ -6614,7 +7027,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       },
       "delete": {
         "description": "Deletes a move document with the given information",
@@ -6652,7 +7069,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}": {
@@ -6695,7 +7116,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       },
       "patch": {
         "description": "Any fields sent in this request will be set on the move referenced",
@@ -6744,7 +7169,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}/approve": {
@@ -6790,7 +7219,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}/cancel": {
@@ -6844,7 +7277,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}/move_dates_summary": {
@@ -6892,7 +7329,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}/move_documents": {
@@ -6929,7 +7370,11 @@ func init() {
           "403": {
             "description": "user is not authorized"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       },
       "post": {
         "description": "Created a move document with the given information",
@@ -6975,7 +7420,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}/moving_expense_documents": {
@@ -7023,7 +7472,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}/orders": {
@@ -7066,7 +7519,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}/personally_procured_move": {
@@ -7103,7 +7560,11 @@ func init() {
           "403": {
             "description": "user is not authorized"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       },
       "post": {
         "description": "Create an instance of personally_procured_move tied to the move ID",
@@ -7152,7 +7613,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}": {
@@ -7197,7 +7662,11 @@ func init() {
           "403": {
             "description": "user is not authorized"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       },
       "put": {
         "description": "This replaces the current version of the PPM with the version sent.",
@@ -7251,7 +7720,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       },
       "patch": {
         "description": "Any fields sent in this request will be set on the PPM referenced",
@@ -7311,7 +7784,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}/estimate": {
@@ -7365,7 +7842,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}/shipment_summary_worksheet": {
@@ -7423,7 +7904,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}/signed_certifications": {
@@ -7465,7 +7950,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       },
       "post": {
         "description": "Create an instance of signed_certification tied to the move ID",
@@ -7514,7 +8003,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/moves/{moveId}/submit": {
@@ -7568,7 +8061,12 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer",
+          "customer"
+        ]
       }
     },
     "/moves/{moveId}/weight_ticket": {
@@ -7616,7 +8114,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/orders": {
@@ -7656,7 +8158,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/orders/{ordersId}": {
@@ -7699,7 +8205,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       },
       "put": {
         "description": "All fields sent in this request will be set on the orders referenced",
@@ -7748,7 +8258,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/personally_procured_move/{personallyProcuredMoveId}/expense_summary": {
@@ -7791,7 +8305,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/personally_procured_move/{personallyProcuredMoveId}/request_payment": {
@@ -7834,7 +8352,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/personally_procured_move/{personallyProcuredMoveId}/submit": {
@@ -7885,7 +8407,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/personally_procured_moves/incentive": {
@@ -7954,7 +8480,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/personally_procured_moves/{personallyProcuredMoveId}/approve": {
@@ -8002,7 +8532,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments": {
@@ -8070,7 +8604,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/queues/{queueType}": {
@@ -8119,7 +8657,11 @@ func init() {
           "404": {
             "description": "move queue item is not found"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/rate_engine_postal_codes/{postal_code}": {
@@ -8169,7 +8711,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/reimbursement/{reimbursementId}/approve": {
@@ -8209,7 +8755,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/service_members": {
@@ -8252,7 +8802,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/service_members/{serviceMemberId}": {
@@ -8295,7 +8849,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       },
       "patch": {
         "description": "Any fields sent in this request will be set on the service member referenced",
@@ -8344,7 +8902,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/service_members/{serviceMemberId}/backup_contacts": {
@@ -8387,7 +8949,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       },
       "post": {
         "description": "Creates an instance of a backup contact tied to a service member user",
@@ -8436,7 +9002,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/service_members/{serviceMemberId}/current_orders": {
@@ -8479,7 +9049,11 @@ func init() {
           "500": {
             "description": "internal server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/uploads": {
@@ -8534,7 +9108,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       },
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -8575,7 +9153,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/uploads/{uploadId}": {
@@ -8615,7 +9197,11 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer"
+        ]
       }
     },
     "/users/is_logged_in": {
@@ -8639,7 +9225,12 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer",
+          "customer"
+        ]
       }
     },
     "/users/logged_in": {
@@ -8666,7 +9257,12 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-swagger-roles": [
+          "ppm_office_users",
+          "contracting_officer",
+          "customer"
+        ]
       }
     }
   },
@@ -9155,6 +9751,26 @@ func init() {
         "has_additional_postal_code": {
           "type": "boolean",
           "title": "Do you have stuff at another pickup location?",
+          "x-nullable": true
+        },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
           "x-nullable": true
         },
         "has_requested_advance": {
@@ -9510,7 +10126,7 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. \"My car\")"
+          "title": "Vehicle nickname (ex. 'My car')"
         },
         "vehicle_options": {
           "type": "string",
@@ -9518,12 +10134,14 @@ func init() {
           "enum": [
             "CAR",
             "CAR_TRAILER",
-            "BOX_TRUCK"
+            "BOX_TRUCK",
+            "PRO_GEAR"
           ],
           "x-display-value": {
             "BOX_TRUCK": "Box truck",
             "CAR": "Car",
-            "CAR_TRAILER": "Car + Trailer"
+            "CAR_TRAILER": "Car + Trailer",
+            "PRO_GEAR": "Pro-gear"
           }
         },
         "weight_ticket_date": {
@@ -10003,7 +10621,7 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. \"My car\")"
+          "title": "Vehicle nickname (ex. 'My car')"
         },
         "vehicle_options": {
           "type": "string",
@@ -10011,12 +10629,14 @@ func init() {
           "enum": [
             "CAR",
             "CAR_TRAILER",
-            "BOX_TRUCK"
+            "BOX_TRUCK",
+            "PRO_GEAR"
           ],
           "x-display-value": {
             "BOX_TRUCK": "Box truck",
             "CAR": "Car",
-            "CAR_TRAILER": "Car + Trailer"
+            "CAR_TRAILER": "Car + Trailer",
+            "PRO_GEAR": "Pro-gear"
           }
         },
         "weight_ticket_date": {
@@ -10573,6 +11193,26 @@ func init() {
           "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
         "has_requested_advance": {
           "type": "boolean",
           "title": "Would you like an advance of up to 60% of your PPM incentive?",
@@ -10803,6 +11443,36 @@ func init() {
         "has_additional_postal_code": {
           "type": "boolean",
           "title": "Do you have stuff at another pickup location?",
+          "x-nullable": true
+        },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-display-value": {
+            "NO": false,
+            "NOT SURE": "Not Sure",
+            "YES": true
+          },
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-display-value": {
+            "NO": false,
+            "NOT SURE": "Not Sure",
+            "YES": true
+          },
           "x-nullable": true
         },
         "has_requested_advance": {
@@ -11537,6 +12207,26 @@ func init() {
           "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
         "has_requested_advance": {
           "type": "boolean",
           "title": "Would you like an advance of up to 60% of your PPM incentive?",
@@ -11676,12 +12366,14 @@ func init() {
       "enum": [
         "CAR",
         "CAR_TRAILER",
-        "BOX_TRUCK"
+        "BOX_TRUCK",
+        "PRO_GEAR"
       ],
       "x-display-value": {
         "BOX_TRUCK": "Box truck",
         "CAR": "Car",
-        "CAR_TRAILER": "Car + Trailer"
+        "CAR_TRAILER": "Car + Trailer",
+        "PRO_GEAR": "Pro-gear"
       },
       "x-nullable": true
     },

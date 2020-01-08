@@ -1,20 +1,22 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/arn"
+	"github.com/aws/aws-sdk-go/aws/request"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatchevents"
 	"github.com/aws/aws-sdk-go/service/ecr"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/aws/aws-sdk-go/service/rds"
+	"github.com/aws/aws-sdk-go/service/ssm"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -85,19 +87,15 @@ func (e *errInvalidFile) Error() string {
 }
 
 const (
-	awsAccountIDFlag       string = "aws-account-id"
-	chamberBinaryFlag      string = "chamber-binary"
-	chamberRetriesFlag     string = "chamber-retries"
-	chamberKMSKeyAliasFlag string = "chamber-kms-key-alias"
-	chamberUsePathsFlag    string = "chamber-use-paths"
-	serviceFlag            string = "service"
-	environmentFlag        string = "environment"
-	repositoryNameFlag     string = "repository-name"
-	imageTagFlag           string = "image-tag"
-	commandFlag            string = "command"
-	commandArgsFlag        string = "command-args"
-	variablesFileFlag      string = "variables-file"
-	dryRunFlag             string = "dry-run"
+	awsAccountIDFlag   string = "aws-account-id"
+	serviceFlag        string = "service"
+	environmentFlag    string = "environment"
+	repositoryNameFlag string = "repository-name"
+	imageTagFlag       string = "image-tag"
+	commandFlag        string = "command"
+	commandArgsFlag    string = "command-args"
+	variablesFileFlag  string = "variables-file"
+	dryRunFlag         string = "dry-run"
 )
 
 func initFlags(flag *pflag.FlagSet) {
@@ -110,12 +108,6 @@ func initFlags(flag *pflag.FlagSet) {
 
 	// Vault Flags
 	cli.InitVaultFlags(flag)
-
-	// Chamber Settings
-	flag.String(chamberBinaryFlag, "/bin/chamber", "Chamber Binary")
-	flag.Int(chamberRetriesFlag, 20, "Chamber Retries")
-	flag.String(chamberKMSKeyAliasFlag, "alias/aws/ssm", "Chamber KMS Key Alias")
-	flag.Int(chamberUsePathsFlag, 1, "Chamber Use Paths")
 
 	// Task Definition Settings
 	flag.String(serviceFlag, "", fmt.Sprintf("The service name (choose %q)", services))
@@ -147,7 +139,7 @@ func checkConfig(v *viper.Viper) error {
 	}
 
 	if err := cli.CheckAWSRegionForService(region, cloudwatchevents.ServiceName); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecs.ServiceName))
+		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, cloudwatchevents.ServiceName))
 	}
 
 	if err := cli.CheckAWSRegionForService(region, ecs.ServiceName); err != nil {
@@ -155,30 +147,19 @@ func checkConfig(v *viper.Viper) error {
 	}
 
 	if err := cli.CheckAWSRegionForService(region, ecr.ServiceName); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecs.ServiceName))
+		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecr.ServiceName))
 	}
 
 	if err := cli.CheckAWSRegionForService(region, rds.ServiceName); err != nil {
-		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecs.ServiceName))
+		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, rds.ServiceName))
+	}
+
+	if err := cli.CheckAWSRegionForService(region, ssm.ServiceName); err != nil {
+		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ssm.ServiceName))
 	}
 
 	if err := cli.CheckVault(v); err != nil {
 		return err
-	}
-
-	chamberRetries := v.GetInt(chamberRetriesFlag)
-	if chamberRetries < 1 && chamberRetries > 20 {
-		return errors.New("Chamber Retries must be greater than or equal to 1 and less than or equal to 20")
-	}
-
-	chamberKMSKeyAlias := v.GetString(chamberKMSKeyAliasFlag)
-	if len(chamberKMSKeyAlias) == 0 {
-		return errors.New("Chamber KMS Key Alias must be set")
-	}
-
-	chamberUsePaths := v.GetInt(chamberUsePathsFlag)
-	if chamberUsePaths < 1 && chamberUsePaths > 20 {
-		return errors.New("Chamber Use Paths must be greater than or equal to 1 and less than or equal to 20")
 	}
 
 	serviceName := v.GetString(serviceFlag)
@@ -263,16 +244,53 @@ func varFromCtxOrEnv(varName string, ctx map[string]string) string {
 	return os.Getenv("DB_PORT")
 }
 
+func buildSecrets(serviceSSM *ssm.SSM, awsRegion, registryID, serviceName, environmentName string) []*ecs.Secret {
+
+	var secrets []*ecs.Secret
+
+	params := ssm.DescribeParametersInput{
+		MaxResults: aws.Int64(50),
+	}
+
+	ctx := context.Background()
+
+	p := request.Pagination{
+		NewRequest: func() (*request.Request, error) {
+			req, _ := serviceSSM.DescribeParametersRequest(&params)
+			req.SetContext(ctx)
+			return req, nil
+		},
+	}
+
+	for p.Next() {
+		page := p.Page().(*ssm.DescribeParametersOutput)
+
+		for _, parameter := range page.Parameters {
+			if strings.HasPrefix(*parameter.Name, fmt.Sprintf("/%s-%s", serviceName, environmentName)) {
+				secrets = append(secrets, &ecs.Secret{
+					Name:      aws.String(strings.ToUpper(strings.Split(*parameter.Name, "/")[2])),
+					ValueFrom: aws.String(fmt.Sprintf("arn:aws:ssm:%s:%s:parameter%s", awsRegion, registryID, *parameter.Name)),
+				})
+			}
+		}
+	}
+
+	return secrets
+}
+
 func buildContainerEnvironment(v *viper.Viper, environmentName string, dbHost string, variablesFile string) []*ecs.KeyValuePair {
 
 	// Construct variables from a file for the task def
 	// These variables should always be preferred over env vars
 	ctx := map[string]string{}
 	if len(variablesFile) > 0 {
+		if _, err := os.Stat(variablesFile); os.IsNotExist(err) {
+			log.Fatal(fmt.Errorf("File %q does not exist: %w", variablesFile, err))
+		}
 		// Read contents of variables file into vars
 		vars, readFileErr := ioutil.ReadFile(variablesFile)
 		if readFileErr != nil {
-			log.Fatal(errors.New("error reading variables file"))
+			log.Fatal(fmt.Errorf("error reading variables file %q: %w", variablesFile, readFileErr))
 		}
 
 		// Adds variables from file into context
@@ -286,17 +304,7 @@ func buildContainerEnvironment(v *viper.Viper, environmentName string, dbHost st
 		}
 	}
 
-	chamberKMSKeyAlias := v.GetString(chamberKMSKeyAliasFlag)
-	chamberUsePaths := v.GetInt(chamberUsePathsFlag)
 	return []*ecs.KeyValuePair{
-		{
-			Name:  aws.String("CHAMBER_KMS_KEY_ALIAS"),
-			Value: aws.String(chamberKMSKeyAlias),
-		},
-		{
-			Name:  aws.String("CHAMBER_USE_PATHS"),
-			Value: aws.String(strconv.Itoa(chamberUsePaths)),
-		},
 		{
 			Name:  aws.String("DB_ENV"),
 			Value: aws.String(cli.DbEnvContainer),
@@ -336,14 +344,6 @@ func buildContainerEnvironment(v *viper.Viper, environmentName string, dbHost st
 		{
 			Name:  aws.String("DB_IAM"),
 			Value: aws.String(varFromCtxOrEnv("DB_IAM", ctx)),
-		},
-		{
-			Name:  aws.String("DB_IAM_ROLE"),
-			Value: aws.String(varFromCtxOrEnv("DB_IAM_ROLE", ctx)),
-		},
-		{
-			Name:  aws.String("DB_REGION"),
-			Value: aws.String(varFromCtxOrEnv("DB_REGION", ctx)),
 		},
 	}
 }
@@ -401,6 +401,7 @@ func main() {
 	serviceECS := ecs.New(sess)
 	serviceECR := ecr.New(sess)
 	serviceRDS := rds.New(sess)
+	serviceSSM := ssm.New(sess)
 
 	// Get the current task definition (for rollback)
 	commandName := v.GetString(commandFlag)
@@ -480,18 +481,7 @@ func main() {
 	awsLogsGroup := fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
 	awsLogsStreamPrefix := fmt.Sprintf("%s-tasks", serviceName)
 
-	// Chamber Settings
-	chamberBinary := v.GetString(chamberBinaryFlag)
-	chamberRetries := v.GetInt(chamberRetriesFlag)
-	chamberStore := fmt.Sprintf("%s-%s", serviceName, environmentName)
-
 	entryPoint := []string{
-		chamberBinary,
-		"-r",
-		strconv.Itoa(chamberRetries),
-		"exec",
-		chamberStore,
-		"--",
 		fmt.Sprintf("/bin/%s", cmds[0]),
 	}
 	if len(cmds) > 1 {
@@ -511,6 +501,7 @@ func main() {
 				Essential:   aws.Bool(true),
 				EntryPoint:  aws.StringSlice(entryPoint),
 				Command:     []*string{},
+				Secrets:     buildSecrets(serviceSSM, awsRegion, registryID, serviceName, environmentName),
 				Environment: buildContainerEnvironment(v, environmentName, dbHost, variablesFile),
 				LogConfiguration: &ecs.LogConfiguration{
 					LogDriver: aws.String("awslogs"),
