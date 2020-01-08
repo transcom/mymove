@@ -65,6 +65,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 		}
 
 		file, err := os.Open("./testdata/test.pdf")
+		defer file.Close()
 		suite.NoError(err)
 
 		params := uploadop.CreateUploadParams{
@@ -93,6 +94,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 			paymentRequestUploadCreator,
 		}
 		file, err := os.Open("./testdata/test.pdf")
+		defer file.Close()
 		suite.NoError(err)
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/payment_requests/%s/uploads", paymentRequest.ID), nil)
