@@ -1,42 +1,65 @@
-import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
-import { selectPPMForMove } from 'shared/Entities/modules/ppms';
-import { selectAllDocumentsForMove, findPendingWeightTickets } from 'shared/Entities/modules/moveDocuments';
+import {
+  selectAllDocumentsForMove,
+  findOKedVehicleWeightTickets,
+  findOKedProgearWeightTickets,
+  findPendingWeightTickets,
+} from 'shared/Entities/modules/moveDocuments';
 import Alert from 'shared/Alert';
+import { formatWeight } from 'shared/formatters';
 
-import { PanelSwaggerField } from 'shared/EditablePanel';
+import { PanelField } from 'shared/EditablePanel';
 import { editablePanelify } from 'shared/EditablePanel';
 
-const WeightDisplay = ({ ppmSchema, ppm, hasWeightTicketsPending, ppmPaymentRequestedFlag }) => {
-  const fieldProps = {
-    schema: ppmSchema,
-    values: ppm,
-  };
+function sumWeights(moveDocs) {
+  return moveDocs.reduce(function(sum, { empty_weight, full_weight }) {
+    // empty_weight and full_weight can be blank
+    empty_weight = empty_weight || 0;
+    full_weight = full_weight || 0;
+
+    // Minimize the damage from having an empty_weight that is larger than the full_weight.
+    if (empty_weight > full_weight) {
+      return 0;
+    }
+
+    return sum + full_weight - empty_weight;
+  }, 0);
+}
+
+const WeightDisplay = ({
+  hasPendingWeightTickets,
+  ppmPaymentRequestedFlag,
+  vehicleWeightTicketWeight,
+  progearWeightTicketWeight,
+}) => {
   return (
-    <div className="editable-panel-column">
-      {ppmPaymentRequestedFlag && hasWeightTicketsPending && (
+    <>
+      {ppmPaymentRequestedFlag && hasPendingWeightTickets && (
         <div className="missing-info-alert">
           <Alert type="warning">There are more weight tickets awaiting review.</Alert>
         </div>
       )}
-      <PanelSwaggerField title="Net Weight" fieldName="net_weight" required {...fieldProps} />
-    </div>
+      <div className="editable-panel-column">
+        <PanelField title="Net Weight" value={formatWeight(vehicleWeightTicketWeight)} />
+      </div>
+      <div className="editable-panel-column">
+        <PanelField title="Pro-Gear" value={formatWeight(progearWeightTicketWeight)} />
+      </div>
+    </>
   );
 };
 
 const WeightPanel = editablePanelify(WeightDisplay, null, false);
 
 function mapStateToProps(state, ownProps) {
-  const ppm = selectPPMForMove(state, ownProps.moveId);
   const moveDocs = selectAllDocumentsForMove(state, ownProps.moveId);
-  const hasWeightTicketsPending = findPendingWeightTickets(moveDocs).length > 0;
 
   return {
-    // Wrapper
-    ppmSchema: get(state, 'swaggerInternal.spec.definitions.PersonallyProcuredMovePayload'),
-    ppm,
-    hasWeightTicketsPending,
+    ppmPaymentRequestedFlag: true,
+    vehicleWeightTicketWeight: sumWeights(findOKedVehicleWeightTickets(moveDocs)),
+    progearWeightTicketWeight: sumWeights(findOKedProgearWeightTickets(moveDocs)),
+    hasPendingWeightTickets: findPendingWeightTickets(moveDocs).length > 0,
   };
 }
 
