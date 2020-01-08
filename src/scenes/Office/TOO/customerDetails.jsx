@@ -33,12 +33,20 @@ class CustomerDetails extends Component {
           <>
             <h2>Customer Info</h2>
             <dl>
+              <dt>ID</dt>
+              <dd>{get(customer, 'id')}</dd>
               <dt>First Name</dt>
               <dd>{get(customer, 'first_name')}</dd>
               <dt>Last Name</dt>
               <dd>{get(customer, 'last_name')}</dd>
-              <dt>ID</dt>
-              <dd>{get(customer, 'id')}</dd>
+              <dt>Email</dt>
+              <dd>{get(customer, 'email')}</dd>
+              <dt>Phone</dt>
+              <dd>{get(customer, 'phone')}</dd>
+              <dt>Current Address</dt>
+              <dd>{JSON.stringify(get(customer, 'current_address'))}</dd>
+              <dt>Destination Address</dt>
+              <dd>{JSON.stringify(get(customer, 'destination_address'))}</dd>
               <dt>DOD ID</dt>
               <dd>{get(customer, 'dodID')}</dd>
             </dl>
