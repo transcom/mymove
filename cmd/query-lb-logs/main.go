@@ -247,20 +247,20 @@ func CheckEnv(serviceAthena *athena.Athena, logger, infoLogger *log.Logger, v *v
 
 	if !isTableFound {
 		logger.Println("Table not found, creating table....")
-		err = createLogTable(serviceAthena, logger, infoLogger, dbName, logBucket)
-		if err != nil {
-			logger.Fatalf("Failed to create table: %v", err)
+		errCreateLogTable := createLogTable(serviceAthena, logger, infoLogger, dbName, logBucket)
+		if errCreateLogTable != nil {
+			logger.Fatalf("Failed to create table: %v", errCreateLogTable)
 		}
 		logger.Println("creating monthly partitions....")
-		err = createPartitions(serviceAthena, logger, infoLogger, dbName, logBucket)
-		if err != nil {
-			logger.Fatalf("Failed to create partitions: %v", err)
+		errCreatePartitions := createPartitions(serviceAthena, logger, infoLogger, dbName, logBucket)
+		if errCreatePartitions != nil {
+			logger.Fatalf("Failed to create partitions: %v", errCreatePartitions)
 		}
 	} else if v.GetBool(AddPartitions) { // If add partitions flag is set to true then try adding partitions
 		logger.Println("creating monthly partitions....")
-		err = createPartitions(serviceAthena, logger, infoLogger, dbName, logBucket)
-		if err != nil {
-			logger.Fatalf("Failed to create partitions: %v", err)
+		errCreatePartitions := createPartitions(serviceAthena, logger, infoLogger, dbName, logBucket)
+		if errCreatePartitions != nil {
+			logger.Fatalf("Failed to create partitions: %v", errCreatePartitions)
 		}
 		os.Exit(0)
 	}
