@@ -68,7 +68,7 @@ func Capture(model interface{}, payload interface{}, logger Logger, session *aut
 			zap.String("record_updated_at", updatedAt),
 		)
 
-		if !(payload == nil) {
+		if payload != nil {
 			_, err = validateInterface(payload)
 			if err != nil {
 				return nil, err
