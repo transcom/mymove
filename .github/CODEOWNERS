@@ -12,3 +12,5 @@
 # Migrations are where database schema changes are made and we want them reviewed by people working on our database guidelines
 /migrations/* @chrisgilmerproj @tinyels @garrettqmartin8 @gidjin @lynzt @reggieriser @rdhariwal @Ryan-Koch
 
+# we also want to make sure the local migrations are not doing schema changes
+/Local_migrations/* @chrisgilmerproj @tinyels @garrettqmartin8 @gidjin @lynzt @reggieriser @rdhariwal @Ryan-Koch
