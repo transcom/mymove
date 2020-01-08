@@ -41,6 +41,14 @@ A simple way to scan the logs is to use a helpful script we've built:
 ../scripts/scan-alb-logs staging 500 2019/01/09,2019/01/10
 ```
 
+You can be more specific with particular domains:
+
+```sh
+../scripts/scan-alb-logs staging 500 2019/01/09,2019/01/10 office.move.mil
+```
+
+**NOTE:** You cannot specify date ranges! You must specify each individual date.
+
 ### More in depth scanning
 
 If you want more control over the results you can continue here OR you can move on to the next section about understanding
