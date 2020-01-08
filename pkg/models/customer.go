@@ -21,7 +21,7 @@ type Customer struct {
 	Email                *string    `db:"email"`
 	FirstName            string     `db:"first_name"`
 	LastName             string     `db:"last_name"`
-	PhoneNumber          *string    `db:"phone_number"`
+	PhoneNumber          *string    `db:"phone"`
 	User                 User       `belongs_to:"users"`
 	UserID               uuid.UUID  `json:"user_id" db:"user_id"`
 	CreatedAt            time.Time  `db:"created_at"`
