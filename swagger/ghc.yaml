@@ -1090,6 +1090,7 @@ definitions:
       - city
       - state
       - postal_code
+
   CustomerMoveItem:
     type: object
     properties:
@@ -1135,6 +1136,9 @@ definitions:
   Customer:
     type: object
     properties:
+      agency:
+        type: string
+        title: Agency customer is affilated with
       first_name:
         type: string
         example: John

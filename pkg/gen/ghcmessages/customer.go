@@ -17,6 +17,9 @@ import (
 // swagger:model Customer
 type Customer struct {
 
+	// Agency customer is affilated with
+	Agency string `json:"agency,omitempty"`
+
 	// current address
 	CurrentAddress *Address `json:"current_address,omitempty"`
 

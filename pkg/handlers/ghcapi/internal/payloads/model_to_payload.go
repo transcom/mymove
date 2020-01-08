@@ -28,6 +28,7 @@ func Customer(customer *models.Customer) *ghcmessages.Customer {
 		return nil
 	}
 	payload := ghcmessages.Customer{
+		Agency:             customer.Agency,
 		CurrentAddress:     Address(&customer.CurrentAddress),
 		DestinationAddress: Address(&customer.DestinationAddress),
 		DodID:              customer.DODID,

@@ -1524,6 +1524,10 @@ func init() {
     "Customer": {
       "type": "object",
       "properties": {
+        "agency": {
+          "type": "string",
+          "title": "Agency customer is affilated with"
+        },
         "current_address": {
           "x-nullabe": true,
           "$ref": "#/definitions/Address"
@@ -3914,6 +3918,10 @@ func init() {
     "Customer": {
       "type": "object",
       "properties": {
+        "agency": {
+          "type": "string",
+          "title": "Agency customer is affilated with"
+        },
         "current_address": {
           "x-nullabe": true,
           "$ref": "#/definitions/Address"

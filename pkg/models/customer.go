@@ -17,7 +17,7 @@ type Customer struct {
 	CurrentAddressID     *uuid.UUID `db:"current_address_id"`
 	DODID                string     `db:"dod_id"`
 	DestinationAddress   Address    `belongs_to:"address"`
-	DestinationAddressID *uuid.UUID `db:"current_address_id"`
+	DestinationAddressID *uuid.UUID `db:"destination_address_id"`
 	Email                *string    `db:"email"`
 	FirstName            string     `db:"first_name"`
 	LastName             string     `db:"last_name"`
