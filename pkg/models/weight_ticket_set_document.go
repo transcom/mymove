@@ -13,22 +13,39 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// WeightTicketSetType represents types of weight ticket sets
+type WeightTicketSetType string
+
+const (
+	// WeightTicketSetTypeCAR captures enum value "CAR"
+	WeightTicketSetTypeCAR WeightTicketSetType = "CAR"
+
+	// WeightTicketSetTypeCAR captures enum value "CAR_TRAILER"
+	WeightTicketSetTypeCARTRAILER WeightTicketSetType = "CAR_TRAILER"
+
+	// WeightTicketSetTypeBOXTRUCK captures enum value "BOXTRUCK"
+	WeightTicketSetTypeBOXTRUCK WeightTicketSetType = "BOXTRUCK"
+
+	// WeightTicketSetTypePROGEAR captures enum value "PROGEAR"
+	WeightTicketSetTypePROGEAR WeightTicketSetType = "PROGEAR"
+)
+
 // WeightTicketSetDocument weight ticket documents payload
 type WeightTicketSetDocument struct {
-	ID                       uuid.UUID    `json:"id" db:"id"`
-	MoveDocumentID           uuid.UUID    `json:"move_document_id" db:"move_document_id"`
-	MoveDocument             MoveDocument `belongs_to:"move_documents"`
-	EmptyWeight              *unit.Pound  `json:"empty_weight,omitempty" db:"empty_weight"`
-	EmptyWeightTicketMissing bool         `json:"empty_weight_ticket_missing,omitempty" db:"empty_weight_ticket_missing"`
-	FullWeight               *unit.Pound  `json:"full_weight,omitempty" db:"full_weight"`
-	FullWeightTicketMissing  bool         `json:"full_weight_ticket_missing,omitempty" db:"full_weight_ticket_missing"`
-	VehicleNickname          string       `json:"vehicle_nickname,omitempty" db:"vehicle_nickname"`
-	VehicleOptions           string       `json:"vehicle_options,omitempty" db:"vehicle_options"`
-	WeightTicketDate         *time.Time   `json:"weight_ticket_date,omitempty" db:"weight_ticket_date"`
-	TrailerOwnershipMissing  bool         `json:"trailer_ownership_missing,omitempty" db:"trailer_ownership_missing"`
-	CreatedAt                time.Time    `json:"created_at" db:"created_at"`
-	UpdatedAt                time.Time    `json:"updated_at" db:"updated_at"`
-	DeletedAt                *time.Time   `db:"deleted_at"`
+	ID                       uuid.UUID           `json:"id" db:"id"`
+	MoveDocumentID           uuid.UUID           `json:"move_document_id" db:"move_document_id"`
+	MoveDocument             MoveDocument        `belongs_to:"move_documents"`
+	EmptyWeight              *unit.Pound         `json:"empty_weight,omitempty" db:"empty_weight"`
+	EmptyWeightTicketMissing bool                `json:"empty_weight_ticket_missing,omitempty" db:"empty_weight_ticket_missing"`
+	FullWeight               *unit.Pound         `json:"full_weight,omitempty" db:"full_weight"`
+	FullWeightTicketMissing  bool                `json:"full_weight_ticket_missing,omitempty" db:"full_weight_ticket_missing"`
+	VehicleNickname          string              `json:"vehicle_nickname,omitempty" db:"vehicle_nickname"`
+	WeightTicketSetType      WeightTicketSetType `json:"vehicle_options,omitempty" db:"vehicle_options"`
+	WeightTicketDate         *time.Time          `json:"weight_ticket_date,omitempty" db:"weight_ticket_date"`
+	TrailerOwnershipMissing  bool                `json:"trailer_ownership_missing,omitempty" db:"trailer_ownership_missing"`
+	CreatedAt                time.Time           `json:"created_at" db:"created_at"`
+	UpdatedAt                time.Time           `json:"updated_at" db:"updated_at"`
+	DeletedAt                *time.Time          `db:"deleted_at"`
 }
 
 // WeightTicketSetDocuments slice of WeightTicketSetDocuments
@@ -40,7 +57,7 @@ func (m *WeightTicketSetDocument) Validate(tx *pop.Connection) (*validate.Errors
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: m.MoveDocumentID, Name: "MoveDocumentID"},
 		&validators.StringIsPresent{Field: string(m.VehicleNickname), Name: "VehicleNickname"},
-		&validators.StringIsPresent{Field: string(m.VehicleOptions), Name: "VehicleOptions"},
+		&validators.StringIsPresent{Field: string(m.WeightTicketSetType), Name: "WeightTicketSetType"},
 	), nil
 }
 

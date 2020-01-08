@@ -6,7 +6,6 @@ package internalmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
 	"strconv"
 
 	strfmt "github.com/go-openapi/strfmt"
@@ -52,14 +51,13 @@ type CreateWeightTicketDocumentsPayload struct {
 	// Required: true
 	VehicleNickname *string `json:"vehicle_nickname"`
 
-	// Select weight ticket type
-	// Required: true
-	// Enum: [CAR CAR_TRAILER BOX_TRUCK PRO_GEAR]
-	VehicleOptions *string `json:"vehicle_options"`
-
 	// Full Weight Ticket Date
 	// Format: date
 	WeightTicketDate *strfmt.Date `json:"weight_ticket_date,omitempty"`
+
+	// weight ticket set type
+	// Required: true
+	WeightTicketSetType *WeightTicketSetType `json:"weight_ticket_set_type"`
 }
 
 // Validate validates this create weight ticket documents payload
@@ -98,11 +96,11 @@ func (m *CreateWeightTicketDocumentsPayload) Validate(formats strfmt.Registry) e
 		res = append(res, err)
 	}
 
-	if err := m.validateVehicleOptions(formats); err != nil {
+	if err := m.validateWeightTicketDate(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateWeightTicketDate(formats); err != nil {
+	if err := m.validateWeightTicketSetType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -204,55 +202,6 @@ func (m *CreateWeightTicketDocumentsPayload) validateVehicleNickname(formats str
 	return nil
 }
 
-var createWeightTicketDocumentsPayloadTypeVehicleOptionsPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["CAR","CAR_TRAILER","BOX_TRUCK","PRO_GEAR"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		createWeightTicketDocumentsPayloadTypeVehicleOptionsPropEnum = append(createWeightTicketDocumentsPayloadTypeVehicleOptionsPropEnum, v)
-	}
-}
-
-const (
-
-	// CreateWeightTicketDocumentsPayloadVehicleOptionsCAR captures enum value "CAR"
-	CreateWeightTicketDocumentsPayloadVehicleOptionsCAR string = "CAR"
-
-	// CreateWeightTicketDocumentsPayloadVehicleOptionsCARTRAILER captures enum value "CAR_TRAILER"
-	CreateWeightTicketDocumentsPayloadVehicleOptionsCARTRAILER string = "CAR_TRAILER"
-
-	// CreateWeightTicketDocumentsPayloadVehicleOptionsBOXTRUCK captures enum value "BOX_TRUCK"
-	CreateWeightTicketDocumentsPayloadVehicleOptionsBOXTRUCK string = "BOX_TRUCK"
-
-	// CreateWeightTicketDocumentsPayloadVehicleOptionsPROGEAR captures enum value "PRO_GEAR"
-	CreateWeightTicketDocumentsPayloadVehicleOptionsPROGEAR string = "PRO_GEAR"
-)
-
-// prop value enum
-func (m *CreateWeightTicketDocumentsPayload) validateVehicleOptionsEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, createWeightTicketDocumentsPayloadTypeVehicleOptionsPropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *CreateWeightTicketDocumentsPayload) validateVehicleOptions(formats strfmt.Registry) error {
-
-	if err := validate.Required("vehicle_options", "body", m.VehicleOptions); err != nil {
-		return err
-	}
-
-	// value enum
-	if err := m.validateVehicleOptionsEnum("vehicle_options", "body", *m.VehicleOptions); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *CreateWeightTicketDocumentsPayload) validateWeightTicketDate(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.WeightTicketDate) { // not required
@@ -261,6 +210,24 @@ func (m *CreateWeightTicketDocumentsPayload) validateWeightTicketDate(formats st
 
 	if err := validate.FormatOf("weight_ticket_date", "body", "date", m.WeightTicketDate.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *CreateWeightTicketDocumentsPayload) validateWeightTicketSetType(formats strfmt.Registry) error {
+
+	if err := validate.Required("weight_ticket_set_type", "body", m.WeightTicketSetType); err != nil {
+		return err
+	}
+
+	if m.WeightTicketSetType != nil {
+		if err := m.WeightTicketSetType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("weight_ticket_set_type")
+			}
+			return err
+		}
 	}
 
 	return nil

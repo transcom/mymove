@@ -177,7 +177,7 @@ class WeightTicket extends Component {
     const weightTicketSetDocument = {
       personally_procured_move_id: currentPpm.id,
       upload_ids: uploadIds,
-      vehicle_options: formValues.vehicle_options,
+      weight_ticket_set_type: formValues.weight_ticket_set_type,
       vehicle_nickname: formValues.vehicle_nickname,
       empty_weight_ticket_missing: this.state.missingEmptyWeightTicket,
       empty_weight: formValues.empty_weight,
@@ -267,7 +267,7 @@ class WeightTicket extends Component {
                   <FontAwesomeIcon aria-hidden className="color_blue_link" icon={faQuestionCircle} />
                 </Link>
                 <SwaggerField
-                  fieldName="vehicle_options"
+                  fieldName="weight_ticket_set_type"
                   swagger={schema}
                   onChange={event => this.handleChange(event, 'vehicleType')}
                   value={vehicleType}

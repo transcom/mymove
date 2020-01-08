@@ -3892,7 +3892,7 @@ func init() {
       "type": "object",
       "required": [
         "personally_procured_move_id",
-        "vehicle_options",
+        "weight_ticket_set_type",
         "vehicle_nickname",
         "full_weight_ticket_missing",
         "empty_weight_ticket_missing",
@@ -3936,28 +3936,15 @@ func init() {
           "type": "string",
           "title": "Vehicle nickname (ex. 'My car')"
         },
-        "vehicle_options": {
-          "type": "string",
-          "title": "Select weight ticket type",
-          "enum": [
-            "CAR",
-            "CAR_TRAILER",
-            "BOX_TRUCK",
-            "PRO_GEAR"
-          ],
-          "x-display-value": {
-            "BOX_TRUCK": "Box truck",
-            "CAR": "Car",
-            "CAR_TRAILER": "Car + Trailer",
-            "PRO_GEAR": "Pro-gear"
-          }
-        },
         "weight_ticket_date": {
           "type": "string",
           "format": "date",
           "title": "Full Weight Ticket Date",
           "x-nullable": true,
           "example": "2018-04-26"
+        },
+        "weight_ticket_set_type": {
+          "$ref": "#/definitions/WeightTicketSetType"
         }
       }
     },
@@ -4429,28 +4416,15 @@ func init() {
           "type": "string",
           "title": "Vehicle nickname (ex. 'My car')"
         },
-        "vehicle_options": {
-          "type": "string",
-          "title": "Select weight ticket type",
-          "enum": [
-            "CAR",
-            "CAR_TRAILER",
-            "BOX_TRUCK",
-            "PRO_GEAR"
-          ],
-          "x-display-value": {
-            "BOX_TRUCK": "Box truck",
-            "CAR": "Car",
-            "CAR_TRAILER": "Car + Trailer",
-            "PRO_GEAR": "Pro-gear"
-          }
-        },
         "weight_ticket_date": {
           "type": "string",
           "format": "date",
           "title": "Weight ticket date",
           "x-nullable": true,
           "example": "2018-04-26"
+        },
+        "weight_ticket_set_type": {
+          "$ref": "#/definitions/WeightTicketSetType"
         }
       }
     },
@@ -6149,23 +6123,6 @@ func init() {
         }
       }
     },
-    "VehicleOptions": {
-      "type": "string",
-      "title": "Select weight ticket type",
-      "enum": [
-        "CAR",
-        "CAR_TRAILER",
-        "BOX_TRUCK",
-        "PRO_GEAR"
-      ],
-      "x-display-value": {
-        "BOX_TRUCK": "Box truck",
-        "CAR": "Car",
-        "CAR_TRAILER": "Car + Trailer",
-        "PRO_GEAR": "Pro-gear"
-      },
-      "x-nullable": true
-    },
     "WeightAllotment": {
       "type": "object",
       "required": [
@@ -6192,6 +6149,23 @@ func init() {
           "example": 18000
         }
       }
+    },
+    "WeightTicketSetType": {
+      "type": "string",
+      "title": "Select weight ticket type",
+      "enum": [
+        "CAR",
+        "CAR_TRAILER",
+        "BOX_TRUCK",
+        "PRO_GEAR"
+      ],
+      "x-display-value": {
+        "BOX_TRUCK": "Box truck",
+        "CAR": "Car",
+        "CAR_TRAILER": "Car + Trailer",
+        "PRO_GEAR": "Pro-gear"
+      },
+      "x-nullable": true
     }
   }
 }`))
@@ -10072,7 +10046,7 @@ func init() {
       "type": "object",
       "required": [
         "personally_procured_move_id",
-        "vehicle_options",
+        "weight_ticket_set_type",
         "vehicle_nickname",
         "full_weight_ticket_missing",
         "empty_weight_ticket_missing",
@@ -10118,28 +10092,15 @@ func init() {
           "type": "string",
           "title": "Vehicle nickname (ex. 'My car')"
         },
-        "vehicle_options": {
-          "type": "string",
-          "title": "Select weight ticket type",
-          "enum": [
-            "CAR",
-            "CAR_TRAILER",
-            "BOX_TRUCK",
-            "PRO_GEAR"
-          ],
-          "x-display-value": {
-            "BOX_TRUCK": "Box truck",
-            "CAR": "Car",
-            "CAR_TRAILER": "Car + Trailer",
-            "PRO_GEAR": "Pro-gear"
-          }
-        },
         "weight_ticket_date": {
           "type": "string",
           "format": "date",
           "title": "Full Weight Ticket Date",
           "x-nullable": true,
           "example": "2018-04-26"
+        },
+        "weight_ticket_set_type": {
+          "$ref": "#/definitions/WeightTicketSetType"
         }
       }
     },
@@ -10613,28 +10574,15 @@ func init() {
           "type": "string",
           "title": "Vehicle nickname (ex. 'My car')"
         },
-        "vehicle_options": {
-          "type": "string",
-          "title": "Select weight ticket type",
-          "enum": [
-            "CAR",
-            "CAR_TRAILER",
-            "BOX_TRUCK",
-            "PRO_GEAR"
-          ],
-          "x-display-value": {
-            "BOX_TRUCK": "Box truck",
-            "CAR": "Car",
-            "CAR_TRAILER": "Car + Trailer",
-            "PRO_GEAR": "Pro-gear"
-          }
-        },
         "weight_ticket_date": {
           "type": "string",
           "format": "date",
           "title": "Weight ticket date",
           "x-nullable": true,
           "example": "2018-04-26"
+        },
+        "weight_ticket_set_type": {
+          "$ref": "#/definitions/WeightTicketSetType"
         }
       }
     },
@@ -12340,23 +12288,6 @@ func init() {
         }
       }
     },
-    "VehicleOptions": {
-      "type": "string",
-      "title": "Select weight ticket type",
-      "enum": [
-        "CAR",
-        "CAR_TRAILER",
-        "BOX_TRUCK",
-        "PRO_GEAR"
-      ],
-      "x-display-value": {
-        "BOX_TRUCK": "Box truck",
-        "CAR": "Car",
-        "CAR_TRAILER": "Car + Trailer",
-        "PRO_GEAR": "Pro-gear"
-      },
-      "x-nullable": true
-    },
     "WeightAllotment": {
       "type": "object",
       "required": [
@@ -12383,6 +12314,23 @@ func init() {
           "example": 18000
         }
       }
+    },
+    "WeightTicketSetType": {
+      "type": "string",
+      "title": "Select weight ticket type",
+      "enum": [
+        "CAR",
+        "CAR_TRAILER",
+        "BOX_TRUCK",
+        "PRO_GEAR"
+      ],
+      "x-display-value": {
+        "BOX_TRUCK": "Box truck",
+        "CAR": "Car",
+        "CAR_TRAILER": "Car + Trailer",
+        "PRO_GEAR": "Pro-gear"
+      },
+      "x-nullable": true
     }
   }
 }`))

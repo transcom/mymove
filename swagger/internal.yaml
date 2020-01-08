@@ -755,11 +755,11 @@ definitions:
         type: integer
         title: Distance
         description: unit is miles
-  VehicleOptions:
+  WeightTicketSetType:
     type: string
     x-nullable: true
     title: Select weight ticket type
-    enum: &VehicleOptions
+    enum:
       - CAR
       - CAR_TRAILER
       - BOX_TRUCK
@@ -821,15 +821,8 @@ definitions:
         title: missing expense receipt
         type: boolean
         x-nullable: true
-      vehicle_options:
-        title: Select weight ticket type
-        type: string
-        enum: *VehicleOptions
-        x-display-value:
-          CAR: Car
-          CAR_TRAILER: Car + Trailer
-          BOX_TRUCK: Box truck
-          PRO_GEAR: Pro-gear
+      weight_ticket_set_type:
+        $ref: '#/definitions/WeightTicketSetType'
       vehicle_nickname:
         type: string
         title: Vehicle nickname (ex. 'My car')
@@ -1039,15 +1032,8 @@ definitions:
           type: string
           format: uuid
           example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      vehicle_options:
-        title: Select weight ticket type
-        type: string
-        enum: *VehicleOptions
-        x-display-value:
-          CAR: Car
-          CAR_TRAILER: Car + Trailer
-          BOX_TRUCK: Box truck
-          PRO_GEAR: Pro-gear
+      weight_ticket_set_type:
+        $ref: '#/definitions/WeightTicketSetType'
       vehicle_nickname:
         type: string
         title: Vehicle nickname (ex. 'My car')
@@ -1076,7 +1062,7 @@ definitions:
         type: boolean
     required:
       - personally_procured_move_id
-      - vehicle_options
+      - weight_ticket_set_type
       - vehicle_nickname
       - full_weight_ticket_missing
       - empty_weight_ticket_missing
