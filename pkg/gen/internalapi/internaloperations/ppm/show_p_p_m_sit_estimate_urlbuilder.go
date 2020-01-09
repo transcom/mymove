@@ -17,7 +17,7 @@ import (
 // ShowPPMSitEstimateURL generates an URL for the show p p m sit estimate operation
 type ShowPPMSitEstimateURL struct {
 	DaysInStorage    int64
-	DestinationZip   string
+	OrdersID         strfmt.UUID
 	OriginZip        string
 	OriginalMoveDate strfmt.Date
 	WeightEstimate   int64
@@ -61,9 +61,9 @@ func (o *ShowPPMSitEstimateURL) Build() (*url.URL, error) {
 		qs.Set("days_in_storage", daysInStorageQ)
 	}
 
-	destinationZipQ := o.DestinationZip
-	if destinationZipQ != "" {
-		qs.Set("destination_zip", destinationZipQ)
+	ordersIDQ := o.OrdersID.String()
+	if ordersIDQ != "" {
+		qs.Set("orders_id", ordersIDQ)
 	}
 
 	originZipQ := o.OriginZip
