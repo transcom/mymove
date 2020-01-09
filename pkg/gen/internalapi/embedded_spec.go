@@ -674,10 +674,9 @@ func init() {
             "required": true
           },
           {
-            "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
             "type": "string",
-            "format": "zip",
-            "name": "destination_zip",
+            "format": "uuid",
+            "name": "orders_id",
             "in": "query",
             "required": true
           },
@@ -751,10 +750,9 @@ func init() {
             "required": true
           },
           {
-            "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
             "type": "string",
-            "format": "zip",
-            "name": "destination_zip",
+            "format": "uuid",
+            "name": "orders_id",
             "in": "query",
             "required": true
           },
@@ -2259,10 +2257,9 @@ func init() {
             "required": true
           },
           {
-            "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
             "type": "string",
-            "format": "zip",
-            "name": "destination_zip",
+            "format": "uuid",
+            "name": "orders_id",
             "in": "query",
             "required": true
           },
@@ -6862,10 +6859,9 @@ func init() {
             "required": true
           },
           {
-            "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
             "type": "string",
-            "format": "zip",
-            "name": "destination_zip",
+            "format": "uuid",
+            "name": "orders_id",
             "in": "query",
             "required": true
           },
@@ -6939,10 +6935,9 @@ func init() {
             "required": true
           },
           {
-            "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
             "type": "string",
-            "format": "zip",
-            "name": "destination_zip",
+            "format": "uuid",
+            "name": "orders_id",
             "in": "query",
             "required": true
           },
@@ -8447,10 +8442,9 @@ func init() {
             "required": true
           },
           {
-            "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
             "type": "string",
-            "format": "zip",
-            "name": "destination_zip",
+            "format": "uuid",
+            "name": "orders_id",
             "in": "query",
             "required": true
           },
