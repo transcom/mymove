@@ -53,12 +53,14 @@ func (p *paymentRequestUploadCreator) convertFileReadCloserToAfero(file io.ReadC
 }
 
 func (p *paymentRequestUploadCreator) assembleUploadFilePathName(paymentRequestID uuid.UUID) (string, error) {
-	paymentRequest, err := models.FetchPaymentRequestByID(p.db, paymentRequestID)
+	var paymentRequest models.PaymentRequest
+	err := p.db.Where("id=$1", paymentRequestID).First(&paymentRequest)
 	if err != nil {
-		return "", fmt.Errorf("error fetching payment request %w", err)
+		return "", fmt.Errorf("cannot fetch payment request: %w", err)
 	}
+
 	filename := "timestamp-" + time.Now().String()
-	uploadFilePath := fmt.Sprintf("/app/payment-request-uploads/mto-%s/payment-request-%s", paymentRequest.MoveTaskOrderID, paymentRequestID)
+	uploadFilePath := fmt.Sprintf("/app/payment-request-uploads/mto-%s/payment-request-%s", paymentRequest.MoveTaskOrderID, paymentRequest.ID)
 	uploadFileName := path.Join(uploadFilePath, filename)
 
 	return uploadFileName, err

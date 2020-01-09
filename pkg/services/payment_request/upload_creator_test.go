@@ -51,11 +51,16 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, storer)
 		upload, err := uploadCreator.CreateUpload(testFile, paymentRequest.ID, *activeUser.UserID)
 
-		expectedFilename := fmt.Sprintf("/app/payment-request-uploads/mto-%s/payment-request-%s", moveTaskOrderID, paymentRequestID)
+		expectedFilename := fmt.Sprintf("/app/payment-request-uploads/mto-%s/payment-request-%s", moveTaskOrderID, paymentRequest.ID)
 		suite.NoError(err)
 		suite.Contains(upload.Filename, expectedFilename)
 		suite.Equal(int64(10596), upload.Bytes)
 		suite.Equal("application/pdf", upload.ContentType)
+
+		var proofOfServiceDoc models.ProofOfServiceDoc
+		proofOfServiceDocExists, err := suite.DB().Where("upload_id = $1", upload.ID).Where("payment_request_id = $2", paymentRequest.ID).Exists(&proofOfServiceDoc)
+		suite.NoError(err)
+		suite.Equal(true, proofOfServiceDocExists)
 	})
 
 	testFile.Close()
