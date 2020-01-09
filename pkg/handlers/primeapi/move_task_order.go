@@ -24,7 +24,7 @@ func (h ListMoveTaskOrdersHandler) Handle(params movetaskorderops.ListMoveTaskOr
 
 	var mtos models.MoveTaskOrders
 
-	query := h.DB().Where("is_available_to_prime = ?", true)
+	query := h.DB().Where("is_available_to_prime = ?", true).Eager("PaymentRequests")
 	if params.Since != nil {
 		since := time.Unix(*params.Since, 0)
 		query = query.Where("updated_at > ?", since)

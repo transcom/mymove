@@ -947,6 +947,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "payment_requests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PaymentRequest"
+          }
+        },
         "referenceId": {
           "type": "string",
           "x-nullable": true,
@@ -999,10 +1005,18 @@ func init() {
       "type": "string",
       "title": "Payment Request Status",
       "enum": [
-        "PAYMENT_SUBMITTED",
-        "APPROVED",
-        "REJECTED"
+        "PENDING",
+        "REVIEWED",
+        "SENT_TO_GEX",
+        "RECEIVED_BY_GEX",
+        "PAID"
       ]
+    },
+    "PaymentRequests": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentRequest"
+      }
     },
     "ProofOfServicePackage": {
       "type": "object",
@@ -2165,6 +2179,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "payment_requests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PaymentRequest"
+          }
+        },
         "referenceId": {
           "type": "string",
           "x-nullable": true,
@@ -2217,10 +2237,18 @@ func init() {
       "type": "string",
       "title": "Payment Request Status",
       "enum": [
-        "PAYMENT_SUBMITTED",
-        "APPROVED",
-        "REJECTED"
+        "PENDING",
+        "REVIEWED",
+        "SENT_TO_GEX",
+        "RECEIVED_BY_GEX",
+        "PAID"
       ]
+    },
+    "PaymentRequests": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentRequest"
+      }
     },
     "ProofOfServicePackage": {
       "type": "object",
