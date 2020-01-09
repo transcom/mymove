@@ -59,6 +59,8 @@ class CustomerDetails extends Component {
               <>
                 <h2>Customer Entitlements</h2>
                 <dl>
+                  <dt>Rank</dt>
+                  <dd>{get(moveOrder, 'grade', '')}</dd>
                   <dt>Dependents Authorized</dt>
                   <dd>{get(entitlements, 'dependentsAuthorized', '').toString()}</dd>
                   <dt>Non Temporary Storage</dt>
@@ -69,6 +71,8 @@ class CustomerDetails extends Component {
                   <dd>{get(entitlements, 'proGearWeightSpouse')}</dd>
                   <dt>Storage In Transit</dt>
                   <dd>{get(entitlements, 'storageInTransit', '').toString()}</dd>
+                  <dt>Total Weight</dt>
+                  <dd>{get(entitlements, 'totalWeight')}</dd>
                   <dt>Total Dependents</dt>
                   <dd>{get(entitlements, 'totalDependents')}</dd>
                 </dl>
