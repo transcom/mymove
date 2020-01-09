@@ -6,7 +6,7 @@ require (
 	github.com/0xAX/notificator v0.0.0-20191016112426-3962a5ea8da1 // indirect
 	github.com/99designs/aws-vault v4.5.1+incompatible
 	github.com/99designs/keyring v1.1.3
-	github.com/aws/aws-sdk-go v1.25.43
+	github.com/aws/aws-sdk-go v1.27.2
 	github.com/cockroachdb/cockroach-go v0.0.0-20190925194419-606b3d062051 // indirect
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
@@ -30,10 +30,10 @@ require (
 	github.com/go-swagger/go-swagger v0.21.0
 	github.com/gobuffalo/envy v1.8.1
 	github.com/gobuffalo/fizz v1.9.5
-	github.com/gobuffalo/flect v0.1.7
+	github.com/gobuffalo/flect v0.2.0
 	github.com/gobuffalo/nulls v0.1.0 // indirect
 	github.com/gobuffalo/packr v1.30.1
-	github.com/gobuffalo/pop v4.12.2+incompatible
+	github.com/gobuffalo/pop v4.13.0+incompatible
 	github.com/gobuffalo/validate v2.0.3+incompatible
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
 	github.com/gofrs/flock v0.7.1
@@ -46,8 +46,8 @@ require (
 	github.com/jstemmer/go-junit-report v0.9.1
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/leodido/go-urn v1.2.0
-	github.com/lib/pq v1.2.0
-	github.com/markbates/goth v1.59.0
+	github.com/lib/pq v1.3.0
+	github.com/markbates/goth v1.60.0
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.10 // indirect
 	github.com/mattn/go-shellwords v1.0.6 // indirect
@@ -56,7 +56,7 @@ require (
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.8.1
 	github.com/rickar/cal v1.0.1
-	github.com/rogpeppe/go-internal v1.5.0
+	github.com/rogpeppe/go-internal v1.5.1
 	github.com/segmentio/chamber/v2 v2.7.5
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/cobra v0.0.5
@@ -74,7 +74,7 @@ require (
 	golang.org/x/text v0.3.2
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
-	gopkg.in/go-playground/validator.v9 v9.30.2
+	gopkg.in/go-playground/validator.v9 v9.31.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
 )

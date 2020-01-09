@@ -48,13 +48,13 @@ type CreateWeightTicketDocumentsPayload struct {
 	// upload ids
 	UploadIds []strfmt.UUID `json:"upload_ids"`
 
-	// Vehicle nickname (ex. "My car")
+	// Vehicle nickname (ex. 'My car')
 	// Required: true
 	VehicleNickname *string `json:"vehicle_nickname"`
 
-	// What type of vehicle are these weight tickets for?
+	// Select weight ticket type
 	// Required: true
-	// Enum: [CAR CAR_TRAILER BOX_TRUCK]
+	// Enum: [CAR CAR_TRAILER BOX_TRUCK PRO_GEAR]
 	VehicleOptions *string `json:"vehicle_options"`
 
 	// Full Weight Ticket Date
@@ -208,7 +208,7 @@ var createWeightTicketDocumentsPayloadTypeVehicleOptionsPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["CAR","CAR_TRAILER","BOX_TRUCK"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["CAR","CAR_TRAILER","BOX_TRUCK","PRO_GEAR"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -226,6 +226,9 @@ const (
 
 	// CreateWeightTicketDocumentsPayloadVehicleOptionsBOXTRUCK captures enum value "BOX_TRUCK"
 	CreateWeightTicketDocumentsPayloadVehicleOptionsBOXTRUCK string = "BOX_TRUCK"
+
+	// CreateWeightTicketDocumentsPayloadVehicleOptionsPROGEAR captures enum value "PRO_GEAR"
+	CreateWeightTicketDocumentsPayloadVehicleOptionsPROGEAR string = "PRO_GEAR"
 )
 
 // prop value enum

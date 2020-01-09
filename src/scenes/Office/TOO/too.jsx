@@ -3,19 +3,19 @@ import { arrayOf, shape, string } from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
-import { getAllCustomerMoves } from 'shared/Entities/modules/moveTaskOrders';
+import { getAllMoveOrders } from 'shared/Entities/modules/moveOrders';
 
 class TOO extends Component {
   componentDidMount() {
-    this.props.getAllCustomerMoves();
+    this.props.getAllMoveOrders();
   }
 
-  handleCustomerInfoClick = customerId => {
-    this.props.history.push(`/too/customer/${customerId}/details`);
+  handleCustomerInfoClick = (moveOrderId, customerId) => {
+    this.props.history.push(`/too/customer-moves/${moveOrderId}/customer/${customerId}`);
   };
 
   render() {
-    const { customerMoves } = this.props;
+    const { moveOrders } = this.props;
     return (
       <div>
         <h2>All Customer Moves</h2>
@@ -24,28 +24,30 @@ class TOO extends Component {
             <tr>
               <th>Customer Name</th>
               <th>Confirmation #</th>
-              <th>Branch of Service</th>
+              <th>Agency</th>
               <th>Origin Duty Station</th>
-              <th>MTO Reference ID</th>
             </tr>
           </thead>
           <tbody>
-            {customerMoves.map(
+            {moveOrders.map(
               ({
-                id,
-                customer_name,
-                customer_id,
+                id: moveOrderId,
+                first_name,
+                last_name,
                 confirmation_number,
-                branch_of_service,
-                origin_duty_station_name,
-                reference_id,
+                agency,
+                originDutyStation,
+                customerID,
               }) => (
-                <tr data-cy="too-row" onClick={() => this.handleCustomerInfoClick(customer_id)} key={id}>
-                  <td>{customer_name}</td>
+                <tr
+                  data-cy="too-row"
+                  onClick={() => this.handleCustomerInfoClick(moveOrderId, customerID)}
+                  key={moveOrderId}
+                >
+                  <td>{`${last_name}, ${first_name}`}</td>
                   <td>{confirmation_number}</td>
-                  <td>{branch_of_service}</td>
-                  <td>{origin_duty_station_name}</td>
-                  <td>{reference_id}</td>
+                  <td>{agency}</td>
+                  <td>{originDutyStation.name}</td>
                 </tr>
               ),
             )}
@@ -58,23 +60,26 @@ class TOO extends Component {
 
 const customerMoveProps = shape({
   id: string.isRequired,
-  customer_name: string.isRequired,
+  first_name: string.isRequired,
+  last_name: string.isRequired,
   confirmation_number: string.isRequired,
-  branch_of_service: string.isRequired,
-  origin_duty_station_name: string.isRequired,
+  branch_of_service: string,
+  originDutyStation: shape({
+    name: string.isRequired,
+  }).isRequired,
 });
 
 TOO.propTypes = {
-  customerMoves: arrayOf(customerMoveProps),
+  moveOrders: arrayOf(customerMoveProps),
 };
 
 const mapStateToProps = state => {
   return {
-    customerMoves: Object.values(get(state, 'entities.customerMoveItem', {})),
+    moveOrders: Object.values(get(state, 'entities.moveOrder', {})),
   };
 };
 const mapDispatchToProps = {
-  getAllCustomerMoves,
+  getAllMoveOrders,
 };
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(TOO));

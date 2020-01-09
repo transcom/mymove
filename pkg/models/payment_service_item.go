@@ -61,7 +61,7 @@ type PaymentServiceItems []PaymentServiceItem
 func (p *PaymentServiceItem) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: p.PaymentRequestID, Name: "PaymentRequestID"},
-		&validators.UUIDIsPresent{Field: p.PaymentRequestID, Name: "ServiceItemID"},
+		&validators.UUIDIsPresent{Field: p.ServiceItemID, Name: "ServiceItemID"},
 		&validators.StringInclusion{Field: p.Status.String(), Name: "Status", List: validPaymentServiceItemStatus},
 		&validators.TimeIsPresent{Field: p.RequestedAt, Name: "RequestedAt"},
 		// TODO: Removing this until we have pricing to populate

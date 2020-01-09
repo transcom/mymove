@@ -38,7 +38,7 @@ RDS IAM authentication is the method of connecting to the database using IAM as 
 An RDS instance must be configured with IAM authentication before connecting. All RDS in the MilMove environment has this enabled. If wishing to connect to a RDS instance first prepare the infrastructure to allow this with this [guide](https://github.com/transcom/ppp-infra/blob/master/docs/runbook/0009-accessing-the-db-with-iam.md). Once complete locally milmove server can be ran with the following
 
 ```bash
-/path/to/milmove serve --db-iam --db-iam-role arn:aws:iam::AWSACCOUNT:role/CONNECTROLE  --db-region us-east-2 --db-host RDSURL  --db-ssl-mode verify-full --db-ssl-root-cert bin/rds-combined-ca-bundle.pem  --db-user db_user
+/path/to/milmove serve --db-iam --db-iam-role arn:aws:iam::AWSACCOUNT:role/CONNECTROLE  --db-region us-east-2 --db-host RDSURL  --db-ssl-mode verify-full --db-ssl-root-cert bin/rds-ca-2019-root.pem  --db-user db_user
 ```
 
 ### ECS Task connecting to RDS using IAM authentication

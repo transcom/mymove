@@ -62,6 +62,8 @@ func main() {
 	// option `xlsxSheets` will override `all` flag
 	if len(params.XlsxSheets) > 0 {
 		params.ProcessAll = false
+		log.Println("Setting --xlsxSheets disables --re-import so no data will be imported into the rate engine tables. Only stage table data will be updated.")
+		params.RunImport = false
 	}
 
 	if params.XlsxFilename == "" {
@@ -151,6 +153,9 @@ func xlsxSheetsUsage(xlsxDataSheets []pricing.XlsxDataSheetInfo) string {
 			message += fmt.Sprintf("%d:  %s\n", i, description)
 		}
 	}
+
+	message += "\n"
+	message += "NOTE: This option disables the Rate Engine table import by disabling the --re-import flag\n"
 
 	return message
 }

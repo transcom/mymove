@@ -9,6 +9,7 @@ import { Field } from 'redux-form';
 
 import { createOrders, updateOrders } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
+import { withContext } from 'shared/AppContext';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -41,6 +42,7 @@ export class Orders extends Component {
 
   render() {
     const { pages, pageKey, error, currentOrders, serviceMemberId, newDutyStation, currentStation } = this.props;
+    const { context: { flags: { progearChanges } } = { flags: { progearChanges: null } } } = this.props;
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = currentOrders ? currentOrders : null;
     const newDutyStationErrorMsg =
@@ -66,7 +68,7 @@ export class Orders extends Component {
         </div>
         <SwaggerField fieldName="report_by_date" swagger={this.props.schema} required />
         <SwaggerField fieldName="has_dependents" swagger={this.props.schema} component={YesNoBoolean} />
-        {get(this.props, 'formValues.has_dependents', false) && (
+        {!progearChanges && get(this.props, 'formValues.has_dependents', false) && (
           <Fragment>
             <SwaggerField
               fieldName="spouse_has_pro_gear"
@@ -114,4 +116,4 @@ function mapDispatchToProps(dispatch) {
     dispatch,
   );
 }
-export default connect(mapStateToProps, mapDispatchToProps)(Orders);
+export default withContext(connect(mapStateToProps, mapDispatchToProps)(Orders));

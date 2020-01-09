@@ -1,0 +1,26 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+#   Wraps command in aws-vault.
+#
+#   Expects the command you want to run is symlinked to this file.
+#
+
+cmd=$(basename "$0")
+if [[ $cmd = aws-vault-wrapper ]]; then
+    echo "This wrapper should not be called directly."
+    exit 1
+fi
+
+# remove the dir this script and symlinks are in so we find the real executable
+my_bin_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PATH=${PATH//$my_bin_dir:}
+
+# set the debug flag
+debug_flag=""
+[[ -n ${DEBUG_AWS_VAULT:-} ]] && debug_flag="--debug"
+
+[[ -n ${DISABLE_AWS_VAULT_WRAPPER:-} ]] && exec "$cmd" "$@"
+# Session chaining has a max duration of 1h despite what we set for max_session_duration in the role itself
+exec aws-vault $debug_flag exec "$AWS_PROFILE" --duration=1h -- "$cmd" "$@"

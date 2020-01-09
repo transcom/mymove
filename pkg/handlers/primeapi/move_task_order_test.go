@@ -5,13 +5,22 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/transcom/mymove/pkg/models"
+
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestListMoveTaskOrdersHandler() {
-	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			IsAvailableToPrime: true,
+		},
+	})
+
+	// unavailable MTO
+	testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
 
 	request := httptest.NewRequest("GET", "/move-task-orders", nil)
 
@@ -34,10 +43,18 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandlerReturnsUpdated() {
 	now := time.Now()
 	lastFetch := now.Add(-time.Second)
 
-	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			IsAvailableToPrime: true,
+		},
+	})
 
 	// this MTO should not be returned
-	olderMoveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+	olderMoveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			IsAvailableToPrime: true,
+		},
+	})
 
 	// Pop will overwrite UpdatedAt when saving a model, so use SQL to set it in the past
 	suite.NoError(suite.DB().RawQuery("UPDATE move_task_orders SET updated_at=? WHERE id=?",

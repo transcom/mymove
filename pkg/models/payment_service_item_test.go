@@ -15,6 +15,7 @@ func (suite *ModelSuite) TestPaymentServiceItemValidation() {
 	suite.T().Run("test valid PaymentServiceItem", func(t *testing.T) {
 		validPaymentServiceItem := models.PaymentServiceItem{
 			PaymentRequestID: uuid.Must(uuid.NewV4()),
+			ServiceItemID:    uuid.Must(uuid.NewV4()),
 			Status:           "REQUESTED",
 			RequestedAt:      time.Now(),
 			PriceCents:       unit.Cents(1000),
@@ -41,6 +42,7 @@ func (suite *ModelSuite) TestPaymentServiceItemValidation() {
 	suite.T().Run("test invalid status for PaymentServiceItem", func(t *testing.T) {
 		invalidPaymentServiceItem := models.PaymentServiceItem{
 			PaymentRequestID: uuid.Must(uuid.NewV4()),
+			ServiceItemID:    uuid.Must(uuid.NewV4()),
 			Status:           "Sleeping",
 			RequestedAt:      time.Now(),
 			PriceCents:       unit.Cents(1000),
