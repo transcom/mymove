@@ -1663,6 +1663,11 @@ func init() {
         "totalDependents": {
           "type": "integer",
           "example": 2
+        },
+        "totalWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
         }
       }
     },
@@ -4033,6 +4038,11 @@ func init() {
         "totalDependents": {
           "type": "integer",
           "example": 2
+        },
+        "totalWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
         }
       }
     },

@@ -43,7 +43,7 @@ func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
 	}
 	destinationDutyStation := DutyStation(&moveOrder.DestinationDutyStation)
 	originDutyStation := DutyStation(&moveOrder.OriginDutyStation)
-	entitlements := Entitlement(&moveOrder.Entitlement)
+	entitlements := Entitlement(&moveOrder.Entitlement, moveOrder.Grade)
 	payload := ghcmessages.MoveOrder{
 		Agency:                 moveOrder.Customer.Agency,
 		CustomerID:             strfmt.UUID(moveOrder.CustomerID.String()),
@@ -59,17 +59,17 @@ func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
 	return &payload
 }
 
-func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
+func Entitlement(entitlement *models.Entitlement, grade string) *ghcmessages.Entitlements {
 	if entitlement == nil {
 		return nil
 	}
-	var proGearWeight int64
-	if entitlement.ProGearWeight != nil {
-		proGearWeight = int64(*entitlement.ProGearWeight)
-	}
-	var proGearWeightSpouse int64
-	if entitlement.ProGearWeightSpouse != nil {
-		proGearWeightSpouse = int64(*entitlement.ProGearWeightSpouse)
+	var proGearWeight, proGearWeightSpouse, totalWeight int64
+	if grade != "" {
+		//TODO probably want to reconsider keeping grade a string rather than enum
+		weightAllotment := models.GetWeightAllotment(models.ServiceMemberRank(grade))
+		proGearWeight = int64(weightAllotment.ProGearWeight)
+		proGearWeightSpouse = int64(weightAllotment.ProGearWeightSpouse)
+		totalWeight = int64(weightAllotment.TotalWeightSelf)
 	}
 	var sit int64
 	if entitlement.StorageInTransit != nil {
@@ -88,6 +88,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		ProGearWeightSpouse:   proGearWeightSpouse,
 		StorageInTransit:      sit,
 		TotalDependents:       totalDependents,
+		TotalWeight:           totalWeight,
 	}
 }
 

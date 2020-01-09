@@ -41,6 +41,9 @@ type Entitlements struct {
 
 	// total dependents
 	TotalDependents int64 `json:"totalDependents,omitempty"`
+
+	// total weight
+	TotalWeight int64 `json:"totalWeight,omitempty"`
 }
 
 // Validate validates this entitlements
