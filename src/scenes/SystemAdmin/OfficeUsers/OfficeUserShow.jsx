@@ -27,10 +27,15 @@ const OfficeUserShow = props => {
         <BooleanField source="active" />
         <ArrayField source="roles">
           <Datagrid>
-            <TextField source="roleType" />
+            <TextField source="roleName" />
           </Datagrid>
         </ArrayField>
-        <ReferenceField label="Transportation Office" source="transportation_office_id" reference="offices">
+        <ReferenceField
+          label="Transportation Office"
+          source="transportation_office_id"
+          reference="offices"
+          sortBy="name"
+        >
           <TextField component="pre" source="name" />
         </ReferenceField>
         <DateField source="created_at" showTime />

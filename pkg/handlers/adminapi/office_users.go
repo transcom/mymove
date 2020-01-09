@@ -20,9 +20,11 @@ import (
 
 func payloadForRole(r roles.Role) *adminmessages.Role {
 	roleType := string(r.RoleType)
+	roleName := string(r.RoleName)
 	return &adminmessages.Role{
 		ID:        handlers.FmtUUID(r.ID),
 		RoleType:  &roleType,
+		RoleName:  &roleName,
 		CreatedAt: handlers.FmtDateTime(r.CreatedAt),
 		UpdatedAt: handlers.FmtDateTime(r.UpdatedAt),
 	}

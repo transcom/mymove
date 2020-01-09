@@ -27,6 +27,10 @@ type Role struct {
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
 
+	// role name
+	// Required: true
+	RoleName *string `json:"roleName"`
+
 	// role type
 	// Required: true
 	RoleType *string `json:"roleType"`
@@ -46,6 +50,10 @@ func (m *Role) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRoleName(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -83,6 +91,15 @@ func (m *Role) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Role) validateRoleName(formats strfmt.Registry) error {
+
+	if err := validate.Required("roleName", "body", m.RoleName); err != nil {
 		return err
 	}
 

@@ -1682,6 +1682,7 @@ func init() {
       "required": [
         "id",
         "roleType",
+        "roleName",
         "createdAt",
         "updatedAt"
       ],
@@ -1696,6 +1697,10 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "roleName": {
+          "type": "string",
+          "example": "Transportation Ordering Officer"
         },
         "roleType": {
           "type": "string",
@@ -3633,6 +3638,7 @@ func init() {
       "required": [
         "id",
         "roleType",
+        "roleName",
         "createdAt",
         "updatedAt"
       ],
@@ -3647,6 +3653,10 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "roleName": {
+          "type": "string",
+          "example": "Transportation Ordering Officer"
         },
         "roleType": {
           "type": "string",

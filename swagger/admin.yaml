@@ -69,6 +69,9 @@ definitions:
       roleType:
         type: string
         example: customer
+      roleName:
+        type: string
+        example: Transportation Ordering Officer
       createdAt:
         type: string
         format: datetime
@@ -82,6 +85,7 @@ definitions:
     required:
       - id
       - roleType
+      - roleName
       - createdAt
       - updatedAt
   OfficeUser:
