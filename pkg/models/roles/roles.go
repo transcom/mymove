@@ -11,6 +11,7 @@ import (
 
 // Role is an object representing the types of users who can authenticate in the admin app
 type RoleType string
+type RoleName string
 
 const (
 	RoleTypeTOO                RoleType = "transportation_ordering_officer"
@@ -23,6 +24,7 @@ const (
 type Role struct {
 	ID        uuid.UUID `json:"id" db:"id"`
 	RoleType  RoleType  `json:"role_type" db:"role_type"`
+	RoleName  RoleName  `json:"role_name" db:"role_name"`
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
