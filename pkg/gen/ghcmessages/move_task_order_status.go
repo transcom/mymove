@@ -6,81 +6,21 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
-
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // MoveTaskOrderStatus move task order status
 // swagger:model MoveTaskOrderStatus
 type MoveTaskOrderStatus struct {
 
-	// status
-	// Enum: [APPROVED DRAFT REJECTED]
-	Status string `json:"status,omitempty"`
+	// is available to prime
+	IsAvailableToPrime bool `json:"is_available_to_prime,omitempty"`
 }
 
 // Validate validates this move task order status
 func (m *MoveTaskOrderStatus) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var moveTaskOrderStatusTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["APPROVED","DRAFT","REJECTED"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		moveTaskOrderStatusTypeStatusPropEnum = append(moveTaskOrderStatusTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// MoveTaskOrderStatusStatusAPPROVED captures enum value "APPROVED"
-	MoveTaskOrderStatusStatusAPPROVED string = "APPROVED"
-
-	// MoveTaskOrderStatusStatusDRAFT captures enum value "DRAFT"
-	MoveTaskOrderStatusStatusDRAFT string = "DRAFT"
-
-	// MoveTaskOrderStatusStatusREJECTED captures enum value "REJECTED"
-	MoveTaskOrderStatusStatusREJECTED string = "REJECTED"
-)
-
-// prop value enum
-func (m *MoveTaskOrderStatus) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, moveTaskOrderStatusTypeStatusPropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *MoveTaskOrderStatus) validateStatus(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Status) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := m.validateStatusEnum("status", "body", m.Status); err != nil {
-		return err
-	}
-
 	return nil
 }
 

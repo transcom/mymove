@@ -1,17 +1,11 @@
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getGHCClient } from 'shared/Swagger/api';
-import { get } from 'lodash';
+import { get, filter } from 'lodash';
 
 const updateMoveTaskOrders = 'moveTaskOrder.updateMoveTaskOrderStatus';
-export function updateMoveTaskOrderStatus(moveTaskOrderID, status, label = updateMoveTaskOrders) {
+export function updateMoveTaskOrderStatus(moveTaskOrderID, isAvailableToPrime, label = updateMoveTaskOrders) {
   const swaggerTag = 'moveTaskOrder.updateMoveTaskOrderStatus';
-  return swaggerRequest(
-    getGHCClient,
-    swaggerTag,
-    { moveTaskOrderID, body: { status } },
-    { updateMoveTaskOrders },
-    { label },
-  );
+  return swaggerRequest(getGHCClient, swaggerTag, { moveTaskOrderID }, { updateMoveTaskOrders }, { label });
 }
 
 const getMoveOrderLabel = 'moveOrder.getMoveOrder';
@@ -21,7 +15,12 @@ export function getMoveOrder(moveOrderID, label = getMoveOrderLabel) {
 }
 
 export function selectMoveOrder(state, moveOrderId) {
-  return get(state, `entities.moveOrders.${moveOrderId}`, {});
+  return get(state, `entities.moveOrder.${moveOrderId}`, {});
+}
+
+export function selectMoveTaskOrders(state, moveOrderId) {
+  const mtos = get(state, 'entities.moveTaskOrder', {});
+  return filter(mtos, mto => mto.moveOrderID === moveOrderId);
 }
 
 const getMoveTaskOrderLabel = 'moveTaskOrder.getMoveTaskOrder';
@@ -30,8 +29,10 @@ export function getMoveTaskOrder(moveTaskOrderID, label = getMoveTaskOrderLabel)
   return swaggerRequest(getGHCClient, swaggerTag, { moveTaskOrderID }, { label });
 }
 
-export function selectMoveTaskOrder(state, moveTaskOrderId) {
-  return get(state, `entities.moveTaskOrders.${moveTaskOrderId}`, {});
+const getAllMoveTaskOrdersLabel = 'moveOrder.listMoveTaskOrders';
+export function getAllMoveTaskOrders(moveOrderID, label = getAllMoveTaskOrdersLabel) {
+  const swaggerTag = 'moveOrder.listMoveTaskOrders';
+  return swaggerRequest(getGHCClient, swaggerTag, { moveOrderID }, { label });
 }
 
 const getCustomerOperation = 'customer.getCustomer';
@@ -39,7 +40,6 @@ export function getCustomer(customerID, label = getCustomerOperation) {
   return swaggerRequest(getGHCClient, getCustomerOperation, { customerID }, { label });
 }
 
-const getAllCustomerMovesOperation = 'customer.getAllCustomerMoves';
-export function getAllCustomerMoves(label = getAllCustomerMovesOperation) {
-  return swaggerRequest(getGHCClient, getAllCustomerMovesOperation, {}, { label });
+export function selectCustomer(state, customerId) {
+  return get(state, `entities.customer.${customerId}`, {});
 }

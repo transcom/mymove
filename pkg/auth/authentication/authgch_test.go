@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 
+	"github.com/transcom/mymove/pkg/models/roles"
+
 	"github.com/transcom/mymove/pkg/cli"
 
 	"github.com/gofrs/uuid"
@@ -88,7 +90,7 @@ func (suite *AuthSuite) TestCreateAndAssociateCustomerUserIDNil() {
 
 func (suite *AuthSuite) TestAssociateOfficeUser() {
 	user := testdatagen.MakeDefaultUser(suite.DB())
-	testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{OfficeUser: models.OfficeUser{
+	testdatagen.MakeOfficeUserWithNoUser(suite.DB(), testdatagen.Assertions{OfficeUser: models.OfficeUser{
 		Email:  user.LoginGovEmail,
 		Active: true,
 	}})
@@ -103,7 +105,7 @@ func (suite *AuthSuite) TestAssociateOfficeUser() {
 
 func (suite *AuthSuite) TestAssociateOfficeUserInactiveIsErr() {
 	user := testdatagen.MakeDefaultUser(suite.DB())
-	testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{OfficeUser: models.OfficeUser{
+	testdatagen.MakeOfficeUserWithNoUser(suite.DB(), testdatagen.Assertions{OfficeUser: models.OfficeUser{
 		Email:  user.LoginGovEmail,
 		Active: false,
 	}})
@@ -116,7 +118,7 @@ func (suite *AuthSuite) TestAssociateOfficeUserInactiveIsErr() {
 
 func (suite *AuthSuite) TestAssociateAdminUser() {
 	user := testdatagen.MakeDefaultUser(suite.DB())
-	testdatagen.MakeAdminUser(suite.DB(), testdatagen.Assertions{AdminUser: models.AdminUser{
+	testdatagen.MakeAdminUserWithNoUser(suite.DB(), testdatagen.Assertions{AdminUser: models.AdminUser{
 		Email:  user.LoginGovEmail,
 		Active: true,
 	}})
@@ -131,7 +133,7 @@ func (suite *AuthSuite) TestAssociateAdminUser() {
 
 func (suite *AuthSuite) TestAssociateAdminUserInactiveIsErr() {
 	user := testdatagen.MakeDefaultUser(suite.DB())
-	testdatagen.MakeAdminUser(suite.DB(), testdatagen.Assertions{AdminUser: models.AdminUser{
+	testdatagen.MakeAdminUserWithNoUser(suite.DB(), testdatagen.Assertions{AdminUser: models.AdminUser{
 		Email:  user.LoginGovEmail,
 		Active: false,
 	}})
@@ -288,16 +290,88 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserIsCustomer() {
 	cca.AssertNumberOfCalls(suite.T(), "CreateAndAssociateCustomer", 1)
 }
 
-func (suite *AuthSuite) TestAssociateTOOUser() {
-	user := testdatagen.MakeDefaultUser(suite.DB())
-	too := models.TransportationOrderingOfficer{}
-	err := suite.DB().Save(&too)
-	suite.NoError(err)
+func (suite *AuthSuite) TestAuthorizeUnknownUserIsTOOUser() {
+	oa := &mocks.OfficeUserAssociator{}
+	oa.On("AssociateOfficeUser", mock.Anything).Return(nil, ErrUnauthorized)
+	tr := &mocks.TOORoleChecker{}
+	tr.On("VerifyHasTOORole", mock.Anything).Return(roles.Role{RoleType: roles.RoleTypeTOO}, nil)
+	tr.On("FetchUserIdentity", mock.Anything).Return(&models.UserIdentity{}, nil)
+	aa := &mocks.AdminUserAssociator{}
+	cca := &mocks.CustomerCreatorAndAssociator{}
+	ra := roleAssociator{
+		db:                           suite.DB(),
+		logger:                       suite.logger,
+		OfficeUserAssociator:         oa,
+		AdminUserAssociator:          aa,
+		CustomerCreatorAndAssociator: cca,
+		TOORoleChecker:               tr,
+	}
+	uc := &mocks.UserCreator{}
+	uid, _ := uuid.NewV4()
+	uc.On("CreateUser", mock.Anything, mock.Anything).Return(&models.User{ID: uid}, nil)
+	uua := UnknownUserAuthorizer{
+		logger:         suite.logger,
+		UserCreator:    uc,
+		RoleAssociator: ra,
+	}
+	user := goth.User{
+		UserID: "id",
+		Email:  "sample@email.com",
+	}
+	session := auth.Session{ApplicationName: auth.OfficeApp}
+	suite.True(session.IsOfficeApp())
 
-	ta := tooUserAssociator{suite.DB(), suite.logger}
-	_, err = ta.AssociateTOOUser(&user)
+	err := uua.AuthorizeUnknownUser(user, &session)
+
+	suite.NoError(err)
+	oa.AssertNumberOfCalls(suite.T(), "AssociateOfficeUser", 1)
+	tr.AssertNumberOfCalls(suite.T(), "VerifyHasTOORole", 1)
+	suite.True(session.Roles.HasRole(roles.RoleTypeTOO))
+	suite.NotEqual(uuid.Nil, session.UserID)
+}
+
+func (suite *AuthSuite) TestVerifyHasTOORole() {
+	rs := []roles.Role{{
+		ID:       uuid.FromStringOrNil("ed2d2cd7-d427-412a-98bb-a9b391d98d32"),
+		RoleType: roles.RoleTypeCustomer,
+	},
+		{
+			ID:       uuid.FromStringOrNil("9dc423b6-33b8-493a-a59b-6a823660cb07"),
+			RoleType: roles.RoleTypeTOO,
+		},
+	}
+	suite.NoError(suite.DB().Create(&rs))
+	user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
+		User: models.User{
+			Active: true,
+			Roles:  []roles.Role{rs[1]},
+		},
+	})
+	ta := tooRoleChecker{suite.DB(), suite.logger}
+	ui, err := ta.FetchUserIdentity(&user)
+	suite.NoError(err)
+	role, err := ta.VerifyHasTOORole(ui)
+
+	suite.NoError(err)
+	suite.Equal(role.RoleType, roles.RoleTypeTOO)
+}
+
+func (suite *AuthSuite) TestVerifyHasTOORoleError() {
+	rs := []roles.Role{{
+		ID:       uuid.FromStringOrNil("ed2d2cd7-d427-412a-98bb-a9b391d98d32"),
+		RoleType: roles.RoleTypeCustomer,
+	},
+		{
+			ID:       uuid.FromStringOrNil("9dc423b6-33b8-493a-a59b-6a823660cb07"),
+			RoleType: roles.RoleTypeTOO,
+		},
+	}
+	suite.NoError(suite.DB().Create(&rs))
+	user := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{})
+	ta := tooRoleChecker{suite.DB(), suite.logger}
+	ui, err := ta.FetchUserIdentity(&user)
+	suite.NoError(err)
+	_, err = ta.VerifyHasTOORole(ui)
+
 	suite.Error(err)
-	// TODO transportation_ordering_officers table does have an email to lookup by
-	// TODO not sure how we'll handle for now always return ErrUnauthorized
-	suite.IsType(err, ErrUnauthorized)
 }

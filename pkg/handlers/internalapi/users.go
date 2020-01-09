@@ -23,7 +23,7 @@ func decoratePayloadWithRoles(s *auth.Session, p *internalmessages.LoggedInUserP
 	for _, role := range s.Roles {
 		p.Roles = append(p.Roles, &internalmessages.Role{
 			ID:        handlers.FmtUUID(s.UserID),
-			RoleType:  &role.RoleType,
+			RoleType:  handlers.FmtString(string(role.RoleType)),
 			CreatedAt: handlers.FmtDateTime(role.CreatedAt),
 			UpdatedAt: handlers.FmtDateTime(role.UpdatedAt),
 		})

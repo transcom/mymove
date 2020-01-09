@@ -93,11 +93,11 @@ type MoveDocumentPayload struct {
 	// missing trailer ownership documentation
 	TrailerOwnershipMissing *bool `json:"trailer_ownership_missing,omitempty"`
 
-	// Vehicle nickname (ex. "My car")
+	// Vehicle nickname (ex. 'My car')
 	VehicleNickname string `json:"vehicle_nickname,omitempty"`
 
-	// What type of vehicle are these weight tickets for?
-	// Enum: [CAR CAR_TRAILER BOX_TRUCK]
+	// Select weight ticket type
+	// Enum: [CAR CAR_TRAILER BOX_TRUCK PRO_GEAR]
 	VehicleOptions string `json:"vehicle_options,omitempty"`
 
 	// Weight ticket date
@@ -397,7 +397,7 @@ var moveDocumentPayloadTypeVehicleOptionsPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["CAR","CAR_TRAILER","BOX_TRUCK"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["CAR","CAR_TRAILER","BOX_TRUCK","PRO_GEAR"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -415,6 +415,9 @@ const (
 
 	// MoveDocumentPayloadVehicleOptionsBOXTRUCK captures enum value "BOX_TRUCK"
 	MoveDocumentPayloadVehicleOptionsBOXTRUCK string = "BOX_TRUCK"
+
+	// MoveDocumentPayloadVehicleOptionsPROGEAR captures enum value "PRO_GEAR"
+	MoveDocumentPayloadVehicleOptionsPROGEAR string = "PRO_GEAR"
 )
 
 // prop value enum

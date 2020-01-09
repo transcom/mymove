@@ -1,14 +1,11 @@
 import React from 'react';
 import { get, includes, find, mapValues, capitalize } from 'lodash';
-import moment from 'moment';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
+import { formatDateForSwagger } from './dates';
 import './shared.css';
-
-export const swaggerDateFormat = 'YYYY-MM-DD';
-export const defaultDateFormat = 'M/D/YYYY';
 
 export const no_op = () => undefined;
 export const no_op_action = () => {
@@ -59,15 +56,6 @@ export function fetchActiveShipment(shipments) {
   );
 }
 
-export function formatDateString(dateString) {
-  let parsed = moment(dateString, defaultDateFormat);
-  if (parsed.isValid()) {
-    return parsed.format(swaggerDateFormat);
-  }
-
-  return dateString;
-}
-
 // Formats payload values according to Swagger spec type
 export function formatPayload(payload, def) {
   return mapValues(payload, (val, key) => {
@@ -77,7 +65,7 @@ export function formatPayload(payload, def) {
 
     if (propType === 'string') {
       if (propFormat === 'date') {
-        return formatDateString(val);
+        return formatDateForSwagger(val);
       }
     }
 
