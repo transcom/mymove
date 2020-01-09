@@ -49,9 +49,10 @@ func (suite *HandlerSuite) TestGetMoveOrderHandlerIntegration() {
 	suite.Equal(uuidTostrfmtUUID(moveOrder.EntitlementID), payloadEntitlement.ID)
 	moveOrderEntitlement := moveOrder.Entitlement
 	suite.NotNil(moveOrderEntitlement)
-	suite.Equal(int64(moveOrderEntitlement.ProGearWeight), payloadEntitlement.ProGearWeight)
-	suite.Equal(int64(moveOrderEntitlement.ProGearWeightSpouse), payloadEntitlement.ProGearWeightSpouse)
-	suite.Equal(int64(moveOrderEntitlement.TotalWeightSelf), payloadEntitlement.TotalWeight)
+	suite.Equal(int64(moveOrderEntitlement.WeightAllotment().ProGearWeight), payloadEntitlement.ProGearWeight)
+	suite.Equal(int64(moveOrderEntitlement.WeightAllotment().ProGearWeightSpouse), payloadEntitlement.ProGearWeightSpouse)
+	suite.Equal(int64(moveOrderEntitlement.WeightAllotment().TotalWeightSelf), payloadEntitlement.TotalWeight)
+	suite.Equal(int64(*moveOrderEntitlement.AuthorizedWeight()), *payloadEntitlement.AuthorizedWeight)
 	suite.Equal(uuidTostrfmtUUID(moveOrder.OriginDutyStation.ID), moveOrdersPayload.OriginDutyStation.ID)
 	suite.NotZero(moveOrder.OriginDutyStation)
 }

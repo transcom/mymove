@@ -73,6 +73,8 @@ class CustomerDetails extends Component {
                   <dd>{get(entitlements, 'storageInTransit', '').toString()}</dd>
                   <dt>Total Weight</dt>
                   <dd>{get(entitlements, 'totalWeight')}</dd>
+                  <dt>Authorized Weight</dt>
+                  <dd>{get(entitlements, 'authorizedWeight')}</dd>
                   <dt>Total Dependents</dt>
                   <dd>{get(entitlements, 'totalDependents')}</dd>
                 </dl>

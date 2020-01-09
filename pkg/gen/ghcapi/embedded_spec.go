@@ -1626,6 +1626,12 @@ func init() {
     "Entitlements": {
       "type": "object",
       "properties": {
+        "authorizedWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
         "dependentsAuthorized": {
           "type": "boolean",
           "x-nullable": true,
@@ -4001,6 +4007,12 @@ func init() {
     "Entitlements": {
       "type": "object",
       "properties": {
+        "authorizedWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
         "dependentsAuthorized": {
           "type": "boolean",
           "x-nullable": true,

@@ -43,7 +43,8 @@ func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
 	}
 	destinationDutyStation := DutyStation(&moveOrder.DestinationDutyStation)
 	originDutyStation := DutyStation(&moveOrder.OriginDutyStation)
-	entitlements := Entitlement(&moveOrder.Entitlement, moveOrder.Grade)
+	moveOrder.Entitlement.SetWeightAllotment(moveOrder.Grade)
+	entitlements := Entitlement(&moveOrder.Entitlement)
 	payload := ghcmessages.MoveOrder{
 		Agency:                 moveOrder.Customer.Agency,
 		CustomerID:             strfmt.UUID(moveOrder.CustomerID.String()),
@@ -59,17 +60,20 @@ func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
 	return &payload
 }
 
-func Entitlement(entitlement *models.Entitlement, grade string) *ghcmessages.Entitlements {
+func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	if entitlement == nil {
 		return nil
 	}
 	var proGearWeight, proGearWeightSpouse, totalWeight int64
-	if grade != "" {
-		//TODO probably want to reconsider keeping grade a string rather than enum
-		weightAllotment := models.GetWeightAllotment(models.ServiceMemberRank(grade))
-		proGearWeight = int64(weightAllotment.ProGearWeight)
-		proGearWeightSpouse = int64(weightAllotment.ProGearWeightSpouse)
-		totalWeight = int64(weightAllotment.TotalWeightSelf)
+	if entitlement.WeightAllotment() != nil {
+		proGearWeight = int64(entitlement.WeightAllotment().ProGearWeight)
+		proGearWeightSpouse = int64(entitlement.WeightAllotment().ProGearWeightSpouse)
+		totalWeight = int64(entitlement.WeightAllotment().TotalWeightSelf)
+	}
+	var authorizedWeight *int64
+	if entitlement.AuthorizedWeight() != nil {
+		aw := int64(*entitlement.AuthorizedWeight())
+		authorizedWeight = &aw
 	}
 	var sit int64
 	if entitlement.StorageInTransit != nil {
@@ -81,6 +85,7 @@ func Entitlement(entitlement *models.Entitlement, grade string) *ghcmessages.Ent
 	}
 	return &ghcmessages.Entitlements{
 		ID:                    strfmt.UUID(entitlement.ID.String()),
+		AuthorizedWeight:      authorizedWeight,
 		DependentsAuthorized:  entitlement.DependentsAuthorized,
 		NonTemporaryStorage:   entitlement.NonTemporaryStorage,
 		PrivatelyOwnedVehicle: entitlement.PrivatelyOwnedVehicle,

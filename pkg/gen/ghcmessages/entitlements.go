@@ -17,6 +17,9 @@ import (
 // swagger:model Entitlements
 type Entitlements struct {
 
+	// authorized weight
+	AuthorizedWeight *int64 `json:"authorizedWeight,omitempty"`
+
 	// dependents authorized
 	DependentsAuthorized *bool `json:"dependentsAuthorized,omitempty"`
 

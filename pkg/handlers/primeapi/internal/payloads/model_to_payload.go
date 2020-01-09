@@ -50,7 +50,8 @@ func MoveOrder(moveOrders *models.MoveOrder) *primemessages.MoveOrder {
 	}
 	destinationDutyStation := DutyStation(&moveOrders.DestinationDutyStation)
 	originDutyStation := DutyStation(&moveOrders.OriginDutyStation)
-	entitlements := Entitlement(&moveOrders.Entitlement, moveOrders.Grade)
+	moveOrders.Entitlement.SetWeightAllotment(moveOrders.Grade)
+	entitlements := Entitlement(&moveOrders.Entitlement)
 	payload := primemessages.MoveOrder{
 		CustomerID:             strfmt.UUID(moveOrders.CustomerID.String()),
 		DestinationDutyStation: destinationDutyStation,
@@ -61,17 +62,20 @@ func MoveOrder(moveOrders *models.MoveOrder) *primemessages.MoveOrder {
 	return &payload
 }
 
-func Entitlement(entitlement *models.Entitlement, grade string) *primemessages.Entitlements {
+func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 	if entitlement == nil {
 		return nil
 	}
 	var proGearWeight, proGearWeightSpouse, totalWeight int64
-	if grade != "" {
-		//TODO probably want to reconsider keeping grade a string rather than enum
-		weightAllotment := models.GetWeightAllotment(models.ServiceMemberRank(grade))
-		proGearWeight = int64(weightAllotment.ProGearWeight)
-		proGearWeightSpouse = int64(weightAllotment.ProGearWeightSpouse)
-		totalWeight = int64(weightAllotment.TotalWeightSelf)
+	if entitlement.WeightAllotment() != nil {
+		proGearWeight = int64(entitlement.WeightAllotment().ProGearWeight)
+		proGearWeightSpouse = int64(entitlement.WeightAllotment().ProGearWeightSpouse)
+		totalWeight = int64(entitlement.WeightAllotment().TotalWeightSelf)
+	}
+	var authorizedWeight *int64
+	if entitlement.AuthorizedWeight() != nil {
+		aw := int64(*entitlement.AuthorizedWeight())
+		authorizedWeight = &aw
 	}
 	var sit int64
 	if entitlement.StorageInTransit != nil {
@@ -83,6 +87,7 @@ func Entitlement(entitlement *models.Entitlement, grade string) *primemessages.E
 	}
 	return &primemessages.Entitlements{
 		ID:                    strfmt.UUID(entitlement.ID.String()),
+		AuthorizedWeight:      authorizedWeight,
 		DependentsAuthorized:  entitlement.DependentsAuthorized,
 		NonTemporaryStorage:   entitlement.NonTemporaryStorage,
 		PrivatelyOwnedVehicle: entitlement.PrivatelyOwnedVehicle,
