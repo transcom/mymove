@@ -16,18 +16,18 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 )
 
-// NewListMoveTaskOrdersParams creates a new ListMoveTaskOrdersParams object
+// NewFetchMTOUpdatesParams creates a new FetchMTOUpdatesParams object
 // no default values defined in spec.
-func NewListMoveTaskOrdersParams() ListMoveTaskOrdersParams {
+func NewFetchMTOUpdatesParams() FetchMTOUpdatesParams {
 
-	return ListMoveTaskOrdersParams{}
+	return FetchMTOUpdatesParams{}
 }
 
-// ListMoveTaskOrdersParams contains all the bound params for the list move task orders operation
+// FetchMTOUpdatesParams contains all the bound params for the fetch m t o updates operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters listMoveTaskOrders
-type ListMoveTaskOrdersParams struct {
+// swagger:parameters fetchMTOUpdates
+type FetchMTOUpdatesParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
@@ -41,8 +41,8 @@ type ListMoveTaskOrdersParams struct {
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewListMoveTaskOrdersParams() beforehand.
-func (o *ListMoveTaskOrdersParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewFetchMTOUpdatesParams() beforehand.
+func (o *FetchMTOUpdatesParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
@@ -61,7 +61,7 @@ func (o *ListMoveTaskOrdersParams) BindRequest(r *http.Request, route *middlewar
 }
 
 // bindSince binds and validates parameter Since from query.
-func (o *ListMoveTaskOrdersParams) bindSince(rawData []string, hasKey bool, formats strfmt.Registry) error {
+func (o *FetchMTOUpdatesParams) bindSince(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]

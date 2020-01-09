@@ -50,7 +50,7 @@ paths:
       tags:
         - moveTaskOrder
       description: Gets all move orders
-      operationId: listMoveTaskOrders
+      operationId: fetchMTOUpdates
       summary: Gets all move orders
   '/move-task-orders/{moveTaskOrderID}/prime-estimated-weight':
     parameters:

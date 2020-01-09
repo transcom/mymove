@@ -46,7 +46,7 @@ func init() {
           "moveTaskOrder"
         ],
         "summary": "Gets all move orders",
-        "operationId": "listMoveTaskOrders",
+        "operationId": "fetchMTOUpdates",
         "parameters": [
           {
             "type": "integer",
@@ -1170,7 +1170,7 @@ func init() {
           "moveTaskOrder"
         ],
         "summary": "Gets all move orders",
-        "operationId": "listMoveTaskOrders",
+        "operationId": "fetchMTOUpdates",
         "parameters": [
           {
             "type": "integer",
