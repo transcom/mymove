@@ -455,6 +455,45 @@ paths:
         - ppm_office_users
       operationId: createMTOServiceItem
       summary: Creates a service item for a move order by id
+  '/move_task_orders/{moveTaskOrderID}/mto_shipments':
+    parameters:
+      - description: ID of move task order for mto shipment to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        format: uuid
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved all line items for a move task order
+          schema:
+            $ref: '#/definitions/MTOShipments'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - mtoShipment
+      description: Gets all shipments for a move task order
+      x-swagger-roles:
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
+      operationId: listMTOShipments
+      summary: Gets all shipments for a move task order
   '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}':
     parameters:
       - description: ID of move order to use
@@ -1090,7 +1129,6 @@ definitions:
       - city
       - state
       - postal_code
-
   CustomerMoveItem:
     type: object
     properties:
@@ -1373,6 +1411,40 @@ definitions:
           $ref: '#/definitions/Upload'
         type: array
     type: object
+  MTOShipment:
+    properties:
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      createdAt:
+        format: date
+        type: string
+      updatedAt:
+        format: date
+        type: string
+      scheduledPickupDate:
+        format: date
+        type: string
+      requestedPickupDate:
+        format: date
+        type: string
+      customerRemarks:
+        type: string
+        example: handle with care
+      shipmentType:
+        enum:
+          - HHG
+          - INTERNATIONAL_HHG
+          - INTERNATIONAL_UB
+  MTOShipments:
+    items:
+      $ref: '#/definitions/MTOShipment'
+    type: array
   MTOServiceItem:
     properties:
       moveTaskOrderID:

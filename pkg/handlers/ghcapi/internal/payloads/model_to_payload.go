@@ -125,3 +125,14 @@ func Address(address *models.Address) *ghcmessages.Address {
 		Country:        address.Country,
 	}
 }
+
+func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
+	return &ghcmessages.MTOShipment{
+		ID:                  strfmt.UUID(mtoShipment.ID.String()),
+		ShipmentType:        "HHG",
+		CustomerRemarks:     *mtoShipment.CustomerRemarks,
+		RequestedPickupDate: strfmt.Date(*mtoShipment.RequestedPickupDate),
+		CreatedAt:           strfmt.Date(mtoShipment.CreatedAt),
+		UpdatedAt:           strfmt.Date(mtoShipment.UpdatedAt),
+	}
+}

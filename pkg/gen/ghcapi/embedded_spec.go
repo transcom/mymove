@@ -1082,6 +1082,61 @@ func init() {
         }
       ]
     },
+    "/move_task_orders/{moveTaskOrderID}/mto_shipments": {
+      "get": {
+        "description": "Gets all shipments for a move task order",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "Gets all shipments for a move task order",
+        "operationId": "listMTOShipments",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all line items for a move task order",
+            "schema": {
+              "$ref": "#/definitions/MTOShipments"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        },
+        "x-swagger-roles": [
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of move task order for mto shipment to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/payment-requests": {
       "get": {
         "description": "Gets a list of payment requests",
@@ -1822,6 +1877,53 @@ func init() {
             "REJECTED"
           ]
         }
+      }
+    },
+    "MTOShipment": {
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "customerRemarks": {
+          "type": "string",
+          "example": "handle with care"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "scheduledPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "shipmentType": {
+          "enum": [
+            "HHG",
+            "INTERNATIONAL_HHG",
+            "INTERNATIONAL_UB"
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "MTOShipments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOShipment"
       }
     },
     "MoveOrder": {
@@ -3431,6 +3533,67 @@ func init() {
         }
       ]
     },
+    "/move_task_orders/{moveTaskOrderID}/mto_shipments": {
+      "get": {
+        "description": "Gets all shipments for a move task order",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "Gets all shipments for a move task order",
+        "operationId": "listMTOShipments",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all line items for a move task order",
+            "schema": {
+              "$ref": "#/definitions/MTOShipments"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        },
+        "x-swagger-roles": [
+          "transportation_invoicing_officer",
+          "transportation_ordering_officer",
+          "contracting_officer",
+          "ppm_office_users"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of move task order for mto shipment to use",
+          "name": "moveTaskOrderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/payment-requests": {
       "get": {
         "description": "Gets a list of payment requests",
@@ -4216,6 +4379,53 @@ func init() {
             "REJECTED"
           ]
         }
+      }
+    },
+    "MTOShipment": {
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "customerRemarks": {
+          "type": "string",
+          "example": "handle with care"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "scheduledPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "shipmentType": {
+          "enum": [
+            "HHG",
+            "INTERNATIONAL_HHG",
+            "INTERNATIONAL_UB"
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "MTOShipments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOShipment"
       }
     },
     "MoveOrder": {
