@@ -225,6 +225,7 @@ export class PpmWeight extends Component {
                 hasEstimateInProgress,
                 incentive_estimate_max,
               }}
+              readyToSubmit={!rateEngineError}
             >
               <h3>How much do you think you'll move?</h3>
               <p>Your weight entitlement: {this.props.entitlement.weight.toLocaleString()} lbs</p>
@@ -345,6 +346,7 @@ export class PpmWeight extends Component {
                 hasEstimateInProgress,
                 incentive_estimate_max,
               }}
+              readyToSubmit={!rateEngineError}
             >
               {error && (
                 <div className="grid-row">
