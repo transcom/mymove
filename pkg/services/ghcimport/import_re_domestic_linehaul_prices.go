@@ -35,7 +35,7 @@ func (gre *GHCRateEngineImporter) importREDomesticLinehaulPrices(dbTx *pop.Conne
 
 		milesUpperInt, err := stringToInteger(stagePrice.MilesUpper)
 		if err != nil {
-			return fmt.Errorf("could not process miles lower [%s]: %w", stagePrice.MilesUpper, err)
+			return fmt.Errorf("could not process miles upper [%s]: %w", stagePrice.MilesUpper, err)
 		}
 
 		isPeakPeriod, err := isPeakPeriod(stagePrice.Season)
@@ -54,7 +54,7 @@ func (gre *GHCRateEngineImporter) importREDomesticLinehaulPrices(dbTx *pop.Conne
 
 		priceMillicents, err := priceToMillicents(stagePrice.Rate)
 		if err != nil {
-			return fmt.Errorf("could not process rate [%s]: %w", stagePrice.MilesUpper, err)
+			return fmt.Errorf("could not process rate [%s]: %w", stagePrice.Rate, err)
 		}
 
 		domesticLinehaulPrice := models.ReDomesticLinehaulPrice{

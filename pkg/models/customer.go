@@ -11,15 +11,21 @@ import (
 
 // Customer is an object representing data for a customer
 type Customer struct {
-	ID        uuid.UUID `db:"id"`
-	DODID     string    `db:"dod_id"`
-	UserID    uuid.UUID `json:"user_id" db:"user_id"`
-	User      User      `belongs_to:"users"`
-	FirstName string    `db:"first_name"`
-	LastName  string    `db:"last_name"`
-	Agency    string    `db:"agency"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
+	ID                   uuid.UUID  `db:"id"`
+	Agency               string     `db:"agency"`
+	CurrentAddress       Address    `belongs_to:"address"`
+	CurrentAddressID     *uuid.UUID `db:"current_address_id"`
+	DODID                string     `db:"dod_id"`
+	DestinationAddress   Address    `belongs_to:"address"`
+	DestinationAddressID *uuid.UUID `db:"destination_address_id"`
+	Email                *string    `db:"email"`
+	FirstName            string     `db:"first_name"`
+	LastName             string     `db:"last_name"`
+	PhoneNumber          *string    `db:"phone"`
+	User                 User       `belongs_to:"users"`
+	UserID               uuid.UUID  `json:"user_id" db:"user_id"`
+	CreatedAt            time.Time  `db:"created_at"`
+	UpdatedAt            time.Time  `db:"updated_at"`
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

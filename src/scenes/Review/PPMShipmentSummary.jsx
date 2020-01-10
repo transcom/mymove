@@ -23,6 +23,7 @@ class PPMShipmentSummary extends Component {
         this.props.pickup_postal_code,
         this.props.originDutyStationZip,
         this.props.destination_postal_code,
+        this.props.orders.id,
         this.props.weight_estimate,
       );
     }
@@ -131,6 +132,7 @@ class PPMShipmentSummary extends Component {
 
 PPMShipmentSummary.propTypes = {
   ppm: object.isRequired,
+  orders: object.isRequired,
   movePath: string.isRequired,
   ppmEstimate: shape({
     hasEstimateError: bool.isRequired,

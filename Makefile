@@ -121,7 +121,7 @@ check_docker_size: ## Check the amount of disk space used by docker
 	scripts/check-docker-size
 
 .PHONY: deps
-deps: prereqs ensure_pre_commit client_deps bin/rds-combined-ca-bundle.pem bin/rds-ca-2019-root.pem ## Run all checks and install all depdendencies
+deps: prereqs ensure_pre_commit client_deps bin/rds-ca-2019-root.pem ## Run all checks and install all depdendencies
 
 .PHONY: test
 test: client_test server_test e2e_test ## Run all tests
@@ -207,10 +207,6 @@ bin/mockery: .check_go_version.stamp .check_gopath.stamp
 	go build -o bin/mockery github.com/vektra/mockery/cmd/mockery
 
 ### Cert Targets
-
-bin/rds-combined-ca-bundle.pem:
-	mkdir -p bin/
-	curl -sSo bin/rds-combined-ca-bundle.pem https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
 
 bin/rds-ca-2019-root.pem:
 	mkdir -p bin/
@@ -298,10 +294,6 @@ pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
 # ----- START SERVER TARGETS -----
 #
 
-.PHONY: go_deps_update
-go_deps_update: .check_gopath.stamp server_generate mocks_generate ## Update golang dependencies
-	go run cmd/update_deps/main.go
-
 .PHONY: server_generate
 server_generate: .check_go_version.stamp .check_gopath.stamp pkg/gen/ ## Generate golang server code from Swagger files
 pkg/gen/: pkg/assets/assets.go bin/swagger $(shell find swagger -type f -name *.yaml)
@@ -347,7 +339,6 @@ server_run_debug: ## Debug the server
 build_tools: bin/gin \
 	bin/swagger \
 	bin/mockery \
-	bin/rds-combined-ca-bundle.pem \
 	bin/rds-ca-2019-root.pem \
 	bin/big-cat \
 	bin/compare-secure-migrations \
@@ -373,7 +364,7 @@ build: server_build build_tools client_build ## Build the server, tools, and cli
 # webserver_test runs a few acceptance tests against a local or remote environment.
 # This can help identify potential errors before deploying a container.
 .PHONY: webserver_test
-webserver_test: bin/rds-combined-ca-bundle.pem bin/rds-ca-2019-root.pem ## Run acceptance tests
+webserver_test: bin/rds-ca-2019-root.pem ## Run acceptance tests
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
@@ -822,23 +813,6 @@ run_experimental_migrations: bin/milmove db_deployed_migrations_reset ## Run Exp
 
 #
 # ----- END PROD_MIGRATION TARGETS -----
-#
-
-#
-# ----- START DEPENDENCY UPDATE TARGETS -----
-#
-
-.PHONY: dependency_update
-dependency_update: go_deps_update client_deps_update ## Update golang and client dependencies
-	git --no-pager status
-	git --no-pager diff --ignore-all-space --color
-
-.PHONY: dependency_update_test
-dependency_update_test: ## Test dependency updater
-	docker build . -f Dockerfile.dep_updater
-
-#
-# ----- END DEPENDENCY UPDATE TARGETS -----
 #
 
 #

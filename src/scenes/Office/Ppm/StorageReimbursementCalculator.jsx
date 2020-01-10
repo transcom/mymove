@@ -1,4 +1,4 @@
-import { pick } from 'lodash';
+import { pick, get } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -67,8 +67,8 @@ export class StorageReimbursementCalculator extends Component {
     this.reset();
   }
   calculate = values => {
-    const { pickup_postal_code, destination_postal_code, days_in_storage, weight, move_date } = values;
-    this.props.getPpmSitEstimate(move_date, days_in_storage, pickup_postal_code, destination_postal_code, weight);
+    const { pickup_postal_code, orders, days_in_storage, weight, move_date } = values;
+    this.props.getPpmSitEstimate(move_date, days_in_storage, pickup_postal_code, orders.id, weight);
   };
 
   render() {
@@ -156,6 +156,7 @@ function mapStateToProps(state, ownProps) {
     schema,
     hasEstimateError: state.ppm.hasEstimateError,
     sitReimbursement: state.ppm.sitReimbursement,
+    orders: get(state, 'orders.currentOrders', {}),
     initialValues,
   };
 }
