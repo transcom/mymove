@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -61,13 +60,4 @@ func (p *PaymentRequest) Validate(tx *pop.Connection) (*validate.Errors, error) 
 		&validators.UUIDIsPresent{Field: p.MoveTaskOrderID, Name: "MoveTaskOrderID"},
 		&validators.StringInclusion{Field: p.Status.String(), Name: "Status", List: validPaymentRequestStatus},
 	), nil
-}
-
-func FetchPaymentRequestByID(db *pop.Connection, paymentRequestID uuid.UUID) (*PaymentRequest, error) {
-	var paymentRequest PaymentRequest
-	err := db.Where("id=$1", paymentRequestID).First(&paymentRequest)
-	if err != nil {
-		return nil, fmt.Errorf("cannot fetch payment request: %w", err)
-	}
-	return &paymentRequest, nil
 }
