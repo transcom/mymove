@@ -99,6 +99,30 @@ class CustomerDetails extends Component {
               <dd>{get(moveTaskOrder, 'isCanceled', false).toString()}</dd>
             </dl>
 
+            <h2>Requested Shipments</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Shipment Type</th>
+                  <th>Requested Pick-up Date</th>
+                  <th>Customer Remarks</th>
+                </tr>
+              </thead>
+              <tbody>
+                {mtoServiceItems.map(items => (
+                  <Fragment key={items.id}>
+                    <tr>
+                      <td>{items.id}</td>
+                      <td>{items.moveTaskOrderID}</td>
+                      <td>{items.reServiceID}</td>
+                      <td>{items.reServiceCode}</td>
+                    </tr>
+                  </Fragment>
+                ))}
+              </tbody>
+            </table>
+
             <h2>MTO Service Items</h2>
             <table>
               <thead>
