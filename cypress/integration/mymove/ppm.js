@@ -64,7 +64,7 @@ describe('completing the ppm flow', function() {
     // todo: should probably have test suite for review and edit screens
     cy.get('[data-cy="sit-display"]')
       .contains('30 days')
-      .contains('$2441.00');
+      .contains('$2328.64');
 
     cy.get('[data-cy="edit-ppm-dates"]').click();
 
@@ -72,13 +72,13 @@ describe('completing the ppm flow', function() {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review\/edit-date-and-location/);
     });
 
-    cy.get('[data-cy="storage-estimate"]').contains('$2441.00');
+    cy.get('[data-cy="storage-estimate"]').contains('$2328.64');
 
     cy.get('input[name="days_in_storage"]')
       .clear()
       .type('35');
 
-    cy.get('[data-cy="storage-estimate"]').contains('$2,538.68');
+    cy.get('[data-cy="storage-estimate"]').contains('$2328.64');
 
     cy.get('button')
       .contains('Save')
@@ -90,7 +90,7 @@ describe('completing the ppm flow', function() {
 
     cy.get('[data-cy="sit-display"]')
       .contains('35 days')
-      .contains('$2538.68');
+      .contains('$2405.14');
 
     cy.nextPage();
 

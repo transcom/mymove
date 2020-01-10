@@ -327,8 +327,8 @@ NSRA11,Asia,NSRA13,Pacific Islands,NSRA to NSRA,NonPeak,$71.61,$47.76
 NSRA11,Asia,NSRA13,Pacific Islands,NSRA to NSRA,Peak,$84.50,$56.36
 NSRA11,Asia,NSRA14,Australia & New Zealand,NSRA to NSRA,NonPeak,$71.89,$44.24
 NSRA11,Asia,NSRA14,Australia & New Zealand,NSRA to NSRA,Peak,$84.83,$52.20
-NSRA7,Europe,NSRA15,Alaska - All other areas,NSRA to NSRA,NonPeak,$72.68,$61.92
-NSRA7,Europe,NSRA15,Alaska - All other areas,NSRA to NSRA,Peak,$85.76,$73.07
+NSRA11,Asia,NSRA15,Alaska - All other areas,NSRA to NSRA,NonPeak,$72.68,$61.92
+NSRA11,Asia,NSRA15,Alaska - All other areas,NSRA to NSRA,Peak,$85.76,$73.07
 NSRA12,Asia - South,NSRA1,Canada West,NSRA to NSRA,NonPeak,$15.28,$47.93
 NSRA12,Asia - South,NSRA1,Canada West,NSRA to NSRA,Peak,$18.03,$56.56
 NSRA12,Asia - South,NSRA2,Canada Central,NSRA to NSRA,NonPeak,$16.05,$44.58

@@ -201,7 +201,7 @@ func (p *PersonallyProcuredMove) FetchMoveDocumentsForTypes(db *pop.Connection, 
 // FetchPersonallyProcuredMove Fetches and Validates a PPM model
 func FetchPersonallyProcuredMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*PersonallyProcuredMove, error) {
 	var ppm PersonallyProcuredMove
-	err := db.Q().Eager("Move.Orders.ServiceMember.DutyStation.Address", "Advance").Find(&ppm, id)
+	err := db.Q().Eager("Move.Orders.ServiceMember.DutyStation.Address", "Move.Orders.NewDutyStation.Address", "Advance").Find(&ppm, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return nil, ErrFetchNotFound
@@ -212,6 +212,23 @@ func FetchPersonallyProcuredMove(db *pop.Connection, session *auth.Session, id u
 	// TODO: Handle case where more than one user is authorized to modify ppm
 	if session.IsMilApp() && ppm.Move.Orders.ServiceMember.ID != session.ServiceMemberID {
 		return nil, ErrFetchForbidden
+	}
+
+	return &ppm, nil
+}
+
+// FetchPersonallyProcuredMoveByOrderID Fetches and Validates a PPM model
+func FetchPersonallyProcuredMoveByOrderID(db *pop.Connection, orderID uuid.UUID) (*PersonallyProcuredMove, error) {
+	var ppm PersonallyProcuredMove
+	err := db.Q().
+		LeftJoin("moves as m", "m.id = personally_procured_moves.move_id").
+		Where("m.orders_id = ?", orderID).
+		First(&ppm)
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return &PersonallyProcuredMove{}, ErrFetchNotFound
+		}
+		return &PersonallyProcuredMove{}, err
 	}
 
 	return &ppm, nil
