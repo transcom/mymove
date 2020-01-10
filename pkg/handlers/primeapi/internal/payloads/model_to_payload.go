@@ -11,6 +11,7 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 	if moveTaskOrder == nil {
 		return nil
 	}
+	paymentRequests := PaymentRequests(&moveTaskOrder.PaymentRequests)
 	payload := &primemessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
@@ -18,6 +19,7 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 		IsCanceled:         &moveTaskOrder.IsCanceled,
 		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
 		ReferenceID:        moveTaskOrder.ReferenceID,
+		PaymentRequests:    paymentRequests,
 		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
 	}
 	return payload
@@ -121,4 +123,23 @@ func Address(address *models.Address) *primemessages.Address {
 		PostalCode:     &address.PostalCode,
 		Country:        address.Country,
 	}
+}
+
+func PaymentRequest(paymentRequest *models.PaymentRequest) *primemessages.PaymentRequest {
+	return &primemessages.PaymentRequest{
+		ID:              strfmt.UUID(paymentRequest.ID.String()),
+		Status:          primemessages.PaymentRequestStatus(paymentRequest.Status),
+		IsFinal:         &paymentRequest.IsFinal,
+		MoveTaskOrderID: strfmt.UUID(paymentRequest.MoveTaskOrderID.String()),
+		RejectionReason: paymentRequest.RejectionReason,
+	}
+}
+
+func PaymentRequests(paymentRequests *[]models.PaymentRequest) []*primemessages.PaymentRequest {
+	payload := make(primemessages.PaymentRequests, len(*paymentRequests))
+
+	for i, p := range *paymentRequests {
+		payload[i] = PaymentRequest(&p)
+	}
+	return payload
 }

@@ -19,24 +19,31 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandler() {
 		},
 	})
 
+	testdatagen.MakePaymentRequest(suite.DB(), testdatagen.Assertions{
+		PaymentRequest: models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+		},
+	})
+
 	// unavailable MTO
 	testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
 
 	request := httptest.NewRequest("GET", "/move-task-orders", nil)
 
-	params := movetaskorderops.ListMoveTaskOrdersParams{HTTPRequest: request}
+	params := movetaskorderops.FetchMTOUpdatesParams{HTTPRequest: request}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 
 	// make the request
-	handler := ListMoveTaskOrdersHandler{HandlerContext: context}
+	handler := FetchMTOUpdatesHandler{HandlerContext: context}
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
-	moveTaskOrdersResponse := response.(*movetaskorderops.ListMoveTaskOrdersOK)
+	moveTaskOrdersResponse := response.(*movetaskorderops.FetchMTOUpdatesOK)
 	moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
 
 	suite.Equal(1, len(moveTaskOrdersPayload))
 	suite.Equal(moveTaskOrder.ID.String(), moveTaskOrdersPayload[0].ID.String())
+	suite.Equal(1, len(moveTaskOrdersPayload[0].PaymentRequests))
 }
 
 func (suite *HandlerSuite) TestListMoveTaskOrdersHandlerReturnsUpdated() {
@@ -63,15 +70,15 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandlerReturnsUpdated() {
 	since := lastFetch.Unix()
 	request := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders?since=%d", lastFetch.Unix()), nil)
 
-	params := movetaskorderops.ListMoveTaskOrdersParams{HTTPRequest: request, Since: &since}
+	params := movetaskorderops.FetchMTOUpdatesParams{HTTPRequest: request, Since: &since}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 
 	// make the request
-	handler := ListMoveTaskOrdersHandler{HandlerContext: context}
+	handler := FetchMTOUpdatesHandler{HandlerContext: context}
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
-	moveTaskOrdersResponse := response.(*movetaskorderops.ListMoveTaskOrdersOK)
+	moveTaskOrdersResponse := response.(*movetaskorderops.FetchMTOUpdatesOK)
 	moveTaskOrdersPayload := moveTaskOrdersResponse.Payload
 
 	suite.Equal(1, len(moveTaskOrdersPayload))
