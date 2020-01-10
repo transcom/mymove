@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -27,12 +28,22 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 
 	engine := rateengine.NewRateEngine(h.DB(), logger)
 
-	distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistance(params.OriginZip, params.DestinationZip)
+	orderID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistance(params.OriginDutyStationZip, params.DestinationZip)
+	destinationZip, err := GetDestinationDutyStationPostalCode(h.DB(), orderID)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistance(params.OriginZip, destinationZip)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistance(params.OriginDutyStationZip, destinationZip)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -41,7 +52,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 		unit.Pound(params.Weight),
 		params.OriginZip,
 		params.OriginDutyStationZip,
-		params.DestinationZip,
+		destinationZip,
 		distanceMilesFromOriginPickupZip,
 		distanceMilesFromOriginDutyStationZip,
 		time.Time(params.OriginalMoveDate),

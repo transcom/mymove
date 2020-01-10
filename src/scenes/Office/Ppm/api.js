@@ -1,13 +1,13 @@
 import { getClient, checkResponse } from 'shared/Swagger/api';
 import { formatDateForSwagger } from 'shared/dates';
 
-export async function GetPpmIncentive(moveDate, originZip, originDutyStationZip, destZip, weight) {
+export async function GetPpmIncentive(moveDate, originZip, originDutyStationZip, ordersID, weight) {
   const client = await getClient();
   const response = await client.apis.ppm.showPPMIncentive({
     original_move_date: formatDateForSwagger(moveDate),
     origin_zip: originZip,
     origin_duty_station_zip: originDutyStationZip,
-    destination_zip: destZip,
+    orders_id: ordersID,
     weight: weight,
   });
   checkResponse(response, 'failed to update ppm due to server error');
