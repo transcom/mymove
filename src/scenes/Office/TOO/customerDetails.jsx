@@ -49,6 +49,8 @@ class CustomerDetails extends Component {
               <dd>{JSON.stringify(get(customer, 'destination_address'))}</dd>
               <dt>DOD ID</dt>
               <dd>{get(customer, 'dodID')}</dd>
+              <dt>Agency</dt>
+              <dd>{get(customer, 'agency')}</dd>
             </dl>
           </>
         )}
