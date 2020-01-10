@@ -8,16 +8,17 @@ import (
 
 // Entitlement is an object representing entitlements for move orders
 type Entitlement struct {
-	ID                    uuid.UUID        `db:"id"`
-	DependentsAuthorized  *bool            `db:"dependents_authorized"`
-	TotalDependents       *int             `db:"total_dependents"`
-	NonTemporaryStorage   *bool            `db:"non_temporary_storage"`
-	PrivatelyOwnedVehicle *bool            `db:"privately_owned_vehicle"`
-	DBAuthorizedWeight    *int             `db:"authorized_weight"`
-	weightAllotment       *WeightAllotment `db:"-"`
-	StorageInTransit      *int             `db:"storage_in_transit"`
-	CreatedAt             time.Time        `db:"created_at"`
-	UpdatedAt             time.Time        `db:"updated_at"`
+	ID                    uuid.UUID `db:"id"`
+	DependentsAuthorized  *bool     `db:"dependents_authorized"`
+	TotalDependents       *int      `db:"total_dependents"`
+	NonTemporaryStorage   *bool     `db:"non_temporary_storage"`
+	PrivatelyOwnedVehicle *bool     `db:"privately_owned_vehicle"`
+	//DBAuthorizedWeight is AuthorizedWeight when not null
+	DBAuthorizedWeight *int             `db:"authorized_weight"`
+	weightAllotment    *WeightAllotment `db:"-"`
+	StorageInTransit   *int             `db:"storage_in_transit"`
+	CreatedAt          time.Time        `db:"created_at"`
+	UpdatedAt          time.Time        `db:"updated_at"`
 }
 
 //TODO probably want to reconsider keeping grade a string rather than enum
