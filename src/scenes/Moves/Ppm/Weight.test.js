@@ -3,23 +3,21 @@ import { PpmWeight } from './Weight';
 import { shallow } from 'enzyme';
 
 describe('Weight', () => {
+  const minProps = {
+    selectedWeightInfo: { min: 0, max: 0 },
+    hasLoadSuccess: true,
+  };
+  it('Renders', () => {
+    expect(shallow(<PpmWeight {...minProps} />).length).toEqual(1);
+  });
   describe('Incentive estimate errors', () => {
     let wrapper;
-    const props = {
-      selectedWeightInfo: { min: 500, max: 1000 },
-      hasLoadSuccess: true,
-    };
-    beforeEach(() => {
-      props.rateEngineError = undefined;
-      props.hasEstimateError = undefined;
-    });
     it('Should not show an estimate error', () => {
-      wrapper = shallow(<PpmWeight {...props} />);
+      wrapper = shallow(<PpmWeight {...minProps} />);
       expect(wrapper.find('.error-message').exists()).toBe(false);
     });
     it('Should show short haul error', () => {
-      props.rateEngineError = true;
-      wrapper = shallow(<PpmWeight {...props} />);
+      wrapper = shallow(<PpmWeight {...minProps} rateEngineError={true} />);
       expect(wrapper.find('.error-message').exists()).toBe(true);
       expect(
         wrapper
@@ -29,8 +27,7 @@ describe('Weight', () => {
       ).toMatch(/MilMove does not presently support short-haul PPM moves. Please contact your PPPO./);
     });
     it('Should show estimate not retrieved error', () => {
-      props.hasEstimateError = true;
-      wrapper = shallow(<PpmWeight {...props} />);
+      wrapper = shallow(<PpmWeight {...minProps} hasEstimateError={true} />);
       expect(wrapper.find('.error-message').exists()).toBe(true);
       expect(
         wrapper
