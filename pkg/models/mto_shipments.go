@@ -34,6 +34,9 @@ type MTOShipment struct {
 	UpdatedAt                        time.Time     `db:"updated_at"`
 }
 
+// MTOShipments is a list of mto shipments
+type MTOShipments []MTOShipment
+
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator

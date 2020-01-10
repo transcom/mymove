@@ -136,3 +136,12 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		UpdatedAt:           strfmt.Date(mtoShipment.UpdatedAt),
 	}
 }
+
+func MTOShipments(mtoShipments *models.MTOShipments) *ghcmessages.MTOShipments {
+	payload := make(ghcmessages.MTOShipments, len(*mtoShipments))
+
+	for i, m := range *mtoShipments {
+		payload[i] = MTOShipment(&m)
+	}
+	return &payload
+}
