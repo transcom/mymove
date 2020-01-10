@@ -1997,9 +1997,11 @@ func init() {
       "type": "string",
       "title": "Payment Request Status",
       "enum": [
-        "PAYMENT_SUBMITTED",
-        "APPROVED",
-        "REJECTED"
+        "PENDING",
+        "REVIEWED",
+        "SENT_TO_GEX",
+        "RECEIVED_BY_GEX",
+        "PAID"
       ]
     },
     "PaymentRequests": {
@@ -4391,9 +4393,11 @@ func init() {
       "type": "string",
       "title": "Payment Request Status",
       "enum": [
-        "PAYMENT_SUBMITTED",
-        "APPROVED",
-        "REJECTED"
+        "PENDING",
+        "REVIEWED",
+        "SENT_TO_GEX",
+        "RECEIVED_BY_GEX",
+        "PAID"
       ]
     },
     "PaymentRequests": {
