@@ -36,14 +36,14 @@ func importPackUnpackPrices(db *pop.Connection, serviceToIDMap map[string]uuid.U
 	}
 
 	for _, stagePackPrice := range stagePackPrices {
-		peakCents, convErr := priceToCents(stagePackPrice.PeakPricePerCwt)
-		if convErr != nil {
-			return nil, fmt.Errorf("failed to parse price for service code DPK: %+v error: %w", stagePackPrice.PeakPricePerCwt, convErr)
+		peakCents, err := priceToCents(stagePackPrice.PeakPricePerCwt)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse price for service code DPK: %+v error: %w", stagePackPrice.PeakPricePerCwt, err)
 		}
 
-		nonPeakCents, convErr := priceToCents(stagePackPrice.NonPeakPricePerCwt)
-		if convErr != nil {
-			return nil, fmt.Errorf("failed to parse price for service code DUPK: %+v error: %w", stagePackPrice.NonPeakPricePerCwt, convErr)
+		nonPeakCents, err := priceToCents(stagePackPrice.NonPeakPricePerCwt)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse price for service code DUPK: %+v error: %w", stagePackPrice.NonPeakPricePerCwt, err)
 		}
 
 		servicesSchedule, err := stringToInteger(stagePackPrice.ServicesSchedule)
@@ -100,14 +100,14 @@ func importSitPrices(db *pop.Connection, serviceToIDMap map[string]uuid.UUID, co
 	}
 
 	for _, stageSitPrice := range stageSitPrices {
-		peakCents, convErr := priceToCents(stageSitPrice.PeakPricePerCwt)
-		if convErr != nil {
-			return nil, fmt.Errorf("failed to parse price for service code DOPSIT: %+v error: %w", stageSitPrice.PeakPricePerCwt, convErr)
+		peakCents, err := priceToCents(stageSitPrice.PeakPricePerCwt)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse price for service code DOPSIT: %+v error: %w", stageSitPrice.PeakPricePerCwt, err)
 		}
 
-		nonPeakCents, convErr := priceToCents(stageSitPrice.NonPeakPricePerCwt)
-		if convErr != nil {
-			return nil, fmt.Errorf("failed to parse price for service code DDDSIT: %+v error: %w", stageSitPrice.NonPeakPricePerCwt, convErr)
+		nonPeakCents, err := priceToCents(stageSitPrice.NonPeakPricePerCwt)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse price for service code DDDSIT: %+v error: %w", stageSitPrice.NonPeakPricePerCwt, err)
 		}
 
 		schedule, err := stringToInteger(stageSitPrice.SITPickupDeliverySchedule)
