@@ -135,11 +135,11 @@ func PaymentRequest(paymentRequest *models.PaymentRequest) *primemessages.Paymen
 	}
 }
 
-func PaymentRequests(paymentRequests *[]*models.PaymentRequest) []*primemessages.PaymentRequest {
+func PaymentRequests(paymentRequests *[]models.PaymentRequest) []*primemessages.PaymentRequest {
 	payload := make(primemessages.PaymentRequests, len(*paymentRequests))
 
 	for i, p := range *paymentRequests {
-		payload[i] = PaymentRequest(p)
+		payload[i] = PaymentRequest(&p)
 	}
 	return payload
 }
