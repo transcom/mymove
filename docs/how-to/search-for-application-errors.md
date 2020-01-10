@@ -2,6 +2,8 @@
 
 Searching for errors from the application can be difficult.  Here is a playbook for finding specific errors.
 
+[Watch a video walking through finding application errors](https://zoom.us/rec/share/7u5yIuDO02xOWYHuzWz5Zpw4EYH4X6a81XBNr_EPxBw4iI9Ojy7W0SYGJM9lSdQD)
+
 ## Tips
 
 - Always check the timezone of the log messages. Messages from AWS infrastructure are in UTC whereas log messages
@@ -12,7 +14,7 @@ Searching for errors from the application can be difficult.  Here is a playbook 
 ### Tracking ALB Errors in S3
 
 Watch [a video of searching ALB errors](https://zoom.us/recording/play/2DGo7KYqrvSAYvvEo2--zG_xx93K0ALUMLHJVXJl0X9WRo0lxkXXLAxp8IPHHDA8)
-to see how this is done in real time.
+to see how this is done in real time. **This Video is older and parts are out of date**
 
 **NOTE:** ALB logs are only stored in AWS S3, so the only method to search them is to download locally and search via the command line.
 
