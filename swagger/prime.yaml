@@ -720,9 +720,11 @@ definitions:
     type: object
   PaymentRequestStatus:
     enum:
-      - PAYMENT_SUBMITTED
-      - APPROVED
-      - REJECTED
+      - PENDING
+      - REVIEWED
+      - SENT_TO_GEX
+      - RECEIVED_BY_GEX
+      - PAID
     title: Payment Request Status
     type: string
   ServiceItem:
