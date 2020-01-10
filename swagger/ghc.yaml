@@ -1090,6 +1090,7 @@ definitions:
       - city
       - state
       - postal_code
+
   CustomerMoveItem:
     type: object
     properties:
@@ -1135,12 +1136,31 @@ definitions:
   Customer:
     type: object
     properties:
+      agency:
+        type: string
+        title: Agency customer is affilated with
       first_name:
         type: string
         example: John
       last_name:
         type: string
         example: Doe
+      phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        x-nullable: true
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        x-nullable: true
+      current_address:
+        x-nullabe: true
+        $ref: '#/definitions/Address'
+      destination_address:
+        x-nullabe: true
+        $ref: '#/definitions/Address'
       id:
         type: string
         format: uuid

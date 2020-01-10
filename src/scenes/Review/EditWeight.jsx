@@ -197,13 +197,13 @@ class EditWeight extends Component {
   debouncedGetPpmWeightEstimate = debounce(this.props.getPpmWeightEstimate, weightEstimateDebounce);
 
   onWeightChange = (e, newValue, oldValue, fieldName) => {
-    const { currentPpm, entitlement, originDutyStationZip } = this.props;
+    const { currentPpm, entitlement, originDutyStationZip, orders } = this.props;
     if (newValue > 0 && newValue <= entitlement.sum) {
       this.debouncedGetPpmWeightEstimate(
         currentPpm.original_move_date,
         currentPpm.pickup_postal_code,
         originDutyStationZip,
-        currentPpm.destination_postal_code,
+        orders.id,
         newValue,
       );
     } else {
@@ -299,6 +299,7 @@ function mapStateToProps(state) {
     entitlement: loadEntitlementsFromState(state),
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
     originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
+    orders: get(state, 'orders.currentOrders', {}),
   };
 }
 

@@ -77,7 +77,7 @@ export class PpmWeight extends Component {
       currentPpm.original_move_date,
       currentPpm.pickup_postal_code,
       originDutyStationZip,
-      currentPpm.destination_postal_code,
+      this.props.orders.id,
       newWeight,
     );
   }
@@ -108,7 +108,7 @@ export class PpmWeight extends Component {
       currentPpm.original_move_date,
       currentPpm.pickup_postal_code,
       originDutyStationZip,
-      currentPpm.destination_postal_code,
+      this.props.orders.id,
       this.state.pendingPpmWeight,
     );
   }
@@ -440,6 +440,7 @@ function mapStateToProps(state) {
     entitlement: loadEntitlementsFromState(state),
     schema: schema,
     originDutyStationZip,
+    orders: get(state, 'orders.currentOrders', {}),
   };
 
   return props;
