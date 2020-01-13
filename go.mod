@@ -54,7 +54,7 @@ require (
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/namsral/flag v1.7.4-pre
 	github.com/pdfcpu/pdfcpu v0.2.5
-	github.com/pkg/errors v0.8.1
+	github.com/pkg/errors v0.9.0
 	github.com/rickar/cal v1.0.1
 	github.com/rogpeppe/go-internal v1.5.1 // indirect
 	github.com/segmentio/chamber/v2 v2.7.5
