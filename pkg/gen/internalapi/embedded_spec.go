@@ -706,6 +706,9 @@ func init() {
           "404": {
             "description": "ppm discount not found for provided postal codes and original move date"
           },
+          "409": {
+            "description": "distance is less than 50 miles (no short haul moves)"
+          },
           "422": {
             "description": "cannot process request with given information"
           },
@@ -778,6 +781,9 @@ func init() {
           },
           "403": {
             "description": "user is not authorized"
+          },
+          "409": {
+            "description": "distance is less than 50 miles (no short haul moves)"
           },
           "500": {
             "description": "internal server error"
@@ -2285,6 +2291,9 @@ func init() {
           },
           "403": {
             "description": "user is not authorized"
+          },
+          "409": {
+            "description": "distance is less than 50 miles (no short haul moves)"
           },
           "500": {
             "description": "internal server error"
@@ -6891,6 +6900,9 @@ func init() {
           "404": {
             "description": "ppm discount not found for provided postal codes and original move date"
           },
+          "409": {
+            "description": "distance is less than 50 miles (no short haul moves)"
+          },
           "422": {
             "description": "cannot process request with given information"
           },
@@ -6963,6 +6975,9 @@ func init() {
           },
           "403": {
             "description": "user is not authorized"
+          },
+          "409": {
+            "description": "distance is less than 50 miles (no short haul moves)"
           },
           "500": {
             "description": "internal server error"
@@ -8470,6 +8485,9 @@ func init() {
           },
           "403": {
             "description": "user is not authorized"
+          },
+          "409": {
+            "description": "distance is less than 50 miles (no short haul moves)"
           },
           "500": {
             "description": "internal server error"

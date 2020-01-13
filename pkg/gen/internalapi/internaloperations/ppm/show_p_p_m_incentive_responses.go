@@ -129,6 +129,30 @@ func (o *ShowPPMIncentiveForbidden) WriteResponse(rw http.ResponseWriter, produc
 	rw.WriteHeader(403)
 }
 
+// ShowPPMIncentiveConflictCode is the HTTP code returned for type ShowPPMIncentiveConflict
+const ShowPPMIncentiveConflictCode int = 409
+
+/*ShowPPMIncentiveConflict distance is less than 50 miles (no short haul moves)
+
+swagger:response showPPMIncentiveConflict
+*/
+type ShowPPMIncentiveConflict struct {
+}
+
+// NewShowPPMIncentiveConflict creates ShowPPMIncentiveConflict with default headers values
+func NewShowPPMIncentiveConflict() *ShowPPMIncentiveConflict {
+
+	return &ShowPPMIncentiveConflict{}
+}
+
+// WriteResponse to the client
+func (o *ShowPPMIncentiveConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(409)
+}
+
 // ShowPPMIncentiveInternalServerErrorCode is the HTTP code returned for type ShowPPMIncentiveInternalServerError
 const ShowPPMIncentiveInternalServerErrorCode int = 500
 

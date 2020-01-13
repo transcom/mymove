@@ -16,7 +16,8 @@ class PPMShipmentSummary extends Component {
     if (
       !this.props.ppmEstimate.hasEstimateInProgress &&
       !this.props.ppmEstimate.hasEstimateSuccess &&
-      !this.props.ppmEstimate.hasEstimateError
+      !this.props.ppmEstimate.hasEstimateError &&
+      !this.props.ppmEstimate.hasRateEstimateError
     ) {
       this.props.getPpmWeightEstimate(
         this.props.original_move_date,
@@ -28,6 +29,29 @@ class PPMShipmentSummary extends Component {
       );
     }
   }
+
+  chooseEstimateText(ppmEstimate) {
+    if (ppmEstimate.rateEngineError && ppmEstimate.rateEngineError.statusCode === 409) {
+      return 'MilMove does not presently support short-haul PPM moves. Please contact your PPPO.';
+    }
+
+    if (ppmEstimate.hasEstimateError) {
+      return (
+        <td>
+          Not ready yet{' '}
+          <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
+        </td>
+      );
+    }
+
+    return (
+      <td>
+        {' '}
+        {ppmEstimate && formatCentsRange(ppmEstimate.incentive_estimate_min, ppmEstimate.incentive_estimate_max)}
+      </td>
+    );
+  }
+
   render() {
     const { advance, movePath, ppm, ppmEstimate, estimated_storage_reimbursement } = this.props;
     const editDateAndLocationAddress = movePath + '/edit-date-and-location';
@@ -102,18 +126,7 @@ class PPMShipmentSummary extends Component {
                 </tr>
                 <tr>
                   <td> Estimated PPM Incentive: </td>
-                  {ppmEstimate.hasEstimateError ? (
-                    <td>
-                      Not ready yet{' '}
-                      <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
-                    </td>
-                  ) : (
-                    <td>
-                      {' '}
-                      {ppmEstimate &&
-                        formatCentsRange(ppmEstimate.incentive_estimate_min, ppmEstimate.incentive_estimate_max)}
-                    </td>
-                  )}
+                  {this.chooseEstimateText(ppmEstimate)}
                 </tr>
                 {ppm.has_requested_advance && (
                   <tr>
@@ -138,6 +151,7 @@ PPMShipmentSummary.propTypes = {
     hasEstimateError: bool.isRequired,
     hasEstimateSuccess: bool.isRequired,
     hasEstimateInProgress: bool.isRequired,
+    rateEngineError: Error,
     originDutyStationZip: string.isRequired,
     incentive_estimate_min: number,
     incentive_estimate_max: number,
@@ -158,6 +172,7 @@ function mapStateToProps(state, ownProps) {
       hasEstimateError: state.ppm.hasEstimateError,
       hasEstimateSuccess: state.ppm.hasEstimateSuccess,
       hasEstimateInProgress: state.ppm.hasEstimateInProgress,
+      rateEngineError: state.ppm.rateEngineError || null,
       originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
       incentive_estimate_min,
       incentive_estimate_max,
