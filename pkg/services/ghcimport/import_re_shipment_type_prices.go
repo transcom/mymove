@@ -30,9 +30,9 @@ func (gre *GHCRateEngineImporter) importREShipmentTypePrices(dbTx *pop.Connectio
 			return fmt.Errorf("could not process factor [%s]: %w", stageDomesticIntlAddlPrices.Factor, err)
 		}
 		shipmentTypePrice := models.ReShipmentTypePrice{
-			ContractID:       gre.contractID,
-			ShipmentTypeID:   shipmentTypeID,
-			Factor: factor,
+			ContractID:     gre.contractID,
+			ShipmentTypeID: shipmentTypeID,
+			Factor:         factor,
 		}
 
 		if stageDomesticIntlAddlPrices.Market == "CONUS" {

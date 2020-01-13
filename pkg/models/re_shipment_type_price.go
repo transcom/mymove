@@ -11,13 +11,13 @@ import (
 
 // ReShipmentTypePrice model struct
 type ReShipmentTypePrice struct {
-	ID               uuid.UUID `json:"id" db:"id"`
-	ContractID       uuid.UUID `json:"contract_id" db:"contract_id"`
-	ShipmentTypeID   uuid.UUID `json:"shipment_type_id" db:"shipment_type_id"`
-	Market           Market    `json:"market" db:"market"`
-	Factor float64   `json:"factor" db:"factor"`
-	CreatedAt        time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt        time.Time `json:"updated_at" db:"updated_at"`
+	ID             uuid.UUID `json:"id" db:"id"`
+	ContractID     uuid.UUID `json:"contract_id" db:"contract_id"`
+	ShipmentTypeID uuid.UUID `json:"shipment_type_id" db:"shipment_type_id"`
+	Market         Market    `json:"market" db:"market"`
+	Factor         float64   `json:"factor" db:"factor"`
+	CreatedAt      time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at" db:"updated_at"`
 
 	//Associations
 	Contract     ReContract     `belongs_to:"re_contract"`

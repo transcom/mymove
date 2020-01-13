@@ -61,5 +61,5 @@ func (suite *GHCRateEngineImportSuite) helperCheckShipmentTypePrices() {
 		Where("shipment_type_id = $2", shipmentType.ID).
 		First(&shipmentTypePrices)
 	suite.NoError(err)
-	suite.Equal(1.2000, shipmentTypePrices.FactorHundredths)
+	suite.Equal(1.2000, shipmentTypePrices.Factor)
 }
