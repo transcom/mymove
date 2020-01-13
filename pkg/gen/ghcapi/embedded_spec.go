@@ -1705,6 +1705,12 @@ func init() {
     "Entitlements": {
       "type": "object",
       "properties": {
+        "authorizedWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
         "dependentsAuthorized": {
           "type": "boolean",
           "x-nullable": true,
@@ -1742,6 +1748,11 @@ func init() {
         "totalDependents": {
           "type": "integer",
           "example": 2
+        },
+        "totalWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
         }
       }
     },
@@ -2099,9 +2110,11 @@ func init() {
       "type": "string",
       "title": "Payment Request Status",
       "enum": [
-        "PAYMENT_SUBMITTED",
-        "APPROVED",
-        "REJECTED"
+        "PENDING",
+        "REVIEWED",
+        "SENT_TO_GEX",
+        "RECEIVED_BY_GEX",
+        "PAID"
       ]
     },
     "PaymentRequests": {
@@ -4207,6 +4220,12 @@ func init() {
     "Entitlements": {
       "type": "object",
       "properties": {
+        "authorizedWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
         "dependentsAuthorized": {
           "type": "boolean",
           "x-nullable": true,
@@ -4244,6 +4263,11 @@ func init() {
         "totalDependents": {
           "type": "integer",
           "example": 2
+        },
+        "totalWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
         }
       }
     },
@@ -4601,9 +4625,11 @@ func init() {
       "type": "string",
       "title": "Payment Request Status",
       "enum": [
-        "PAYMENT_SUBMITTED",
-        "APPROVED",
-        "REJECTED"
+        "PENDING",
+        "REVIEWED",
+        "SENT_TO_GEX",
+        "RECEIVED_BY_GEX",
+        "PAID"
       ]
     },
     "PaymentRequests": {

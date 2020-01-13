@@ -46,7 +46,7 @@ func init() {
           "moveTaskOrder"
         ],
         "summary": "Gets all move orders",
-        "operationId": "listMoveTaskOrders",
+        "operationId": "fetchMTOUpdates",
         "parameters": [
           {
             "type": "integer",
@@ -847,6 +847,12 @@ func init() {
     "Entitlements": {
       "type": "object",
       "properties": {
+        "authorizedWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
         "dependentsAuthorized": {
           "type": "boolean",
           "x-nullable": true,
@@ -884,6 +890,11 @@ func init() {
         "totalDependents": {
           "type": "integer",
           "example": 2
+        },
+        "totalWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
         }
       }
     },
@@ -947,6 +958,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "payment_requests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PaymentRequest"
+          }
+        },
         "referenceId": {
           "type": "string",
           "x-nullable": true,
@@ -999,10 +1016,18 @@ func init() {
       "type": "string",
       "title": "Payment Request Status",
       "enum": [
-        "PAYMENT_SUBMITTED",
-        "APPROVED",
-        "REJECTED"
+        "PENDING",
+        "REVIEWED",
+        "SENT_TO_GEX",
+        "RECEIVED_BY_GEX",
+        "PAID"
       ]
+    },
+    "PaymentRequests": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentRequest"
+      }
     },
     "ProofOfServicePackage": {
       "type": "object",
@@ -1156,7 +1181,7 @@ func init() {
           "moveTaskOrder"
         ],
         "summary": "Gets all move orders",
-        "operationId": "listMoveTaskOrders",
+        "operationId": "fetchMTOUpdates",
         "parameters": [
           {
             "type": "integer",
@@ -2065,6 +2090,12 @@ func init() {
     "Entitlements": {
       "type": "object",
       "properties": {
+        "authorizedWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
         "dependentsAuthorized": {
           "type": "boolean",
           "x-nullable": true,
@@ -2102,6 +2133,11 @@ func init() {
         "totalDependents": {
           "type": "integer",
           "example": 2
+        },
+        "totalWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
         }
       }
     },
@@ -2165,6 +2201,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "payment_requests": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PaymentRequest"
+          }
+        },
         "referenceId": {
           "type": "string",
           "x-nullable": true,
@@ -2217,10 +2259,18 @@ func init() {
       "type": "string",
       "title": "Payment Request Status",
       "enum": [
-        "PAYMENT_SUBMITTED",
-        "APPROVED",
-        "REJECTED"
+        "PENDING",
+        "REVIEWED",
+        "SENT_TO_GEX",
+        "RECEIVED_BY_GEX",
+        "PAID"
       ]
+    },
+    "PaymentRequests": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentRequest"
+      }
     },
     "ProofOfServicePackage": {
       "type": "object",
