@@ -47,7 +47,7 @@ func (suite *GHCRateEngineImportSuite) helperVerifyShipmentTypePrices() {
 func (suite *GHCRateEngineImportSuite) helperCheckShipmentTypePrices() {
 	// Get contract UUID.
 	var contract models.ReContract
-	err := suite.DB().Where("code = ?", testContractCode).First(&contract)
+	err := suite.DB().Where("code = $1", testContractCode).First(&contract)
 	suite.NoError(err)
 
 	// Get shipment type UUID.
@@ -57,8 +57,8 @@ func (suite *GHCRateEngineImportSuite) helperCheckShipmentTypePrices() {
 
 	var shipmentTypePrices models.ReShipmentTypePrice
 	err = suite.DB().
-		Where("contract_id = ?", contract.ID).
-		Where("shipment_type_id = ?", shipmentType.ID).
+		Where("contract_id = $1", contract.ID).
+		Where("shipment_type_id = $2", shipmentType.ID).
 		First(&shipmentTypePrices)
 	suite.NoError(err)
 	suite.Equal(1.2000, shipmentTypePrices.FactorHundredths)

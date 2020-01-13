@@ -44,13 +44,13 @@ func (suite *GHCRateEngineImportSuite) helperVerifyContractYears() {
 func (suite *GHCRateEngineImportSuite) helperCheckContractYearValue() {
 	// Get contract UUID.
 	var contract models.ReContract
-	err := suite.DB().Where("code = ?", testContractCode).First(&contract)
+	err := suite.DB().Where("code = $1", testContractCode).First(&contract)
 	suite.NoError(err)
 
 	var basePeriod1 models.ReContractYear
 	err = suite.DB().
-		Where("contract_id = ?", contract.ID).
-		Where("name = ?", "Base Period Year 1").
+		Where("contract_id = $1", contract.ID).
+		Where("name = $2", "Base Period Year 1").
 		First(&basePeriod1)
 	suite.NoError(err)
 	suite.Equal(1.0000, basePeriod1.Escalation)

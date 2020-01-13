@@ -64,8 +64,8 @@ func (suite *GHCRateEngineImportSuite) helperCheckTaskOrderFees() {
 
 	var taskOrderFee models.ReTaskOrderFee
 	err = suite.DB().
-		Where("service_id = ?", serviceMS.ID).
-		Where("contract_year_id = ?", contractYear.ID).
+		Where("service_id = $1", serviceMS.ID).
+		Where("contract_year_id = $2", contractYear.ID).
 		First(&taskOrderFee)
 	suite.NoError(err)
 	suite.Equal(unit.Cents(45115), taskOrderFee.PriceCents)

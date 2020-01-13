@@ -48,7 +48,7 @@ func (suite *GHCRateEngineImportSuite) helperVerifyIntlAccessorialPrices() {
 func (suite *GHCRateEngineImportSuite) helperCheckIntlAccessorialPrices() {
 	// Get contract UUID.
 	var contract models.ReContract
-	err := suite.DB().Where("code = ?", testContractCode).First(&contract)
+	err := suite.DB().Where("code = $1", testContractCode).First(&contract)
 	suite.NoError(err)
 
 	// Get service UUID.
@@ -66,27 +66,27 @@ func (suite *GHCRateEngineImportSuite) helperCheckIntlAccessorialPrices() {
 
 	var intlAccessorialPriceICRT models.ReIntlAccessorialPrice
 	err = suite.DB().
-		Where("contract_id = ?", contract.ID).
-		Where("service_id = ?", serviceICRT.ID).
-		Where("market = ?", "C").
+		Where("contract_id = $1", contract.ID).
+		Where("service_id = $2", serviceICRT.ID).
+		Where("market = $3", "C").
 		First(&intlAccessorialPriceICRT)
 	suite.NoError(err)
 	suite.Equal(unit.Cents(2561), intlAccessorialPriceICRT.PerUnitCents)
 
 	var intlAccessorialPriceIUCRT models.ReIntlAccessorialPrice
 	err = suite.DB().
-		Where("contract_id = ?", contract.ID).
-		Where("service_id = ?", serviceIUCRT.ID).
-		Where("market = ?", "C").
+		Where("contract_id = $1", contract.ID).
+		Where("service_id = $2", serviceIUCRT.ID).
+		Where("market = $3", "C").
 		First(&intlAccessorialPriceIUCRT)
 	suite.NoError(err)
 	suite.Equal(unit.Cents(654), intlAccessorialPriceIUCRT.PerUnitCents)
 
 	var intlAccessorialPriceIDSHUT models.ReIntlAccessorialPrice
 	err = suite.DB().
-		Where("contract_id = ?", contract.ID).
-		Where("service_id = ?", serviceIDSHUT.ID).
-		Where("market = ?", "O").
+		Where("contract_id = $1", contract.ID).
+		Where("service_id = $2", serviceIDSHUT.ID).
+		Where("market = $3", "O").
 		First(&intlAccessorialPriceIDSHUT)
 	suite.NoError(err)
 	suite.Equal(unit.Cents(15623), intlAccessorialPriceIDSHUT.PerUnitCents)

@@ -48,7 +48,7 @@ func (suite *GHCRateEngineImportSuite) helperVerifyDomesticAccessorialPrices() {
 func (suite *GHCRateEngineImportSuite) helperCheckDomesticAccessorialPrices() {
 	// Get contract UUID.
 	var contract models.ReContract
-	err := suite.DB().Where("code = ?", testContractCode).First(&contract)
+	err := suite.DB().Where("code = $1", testContractCode).First(&contract)
 	suite.NoError(err)
 
 	// Get service UUID.
@@ -66,27 +66,27 @@ func (suite *GHCRateEngineImportSuite) helperCheckDomesticAccessorialPrices() {
 
 	var domesticAccessorialPriceDCRT models.ReDomesticAccessorialPrice
 	err = suite.DB().
-		Where("contract_id = ?", contract.ID).
-		Where("service_id = ?", serviceDCRT.ID).
-		Where("services_schedule = ?", 1).
+		Where("contract_id = $1", contract.ID).
+		Where("service_id = $2", serviceDCRT.ID).
+		Where("services_schedule = $3", 1).
 		First(&domesticAccessorialPriceDCRT)
 	suite.NoError(err)
 	suite.Equal(unit.Cents(2369), domesticAccessorialPriceDCRT.PerUnitCents)
 
 	var domesticAccessorialPriceDUCRT models.ReDomesticAccessorialPrice
 	err = suite.DB().
-		Where("contract_id = ?", contract.ID).
-		Where("service_id = ?", serviceDUCRT.ID).
-		Where("services_schedule = ?", 1).
+		Where("contract_id = $1", contract.ID).
+		Where("service_id = $2", serviceDUCRT.ID).
+		Where("services_schedule = $3", 1).
 		First(&domesticAccessorialPriceDUCRT)
 	suite.NoError(err)
 	suite.Equal(unit.Cents(595), domesticAccessorialPriceDUCRT.PerUnitCents)
 
 	var domesticAccessorialPriceDDSHUT models.ReDomesticAccessorialPrice
 	err = suite.DB().
-		Where("contract_id = ?", contract.ID).
-		Where("service_id = ?", serviceDDSHUT.ID).
-		Where("services_schedule = ?", 3).
+		Where("contract_id = $1", contract.ID).
+		Where("service_id = $2", serviceDDSHUT.ID).
+		Where("services_schedule = $3", 3).
 		First(&domesticAccessorialPriceDDSHUT)
 	suite.NoError(err)
 	suite.Equal(unit.Cents(576), domesticAccessorialPriceDDSHUT.PerUnitCents)
