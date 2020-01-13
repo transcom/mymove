@@ -5,4 +5,4 @@ CREATE TYPE mto_shipment_type AS ENUM (
     );
 
 ALTER TABLE mto_shipments
-	ADD COLUMN shipment_type mto_shipment_type;
+	ADD COLUMN shipment_type mto_shipment_type NOT NULL DEFAULT 'HHG';
