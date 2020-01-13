@@ -166,8 +166,12 @@ export class PpmWeight extends Component {
     this.setState({ [type]: event.target.value });
   };
 
+  hasShortHaulError(rateEngineError) {
+    return rateEngineError && rateEngineError.statusCode === 409 ? true : false;
+  }
+
   chooseEstimateErrorText(hasEstimateError, rateEngineError) {
-    if (rateEngineError != null) {
+    if (this.hasShortHaulError(rateEngineError)) {
       return (
         <Fragment>
           <div className="error-message">
@@ -225,7 +229,7 @@ export class PpmWeight extends Component {
                 hasEstimateInProgress,
                 incentive_estimate_max,
               }}
-              readyToSubmit={!rateEngineError}
+              readyToSubmit={!this.hasShortHaulError(rateEngineError)}
             >
               <h3>How much do you think you'll move?</h3>
               <p>Your weight entitlement: {this.props.entitlement.weight.toLocaleString()} lbs</p>
@@ -346,7 +350,7 @@ export class PpmWeight extends Component {
                 hasEstimateInProgress,
                 incentive_estimate_max,
               }}
-              readyToSubmit={!rateEngineError}
+              readyToSubmit={!this.hasShortHaulError(rateEngineError)}
             >
               {error && (
                 <div className="grid-row">
