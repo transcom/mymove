@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/gofrs/uuid"
+
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
@@ -54,7 +55,7 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 	}
 	queryAssociations := query.NewQueryAssociations([]services.QueryAssociation{})
 
-	var shipments models.MTOShipment
+	var shipments models.MTOShipments
 	err = h.ListFetcher.FetchRecordList(&shipments, queryFilters, queryAssociations, nil, nil)
 	// return any errors
 	if err != nil {
@@ -63,6 +64,6 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 		return mtoshipmentops.NewListMTOShipmentsInternalServerError()
 	}
 
-	payload := payloads.MTOShipments(shipments)
-	return mtoshipmentops.NewListMTOShipmentsOK()
+	payload := payloads.MTOShipments(&shipments)
+	return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload)
 }
