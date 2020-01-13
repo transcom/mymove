@@ -195,9 +195,14 @@ func (p *herePlanner) LatLongTransitDistance(source LatLong, dest LatLong) (int,
 func (p *herePlanner) Zip5TransitDistance(source string, destination string) (int, error) {
 	distance, err := zip5TransitDistanceHelper(p, source, destination)
 	if err != nil {
-		p.logger.Error("Failed to calculate HERE route between ZIPs", zap.String("source", source), zap.String("destination", destination))
+		var msg string
+		if err.(Error).Code() == ShortHaulError {
+			msg = "Unsupported short haul move distance"
+		} else {
+			msg = "Failed to calculate HERE route between ZIPs"
+		}
+		p.logger.Error(msg, zap.String("source", source), zap.String("destination", destination), zap.Int("distance", distance))
 	}
-
 	return distance, err
 }
 

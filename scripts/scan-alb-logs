@@ -23,14 +23,15 @@ set -eu -o pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 readonly DIR
 
-if [[  $# -lt 2 ]]  || [[ $# -gt 3 ]]; then
-    echo "Usage: scan-alb-logs <environment:prod|staging|experimental> <http-code> [<day:YYYY/mm/dd>[,<day:YYYY/mm/dd>]]"
+if [[  $# -lt 2 ]]  || [[ $# -gt 4 ]]; then
+    echo "Usage: scan-alb-logs <environment:prod|staging|experimental> <http-code> [<day:YYYY/mm/dd>[,<day:YYYY/mm/dd>]] [domainName]"
     exit 1
 fi
 
 readonly environment=${1:-}
 readonly http_code=${2:-}
 day=${3:-$(date -u "+%Y/%m/%d")}
+domainName=${4:-}
 
 if ! command -v big-cat > /dev/null; then
   echo "big-cat tool is required."
@@ -46,4 +47,8 @@ fi
 
 rm -rf tmp
 "${DIR}/download-alb-logs" tmp "${environment}" "${day}"
-big-cat "./tmp/*.app-${environment}.*.log.gz" | gunzip | read-alb-logs | jq -c ". | select( .elbStatusCode | startswith(\"${http_code}\")) | {timestamp, clientPort, elbStatusCode, targetStatusCode, request, actionsExecuted}"
+if [[ -n "${domainName}" ]]; then
+  big-cat "./tmp/*.app-${environment}.*.log.gz" | gunzip | read-alb-logs | jq -c ". | select( .elbStatusCode | startswith(\"${http_code}\")) | select(.domainName | startswith(\"${domainName}\")) | {requestType, timestamp, clientPort, elbStatusCode, targetStatusCode, domainName, request, actionsExecuted}"
+else
+  big-cat "./tmp/*.app-${environment}.*.log.gz" | gunzip | read-alb-logs | jq -c ". | select( .elbStatusCode | startswith(\"${http_code}\")) | {requestType, timestamp, clientPort, elbStatusCode, targetStatusCode, domainName, request, actionsExecuted}"
+fi

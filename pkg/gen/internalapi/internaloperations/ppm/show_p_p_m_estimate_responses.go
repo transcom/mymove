@@ -153,6 +153,30 @@ func (o *ShowPPMEstimateNotFound) WriteResponse(rw http.ResponseWriter, producer
 	rw.WriteHeader(404)
 }
 
+// ShowPPMEstimateConflictCode is the HTTP code returned for type ShowPPMEstimateConflict
+const ShowPPMEstimateConflictCode int = 409
+
+/*ShowPPMEstimateConflict distance is less than 50 miles (no short haul moves)
+
+swagger:response showPPMEstimateConflict
+*/
+type ShowPPMEstimateConflict struct {
+}
+
+// NewShowPPMEstimateConflict creates ShowPPMEstimateConflict with default headers values
+func NewShowPPMEstimateConflict() *ShowPPMEstimateConflict {
+
+	return &ShowPPMEstimateConflict{}
+}
+
+// WriteResponse to the client
+func (o *ShowPPMEstimateConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(409)
+}
+
 // ShowPPMEstimateUnprocessableEntityCode is the HTTP code returned for type ShowPPMEstimateUnprocessableEntity
 const ShowPPMEstimateUnprocessableEntityCode int = 422
 

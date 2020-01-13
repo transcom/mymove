@@ -13,18 +13,18 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
-// ListMoveTaskOrdersHandler lists move task orders with the option to filter since a particular date
-type ListMoveTaskOrdersHandler struct {
+// FetchMTOUpdatesHandler lists move task orders with the option to filter since a particular date
+type FetchMTOUpdatesHandler struct {
 	handlers.HandlerContext
 }
 
 // Handle fetches all move task orders with the option to filter since a particular date
-func (h ListMoveTaskOrdersHandler) Handle(params movetaskorderops.ListMoveTaskOrdersParams) middleware.Responder {
+func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	var mtos models.MoveTaskOrders
 
-	query := h.DB().Where("is_available_to_prime = ?", true)
+	query := h.DB().Where("is_available_to_prime = ?", true).Eager("PaymentRequests")
 	if params.Since != nil {
 		since := time.Unix(*params.Since, 0)
 		query = query.Where("updated_at > ?", since)
@@ -34,10 +34,10 @@ func (h ListMoveTaskOrdersHandler) Handle(params movetaskorderops.ListMoveTaskOr
 
 	if err != nil {
 		logger.Error("Unable to fetch records:", zap.Error(err))
-		return movetaskorderops.NewListMoveTaskOrdersInternalServerError()
+		return movetaskorderops.NewFetchMTOUpdatesInternalServerError()
 	}
 
 	payload := payloads.MoveTaskOrders(&mtos)
 
-	return movetaskorderops.NewListMoveTaskOrdersOK().WithPayload(payload)
+	return movetaskorderops.NewFetchMTOUpdatesOK().WithPayload(payload)
 }

@@ -6,6 +6,8 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"strconv"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -35,6 +37,9 @@ type MoveTaskOrder struct {
 	// Format: uuid
 	MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
 
+	// payment requests
+	PaymentRequests []*PaymentRequest `json:"payment_requests"`
+
 	// reference Id
 	ReferenceID *string `json:"referenceId,omitempty"`
 
@@ -56,6 +61,10 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMoveOrderID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePaymentRequests(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -103,6 +112,31 @@ func (m *MoveTaskOrder) validateMoveOrderID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("moveOrderID", "body", "uuid", m.MoveOrderID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validatePaymentRequests(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.PaymentRequests) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.PaymentRequests); i++ {
+		if swag.IsZero(m.PaymentRequests[i]) { // not required
+			continue
+		}
+
+		if m.PaymentRequests[i] != nil {
+			if err := m.PaymentRequests[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("payment_requests" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil

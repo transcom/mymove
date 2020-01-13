@@ -426,3 +426,7 @@
 20191229183600_add_top_tsp_for_ppms.up.sql
 20191229234501_import_rates_jan_2020.up.sql
 20200106225354_alter_factor_hundredths_type.up.sql
+20200108170523_add_customer_columns.up.sql
+20200109025141_add_names_to_roles_table.up.sql
+20200109170045_remove_entitlments_columns.up.sql
+20200109182812_add_authorized_weight_columns.up.sql

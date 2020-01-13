@@ -3,19 +3,22 @@ package internalapi
 import (
 	"net/http/httptest"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 )
 
-func (suite *HandlerSuite) setupPersonallyProcuredMoveIncentiveTest() {
+func (suite *HandlerSuite) setupPersonallyProcuredMoveIncentiveTest(orderID uuid.UUID) {
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "503",
 		BasepointCity: "Des Moines",
@@ -94,9 +97,34 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveIncentiveTest() {
 		SITRate:                         unit.NewDiscountRateFromPercent(50),
 	}
 	suite.MustSave(&tspPerformance)
+
+	address := models.Address{
+		StreetAddress1: "some address",
+		City:           "city",
+		State:          "state",
+		PostalCode:     "78626",
+	}
+	suite.MustSave(&address)
+
+	stationName := "New Duty Station"
+	station := models.DutyStation{
+		Name:        stationName,
+		Affiliation: internalmessages.AffiliationAIRFORCE,
+		AddressID:   address.ID,
+		Address:     address,
+	}
+	suite.MustSave(&station)
+
+	_ = testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ID:               orderID,
+			NewDutyStationID: station.ID,
+		},
+	})
 }
 
 func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
+	orderID := uuid.Must(uuid.NewV4())
 	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
@@ -110,8 +138,8 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 		OriginalMoveDate:     *handlers.FmtDate(scenario.Oct1TestYear),
 		OriginZip:            "94540",
 		OriginDutyStationZip: "50309",
-		DestinationZip:       "78626",
 		Weight:               7500,
+		OrdersID:             strfmt.UUID(orderID.String()),
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -122,10 +150,11 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 }
 
 func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
+	orderID := uuid.Must(uuid.NewV4())
 	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
-	suite.setupPersonallyProcuredMoveIncentiveTest()
+	suite.setupPersonallyProcuredMoveIncentiveTest(orderID)
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
@@ -136,8 +165,8 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 		OriginalMoveDate:     *handlers.FmtDate(scenario.Oct1TestYear),
 		OriginZip:            "94540",
 		OriginDutyStationZip: "50309",
-		DestinationZip:       "78626",
 		Weight:               7500,
+		OrdersID:             strfmt.UUID(orderID.String()),
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -152,11 +181,12 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 	suite.Equal(int64(605203), *cost.IncentivePercentage, "IncentivePercentage was not equal")
 }
 func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
+	orderID := uuid.Must(uuid.NewV4())
 	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
-	suite.setupPersonallyProcuredMoveIncentiveTest()
+	suite.setupPersonallyProcuredMoveIncentiveTest(orderID)
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
@@ -167,8 +197,8 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 		OriginalMoveDate:     *handlers.FmtDate(scenario.Oct1TestYear),
 		OriginZip:            "94540",
 		OriginDutyStationZip: "50309",
-		DestinationZip:       "78626",
 		Weight:               600,
+		OrdersID:             strfmt.UUID(orderID.String()),
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())

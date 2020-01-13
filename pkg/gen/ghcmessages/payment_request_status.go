@@ -20,14 +20,20 @@ type PaymentRequestStatus string
 
 const (
 
-	// PaymentRequestStatusPAYMENTSUBMITTED captures enum value "PAYMENT_SUBMITTED"
-	PaymentRequestStatusPAYMENTSUBMITTED PaymentRequestStatus = "PAYMENT_SUBMITTED"
+	// PaymentRequestStatusPENDING captures enum value "PENDING"
+	PaymentRequestStatusPENDING PaymentRequestStatus = "PENDING"
 
-	// PaymentRequestStatusAPPROVED captures enum value "APPROVED"
-	PaymentRequestStatusAPPROVED PaymentRequestStatus = "APPROVED"
+	// PaymentRequestStatusREVIEWED captures enum value "REVIEWED"
+	PaymentRequestStatusREVIEWED PaymentRequestStatus = "REVIEWED"
 
-	// PaymentRequestStatusREJECTED captures enum value "REJECTED"
-	PaymentRequestStatusREJECTED PaymentRequestStatus = "REJECTED"
+	// PaymentRequestStatusSENTTOGEX captures enum value "SENT_TO_GEX"
+	PaymentRequestStatusSENTTOGEX PaymentRequestStatus = "SENT_TO_GEX"
+
+	// PaymentRequestStatusRECEIVEDBYGEX captures enum value "RECEIVED_BY_GEX"
+	PaymentRequestStatusRECEIVEDBYGEX PaymentRequestStatus = "RECEIVED_BY_GEX"
+
+	// PaymentRequestStatusPAID captures enum value "PAID"
+	PaymentRequestStatusPAID PaymentRequestStatus = "PAID"
 )
 
 // for schema
@@ -35,7 +41,7 @@ var paymentRequestStatusEnum []interface{}
 
 func init() {
 	var res []PaymentRequestStatus
-	if err := json.Unmarshal([]byte(`["PAYMENT_SUBMITTED","APPROVED","REJECTED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PENDING","REVIEWED","SENT_TO_GEX","RECEIVED_BY_GEX","PAID"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

@@ -13,6 +13,8 @@ set -eu -o pipefail
 #
 # Note: Must run from transcom-ppp/ directory
 #
+# Note: Each date must be specified, not a date range!
+#
 
 [[ $# -ne 3 ]] && echo "Usage: download-alb-logs <dest> <environment:prod|staging|experimental> [<day:YYYY/mm/dd>[,<day:YYYY/mm/dd>]]" && exit 1
 
