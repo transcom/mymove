@@ -52,6 +52,7 @@ func MoveOrder(moveOrders *models.MoveOrder) *primemessages.MoveOrder {
 	}
 	destinationDutyStation := DutyStation(&moveOrders.DestinationDutyStation)
 	originDutyStation := DutyStation(&moveOrders.OriginDutyStation)
+	moveOrders.Entitlement.SetWeightAllotment(moveOrders.Grade)
 	entitlements := Entitlement(&moveOrders.Entitlement)
 	payload := primemessages.MoveOrder{
 		CustomerID:             strfmt.UUID(moveOrders.CustomerID.String()),
@@ -67,13 +68,16 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 	if entitlement == nil {
 		return nil
 	}
-	var proGearWeight int64
-	if entitlement.ProGearWeight != nil {
-		proGearWeight = int64(*entitlement.ProGearWeight)
+	var proGearWeight, proGearWeightSpouse, totalWeight int64
+	if entitlement.WeightAllotment() != nil {
+		proGearWeight = int64(entitlement.WeightAllotment().ProGearWeight)
+		proGearWeightSpouse = int64(entitlement.WeightAllotment().ProGearWeightSpouse)
+		totalWeight = int64(entitlement.WeightAllotment().TotalWeightSelf)
 	}
-	var proGearWeightSpouse int64
-	if entitlement.ProGearWeightSpouse != nil {
-		proGearWeightSpouse = int64(*entitlement.ProGearWeightSpouse)
+	var authorizedWeight *int64
+	if entitlement.AuthorizedWeight() != nil {
+		aw := int64(*entitlement.AuthorizedWeight())
+		authorizedWeight = &aw
 	}
 	var sit int64
 	if entitlement.StorageInTransit != nil {
@@ -85,6 +89,7 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 	}
 	return &primemessages.Entitlements{
 		ID:                    strfmt.UUID(entitlement.ID.String()),
+		AuthorizedWeight:      authorizedWeight,
 		DependentsAuthorized:  entitlement.DependentsAuthorized,
 		NonTemporaryStorage:   entitlement.NonTemporaryStorage,
 		PrivatelyOwnedVehicle: entitlement.PrivatelyOwnedVehicle,
@@ -92,6 +97,7 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 		ProGearWeightSpouse:   proGearWeightSpouse,
 		StorageInTransit:      sit,
 		TotalDependents:       totalDependents,
+		TotalWeight:           totalWeight,
 	}
 }
 
