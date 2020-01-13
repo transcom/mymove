@@ -183,7 +183,7 @@ export class PpmWeight extends Component {
       );
     }
 
-    if (hasEstimateError) {
+    if (rateEngineError || hasEstimateError) {
       return (
         <Fragment>
           <div className="error-message">
