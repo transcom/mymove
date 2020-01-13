@@ -25,14 +25,14 @@ func (gre *GHCRateEngineImporter) importREShipmentTypePrices(dbTx *pop.Connectio
 			return fmt.Errorf("could not find shipment type %s in map", stageDomesticIntlAddlPrices.ShipmentType)
 		}
 
-		factorHundredths, err := strconv.ParseFloat(stageDomesticIntlAddlPrices.Factor, 64)
+		factor, err := strconv.ParseFloat(stageDomesticIntlAddlPrices.Factor, 64)
 		if err != nil {
 			return fmt.Errorf("could not process factor [%s]: %w", stageDomesticIntlAddlPrices.Factor, err)
 		}
 		shipmentTypePrice := models.ReShipmentTypePrice{
 			ContractID:       gre.contractID,
 			ShipmentTypeID:   shipmentTypeID,
-			FactorHundredths: factorHundredths,
+			Factor: factor,
 		}
 
 		if stageDomesticIntlAddlPrices.Market == "CONUS" {

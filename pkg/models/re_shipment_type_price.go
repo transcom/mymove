@@ -15,7 +15,7 @@ type ReShipmentTypePrice struct {
 	ContractID       uuid.UUID `json:"contract_id" db:"contract_id"`
 	ShipmentTypeID   uuid.UUID `json:"shipment_type_id" db:"shipment_type_id"`
 	Market           Market    `json:"market" db:"market"`
-	FactorHundredths float64   `json:"factor_hundredths" db:"factor_hundredths"`
+	Factor float64   `json:"factor" db:"factor"`
 	CreatedAt        time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt        time.Time `json:"updated_at" db:"updated_at"`
 
@@ -35,7 +35,7 @@ func (r *ReShipmentTypePrice) Validate(tx *pop.Connection) (*validate.Errors, er
 		&validators.UUIDIsPresent{Field: r.ShipmentTypeID, Name: "ShipmentTypeID"},
 		&validators.StringIsPresent{Field: r.Market.String(), Name: "Market"},
 		&validators.StringInclusion{Field: r.Market.String(), Name: "Market", List: validMarkets},
-		&Float64IsPresent{Field: r.FactorHundredths, Name: "FactorHundredths"},
-		&Float64IsGreaterThan{Field: r.FactorHundredths, Name: "FactorHundredths", Compared: 0},
+		&Float64IsPresent{Field: r.Factor, Name: "FactorHundredths"},
+		&Float64IsGreaterThan{Field: r.Factor, Name: "FactorHundredths", Compared: 0},
 	), nil
 }
