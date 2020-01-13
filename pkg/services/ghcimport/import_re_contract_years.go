@@ -25,16 +25,11 @@ func (gre *GHCRateEngineImporter) importREContractYears(dbTx *pop.Connection) er
 
 	//loop through the price escalation discounts data and pull contract year and escalations
 	for _, stagePriceEscalationDiscount := range priceEscalationDiscounts {
-		escalation, err := strconv.ParseFloat(stagePriceEscalationDiscount.ForecastingAdjustment, 64)
-		if err != nil {
-			return fmt.Errorf("could not process forecast adjustment [%s]: %w", stagePriceEscalationDiscount.ForecastingAdjustment, err)
-		}
-
-		escalationCompounded, err := strconv.ParseFloat(stagePriceEscalationDiscount.PriceEscalation, 64)
+		escalation, err := strconv.ParseFloat(stagePriceEscalationDiscount.PriceEscalation, 64)
 		if err != nil {
 			return fmt.Errorf("could not process price escalation [%s]: %w", stagePriceEscalationDiscount.PriceEscalation, err)
 		}
-		compoundedEscalation *= escalationCompounded
+		compoundedEscalation *= escalation
 
 		startDate := time.Date(2018, time.June, 01, 0, 0, 0, 0, time.UTC)
 		endDate := time.Date(2019, time.May, 31, 0, 0, 0, 0, time.UTC)
