@@ -135,6 +135,7 @@ func Address(address *models.Address) *ghcmessages.Address {
 func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 	return &ghcmessages.MTOShipment{
 		ID:                  strfmt.UUID(mtoShipment.ID.String()),
+		MoveTaskOrderID:     strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:        "HHG",
 		CustomerRemarks:     *mtoShipment.CustomerRemarks,
 		RequestedPickupDate: strfmt.Date(*mtoShipment.RequestedPickupDate),
