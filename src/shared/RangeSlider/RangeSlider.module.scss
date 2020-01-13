@@ -22,22 +22,29 @@
 :global {
   .usa-range {
     max-width: 100%;
+    height: auto;
+    padding: 0;
   }
 
-  input[type=range]::-webkit-slider-runnable-track {
+  .usa-range:focus {
+    box-shadow: 0 0 0 2pt #2491ff;
+    border-radius: 1em;
+  }
+
+  input[type='range']::-webkit-slider-runnable-track {
     width: 100%;
     height: 16px;
     cursor: pointer;
     border-radius: 1em;
   }
-  input[type=range]::-moz-range-progress {
+  input[type='range']::-moz-range-progress {
     width: 100%;
     height: 16px;
     cursor: pointer;
     background: $color-blue;
     border-radius: 1em;
   }
-  input[type="range"]::-ms-fill-lower {
+  input[type='range']::-ms-fill-lower {
     width: 100%;
     height: 16px;
     cursor: pointer;
@@ -45,21 +52,19 @@
     border-radius: 1em;
   }
 
-  input[type="range"]::-ms-track {
+  input[type='range']::-ms-track {
     color: transparent;
   }
 
-  input[type="range"]::-ms-tooltip {
+  input[type='range']::-ms-tooltip {
     display: none;
   }
 
-  @media screen and (-webkit-min-device-pixel-ratio:0) {
+  @media screen and (-webkit-min-device-pixel-ratio: 0) {
     input[type='range']::-webkit-slider-runnable-track {
       width: 100%;
       cursor: pointer;
       border-radius: 1em;
     }
   }
-
-
 }
