@@ -129,6 +129,30 @@ func (o *ShowPPMSitEstimateForbidden) WriteResponse(rw http.ResponseWriter, prod
 	rw.WriteHeader(403)
 }
 
+// ShowPPMSitEstimateConflictCode is the HTTP code returned for type ShowPPMSitEstimateConflict
+const ShowPPMSitEstimateConflictCode int = 409
+
+/*ShowPPMSitEstimateConflict distance is less than 50 miles (no short haul moves)
+
+swagger:response showPPMSitEstimateConflict
+*/
+type ShowPPMSitEstimateConflict struct {
+}
+
+// NewShowPPMSitEstimateConflict creates ShowPPMSitEstimateConflict with default headers values
+func NewShowPPMSitEstimateConflict() *ShowPPMSitEstimateConflict {
+
+	return &ShowPPMSitEstimateConflict{}
+}
+
+// WriteResponse to the client
+func (o *ShowPPMSitEstimateConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
+
+	rw.WriteHeader(409)
+}
+
 // ShowPPMSitEstimateInternalServerErrorCode is the HTTP code returned for type ShowPPMSitEstimateInternalServerError
 const ShowPPMSitEstimateInternalServerErrorCode int = 500
 

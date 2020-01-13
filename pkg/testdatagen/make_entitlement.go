@@ -10,19 +10,21 @@ import (
 func MakeEntitlement(db *pop.Connection, assertions Assertions) models.Entitlement {
 	truePtr := true
 	dependents := 1
-	proGearWeight := 100
-	proGearWeightSpouse := 200
 	storageInTransit := 2
+	grade := assertions.MoveOrder.Grade
+
+	if grade == "" {
+		grade = "E_1"
+	}
 
 	entitlement := models.Entitlement{
 		DependentsAuthorized:  &truePtr,
 		TotalDependents:       &dependents,
 		NonTemporaryStorage:   &truePtr,
 		PrivatelyOwnedVehicle: &truePtr,
-		ProGearWeight:         &proGearWeight,
-		ProGearWeightSpouse:   &proGearWeightSpouse,
 		StorageInTransit:      &storageInTransit,
 	}
+	entitlement.SetWeightAllotment(grade)
 
 	// Overwrite values with those from assertions
 	mergeModels(&entitlement, assertions.Entitlement)

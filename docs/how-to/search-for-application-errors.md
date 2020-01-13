@@ -19,7 +19,8 @@ to see how this is done in real time. **This Video is older and parts maybe out 
 
 ### Tracking ALB Errors in S3
 
-**NOTE:** ALB logs are only stored in AWS S3, so the only method to search them is to download locally and search via the command line.
+**NOTE:** ALB logs are only stored in AWS S3. You can search them by downloading them locally and searching via the
+command line with the tools below or by using AWS Athena in the AWS Console.
 
 Often we'll see 500 errors from the application that trigger the `alb-staging-target-5xx-limit` alarm on the ALB.
 The text is not super helpful:
@@ -39,10 +40,28 @@ Link to Alarm
 https://console.aws.amazon.com/cloudwatch/home?region=us-west-2#alarm:alarmFilter=ANY;name=alb-staging-target-5xx-limit
 ```
 
+A simple way to scan the logs is to use a helpful script we've built:
+
+```sh
+../scripts/scan-alb-logs staging 500 2019/01/09,2019/01/10
+```
+
+You can be more specific with particular domains:
+
+```sh
+../scripts/scan-alb-logs staging 500 2019/01/09,2019/01/10 office.move.mil
+```
+
+**NOTE:** You cannot specify date ranges! You must specify each individual date.
+
+### More in depth scanning
+
+If you want more control over the results you can continue here OR you can move on to the next section about understanding
+ALB log entries.
+
 You can download ALB logs for a specific date by using our `download-alb-logs` command line tool with:
 
 ```sh
-cd transcom-ppp
 ../scripts/download-alb-logs tmp prod 2019/01/09,2019/01/10
 ```
 
@@ -59,7 +78,7 @@ Then search for the errors in the ALB logs using `big-cat`, `gunzip`, `read-alb-
 ```sh
 make build_tools
 export http_code=500
-big-cat ./tmp/*.log.gz | gunzip | read-alb-logs | jq ". | select( .elbStatusCode | startswith(\"${http_code}\")) | {timestamp, clientPort, elbStatusCode, targetStatusCode, request, actionsExecuted}"
+big-cat './tmp/*.log.gz' | gunzip | read-alb-logs | jq ". | select( .elbStatusCode | startswith(\"${http_code}\")) | {timestamp, clientPort, elbStatusCode, targetStatusCode, request, actionsExecuted}"
 ```
 
 And you'll see events like this:
@@ -84,13 +103,6 @@ And you'll see events like this:
 ```
 
 You can use any `jq` filter you want on the output data like filtering on timestamp.
-
-A simpler way to scan the logs is to use a helpful script we've built:
-
-```sh
-cd transcom-ppp
-../scripts/scan-alb-logs staging 500 2019/01/09
-```
 
 #### Understanding ALB Log Entries
 
