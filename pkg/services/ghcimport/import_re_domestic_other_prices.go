@@ -51,29 +51,29 @@ func importPackUnpackPrices(db *pop.Connection, serviceToIDMap map[string]uuid.U
 			return nil, fmt.Errorf("failed to parse ServicesSchedule for pack/unpack: %+v error: %w", stagePackPrice.ServicesSchedule, err)
 		}
 
-		packPeakPriceModel := models.ReDomesticOtherPrice{
-			ContractID:   contractID,
-			Schedule:     servicesSchedule,
-			IsPeakPeriod: true,
-			PriceCents:   unit.Cents(peakCents),
-		}
 		packNonPeakPriceModel := models.ReDomesticOtherPrice{
 			ContractID:   contractID,
 			Schedule:     servicesSchedule,
 			IsPeakPeriod: false,
 			PriceCents:   unit.Cents(nonPeakCents),
 		}
-
-		if stagePackPrice.ServiceProvided == "Packing (per cwt)" {
-			packPeakPriceModel.ServiceID = packServiceID
-			packNonPeakPriceModel.ServiceID = packServiceID
-		} else {
-			packPeakPriceModel.ServiceID = unpackServiceID
-			packNonPeakPriceModel.ServiceID = unpackServiceID
+		packPeakPriceModel := models.ReDomesticOtherPrice{
+			ContractID:   contractID,
+			Schedule:     servicesSchedule,
+			IsPeakPeriod: true,
+			PriceCents:   unit.Cents(peakCents),
 		}
 
-		modelsToSave = append(modelsToSave, DomOtherPriceToInsert{model: packPeakPriceModel, message: "Peak Pack/Unpack"})
+		if stagePackPrice.ServiceProvided == "Packing (per cwt)" {
+			packNonPeakPriceModel.ServiceID = packServiceID
+			packPeakPriceModel.ServiceID = packServiceID
+		} else {
+			packNonPeakPriceModel.ServiceID = unpackServiceID
+			packPeakPriceModel.ServiceID = unpackServiceID
+		}
+
 		modelsToSave = append(modelsToSave, DomOtherPriceToInsert{model: packNonPeakPriceModel, message: "Non-Peak Pack/Unpack"})
+		modelsToSave = append(modelsToSave, DomOtherPriceToInsert{model: packPeakPriceModel, message: "Peak Pack/Unpack"})
 	}
 
 	return modelsToSave, nil
@@ -121,24 +121,6 @@ func importSitPrices(db *pop.Connection, serviceToIDMap map[string]uuid.UUID, co
 				ContractID:   contractID,
 				ServiceID:    originSitPickupID,
 				Schedule:     schedule,
-				IsPeakPeriod: true,
-				PriceCents:   unit.Cents(peakCents),
-			}, message: "SIT Peak Pickup"})
-		modelsToSave = append(
-			modelsToSave,
-			DomOtherPriceToInsert{model: models.ReDomesticOtherPrice{
-				ContractID:   contractID,
-				ServiceID:    destSitDeliveryID,
-				Schedule:     schedule,
-				IsPeakPeriod: true,
-				PriceCents:   unit.Cents(peakCents),
-			}, message: "SIT Peak Delivery"})
-		modelsToSave = append(
-			modelsToSave,
-			DomOtherPriceToInsert{model: models.ReDomesticOtherPrice{
-				ContractID:   contractID,
-				ServiceID:    originSitPickupID,
-				Schedule:     schedule,
 				IsPeakPeriod: false,
 				PriceCents:   unit.Cents(nonPeakCents),
 			}, message: "SIT Non Peak Pickup"})
@@ -151,6 +133,24 @@ func importSitPrices(db *pop.Connection, serviceToIDMap map[string]uuid.UUID, co
 				IsPeakPeriod: false,
 				PriceCents:   unit.Cents(nonPeakCents),
 			}, message: "SIT Non Peak Delivery"})
+		modelsToSave = append(
+			modelsToSave,
+			DomOtherPriceToInsert{model: models.ReDomesticOtherPrice{
+				ContractID:   contractID,
+				ServiceID:    originSitPickupID,
+				Schedule:     schedule,
+				IsPeakPeriod: true,
+				PriceCents:   unit.Cents(peakCents),
+			}, message: "SIT Peak Pickup"})
+		modelsToSave = append(
+			modelsToSave,
+			DomOtherPriceToInsert{model: models.ReDomesticOtherPrice{
+				ContractID:   contractID,
+				ServiceID:    destSitDeliveryID,
+				Schedule:     schedule,
+				IsPeakPeriod: true,
+				PriceCents:   unit.Cents(peakCents),
+			}, message: "SIT Peak Delivery"})
 	}
 
 	return modelsToSave, nil
