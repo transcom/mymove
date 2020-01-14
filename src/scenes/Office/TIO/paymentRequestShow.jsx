@@ -23,8 +23,8 @@ class PaymentRequestShow extends React.Component {
             <li>serviceItemIds: {serviceItemIDs}</li>
             <li>status: {status}</li>
           </ul>
-          <button className="usa-button usa-button--outline">Approve All</button>
-          <button className="usa-button usa-button--outline">Deny All</button>
+          <button className="usa-button usa-button--outline">Approve</button>
+          <button className="usa-button usa-button--outline">Deny</button>
         </div>
       </>
     );
