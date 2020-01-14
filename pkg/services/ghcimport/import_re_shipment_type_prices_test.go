@@ -17,7 +17,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREShipmentTypePrices() {
 		err := gre.importREContract(suite.DB())
 		suite.NoError(err)
 
-		err = gre.importREShipmentTypes(suite.DB())
+		err = gre.loadServiceMap(suite.DB())
 		suite.NoError(err)
 
 		err = gre.importREShipmentTypePrices(suite.DB())
@@ -50,15 +50,15 @@ func (suite *GHCRateEngineImportSuite) helperCheckShipmentTypePrices() {
 	err := suite.DB().Where("code = $1", testContractCode).First(&contract)
 	suite.NoError(err)
 
-	// Get shipment type UUID.
-	var shipmentType models.ReShipmentType
-	err = suite.DB().Where("name = 'Mobile Homes'").First(&shipmentType)
+	// Get service UUID for shipment type
+	var service models.ReService
+	err = suite.DB().Where("code = 'DMHF'").First(&service)
 	suite.NoError(err)
 
 	var shipmentTypePrices models.ReShipmentTypePrice
 	err = suite.DB().
 		Where("contract_id = $1", contract.ID).
-		Where("shipment_type_id = $2", shipmentType.ID).
+		Where("service_id = $2", service.ID).
 		First(&shipmentTypePrices)
 	suite.NoError(err)
 	suite.Equal(1.2000, shipmentTypePrices.Factor)

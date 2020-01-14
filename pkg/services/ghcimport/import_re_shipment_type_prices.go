@@ -17,12 +17,18 @@ func (gre *GHCRateEngineImporter) importREShipmentTypePrices(dbTx *pop.Connectio
 		return fmt.Errorf("could not read staged domestic international additional prices: %w", err)
 	}
 
+	shipmentCodePositionInSlice := 0
+
 	//loop through the domestic international additional prices data and store in db
 	for _, stageDomesticIntlAddlPrices := range domesticIntlAddlPrices {
-		shipmentType := stageDomesticIntlAddlPrices.ShipmentType
-		shipmentTypeID, found := gre.shipmentTypeToIDMap[shipmentType]
+		//shipment codes stored in the re_services table
+		shipmentCodes := []string{"DMHF", "DBTF", "DBHF", "IBTF", "IBHF", "DNPKF", "INPKF"}
+
+		//pass each shipmentcode  to the serviceToIDMap to get its serviceID
+		service := shipmentCodes[shipmentCodePositionInSlice]
+		serviceID, found := gre.serviceToIDMap[service]
 		if !found {
-			return fmt.Errorf("could not find shipment type %s in map", stageDomesticIntlAddlPrices.ShipmentType)
+			return fmt.Errorf("missing service [%s] in map of services", service)
 		}
 
 		factor, err := strconv.ParseFloat(stageDomesticIntlAddlPrices.Factor, 64)
@@ -30,10 +36,11 @@ func (gre *GHCRateEngineImporter) importREShipmentTypePrices(dbTx *pop.Connectio
 			return fmt.Errorf("could not process factor [%s]: %w", stageDomesticIntlAddlPrices.Factor, err)
 		}
 		shipmentTypePrice := models.ReShipmentTypePrice{
-			ContractID:     gre.contractID,
-			ShipmentTypeID: shipmentTypeID,
-			Factor:         factor,
+			ContractID: gre.contractID,
+			ServiceID:  serviceID,
+			Factor:     factor,
 		}
+		shipmentCodePositionInSlice++
 
 		if stageDomesticIntlAddlPrices.Market == "CONUS" {
 			shipmentTypePrice.Market = models.MarketConus

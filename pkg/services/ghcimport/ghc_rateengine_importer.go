@@ -18,7 +18,6 @@ type GHCRateEngineImporter struct {
 	internationalRateAreaToIDMap map[string]uuid.UUID
 	serviceToIDMap               map[string]uuid.UUID
 	contractYearToIDMap          map[string]uuid.UUID
-	shipmentTypeToIDMap          map[string]uuid.UUID
 }
 
 func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
@@ -41,11 +40,6 @@ func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
 	err = gre.importRERateArea(dbTx) // Also populates gre.domesticRateAreaToIDMap and gre.internationalRateAreaToIDMap
 	if err != nil {
 		return fmt.Errorf("failed to import re_rate_area: %w", err)
-	}
-
-	err = gre.importREShipmentTypes(dbTx) // Also populates gre.shipmentTypeToIDMap
-	if err != nil {
-		return fmt.Errorf("failed to import re_shipment_types: %w", err)
 	}
 
 	err = gre.loadServiceMap(dbTx) // Populates gre.serviceToIDMap
