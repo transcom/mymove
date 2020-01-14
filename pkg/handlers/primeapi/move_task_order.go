@@ -8,6 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/audit"
 
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -20,7 +21,7 @@ type FetchMTOUpdatesHandler struct {
 
 // Handle fetches all move task orders with the option to filter since a particular date
 func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	var mtos models.MoveTaskOrders
 
@@ -38,6 +39,15 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 	}
 
 	payload := payloads.MoveTaskOrders(&mtos)
+
+	for index, mto := range mtos {
+		// Audit attempt for prime to fetch move task orders
+		_, err = audit.Capture(mto, nil, logger, session, params.HTTPRequest)
+		if err != nil {
+			logger.Error("Auditing service error for fetching MTO for Prime", zap.Error(err))
+			return movetaskorderops.NewFetchMTOUpdatesInternalServerError()
+		}
+	}
 
 	return movetaskorderops.NewFetchMTOUpdatesOK().WithPayload(payload)
 }
