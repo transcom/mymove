@@ -64,6 +64,10 @@ func (suite *GHCRateEngineImportSuite) helperCheckDomesticAccessorialPrices() {
 	err = suite.DB().Where("code = 'DDSHUT'").First(&serviceDDSHUT)
 	suite.NoError(err)
 
+	var serviceNotValid models.ReService
+	err = suite.DB().Where("code = 'MS'").First(&serviceNotValid)
+	suite.NoError(err)
+
 	var domesticAccessorialPriceDCRT models.ReDomesticAccessorialPrice
 	err = suite.DB().
 		Where("contract_id = $1", contract.ID).
@@ -90,4 +94,12 @@ func (suite *GHCRateEngineImportSuite) helperCheckDomesticAccessorialPrices() {
 		First(&domesticAccessorialPriceDDSHUT)
 	suite.NoError(err)
 	suite.Equal(unit.Cents(576), domesticAccessorialPriceDDSHUT.PerUnitCents)
+
+	var domesticAccessorialPriceServiceNotValid models.ReDomesticAccessorialPrice
+	err = suite.DB().
+		Where("contract_id = $1", contract.ID).
+		Where("service_id = $2", serviceNotValid.ID).
+		Where("services_schedule = $3", 3).
+		First(&domesticAccessorialPriceServiceNotValid)
+	suite.Error(err)
 }

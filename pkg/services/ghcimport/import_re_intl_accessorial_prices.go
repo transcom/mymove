@@ -51,12 +51,16 @@ func (gre *GHCRateEngineImporter) importREIntlAccessorialPrices(dbTx *pop.Connec
 			intlAccessorial.ServiceID = serviceIUCRT
 		} else if stageIntlAccessorialPrice.ServiceProvided == "Shuttle Service (per cwt)" {
 			intlAccessorial.ServiceID = serviceIDSHUT
+		} else {
+			return fmt.Errorf("service provided [%s] is not a valid service", stageIntlAccessorialPrice.ServiceProvided)
 		}
 
 		if stageIntlAccessorialPrice.Market == "CONUS" {
 			intlAccessorial.Market = models.MarketConus
 		} else if stageIntlAccessorialPrice.Market == "OCONUS" {
 			intlAccessorial.Market = models.MarketOconus
+		} else {
+			return fmt.Errorf("market [%s] is not a valid market", stageIntlAccessorialPrice.Market)
 		}
 
 		verrs, dbErr := dbTx.ValidateAndSave(&intlAccessorial)

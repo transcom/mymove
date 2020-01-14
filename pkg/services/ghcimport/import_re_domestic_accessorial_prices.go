@@ -57,6 +57,8 @@ func (gre *GHCRateEngineImporter) importREDomesticAccessorialPrices(dbTx *pop.Co
 			domesticAccessorial.ServiceID = serviceDUCRT
 		} else if stageDomesticAccessorialPrice.ServiceProvided == "Shuttle Service (per cwt)" {
 			domesticAccessorial.ServiceID = serviceDDSHUT
+		} else {
+			return fmt.Errorf("service provided [%s] is not a valid service", stageDomesticAccessorialPrice.ServiceProvided)
 		}
 
 		verrs, dbErr := dbTx.ValidateAndSave(&domesticAccessorial)

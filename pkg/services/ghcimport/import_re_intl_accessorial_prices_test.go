@@ -64,6 +64,10 @@ func (suite *GHCRateEngineImportSuite) helperCheckIntlAccessorialPrices() {
 	err = suite.DB().Where("code = 'IDSHUT'").First(&serviceIDSHUT)
 	suite.NoError(err)
 
+	var serviceNotValid models.ReService
+	err = suite.DB().Where("code = 'MS'").First(&serviceNotValid)
+	suite.NoError(err)
+
 	var intlAccessorialPriceICRT models.ReIntlAccessorialPrice
 	err = suite.DB().
 		Where("contract_id = $1", contract.ID).
@@ -90,4 +94,20 @@ func (suite *GHCRateEngineImportSuite) helperCheckIntlAccessorialPrices() {
 		First(&intlAccessorialPriceIDSHUT)
 	suite.NoError(err)
 	suite.Equal(unit.Cents(15623), intlAccessorialPriceIDSHUT.PerUnitCents)
+
+	var intlAccessorialPriceServiceNotValid models.ReIntlAccessorialPrice
+	err = suite.DB().
+		Where("contract_id = $1", contract.ID).
+		Where("service_id = $2", serviceNotValid.ID).
+		Where("market = $3", "O").
+		First(&intlAccessorialPriceServiceNotValid)
+	suite.Error(err)
+
+	var intlAccessorialPriceMarketNotValid models.ReIntlAccessorialPrice
+	err = suite.DB().
+		Where("contract_id = $1", contract.ID).
+		Where("service_id = $2", serviceNotValid.ID).
+		Where("market = $3", "R").
+		First(&intlAccessorialPriceMarketNotValid)
+	suite.Error(err)
 }

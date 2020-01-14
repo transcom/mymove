@@ -39,6 +39,8 @@ func (gre *GHCRateEngineImporter) importREShipmentTypePrices(dbTx *pop.Connectio
 			shipmentTypePrice.Market = models.MarketConus
 		} else if stageDomesticIntlAddlPrices.Market == "OCONUS" {
 			shipmentTypePrice.Market = models.MarketOconus
+		} else {
+			return fmt.Errorf("market [%s] is not a valid market", stageDomesticIntlAddlPrices.Market)
 		}
 
 		verrs, dbErr := dbTx.ValidateAndSave(&shipmentTypePrice)
