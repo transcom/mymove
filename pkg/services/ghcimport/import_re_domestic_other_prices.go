@@ -67,9 +67,11 @@ func importPackUnpackPrices(db *pop.Connection, serviceToIDMap map[string]uuid.U
 		if stagePackPrice.ServiceProvided == "Packing (per cwt)" {
 			packNonPeakPriceModel.ServiceID = packServiceID
 			packPeakPriceModel.ServiceID = packServiceID
-		} else {
+		} else if stagePackPrice.ServiceProvided == "Unpack (per cwt)" {
 			packNonPeakPriceModel.ServiceID = unpackServiceID
 			packPeakPriceModel.ServiceID = unpackServiceID
+		} else {
+			return nil, fmt.Errorf("failed to import pack/unpack prices receieved unexpected ServiceProvided: %s in %+v", stagePackPrice.ServiceProvided, stagePackPrice)
 		}
 
 		modelsToSave = append(modelsToSave, DomOtherPriceToInsert{model: packNonPeakPriceModel, message: "Non-Peak Pack/Unpack"})
