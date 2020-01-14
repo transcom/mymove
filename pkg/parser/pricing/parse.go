@@ -185,6 +185,24 @@ func InitDataSheetInfo() []XlsxDataSheetInfo {
 		},
 		verify: &verifyDomesticServiceAreaPrices,
 	}
+
+	// 8: 	2c) Dom. Other Prices
+	xlsxDataSheets[8] = XlsxDataSheetInfo{
+		Description:    swag.String("2c) Dom. Other Prices"),
+		outputFilename: swag.String("2c_domestic_other_prices"),
+		ProcessMethods: []xlsxProcessInfo{
+			{
+				process:    &parseDomesticOtherPricesPack,
+				adtlSuffix: swag.String("pack"),
+			},
+			{
+				process:    &parseDomesticOtherPricesSit,
+				adtlSuffix: swag.String("sit"),
+			},
+		},
+		verify: &verifyDomesticOtherPrices,
+	}
+
 	// 10: 	3a) OCONUS TO OCONUS Prices
 	xlsxDataSheets[10] = XlsxDataSheetInfo{
 		Description:    swag.String("3a) OCONUS to OCONUS Prices"),

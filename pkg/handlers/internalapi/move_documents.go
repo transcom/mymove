@@ -57,7 +57,8 @@ func payloadForMoveDocument(storer storage.FileStorer, moveDoc models.MoveDocume
 			payload.FullWeight = handlers.FmtInt64(int64(*moveDoc.WeightTicketSetDocument.FullWeight))
 		}
 		payload.VehicleNickname = moveDoc.WeightTicketSetDocument.VehicleNickname
-		payload.VehicleOptions = moveDoc.WeightTicketSetDocument.VehicleOptions
+		weightTicketSetType := internalmessages.WeightTicketSetType(moveDoc.WeightTicketSetDocument.WeightTicketSetType)
+		payload.WeightTicketSetType = &weightTicketSetType
 	}
 
 	return &payload, nil
@@ -102,10 +103,6 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 	if docExtractor.VehicleNickname != nil {
 		vehicleNickname = *docExtractor.VehicleNickname
 	}
-	var vehicleOptions string
-	if docExtractor.VehicleOptions != nil {
-		vehicleOptions = *docExtractor.VehicleOptions
-	}
 	var weightTicketDate *strfmt.Date
 	if docExtractor.WeightTicketDate != nil {
 		weightTicketDate = handlers.FmtDate(*docExtractor.WeightTicketDate)
@@ -140,7 +137,6 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 		RequestedAmountCents:     int64(requestedAmt),
 		PaymentMethod:            paymentMethod,
 		ReceiptMissing:           receiptMissing,
-		VehicleOptions:           vehicleOptions,
 		VehicleNickname:          vehicleNickname,
 		EmptyWeight:              emptyWeight,
 		EmptyWeightTicketMissing: emptyWeightTicketMissing,
@@ -150,6 +146,11 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 		TrailerOwnershipMissing:  trailerOwnershipMissing,
 		StorageStartDate:         storageStartDate,
 		StorageEndDate:           storageEndDate,
+	}
+
+	if docExtractor.WeightTicketSetType != nil {
+		weightTicketSetType := internalmessages.WeightTicketSetType(*docExtractor.WeightTicketSetType)
+		payload.WeightTicketSetType = &weightTicketSetType
 	}
 
 	return &payload, nil

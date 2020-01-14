@@ -674,10 +674,9 @@ func init() {
             "required": true
           },
           {
-            "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
             "type": "string",
-            "format": "zip",
-            "name": "destination_zip",
+            "format": "uuid",
+            "name": "orders_id",
             "in": "query",
             "required": true
           },
@@ -706,6 +705,9 @@ func init() {
           },
           "404": {
             "description": "ppm discount not found for provided postal codes and original move date"
+          },
+          "409": {
+            "description": "distance is less than 50 miles (no short haul moves)"
           },
           "422": {
             "description": "cannot process request with given information"
@@ -751,10 +753,9 @@ func init() {
             "required": true
           },
           {
-            "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
             "type": "string",
-            "format": "zip",
-            "name": "destination_zip",
+            "format": "uuid",
+            "name": "orders_id",
             "in": "query",
             "required": true
           },
@@ -780,6 +781,9 @@ func init() {
           },
           "403": {
             "description": "user is not authorized"
+          },
+          "409": {
+            "description": "distance is less than 50 miles (no short haul moves)"
           },
           "500": {
             "description": "internal server error"
@@ -2259,10 +2263,9 @@ func init() {
             "required": true
           },
           {
-            "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
             "type": "string",
-            "format": "zip",
-            "name": "destination_zip",
+            "format": "uuid",
+            "name": "orders_id",
             "in": "query",
             "required": true
           },
@@ -2288,6 +2291,9 @@ func init() {
           },
           "403": {
             "description": "user is not authorized"
+          },
+          "409": {
+            "description": "distance is less than 50 miles (no short haul moves)"
           },
           "500": {
             "description": "internal server error"
@@ -3564,6 +3570,26 @@ func init() {
           "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
         "has_requested_advance": {
           "type": "boolean",
           "title": "Would you like an advance of up to 60% of your PPM incentive?"
@@ -3872,7 +3898,7 @@ func init() {
       "type": "object",
       "required": [
         "personally_procured_move_id",
-        "vehicle_options",
+        "weight_ticket_set_type",
         "vehicle_nickname",
         "full_weight_ticket_missing",
         "empty_weight_ticket_missing",
@@ -3914,21 +3940,7 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. \"My car\")"
-        },
-        "vehicle_options": {
-          "type": "string",
-          "title": "Select weight ticket type",
-          "enum": [
-            "CAR",
-            "CAR_TRAILER",
-            "BOX_TRUCK"
-          ],
-          "x-display-value": {
-            "BOX_TRUCK": "Box truck",
-            "CAR": "Car",
-            "CAR_TRAILER": "Car + Trailer"
-          }
+          "title": "Vehicle nickname (ex. 'My car')"
         },
         "weight_ticket_date": {
           "type": "string",
@@ -3936,6 +3948,9 @@ func init() {
           "title": "Full Weight Ticket Date",
           "x-nullable": true,
           "example": "2018-04-26"
+        },
+        "weight_ticket_set_type": {
+          "$ref": "#/definitions/WeightTicketSetType"
         }
       }
     },
@@ -4405,21 +4420,7 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. \"My car\")"
-        },
-        "vehicle_options": {
-          "type": "string",
-          "title": "Select weight ticket type",
-          "enum": [
-            "CAR",
-            "CAR_TRAILER",
-            "BOX_TRUCK"
-          ],
-          "x-display-value": {
-            "BOX_TRUCK": "Box truck",
-            "CAR": "Car",
-            "CAR_TRAILER": "Car + Trailer"
-          }
+          "title": "Vehicle nickname (ex. 'My car')"
         },
         "weight_ticket_date": {
           "type": "string",
@@ -4427,6 +4428,9 @@ func init() {
           "title": "Weight ticket date",
           "x-nullable": true,
           "example": "2018-04-26"
+        },
+        "weight_ticket_set_type": {
+          "$ref": "#/definitions/WeightTicketSetType"
         }
       }
     },
@@ -4974,6 +4978,26 @@ func init() {
           "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
         "has_requested_advance": {
           "type": "boolean",
           "title": "Would you like an advance of up to 60% of your PPM incentive?",
@@ -5202,6 +5226,36 @@ func init() {
         "has_additional_postal_code": {
           "type": "boolean",
           "title": "Do you have stuff at another pickup location?",
+          "x-nullable": true
+        },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-display-value": {
+            "NO": false,
+            "NOT SURE": "Not Sure",
+            "YES": true
+          },
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-display-value": {
+            "NO": false,
+            "NOT SURE": "Not Sure",
+            "YES": true
+          },
           "x-nullable": true
         },
         "has_requested_advance": {
@@ -5934,6 +5988,26 @@ func init() {
           "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
         "has_requested_advance": {
           "type": "boolean",
           "title": "Would you like an advance of up to 60% of your PPM incentive?",
@@ -6065,21 +6139,6 @@ func init() {
         }
       }
     },
-    "VehicleOptions": {
-      "type": "string",
-      "title": "Select weight ticket type",
-      "enum": [
-        "CAR",
-        "CAR_TRAILER",
-        "BOX_TRUCK"
-      ],
-      "x-display-value": {
-        "BOX_TRUCK": "Box truck",
-        "CAR": "Car",
-        "CAR_TRAILER": "Car + Trailer"
-      },
-      "x-nullable": true
-    },
     "WeightAllotment": {
       "type": "object",
       "required": [
@@ -6106,6 +6165,23 @@ func init() {
           "example": 18000
         }
       }
+    },
+    "WeightTicketSetType": {
+      "type": "string",
+      "title": "Select weight ticket type",
+      "enum": [
+        "CAR",
+        "CAR_TRAILER",
+        "BOX_TRUCK",
+        "PRO_GEAR"
+      ],
+      "x-display-value": {
+        "BOX_TRUCK": "Box truck",
+        "CAR": "Car",
+        "CAR_TRAILER": "Car + Trailer",
+        "PRO_GEAR": "Pro-gear"
+      },
+      "x-nullable": true
     }
   }
 }`))
@@ -6766,10 +6842,9 @@ func init() {
             "required": true
           },
           {
-            "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
             "type": "string",
-            "format": "zip",
-            "name": "destination_zip",
+            "format": "uuid",
+            "name": "orders_id",
             "in": "query",
             "required": true
           },
@@ -6798,6 +6873,9 @@ func init() {
           },
           "404": {
             "description": "ppm discount not found for provided postal codes and original move date"
+          },
+          "409": {
+            "description": "distance is less than 50 miles (no short haul moves)"
           },
           "422": {
             "description": "cannot process request with given information"
@@ -6843,10 +6921,9 @@ func init() {
             "required": true
           },
           {
-            "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
             "type": "string",
-            "format": "zip",
-            "name": "destination_zip",
+            "format": "uuid",
+            "name": "orders_id",
             "in": "query",
             "required": true
           },
@@ -6872,6 +6949,9 @@ func init() {
           },
           "403": {
             "description": "user is not authorized"
+          },
+          "409": {
+            "description": "distance is less than 50 miles (no short haul moves)"
           },
           "500": {
             "description": "internal server error"
@@ -8351,10 +8431,9 @@ func init() {
             "required": true
           },
           {
-            "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
             "type": "string",
-            "format": "zip",
-            "name": "destination_zip",
+            "format": "uuid",
+            "name": "orders_id",
             "in": "query",
             "required": true
           },
@@ -8380,6 +8459,9 @@ func init() {
           },
           "403": {
             "description": "user is not authorized"
+          },
+          "409": {
+            "description": "distance is less than 50 miles (no short haul moves)"
           },
           "500": {
             "description": "internal server error"
@@ -9657,6 +9739,26 @@ func init() {
           "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
         "has_requested_advance": {
           "type": "boolean",
           "title": "Would you like an advance of up to 60% of your PPM incentive?"
@@ -9966,7 +10068,7 @@ func init() {
       "type": "object",
       "required": [
         "personally_procured_move_id",
-        "vehicle_options",
+        "weight_ticket_set_type",
         "vehicle_nickname",
         "full_weight_ticket_missing",
         "empty_weight_ticket_missing",
@@ -10010,21 +10112,7 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. \"My car\")"
-        },
-        "vehicle_options": {
-          "type": "string",
-          "title": "Select weight ticket type",
-          "enum": [
-            "CAR",
-            "CAR_TRAILER",
-            "BOX_TRUCK"
-          ],
-          "x-display-value": {
-            "BOX_TRUCK": "Box truck",
-            "CAR": "Car",
-            "CAR_TRAILER": "Car + Trailer"
-          }
+          "title": "Vehicle nickname (ex. 'My car')"
         },
         "weight_ticket_date": {
           "type": "string",
@@ -10032,6 +10120,9 @@ func init() {
           "title": "Full Weight Ticket Date",
           "x-nullable": true,
           "example": "2018-04-26"
+        },
+        "weight_ticket_set_type": {
+          "$ref": "#/definitions/WeightTicketSetType"
         }
       }
     },
@@ -10503,21 +10594,7 @@ func init() {
         },
         "vehicle_nickname": {
           "type": "string",
-          "title": "Vehicle nickname (ex. \"My car\")"
-        },
-        "vehicle_options": {
-          "type": "string",
-          "title": "Select weight ticket type",
-          "enum": [
-            "CAR",
-            "CAR_TRAILER",
-            "BOX_TRUCK"
-          ],
-          "x-display-value": {
-            "BOX_TRUCK": "Box truck",
-            "CAR": "Car",
-            "CAR_TRAILER": "Car + Trailer"
-          }
+          "title": "Vehicle nickname (ex. 'My car')"
         },
         "weight_ticket_date": {
           "type": "string",
@@ -10525,6 +10602,9 @@ func init() {
           "title": "Weight ticket date",
           "x-nullable": true,
           "example": "2018-04-26"
+        },
+        "weight_ticket_set_type": {
+          "$ref": "#/definitions/WeightTicketSetType"
         }
       }
     },
@@ -11073,6 +11153,26 @@ func init() {
           "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
         "has_requested_advance": {
           "type": "boolean",
           "title": "Would you like an advance of up to 60% of your PPM incentive?",
@@ -11303,6 +11403,36 @@ func init() {
         "has_additional_postal_code": {
           "type": "boolean",
           "title": "Do you have stuff at another pickup location?",
+          "x-nullable": true
+        },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-display-value": {
+            "NO": false,
+            "NOT SURE": "Not Sure",
+            "YES": true
+          },
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-display-value": {
+            "NO": false,
+            "NOT SURE": "Not Sure",
+            "YES": true
+          },
           "x-nullable": true
         },
         "has_requested_advance": {
@@ -12037,6 +12167,26 @@ func init() {
           "title": "Do you have stuff at another pickup location?",
           "x-nullable": true
         },
+        "has_pro_gear": {
+          "type": "string",
+          "title": "Has Pro-Gear",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
+        "has_pro_gear_over_thousand": {
+          "type": "string",
+          "title": "Has Pro-Gear Over Thousand Pounds",
+          "enum": [
+            "NOT SURE",
+            "YES",
+            "NO"
+          ],
+          "x-nullable": true
+        },
         "has_requested_advance": {
           "type": "boolean",
           "title": "Would you like an advance of up to 60% of your PPM incentive?",
@@ -12170,21 +12320,6 @@ func init() {
         }
       }
     },
-    "VehicleOptions": {
-      "type": "string",
-      "title": "Select weight ticket type",
-      "enum": [
-        "CAR",
-        "CAR_TRAILER",
-        "BOX_TRUCK"
-      ],
-      "x-display-value": {
-        "BOX_TRUCK": "Box truck",
-        "CAR": "Car",
-        "CAR_TRAILER": "Car + Trailer"
-      },
-      "x-nullable": true
-    },
     "WeightAllotment": {
       "type": "object",
       "required": [
@@ -12211,6 +12346,23 @@ func init() {
           "example": 18000
         }
       }
+    },
+    "WeightTicketSetType": {
+      "type": "string",
+      "title": "Select weight ticket type",
+      "enum": [
+        "CAR",
+        "CAR_TRAILER",
+        "BOX_TRUCK",
+        "PRO_GEAR"
+      ],
+      "x-display-value": {
+        "BOX_TRUCK": "Box truck",
+        "CAR": "Car",
+        "CAR_TRAILER": "Car + Trailer",
+        "PRO_GEAR": "Pro-gear"
+      },
+      "x-nullable": true
     }
   }
 }`))

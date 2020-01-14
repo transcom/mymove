@@ -1524,8 +1524,26 @@ func init() {
     "Customer": {
       "type": "object",
       "properties": {
+        "agency": {
+          "type": "string",
+          "title": "Agency customer is affilated with"
+        },
+        "current_address": {
+          "x-nullabe": true,
+          "$ref": "#/definitions/Address"
+        },
+        "destination_address": {
+          "x-nullabe": true,
+          "$ref": "#/definitions/Address"
+        },
         "dodID": {
           "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
         },
         "first_name": {
           "type": "string",
@@ -1539,6 +1557,12 @@ func init() {
         "last_name": {
           "type": "string",
           "example": "Doe"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
         },
         "userID": {
           "type": "string",
@@ -1626,6 +1650,12 @@ func init() {
     "Entitlements": {
       "type": "object",
       "properties": {
+        "authorizedWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
         "dependentsAuthorized": {
           "type": "boolean",
           "x-nullable": true,
@@ -1663,6 +1693,11 @@ func init() {
         "totalDependents": {
           "type": "integer",
           "example": 2
+        },
+        "totalWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
         }
       }
     },
@@ -1973,9 +2008,11 @@ func init() {
       "type": "string",
       "title": "Payment Request Status",
       "enum": [
-        "PAYMENT_SUBMITTED",
-        "APPROVED",
-        "REJECTED"
+        "PENDING",
+        "REVIEWED",
+        "SENT_TO_GEX",
+        "RECEIVED_BY_GEX",
+        "PAID"
       ]
     },
     "PaymentRequests": {
@@ -3894,8 +3931,26 @@ func init() {
     "Customer": {
       "type": "object",
       "properties": {
+        "agency": {
+          "type": "string",
+          "title": "Agency customer is affilated with"
+        },
+        "current_address": {
+          "x-nullabe": true,
+          "$ref": "#/definitions/Address"
+        },
+        "destination_address": {
+          "x-nullabe": true,
+          "$ref": "#/definitions/Address"
+        },
         "dodID": {
           "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "x-email",
+          "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true
         },
         "first_name": {
           "type": "string",
@@ -3909,6 +3964,12 @@ func init() {
         "last_name": {
           "type": "string",
           "example": "Doe"
+        },
+        "phone": {
+          "type": "string",
+          "format": "telephone",
+          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "x-nullable": true
         },
         "userID": {
           "type": "string",
@@ -3996,6 +4057,12 @@ func init() {
     "Entitlements": {
       "type": "object",
       "properties": {
+        "authorizedWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "x-nullable": true,
+          "example": 2000
+        },
         "dependentsAuthorized": {
           "type": "boolean",
           "x-nullable": true,
@@ -4033,6 +4100,11 @@ func init() {
         "totalDependents": {
           "type": "integer",
           "example": 2
+        },
+        "totalWeight": {
+          "type": "integer",
+          "x-formatting": "weight",
+          "example": 500
         }
       }
     },
@@ -4343,9 +4415,11 @@ func init() {
       "type": "string",
       "title": "Payment Request Status",
       "enum": [
-        "PAYMENT_SUBMITTED",
-        "APPROVED",
-        "REJECTED"
+        "PENDING",
+        "REVIEWED",
+        "SENT_TO_GEX",
+        "RECEIVED_BY_GEX",
+        "PAID"
       ]
     },
     "PaymentRequests": {

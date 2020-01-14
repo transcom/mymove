@@ -485,7 +485,6 @@ jobs:
       - restore_cache:
           keys:
             - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - run: make bin/rds-combined-ca-bundle.pem
       - run: make bin/rds-ca-2019-root.pem
       - run: make client_build
       - run: make server_build
@@ -520,7 +519,6 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
-      - run: make bin/rds-combined-ca-bundle.pem
       - run: make bin/rds-ca-2019-root.pem
       - run: make server_build
       - build_tag_push:
@@ -539,7 +537,6 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
-      - run: make bin/rds-combined-ca-bundle.pem
       - run: make bin/rds-ca-2019-root.pem
       - run: make tasks_build
       - build_tag_push:

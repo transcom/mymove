@@ -31,6 +31,7 @@ func (suite *HandlerSuite) TestCreateWeightTicketSetDocumentHandler() {
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
 
+	weightTicketSetType := internalmessages.WeightTicketSetType("CAR")
 	newWeightTicketSetDocumentPayload := internalmessages.CreateWeightTicketDocumentsPayload{
 		UploadIds:                uploadIds,
 		EmptyWeight:              handlers.FmtInt64(1000),
@@ -39,7 +40,7 @@ func (suite *HandlerSuite) TestCreateWeightTicketSetDocumentHandler() {
 		FullWeightTicketMissing:  handlers.FmtBool(false),
 		PersonallyProcuredMoveID: handlers.FmtUUID(ppm.ID),
 		VehicleNickname:          handlers.FmtString("My car"),
-		VehicleOptions:           handlers.FmtString("CAR"),
+		WeightTicketSetType:      &weightTicketSetType,
 		WeightTicketDate:         handlers.FmtDate(testdatagen.NextValidMoveDate),
 		TrailerOwnershipMissing:  handlers.FmtBool(false),
 	}

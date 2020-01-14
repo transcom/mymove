@@ -24,6 +24,9 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceAreaPrices() 
 		err = gre.importREDomesticServiceArea(suite.DB())
 		suite.NoError(err)
 
+		err = gre.loadServiceMap(suite.DB())
+		suite.NoError(err)
+
 		err = gre.importREDomesticServiceAreaPrices(suite.DB())
 		suite.NoError(err)
 		suite.helperVerifyDomesticServiceAreaPrices()

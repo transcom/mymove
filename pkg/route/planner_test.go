@@ -75,14 +75,28 @@ func (suite *PlannerFullSuite) TestAddressPlanner() {
 
 const bradyTXZip = "76825"
 const venturaCAZip = "93007"
+const fillmoreCAZip = "93015"
 
 func (suite *PlannerFullSuite) TestZip5Distance() {
-	distance, err := suite.planner.Zip5TransitDistance(bradyTXZip, venturaCAZip)
-	if err != nil {
-		suite.T().Errorf("Failed to get distance from Source - %v", err)
+	tests := []struct {
+		zip1        string
+		zip2        string
+		distanceMin int
+		distanceMax int
+	}{
+		{zip1: bradyTXZip, zip2: venturaCAZip, distanceMin: 1000, distanceMax: 3000},
+		{zip1: fillmoreCAZip, zip2: venturaCAZip, distanceMin: 30, distanceMax: 49},
 	}
-	if distance < 1000 || distance > 3000 {
-		suite.Fail("Implausible distance from TX to CA")
+	for _, ts := range tests {
+		distance, err := suite.planner.Zip5TransitDistance(ts.zip1, ts.zip2)
+		if ts.distanceMax < 50 {
+			suite.NotNil(err, "Should get error from Zip5 not number")
+		} else {
+			suite.NoError(err, "Failed to get distance from Source - %v", err)
+		}
+		if distance < ts.distanceMin || distance > ts.distanceMax {
+			suite.Fail("Implausible distance", "Implausible distance from %s to %s: %d", ts.zip1, ts.zip2, distance)
+		}
 	}
 }
 

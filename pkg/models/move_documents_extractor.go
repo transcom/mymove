@@ -28,7 +28,7 @@ type MoveDocumentExtractor struct {
 	FullWeight               *unit.Pound        `json:"full_weight,omitempty" db:"full_weight"`
 	FullWeightTicketMissing  *bool              `json:"full_weight_ticket_missing,omitempty" db:"full_weight_ticket_missing"`
 	VehicleNickname          *string            `json:"vehicle_nickname,omitempty" db:"vehicle_nickname"`
-	VehicleOptions           *string            `json:"vehicle_options,omitempty" db:"vehicle_options"`
+	WeightTicketSetType      *string            `json:"weight_ticket_set_type,omitempty" db:"weight_ticket_set_type"`
 	WeightTicketDate         *time.Time         `json:"weight_ticket_date,omitempty" db:"weight_ticket_date"`
 	TrailerOwnershipMissing  *bool              `json:"trailer_ownership_missing,omitempty" db:"trailer_ownership_missing"`
 	PaymentMethod            *string            `json:"payment_method" db:"payment_method"`
@@ -77,7 +77,7 @@ func (m *Move) FetchAllMoveDocumentsForMove(db *pop.Connection, includeAllMoveDo
 	  wt.full_weight_ticket_missing,
 	  wt.full_weight,
 	  wt.vehicle_nickname,
-	  wt.vehicle_options,
+	  wt.weight_ticket_set_type,
 	  wt.weight_ticket_date,
 	  wt.trailer_ownership_missing`)
 

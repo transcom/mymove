@@ -15,6 +15,18 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// ProGearStatus represents the status of a pro-gear question
+type ProGearStatus string
+
+const (
+	// ProGearStatusYes captures enum value "YES"
+	ProGearStatusYes ProGearStatus = "YES"
+	// ProGearStatusNo captures enum value "NO"
+	ProGearStatusNo ProGearStatus = "NO"
+	// ProGearStatusNotSure captures enum value "YES"
+	ProGearStatusNotSure ProGearStatus = "NOT SURE"
+)
+
 // PPMStatus represents the status of an order record's lifecycle
 type PPMStatus string
 
@@ -67,6 +79,8 @@ type PersonallyProcuredMove struct {
 	AdvanceWorksheet              Document                     `belongs_to:"documents"`
 	AdvanceWorksheetID            *uuid.UUID                   `json:"advance_worksheet_id" db:"advance_worksheet_id"`
 	TotalSITCost                  *unit.Cents                  `json:"total_sit_cost" db:"total_sit_cost"`
+	HasProGear                    *ProGearStatus               `json:"has_pro_gear" db:"has_pro_gear"`
+	HasProGearOverThousand        *ProGearStatus               `json:"has_pro_gear_over_thousand" db:"has_pro_gear_over_thousand"`
 }
 
 // PersonallyProcuredMoves is a list of PPMs
@@ -187,7 +201,7 @@ func (p *PersonallyProcuredMove) FetchMoveDocumentsForTypes(db *pop.Connection, 
 // FetchPersonallyProcuredMove Fetches and Validates a PPM model
 func FetchPersonallyProcuredMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*PersonallyProcuredMove, error) {
 	var ppm PersonallyProcuredMove
-	err := db.Q().Eager("Move.Orders.ServiceMember.DutyStation.Address", "Advance").Find(&ppm, id)
+	err := db.Q().Eager("Move.Orders.ServiceMember.DutyStation.Address", "Move.Orders.NewDutyStation.Address", "Advance").Find(&ppm, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return nil, ErrFetchNotFound
@@ -198,6 +212,23 @@ func FetchPersonallyProcuredMove(db *pop.Connection, session *auth.Session, id u
 	// TODO: Handle case where more than one user is authorized to modify ppm
 	if session.IsMilApp() && ppm.Move.Orders.ServiceMember.ID != session.ServiceMemberID {
 		return nil, ErrFetchForbidden
+	}
+
+	return &ppm, nil
+}
+
+// FetchPersonallyProcuredMoveByOrderID Fetches and Validates a PPM model
+func FetchPersonallyProcuredMoveByOrderID(db *pop.Connection, orderID uuid.UUID) (*PersonallyProcuredMove, error) {
+	var ppm PersonallyProcuredMove
+	err := db.Q().
+		LeftJoin("moves as m", "m.id = personally_procured_moves.move_id").
+		Where("m.orders_id = ?", orderID).
+		First(&ppm)
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return &PersonallyProcuredMove{}, ErrFetchNotFound
+		}
+		return &PersonallyProcuredMove{}, err
 	}
 
 	return &ppm, nil

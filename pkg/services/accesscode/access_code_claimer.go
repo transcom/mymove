@@ -13,17 +13,17 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// claimAccessCode is a service object to validate an access code.
-type claimAccessCode struct {
+// accessCodeClaimer is a service object to validate an access code.
+type accessCodeClaimer struct {
 	db *pop.Connection
 }
 
 // NewAccessCodeClaimer creates a new struct with the service dependencies
 func NewAccessCodeClaimer(db *pop.Connection) services.AccessCodeClaimer {
-	return &claimAccessCode{db}
+	return &accessCodeClaimer{db}
 }
 
-// fetchAccessCode gets an access code based upon the code given to determine whether or not it is a used code
+// fetchAccessCodeForUpdate gets an access code based upon the code given to determine whether or not it is a used code
 func fetchAccessCodeForUpdate(code string, db *pop.Connection) (*models.AccessCode, error) {
 	ac := models.AccessCode{}
 
@@ -46,7 +46,7 @@ func fetchAccessCodeForUpdate(code string, db *pop.Connection) (*models.AccessCo
 
 // ClaimAccessCode validates an access code based upon the code and move type. A valid access
 // code is assumed to have no `service_member_id`
-func (v claimAccessCode) ClaimAccessCode(code string, serviceMemberID uuid.UUID) (*models.AccessCode, *validate.Errors, error) {
+func (v accessCodeClaimer) ClaimAccessCode(code string, serviceMemberID uuid.UUID) (*models.AccessCode, *validate.Errors, error) {
 	var accessCode *models.AccessCode
 	var err error
 	verrs := validate.NewErrors()
