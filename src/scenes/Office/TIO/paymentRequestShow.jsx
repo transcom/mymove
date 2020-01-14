@@ -14,15 +14,19 @@ class PaymentRequestShow extends React.Component {
       paymentRequest: { isFinal, rejectionReason, serviceItemIDs, status },
     } = this.props;
     return (
-      <div>
-        <h1>Payment Request Id {id}</h1>
-        <ul>
-          <li>isFinal: {`${isFinal}`}</li>
-          <li>rejectionReason: {rejectionReason}</li>
-          <li>serviceItemIds: {serviceItemIDs}</li>
-          <li>status: {status}</li>
-        </ul>
-      </div>
+      <>
+        <div>
+          <h1>Payment Request Id {id}</h1>
+          <ul>
+            <li>isFinal: {`${isFinal}`}</li>
+            <li>rejectionReason: {rejectionReason}</li>
+            <li>serviceItemIds: {serviceItemIDs}</li>
+            <li>status: {status}</li>
+          </ul>
+          <button className="usa-button usa-button--outline">Approve All</button>
+          <button className="usa-button usa-button--outline">Deny All</button>
+        </div>
+      </>
     );
   }
 }
