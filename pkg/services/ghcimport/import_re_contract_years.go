@@ -22,6 +22,9 @@ func (gre *GHCRateEngineImporter) importREContractYears(dbTx *pop.Connection) er
 	gre.contractYearToIDMap = make(map[string]uuid.UUID)
 	incrementYear := 0
 	compoundedEscalation := 1.00000
+	//These are arbitrary start and end dates while we wait for actual contract year dates.
+	basePeriodStartDateForPrimeContract1 := time.Date(2019, time.June, 01, 0, 0, 0, 0, time.UTC)
+	basePeriodEndDateForPrimeContract1 := time.Date(2020, time.May, 31, 0, 0, 0, 0, time.UTC)
 
 	//loop through the price escalation discounts data and pull contract year and escalations
 	for _, stagePriceEscalationDiscount := range priceEscalationDiscounts {
@@ -31,18 +34,15 @@ func (gre *GHCRateEngineImporter) importREContractYears(dbTx *pop.Connection) er
 		}
 		compoundedEscalation *= escalation
 
-		startDate := time.Date(2018, time.June, 01, 0, 0, 0, 0, time.UTC)
-		endDate := time.Date(2019, time.May, 31, 0, 0, 0, 0, time.UTC)
-		incrementYear++
-
 		contractYear := models.ReContractYear{
 			ContractID:           gre.contractID,
 			Name:                 stagePriceEscalationDiscount.ContractYear,
-			StartDate:            startDate.AddDate(incrementYear, 0, 0),
-			EndDate:              endDate.AddDate(incrementYear, 0, 0),
+			StartDate:            basePeriodStartDateForPrimeContract1.AddDate(incrementYear, 0, 0),
+			EndDate:              basePeriodEndDateForPrimeContract1.AddDate(incrementYear, 0, 0),
 			Escalation:           escalation,
 			EscalationCompounded: compoundedEscalation,
 		}
+		incrementYear++
 
 		verrs, dbErr := dbTx.ValidateAndSave(&contractYear)
 		if dbErr != nil {
