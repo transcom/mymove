@@ -3,11 +3,14 @@ package internalapi
 import (
 	"net/http/httptest"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/unit"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
@@ -15,7 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 )
 
-func (suite *HandlerSuite) setupPersonallyProcuredMoveEstimateTest() {
+func (suite *HandlerSuite) setupPersonallyProcuredMoveEstimateTest(orderID uuid.UUID) {
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "503",
 		BasepointCity: "Des Moines",
@@ -94,13 +97,39 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveEstimateTest() {
 		SITRate:                         unit.NewDiscountRateFromPercent(50),
 	}
 	suite.MustSave(&tspPerformance)
+
+	address := models.Address{
+		StreetAddress1: "some address",
+		City:           "city",
+		State:          "state",
+		PostalCode:     "78626",
+	}
+	suite.MustSave(&address)
+
+	stationName := "New Duty Station"
+	station := models.DutyStation{
+		Name:        stationName,
+		Affiliation: internalmessages.AffiliationAIRFORCE,
+		AddressID:   address.ID,
+		Address:     address,
+	}
+	suite.MustSave(&station)
+
+	_ = testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ID:               orderID,
+			NewDutyStationID: station.ID,
+		},
+	})
 }
 
 func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
+	orderID := uuid.Must(uuid.NewV4())
+
 	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
-	suite.setupPersonallyProcuredMoveEstimateTest()
+	suite.setupPersonallyProcuredMoveEstimateTest(orderID)
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	req := httptest.NewRequest("GET", "/estimates/ppm", nil)
@@ -111,7 +140,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 		OriginalMoveDate:     *handlers.FmtDate(scenario.Oct1TestYear),
 		OriginZip:            "94540",
 		OriginDutyStationZip: "50309",
-		DestinationZip:       "78626",
+		OrdersID:             strfmt.UUID(orderID.String()),
 		WeightEstimate:       7500,
 	}
 
@@ -128,10 +157,12 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 }
 
 func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
+	orderID := uuid.Must(uuid.NewV4())
+
 	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
-	suite.setupPersonallyProcuredMoveEstimateTest()
+	suite.setupPersonallyProcuredMoveEstimateTest(orderID)
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	req := httptest.NewRequest("GET", "/estimates/ppm", nil)
@@ -142,7 +173,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 		OriginalMoveDate:     *handlers.FmtDate(scenario.Oct1TestYear),
 		OriginZip:            "94540",
 		OriginDutyStationZip: "50309",
-		DestinationZip:       "78626",
+		OrdersID:             strfmt.UUID(orderID.String()),
 		WeightEstimate:       600,
 	}
 

@@ -4,8 +4,11 @@ import (
 	"errors"
 	"time"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/route"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -87,12 +90,40 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 			TotalSITCost:          &cents,
 		},
 	})
+
+	address := models.Address{
+		StreetAddress1: "some address",
+		City:           "city",
+		State:          "state",
+		PostalCode:     "31905",
+	}
+	suite.MustSave(&address)
+
+	stationName := "New Duty Station"
+	station := models.DutyStation{
+		Name:        stationName,
+		Affiliation: internalmessages.AffiliationAIRFORCE,
+		AddressID:   address.ID,
+		Address:     address,
+	}
+	suite.MustSave(&station)
+
+	orderID := uuid.Must(uuid.NewV4())
+	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ID:               orderID,
+			NewDutyStationID: station.ID,
+			NewDutyStation:   station,
+		},
+	})
+
 	currentDutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
 	params := models.ShipmentSummaryFormData{
 		PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
 		WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
 		CurrentDutyStation:      currentDutyStation,
+		Order:                   order,
 	}
 	suite.Run("TestComputeObligations", func() {
 		mockComputer := mockPPMComputer{
@@ -153,6 +184,7 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 			PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
 			WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
 			CurrentDutyStation:      currentDutyStation,
+			Order:                   order,
 		}
 		mockComputer := mockPPMComputer{
 			costComputation: rateengine.CostComputation{SITMax: unit.Cents(500)},

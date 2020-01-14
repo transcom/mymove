@@ -537,6 +537,10 @@ definitions:
           - 'YES'
           - 'NO'
         x-nullable: true
+        x-display-value:
+          NOT SURE: Not Sure
+          'YES': Yes
+          'NO': No
       has_pro_gear_over_thousand:
         type: string
         title: Has Pro-Gear Over Thousand Pounds
@@ -545,6 +549,10 @@ definitions:
           - 'YES'
           - 'NO'
         x-nullable: true
+        x-display-value:
+          NOT SURE: Not Sure
+          'YES': Yes
+          'NO': No
       created_at:
         type: string
         format: date-time
@@ -2507,10 +2515,9 @@ paths:
           pattern: '^(\d{5}([\-]\d{4})?)$'
           required: true
         - in: query
-          name: destination_zip
+          name: orders_id
           type: string
-          format: zip
-          pattern: '^(\d{5}([\-]\d{4})?)$'
+          format: uuid
           required: true
         - in: query
           name: weight_estimate
@@ -2529,6 +2536,8 @@ paths:
           description: user is not authorized
         404:
           description: ppm discount not found for provided postal codes and original move date
+        409:
+          description: distance is less than 50 miles (no short haul moves)
         422:
           description: cannot process request with given information
         500:
@@ -2560,10 +2569,9 @@ paths:
           pattern: '^(\d{5}([\-]\d{4})?)$'
           required: true
         - in: query
-          name: destination_zip
+          name: orders_id
           type: string
-          format: zip
-          pattern: '^(\d{5}([\-]\d{4})?)$'
+          format: uuid
           required: true
         - in: query
           name: weight_estimate
@@ -2580,6 +2588,8 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
+        409:
+          description: distance is less than 50 miles (no short haul moves)
         500:
           description: internal server error
   /users/logged_in:
@@ -3705,10 +3715,9 @@ paths:
           pattern: '^(\d{5}([\-]\d{4})?)$'
           required: true
         - in: query
-          name: destination_zip
+          name: orders_id
           type: string
-          format: zip
-          pattern: '^(\d{5}([\-]\d{4})?)$'
+          format: uuid
           required: true
         - in: query
           name: weight
@@ -3725,6 +3734,8 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
+        409:
+          description: distance is less than 50 miles (no short haul moves)
         500:
           description: internal server error
   /documents:

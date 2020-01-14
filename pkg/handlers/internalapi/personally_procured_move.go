@@ -20,6 +20,16 @@ import (
 func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models.PersonallyProcuredMove) (*internalmessages.PersonallyProcuredMovePayload, error) {
 
 	documentPayload, err := payloadForDocumentModel(storer, personallyProcuredMove.AdvanceWorksheet)
+	var hasProGear *string
+	if personallyProcuredMove.HasProGear != nil {
+		hpg := string(*personallyProcuredMove.HasProGear)
+		hasProGear = &hpg
+	}
+	var hasProGearOverThousand *string
+	if personallyProcuredMove.HasProGearOverThousand != nil {
+		hpgot := string(*personallyProcuredMove.HasProGearOverThousand)
+		hasProGearOverThousand = &hpgot
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -48,6 +58,8 @@ func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models
 		AdvanceWorksheet:              documentPayload,
 		Mileage:                       personallyProcuredMove.Mileage,
 		TotalSitCost:                  handlers.FmtCost(personallyProcuredMove.TotalSITCost),
+		HasProGear:                    hasProGear,
+		HasProGearOverThousand:        hasProGearOverThousand,
 	}
 	if personallyProcuredMove.IncentiveEstimateMin != nil {
 		min := (*personallyProcuredMove.IncentiveEstimateMin).Int64()
@@ -100,6 +112,11 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 		advance = &a
 	}
 
+	destinationZip, err := GetDestinationDutyStationPostalCode(h.DB(), move.OrdersID)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
 	newPPM, verrs, err := move.CreatePPM(h.DB(),
 		payload.Size,
 		handlers.PoundPtrFromInt64Ptr(payload.WeightEstimate),
@@ -107,7 +124,7 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 		payload.PickupPostalCode,
 		payload.HasAdditionalPostalCode,
 		payload.AdditionalPickupPostalCode,
-		payload.DestinationPostalCode,
+		&destinationZip,
 		payload.HasSit,
 		payload.DaysInStorage,
 		payload.EstimatedStorageReimbursement,
@@ -185,10 +202,6 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 		}
 		ppm.HasAdditionalPostalCode = payload.HasAdditionalPostalCode
 	}
-	if payload.DestinationPostalCode != nil {
-		ppm.DestinationPostalCode = payload.DestinationPostalCode
-	}
-
 	if payload.HasSit != nil {
 		ppm.HasSit = payload.HasSit
 	}
@@ -365,13 +378,14 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models
 	}
 
 	originDutyStationZip := ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode
+	destinationDutyStationZip := ppm.Move.Orders.NewDutyStation.Address.PostalCode
 
-	distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistance(*ppm.PickupPostalCode, *ppm.DestinationPostalCode)
+	distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistance(*ppm.PickupPostalCode, destinationDutyStationZip)
 	if err != nil {
 		return err
 	}
 
-	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistance(originDutyStationZip, *ppm.DestinationPostalCode)
+	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistance(originDutyStationZip, destinationDutyStationZip)
 	if err != nil {
 		return err
 	}
@@ -380,7 +394,7 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models
 		unit.Pound(*ppm.WeightEstimate),
 		*ppm.PickupPostalCode,
 		originDutyStationZip,
-		*ppm.DestinationPostalCode,
+		destinationDutyStationZip,
 		distanceMilesFromOriginPickupZip,
 		distanceMilesFromOriginDutyStationZip,
 		time.Time(*ppm.OriginalMoveDate),

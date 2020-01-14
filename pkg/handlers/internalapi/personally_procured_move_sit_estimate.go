@@ -6,6 +6,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gofrs/uuid"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -24,14 +25,25 @@ type ShowPPMSitEstimateHandler struct {
 func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	engine := rateengine.NewRateEngine(h.DB(), logger)
-	sitZip3 := rateengine.Zip5ToZip3(params.DestinationZip)
+
+	ordersID, err := uuid.FromString(params.OrdersID.String())
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	destinationZip, err := GetDestinationDutyStationPostalCode(h.DB(), ordersID)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	sitZip3 := rateengine.Zip5ToZip3(destinationZip)
 	cwtWeight := unit.Pound(params.WeightEstimate).ToCWT()
 	originalMoveDateTime := time.Time(params.OriginalMoveDate)
 
 	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(h.DB(),
 		logger,
 		params.OriginZip,
-		params.DestinationZip,
+		destinationZip,
 		time.Time(params.OriginalMoveDate),
 	)
 	if err != nil {

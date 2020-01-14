@@ -22,7 +22,7 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 	}
 	primeAPI := primeops.NewMymoveAPI(primeSpec)
 
-	primeAPI.MoveTaskOrderListMoveTaskOrdersHandler = ListMoveTaskOrdersHandler{
+	primeAPI.MoveTaskOrderFetchMTOUpdatesHandler = FetchMTOUpdatesHandler{
 		context,
 	}
 

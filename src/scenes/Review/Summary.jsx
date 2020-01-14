@@ -93,7 +93,9 @@ export class Summary extends Component {
           />
         )}
 
-        {showPPMShipmentSummary && <PPMShipmentSummary ppm={currentPpm} movePath={rootAddressWithMoveId} />}
+        {showPPMShipmentSummary && (
+          <PPMShipmentSummary ppm={currentPpm} movePath={rootAddressWithMoveId} orders={currentOrders} />
+        )}
         {moveIsApproved && (
           <div className="approved-edit-warning">
             *To change these fields, contact your local PPPO office at {get(currentStation, 'name')}{' '}

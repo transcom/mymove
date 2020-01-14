@@ -32,6 +32,16 @@ const EstimatesDisplay = props => {
           {formatCentsRange(ppm.incentive_estimate_min, ppm.incentive_estimate_max)}
         </PanelField>
         <PanelSwaggerField fieldName="weight_estimate" {...fieldProps} />
+        {fieldProps.values.has_pro_gear && (
+          <PanelSwaggerField title="Is there pro-gear?" fieldName="has_pro_gear" {...fieldProps} />
+        )}
+        {fieldProps.values.has_pro_gear_over_thousand && (
+          <PanelSwaggerField
+            title="Does the pro-gear weigh more then 1,000 lbs?"
+            fieldName="has_pro_gear_over_thousand"
+            {...fieldProps}
+          />
+        )}
         <PanelSwaggerField title="Planned departure" fieldName="original_move_date" {...fieldProps} />
         <PanelField title="Storage planned" fieldName="has_sit">
           {fieldProps.values.has_sit ? 'Yes' : 'No'}
@@ -68,6 +78,12 @@ const EstimatesEdit = props => {
             required
           />{' '}
           lbs
+          <SwaggerField title="Is there pro-gear?" fieldName="has_pro_gear" swagger={schema} />
+          <SwaggerField
+            title="Does the pro-gear weigh more then 1,000 lbs?"
+            fieldName="has_pro_gear_over_thousand"
+            swagger={schema}
+          />
           <SwaggerField title="Planned departure date" fieldName="original_move_date" swagger={schema} required />
           <div className="panel-subhead">Storage</div>
           <SwaggerField title="Storage planned?" fieldName="has_sit" swagger={schema} component={YesNoBoolean} />
