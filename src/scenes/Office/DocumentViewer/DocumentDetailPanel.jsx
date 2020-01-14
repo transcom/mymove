@@ -50,7 +50,12 @@ const DocumentDetailDisplay = ({
         )}
         {isWeightTicketDocument && (
           <>
-            <PanelSwaggerField title="Vehicle Type" fieldName="vehicle_options" required {...moveDocFieldProps} />
+            <PanelSwaggerField
+              title="Weight Ticket Set Type"
+              fieldName="weight_ticket_set_type"
+              required
+              {...moveDocFieldProps}
+            />
             <PanelSwaggerField title="Vehicle Nickname" fieldName="vehicle_nickname" required {...moveDocFieldProps} />
 
             <PanelSwaggerField title="Empty Weight" fieldName="empty_weight" required {...moveDocFieldProps} />
@@ -125,7 +130,12 @@ const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
           {isWeightTicketDocument && (
             <>
               <div className="field-with-units">
-                <SwaggerField className="short-field" fieldName="vehicle_options" swagger={moveDocSchema} required />
+                <SwaggerField
+                  className="short-field"
+                  fieldName="weight_ticket_set_type"
+                  swagger={moveDocSchema}
+                  required
+                />
               </div>
               <div className="field-with-units">
                 <SwaggerField className="short-field" fieldName="vehicle_nickname" swagger={moveDocSchema} required />
