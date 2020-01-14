@@ -32,13 +32,7 @@ import WizardHeader from '../WizardHeader';
 import { formatToOrdinal } from 'shared/formatters';
 
 import './PPMPaymentRequest.css';
-
-const vehicleTypes = {
-  CarAndTrailer: 'CAR_TRAILER',
-  Car: 'CAR',
-  BoxTruck: 'BOX_TRUCK',
-  ProGear: 'PRO_GEAR',
-};
+import { WEIGHT_TICKET_SET_TYPE } from 'shared/constants';
 
 const nextBtnLabels = {
   SaveAndAddAnother: 'Save & Add Another',
@@ -65,7 +59,7 @@ class WeightTicket extends Component {
 
   get initialState() {
     return {
-      vehicleType: '',
+      weightTicketSetType: '',
       additionalWeightTickets: 'No',
       isValidTrailer: 'No',
       weightTicketSubmissionError: false,
@@ -82,11 +76,11 @@ class WeightTicket extends Component {
   }
 
   get isCarTrailer() {
-    return this.state.vehicleType === vehicleTypes.CarAndTrailer;
+    return this.state.weightTicketSetType === WEIGHT_TICKET_SET_TYPE.CAR_TRAILER;
   }
 
   get isProGear() {
-    return this.state.vehicleType === vehicleTypes.ProGear;
+    return this.state.weightTicketSetType === WEIGHT_TICKET_SET_TYPE.PRO_GEAR;
   }
 
   hasWeightTicket = uploaderRef => {
@@ -125,7 +119,7 @@ class WeightTicket extends Component {
     return this.invalidState(this.uploaders.fullWeight);
   };
 
-  //  handleChange for vehicleType and additionalWeightTickets
+  //  handleChange for weightTicketSetType and additionalWeightTickets
   handleChange = (event, type) => {
     this.setState({ [type]: event.target.value });
   };
@@ -177,7 +171,7 @@ class WeightTicket extends Component {
     const weightTicketSetDocument = {
       personally_procured_move_id: currentPpm.id,
       upload_ids: uploadIds,
-      vehicle_options: formValues.vehicle_options,
+      weight_ticket_set_type: formValues.weight_ticket_set_type,
       vehicle_nickname: formValues.vehicle_nickname,
       empty_weight_ticket_missing: this.state.missingEmptyWeightTicket,
       empty_weight: formValues.empty_weight,
@@ -218,7 +212,7 @@ class WeightTicket extends Component {
   render() {
     const {
       additionalWeightTickets,
-      vehicleType,
+      weightTicketSetType,
       missingEmptyWeightTicket,
       missingFullWeightTicket,
       missingDocumentation,
@@ -267,10 +261,10 @@ class WeightTicket extends Component {
                   <FontAwesomeIcon aria-hidden className="color_blue_link" icon={faQuestionCircle} />
                 </Link>
                 <SwaggerField
-                  fieldName="vehicle_options"
+                  fieldName="weight_ticket_set_type"
                   swagger={schema}
-                  onChange={event => this.handleChange(event, 'vehicleType')}
-                  value={vehicleType}
+                  onChange={event => this.handleChange(event, 'weightTicketSetType')}
+                  value={weightTicketSetType}
                   required
                 />
                 <SwaggerField
@@ -283,7 +277,7 @@ class WeightTicket extends Component {
                   swagger={schema}
                   required
                 />
-                {vehicleType && this.isCarTrailer && (
+                {weightTicketSetType && this.isCarTrailer && (
                   <>
                     <div className="radio-group-wrapper normalize-margins">
                       <p className="radio-group-header">
@@ -352,7 +346,7 @@ class WeightTicket extends Component {
                     )}
                   </>
                 )}
-                {vehicleType && (
+                {weightTicketSetType && (
                   <>
                     <div className="dashed-divider" />
 
