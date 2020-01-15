@@ -21,9 +21,6 @@ func (suite *GHCRateEngineImportSuite) Test_importRETaskOrderFees() {
 		err = gre.importREContractYears(suite.DB())
 		suite.NoError(err)
 
-		//err = gre.importRERateArea(suite.DB())
-		//suite.NoError(err)
-
 		err = gre.loadServiceMap(suite.DB())
 		suite.NoError(err)
 
@@ -57,16 +54,28 @@ func (suite *GHCRateEngineImportSuite) helperCheckTaskOrderFees() {
 	err := suite.DB().Where("code = 'MS'").First(&serviceMS)
 	suite.NoError(err)
 
+	var serviceCS models.ReService
+	err = suite.DB().Where("code = 'CS'").First(&serviceCS)
+	suite.NoError(err)
+
 	// Get contract year UUID.
 	var contractYear models.ReContractYear
 	err = suite.DB().Where("name = 'Base Period Year 1'").First(&contractYear)
 	suite.NoError(err)
 
-	var taskOrderFee models.ReTaskOrderFee
+	var taskOrderFeeMS models.ReTaskOrderFee
 	err = suite.DB().
 		Where("service_id = $1", serviceMS.ID).
 		Where("contract_year_id = $2", contractYear.ID).
-		First(&taskOrderFee)
+		First(&taskOrderFeeMS)
 	suite.NoError(err)
-	suite.Equal(unit.Cents(45115), taskOrderFee.PriceCents)
+	suite.Equal(unit.Cents(45115), taskOrderFeeMS.PriceCents)
+
+	var taskOrderFeeCS models.ReTaskOrderFee
+	err = suite.DB().
+		Where("service_id = $1", serviceCS.ID).
+		Where("contract_year_id = $2", contractYear.ID).
+		First(&taskOrderFeeCS)
+	suite.NoError(err)
+	suite.Equal(unit.Cents(22263), taskOrderFeeCS.PriceCents)
 }

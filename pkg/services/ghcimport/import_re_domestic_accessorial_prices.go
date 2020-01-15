@@ -19,21 +19,6 @@ func (gre *GHCRateEngineImporter) importREDomesticAccessorialPrices(dbTx *pop.Co
 
 	//loop through the domestic accessorial price data and store in db
 	for _, stageDomesticAccessorialPrice := range domesticAccessorialPrices {
-		serviceDCRT, foundService := gre.serviceToIDMap["DCRT"]
-		if !foundService {
-			return fmt.Errorf("missing service DCRT in map of services")
-		}
-
-		serviceDUCRT, foundService := gre.serviceToIDMap["DUCRT"]
-		if !foundService {
-			return fmt.Errorf("missing service DUCRT in map of services")
-		}
-
-		serviceDDSHUT, foundService := gre.serviceToIDMap["DDSHUT"]
-		if !foundService {
-			return fmt.Errorf("missing service DDSHUT in map of services")
-		}
-
 		servicesSchedule, err := stringToInteger(stageDomesticAccessorialPrice.ServicesSchedule)
 		if err != nil {
 			return fmt.Errorf("could not process services schedule [%s]: %w", stageDomesticAccessorialPrice.ServicesSchedule, err)
@@ -45,28 +30,41 @@ func (gre *GHCRateEngineImporter) importREDomesticAccessorialPrices(dbTx *pop.Co
 			return fmt.Errorf("could not process price per unit [%s]: %w", stageDomesticAccessorialPrice.PricePerUnit, err)
 		}
 
-		domesticAccessorial := models.ReDomesticAccessorialPrice{
-			ContractID:       gre.contractID,
-			ServicesSchedule: servicesSchedule,
-			PerUnitCents:     unit.Cents(perUnitCentsService),
+		services := []struct {
+			serviceCode     string
+			serviceProvided string
+		}{
+			{"DCRT", "Crating (per cubic ft.)"},
+			{"DUCRT", "Uncrating (per cubic ft.)"},
+			{"DDSHUT", "Shuttle Service (per cwt)"},
+			{"DOSHUT", "Shuttle Service (per cwt)"},
 		}
 
-		if stageDomesticAccessorialPrice.ServiceProvided == "Crating (per cubic ft.)" {
-			domesticAccessorial.ServiceID = serviceDCRT
-		} else if stageDomesticAccessorialPrice.ServiceProvided == "Uncrating (per cubic ft.)" {
-			domesticAccessorial.ServiceID = serviceDUCRT
-		} else if stageDomesticAccessorialPrice.ServiceProvided == "Shuttle Service (per cwt)" {
-			domesticAccessorial.ServiceID = serviceDDSHUT
-		} else {
-			return fmt.Errorf("service provided [%s] is not a valid service", stageDomesticAccessorialPrice.ServiceProvided)
-		}
+		for _, service := range services {
+			serviceCode := service.serviceCode
+			serviceProvided := service.serviceProvided
 
-		verrs, dbErr := dbTx.ValidateAndSave(&domesticAccessorial)
-		if dbErr != nil {
-			return fmt.Errorf("error saving ReDomesticAccessorialPrices: %+v with error: %w", domesticAccessorial, dbErr)
-		}
-		if verrs.HasAny() {
-			return fmt.Errorf("error saving ReDomesticAccessorialPrices: %+v with validation errors: %w", domesticAccessorial, verrs)
+			if stageDomesticAccessorialPrice.ServiceProvided == serviceProvided {
+				serviceID, found := gre.serviceToIDMap[serviceCode]
+				if !found {
+					return fmt.Errorf("missing service [%s] in map of services", service)
+				}
+
+				domesticAccessorial := models.ReDomesticAccessorialPrice{
+					ContractID:       gre.contractID,
+					ServicesSchedule: servicesSchedule,
+					ServiceID:        serviceID,
+					PerUnitCents:     unit.Cents(perUnitCentsService),
+				}
+
+				verrs, dbErr := dbTx.ValidateAndSave(&domesticAccessorial)
+				if dbErr != nil {
+					return fmt.Errorf("error saving ReDomesticAccessorialPrices: %+v with error: %w", domesticAccessorial, dbErr)
+				}
+				if verrs.HasAny() {
+					return fmt.Errorf("error saving ReDomesticAccessorialPrices: %+v with validation errors: %w", domesticAccessorial, verrs)
+				}
+			}
 		}
 	}
 

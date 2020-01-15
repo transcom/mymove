@@ -54,4 +54,23 @@ func (suite *GHCRateEngineImportSuite) helperCheckContractYearValue() {
 		First(&basePeriod1)
 	suite.NoError(err)
 	suite.Equal(1.0000, basePeriod1.Escalation)
+	suite.Equal(1.0000, basePeriod1.EscalationCompounded)
+
+	var optionPeriod1 models.ReContractYear
+	err = suite.DB().
+		Where("contract_id = $1", contract.ID).
+		Where("name = $2", "Option Period 1").
+		First(&optionPeriod1)
+	suite.NoError(err)
+	suite.Equal(1.02140, optionPeriod1.Escalation)
+	suite.Equal(1.06298, optionPeriod1.EscalationCompounded)
+
+	var awardTerm2 models.ReContractYear
+	err = suite.DB().
+		Where("contract_id = $1", contract.ID).
+		Where("name = $2", "Award Term 2").
+		First(&awardTerm2)
+	suite.NoError(err)
+	suite.Equal(1.01940, awardTerm2.Escalation)
+	suite.Equal(1.12848, awardTerm2.EscalationCompounded)
 }

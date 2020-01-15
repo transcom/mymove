@@ -19,56 +19,52 @@ func (gre *GHCRateEngineImporter) importREIntlAccessorialPrices(dbTx *pop.Connec
 
 	//loop through the intl accessorial price data and store in db
 	for _, stageIntlAccessorialPrice := range intlAccessorialPrices {
-		serviceICRT, foundService := gre.serviceToIDMap["ICRT"]
-		if !foundService {
-			return fmt.Errorf("missing service DCRT in map of services")
-		}
-
-		serviceIUCRT, foundService := gre.serviceToIDMap["IUCRT"]
-		if !foundService {
-			return fmt.Errorf("missing service DUCRT in map of services")
-		}
-
-		serviceIDSHUT, foundService := gre.serviceToIDMap["IDSHUT"]
-		if !foundService {
-			return fmt.Errorf("missing service DDSHUT in map of services")
-		}
-
 		var perUnitCentsService int
 		perUnitCentsService, err = priceToCents(stageIntlAccessorialPrice.PricePerUnit)
 		if err != nil {
 			return fmt.Errorf("could not process per unit price [%s]: %w", stageIntlAccessorialPrice.PricePerUnit, err)
 		}
 
-		intlAccessorial := models.ReIntlAccessorialPrice{
-			ContractID:   gre.contractID,
-			PerUnitCents: unit.Cents(perUnitCentsService),
+		market, err := getMarket(stageIntlAccessorialPrice.Market)
+		if err != nil {
+			return fmt.Errorf("could not process market [%s]: %w", stageIntlAccessorialPrice.Market, err)
 		}
 
-		if stageIntlAccessorialPrice.ServiceProvided == "Crating (per cubic ft.)" {
-			intlAccessorial.ServiceID = serviceICRT
-		} else if stageIntlAccessorialPrice.ServiceProvided == "Uncrating (per cubic ft.)" {
-			intlAccessorial.ServiceID = serviceIUCRT
-		} else if stageIntlAccessorialPrice.ServiceProvided == "Shuttle Service (per cwt)" {
-			intlAccessorial.ServiceID = serviceIDSHUT
-		} else {
-			return fmt.Errorf("service provided [%s] is not a valid service", stageIntlAccessorialPrice.ServiceProvided)
+		services := []struct {
+			serviceCode     string
+			serviceProvided string
+		}{
+			{"ICRT", "Crating (per cubic ft.)"},
+			{"IUCRT", "Uncrating (per cubic ft.)"},
+			{"IDSHUT", "Shuttle Service (per cwt)"},
+			{"IOSHUT", "Shuttle Service (per cwt)"},
 		}
 
-		if stageIntlAccessorialPrice.Market == "CONUS" {
-			intlAccessorial.Market = models.MarketConus
-		} else if stageIntlAccessorialPrice.Market == "OCONUS" {
-			intlAccessorial.Market = models.MarketOconus
-		} else {
-			return fmt.Errorf("market [%s] is not a valid market", stageIntlAccessorialPrice.Market)
-		}
+		for _, service := range services {
+			serviceCode := service.serviceCode
+			serviceProvided := service.serviceProvided
 
-		verrs, dbErr := dbTx.ValidateAndSave(&intlAccessorial)
-		if dbErr != nil {
-			return fmt.Errorf("error saving ReIntlAccessorialPrices: %+v with error: %w", intlAccessorial, dbErr)
-		}
-		if verrs.HasAny() {
-			return fmt.Errorf("error saving ReIntlAccessorialPrices: %+v with validation errors: %w", intlAccessorial, verrs)
+			if stageIntlAccessorialPrice.ServiceProvided == serviceProvided {
+				serviceID, found := gre.serviceToIDMap[serviceCode]
+				if !found {
+					return fmt.Errorf("missing service [%s] in map of services", service)
+				}
+
+				intlAccessorial := models.ReIntlAccessorialPrice{
+					ContractID:   gre.contractID,
+					Market:       market,
+					ServiceID:    serviceID,
+					PerUnitCents: unit.Cents(perUnitCentsService),
+				}
+
+				verrs, dbErr := dbTx.ValidateAndSave(&intlAccessorial)
+				if dbErr != nil {
+					return fmt.Errorf("error saving ReIntlAccessorialPrices: %+v with error: %w", intlAccessorial, dbErr)
+				}
+				if verrs.HasAny() {
+					return fmt.Errorf("error saving ReIntlAccessorialPrices: %+v with validation errors: %w", intlAccessorial, verrs)
+				}
+			}
 		}
 	}
 

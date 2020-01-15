@@ -42,7 +42,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticAccessorialPrices() 
 func (suite *GHCRateEngineImportSuite) helperVerifyDomesticAccessorialPrices() {
 	count, err := suite.DB().Count(&models.ReDomesticAccessorialPrice{})
 	suite.NoError(err)
-	suite.Equal(9, count)
+	suite.Equal(12, count)
 }
 
 func (suite *GHCRateEngineImportSuite) helperCheckDomesticAccessorialPrices() {
