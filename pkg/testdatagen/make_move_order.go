@@ -42,12 +42,17 @@ func MakeGrade() string {
 
 // MakeMoveOrder creates a single MoveOrder and associated set relationships
 func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.MoveOrder {
+	grade := assertions.MoveOrder.Grade
+	if grade == "" {
+		grade = MakeGrade()
+	}
 	customer := assertions.Customer
 	if isZeroUUID(customer.ID) {
 		customer = MakeCustomer(db, assertions)
 	}
 	entitlement := assertions.Entitlement
 	if isZeroUUID(entitlement.ID) {
+		assertions.MoveOrder.Grade = grade
 		entitlement = MakeEntitlement(db, assertions)
 	}
 	originDutyStation := assertions.OriginDutyStation
@@ -59,10 +64,6 @@ func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.MoveOrder {
 		destinationDutyStation = MakeDutyStation(db, assertions)
 	}
 
-	grade := assertions.MoveOrder.Grade
-	if grade == "" {
-		grade = MakeGrade()
-	}
 	moveOrder := models.MoveOrder{
 		Customer:                 customer,
 		CustomerID:               customer.ID,

@@ -11,9 +11,9 @@ func (suite *ModelSuite) TestBasicWeightTicketSetDocumentInstantiation() {
 	expenseDoc := &models.WeightTicketSetDocument{}
 
 	expErrors := map[string][]string{
-		"move_document_id": {"MoveDocumentID can not be blank."},
-		"vehicle_nickname": {"VehicleNickname can not be blank."},
-		"vehicle_options":  {"VehicleOptions can not be blank."},
+		"move_document_id":       {"MoveDocumentID can not be blank."},
+		"vehicle_nickname":       {"VehicleNickname can not be blank."},
+		"weight_ticket_set_type": {"WeightTicketSetType can not be blank."},
 	}
 
 	suite.verifyValidationErrors(expenseDoc, expErrors)
@@ -53,7 +53,7 @@ func (suite *ModelSuite) TestCalculateNetWeightWeightTicketAwaitingReview() {
 		FullWeight:               &fullWeight1,
 		FullWeightTicketMissing:  false,
 		VehicleNickname:          "My Car",
-		VehicleOptions:           "CAR",
+		WeightTicketSetType:      "CAR",
 		WeightTicketDate:         &testdatagen.NextValidMoveDate,
 		TrailerOwnershipMissing:  false,
 	}
@@ -80,7 +80,7 @@ func (suite *ModelSuite) TestCalculateNetWeightWeightTicketAwaitingReview() {
 		FullWeight:               &fullWeight2,
 		FullWeightTicketMissing:  false,
 		VehicleNickname:          "My Car",
-		VehicleOptions:           "CAR",
+		WeightTicketSetType:      "CAR",
 		WeightTicketDate:         &testdatagen.NextValidMoveDate,
 		TrailerOwnershipMissing:  false,
 	}
@@ -155,7 +155,7 @@ func (suite *ModelSuite) TestCalculateNetWeight() {
 		FullWeight:               &fullWeight1,
 		FullWeightTicketMissing:  false,
 		VehicleNickname:          "My Car",
-		VehicleOptions:           "CAR",
+		WeightTicketSetType:      "CAR",
 		WeightTicketDate:         &testdatagen.NextValidMoveDate,
 		TrailerOwnershipMissing:  false,
 	}
@@ -182,7 +182,7 @@ func (suite *ModelSuite) TestCalculateNetWeight() {
 		FullWeight:               &fullWeight2,
 		FullWeightTicketMissing:  false,
 		VehicleNickname:          "My Car",
-		VehicleOptions:           "CAR",
+		WeightTicketSetType:      "CAR",
 		WeightTicketDate:         &testdatagen.NextValidMoveDate,
 		TrailerOwnershipMissing:  false,
 	}

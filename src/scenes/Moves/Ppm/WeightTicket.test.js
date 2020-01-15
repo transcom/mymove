@@ -11,7 +11,7 @@ function mountComponents(moreWeightTickets = 'Yes', formInvalid, uploderWithInva
     empty_weight: 1100,
     full_weight: 2000,
     vehicle_nickname: 'KIRBY',
-    vehicle_options: 'CAR',
+    weight_ticket_set_type: 'CAR',
     weight_ticket_date: '2019-05-22',
   };
   const match = { params: { moveId: 'someID' } };

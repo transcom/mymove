@@ -33,7 +33,7 @@ class PaymentReview extends Component {
 
   componentDidMount() {
     const { originDutyStationZip, currentPpm } = this.props;
-    const { actual_move_date, pickup_postal_code, destination_postal_code } = currentPpm;
+    const { actual_move_date, pickup_postal_code } = currentPpm;
     this.props.getMoveDocumentsForMove(this.props.moveId).then(({ obj: documents }) => {
       const weightTicketNetWeight = calcNetWeight(documents);
       const netWeight =
@@ -42,7 +42,7 @@ class PaymentReview extends Component {
         actual_move_date,
         pickup_postal_code,
         originDutyStationZip,
-        destination_postal_code,
+        this.props.orders.id,
         netWeight,
       );
     });
@@ -50,7 +50,7 @@ class PaymentReview extends Component {
 
   componentDidUpdate(prevProps) {
     const { originDutyStationZip, currentPpm, moveDocuments } = this.props;
-    const { actual_move_date, pickup_postal_code, destination_postal_code } = currentPpm;
+    const { actual_move_date, pickup_postal_code } = currentPpm;
     if (moveDocuments.weightTickets.length !== prevProps.moveDocuments.weightTickets.length) {
       this.props.getMoveDocumentsForMove(this.props.moveId).then(({ obj: documents }) => {
         const weightTicketNetWeight = calcNetWeight(documents);
@@ -60,7 +60,7 @@ class PaymentReview extends Component {
           actual_move_date,
           pickup_postal_code,
           originDutyStationZip,
-          destination_postal_code,
+          this.props.orders.id,
           netWeight,
         );
       });
@@ -194,6 +194,7 @@ const mapStateToProps = (state, props) => {
     ppm: get(state, 'ppm', {}),
     originDutyStationZip: get(state, 'serviceMember.currentServiceMember.current_station.address.postal_code'),
     entitlement: loadEntitlementsFromState(state),
+    orders: get(state, 'orders.currentOrders', {}),
   };
 };
 

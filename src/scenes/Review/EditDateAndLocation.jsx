@@ -119,16 +119,16 @@ class EditDateAndLocation extends Component {
     }
   };
 
-  getSitEstimate = (moveDate, sitDays, pickupZip, destZip, weight) => {
-    if (sitDays <= 90 && pickupZip.length === 5 && destZip.length === 5) {
-      this.props.getPpmSitEstimate(moveDate, sitDays, pickupZip, destZip, weight);
+  getSitEstimate = (moveDate, sitDays, pickupZip, orders, weight) => {
+    if (sitDays <= 90 && pickupZip.length === 5) {
+      this.props.getPpmSitEstimate(moveDate, sitDays, pickupZip, orders.id, weight);
     }
   };
 
   debouncedSitEstimate = debounce(bind(this.getSitEstimate, this), sitEstimateDebounceTime);
 
   getDebouncedSitEstimate = (e, value, _, field) => {
-    const { currentPpm, formValues } = this.props;
+    const { currentPpm, formValues, currentOrders } = this.props;
     const estimateValues = cloneDeep(formValues);
     // eslint-disable-next-line
     estimateValues[field] = value;
@@ -136,7 +136,7 @@ class EditDateAndLocation extends Component {
       estimateValues.original_move_date,
       estimateValues.days_in_storage,
       estimateValues.pickup_postal_code,
-      estimateValues.destination_postal_code,
+      currentOrders.id,
       currentPpm.weight_estimate,
     );
   };
