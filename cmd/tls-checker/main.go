@@ -42,18 +42,6 @@ func (s intSlice) Contains(value int) bool {
 	return false
 }
 
-func stringSliceToIntSlice(strs []string) (intSlice, error) {
-	ints := intSlice(make([]int, 0, len(strs)))
-	for _, s := range strs {
-		i, err := strconv.Atoi(s)
-		if err != nil {
-			return ints, err
-		}
-		ints = append(ints, i)
-	}
-	return ints, nil
-}
-
 type errInvalidScheme struct {
 	Scheme string
 }
@@ -70,23 +58,14 @@ func (e *errInvalidPath) Error() string {
 	return "invalid path " + e.Path
 }
 
-type errInvalidStatusCode struct {
-	Code int
-}
-
-func (e *errInvalidStatusCode) Error() string {
-	return "invalid status code " + strconv.Itoa(e.Code)
-}
-
 type errTLSCheck struct {
 	URL        string
-	StatusCode int
 	TLSVersion uint16
 }
 
 func (e *errTLSCheck) Error() string {
 	tlsName := getTLSName(e.TLSVersion)
-	return fmt.Sprintf("request to url %s returned invalid status code %d using %s", e.URL, e.StatusCode, tlsName)
+	return fmt.Sprintf("invalid request to url %s connected using %s", e.URL, tlsName)
 }
 
 func checkConfig(v *viper.Viper) error {
@@ -121,22 +100,6 @@ func checkConfig(v *viper.Viper) error {
 	for _, path := range paths {
 		if !strings.HasPrefix(path, "/") {
 			return &errInvalidPath{Path: path}
-		}
-	}
-
-	statusCodesString := strings.TrimSpace(v.GetString("status-codes"))
-	if len(statusCodesString) == 0 {
-		return errors.New("missing status codes")
-	}
-
-	statusCodes, err := stringSliceToIntSlice(strings.Split(statusCodesString, ","))
-	if err != nil {
-		return errors.Wrap(err, "invalid status codes")
-	}
-
-	for _, statusCode := range statusCodes {
-		if len(http.StatusText(statusCode)) == 0 {
-			return &errInvalidStatusCode{Code: statusCode}
 		}
 	}
 
@@ -268,11 +231,10 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger, tlsVersion uint16) (*h
 
 }
 
-func checkURL(httpClient *http.Client, url string, validStatusCodes intSlice, logger *zap.Logger) error {
-	statusCode := 0
+func checkURLWillNotConnect(httpClient *http.Client, url string, logger *zap.Logger) error {
 	resp, err := httpClient.Get(url)
 	if err == nil {
-		return &errTLSCheck{URL: url, StatusCode: statusCode, TLSVersion: resp.TLS.Version}
+		return &errTLSCheck{URL: url, TLSVersion: resp.TLS.Version}
 	}
 	return nil
 }
@@ -325,7 +287,6 @@ func main() {
 	flag.String("cert-file", "", "path to file of base64-encoded public key for client TLS")
 	flag.String("ca", "", "base64-encoded certificate authority for mutual TLS")
 	flag.String("ca-file", "", "path to file of base64-encoded certificate authority for mutual TLS")
-	flag.String("status-codes", "200", "valid response status codes")
 	flag.Bool("skip-verify", false, "skip certifiate validation")
 	flag.Duration("timeout", 5*time.Minute, "timeout duration")
 	flag.Bool("exit-on-error", false, "exit on first tls check error")
@@ -362,8 +323,6 @@ func main() {
 			logger.Fatal(e.Error(), zap.String("path", e.Path))
 		case *errInvalidScheme:
 			logger.Fatal(e.Error(), zap.String("scheme", e.Scheme))
-		case *errInvalidStatusCode:
-			logger.Fatal(e.Error(), zap.Int("code", e.Code))
 		}
 		logger.Fatal(err.Error())
 	}
@@ -372,12 +331,14 @@ func main() {
 	schemes := strings.Split(strings.TrimSpace(v.GetString("schemes")), ",")
 	hosts := strings.Split(strings.TrimSpace(v.GetString("hosts")), ",")
 	paths := strings.Split(strings.TrimSpace(v.GetString("paths")), ",")
-	statusCodes, _ := stringSliceToIntSlice(strings.Split(strings.TrimSpace(v.GetString("status-codes")), ","))
 
 	// TLS Versions that should not work
 	var invalidTLSVersions = []uint16{
 		tls.VersionTLS10,
 		tls.VersionTLS11,
+		// For Testing use these values
+		// tls.VersionTLS12,
+		// tls.VersionTLS13,
 	}
 
 	for _, tlsVersion := range invalidTLSVersions {
@@ -396,32 +357,14 @@ func main() {
 				for _, path := range paths {
 					url := scheme + "://" + host + path
 					if verbose {
-						logger.Info("checking TLS won't connect", zap.String("url", url), zap.String("tlsVersion", tlsName))
+						logger.Info("checking url will not connect with invalid TLS", zap.String("url", url), zap.String("tlsVersion", tlsName))
 					}
-					err := checkURL(httpClient, url, statusCodes, logger)
+					err := checkURLWillNotConnect(httpClient, url, logger)
 					if err != nil {
 						if exitOnError {
-							switch e := err.(type) {
-							case *errTLSCheck:
-								logger.Fatal(
-									"TLS check failed",
-									zap.String("url", e.URL),
-									zap.Int("statusCode", e.StatusCode),
-									zap.String("tlsVersion", tlsName))
-							default:
-								logger.Fatal(err.Error())
-							}
+							logger.Fatal(err.Error())
 						} else {
-							switch e := err.(type) {
-							case *errTLSCheck:
-								logger.Warn(
-									"TLS check failed",
-									zap.String("url", e.URL),
-									zap.Int("statusCode", e.StatusCode),
-									zap.String("tlsVersion", tlsName))
-							default:
-								logger.Warn(err.Error())
-							}
+							logger.Warn(err.Error())
 							tlsCheckErrors = append(tlsCheckErrors, err)
 						}
 					}
