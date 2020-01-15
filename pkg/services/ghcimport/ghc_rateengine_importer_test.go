@@ -30,7 +30,6 @@ var tablesToTruncate = [...]string{
 	"re_rate_areas",
 	"re_services",
 	"re_shipment_type_prices",
-	"re_shipment_types",
 	"re_task_order_fees",
 	"re_zip3s",
 }

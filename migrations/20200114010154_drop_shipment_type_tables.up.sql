@@ -1,0 +1,1 @@
+DROP TABLE re_shipment_types;
