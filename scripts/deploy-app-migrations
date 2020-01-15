@@ -31,7 +31,7 @@ case "${environment}" in
     ;;
 esac
 
-if [ -n "${AWS_ACCOUNT_ID}" ]; then
+if [ -z "${AWS_ACCOUNT_ID}" ]; then
   echo "AWS_ACCOUNT_ID not found!"
   echo "Please add 'AWS_ACCOUNT_ID' to your .envrc.local"
   exit 1
@@ -43,4 +43,5 @@ CIRCLE_SHA1=$(curl -s "https://${compare_host}/health" | jq -r .gitCommit)
 
 scripts/compare-deployed-commit "${compare_host}" "${CIRCLE_SHA1}"
 
-scripts/ecs-run-app-migrations-container config/app-migrations.container-definition.json "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}"
+readonly image="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1}"
+scripts/ecs-run-app-migrations-container "${image}" "${APP_ENVIRONMENT}"
