@@ -1193,6 +1193,11 @@ definitions:
         example: 571008b1-b0de-454d-b843-d71be9f02c04
         format: uuid
         type: string
+      authorizedWeight:
+        example: 2000
+        type: integer
+        x-formatting: weight
+        x-nullable: true
       dependentsAuthorized:
         example: true
         type: boolean
@@ -1216,6 +1221,10 @@ definitions:
       storageInTransit:
         example: 90
         type: integer
+      totalWeight:
+        example: 500
+        type: integer
+        x-formatting: weight
       totalDependents:
         example: 2
         type: integer
@@ -1357,9 +1366,11 @@ definitions:
     type: array
   PaymentRequestStatus:
     enum:
-      - PAYMENT_SUBMITTED
-      - APPROVED
-      - REJECTED
+      - PENDING
+      - REVIEWED
+      - SENT_TO_GEX
+      - RECEIVED_BY_GEX
+      - PAID
     title: Payment Request Status
     type: string
   ProofOfServicePackage:

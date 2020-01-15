@@ -241,6 +241,33 @@ class EditWeight extends Component {
       });
   };
 
+  chooseEstimateErrorText(hasEstimateError, rateEngineError) {
+    if (rateEngineError) {
+      return (
+        <div className="grid-row">
+          <div className="grid-col-12 error-message">
+            <Alert type="warning" heading="Could not retrieve estimate">
+              MilMove does not presently support short-haul PPM moves. Please contact your PPPO.
+            </Alert>
+          </div>
+        </div>
+      );
+    }
+
+    if (hasEstimateError) {
+      return (
+        <div className="grid-row">
+          <div className="grid-col-12 error-message">
+            <Alert type="warning" heading="Could not retrieve estimate">
+              There was an issue retrieving an estimate for your incentive. You still qualify but may need to talk with
+              your local PPPO.
+            </Alert>
+          </div>
+        </div>
+      );
+    }
+  }
+
   render() {
     const {
       error,
@@ -250,6 +277,7 @@ class EditWeight extends Component {
       incentive_estimate_min,
       incentive_estimate_max,
       hasEstimateError,
+      rateEngineError,
     } = this.props;
 
     return (
@@ -263,16 +291,13 @@ class EditWeight extends Component {
             </div>
           </div>
         )}
-        {hasEstimateError && (
+
+        <div className="grid-container usa-prose">
           <div className="grid-row">
-            <div className="usa-width-one-whole error-message">
-              <Alert type="warning" heading="Could not retrieve estimate">
-                There was an issue retrieving an estimate for your incentive. You still qualify but may need to talk
-                with your local PPPO.
-              </Alert>
-            </div>
+            <div className="grid-col-12">{this.chooseEstimateErrorText(hasEstimateError, rateEngineError)}</div>
           </div>
-        )}
+        </div>
+
         <div className="grid-row">
           <div className="grid-col-12">
             <EditWeightForm
