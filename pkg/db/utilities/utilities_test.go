@@ -99,7 +99,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithHasOneAssocia
 		FullWeight:               &fullWeight,
 		FullWeightTicketMissing:  false,
 		VehicleNickname:          "My Car",
-		VehicleOptions:           "CAR",
+		WeightTicketSetType:      "CAR",
 		WeightTicketDate:         &testdatagen.NextValidMoveDate,
 		TrailerOwnershipMissing:  false,
 	}

@@ -108,6 +108,30 @@ CREATE TABLE public.stage_domestic_service_areas (
 
 
 --
+-- Name: stage_domestic_other_pack_prices; Type: TABLE; Schema: public; Owner: -
+--
+DROP TABLE IF EXISTS public.stage_domestic_other_pack_prices;
+CREATE TABLE public.stage_domestic_other_pack_prices (
+    services_schedule text NOT NULL,
+    service_provided text NOT NULL,
+    non_peak_price_per_cwt text NOT NULL,
+    peak_price_per_cwt text NOT NULL
+);
+
+
+--
+-- Name: stage_domestic_other_sit_prices; Type: TABLE; Schema: public; Owner: -
+--
+DROP TABLE IF EXISTS public.stage_domestic_other_sit_prices;
+CREATE TABLE public.stage_domestic_other_sit_prices (
+    sit_pickup_delivery_schedule text NOT NULL,
+    service_provided text NOT NULL,
+    non_peak_price_per_cwt text NOT NULL,
+    peak_price_per_cwt text NOT NULL
+);
+
+
+--
 -- Name: stage_international_move_accessorial_prices; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -585,6 +609,27 @@ INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service
 INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Springfield', 'MO', '452.0', '656,657,658');
 INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Tuscaloosa', 'AL', '004', '354.0');
 INSERT INTO public.stage_domestic_service_areas (base_point_city, state, service_area_number, zip3s) VALUES ('Worthington', 'OH', '616.0', '430.0');
+
+
+--
+-- Data for Name: stage_domestic_other_pack_prices; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+INSERT INTO public.stage_domestic_other_pack_prices (services_schedule, service_provided, non_peak_price_per_cwt, peak_price_per_cwt) VALUES ('1','Packing (per cwt)','$63.33','$65.44');
+INSERT INTO public.stage_domestic_other_pack_prices (services_schedule, service_provided, non_peak_price_per_cwt, peak_price_per_cwt) VALUES ('2','Packing (per cwt)','$72.50','$73.20');
+INSERT INTO public.stage_domestic_other_pack_prices (services_schedule, service_provided, non_peak_price_per_cwt, peak_price_per_cwt) VALUES ('3','Packing (per cwt)','$73.95','$80.00');
+INSERT INTO public.stage_domestic_other_pack_prices (services_schedule, service_provided, non_peak_price_per_cwt, peak_price_per_cwt) VALUES ('1','Unpack (per cwt)','$83.34','$85.44');
+INSERT INTO public.stage_domestic_other_pack_prices (services_schedule, service_provided, non_peak_price_per_cwt, peak_price_per_cwt) VALUES ('2','Unpack (per cwt)','$5.97','$6.50');
+INSERT INTO public.stage_domestic_other_pack_prices (services_schedule, service_provided, non_peak_price_per_cwt, peak_price_per_cwt) VALUES ('3','Unpack (per cwt)','$5.97','$6.50');
+
+
+--
+-- Data for Name: stage_domestic_other_sit_prices; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+INSERT INTO public.stage_domestic_other_sit_prices (sit_pickup_delivery_schedule, service_provided, non_peak_price_per_cwt, peak_price_per_cwt) VALUES ('1','SIT Pickup / Delivery ≤50 miles (per cwt)','$217.96','$220.11');
+INSERT INTO public.stage_domestic_other_sit_prices (sit_pickup_delivery_schedule, service_provided, non_peak_price_per_cwt, peak_price_per_cwt) VALUES ('2','SIT Pickup / Delivery ≤50 miles (per cwt)','$234.40','$241.22');
+INSERT INTO public.stage_domestic_other_sit_prices (sit_pickup_delivery_schedule, service_provided, non_peak_price_per_cwt, peak_price_per_cwt) VALUES ('3','SIT Pickup / Delivery ≤50 miles (per cwt)','$246.25','$250.30');
 
 
 --

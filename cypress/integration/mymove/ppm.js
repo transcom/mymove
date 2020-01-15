@@ -359,7 +359,7 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
     }
   }
 
-  cy.get('select[name="vehicle_options"]').select(vehicleType);
+  cy.get('select[name="weight_ticket_set_type"]').select(vehicleType);
 
   cy.get('input[name="vehicle_nickname"]').type('Nickname');
 
