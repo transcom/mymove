@@ -155,7 +155,7 @@ PPMShipmentSummary.propTypes = {
     hasEstimateError: bool.isRequired,
     hasEstimateSuccess: bool.isRequired,
     hasEstimateInProgress: bool.isRequired,
-    hasRateEngineError: Error,
+    hasRateEngineError: Error.isRequiired,
     originDutyStationZip: string.isRequired,
     incentive_estimate_min: number,
     incentive_estimate_max: number,

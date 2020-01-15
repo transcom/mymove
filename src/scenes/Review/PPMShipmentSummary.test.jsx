@@ -33,15 +33,15 @@ describe('Review -> Ppm Shipment Summary', () => {
           ppmEstimate={{ ...ppmEst, incentive_estimate_min: 500, incentive_estimate_max: 1055 }}
         />,
       );
-      expect(wrapper.find({ dataCy: 'estimate' }).exists()).toBe(true);
-      expect(wrapper.find({ dataCy: 'estimate' }).text()).toEqual(' $5.00 - 10.55');
+      expect(wrapper.find({ datacy: 'estimate' }).exists()).toBe(true);
+      expect(wrapper.find({ datacy: 'estimate' }).text()).toEqual(' $5.00 - 10.55');
     });
     it('Should show short haul error', () => {
       wrapper = shallow(
         <PPMShipmentSummary {...minProps} ppmEstimate={{ ...ppmEst, hasRateEngineError: { statusCode: 409 } }} />,
       );
-      expect(wrapper.find({ dataCy: 'estimateError' }).exists()).toBe(true);
-      expect(wrapper.find({ dataCy: 'estimateError' }).text()).toMatch(
+      expect(wrapper.find({ datacy: 'estimateError' }).exists()).toBe(true);
+      expect(wrapper.find({ datacy: 'estimateError' }).text()).toMatch(
         /MilMove does not presently support short-haul PPM moves. Please contact your PPPO./,
       );
     });
@@ -49,13 +49,13 @@ describe('Review -> Ppm Shipment Summary', () => {
       wrapper = shallow(
         <PPMShipmentSummary {...minProps} ppmEstimate={{ ...ppmEst, hasRateEngineError: { statusCode: 404 } }} />,
       );
-      expect(wrapper.find({ dataCy: 'estimateError' }).exists()).toBe(true);
-      expect(wrapper.find({ dataCy: 'estimateError' }).text()).toMatch(/Not ready yet/);
+      expect(wrapper.find({ datacy: 'estimateError' }).exists()).toBe(true);
+      expect(wrapper.find({ datacy: 'estimateError' }).text()).toMatch(/Not ready yet/);
     });
     it('Should show estimate not ready error', () => {
       wrapper = shallow(<PPMShipmentSummary {...minProps} ppmEstimate={{ ...ppmEst, hasEstimateError: true }} />);
-      expect(wrapper.find({ dataCy: 'estimateError' }).exists()).toBe(true);
-      expect(wrapper.find({ dataCy: 'estimateError' }).text()).toMatch(/Not ready yet/);
+      expect(wrapper.find({ datacy: 'estimateError' }).exists()).toBe(true);
+      expect(wrapper.find({ datacy: 'estimateError' }).text()).toMatch(/Not ready yet/);
     });
   });
 });
