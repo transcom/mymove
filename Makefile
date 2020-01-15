@@ -277,6 +277,9 @@ bin/report-ecs:
 bin/send-to-gex: pkg/gen/
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
 
+bin/tls-checker:
+	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
+
 pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
 	# Fix the modtime to prevent diffs when generating on different machines
 	go-bindata -modtime 1569961560 -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/ pkg/notifications/templates/
@@ -350,7 +353,8 @@ build_tools: bin/gin \
 	bin/query-lb-logs \
 	bin/read-alb-logs \
 	bin/report-ecs \
-	bin/send-to-gex ## Build all tools
+	bin/send-to-gex \
+	bin/tls-checker ## Build all tools
 
 .PHONY: build
 build: server_build build_tools client_build ## Build the server, tools, and client

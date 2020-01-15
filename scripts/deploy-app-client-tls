@@ -56,5 +56,6 @@ scripts/ecs-deploy-service-container app-client-tls "${image}" "${APP_ENVIRONMEN
 
 # NOTE: The health checker in all environments ought to work with the values from experimental for the key, cert, and ca.
 bin/health-checker --schemes https --hosts "${health_check_hosts}" --key "${KEY}" --cert "${CERT}" --ca "${CA}" --tries 10 --backoff 3 --log-level info --timeout 15m
+bin/tls-checker --schemes https --hosts "${health_check_hosts}" --key "${KEY}" --cert "${CERT}" --ca "${CA}" --log-level info --timeout 15m
 
 scripts/check-deployed-commit "${health_check_hosts}" "${CIRCLE_SHA1}" "${KEY}" "${CERT}" "${CA}"

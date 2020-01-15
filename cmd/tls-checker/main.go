@@ -4,12 +4,11 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/base64"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-	neturl "net/url"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -42,18 +41,6 @@ func (s intSlice) Contains(value int) bool {
 	return false
 }
 
-func stringSliceToIntSlice(strs []string) (intSlice, error) {
-	ints := intSlice(make([]int, 0, len(strs)))
-	for _, s := range strs {
-		i, err := strconv.Atoi(s)
-		if err != nil {
-			return ints, err
-		}
-		ints = append(ints, i)
-	}
-	return ints, nil
-}
-
 type errInvalidScheme struct {
 	Scheme string
 }
@@ -70,22 +57,14 @@ func (e *errInvalidPath) Error() string {
 	return "invalid path " + e.Path
 }
 
-type errInvalidStatusCode struct {
-	Code int
-}
-
-func (e *errInvalidStatusCode) Error() string {
-	return "invalid status code " + strconv.Itoa(e.Code)
-}
-
-type errHealthCheck struct {
+type errTLSCheck struct {
 	URL        string
-	StatusCode int
-	Tries      int
+	TLSVersion uint16
 }
 
-func (e *errHealthCheck) Error() string {
-	return "request to url " + e.URL + " returned invalid status code " + strconv.Itoa(e.StatusCode) + " after " + strconv.Itoa(e.Tries) + " tries"
+func (e *errTLSCheck) Error() string {
+	tlsName := getTLSName(e.TLSVersion)
+	return fmt.Sprintf("invalid request to url %s connected using %s", e.URL, tlsName)
 }
 
 func checkConfig(v *viper.Viper) error {
@@ -123,22 +102,6 @@ func checkConfig(v *viper.Viper) error {
 		}
 	}
 
-	statusCodesString := strings.TrimSpace(v.GetString("status-codes"))
-	if len(statusCodesString) == 0 {
-		return errors.New("missing status codes")
-	}
-
-	statusCodes, err := stringSliceToIntSlice(strings.Split(statusCodesString, ","))
-	if err != nil {
-		return errors.Wrap(err, "invalid status codes")
-	}
-
-	for _, statusCode := range statusCodes {
-		if len(http.StatusText(statusCode)) == 0 {
-			return &errInvalidStatusCode{Code: statusCode}
-		}
-	}
-
 	clientKeyEncoded := v.GetString("key")
 	clientCertEncoded := v.GetString("cert")
 	clientKeyFile := v.GetString("key-file")
@@ -150,22 +113,10 @@ func checkConfig(v *viper.Viper) error {
 		}
 	}
 
-	tries := v.GetInt("tries")
-	if tries == 0 {
-		return errors.New("tries is 0, but must be greater than zero")
-	}
-
-	if tries > 1 {
-		backoff := v.GetInt("backoff")
-		if backoff == 0 {
-			return errors.New("backoff is 0, but must be greater than zero")
-		}
-	}
-
 	return nil
 }
 
-func createTLSConfig(clientKey []byte, clientCert []byte, ca []byte, insecureSkipVerify bool) (*tls.Config, error) {
+func createTLSConfig(clientKey []byte, clientCert []byte, ca []byte, insecureSkipVerify bool, tlsVersion uint16) (*tls.Config, error) {
 
 	keyPair, err := tls.X509KeyPair(clientCert, clientKey)
 	if err != nil {
@@ -176,8 +127,8 @@ func createTLSConfig(clientKey []byte, clientCert []byte, ca []byte, insecureSki
 	tlsConfig := &tls.Config{
 		Certificates:       []tls.Certificate{keyPair},
 		InsecureSkipVerify: insecureSkipVerify,
-		MinVersion:         tls.VersionTLS12,
-		MaxVersion:         tls.VersionTLS13,
+		MinVersion:         tlsVersion,
+		MaxVersion:         tlsVersion,
 	}
 
 	if len(ca) > 0 {
@@ -189,7 +140,7 @@ func createTLSConfig(clientKey []byte, clientCert []byte, ca []byte, insecureSki
 	return tlsConfig, nil
 }
 
-func createHTTPClient(v *viper.Viper, logger *zap.Logger) (*http.Client, error) {
+func createHTTPClient(v *viper.Viper, logger *zap.Logger, tlsVersion uint16) (*http.Client, error) {
 
 	verbose := v.GetBool("verbose")
 
@@ -206,8 +157,8 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger) (*http.Client, error) 
 
 	// Supported TLS versions
 	tlsConfig := &tls.Config{
-		MinVersion: tls.VersionTLS12,
-		MaxVersion: tls.VersionTLS13,
+		MinVersion: tlsVersion,
+		MaxVersion: tlsVersion,
 	}
 
 	if len(clientKeyEncoded) > 0 && len(clientCertEncoded) > 0 {
@@ -232,7 +183,7 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger) (*http.Client, error) 
 		}
 
 		var tlsConfigErr error
-		tlsConfig, tlsConfigErr = createTLSConfig([]byte(clientKey), []byte(clientCert), caBytes, false)
+		tlsConfig, tlsConfigErr = createTLSConfig([]byte(clientKey), []byte(clientCert), caBytes, false, tlsVersion)
 		if tlsConfigErr != nil {
 			return nil, errors.Wrap(tlsConfigErr, "error creating TLS config")
 		}
@@ -263,7 +214,7 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger) (*http.Client, error) 
 				caBytes = content
 			}
 			var tlsConfigErr error
-			tlsConfig, tlsConfigErr = createTLSConfig(clientKey, clientCert, caBytes, false)
+			tlsConfig, tlsConfigErr = createTLSConfig(clientKey, clientCert, caBytes, false, tlsVersion)
 			if tlsConfigErr != nil {
 				return nil, errors.Wrap(tlsConfigErr, "error creating TLS config")
 			}
@@ -279,37 +230,10 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger) (*http.Client, error) 
 
 }
 
-func checkURL(httpClient *http.Client, url string, validStatusCodes intSlice, maxTries int, backoff int, logger *zap.Logger) error {
-	for tries := 0; tries < maxTries; tries++ {
-		statusCode := 0
-		resp, err := httpClient.Get(url)
-		if err != nil {
-			if uerr, ok := err.(*neturl.Error); ok && uerr.Timeout() {
-				logger.Info(
-					"HTTP GET request timed out",
-					zap.Int("try", tries),
-					zap.String("url", url))
-			} else {
-				return errors.Wrap(err, "error calling GET on url "+url)
-			}
-		} else {
-			statusCode = resp.StatusCode
-			logger.Info(
-				"HTTP GET request completed",
-				zap.Int("try", tries),
-				zap.String("url", url),
-				zap.Int("code", statusCode))
-			if validStatusCodes.Contains(statusCode) {
-				break
-			}
-		}
-		if tries < maxTries-1 {
-			sleepPeriod := time.Duration((tries+1)*backoff) * time.Second
-			logger.Info("sleeping", zap.Duration("period", sleepPeriod))
-			time.Sleep(sleepPeriod)
-			continue
-		}
-		return &errHealthCheck{URL: url, StatusCode: statusCode, Tries: maxTries}
+func checkURLWillNotConnect(httpClient *http.Client, url string, logger *zap.Logger) error {
+	resp, err := httpClient.Get(url)
+	if err == nil {
+		return &errTLSCheck{URL: url, TLSVersion: resp.TLS.Version}
 	}
 	return nil
 }
@@ -334,11 +258,26 @@ func createLogger(env string, level string) (*zap.Logger, error) {
 	return loggerConfig.Build(zap.AddStacktrace(zap.ErrorLevel))
 }
 
+func getTLSName(tlsVersion uint16) string {
+	var tlsName string
+	switch tlsVersion {
+	case tls.VersionTLS10:
+		tlsName = "TLS v1.0"
+	case tls.VersionTLS11:
+		tlsName = "TLS v1.1"
+	case tls.VersionTLS12:
+		tlsName = "TLS v1.2"
+	case tls.VersionTLS13:
+		tlsName = "TLS v1.3"
+	}
+	return tlsName
+}
+
 func main() {
 
 	flag := pflag.CommandLine
 
-	flag.StringP("schemes", "s", "http,https", "slice of schemes to check")
+	flag.StringP("schemes", "s", "https", "slice of schemes to check")
 	flag.String("hosts", "", "comma-separated list of host names to check")
 	flag.StringP("paths", "p", "/health", "slice of paths to check on each host")
 	flag.String("key", "", "path to file of base64-encoded private key for client TLS")
@@ -347,12 +286,9 @@ func main() {
 	flag.String("cert-file", "", "path to file of base64-encoded public key for client TLS")
 	flag.String("ca", "", "base64-encoded certificate authority for mutual TLS")
 	flag.String("ca-file", "", "path to file of base64-encoded certificate authority for mutual TLS")
-	flag.String("status-codes", "200", "valid response status codes")
 	flag.Bool("skip-verify", false, "skip certifiate validation")
-	flag.Int("tries", 5, "number of tries")
-	flag.Int("backoff", 1, "backoff in seconds")
 	flag.Duration("timeout", 5*time.Minute, "timeout duration")
-	flag.Bool("exit-on-error", false, "exit on first health check error")
+	flag.Bool("exit-on-error", false, "exit on first tls check error")
 	flag.String("log-env", "development", "logging config: development or production")
 	flag.String("log-level", "error", "log level: debug, info, warn, error, dpanic, panic, or fatal")
 	flag.Bool("verbose", false, "output extra information")
@@ -361,13 +297,13 @@ func main() {
 
 	v := viper.New()
 	v.BindPFlags(flag)
-	v.SetEnvPrefix("HEALTHCHECKER")
+	v.SetEnvPrefix("TLSCHECKER")
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	healthCheckErrors := make([]error, 0)
+	tlsCheckErrors := make([]error, 0)
 	defer func() {
-		if len(healthCheckErrors) > 0 {
+		if len(tlsCheckErrors) > 0 {
 			os.Exit(1)
 		}
 	}()
@@ -386,8 +322,6 @@ func main() {
 			logger.Fatal(e.Error(), zap.String("path", e.Path))
 		case *errInvalidScheme:
 			logger.Fatal(e.Error(), zap.String("scheme", e.Scheme))
-		case *errInvalidStatusCode:
-			logger.Fatal(e.Error(), zap.Int("code", e.Code))
 		}
 		logger.Fatal(err.Error())
 	}
@@ -396,53 +330,45 @@ func main() {
 	schemes := strings.Split(strings.TrimSpace(v.GetString("schemes")), ",")
 	hosts := strings.Split(strings.TrimSpace(v.GetString("hosts")), ",")
 	paths := strings.Split(strings.TrimSpace(v.GetString("paths")), ",")
-	statusCodes, _ := stringSliceToIntSlice(strings.Split(strings.TrimSpace(v.GetString("status-codes")), ","))
 
-	httpClient, err := createHTTPClient(v, logger)
-	if err != nil {
-		logger.Fatal(errors.Wrap(err, "error creating http client").Error())
+	// TLS Versions that should not work
+	var invalidTLSVersions = []uint16{
+		tls.VersionTLS10,
+		tls.VersionTLS11,
+		// For Testing use these values
+		// tls.VersionTLS12,
+		// tls.VersionTLS13,
 	}
 
-	maxTries := v.GetInt("tries")
-	backoff := v.GetInt("backoff")
-	exitOnError := v.GetBool("exit-on-error")
+	for _, tlsVersion := range invalidTLSVersions {
 
-	for _, scheme := range schemes {
-		for _, host := range hosts {
-			for _, path := range paths {
-				url := scheme + "://" + host + path
-				if verbose {
-					logger.Info("checking url will connect", zap.String("url", url))
-				}
-				err := checkURL(httpClient, url, statusCodes, maxTries, backoff, logger)
-				if err != nil {
-					if exitOnError {
-						switch e := err.(type) {
-						case *errHealthCheck:
-							logger.Fatal(
-								"health check failed",
-								zap.String("url", e.URL),
-								zap.Int("statusCode", e.StatusCode),
-								zap.Int("tries", e.Tries))
-						default:
+		tlsName := getTLSName(tlsVersion)
+
+		httpClient, err := createHTTPClient(v, logger, tlsVersion)
+		if err != nil {
+			logger.Fatal(errors.Wrap(err, "error creating http client").Error())
+		}
+
+		exitOnError := v.GetBool("exit-on-error")
+
+		for _, scheme := range schemes {
+			for _, host := range hosts {
+				for _, path := range paths {
+					url := scheme + "://" + host + path
+					if verbose {
+						logger.Info("checking url will not connect with invalid TLS", zap.String("url", url), zap.String("tlsVersion", tlsName))
+					}
+					err := checkURLWillNotConnect(httpClient, url, logger)
+					if err != nil {
+						if exitOnError {
 							logger.Fatal(err.Error())
-						}
-					} else {
-						switch e := err.(type) {
-						case *errHealthCheck:
-							logger.Warn(
-								"health check failed",
-								zap.String("url", e.URL),
-								zap.Int("statusCode", e.StatusCode),
-								zap.Int("tries", e.Tries))
-						default:
+						} else {
 							logger.Warn(err.Error())
+							tlsCheckErrors = append(tlsCheckErrors, err)
 						}
-						healthCheckErrors = append(healthCheckErrors, err)
 					}
 				}
 			}
 		}
 	}
-
 }
