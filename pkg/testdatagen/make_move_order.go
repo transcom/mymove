@@ -2,6 +2,7 @@ package testdatagen
 
 import (
 	"math/rand"
+	"time"
 
 	"github.com/gobuffalo/pop"
 
@@ -64,10 +65,33 @@ func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.MoveOrder {
 		destinationDutyStation = MakeDutyStation(db, assertions)
 	}
 
+	orderType := assertions.MoveOrder.OrderType
+	if orderType == "" {
+		orderType = "GHC"
+	}
+
+	orderTypeDetail := assertions.MoveOrder.OrderTypeDetail
+	if orderTypeDetail == "" {
+		orderTypeDetail = "TBD"
+	}
+
+	reportByDate := assertions.MoveOrder.ReportByDate
+
+	if time.Time.IsZero(reportByDate) {
+		reportByDate = time.Date(2020, time.February, 15, 0, 0, 0, 0, time.UTC)
+	}
+
+	dateIssued := assertions.MoveOrder.DateIssued
+
+	if time.Time.IsZero(dateIssued) {
+		dateIssued = time.Date(2020, time.January, 15, 0, 0, 0, 0, time.UTC)
+	}
+
 	moveOrder := models.MoveOrder{
 		Customer:                 customer,
 		CustomerID:               customer.ID,
 		ConfirmationNumber:       models.GenerateLocator(),
+		DateIssued:               dateIssued,
 		Entitlement:              entitlement,
 		EntitlementID:            entitlement.ID,
 		DestinationDutyStation:   destinationDutyStation,
@@ -75,6 +99,10 @@ func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.MoveOrder {
 		Grade:                    grade,
 		OriginDutyStation:        originDutyStation,
 		OriginDutyStationID:      originDutyStation.ID,
+		OrderNumber:              assertions.MoveOrder.OrderNumber,
+		OrderType:                orderType,
+		OrderTypeDetail:          orderTypeDetail,
+		ReportByDate:             reportByDate,
 	}
 
 	// Overwrite values with those from assertions

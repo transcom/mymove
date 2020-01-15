@@ -1311,6 +1311,27 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      order_number:
+        type: string
+        x-nullable: true
+        example: '030-00362'
+      order_type:
+        example: GHC
+        type: string
+      order_type_detail:
+        type: string
+        enum:
+          - GHC
+          - NTS
+        x-nullable: true
+      date_issued:
+        type: string
+        format: date
+        example: '2020-01-01'
+      report_by_date:
+        type: string
+        format: date
+        example: '2020-01-01'
     type: object
   MoveTaskOrder:
     properties:
