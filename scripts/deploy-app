@@ -34,7 +34,7 @@ case "${environment}" in
     ;;
 esac
 
-if [ -n "${AWS_ACCOUNT_ID}" ]; then
+if [ -z "${AWS_ACCOUNT_ID}" ]; then
   echo "AWS_ACCOUNT_ID not found!"
   echo "Please add 'AWS_ACCOUNT_ID' to your .envrc.local"
   exit 1
@@ -46,7 +46,8 @@ CIRCLE_SHA1=$(curl -s "https://${compare_host}/health" | jq -r .gitCommit)
 
 scripts/compare-deployed-commit "${compare_host}" "${CIRCLE_SHA1}"
 
-scripts/ecs-deploy-service-container app config/app.container-definition.json "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}" FARGATE
+readonly image="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}"
+scripts/ecs-deploy-service-container app "${image}" "${APP_ENVIRONMENT}"
 
 bin/health-checker --schemes http,https --hosts "${health_check_hosts}" --tries 10 --backoff 3 --log-level info --timeout 15m
 
