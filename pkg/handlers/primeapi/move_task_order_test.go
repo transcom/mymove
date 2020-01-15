@@ -29,6 +29,8 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandler() {
 	testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
 
 	request := httptest.NewRequest("GET", "/move-task-orders", nil)
+	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	request = suite.AuthenticateUserRequest(request, requestUser)
 
 	params := movetaskorderops.FetchMTOUpdatesParams{HTTPRequest: request}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -69,6 +71,8 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandlerReturnsUpdated() {
 
 	since := lastFetch.Unix()
 	request := httptest.NewRequest("GET", fmt.Sprintf("/move-task-orders?since=%d", lastFetch.Unix()), nil)
+	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	request = suite.AuthenticateUserRequest(request, requestUser)
 
 	params := movetaskorderops.FetchMTOUpdatesParams{HTTPRequest: request, Since: &since}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())

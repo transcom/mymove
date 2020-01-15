@@ -40,7 +40,7 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 
 	payload := payloads.MoveTaskOrders(&mtos)
 
-	for index, mto := range mtos {
+	for _, mto := range mtos {
 		// Audit attempt for prime to fetch move task orders
 		_, err = audit.Capture(mto, nil, logger, session, params.HTTPRequest)
 		if err != nil {
