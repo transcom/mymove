@@ -58,7 +58,10 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegration() {
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
+
 	request := httptest.NewRequest("PATCH", "/move-task-orders/{moveTaskOrderID}/status", nil)
+	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	request = suite.AuthenticateUserRequest(request, requestUser)
 	params := move_task_order.UpdateMoveTaskOrderStatusParams{
 		HTTPRequest:     request,
 		MoveTaskOrderID: moveTaskOrder.ID.String(),
