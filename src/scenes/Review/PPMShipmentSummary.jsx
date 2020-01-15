@@ -11,13 +11,13 @@ import { getPpmWeightEstimate } from 'scenes/Moves/Ppm/ducks';
 
 import './Review.css';
 
-class PPMShipmentSummary extends Component {
+export class PPMShipmentSummary extends Component {
   componentDidUpdate() {
     if (
       !this.props.ppmEstimate.hasEstimateInProgress &&
       !this.props.ppmEstimate.hasEstimateSuccess &&
       !this.props.ppmEstimate.hasEstimateError &&
-      !this.props.ppmEstimate.hasRateEstimateError
+      !this.props.ppmEstimate.hasRateEnginieError
     ) {
       this.props.getPpmWeightEstimate(
         this.props.original_move_date,
@@ -31,13 +31,17 @@ class PPMShipmentSummary extends Component {
   }
 
   chooseEstimateText(ppmEstimate) {
-    if (ppmEstimate.rateEngineError && ppmEstimate.rateEngineError.statusCode === 409) {
-      return 'MilMove does not presently support short-haul PPM moves. Please contact your PPPO.';
+    if (ppmEstimate.hasRateEngineError && ppmEstimate.hasRateEngineError.statusCode === 409) {
+      return (
+        <td dataCy="estimateError">
+          MilMove does not presently support short-haul PPM moves. Please contact your PPPO.;
+        </td>
+      );
     }
 
-    if (ppmEstimate.hasEstimateError) {
+    if (ppmEstimate.hasEstimateError || ppmEstimate.hasRateEngineError) {
       return (
-        <td>
+        <td dataCy="estimateError">
           Not ready yet{' '}
           <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
         </td>
@@ -45,7 +49,7 @@ class PPMShipmentSummary extends Component {
     }
 
     return (
-      <td>
+      <td dataCy="estimate">
         {' '}
         {ppmEstimate && formatCentsRange(ppmEstimate.incentive_estimate_min, ppmEstimate.incentive_estimate_max)}
       </td>
@@ -151,7 +155,7 @@ PPMShipmentSummary.propTypes = {
     hasEstimateError: bool.isRequired,
     hasEstimateSuccess: bool.isRequired,
     hasEstimateInProgress: bool.isRequired,
-    rateEngineError: Error,
+    hasRateEngineError: Error,
     originDutyStationZip: string.isRequired,
     incentive_estimate_min: number,
     incentive_estimate_max: number,
@@ -172,7 +176,7 @@ function mapStateToProps(state, ownProps) {
       hasEstimateError: state.ppm.hasEstimateError,
       hasEstimateSuccess: state.ppm.hasEstimateSuccess,
       hasEstimateInProgress: state.ppm.hasEstimateInProgress,
-      rateEngineError: state.ppm.rateEngineError || null,
+      hasRateEngineError: state.ppm.hasRateEngineError || null,
       originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
       incentive_estimate_min,
       incentive_estimate_max,
