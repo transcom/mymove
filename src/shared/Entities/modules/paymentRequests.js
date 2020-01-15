@@ -4,6 +4,7 @@ import { get } from 'lodash';
 
 const getPaymentRequestLabel = 'PaymentRequests.getPaymentRequest';
 const getPaymentRequestListLabel = 'PaymentRequests.getPaymentRequestList';
+const updatePaymentRequestLabel = 'PaymentRequests.updatePaymentRequest';
 
 export function getPaymentRequest(paymentRequestID, label = getPaymentRequestLabel) {
   const swaggerTag = 'paymentRequests.getPaymentRequest';
@@ -22,4 +23,11 @@ export function selectPaymentRequest(state, id) {
 export function selectPaymentRequests(state) {
   const paymentRequests = get(state, 'entities.paymentRequests') || {};
   return Object.values(paymentRequests);
+}
+
+export function updatePaymentRequest(state, paymentRequestID, label = updatePaymentRequestLabel) {
+  const swaggerTag = 'paymentRequests.updatePaymentRequestStatus';
+  const rejectionReason = get(state, `entities.paymentRequests.${paymentRequestID}.rejectionReason`);
+  const status = get(state, `entities.paymentRequests.${paymentRequestID}.status`);
+  return swaggerRequest(getGHCClient, swaggerTag, { paymentRequestID, rejectionReason, status }, { label });
 }

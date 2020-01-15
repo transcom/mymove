@@ -1,11 +1,19 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { selectPaymentRequest, getPaymentRequest } from 'shared/Entities/modules/paymentRequests';
+import { selectPaymentRequest, getPaymentRequest, updatePaymentRequest } from 'shared/Entities/modules/paymentRequests';
 
 class PaymentRequestShow extends React.Component {
   componentDidMount() {
     this.props.getPaymentRequest(this.props.id);
+  }
+
+  approvePaymentRequest() {
+    this.props.updatePaymentRequest(this.props.id);
+  }
+
+  denyPaymentRequest() {
+    this.props.updatePaymentRequest(this.props.id);
   }
 
   render() {
@@ -23,8 +31,13 @@ class PaymentRequestShow extends React.Component {
             <li>serviceItemIds: {serviceItemIDs}</li>
             <li>status: {status}</li>
           </ul>
-          <button className="usa-button usa-button--outline">Approve</button>
-          <button className="usa-button usa-button--outline">Deny</button>
+
+          <button className="usa-button usa-button--outline" onClick={this.approvePaymentRequest}>
+            Approve
+          </button>
+          <button className="usa-button usa-button--outline" onClick={this.denyPaymentRequest}>
+            Deny
+          </button>
         </div>
       </>
     );
@@ -38,6 +51,6 @@ const mapStateToProps = (state, props) => {
   };
 };
 
-const mapDispatchToProps = dispatch => bindActionCreators({ getPaymentRequest }, dispatch);
+const mapDispatchToProps = dispatch => bindActionCreators({ getPaymentRequest, updatePaymentRequest }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(PaymentRequestShow);
