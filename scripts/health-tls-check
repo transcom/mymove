@@ -18,12 +18,15 @@ readonly environment="${1:-experimental}"
 case "${environment}" in
   experimental)
     health_check_hosts=my.experimental.move.mil,office.experimental.move.mil,admin.experimental.move.mil
+    tls_health_check_hosts=gex.experimental.move.mil,dps.experimental.move.mil,orders.experimental.move.mil
     ;;
   staging)
     health_check_hosts=my.staging.move.mil,office.staging.move.mil,admin.staging.move.mil
+    tls_health_check_hosts=gex.staging.move.mil,dps.staging.move.mil,orders.staging.move.mil
     ;;
   prod)
     health_check_hosts=my.move.mil,office.move.mil,admin.move.mil
+    tls_health_check_hosts=gex.move.mil,dps.move.mil,orders.move.mil
     ;;
   *)
     echo "<environment> must be one of experimental, staging, or prod"
@@ -37,5 +40,14 @@ if [ -z "${AWS_ACCOUNT_ID}" ]; then
   exit 1
 fi
 
-go run cmd/health-checker/main.go --schemes http,https --hosts "${health_check_hosts}" --tries 10 --backoff 3 --log-level info --timeout 15m
-go run cmd/tls-checker/main.go --schemes http,https --hosts "${health_check_hosts}" --log-level info --timeout 15m --verbose
+# TLS Hosts
+go run cmd/health-checker/main.go --schemes http,https --hosts "${health_check_hosts}" --tries 10 --backoff 3 --log-level info --timeout 15m --verbose
+go run cmd/tls-checker/main.go --schemes https --hosts "${health_check_hosts}" --log-level info --timeout 15m --verbose
+
+# Mutual TLS Hosts
+KEY=$(chamber read app-experimental move_mil_dod_tls_key -q | base64 -i -)
+CERT=$(chamber read app-experimental move_mil_dod_tls_cert -q | base64 -i -)
+CA=$(chamber read app-experimental move_mil_dod_ca_cert -q | base64 -i -)
+
+go run cmd/health-checker/main.go --schemes https --hosts "${tls_health_check_hosts}" --key "${KEY}" --cert "${CERT}" --ca "${CA}" --tries 10 --backoff 3 --log-level info --timeout 15m --verbose
+go run cmd/tls-checker/main.go --schemes https --hosts "${tls_health_check_hosts}" --key "${KEY}" --cert "${CERT}" --ca "${CA}" --log-level info --timeout 15m --verbose

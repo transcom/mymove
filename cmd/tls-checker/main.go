@@ -154,7 +154,7 @@ func checkConfig(v *viper.Viper) error {
 	return nil
 }
 
-func createTLSConfig(clientKey []byte, clientCert []byte, ca []byte, insecureSkipVerify bool) (*tls.Config, error) {
+func createTLSConfig(clientKey []byte, clientCert []byte, ca []byte, insecureSkipVerify bool, tlsVersion uint16) (*tls.Config, error) {
 
 	keyPair, err := tls.X509KeyPair(clientCert, clientKey)
 	if err != nil {
@@ -165,6 +165,8 @@ func createTLSConfig(clientKey []byte, clientCert []byte, ca []byte, insecureSki
 	tlsConfig := &tls.Config{
 		Certificates:       []tls.Certificate{keyPair},
 		InsecureSkipVerify: insecureSkipVerify,
+		MinVersion:         tlsVersion,
+		MaxVersion:         tlsVersion,
 	}
 
 	if len(ca) > 0 {
@@ -219,7 +221,7 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger, tlsVersion uint16) (*h
 		}
 
 		var tlsConfigErr error
-		tlsConfig, tlsConfigErr = createTLSConfig([]byte(clientKey), []byte(clientCert), caBytes, false)
+		tlsConfig, tlsConfigErr = createTLSConfig([]byte(clientKey), []byte(clientCert), caBytes, false, tlsVersion)
 		if tlsConfigErr != nil {
 			return nil, errors.Wrap(tlsConfigErr, "error creating TLS config")
 		}
@@ -250,7 +252,7 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger, tlsVersion uint16) (*h
 				caBytes = content
 			}
 			var tlsConfigErr error
-			tlsConfig, tlsConfigErr = createTLSConfig(clientKey, clientCert, caBytes, false)
+			tlsConfig, tlsConfigErr = createTLSConfig(clientKey, clientCert, caBytes, false, tlsVersion)
 			if tlsConfigErr != nil {
 				return nil, errors.Wrap(tlsConfigErr, "error creating TLS config")
 			}
@@ -394,7 +396,7 @@ func main() {
 				for _, path := range paths {
 					url := scheme + "://" + host + path
 					if verbose {
-						logger.Info("checking url", zap.String("url", url), zap.String("tlsVersion", tlsName))
+						logger.Info("checking TLS won't connect", zap.String("url", url), zap.String("tlsVersion", tlsName))
 					}
 					err := checkURL(httpClient, url, statusCodes, logger)
 					if err != nil {

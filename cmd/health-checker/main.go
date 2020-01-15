@@ -176,6 +176,8 @@ func createTLSConfig(clientKey []byte, clientCert []byte, ca []byte, insecureSki
 	tlsConfig := &tls.Config{
 		Certificates:       []tls.Certificate{keyPair},
 		InsecureSkipVerify: insecureSkipVerify,
+		MinVersion:         tls.VersionTLS12,
+		MaxVersion:         tls.VersionTLS13,
 	}
 
 	if len(ca) > 0 {
@@ -410,7 +412,7 @@ func main() {
 			for _, path := range paths {
 				url := scheme + "://" + host + path
 				if verbose {
-					logger.Info("checking url", zap.String("url", url))
+					logger.Info("checking url will connect", zap.String("url", url))
 				}
 				err := checkURL(httpClient, url, statusCodes, maxTries, backoff, logger)
 				if err != nil {
