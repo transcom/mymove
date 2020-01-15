@@ -17,8 +17,6 @@ func (gre *GHCRateEngineImporter) importREShipmentTypePrices(dbTx *pop.Connectio
 		return fmt.Errorf("could not read staged domestic international additional prices: %w", err)
 	}
 
-	//shipmentCodePositionInSlice := 0
-
 	var serviceToCodeMap = map[string]string{
 		//concatenating market with shipment type so that keys in  map are unique
 		"CONUS:Mobile Homes":            "DMHF",
@@ -43,8 +41,10 @@ func (gre *GHCRateEngineImporter) importREShipmentTypePrices(dbTx *pop.Connectio
 			return fmt.Errorf("could not process market [%s]: %w", stageDomesticIntlAddlPrices.Market, err)
 		}
 
+		shipmentTypeFound := false
 		for shipmentType, serviceCode := range serviceToCodeMap {
 			if shipmentType == stageDomesticIntlAddlPrices.Market+":"+stageDomesticIntlAddlPrices.ShipmentType {
+				shipmentTypeFound = true
 				serviceID, found := gre.serviceToIDMap[serviceCode]
 				if !found {
 					return fmt.Errorf("missing service [%s] in map of services", serviceCode)
@@ -65,6 +65,9 @@ func (gre *GHCRateEngineImporter) importREShipmentTypePrices(dbTx *pop.Connectio
 					return fmt.Errorf("error saving ReShipmentTypePrices: %+v with validation errors: %w", shipmentTypePrice, verrs)
 				}
 			}
+		}
+		if !shipmentTypeFound {
+			return fmt.Errorf("shipment type [%s] not found", stageDomesticIntlAddlPrices.ShipmentType)
 		}
 	}
 

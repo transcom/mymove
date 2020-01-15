@@ -17,6 +17,16 @@ func (gre *GHCRateEngineImporter) importREDomesticAccessorialPrices(dbTx *pop.Co
 		return fmt.Errorf("could not read staged domestic accessorial prices: %w", err)
 	}
 
+	services := []struct {
+		serviceCode     string
+		serviceProvided string
+	}{
+		{"DCRT", "Crating (per cubic ft.)"},
+		{"DUCRT", "Uncrating (per cubic ft.)"},
+		{"DDSHUT", "Shuttle Service (per cwt)"},
+		{"DOSHUT", "Shuttle Service (per cwt)"},
+	}
+
 	//loop through the domestic accessorial price data and store in db
 	for _, stageDomesticAccessorialPrice := range domesticAccessorialPrices {
 		servicesSchedule, err := stringToInteger(stageDomesticAccessorialPrice.ServicesSchedule)
@@ -30,21 +40,13 @@ func (gre *GHCRateEngineImporter) importREDomesticAccessorialPrices(dbTx *pop.Co
 			return fmt.Errorf("could not process price per unit [%s]: %w", stageDomesticAccessorialPrice.PricePerUnit, err)
 		}
 
-		services := []struct {
-			serviceCode     string
-			serviceProvided string
-		}{
-			{"DCRT", "Crating (per cubic ft.)"},
-			{"DUCRT", "Uncrating (per cubic ft.)"},
-			{"DDSHUT", "Shuttle Service (per cwt)"},
-			{"DOSHUT", "Shuttle Service (per cwt)"},
-		}
-
+		serviceProvidedFound := false
 		for _, service := range services {
 			serviceCode := service.serviceCode
 			serviceProvided := service.serviceProvided
 
 			if stageDomesticAccessorialPrice.ServiceProvided == serviceProvided {
+				serviceProvidedFound = true
 				serviceID, found := gre.serviceToIDMap[serviceCode]
 				if !found {
 					return fmt.Errorf("missing service [%s] in map of services", service)
@@ -65,6 +67,9 @@ func (gre *GHCRateEngineImporter) importREDomesticAccessorialPrices(dbTx *pop.Co
 					return fmt.Errorf("error saving ReDomesticAccessorialPrices: %+v with validation errors: %w", domesticAccessorial, verrs)
 				}
 			}
+		}
+		if !serviceProvidedFound {
+			return fmt.Errorf("service [%s] not found", stageDomesticAccessorialPrice.ServiceProvided)
 		}
 	}
 
