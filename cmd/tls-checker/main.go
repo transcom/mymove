@@ -337,7 +337,7 @@ func main() {
 
 	v := viper.New()
 	v.BindPFlags(flag)
-	v.SetEnvPrefix("HEALTHCHECKER")
+	v.SetEnvPrefix("TLSCHECKER")
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
