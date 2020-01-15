@@ -209,7 +209,7 @@ function serviceMemberSkipsStep() {
 //    .should('exist')
 //    .click();
 //
-//  cy.get('select[name="vehicle_options"]').select('CAR');
+//  cy.get('select[name="weight_ticket_set_type"]').select('CAR');
 //
 //  cy.get('input[name="vehicle_nickname"]').type('Nickname');
 //
@@ -322,7 +322,7 @@ function serviceMemberUploadsExpenses(hasAnother = true, expenseNumber = null) {
 }
 
 function serviceMemberSubmitsCarTrailerWeightTicket() {
-  cy.get('select[name="vehicle_options"]').select('CAR_TRAILER');
+  cy.get('select[name="weight_ticket_set_type"]').select('CAR_TRAILER');
 
   cy.get('input[name="vehicle_nickname"]').type('Nickname');
 
@@ -355,7 +355,7 @@ function serviceMemberSubmitsCarTrailerWeightTicket() {
   cy.get('input[name="additional_weight_ticket"][value="No"]').should('be.checked');
 }
 function serviceMemberCanFinishWeightTicketLater(vehicleType) {
-  cy.get('select[name="vehicle_options"]').select(vehicleType);
+  cy.get('select[name="weight_ticket_set_type"]').select(vehicleType);
 
   cy.get('input[name="vehicle_nickname"]').type('Nickname');
 
@@ -398,7 +398,7 @@ function serviceMemberCanFinishWeightTicketLater(vehicleType) {
 }
 
 function serviceMemberSubmitsWeightsTicketsWithoutReceipts() {
-  cy.get('select[name="vehicle_options"]').select('CAR_TRAILER');
+  cy.get('select[name="weight_ticket_set_type"]').select('CAR_TRAILER');
   cy.get('input[name="vehicle_nickname"]').type('Nickname');
   cy.get('input[name="empty_weight"]').type('1000');
   cy.get('input[name="full_weight"]').type('2000');
@@ -446,7 +446,7 @@ function serviceMemberStartsPPMPaymentRequest() {
 //}
 
 function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true) {
-  cy.get('select[name="vehicle_options"]').select(vehicleType);
+  cy.get('select[name="weight_ticket_set_type"]').select(vehicleType);
 
   cy.get('input[name="vehicle_nickname"]').type('Nickname');
 

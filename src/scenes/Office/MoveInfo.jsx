@@ -31,7 +31,7 @@ import DatesAndLocationPanel from './Ppm/DatesAndLocationsPanel';
 import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
 import StoragePanel from './Ppm/StoragePanel';
 import ExpensesPanel from './Ppm/ExpensesPanel';
-import NetWeightPanel from './Ppm/NetWeightPanel';
+import WeightsPanel from './Ppm/WeightsPanel';
 import { withContext } from 'shared/AppContext';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 
@@ -75,11 +75,7 @@ const PPMTabContent = props => {
           <ExpensesPanel title="Expenses" moveId={props.moveId} moveDocuments={props.moveDocuments} />
           <StoragePanel title="Storage" moveId={props.moveId} moveDocuments={props.moveDocuments} />
           <DatesAndLocationPanel title="Dates & Locations" moveId={props.moveId} />
-          <NetWeightPanel
-            title="Weights"
-            moveId={props.moveId}
-            ppmPaymentRequestedFlag={props.ppmPaymentRequestedFlag}
-          />
+          <WeightsPanel title="Weights" moveId={props.moveId} ppmPaymentRequestedFlag={props.ppmPaymentRequestedFlag} />
         </>
       )}
 

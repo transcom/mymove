@@ -96,13 +96,12 @@ type MoveDocumentPayload struct {
 	// Vehicle nickname (ex. 'My car')
 	VehicleNickname string `json:"vehicle_nickname,omitempty"`
 
-	// Select weight ticket type
-	// Enum: [CAR CAR_TRAILER BOX_TRUCK PRO_GEAR]
-	VehicleOptions string `json:"vehicle_options,omitempty"`
-
 	// Weight ticket date
 	// Format: date
 	WeightTicketDate *strfmt.Date `json:"weight_ticket_date,omitempty"`
+
+	// weight ticket set type
+	WeightTicketSetType *WeightTicketSetType `json:"weight_ticket_set_type,omitempty"`
 }
 
 // Validate validates this move document payload
@@ -165,11 +164,11 @@ func (m *MoveDocumentPayload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateVehicleOptions(formats); err != nil {
+	if err := m.validateWeightTicketDate(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateWeightTicketDate(formats); err != nil {
+	if err := m.validateWeightTicketSetType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -393,55 +392,6 @@ func (m *MoveDocumentPayload) validateTitle(formats strfmt.Registry) error {
 	return nil
 }
 
-var moveDocumentPayloadTypeVehicleOptionsPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["CAR","CAR_TRAILER","BOX_TRUCK","PRO_GEAR"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		moveDocumentPayloadTypeVehicleOptionsPropEnum = append(moveDocumentPayloadTypeVehicleOptionsPropEnum, v)
-	}
-}
-
-const (
-
-	// MoveDocumentPayloadVehicleOptionsCAR captures enum value "CAR"
-	MoveDocumentPayloadVehicleOptionsCAR string = "CAR"
-
-	// MoveDocumentPayloadVehicleOptionsCARTRAILER captures enum value "CAR_TRAILER"
-	MoveDocumentPayloadVehicleOptionsCARTRAILER string = "CAR_TRAILER"
-
-	// MoveDocumentPayloadVehicleOptionsBOXTRUCK captures enum value "BOX_TRUCK"
-	MoveDocumentPayloadVehicleOptionsBOXTRUCK string = "BOX_TRUCK"
-
-	// MoveDocumentPayloadVehicleOptionsPROGEAR captures enum value "PRO_GEAR"
-	MoveDocumentPayloadVehicleOptionsPROGEAR string = "PRO_GEAR"
-)
-
-// prop value enum
-func (m *MoveDocumentPayload) validateVehicleOptionsEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, moveDocumentPayloadTypeVehicleOptionsPropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *MoveDocumentPayload) validateVehicleOptions(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.VehicleOptions) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := m.validateVehicleOptionsEnum("vehicle_options", "body", m.VehicleOptions); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *MoveDocumentPayload) validateWeightTicketDate(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.WeightTicketDate) { // not required
@@ -450,6 +400,24 @@ func (m *MoveDocumentPayload) validateWeightTicketDate(formats strfmt.Registry) 
 
 	if err := validate.FormatOf("weight_ticket_date", "body", "date", m.WeightTicketDate.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MoveDocumentPayload) validateWeightTicketSetType(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.WeightTicketSetType) { // not required
+		return nil
+	}
+
+	if m.WeightTicketSetType != nil {
+		if err := m.WeightTicketSetType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("weight_ticket_set_type")
+			}
+			return err
+		}
 	}
 
 	return nil

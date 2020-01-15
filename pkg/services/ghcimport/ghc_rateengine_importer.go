@@ -58,6 +58,11 @@ func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
 		return fmt.Errorf("failed to import re_domestic_service_area_prices: %w", err)
 	}
 
+	err = gre.importREDomesticOtherPrices(dbTx)
+	if err != nil {
+		return fmt.Errorf("failed to import re_domestic_other_prices: %w", err)
+	}
+
 	err = gre.importREInternationalPrices(dbTx)
 	if err != nil {
 		return fmt.Errorf("failed to import re_intl_prices: %w", err)

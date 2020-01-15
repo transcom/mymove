@@ -159,7 +159,7 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerNoMissingFiel
 		FullWeight:               &fullWeight,
 		FullWeightTicketMissing:  false,
 		VehicleNickname:          "My Car",
-		VehicleOptions:           "CAR",
+		WeightTicketSetType:      "CAR",
 		WeightTicketDate:         &testdatagen.NextValidMoveDate,
 		TrailerOwnershipMissing:  false,
 	}
@@ -194,7 +194,7 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerNoMissingFiel
 		suite.Require().Equal(*moveDoc.FullWeightTicketMissing, weightTicketSetDocument.FullWeightTicketMissing, "expected full weight ticket missing to match")
 		suite.Require().Equal(moveDoc.WeightTicketDate.String(), strfmt.Date(*weightTicketSetDocument.WeightTicketDate).String(), "expected weight ticket date to match")
 		suite.Require().Equal(*moveDoc.TrailerOwnershipMissing, weightTicketSetDocument.TrailerOwnershipMissing, "expected trailer ownership missing to match")
-		suite.Require().Equal(moveDoc.VehicleOptions, weightTicketSetDocument.VehicleOptions, "expected vehicle options to match")
+		suite.Require().Equal(*moveDoc.WeightTicketSetType, internalmessages.WeightTicketSetType(weightTicketSetDocument.WeightTicketSetType), "expected vehicle options to match")
 		suite.Require().Equal(moveDoc.VehicleNickname, weightTicketSetDocument.VehicleNickname, "expected vehicle nickname to match")
 	}
 }
@@ -221,7 +221,7 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerMissingFields
 		FullWeight:               nil,
 		FullWeightTicketMissing:  true,
 		VehicleNickname:          "My Car",
-		VehicleOptions:           "CAR",
+		WeightTicketSetType:      "CAR",
 		WeightTicketDate:         nil,
 		TrailerOwnershipMissing:  false,
 	}
@@ -256,7 +256,7 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerMissingFields
 		suite.Require().Equal(*moveDoc.FullWeightTicketMissing, weightTicketSetDocument.FullWeightTicketMissing, "expected full weight ticket missing to match")
 		suite.Require().Nil(moveDoc.WeightTicketDate)
 		suite.Require().Equal(*moveDoc.TrailerOwnershipMissing, weightTicketSetDocument.TrailerOwnershipMissing, "expected trailer ownership missing to match")
-		suite.Require().Equal(moveDoc.VehicleOptions, weightTicketSetDocument.VehicleOptions, "expected vehicle options to match")
+		suite.Require().Equal(*moveDoc.WeightTicketSetType, internalmessages.WeightTicketSetType(weightTicketSetDocument.WeightTicketSetType), "expected vehicle options to match")
 		suite.Require().Equal(moveDoc.VehicleNickname, weightTicketSetDocument.VehicleNickname, "expected vehicle nickname to match")
 	}
 }
@@ -398,7 +398,7 @@ func (suite *HandlerSuite) TestDeleteMoveDocumentHandler() {
 		FullWeight:               nil,
 		FullWeightTicketMissing:  true,
 		VehicleNickname:          "My Car",
-		VehicleOptions:           "CAR",
+		WeightTicketSetType:      "CAR",
 		WeightTicketDate:         nil,
 		TrailerOwnershipMissing:  false,
 	}

@@ -10,6 +10,7 @@ import { formatToOrdinal } from 'shared/formatters';
 import deleteButtonImg from 'shared/images/delete-doc-button.png';
 import AlertWithDeleteConfirmation from 'shared/AlertWithDeleteConfirmation';
 import { UPLOAD_SCAN_STATUS } from 'shared/constants';
+import { WEIGHT_TICKET_SET_TYPE } from 'shared/constants';
 
 const WEIGHT_TICKET_IMAGES = {
   CAR: carImg,
@@ -53,7 +54,7 @@ class WeightTicketListItem extends Component {
       num,
       trailer_ownership_missing,
       vehicle_nickname,
-      vehicle_options,
+      weight_ticket_set_type,
       showDelete,
       deleteDocumentListItem,
       isWeightTicketSet,
@@ -66,7 +67,11 @@ class WeightTicketListItem extends Component {
         {/* size of largest of the images */}
         <div style={{ minWidth: 95 }}>
           {/*eslint-disable security/detect-object-injection*/}
-          <img className="weight-ticket-image" src={WEIGHT_TICKET_IMAGES[vehicle_options]} alt={vehicle_options} />
+          <img
+            className="weight-ticket-image"
+            src={WEIGHT_TICKET_IMAGES[weight_ticket_set_type]}
+            alt={weight_ticket_set_type}
+          />
         </div>
         <div style={{ flex: 1 }}>
           <div className="weight-li-item-container">
@@ -110,13 +115,15 @@ class WeightTicketListItem extends Component {
           ) : (
             <p>Full weight ticket {full_weight} lbs</p>
           )}
-          {vehicle_options === 'CAR_TRAILER' && trailer_ownership_missing && (
+          {weight_ticket_set_type === WEIGHT_TICKET_SET_TYPE.CAR_TRAILER && trailer_ownership_missing && (
             <MissingLabel>
               Missing ownership documentation{' '}
               <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
             </MissingLabel>
           )}
-          {vehicle_options === 'CAR_TRAILER' && !trailer_ownership_missing && <p>Ownership documentation</p>}
+          {weight_ticket_set_type === WEIGHT_TICKET_SET_TYPE.CAR_TRAILER && !trailer_ownership_missing && (
+            <p>Ownership documentation</p>
+          )}
           {showDeleteConfirmation && (
             <AlertWithDeleteConfirmation
               heading="Delete this document?"
