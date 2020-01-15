@@ -23,7 +23,7 @@ type ListMTOShipmentsHandler struct {
 	services.Fetcher
 }
 
-// Handle handler that lists mto service items for the move task order
+// Handle listing mto shipments for the move task order
 func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 

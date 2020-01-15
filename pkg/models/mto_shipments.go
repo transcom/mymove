@@ -16,8 +16,8 @@ type MTOShipmentType string
 
 const (
 	MTOShipmentTypeHHG              MTOShipmentType = "HHG"
-	MTOShipmentTypeInternationalHHG MTOShipmentType = "International HHG"
-	MTOShipmentTypeInternationalUB  MTOShipmentType = "International UB"
+	MTOShipmentTypeInternationalHHG MTOShipmentType = "INTERNATIONAL_HHG"
+	MTOShipmentTypeInternationalUB  MTOShipmentType = "INTERNATIONAL_UB"
 )
 
 // MTOShipment is an object representing data for a move task order shipment
