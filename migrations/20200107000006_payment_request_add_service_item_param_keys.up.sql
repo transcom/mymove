@@ -1,5 +1,3 @@
-ALTER TYPE service_item_param_type ADD VALUE 'PaymentServiceItemUUID' AFTER 'DECIMAL';
-
 INSERT INTO service_item_param_keys
 (id,key,description,type,origin,created_at,updated_at)
 VALUES
