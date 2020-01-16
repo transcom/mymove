@@ -9,13 +9,7 @@ class PaymentRequestShow extends React.Component {
     this.props.getPaymentRequest(this.props.id);
   }
 
-  approvePaymentRequest = (paymentRequest = {}) => {
-    paymentRequest.status = 'REVIEWED';
-    paymentRequest.paymentRequestID = this.props.id;
-    this.props.updatePaymentRequest(paymentRequest);
-  };
-
-  rejectPaymentRequest = (paymentRequest = {}) => {
+  updatePaymentRequest = (paymentRequest = {}) => {
     paymentRequest.status = 'REVIEWED';
     paymentRequest.paymentRequestID = this.props.id;
     this.props.updatePaymentRequest(paymentRequest);
@@ -36,14 +30,15 @@ class PaymentRequestShow extends React.Component {
             <li>serviceItemIds: {serviceItemIDs}</li>
             <li>status: {status}</li>
           </ul>
-          <button className="usa-button usa-button--outline" onClick={this.approvePaymentRequest}>
+          <button className="usa-button usa-button--outline" onClick={this.updatePaymentRequest}>
             Approve
           </button>
 
           <Formik
             initialValues={{ rejectionReason: '' }}
             onSubmit={(values, { setSubmitting }) => {
-              this.rejectPaymentRequest({ rejectionReason: values.rejectionReason });
+              this.updatePaymentRequest({ rejectionReason: values.rejectionReason });
+              setSubmitting(false);
             }}
           >
             {({ isSubmitting }) => (
