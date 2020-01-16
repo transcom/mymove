@@ -540,4 +540,7 @@ aws-vault
 aws-vault-wrapper
 aws
 env
+sha256
+go-bindata
+client-tls
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
