@@ -2154,17 +2154,17 @@
     react-inspector "^4.0.0"
     uuid "^3.3.2"
 
-"@storybook/addon-knobs@^5.3.4":
-  version "5.3.4"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-knobs/-/addon-knobs-5.3.4.tgz#779c77424f76d232c60a2d5a23d1f5c3b7915454"
-  integrity sha512-XnuVtSi8js4R7SCqJVKNKd0xQxU6QSBrfgtomoR32xq9VX559XoJpS7T4LDrQSlJ5Iz6tsN9QBcXjKGoQJvWDA==
+"@storybook/addon-knobs@^5.3.5":
+  version "5.3.5"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-knobs/-/addon-knobs-5.3.5.tgz#73c96377172182776031c6fe12cd02819b3ad4f5"
+  integrity sha512-H2hj8/Q8I5BpfqM7fwsss10De9ivKJ04jWssDu5f3fCravg4Kd3SpCukwDUq/NjRryYtzW/sjScdku4yq2fbQQ==
   dependencies:
-    "@storybook/addons" "5.3.4"
-    "@storybook/api" "5.3.4"
-    "@storybook/client-api" "5.3.4"
-    "@storybook/components" "5.3.4"
-    "@storybook/core-events" "5.3.4"
-    "@storybook/theming" "5.3.4"
+    "@storybook/addons" "5.3.5"
+    "@storybook/api" "5.3.5"
+    "@storybook/client-api" "5.3.5"
+    "@storybook/components" "5.3.5"
+    "@storybook/core-events" "5.3.5"
+    "@storybook/theming" "5.3.5"
     "@types/react-color" "^3.0.1"
     copy-to-clipboard "^3.0.8"
     core-js "^3.0.1"
@@ -2220,7 +2220,7 @@
     global "^4.3.2"
     util-deprecate "^1.0.2"
 
-"@storybook/addons@^5.3.5":
+"@storybook/addons@5.3.5", "@storybook/addons@^5.3.5":
   version "5.3.5"
   resolved "https://registry.yarnpkg.com/@storybook/addons/-/addons-5.3.5.tgz#0ee41838d8fde8787ca7366bc42039adae55cab3"
   integrity sha512-s7zWmnNxpwnEpb3kG1+dRudaK+RRezOH6WC3QlNqU8j1trlhFgbooqV2nIsC6yj57OZn4MLHtzuFelxs9jqTzg==
@@ -2330,6 +2330,17 @@
     global "^4.3.2"
     telejson "^3.2.0"
 
+"@storybook/channel-postmessage@5.3.5":
+  version "5.3.5"
+  resolved "https://registry.yarnpkg.com/@storybook/channel-postmessage/-/channel-postmessage-5.3.5.tgz#cdf6b41d5e07ba913443c37b1d0e5c978eebfbfb"
+  integrity sha512-wpKXbrh3lYgZc7RFHyyFvxyYaf1XLiIz1tN5ANpahjF1vp0rnZbNcUDqTHFAG1EDvIPMPcIdrUfdfu4RDXG44A==
+  dependencies:
+    "@storybook/channels" "5.3.5"
+    "@storybook/client-logger" "5.3.5"
+    core-js "^3.0.1"
+    global "^4.3.2"
+    telejson "^3.2.0"
+
 "@storybook/channels@5.2.8":
   version "5.2.8"
   resolved "https://registry.yarnpkg.com/@storybook/channels/-/channels-5.2.8.tgz#79a99ad85dcacb688073c22340c5b7d16b801202"
@@ -2395,6 +2406,28 @@
     ts-dedent "^1.1.0"
     util-deprecate "^1.0.2"
 
+"@storybook/client-api@5.3.5":
+  version "5.3.5"
+  resolved "https://registry.yarnpkg.com/@storybook/client-api/-/client-api-5.3.5.tgz#4388e85f99b63c128989b82dcb7be60fe515b14c"
+  integrity sha512-tRw2gPi8IVEhQw6G26ppyudd/ThDk2KJbzWHDru8Tbl8f75Ir2Z1PMmRe5XVhy689NYYT/fBfuhOlignjkrlWw==
+  dependencies:
+    "@storybook/addons" "5.3.5"
+    "@storybook/channel-postmessage" "5.3.5"
+    "@storybook/channels" "5.3.5"
+    "@storybook/client-logger" "5.3.5"
+    "@storybook/core-events" "5.3.5"
+    "@storybook/csf" "0.0.1"
+    core-js "^3.0.1"
+    eventemitter3 "^4.0.0"
+    global "^4.3.2"
+    is-plain-object "^3.0.0"
+    lodash "^4.17.15"
+    memoizerific "^1.11.3"
+    qs "^6.6.0"
+    stable "^0.1.8"
+    ts-dedent "^1.1.0"
+    util-deprecate "^1.0.2"
+
 "@storybook/client-logger@5.2.8":
   version "5.2.8"
   resolved "https://registry.yarnpkg.com/@storybook/client-logger/-/client-logger-5.2.8.tgz#5affe2f9dbbee374721fd2e8729116f5ac39c779"
@@ -2448,6 +2481,33 @@
   dependencies:
     "@storybook/client-logger" "5.3.4"
     "@storybook/theming" "5.3.4"
+    "@types/react-syntax-highlighter" "11.0.2"
+    "@types/react-textarea-autosize" "^4.3.3"
+    core-js "^3.0.1"
+    global "^4.3.2"
+    lodash "^4.17.15"
+    markdown-to-jsx "^6.9.1"
+    memoizerific "^1.11.3"
+    polished "^3.3.1"
+    popper.js "^1.14.7"
+    prop-types "^15.7.2"
+    react "^16.8.3"
+    react-dom "^16.8.3"
+    react-focus-lock "^2.1.0"
+    react-helmet-async "^1.0.2"
+    react-popper-tooltip "^2.8.3"
+    react-syntax-highlighter "^11.0.2"
+    react-textarea-autosize "^7.1.0"
+    simplebar-react "^1.0.0-alpha.6"
+    ts-dedent "^1.1.0"
+
+"@storybook/components@5.3.5":
+  version "5.3.5"
+  resolved "https://registry.yarnpkg.com/@storybook/components/-/components-5.3.5.tgz#3b2e93ed140c351775f43f4c8e4947144feb3a05"
+  integrity sha512-B8z5GwL5LL9lCwCTuJ1Amod6QJC1FfRfnTZYxUgRxG1EfiYsejoFeB2tOKlIy/EaX8Lmm3XE47A9I1FhBWvCHw==
+  dependencies:
+    "@storybook/client-logger" "5.3.5"
+    "@storybook/theming" "5.3.5"
     "@types/react-syntax-highlighter" "11.0.2"
     "@types/react-textarea-autosize" "^4.3.3"
     core-js "^3.0.1"
