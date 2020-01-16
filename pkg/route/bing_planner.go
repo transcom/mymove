@@ -81,6 +81,10 @@ func (p *bingPlanner) Zip5TransitDistance(source string, destination string) (in
 	return zip5TransitDistanceHelper(p, source, destination)
 }
 
+func (p *bingPlanner) Zip3TransitDistance(source string, destination string) (int, error) {
+	return zip3TransitDistanceHelper(p, source, destination)
+}
+
 func (p *bingPlanner) TransitDistance(source *models.Address, destination *models.Address) (int, error) {
 	return p.wayPointsTransitDistance(urlencodeAddress(source), urlencodeAddress(destination))
 }

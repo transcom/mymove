@@ -18,6 +18,10 @@ func (tp testingPlanner) Zip5TransitDistance(source string, destination string) 
 	return zip5TransitDistanceHelper(tp, source, destination)
 }
 
+func (tp testingPlanner) Zip3TransitDistance(source string, destination string) (int, error) {
+	return zip3TransitDistanceHelper(tp, source, destination)
+}
+
 // NewTestingPlanner constructs a route.Planner to be used when testing other code
 func NewTestingPlanner(distance int) Planner {
 	return testingPlanner{
