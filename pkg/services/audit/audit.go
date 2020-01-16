@@ -23,16 +23,19 @@ func Capture(model interface{}, payload interface{}, logger Logger, session *aut
 	eventType := extractEventType(request)
 	msg := flect.Titleize(eventType)
 
-	logItems = append(logItems,
-		zap.String("event_type", eventType),
-		zap.String("responsible_user_id", session.UserID.String()),
-		zap.String("responsible_user_email", session.Email),
-	)
+	logItems = append(logItems, zap.String("event_type", eventType))
 
-	if session.IsAdminUser() || session.IsOfficeUser() {
+	if session != nil {
 		logItems = append(logItems,
-			zap.String("responsible_user_name", fullName(session.FirstName, session.LastName)),
+			zap.String("responsible_user_id", session.UserID.String()),
+			zap.String("responsible_user_email", session.Email),
 		)
+
+		if session.IsAdminUser() || session.IsOfficeUser() {
+			logItems = append(logItems,
+				zap.String("responsible_user_name", fullName(session.FirstName, session.LastName)),
+			)
+		}
 	}
 
 	t, err := validateInterface(model)

@@ -21,7 +21,7 @@ type FetchMTOUpdatesHandler struct {
 
 // Handle fetches all move task orders with the option to filter since a particular date
 func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	var mtos models.MoveTaskOrders
 
@@ -39,10 +39,9 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 	}
 
 	payload := payloads.MoveTaskOrders(&mtos)
-
 	for _, mto := range mtos {
 		// Audit attempt for prime to fetch move task orders
-		_, err = audit.Capture(mto, nil, logger, session, params.HTTPRequest)
+		_, err = audit.Capture(&mto, nil, logger, nil, params.HTTPRequest)
 		if err != nil {
 			logger.Error("Auditing service error for fetching MTO for Prime", zap.Error(err))
 			return movetaskorderops.NewFetchMTOUpdatesInternalServerError()
