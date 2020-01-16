@@ -9,7 +9,6 @@ If you are looking to understand choices made in this project, see the list of [
 * [Front-end / React](frontend.md) guide
 * [Back-end / Go](backend.md) guide
   * [Service Objects / Go](service-objects.md) guide
-* [Database / Postgres](database.md) guide
 
 ## Pairing Sessions
 
@@ -24,6 +23,13 @@ If you are looking to understand choices made in this project, see the list of [
 * [Anti-Virus](anti_virus.md). Documentation for the anti-virus solutions employed.
 
 <!--index-->
+
+## Database
+
+* [Backup and Restore the Development Database](database/backup-and-restore-dev-database.md#how-to-backup-and-restore-the-development-database)
+* [Database Guides](database/database.md#database-guides)
+* [Migrate the Database](database/migrate-the-database.md#how-to-migrate-the-database)
+* [Soft Delete](database/soft-delete.md#how-to-soft-delete)
 
 ## HOWTOs
 
