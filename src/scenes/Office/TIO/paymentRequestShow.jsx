@@ -1,4 +1,5 @@
 import React from 'react';
+import { Formik, Form, Field } from 'formik';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { selectPaymentRequest, getPaymentRequest, updatePaymentRequest } from 'shared/Entities/modules/paymentRequests';
@@ -8,12 +9,12 @@ class PaymentRequestShow extends React.Component {
     this.props.getPaymentRequest(this.props.id);
   }
 
-  approvePaymentRequest() {
-    this.props.updatePaymentRequest(this.props.id);
+  approvePaymentRequest(paymentRequest) {
+    this.props.updatePaymentRequest(paymentRequest);
   }
 
-  denyPaymentRequest() {
-    this.props.updatePaymentRequest(this.props.id);
+  denyPaymentRequest(paymentRequest) {
+    this.props.updatePaymentRequest(paymentRequest);
   }
 
   render() {
@@ -31,13 +32,29 @@ class PaymentRequestShow extends React.Component {
             <li>serviceItemIds: {serviceItemIDs}</li>
             <li>status: {status}</li>
           </ul>
-
           <button className="usa-button usa-button--outline" onClick={this.approvePaymentRequest}>
             Approve
           </button>
-          <button className="usa-button usa-button--outline" onClick={this.denyPaymentRequest}>
-            Deny
-          </button>
+
+          <Formik
+            initialValues={{ rejectionReason: '' }}
+            onSubmit={(values, { setSubmitting }) => {
+              this.denyPaymentRequest({
+                paymentRequestID: id,
+                rejectionReason: values.rejectionReason,
+                status: 'REVIEWED',
+              });
+            }}
+          >
+            {({ isSubmitting }) => (
+              <Form>
+                <Field type="text" name="rejectionReason" />
+                <button className="usa-button usa-button--outline" type="submit" disabled={isSubmitting}>
+                  Reject
+                </button>
+              </Form>
+            )}
+          </Formik>
         </div>
       </>
     );
