@@ -17,7 +17,7 @@ export class PPMShipmentSummary extends Component {
       !this.props.ppmEstimate.hasEstimateInProgress &&
       !this.props.ppmEstimate.hasEstimateSuccess &&
       !this.props.ppmEstimate.hasEstimateError &&
-      !this.props.ppmEstimate.hasRateEnginieError
+      !this.props.ppmEstimate.rateEngineError
     ) {
       this.props.getPpmWeightEstimate(
         this.props.original_move_date,
@@ -30,8 +30,12 @@ export class PPMShipmentSummary extends Component {
     }
   }
 
+  hasShortHaulError(rateEngineError) {
+    return rateEngineError && rateEngineError.statusCode === 409 ? true : false;
+  }
+
   chooseEstimateText(ppmEstimate) {
-    if (ppmEstimate.hasRateEngineError && ppmEstimate.hasRateEngineError.statusCode === 409) {
+    if (this.hasShortHaulError(ppmEstimate.rateEngineError)) {
       return (
         <td datacy="estimateError">
           MilMove does not presently support short-haul PPM moves. Please contact your PPPO.;
@@ -39,7 +43,7 @@ export class PPMShipmentSummary extends Component {
       );
     }
 
-    if (ppmEstimate.hasEstimateError || ppmEstimate.hasRateEngineError) {
+    if (ppmEstimate.hasEstimateError || ppmEstimate.rateEngineError) {
       return (
         <td datacy="estimateError">
           Not ready yet{' '}
@@ -155,7 +159,7 @@ PPMShipmentSummary.propTypes = {
     hasEstimateError: bool.isRequired,
     hasEstimateSuccess: bool.isRequired,
     hasEstimateInProgress: bool.isRequired,
-    hasRateEngineError: Error.isRequiired,
+    rateEngineError: Error.isRequiired,
     originDutyStationZip: string.isRequired,
     incentive_estimate_min: number,
     incentive_estimate_max: number,
@@ -176,7 +180,7 @@ function mapStateToProps(state, ownProps) {
       hasEstimateError: state.ppm.hasEstimateError,
       hasEstimateSuccess: state.ppm.hasEstimateSuccess,
       hasEstimateInProgress: state.ppm.hasEstimateInProgress,
-      hasRateEngineError: state.ppm.hasRateEngineError || null,
+      rateEngineError: state.ppm.rateEngineError || null,
       originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
       incentive_estimate_min,
       incentive_estimate_max,

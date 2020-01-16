@@ -7,7 +7,7 @@ describe('Review -> Ppm Shipment Summary', () => {
     hasEstimateError: false,
     hasEstimateSuccess: false,
     hasEstimateInProgress: false,
-    hasRateEngineError: null,
+    rateEngineError: null,
     originDutyStationZip: '',
     incentive_estimate_min: 0,
     incentive_estimate_max: 0,
@@ -38,7 +38,7 @@ describe('Review -> Ppm Shipment Summary', () => {
     });
     it('Should show short haul error', () => {
       wrapper = shallow(
-        <PPMShipmentSummary {...minProps} ppmEstimate={{ ...ppmEst, hasRateEngineError: { statusCode: 409 } }} />,
+        <PPMShipmentSummary {...minProps} ppmEstimate={{ ...ppmEst, rateEngineError: { statusCode: 409 } }} />,
       );
       expect(wrapper.find({ datacy: 'estimateError' }).exists()).toBe(true);
       expect(wrapper.find({ datacy: 'estimateError' }).text()).toMatch(
@@ -47,7 +47,7 @@ describe('Review -> Ppm Shipment Summary', () => {
     });
     it('Should show estimate not ready error', () => {
       wrapper = shallow(
-        <PPMShipmentSummary {...minProps} ppmEstimate={{ ...ppmEst, hasRateEngineError: { statusCode: 404 } }} />,
+        <PPMShipmentSummary {...minProps} ppmEstimate={{ ...ppmEst, rateEngineError: { statusCode: 404 } }} />,
       );
       expect(wrapper.find({ datacy: 'estimateError' }).exists()).toBe(true);
       expect(wrapper.find({ datacy: 'estimateError' }).text()).toMatch(/Not ready yet/);
