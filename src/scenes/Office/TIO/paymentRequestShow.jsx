@@ -9,13 +9,17 @@ class PaymentRequestShow extends React.Component {
     this.props.getPaymentRequest(this.props.id);
   }
 
-  approvePaymentRequest(paymentRequest) {
+  approvePaymentRequest = (paymentRequest = {}) => {
+    paymentRequest.status = 'REVIEWED';
+    paymentRequest.paymentRequestID = this.props.id;
     this.props.updatePaymentRequest(paymentRequest);
-  }
+  };
 
-  denyPaymentRequest(paymentRequest) {
+  rejectPaymentRequest = (paymentRequest = {}) => {
+    paymentRequest.status = 'REVIEWED';
+    paymentRequest.paymentRequestID = this.props.id;
     this.props.updatePaymentRequest(paymentRequest);
-  }
+  };
 
   render() {
     const {
@@ -39,11 +43,7 @@ class PaymentRequestShow extends React.Component {
           <Formik
             initialValues={{ rejectionReason: '' }}
             onSubmit={(values, { setSubmitting }) => {
-              this.denyPaymentRequest({
-                paymentRequestID: id,
-                rejectionReason: values.rejectionReason,
-                status: 'REVIEWED',
-              });
+              this.rejectPaymentRequest({ rejectionReason: values.rejectionReason });
             }}
           >
             {({ isSubmitting }) => (
