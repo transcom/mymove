@@ -1,6 +1,6 @@
 # How To Create or Deactivate Users
 
-For all users you will [create a secure migration](./migrate-the-database.md#secure-migrations). Please
+For all users you will [create a secure migration](../database/migrate-the-database.md#secure-migrations). Please
 only create a migration corresponding to the environment where you intend to add or deactivate users. For instance,
 please only add a `staging` secure migration if you intend to add staging users and leave the `prod`
 and `experimental` migrations empty.
