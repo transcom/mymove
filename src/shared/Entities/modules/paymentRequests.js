@@ -25,9 +25,17 @@ export function selectPaymentRequests(state) {
   return Object.values(paymentRequests);
 }
 
+export function selectPaymentRequestStatus(state, paymentRequestID) {
+  return get(state, `entities.paymentRequests.${paymentRequestID}.status`);
+}
+
+export function selectPaymentRequestRejectionReason(state, paymentRequestID) {
+  return get(state, `entities.paymentRequests.${paymentRequestID}.rejectionReason`);
+}
+
 export function updatePaymentRequest(state, paymentRequestID, label = updatePaymentRequestLabel) {
   const swaggerTag = 'paymentRequests.updatePaymentRequestStatus';
-  const rejectionReason = get(state, `entities.paymentRequests.${paymentRequestID}.rejectionReason`);
-  const status = get(state, `entities.paymentRequests.${paymentRequestID}.status`);
+  const rejectionReason = selectPaymentRequestRejectionReason(state, paymentRequestID);
+  const status = selectPaymentRequestStatus(state, paymentRequestID);
   return swaggerRequest(getGHCClient, swaggerTag, { paymentRequestID, rejectionReason, status }, { label });
 }
