@@ -7,7 +7,7 @@
 # Add language specific code owners if it becomes relevant
 
 # ADRs are architectural decisions records that should all be approved by all teams
-/docs/adr/* @tinyels @chrisrcoles @sarboc @chrisgilmerproj @jacquelineIO
+/docs/adr/* @tinyels @chrisrcoles @Ryan-Koch @chrisgilmerproj @jacquelineIO
 
 # Docs about the database should be reviewed by people working on our database guidelines
 /docs/database/* @chrisgilmerproj @tinyels @garrettqmartin8 @gidjin @lynzt @reggieriser @rdhariwal @Ryan-Koch @jim @chrisrcoles
