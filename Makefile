@@ -220,8 +220,8 @@ bin/big-cat:
 bin/compare-secure-migrations:
 	go build -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare-secure-migrations
 
-bin/ecs-deploy-task-container:
-	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy-task-container ./cmd/ecs-deploy-task-container
+bin/ecs-deploy:
+	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy ./cmd/ecs-deploy
 
 bin/ecs-service-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
@@ -271,16 +271,14 @@ bin/query-lb-logs:
 bin/read-alb-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/read-alb-logs ./cmd/read-alb-logs
 
-bin/renderer:
-	# do not build with LDFLAGS since errors on alpine and dynamic linking is fine
-	# throws errors loadinternal: cannot find runtime/cgo
-	go build -o bin/renderer ./cmd/renderer
-
 bin/report-ecs:
 	go build -ldflags "$(LDFLAGS)" -o bin/report-ecs ./cmd/report-ecs
 
 bin/send-to-gex: pkg/gen/
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
+
+bin/tls-checker:
+	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
 
 pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
 	# Fix the modtime to prevent diffs when generating on different machines
@@ -342,7 +340,7 @@ build_tools: bin/gin \
 	bin/rds-ca-2019-root.pem \
 	bin/big-cat \
 	bin/compare-secure-migrations \
-	bin/ecs-deploy-task-container \
+	bin/ecs-deploy \
 	bin/ecs-service-logs \
 	bin/find-guardduty-user \
 	bin/generate-access-codes \
@@ -354,9 +352,9 @@ build_tools: bin/gin \
 	bin/query-cloudwatch-logs \
 	bin/query-lb-logs \
 	bin/read-alb-logs \
-	bin/renderer \
 	bin/report-ecs \
-	bin/send-to-gex ## Build all tools
+	bin/send-to-gex \
+	bin/tls-checker ## Build all tools
 
 .PHONY: build
 build: server_build build_tools client_build ## Build the server, tools, and client

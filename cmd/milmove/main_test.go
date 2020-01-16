@@ -55,24 +55,51 @@ func TestWebServerSuite(t *testing.T) {
 		logger: logger,
 	}
 
-	if testEnv := os.Getenv("TEST_ACC_ENV"); len(testEnv) > 0 {
-		filename := fmt.Sprintf("%s/config/env/%s.env", os.Getenv("TEST_ACC_CWD"), testEnv)
-		logger.Info(fmt.Sprintf("Loading environment variables from file %s", filename))
-		ss.applyContext(ss.patchContext(ss.loadContext(filename)))
-	}
-
 	suite.Run(t, ss)
 }
 
-// TestCheckConfig is the acceptance test for the milmove webserver
+// TestCheckServeConfigApp is the acceptance test for the milmove webserver
 // This will run all checks against the local environment and fail if something isn't configured
-func (suite *webServerSuite) TestCheckConfig() {
+func (suite *webServerSuite) TestCheckServeConfigApp() {
+	if testEnv := os.Getenv("TEST_ACC_ENV"); len(testEnv) > 0 {
+		filenameApp := fmt.Sprintf("%s/config/env/%s.app.env", os.Getenv("TEST_ACC_CWD"), testEnv)
+		suite.logger.Info(fmt.Sprintf("Loading environment variables from file %s", filenameApp))
+		suite.applyContext(suite.patchContext(suite.loadContext(filenameApp)))
+	}
+
 	suite.Nil(checkServeConfig(suite.viper, suite.logger))
+}
+
+// TestCheckServeConfigAppClientTLS is the acceptance test for the milmove webserver
+// This will run all checks against the local environment and fail if something isn't configured
+func (suite *webServerSuite) TestCheckServeConfigAppClientTLS() {
+	if testEnv := os.Getenv("TEST_ACC_ENV"); len(testEnv) > 0 {
+		filenameApp := fmt.Sprintf("%s/config/env/%s.app-client-tls.env", os.Getenv("TEST_ACC_CWD"), testEnv)
+		suite.logger.Info(fmt.Sprintf("Loading environment variables from file %s", filenameApp))
+		suite.applyContext(suite.patchContext(suite.loadContext(filenameApp)))
+	}
+
+	suite.Nil(checkServeConfig(suite.viper, suite.logger))
+}
+
+// TestCheckServeConfigMigrate is the acceptance test for the milmove migration command
+// This will run all checks against the local environment and fail if something isn't configured
+func (suite *webServerSuite) TestCheckServeConfigMigrate() {
+	if testEnv := os.Getenv("TEST_ACC_ENV"); len(testEnv) > 0 {
+		filenameApp := fmt.Sprintf("%s/config/env/%s.migrations.env", os.Getenv("TEST_ACC_CWD"), testEnv)
+		suite.logger.Info(fmt.Sprintf("Loading environment variables from file %s", filenameApp))
+		suite.applyContext(suite.patchContext(suite.loadContext(filenameApp)))
+	}
+
+	suite.Nil(checkMigrateConfig(suite.viper, suite.logger))
 }
 
 func (suite *webServerSuite) loadContext(variablesFile string) map[string]string {
 	ctx := map[string]string{}
 	if len(variablesFile) > 0 {
+		if _, variablesFileStatErr := os.Stat(variablesFile); os.IsNotExist(variablesFileStatErr) {
+			suite.logger.Fatal(fmt.Sprintf("File %q does not exist", variablesFile))
+		}
 		// Read contents of variables file into vars
 		vars, err := ioutil.ReadFile(variablesFile)
 		if err != nil {
@@ -92,10 +119,15 @@ func (suite *webServerSuite) loadContext(variablesFile string) map[string]string
 	return ctx
 }
 
+// patchContext updates specific variables based on value
 func (suite *webServerSuite) patchContext(ctx map[string]string) map[string]string {
 	for k, v := range ctx {
 		if strings.HasPrefix(v, "/bin/") {
 			ctx[k] = filepath.Join(os.Getenv("TEST_ACC_CWD"), v[1:])
+		}
+		// Overwrite the migration path to something on the local system
+		if k == "MIGRATION_PATH" {
+			ctx[k] = "file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations"
 		}
 	}
 	return ctx
