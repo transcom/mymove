@@ -65,7 +65,7 @@ export class MoveSummaryComponent extends React.Component {
           this.props.ppm.actual_move_date || this.props.ppm.original_move_date,
           this.props.ppm.pickup_postal_code,
           this.props.originDutyStationZip,
-          this.props.ppm.destination_postal_code,
+          this.props.orders.id,
           netWeight,
         );
       });

@@ -17,6 +17,7 @@ type GHCRateEngineImporter struct {
 	domesticRateAreaToIDMap      map[string]uuid.UUID
 	internationalRateAreaToIDMap map[string]uuid.UUID
 	serviceToIDMap               map[string]uuid.UUID
+	contractYearToIDMap          map[string]uuid.UUID
 }
 
 func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
@@ -24,6 +25,11 @@ func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
 	err := gre.importREContract(dbTx) // Also populates gre.contractID
 	if err != nil {
 		return fmt.Errorf("failed to import re_contract: %w", err)
+	}
+
+	err = gre.importREContractYears(dbTx) // Populates gre.contractYearToIDMap
+	if err != nil {
+		return fmt.Errorf("failed to import re_contract_years: %w", err)
 	}
 
 	err = gre.importREDomesticServiceArea(dbTx) // Also populates gre.serviceAreaToIDMap
@@ -52,6 +58,11 @@ func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
 		return fmt.Errorf("failed to import re_domestic_service_area_prices: %w", err)
 	}
 
+	err = gre.importREDomesticOtherPrices(dbTx)
+	if err != nil {
+		return fmt.Errorf("failed to import re_domestic_other_prices: %w", err)
+	}
+
 	err = gre.importREInternationalPrices(dbTx)
 	if err != nil {
 		return fmt.Errorf("failed to import re_intl_prices: %w", err)
@@ -62,6 +73,25 @@ func (gre *GHCRateEngineImporter) runImports(dbTx *pop.Connection) error {
 		return fmt.Errorf("failed to import re_intl_other_prices: %w", err)
 	}
 
+	err = gre.importRETaskOrderFees(dbTx)
+	if err != nil {
+		return fmt.Errorf("failed to import re_task_order_fees: %w", err)
+	}
+
+	err = gre.importREDomesticAccessorialPrices(dbTx)
+	if err != nil {
+		return fmt.Errorf("failed to import re_domestic_accessorial_prices: %w", err)
+	}
+
+	err = gre.importREIntlAccessorialPrices(dbTx)
+	if err != nil {
+		return fmt.Errorf("failed to import re_intl_accessorial_prices: %w", err)
+	}
+
+	err = gre.importREShipmentTypePrices(dbTx)
+	if err != nil {
+		return fmt.Errorf("failed to import re_shipment_type_prices: %w", err)
+	}
 	return nil
 }
 

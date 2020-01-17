@@ -48,6 +48,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation uploads.CreateUpload has not yet been implemented")
 		})
 	}
+	if api.MoveTaskOrderFetchMTOUpdatesHandler == nil {
+		api.MoveTaskOrderFetchMTOUpdatesHandler = move_task_order.FetchMTOUpdatesHandlerFunc(func(params move_task_order.FetchMTOUpdatesParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.FetchMTOUpdates has not yet been implemented")
+		})
+	}
 	if api.MoveTaskOrderGetMoveTaskOrderCustomerHandler == nil {
 		api.MoveTaskOrderGetMoveTaskOrderCustomerHandler = move_task_order.GetMoveTaskOrderCustomerHandlerFunc(func(params move_task_order.GetMoveTaskOrderCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetMoveTaskOrderCustomer has not yet been implemented")
@@ -56,11 +61,6 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	if api.MoveTaskOrderGetPrimeEntitlementsHandler == nil {
 		api.MoveTaskOrderGetPrimeEntitlementsHandler = move_task_order.GetPrimeEntitlementsHandlerFunc(func(params move_task_order.GetPrimeEntitlementsParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetPrimeEntitlements has not yet been implemented")
-		})
-	}
-	if api.MoveTaskOrderListMoveTaskOrdersHandler == nil {
-		api.MoveTaskOrderListMoveTaskOrdersHandler = move_task_order.ListMoveTaskOrdersHandlerFunc(func(params move_task_order.ListMoveTaskOrdersParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_task_order.ListMoveTaskOrders has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler == nil {

@@ -2,6 +2,8 @@ package ghcimport
 
 import (
 	"testing"
+
+	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *GHCRateEngineImportSuite) Test_stringToInteger() {
@@ -183,6 +185,31 @@ func (suite *GHCRateEngineImportSuite) Test_priceToCents() {
 	for _, test := range tests {
 		suite.T().Run(test.name, func(t *testing.T) {
 			result, err := priceToCents(test.input)
+			suite.Equal(test.expected, result)
+			if test.shouldError {
+				suite.Error(err)
+			} else {
+				suite.NoError(err)
+			}
+		})
+	}
+}
+
+func (suite *GHCRateEngineImportSuite) Test_getMarket() {
+	tests := []struct {
+		name        string
+		input       string
+		expected    models.Market
+		shouldError bool
+	}{
+		{"CONUS", "CONUS", "C", false},
+		{"OCONUS", "OCONUS", "O", false},
+		{"XONUS", "XONUS", "invalid market", true},
+	}
+
+	for _, test := range tests {
+		suite.T().Run(test.name, func(t *testing.T) {
+			result, err := getMarket(test.input)
 			suite.Equal(test.expected, result)
 			if test.shouldError {
 				suite.Error(err)

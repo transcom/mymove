@@ -3,7 +3,11 @@ package internalapi
 import (
 	"net/http/httptest"
 
+	"github.com/go-openapi/strfmt"
+	"github.com/gofrs/uuid"
+
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -104,6 +108,31 @@ func helperShowPPMSitEstimateHandler(suite *HandlerSuite, codeOfService string) 
 	}
 	suite.MustSave(&tspPerformance)
 
+	address := models.Address{
+		StreetAddress1: "some address",
+		City:           "city",
+		State:          "state",
+		PostalCode:     "67401",
+	}
+	suite.MustSave(&address)
+
+	stationName := "New Duty Station"
+	station := models.DutyStation{
+		Name:        stationName,
+		Affiliation: internalmessages.AffiliationAIRFORCE,
+		AddressID:   address.ID,
+		Address:     address,
+	}
+	suite.MustSave(&station)
+
+	orderID := uuid.Must(uuid.NewV4())
+	_ = testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ID:               orderID,
+			NewDutyStationID: station.ID,
+		},
+	})
+
 	user := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	// And: the context contains the auth values
@@ -115,7 +144,7 @@ func helperShowPPMSitEstimateHandler(suite *HandlerSuite, codeOfService string) 
 		OriginalMoveDate: *handlers.FmtDate(testdatagen.DateInsidePeakRateCycle),
 		DaysInStorage:    4,
 		OriginZip:        "77901",
-		DestinationZip:   "67401",
+		OrdersID:         strfmt.UUID(orderID.String()),
 		WeightEstimate:   3000,
 	}
 	// And: ShowPPMSitEstimateHandler is queried
@@ -134,6 +163,7 @@ func helperShowPPMSitEstimateHandler(suite *HandlerSuite, codeOfService string) 
 }
 
 func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
+	orderID := uuid.Must(uuid.NewV4())
 
 	// Given: A PPM Estimate request with all relevant records except TSP performance
 	helperCreateZip3AndServiceAreas(suite)
@@ -149,7 +179,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 		OriginalMoveDate: *handlers.FmtDate(testdatagen.DateInsidePeakRateCycle),
 		DaysInStorage:    4,
 		OriginZip:        "77901",
-		DestinationZip:   "67401",
+		OrdersID:         strfmt.UUID(orderID.String()),
 		WeightEstimate:   3000,
 	}
 	// And: ShowPPMSitEstimateHandler is queried

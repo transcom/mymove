@@ -9,7 +9,6 @@ If you are looking to understand choices made in this project, see the list of [
 * [Front-end / React](frontend.md) guide
 * [Back-end / Go](backend.md) guide
   * [Service Objects / Go](service-objects.md) guide
-* [Database / Postgres](database.md) guide
 
 ## Pairing Sessions
 
@@ -25,13 +24,19 @@ If you are looking to understand choices made in this project, see the list of [
 
 <!--index-->
 
+## Database
+
+* [Backup and Restore the Development Database](database/backup-and-restore-dev-database.md#how-to-backup-and-restore-the-development-database)
+* [Database Guides](database/database.md#database-guides)
+* [Migrate the Database](database/migrate-the-database.md#how-to-migrate-the-database)
+* [Soft Delete](database/soft-delete.md#how-to-soft-delete)
+
 ## HOWTOs
 
 * [Access a Global Application Variable](how-to/access-global-variables.md#how-to-access-a-global-application-variable)
 * [Call Swagger Endpoints from React](how-to/access-swagger-endpoints-from-react.md#how-to-call-swagger-endpoints-from-react)
 * [Add Application Logging](how-to/add-application-logging.md#how-to-add-application-logging)
 * [Automatically add JIRA ID to Commit Message](how-to/automatically-add-jira-id-to-commit-message.md#how-to-automatically-add-jira-id-to-commit-message)
-* [Backup and Restore the Development Database](how-to/backup-and-restore-dev-database.md#how-to-backup-and-restore-the-development-database)
 * [Create An ECS Scheduled Task](how-to/create-an-ecs-scheduled-task.md#how-to-create-an-ecs-scheduled-task)
 * [Create or Deactivate Users](how-to/create-or-deactivate-users.md#how-to-create-or-deactivate-users)
 * [Deploy to Experimental](how-to/deploy-to-experimental.md#how-to-deploy-to-experimental)
@@ -42,7 +47,6 @@ If you are looking to understand choices made in this project, see the list of [
 * [Manage Dependabot](how-to/manage-dependabot.md#how-to-manage-dependabot)
 * [Manage Dependencies With go mod](how-to/manage-dependencies-with-go-mod.md#how-to-manage-dependencies-with-go-mod)
 * [Manage Docker Locally](how-to/manage-docker-locally.md#how-to-manage-docker-locally)
-* [Migrate the Database](how-to/migrate-the-database.md#how-to-migrate-the-database)
 * [revert a change](how-to/revert-a-change.md#how-to-revert-a-change)
 * [Run Acceptance Tests](how-to/run-acceptance-tests.md#how-to-run-acceptance-tests)
 * [Run Against S3 & CDN Locally](how-to/run-against-s3-locally.md#how-to-run-against-s3-cdn-locally)
@@ -54,7 +58,6 @@ If you are looking to understand choices made in this project, see the list of [
 * [Use and Run Storybook](how-to/run-storybook.md#how-to-use-and-run-storybook)
 * [Searching for Application Errors](how-to/search-for-application-errors.md#how-to-searching-for-application-errors)
 * [Setup Postman to make Mutual TLS API Calls](how-to/setup-postman-to-make-mutual-tls-api-calls.md#how-to-setup-postman-to-make-mutual-tls-api-calls)
-* [Soft Delete](how-to/soft-delete.md#how-to-soft-delete)
 * [Store Data in Redux](how-to/store-data-in-redux.md#how-to-store-data-in-redux)
 * [Store UI State in Redux](how-to/store-ui-state-in-redux.md#how-to-store-ui-state-in-redux)
 * [Test Virus Scanning](how-to/test-virus-scanning.md#how-to-test-virus-scanning)
@@ -108,5 +111,6 @@ If you are looking to understand choices made in this project, see the list of [
 * 0039 [Use React Lazy for code splitting](adr/0039-react-lazy-and-code-splitting.md#use-react-lazy-for-code-splitting)
 * 0040 [Add Role-Based Authorization](adr/0040-role-base-authorization.md#add-role-based-authorization)
 * 0041 [Front End Form Library](adr/0041-front-end-form-library.md#front-end-form-library)
+* 0042 [Use Last-Modified / If-Unmodified-Since for optimistic locking](adr/0042-optimistic-locking.md#use-last-modified-if-unmodified-since-for-optimistic-locking)
 
 <!--endindex-->
