@@ -142,6 +142,7 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 	}
 
 	var uploadError error
+	// If we are already in a transaction, don't start one
 	if u.db.TX != nil {
 		verrs, err := u.db.ValidateAndCreate(newUpload)
 		if err != nil || verrs.HasAny() {
