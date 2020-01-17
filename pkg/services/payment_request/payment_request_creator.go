@@ -20,6 +20,18 @@ func NewPaymentRequestCreator(db *pop.Connection) services.PaymentRequestCreator
 	return &paymentRequestCreator{db}
 }
 
+type CreatePaymentRequestIncomingPayload struct {
+	IsFinal         bool
+	MoveTaskOrderID uuid.UUID
+	IncomingPayloadMTOServiceItems struct {
+		MTOServiceID uuid.UUID
+		Params []struct{
+			Key string
+			Value string
+		}
+	}
+}
+
 func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequest *models.PaymentRequest) (*models.PaymentRequest, error) {
 	transactionError := p.db.Transaction(func(tx *pop.Connection) error {
 		now := time.Now()
@@ -37,11 +49,11 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequest *models.Paym
 
 		// Create the payment request first
 		verrs, err := tx.ValidateAndCreate(paymentRequest)
-		if err != nil {
-			return fmt.Errorf("failure creating payment request: %w", err)
-		}
 		if verrs.HasAny() {
 			return fmt.Errorf("validation error creating payment request: %w", verrs)
+		}
+		if err != nil {
+			return fmt.Errorf("failure creating payment request: %w", err)
 		}
 
 		// Create each payment service item for the payment request
@@ -49,11 +61,11 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequest *models.Paym
 		for _, paymentServiceItem := range paymentRequest.PaymentServiceItems {
 			// Verify that the service item ID exists
 			var mtoServiceItem models.MTOServiceItem
-			err := tx.Find(&mtoServiceItem, paymentServiceItem.ServiceItemID)
+			err := tx.Find(&mtoServiceItem, paymentServiceItem.MTOServiceItemID)
 			if err != nil {
-				return fmt.Errorf("could not find ServiceItemID [%s]: %w", paymentServiceItem.ServiceItemID, err)
+				return fmt.Errorf("could not find MTOServiceItemID [%s]: %w", paymentServiceItem.MTOServiceItemID, err)
 			}
-			paymentServiceItem.ServiceItem = mtoServiceItem
+			paymentServiceItem.MTOServiceItem = mtoServiceItem
 
 			paymentServiceItem.PaymentRequestID = paymentRequest.ID
 			paymentServiceItem.PaymentRequest = *paymentRequest

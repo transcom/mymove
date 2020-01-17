@@ -49,7 +49,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			IsFinal:         false,
 			PaymentServiceItems: models.PaymentServiceItems{
 				{
-					ServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItemID: mtoServiceItem1.ID,
 					PaymentServiceItemParams: models.PaymentServiceItemParams{
 						{
 							IncomingKey: "weight",
@@ -62,7 +62,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 					},
 				},
 				{
-					ServiceItemID: mtoServiceItem2.ID,
+					MTOServiceItemID: mtoServiceItem2.ID,
 					PaymentServiceItemParams: models.PaymentServiceItemParams{
 						{
 							IncomingKey: "weight",
@@ -97,7 +97,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			IsFinal:         false,
 			PaymentServiceItems: models.PaymentServiceItems{
 				{
-					ServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItemID: mtoServiceItem1.ID,
 					PaymentServiceItemParams: models.PaymentServiceItemParams{
 						{
 							ServiceItemParamKeyID: serviceItemParamKey1.ID,
@@ -110,7 +110,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 					},
 				},
 				{
-					ServiceItemID: mtoServiceItem2.ID,
+					MTOServiceItemID: mtoServiceItem2.ID,
 					PaymentServiceItemParams: models.PaymentServiceItemParams{
 						{
 							ServiceItemParamKeyID: serviceItemParamKey1.ID,
@@ -156,7 +156,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			IsFinal:         false,
 			PaymentServiceItems: models.PaymentServiceItems{
 				{
-					ServiceItemID: badID,
+					MTOServiceItemID: badID,
 				},
 			},
 		}
@@ -170,7 +170,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			IsFinal:         false,
 			PaymentServiceItems: models.PaymentServiceItems{
 				{
-					ServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItemID: mtoServiceItem1.ID,
 					PaymentServiceItemParams: models.PaymentServiceItemParams{
 						{
 							ServiceItemParamKeyID: badID,
@@ -190,7 +190,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			IsFinal:         false,
 			PaymentServiceItems: models.PaymentServiceItems{
 				{
-					ServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItemID: mtoServiceItem1.ID,
 					PaymentServiceItemParams: models.PaymentServiceItemParams{
 						{
 							IncomingKey: "bogus",
