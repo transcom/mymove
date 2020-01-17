@@ -8,6 +8,7 @@ import { selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/p
 import { formatCentsRange, formatCents } from 'shared/formatters';
 import { formatDateSM } from 'shared/formatters';
 import { getPpmWeightEstimate } from 'scenes/Moves/Ppm/ducks';
+import { hasShortHaulError } from 'shared/incentive';
 
 import './Review.css';
 
@@ -30,12 +31,8 @@ export class PPMShipmentSummary extends Component {
     }
   }
 
-  hasShortHaulError(rateEngineError) {
-    return rateEngineError && rateEngineError.statusCode === 409 ? true : false;
-  }
-
   chooseEstimateText(ppmEstimate) {
-    if (this.hasShortHaulError(ppmEstimate.rateEngineError)) {
+    if (hasShortHaulError(ppmEstimate.rateEngineError)) {
       return (
         <td datacy="estimateError">
           MilMove does not presently support short-haul PPM moves. Please contact your PPPO.;
