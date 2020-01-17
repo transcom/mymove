@@ -822,11 +822,7 @@ definitions:
       updatedAt:
         format: date-time
         type: string
-      binaryData:
-        type: string
-        format: binary
     required:
-      - binaryData
       - filename
       - contentType
       - bytes

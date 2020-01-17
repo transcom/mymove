@@ -1136,7 +1136,6 @@ func init() {
     "Upload": {
       "type": "object",
       "required": [
-        "binaryData",
         "filename",
         "contentType",
         "bytes",
@@ -1144,10 +1143,6 @@ func init() {
         "updatedAt"
       ],
       "properties": {
-        "binaryData": {
-          "type": "string",
-          "format": "binary"
-        },
         "bytes": {
           "type": "integer"
         },
@@ -2461,7 +2456,6 @@ func init() {
     "Upload": {
       "type": "object",
       "required": [
-        "binaryData",
         "filename",
         "contentType",
         "bytes",
@@ -2469,10 +2463,6 @@ func init() {
         "updatedAt"
       ],
       "properties": {
-        "binaryData": {
-          "type": "string",
-          "format": "binary"
-        },
         "bytes": {
           "type": "integer"
         },
