@@ -131,3 +131,24 @@ func Address(address *models.Address) *ghcmessages.Address {
 		Country:        address.Country,
 	}
 }
+
+func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
+	return &ghcmessages.MTOShipment{
+		ID:                  strfmt.UUID(mtoShipment.ID.String()),
+		MoveTaskOrderID:     strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
+		ShipmentType:        "HHG",
+		CustomerRemarks:     *mtoShipment.CustomerRemarks,
+		RequestedPickupDate: strfmt.Date(*mtoShipment.RequestedPickupDate),
+		CreatedAt:           strfmt.Date(mtoShipment.CreatedAt),
+		UpdatedAt:           strfmt.Date(mtoShipment.UpdatedAt),
+	}
+}
+
+func MTOShipments(mtoShipments *models.MTOShipments) *ghcmessages.MTOShipments {
+	payload := make(ghcmessages.MTOShipments, len(*mtoShipments))
+
+	for i, m := range *mtoShipments {
+		payload[i] = MTOShipment(&m)
+	}
+	return &payload
+}
