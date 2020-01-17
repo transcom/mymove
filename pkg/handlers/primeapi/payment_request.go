@@ -101,6 +101,18 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		  4.) then go and find the values for all params that are NEEDED for pricing -- not necessarily all that are there
  */
 
+type CreatePaymentRequestIncomingPayload struct {
+	IsFinal         bool
+	MoveTaskOrderID uuid.UUID
+	IncomingPayloadMTOServiceItems struct {
+		MTOServiceID uuid.UUID
+		Params []struct{
+			Key string
+			Value string
+		}
+	}
+}
+
 func (h CreatePaymentRequestHandler) translatePayload(payload *primemessages.CreatePaymentRequestPayload) (*CreatePaymentRequestIncomingPayload, error) {
 
 	var tanslatedPayload CreatePaymentRequestIncomingPayload

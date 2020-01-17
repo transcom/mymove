@@ -20,18 +20,6 @@ func NewPaymentRequestCreator(db *pop.Connection) services.PaymentRequestCreator
 	return &paymentRequestCreator{db}
 }
 
-type CreatePaymentRequestIncomingPayload struct {
-	IsFinal         bool
-	MoveTaskOrderID uuid.UUID
-	IncomingPayloadMTOServiceItems struct {
-		MTOServiceID uuid.UUID
-		Params []struct{
-			Key string
-			Value string
-		}
-	}
-}
-
 func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequest *models.PaymentRequest) (*models.PaymentRequest, error) {
 	transactionError := p.db.Transaction(func(tx *pop.Connection) error {
 		now := time.Now()
