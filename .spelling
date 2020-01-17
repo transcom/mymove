@@ -539,4 +539,6 @@ devlocal-mtls
 aws-vault
 aws-vault-wrapper
 aws
+env
+MacOS
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/transcom/mymove/pkg/models"
 )
 
 func stringToInteger(rawString string) (int, error) {
@@ -93,4 +95,13 @@ func priceToCents(rawPrice string) (int, error) {
 
 	cents := (integerPart * 100) + fractionalPart
 	return cents, nil
+}
+
+func getMarket(market string) (models.Market, error) {
+	if strings.EqualFold(market, "CONUS") {
+		return models.MarketConus, nil
+	} else if strings.EqualFold(market, "OCONUS") {
+		return models.MarketOconus, nil
+	}
+	return "invalid market", fmt.Errorf("invalid market [%s]", market)
 }

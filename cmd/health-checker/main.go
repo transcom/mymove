@@ -176,6 +176,8 @@ func createTLSConfig(clientKey []byte, clientCert []byte, ca []byte, insecureSki
 	tlsConfig := &tls.Config{
 		Certificates:       []tls.Certificate{keyPair},
 		InsecureSkipVerify: insecureSkipVerify,
+		MinVersion:         tls.VersionTLS12,
+		MaxVersion:         tls.VersionTLS13,
 	}
 
 	if len(ca) > 0 {
@@ -202,7 +204,11 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger) (*http.Client, error) 
 		}
 	}
 
-	tlsConfig := &tls.Config{}
+	// Supported TLS versions
+	tlsConfig := &tls.Config{
+		MinVersion: tls.VersionTLS12,
+		MaxVersion: tls.VersionTLS13,
+	}
 
 	if len(clientKeyEncoded) > 0 && len(clientCertEncoded) > 0 {
 
@@ -349,6 +355,7 @@ func main() {
 	flag.Bool("exit-on-error", false, "exit on first health check error")
 	flag.String("log-env", "development", "logging config: development or production")
 	flag.String("log-level", "error", "log level: debug, info, warn, error, dpanic, panic, or fatal")
+	flag.Bool("verbose", false, "output extra information")
 
 	flag.Parse(os.Args[1:])
 
@@ -405,7 +412,7 @@ func main() {
 			for _, path := range paths {
 				url := scheme + "://" + host + path
 				if verbose {
-					logger.Info("checking url", zap.String("url", url))
+					logger.Info("checking url will connect", zap.String("url", url))
 				}
 				err := checkURL(httpClient, url, statusCodes, maxTries, backoff, logger)
 				if err != nil {

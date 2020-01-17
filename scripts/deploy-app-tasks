@@ -6,9 +6,6 @@ set -eu -o pipefail
 # Deploy the app tasks
 #
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-readonly DIR
-
 usage() {
   echo "$0 <environment>"
   exit 1
@@ -34,7 +31,7 @@ case "${environment}" in
     ;;
 esac
 
-if [ -n "${AWS_ACCOUNT_ID}" ]; then
+if [ -z "${AWS_ACCOUNT_ID}" ]; then
   echo "AWS_ACCOUNT_ID not found!"
   echo "Please add 'AWS_ACCOUNT_ID' to your .envrc.local"
   exit 1
@@ -46,25 +43,6 @@ CIRCLE_SHA1=$(curl -s "https://${compare_host}/health" | jq -r .gitCommit)
 
 scripts/compare-deployed-commit "${compare_host}" "${CIRCLE_SHA1}"
 
-bin/ecs-deploy-task-container \
-  --aws-account-id "${AWS_ACCOUNT_ID}" \
-  --aws-region "${AWS_DEFAULT_REGION}" \
-  --service app \
-  --environment "${APP_ENVIRONMENT}" \
-  --repository-name app-tasks \
-  --image-tag "git-${CIRCLE_SHA1}" \
-  --command "milmove-tasks save-fuel-price-data" \
-  --variables-file "${DIR}/../config/env/${APP_ENVIRONMENT}.save-fuel-price-data.env" \
-  --debug-logging
-
-bin/ecs-deploy-task-container \
-  --aws-account-id "${AWS_ACCOUNT_ID}" \
-  --aws-region "${AWS_DEFAULT_REGION}" \
-  --service app \
-  --environment "${APP_ENVIRONMENT}" \
-  --repository-name app-tasks \
-  --image-tag "git-${CIRCLE_SHA1}" \
-  --command "milmove-tasks send-post-move-survey" \
-  --command-args "--email-backend=ses --offset-days 15" \
-  --variables-file "${DIR}/../config/env/${APP_ENVIRONMENT}.send-post-move-survey.env" \
-  --debug-logging
+readonly image="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks:git-${CIRCLE_SHA1}"
+scripts/ecs-deploy-task-container save-fuel-price-data "${image}" "${APP_ENVIRONMENT}"
+scripts/ecs-deploy-task-container send-post-move-survey "${image}" "${APP_ENVIRONMENT}"

@@ -34,6 +34,7 @@ These scripts are used to operate the system.
 | Script Name | Description |
 | --- | --- |
 | `download-alb-logs` | Download alb logs for the given environment and dates to a local folder |
+| `health-tls-check` | Run health and TLS version checks. |
 | `scan-alb-logs` | Scan alb logs for specific http codes. |
 
 ## Pre-commit Scripts
@@ -60,7 +61,8 @@ These scripts are primarily used for CircleCI workflows.
 | `compare-deployed-commit` | checks that the given commit is ahead of the currently deployed commit |
 | `do-exclusively` | CircleCI's current recommendation for roughly serializing a subset of build commands for a given branch |
 | `ecr-describe-image-scan-findings` | Checks an uploaded image scan results |
-| `ecs-deploy-service-container` |  Updates the named service with the given container definition template, image, and environment |
+| `ecs-deploy-service-container` | Updates the named service with the given name, image, and environment. |
+| `ecs-deploy-task-container` | Updates the named task with the given name, image, and environment. |
 | `ecs-restart-services` | Restarted the ECS services associated with the given environment. |
 | `ecs-run-app-migrations-container` | Creates and runs a migration task using the given container definition. |
 | `rds-snapshot-app-db` | Creates a snapshot of the app database for the given environment. |
