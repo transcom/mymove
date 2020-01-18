@@ -73,18 +73,22 @@ func (p *bingPlanner) wayPointsTransitDistance(wp1 string, wp2 string) (int, err
 	return int(math.Round(resourceSet.Resources[0].TravelDistance)), nil
 }
 
+// LatLongTransitDistance calculates the distance between two sets of LatLong coordinates
 func (p *bingPlanner) LatLongTransitDistance(source LatLong, dest LatLong) (int, error) {
 	return p.wayPointsTransitDistance(source.Coords(), dest.Coords())
 }
 
+// Zip5TransitDistance calculates the distance between two valid Zip5s
 func (p *bingPlanner) Zip5TransitDistance(source string, destination string) (int, error) {
 	return zip5TransitDistanceHelper(p, source, destination)
 }
 
+// Zip3TransitDistance calculates the distance between two valid Zip3s
 func (p *bingPlanner) Zip3TransitDistance(source string, destination string) (int, error) {
 	return zip3TransitDistanceHelper(p, source, destination)
 }
 
+// TransitDistance calculates the distance between two valid addresses
 func (p *bingPlanner) TransitDistance(source *models.Address, destination *models.Address) (int, error) {
 	return p.wayPointsTransitDistance(urlencodeAddress(source), urlencodeAddress(destination))
 }

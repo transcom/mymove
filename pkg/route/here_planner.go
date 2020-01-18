@@ -163,6 +163,7 @@ func getDistanceMiles(r io.ReadCloser) (int, error) {
 	return int(math.Round(float64(response.Response.Routes[0].Summary.Distance) / metersInAMile)), nil
 }
 
+// LatLongTransitDistance calculates the distance between two sets of LatLong coordinates
 func (p *herePlanner) LatLongTransitDistance(source LatLong, dest LatLong) (int, error) {
 	query := fmt.Sprintf(routeEndpointFormat, p.routeEndPointWithKeys, source.Coords(), dest.Coords())
 	resp, err := p.httpClient.Get(query)
@@ -192,6 +193,7 @@ func (p *herePlanner) LatLongTransitDistance(source LatLong, dest LatLong) (int,
 	}
 }
 
+// Zip5TransitDistance calculates the distance between two valid Zip5s
 func (p *herePlanner) Zip5TransitDistance(source string, destination string) (int, error) {
 	distance, err := zip5TransitDistanceHelper(p, source, destination)
 	if err != nil {
@@ -206,6 +208,7 @@ func (p *herePlanner) Zip5TransitDistance(source string, destination string) (in
 	return distance, err
 }
 
+// Zip3TransitDistance calculates the distance between two valid Zip3s
 func (p *herePlanner) Zip3TransitDistance(source string, destination string) (int, error) {
 	distance, err := zip3TransitDistanceHelper(p, source, destination)
 	if err != nil {
@@ -220,6 +223,7 @@ func (p *herePlanner) Zip3TransitDistance(source string, destination string) (in
 	return distance, err
 }
 
+// TransitDistance calculates the distance between two valid addresses
 func (p *herePlanner) TransitDistance(source *models.Address, destination *models.Address) (int, error) {
 
 	// Convert addresses to LatLong using geocode API. Do via goroutines and channel so we can do two
