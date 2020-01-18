@@ -60,11 +60,13 @@ Turns the input addresses into `LatLong` data via HERE geocoder endpoint, and th
 
 #### Zip5TransitDistance
 
-Uses the `Zip5ToLatLong` method to turn the input Zip5's into `LatLong` data and then uses the `LatLongTransitDistance` method to determine the distance.
+Uses the `Zip5ToLatLong` method to turn the input Zip5s into `LatLong` data and then uses the `LatLongTransitDistance` method to determine the distance.
 
 #### Zip3TransitDistance
 
 `Zip3TransitDistance` is unimplemented and always returns a `NewUnsupportedPostalCodeError`
+
+This method was added to support the requirement that some service item pricing in the rate engine, ie Domestic Linehaul, will use Zip3 based distance calculations. This expectation is documented in the [service item pricing spreadsheet](https://docs.google.com/spreadsheets/d/1NRbxHmvaWV6aXQrxQ2LJhkc5tClAl3Eb1-MRxZ123Tw/edit#gid=0) (Google Docs Link). However, the HERE api uses pre-calculated Zip5 to Latitude and Longitude coordinate map to turn Zip5s into coordinates and then uses the LatLongTransitDistance function to return a distance. Since currently there is no such Zip3 to Latitude and Longitude coordinates map there is no way to do a similar calculation of distance. In talking with product about this we decided if there was not an easy way to implement Zip3 distance in HERE we would only add a stub so that work could continue until a new 3rd party planner, ie Rand McNally, was implemented and could supply a valid Zip3 to Zip3 distance calculation.
 
 #### LatLongTransitDistance
 
@@ -80,7 +82,7 @@ This is an implementation of the Planner interface to be used in various tests.
 
 ## Zip5ToLatLong
 
-The HERE API relies on zip to LatLong data from the [free zip code data project](https://github.com/midwire/free_zipcode_data). This data was used to create a static map of Zip5's to LatLong tuples in
+The HERE API relies on zip to LatLong data from the [free zip code data project](https://github.com/midwire/free_zipcode_data). This data was used to create a static map of Zip5s to LatLong tuples in
 `pkg/route/zip_locale.go`. This file also contains the method which can be used to lookup the data.
 
 ## Chamber
