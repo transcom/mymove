@@ -12,7 +12,6 @@ export const ppmInfoPacket = '/downloads/ppm_info_sheet.pdf';
 export const hostname = window && window.location && window.location.hostname;
 export const isMilmoveSite = hostname.startsWith('my') || hostname.startsWith('mil') || '';
 export const isOfficeSite = hostname.startsWith('office') || '';
-export const isTspSite = hostname.startsWith('tsp') || '';
 export const isAdminSite = hostname.startsWith('admin') || '';
 export const isSystemAdminSite = isAdminSite; // once we start building program admin, we can flesh this out
 
