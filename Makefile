@@ -656,10 +656,6 @@ e2e_test_docker_mymove: ## Run e2e (end-to-end) Service Member integration tests
 e2e_test_docker_office: ## Run e2e (end-to-end) Office integration tests with docker
 	$(AWS_VAULT) SPEC=cypress/integration/office/**/* ./scripts/run-e2e-test-docker
 
-.PHONY: e2e_test_docker_tsp
-e2e_test_docker_tsp: ## Run e2e (end-to-end) TSP integration tests with docker
-	$(AWS_VAULT) SPEC=cypress/integration/tsp/**/* ./scripts/run-e2e-test-docker
-
 .PHONY: e2e_test_docker_api
 e2e_test_docker_api: ## Run e2e (end-to-end) API integration tests with docker
 	$(AWS_VAULT) SPEC=cypress/integration/api/**/* ./scripts/run-e2e-test-docker
