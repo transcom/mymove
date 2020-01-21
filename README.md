@@ -404,6 +404,10 @@ This means that logging *is not* set up from within models or other packages unl
 
 If you need to see some output during the development process (say, for debugging purposes), it is best to use the standard lib `fmt` package to print to the screen. You will also need to pass `-v` to `go test` so that it prints all output, even from passing tests. The simplest way to do this is to run `go test` yourself by passing it which files to run, e.g. `go test pkg/models/* -v`.
 
+#### Log files
+
+In development mode, logs from the `milmove` process are written to `logs/dev.log`.
+
 ### Database
 
 * Read [Querying the Database Safely](https://github.com/transcom/mymove/blob/master/docs/backend.md#querying-the-database-safely) to prevent SQL injections! *
