@@ -50,5 +50,6 @@ readonly image="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/ap
 scripts/ecs-deploy-service-container app "${image}" "${APP_ENVIRONMENT}"
 
 bin/health-checker --schemes http,https --hosts "${health_check_hosts}" --tries 10 --backoff 3 --log-level info --timeout 15m
+bin/tls-checker --schemes https --hosts "${health_check_hosts}" --log-level info --timeout 15m
 
 scripts/check-deployed-commit "${health_check_hosts}" "${CIRCLE_SHA1}"

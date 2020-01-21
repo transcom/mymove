@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 )
 
@@ -75,6 +76,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MtoServiceItemListMTOServiceItemsHandler: mto_service_item.ListMTOServiceItemsHandlerFunc(func(params mto_service_item.ListMTOServiceItemsParams) middleware.Responder {
 			return middleware.NotImplemented("operation MtoServiceItemListMTOServiceItems has not yet been implemented")
+		}),
+		MtoShipmentListMTOShipmentsHandler: mto_shipment.ListMTOShipmentsHandlerFunc(func(params mto_shipment.ListMTOShipmentsParams) middleware.Responder {
+			return middleware.NotImplemented("operation MtoShipmentListMTOShipments has not yet been implemented")
 		}),
 		MoveOrderListMoveOrdersHandler: move_order.ListMoveOrdersHandlerFunc(func(params move_order.ListMoveOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveOrderListMoveOrders has not yet been implemented")
@@ -156,6 +160,8 @@ type MymoveAPI struct {
 	PaymentRequestsGetPaymentRequestHandler payment_requests.GetPaymentRequestHandler
 	// MtoServiceItemListMTOServiceItemsHandler sets the operation handler for the list m t o service items operation
 	MtoServiceItemListMTOServiceItemsHandler mto_service_item.ListMTOServiceItemsHandler
+	// MtoShipmentListMTOShipmentsHandler sets the operation handler for the list m t o shipments operation
+	MtoShipmentListMTOShipmentsHandler mto_shipment.ListMTOShipmentsHandler
 	// MoveOrderListMoveOrdersHandler sets the operation handler for the list move orders operation
 	MoveOrderListMoveOrdersHandler move_order.ListMoveOrdersHandler
 	// MoveOrderListMoveTaskOrdersHandler sets the operation handler for the list move task orders operation
@@ -279,6 +285,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.MtoServiceItemListMTOServiceItemsHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.ListMTOServiceItemsHandler")
+	}
+
+	if o.MtoShipmentListMTOShipmentsHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.ListMTOShipmentsHandler")
 	}
 
 	if o.MoveOrderListMoveOrdersHandler == nil {
@@ -469,6 +479,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move_task_orders/{moveTaskOrderID}/mto_service_items"] = mto_service_item.NewListMTOServiceItems(o.context, o.MtoServiceItemListMTOServiceItemsHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/move_task_orders/{moveTaskOrderID}/mto_shipments"] = mto_shipment.NewListMTOShipments(o.context, o.MtoShipmentListMTOShipmentsHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

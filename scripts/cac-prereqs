@@ -22,8 +22,13 @@ if [[ ! -x "${PKCS15}" ]]; then
   exit 1
 fi
 
-if [[ ! -f "${MODULE}" ]]; then
-  echo "${MODULE} has not been installed"
+OS_VERSION=$(/usr/bin/sw_vers -productVersion)
+MAC_OS="10.15"
+if [[ $OS_VERSION != *$MAC_OS* && ! -f "${MODULE}" ]]; then
+  echo "${MODULE} must be installed for MacOS versions prior to ${MAC_OS}"
   echo "Please visit http://militarycac.org/MacVideos.htm#CACKey_packages and follow instructions to install"
+  exit 1
+elif [[ -f "${MODULE}" ]]; then
+  echo "${MODULE} must be removed for MacOS versions equal to or after ${MAC_OS}"
   exit 1
 fi

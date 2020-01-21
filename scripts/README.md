@@ -34,6 +34,7 @@ These scripts are used to operate the system.
 | Script Name | Description |
 | --- | --- |
 | `download-alb-logs` | Download alb logs for the given environment and dates to a local folder |
+| `health-tls-check` | Run health and TLS version checks. |
 | `scan-alb-logs` | Scan alb logs for specific http codes. |
 
 ## Pre-commit Scripts

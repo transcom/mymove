@@ -6,7 +6,7 @@ require (
 	github.com/0xAX/notificator v0.0.0-20191016112426-3962a5ea8da1 // indirect
 	github.com/99designs/aws-vault v4.5.1+incompatible
 	github.com/99designs/keyring v1.1.3
-	github.com/aws/aws-sdk-go v1.28.2
+	github.com/aws/aws-sdk-go v1.28.5
 	github.com/cockroachdb/cockroach-go v0.0.0-20190925194419-606b3d062051 // indirect
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
@@ -47,7 +47,7 @@ require (
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/leodido/go-urn v1.2.0
 	github.com/lib/pq v1.3.0
-	github.com/markbates/goth v1.60.0
+	github.com/markbates/goth v1.61.0
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.10 // indirect
 	github.com/mattn/go-shellwords v1.0.6 // indirect
@@ -61,7 +61,7 @@ require (
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/pflag v1.0.5
-	github.com/spf13/viper v1.6.1
+	github.com/spf13/viper v1.6.2
 	github.com/stretchr/objx v0.2.0
 	github.com/stretchr/testify v1.4.0
 	github.com/tealeg/xlsx v1.0.5

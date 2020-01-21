@@ -49,6 +49,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		PrimeEstimatedWeight:             &estimatedWeight,
 		PrimeEstimatedWeightRecordedDate: &primeEstimatedWeightDate,
 		PrimeActualWeight:                &actualWeight,
+		ShipmentType:                     models.MTOShipmentTypeHHG,
 	}
 	// Overwrite values with those from assertions
 	mergeModels(&MTOShipment, assertions.MTOShipment)
