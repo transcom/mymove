@@ -537,6 +537,224 @@ func init() {
         }
       ]
     },
+    "/move_task_orders/{moveTaskOrderID}/mto_shipments": {
+      "post": {
+        "description": "Creates an instance of shipments tied to amove task order",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment",
+          "prime"
+        ],
+        "summary": "Creates a shipment for a move task order",
+        "operationId": "createMTOShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "required": [
+                "scheduledPickupDate",
+                "requestedPickupDate",
+                "shipmentType",
+                "pickupAddress",
+                "deliveryAddress"
+              ],
+              "properties": {
+                "customerRemarks": {
+                  "type": "string",
+                  "example": "handle with care"
+                },
+                "deliveryAddress": {
+                  "$ref": "#/definitions/Address"
+                },
+                "pickupAddress": {
+                  "$ref": "#/definitions/Address"
+                },
+                "requestedPickupDate": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "scheduledPickupDate": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "secondaryDeliveryAddress": {
+                  "$ref": "#/definitions/Address"
+                },
+                "secondaryPickupAddress": {
+                  "$ref": "#/definitions/Address"
+                },
+                "shipmentType": {
+                  "enum": [
+                    "HHG",
+                    "INTERNATIONAL_HHG",
+                    "INTERNATIONAL_UB"
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created instance of mto shipment",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
+    },
+    "/move_task_orders/{moveTaskOrderID}/mto_shipments/{mtoShipmentID}": {
+      "put": {
+        "tags": [
+          "mtoShipment",
+          "prime"
+        ],
+        "summary": "Updates mto shipment",
+        "operationId": "updateMTOShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "customerRemarks": {
+                  "type": "string",
+                  "example": "handle with care"
+                },
+                "deliveryAddress": {
+                  "$ref": "#/definitions/Address"
+                },
+                "pickupAddress": {
+                  "$ref": "#/definitions/Address"
+                },
+                "requestedPickupDate": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "scheduledPickupDate": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "secondaryDeliveryAddress": {
+                  "$ref": "#/definitions/Address"
+                },
+                "secondaryPickupAddress": {
+                  "$ref": "#/definitions/Address"
+                },
+                "shipmentType": {
+                  "enum": [
+                    "HHG",
+                    "INTERNATIONAL_HHG",
+                    "INTERNATIONAL_UB"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Unmodified-Since",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of mto shipment",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "412": {
+            "description": "precondition failed"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/payment-requests": {
       "post": {
         "description": "Creates a payment request",
@@ -907,6 +1125,53 @@ func init() {
         "message": {
           "type": "string"
         }
+      }
+    },
+    "MTOShipment": {
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "customerRemarks": {
+          "type": "string",
+          "example": "handle with care"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "scheduledPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "shipmentType": {
+          "enum": [
+            "HHG",
+            "INTERNATIONAL_HHG",
+            "INTERNATIONAL_UB"
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "MTOShipments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOShipment"
       }
     },
     "MoveOrder": {
@@ -1765,6 +2030,248 @@ func init() {
         }
       ]
     },
+    "/move_task_orders/{moveTaskOrderID}/mto_shipments": {
+      "post": {
+        "description": "Creates an instance of shipments tied to amove task order",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment",
+          "prime"
+        ],
+        "summary": "Creates a shipment for a move task order",
+        "operationId": "createMTOShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "required": [
+                "scheduledPickupDate",
+                "requestedPickupDate",
+                "shipmentType",
+                "pickupAddress",
+                "deliveryAddress"
+              ],
+              "properties": {
+                "customerRemarks": {
+                  "type": "string",
+                  "example": "handle with care"
+                },
+                "deliveryAddress": {
+                  "$ref": "#/definitions/Address"
+                },
+                "pickupAddress": {
+                  "$ref": "#/definitions/Address"
+                },
+                "requestedPickupDate": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "scheduledPickupDate": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "secondaryDeliveryAddress": {
+                  "$ref": "#/definitions/Address"
+                },
+                "secondaryPickupAddress": {
+                  "$ref": "#/definitions/Address"
+                },
+                "shipmentType": {
+                  "enum": [
+                    "HHG",
+                    "INTERNATIONAL_HHG",
+                    "INTERNATIONAL_UB"
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created instance of mto shipment",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/move_task_orders/{moveTaskOrderID}/mto_shipments/{mtoShipmentID}": {
+      "put": {
+        "tags": [
+          "mtoShipment",
+          "prime"
+        ],
+        "summary": "Updates mto shipment",
+        "operationId": "updateMTOShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "customerRemarks": {
+                  "type": "string",
+                  "example": "handle with care"
+                },
+                "deliveryAddress": {
+                  "$ref": "#/definitions/Address"
+                },
+                "pickupAddress": {
+                  "$ref": "#/definitions/Address"
+                },
+                "requestedPickupDate": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "scheduledPickupDate": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "secondaryDeliveryAddress": {
+                  "$ref": "#/definitions/Address"
+                },
+                "secondaryPickupAddress": {
+                  "$ref": "#/definitions/Address"
+                },
+                "shipmentType": {
+                  "enum": [
+                    "HHG",
+                    "INTERNATIONAL_HHG",
+                    "INTERNATIONAL_UB"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "type": "string",
+            "name": "If-Unmodified-Since",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of mto shipment",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "precondition failed"
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/payment-requests": {
       "post": {
         "description": "Creates a payment request",
@@ -2150,6 +2657,53 @@ func init() {
         "message": {
           "type": "string"
         }
+      }
+    },
+    "MTOShipment": {
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date"
+        },
+        "customerRemarks": {
+          "type": "string",
+          "example": "handle with care"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "scheduledPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "shipmentType": {
+          "enum": [
+            "HHG",
+            "INTERNATIONAL_HHG",
+            "INTERNATIONAL_UB"
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "MTOShipments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOShipment"
       }
     },
     "MoveOrder": {

@@ -20,6 +20,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_requests"
 )
 
@@ -40,6 +41,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		BearerAuthenticator: security.BearerAuth,
 		JSONConsumer:        runtime.JSONConsumer(),
 		JSONProducer:        runtime.JSONProducer(),
+		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation MtoShipmentCreateMTOShipment has not yet been implemented")
+		}),
 		PaymentRequestsCreatePaymentRequestHandler: payment_requests.CreatePaymentRequestHandlerFunc(func(params payment_requests.CreatePaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation PaymentRequestsCreatePaymentRequest has not yet been implemented")
 		}),
@@ -51,6 +55,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MoveTaskOrderGetPrimeEntitlementsHandler: move_task_order.GetPrimeEntitlementsHandlerFunc(func(params move_task_order.GetPrimeEntitlementsParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderGetPrimeEntitlements has not yet been implemented")
+		}),
+		MtoShipmentUpdateMTOShipmentHandler: mto_shipment.UpdateMTOShipmentHandlerFunc(func(params mto_shipment.UpdateMTOShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation MtoShipmentUpdateMTOShipment has not yet been implemented")
 		}),
 		MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler: move_task_order.UpdateMoveTaskOrderActualWeightHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderActualWeightParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderUpdateMoveTaskOrderActualWeight has not yet been implemented")
@@ -95,6 +102,8 @@ type MymoveAPI struct {
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
+	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
+	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
 	// PaymentRequestsCreatePaymentRequestHandler sets the operation handler for the create payment request operation
 	PaymentRequestsCreatePaymentRequestHandler payment_requests.CreatePaymentRequestHandler
 	// MoveTaskOrderFetchMTOUpdatesHandler sets the operation handler for the fetch m t o updates operation
@@ -103,6 +112,8 @@ type MymoveAPI struct {
 	MoveTaskOrderGetMoveTaskOrderCustomerHandler move_task_order.GetMoveTaskOrderCustomerHandler
 	// MoveTaskOrderGetPrimeEntitlementsHandler sets the operation handler for the get prime entitlements operation
 	MoveTaskOrderGetPrimeEntitlementsHandler move_task_order.GetPrimeEntitlementsHandler
+	// MtoShipmentUpdateMTOShipmentHandler sets the operation handler for the update m t o shipment operation
+	MtoShipmentUpdateMTOShipmentHandler mto_shipment.UpdateMTOShipmentHandler
 	// MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler sets the operation handler for the update move task order actual weight operation
 	MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler move_task_order.UpdateMoveTaskOrderActualWeightHandler
 	// MoveTaskOrderUpdateMoveTaskOrderDestinationAddressHandler sets the operation handler for the update move task order destination address operation
@@ -174,6 +185,10 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.MtoShipmentCreateMTOShipmentHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
+	}
+
 	if o.PaymentRequestsCreatePaymentRequestHandler == nil {
 		unregistered = append(unregistered, "payment_requests.CreatePaymentRequestHandler")
 	}
@@ -188,6 +203,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.MoveTaskOrderGetPrimeEntitlementsHandler == nil {
 		unregistered = append(unregistered, "move_task_order.GetPrimeEntitlementsHandler")
+	}
+
+	if o.MtoShipmentUpdateMTOShipmentHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.UpdateMTOShipmentHandler")
 	}
 
 	if o.MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler == nil {
@@ -307,6 +326,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
+	o.handlers["POST"]["/move_task_orders/{moveTaskOrderID}/mto_shipments"] = mto_shipment.NewCreateMTOShipment(o.context, o.MtoShipmentCreateMTOShipmentHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
 	o.handlers["POST"]["/payment-requests"] = payment_requests.NewCreatePaymentRequest(o.context, o.PaymentRequestsCreatePaymentRequestHandler)
 
 	if o.handlers["GET"] == nil {
@@ -323,6 +347,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/prime-entitlements"] = move_task_order.NewGetPrimeEntitlements(o.context, o.MoveTaskOrderGetPrimeEntitlementsHandler)
+
+	if o.handlers["PUT"] == nil {
+		o.handlers["PUT"] = make(map[string]http.Handler)
+	}
+	o.handlers["PUT"]["/move_task_orders/{moveTaskOrderID}/mto_shipments/{mtoShipmentID}"] = mto_shipment.NewUpdateMTOShipment(o.context, o.MtoShipmentUpdateMTOShipmentHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
