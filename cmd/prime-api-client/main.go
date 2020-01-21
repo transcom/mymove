@@ -16,8 +16,9 @@ import (
 	"github.com/spf13/viper"
 	"github.com/tcnksm/go-input"
 
-	primeClient "github.com/transcom/mymove/pkg/gen/primeclient"
 	"github.com/transcom/nom/pkg/pkcs11"
+
+	primeClient "github.com/transcom/mymove/pkg/gen/primeclient"
 )
 
 const (

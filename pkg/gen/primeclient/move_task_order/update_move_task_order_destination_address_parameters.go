@@ -16,7 +16,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	models "github.com/transcom/mymove/pkg/gen/models"
+	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // NewUpdateMoveTaskOrderDestinationAddressParams creates a new UpdateMoveTaskOrderDestinationAddressParams object
@@ -64,7 +64,7 @@ for the update move task order destination address operation typically these are
 type UpdateMoveTaskOrderDestinationAddressParams struct {
 
 	/*DestinationAddress*/
-	DestinationAddress *models.Address
+	DestinationAddress *primemessages.Address
 	/*MoveTaskOrderID
 	  ID of move order to use
 
@@ -110,13 +110,13 @@ func (o *UpdateMoveTaskOrderDestinationAddressParams) SetHTTPClient(client *http
 }
 
 // WithDestinationAddress adds the destinationAddress to the update move task order destination address params
-func (o *UpdateMoveTaskOrderDestinationAddressParams) WithDestinationAddress(destinationAddress *models.Address) *UpdateMoveTaskOrderDestinationAddressParams {
+func (o *UpdateMoveTaskOrderDestinationAddressParams) WithDestinationAddress(destinationAddress *primemessages.Address) *UpdateMoveTaskOrderDestinationAddressParams {
 	o.SetDestinationAddress(destinationAddress)
 	return o
 }
 
 // SetDestinationAddress adds the destinationAddress to the update move task order destination address params
-func (o *UpdateMoveTaskOrderDestinationAddressParams) SetDestinationAddress(destinationAddress *models.Address) {
+func (o *UpdateMoveTaskOrderDestinationAddressParams) SetDestinationAddress(destinationAddress *primemessages.Address) {
 	o.DestinationAddress = destinationAddress
 }
 

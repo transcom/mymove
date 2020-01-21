@@ -14,7 +14,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	models "github.com/transcom/mymove/pkg/gen/models"
+	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // UpdateMoveTaskOrderEstimatedWeightReader is a Reader for the UpdateMoveTaskOrderEstimatedWeight structure.
@@ -77,20 +77,20 @@ func NewUpdateMoveTaskOrderEstimatedWeightOK() *UpdateMoveTaskOrderEstimatedWeig
 Successfully retrieved move task order
 */
 type UpdateMoveTaskOrderEstimatedWeightOK struct {
-	Payload *models.MoveTaskOrder
+	Payload *primemessages.MoveTaskOrder
 }
 
 func (o *UpdateMoveTaskOrderEstimatedWeightOK) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/prime-estimated-weight][%d] updateMoveTaskOrderEstimatedWeightOK  %+v", 200, o.Payload)
 }
 
-func (o *UpdateMoveTaskOrderEstimatedWeightOK) GetPayload() *models.MoveTaskOrder {
+func (o *UpdateMoveTaskOrderEstimatedWeightOK) GetPayload() *primemessages.MoveTaskOrder {
 	return o.Payload
 }
 
 func (o *UpdateMoveTaskOrderEstimatedWeightOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.MoveTaskOrder)
+	o.Payload = new(primemessages.MoveTaskOrder)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -203,20 +203,20 @@ func NewUpdateMoveTaskOrderEstimatedWeightUnprocessableEntity() *UpdateMoveTaskO
 The request payload is invalid
 */
 type UpdateMoveTaskOrderEstimatedWeightUnprocessableEntity struct {
-	Payload *models.ValidationError
+	Payload *primemessages.ValidationError
 }
 
 func (o *UpdateMoveTaskOrderEstimatedWeightUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/prime-estimated-weight][%d] updateMoveTaskOrderEstimatedWeightUnprocessableEntity  %+v", 422, o.Payload)
 }
 
-func (o *UpdateMoveTaskOrderEstimatedWeightUnprocessableEntity) GetPayload() *models.ValidationError {
+func (o *UpdateMoveTaskOrderEstimatedWeightUnprocessableEntity) GetPayload() *primemessages.ValidationError {
 	return o.Payload
 }
 
 func (o *UpdateMoveTaskOrderEstimatedWeightUnprocessableEntity) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.ValidationError)
+	o.Payload = new(primemessages.ValidationError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

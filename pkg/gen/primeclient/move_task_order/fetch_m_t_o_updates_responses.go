@@ -13,7 +13,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	models "github.com/transcom/mymove/pkg/gen/models"
+	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // FetchMTOUpdatesReader is a Reader for the FetchMTOUpdates structure.
@@ -76,14 +76,14 @@ func NewFetchMTOUpdatesOK() *FetchMTOUpdatesOK {
 Successfully retrieved all move task orders
 */
 type FetchMTOUpdatesOK struct {
-	Payload models.MoveTaskOrders
+	Payload primemessages.MoveTaskOrders
 }
 
 func (o *FetchMTOUpdatesOK) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders][%d] fetchMTOUpdatesOK  %+v", 200, o.Payload)
 }
 
-func (o *FetchMTOUpdatesOK) GetPayload() models.MoveTaskOrders {
+func (o *FetchMTOUpdatesOK) GetPayload() primemessages.MoveTaskOrders {
 	return o.Payload
 }
 

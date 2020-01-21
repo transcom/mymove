@@ -13,7 +13,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	models "github.com/transcom/mymove/pkg/gen/models"
+	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // GetPrimeEntitlementsReader is a Reader for the GetPrimeEntitlements structure.
@@ -76,20 +76,20 @@ func NewGetPrimeEntitlementsOK() *GetPrimeEntitlementsOK {
 Successfully retrieved entitlements
 */
 type GetPrimeEntitlementsOK struct {
-	Payload *models.Entitlements
+	Payload *primemessages.Entitlements
 }
 
 func (o *GetPrimeEntitlementsOK) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/prime-entitlements][%d] getPrimeEntitlementsOK  %+v", 200, o.Payload)
 }
 
-func (o *GetPrimeEntitlementsOK) GetPayload() *models.Entitlements {
+func (o *GetPrimeEntitlementsOK) GetPayload() *primemessages.Entitlements {
 	return o.Payload
 }
 
 func (o *GetPrimeEntitlementsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.Entitlements)
+	o.Payload = new(primemessages.Entitlements)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

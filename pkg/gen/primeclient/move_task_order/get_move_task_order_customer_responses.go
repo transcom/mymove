@@ -13,7 +13,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	models "github.com/transcom/mymove/pkg/gen/models"
+	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // GetMoveTaskOrderCustomerReader is a Reader for the GetMoveTaskOrderCustomer structure.
@@ -76,20 +76,20 @@ func NewGetMoveTaskOrderCustomerOK() *GetMoveTaskOrderCustomerOK {
 Successfully retrieved customer associated with move task order
 */
 type GetMoveTaskOrderCustomerOK struct {
-	Payload *models.Customer
+	Payload *primemessages.Customer
 }
 
 func (o *GetMoveTaskOrderCustomerOK) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/customer][%d] getMoveTaskOrderCustomerOK  %+v", 200, o.Payload)
 }
 
-func (o *GetMoveTaskOrderCustomerOK) GetPayload() *models.Customer {
+func (o *GetMoveTaskOrderCustomerOK) GetPayload() *primemessages.Customer {
 	return o.Payload
 }
 
 func (o *GetMoveTaskOrderCustomerOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.Customer)
+	o.Payload = new(primemessages.Customer)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -202,20 +202,20 @@ func NewGetMoveTaskOrderCustomerUnprocessableEntity() *GetMoveTaskOrderCustomerU
 The request payload is invalid
 */
 type GetMoveTaskOrderCustomerUnprocessableEntity struct {
-	Payload *models.ValidationError
+	Payload *primemessages.ValidationError
 }
 
 func (o *GetMoveTaskOrderCustomerUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[GET /move-task-orders/{moveTaskOrderID}/customer][%d] getMoveTaskOrderCustomerUnprocessableEntity  %+v", 422, o.Payload)
 }
 
-func (o *GetMoveTaskOrderCustomerUnprocessableEntity) GetPayload() *models.ValidationError {
+func (o *GetMoveTaskOrderCustomerUnprocessableEntity) GetPayload() *primemessages.ValidationError {
 	return o.Payload
 }
 
 func (o *GetMoveTaskOrderCustomerUnprocessableEntity) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.ValidationError)
+	o.Payload = new(primemessages.ValidationError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

@@ -13,7 +13,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	models "github.com/transcom/mymove/pkg/gen/models"
+	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // CreatePaymentRequestReader is a Reader for the CreatePaymentRequest structure.
@@ -76,20 +76,20 @@ func NewCreatePaymentRequestCreated() *CreatePaymentRequestCreated {
 created instance of payment request
 */
 type CreatePaymentRequestCreated struct {
-	Payload *models.PaymentRequest
+	Payload *primemessages.PaymentRequest
 }
 
 func (o *CreatePaymentRequestCreated) Error() string {
 	return fmt.Sprintf("[POST /payment-requests][%d] createPaymentRequestCreated  %+v", 201, o.Payload)
 }
 
-func (o *CreatePaymentRequestCreated) GetPayload() *models.PaymentRequest {
+func (o *CreatePaymentRequestCreated) GetPayload() *primemessages.PaymentRequest {
 	return o.Payload
 }
 
 func (o *CreatePaymentRequestCreated) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.PaymentRequest)
+	o.Payload = new(primemessages.PaymentRequest)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {

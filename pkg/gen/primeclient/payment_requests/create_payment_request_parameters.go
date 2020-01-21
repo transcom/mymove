@@ -16,7 +16,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	models "github.com/transcom/mymove/pkg/gen/models"
+	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // NewCreatePaymentRequestParams creates a new CreatePaymentRequestParams object
@@ -64,7 +64,7 @@ for the create payment request operation typically these are written to a http.R
 type CreatePaymentRequestParams struct {
 
 	/*Body*/
-	Body *models.CreatePaymentRequestPayload
+	Body *primemessages.CreatePaymentRequestPayload
 
 	timeout    time.Duration
 	Context    context.Context
@@ -105,13 +105,13 @@ func (o *CreatePaymentRequestParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the create payment request params
-func (o *CreatePaymentRequestParams) WithBody(body *models.CreatePaymentRequestPayload) *CreatePaymentRequestParams {
+func (o *CreatePaymentRequestParams) WithBody(body *primemessages.CreatePaymentRequestPayload) *CreatePaymentRequestParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the create payment request params
-func (o *CreatePaymentRequestParams) SetBody(body *models.CreatePaymentRequestPayload) {
+func (o *CreatePaymentRequestParams) SetBody(body *primemessages.CreatePaymentRequestPayload) {
 	o.Body = body
 }
 

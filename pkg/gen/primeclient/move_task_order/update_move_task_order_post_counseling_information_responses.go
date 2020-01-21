@@ -16,7 +16,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	models "github.com/transcom/mymove/pkg/gen/models"
+	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // UpdateMoveTaskOrderPostCounselingInformationReader is a Reader for the UpdateMoveTaskOrderPostCounselingInformation structure.
@@ -79,20 +79,20 @@ func NewUpdateMoveTaskOrderPostCounselingInformationOK() *UpdateMoveTaskOrderPos
 Successfully updated move task order post counseling information
 */
 type UpdateMoveTaskOrderPostCounselingInformationOK struct {
-	Payload *models.MoveTaskOrder
+	Payload *primemessages.MoveTaskOrder
 }
 
 func (o *UpdateMoveTaskOrderPostCounselingInformationOK) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMoveTaskOrderPostCounselingInformationOK  %+v", 200, o.Payload)
 }
 
-func (o *UpdateMoveTaskOrderPostCounselingInformationOK) GetPayload() *models.MoveTaskOrder {
+func (o *UpdateMoveTaskOrderPostCounselingInformationOK) GetPayload() *primemessages.MoveTaskOrder {
 	return o.Payload
 }
 
 func (o *UpdateMoveTaskOrderPostCounselingInformationOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.MoveTaskOrder)
+	o.Payload = new(primemessages.MoveTaskOrder)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -205,20 +205,20 @@ func NewUpdateMoveTaskOrderPostCounselingInformationUnprocessableEntity() *Updat
 The request payload is invalid
 */
 type UpdateMoveTaskOrderPostCounselingInformationUnprocessableEntity struct {
-	Payload *models.ValidationError
+	Payload *primemessages.ValidationError
 }
 
 func (o *UpdateMoveTaskOrderPostCounselingInformationUnprocessableEntity) Error() string {
 	return fmt.Sprintf("[PATCH /move-task-orders/{moveTaskOrderID}/post-counseling-info][%d] updateMoveTaskOrderPostCounselingInformationUnprocessableEntity  %+v", 422, o.Payload)
 }
 
-func (o *UpdateMoveTaskOrderPostCounselingInformationUnprocessableEntity) GetPayload() *models.ValidationError {
+func (o *UpdateMoveTaskOrderPostCounselingInformationUnprocessableEntity) GetPayload() *primemessages.ValidationError {
 	return o.Payload
 }
 
 func (o *UpdateMoveTaskOrderPostCounselingInformationUnprocessableEntity) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.ValidationError)
+	o.Payload = new(primemessages.ValidationError)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -272,10 +272,10 @@ type UpdateMoveTaskOrderPostCounselingInformationBody struct {
 	ScheduledMoveDate strfmt.Date `json:"scheduled-move-date,omitempty"`
 
 	// secondary delivery address
-	SecondaryDeliveryAddress *models.Address `json:"secondary-delivery-address,omitempty"`
+	SecondaryDeliveryAddress *primemessages.Address `json:"secondary-delivery-address,omitempty"`
 
 	// secondary pickup address
-	SecondaryPickupAddress *models.Address `json:"secondary-pickup-address,omitempty"`
+	SecondaryPickupAddress *primemessages.Address `json:"secondary-pickup-address,omitempty"`
 }
 
 // Validate validates this update move task order post counseling information body
