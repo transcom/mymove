@@ -61,6 +61,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
     * [Postgres Issues](#postgres-issues)
     * [Development Machine Timezone Issues](#development-machine-timezone-issues)
     * [Linters & Pre-commit Hooks](#linters--pre-commit-hooks)
+    * [Yarn install markdown-spell (aka mdspell)](#yarn-install-markdown-spell-aka-mdspell)
 
 Regenerate with "pre-commit run -a markdown-toc"
 
@@ -569,3 +570,29 @@ Doing so will set the timezone environment variable to UTC utilizing the same lo
 #### Linters & Pre-commit Hooks
 
 We use a number of linters for formatting, security and error checking. Please see this [how-to document](./docs/how-to/run-pre-commit-hooks.md) for a list of linters and troubleshooting tips.
+
+#### Yarn install markdown-spell (aka mdspell)
+
+We use `mdspell` for spell checking markdown files during pre-commit hooks. You may run into an issue such as below during the installation command `yarn global add markdown-spellcheck` suggested by the Makefile.
+
+Example error:
+
+```sh
+>$ yarn global add markdown-spellcheck
+
+yarn global v1.19.0
+[1/4] :mag:  Resolving packages...
+[2/4] :truck:  Fetching packages...
+error An unexpected error occurred: "https://registry.yarnpkg.com/har-validator/-/har-validator-5.1.2.tgz: Request failed \"404 Not Found\"".
+info If you think this is a bug, please open a bug report with the information provided in "/Users/john/.config/yarn/global/yarn-error.log".
+info Visit https://yarnpkg.com/en/docs/cli/global for documentation about this command.
+```
+
+If you do, following these steps may resolve it.
+
+```sh
+rm ~/.config/yarn/global/yarn.lock
+cd ~/.config/yarn/global
+yarn cache clean
+yarn global add markdown-spellcheck
+```
