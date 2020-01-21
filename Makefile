@@ -51,8 +51,6 @@ endif
 help:  ## Print the help documentation
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-# Make sure we have a log directory
-$(shell  mkdir -p log)
 
 #
 # ----- END PREAMBLE -----
@@ -133,6 +131,11 @@ test: client_test server_test e2e_test ## Run all tests
 .PHONY: diagnostic
 diagnostic: .prereqs.stamp check_docker_size ## Run diagnostic scripts on environment
 
+.PHONY: check_log_dir
+check_log_dir:
+	mkdir -p log
+
+# Make sure we have a log directory
 #
 # ----- END CHECK TARGETS -----
 #
@@ -313,7 +316,7 @@ server_build_linux: ## Build the server (linux)
 
 # This command is for running the server by itself, it will serve the compiled frontend on its own
 # Note: Don't double wrap with aws-vault because the pkg/cli/vault.go will handle it
-server_run_standalone: server_build client_build db_dev_run
+server_run_standalone: check_log_dir server_build client_build db_dev_run
 	DEBUG_LOGGING=true ./bin/milmove serve 2>&1 | tee -a log/dev.log
 
 # This command will rebuild the swagger go code and rerun server on any changes
@@ -322,7 +325,7 @@ server_run:
 # This command runs the server behind gin, a hot-reload server
 # Note: Gin is not being used as a proxy so assigning odd port and laddr to keep in IPv4 space.
 # Note: The INTERFACE envar is set to configure the gin build, milmove_gin, local IP4 space with default port 8080.
-server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp bin/gin build/index.html server_generate db_dev_run
+server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/gin build/index.html server_generate db_dev_run
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) ./bin/gin \
 		--build ./cmd/milmove \
@@ -335,7 +338,7 @@ server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.sta
 		2>&1 | tee -a log/dev.log
 
 .PHONY: server_run_debug
-server_run_debug: ## Debug the server
+server_run_debug: check_log_dir ## Debug the server
 	$(AWS_VAULT) dlv debug cmd/milmove/*.go -- serve 2>&1 | tee -a log/dev.log
 
 .PHONY: build_tools
@@ -668,7 +671,6 @@ e2e_clean: ## Clean e2e (end-to-end) files and docker images
 	rm -rf cypress/screenshots
 	rm -rf cypress/videos
 	rm -rf bin_linux/
-	rm -f log/*.log
 	docker rm -f cypress || true
 
 .PHONY: db_e2e_up
@@ -882,6 +884,7 @@ clean: ## Clean all generated files
 	rm -rf ./tmp/storage
 	rm -rf ./storybook-static
 	rm -rf ./coverage
+	rm -rf ./log
 
 .PHONY: spellcheck
 spellcheck: ## Run interactive spellchecker
