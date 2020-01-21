@@ -18,7 +18,7 @@ type ProofOfServiceDoc struct {
 
 	//Associations
 	PaymentRequest PaymentRequest `belongs_to:"payment_request"`
-	Upload         PaymentRequest `belongs_to:"upload"`
+	Upload         Upload         `belongs_to:"upload"`
 }
 
 // ProofOfServiceDocs is not required by pop and may be deleted

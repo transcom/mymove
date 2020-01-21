@@ -49,6 +49,7 @@ type PaymentRequest struct {
 	// Associations
 	MoveTaskOrder       MoveTaskOrder       `belongs_to:"move_task_orders"`
 	PaymentServiceItems PaymentServiceItems `has_many:"payment_service_items"`
+	ProofOfServiceDocs  ProofOfServiceDocs  `has_many:"proof_of_service_docs"`
 }
 
 type PaymentRequests []PaymentRequest
