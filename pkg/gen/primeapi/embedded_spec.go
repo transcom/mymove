@@ -976,6 +976,52 @@ func init() {
         }
       }
     },
+    "MTOServiceItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "reServiceCode": {
+          "type": "string"
+        },
+        "reServiceID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "reServiceName": {
+          "type": "string"
+        }
+      }
+    },
+    "MTOServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOServiceItem"
+      }
+    },
+    "MTOServiceItemstatus": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "SUBMITTED",
+            "REJECTED"
+          ]
+        }
+      }
+    },
     "MoveOrder": {
       "type": "object",
       "properties": {
@@ -1024,6 +1070,12 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mto_service_items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
         },
         "payment_requests": {
           "type": "array",
@@ -2296,6 +2348,52 @@ func init() {
         }
       }
     },
+    "MTOServiceItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "reServiceCode": {
+          "type": "string"
+        },
+        "reServiceID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "reServiceName": {
+          "type": "string"
+        }
+      }
+    },
+    "MTOServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOServiceItem"
+      }
+    },
+    "MTOServiceItemstatus": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "SUBMITTED",
+            "REJECTED"
+          ]
+        }
+      }
+    },
     "MoveOrder": {
       "type": "object",
       "properties": {
@@ -2344,6 +2442,12 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "mto_service_items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
         },
         "payment_requests": {
           "type": "array",

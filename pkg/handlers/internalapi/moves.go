@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"time"
 
+	"github.com/transcom/mymove/pkg/cli"
+
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/rateengine"
@@ -161,6 +163,13 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	if err != nil {
 		logger.Error("problem sending email to user", zap.Error(err))
 		return handlers.ResponseForError(logger, err)
+	}
+
+	if h.HandlerContext.GetFeatureFlag(cli.FeatureFlagConvertPPMsToGHC) {
+		if _, convertErr := models.ConvertFromPPMToGHC(h.DB(), move.ID); convertErr != nil {
+			logger.Error("problem converting to new data model", zap.Error(err))
+			// don't return an error here because we don't want this to break the endpoint
+		}
 	}
 
 	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)

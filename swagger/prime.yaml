@@ -739,10 +739,47 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/PaymentRequest'
+      mto_service_items:
+        type: array
+        items:
+          $ref: '#/definitions/MTOServiceItem'
   MoveTaskOrders:
     items:
       $ref: '#/definitions/MoveTaskOrder'
     type: array
+  MTOServiceItem:
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        readOnly: true
+        type: string
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reServiceID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reServiceCode:
+        type: string
+      reServiceName:
+        type: string
+    type: object
+  MTOServiceItems:
+    type: array
+    items:
+      $ref: '#/definitions/MTOServiceItem'
+  MTOServiceItemstatus:
+    properties:
+      status:
+        enum:
+          - APPROVED
+          - SUBMITTED
+          - REJECTED
+        type: string
+    type: object
   ProofOfServiceDocs:
     properties:
       uploads:

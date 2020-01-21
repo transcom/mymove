@@ -20,6 +20,7 @@ __snapshots__
 # development
 /mnt
 /tmp
+/log
 
 # All compiled binaries
 /bin/
