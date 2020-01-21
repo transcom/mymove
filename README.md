@@ -47,6 +47,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [API / Swagger](#api--swagger)
   * [Testing](#testing)
   * [Logging](#logging)
+    * [Log files](#log-files)
   * [Database](#database)
     * [Dev DB Commands](#dev-db-commands)
     * [Test DB Commands](#test-db-commands)
