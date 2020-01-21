@@ -77,20 +77,35 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 	activeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{}) // temp user-- will need to be connected to prime
 	testdatagen.MakeDefaultPaymentRequest(suite.DB())
 
-	testFile, err := os.Open("./testdata/test.pdf")
-	suite.NoError(err)
-
 	suite.T().Run("invalid payment request ID", func(t *testing.T) {
+		testFile, err := os.Open("./testdata/test.pdf")
+		suite.NoError(err)
+		defer testFile.Close()
 		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, storer)
-		_, err := uploadCreator.CreateUpload(testFile, uuid.FromStringOrNil("96b77644-4028-48c2-9ab8-754f33309db9"), *activeUser.UserID)
+		_, err = uploadCreator.CreateUpload(testFile, uuid.FromStringOrNil("96b77644-4028-48c2-9ab8-754f33309db9"), *activeUser.UserID)
 		suite.Error(err)
 	})
+
 	suite.T().Run("invalid user ID", func(t *testing.T) {
+		testFile, err := os.Open("./testdata/test.pdf")
+		suite.NoError(err)
+		defer testFile.Close()
+
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, storer)
-		_, err := uploadCreator.CreateUpload(testFile, paymentRequest.ID, uuid.FromStringOrNil("806e2f96-f9f9-4cbb-9a3d-d2f488539a1f"))
+		_, err = uploadCreator.CreateUpload(testFile, paymentRequest.ID, uuid.FromStringOrNil("806e2f96-f9f9-4cbb-9a3d-d2f488539a1f"))
 		suite.Error(err)
 	})
 
-	testFile.Close()
+	suite.T().Run("invalid file type", func(t *testing.T) {
+		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
+		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, storer)
+		wrongTypeFile, err := os.Open("./testdata/test.txt")
+		suite.NoError(err)
+		defer wrongTypeFile.Close()
+
+		_, err = uploadCreator.CreateUpload(wrongTypeFile, paymentRequest.ID, *activeUser.UserID)
+		suite.Error(err)
+	})
+
 }
