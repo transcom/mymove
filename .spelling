@@ -541,4 +541,17 @@ aws-vault-wrapper
 aws
 env
 MacOS
+TransitDistance
+Zip5TransitDistance
+Zip3TransitDistance
+LatLongTransitDistance
+Bing
+Zip5ToLatLong
+geocoder
+LatLong
+Zip3
+Zip5
+Zip5s
+McNally
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
+ - ./docs/backend/route-planner.md
