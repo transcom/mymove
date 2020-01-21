@@ -541,4 +541,6 @@ aws-vault-wrapper
 aws
 env
 MacOS
+mdspell
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
+ - ./README.md
