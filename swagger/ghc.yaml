@@ -509,6 +509,8 @@ paths:
         format: uuid
         type: string
     patch:
+      consumes:
+        - application/json
       produces:
         - application/json
       parameters:

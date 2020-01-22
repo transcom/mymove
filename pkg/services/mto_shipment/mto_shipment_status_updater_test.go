@@ -58,7 +58,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 		updater := NewMTOShipmentStatusUpdater(builder)
 
-		verrs, err := updater.UpdateMTOShipmentStatus(id, "APPROVED")
+		verrs, err := updater.UpdateMTOShipmentStatus(&shipment, "APPROVED")
 		suite.NoError(err)
 		suite.NoVerrs(verrs)
 	})
@@ -80,7 +80,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 		updater := NewMTOShipmentStatusUpdater(builder)
 
-		_, err := updater.UpdateMTOShipmentStatus(id, "Invalid status")
+		_, err := updater.UpdateMTOShipmentStatus(&shipment, "Invalid status")
 		suite.Error(err)
 		suite.Equal(err.Error(), "Update error")
 

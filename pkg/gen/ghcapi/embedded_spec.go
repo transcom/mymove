@@ -1140,6 +1140,9 @@ func init() {
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status": {
       "patch": {
         "description": "Updates a shipment's status",
+        "consumes": [
+          "application/json"
+        ],
         "produces": [
           "application/json"
         ],
@@ -3690,6 +3693,9 @@ func init() {
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status": {
       "patch": {
         "description": "Updates a shipment's status",
+        "consumes": [
+          "application/json"
+        ],
         "produces": [
           "application/json"
         ],

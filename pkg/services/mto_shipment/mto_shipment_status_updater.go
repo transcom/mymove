@@ -2,7 +2,6 @@ package mtoshipment
 
 import (
 	"github.com/gobuffalo/validate"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -17,9 +16,7 @@ type mtoShipmentStatusUpdater struct {
 	builder UpdateMTOShipmentStatusQueryBuilder
 }
 
-func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(id uuid.UUID, status string) (*validate.Errors, error) {
-	shipment := models.MTOShipment{}
-
+func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipment *models.MTOShipment, status string) (*validate.Errors, error) {
 	switch status {
 	case "APPROVED":
 		shipment.Status = models.MTOShipmentStatusApproved
@@ -27,7 +24,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(id uuid.UUID, status 
 		shipment.Status = models.MTOShipmentStatusRejected
 	}
 
-	verrs, err := o.builder.UpdateOne(&shipment)
+	verrs, err := o.builder.UpdateOne(shipment)
 	if verrs != nil || err != nil {
 		return verrs, err
 	}

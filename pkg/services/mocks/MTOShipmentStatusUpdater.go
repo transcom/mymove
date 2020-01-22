@@ -4,8 +4,7 @@ package mocks
 
 import (
 	mock "github.com/stretchr/testify/mock"
-
-	uuid "github.com/gofrs/uuid"
+	models "github.com/transcom/mymove/pkg/models"
 
 	validate "github.com/gobuffalo/validate"
 )
@@ -15,13 +14,13 @@ type MTOShipmentStatusUpdater struct {
 	mock.Mock
 }
 
-// UpdateMTOShipmentStatus provides a mock function with given fields: id, status
-func (_m *MTOShipmentStatusUpdater) UpdateMTOShipmentStatus(id uuid.UUID, status string) (*validate.Errors, error) {
-	ret := _m.Called(id, status)
+// UpdateMTOShipmentStatus provides a mock function with given fields: model, status
+func (_m *MTOShipmentStatusUpdater) UpdateMTOShipmentStatus(model *models.MTOShipment, status string) (*validate.Errors, error) {
+	ret := _m.Called(model, status)
 
 	var r0 *validate.Errors
-	if rf, ok := ret.Get(0).(func(uuid.UUID, string) *validate.Errors); ok {
-		r0 = rf(id, status)
+	if rf, ok := ret.Get(0).(func(*models.MTOShipment, string) *validate.Errors); ok {
+		r0 = rf(model, status)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*validate.Errors)
@@ -29,8 +28,8 @@ func (_m *MTOShipmentStatusUpdater) UpdateMTOShipmentStatus(id uuid.UUID, status
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID, string) error); ok {
-		r1 = rf(id, status)
+	if rf, ok := ret.Get(1).(func(*models.MTOShipment, string) error); ok {
+		r1 = rf(model, status)
 	} else {
 		r1 = ret.Error(1)
 	}
