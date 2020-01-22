@@ -1693,6 +1693,12 @@ func init() {
           "format": "datetime",
           "example": "2018-04-12T23:20:50.52Z"
         },
+        "deletedAt": {
+          "description": "when the role was deleted",
+          "type": "string",
+          "format": "datetime",
+          "example": "2018-04-12T23:20:50.52Z"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -3645,6 +3651,12 @@ func init() {
       "properties": {
         "createdAt": {
           "description": "when the role was created",
+          "type": "string",
+          "format": "datetime",
+          "example": "2018-04-12T23:20:50.52Z"
+        },
+        "deletedAt": {
+          "description": "when the role was deleted",
           "type": "string",
           "format": "datetime",
           "example": "2018-04-12T23:20:50.52Z"

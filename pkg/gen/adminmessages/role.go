@@ -22,6 +22,10 @@ type Role struct {
 	// Format: datetime
 	CreatedAt *strfmt.DateTime `json:"createdAt"`
 
+	// when the role was deleted
+	// Format: datetime
+	DeletedAt strfmt.DateTime `json:"deletedAt,omitempty"`
+
 	// id
 	// Required: true
 	// Format: uuid
@@ -46,6 +50,10 @@ func (m *Role) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDeletedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -78,6 +86,19 @@ func (m *Role) validateCreatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("createdAt", "body", "datetime", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Role) validateDeletedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.DeletedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("deletedAt", "body", "datetime", m.DeletedAt.String(), formats); err != nil {
 		return err
 	}
 

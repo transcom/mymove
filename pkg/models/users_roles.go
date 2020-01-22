@@ -7,9 +7,10 @@ import (
 )
 
 type UsersRoles struct {
-	ID        uuid.UUID `db:"id"`
-	UserID    uuid.UUID `db:"user_id"`
-	RoleID    uuid.UUID `db:"role_id"`
-	CreatedAt time.Time `db:"created_at"`
-	UpdateAt  time.Time `db:"updated_at"`
+	ID        uuid.UUID  `db:"id"`
+	UserID    uuid.UUID  `db:"user_id"`
+	RoleID    uuid.UUID  `db:"role_id"`
+	CreatedAt time.Time  `db:"created_at"`
+	UpdateAt  time.Time  `db:"updated_at"`
+	DeletedAt *time.Time `db:"deleted_at"`
 }

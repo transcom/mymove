@@ -116,7 +116,9 @@ func (h GetOfficeUserHandler) Handle(params officeuserop.GetOfficeUserParams) mi
 	if userError != nil {
 		return handlers.ResponseForError(logger, userError)
 	}
-	roleError := h.DB().Load(&officeUser.User, "Roles")
+	roleError := h.DB().Q().Join("users_roles", "users_roles.role_id = roles.id").
+		Where("users_roles.deleted_at IS NULL AND users_roles.user_id = ?", (officeUser.User.ID)).
+		All(&officeUser.User.Roles)
 	if roleError != nil {
 		return handlers.ResponseForError(logger, roleError)
 	}
@@ -207,7 +209,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 		updatedRoles := rolesPayloadToModel(payload.Roles)
 		_, err = h.UserRoleAssociator.UpdateUserRoles(*updatedOfficeUser.UserID, updatedRoles)
 		if err != nil {
-			logger.Error("error updatine user roles", zap.Error(err))
+			logger.Error("error updating user roles", zap.Error(err))
 			return officeuserop.NewUpdateOfficeUserInternalServerError()
 		}
 	}

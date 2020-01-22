@@ -4,6 +4,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
@@ -53,8 +54,8 @@ func (u usersRolesCreator) addUserRoles(userID uuid.UUID, rs []roles.RoleType) (
 	var userRolesToAdd []models.UsersRoles
 	if len(rs) > 0 {
 		err := u.db.Select("r.id as role_id, ? as user_id").
-			RightJoin("roles r", "r.id=users_roles.role_id AND users_roles.user_id = ?", userID, userID).
-			Where("role_type IN (?) AND users_roles.user_id IS NULL", rs).
+			RightJoin("roles r", "r.id=users_roles.role_id AND users_roles.user_id = ? AND users_roles.deleted_at IS NULL", userID, userID).
+			Where("role_type IN (?) AND (users_roles.user_id IS NULL)", rs).
 			All(&userRolesToAdd)
 		if err != nil {
 			return []models.UsersRoles{}, err
@@ -84,8 +85,8 @@ func (u usersRolesCreator) removeUserRoles(userID uuid.UUID, rs []roles.RoleType
 	//	AND ur.user_id IS NOT NULL;
 	var userRolesToDelete []models.UsersRoles
 	if len(rs) > 0 {
-		err := u.db.Select("users_roles.id, r.id as role_id, ? as user_id").
-			RightJoin("roles r", "r.id=users_roles.role_id AND users_roles.user_id = ?", userID, userID).
+		err := u.db.Select("users_roles.id, r.id as role_id, ? as user_id, users_roles.deleted_at").
+			RightJoin("roles r", "r.id=users_roles.role_id AND users_roles.user_id = ? AND users_roles.deleted_at IS NULL", userID, userID).
 			Where("role_type NOT IN (?) AND users_roles.id IS NOT NULL", rs).
 			All(&userRolesToDelete)
 		if err != nil {
@@ -101,9 +102,11 @@ func (u usersRolesCreator) removeUserRoles(userID uuid.UUID, rs []roles.RoleType
 			return []models.UsersRoles{}, err
 		}
 	}
-	err := u.db.Destroy(userRolesToDelete)
-	if err != nil {
-		return []models.UsersRoles{}, err
+	for _, roleToDelete := range userRolesToDelete {
+		err := utilities.SoftDestroy(u.db, &roleToDelete)
+		if err != nil {
+			return []models.UsersRoles{}, err
+		}
 	}
 	return userRolesToDelete, nil
 }

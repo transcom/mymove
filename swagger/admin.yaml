@@ -82,6 +82,11 @@ definitions:
         format: datetime
         example: 2018-04-12T23:20:50.52Z
         description: when the role was updated
+      deletedAt:
+        type: string
+        format: datetime
+        example: 2018-04-12T23:20:50.52Z
+        description: when the role was deleted
     required:
       - id
       - roleType
