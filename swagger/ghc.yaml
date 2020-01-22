@@ -1505,6 +1505,7 @@ definitions:
           - INTERNATIONAL_HHG
           - INTERNATIONAL_UB
       status:
+        type: string
         enum:
           - APPROVED
           - SUBMITTED

@@ -2002,6 +2002,7 @@ func init() {
           ]
         },
         "status": {
+          "type": "string",
           "enum": [
             "APPROVED",
             "SUBMITTED",
@@ -4606,6 +4607,7 @@ func init() {
           ]
         },
         "status": {
+          "type": "string",
           "enum": [
             "APPROVED",
             "SUBMITTED",

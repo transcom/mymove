@@ -137,7 +137,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		ID:                  strfmt.UUID(mtoShipment.ID.String()),
 		MoveTaskOrderID:     strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:        "HHG",
-		Status:              mtoShipment.Status,
+		Status:              string(mtoShipment.Status),
 		CustomerRemarks:     *mtoShipment.CustomerRemarks,
 		RequestedPickupDate: strfmt.Date(*mtoShipment.RequestedPickupDate),
 		CreatedAt:           strfmt.Date(mtoShipment.CreatedAt),

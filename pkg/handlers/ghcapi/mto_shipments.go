@@ -97,7 +97,7 @@ func (h PatchShipmentHandler) Handle(params mtoshipmentops.PatchMTOShipmentStatu
 		return mtoshipmentops.NewPatchMTOShipmentStatusNotFound()
 	}
 
-	status := params.Body.Status.(string)
+	status := params.Body.Status
 	_, err = h.UpdateMTOShipmentStatus(shipment, status)
 	if err != nil {
 		return mtoshipmentops.NewPatchMTOShipmentStatusInternalServerError()
