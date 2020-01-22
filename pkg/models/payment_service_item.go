@@ -36,7 +36,7 @@ var validPaymentServiceItemStatus = []string{
 type PaymentServiceItem struct {
 	ID               uuid.UUID                `json:"id" db:"id"`
 	PaymentRequestID uuid.UUID                `json:"payment_request_id" db:"payment_request_id"`
-	MTOServiceItemID uuid.UUID                `json:"service_item_id" db:"service_item_id"`
+	MTOServiceItemID uuid.UUID                `json:"mto_service_item_id" db:"mto_service_item_id"`
 	Status           PaymentServiceItemStatus `json:"status" db:"status"`
 	PriceCents       unit.Cents               `json:"price_cents" db:"price_cents"`
 	RejectionReason  *string                  `json:"rejection_reason" db:"rejection_reason"`

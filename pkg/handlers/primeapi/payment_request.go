@@ -2,17 +2,14 @@ package primeapi
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
-	"github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/services/audit"
 
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_requests"
-	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -70,17 +67,29 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 		MoveTaskOrderID: mtoID,
 	}
 
+	/*
+		paymentRequest.PaymentServiceItems, err = h.buildPaymentServiceItems(payload, createdPaymentRequest.ID, createdPaymentRequest.RequestedAt)
+		if err != nil {
+			createdPaymentRequest.Status = models.PaymentRequestStatusPending // TODO: why don't we have a DENIED or FAILED status???
+			logger.Error("could not build service items for payment request", zap.Error(err))
+			// TODO don't think we need to bail here, we want a record of what's happening -- return paymentrequestop.NewCreatePaymentRequestBadRequest()
+		}
+	*/
+
+	// Build up the paymentRequest.PaymentServiceItems using the incoming payload to offload Swagger data coming
+	// in from the API. These paymentRequest.PaymentServiceItems will be used as a temp holder to process the incoming API data
+	paymentRequest.PaymentServiceItems, err = h.buildPaymentServiceItems(payload)
+	if err != nil {
+		logger.Error("could not build service items", zap.Error(err))
+		// TODO: do not bail out before creating the payment request, we need the failed record
+		//       we should create the failed record and store it as failed with a rejection
+		return paymentrequestop.NewCreatePaymentRequestBadRequest()
+	}
+
 	createdPaymentRequest, err := h.PaymentRequestCreator.CreatePaymentRequest(&paymentRequest)
 	if err != nil {
 		logger.Error("Error creating payment request", zap.Error(err))
 		return paymentrequestop.NewCreatePaymentRequestInternalServerError()
-	}
-
-	paymentRequest.PaymentServiceItems, err = h.buildPaymentServiceItems(payload, createdPaymentRequest.ID, createdPaymentRequest.RequestedAt)
-	if err != nil {
-		createdPaymentRequest.Status = models.PaymentRequestStatusPending // TODO: why don't we have a DENIED or FAILED status???
-		logger.Error("could not build service items for payment request", zap.Error(err))
-		// TODO don't think we need to bail here, we want a record of what's happening -- return paymentrequestop.NewCreatePaymentRequestBadRequest()
 	}
 
 	logger.Info("Payment Request params",
@@ -93,26 +102,6 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 }
 
 /*
-	TODO: This function is up in the air. The important thing is to the get the lookups satisfied, because there
-   		  are two ways of looking params for a service item.
-          1.) I think the first approach is to use what is provided in the payload which is already handled by CreatePaymentRequest
-          2.) then, look for what is missing and fill in the rest of the params by using the service_params table
-          3.) let any params that come from the payload remain and if any are missing see #2 above
-		  4.) then go and find the values for all params that are NEEDED for pricing -- not necessarily all that are there
- */
-
-type CreatePaymentRequestIncomingPayload struct {
-	IsFinal         bool
-	MoveTaskOrderID uuid.UUID
-	IncomingPayloadMTOServiceItems struct {
-		MTOServiceID uuid.UUID
-		Params []struct{
-			Key string
-			Value string
-		}
-	}
-}
-
 func (h CreatePaymentRequestHandler) translatePayload(payload *primemessages.CreatePaymentRequestPayload) (*CreatePaymentRequestIncomingPayload, error) {
 
 	var tanslatedPayload CreatePaymentRequestIncomingPayload
@@ -152,6 +141,17 @@ func (h CreatePaymentRequestHandler) translatePayload(payload *primemessages.Cre
 	return &tanslatedPayload, nil
 }
 
+*/
+
+/*
+	TODO: This function is up in the air. The important thing is to the get the lookups satisfied, because there
+   		  are two ways of looking params for a service item.
+          1.) I think the first approach is to use what is provided in the payload which is already handled by CreatePaymentRequest
+          2.) then, look for what is missing and fill in the rest of the params by using the service_params table
+          3.) let any params that come from the payload remain and if any are missing see #2 above
+		  4.) then go and find the values for all params that are NEEDED for pricing -- not necessarily all that are there
+*/
+/*
 func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemessages.CreatePaymentRequestPayload, paymentRequestID uuid.UUID, requestedAt time.Time) (models.PaymentServiceItems, error) {
 	var paymentServiceItems models.PaymentServiceItems
 	var serviceParamErrorsString *string
@@ -195,7 +195,48 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemess
 
 	return paymentServiceItems, nil
 }
+*/
 
+func (h CreatePaymentRequestHandler) buildPaymentServiceItems(payload *primemessages.CreatePaymentRequestPayload) (models.PaymentServiceItems, error) {
+	var paymentServiceItems models.PaymentServiceItems
+
+	for _, payloadServiceItem := range payload.ServiceItems {
+		mtoServiceItemID, err := uuid.FromString(payloadServiceItem.ID.String())
+		if err != nil {
+			return nil, fmt.Errorf("could not convert service item ID [%v] to UUID: %w", payloadServiceItem.ID, err)
+		}
+
+		paymentServiceItem := models.PaymentServiceItem{
+			// The rest of the model will be filled in when the payment request is created
+			MTOServiceItemID: mtoServiceItemID,
+		}
+
+		paymentServiceItem.PaymentServiceItemParams = h.buildPaymentServiceItemParams(payloadServiceItem)
+
+		paymentServiceItems = append(paymentServiceItems, paymentServiceItem)
+	}
+
+	return paymentServiceItems, nil
+}
+
+func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(payloadMTOServiceItem *primemessages.ServiceItem) models.PaymentServiceItemParams {
+	var paymentServiceItemParams models.PaymentServiceItemParams
+
+	for _, payloadServiceItemParam := range payloadMTOServiceItem.Params {
+		paymentServiceItemParam := models.PaymentServiceItemParam{
+			// ID and PaymentServiceItemID to be filled in when payment request is created
+			IncomingKey: payloadServiceItemParam.Key,
+			Value:       payloadServiceItemParam.Value,
+		}
+
+		paymentServiceItemParams = append(paymentServiceItemParams, paymentServiceItemParam)
+	}
+
+	return paymentServiceItemParams
+}
+
+/* TODO Remove this function move parts to the CreatePaymentRequest payment function as needed */
+/*
 func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(
 	payloadMTOServiceItem *primemessages.ServiceItem,
 	paymentRequestID uuid.UUID,
@@ -279,3 +320,8 @@ func (h CreatePaymentRequestHandler) buildPaymentServiceItemParams(
 
 	return paymentServiceItemParams, errMessage
 }
+
+
+
+
+*/

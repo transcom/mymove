@@ -1,8 +1,8 @@
-package service_param_value_lookups
+package serviceparamvaluelookups
 
 type ZipDestAddressLookup struct {
-
 }
+
 func (r ZipDestAddressLookup) lookup(keyData *serviceItemParamKeyData) (string, error) {
 	var value string
 

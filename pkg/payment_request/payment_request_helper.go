@@ -1,4 +1,4 @@
-package payment_request
+package paymentrequest
 
 import "github.com/gobuffalo/pop"
 

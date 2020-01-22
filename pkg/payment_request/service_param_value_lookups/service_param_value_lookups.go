@@ -1,37 +1,36 @@
-package service_param_value_lookups
+package serviceparamvaluelookups
 
 import (
 	"fmt"
 
 	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
-type serviceItemParamKeyData struct {
-	lookups map[string]ServiceItemParamKeyLookup
+type ServiceItemParamKeyData struct {
+	lookups            map[string]ServiceItemParamKeyLookup
 	PayloadServiceItem primemessages.ServiceItem
-	MTOServiceItemID uuid.UUID
-	PaymentRequestID uuid.UUID
-	MoveTaskOrderID uuid.UUID
+	MTOServiceItemID   uuid.UUID
+	PaymentRequestID   uuid.UUID
+	MoveTaskOrderID    uuid.UUID
 }
 
 type ServiceItemParamKeyLookup interface {
-	lookup(keyData *serviceItemParamKeyData) (string, error)
+	lookup(keyData *ServiceItemParamKeyData) (string, error)
 }
 
-func ServiceParamLookupInitialize (
-	payloadServiceItem primemessages.ServiceItem,
+func ServiceParamLookupInitialize(
 	mtoServiceItemID uuid.UUID,
 	paymentRequestID uuid.UUID,
 	moveTaskOrderID uuid.UUID,
-	) *serviceItemParamKeyData {
+) *ServiceItemParamKeyData {
 
-	s := serviceItemParamKeyData{
-		lookups: make(map[string]ServiceItemParamKeyLookup),
-		PayloadServiceItem: payloadServiceItem,
+	s := ServiceItemParamKeyData{
+		lookups:          make(map[string]ServiceItemParamKeyLookup),
 		MTOServiceItemID: mtoServiceItemID,
 		PaymentRequestID: paymentRequestID,
-		MoveTaskOrderID: moveTaskOrderID,
+		MoveTaskOrderID:  moveTaskOrderID,
 	}
 
 	s.lookups["RequestedPickupDate"] = RequestedPickupDateLookup{}
@@ -46,7 +45,7 @@ func ServiceParamLookupInitialize (
 	return &s
 }
 
-func (s *serviceItemParamKeyData) ServiceParamValue (key string) (string, error) {
+func (s *ServiceItemParamKeyData) ServiceParamValue(key string) (string, error) {
 	lookup := s.lookups[key]
 	value, err := lookup.lookup(s)
 	if err != nil {

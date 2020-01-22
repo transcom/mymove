@@ -138,6 +138,33 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			}
 		}
 	})
+	/*
+	       TODO add in new test for being able to pull out params when none are provided
+	   	suite.T().Run("Payment request is created successfully (using no IncomingKey data or ServiceItemParamKeyID data)", func(t *testing.T) {
+	   		paymentRequest := models.PaymentRequest{
+	   			MoveTaskOrderID: moveTaskOrder.ID,
+	   			IsFinal:         false,
+	   		}
+
+	   		_, err := creator.CreatePaymentRequest(&paymentRequest)
+	   		suite.FatalNoError(err)
+
+	   		// Verify some of the data that came back
+	   		suite.NotEqual(paymentRequest.ID, uuid.Nil)
+	   		if suite.Len(paymentRequest.PaymentServiceItems, 2) {
+	   			suite.NotEqual(paymentRequest.PaymentServiceItems[0].ID, uuid.Nil)
+	   			if suite.Len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams, 2) {
+	   				suite.NotEqual(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams[0].ID, uuid.Nil)
+	   				suite.NotEqual(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams[1].ID, uuid.Nil)
+	   			}
+	   			suite.NotEqual(paymentRequest.PaymentServiceItems[1].ID, uuid.Nil)
+	   			if suite.Len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams, 1) {
+	   				suite.NotEqual(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams[0].ID, uuid.Nil)
+	   			}
+	   		}
+	   	})
+
+	*/
 
 	badID, _ := uuid.FromString("0aee14dd-b5ea-441a-89ad-db4439fa4ea2")
 
