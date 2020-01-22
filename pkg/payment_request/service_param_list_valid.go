@@ -6,7 +6,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (p *PaymentRequestHelper) ValidServiceParamList(serviceID uuid.UUID, serviceParams models.ServiceParams, paymentServiceItemParams models.PaymentServiceItemParams) (bool, *string) {
+func (p *RequestPaymentHelper) ValidServiceParamList(serviceID uuid.UUID, serviceParams models.ServiceParams, paymentServiceItemParams models.PaymentServiceItemParams) (bool, *string) {
 
 	//var errorMessage string
 

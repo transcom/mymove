@@ -3,7 +3,7 @@ package serviceparamvaluelookups
 type RequestedPickupDateLookup struct {
 }
 
-func (r RequestedPickupDateLookup) lookup(keyData *serviceItemParamKeyData) (string, error) {
+func (r RequestedPickupDateLookup) lookup(keyData *ServiceItemParamKeyData) (string, error) {
 	var value string
 
 	return value, nil

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -100,13 +101,13 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 				var serviceItemParamKey models.ServiceItemParamKey
 				if paymentServiceItemParam.ServiceItemParamKeyID != uuid.Nil {
 					incomingMTOServiceItemParams[paymentServiceItemParam.ServiceItemParamKey.Key] = paymentServiceItemParam.Value
-					err := tx.Find(&serviceItemParamKey, paymentServiceItemParam.ServiceItemParamKeyID)
+					err = tx.Find(&serviceItemParamKey, paymentServiceItemParam.ServiceItemParamKeyID)
 					if err != nil {
 						return fmt.Errorf("could not find ServiceItemParamKeyID [%s]: %w", paymentServiceItemParam.ServiceItemParamKeyID, err)
 					}
 				} else {
 					incomingMTOServiceItemParams[paymentServiceItemParam.IncomingKey] = paymentServiceItemParam.Value
-					err := tx.Where("key = ?", paymentServiceItemParam.IncomingKey).First(&serviceItemParamKey)
+					err = tx.Where("key = ?", paymentServiceItemParam.IncomingKey).First(&serviceItemParamKey)
 					if err != nil {
 						return fmt.Errorf("could not find param key [%s]: %w", paymentServiceItemParam.IncomingKey, err)
 					}
@@ -117,7 +118,8 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 				paymentServiceItemParam.PaymentServiceItemID = paymentServiceItem.ID
 				paymentServiceItemParam.PaymentServiceItem = paymentServiceItem
 
-				verrs, err := tx.ValidateAndCreate(&paymentServiceItemParam)
+				var verrs *validate.Errors
+				verrs, err = tx.ValidateAndCreate(&paymentServiceItemParam)
 				if err != nil {
 					return fmt.Errorf("failure creating payment service item param: %w", err)
 				}
@@ -134,7 +136,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			//
 
 			// Retrieve all of the params needed to price this service itme
-			paymentHelper := paymentrequesthelper.PaymentRequestHelper{DB: p.db}
+			paymentHelper := paymentrequesthelper.RequestPaymentHelper{DB: p.db}
 			reServiceParams, err := paymentHelper.FetchServiceParamList(paymentServiceItem.MTOServiceItemID)
 			if err != nil {
 				errMessage := "Failed to retrieve service item param list for MTO Service ID " + paymentServiceItem.MTOServiceItemID.String() + ", mtoServiceID " + paymentServiceItem.MTOServiceItemID.String() + ", paymentRequestID " + paymentRequestArg.ID.String()

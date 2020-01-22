@@ -2,6 +2,6 @@ package paymentrequest
 
 import "github.com/gobuffalo/pop"
 
-type PaymentRequestHelper struct {
+type RequestPaymentHelper struct {
 	DB *pop.Connection
 }
