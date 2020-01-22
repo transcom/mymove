@@ -214,6 +214,10 @@ func (suite *HereTestSuite) TestZipLookups() {
 	// Postal code errors should be returned
 	_, err := planner.Zip5TransitDistance(badZip, goodZip)
 	suite.checkErrorCode(err, UnsupportedPostalCode)
+
+	// Postal code errors should be returned
+	_, err = planner.Zip3TransitDistance(badZip, goodZip)
+	suite.checkErrorCode(err, UnsupportedPostalCode)
 }
 
 func TestHereTestSuite(t *testing.T) {

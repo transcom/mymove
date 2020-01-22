@@ -8,7 +8,12 @@ Saicoo DOD Military USB-C Common Access Card Reader](https://www.amazon.com/Read
 To get going you will also need to install some software on your machine:
 
 1. `brew install opensc` gives you tools like `pkcs11-tool` and `pkcs15-tool`
-1. Install the official  Military CAC package from [CAC Key Packages](http://militarycac.org/MacVideos.htm#CACKey_packages) to get the driver `/usr/local/lib/pkcs11/cackey.dylib`
+
+## MacOS 10.14 and earlier ONLY
+
+**NOTE:** Skip this section if you are on MacOS `10.15.X` or later!!
+
+Install the official Military CAC package from [CAC Key Packages](http://militarycac.org/MacVideos.htm#CACKey_packages) to get the driver `/usr/local/lib/pkcs11/cackey.dylib`
 
 It's important that you disable default smart card access on your OSX machine. [Read the published instructions](http://militarycac.org/macuninstall.htm#Mojave_(10.14),_High_Sierra_(10.13.x),_and_Sierra_(10.12.x)_Built_in_Smart_Card_Ability). It boils down to removing your CAC from the reader, running this command and restarting your laptop:
 
@@ -16,8 +21,9 @@ It's important that you disable default smart card access on your OSX machine. [
 sudo defaults write /Library/Preferences/com.apple.security.smartcard DisabledTokens -array com.apple.CryptoTokenKit.pivtoken
 ```
 
-This should get you in the state where you can use your CAC to extract certs. You may also want to run these commands
-to check:
+## Prerequisites
+
+To see if you are in a place to use your CAC to extract certs you need to run these commands:
 
 ```sh
 cac-prereqs

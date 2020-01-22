@@ -142,6 +142,26 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 	}
 
 	var uploadError error
+	// If we are already in a transaction, don't start one
+	if u.db.TX != nil {
+		verrs, err := u.db.ValidateAndCreate(newUpload)
+		if err != nil || verrs.HasAny() {
+			u.logger.Error("Error creating new upload", zap.Error(err))
+			return nil, verrs, fmt.Errorf("error creating upload %w", err)
+		}
+
+		// Push file to S3
+		if _, err := u.Storer.Store(newUpload.StorageKey, file.File, checksum, file.Tags); err != nil {
+			u.logger.Error("failed to store object", zap.Error(err))
+			responseVErrors.Append(verrs)
+			uploadError = errors.Wrap(err, "failed to store object")
+			return nil, responseVErrors, fmt.Errorf("failed to store object %w", err)
+		}
+
+		u.logger.Info("created an upload with id and key ", zap.Any("new_upload_id", newUpload.ID), zap.String("key", newUpload.StorageKey))
+		return newUpload, responseVErrors, nil
+	}
+
 	err := u.db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 

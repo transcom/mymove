@@ -29,8 +29,8 @@ type PaymentRequest struct {
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
-	// proof of service package
-	ProofOfServicePackage *ProofOfServicePackage `json:"proofOfServicePackage,omitempty"`
+	// proof of service docs
+	ProofOfServiceDocs *ProofOfServiceDocs `json:"proofOfServiceDocs,omitempty"`
 
 	// rejection reason
 	RejectionReason *string `json:"rejectionReason,omitempty"`
@@ -51,7 +51,7 @@ func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateProofOfServicePackage(formats); err != nil {
+	if err := m.validateProofOfServiceDocs(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -91,16 +91,16 @@ func (m *PaymentRequest) validateMoveTaskOrderID(formats strfmt.Registry) error 
 	return nil
 }
 
-func (m *PaymentRequest) validateProofOfServicePackage(formats strfmt.Registry) error {
+func (m *PaymentRequest) validateProofOfServiceDocs(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.ProofOfServicePackage) { // not required
+	if swag.IsZero(m.ProofOfServiceDocs) { // not required
 		return nil
 	}
 
-	if m.ProofOfServicePackage != nil {
-		if err := m.ProofOfServicePackage.Validate(formats); err != nil {
+	if m.ProofOfServiceDocs != nil {
+		if err := m.ProofOfServiceDocs.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("proofOfServicePackage")
+				return ve.ValidateName("proofOfServiceDocs")
 			}
 			return err
 		}
