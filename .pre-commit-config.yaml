@@ -117,3 +117,11 @@ repos:
       entry: scripts/update-migrations-manifest
       language: script
       pass_filenames: false
+
+  - repo: local
+    hooks:
+    - id: scripts-docs
+      name: scripts are documented
+      entry: scripts/find-scripts-missing-in-readme
+      language: script
+      pass_filenames: false

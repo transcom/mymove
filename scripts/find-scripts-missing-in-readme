@@ -1,0 +1,25 @@
+#! /usr/bin/env bash
+
+#
+# Find scripts missing int he readme
+#
+
+set -eu -o pipefail
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly DIR
+
+missing=false
+for script in "${DIR}"/*; do
+  name=$(basename "${script}")
+  if grep -Fq "${name}" "${DIR}/README.md" ; then
+    echo >> /dev/null
+  elif [[ ${name} != "README.md" ]]; then
+    echo "Missing from scripts/README.md: ${name}"
+    missing=true
+  fi
+done
+
+if $missing; then
+  exit 1
+fi
