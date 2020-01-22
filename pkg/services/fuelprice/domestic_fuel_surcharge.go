@@ -1,8 +1,11 @@
 package fuelprice
 
-import "github.com/transcom/mymove/pkg/route"
+import (
+	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/unit"
+)
 
 //DomesticFuelSurchargePricer prices fuel surcharge for domestic GHC moves
 type DomesticFuelSurchargePricer interface {
-	PriceDomesticFuelSurcharge(planner route.Planner, weight int, source string, destination string) (int, error)
+	PriceDomesticFuelSurcharge(planner route.Planner, weight unit.Pound, source string, destination string) (unit.Cents, error)
 }
