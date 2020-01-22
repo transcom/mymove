@@ -18,7 +18,7 @@ Regenerate with "pre-commit run -a markdown-toc"
 
 ## Fuel surcharge interface
 
-In the MyMove project we have an interface for communicating with fuel surcharge APIs. The interface and implementations can be found in `pkg/services/fuelprice`.
+In the MyMove project we have an interface for communicating with fuel surcharge APIs. The interface can be found at `pkg/services/ghc_rate_engine.go`and implementations can be found in `pkg/services/ghcrateengine`.
 
 ### Interface methods
 
@@ -41,4 +41,4 @@ This function was added as a placeholder for calculating domestic fuel surcharge
 
 ## Testing
 
-There are unit tests in `diesel_fuel_price_storer_test.go`.
+There are unit tests in `domestic_fuel_surcharge_pricer_test.go`.

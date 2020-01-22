@@ -3,6 +3,8 @@ package services
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/route"
+
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -22,4 +24,10 @@ type DomesticShorthaulPricer interface {
 //go:generate mockery -name DomesticServiceAreaPricer
 type DomesticServiceAreaPricer interface {
 	PriceDomesticServiceArea(moveDate time.Time, weight unit.Pound, serviceArea string, servicesCode string) (unit.Cents, error)
+}
+
+//DomesticFuelSurchargePricer prices fuel surcharge for domestic GHC moves
+//go:generate mockery -name DomesticFuelSurchargePricer
+type DomesticFuelSurchargePricer interface {
+	PriceDomesticFuelSurcharge(planner route.Planner, weight unit.Pound, source string, destination string) (unit.Cents, error)
 }
