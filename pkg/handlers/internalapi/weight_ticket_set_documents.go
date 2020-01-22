@@ -40,6 +40,7 @@ func payloadForWeightTicketSetMoveDocumentModel(storer storage.FileStorer, weigh
 	if weightTicketSet.WeightTicketDate != nil {
 		weighTicketDate = handlers.FmtDate(*weightTicketSet.WeightTicketDate)
 	}
+	weightTicketSetType := internalmessages.WeightTicketSetType(weightTicketSet.WeightTicketSetType)
 	genericMoveDocumentPayload := internalmessages.MoveDocumentPayload{
 		ID:                       handlers.FmtUUID(weightTicketSet.MoveDocument.ID),
 		MoveID:                   handlers.FmtUUID(weightTicketSet.MoveDocument.MoveID),
@@ -47,7 +48,7 @@ func payloadForWeightTicketSetMoveDocumentModel(storer storage.FileStorer, weigh
 		Title:                    &weightTicketSet.MoveDocument.Title,
 		MoveDocumentType:         internalmessages.MoveDocumentType(weightTicketSet.MoveDocument.MoveDocumentType),
 		VehicleNickname:          weightTicketSet.VehicleNickname,
-		VehicleOptions:           weightTicketSet.VehicleOptions,
+		WeightTicketSetType:      &weightTicketSetType,
 		PersonallyProcuredMoveID: ppmID,
 		EmptyWeight:              emptyWeight,
 		EmptyWeightTicketMissing: handlers.FmtBool(weightTicketSet.EmptyWeightTicketMissing),
@@ -126,7 +127,7 @@ func (h CreateWeightTicketSetDocumentHandler) Handle(params movedocop.CreateWeig
 		FullWeight:               fullWeight,
 		FullWeightTicketMissing:  *payload.FullWeightTicketMissing,
 		VehicleNickname:          *payload.VehicleNickname,
-		VehicleOptions:           *payload.VehicleOptions,
+		WeightTicketSetType:      models.WeightTicketSetType(*payload.WeightTicketSetType),
 		WeightTicketDate:         weighTicketDate,
 		TrailerOwnershipMissing:  *payload.TrailerOwnershipMissing,
 	}

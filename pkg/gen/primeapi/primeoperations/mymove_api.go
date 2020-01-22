@@ -21,36 +21,41 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_requests"
+	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/uploads"
 )
 
 // NewMymoveAPI creates a new Mymove instance
 func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 	return &MymoveAPI{
-		handlers:            make(map[string]map[string]http.Handler),
-		formats:             strfmt.Default,
-		defaultConsumes:     "application/json",
-		defaultProduces:     "application/json",
-		customConsumers:     make(map[string]runtime.Consumer),
-		customProducers:     make(map[string]runtime.Producer),
-		ServerShutdown:      func() {},
-		spec:                spec,
-		ServeError:          errors.ServeError,
-		BasicAuthenticator:  security.BasicAuth,
-		APIKeyAuthenticator: security.APIKeyAuth,
-		BearerAuthenticator: security.BearerAuth,
-		JSONConsumer:        runtime.JSONConsumer(),
-		JSONProducer:        runtime.JSONProducer(),
+		handlers:              make(map[string]map[string]http.Handler),
+		formats:               strfmt.Default,
+		defaultConsumes:       "application/json",
+		defaultProduces:       "application/json",
+		customConsumers:       make(map[string]runtime.Consumer),
+		customProducers:       make(map[string]runtime.Producer),
+		ServerShutdown:        func() {},
+		spec:                  spec,
+		ServeError:            errors.ServeError,
+		BasicAuthenticator:    security.BasicAuth,
+		APIKeyAuthenticator:   security.APIKeyAuth,
+		BearerAuthenticator:   security.BearerAuth,
+		JSONConsumer:          runtime.JSONConsumer(),
+		MultipartformConsumer: runtime.DiscardConsumer,
+		JSONProducer:          runtime.JSONProducer(),
 		PaymentRequestsCreatePaymentRequestHandler: payment_requests.CreatePaymentRequestHandlerFunc(func(params payment_requests.CreatePaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation PaymentRequestsCreatePaymentRequest has not yet been implemented")
+		}),
+		UploadsCreateUploadHandler: uploads.CreateUploadHandlerFunc(func(params uploads.CreateUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation UploadsCreateUpload has not yet been implemented")
+		}),
+		MoveTaskOrderFetchMTOUpdatesHandler: move_task_order.FetchMTOUpdatesHandlerFunc(func(params move_task_order.FetchMTOUpdatesParams) middleware.Responder {
+			return middleware.NotImplemented("operation MoveTaskOrderFetchMTOUpdates has not yet been implemented")
 		}),
 		MoveTaskOrderGetMoveTaskOrderCustomerHandler: move_task_order.GetMoveTaskOrderCustomerHandlerFunc(func(params move_task_order.GetMoveTaskOrderCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderGetMoveTaskOrderCustomer has not yet been implemented")
 		}),
 		MoveTaskOrderGetPrimeEntitlementsHandler: move_task_order.GetPrimeEntitlementsHandlerFunc(func(params move_task_order.GetPrimeEntitlementsParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderGetPrimeEntitlements has not yet been implemented")
-		}),
-		MoveTaskOrderListMoveTaskOrdersHandler: move_task_order.ListMoveTaskOrdersHandlerFunc(func(params move_task_order.ListMoveTaskOrdersParams) middleware.Responder {
-			return middleware.NotImplemented("operation MoveTaskOrderListMoveTaskOrders has not yet been implemented")
 		}),
 		MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler: move_task_order.UpdateMoveTaskOrderActualWeightHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderActualWeightParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderUpdateMoveTaskOrderActualWeight has not yet been implemented")
@@ -91,18 +96,22 @@ type MymoveAPI struct {
 
 	// JSONConsumer registers a consumer for a "application/json" mime type
 	JSONConsumer runtime.Consumer
+	// MultipartformConsumer registers a consumer for a "multipart/form-data" mime type
+	MultipartformConsumer runtime.Consumer
 
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
 	// PaymentRequestsCreatePaymentRequestHandler sets the operation handler for the create payment request operation
 	PaymentRequestsCreatePaymentRequestHandler payment_requests.CreatePaymentRequestHandler
+	// UploadsCreateUploadHandler sets the operation handler for the create upload operation
+	UploadsCreateUploadHandler uploads.CreateUploadHandler
+	// MoveTaskOrderFetchMTOUpdatesHandler sets the operation handler for the fetch m t o updates operation
+	MoveTaskOrderFetchMTOUpdatesHandler move_task_order.FetchMTOUpdatesHandler
 	// MoveTaskOrderGetMoveTaskOrderCustomerHandler sets the operation handler for the get move task order customer operation
 	MoveTaskOrderGetMoveTaskOrderCustomerHandler move_task_order.GetMoveTaskOrderCustomerHandler
 	// MoveTaskOrderGetPrimeEntitlementsHandler sets the operation handler for the get prime entitlements operation
 	MoveTaskOrderGetPrimeEntitlementsHandler move_task_order.GetPrimeEntitlementsHandler
-	// MoveTaskOrderListMoveTaskOrdersHandler sets the operation handler for the list move task orders operation
-	MoveTaskOrderListMoveTaskOrdersHandler move_task_order.ListMoveTaskOrdersHandler
 	// MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler sets the operation handler for the update move task order actual weight operation
 	MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler move_task_order.UpdateMoveTaskOrderActualWeightHandler
 	// MoveTaskOrderUpdateMoveTaskOrderDestinationAddressHandler sets the operation handler for the update move task order destination address operation
@@ -170,6 +179,10 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "JSONConsumer")
 	}
 
+	if o.MultipartformConsumer == nil {
+		unregistered = append(unregistered, "MultipartformConsumer")
+	}
+
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
 	}
@@ -178,16 +191,20 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "payment_requests.CreatePaymentRequestHandler")
 	}
 
+	if o.UploadsCreateUploadHandler == nil {
+		unregistered = append(unregistered, "uploads.CreateUploadHandler")
+	}
+
+	if o.MoveTaskOrderFetchMTOUpdatesHandler == nil {
+		unregistered = append(unregistered, "move_task_order.FetchMTOUpdatesHandler")
+	}
+
 	if o.MoveTaskOrderGetMoveTaskOrderCustomerHandler == nil {
 		unregistered = append(unregistered, "move_task_order.GetMoveTaskOrderCustomerHandler")
 	}
 
 	if o.MoveTaskOrderGetPrimeEntitlementsHandler == nil {
 		unregistered = append(unregistered, "move_task_order.GetPrimeEntitlementsHandler")
-	}
-
-	if o.MoveTaskOrderListMoveTaskOrdersHandler == nil {
-		unregistered = append(unregistered, "move_task_order.ListMoveTaskOrdersHandler")
 	}
 
 	if o.MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler == nil {
@@ -241,6 +258,9 @@ func (o *MymoveAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consume
 
 		case "application/json":
 			result["application/json"] = o.JSONConsumer
+
+		case "multipart/form-data":
+			result["multipart/form-data"] = o.MultipartformConsumer
 
 		}
 
@@ -309,6 +329,16 @@ func (o *MymoveAPI) initHandlerCache() {
 	}
 	o.handlers["POST"]["/payment-requests"] = payment_requests.NewCreatePaymentRequest(o.context, o.PaymentRequestsCreatePaymentRequestHandler)
 
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/payment-requests/{paymentRequestID}/uploads"] = uploads.NewCreateUpload(o.context, o.UploadsCreateUploadHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/move-task-orders"] = move_task_order.NewFetchMTOUpdates(o.context, o.MoveTaskOrderFetchMTOUpdatesHandler)
+
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -318,11 +348,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/prime-entitlements"] = move_task_order.NewGetPrimeEntitlements(o.context, o.MoveTaskOrderGetPrimeEntitlementsHandler)
-
-	if o.handlers["GET"] == nil {
-		o.handlers["GET"] = make(map[string]http.Handler)
-	}
-	o.handlers["GET"]["/move-task-orders"] = move_task_order.NewListMoveTaskOrders(o.context, o.MoveTaskOrderListMoveTaskOrdersHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)

@@ -531,10 +531,31 @@ markdown-toc
 Formik
 performant
 Jira
+MB-651
+ETag
 truthy
 cloudfront
 devlocal-mtls
 aws-vault
 aws-vault-wrapper
 aws
+env
+sha256
+go-bindata
+client-tls
+MacOS
+TransitDistance
+Zip5TransitDistance
+Zip3TransitDistance
+LatLongTransitDistance
+Bing
+Zip5ToLatLong
+geocoder
+LatLong
+Zip3
+Zip5
+Zip5s
+McNally
+mdspell
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
+ - ./docs/backend/route-planner.md

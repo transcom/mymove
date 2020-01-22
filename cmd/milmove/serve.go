@@ -559,9 +559,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 	handlerContext.SetGexSender(gexRequester)
 
-	// Set feature flag
+	// Set feature flags
 	handlerContext.SetFeatureFlag(
 		handlers.FeatureFlag{Name: cli.FeatureFlagAccessCode, Active: v.GetBool(cli.FeatureFlagAccessCode)},
+	)
+	handlerContext.SetFeatureFlag(
+		handlers.FeatureFlag{Name: cli.FeatureFlagConvertPPMsToGHC, Active: v.GetBool(cli.FeatureFlagConvertPPMsToGHC)},
 	)
 
 	// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real

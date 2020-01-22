@@ -12,7 +12,6 @@ export const ppmInfoPacket = '/downloads/ppm_info_sheet.pdf';
 export const hostname = window && window.location && window.location.hostname;
 export const isMilmoveSite = hostname.startsWith('my') || hostname.startsWith('mil') || '';
 export const isOfficeSite = hostname.startsWith('office') || '';
-export const isTspSite = hostname.startsWith('tsp') || '';
 export const isAdminSite = hostname.startsWith('admin') || '';
 export const isSystemAdminSite = isAdminSite; // once we start building program admin, we can flesh this out
 
@@ -31,6 +30,13 @@ export const MOVE_DOC_STATUS = {
   AWAITING_REVIEW: 'AWAITING_REVIEW',
   HAS_ISSUE: 'HAS_ISSUE',
   EXCLUDE: 'EXCLUDE_FROM_CALCULATION',
+};
+
+export const WEIGHT_TICKET_SET_TYPE = {
+  CAR: 'CAR',
+  CAR_TRAILER: 'CAR_TRAILER',
+  BOX_TRUCK: 'BOX_TRUCK',
+  PRO_GEAR: 'PRO_GEAR',
 };
 
 export const UPLOAD_SCAN_STATUS = {

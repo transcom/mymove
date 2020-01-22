@@ -7,6 +7,9 @@ var (
 	// AllowedTypesServiceMember are the content types we allow service members to upload
 	AllowedTypesServiceMember AllowedFileTypes = []string{"image/jpeg", "image/png", "application/pdf"}
 
+	// AllowedTypesPaymentRequest are the content types we allow prime to upload
+	AllowedTypesPaymentRequest AllowedFileTypes = []string{"image/jpeg", "image/png", "application/pdf"}
+
 	// AllowedTypesText accepts text files
 	AllowedTypesText AllowedFileTypes = []string{"text/plain", "text/plain; charset=utf-8"}
 

@@ -39,6 +39,12 @@ new_line = "\n"
 os.chdir("docs")
 output = "<!--index-->\n"
 
+output += "\n## Database\n\n"
+
+for file in index("database/*.md", howto_title):
+    output += file
+    output += new_line
+
 output += "\n## HOWTOs\n\n"
 
 for file in index("how-to/*.md", howto_title):

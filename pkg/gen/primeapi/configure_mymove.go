@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_requests"
+	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/uploads"
 )
 
 //go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/prime.yaml --api-package primeoperations --model-package primemessages --server-package primeapi --exclude-main
@@ -33,11 +34,23 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 
 	api.JSONConsumer = runtime.JSONConsumer()
 
+	api.MultipartformConsumer = runtime.DiscardConsumer
+
 	api.JSONProducer = runtime.JSONProducer()
 
 	if api.PaymentRequestsCreatePaymentRequestHandler == nil {
 		api.PaymentRequestsCreatePaymentRequestHandler = payment_requests.CreatePaymentRequestHandlerFunc(func(params payment_requests.CreatePaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.CreatePaymentRequest has not yet been implemented")
+		})
+	}
+	if api.UploadsCreateUploadHandler == nil {
+		api.UploadsCreateUploadHandler = uploads.CreateUploadHandlerFunc(func(params uploads.CreateUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.CreateUpload has not yet been implemented")
+		})
+	}
+	if api.MoveTaskOrderFetchMTOUpdatesHandler == nil {
+		api.MoveTaskOrderFetchMTOUpdatesHandler = move_task_order.FetchMTOUpdatesHandlerFunc(func(params move_task_order.FetchMTOUpdatesParams) middleware.Responder {
+			return middleware.NotImplemented("operation move_task_order.FetchMTOUpdates has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderGetMoveTaskOrderCustomerHandler == nil {
@@ -48,11 +61,6 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	if api.MoveTaskOrderGetPrimeEntitlementsHandler == nil {
 		api.MoveTaskOrderGetPrimeEntitlementsHandler = move_task_order.GetPrimeEntitlementsHandlerFunc(func(params move_task_order.GetPrimeEntitlementsParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetPrimeEntitlements has not yet been implemented")
-		})
-	}
-	if api.MoveTaskOrderListMoveTaskOrdersHandler == nil {
-		api.MoveTaskOrderListMoveTaskOrdersHandler = move_task_order.ListMoveTaskOrdersHandlerFunc(func(params move_task_order.ListMoveTaskOrdersParams) middleware.Responder {
-			return middleware.NotImplemented("operation move_task_order.ListMoveTaskOrders has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler == nil {

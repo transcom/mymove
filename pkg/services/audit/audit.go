@@ -18,7 +18,6 @@ import (
 )
 
 func Capture(model interface{}, payload interface{}, logger Logger, session *auth.Session, request *http.Request) ([]zap.Field, error) {
-
 	var logItems []zap.Field
 	eventType := extractEventType(request)
 	msg := flect.Titleize(eventType)

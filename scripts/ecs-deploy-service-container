@@ -1,17 +1,17 @@
 #! /usr/bin/env bash
 #
-#   Updates the named service with the given container definition template,
-#   image, and environment.
+#   Updates the named service with the given name, image, and environment.
 #
 set -eo pipefail
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 readonly DIR
 
 usage() {
-    echo "$0 <name> <template> <image> <environment> [launch_type]"
+    echo "$0 <name> <image> <environment>"
     exit 1
 }
-[[ -z $1 || -z $2 || -z $3 || -z $4 ]] && usage
+[[ -z $1 || -z $2 || -z $3 ]] && usage
 
 # Display command being run
 echo "$0 $*"
@@ -19,31 +19,13 @@ echo "$0 $*"
 set -u
 
 readonly name=$1
-readonly template=$2
-readonly image=$3
-readonly environment=$4
-readonly launch_type="${5:-EC2}"
+readonly image=$2
+readonly environment=$3
 
 readonly RESERVATION_CPU=512
 readonly RESERVATION_MEM=2048
 
-if [[ $launch_type != EC2 && $launch_type != FARGATE ]]; then
-    echo "Error: launch_type must be EC2 or FARGATE"
-    usage
-fi
-
 readonly cluster=app-${environment}
-readonly rds=app-${environment}
-
-readonly task_family=${name}-${environment}
-
-readonly zone_name="move.mil"
-
-# use environment subdomain unless we're deploying prod
-domain=${environment}.${zone_name}
-[[ $environment = prod ]] && domain=$zone_name
-readonly domain
-
 
 check_arn() {
     local arn=$1
@@ -52,6 +34,7 @@ check_arn() {
 
 update_service() {
     local arn="$1"
+    echo "* Updating services with ARN ${arn}"
 
     local network_config
     network_config=$(aws ecs describe-services --services "$name" --cluster "$cluster" --query 'services[0].networkConfiguration')
@@ -89,53 +72,20 @@ put_metric() {
 # get current task definiton (for rollback)
 blue_task_def_arn=$(aws ecs describe-services --services "$name" --cluster "$cluster" --query 'services[0].taskDefinition' | jq -r .)
 
-# Get the database host using the instance identifier
-echo "* Looking up DB host"
-db_host=$(aws rds describe-db-instances --db-instance-identifier "$rds" --query 'DBInstances[0].Endpoint.Address' | jq -r .)
-readonly db_host
-
-# Get the client auth CA certificate
-echo "* Looking up client auth CA certificate"
-move_mil_dod_ca_cert=$(awk '{printf "%s\\n", $0}' "$DIR"/../config/tls/dod-sw-ca-54.pem)
-
-# renderer builds its template context from (1) environment variables, (2) file at -v FILE, and (3) positional command line args.
-echo "Get the container definition from template ${template} for environment ${environment} with image ${image} and db host ${db_host}"
-echo
-# WARNING: Use this for debugging only. It may expose secrets.
-# echo "===== START ENV FILE ===="
-# echo "$DIR"/../config/env/"${environment}".env
-# cat "$DIR"/../config/env/"${environment}".env
-# echo "===== END ENV FILE ===="
-
-# renderer builds its template context from (1) environment variables, (2) file at -v FILE, and (3) positional command line args.
-ssm_secrets=$(aws ssm describe-parameters --parameter-filters Key=Path,Values=["/app-${environment}"] | jq "[.Parameters | to_entries[].value | .ARN = \"arn:aws:ssm:${AWS_DEFAULT_REGION}:${AWS_ACCOUNT_ID}:parameter\" + .Name | .ENVNAME = (.Name | ascii_upcase | split(\"/\")[2]) | {\"valueFrom\": .ARN, \"name\": .ENVNAME}]")
-container_definition_json=$("${DIR}/../bin/renderer" -t "${template}" -v "${DIR}/../config/env/${environment}.env" environment="${environment}" image="${image}" db_host="${db_host}" domain="${domain}" move_mil_dod_ca_cert="${move_mil_dod_ca_cert}" secrets="${ssm_secrets}")
-readonly container_definition_json
-
-# output the definition
-# WARNING: Use this for debugging only. It may expose secrets.
-# echo
-# echo "===== START TASK DEF ===="
-# jq . <<< "${container_definition_json}"
-# echo "===== END TASK DEF ===="
-# echo
-
-# Validate the template after it has been constructed
-if ! jq empty <<< "${container_definition_json}"; then
-  echo
-  echo "Invalid JSON produced from task definiton template ${template}!"
-  exit 1
-fi
-
 # create new task definition with the given image
 echo "* Registering new task definition"
+green_task_def_arn=$("${DIR}/../bin/ecs-deploy" task-def \
+  --aws-account-id "${AWS_ACCOUNT_ID}" \
+  --aws-region us-west-2 \
+  --service "${name}" \
+  --environment "${environment}" \
+  --image "${image}" \
+  --variables-file "${DIR}/../config/env/${environment}.${name}.env" \
+  --entrypoint "/bin/milmove serve" \
+  --cpu "${RESERVATION_CPU}" \
+  --memory "${RESERVATION_MEM}" \
+  --register)
 
-launch_type_opts=""
-if [[ $launch_type = FARGATE ]]; then
-    launch_type_opts=(--requires-compatibilities FARGATE --execution-role-arn "ecs-task-execution-role-$name-$environment" --cpu "$RESERVATION_CPU" --memory "$RESERVATION_MEM")
-fi
-
-green_task_def_arn=$(aws ecs register-task-definition --network-mode awsvpc --task-role-arn "ecs-task-role-$name-$environment" --family "$task_family" --container-definitions "$container_definition_json" ${launch_type_opts[*]} --query 'taskDefinition.taskDefinitionArn' --output text)
 readonly green_task_def_arn
 check_arn "$green_task_def_arn"
 
@@ -149,7 +99,7 @@ put_metric DeployFail "${name}-${environment}"
 
 echo
 echo "Showing logs from recently stopped tasks:"
-"$DIR"/ecs-service-logs show --cluster "app-${environment}" --service "${name}" --environment "${environment}" --status "STOPPED" --verbose
+"$DIR"/../bin/ecs-service-logs show --cluster "app-${environment}" --service "${name}" --environment "${environment}" --status "STOPPED" --verbose
 echo
 
 echo "* Rolling back to $blue_task_def_arn"

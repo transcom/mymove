@@ -13,6 +13,7 @@ import (
 	movetaskorderops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/audit"
 )
 
 // GetMoveTaskOrderHandler updates the status of a Move Task Order
@@ -50,14 +51,16 @@ type UpdateMoveTaskOrderStatusHandlerFunc struct {
 
 // UpdateMoveTaskOrderStatusHandlerFunc updates the status of a MoveTaskOrder
 func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.UpdateMoveTaskOrderStatusParams) middleware.Responder {
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	// TODO how are we going to handle auth in new api? Do we need some sort of placeholder to remind us to
 	// TODO to revisit?
 	moveTaskOrderID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+
 	mto, err := h.moveTaskOrderStatusUpdater.MakeAvailableToPrime(moveTaskOrderID)
+
 	if err != nil {
-		logger.Error("ghciap.MoveTaskOrderHandler error", zap.Error(err))
+		logger.Error("ghciapi.MoveTaskOrderHandler error", zap.Error(err))
 		switch err.(type) {
 		case movetaskorderservice.ErrNotFound:
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusNotFound()
@@ -67,6 +70,14 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 			return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError()
 		}
 	}
+
 	moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
+
+	// Audit attempt to make MTO available to prime
+	_, err = audit.Capture(mto, moveTaskOrderPayload, logger, session, params.HTTPRequest)
+	if err != nil {
+		logger.Error("Auditing service error for making MTO available to Prime.", zap.Error(err))
+		return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError()
+	}
 	return movetaskorderops.NewUpdateMoveTaskOrderStatusOK().WithPayload(moveTaskOrderPayload)
 }

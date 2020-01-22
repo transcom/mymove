@@ -46,9 +46,11 @@ ifdef GOLAND
 	GOLAND_GC_FLAGS=all=-N -l
 endif
 
+
 .PHONY: help
 help:  ## Print the help documentation
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
 
 #
 # ----- END PREAMBLE -----
@@ -129,6 +131,11 @@ test: client_test server_test e2e_test ## Run all tests
 .PHONY: diagnostic
 diagnostic: .prereqs.stamp check_docker_size ## Run diagnostic scripts on environment
 
+.PHONY: check_log_dir
+check_log_dir:
+	mkdir -p log
+
+# Make sure we have a log directory
 #
 # ----- END CHECK TARGETS -----
 #
@@ -220,8 +227,8 @@ bin/big-cat:
 bin/compare-secure-migrations:
 	go build -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare-secure-migrations
 
-bin/ecs-deploy-task-container:
-	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy-task-container ./cmd/ecs-deploy-task-container
+bin/ecs-deploy:
+	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy ./cmd/ecs-deploy
 
 bin/ecs-service-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
@@ -271,16 +278,14 @@ bin/query-lb-logs:
 bin/read-alb-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/read-alb-logs ./cmd/read-alb-logs
 
-bin/renderer:
-	# do not build with LDFLAGS since errors on alpine and dynamic linking is fine
-	# throws errors loadinternal: cannot find runtime/cgo
-	go build -o bin/renderer ./cmd/renderer
-
 bin/report-ecs:
 	go build -ldflags "$(LDFLAGS)" -o bin/report-ecs ./cmd/report-ecs
 
 bin/send-to-gex: pkg/gen/
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
+
+bin/tls-checker:
+	go build -ldflags "$(LDFLAGS)" -o bin/tls-checker ./cmd/tls-checker
 
 pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
 	# Fix the modtime to prevent diffs when generating on different machines
@@ -311,8 +316,8 @@ server_build_linux: ## Build the server (linux)
 
 # This command is for running the server by itself, it will serve the compiled frontend on its own
 # Note: Don't double wrap with aws-vault because the pkg/cli/vault.go will handle it
-server_run_standalone: server_build client_build db_dev_run
-	DEBUG_LOGGING=true ./bin/milmove serve
+server_run_standalone: check_log_dir server_build client_build db_dev_run
+	DEBUG_LOGGING=true ./bin/milmove serve 2>&1 | tee -a log/dev.log
 
 # This command will rebuild the swagger go code and rerun server on any changes
 server_run:
@@ -320,7 +325,7 @@ server_run:
 # This command runs the server behind gin, a hot-reload server
 # Note: Gin is not being used as a proxy so assigning odd port and laddr to keep in IPv4 space.
 # Note: The INTERFACE envar is set to configure the gin build, milmove_gin, local IP4 space with default port 8080.
-server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp bin/gin build/index.html server_generate db_dev_run
+server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir bin/gin build/index.html server_generate db_dev_run
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) ./bin/gin \
 		--build ./cmd/milmove \
@@ -329,11 +334,12 @@ server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.sta
 		--excludeDir node_modules \
 		--immediate \
 		--buildArgs "-i -ldflags=\"$(WEBSERVER_LDFLAGS)\"" \
-		serve
+		serve \
+		2>&1 | tee -a log/dev.log
 
 .PHONY: server_run_debug
-server_run_debug: ## Debug the server
-	$(AWS_VAULT) dlv debug cmd/milmove/*.go -- serve
+server_run_debug: check_log_dir ## Debug the server
+	$(AWS_VAULT) dlv debug cmd/milmove/*.go -- serve 2>&1 | tee -a log/dev.log
 
 .PHONY: build_tools
 build_tools: bin/gin \
@@ -342,7 +348,7 @@ build_tools: bin/gin \
 	bin/rds-ca-2019-root.pem \
 	bin/big-cat \
 	bin/compare-secure-migrations \
-	bin/ecs-deploy-task-container \
+	bin/ecs-deploy \
 	bin/ecs-service-logs \
 	bin/find-guardduty-user \
 	bin/generate-access-codes \
@@ -354,9 +360,9 @@ build_tools: bin/gin \
 	bin/query-cloudwatch-logs \
 	bin/query-lb-logs \
 	bin/read-alb-logs \
-	bin/renderer \
 	bin/report-ecs \
-	bin/send-to-gex ## Build all tools
+	bin/send-to-gex \
+	bin/tls-checker ## Build all tools
 
 .PHONY: build
 build: server_build build_tools client_build ## Build the server, tools, and client
@@ -650,10 +656,6 @@ e2e_test_docker_mymove: ## Run e2e (end-to-end) Service Member integration tests
 e2e_test_docker_office: ## Run e2e (end-to-end) Office integration tests with docker
 	$(AWS_VAULT) SPEC=cypress/integration/office/**/* ./scripts/run-e2e-test-docker
 
-.PHONY: e2e_test_docker_tsp
-e2e_test_docker_tsp: ## Run e2e (end-to-end) TSP integration tests with docker
-	$(AWS_VAULT) SPEC=cypress/integration/tsp/**/* ./scripts/run-e2e-test-docker
-
 .PHONY: e2e_test_docker_api
 e2e_test_docker_api: ## Run e2e (end-to-end) API integration tests with docker
 	$(AWS_VAULT) SPEC=cypress/integration/api/**/* ./scripts/run-e2e-test-docker
@@ -878,6 +880,7 @@ clean: ## Clean all generated files
 	rm -rf ./tmp/storage
 	rm -rf ./storybook-static
 	rm -rf ./coverage
+	rm -rf ./log
 
 .PHONY: spellcheck
 spellcheck: ## Run interactive spellchecker

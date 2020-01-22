@@ -11,6 +11,7 @@ import {
   selectMoveTaskOrders,
 } from 'shared/Entities/modules/moveTaskOrders';
 import { getMTOServiceItems, selectMTOServiceItems } from 'shared/Entities/modules/mtoServiceItems';
+import { getMTOShipments, selectMTOShipments } from 'shared/Entities/modules/mtoShipments';
 
 class CustomerDetails extends Component {
   componentDidMount() {
@@ -20,11 +21,12 @@ class CustomerDetails extends Component {
       this.props.getAllMoveTaskOrders(moveOrder.id).then(({ response: { body: moveTaskOrder } }) => {
         // TODO: would like to do batch fetching later
         moveTaskOrder.forEach(item => this.props.getMTOServiceItems(item.id));
+        moveTaskOrder.forEach(item => this.props.getMTOShipments(item.id));
       });
     });
   }
   render() {
-    const { moveTaskOrder, customer, moveOrder, mtoServiceItems } = this.props;
+    const { moveTaskOrder, customer, moveOrder, mtoServiceItems, mtoShipments } = this.props;
     const entitlements = get(moveOrder, 'entitlement', {});
     return (
       <>
@@ -33,14 +35,24 @@ class CustomerDetails extends Component {
           <>
             <h2>Customer Info</h2>
             <dl>
+              <dt>ID</dt>
+              <dd>{get(customer, 'id')}</dd>
               <dt>First Name</dt>
               <dd>{get(customer, 'first_name')}</dd>
               <dt>Last Name</dt>
               <dd>{get(customer, 'last_name')}</dd>
-              <dt>ID</dt>
-              <dd>{get(customer, 'id')}</dd>
+              <dt>Email</dt>
+              <dd>{get(customer, 'email')}</dd>
+              <dt>Phone</dt>
+              <dd>{get(customer, 'phone')}</dd>
+              <dt>Current Address</dt>
+              <dd>{JSON.stringify(get(customer, 'current_address'))}</dd>
+              <dt>Destination Address</dt>
+              <dd>{JSON.stringify(get(customer, 'destination_address'))}</dd>
               <dt>DOD ID</dt>
               <dd>{get(customer, 'dodID')}</dd>
+              <dt>Agency</dt>
+              <dd>{get(customer, 'agency')}</dd>
             </dl>
           </>
         )}
@@ -59,6 +71,8 @@ class CustomerDetails extends Component {
               <>
                 <h2>Customer Entitlements</h2>
                 <dl>
+                  <dt>Rank</dt>
+                  <dd>{get(moveOrder, 'grade', '')}</dd>
                   <dt>Dependents Authorized</dt>
                   <dd>{get(entitlements, 'dependentsAuthorized', '').toString()}</dd>
                   <dt>Non Temporary Storage</dt>
@@ -69,6 +83,10 @@ class CustomerDetails extends Component {
                   <dd>{get(entitlements, 'proGearWeightSpouse')}</dd>
                   <dt>Storage In Transit</dt>
                   <dd>{get(entitlements, 'storageInTransit', '').toString()}</dd>
+                  <dt>Total Weight</dt>
+                  <dd>{get(entitlements, 'totalWeight')}</dd>
+                  <dt>Authorized Weight</dt>
+                  <dd>{get(entitlements, 'authorizedWeight')}</dd>
                   <dt>Total Dependents</dt>
                   <dd>{get(entitlements, 'totalDependents')}</dd>
                 </dl>
@@ -88,6 +106,30 @@ class CustomerDetails extends Component {
               <dt>Is Canceled</dt>
               <dd>{get(moveTaskOrder, 'isCanceled', false).toString()}</dd>
             </dl>
+
+            <h2>Requested Shipments</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Shipment Type</th>
+                  <th>Requested Pick-up Date</th>
+                  <th>Customer Remarks</th>
+                </tr>
+              </thead>
+              <tbody>
+                {mtoShipments.map(items => (
+                  <Fragment key={items.id}>
+                    <tr>
+                      <td>{items.id}</td>
+                      <td>{items.shipmentType}</td>
+                      <td>{items.requestedPickupDate}</td>
+                      <td>{items.customerRemarks}</td>
+                    </tr>
+                  </Fragment>
+                ))}
+              </tbody>
+            </table>
 
             <h2>MTO Service Items</h2>
             <table>
@@ -132,8 +174,8 @@ const mapStateToProps = (state, ownProps) => {
   return {
     moveOrder,
     customer: selectCustomer(state, ownProps.match.params.customerId),
-
     mtoServiceItems: selectMTOServiceItems(state, moveOrderId),
+    mtoShipments: selectMTOShipments(state, moveOrderId),
     // TODO: Change when we start making use of multiple move task orders
     moveTaskOrder: moveTaskOrders[0],
   };
@@ -145,6 +187,7 @@ const mapDispatchToProps = {
   updateMoveTaskOrderStatus,
   getCustomer,
   getMTOServiceItems,
+  getMTOShipments,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CustomerDetails);

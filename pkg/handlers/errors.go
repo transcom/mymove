@@ -88,6 +88,8 @@ func ResponseForError(logger Logger, err error) middleware.Responder {
 		switch e.Code() {
 		case route.UnsupportedPostalCode, route.UnroutableRoute:
 			return newErrResponse(http.StatusUnprocessableEntity, err)
+		case route.ShortHaulError:
+			return newErrResponse(http.StatusConflict, err)
 		default:
 			return newErrResponse(http.StatusInternalServerError, err)
 		}

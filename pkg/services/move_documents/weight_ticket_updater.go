@@ -70,7 +70,7 @@ func (wtu WeightTicketUpdater) Update(moveDocumentPayload *internalmessages.Move
 	updatedMoveDoc.WeightTicketSetDocument.FullWeight = fullWeight
 	updatedMoveDoc.WeightTicketSetDocument.FullWeightTicketMissing = fullWeightTicketMissing
 	updatedMoveDoc.WeightTicketSetDocument.VehicleNickname = moveDocumentPayload.VehicleNickname
-	updatedMoveDoc.WeightTicketSetDocument.VehicleOptions = moveDocumentPayload.VehicleOptions
+	updatedMoveDoc.WeightTicketSetDocument.WeightTicketSetType = models.WeightTicketSetType(*moveDocumentPayload.WeightTicketSetType)
 	updatedMoveDoc.WeightTicketSetDocument.WeightTicketDate = weightTicketDate
 	updatedMoveDoc.WeightTicketSetDocument.TrailerOwnershipMissing = trailerOwnershipMissing
 	updatedMoveDoc, returnVerrs, err = wtu.updatePPMNetWeight(updatedMoveDoc, session)

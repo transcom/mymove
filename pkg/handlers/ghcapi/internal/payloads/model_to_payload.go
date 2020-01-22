@@ -28,11 +28,16 @@ func Customer(customer *models.Customer) *ghcmessages.Customer {
 		return nil
 	}
 	payload := ghcmessages.Customer{
-		DodID:     customer.DODID,
-		FirstName: customer.FirstName,
-		LastName:  customer.LastName,
-		ID:        strfmt.UUID(customer.ID.String()),
-		UserID:    strfmt.UUID(customer.UserID.String()),
+		Agency:             customer.Agency,
+		CurrentAddress:     Address(&customer.CurrentAddress),
+		DestinationAddress: Address(&customer.DestinationAddress),
+		DodID:              customer.DODID,
+		Email:              customer.Email,
+		FirstName:          customer.FirstName,
+		ID:                 strfmt.UUID(customer.ID.String()),
+		LastName:           customer.LastName,
+		Phone:              customer.PhoneNumber,
+		UserID:             strfmt.UUID(customer.UserID.String()),
 	}
 	return &payload
 }
@@ -43,6 +48,7 @@ func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
 	}
 	destinationDutyStation := DutyStation(&moveOrder.DestinationDutyStation)
 	originDutyStation := DutyStation(&moveOrder.OriginDutyStation)
+	moveOrder.Entitlement.SetWeightAllotment(moveOrder.Grade)
 	entitlements := Entitlement(&moveOrder.Entitlement)
 	payload := ghcmessages.MoveOrder{
 		Agency:                 moveOrder.Customer.Agency,
@@ -63,13 +69,16 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	if entitlement == nil {
 		return nil
 	}
-	var proGearWeight int64
-	if entitlement.ProGearWeight != nil {
-		proGearWeight = int64(*entitlement.ProGearWeight)
+	var proGearWeight, proGearWeightSpouse, totalWeight int64
+	if entitlement.WeightAllotment() != nil {
+		proGearWeight = int64(entitlement.WeightAllotment().ProGearWeight)
+		proGearWeightSpouse = int64(entitlement.WeightAllotment().ProGearWeightSpouse)
+		totalWeight = int64(entitlement.WeightAllotment().TotalWeightSelf)
 	}
-	var proGearWeightSpouse int64
-	if entitlement.ProGearWeightSpouse != nil {
-		proGearWeightSpouse = int64(*entitlement.ProGearWeightSpouse)
+	var authorizedWeight *int64
+	if entitlement.AuthorizedWeight() != nil {
+		aw := int64(*entitlement.AuthorizedWeight())
+		authorizedWeight = &aw
 	}
 	var sit int64
 	if entitlement.StorageInTransit != nil {
@@ -81,6 +90,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	}
 	return &ghcmessages.Entitlements{
 		ID:                    strfmt.UUID(entitlement.ID.String()),
+		AuthorizedWeight:      authorizedWeight,
 		DependentsAuthorized:  entitlement.DependentsAuthorized,
 		NonTemporaryStorage:   entitlement.NonTemporaryStorage,
 		PrivatelyOwnedVehicle: entitlement.PrivatelyOwnedVehicle,
@@ -88,6 +98,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		ProGearWeightSpouse:   proGearWeightSpouse,
 		StorageInTransit:      sit,
 		TotalDependents:       totalDependents,
+		TotalWeight:           totalWeight,
 	}
 }
 
@@ -119,4 +130,25 @@ func Address(address *models.Address) *ghcmessages.Address {
 		PostalCode:     &address.PostalCode,
 		Country:        address.Country,
 	}
+}
+
+func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
+	return &ghcmessages.MTOShipment{
+		ID:                  strfmt.UUID(mtoShipment.ID.String()),
+		MoveTaskOrderID:     strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
+		ShipmentType:        "HHG",
+		CustomerRemarks:     *mtoShipment.CustomerRemarks,
+		RequestedPickupDate: strfmt.Date(*mtoShipment.RequestedPickupDate),
+		CreatedAt:           strfmt.Date(mtoShipment.CreatedAt),
+		UpdatedAt:           strfmt.Date(mtoShipment.UpdatedAt),
+	}
+}
+
+func MTOShipments(mtoShipments *models.MTOShipments) *ghcmessages.MTOShipments {
+	payload := make(ghcmessages.MTOShipments, len(*mtoShipments))
+
+	for i, m := range *mtoShipments {
+		payload[i] = MTOShipment(&m)
+	}
+	return &payload
 }

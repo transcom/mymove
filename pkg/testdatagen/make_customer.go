@@ -1,6 +1,7 @@
 package testdatagen
 
 import (
+	"fmt"
 	"math/rand"
 
 	"github.com/gobuffalo/pop"
@@ -34,9 +35,17 @@ func MakeAgency() string {
 // MakeCustomer creates a single Customer
 func MakeCustomer(db *pop.Connection, assertions Assertions) models.Customer {
 	user := assertions.User
-	firstName := assertions.Customer.FirstName
-	lastName := assertions.Customer.LastName
-	agency := assertions.Customer.Agency
+	aCustomer := assertions.Customer
+	firstName := aCustomer.FirstName
+	lastName := aCustomer.LastName
+	agency := aCustomer.Agency
+	currentAddressID := aCustomer.CurrentAddressID
+	currentAddress := aCustomer.CurrentAddress
+	destinationAddressID := aCustomer.DestinationAddressID
+	destinationAddress := aCustomer.DestinationAddress
+	email := aCustomer.Email
+	phoneNumber := aCustomer.PhoneNumber
+
 	if firstName == "" {
 		firstName = MakeFirstName()
 	}
@@ -48,21 +57,41 @@ func MakeCustomer(db *pop.Connection, assertions Assertions) models.Customer {
 	if agency == "" {
 		agency = MakeAgency()
 	}
+	if email == nil || *email == "" {
+		e := fmt.Sprintf("%s%s@mail.com", firstName, lastName)
+		email = &e
+	}
+	if phoneNumber == nil || *phoneNumber == "" {
+		p := "212-123-456"
+		phoneNumber = &p
+	}
 
 	if isZeroUUID(user.ID) {
 		user = MakeUser(db, assertions)
 	}
+	if currentAddressID == nil || isZeroUUID(*currentAddressID) {
+		currentAddress = MakeAddress(db, Assertions{})
+	}
+	if destinationAddressID == nil || isZeroUUID(*destinationAddressID) {
+		destinationAddress = MakeAddress2(db, Assertions{})
+	}
 	customer := models.Customer{
-		Agency:    agency,
-		FirstName: firstName,
-		LastName:  lastName,
-		User:      user,
-		UserID:    user.ID,
-		DODID:     randomEdipi(),
+		Agency:               agency,
+		CurrentAddress:       currentAddress,
+		CurrentAddressID:     &currentAddress.ID,
+		DODID:                randomEdipi(),
+		DestinationAddress:   destinationAddress,
+		DestinationAddressID: &destinationAddress.ID,
+		Email:                email,
+		FirstName:            firstName,
+		LastName:             lastName,
+		PhoneNumber:          phoneNumber,
+		User:                 user,
+		UserID:               user.ID,
 	}
 
 	// Overwrite values with those from assertions
-	mergeModels(&customer, assertions.Customer)
+	mergeModels(&customer, aCustomer)
 	mustCreate(db, &customer)
 
 	return customer

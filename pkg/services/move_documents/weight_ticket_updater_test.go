@@ -50,7 +50,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightUpdate() {
 		FullWeight:               &fullWeight1,
 		FullWeightTicketMissing:  false,
 		VehicleNickname:          "My Car",
-		VehicleOptions:           "CAR",
+		WeightTicketSetType:      models.WeightTicketSetTypeCAR,
 		WeightTicketDate:         &testdatagen.NextValidMoveDate,
 		TrailerOwnershipMissing:  false,
 	}
@@ -58,20 +58,21 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightUpdate() {
 	suite.NoVerrs(verrs)
 	suite.NoError(err)
 
-	emptyWeight := (int64)(200)
-	fullWeight := (int64)(500)
+	emptyWeight := int64(200)
+	fullWeight := int64(500)
+	weightTicketSetType := internalmessages.WeightTicketSetTypeCAR
 	updateMoveDocPayload := &internalmessages.MoveDocumentPayload{
-		ID:               handlers.FmtUUID(moveDocument.ID),
-		MoveID:           handlers.FmtUUID(move.ID),
-		Title:            handlers.FmtString("super_awesome.pdf"),
-		Notes:            handlers.FmtString("This document is super awesome."),
-		Status:           internalmessages.MoveDocumentStatusOK,
-		VehicleNickname:  "My Car",
-		VehicleOptions:   "CAR",
-		MoveDocumentType: internalmessages.MoveDocumentTypeWEIGHTTICKETSET,
-		EmptyWeight:      &emptyWeight,
-		FullWeight:       &fullWeight,
-		WeightTicketDate: handlers.FmtDate(wtDate),
+		ID:                  handlers.FmtUUID(moveDocument.ID),
+		MoveID:              handlers.FmtUUID(move.ID),
+		Title:               handlers.FmtString("super_awesome.pdf"),
+		Notes:               handlers.FmtString("This document is super awesome."),
+		Status:              internalmessages.MoveDocumentStatusOK,
+		VehicleNickname:     "My Car",
+		WeightTicketSetType: &weightTicketSetType,
+		MoveDocumentType:    internalmessages.MoveDocumentTypeWEIGHTTICKETSET,
+		EmptyWeight:         &emptyWeight,
+		FullWeight:          &fullWeight,
+		WeightTicketDate:    handlers.FmtDate(wtDate),
 	}
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
@@ -89,7 +90,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightUpdate() {
 	suite.Require().Equal("This document is super awesome.", *md.Notes)
 	suite.Require().Equal(models.MoveDocumentStatusOK, md.Status)
 	suite.Require().Equal("My Car", md.WeightTicketSetDocument.VehicleNickname)
-	suite.Require().Equal("CAR", md.WeightTicketSetDocument.VehicleOptions)
+	suite.Require().Equal(models.WeightTicketSetTypeCAR, md.WeightTicketSetDocument.WeightTicketSetType)
 	suite.Require().Equal(unit.Pound(200), *md.WeightTicketSetDocument.EmptyWeight)
 	suite.Require().Equal(unit.Pound(500), *md.WeightTicketSetDocument.FullWeight)
 	actualWtDate := *md.WeightTicketSetDocument.WeightTicketDate
@@ -138,7 +139,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightWhenMultipleWeightTickets() 
 		FullWeight:               &fullWeight1,
 		FullWeightTicketMissing:  false,
 		VehicleNickname:          "My Car",
-		VehicleOptions:           "CAR",
+		WeightTicketSetType:      "CAR",
 		WeightTicketDate:         &testdatagen.NextValidMoveDate,
 		TrailerOwnershipMissing:  false,
 	}
@@ -172,7 +173,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightWhenMultipleWeightTickets() 
 		FullWeight:               &fullWeight2,
 		FullWeightTicketMissing:  false,
 		VehicleNickname:          "My Car",
-		VehicleOptions:           "CAR",
+		WeightTicketSetType:      "CAR",
 		WeightTicketDate:         &testdatagen.NextValidMoveDate,
 		TrailerOwnershipMissing:  false,
 	}
@@ -180,29 +181,31 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightWhenMultipleWeightTickets() 
 	suite.NoVerrs(verrs)
 	suite.NoError(err)
 
+	weightTicketSetType := internalmessages.WeightTicketSetTypeCAR
+
 	updateMoveDocOnePayload := &internalmessages.MoveDocumentPayload{
-		ID:               handlers.FmtUUID(moveDocumentOne.ID),
-		Status:           internalmessages.MoveDocumentStatusOK,
-		Title:            handlers.FmtString("super_awesome.pdf"),
-		Notes:            handlers.FmtString("This document is super awesome."),
-		VehicleNickname:  "My Car",
-		VehicleOptions:   "CAR",
-		MoveDocumentType: internalmessages.MoveDocumentTypeWEIGHTTICKETSET,
-		EmptyWeight:      handlers.FmtInt64((int64)(emptyWeight1)),
-		FullWeight:       handlers.FmtInt64((int64)(fullWeight1)),
-		WeightTicketDate: handlers.FmtDate(wtDateTwo),
+		ID:                  handlers.FmtUUID(moveDocumentOne.ID),
+		Status:              internalmessages.MoveDocumentStatusOK,
+		Title:               handlers.FmtString("super_awesome.pdf"),
+		Notes:               handlers.FmtString("This document is super awesome."),
+		VehicleNickname:     "My Car",
+		WeightTicketSetType: &weightTicketSetType,
+		MoveDocumentType:    internalmessages.MoveDocumentTypeWEIGHTTICKETSET,
+		EmptyWeight:         handlers.FmtInt64((int64)(emptyWeight1)),
+		FullWeight:          handlers.FmtInt64((int64)(fullWeight1)),
+		WeightTicketDate:    handlers.FmtDate(wtDateTwo),
 	}
 	updateMoveDocTwoPayload := &internalmessages.MoveDocumentPayload{
-		ID:               handlers.FmtUUID(moveDocumentOne.ID),
-		Status:           internalmessages.MoveDocumentStatusOK,
-		Title:            handlers.FmtString("super_awesome.pdf"),
-		Notes:            handlers.FmtString("This document is super awesome."),
-		VehicleNickname:  "My Car",
-		VehicleOptions:   "CAR",
-		MoveDocumentType: internalmessages.MoveDocumentTypeWEIGHTTICKETSET,
-		EmptyWeight:      handlers.FmtInt64((int64)(emptyWeight2)),
-		FullWeight:       handlers.FmtInt64((int64)(fullWeight2)),
-		WeightTicketDate: handlers.FmtDate(wtDateTwo),
+		ID:                  handlers.FmtUUID(moveDocumentOne.ID),
+		Status:              internalmessages.MoveDocumentStatusOK,
+		Title:               handlers.FmtString("super_awesome.pdf"),
+		Notes:               handlers.FmtString("This document is super awesome."),
+		VehicleNickname:     "My Car",
+		WeightTicketSetType: &weightTicketSetType,
+		MoveDocumentType:    internalmessages.MoveDocumentTypeWEIGHTTICKETSET,
+		EmptyWeight:         handlers.FmtInt64((int64)(emptyWeight2)),
+		FullWeight:          handlers.FmtInt64((int64)(fullWeight2)),
+		WeightTicketDate:    handlers.FmtDate(wtDateTwo),
 	}
 	originalMoveDocumentOne, err := models.FetchMoveDocument(suite.DB(), session, moveDocumentOne.ID, false)
 	suite.Nil(err)
@@ -262,7 +265,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightRemovedWhenStatusNotOK() {
 		FullWeight:               &fullWeight1,
 		FullWeightTicketMissing:  false,
 		VehicleNickname:          "My Car",
-		VehicleOptions:           "CAR",
+		WeightTicketSetType:      "CAR",
 		WeightTicketDate:         &testdatagen.NextValidMoveDate,
 		TrailerOwnershipMissing:  false,
 	}
@@ -270,21 +273,23 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightRemovedWhenStatusNotOK() {
 	suite.NoVerrs(verrs)
 	suite.NoError(err)
 
-	emptyWeight := (int64)(200)
-	fullWeight := (int64)(500)
+	emptyWeight := int64(200)
+	fullWeight := int64(500)
 	wtDate := time.Date(2019, 05, 11, 0, 0, 0, 0, time.UTC)
+	weightTicketSetType := internalmessages.WeightTicketSetTypeCAR
+
 	updateMoveDocPayload := &internalmessages.MoveDocumentPayload{
-		EmptyWeight:      &emptyWeight,
-		FullWeight:       &fullWeight,
-		ID:               handlers.FmtUUID(moveDocument.ID),
-		MoveDocumentType: internalmessages.MoveDocumentTypeWEIGHTTICKETSET,
-		MoveID:           handlers.FmtUUID(move.ID),
-		Notes:            handlers.FmtString("This document is super awesome."),
-		Status:           internalmessages.MoveDocumentStatusHASISSUE,
-		Title:            handlers.FmtString("super_awesome.pdf"),
-		VehicleNickname:  "My Car",
-		VehicleOptions:   "CAR",
-		WeightTicketDate: handlers.FmtDate(wtDate),
+		EmptyWeight:         &emptyWeight,
+		FullWeight:          &fullWeight,
+		ID:                  handlers.FmtUUID(moveDocument.ID),
+		MoveDocumentType:    internalmessages.MoveDocumentTypeWEIGHTTICKETSET,
+		MoveID:              handlers.FmtUUID(move.ID),
+		Notes:               handlers.FmtString("This document is super awesome."),
+		Status:              internalmessages.MoveDocumentStatusHASISSUE,
+		Title:               handlers.FmtString("super_awesome.pdf"),
+		VehicleNickname:     "My Car",
+		WeightTicketSetType: &weightTicketSetType,
+		WeightTicketDate:    handlers.FmtDate(wtDate),
 	}
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
@@ -302,7 +307,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightRemovedWhenStatusNotOK() {
 	suite.Require().Equal("This document is super awesome.", *md.Notes)
 	suite.Require().Equal(models.MoveDocumentStatusHASISSUE, md.Status)
 	suite.Require().Equal("My Car", md.WeightTicketSetDocument.VehicleNickname)
-	suite.Require().Equal("CAR", md.WeightTicketSetDocument.VehicleOptions)
+	suite.Require().Equal(models.WeightTicketSetTypeCAR, md.WeightTicketSetDocument.WeightTicketSetType)
 	suite.Require().Equal(unit.Pound(200), *md.WeightTicketSetDocument.EmptyWeight)
 	suite.Require().Equal(unit.Pound(500), *md.WeightTicketSetDocument.FullWeight)
 	actualWtDate := *md.WeightTicketSetDocument.WeightTicketDate
@@ -353,7 +358,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightAfterManualOverride() {
 		FullWeight:               &fullWeight1,
 		FullWeightTicketMissing:  false,
 		VehicleNickname:          "My Car",
-		VehicleOptions:           "CAR",
+		WeightTicketSetType:      models.WeightTicketSetTypeCAR,
 		WeightTicketDate:         &testdatagen.NextValidMoveDate,
 		TrailerOwnershipMissing:  false,
 	}
@@ -363,18 +368,20 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightAfterManualOverride() {
 
 	emptyWeight := (int64)(200)
 	fullWeight := (int64)(500)
+	weightTicketSetType := internalmessages.WeightTicketSetTypeCAR
+
 	updateMoveDocPayload := &internalmessages.MoveDocumentPayload{
-		ID:               handlers.FmtUUID(moveDocument.ID),
-		MoveID:           handlers.FmtUUID(move.ID),
-		Title:            handlers.FmtString("super_awesome.pdf"),
-		Notes:            handlers.FmtString("This document is super awesome."),
-		Status:           internalmessages.MoveDocumentStatusOK,
-		VehicleNickname:  "My Car",
-		VehicleOptions:   "CAR",
-		MoveDocumentType: internalmessages.MoveDocumentTypeWEIGHTTICKETSET,
-		EmptyWeight:      &emptyWeight,
-		FullWeight:       &fullWeight,
-		WeightTicketDate: handlers.FmtDate(wtDate),
+		ID:                  handlers.FmtUUID(moveDocument.ID),
+		MoveID:              handlers.FmtUUID(move.ID),
+		Title:               handlers.FmtString("super_awesome.pdf"),
+		Notes:               handlers.FmtString("This document is super awesome."),
+		Status:              internalmessages.MoveDocumentStatusOK,
+		VehicleNickname:     "My Car",
+		WeightTicketSetType: &weightTicketSetType,
+		MoveDocumentType:    internalmessages.MoveDocumentTypeWEIGHTTICKETSET,
+		EmptyWeight:         &emptyWeight,
+		FullWeight:          &fullWeight,
+		WeightTicketDate:    handlers.FmtDate(wtDate),
 	}
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID, false)
@@ -392,7 +399,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightAfterManualOverride() {
 	suite.Require().Equal("This document is super awesome.", *md.Notes)
 	suite.Require().Equal(models.MoveDocumentStatusOK, md.Status)
 	suite.Require().Equal("My Car", md.WeightTicketSetDocument.VehicleNickname)
-	suite.Require().Equal("CAR", md.WeightTicketSetDocument.VehicleOptions)
+	suite.Require().Equal(models.WeightTicketSetTypeCAR, md.WeightTicketSetDocument.WeightTicketSetType)
 	suite.Require().Equal(unit.Pound(200), *md.WeightTicketSetDocument.EmptyWeight)
 	suite.Require().Equal(unit.Pound(500), *md.WeightTicketSetDocument.FullWeight)
 	actualWtDate := *md.WeightTicketSetDocument.WeightTicketDate

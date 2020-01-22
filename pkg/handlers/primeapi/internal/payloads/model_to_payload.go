@@ -11,6 +11,8 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 	if moveTaskOrder == nil {
 		return nil
 	}
+	paymentRequests := PaymentRequests(&moveTaskOrder.PaymentRequests)
+	mtoServiceItems := MTOServiceItems(&moveTaskOrder.MTOServiceItems)
 	payload := &primemessages.MoveTaskOrder{
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
@@ -18,6 +20,8 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 		IsCanceled:         &moveTaskOrder.IsCanceled,
 		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
 		ReferenceID:        moveTaskOrder.ReferenceID,
+		PaymentRequests:    paymentRequests,
+		MtoServiceItems:    mtoServiceItems,
 		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
 	}
 	return payload
@@ -50,6 +54,7 @@ func MoveOrder(moveOrders *models.MoveOrder) *primemessages.MoveOrder {
 	}
 	destinationDutyStation := DutyStation(&moveOrders.DestinationDutyStation)
 	originDutyStation := DutyStation(&moveOrders.OriginDutyStation)
+	moveOrders.Entitlement.SetWeightAllotment(moveOrders.Grade)
 	entitlements := Entitlement(&moveOrders.Entitlement)
 	payload := primemessages.MoveOrder{
 		CustomerID:             strfmt.UUID(moveOrders.CustomerID.String()),
@@ -65,13 +70,16 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 	if entitlement == nil {
 		return nil
 	}
-	var proGearWeight int64
-	if entitlement.ProGearWeight != nil {
-		proGearWeight = int64(*entitlement.ProGearWeight)
+	var proGearWeight, proGearWeightSpouse, totalWeight int64
+	if entitlement.WeightAllotment() != nil {
+		proGearWeight = int64(entitlement.WeightAllotment().ProGearWeight)
+		proGearWeightSpouse = int64(entitlement.WeightAllotment().ProGearWeightSpouse)
+		totalWeight = int64(entitlement.WeightAllotment().TotalWeightSelf)
 	}
-	var proGearWeightSpouse int64
-	if entitlement.ProGearWeightSpouse != nil {
-		proGearWeightSpouse = int64(*entitlement.ProGearWeightSpouse)
+	var authorizedWeight *int64
+	if entitlement.AuthorizedWeight() != nil {
+		aw := int64(*entitlement.AuthorizedWeight())
+		authorizedWeight = &aw
 	}
 	var sit int64
 	if entitlement.StorageInTransit != nil {
@@ -83,6 +91,7 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 	}
 	return &primemessages.Entitlements{
 		ID:                    strfmt.UUID(entitlement.ID.String()),
+		AuthorizedWeight:      authorizedWeight,
 		DependentsAuthorized:  entitlement.DependentsAuthorized,
 		NonTemporaryStorage:   entitlement.NonTemporaryStorage,
 		PrivatelyOwnedVehicle: entitlement.PrivatelyOwnedVehicle,
@@ -90,6 +99,7 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 		ProGearWeightSpouse:   proGearWeightSpouse,
 		StorageInTransit:      sit,
 		TotalDependents:       totalDependents,
+		TotalWeight:           totalWeight,
 	}
 }
 
@@ -121,4 +131,42 @@ func Address(address *models.Address) *primemessages.Address {
 		PostalCode:     &address.PostalCode,
 		Country:        address.Country,
 	}
+}
+
+func PaymentRequest(paymentRequest *models.PaymentRequest) *primemessages.PaymentRequest {
+	return &primemessages.PaymentRequest{
+		ID:              strfmt.UUID(paymentRequest.ID.String()),
+		Status:          primemessages.PaymentRequestStatus(paymentRequest.Status),
+		IsFinal:         &paymentRequest.IsFinal,
+		MoveTaskOrderID: strfmt.UUID(paymentRequest.MoveTaskOrderID.String()),
+		RejectionReason: paymentRequest.RejectionReason,
+	}
+}
+
+func PaymentRequests(paymentRequests *[]models.PaymentRequest) []*primemessages.PaymentRequest {
+	payload := make(primemessages.PaymentRequests, len(*paymentRequests))
+
+	for i, p := range *paymentRequests {
+		payload[i] = PaymentRequest(&p)
+	}
+	return payload
+}
+
+func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) *primemessages.MTOServiceItem {
+	return &primemessages.MTOServiceItem{
+		ID:              strfmt.UUID(mtoServiceItem.ID.String()),
+		MoveTaskOrderID: strfmt.UUID(mtoServiceItem.MoveTaskOrderID.String()),
+		ReServiceID:     strfmt.UUID(mtoServiceItem.ReServiceID.String()),
+		ReServiceCode:   mtoServiceItem.ReService.Code,
+		ReServiceName:   mtoServiceItem.ReService.Name,
+	}
+}
+
+func MTOServiceItems(mtoServiceItems *[]models.MTOServiceItem) []*primemessages.MTOServiceItem {
+	payload := make(primemessages.MTOServiceItems, len(*mtoServiceItems))
+
+	for i, p := range *mtoServiceItems {
+		payload[i] = MTOServiceItem(&p)
+	}
+	return payload
 }

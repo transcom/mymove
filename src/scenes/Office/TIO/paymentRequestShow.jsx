@@ -1,27 +1,57 @@
 import React from 'react';
+import { Formik, Form, Field } from 'formik';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { selectPaymentRequest, getPaymentRequest } from 'shared/Entities/modules/paymentRequests';
+import { selectPaymentRequest, getPaymentRequest, updatePaymentRequest } from 'shared/Entities/modules/paymentRequests';
 
 class PaymentRequestShow extends React.Component {
   componentDidMount() {
     this.props.getPaymentRequest(this.props.id);
   }
 
+  updatePaymentRequest = (paymentRequest = {}) => {
+    paymentRequest.status = 'REVIEWED';
+    paymentRequest.paymentRequestID = this.props.id;
+    this.props.updatePaymentRequest(paymentRequest);
+  };
+
   render() {
     const {
       id,
-      paymentRequest: { isFinal, rejectionReason, serviceItemIDs },
+      paymentRequest: { isFinal, rejectionReason, serviceItemIDs, status },
     } = this.props;
     return (
-      <div>
-        <h1>Payment Request Id {id}</h1>
-        <ul>
-          <li>isFinal: {`${isFinal}`}</li>
-          <li>rejectionReason: {rejectionReason}</li>
-          <li>serviceItemIds: {serviceItemIDs}</li>
-        </ul>
-      </div>
+      <>
+        <div>
+          <h1>Payment Request Id {id}</h1>
+          <ul>
+            <li>isFinal: {`${isFinal}`}</li>
+            <li>rejectionReason: {rejectionReason}</li>
+            <li>serviceItemIds: {serviceItemIDs}</li>
+            <li>status: {status}</li>
+          </ul>
+          <button className="usa-button usa-button--outline" onClick={this.updatePaymentRequest}>
+            Approve
+          </button>
+
+          <Formik
+            initialValues={{ rejectionReason: '' }}
+            onSubmit={(values, { setSubmitting }) => {
+              this.updatePaymentRequest({ rejectionReason: values.rejectionReason });
+              setSubmitting(false);
+            }}
+          >
+            {({ isSubmitting }) => (
+              <Form>
+                <Field type="text" name="rejectionReason" />
+                <button className="usa-button usa-button--outline" type="submit" disabled={isSubmitting}>
+                  Reject
+                </button>
+              </Form>
+            )}
+          </Formik>
+        </div>
+      </>
     );
   }
 }
@@ -33,6 +63,6 @@ const mapStateToProps = (state, props) => {
   };
 };
 
-const mapDispatchToProps = dispatch => bindActionCreators({ getPaymentRequest }, dispatch);
+const mapDispatchToProps = dispatch => bindActionCreators({ getPaymentRequest, updatePaymentRequest }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(PaymentRequestShow);
