@@ -36,11 +36,6 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
-	if api.MtoShipmentCreateMTOShipmentHandler == nil {
-		api.MtoShipmentCreateMTOShipmentHandler = mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
-			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
-		})
-	}
 	if api.PaymentRequestsCreatePaymentRequestHandler == nil {
 		api.PaymentRequestsCreatePaymentRequestHandler = payment_requests.CreatePaymentRequestHandlerFunc(func(params payment_requests.CreatePaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.CreatePaymentRequest has not yet been implemented")

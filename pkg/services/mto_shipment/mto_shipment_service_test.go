@@ -1,4 +1,4 @@
-package movetaskorder
+package mtoshipment
 
 import (
 	"testing"
@@ -8,16 +8,16 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-type MoveTaskOrderServiceSuite struct {
+type MTOShipmentServiceSuite struct {
 	testingsuite.PopTestSuite
 }
 
-func (suite *MoveTaskOrderServiceSuite) SetupTest() {
+func (suite *MTOShipmentServiceSuite) SetupTest() {
 	suite.DB().TruncateAll()
 }
 
-func TestMoveTaskOrderServiceSuite(t *testing.T) {
-	ts := &MoveTaskOrderServiceSuite{
+func TestMTOShipmentServiceSuite(t *testing.T) {
+	ts := &MTOShipmentServiceSuite{
 		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 	}
 	suite.Run(t, ts)
