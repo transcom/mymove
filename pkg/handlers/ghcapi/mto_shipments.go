@@ -67,3 +67,42 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 	payload := payloads.MTOShipments(&shipments)
 	return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload)
 }
+
+type PatchShipmentHandler struct {
+	handlers.HandlerContext
+	services.Fetcher
+	services.MTOShipmentStatusUpdater
+}
+
+func (h PatchShipmentHandler) Handle(params mtoshipmentops.PatchMTOShipmentStatusParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	shipmentID, err := uuid.FromString(params.ShipmentID.String())
+
+	if err != nil {
+		parsingError := fmt.Errorf("UUID Parsing for %s: %w", "MoveTaskOrderID", err).Error()
+		logger.Error(parsingError)
+		payload := payloadForValidationError("UUID(s) parsing error", parsingError, h.GetTraceID(), validate.NewErrors())
+
+		return mtoshipmentops.NewPatchMTOShipmentStatusUnprocessableEntity().WithPayload(payload)
+	}
+
+	queryFilters := []services.QueryFilter{
+		query.NewQueryFilter("id", "=", shipmentID),
+	}
+
+	shipment := &models.MTOShipment{}
+	err = h.Fetcher.FetchRecord(shipment, queryFilters)
+	if err != nil {
+		logger.Error("Error fetching shipment: ", zap.Error(fmt.Errorf("Shipment ID: %s", shipment.ID)), zap.Error(err))
+		return mtoshipmentops.NewPatchMTOShipmentStatusNotFound()
+	}
+
+	status := params.Body.Status.(string)
+	_, err = h.UpdateMTOShipmentStatus(shipment.ID, status)
+	if err != nil {
+		return mtoshipmentops.NewPatchMTOShipmentStatusInternalServerError()
+	}
+
+	payload := payloads.MTOShipment(shipment)
+	return mtoshipmentops.NewPatchMTOShipmentStatusOK().WithPayload(payload)
+}

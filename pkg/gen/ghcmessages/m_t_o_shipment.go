@@ -44,6 +44,10 @@ type MTOShipment struct {
 	// Enum: [HHG INTERNATIONAL_HHG INTERNATIONAL_UB]
 	ShipmentType interface{} `json:"shipmentType,omitempty"`
 
+	// status
+	// Enum: [APPROVED SUBMITTED REJECTED]
+	Status interface{} `json:"status,omitempty"`
+
 	// updated at
 	// Format: date
 	UpdatedAt strfmt.Date `json:"updatedAt,omitempty"`

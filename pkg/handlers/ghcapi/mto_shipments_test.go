@@ -9,10 +9,12 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -98,5 +100,86 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.ListMTOShipmentsNotFound{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
+	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	mtoShipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: mto,
+	})
+
+	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+
+	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", mto.ID.String(), mtoShipment.ID.String()), nil)
+	req = suite.AuthenticateUserRequest(req, requestUser)
+
+	params := mtoshipmentops.PatchMTOShipmentStatusParams{
+		HTTPRequest:     req,
+		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
+		ShipmentID:      *handlers.FmtUUID(mtoShipment.ID),
+		Body:            &ghcmessages.MTOShipment{Status: "APPROVED"},
+	}
+
+	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+		fetcher := fetch.NewFetcher(queryBuilder)
+		updater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder)
+		handler := PatchShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			fetcher,
+			updater,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusOK{}, response)
+
+		okResponse := response.(*mtoshipmentops.PatchMTOShipmentStatusOK)
+		suite.Equal(mtoShipment.ID.String(), okResponse.Payload.ID.String())
+	})
+
+	suite.T().Run("Patch failure - Internal Server Error", func(t *testing.T) {
+		mockFetcher := mocks.Fetcher{}
+		mockUpdater := mocks.MTOShipmentStatusUpdater{}
+		handler := PatchShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockFetcher,
+			&mockUpdater,
+		}
+
+		mockFetcher.On("FetchRecord",
+			mock.Anything,
+			mock.Anything,
+		).Return(nil)
+
+		internalServerErr := errors.New("ServerError")
+
+		mockUpdater.On("UpdateMTOShipmentStatus",
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, internalServerErr)
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusInternalServerError{}, response)
+	})
+
+	suite.T().Run("Failure list fetch - 404 Not Found - Move Task Order ID", func(t *testing.T) {
+		mockFetcher := mocks.Fetcher{}
+		mockUpdater := mocks.MTOShipmentStatusUpdater{}
+		handler := PatchShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockFetcher,
+			&mockUpdater,
+		}
+
+		notfound := errors.New("Not found error")
+
+		mockFetcher.On("FetchRecord",
+			mock.Anything,
+			mock.Anything,
+		).Return(notfound)
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusNotFound{}, response)
 	})
 }
