@@ -6,6 +6,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/unit"
+
 	"github.com/facebookgo/clock"
 	"go.uber.org/zap"
 
@@ -251,4 +254,26 @@ func mockedFetchFuelPriceData(url string) (data EiaData, err error) {
 	}
 	return EiaData{}, nil
 
+}
+
+func (suite *FuelPriceServiceSuite) TestPriceDomesticFuelSurcharge() {
+	planner := route.NewTestingPlanner(1000)
+	sourceZip := "00001"
+	destinationZip := "90210"
+	weight := unit.Pound(3000)
+
+	suite.Run("PriceDomesticFuelSurcharge when weight is less than 5000", func() {
+		prePubDateTestClock := clock.NewMock()
+		dieselFuelPriceStorer := NewDieselFuelPriceStorer(suite.DB(), suite.logger, prePubDateTestClock, mockedFetchFuelPriceData, "", "No data available yet this month")
+		fuelSurcharge, err := dieselFuelPriceStorer.PriceDomesticFuelSurcharge(
+			planner,
+			weight,
+			sourceZip,
+			destinationZip,
+		)
+		suite.Error(err)
+		suite.Equal(err.Error(), "Error calculating fuel surcharge")
+		suite.Equal(fuelSurcharge, unit.Cents(0))
+
+	})
 }

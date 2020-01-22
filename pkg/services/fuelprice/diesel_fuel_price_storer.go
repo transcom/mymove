@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"log"
 
+	"github.com/transcom/mymove/pkg/route"
+
 	"go.uber.org/zap"
 
 	"math"
@@ -334,4 +336,11 @@ func getFirstMondayOrNonHolidayAfter(firstDateOfMonth time.Time) time.Time {
 	}
 	firstWorkMondayOrNonHolidayAfter := dayToCheck
 	return firstWorkMondayOrNonHolidayAfter
+}
+
+//PriceDomesticFuelSurcharge is a placeholder to calculate fuel surcharge, which will be done in the Fuel Surcharge epic.
+//Zip3TransitDistance in route.Planner can be used to retrieve the distance needed for the calculation
+func (u DieselFuelPriceStorer) PriceDomesticFuelSurcharge(planner route.Planner, weight unit.Pound, source string, destination string) (unit.Cents, error) {
+	return 0, errors.New("Error calculating fuel surcharge")
+
 }
