@@ -1568,7 +1568,7 @@ func init() {
         }
       }
     },
-    "OfficeUserRolePayload": {
+    "OfficeUserRole": {
       "type": "object",
       "properties": {
         "name": {
@@ -1611,7 +1611,7 @@ func init() {
         "roles": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/OfficeUserRolePayload"
+            "$ref": "#/definitions/OfficeUserRole"
           }
         },
         "telephone": {
@@ -1689,12 +1689,6 @@ func init() {
       "properties": {
         "createdAt": {
           "description": "when the role was created",
-          "type": "string",
-          "format": "datetime",
-          "example": "2018-04-12T23:20:50.52Z"
-        },
-        "deletedAt": {
-          "description": "when the role was deleted",
           "type": "string",
           "format": "datetime",
           "example": "2018-04-12T23:20:50.52Z"
@@ -3530,7 +3524,7 @@ func init() {
         }
       }
     },
-    "OfficeUserRolePayload": {
+    "OfficeUserRole": {
       "type": "object",
       "properties": {
         "name": {
@@ -3573,7 +3567,7 @@ func init() {
         "roles": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/OfficeUserRolePayload"
+            "$ref": "#/definitions/OfficeUserRole"
           }
         },
         "telephone": {
@@ -3651,12 +3645,6 @@ func init() {
       "properties": {
         "createdAt": {
           "description": "when the role was created",
-          "type": "string",
-          "format": "datetime",
-          "example": "2018-04-12T23:20:50.52Z"
-        },
-        "deletedAt": {
-          "description": "when the role was deleted",
           "type": "string",
           "format": "datetime",
           "example": "2018-04-12T23:20:50.52Z"

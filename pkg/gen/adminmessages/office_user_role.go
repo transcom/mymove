@@ -11,9 +11,9 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// OfficeUserRolePayload office user role payload
-// swagger:model OfficeUserRolePayload
-type OfficeUserRolePayload struct {
+// OfficeUserRole office user role
+// swagger:model OfficeUserRole
+type OfficeUserRole struct {
 
 	// name
 	Name *string `json:"name,omitempty"`
@@ -22,13 +22,13 @@ type OfficeUserRolePayload struct {
 	RoleType *string `json:"roleType,omitempty"`
 }
 
-// Validate validates this office user role payload
-func (m *OfficeUserRolePayload) Validate(formats strfmt.Registry) error {
+// Validate validates this office user role
+func (m *OfficeUserRole) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *OfficeUserRolePayload) MarshalBinary() ([]byte, error) {
+func (m *OfficeUserRole) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -36,8 +36,8 @@ func (m *OfficeUserRolePayload) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *OfficeUserRolePayload) UnmarshalBinary(b []byte) error {
-	var res OfficeUserRolePayload
+func (m *OfficeUserRole) UnmarshalBinary(b []byte) error {
+	var res OfficeUserRole
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
