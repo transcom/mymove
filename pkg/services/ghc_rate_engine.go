@@ -29,5 +29,5 @@ type DomesticServiceAreaPricer interface {
 //DomesticFuelSurchargePricer prices fuel surcharge for domestic GHC moves
 //go:generate mockery -name DomesticFuelSurchargePricer
 type DomesticFuelSurchargePricer interface {
-	PriceDomesticFuelSurcharge(planner route.Planner, weight unit.Pound, source string, destination string) (unit.Cents, error)
+	PriceDomesticFuelSurcharge(moveDate time.Time, planner route.Planner, weight unit.Pound, source string, destination string) (unit.Cents, error)
 }
