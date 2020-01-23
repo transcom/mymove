@@ -100,21 +100,16 @@ func (suite *UsersRolesServiceSuite) TestAssociateUserRolesRemove() {
 	_, err = urc.UpdateUserRoles(*officeUser.UserID, origRoleTypes)
 	suite.NoError(err)
 
-	// remove role1 and add role2
+	// soft delete role1 and add role2
 	newRoleTypes := []roles.RoleType{role2.RoleType}
 	_, err = urc.UpdateUserRoles(*officeUser.UserID, newRoleTypes)
 	suite.NoError(err)
 
-	ur := models.UsersRoles{}
-	n, err := suite.DB().Count(&ur)
-	suite.NoError(err)
-	suite.Equal(1, n)
-
-	user := models.User{}
-	err = suite.DB().Eager("Roles").Find(&user, officeUser.UserID)
-	suite.NoError(err)
-	suite.Require().Len(user.Roles, 1)
-	suite.Equal(user.Roles[0].ID, role2.ID)
+	ur := []models.UsersRoles{}
+	getAllErr := suite.DB().All(&ur)
+	suite.NoError(getAllErr)
+	suite.NotNil(ur[1].DeletedAt)
+	suite.Nil(ur[0].DeletedAt)
 }
 
 func (suite *UsersRolesServiceSuite) TestAssociateUserRolesMultiple() {
@@ -180,11 +175,12 @@ func (suite *UsersRolesServiceSuite) TestAssociateUserRolesRemoveAllRoles() {
 	suite.NoError(err)
 	suite.Equal(2, n)
 
-	// confirm both roles are removed when empty no roles passed in
+	// confirm both roles are soft deleted when empty no roles passed in
 	_, err = urc.UpdateUserRoles(*officeUser.UserID, []roles.RoleType{})
 	suite.NoError(err)
-	ur = models.UsersRoles{}
-	n, err = suite.DB().Count(&ur)
+	usersRolesSlice := []models.UsersRoles{}
+	err = suite.DB().All(&usersRolesSlice)
 	suite.NoError(err)
-	suite.Equal(0, n)
+	suite.NotNil(usersRolesSlice[0].DeletedAt)
+	suite.NotNil(usersRolesSlice[1].DeletedAt)
 }

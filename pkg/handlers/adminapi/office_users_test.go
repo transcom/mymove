@@ -332,13 +332,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		response := handler.Handle(updatedParams)
 		suite.IsType(&officeuserop.UpdateOfficeUserOK{}, response)
 
-		type UsersRoles struct {
-			ID     uuid.UUID `db:"id"`
-			UserID uuid.UUID `db:"user_id"`
-			RoleID uuid.UUID `db:"role_id"`
-		}
-
-		ur := UsersRoles{}
+		ur := models.UsersRoles{}
 		n, err := suite.DB().Count(&ur)
 		suite.NoError(err)
 		suite.Equal(2, n)
