@@ -47,10 +47,8 @@ func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 		CreatedAt:              handlers.FmtDateTime(o.CreatedAt),
 		UpdatedAt:              handlers.FmtDateTime(o.UpdatedAt),
 	}
-	if len(user.Roles) > 0 {
-		for _, role := range user.Roles {
-			payload.Roles = append(payload.Roles, payloadForRole(role))
-		}
+	for _, role := range user.Roles {
+		payload.Roles = append(payload.Roles, payloadForRole(role))
 	}
 	return payload
 }
@@ -116,6 +114,7 @@ func (h GetOfficeUserHandler) Handle(params officeuserop.GetOfficeUserParams) mi
 	if userError != nil {
 		return handlers.ResponseForError(logger, userError)
 	}
+	//todo: we want to move this query out of the handler and into querybuilder, if possible
 	roleError := h.DB().Q().Join("users_roles", "users_roles.role_id = roles.id").
 		Where("users_roles.deleted_at IS NULL AND users_roles.user_id = ?", (officeUser.User.ID)).
 		All(&officeUser.User.Roles)
