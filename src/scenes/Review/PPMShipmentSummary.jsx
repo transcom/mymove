@@ -35,7 +35,7 @@ export class PPMShipmentSummary extends Component {
     if (hasShortHaulError(ppmEstimate.rateEngineError)) {
       return (
         <td datacy="estimateError">
-          MilMove does not presently support short-haul PPM moves. Please contact your PPPO.;
+          MilMove does not presently support short-haul PPM moves. Please contact your PPPO.
         </td>
       );
     }
@@ -156,7 +156,7 @@ PPMShipmentSummary.propTypes = {
     hasEstimateError: bool.isRequired,
     hasEstimateSuccess: bool.isRequired,
     hasEstimateInProgress: bool.isRequired,
-    rateEngineError: Error.isRequiired,
+    rateEngineError: Error.isRequired,
     originDutyStationZip: string.isRequired,
     incentive_estimate_min: number,
     incentive_estimate_max: number,
