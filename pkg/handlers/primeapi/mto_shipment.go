@@ -8,7 +8,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services"
-	mtoshipmentrservice "github.com/transcom/mymove/pkg/services/mto_shipment"
+	mtoshipmentservice "github.com/transcom/mymove/pkg/services/mto_shipment"
 
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -27,8 +27,12 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 	if err != nil {
 		logger.Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
 		switch err.(type) {
-		case mtoshipmentrservice.ErrNotFound:
+		case mtoshipmentservice.ErrNotFound:
 			return mtoshipmentops.NewUpdateMTOShipmentNotFound()
+		case mtoshipmentservice.ErrInvalidInput:
+			return mtoshipmentops.NewUpdateMTOShipmentBadRequest()
+		case mtoshipmentservice.ErrPreconditionFailed:
+			return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed()
 		default:
 			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError()
 		}

@@ -3,7 +3,10 @@ package mtoshipment
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
+
+	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 
@@ -21,6 +24,52 @@ type ErrNotFound struct {
 
 func (e ErrNotFound) Error() string {
 	return fmt.Sprintf("mto shipment id: %s not found", e.id.String())
+}
+
+type errInvalidInput struct {
+	id uuid.UUID
+	error
+	validationErrors map[string][]string
+}
+
+//ErrInvalidInput is returned when an update to a move task order fails a validation rule
+type ErrInvalidInput struct {
+	errInvalidInput
+}
+
+func NewErrInvalidInput(id uuid.UUID, err error, validationErrors map[string][]string) ErrInvalidInput {
+	return ErrInvalidInput{
+		errInvalidInput{
+			id:               id,
+			error:            err,
+			validationErrors: validationErrors,
+		},
+	}
+}
+
+func (e ErrInvalidInput) Error() string {
+	return fmt.Sprintf("invalid input for move task order id: %s. %s", e.id.String(), e.InvalidFields())
+}
+
+func (e ErrInvalidInput) InvalidFields() map[string]string {
+	es := make(map[string]string)
+	if e.validationErrors == nil {
+		return es
+	}
+	for k, v := range e.validationErrors {
+		es[k] = strings.Join(v, " ")
+	}
+	return es
+}
+
+//ErrPreconditionFailed is returned when a given mto shipment if attempting to update after the if-unmodified-since date
+type ErrPreconditionFailed struct {
+	id              uuid.UUID
+	unmodifiedSince time.Time
+}
+
+func (e ErrPreconditionFailed) Error() string {
+	return fmt.Sprintf("mto shipment %s can not be updated after date %s", e.id.String(), strfmt.Date(e.unmodifiedSince))
 }
 
 type mtoShipmentFetcher struct {
@@ -65,6 +114,11 @@ func (f mtoShipmentFetcher) UpdateMTOShipment(unmodifiedSince time.Time, mtoShip
 		return &models.MTOShipment{}, err
 	}
 
+	// if requestedPickupDate isn't valid then return ErrInvalidInput
+	if time.Time(*mtoShipmentPayload.RequestedPickupDate) != *updatedShipment.RequestedPickupDate {
+		return &models.MTOShipment{}, ErrInvalidInput{}
+	}
+
 	sql := `UPDATE mto_shipments
 		SET
 			scheduled_pickup_date = $1,
@@ -89,7 +143,7 @@ func (f mtoShipmentFetcher) UpdateMTOShipment(unmodifiedSince time.Time, mtoShip
 		return updatedShipment, err
 	}
 	if affectedRows == 0 {
-		// return a 412
+		return &models.MTOShipment{}, ErrPreconditionFailed{id: mtoShipmentID, unmodifiedSince: unmodifiedSince}
 	}
 	return updatedShipment, nil
 }
