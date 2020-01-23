@@ -37,6 +37,11 @@ type PatchMTOShipmentStatusParams struct {
 
 	/*
 	  Required: true
+	  In: header
+	*/
+	IfUnmodifiedSince strfmt.DateTime
+	/*
+	  Required: true
 	  In: body
 	*/
 	Body *ghcmessages.MTOShipment
@@ -60,6 +65,10 @@ func (o *PatchMTOShipmentStatusParams) BindRequest(r *http.Request, route *middl
 	var res []error
 
 	o.HTTPRequest = r
+
+	if err := o.bindIfUnmodifiedSince(r.Header[http.CanonicalHeaderKey("If-Unmodified-Since")], true, route.Formats); err != nil {
+		res = append(res, err)
+	}
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
@@ -95,6 +104,45 @@ func (o *PatchMTOShipmentStatusParams) BindRequest(r *http.Request, route *middl
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+// bindIfUnmodifiedSince binds and validates parameter IfUnmodifiedSince from header.
+func (o *PatchMTOShipmentStatusParams) bindIfUnmodifiedSince(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	if !hasKey {
+		return errors.Required("If-Unmodified-Since", "header")
+	}
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+
+	if err := validate.RequiredString("If-Unmodified-Since", "header", raw); err != nil {
+		return err
+	}
+
+	// Format: datetime
+	value, err := formats.Parse("datetime", raw)
+	if err != nil {
+		return errors.InvalidType("If-Unmodified-Since", "header", "strfmt.DateTime", raw)
+	}
+	o.IfUnmodifiedSince = *(value.(*strfmt.DateTime))
+
+	if err := o.validateIfUnmodifiedSince(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateIfUnmodifiedSince carries on validations for parameter IfUnmodifiedSince
+func (o *PatchMTOShipmentStatusParams) validateIfUnmodifiedSince(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("If-Unmodified-Since", "header", "datetime", o.IfUnmodifiedSince.String(), formats); err != nil {
+		return err
 	}
 	return nil
 }

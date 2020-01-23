@@ -24,6 +24,9 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(shipment *models.MTOS
 		shipment.Status = models.MTOShipmentStatusRejected
 	}
 
+	//validate
+	//exec with count raw query
+	//return err if count == 0
 	verrs, err := o.builder.UpdateOne(shipment)
 	if verrs != nil || err != nil {
 		return verrs, err

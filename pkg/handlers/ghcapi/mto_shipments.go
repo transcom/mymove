@@ -79,7 +79,7 @@ func (h PatchShipmentHandler) Handle(params mtoshipmentops.PatchMTOShipmentStatu
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
 
 	if err != nil {
-		parsingError := fmt.Errorf("UUID Parsing for %s: %w", "MoveTaskOrderID", err).Error()
+		parsingError := fmt.Errorf("UUID Parsing for %s: %w", "shipmentID", err).Error()
 		logger.Error(parsingError)
 		payload := payloadForValidationError("UUID(s) parsing error", parsingError, h.GetTraceID(), validate.NewErrors())
 
@@ -89,6 +89,19 @@ func (h PatchShipmentHandler) Handle(params mtoshipmentops.PatchMTOShipmentStatu
 	queryFilters := []services.QueryFilter{
 		query.NewQueryFilter("id", "=", shipmentID),
 	}
+
+	// fetch shipment
+	// convert if-unmodified-since to a time that can be compared to updated_at
+	// check if shipment's updated_at is before the if-unmodified-since
+	// TRUE - do the updates
+	// FALSE - return 412
+	fmt.Println("===============")
+	fmt.Println("===============")
+	fmt.Println("===============")
+	fmt.Printf("%#v", params.HTTPRequest.Header["If-Unmodified-Since"])
+	fmt.Println("===============")
+	fmt.Println("===============")
+	fmt.Println("===============")
 
 	shipment := &models.MTOShipment{}
 	err = h.Fetcher.FetchRecord(shipment, queryFilters)

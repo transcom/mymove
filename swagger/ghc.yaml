@@ -519,6 +519,11 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/MTOShipment'
+        - in: header
+          name: If-Unmodified-Since
+          type: string
+          format: datetime
+          required: true
       responses:
         '200':
           description: Successfully updated shipment

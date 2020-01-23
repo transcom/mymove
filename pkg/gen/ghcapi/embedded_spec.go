@@ -1159,6 +1159,13 @@ func init() {
             "schema": {
               "$ref": "#/definitions/MTOShipment"
             }
+          },
+          {
+            "type": "string",
+            "format": "datetime",
+            "name": "If-Unmodified-Since",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
@@ -3713,6 +3720,13 @@ func init() {
             "schema": {
               "$ref": "#/definitions/MTOShipment"
             }
+          },
+          {
+            "type": "string",
+            "format": "datetime",
+            "name": "If-Unmodified-Since",
+            "in": "header",
+            "required": true
           }
         ],
         "responses": {
