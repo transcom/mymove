@@ -149,3 +149,32 @@ func PaymentRequests(paymentRequests *[]models.PaymentRequest) []*primemessages.
 	}
 	return payload
 }
+
+func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
+	requestedPickupDate := strfmt.Date(*mtoShipment.RequestedPickupDate)
+	scheduledPickupDate := strfmt.Date(*mtoShipment.ScheduledPickupDate)
+
+	return &primemessages.MTOShipment{
+		ID:                       strfmt.UUID(mtoShipment.ID.String()),
+		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
+		ShipmentType:             mtoShipment.ShipmentType,
+		CustomerRemarks:          *mtoShipment.CustomerRemarks,
+		RequestedPickupDate:      &requestedPickupDate,
+		ScheduledPickupDate:      &scheduledPickupDate,
+		PickupAddress:            Address(&mtoShipment.PickupAddress),
+		DestinationAddress:       Address(&mtoShipment.DestinationAddress),
+		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
+		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
+		CreatedAt:                strfmt.Date(mtoShipment.CreatedAt),
+		UpdatedAt:                strfmt.Date(mtoShipment.UpdatedAt),
+	}
+}
+
+func MTOShipments(mtoShipments *models.MTOShipments) *primemessages.MTOShipments {
+	payload := make(primemessages.MTOShipments, len(*mtoShipments))
+
+	for i, m := range *mtoShipments {
+		payload[i] = MTOShipment(&m)
+	}
+	return &payload
+}

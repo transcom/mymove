@@ -1,7 +1,14 @@
 package primeapi
 
 import (
+	"time"
+
 	"github.com/go-openapi/runtime/middleware"
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
+	"github.com/transcom/mymove/pkg/services"
+	mtoshipmentrservice "github.com/transcom/mymove/pkg/services/mto_shipment"
 
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -9,14 +16,23 @@ import (
 
 type UpdateMTOShipmentHandler struct {
 	handlers.HandlerContext
+	mtoShipmentUpdater services.MTOShipmentUpdater
 }
 
 // Handle handler that updates a mto shipment
 func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
-	// fetch shipment
-	// convert if-unmodified-since to a time that can be compared to updated_at
-	// check if shipment's updated_at is before the if-unmodified-since
-	// TRUE - do the updates
-	// FALSE - return 412
-	return mtoshipmentops.NewUpdateMTOShipmentOK()
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	unmodifiedSince := time.Time(params.IfUnmodifiedSince)
+	mtoShipment, err := h.mtoShipmentUpdater.UpdateMTOShipment(unmodifiedSince, params.Body)
+	if err != nil {
+		logger.Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
+		switch err.(type) {
+		case mtoshipmentrservice.ErrNotFound:
+			return mtoshipmentops.NewUpdateMTOShipmentNotFound()
+		default:
+			return mtoshipmentops.NewUpdateMTOShipmentInternalServerError()
+		}
+	}
+	mtoShipmentPayload := payloads.MTOShipment(mtoShipment)
+	return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(mtoShipmentPayload)
 }

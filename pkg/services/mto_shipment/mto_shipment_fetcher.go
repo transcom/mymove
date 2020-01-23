@@ -3,6 +3,9 @@ package mtoshipment
 import (
 	"database/sql"
 	"fmt"
+	"time"
+
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
@@ -44,29 +47,49 @@ func (f mtoShipmentFetcher) FetchMTOShipment(mtoShipmentID uuid.UUID) (*models.M
 	return shipment, nil
 }
 
-// type mtoShipmentUpdater struct {
-// 	db *pop.Connection
-// 	mtoShipmentFetcher
-// }
+type mtoShipmentUpdater struct {
+	db *pop.Connection
+	mtoShipmentFetcher
+}
 
-// // NewMTOShipmentUpdater creates a new struct with the service dependencies
-// func NewMTOShipmentUpdater(db *pop.Connection) services.TOShipmentUpdater {
-// 	return &mtoShipmentUpdater{db, mtoShipmentFetcher{db}}
-// }
+// NewMTOShipmentUpdater creates a new struct with the service dependencies
+func NewMTOShipmentUpdater(db *pop.Connection) services.MTOShipmentUpdater {
+	return &mtoShipmentUpdater{db, mtoShipmentFetcher{db}}
+}
 
-// //UpdateMTOShipment updates the mto shipment
-// func (f moveTaskOrderFetcher) UpdateMTOShipment((mtoShipment *models.MTOShipment) (*models.MTOShipment, error) {
-// 	mto, err := f.FetchMoveTaskOrder(moveTaskOrderID)
-// 	if err != nil {
-// 		return &models.MoveTaskOrder{}, err
-// 	}
-// 	mto.IsAvailableToPrime = true
-// 	vErrors, err := f.db.ValidateAndUpdate(mto)
-// 	if vErrors.HasAny() {
-// 		return &models.MoveTaskOrder{}, ErrInvalidInput{}
-// 	}
-// 	if err != nil {
-// 		return &models.MoveTaskOrder{}, err
-// 	}
-// 	return mto, nil
-// }
+//UpdateMTOShipment updates the mto shipment
+func (f mtoShipmentFetcher) UpdateMTOShipment(unmodifiedSince time.Time, mtoShipmentPayload *primemessages.MTOShipment) (*models.MTOShipment, error) {
+	mtoShipmentID := uuid.FromStringOrNil(mtoShipmentPayload.ID.String())
+	updatedShipment, err := f.FetchMTOShipment(mtoShipmentID)
+	if err != nil {
+		return &models.MTOShipment{}, err
+	}
+
+	sql := `UPDATE mto_shipments
+		SET
+			scheduled_pickup_date = $1,
+			requested_pickup_date = $2,
+			pickup_address = $3,
+			destination_address = $4,
+			shipment_type = $5,
+			secondary_pickup_address = $6,
+			secondary_delivery_address = $7,
+			updated_at = NOW()
+		WHERE
+			id = $9
+		AND
+			updated_at = $9
+		;
+		`
+
+	// do the updating in a raw query
+	affectedRows, err := f.db.RawQuery(sql, mtoShipmentPayload.ScheduledPickupDate, mtoShipmentPayload.RequestedPickupDate, mtoShipmentPayload.PickupAddress, mtoShipmentPayload.DestinationAddress, mtoShipmentPayload.ShipmentType, updatedShipment.ID, unmodifiedSince).ExecWithCount()
+
+	if err != nil {
+		return updatedShipment, err
+	}
+	if affectedRows == 0 {
+		// return a 412
+	}
+	return updatedShipment, nil
+}

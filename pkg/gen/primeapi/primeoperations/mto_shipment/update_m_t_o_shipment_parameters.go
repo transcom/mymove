@@ -14,6 +14,8 @@ import (
 	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	primemessages "github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // NewUpdateMTOShipmentParams creates a new UpdateMTOShipmentParams object
@@ -36,11 +38,11 @@ type UpdateMTOShipmentParams struct {
 	  Required: true
 	  In: header
 	*/
-	IfUnmodifiedSince string
+	IfUnmodifiedSince strfmt.Date
 	/*
 	  In: body
 	*/
-	Body UpdateMTOShipmentBody
+	Body *primemessages.MTOShipment
 	/*
 	  Required: true
 	  In: path
@@ -68,7 +70,7 @@ func (o *UpdateMTOShipmentParams) BindRequest(r *http.Request, route *middleware
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body UpdateMTOShipmentBody
+		var body primemessages.MTOShipment
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			res = append(res, errors.NewParseError("body", "body", "", err))
 		} else {
@@ -78,7 +80,7 @@ func (o *UpdateMTOShipmentParams) BindRequest(r *http.Request, route *middleware
 			}
 
 			if len(res) == 0 {
-				o.Body = body
+				o.Body = &body
 			}
 		}
 	}
@@ -114,8 +116,26 @@ func (o *UpdateMTOShipmentParams) bindIfUnmodifiedSince(rawData []string, hasKey
 		return err
 	}
 
-	o.IfUnmodifiedSince = raw
+	// Format: date
+	value, err := formats.Parse("date", raw)
+	if err != nil {
+		return errors.InvalidType("If-Unmodified-Since", "header", "strfmt.Date", raw)
+	}
+	o.IfUnmodifiedSince = *(value.(*strfmt.Date))
 
+	if err := o.validateIfUnmodifiedSince(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateIfUnmodifiedSince carries on validations for parameter IfUnmodifiedSince
+func (o *UpdateMTOShipmentParams) validateIfUnmodifiedSince(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("If-Unmodified-Since", "header", "date", o.IfUnmodifiedSince.String(), formats); err != nil {
+		return err
+	}
 	return nil
 }
 

@@ -368,33 +368,11 @@ paths:
         - in: body
           name: body
           schema:
-            type: object
-            properties:
-              scheduledPickupDate:
-                format: date
-                type: string
-              requestedPickupDate:
-                format: date
-                type: string
-              customerRemarks:
-                type: string
-                example: handle with care
-              shipmentType:
-                enum:
-                  - HHG
-                  - INTERNATIONAL_HHG
-                  - INTERNATIONAL_UB
-              pickupAddress:
-                $ref: '#/definitions/Address'
-              deliveryAddress:
-                $ref: '#/definitions/Address'
-              secondaryPickupAddress:
-                $ref: '#/definitions/Address'
-              secondaryDeliveryAddress:
-                $ref: '#/definitions/Address'
+            $ref: '#/definitions/MTOShipment'
         - in: header
           name: If-Unmodified-Since
           type: string
+          format: date
           required: true
       responses:
         '200':
@@ -774,6 +752,12 @@ definitions:
       $ref: '#/definitions/MoveTaskOrder'
     type: array
   MTOShipment:
+    required:
+      - pickupAddress
+      - destinationAddress
+      - scheduledPickupDate
+      - requestedPickupDate
+      - shipmentType
     properties:
       moveTaskOrderID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -803,6 +787,14 @@ definitions:
           - HHG
           - INTERNATIONAL_HHG
           - INTERNATIONAL_UB
+      pickupAddress:
+        $ref: '#/definitions/Address'
+      destinationAddress:
+        $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        $ref: '#/definitions/Address'
+      secondaryDeliveryAddress:
+        $ref: '#/definitions/Address'
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'

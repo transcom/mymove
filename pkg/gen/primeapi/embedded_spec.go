@@ -564,44 +564,12 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "type": "object",
-              "properties": {
-                "customerRemarks": {
-                  "type": "string",
-                  "example": "handle with care"
-                },
-                "deliveryAddress": {
-                  "$ref": "#/definitions/Address"
-                },
-                "pickupAddress": {
-                  "$ref": "#/definitions/Address"
-                },
-                "requestedPickupDate": {
-                  "type": "string",
-                  "format": "date"
-                },
-                "scheduledPickupDate": {
-                  "type": "string",
-                  "format": "date"
-                },
-                "secondaryDeliveryAddress": {
-                  "$ref": "#/definitions/Address"
-                },
-                "secondaryPickupAddress": {
-                  "$ref": "#/definitions/Address"
-                },
-                "shipmentType": {
-                  "enum": [
-                    "HHG",
-                    "INTERNATIONAL_HHG",
-                    "INTERNATIONAL_UB"
-                  ]
-                }
-              }
+              "$ref": "#/definitions/MTOShipment"
             }
           },
           {
             "type": "string",
+            "format": "date",
             "name": "If-Unmodified-Since",
             "in": "header",
             "required": true
@@ -1017,6 +985,13 @@ func init() {
       }
     },
     "MTOShipment": {
+      "required": [
+        "pickupAddress",
+        "destinationAddress",
+        "scheduledPickupDate",
+        "requestedPickupDate",
+        "shipmentType"
+      ],
       "properties": {
         "createdAt": {
           "type": "string",
@@ -1025,6 +1000,9 @@ func init() {
         "customerRemarks": {
           "type": "string",
           "example": "handle with care"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
         },
         "id": {
           "type": "string",
@@ -1036,6 +1014,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
@@ -1043,6 +1024,12 @@ func init() {
         "scheduledPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "shipmentType": {
           "enum": [
@@ -1946,44 +1933,12 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "type": "object",
-              "properties": {
-                "customerRemarks": {
-                  "type": "string",
-                  "example": "handle with care"
-                },
-                "deliveryAddress": {
-                  "$ref": "#/definitions/Address"
-                },
-                "pickupAddress": {
-                  "$ref": "#/definitions/Address"
-                },
-                "requestedPickupDate": {
-                  "type": "string",
-                  "format": "date"
-                },
-                "scheduledPickupDate": {
-                  "type": "string",
-                  "format": "date"
-                },
-                "secondaryDeliveryAddress": {
-                  "$ref": "#/definitions/Address"
-                },
-                "secondaryPickupAddress": {
-                  "$ref": "#/definitions/Address"
-                },
-                "shipmentType": {
-                  "enum": [
-                    "HHG",
-                    "INTERNATIONAL_HHG",
-                    "INTERNATIONAL_UB"
-                  ]
-                }
-              }
+              "$ref": "#/definitions/MTOShipment"
             }
           },
           {
             "type": "string",
+            "format": "date",
             "name": "If-Unmodified-Since",
             "in": "header",
             "required": true
@@ -2423,6 +2378,13 @@ func init() {
       }
     },
     "MTOShipment": {
+      "required": [
+        "pickupAddress",
+        "destinationAddress",
+        "scheduledPickupDate",
+        "requestedPickupDate",
+        "shipmentType"
+      ],
       "properties": {
         "createdAt": {
           "type": "string",
@@ -2431,6 +2393,9 @@ func init() {
         "customerRemarks": {
           "type": "string",
           "example": "handle with care"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
         },
         "id": {
           "type": "string",
@@ -2442,6 +2407,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
@@ -2449,6 +2417,12 @@ func init() {
         "scheduledPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "shipmentType": {
           "enum": [

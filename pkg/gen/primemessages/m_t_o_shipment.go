@@ -6,6 +6,8 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -24,6 +26,10 @@ type MTOShipment struct {
 	// customer remarks
 	CustomerRemarks string `json:"customerRemarks,omitempty"`
 
+	// destination address
+	// Required: true
+	DestinationAddress *Address `json:"destinationAddress"`
+
 	// id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
@@ -32,17 +38,30 @@ type MTOShipment struct {
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
+	// pickup address
+	// Required: true
+	PickupAddress *Address `json:"pickupAddress"`
+
 	// requested pickup date
+	// Required: true
 	// Format: date
-	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
+	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate"`
 
 	// scheduled pickup date
+	// Required: true
 	// Format: date
-	ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
+	ScheduledPickupDate *strfmt.Date `json:"scheduledPickupDate"`
+
+	// secondary delivery address
+	SecondaryDeliveryAddress *Address `json:"secondaryDeliveryAddress,omitempty"`
+
+	// secondary pickup address
+	SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
 
 	// shipment type
+	// Required: true
 	// Enum: [HHG INTERNATIONAL_HHG INTERNATIONAL_UB]
-	ShipmentType interface{} `json:"shipmentType,omitempty"`
+	ShipmentType interface{} `json:"shipmentType"`
 
 	// updated at
 	// Format: date
@@ -57,6 +76,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateDestinationAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -65,11 +88,27 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validatePickupAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateRequestedPickupDate(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateScheduledPickupDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSecondaryDeliveryAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSecondaryPickupAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateShipmentType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -91,6 +130,24 @@ func (m *MTOShipment) validateCreatedAt(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("createdAt", "body", "date", m.CreatedAt.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateDestinationAddress(formats strfmt.Registry) error {
+
+	if err := validate.Required("destinationAddress", "body", m.DestinationAddress); err != nil {
+		return err
+	}
+
+	if m.DestinationAddress != nil {
+		if err := m.DestinationAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationAddress")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -122,10 +179,28 @@ func (m *MTOShipment) validateMoveTaskOrderID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MTOShipment) validatePickupAddress(formats strfmt.Registry) error {
+
+	if err := validate.Required("pickupAddress", "body", m.PickupAddress); err != nil {
+		return err
+	}
+
+	if m.PickupAddress != nil {
+		if err := m.PickupAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("pickupAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MTOShipment) validateRequestedPickupDate(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.RequestedPickupDate) { // not required
-		return nil
+	if err := validate.Required("requestedPickupDate", "body", m.RequestedPickupDate); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("requestedPickupDate", "body", "date", m.RequestedPickupDate.String(), formats); err != nil {
@@ -137,11 +212,76 @@ func (m *MTOShipment) validateRequestedPickupDate(formats strfmt.Registry) error
 
 func (m *MTOShipment) validateScheduledPickupDate(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.ScheduledPickupDate) { // not required
-		return nil
+	if err := validate.Required("scheduledPickupDate", "body", m.ScheduledPickupDate); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("scheduledPickupDate", "body", "date", m.ScheduledPickupDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateSecondaryDeliveryAddress(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SecondaryDeliveryAddress) { // not required
+		return nil
+	}
+
+	if m.SecondaryDeliveryAddress != nil {
+		if err := m.SecondaryDeliveryAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("secondaryDeliveryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateSecondaryPickupAddress(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.SecondaryPickupAddress) { // not required
+		return nil
+	}
+
+	if m.SecondaryPickupAddress != nil {
+		if err := m.SecondaryPickupAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("secondaryPickupAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+var mTOShipmentTypeShipmentTypePropEnum []interface{}
+
+func init() {
+	var res []interface{}
+	if err := json.Unmarshal([]byte(`["HHG","INTERNATIONAL_HHG","INTERNATIONAL_UB"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		mTOShipmentTypeShipmentTypePropEnum = append(mTOShipmentTypeShipmentTypePropEnum, v)
+	}
+}
+
+// prop value enum
+func (m *MTOShipment) validateShipmentTypeEnum(path, location string, value interface{}) error {
+	if err := validate.Enum(path, location, value, mTOShipmentTypeShipmentTypePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *MTOShipment) validateShipmentType(formats strfmt.Registry) error {
+
+	if err := validate.Required("shipmentType", "body", m.ShipmentType); err != nil {
 		return err
 	}
 
