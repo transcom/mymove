@@ -10,6 +10,8 @@ readonly MODULE=/usr/local/lib/pkcs11/cackey.dylib
 readonly PKCS11=/usr/local/bin/pkcs11-tool
 readonly PKCS15=/usr/local/bin/pkcs15-tool
 
+echo "Checking for opensc.... "
+
 if [[ ! -x "${PKCS11}" ]]; then
   echo "${PKCS11} has not been installed"
   echo "Please install with 'brew install opensc'"
@@ -22,6 +24,9 @@ if [[ ! -x "${PKCS15}" ]]; then
   exit 1
 fi
 
+echo "opensc found!"
+
+
 OS_VERSION=$(/usr/bin/sw_vers -productVersion)
 MAC_OS="10.15"
 if [[ $OS_VERSION != *$MAC_OS* && ! -f "${MODULE}" ]]; then
@@ -32,3 +37,5 @@ elif [[ -f "${MODULE}" ]]; then
   echo "${MODULE} must be removed for MacOS versions equal to or after ${MAC_OS}"
   exit 1
 fi
+
+echo "cac preeqs check complete ✓"
