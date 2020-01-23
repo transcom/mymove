@@ -1586,7 +1586,7 @@ definitions:
         format: cents
         type: integer
       updatedAt:
-        format: date
+        format: datetime
         type: string
     required:
       - id

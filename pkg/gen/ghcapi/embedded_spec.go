@@ -1950,7 +1950,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date"
+          "format": "datetime"
         }
       }
     },
@@ -4562,7 +4562,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date"
+          "format": "datetime"
         }
       }
     },

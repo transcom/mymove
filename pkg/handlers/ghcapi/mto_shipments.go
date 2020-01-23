@@ -2,6 +2,7 @@ package ghcapi
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate"
@@ -76,45 +77,27 @@ type PatchShipmentHandler struct {
 
 func (h PatchShipmentHandler) Handle(params mtoshipmentops.PatchMTOShipmentStatusParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	shipmentID, err := uuid.FromString(params.ShipmentID.String())
 
+	// shipment := &models.MTOShipment{}
+	// err = h.Fetcher.FetchRecord(shipment, queryFilters)
+	// if err != nil {
+	// 	logger.Error("Error fetching shipment: ", zap.Error(fmt.Errorf("Shipment ID: %s", shipment.ID)), zap.Error(err))
+	// 	return mtoshipmentops.NewPatchMTOShipmentStatusNotFound()
+	// }
+
+	unmodifiedSince := time.Time(params.IfUnmodifiedSince)
+
+	shipment, err := h.UpdateMTOShipmentStatus(params, unmodifiedSince)
 	if err != nil {
-		parsingError := fmt.Errorf("UUID Parsing for %s: %w", "shipmentID", err).Error()
-		logger.Error(parsingError)
-		payload := payloadForValidationError("UUID(s) parsing error", parsingError, h.GetTraceID(), validate.NewErrors())
-
-		return mtoshipmentops.NewPatchMTOShipmentStatusUnprocessableEntity().WithPayload(payload)
-	}
-
-	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", shipmentID),
-	}
-
-	// fetch shipment
-	// convert if-unmodified-since to a time that can be compared to updated_at
-	// check if shipment's updated_at is before the if-unmodified-since
-	// TRUE - do the updates
-	// FALSE - return 412
-	fmt.Println("===============")
-	fmt.Println("===============")
-	fmt.Println("===============")
-	fmt.Printf("%#v", params.HTTPRequest.Header["If-Unmodified-Since"])
-	fmt.Println("===============")
-	fmt.Println("===============")
-	fmt.Println("===============")
-
-	shipment := &models.MTOShipment{}
-	err = h.Fetcher.FetchRecord(shipment, queryFilters)
-	if err != nil {
-		logger.Error("Error fetching shipment: ", zap.Error(fmt.Errorf("Shipment ID: %s", shipment.ID)), zap.Error(err))
-		return mtoshipmentops.NewPatchMTOShipmentStatusNotFound()
-	}
-
-	status := params.Body.Status
-	_, err = h.UpdateMTOShipmentStatus(shipment, status)
-	if err != nil {
+		logger.Error("Error: ", zap.Error(err))
 		return mtoshipmentops.NewPatchMTOShipmentStatusInternalServerError()
 	}
+
+	// if verrs != nil {
+	// 	payload := payloadForValidationError("Validation errors", "", h.GetTraceID(), verrs)
+	//
+	// 	return mtoshipmentops.NewListMTOShipmentsUnprocessableEntity().WithPayload(payload)
+	// }
 
 	payload := payloads.MTOShipment(shipment)
 	return mtoshipmentops.NewPatchMTOShipmentStatusOK().WithPayload(payload)
