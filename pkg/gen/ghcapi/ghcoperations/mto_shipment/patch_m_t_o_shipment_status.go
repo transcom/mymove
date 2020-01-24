@@ -6,9 +6,14 @@ package mto_shipment
 // Editing this file might prove futile when you re-run the generate command
 
 import (
+	"encoding/json"
 	"net/http"
 
+	errors "github.com/go-openapi/errors"
 	middleware "github.com/go-openapi/runtime/middleware"
+	strfmt "github.com/go-openapi/strfmt"
+	swag "github.com/go-openapi/swag"
+	validate "github.com/go-openapi/validate"
 )
 
 // PatchMTOShipmentStatusHandlerFunc turns a function with the right signature into a patch m t o shipment status handler
@@ -57,4 +62,88 @@ func (o *PatchMTOShipmentStatus) ServeHTTP(rw http.ResponseWriter, r *http.Reque
 
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
+}
+
+// PatchMTOShipmentStatusBody patch m t o shipment status body
+// swagger:model PatchMTOShipmentStatusBody
+type PatchMTOShipmentStatusBody struct {
+
+	// status
+	// Enum: [APPROVED REJECTED]
+	Status string `json:"status,omitempty"`
+}
+
+// Validate validates this patch m t o shipment status body
+func (o *PatchMTOShipmentStatusBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var patchMTOShipmentStatusBodyTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["APPROVED","REJECTED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		patchMTOShipmentStatusBodyTypeStatusPropEnum = append(patchMTOShipmentStatusBodyTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// PatchMTOShipmentStatusBodyStatusAPPROVED captures enum value "APPROVED"
+	PatchMTOShipmentStatusBodyStatusAPPROVED string = "APPROVED"
+
+	// PatchMTOShipmentStatusBodyStatusREJECTED captures enum value "REJECTED"
+	PatchMTOShipmentStatusBodyStatusREJECTED string = "REJECTED"
+)
+
+// prop value enum
+func (o *PatchMTOShipmentStatusBody) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, patchMTOShipmentStatusBodyTypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *PatchMTOShipmentStatusBody) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("body"+"."+"status", "body", o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *PatchMTOShipmentStatusBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *PatchMTOShipmentStatusBody) UnmarshalBinary(b []byte) error {
+	var res PatchMTOShipmentStatusBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
 }

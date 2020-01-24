@@ -1157,7 +1157,16 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MTOShipment"
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "APPROVED",
+                    "REJECTED"
+                  ]
+                }
+              }
             }
           },
           {
@@ -1977,7 +1986,7 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date"
+          "format": "datetime"
         },
         "customerRemarks": {
           "type": "string",
@@ -2018,7 +2027,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date"
+          "format": "datetime"
         }
       }
     },
@@ -3718,7 +3727,16 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/MTOShipment"
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "APPROVED",
+                    "REJECTED"
+                  ]
+                }
+              }
             }
           },
           {
@@ -4589,7 +4607,7 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date"
+          "format": "datetime"
         },
         "customerRemarks": {
           "type": "string",
@@ -4630,7 +4648,7 @@ func init() {
         },
         "updatedAt": {
           "type": "string",
-          "format": "date"
+          "format": "datetime"
         }
       }
     },

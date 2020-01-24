@@ -36,7 +36,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 	err := o.builder.FetchOne(&shipment, queryFilters)
 
 	if err != nil {
-		return nil, err
+		return nil, &NotFoundError{id: shipment.ID}
 	}
 
 	fmt.Printf("header: %s\n", unmodifiedSince)
@@ -50,7 +50,14 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 
 	verrs, err := shipment.Validate(o.db)
 
-	if verrs.Count() > 0 || err != nil {
+	if verrs.Count() > 0 {
+		return nil, &ValidationError{
+			id:    shipment.ID,
+			Verrs: verrs,
+		}
+	}
+
+	if err != nil {
 		return nil, err
 	}
 

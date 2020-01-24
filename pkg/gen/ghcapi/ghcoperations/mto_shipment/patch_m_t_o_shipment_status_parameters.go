@@ -15,8 +15,6 @@ import (
 	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	ghcmessages "github.com/transcom/mymove/pkg/gen/ghcmessages"
 )
 
 // NewPatchMTOShipmentStatusParams creates a new PatchMTOShipmentStatusParams object
@@ -44,7 +42,7 @@ type PatchMTOShipmentStatusParams struct {
 	  Required: true
 	  In: body
 	*/
-	Body *ghcmessages.MTOShipment
+	Body PatchMTOShipmentStatusBody
 	/*ID of move task order for mto shipment to use
 	  Required: true
 	  In: path
@@ -72,7 +70,7 @@ func (o *PatchMTOShipmentStatusParams) BindRequest(r *http.Request, route *middl
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body ghcmessages.MTOShipment
+		var body PatchMTOShipmentStatusBody
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("body", "body"))
@@ -86,7 +84,7 @@ func (o *PatchMTOShipmentStatusParams) BindRequest(r *http.Request, route *middl
 			}
 
 			if len(res) == 0 {
-				o.Body = &body
+				o.Body = body
 			}
 		}
 	} else {
