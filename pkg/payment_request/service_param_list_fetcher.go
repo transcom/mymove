@@ -17,7 +17,7 @@ func (p *RequestPaymentHelper) FetchServiceParamList(mtoServiceID uuid.UUID) (mo
 		return nil, fmt.Errorf("failure fetching MTO Service Item: %w", err)
 	}
 
-	err = p.DB.Where("service_id = ?", mtoServiceItem.ReServiceID).All(&serviceParams)
+	err = p.DB.Where("service_id = ?", mtoServiceItem.ReServiceID).Eager().All(&serviceParams)
 	if err != nil {
 		return nil, fmt.Errorf("failure fetching service params for MTO Service Item ID <%s> with RE Service Item ID <%s>: %w", mtoServiceID.String(), mtoServiceItem.ReServiceID.String(), err)
 	}

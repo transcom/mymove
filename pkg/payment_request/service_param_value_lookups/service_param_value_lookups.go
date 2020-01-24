@@ -46,10 +46,12 @@ func ServiceParamLookupInitialize(
 }
 
 func (s *ServiceItemParamKeyData) ServiceParamValue(key string) (string, error) {
-	lookup := s.lookups[key]
-	value, err := lookup.lookup(s)
-	if err != nil {
-		return "", fmt.Errorf(" failed ServiceParamValue %sLookup with error %w", key, err)
+	if lookup, ok := s.lookups[key]; ok {
+		value, err := lookup.lookup(s)
+		if err != nil {
+			return "", fmt.Errorf(" failed ServiceParamValue %sLookup with error %w", key, err)
+		}
+		return value, nil
 	}
-	return value, nil
+	return "", fmt.Errorf("  ServiceParamValue <%sLookup> does not exist for key: <%s>", key, key)
 }
