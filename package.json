@@ -95,8 +95,7 @@
     "@storybook/react": "^5.2.8",
     "mime-types": "^2.1.26",
     "mockdate": "^2.0.2",
-    "prettier": "=1.19.1",
-    "react-mock-router": "^1.0.15"
+    "prettier": "=1.19.1"
   },
   "browserslist": [
     ">0.2%",
