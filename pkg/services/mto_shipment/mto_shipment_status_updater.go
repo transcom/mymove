@@ -1,12 +1,12 @@
 package mtoshipment
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
 
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/models"
@@ -38,15 +38,9 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("=====================================")
-	fmt.Println("=====================================")
-	fmt.Println("=====================================")
-	fmt.Println("=====================================")
+
 	fmt.Printf("header: %s\n", unmodifiedSince)
-	fmt.Printf("updated_at: %s\n", shipment.UpdatedAt)
-	fmt.Println("=====================================")
-	fmt.Println("=====================================")
-	fmt.Println("=====================================")
+
 	switch status {
 	case "APPROVED":
 		shipment.Status = models.MTOShipmentStatusApproved
@@ -60,17 +54,11 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 		return nil, err
 	}
 
-	affectedRows, err := o.db.RawQuery("UPDATE mto_shipments SET status = ?, updated_at = NOW() WHERE id = ? AND updated_at = ?", status, shipment.ID.String(), unmodifiedSince).ExecWithCount()
+	// TODO: revisit to implment optimistic locking
+	affectedRows, err := o.db.RawQuery("UPDATE mto_shipments SET status = ?, updated_at = NOW() WHERE id = ?", status, shipment.ID.String()).ExecWithCount()
 
 	if affectedRows != 1 {
-		fmt.Println("=====================================")
-		fmt.Println("=====================================")
-		fmt.Println("=====================================")
-		fmt.Println("=====================================")
-		fmt.Println("=====================================")
-		fmt.Println("=====================================")
-		fmt.Println("=====================================")
-		return nil, errors.New("hi")
+		return nil, nil
 	}
 
 	return &shipment, nil
@@ -78,4 +66,21 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 
 func NewMTOShipmentStatusUpdater(db *pop.Connection, builder UpdateMTOShipmentStatusQueryBuilder) services.MTOShipmentStatusUpdater {
 	return &mtoShipmentStatusUpdater{db, builder}
+}
+
+type NotFoundError struct {
+	id uuid.UUID
+}
+
+func (e NotFoundError) Error() string {
+	return fmt.Sprintf("shipment with id '%s' not found", e.id.String())
+}
+
+type ValidationError struct {
+	id    uuid.UUID
+	Verrs *validate.Errors
+}
+
+func (e ValidationError) Error() string {
+	return fmt.Sprintf("shipment with id: '%s' could not be updated due to a validation error", e.id.String())
 }

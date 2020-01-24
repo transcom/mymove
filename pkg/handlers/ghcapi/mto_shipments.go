@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -78,26 +79,23 @@ type PatchShipmentHandler struct {
 func (h PatchShipmentHandler) Handle(params mtoshipmentops.PatchMTOShipmentStatusParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	// shipment := &models.MTOShipment{}
-	// err = h.Fetcher.FetchRecord(shipment, queryFilters)
-	// if err != nil {
-	// 	logger.Error("Error fetching shipment: ", zap.Error(fmt.Errorf("Shipment ID: %s", shipment.ID)), zap.Error(err))
-	// 	return mtoshipmentops.NewPatchMTOShipmentStatusNotFound()
-	// }
-
 	unmodifiedSince := time.Time(params.IfUnmodifiedSince)
 
 	shipment, err := h.UpdateMTOShipmentStatus(params, unmodifiedSince)
 	if err != nil {
-		logger.Error("Error: ", zap.Error(err))
-		return mtoshipmentops.NewPatchMTOShipmentStatusInternalServerError()
-	}
+		logger.Error("UpdateMTOShipmentStatus error: ", zap.Error(err))
 
-	// if verrs != nil {
-	// 	payload := payloadForValidationError("Validation errors", "", h.GetTraceID(), verrs)
-	//
-	// 	return mtoshipmentops.NewListMTOShipmentsUnprocessableEntity().WithPayload(payload)
-	// }
+		switch e := err.(type) {
+		case mtoshipment.NotFoundError:
+			return mtoshipmentops.NewListMTOShipmentsNotFound()
+		case mtoshipment.ValidationError:
+			payload := payloadForValidationError("Validation errors", "UpdateShipmentMTOStatus", h.GetTraceID(), e.Verrs)
+
+			return mtoshipmentops.NewListMTOShipmentsUnprocessableEntity().WithPayload(payload)
+		default:
+			return mtoshipmentops.NewPatchMTOShipmentStatusInternalServerError()
+		}
+	}
 
 	payload := payloads.MTOShipment(shipment)
 	return mtoshipmentops.NewPatchMTOShipmentStatusOK().WithPayload(payload)
