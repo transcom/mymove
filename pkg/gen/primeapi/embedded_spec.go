@@ -1032,17 +1032,28 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "shipmentType": {
-          "enum": [
-            "HHG",
-            "INTERNATIONAL_HHG",
-            "INTERNATIONAL_UB"
-          ]
+          "$ref": "#/definitions/MTOShipmentType"
         },
         "updatedAt": {
           "type": "string",
           "format": "date"
         }
       }
+    },
+    "MTOShipmentType": {
+      "type": "string",
+      "title": "Shipment Type",
+      "enum": [
+        "HHG",
+        "INTERNATIONAL_HHG",
+        "INTERNATIONAL_UB"
+      ],
+      "x-display-value": {
+        "HHG": "HHG",
+        "INTERNATIONAL_HHG": "International HHG",
+        "INTERNATIONAL_UB": "International UB"
+      },
+      "example": "HHG"
     },
     "MTOShipments": {
       "type": "array",
@@ -2425,17 +2436,28 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "shipmentType": {
-          "enum": [
-            "HHG",
-            "INTERNATIONAL_HHG",
-            "INTERNATIONAL_UB"
-          ]
+          "$ref": "#/definitions/MTOShipmentType"
         },
         "updatedAt": {
           "type": "string",
           "format": "date"
         }
       }
+    },
+    "MTOShipmentType": {
+      "type": "string",
+      "title": "Shipment Type",
+      "enum": [
+        "HHG",
+        "INTERNATIONAL_HHG",
+        "INTERNATIONAL_UB"
+      ],
+      "x-display-value": {
+        "HHG": "HHG",
+        "INTERNATIONAL_HHG": "International HHG",
+        "INTERNATIONAL_UB": "International UB"
+      },
+      "example": "HHG"
     },
     "MTOShipments": {
       "type": "array",

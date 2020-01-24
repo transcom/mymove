@@ -17,6 +17,21 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
+func addressModelFromPayload(rawAddress *primemessages.Address) *models.Address {
+	if rawAddress == nil {
+		return nil
+	}
+	return &models.Address{
+		StreetAddress1: *rawAddress.StreetAddress1,
+		StreetAddress2: rawAddress.StreetAddress2,
+		StreetAddress3: rawAddress.StreetAddress3,
+		City:           *rawAddress.City,
+		State:          *rawAddress.State,
+		PostalCode:     *rawAddress.PostalCode,
+		Country:        rawAddress.Country,
+	}
+}
+
 //ErrNotFound is returned when a given mto shipment is not found
 type ErrNotFound struct {
 	id uuid.UUID
@@ -107,43 +122,88 @@ func NewMTOShipmentUpdater(db *pop.Connection) services.MTOShipmentUpdater {
 }
 
 //UpdateMTOShipment updates the mto shipment
-func (f mtoShipmentFetcher) UpdateMTOShipment(unmodifiedSince time.Time, mtoShipmentPayload *primemessages.MTOShipment) (*models.MTOShipment, error) {
+func (f mtoShipmentFetcher) UpdateMTOShipment(mtoShipmentPayload *primemessages.MTOShipment) (*models.MTOShipment, error) {
 	mtoShipmentID := uuid.FromStringOrNil(mtoShipmentPayload.ID.String())
-	updatedShipment, err := f.FetchMTOShipment(mtoShipmentID)
+	oldShipment, err := f.FetchMTOShipment(mtoShipmentID)
 	if err != nil {
 		return &models.MTOShipment{}, err
 	}
 
 	// if requestedPickupDate isn't valid then return ErrInvalidInput
-	if time.Time(*mtoShipmentPayload.RequestedPickupDate) != *updatedShipment.RequestedPickupDate {
+	requestedPickupDate := time.Time(*mtoShipmentPayload.RequestedPickupDate)
+	if requestedPickupDate != *oldShipment.RequestedPickupDate {
 		return &models.MTOShipment{}, ErrInvalidInput{}
 	}
 
-	sql := `UPDATE mto_shipments
-		SET
-			scheduled_pickup_date = $1,
-			requested_pickup_date = $2,
-			pickup_address = $3,
-			destination_address = $4,
-			shipment_type = $5,
-			secondary_pickup_address = $6,
-			secondary_delivery_address = $7,
-			updated_at = NOW()
-		WHERE
-			id = $9
-		AND
-			updated_at = $9
-		;
-		`
+	scheduledPickupTime := time.Time(*mtoShipmentPayload.ScheduledPickupDate)
+	pickupAddress := addressModelFromPayload(mtoShipmentPayload.PickupAddress)
+	destinationAddress := addressModelFromPayload(mtoShipmentPayload.DestinationAddress)
 
-	// do the updating in a raw query
-	affectedRows, err := f.db.RawQuery(sql, mtoShipmentPayload.ScheduledPickupDate, mtoShipmentPayload.RequestedPickupDate, mtoShipmentPayload.PickupAddress, mtoShipmentPayload.DestinationAddress, mtoShipmentPayload.ShipmentType, updatedShipment.ID, unmodifiedSince).ExecWithCount()
+	updatedShipment := models.MTOShipment{
+		RequestedPickupDate: &requestedPickupDate,
+		ScheduledPickupDate: &scheduledPickupTime,
+		ShipmentType:        models.MTOShipmentType(mtoShipmentPayload.ShipmentType),
+		PickupAddress:       *pickupAddress,
+		DestinationAddress:  *destinationAddress,
+	}
 
+	if mtoShipmentPayload.SecondaryPickupAddress != nil {
+		secondaryPickupAddress := addressModelFromPayload(mtoShipmentPayload.SecondaryPickupAddress)
+		updatedShipment.SecondaryPickupAddress = secondaryPickupAddress
+	}
+
+	if mtoShipmentPayload.SecondaryDeliveryAddress != nil {
+		secondaryDeliveryAddress := addressModelFromPayload(mtoShipmentPayload.SecondaryDeliveryAddress)
+		updatedShipment.SecondaryPickupAddress = secondaryDeliveryAddress
+	}
+
+	//basicQuery := `UPDATE mto_shipments
+	//	SET
+	//		scheduled_pickup_date = ?,
+	//		requested_pickup_date = ?,
+	//		pickup_address = ?,
+	//		destination_address = ?,
+	//		shipment_type = ?,
+	//		updated_at = NOW()
+	//	`
+	//
+	//
+	//if mtoShipmentPayload.SecondaryPickupAddress != nil {
+	//	basicQuery = basicQuery + fmt.Sprintf(", secondary_pickup_address = %s", mtoShipmentPayload.SecondaryPickupAddress)
+	//}
+	//
+	//if mtoShipmentPayload.SecondaryDeliveryAddress != nil {
+	//	basicQuery = basicQuery + fmt.Sprintf(", secondary_delivery_address = %s", mtoShipmentPayload.SecondaryPickupAddress)
+	//}
+	//
+	//basicQuery = basicQuery + `WHERE
+	//		id = ?
+	//	AND
+	//		updated_at = ?
+	//	;`
+	//
+	//// do the updating in a raw query
+	//affectedRows, err := f.db.RawQuery(basicQuery, mtoShipmentPayload.ScheduledPickupDate, mtoShipmentPayload.RequestedPickupDate, mtoShipmentPayload.PickupAddress, mtoShipmentPayload.DestinationAddress, mtoShipmentPayload.ShipmentType, oldShipment.ID, unmodifiedSince).ExecWithCount()
+
+	//if err != nil {
+	//	return &models.MTOShipment{}, err
+	//}
+	//if affectedRows == 0 {
+	//	return &models.MTOShipment{}, ErrPreconditionFailed{id: mtoShipmentID, unmodifiedSince: unmodifiedSince}
+	//}
+
+	//
+	//updatedShipment, err := f.FetchMTOShipment(mtoShipmentID)
+	//if err != nil {
+	//	return &models.MTOShipment{}, err
+	//}
+
+	vErrors, err := f.db.ValidateAndUpdate(updatedShipment)
+	if vErrors.HasAny() {
+		return &models.MTOShipment{}, ErrInvalidInput{}
+	}
 	if err != nil {
-		return updatedShipment, err
+		return &models.MTOShipment{}, err
 	}
-	if affectedRows == 0 {
-		return &models.MTOShipment{}, ErrPreconditionFailed{id: mtoShipmentID, unmodifiedSince: unmodifiedSince}
-	}
-	return updatedShipment, nil
+	return &updatedShipment, nil
 }

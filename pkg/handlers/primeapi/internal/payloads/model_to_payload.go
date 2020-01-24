@@ -157,7 +157,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 	return &primemessages.MTOShipment{
 		ID:                       strfmt.UUID(mtoShipment.ID.String()),
 		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:             mtoShipment.ShipmentType,
+		ShipmentType:             primemessages.MTOShipmentType(mtoShipment.ShipmentType),
 		CustomerRemarks:          *mtoShipment.CustomerRemarks,
 		RequestedPickupDate:      &requestedPickupDate,
 		ScheduledPickupDate:      &scheduledPickupDate,

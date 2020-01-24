@@ -783,10 +783,7 @@ definitions:
         type: string
         example: handle with care
       shipmentType:
-        enum:
-          - HHG
-          - INTERNATIONAL_HHG
-          - INTERNATIONAL_UB
+        $ref: '#/definitions/MTOShipmentType'
       pickupAddress:
         $ref: '#/definitions/Address'
       destinationAddress:
@@ -799,6 +796,18 @@ definitions:
     items:
       $ref: '#/definitions/MTOShipment'
     type: array
+  MTOShipmentType:
+    type: string
+    title: Shipment Type
+    example: HHG
+    enum: &MTOSHIPMENTTYPE
+      - HHG
+      - INTERNATIONAL_HHG
+      - INTERNATIONAL_UB
+    x-display-value:
+      HHG: HHG
+      INTERNATIONAL_HHG: International HHG
+      INTERNATIONAL_UB: International UB
   ProofOfServicePackage:
     properties:
       uploads:

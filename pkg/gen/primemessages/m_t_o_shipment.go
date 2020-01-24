@@ -6,8 +6,6 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
-
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -60,8 +58,7 @@ type MTOShipment struct {
 
 	// shipment type
 	// Required: true
-	// Enum: [HHG INTERNATIONAL_HHG INTERNATIONAL_UB]
-	ShipmentType interface{} `json:"shipmentType"`
+	ShipmentType MTOShipmentType `json:"shipmentType"`
 
 	// updated at
 	// Format: date
@@ -259,29 +256,12 @@ func (m *MTOShipment) validateSecondaryPickupAddress(formats strfmt.Registry) er
 	return nil
 }
 
-var mTOShipmentTypeShipmentTypePropEnum []interface{}
-
-func init() {
-	var res []interface{}
-	if err := json.Unmarshal([]byte(`["HHG","INTERNATIONAL_HHG","INTERNATIONAL_UB"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		mTOShipmentTypeShipmentTypePropEnum = append(mTOShipmentTypeShipmentTypePropEnum, v)
-	}
-}
-
-// prop value enum
-func (m *MTOShipment) validateShipmentTypeEnum(path, location string, value interface{}) error {
-	if err := validate.Enum(path, location, value, mTOShipmentTypeShipmentTypePropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (m *MTOShipment) validateShipmentType(formats strfmt.Registry) error {
 
-	if err := validate.Required("shipmentType", "body", m.ShipmentType); err != nil {
+	if err := m.ShipmentType.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("shipmentType")
+		}
 		return err
 	}
 
