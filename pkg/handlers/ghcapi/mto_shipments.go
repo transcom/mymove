@@ -2,7 +2,6 @@ package ghcapi
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate"
@@ -79,19 +78,19 @@ type PatchShipmentHandler struct {
 func (h PatchShipmentHandler) Handle(params mtoshipmentops.PatchMTOShipmentStatusParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 
-	unmodifiedSince := time.Time(params.IfUnmodifiedSince)
-
-	shipment, err := h.UpdateMTOShipmentStatus(params, unmodifiedSince)
+	shipment, err := h.UpdateMTOShipmentStatus(params)
 	if err != nil {
 		logger.Error("UpdateMTOShipmentStatus error: ", zap.Error(err))
 
 		switch e := err.(type) {
 		case mtoshipment.NotFoundError:
-			return mtoshipmentops.NewListMTOShipmentsNotFound()
+			return mtoshipmentops.NewPatchMTOShipmentStatusNotFound()
 		case mtoshipment.ValidationError:
 			payload := payloadForValidationError("Validation errors", "UpdateShipmentMTOStatus", h.GetTraceID(), e.Verrs)
 
-			return mtoshipmentops.NewListMTOShipmentsUnprocessableEntity().WithPayload(payload)
+			return mtoshipmentops.NewPatchMTOShipmentStatusUnprocessableEntity().WithPayload(payload)
+		case mtoshipment.PreconditionFailedError:
+			return mtoshipmentops.NewPatchMTOShipmentStatusPreconditionFailed()
 		default:
 			return mtoshipmentops.NewPatchMTOShipmentStatusInternalServerError()
 		}

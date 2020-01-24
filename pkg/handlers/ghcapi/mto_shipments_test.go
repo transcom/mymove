@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/go-openapi/strfmt"
+	"github.com/gobuffalo/validate"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
 
@@ -115,16 +117,17 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	params := mtoshipmentops.PatchMTOShipmentStatusParams{
-		HTTPRequest:     req,
-		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-		ShipmentID:      *handlers.FmtUUID(mtoShipment.ID),
-		Body:            &ghcmessages.MTOShipment{Status: "APPROVED"},
+		HTTPRequest:       req,
+		MoveTaskOrderID:   *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
+		ShipmentID:        *handlers.FmtUUID(mtoShipment.ID),
+		Body:              &ghcmessages.MTOShipment{Status: "APPROVED"},
+		IfUnmodifiedSince: strfmt.DateTime(mtoShipment.UpdatedAt),
 	}
 
 	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		fetcher := fetch.NewFetcher(queryBuilder)
-		updater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder)
+		updater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), queryBuilder)
 		handler := PatchShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			fetcher,
@@ -138,7 +141,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		suite.Equal(mtoShipment.ID.String(), okResponse.Payload.ID.String())
 	})
 
-	suite.T().Run("Patch failure - Internal Server Error", func(t *testing.T) {
+	suite.T().Run("Patch failure - 500", func(t *testing.T) {
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MTOShipmentStatusUpdater{}
 		handler := PatchShipmentHandler{
@@ -146,11 +149,6 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 			&mockFetcher,
 			&mockUpdater,
 		}
-
-		mockFetcher.On("FetchRecord",
-			mock.Anything,
-			mock.Anything,
-		).Return(nil)
 
 		internalServerErr := errors.New("ServerError")
 
@@ -163,7 +161,7 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusInternalServerError{}, response)
 	})
 
-	suite.T().Run("Failure list fetch - 404 Not Found - Move Task Order ID", func(t *testing.T) {
+	suite.T().Run("Patch failure - 404", func(t *testing.T) {
 		mockFetcher := mocks.Fetcher{}
 		mockUpdater := mocks.MTOShipmentStatusUpdater{}
 		handler := PatchShipmentHandler{
@@ -172,14 +170,48 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 			&mockUpdater,
 		}
 
-		notfound := errors.New("Not found error")
-
-		mockFetcher.On("FetchRecord",
+		mockUpdater.On("UpdateMTOShipmentStatus",
 			mock.Anything,
 			mock.Anything,
-		).Return(notfound)
+		).Return(nil, mtoshipment.NotFoundError{})
 
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusNotFound{}, response)
+	})
+
+	suite.T().Run("Patch failure - 422", func(t *testing.T) {
+		mockFetcher := mocks.Fetcher{}
+		mockUpdater := mocks.MTOShipmentStatusUpdater{}
+		handler := PatchShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockFetcher,
+			&mockUpdater,
+		}
+
+		mockUpdater.On("UpdateMTOShipmentStatus",
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, mtoshipment.ValidationError{Verrs: validate.NewErrors()})
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusUnprocessableEntity{}, response)
+	})
+
+	suite.T().Run("Patch failure - 412", func(t *testing.T) {
+		mockFetcher := mocks.Fetcher{}
+		mockUpdater := mocks.MTOShipmentStatusUpdater{}
+		handler := PatchShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockFetcher,
+			&mockUpdater,
+		}
+
+		mockUpdater.On("UpdateMTOShipmentStatus",
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, mtoshipment.PreconditionFailedError{})
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusPreconditionFailed{}, response)
 	})
 }

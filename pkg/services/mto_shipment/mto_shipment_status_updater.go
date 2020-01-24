@@ -15,7 +15,6 @@ import (
 )
 
 type UpdateMTOShipmentStatusQueryBuilder interface {
-	UpdateOne(model interface{}) (*validate.Errors, error)
 	FetchOne(model interface{}, filters []services.QueryFilter) error
 }
 
@@ -24,9 +23,10 @@ type mtoShipmentStatusUpdater struct {
 	builder UpdateMTOShipmentStatusQueryBuilder
 }
 
-func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentops.PatchMTOShipmentStatusParams, unmodifiedSince time.Time) (*models.MTOShipment, error) {
+func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentops.PatchMTOShipmentStatusParams) (*models.MTOShipment, error) {
 	shipmentID := payload.ShipmentID
 	status := payload.Body.Status
+	unmodifiedSince := time.Time(payload.IfUnmodifiedSince)
 
 	var shipment models.MTOShipment
 
@@ -61,11 +61,22 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 		return nil, err
 	}
 
-	// TODO: revisit to implment optimistic locking
-	affectedRows, err := o.db.RawQuery("UPDATE mto_shipments SET status = ?, updated_at = NOW() WHERE id = ?", status, shipment.ID.String()).ExecWithCount()
+	affectedRows, err := o.db.RawQuery("UPDATE mto_shipments SET status = ?, updated_at = NOW() WHERE id = ? AND updated_at = ?", status, shipment.ID.String(), unmodifiedSince).ExecWithCount()
+
+	if err != nil {
+		return nil, err
+	}
 
 	if affectedRows != 1 {
-		return nil, nil
+		fmt.Println("==========================")
+		fmt.Println("==========================")
+		fmt.Println("==========================")
+		fmt.Printf("header: %v\n", unmodifiedSince)
+		fmt.Printf("updated_at: %v\n", shipment.UpdatedAt)
+		fmt.Println("==========================")
+		fmt.Println("==========================")
+		fmt.Println("==========================")
+		return nil, PreconditionFailedError{id: shipment.ID}
 	}
 
 	return &shipment, nil
@@ -90,4 +101,12 @@ type ValidationError struct {
 
 func (e ValidationError) Error() string {
 	return fmt.Sprintf("shipment with id: '%s' could not be updated due to a validation error", e.id.String())
+}
+
+type PreconditionFailedError struct {
+	id uuid.UUID
+}
+
+func (e PreconditionFailedError) Error() string {
+	return fmt.Sprintf("shipment with id: '%s' could not be updated due to the record being stale", e.id.String())
 }

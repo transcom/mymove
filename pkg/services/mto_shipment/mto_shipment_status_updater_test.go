@@ -1,27 +1,21 @@
 package mtoshipment
 
 import (
-	"errors"
 	"reflect"
 	"testing"
 
-	"github.com/gobuffalo/validate"
-
+	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
+	mtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 type testPaymentRequestStatusQueryBuilder struct {
-	fakeUpdateOne func(model interface{}) (*validate.Errors, error)
-	fakeFetchOne  func(model interface{}) error
-}
-
-func (t *testPaymentRequestStatusQueryBuilder) UpdateOne(model interface{}) (*validate.Errors, error) {
-	v, m := t.fakeUpdateOne(model)
-	return v, m
+	fakeFetchOne func(model interface{}) error
 }
 
 func (t *testPaymentRequestStatusQueryBuilder) FetchOne(model interface{}, filters []services.QueryFilter) error {
@@ -38,51 +32,46 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		MoveTaskOrder: mto,
 	})
 	shipment.Status = models.MTOShipmentStatusSubmitted
+	params := mtoshipmentops.PatchMTOShipmentStatusParams{
+		IfUnmodifiedSince: strfmt.DateTime(shipment.UpdatedAt),
+		Body:              &ghcmessages.MTOShipment{Status: "APPROVED"},
+	}
 
 	suite.T().Run("If we get a mto shipment pointer with a status it should update and return no error", func(t *testing.T) {
 
 		fakeFetchOne := func(model interface{}) error {
 			reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(id))
+			reflect.ValueOf(model).Elem().FieldByName("MoveTaskOrderID").Set(reflect.ValueOf(shipment.MoveTaskOrderID))
+			reflect.ValueOf(model).Elem().FieldByName("PickupAddressID").Set(reflect.ValueOf(shipment.PickupAddressID))
+			reflect.ValueOf(model).Elem().FieldByName("DestinationAddressID").Set(reflect.ValueOf(shipment.DestinationAddressID))
+			reflect.ValueOf(model).Elem().FieldByName("UpdatedAt").Set(reflect.ValueOf(shipment.UpdatedAt))
 			return nil
 		}
 
-		fakeUpdateOne := func(model interface{}) (*validate.Errors, error) {
-			reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(id))
-			return &validate.Errors{}, nil
-		}
-
 		builder := &testPaymentRequestStatusQueryBuilder{
-			fakeUpdateOne: fakeUpdateOne,
-			fakeFetchOne:  fakeFetchOne,
+			fakeFetchOne: fakeFetchOne,
 		}
 
-		updater := NewMTOShipmentStatusUpdater(builder)
+		updater := NewMTOShipmentStatusUpdater(suite.DB(), builder)
 
-		verrs, err := updater.UpdateMTOShipmentStatus(&shipment, "APPROVED")
+		_, err := updater.UpdateMTOShipmentStatus(params)
 		suite.NoError(err)
-		suite.NoVerrs(verrs)
 	})
 
-	suite.T().Run("If there is an error updating the payment request status we should get one returned", func(t *testing.T) {
+	suite.T().Run("If there is an error updating the shipment status we should get one returned", func(t *testing.T) {
 		fakeFetchOne := func(model interface{}) error {
 			reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(id))
 			return nil
 		}
 
-		fakeUpdateOne := func(model interface{}) (*validate.Errors, error) {
-			return nil, errors.New("Update error")
-		}
-
 		builder := &testPaymentRequestStatusQueryBuilder{
-			fakeUpdateOne: fakeUpdateOne,
-			fakeFetchOne:  fakeFetchOne,
+			fakeFetchOne: fakeFetchOne,
 		}
 
-		updater := NewMTOShipmentStatusUpdater(builder)
+		updater := NewMTOShipmentStatusUpdater(suite.DB(), builder)
 
-		_, err := updater.UpdateMTOShipmentStatus(&shipment, "Invalid status")
+		_, err := updater.UpdateMTOShipmentStatus(params)
 		suite.Error(err)
-		suite.Equal(err.Error(), "Update error")
-
+		suite.IsType(&ValidationError{}, err)
 	})
 }

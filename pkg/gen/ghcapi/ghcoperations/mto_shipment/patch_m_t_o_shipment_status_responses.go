@@ -99,6 +99,48 @@ func (o *PatchMTOShipmentStatusNotFound) WriteResponse(rw http.ResponseWriter, p
 	}
 }
 
+// PatchMTOShipmentStatusPreconditionFailedCode is the HTTP code returned for type PatchMTOShipmentStatusPreconditionFailed
+const PatchMTOShipmentStatusPreconditionFailedCode int = 412
+
+/*PatchMTOShipmentStatusPreconditionFailed Precondition failed
+
+swagger:response patchMTOShipmentStatusPreconditionFailed
+*/
+type PatchMTOShipmentStatusPreconditionFailed struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
+}
+
+// NewPatchMTOShipmentStatusPreconditionFailed creates PatchMTOShipmentStatusPreconditionFailed with default headers values
+func NewPatchMTOShipmentStatusPreconditionFailed() *PatchMTOShipmentStatusPreconditionFailed {
+
+	return &PatchMTOShipmentStatusPreconditionFailed{}
+}
+
+// WithPayload adds the payload to the patch m t o shipment status precondition failed response
+func (o *PatchMTOShipmentStatusPreconditionFailed) WithPayload(payload interface{}) *PatchMTOShipmentStatusPreconditionFailed {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the patch m t o shipment status precondition failed response
+func (o *PatchMTOShipmentStatusPreconditionFailed) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *PatchMTOShipmentStatusPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(412)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
+}
+
 // PatchMTOShipmentStatusUnprocessableEntityCode is the HTTP code returned for type PatchMTOShipmentStatusUnprocessableEntity
 const PatchMTOShipmentStatusUnprocessableEntityCode int = 422
 

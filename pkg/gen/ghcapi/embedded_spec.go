@@ -1157,16 +1157,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "status": {
-                  "type": "string",
-                  "enum": [
-                    "APPROVED",
-                    "REJECTED"
-                  ]
-                }
-              }
+              "$ref": "#/definitions/MTOShipment"
             }
           },
           {
@@ -1188,6 +1179,12 @@ func init() {
             "description": "The requested resource wasn't found",
             "schema": {
               "$ref": "#/responses/NotFound"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
             }
           },
           "422": {
@@ -2350,6 +2347,12 @@ func init() {
     },
     "PermissionDenied": {
       "description": "The request was denied",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "PreconditionFailed": {
+      "description": "Precondition failed",
       "schema": {
         "$ref": "#/definitions/Error"
       }
@@ -3727,16 +3730,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "status": {
-                  "type": "string",
-                  "enum": [
-                    "APPROVED",
-                    "REJECTED"
-                  ]
-                }
-              }
+              "$ref": "#/definitions/MTOShipment"
             }
           },
           {
@@ -3758,6 +3752,15 @@ func init() {
             "description": "The requested resource wasn't found",
             "schema": {
               "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "description": "Precondition failed",
               "schema": {
                 "$ref": "#/definitions/Error"
               }
@@ -4971,6 +4974,12 @@ func init() {
     },
     "PermissionDenied": {
       "description": "The request was denied",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "PreconditionFailed": {
+      "description": "Precondition failed",
       "schema": {
         "$ref": "#/definitions/Error"
       }
