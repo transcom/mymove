@@ -436,3 +436,4 @@
 20200114010154_drop_shipment_type_tables.up.sql
 20200115164752_modify_service_item_param_key_enum.up.sql
 20200115173035_payment_request_add_service_item_param_keys.up.sql
+20200124172904_alter_table_payment_service_items_column_service_item_id.up.sql
