@@ -15,16 +15,16 @@ linters-settings:
 
 linters:
   enable:
-     - gosec
-     - golint
-     - gofmt
-     - goimports
-     - govet
-     - varcheck
-     - typecheck
-     - structcheck
-     - deadcode
-     - ineffassign
+    - gosec
+    - golint
+    - gofmt
+    - goimports
+    - govet
+    - varcheck
+    - typecheck
+    - structcheck
+    - deadcode
+    - ineffassign
   disable:
     - unused #deprecated https://github.com/dominikh/go-tools/tree/master/cmd/unused
     - gosimple #deprecated https://github.com/golangci/golangci-lint/issues/357

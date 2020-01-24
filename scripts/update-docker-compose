@@ -1,5 +1,9 @@
 #! /usr/bin/env bash
 
+#
+# Update branch name before running docker-compose
+#
+
 set -eu -o pipefail
 shopt -s extglob
 
