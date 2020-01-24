@@ -100,7 +100,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 	suite.T().Run("invalid file type", func(t *testing.T) {
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, storer)
-		wrongTypeFile, err := os.Open("./testdata/test.txt")
+		wrongTypeFile, err := os.Open("../../testdatagen/testdata/test.txt")
 		suite.NoError(err)
 		defer wrongTypeFile.Close()
 
