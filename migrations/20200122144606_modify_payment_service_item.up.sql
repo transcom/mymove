@@ -1,1 +1,0 @@
-ALTER TABLE payment_service_items RENAME COLUMN service_item_id TO mto_service_item_id;
