@@ -1,7 +1,6 @@
 package paymentrequest
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/gofrs/uuid"
@@ -66,16 +65,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		},
 	})
 
-	/*
-		_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
-			ServiceParam: models.ServiceParam{
-				ServiceID: mtoServiceItem2.ReServiceID,
-				ServiceItemParamKeyID: serviceItemParamKey2.ID,
-				ServiceItemParamKey: serviceItemParamKey2,
-			},
-		})
-	*/
-
 	creator := NewPaymentRequestCreator(suite.DB())
 
 	suite.T().Run("Payment request is created successfully (using IncomingKey)", func(t *testing.T) {
@@ -112,17 +101,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 		paymentRequestReturn, err := creator.CreatePaymentRequest(&paymentRequest)
 		suite.FatalNoError(err)
-
-		//fmt.Printf("\n\npaymentRequestReturn\n%v\n\n", paymentRequestReturn)
-		for _, item := range paymentRequestReturn.PaymentServiceItems {
-			fmt.Printf("********\n\nMTO Service Item: <%s>\n", item.MTOServiceItem.ReService.Code)
-			fmt.Printf("MTO Service Item ID: <%s>\n", item.MTOServiceItem.ID.String())
-
-			for _, param := range item.PaymentServiceItemParams {
-				fmt.Printf("param: incoming key <%s>\n", param.IncomingKey)
-				fmt.Printf("param: key <%s>\n", param.ServiceItemParamKey.Key)
-			}
-		}
 
 		// Verify some of the data that came back
 		suite.NotEqual(paymentRequestReturn.ID, uuid.Nil)
@@ -177,16 +155,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err := creator.CreatePaymentRequest(&paymentRequest)
 		suite.FatalNoError(err)
 
-		for _, item := range paymentRequest.PaymentServiceItems {
-			fmt.Printf("********\n\nMTO Service Item: <%s>\n", item.MTOServiceItem.ReService.Code)
-			fmt.Printf("MTO Service Item ID: <%s>\n", item.MTOServiceItem.ID.String())
-
-			for _, param := range item.PaymentServiceItemParams {
-				fmt.Printf("param: incoming key <%s>\n", param.IncomingKey)
-				fmt.Printf("param: key <%s>\n", param.ServiceItemParamKey.Key)
-			}
-		}
-
 		// Verify some of the data that came back
 		suite.NotEqual(paymentRequest.ID, uuid.Nil)
 		suite.Equal(2, len(paymentRequest.PaymentServiceItems), "PaymentServiceItems expect 2")
@@ -226,16 +194,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		paymentRequestResult, err := creator.CreatePaymentRequest(&paymentRequest)
 		suite.FatalNoError(err)
 
-		for _, item := range paymentRequest.PaymentServiceItems {
-			fmt.Printf("********\n\nMTO Service Item: <%s>\n", item.MTOServiceItem.ReService.Code)
-			fmt.Printf("MTO Service Item ID: <%s>\n", item.MTOServiceItem.ID.String())
-
-			for _, param := range item.PaymentServiceItemParams {
-				fmt.Printf("param: incoming key <%s>\n", param.IncomingKey)
-				fmt.Printf("param: key <%s>\n", param.ServiceItemParamKey.Key)
-			}
-		}
-
 		// Verify some of the data that came back
 		suite.NotEqual(paymentRequestResult.ID, uuid.Nil)
 		suite.Equal(2, len(paymentRequest.PaymentServiceItems), "PaymentServiceItems expect 2")
@@ -263,16 +221,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
-
-		for _, item := range invalidPaymentRequest.PaymentServiceItems {
-			fmt.Printf("********\n\nMTO Service Item: <%s>\n", item.MTOServiceItem.ReService.Code)
-			fmt.Printf("MTO Service Item ID: <%s>\n", item.MTOServiceItem.ID.String())
-
-			for _, param := range item.PaymentServiceItemParams {
-				fmt.Printf("param: incoming key <%s>\n", param.IncomingKey)
-				fmt.Printf("param: key <%s>\n", param.ServiceItemParamKey.Key)
-			}
-		}
 	})
 
 	suite.T().Run("Given a non-existent service item id, the create should fail", func(t *testing.T) {
@@ -287,16 +235,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
-
-		for _, item := range invalidPaymentRequest.PaymentServiceItems {
-			fmt.Printf("********\n\nMTO Service Item: <%s>\n", item.MTOServiceItem.ReService.Code)
-			fmt.Printf("MTO Service Item ID: <%s>\n", item.MTOServiceItem.ID.String())
-
-			for _, param := range item.PaymentServiceItemParams {
-				fmt.Printf("param: incoming key <%s>\n", param.IncomingKey)
-				fmt.Printf("param: key <%s>\n", param.ServiceItemParamKey.Key)
-			}
-		}
 	})
 
 	suite.T().Run("Given a non-existent service item param key id, the create should fail", func(t *testing.T) {
@@ -318,16 +256,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
-
-		for _, item := range invalidPaymentRequest.PaymentServiceItems {
-			fmt.Printf("********\n\nMTO Service Item: <%s>\n", item.MTOServiceItem.ReService.Code)
-			fmt.Printf("MTO Service Item ID: <%s>\n", item.MTOServiceItem.ID.String())
-
-			for _, param := range item.PaymentServiceItemParams {
-				fmt.Printf("param: incoming key <%s>\n", param.IncomingKey)
-				fmt.Printf("param: key <%s>\n", param.ServiceItemParamKey.Key)
-			}
-		}
 	})
 
 	suite.T().Run("Given a non-existent service item param key name, the create should fail", func(t *testing.T) {
@@ -349,15 +277,5 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
-
-		for _, item := range invalidPaymentRequest.PaymentServiceItems {
-			fmt.Printf("********\n\nMTO Service Item: <%s>\n", item.MTOServiceItem.ReService.Code)
-			fmt.Printf("MTO Service Item ID: <%s>\n", item.MTOServiceItem.ID.String())
-
-			for _, param := range item.PaymentServiceItemParams {
-				fmt.Printf("param: incoming key <%s>\n", param.IncomingKey)
-				fmt.Printf("param: key <%s>\n", param.ServiceItemParamKey.Key)
-			}
-		}
 	})
 }

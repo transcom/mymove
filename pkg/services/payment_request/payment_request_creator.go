@@ -49,8 +49,6 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 		// Create each payment service item for the payment request
 		var newPaymentServiceItems models.PaymentServiceItems
 		for _, paymentServiceItem := range paymentRequestArg.PaymentServiceItems {
-			fmt.Printf("===== MTO Service Item <%s>\n", paymentServiceItem.MTOServiceItem.ID.String())
-
 			// Verify that the service item ID exists
 			var mtoServiceItem models.MTOServiceItem
 			err := tx.Find(&mtoServiceItem, paymentServiceItem.MTOServiceItemID)
@@ -86,7 +84,6 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 				foundParamKey := false
 				var serviceItemParamKey models.ServiceItemParamKey
 				if paymentServiceItemParam.ServiceItemParamKeyID != uuid.Nil {
-					fmt.Printf("Key <%s> via ServiceItemParamKey.Key added to param list \n\n\n", paymentServiceItemParam.ServiceItemParamKey.Key)
 					err = tx.Find(&serviceItemParamKey, paymentServiceItemParam.ServiceItemParamKeyID)
 					if err != nil {
 						return fmt.Errorf("could not find ServiceItemParamKeyID [%s]: %w", paymentServiceItemParam.ServiceItemParamKeyID, err)
@@ -97,8 +94,6 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 					incomingMTOServiceItemParams[serviceItemParamKey.Key] = paymentServiceItemParam.Value
 					foundParamKey = true
 				} else if paymentServiceItemParam.IncomingKey != "" {
-					fmt.Printf("Key <%s> via IncomingKey added to param list \n\n\n", paymentServiceItemParam.IncomingKey)
-
 					err = tx.Where("key = ?", paymentServiceItemParam.IncomingKey).First(&serviceItemParamKey)
 					if err != nil {
 						return fmt.Errorf("could not find param key [%s]: %w", paymentServiceItemParam.IncomingKey, err)
@@ -145,8 +140,6 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 				var value string
 				if _, found := incomingMTOServiceItemParams[reServiceParam.ServiceItemParamKey.Key]; !found {
 					// key not found in map
-
-					fmt.Printf("\n\nKey not found <%s>, add to param list\n\n", reServiceParam.ServiceItemParamKey.Key)
 					// Did not find service item param needed for pricing, add it to the list
 					value = "8.88"
 					//value, err = paramLookup.ServiceParamValue(reServiceParam.ServiceItemParamKey.Key)
