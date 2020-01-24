@@ -48,7 +48,7 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandlerTests() {
 		expectedPages int
 	}{
 		//We reuse the pdf twice for the merged pdf so expect new pdf to be 2x the length or original
-		{name: "vanilla pdf", pdfName: "../fixtures/test.pdf", expectedPages: 2},
+		{name: "vanilla pdf", pdfName: "../../testdatagen/testdata/test.pdf", expectedPages: 2},
 		//problem pdf is specific pdf that was causing decoding errors previously
 		{name: "problem pdf", pdfName: "../fixtures/orders.pdf", expectedPages: 4},
 	}
