@@ -223,7 +223,7 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 	return officeuserop.NewUpdateOfficeUserOK().WithPayload(returnPayload)
 }
 
-func rolesPayloadToModel(payload []*adminmessages.OfficeUserRolePayload) []roles.RoleType {
+func rolesPayloadToModel(payload []*adminmessages.OfficeUserRole) []roles.RoleType {
 	var rt []roles.RoleType
 	for _, role := range payload {
 		if role.RoleType != nil {

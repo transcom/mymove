@@ -303,18 +303,18 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		suite.NoError(err)
 		payloadRoleName1 := "name1"
 		payloadRoleType1 := string(role1.RoleType)
-		payloadRole1 := &adminmessages.OfficeUserRolePayload{
+		payloadRole1 := &adminmessages.OfficeUserRole{
 			Name:     &payloadRoleName1,
 			RoleType: &payloadRoleType1,
 		}
 		payloadRoleName2 := "name2"
 		payloadRoleType2 := string(role2.RoleType)
-		payloadRole2 := &adminmessages.OfficeUserRolePayload{
+		payloadRole2 := &adminmessages.OfficeUserRole{
 			Name:     &payloadRoleName2,
 			RoleType: &payloadRoleType2,
 		}
 
-		payloadRoles := []*adminmessages.OfficeUserRolePayload{payloadRole1, payloadRole2}
+		payloadRoles := []*adminmessages.OfficeUserRole{payloadRole1, payloadRole2}
 		updatedParams.OfficeUser.Roles = payloadRoles
 
 		officeUserUpdater.On("UpdateOfficeUser",
