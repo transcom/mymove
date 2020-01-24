@@ -100,6 +100,27 @@ func (suite *PlannerFullSuite) TestZip5Distance() {
 	}
 }
 
+const txZip3 = "768"
+const caZip3 = "930"
+const ca2Zip3 = "902"
+
+func (suite *PlannerFullSuite) TestZip3Distance() {
+	tests := []struct {
+		zip1        string
+		zip2        string
+		distanceMin int
+		distanceMax int
+	}{
+		{zip1: txZip3, zip2: caZip3, distanceMin: 1000, distanceMax: 3000},
+		{zip1: ca2Zip3, zip2: caZip3, distanceMin: 30, distanceMax: 49},
+	}
+	for _, ts := range tests {
+		distance, err := suite.planner.Zip3TransitDistance(ts.zip1, ts.zip2)
+		suite.NotNil(err, "Should get error from Zip3 not number")
+		suite.Equal(distance, 0)
+	}
+}
+
 func TestHandlerSuite(t *testing.T) {
 	logger, err := zap.NewDevelopment()
 	if err != nil {

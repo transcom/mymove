@@ -1,9 +1,9 @@
 package cli
 
 import (
+	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
@@ -24,11 +24,11 @@ func InitDatabaseRetryFlags(flag *pflag.FlagSet) {
 // CheckDatabaseRetry validates Database Retry command line flags
 func CheckDatabaseRetry(v *viper.Viper) error {
 	if retryInterval := v.GetDuration(DbRetryIntervalFlag); retryInterval < 1*time.Second {
-		return errors.New("retry interval must be greater than 1 seconds")
+		return fmt.Errorf("retry interval must be greater than 1 seconds, got %q", retryInterval)
 	}
 
 	if retryMax := v.GetInt(DbRetryMaxFlag); retryMax < 0 {
-		return errors.New("retries must be greater than 0")
+		return fmt.Errorf("retries must be greater than 0, got %q", retryMax)
 	}
 
 	return nil

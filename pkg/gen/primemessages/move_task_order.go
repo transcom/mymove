@@ -37,6 +37,9 @@ type MoveTaskOrder struct {
 	// Format: uuid
 	MoveOrderID strfmt.UUID `json:"moveOrderID,omitempty"`
 
+	// mto service items
+	MtoServiceItems []*MTOServiceItem `json:"mto_service_items"`
+
 	// payment requests
 	PaymentRequests []*PaymentRequest `json:"payment_requests"`
 
@@ -61,6 +64,10 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMoveOrderID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMtoServiceItems(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -112,6 +119,31 @@ func (m *MoveTaskOrder) validateMoveOrderID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("moveOrderID", "body", "uuid", m.MoveOrderID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validateMtoServiceItems(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.MtoServiceItems) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.MtoServiceItems); i++ {
+		if swag.IsZero(m.MtoServiceItems[i]) { // not required
+			continue
+		}
+
+		if m.MtoServiceItems[i] != nil {
+			if err := m.MtoServiceItems[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("mto_service_items" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil

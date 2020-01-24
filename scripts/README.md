@@ -3,6 +3,9 @@
 This directory holds the scripts that are not compiled go code. For
 compiled go code please look in the `bin/` directory of the project.
 
+If you want to see if scripts are not listed in this file you can run
+`find-scripts-missing-in-readme`.
+
 ## Dev Environment
 
 These scripts are primarily used for managing the developers
@@ -10,10 +13,14 @@ environment.
 
 | Script Name | Description |
 | --- | --- |
+| `check-aws-vault-version` | checks the aws-vault version required for the project |
 | `check-bash-version` | Script helps ensure that /etc/shells has all the correct entries in it |
+| `check-chamber-version` | checks the chamber version required for the project |
+| `check-go-bindata-version` | checks the go-bindata version required for the project |
 | `check-go-version` | checks the go version required for the project |
 | `check-gopath` | checks the go path is correct for the project |
 | `check-hosts-file` | Script helps ensure that /etc/hosts has all the correct entries in it |
+| `check-node-version` | checks the node version required for the project |
 | `prereqs` | validate if all prerequisite programs have been installed |
 
 ## AWS Scripts
@@ -33,7 +40,13 @@ These scripts are used to operate the system.
 
 | Script Name | Description |
 | --- | --- |
+| `deploy-app` | Deploy the app |
+| `deploy-app-client-tls` | Deploy the app client-tls |
+| `deploy-app-migrations` | Deploy the app migrations |
+| `deploy-app-tasks` | Deploy the app tasks |
 | `download-alb-logs` | Download alb logs for the given environment and dates to a local folder |
+| `dupe-secrets` | Dupes experimental secrets to target params |
+| `health-tls-check` | Run health and TLS version checks. |
 | `scan-alb-logs` | Scan alb logs for specific http codes. |
 
 ## Pre-commit Scripts
@@ -43,6 +56,7 @@ committing.
 
 | Script Name | Description |
 | --- | --- |
+| `commit-msg` | Ensure JIRA issue is tagged to commit message |
 | `gen-docs-index` | generate index for documents |
 | `pre-commit-go-imports` | modify imports in go files |
 | `pre-commit-go-lint` | modify go files with linting rules |
@@ -55,12 +69,14 @@ These scripts are primarily used for CircleCI workflows.
 
 | Script Name | Description |
 | --- | --- |
-| `check-deployed-commit` |  checks that the deployed commit and given commit match. |
+| `check-deployed-commit` | checks that the deployed commit and given commit match. |
+| `check-generated-code` | checks that the generated code has not changed |
 | `circleci-announce-broken-branch` | announce that a branch is broken |
 | `compare-deployed-commit` | checks that the given commit is ahead of the currently deployed commit |
 | `do-exclusively` | CircleCI's current recommendation for roughly serializing a subset of build commands for a given branch |
 | `ecr-describe-image-scan-findings` | Checks an uploaded image scan results |
-| `ecs-deploy-service-container` |  Updates the named service with the given container definition template, image, and environment |
+| `ecs-deploy-service-container` | Updates the named service with the given name, image, and environment. |
+| `ecs-deploy-task-container` | Updates the named task with the given name, image, and environment. |
 | `ecs-restart-services` | Restarted the ECS services associated with the given environment. |
 | `ecs-run-app-migrations-container` | Creates and runs a migration task using the given container definition. |
 | `rds-snapshot-app-db` | Creates a snapshot of the app database for the given environment. |
@@ -73,6 +89,7 @@ application testing
 
 | Script Name | Description |
 | --- | --- |
+| `check-docker-size` | Script to check the available disk space Docker has used |
 | `export-obfuscated-tspp-sample` | Export a subset of rows from the `transportation_service_provider_performances` table |
 | `find-invoices` |  This script will use available API endpoints to find invoices in whatever environment you specify|
 | `generate-devlocal-cert` | Convenience script for creating a new certificate signed by the DevLocal CA. |
@@ -80,6 +97,7 @@ application testing
 | `merge-pr` |  A script to automate the landing of your GitHub pull requests. |
 | `make-test` | A script to test common developer make targets. |
 | `prime-api` | A script to connect to endpoints on the PRIME API. |
+| `update-docker-compose` | Update branch name before running docker-compose |
 
 ### Building
 
@@ -125,6 +143,7 @@ These scripts are primarily used for working with the database
 | `psql-deployed-migrations` | Convenience script to drop into deployed migrations postgres DB |
 | `psql-test` | Convenience script to drop into testing postgres DB |
 | `psql-wrapper` | A wrapper around `psql` that sets correct values |
+| `update-migrations-manifest` | Update manifest for migrations |
 | `wait-for-db` |  waits for an available database connection, or until a timeout is reached |
 | `wait-for-db-docker` |  waits for an available database connection, or until a timeout is reached using docker |
 
@@ -141,6 +160,15 @@ These scripts are primarily used for working with a CAC and the Orders API
 | `cac-extract-token-label` | Get the Token Label from CAC |
 | `cac-info` | Get general information from a CAC |
 | `cac-prereqs` | Check the prereqs for CAC |
+
+### Mutual TLS
+
+These scripts are primarily for working with Mutual TLS certificates
+
+| Script Name | Description |
+| --- | --- |
+| `mutual-tls-extract-fingerprint` | Get a sha256 hash of the certificate from CAC |
+| `mutual-tls-extract-subject` | Get a sha256 hash of the certificate from CAC |
 
 ### Amazon Console Scripts
 
