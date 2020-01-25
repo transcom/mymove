@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
+	serviceparamlookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -135,14 +136,13 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			}
 
 			// Get values for needed service item params (do lookups)
-			//paramLookup := serviceparamlookups.ServiceParamLookupInitialize(paymentServiceItem.MTOServiceItemID, paymentServiceItem.ID, paymentRequestArg.MoveTaskOrderID)
+			paramLookup := serviceparamlookups.ServiceParamLookupInitialize(paymentServiceItem.MTOServiceItemID, paymentServiceItem.ID, paymentRequestArg.MoveTaskOrderID)
 			for _, reServiceParam := range reServiceParams {
 				var value string
 				if _, found := incomingMTOServiceItemParams[reServiceParam.ServiceItemParamKey.Key]; !found {
 					// key not found in map
 					// Did not find service item param needed for pricing, add it to the list
-					value = "8.88"
-					//value, err = paramLookup.ServiceParamValue(reServiceParam.ServiceItemParamKey.Key)
+					value, err = paramLookup.ServiceParamValue(reServiceParam.ServiceItemParamKey.Key)
 					if err != nil {
 						errMessage := "Failed to lookup ServiceParamValue for param key " + reServiceParam.ServiceItemParamKey.Key + ", mtoServiceID " + paymentServiceItem.MTOServiceItemID.String() + ", mtoID " + paymentRequestArg.MoveTaskOrderID.String() + ", paymentRequestID " + paymentRequestArg.ID.String()
 						return fmt.Errorf("%s err: %w", errMessage, err)
