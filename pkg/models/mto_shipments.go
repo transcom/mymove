@@ -60,6 +60,11 @@ type MTOShipments []MTOShipment
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
+	vs = append(vs, &validators.StringInclusion{Field: string(m.Status), Name: "Status", List: []string{
+		string(MTOShipmentStatusApproved),
+		string(MTOShipmentStatusRejected),
+		string(MTOShipmentStatusSubmitted),
+	}})
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveTaskOrderID, Name: "MoveTaskOrderID"})
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.PickupAddressID, Name: "PickupAddressID"})
 	vs = append(vs, &validators.UUIDIsPresent{Field: m.DestinationAddressID, Name: "DestinationAddressID"})

@@ -36,22 +36,15 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 	err := o.builder.FetchOne(&shipment, queryFilters)
 
 	if err != nil {
-		return nil, &NotFoundError{id: shipment.ID}
+		return nil, NotFoundError{id: shipment.ID}
 	}
 
-	fmt.Printf("header: %s\n", unmodifiedSince)
-
-	switch status {
-	case "APPROVED":
-		shipment.Status = models.MTOShipmentStatusApproved
-	case "REJECTED":
-		shipment.Status = models.MTOShipmentStatusRejected
-	}
+	shipment.Status = models.MTOShipmentStatus(status)
 
 	verrs, err := shipment.Validate(o.db)
 
 	if verrs.Count() > 0 {
-		return nil, &ValidationError{
+		return nil, ValidationError{
 			id:    shipment.ID,
 			Verrs: verrs,
 		}
@@ -68,14 +61,6 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 	}
 
 	if affectedRows != 1 {
-		fmt.Println("==========================")
-		fmt.Println("==========================")
-		fmt.Println("==========================")
-		fmt.Printf("header: %v\n", unmodifiedSince)
-		fmt.Printf("updated_at: %v\n", shipment.UpdatedAt)
-		fmt.Println("==========================")
-		fmt.Println("==========================")
-		fmt.Println("==========================")
 		return nil, PreconditionFailedError{id: shipment.ID}
 	}
 
