@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
-	"fmt"
 	"net/http"
 
 	"github.com/gobuffalo/pop"
@@ -48,7 +47,6 @@ func ClientCertMiddleware(logger Logger, db *pop.Connection) func(next http.Hand
 			// get DER hash
 			hash := sha256.Sum256(r.TLS.PeerCertificates[0].Raw)
 			hashString := hex.EncodeToString(hash[:])
-			logger.Info(fmt.Sprintf("HASH STRING %q", hashString))
 
 			clientCert, err := models.FetchClientCert(db, hashString)
 			if err != nil {
@@ -57,7 +55,6 @@ func ClientCertMiddleware(logger Logger, db *pop.Connection) func(next http.Hand
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
-			logger.Info(fmt.Sprintf("%+v", clientCert))
 
 			ctx := SetClientCertInRequestContext(r, clientCert)
 
