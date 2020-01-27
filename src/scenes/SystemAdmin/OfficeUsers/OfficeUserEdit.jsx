@@ -1,4 +1,5 @@
 import React from 'react';
+import { RolesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesCheckboxes';
 import { phoneValidators } from 'scenes/SystemAdmin/shared/form_validators';
 import { Edit, SimpleForm, TextInput, DisabledInput, SelectInput, required, Toolbar, SaveButton } from 'react-admin';
 
@@ -24,6 +25,7 @@ const OfficeUserEdit = props => (
           { id: false, name: 'No' },
         ]}
       />
+      <RolesCheckboxInput source="roles" />
       <DisabledInput source="created_at" />
       <DisabledInput source="updated_at" />
     </SimpleForm>
