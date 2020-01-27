@@ -6,7 +6,14 @@ set -eu -o pipefail
 # Get general information from a CAC
 #
 
-readonly MODULE=/usr/local/lib/pkcs11/cackey.dylib
+OS_VERSION=$(/usr/bin/sw_vers -productVersion)
+MAC_OS="10.15"
+if [[ $OS_VERSION == *$MAC_OS* ]]; then
+  MODULE=/usr/local/lib/pkcs11/opensc-pkcs11.so
+elif [[ -f "${MODULE}" ]]; then
+  MODULE=/usr/local/lib/pkcs11/cackey.dylib
+fi
+readonly MODULE
 readonly PKCS11=/usr/local/bin/pkcs11-tool
 readonly PKCS15=/usr/local/bin/pkcs15-tool
 
@@ -24,3 +31,6 @@ echo -e "\n----- List Certificates -----\n"
 echo -e "\n----- List Slots -----\n"
 
 "${PKCS11}" -r --module "${MODULE}" --list-slots || true
+
+"${PKCS11}" -O --module "${MODULE}" || true
+

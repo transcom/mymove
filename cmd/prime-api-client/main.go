@@ -1,7 +1,9 @@
 package main
 
 import (
+	// "crypto/sha256"
 	"crypto/tls"
+	// "encoding/hex"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -19,6 +21,7 @@ import (
 	"github.com/transcom/nom/pkg/pkcs11"
 
 	primeClient "github.com/transcom/mymove/pkg/gen/primeclient"
+	mto "github.com/transcom/mymove/pkg/gen/primeclient/move_task_order"
 )
 
 const (
@@ -81,7 +84,8 @@ func main() {
 	//Remove the prefix and any datetime data
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
-	if !v.GetBool(VerboseFlag) {
+	verbose := v.GetBool(VerboseFlag)
+	if !verbose {
 		// Disable any logging that isn't attached to the logger unless using the verbose flag
 		log.SetOutput(ioutil.Discard)
 		log.SetFlags(0)
@@ -96,7 +100,7 @@ func main() {
 	certLabel := v.GetString(CertLabelFlag)
 	keyLabel := v.GetString(KeyLabelFlag)
 	certPath := v.GetString(CertPathFlag)
-	keyPath := v.GetString(KeyLabelFlag)
+	keyPath := v.GetString(KeyPathFlag)
 	hostname := v.GetString(HostnameFlag)
 	port := v.GetInt(PortFlag)
 	insecure := v.GetBool(InsecureFlag)
@@ -104,7 +108,7 @@ func main() {
 	var httpClient *http.Client
 
 	// The client certificate comes from a smart card
-	if pkcs11ModulePath != "" && certPath != "" && keyPath != "" {
+	if pkcs11ModulePath != "" && certPath == "" && keyPath == "" {
 		pkcsConfig := pkcs11.Config{
 			Module:           pkcs11ModulePath,
 			CertificateLabel: certLabel,
@@ -112,9 +116,9 @@ func main() {
 			TokenLabel:       tokenLabel,
 		}
 
-		store, err := pkcs11.New(pkcsConfig)
-		if err != nil {
-			log.Fatal(err)
+		store, errPKCS11New := pkcs11.New(pkcsConfig)
+		if errPKCS11New != nil {
+			log.Fatal(errPKCS11New)
 		}
 		defer store.Close()
 
@@ -123,7 +127,7 @@ func main() {
 			Reader: os.Stdin,
 		}
 
-		pin, err := inputUI.Ask("PIN", &input.Options{
+		pin, errUIAsk := inputUI.Ask("PIN", &input.Options{
 			Default:     "",
 			HideOrder:   true,
 			HideDefault: true,
@@ -136,24 +140,30 @@ func main() {
 					return matchErr
 				}
 				if !matched {
-					return errors.New("Invalid")
+					return errors.New("Invalid PIN format")
 				}
 				return nil
 			},
 		})
-		if err != nil {
+		if errUIAsk != nil {
 			os.Exit(1)
 		}
 
-		err = store.Login(pin)
-		if err != nil {
-			log.Fatal(err)
+		errLogin := store.Login(pin)
+		if errLogin != nil {
+			log.Fatal(errLogin)
 		}
 
-		cert, err := store.TLSCertificate()
-		if err != nil {
-			panic(err)
+		cert, errTLSCert := store.TLSCertificate()
+		if errTLSCert != nil {
+			panic(errTLSCert)
 		}
+
+		// Get the fingerprint
+		// hash := sha256.Sum256(cert.Certificate[0])
+		// hashString := hex.EncodeToString(hash[:])
+		// fmt.Println(hashString)
+
 		// #nosec b/c gosec triggers on InsecureSkipVerify
 		tlsConfig := &tls.Config{
 			Certificates:       []tls.Certificate{*cert},
@@ -167,17 +177,27 @@ func main() {
 			Transport: transport,
 		}
 	} else {
-		var err error
-		httpClient, err = runtimeClient.TLSClient(runtimeClient.TLSClientOptions{Key: keyPath, Certificate: certPath, InsecureSkipVerify: insecure})
-		if err != nil {
-			log.Fatal(err)
+		var errRuntimeClientTLS error
+		httpClient, errRuntimeClientTLS = runtimeClient.TLSClient(runtimeClient.TLSClientOptions{
+			Key:                keyPath,
+			Certificate:        certPath,
+			InsecureSkipVerify: insecure})
+		if errRuntimeClientTLS != nil {
+			log.Fatal(errRuntimeClientTLS)
 		}
 	}
 
 	hostWithPort := fmt.Sprintf("%s:%d", hostname, port)
 	myRuntime := runtimeClient.NewWithClient(hostWithPort, primeClient.DefaultBasePath, []string{"https"}, httpClient)
 	myRuntime.EnableConnectionReuse()
-	myRuntime.SetDebug(true)
+	myRuntime.SetDebug(verbose)
+
 	primeGateway := primeClient.New(myRuntime, nil)
-	fmt.Println(primeGateway)
+
+	resp, errFetchMTOUpdates := primeGateway.MoveTaskOrder.FetchMTOUpdates(&mto.FetchMTOUpdatesParams{})
+	if errFetchMTOUpdates != nil {
+		log.Fatal(errFetchMTOUpdates)
+	}
+
+	fmt.Println(resp.GetPayload())
 }
