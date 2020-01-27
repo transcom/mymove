@@ -12,6 +12,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	runtimeClient "github.com/go-openapi/runtime/client"
 	"github.com/spf13/pflag"
@@ -194,7 +195,9 @@ func main() {
 
 	primeGateway := primeClient.New(myRuntime, nil)
 
-	resp, errFetchMTOUpdates := primeGateway.MoveTaskOrder.FetchMTOUpdates(&mto.FetchMTOUpdatesParams{})
+	var params mto.FetchMTOUpdatesParams
+	params.SetTimeout(time.Second * 30)
+	resp, errFetchMTOUpdates := primeGateway.MoveTaskOrder.FetchMTOUpdates(&params)
 	if errFetchMTOUpdates != nil {
 		log.Fatal(errFetchMTOUpdates)
 	}
