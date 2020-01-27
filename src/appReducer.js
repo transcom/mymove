@@ -18,7 +18,7 @@ import { reviewReducer } from 'scenes/Review/ducks';
 import transportationOfficeReducer from 'shared/TransportationOffices/ducks';
 import { officeFlashMessagesReducer } from 'scenes/Office/ducks';
 import officePpmReducer from 'scenes/Office/Ppm/ducks';
-import { adminReducer, i18nReducer } from 'react-admin';
+import { adminReducer } from 'react-admin';
 import defaultMessages from 'ra-language-english';
 
 const locale = 'en';
@@ -54,7 +54,7 @@ export const adminAppReducer = history =>
   combineReducers({
     ...defaultReducers,
     admin: adminReducer,
-    i18n: i18nReducer(locale, i18nProvider(locale)),
+    i18n: i18nProvider(locale),
     form: formReducer,
     router: connectRouter(history),
   });
