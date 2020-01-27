@@ -34,7 +34,7 @@ export class PPMShipmentSummary extends Component {
   chooseEstimateText(ppmEstimate) {
     if (hasShortHaulError(ppmEstimate.rateEngineError)) {
       return (
-        <td datacy="estimateError">
+        <td data-cy="estimateError">
           MilMove does not presently support short-haul PPM moves. Please contact your PPPO.
         </td>
       );
@@ -42,7 +42,7 @@ export class PPMShipmentSummary extends Component {
 
     if (ppmEstimate.hasEstimateError || ppmEstimate.rateEngineError) {
       return (
-        <td datacy="estimateError">
+        <td data-cy="estimateError">
           Not ready yet{' '}
           <IconWithTooltip toolTipText="We expect to receive rate data covering your move dates by the end of this month. Check back then to see your estimated incentive." />
         </td>
@@ -50,7 +50,7 @@ export class PPMShipmentSummary extends Component {
     }
 
     return (
-      <td datacy="estimate">
+      <td data-cy="estimate">
         {' '}
         {ppmEstimate && formatCentsRange(ppmEstimate.incentive_estimate_min, ppmEstimate.incentive_estimate_max)}
       </td>
