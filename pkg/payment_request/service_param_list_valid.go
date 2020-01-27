@@ -1,18 +1,30 @@
 package paymentrequest
 
 import (
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (p *RequestPaymentHelper) ValidServiceParamList(serviceID uuid.UUID, serviceParams models.ServiceParams, paymentServiceItemParams models.PaymentServiceItemParams) (bool, *string) {
+func (p *RequestPaymentHelper) ValidServiceParamList(mtoServiceItem models.MTOServiceItem, serviceParams models.ServiceParams, paymentServiceItemParams models.PaymentServiceItemParams) (bool, string) {
+	var errorString string
+	hasError := false
+	for _, serviceParam := range serviceParams {
+		found := false
+		for _, paymentServiceItemParam := range paymentServiceItemParams {
+			if serviceParam.ServiceItemParamKey.Key == paymentServiceItemParam.ServiceItemParamKey.Key &&
+				serviceParam.ServiceID.String() == mtoServiceItem.ReServiceID.String() {
+				found = true
+			}
+		}
+		if found == false {
+			hasError = true
+			errorString = errorString + " Param Key <" + serviceParam.ServiceItemParamKey.Key + ">"
+		}
+	}
 
-	//var errorMessage string
+	if hasError {
+		errorMessage := " MTO Service Item <" + mtoServiceItem.ID.String() + "> missing params needed for pricing: " + errorString
+		return !hasError, errorMessage
+	}
 
-	// Use list of params needed (`serviceParams`) for service item
-	// Use list of params saved for payment service item (`paymentServiceItemParams`)
-	// Verify all params are present for payment service item
-
-	return true, nil
+	return !hasError, ""
 }
