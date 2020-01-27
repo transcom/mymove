@@ -1,5 +1,5 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 
 import AdminPagination from './AdminPagination';
 
@@ -11,8 +11,10 @@ describe('AdminPagination', () => {
       count: 0,
       rowsPerPage: 25,
     };
-    const pagination = mount(<AdminPagination {...props} />);
-    expect(pagination.exists('.no-results')).toEqual(true);
+    const pagination = shallow(<AdminPagination {...props} />);
+    const noResultsDiv = pagination.find('.no-results');
+    console.log(noResultsDiv.debug());
+    expect(noResultsDiv).toHaveLength(1);
     pagination.setProps({
       total: 1,
     });
@@ -25,7 +27,8 @@ describe('AdminPagination', () => {
       count: 0,
       rowsPerPage: 25,
     };
-    const pagination = mount(<AdminPagination {...props} />);
-    expect(pagination.exists('.no-results')).toEqual(false);
+    const pagination = shallow(<AdminPagination {...props} />);
+    // const noResultsDiv = pagination.find('.no-results');
+    expect(pagination.find('.no-results')).toHaveLength(0);
   });
 });

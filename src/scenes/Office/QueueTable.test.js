@@ -1,6 +1,7 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import MockRouter from 'react-mock-router';
+import { HashRouter as Router } from 'react-router-dom';
+
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 
@@ -121,9 +122,9 @@ function retrieveMovesStub(params, throwError) {
 function mountComponents(getMoves, queueType = 'new', mockStore = store) {
   return mount(
     <Provider store={mockStore}>
-      <MockRouter push={push}>
+      <Router push={push}>
         <QueueTable queueType={queueType} retrieveMoves={getMoves} />
-      </MockRouter>
+      </Router>
     </Provider>,
   );
 }
