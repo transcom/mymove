@@ -12,13 +12,30 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
+func payloadForRole(r roles.Role) *adminmessages.Role {
+	roleType := string(r.RoleType)
+	roleName := string(r.RoleName)
+	return &adminmessages.Role{
+		ID:        handlers.FmtUUID(r.ID),
+		RoleType:  &roleType,
+		RoleName:  &roleName,
+		CreatedAt: handlers.FmtDateTime(r.CreatedAt),
+		UpdatedAt: handlers.FmtDateTime(r.UpdatedAt),
+	}
+}
+
 func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
-	return &adminmessages.OfficeUser{
+	var user models.User
+	if o.UserID != nil {
+		user = o.User
+	}
+	payload := &adminmessages.OfficeUser{
 		ID:                     handlers.FmtUUID(o.ID),
 		FirstName:              handlers.FmtString(o.FirstName),
 		MiddleInitials:         handlers.FmtStringPtr(o.MiddleInitials),
@@ -30,6 +47,10 @@ func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 		CreatedAt:              handlers.FmtDateTime(o.CreatedAt),
 		UpdatedAt:              handlers.FmtDateTime(o.UpdatedAt),
 	}
+	for _, role := range user.Roles {
+		payload.Roles = append(payload.Roles, payloadForRole(role))
+	}
+	return payload
 }
 
 // IndexOfficeUsersHandler returns a list of office users via GET /office_users
@@ -89,7 +110,17 @@ func (h GetOfficeUserHandler) Handle(params officeuserop.GetOfficeUserParams) mi
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-
+	userError := h.DB().Load(&officeUser, "User")
+	if userError != nil {
+		return handlers.ResponseForError(logger, userError)
+	}
+	//todo: we want to move this query out of the handler and into querybuilder, if possible
+	roleError := h.DB().Q().Join("users_roles", "users_roles.role_id = roles.id").
+		Where("users_roles.deleted_at IS NULL AND users_roles.user_id = ?", (officeUser.User.ID)).
+		All(&officeUser.User.Roles)
+	if roleError != nil {
+		return handlers.ResponseForError(logger, roleError)
+	}
 	payload := payloadForOfficeUserModel(officeUser)
 
 	return officeuserop.NewGetOfficeUserOK().WithPayload(payload)
@@ -154,6 +185,7 @@ type UpdateOfficeUserHandler struct {
 	handlers.HandlerContext
 	services.OfficeUserUpdater
 	services.NewQueryFilter
+	services.UserRoleAssociator
 }
 
 func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserParams) middleware.Responder {
@@ -172,6 +204,14 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 		logger.Error("Error saving user", zap.Error(err))
 		return officeuserop.NewUpdateOfficeUserInternalServerError()
 	}
+	if updatedOfficeUser.UserID != nil && payload.Roles != nil {
+		updatedRoles := rolesPayloadToModel(payload.Roles)
+		_, err = h.UserRoleAssociator.UpdateUserRoles(*updatedOfficeUser.UserID, updatedRoles)
+		if err != nil {
+			logger.Error("error updating user roles", zap.Error(err))
+			return officeuserop.NewUpdateOfficeUserInternalServerError()
+		}
+	}
 
 	_, err = audit.Capture(updatedOfficeUser, payload, logger, session, params.HTTPRequest)
 	if err != nil {
@@ -181,6 +221,16 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 	returnPayload := payloadForOfficeUserModel(*updatedOfficeUser)
 
 	return officeuserop.NewUpdateOfficeUserOK().WithPayload(returnPayload)
+}
+
+func rolesPayloadToModel(payload []*adminmessages.OfficeUserRole) []roles.RoleType {
+	var rt []roles.RoleType
+	for _, role := range payload {
+		if role.RoleType != nil {
+			rt = append(rt, roles.RoleType(*role.RoleType))
+		}
+	}
+	return rt
 }
 
 // generateQueryFilters is helper to convert filter params from a json string

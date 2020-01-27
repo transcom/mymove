@@ -52,8 +52,8 @@ export class WizardPage extends Component {
 
   render() {
     const isMobile = this.props.windowWidth < mobileSize;
-    const { handleSubmit, pageKey, pageList, children, error, pageIsValid, dirty } = this.props;
-    const canMoveForward = pageIsValid;
+    const { handleSubmit, pageKey, pageList, children, error, pageIsValid, dirty, canMoveNext } = this.props;
+    const canMoveForward = pageIsValid && canMoveNext;
     const canMoveBackward = (pageIsValid || !dirty) && !isFirstPage(pageList, pageKey);
     return (
       <div className="grid-container usa-prose">
@@ -110,6 +110,7 @@ WizardPage.propTypes = {
   pageList: PropTypes.arrayOf(PropTypes.string).isRequired,
   pageKey: PropTypes.string.isRequired,
   pageIsValid: PropTypes.bool,
+  canMoveNext: PropTypes.bool,
   dirty: PropTypes.bool,
   push: PropTypes.func,
   match: PropTypes.object, //from withRouter
@@ -119,6 +120,7 @@ WizardPage.propTypes = {
 
 WizardPage.defaultProps = {
   pageIsValid: true,
+  canMoveNext: true,
   dirty: true,
 };
 

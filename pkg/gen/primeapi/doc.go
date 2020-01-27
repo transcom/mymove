@@ -15,6 +15,7 @@ The Prime API for move.mil
 
     Consumes:
     - application/json
+    - multipart/form-data
 
     Produces:
     - application/json

@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
+
 	"github.com/transcom/mymove/pkg/services/organization"
 
 	"github.com/go-openapi/loads"
@@ -60,6 +62,7 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		officeuser.NewOfficeUserUpdater(queryBuilder),
 		query.NewQueryFilter,
+		usersroles.NewUsersRolesCreator(context.DB()),
 	}
 
 	adminAPI.OfficeIndexOfficesHandler = IndexOfficesHandler{

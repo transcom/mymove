@@ -64,11 +64,16 @@ func zip5TransitDistanceHelper(planner Planner, source string, destination strin
 	return distance, err
 }
 
+func zip3TransitDistanceHelper(planner Planner, source string, destination string) (int, error) {
+	return 0, NewUnsupportedPostalCodeError(source)
+}
+
 // Planner is the interface needed by Handlers to be able to evaluate the distance to be used for move accounting
 type Planner interface {
 	TransitDistance(source *models.Address, destination *models.Address) (int, error)
 	LatLongTransitDistance(source LatLong, destination LatLong) (int, error)
 	Zip5TransitDistance(source string, destination string) (int, error)
+	Zip3TransitDistance(source string, destination string) (int, error)
 }
 
 // InitRoutePlanner validates Route Planner command line flags

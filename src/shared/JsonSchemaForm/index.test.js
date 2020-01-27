@@ -1,6 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-
+import { Field } from 'redux-form';
 import { reduxifyForm } from '.';
 import configureStore from 'redux-mock-store';
 import { mount } from 'enzyme';
@@ -86,7 +86,7 @@ it('renders without crashing', () => {
 });
 
 it('renders 6 Field components', () => {
-  expect(wrapper.find('Field').length).toBe(6);
+  expect(wrapper.find(Field).length).toBe(6);
 });
 
 it('renders select when there is an enum', () => {

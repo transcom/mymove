@@ -6,8 +6,6 @@ package primemessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"io"
-
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -18,11 +16,6 @@ import (
 // Upload upload
 // swagger:model Upload
 type Upload struct {
-
-	// binary data
-	// Required: true
-	// Format: binary
-	BinaryData io.ReadCloser `json:"binaryData"`
 
 	// bytes
 	// Required: true
@@ -51,10 +44,6 @@ type Upload struct {
 func (m *Upload) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateBinaryData(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateBytes(formats); err != nil {
 		res = append(res, err)
 	}
@@ -78,15 +67,6 @@ func (m *Upload) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *Upload) validateBinaryData(formats strfmt.Registry) error {
-
-	if err := validate.Required("binaryData", "body", io.ReadCloser(m.BinaryData)); err != nil {
-		return err
-	}
-
 	return nil
 }
 
