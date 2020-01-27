@@ -6,6 +6,8 @@ package adminmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"strconv"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -47,6 +49,10 @@ type OfficeUser struct {
 	// middle initials
 	// Required: true
 	MiddleInitials *string `json:"middle_initials"`
+
+	// roles
+	// Required: true
+	Roles []*Role `json:"roles"`
 
 	// telephone
 	// Required: true
@@ -93,6 +99,10 @@ func (m *OfficeUser) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateMiddleInitials(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRoles(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -184,6 +194,31 @@ func (m *OfficeUser) validateMiddleInitials(formats strfmt.Registry) error {
 
 	if err := validate.Required("middle_initials", "body", m.MiddleInitials); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *OfficeUser) validateRoles(formats strfmt.Registry) error {
+
+	if err := validate.Required("roles", "body", m.Roles); err != nil {
+		return err
+	}
+
+	for i := 0; i < len(m.Roles); i++ {
+		if swag.IsZero(m.Roles[i]) { // not required
+			continue
+		}
+
+		if m.Roles[i] != nil {
+			if err := m.Roles[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("roles" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
