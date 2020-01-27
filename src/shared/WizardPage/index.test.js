@@ -3,9 +3,17 @@ import { shallow } from 'enzyme';
 import { WizardPage } from 'shared/WizardPage';
 describe('given a WizardPage', () => {
   let wrapper, buttons;
-  const pageList = ['1', '2', '3'];
   const submit = jest.fn();
   const mockPush = jest.fn();
+
+  const minProps = {
+    handleSubmit: jest.fn(),
+    pageList: ['1', '2', '3'],
+    pageKey: '1',
+  };
+  describe('Component renders', () => {
+    expect(shallow(<WizardPage {...minProps} />).length).toEqual(1);
+  });
   describe('when handler is not async', () => {
     describe('when there is a pageIsValid prop set', () => {
       describe('when pageIsValid is false', () => {
@@ -14,13 +22,7 @@ describe('given a WizardPage', () => {
             const continueToNextPage = false;
 
             wrapper = shallow(
-              <WizardPage
-                handleSubmit={submit}
-                pageList={pageList}
-                pageKey="1"
-                pageIsValid={continueToNextPage}
-                match={{}}
-              >
+              <WizardPage {...minProps} pageIsValid={continueToNextPage} match={{}}>
                 <div>This is page 1</div>
               </WizardPage>,
             );
@@ -37,7 +39,7 @@ describe('given a WizardPage', () => {
             const pageIsValid = false;
 
             wrapper = shallow(
-              <WizardPage handleSubmit={submit} pageList={pageList} pageKey="3" pageIsValid={pageIsValid} match={{}}>
+              <WizardPage {...minProps} pageKey="3" pageIsValid={pageIsValid} match={{}}>
                 <div>This is page 1</div>
               </WizardPage>,
             );
@@ -55,7 +57,7 @@ describe('given a WizardPage', () => {
           const continueToNextPage = true;
 
           wrapper = shallow(
-            <WizardPage handleSubmit={submit} pageList={pageList} pageKey="1" pageIsValid={continueToNextPage}>
+            <WizardPage {...minProps} pageIsValid={continueToNextPage}>
               <div>This is page 1</div>
             </WizardPage>,
           );
@@ -74,8 +76,7 @@ describe('given a WizardPage', () => {
           mockPush.mockClear();
           wrapper = shallow(
             <WizardPage
-              handleSubmit={submit}
-              pageList={pageList}
+              {...minProps}
               pageKey="2"
               push={mockPush}
               match={{}}
@@ -116,15 +117,7 @@ describe('given a WizardPage', () => {
       beforeEach(() => {
         mockPush.mockClear();
         wrapper = shallow(
-          <WizardPage
-            handleSubmit={submit}
-            pageList={pageList}
-            pageKey="2"
-            push={mockPush}
-            match={{}}
-            hasSucceeded={false}
-            dirty={false}
-          >
+          <WizardPage {...minProps} pageKey="2" push={mockPush} match={{}} hasSucceeded={false} dirty={false}>
             <div>This is page 2</div>
           </WizardPage>,
         );
@@ -175,7 +168,7 @@ describe('given a WizardPage', () => {
     describe('when on the first page', () => {
       beforeEach(() => {
         wrapper = shallow(
-          <WizardPage handleSubmit={submit} pageList={pageList} pageKey="1" push={mockPush} match={{}}>
+          <WizardPage {...minProps} push={mockPush} match={{}}>
             <div>This is page 1</div>
           </WizardPage>,
         );
@@ -226,7 +219,7 @@ describe('given a WizardPage', () => {
       beforeEach(() => {
         mockPush.mockClear();
         wrapper = shallow(
-          <WizardPage handleSubmit={submit} pageList={pageList} pageKey="2" push={mockPush} match={{}}>
+          <WizardPage {...minProps} pageKey="2" push={mockPush} match={{}}>
             <div>This is page 2</div>
           </WizardPage>,
         );
@@ -283,7 +276,7 @@ describe('given a WizardPage', () => {
       beforeEach(() => {
         mockPush.mockClear();
         wrapper = shallow(
-          <WizardPage handleSubmit={submit} pageList={pageList} pageKey="3" push={mockPush} match={{}}>
+          <WizardPage {...minProps} handleSubmit={submit} pageKey="3" push={mockPush} match={{}}>
             <div>This is page 3</div>
           </WizardPage>,
         );
@@ -345,11 +338,11 @@ describe('given a WizardPage', () => {
       mockPush.mockClear();
       wrapper = shallow(
         <WizardPage
+          {...minProps}
           pageList={['page1', 'anotherPage/:foo/:bar']}
           pageKey="page1"
           match={{ params: { foo: 'dvorak' } }}
           push={mockPush}
-          handleSubmit={() => undefined}
           additionalParams={{ bar: 'querty' }}
         >
           <div>This is page 1</div>
@@ -366,6 +359,20 @@ describe('given a WizardPage', () => {
         expect(mockPush.mock.calls.length).toBe(1);
         expect(mockPush.mock.calls[0][0]).toBe('anotherPage/dvorak/querty');
       });
+    });
+  });
+  describe('when there is a canMoveNext prop', () => {
+    describe('when canMoveNext is true', () => {
+      wrapper = shallow(<WizardPage {...minProps} />);
+      const nextButton = wrapper.find('button').last();
+      expect(nextButton.text()).toBe('Next');
+      expect(nextButton.prop('disabled')).toEqual(false);
+    });
+    describe('when canMoveNext is false', () => {
+      wrapper = shallow(<WizardPage {...minProps} canMoveNext={false} />);
+      const nextButton = wrapper.find('button').last();
+      expect(nextButton.text()).toBe('Next');
+      expect(nextButton.prop('disabled')).toEqual(true);
     });
   });
 });
