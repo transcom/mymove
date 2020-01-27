@@ -4,6 +4,7 @@ import (
 	// "crypto/sha256"
 	"crypto/tls"
 	// "encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -25,7 +26,26 @@ import (
 	mto "github.com/transcom/mymove/pkg/gen/primeclient/move_task_order"
 )
 
+type errInvalidPath struct {
+	Path string
+}
+
+func (e *errInvalidPath) Error() string {
+	return fmt.Sprintf("invalid path %q", e.Path)
+}
+
+type errInvalidLabel struct {
+	Cert string
+	Key  string
+}
+
+func (e *errInvalidLabel) Error() string {
+	return fmt.Sprintf("invalid cert label %q or key label %q", e.Cert, e.Key)
+}
+
 const (
+	// CACFlag indicates that a CAC should be used
+	CACFlag string = "cac"
 	// PKCS11ModuleFlag is the location of the PCKS11 module to use with the smart card
 	PKCS11ModuleFlag string = "pkcs11module"
 	// TokenLabel is the Token Label to use with the smart card
@@ -50,17 +70,51 @@ const (
 
 // initialize flags
 func initFlags(flag *pflag.FlagSet) {
+	flag.Bool(CACFlag, false, "Use a CAC for authentication")
 	flag.String(PKCS11ModuleFlag, "/usr/local/lib/pkcs11/opensc-pkcs11.so", "Smart card: Path to the PKCS11 module to use")
 	flag.String(TokenLabelFlag, "", "Smart card: name of the token to use")
 	flag.String(CertLabelFlag, "Certificate for PIV Authentication", "Smart card: label of the public cert")
 	flag.String(KeyLabelFlag, "PIV AUTH key", "Smart card: label of the private key")
-	flag.String(CertPathFlag, "", "Path to the public cert")
-	flag.String(KeyPathFlag, "", "Path to the private key")
+	flag.String(CertPathFlag, "./config/tls/devlocal-mtls.cer", "Path to the public cert")
+	flag.String(KeyPathFlag, "./config/tls/devlocal-mtls.key", "Path to the private key")
 	flag.String(HostnameFlag, "primelocal", "The hostname to connect to")
 	flag.Int(PortFlag, 9443, "The port to connect to")
 	flag.Bool(InsecureFlag, false, "Skip TLS verification and validation")
 	flag.BoolP(VerboseFlag, "v", false, "Show extra output for debugging")
 	flag.SortFlags = false
+}
+
+func checkConfig(v *viper.Viper, logger *log.Logger) error {
+
+	if v.GetBool(CACFlag) {
+		pkcs11ModulePath := v.GetString(PKCS11ModuleFlag)
+		if pkcs11ModulePath == "" {
+			return fmt.Errorf("%q is invalid: %w", PKCS11ModuleFlag, &errInvalidPath{Path: pkcs11ModulePath})
+		} else if _, err := os.Stat(pkcs11ModulePath); err != nil {
+			return fmt.Errorf("%q is invalid: %w", PKCS11ModuleFlag, &errInvalidPath{Path: pkcs11ModulePath})
+		}
+
+		certLabel := v.GetString(CertLabelFlag)
+		keyLabel := v.GetString(KeyLabelFlag)
+		if certLabel == "" || keyLabel == "" {
+			return fmt.Errorf("%q or %q is invalid: %w", CertLabelFlag, KeyLabelFlag, &errInvalidLabel{Cert: certLabel, Key: keyLabel})
+		}
+	} else {
+		certPath := v.GetString(CertPathFlag)
+		if certPath == "" {
+			return fmt.Errorf("%q is invalid: %w", CertPathFlag, &errInvalidPath{Path: certPath})
+		} else if _, err := os.Stat(certPath); err != nil {
+			return fmt.Errorf("%q is invalid: %w", CertPathFlag, &errInvalidPath{Path: certPath})
+		}
+
+		keyPath := v.GetString(KeyPathFlag)
+		if keyPath == "" {
+			return fmt.Errorf("%q is invalid: %w", KeyPathFlag, &errInvalidPath{Path: keyPath})
+		} else if _, err := os.Stat(keyPath); err != nil {
+			return fmt.Errorf("%q is invalid: %w", KeyPathFlag, &errInvalidPath{Path: keyPath})
+		}
+	}
+	return nil
 }
 
 func main() {
@@ -95,13 +149,12 @@ func main() {
 		logger.SetFlags(0)
 	}
 
+	err = checkConfig(v, logger)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
 	// Use command line inputs
-	pkcs11ModulePath := v.GetString(PKCS11ModuleFlag)
-	tokenLabel := v.GetString(TokenLabelFlag)
-	certLabel := v.GetString(CertLabelFlag)
-	keyLabel := v.GetString(KeyLabelFlag)
-	certPath := v.GetString(CertPathFlag)
-	keyPath := v.GetString(KeyPathFlag)
 	hostname := v.GetString(HostnameFlag)
 	port := v.GetInt(PortFlag)
 	insecure := v.GetBool(InsecureFlag)
@@ -109,7 +162,11 @@ func main() {
 	var httpClient *http.Client
 
 	// The client certificate comes from a smart card
-	if pkcs11ModulePath != "" && certPath == "" && keyPath == "" {
+	if v.GetBool(CACFlag) {
+		pkcs11ModulePath := v.GetString(PKCS11ModuleFlag)
+		tokenLabel := v.GetString(TokenLabelFlag)
+		certLabel := v.GetString(CertLabelFlag)
+		keyLabel := v.GetString(KeyLabelFlag)
 		pkcsConfig := pkcs11.Config{
 			Module:           pkcs11ModulePath,
 			CertificateLabel: certLabel,
@@ -177,7 +234,10 @@ func main() {
 		httpClient = &http.Client{
 			Transport: transport,
 		}
-	} else {
+	} else if !v.GetBool(CACFlag) {
+		certPath := v.GetString(CertPathFlag)
+		keyPath := v.GetString(KeyPathFlag)
+
 		var errRuntimeClientTLS error
 		httpClient, errRuntimeClientTLS = runtimeClient.TLSClient(runtimeClient.TLSClientOptions{
 			Key:                keyPath,
@@ -202,5 +262,9 @@ func main() {
 		log.Fatal(errFetchMTOUpdates)
 	}
 
-	fmt.Println(resp.GetPayload())
+	payload, errJSONMarshall := json.Marshal(resp.GetPayload())
+	if errJSONMarshall != nil {
+		log.Fatal(errJSONMarshall)
+	}
+	fmt.Println(string(payload))
 }
