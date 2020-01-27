@@ -13,6 +13,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/primeclient/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/primeclient/payment_requests"
+	"github.com/transcom/mymove/pkg/gen/primeclient/uploads"
 )
 
 // Default mymove HTTP client.
@@ -62,6 +63,8 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *Mymove {
 
 	cli.PaymentRequests = payment_requests.New(transport, formats)
 
+	cli.Uploads = uploads.New(transport, formats)
+
 	return cli
 }
 
@@ -110,6 +113,8 @@ type Mymove struct {
 
 	PaymentRequests *payment_requests.Client
 
+	Uploads *uploads.Client
+
 	Transport runtime.ClientTransport
 }
 
@@ -120,5 +125,7 @@ func (c *Mymove) SetTransport(transport runtime.ClientTransport) {
 	c.MoveTaskOrder.SetTransport(transport)
 
 	c.PaymentRequests.SetTransport(transport)
+
+	c.Uploads.SetTransport(transport)
 
 }
