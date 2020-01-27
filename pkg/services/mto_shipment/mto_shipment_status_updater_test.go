@@ -15,9 +15,6 @@ import (
 )
 
 func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
-	// id, err := uuid.NewV4()
-	// suite.NoError(err)
-
 	mto := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
 	shipment := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: mto,
