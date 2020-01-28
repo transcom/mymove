@@ -437,4 +437,6 @@
 20200115164752_modify_service_item_param_key_enum.up.sql
 20200115173035_payment_request_add_service_item_param_keys.up.sql
 20200122221118_add_deleted_at_column_to_usersRoles_table.up.sql
+20200124192943_update_tariff400ng_mistaken_rate_area.up.sql
 20200127211804_cgilmer_cac.up.sql
+20200128024819_fix_rolename_typo.up.sql

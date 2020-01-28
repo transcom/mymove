@@ -1581,7 +1581,7 @@ func init() {
           "type": "string",
           "title": "roleType",
           "x-nullable": true,
-          "example": "transporation_ordering_officer"
+          "example": "transportation_ordering_officer"
         }
       }
     },
@@ -3537,7 +3537,7 @@ func init() {
           "type": "string",
           "title": "roleType",
           "x-nullable": true,
-          "example": "transporation_ordering_officer"
+          "example": "transportation_ordering_officer"
         }
       }
     },
