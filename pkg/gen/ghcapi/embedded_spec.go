@@ -1203,8 +1203,7 @@ func init() {
         "x-swagger-roles": [
           "transportation_invoicing_officer",
           "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
+          "contracting_officer"
         ]
       },
       "parameters": [
@@ -3785,8 +3784,7 @@ func init() {
         "x-swagger-roles": [
           "transportation_invoicing_officer",
           "transportation_ordering_officer",
-          "contracting_officer",
-          "ppm_office_users"
+          "contracting_officer"
         ]
       },
       "parameters": [

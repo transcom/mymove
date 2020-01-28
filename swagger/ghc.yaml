@@ -552,7 +552,6 @@ paths:
         - transportation_invoicing_officer
         - transportation_ordering_officer
         - contracting_officer
-        - ppm_office_users
       operationId: patchMTOShipmentStatus
       summary: Updates a shipment's status
   '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}':
