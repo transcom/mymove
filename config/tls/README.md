@@ -12,9 +12,10 @@ cert store.
 If one of our partners wants to use a certificate signed by a CA newer than the
 package, then get the newest version of the package from DISA. As of this
 writing, this package can be found at
-[https://iase.disa.mil/pki-pke/pages/tools.aspx](https://iase.disa.mil/pki-pke/pages/tools.aspx). Click the "Trust Store" tab,
-and download the "For DoD PKI Only" ZIP file under the "`PKI CA Certificate
-Bundles: PKCS#7`" heading. If their naming convention has not changed, you want the `Certificates_PKCS7_vX.X_DoD.der.p7b` file in that archive, where `X.X` is
+[PKI/PKE Document Library -> Tools](https://public.cyber.mil/pki-pke/pkipke-document-library/?_dl_facet_pkipke_type=tools).
+Ensure you are on the Tools page and download the "For DoD PKI Only" ZIP file under the "`PKI CA Certificate
+Bundles: PKCS#7`" heading. The naming convention may change but it should be similar to
+`Certificates_PKCS7_vX.X_DoD.der.p7b` file in that archive, where `X.X` is
 the current version.
 
 Then, update the path accordingly in the `DOD_CA_PACKAGE` variable in `.envrc`.
