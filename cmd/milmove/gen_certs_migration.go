@@ -181,9 +181,9 @@ func genCertsMigration(cmd *cobra.Command, args []string) error {
 		// Get the fingerprint
 		hash := sha256.Sum256(cert.Certificate[0])
 		fingerprint = hex.EncodeToString(hash[:])
-		fmt.Println(fingerprint)
+
+		// Get the subject in RFC2253 format
 		subject = cert.Leaf.Subject.String()
-		fmt.Println(subject)
 	} else {
 		fingerprint = v.GetString(FingerprintFlag)
 		subject = v.GetString(SubjectFlag)
