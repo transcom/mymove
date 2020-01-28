@@ -89,6 +89,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PaymentRequestsListPaymentRequestsHandler: payment_requests.ListPaymentRequestsHandlerFunc(func(params payment_requests.ListPaymentRequestsParams) middleware.Responder {
 			return middleware.NotImplemented("operation PaymentRequestsListPaymentRequests has not yet been implemented")
 		}),
+		MtoShipmentPatchMTOShipmentStatusHandler: mto_shipment.PatchMTOShipmentStatusHandlerFunc(func(params mto_shipment.PatchMTOShipmentStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation MtoShipmentPatchMTOShipmentStatus has not yet been implemented")
+		}),
 		MtoServiceItemUpdateMTOServiceItemHandler: mto_service_item.UpdateMTOServiceItemHandlerFunc(func(params mto_service_item.UpdateMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation MtoServiceItemUpdateMTOServiceItem has not yet been implemented")
 		}),
@@ -168,6 +171,8 @@ type MymoveAPI struct {
 	MoveOrderListMoveTaskOrdersHandler move_order.ListMoveTaskOrdersHandler
 	// PaymentRequestsListPaymentRequestsHandler sets the operation handler for the list payment requests operation
 	PaymentRequestsListPaymentRequestsHandler payment_requests.ListPaymentRequestsHandler
+	// MtoShipmentPatchMTOShipmentStatusHandler sets the operation handler for the patch m t o shipment status operation
+	MtoShipmentPatchMTOShipmentStatusHandler mto_shipment.PatchMTOShipmentStatusHandler
 	// MtoServiceItemUpdateMTOServiceItemHandler sets the operation handler for the update m t o service item operation
 	MtoServiceItemUpdateMTOServiceItemHandler mto_service_item.UpdateMTOServiceItemHandler
 	// MtoServiceItemUpdateMTOServiceItemstatusHandler sets the operation handler for the update m t o service itemstatus operation
@@ -301,6 +306,10 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.PaymentRequestsListPaymentRequestsHandler == nil {
 		unregistered = append(unregistered, "payment_requests.ListPaymentRequestsHandler")
+	}
+
+	if o.MtoShipmentPatchMTOShipmentStatusHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.PatchMTOShipmentStatusHandler")
 	}
 
 	if o.MtoServiceItemUpdateMTOServiceItemHandler == nil {
@@ -499,6 +508,11 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/payment-requests"] = payment_requests.NewListPaymentRequests(o.context, o.PaymentRequestsListPaymentRequestsHandler)
+
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status"] = mto_shipment.NewPatchMTOShipmentStatus(o.context, o.MtoShipmentPatchMTOShipmentStatusHandler)
 
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
