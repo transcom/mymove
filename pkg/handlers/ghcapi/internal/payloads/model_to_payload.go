@@ -59,6 +59,10 @@ func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            entitlements,
 		Grade:                  moveOrder.Grade,
+		OrderNumber:            &moveOrder.OrderNumber,
+		OrderType:              moveOrder.OrderType,
+		OrderTypeDetail:        &moveOrder.OrderTypeDetail,
+		ReportByDate:           strfmt.Date(moveOrder.ReportByDate),
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 	}

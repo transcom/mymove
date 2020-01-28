@@ -1953,6 +1953,11 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "date_issued": {
+          "type": "string",
+          "format": "date",
+          "example": "2020-01-01"
+        },
         "destinationDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
@@ -1983,8 +1988,30 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "order_number": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "030-00362"
+        },
+        "order_type": {
+          "type": "string",
+          "example": "GHC"
+        },
+        "order_type_detail": {
+          "type": "string",
+          "enum": [
+            "GHC",
+            "NTS"
+          ],
+          "x-nullable": true
+        },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
+        },
+        "report_by_date": {
+          "type": "string",
+          "format": "date",
+          "example": "2020-01-01"
         }
       }
     },
@@ -4468,6 +4495,11 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "date_issued": {
+          "type": "string",
+          "format": "date",
+          "example": "2020-01-01"
+        },
         "destinationDutyStation": {
           "$ref": "#/definitions/DutyStation"
         },
@@ -4498,8 +4530,30 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "order_number": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "030-00362"
+        },
+        "order_type": {
+          "type": "string",
+          "example": "GHC"
+        },
+        "order_type_detail": {
+          "type": "string",
+          "enum": [
+            "GHC",
+            "NTS"
+          ],
+          "x-nullable": true
+        },
         "originDutyStation": {
           "$ref": "#/definitions/DutyStation"
+        },
+        "report_by_date": {
+          "type": "string",
+          "format": "date",
+          "example": "2020-01-01"
         }
       }
     },
