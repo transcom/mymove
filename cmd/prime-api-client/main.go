@@ -181,11 +181,11 @@ func main() {
 		defer store.Close()
 
 		inputUI := &input.UI{
-			Writer: os.Stdout,
+			Writer: os.Stderr,
 			Reader: os.Stdin,
 		}
 
-		pin, errUIAsk := inputUI.Ask("PIN", &input.Options{
+		pin, errUIAsk := inputUI.Ask("CAC PIN", &input.Options{
 			Default:     "",
 			HideOrder:   true,
 			HideDefault: true,
