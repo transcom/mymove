@@ -62,7 +62,7 @@ else
   docker-compose -f docker-compose.local.yml down || true
 
   # Build artifacts
-  make client_build server_build_linux bin_linux/milmove
+  make client_build bin_linux/milmove
 
   # Build images and start everything up
   docker-compose -f docker-compose.local.yml up -d --build
