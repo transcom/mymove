@@ -226,6 +226,8 @@ func main() {
 		tlsConfig := &tls.Config{
 			Certificates:       []tls.Certificate{*cert},
 			InsecureSkipVerify: insecure,
+			MinVersion:         tls.VersionTLS12,
+			MaxVersion:         tls.VersionTLS12,
 		}
 		tlsConfig.BuildNameToCertificate()
 		transport := &http.Transport{
