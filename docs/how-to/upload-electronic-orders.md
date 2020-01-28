@@ -107,7 +107,7 @@ direnv allow
 make server_run
 ```
 
-To continue you need to get the Token from the CAC with a script in transcom/mymove:
+To continue you need to get the Token from the CAC with a script in transcom/mymove (Becomes `ENTERYOURTOKEN` in following step):
 
 ```sh
 cac-extract-token-label
@@ -115,11 +115,23 @@ cac-extract-token-label
 
 Now over in your git checkout of the transcom/nom repo. Then download the [sample csv](https://drive.google.com/open?id=1-zxetfRhLEpnx1SBTAveoTLpwEzp3fK-) into the repo. And run these commands (**NOTE:** you will need your CAC personal PIN to do this operation):
 
+For MacOS 10.14 and earlier:
+
 ```sh
 make bin/nom
 TOKEN="ENTERYOURTOKEN"
 MODULE="/usr/local/lib/pkcs11/cackey.dylib"
 bin/nom -host orderslocal -port 9443 -insecure -pkcs11module "${MODULE}" -certlabel "Identity #0" -keylabel "Identity #0" --tokenlabel "${TOKEN}" nom_demo_20190404.csv
+PIN: ********
+```
+
+For MacOS 10.15 and later
+
+```sh
+make bin/nom
+TOKEN="ENTERYOURTOKEN"
+MODULE="/usr/local/lib/pkcs11/opensc-pkcs11.so"
+bin/nom -host orderslocal -port 9443 -insecure -pkcs11module "${MODULE}" nom_demo_20190404.csv
 PIN: ********
 ```
 
