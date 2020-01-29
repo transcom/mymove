@@ -57,7 +57,6 @@ require (
 	github.com/pkg/errors v0.9.0
 	github.com/rickar/cal v1.0.1
 	github.com/rogpeppe/go-internal v1.5.1 // indirect
-	github.com/segmentio/chamber/v2 v2.7.5
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/pflag v1.0.5
