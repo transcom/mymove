@@ -126,7 +126,7 @@ commands:
           no_output_timeout: 20m
       - run:
           name: Get Digest
-          command: cat bin/sha/ECR_DIGEST_app
+          command: cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_app
       - run:
           name: Health Check
           command: bin/health-checker --schemes http,https --hosts << parameters.health_check_hosts >> --tries 10 --backoff 3 --log-level info --timeout 15m
@@ -203,10 +203,12 @@ commands:
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
       - run:
           name: Record ECR Image Digest
-          command: echo $(aws ecr describe-images --repository-name << parameters.repo >> --image-ids imageTag=git-${CIRCLE_SHA1} | jq ".imageDetails[0] .imageDigest") > bin/sha/ECR_DIGEST_<< parameters.repo >>
+          command: |
+            mkdir -p /home/circleci/transcom/mymove/bin/sha
+            echo $(aws ecr describe-images --repository-name << parameters.repo >> --image-ids imageTag=git-${CIRCLE_SHA1} | jq ".imageDetails[0] .imageDigest") > /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>
       - run:
           name: Get Digest
-          command: cat bin/sha/ECR_DIGEST_<< parameters.repo >>
+          command: cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>
       - run:
           name: 'Describe image scan findings'
           command: scripts/ecr-describe-image-scan-findings << parameters.repo >> ${CIRCLE_SHA1}
