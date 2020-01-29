@@ -200,10 +200,10 @@ commands:
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
       - run:
           name: Record ECR image Digest
-          command: echo 'export ECR_IMAGE_DIGEST=$(aws ecr describe-images --repository-name << parameters.repo >> --image-ids imageTag=git-${CIRCLE_SHA1} | jq ".imageDetails[0] .imageDigest")' >> $BASH_ENV
+          command: echo 'export << parameters.repo >>_ECR_IMAGE_DIGEST=$(aws ecr describe-images --repository-name << parameters.repo >> --image-ids imageTag=git-${CIRCLE_SHA1} | jq ".imageDetails[0] .imageDigest")' >> $BASH_ENV
       - run:
           name: Image Digest
-          command: echo ${ECR_IMAGE_DIGEST}
+          command: echo ${<< parameters.repo >>_ECR_IMAGE_DIGEST}
       - run:
           name: 'Describe image scan findings'
           command: scripts/ecr-describe-image-scan-findings << parameters.repo >> ${CIRCLE_SHA1}
