@@ -234,7 +234,7 @@ export class PpmWeight extends Component {
                 <RangeSlider
                   id="progear-estimation-slider"
                   max={this.props.entitlement.weight}
-                  step={500}
+                  step={this.props.entitlement.weight <= 2500 ? 100 : 500}
                   min={0}
                   defaultValue={500}
                   prependTooltipText="about"
