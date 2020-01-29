@@ -1114,7 +1114,7 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date"
+          "format": "datetime"
         },
         "customerRemarks": {
           "type": "string",
@@ -2673,7 +2673,7 @@ func init() {
       "properties": {
         "createdAt": {
           "type": "string",
-          "format": "date"
+          "format": "datetime"
         },
         "customerRemarks": {
           "type": "string",

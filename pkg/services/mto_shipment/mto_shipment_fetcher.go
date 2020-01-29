@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 
+	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
+
 	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/gen/primemessages"
@@ -122,8 +124,11 @@ func NewMTOShipmentUpdater(db *pop.Connection) services.MTOShipmentUpdater {
 }
 
 //UpdateMTOShipment updates the mto shipment
-func (f mtoShipmentFetcher) UpdateMTOShipment(unmodifiedSince time.Time, mtoShipmentPayload *primemessages.MTOShipment) (*models.MTOShipment, error) {
+func (f mtoShipmentFetcher) UpdateMTOShipment(params mtoshipmentops.UpdateMTOShipmentParams) (*models.MTOShipment, error) {
+	mtoShipmentPayload := params.Body
+	unmodifiedSince := time.Time(params.IfUnmodifiedSince)
 	mtoShipmentID := uuid.FromStringOrNil(mtoShipmentPayload.ID.String())
+
 	updatedShipment, err := f.FetchMTOShipment(mtoShipmentID)
 	if err != nil {
 		return &models.MTOShipment{}, err
@@ -164,38 +169,50 @@ func (f mtoShipmentFetcher) UpdateMTOShipment(unmodifiedSince time.Time, mtoShip
 	}
 
 	basicQuery := `UPDATE mto_shipments
-		SET
-			scheduled_pickup_date = ?,
+		SET scheduled_pickup_date = ?,
 			requested_pickup_date = ?,
-			pickup_address = ?,
-			destination_address = ?,
 			shipment_type = ?,
-			updated_at = NOW()
-		`
+			pickup_address_id = ?,
+			destination_address_id = ?,
+			updated_at = NOW()`
 
-	// if mtoShipmentPayload.SecondaryPickupAddress != nil {                                                                                                                                                                                                                                                         PickupAddress != nil {
-	// 	basicQuery = basicQuery + fmt.Sprintf(", secondary_pickup_address = %s", updatedShipment.SecondaryPickupAddress)
-	// }
+	if mtoShipmentPayload.SecondaryPickupAddress != nil {
+		basicQuery = basicQuery + fmt.Sprintf(", \nsecondary_pickup_address_id = '%s'", mtoShipmentPayload.SecondaryPickupAddress.ID)
+	}
 
-	// if mtoShipmentPayload.SecondaryDeliveryAddress != nil {
-	// 	basicQuery = basicQuery + fmt.Sprintf(", secondary_delivery_address = %s", mtoShipmentPayload.SecondaryDeliveryAddress)
-	// }
+	if mtoShipmentPayload.SecondaryDeliveryAddress != nil {
+		basicQuery = basicQuery + fmt.Sprintf(", \nsecondary_delivery_address_id = '%s'", mtoShipmentPayload.SecondaryDeliveryAddress.ID)
+	}
 
-	basicQuery = basicQuery + `WHERE
+	basicQuery = basicQuery + `
+		WHERE
 			id = ?
 		AND
 			updated_at = ?
 		;`
 
 	// do the updating in a raw query
-	affectedRows, err := f.db.RawQuery(basicQuery, updatedShipment.ScheduledPickupDate, updatedShipment.RequestedPickupDate, updatedShipment.PickupAddress, updatedShipment.DestinationAddress, updatedShipment.ShipmentType, updatedShipment.ID, unmodifiedSince).ExecWithCount()
+	affectedRows, err := f.db.RawQuery(basicQuery,
+		updatedShipment.ScheduledPickupDate,
+		updatedShipment.RequestedPickupDate,
+		updatedShipment.ShipmentType,
+		mtoShipmentPayload.PickupAddress.ID,
+		mtoShipmentPayload.DestinationAddress.ID,
+		updatedShipment.ID,
+		unmodifiedSince).ExecWithCount()
 
 	if err != nil {
+		fmt.Println(err)
 		return &models.MTOShipment{}, err
 	}
-	if affectedRows == 1 {
+
+	if affectedRows != 1 {
 		return &models.MTOShipment{}, ErrPreconditionFailed{id: mtoShipmentID, unmodifiedSince: unmodifiedSince}
 	}
 
-	return updatedShipment, nil
+	shipment, err := f.FetchMTOShipment(mtoShipmentID)
+	if err != nil {
+		return &models.MTOShipment{}, err
+	}
+	return shipment, nil
 }

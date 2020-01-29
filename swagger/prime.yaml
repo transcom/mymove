@@ -818,7 +818,7 @@ definitions:
         format: uuid
         type: string
       createdAt:
-        format: date
+        format: datetime
         type: string
       updatedAt:
         format: datetime

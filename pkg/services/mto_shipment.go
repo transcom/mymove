@@ -1,15 +1,12 @@
 package services
 
 import (
-	"time"
-
 	"github.com/gofrs/uuid"
-
-	"github.com/transcom/mymove/pkg/gen/primemessages"
 
 	"github.com/transcom/mymove/pkg/models"
 
-	mtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
+	ghcmtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
+	primemtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 )
 
 // MTOShipmentFetcher is the exported interface for FetchMTOShipment
@@ -21,11 +18,11 @@ type MTOShipmentFetcher interface {
 //MTOShipmentUpdater is the service object interface for UpdateMTOShipment
 //go:generate mockery -name MTOShipmentUpdater
 type MTOShipmentUpdater interface {
-	UpdateMTOShipment(unmodifiedSince time.Time, mtoShipmentPayload *primemessages.MTOShipment) (*models.MTOShipment, error)
+	UpdateMTOShipment(params primemtoshipmentops.UpdateMTOShipmentParams) (*models.MTOShipment, error)
 }
 
 // MTOShipmentStatusUpdater is the exported interface for updating an MTO shipment status
 //go:generate mockery -name MTOShipmentStatusUpdater
 type MTOShipmentStatusUpdater interface {
-	UpdateMTOShipmentStatus(payload mtoshipmentops.PatchMTOShipmentStatusParams) (*models.MTOShipment, error)
+	UpdateMTOShipmentStatus(payload ghcmtoshipmentops.PatchMTOShipmentStatusParams) (*models.MTOShipment, error)
 }

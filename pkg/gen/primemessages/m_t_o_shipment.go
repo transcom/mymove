@@ -20,8 +20,8 @@ import (
 type MTOShipment struct {
 
 	// created at
-	// Format: date
-	CreatedAt strfmt.Date `json:"createdAt,omitempty"`
+	// Format: datetime
+	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// customer remarks
 	CustomerRemarks string `json:"customerRemarks,omitempty"`
@@ -135,7 +135,7 @@ func (m *MTOShipment) validateCreatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("createdAt", "body", "date", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "datetime", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
