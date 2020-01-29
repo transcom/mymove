@@ -3,6 +3,7 @@ package primeapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
+	"time"
 
 	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services"
@@ -20,8 +21,8 @@ type UpdateMTOShipmentHandler struct {
 // Handle handler that updates a mto shipment
 func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	//unmodifiedSince := time.Time(params.IfUnmodifiedSince)
-	mtoShipment, err := h.mtoShipmentUpdater.UpdateMTOShipment(params.Body)
+	unmodifiedSince := time.Time(params.IfUnmodifiedSince)
+	mtoShipment, err := h.mtoShipmentUpdater.UpdateMTOShipment(unmodifiedSince, params.Body)
 	if err != nil {
 		logger.Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
 		switch err.(type) {
