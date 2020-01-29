@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 
 	"github.com/go-openapi/loads"
@@ -24,6 +25,11 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	primeAPI.MoveTaskOrderFetchMTOUpdatesHandler = FetchMTOUpdatesHandler{
 		context,
+	}
+
+	primeAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
+		context,
+		mtoshipment.NewMTOShipmentUpdater(context.DB()),
 	}
 
 	primeAPI.PaymentRequestsCreatePaymentRequestHandler = CreatePaymentRequestHandler{

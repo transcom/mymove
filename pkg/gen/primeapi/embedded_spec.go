@@ -569,7 +569,7 @@ func init() {
           },
           {
             "type": "string",
-            "format": "date",
+            "format": "datetime",
             "name": "If-Unmodified-Since",
             "in": "header",
             "required": true
@@ -2083,7 +2083,7 @@ func init() {
           },
           {
             "type": "string",
-            "format": "date",
+            "format": "datetime",
             "name": "If-Unmodified-Since",
             "in": "header",
             "required": true

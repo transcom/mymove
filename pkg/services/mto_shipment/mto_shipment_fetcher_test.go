@@ -98,7 +98,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			Body:              &payload,
-			IfUnmodifiedSince: strfmt.Date(unmodifiedSince),
+			IfUnmodifiedSince: strfmt.DateTime(unmodifiedSince),
 		}
 		_, err := mtoShipmentUpdater.UpdateMTOShipment(params)
 		suite.Error(err)
@@ -110,7 +110,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			Body:              &payload,
-			IfUnmodifiedSince: strfmt.Date(unmodifiedSince),
+			IfUnmodifiedSince: strfmt.DateTime(unmodifiedSince),
 		}
 		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(params)
 		suite.NoError(err)

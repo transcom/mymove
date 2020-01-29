@@ -38,7 +38,7 @@ type UpdateMTOShipmentParams struct {
 	  Required: true
 	  In: header
 	*/
-	IfUnmodifiedSince strfmt.Date
+	IfUnmodifiedSince strfmt.DateTime
 	/*
 	  In: body
 	*/
@@ -116,12 +116,12 @@ func (o *UpdateMTOShipmentParams) bindIfUnmodifiedSince(rawData []string, hasKey
 		return err
 	}
 
-	// Format: date
-	value, err := formats.Parse("date", raw)
+	// Format: datetime
+	value, err := formats.Parse("datetime", raw)
 	if err != nil {
-		return errors.InvalidType("If-Unmodified-Since", "header", "strfmt.Date", raw)
+		return errors.InvalidType("If-Unmodified-Since", "header", "strfmt.DateTime", raw)
 	}
-	o.IfUnmodifiedSince = *(value.(*strfmt.Date))
+	o.IfUnmodifiedSince = *(value.(*strfmt.DateTime))
 
 	if err := o.validateIfUnmodifiedSince(formats); err != nil {
 		return err
@@ -133,7 +133,7 @@ func (o *UpdateMTOShipmentParams) bindIfUnmodifiedSince(rawData []string, hasKey
 // validateIfUnmodifiedSince carries on validations for parameter IfUnmodifiedSince
 func (o *UpdateMTOShipmentParams) validateIfUnmodifiedSince(formats strfmt.Registry) error {
 
-	if err := validate.FormatOf("If-Unmodified-Since", "header", "date", o.IfUnmodifiedSince.String(), formats); err != nil {
+	if err := validate.FormatOf("If-Unmodified-Since", "header", "datetime", o.IfUnmodifiedSince.String(), formats); err != nil {
 		return err
 	}
 	return nil

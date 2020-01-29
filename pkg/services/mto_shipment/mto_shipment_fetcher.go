@@ -184,7 +184,7 @@ func (f mtoShipmentFetcher) UpdateMTOShipment(params mtoshipmentops.UpdateMTOShi
 		basicQuery = basicQuery + fmt.Sprintf(", \nsecondary_delivery_address_id = '%s'", mtoShipmentPayload.SecondaryDeliveryAddress.ID)
 	}
 
-	basicQuery = basicQuery + `
+	finishedQuery := basicQuery + `
 		WHERE
 			id = ?
 		AND
@@ -192,7 +192,7 @@ func (f mtoShipmentFetcher) UpdateMTOShipment(params mtoshipmentops.UpdateMTOShi
 		;`
 
 	// do the updating in a raw query
-	affectedRows, err := f.db.RawQuery(basicQuery,
+	affectedRows, err := f.db.RawQuery(finishedQuery,
 		updatedShipment.ScheduledPickupDate,
 		updatedShipment.RequestedPickupDate,
 		updatedShipment.ShipmentType,
@@ -202,7 +202,6 @@ func (f mtoShipmentFetcher) UpdateMTOShipment(params mtoshipmentops.UpdateMTOShi
 		unmodifiedSince).ExecWithCount()
 
 	if err != nil {
-		fmt.Println(err)
 		return &models.MTOShipment{}, err
 	}
 
