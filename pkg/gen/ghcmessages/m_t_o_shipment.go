@@ -6,6 +6,8 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -18,8 +20,8 @@ import (
 type MTOShipment struct {
 
 	// created at
-	// Format: date
-	CreatedAt strfmt.Date `json:"createdAt,omitempty"`
+	// Format: datetime
+	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// customer remarks
 	CustomerRemarks string `json:"customerRemarks,omitempty"`
@@ -44,9 +46,13 @@ type MTOShipment struct {
 	// Enum: [HHG INTERNATIONAL_HHG INTERNATIONAL_UB]
 	ShipmentType interface{} `json:"shipmentType,omitempty"`
 
+	// status
+	// Enum: [APPROVED SUBMITTED REJECTED]
+	Status string `json:"status,omitempty"`
+
 	// updated at
-	// Format: date
-	UpdatedAt strfmt.Date `json:"updatedAt,omitempty"`
+	// Format: datetime
+	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }
 
 // Validate validates this m t o shipment
@@ -73,6 +79,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateUpdatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -89,7 +99,7 @@ func (m *MTOShipment) validateCreatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("createdAt", "body", "date", m.CreatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "datetime", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -148,13 +158,59 @@ func (m *MTOShipment) validateScheduledPickupDate(formats strfmt.Registry) error
 	return nil
 }
 
+var mTOShipmentTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["APPROVED","SUBMITTED","REJECTED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		mTOShipmentTypeStatusPropEnum = append(mTOShipmentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// MTOShipmentStatusAPPROVED captures enum value "APPROVED"
+	MTOShipmentStatusAPPROVED string = "APPROVED"
+
+	// MTOShipmentStatusSUBMITTED captures enum value "SUBMITTED"
+	MTOShipmentStatusSUBMITTED string = "SUBMITTED"
+
+	// MTOShipmentStatusREJECTED captures enum value "REJECTED"
+	MTOShipmentStatusREJECTED string = "REJECTED"
+)
+
+// prop value enum
+func (m *MTOShipment) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, mTOShipmentTypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *MTOShipment) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateStatusEnum("status", "body", m.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOShipment) validateUpdatedAt(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("updatedAt", "body", "date", m.UpdatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("updatedAt", "body", "datetime", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 

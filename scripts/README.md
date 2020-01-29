@@ -13,6 +13,7 @@ environment.
 
 | Script Name | Description |
 | --- | --- |
+| `check-aws-cli-version` | checks the awscli version required for the project |
 | `check-aws-vault-version` | checks the aws-vault version required for the project |
 | `check-bash-version` | Script helps ensure that /etc/shells has all the correct entries in it |
 | `check-chamber-version` | checks the chamber version required for the project |

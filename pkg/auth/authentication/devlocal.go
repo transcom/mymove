@@ -33,13 +33,19 @@ const (
 type UserListHandler struct {
 	db *pop.Connection
 	Context
+	clientAuthSecretKey string
+	noSessionTimeout    bool
+	useSecureCookie     bool
 }
 
 // NewUserListHandler returns a new UserListHandler
-func NewUserListHandler(ac Context, db *pop.Connection) UserListHandler {
+func NewUserListHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) UserListHandler {
 	handler := UserListHandler{
-		Context: ac,
-		db:      db,
+		Context:             ac,
+		db:                  db,
+		clientAuthSecretKey: clientAuthSecretKey,
+		noSessionTimeout:    noSessionTimeout,
+		useSecureCookie:     useSecureCookie,
 	}
 	return handler
 }
@@ -48,7 +54,14 @@ func NewUserListHandler(ac Context, db *pop.Connection) UserListHandler {
 func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	session := auth.SessionFromRequestContext(r)
 	if session != nil && session.UserID != uuid.Nil {
-		// User is already authenticated, redirect to landing page
+		// User is already authenticated, so clear out their current session and have
+		// them try again. This the issue where a developer will get stuck with a stale
+		// session and have to manually clear cookies to get back to the login page.
+		session.IDToken = ""
+		session.UserID = uuid.Nil
+		auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
+		auth.DeleteCSRFCookies(w)
+
 		http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
 		return
 	}
