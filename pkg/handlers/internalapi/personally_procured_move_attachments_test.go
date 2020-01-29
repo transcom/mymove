@@ -50,7 +50,7 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandlerTests() {
 		//We reuse the pdf twice for the merged pdf so expect new pdf to be 2x the length or original
 		{name: "vanilla pdf", pdfName: "../../testdatagen/testdata/test.pdf", expectedPages: 2},
 		//problem pdf is specific pdf that was causing decoding errors previously
-		{name: "problem pdf", pdfName: "../fixtures/orders.pdf", expectedPages: 4},
+		{name: "problem pdf", pdfName: "../../testdatagen/testdata/orders.pdf", expectedPages: 4},
 	}
 	uploadKeyRe := regexp.MustCompile(`(user/.+/uploads/.+)\?`)
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
