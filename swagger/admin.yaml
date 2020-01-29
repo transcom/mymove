@@ -508,7 +508,7 @@ definitions:
         title: name
       roleType:
         type: string
-        example: 'transporation_ordering_officer'
+        example: 'transportation_ordering_officer'
         x-nullable: true
         title: roleType
   AdminUserCreatePayload:

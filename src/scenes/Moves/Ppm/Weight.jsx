@@ -17,6 +17,7 @@ import 'react-rangeslider/lib/index.css';
 import styles from './Weight.module.scss';
 import { withContext } from 'shared/AppContext';
 import RangeSlider from 'shared/RangeSlider';
+import { hasShortHaulError } from 'shared/incentive';
 
 const WeightWizardForm = reduxifyWizardForm('weight-wizard-form');
 
@@ -166,12 +167,8 @@ export class PpmWeight extends Component {
     this.setState({ [type]: event.target.value });
   };
 
-  hasShortHaulError(rateEngineError) {
-    return rateEngineError && rateEngineError.statusCode === 409 ? true : false;
-  }
-
   chooseEstimateErrorText(hasEstimateError, rateEngineError) {
-    if (this.hasShortHaulError(rateEngineError)) {
+    if (hasShortHaulError(rateEngineError)) {
       return (
         <Fragment>
           <div className="error-message">
@@ -229,7 +226,7 @@ export class PpmWeight extends Component {
                 hasEstimateInProgress,
                 incentive_estimate_max,
               }}
-              readyToSubmit={!this.hasShortHaulError(rateEngineError)}
+              readyToSubmit={!hasShortHaulError(rateEngineError)}
             >
               <h3>How much do you think you'll move?</h3>
               <p>Your weight entitlement: {this.props.entitlement.weight.toLocaleString()} lbs</p>
@@ -237,7 +234,7 @@ export class PpmWeight extends Component {
                 <RangeSlider
                   id="progear-estimation-slider"
                   max={this.props.entitlement.weight}
-                  step={500}
+                  step={this.props.entitlement.weight <= 2500 ? 100 : 500}
                   min={0}
                   defaultValue={500}
                   prependTooltipText="about"
@@ -350,7 +347,7 @@ export class PpmWeight extends Component {
                 hasEstimateInProgress,
                 incentive_estimate_max,
               }}
-              readyToSubmit={!this.hasShortHaulError(rateEngineError)}
+              readyToSubmit={!hasShortHaulError(rateEngineError)}
             >
               {error && (
                 <div className="grid-row">

@@ -4,7 +4,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import moment from 'moment';
 import configureStore from 'redux-mock-store';
-import { shallow, mount } from 'enzyme';
+import { shallow } from 'enzyme';
 
 import { Landing } from '.';
 import { MoveSummary } from './MoveSummary';
@@ -32,7 +32,7 @@ describe('HomePage tests', () => {
       it('redirects to enter profile page', () => {
         const mockPush = jest.fn();
         store = mockStore({});
-        const wrapper = mount(
+        const wrapper = shallow(
           <Provider store={store}>
             <Landing
               isLoggedIn={true}
@@ -45,8 +45,12 @@ describe('HomePage tests', () => {
             />
           </Provider>,
         );
-        const resumeMoveFn = jest.spyOn(wrapper.children().instance(), 'resumeMove');
-        wrapper.setProps({ createdServiceMemberIsLoading: true });
+        console.log(wrapper.debug());
+
+        const landing = wrapper.find(Landing).dive();
+        const resumeMoveFn = jest.spyOn(landing.instance(), 'resumeMove');
+        landing.setProps({ createdServiceMemberIsLoading: true });
+        console.log(wrapper.debug());
         expect(resumeMoveFn).toHaveBeenCalledTimes(1);
       });
     });
