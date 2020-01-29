@@ -7,8 +7,6 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/services/audit"
-
 	paymentrequestop "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -33,16 +31,9 @@ type CreatePaymentRequestHandler struct {
 func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymentRequestParams) middleware.Responder {
 	// TODO: authorization to create payment request
 
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	logger := h.LoggerFromRequest(params.HTTPRequest)
 
 	payload := params.Body
-
-	// Capture creation attempt in audit log
-	_, err := audit.Capture(&payload, nil, logger, session, params.HTTPRequest)
-	if err != nil {
-		logger.Error("Auditing service error for payment request creation.", zap.Error(err))
-		return paymentrequestop.NewCreatePaymentRequestInternalServerError()
-	}
 
 	if payload == nil {
 		logger.Error("Invalid payment request: params Body is nil")
