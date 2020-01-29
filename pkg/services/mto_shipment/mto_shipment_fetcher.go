@@ -123,51 +123,46 @@ func NewMTOShipmentUpdater(db *pop.Connection) services.MTOShipmentUpdater {
 	return &mtoShipmentUpdater{db, mtoShipmentFetcher{db}}
 }
 
-//UpdateMTOShipment updates the mto shipment
-func (f mtoShipmentFetcher) UpdateMTOShipment(params mtoshipmentops.UpdateMTOShipmentParams) (*models.MTOShipment, error) {
-	mtoShipmentPayload := params.Body
-	unmodifiedSince := time.Time(params.IfUnmodifiedSince)
-	mtoShipmentID := uuid.FromStringOrNil(mtoShipmentPayload.ID.String())
-
-	updatedShipment, err := f.FetchMTOShipment(mtoShipmentID)
-	if err != nil {
-		return &models.MTOShipment{}, err
-	}
-
+// validateUpdatedMTOShipment validates the updated shipment
+func validateUpdatedMTOShipment(db *pop.Connection, oldShipment *models.MTOShipment, updatedShipment *primemessages.MTOShipment) error {
 	// if requestedPickupDate isn't valid then return ErrInvalidInput
-	requestedPickupDate := time.Time(*mtoShipmentPayload.RequestedPickupDate)
-	if !requestedPickupDate.Equal(*updatedShipment.RequestedPickupDate) {
-		return &models.MTOShipment{}, ErrInvalidInput{}
+	requestedPickupDate := time.Time(*updatedShipment.RequestedPickupDate)
+	if !requestedPickupDate.Equal(*oldShipment.RequestedPickupDate) {
+		return ErrInvalidInput{}
 	}
-	updatedShipment.RequestedPickupDate = &requestedPickupDate
+	oldShipment.RequestedPickupDate = &requestedPickupDate
 
-	scheduledPickupTime := time.Time(*mtoShipmentPayload.ScheduledPickupDate)
-	pickupAddress := addressModelFromPayload(mtoShipmentPayload.PickupAddress)
-	destinationAddress := addressModelFromPayload(mtoShipmentPayload.DestinationAddress)
+	scheduledPickupTime := time.Time(*updatedShipment.ScheduledPickupDate)
+	pickupAddress := addressModelFromPayload(updatedShipment.PickupAddress)
+	destinationAddress := addressModelFromPayload(updatedShipment.DestinationAddress)
 
-	updatedShipment.ScheduledPickupDate = &scheduledPickupTime
-	updatedShipment.PickupAddress = *pickupAddress
-	updatedShipment.DestinationAddress = *destinationAddress
-	updatedShipment.ShipmentType = models.MTOShipmentType(mtoShipmentPayload.ShipmentType)
+	oldShipment.ScheduledPickupDate = &scheduledPickupTime
+	oldShipment.PickupAddress = *pickupAddress
+	oldShipment.DestinationAddress = *destinationAddress
+	oldShipment.ShipmentType = models.MTOShipmentType(updatedShipment.ShipmentType)
 
-	if mtoShipmentPayload.SecondaryPickupAddress != nil {
-		secondaryPickupAddress := addressModelFromPayload(mtoShipmentPayload.SecondaryPickupAddress)
-		updatedShipment.SecondaryPickupAddress = secondaryPickupAddress
-	}
-
-	if mtoShipmentPayload.SecondaryDeliveryAddress != nil {
-		secondaryDeliveryAddress := addressModelFromPayload(mtoShipmentPayload.SecondaryDeliveryAddress)
-		updatedShipment.SecondaryPickupAddress = secondaryDeliveryAddress
+	if updatedShipment.SecondaryPickupAddress != nil {
+		secondaryPickupAddress := addressModelFromPayload(updatedShipment.SecondaryPickupAddress)
+		oldShipment.SecondaryPickupAddress = secondaryPickupAddress
 	}
 
-	vErrors, err := updatedShipment.Validate(f.db)
+	if updatedShipment.SecondaryDeliveryAddress != nil {
+		secondaryDeliveryAddress := addressModelFromPayload(updatedShipment.SecondaryDeliveryAddress)
+		oldShipment.SecondaryPickupAddress = secondaryDeliveryAddress
+	}
+
+	vErrors, err := oldShipment.Validate(db)
 	if vErrors.HasAny() {
-		return &models.MTOShipment{}, ErrInvalidInput{}
+		return ErrInvalidInput{}
 	}
 	if err != nil {
-		return &models.MTOShipment{}, err
+		return err
 	}
+	return nil
+}
 
+// updateMTOShipment updates the mto shipment with a raw query
+func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSince time.Time, updatedShipment *primemessages.MTOShipment) error {
 	basicQuery := `UPDATE mto_shipments
 		SET scheduled_pickup_date = ?,
 			requested_pickup_date = ?,
@@ -176,12 +171,12 @@ func (f mtoShipmentFetcher) UpdateMTOShipment(params mtoshipmentops.UpdateMTOShi
 			destination_address_id = ?,
 			updated_at = NOW()`
 
-	if mtoShipmentPayload.SecondaryPickupAddress != nil {
-		basicQuery = basicQuery + fmt.Sprintf(", \nsecondary_pickup_address_id = '%s'", mtoShipmentPayload.SecondaryPickupAddress.ID)
+	if updatedShipment.SecondaryPickupAddress != nil {
+		basicQuery = basicQuery + fmt.Sprintf(", \nsecondary_pickup_address_id = '%s'", updatedShipment.SecondaryPickupAddress.ID)
 	}
 
-	if mtoShipmentPayload.SecondaryDeliveryAddress != nil {
-		basicQuery = basicQuery + fmt.Sprintf(", \nsecondary_delivery_address_id = '%s'", mtoShipmentPayload.SecondaryDeliveryAddress.ID)
+	if updatedShipment.SecondaryDeliveryAddress != nil {
+		basicQuery = basicQuery + fmt.Sprintf(", \nsecondary_delivery_address_id = '%s'", updatedShipment.SecondaryDeliveryAddress.ID)
 	}
 
 	finishedQuery := basicQuery + `
@@ -192,26 +187,50 @@ func (f mtoShipmentFetcher) UpdateMTOShipment(params mtoshipmentops.UpdateMTOShi
 		;`
 
 	// do the updating in a raw query
-	affectedRows, err := f.db.RawQuery(finishedQuery,
+	affectedRows, err := db.RawQuery(finishedQuery,
 		updatedShipment.ScheduledPickupDate,
 		updatedShipment.RequestedPickupDate,
 		updatedShipment.ShipmentType,
-		mtoShipmentPayload.PickupAddress.ID,
-		mtoShipmentPayload.DestinationAddress.ID,
+		updatedShipment.PickupAddress.ID,
+		updatedShipment.DestinationAddress.ID,
 		updatedShipment.ID,
 		unmodifiedSince).ExecWithCount()
 
 	if err != nil {
-		return &models.MTOShipment{}, err
+		return err
 	}
 
 	if affectedRows != 1 {
-		return &models.MTOShipment{}, ErrPreconditionFailed{id: mtoShipmentID, unmodifiedSince: unmodifiedSince}
+		return ErrPreconditionFailed{id: mtoShipmentID, unmodifiedSince: unmodifiedSince}
 	}
 
-	shipment, err := f.FetchMTOShipment(mtoShipmentID)
+	return nil
+}
+
+//UpdateMTOShipment updates the mto shipment
+func (f mtoShipmentFetcher) UpdateMTOShipment(params mtoshipmentops.UpdateMTOShipmentParams) (*models.MTOShipment, error) {
+	mtoShipmentPayload := params.Body
+	unmodifiedSince := time.Time(params.IfUnmodifiedSince)
+	mtoShipmentID := uuid.FromStringOrNil(mtoShipmentPayload.ID.String())
+
+	oldShipment, err := f.FetchMTOShipment(mtoShipmentID)
 	if err != nil {
 		return &models.MTOShipment{}, err
 	}
-	return shipment, nil
+
+	err = validateUpdatedMTOShipment(f.db, oldShipment, mtoShipmentPayload)
+	if err != nil {
+		return &models.MTOShipment{}, err
+	}
+
+	err = updateMTOShipment(f.db, mtoShipmentID, unmodifiedSince, mtoShipmentPayload)
+	if err != nil {
+		return &models.MTOShipment{}, err
+	}
+
+	updatedShipment, err := f.FetchMTOShipment(mtoShipmentID)
+	if err != nil {
+		return &models.MTOShipment{}, err
+	}
+	return updatedShipment, nil
 }
