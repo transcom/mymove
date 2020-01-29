@@ -200,17 +200,19 @@ commands:
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-branch-${CIRCLE_BRANCH//+([^A-Za-z0-9-.])/-}
       - run:
           name: Record ECR Image Digest
-          command: echo $(aws ecr describe-images --repository-name << parameters.repo >> --image-ids imageTag=git-${CIRCLE_SHA1} | jq ".imageDetails[0] .imageDigest") > /home/circleci/transcom/mymove/ECR_DIGEST_<< parameters.repo >>
+          command: |
+            mkdir -p /tmp/mymove/sha
+            echo $(aws ecr describe-images --repository-name << parameters.repo >> --image-ids imageTag=git-${CIRCLE_SHA1} | jq ".imageDetails[0] .imageDigest") > /tmp/mymove/sha/ECR_DIGEST_<< parameters.repo >>
       - run:
           name: Get Digest
-          command: cat /home/circleci/transcom/mymove/ECR_DIGEST_<< parameters.repo >>
+          command: cat /tmp/mymove/sha/ECR_DIGEST_<< parameters.repo >>
       - run:
           name: 'Describe image scan findings'
           command: scripts/ecr-describe-image-scan-findings << parameters.repo >> ${CIRCLE_SHA1}
       - persist_to_workspace:
-          root: /home/circleci/transcom/
+          root: /tmp/mymove
           paths:
-            - mymove
+            - sha
 
   server_tests_step:
     parameters:
