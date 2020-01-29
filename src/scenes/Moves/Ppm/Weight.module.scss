@@ -25,8 +25,12 @@ div.progear-slider-container {
   margin-right: 0;
   margin-top: 1em;
 }
-:global {
 
+#progear-estimation-slider:focus {
+  outline: none;
+  box-shadow: none;
+}
+:global {
   label.inline_radio {
     padding-bottom: 1em;
   }
@@ -76,10 +80,20 @@ table.numeric-info th {
   color: green;
 }
 
-:global .grid-container h3 {
-  font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
-}
 :global {
+  .grid-container h3 {
+    font-family: Source Sans Pro Web, Helvetica Neue, Helvetica, Roboto, Arial, sans-serif;
+  }
+
+  .rangeslider-horizontal .rangeslider__fill {
+    background-color: #005ea2;
+  }
+
+  // pro-gear estimate slider outline
+  input:not([disabled]):focus {
+    outline: none;
+  }
+
   table th,
   table td {
     border: none;

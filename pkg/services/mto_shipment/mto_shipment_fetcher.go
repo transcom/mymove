@@ -159,6 +159,9 @@ func (f mtoShipmentFetcher) UpdateMTOShipment(unmodifiedSince time.Time, mtoShip
 	if vErrors.HasAny() {
 		return &models.MTOShipment{}, ErrInvalidInput{}
 	}
+	if err != nil {
+		return &models.MTOShipment{}, err
+	}
 
 	basicQuery := `UPDATE mto_shipments
 		SET
@@ -170,14 +173,13 @@ func (f mtoShipmentFetcher) UpdateMTOShipment(unmodifiedSince time.Time, mtoShip
 			updated_at = NOW()
 		`
 
+	// if mtoShipmentPayload.SecondaryPickupAddress != nil {                                                                                                                                                                                                                                                         PickupAddress != nil {
+	// 	basicQuery = basicQuery + fmt.Sprintf(", secondary_pickup_address = %s", updatedShipment.SecondaryPickupAddress)
+	// }
 
-	if mtoShipmentPayload.Secondary                                                                                                                                                                                                                                                           PickupAddress != nil {
-		basicQuery = basicQuery + fmt.Sprintf(", secondary_pickup_address = %s", updatedShipment.SecondaryPickupAddress)
-	}
-
-	if mtoShipmentPayload.SecondaryDeliveryAddress != nil {
-		basicQuery = basicQuery + fmt.Sprintf(", secondary_delivery_address = %s", mtoShipmentPayload.SecondaryPickupAddress)
-	}
+	// if mtoShipmentPayload.SecondaryDeliveryAddress != nil {
+	// 	basicQuery = basicQuery + fmt.Sprintf(", secondary_delivery_address = %s", mtoShipmentPayload.SecondaryDeliveryAddress)
+	// }
 
 	basicQuery = basicQuery + `WHERE
 			id = ?

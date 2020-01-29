@@ -1,9 +1,10 @@
 package primeapi
 
 import (
+	"time"
+
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
-	"time"
 
 	"github.com/transcom/mymove/pkg/handlers/primeapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/services"

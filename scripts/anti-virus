@@ -3,7 +3,7 @@
 set -eu -o pipefail
 
 #
-# Anti Virus Scanning of Source Code
+# Title: Anti Virus Scanning of Source Code
 #
 # More information about the docker setup is found here: https://github.com/mko-x/docker-clamav
 #

@@ -604,10 +604,16 @@ func init() {
             }
           },
           "412": {
-            "description": "precondition failed"
+            "description": "precondition failed",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
+            }
           },
           "500": {
-            "description": "internal server error"
+            "description": "internal server error",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
           }
         }
       }
@@ -644,6 +650,73 @@ func init() {
           },
           "400": {
             "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
+    },
+    "/payment-requests/{paymentRequestID}/uploads": {
+      "post": {
+        "description": "Uploads represent a single digital file, such as a JPEG, PNG, or PDF.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Create a new upload for a payment request",
+        "operationId": "createUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of payment request to use",
+            "name": "paymentRequestID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "Invalid request",
             "schema": {
               "$ref": "#/responses/InvalidRequest"
             }
@@ -984,6 +1057,52 @@ func init() {
         }
       }
     },
+    "MTOServiceItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "reServiceCode": {
+          "type": "string"
+        },
+        "reServiceID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "reServiceName": {
+          "type": "string"
+        }
+      }
+    },
+    "MTOServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOServiceItem"
+      }
+    },
+    "MTOServiceItemstatus": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "SUBMITTED",
+            "REJECTED"
+          ]
+        }
+      }
+    },
     "MTOShipment": {
       "required": [
         "pickupAddress",
@@ -1034,9 +1153,17 @@ func init() {
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "SUBMITTED",
+            "REJECTED"
+          ]
+        },
         "updatedAt": {
           "type": "string",
-          "format": "date"
+          "format": "datetime"
         }
       }
     },
@@ -1110,6 +1237,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "mto_service_items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
+        },
         "payment_requests": {
           "type": "array",
           "items": {
@@ -1151,8 +1284,8 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "proofOfServicePackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
+        "proofOfServiceDocs": {
+          "$ref": "#/definitions/ProofOfServiceDocs"
         },
         "rejectionReason": {
           "type": "string",
@@ -1181,7 +1314,7 @@ func init() {
         "$ref": "#/definitions/PaymentRequest"
       }
     },
-    "ProofOfServicePackage": {
+    "ProofOfServiceDocs": {
       "type": "object",
       "properties": {
         "uploads": {
@@ -1221,7 +1354,6 @@ func init() {
     "Upload": {
       "type": "object",
       "required": [
-        "binaryData",
         "filename",
         "contentType",
         "bytes",
@@ -1229,10 +1361,6 @@ func init() {
         "updatedAt"
       ],
       "properties": {
-        "binaryData": {
-          "type": "string",
-          "format": "binary"
-        },
         "bytes": {
           "type": "integer"
         },
@@ -1292,6 +1420,12 @@ func init() {
     },
     "PermissionDenied": {
       "description": "The request was denied",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "PreconditionFailed": {
+      "description": "Precondition failed",
       "schema": {
         "$ref": "#/definitions/Error"
       }
@@ -1993,10 +2127,22 @@ func init() {
             }
           },
           "412": {
-            "description": "precondition failed"
+            "description": "precondition failed",
+            "schema": {
+              "description": "Precondition failed",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
           },
           "500": {
-            "description": "internal server error"
+            "description": "internal server error",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
           }
         }
       }
@@ -2033,6 +2179,88 @@ func init() {
           },
           "400": {
             "description": "The request payload is invalid",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payment-requests/{paymentRequestID}/uploads": {
+      "post": {
+        "description": "Uploads represent a single digital file, such as a JPEG, PNG, or PDF.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Create a new upload for a payment request",
+        "operationId": "createUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of payment request to use",
+            "name": "paymentRequestID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "Invalid request",
             "schema": {
               "description": "The request payload is invalid",
               "schema": {
@@ -2388,6 +2616,52 @@ func init() {
         }
       }
     },
+    "MTOServiceItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "reServiceCode": {
+          "type": "string"
+        },
+        "reServiceID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "reServiceName": {
+          "type": "string"
+        }
+      }
+    },
+    "MTOServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOServiceItem"
+      }
+    },
+    "MTOServiceItemstatus": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "SUBMITTED",
+            "REJECTED"
+          ]
+        }
+      }
+    },
     "MTOShipment": {
       "required": [
         "pickupAddress",
@@ -2438,9 +2712,17 @@ func init() {
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "SUBMITTED",
+            "REJECTED"
+          ]
+        },
         "updatedAt": {
           "type": "string",
-          "format": "date"
+          "format": "datetime"
         }
       }
     },
@@ -2514,6 +2796,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "mto_service_items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
+        },
         "payment_requests": {
           "type": "array",
           "items": {
@@ -2555,8 +2843,8 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "proofOfServicePackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
+        "proofOfServiceDocs": {
+          "$ref": "#/definitions/ProofOfServiceDocs"
         },
         "rejectionReason": {
           "type": "string",
@@ -2585,7 +2873,7 @@ func init() {
         "$ref": "#/definitions/PaymentRequest"
       }
     },
-    "ProofOfServicePackage": {
+    "ProofOfServiceDocs": {
       "type": "object",
       "properties": {
         "uploads": {
@@ -2625,7 +2913,6 @@ func init() {
     "Upload": {
       "type": "object",
       "required": [
-        "binaryData",
         "filename",
         "contentType",
         "bytes",
@@ -2633,10 +2920,6 @@ func init() {
         "updatedAt"
       ],
       "properties": {
-        "binaryData": {
-          "type": "string",
-          "format": "binary"
-        },
         "bytes": {
           "type": "integer"
         },
@@ -2696,6 +2979,12 @@ func init() {
     },
     "PermissionDenied": {
       "description": "The request was denied",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "PreconditionFailed": {
+      "description": "Precondition failed",
       "schema": {
         "$ref": "#/definitions/Error"
       }

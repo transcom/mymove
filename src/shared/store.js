@@ -22,9 +22,9 @@ const composeEnhancers = composeWithDevTools({});
 
 function appSelector() {
   if (isAdminSite) {
-    return adminAppReducer;
+    return adminAppReducer(history);
   } else {
-    return appReducer;
+    return appReducer(history);
   }
 }
 

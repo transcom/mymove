@@ -76,6 +76,7 @@ fi
 
 # Now check versions are correct for prereqs
 echo
+check-aws-cli-version
 check-aws-vault-version
 check-bash-version
 check-chamber-version

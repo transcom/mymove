@@ -215,6 +215,11 @@ const UpdateMTOShipmentPreconditionFailedCode int = 412
 swagger:response updateMTOShipmentPreconditionFailed
 */
 type UpdateMTOShipmentPreconditionFailed struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewUpdateMTOShipmentPreconditionFailed creates UpdateMTOShipmentPreconditionFailed with default headers values
@@ -223,12 +228,25 @@ func NewUpdateMTOShipmentPreconditionFailed() *UpdateMTOShipmentPreconditionFail
 	return &UpdateMTOShipmentPreconditionFailed{}
 }
 
+// WithPayload adds the payload to the update m t o shipment precondition failed response
+func (o *UpdateMTOShipmentPreconditionFailed) WithPayload(payload interface{}) *UpdateMTOShipmentPreconditionFailed {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update m t o shipment precondition failed response
+func (o *UpdateMTOShipmentPreconditionFailed) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *UpdateMTOShipmentPreconditionFailed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(412)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
 }
 
 // UpdateMTOShipmentInternalServerErrorCode is the HTTP code returned for type UpdateMTOShipmentInternalServerError
@@ -239,6 +257,11 @@ const UpdateMTOShipmentInternalServerErrorCode int = 500
 swagger:response updateMTOShipmentInternalServerError
 */
 type UpdateMTOShipmentInternalServerError struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
 }
 
 // NewUpdateMTOShipmentInternalServerError creates UpdateMTOShipmentInternalServerError with default headers values
@@ -247,10 +270,23 @@ func NewUpdateMTOShipmentInternalServerError() *UpdateMTOShipmentInternalServerE
 	return &UpdateMTOShipmentInternalServerError{}
 }
 
+// WithPayload adds the payload to the update m t o shipment internal server error response
+func (o *UpdateMTOShipmentInternalServerError) WithPayload(payload interface{}) *UpdateMTOShipmentInternalServerError {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the update m t o shipment internal server error response
+func (o *UpdateMTOShipmentInternalServerError) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *UpdateMTOShipmentInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(500)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
 }

@@ -4,7 +4,7 @@ import { LastLocationProvider } from 'react-router-last-location';
 
 import ValidatedPrivateRoute from 'shared/User/ValidatedPrivateRoute';
 import { Route, Switch } from 'react-router-dom';
-import { ConnectedRouter, push, goBack } from 'react-router-redux';
+import { ConnectedRouter, push, goBack } from 'connected-react-router';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 

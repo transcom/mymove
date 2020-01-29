@@ -59,6 +59,10 @@ func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            entitlements,
 		Grade:                  moveOrder.Grade,
+		OrderNumber:            &moveOrder.OrderNumber,
+		OrderType:              moveOrder.OrderType,
+		OrderTypeDetail:        &moveOrder.OrderTypeDetail,
+		ReportByDate:           strfmt.Date(moveOrder.ReportByDate),
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 	}
@@ -137,10 +141,11 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		ID:                  strfmt.UUID(mtoShipment.ID.String()),
 		MoveTaskOrderID:     strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:        mtoShipment.ShipmentType,
+		Status:              string(mtoShipment.Status),
 		CustomerRemarks:     *mtoShipment.CustomerRemarks,
 		RequestedPickupDate: strfmt.Date(*mtoShipment.RequestedPickupDate),
-		CreatedAt:           strfmt.Date(mtoShipment.CreatedAt),
-		UpdatedAt:           strfmt.Date(mtoShipment.UpdatedAt),
+		CreatedAt:           strfmt.DateTime(mtoShipment.CreatedAt),
+		UpdatedAt:           strfmt.DateTime(mtoShipment.UpdatedAt),
 	}
 }
 

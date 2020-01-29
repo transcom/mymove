@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import MockRouter from 'react-mock-router';
+import { HashRouter as Router } from 'react-router-dom';
 
 import MoveInfo from './MoveInfo';
 import store from 'shared/store';
@@ -27,7 +27,7 @@ describe('Loads MoveInfo', () => {
     const div = document.createElement('div');
     ReactDOM.render(
       <Provider store={store}>
-        <MockRouter push={push}>
+        <Router push={push}>
           <MoveInfo
             loadDependenciesHasError={loadDependenciesHasError}
             loadDependenciesHasSuccess={loadDependenciesHasSuccess}
@@ -35,7 +35,7 @@ describe('Loads MoveInfo', () => {
             match={match}
             loadMoveDependencies={dummyFunc}
           />
-        </MockRouter>
+        </Router>
       </Provider>,
       div,
     );
@@ -48,11 +48,11 @@ describe('ShipmentInfo tests', () => {
     it('when a referrer is set in history', () => {
       wrapper = mount(
         <Provider store={store}>
-          <MockRouter push={jest.fn()}>
+          <Router push={jest.fn()}>
             <ReferrerQueueLink
               history={{ location: { state: { referrerPathname: '/queues/ppm_payment_requested' } } }}
             />
-          </MockRouter>
+          </Router>
         </Provider>,
       );
       expect(wrapper.text()).toEqual('Payment requested');
@@ -60,9 +60,9 @@ describe('ShipmentInfo tests', () => {
     it('when no referrer is set', () => {
       wrapper = mount(
         <Provider store={store}>
-          <MockRouter push={jest.fn()}>
+          <Router push={jest.fn()}>
             <ReferrerQueueLink history={{ location: {} }} />
-          </MockRouter>
+          </Router>
         </Provider>,
       );
       expect(wrapper.text()).toEqual('New moves');

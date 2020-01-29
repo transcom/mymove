@@ -6,6 +6,8 @@ package ghcmessages
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -26,6 +28,10 @@ type MoveOrder struct {
 	// customer ID
 	// Format: uuid
 	CustomerID strfmt.UUID `json:"customerID,omitempty"`
+
+	// date issued
+	// Format: date
+	DateIssued strfmt.Date `json:"date_issued,omitempty"`
 
 	// destination duty station
 	DestinationDutyStation *DutyStation `json:"destinationDutyStation,omitempty"`
@@ -52,8 +58,22 @@ type MoveOrder struct {
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
+	// order number
+	OrderNumber *string `json:"order_number,omitempty"`
+
+	// order type
+	OrderType string `json:"order_type,omitempty"`
+
+	// order type detail
+	// Enum: [GHC NTS]
+	OrderTypeDetail *string `json:"order_type_detail,omitempty"`
+
 	// origin duty station
 	OriginDutyStation *DutyStation `json:"originDutyStation,omitempty"`
+
+	// report by date
+	// Format: date
+	ReportByDate strfmt.Date `json:"report_by_date,omitempty"`
 }
 
 // Validate validates this move order
@@ -61,6 +81,10 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateCustomerID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDateIssued(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -80,7 +104,15 @@ func (m *MoveOrder) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateOrderTypeDetail(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateOriginDutyStation(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateReportByDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -97,6 +129,19 @@ func (m *MoveOrder) validateCustomerID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("customerID", "body", "uuid", m.CustomerID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveOrder) validateDateIssued(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.DateIssued) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("date_issued", "body", "date", m.DateIssued.String(), formats); err != nil {
 		return err
 	}
 
@@ -165,6 +210,49 @@ func (m *MoveOrder) validateMoveTaskOrderID(formats strfmt.Registry) error {
 	return nil
 }
 
+var moveOrderTypeOrderTypeDetailPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["GHC","NTS"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		moveOrderTypeOrderTypeDetailPropEnum = append(moveOrderTypeOrderTypeDetailPropEnum, v)
+	}
+}
+
+const (
+
+	// MoveOrderOrderTypeDetailGHC captures enum value "GHC"
+	MoveOrderOrderTypeDetailGHC string = "GHC"
+
+	// MoveOrderOrderTypeDetailNTS captures enum value "NTS"
+	MoveOrderOrderTypeDetailNTS string = "NTS"
+)
+
+// prop value enum
+func (m *MoveOrder) validateOrderTypeDetailEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, moveOrderTypeOrderTypeDetailPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *MoveOrder) validateOrderTypeDetail(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.OrderTypeDetail) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateOrderTypeDetailEnum("order_type_detail", "body", *m.OrderTypeDetail); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MoveOrder) validateOriginDutyStation(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.OriginDutyStation) { // not required
@@ -178,6 +266,19 @@ func (m *MoveOrder) validateOriginDutyStation(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MoveOrder) validateReportByDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ReportByDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("report_by_date", "body", "date", m.ReportByDate.String(), formats); err != nil {
+		return err
 	}
 
 	return nil

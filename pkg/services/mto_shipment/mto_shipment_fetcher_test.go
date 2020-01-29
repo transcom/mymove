@@ -1,10 +1,12 @@
 package mtoshipment
 
 import (
+	"time"
+
 	"github.com/go-openapi/strfmt"
+
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"time"
 )
 
 func (suite *MTOShipmentServiceSuite) TestMTOShipmentFetcher() {
@@ -51,12 +53,12 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	}
 
 	payload := primemessages.MTOShipment{
-		ID: strfmt.UUID(oldMTOShipment.ID.String()),
-		DestinationAddress:      &destinationAddress,
-		PickupAddress:           &pickupAddress,
-		RequestedPickupDate:      &requestedPickupDate,
-		ScheduledPickupDate:      &scheduledPickupDate,
-		ShipmentType:             "INTERNATIONAL_UB",
+		ID:                  strfmt.UUID(oldMTOShipment.ID.String()),
+		DestinationAddress:  &destinationAddress,
+		PickupAddress:       &pickupAddress,
+		RequestedPickupDate: &requestedPickupDate,
+		ScheduledPickupDate: &scheduledPickupDate,
+		ShipmentType:        "INTERNATIONAL_UB",
 	}
 
 	updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC), &payload)

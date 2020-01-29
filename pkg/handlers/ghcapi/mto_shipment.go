@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -66,4 +67,35 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 
 	payload := payloads.MTOShipments(&shipments)
 	return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload)
+}
+
+type PatchShipmentHandler struct {
+	handlers.HandlerContext
+	services.Fetcher
+	services.MTOShipmentStatusUpdater
+}
+
+func (h PatchShipmentHandler) Handle(params mtoshipmentops.PatchMTOShipmentStatusParams) middleware.Responder {
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	shipment, err := h.UpdateMTOShipmentStatus(params)
+	if err != nil {
+		logger.Error("UpdateMTOShipmentStatus error: ", zap.Error(err))
+
+		switch e := err.(type) {
+		case mtoshipment.NotFoundError:
+			return mtoshipmentops.NewPatchMTOShipmentStatusNotFound()
+		case mtoshipment.ValidationError:
+			payload := payloadForValidationError("Validation errors", "UpdateShipmentMTOStatus", h.GetTraceID(), e.Verrs)
+
+			return mtoshipmentops.NewPatchMTOShipmentStatusUnprocessableEntity().WithPayload(payload)
+		case mtoshipment.PreconditionFailedError:
+			return mtoshipmentops.NewPatchMTOShipmentStatusPreconditionFailed()
+		default:
+			return mtoshipmentops.NewPatchMTOShipmentStatusInternalServerError()
+		}
+	}
+
+	payload := payloads.MTOShipment(shipment)
+	return mtoshipmentops.NewPatchMTOShipmentStatusOK().WithPayload(payload)
 }

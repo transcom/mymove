@@ -1019,13 +1019,47 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	}
 
 	email = "too_role@office.mil"
-	uuidStr = "dcf86235-53d3-43dd-8ee8-54212ae3078f"
+	tooUUID := uuid.Must(uuid.FromString("dcf86235-53d3-43dd-8ee8-54212ae3078f"))
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			ID:            tooUUID,
 			LoginGovEmail: email,
 			Active:        true,
 			Roles:         []roles.Role{tooRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("144503a6-485c-463e-b943-d3c3bad11b09"),
+			Email:  email,
+			Active: true,
+			UserID: &tooUUID,
+		},
+	})
+
+	/* A user with tio role */
+	tioRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	email = "tio_role@office.mil"
+	tioUUID := uuid.Must(uuid.FromString("3b2cc1b0-31a2-4d1b-874f-0591f9127374"))
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            tioUUID,
+			LoginGovEmail: email,
+			Active:        true,
+			Roles:         []roles.Role{tioRole},
+		},
+	})
+	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID:     uuid.FromStringOrNil("f1828a35-43fd-42be-8b23-af4d9d51f0f3"),
+			Email:  email,
+			Active: true,
+			UserID: &tioUUID,
 		},
 	})
 
