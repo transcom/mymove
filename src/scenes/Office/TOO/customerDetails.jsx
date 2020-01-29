@@ -59,6 +59,16 @@ class CustomerDetails extends Component {
         {moveOrder && (
           <>
             <h2>Move Orders</h2>
+            <dt>Order Number</dt>
+            <dd>{get(moveOrder, 'order_number', '')}</dd>
+            <dt>Order Type</dt>
+            <dd>{get(moveOrder, 'order_type', '')}</dd>
+            <dt>Order Type Detail</dt>
+            <dd>{get(moveOrder, 'order_type_detail', '')}</dd>
+            <dt>Date Issued</dt>
+            <dd>{get(moveOrder, 'date_issued', '')}</dd>
+            <dt>Report By Date</dt>
+            <dd>{get(moveOrder, 'report_by_date', '')}</dd>
             <dt>Destination Duty Station</dt>
             <dd>{get(moveOrder, 'destinationDutyStation.name', '')}</dd>
             <dt>Destination Duty Station Address</dt>

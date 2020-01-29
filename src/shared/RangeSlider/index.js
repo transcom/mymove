@@ -62,7 +62,7 @@ class RangeSlider extends Component {
     return (
       <div className="rangeslider-container">
         <span
-          className={`${styles['rangeslider-output']} border-base border-1px radius-lg padding-left-1 padding-right-1`}
+          className={`${styles['rangeslider-output']} border-1px radius-lg padding-left-1 padding-right-1`}
           id={'output-' + id}
           htmlFor={id}
         >
@@ -79,8 +79,10 @@ class RangeSlider extends Component {
           onInput={this.onInput}
           onChange={this.onChange}
         />
-        <span className={styles['slider-min-label']}>{min}</span>
-        <span className={styles['slider-max-label']}>{max}</span>
+        <div className={styles['range-label-container']}>
+          <span>{min}</span>
+          <span>{max}</span>
+        </div>
       </div>
     );
   }

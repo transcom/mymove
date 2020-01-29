@@ -47,6 +47,7 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 	mo.CustomerID = customer.ID
 	mo.DestinationDutyStation = orders.NewDutyStation
 	mo.DestinationDutyStationID = orders.NewDutyStationID
+	mo.OrderType = "GHC"
 	mo.OriginDutyStation = sm.DutyStation
 	mo.OriginDutyStationID = *sm.DutyStationID
 	mo.Entitlement = entitlement
