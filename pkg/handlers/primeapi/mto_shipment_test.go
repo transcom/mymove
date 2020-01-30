@@ -33,7 +33,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		IfUnmodifiedSince: strfmt.DateTime(mtoShipment.UpdatedAt),
 	}
 
-	suite.T().Run("Successful post - Integration Test", func(t *testing.T) {
+	suite.T().Run("Successful PUT - Integration Test", func(t *testing.T) {
 		updater := mtoshipment.NewMTOShipmentUpdater(suite.DB())
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
