@@ -142,7 +142,7 @@ commands:
           at: /home/circleci/transcom/mymove/bin
       - run:
           name: Get Digest from filesystem
-          command: ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>)
+          command: echo 'export ECR_DIGEST=$(cat /home/circleci/transcom/mymove/bin/sha/ECR_DIGEST_<< parameters.repo >>)' >> $BASH_ENV
       - run:
           name: Echo Digest
           command: echo $ECR_DIGEST
