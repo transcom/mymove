@@ -43,6 +43,16 @@ openssl x509 -inform der -in ~/Downloads/DODSWCA_54.cer -subject -issuer > confi
 
 Then, update the `MOVE_MIL_DOD_CA_CERT` variable in the `.envrc` file and in other places in the code base.
 
+If you need to check the valid dates on the certificate you can use this command:
+
+```sh
+$ openssl x509 -inform der -in DODSWCA_54.cer -noout -dates
+notBefore=Nov 22 13:51:28 2016 GMT
+notAfter=Nov 23 13:51:28 2022 GMT
+```
+
+You can read this as the certificate is valid until November 23, 2022.
+
 ## `devlocal` Certificate Authority
 
 The `devlocal` CA is trusted by the system in development and test environments.
