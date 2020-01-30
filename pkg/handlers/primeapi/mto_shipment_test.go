@@ -23,7 +23,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		MoveTaskOrder: mto,
 	})
 
-	req := httptest.NewRequest("POST", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", mto.ID.String(), mtoShipment.ID.String()), nil)
+	req := httptest.NewRequest("PUT", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", mto.ID.String(), mtoShipment.ID.String()), nil)
 
 	params := mtoshipmentops.UpdateMTOShipmentParams{
 		HTTPRequest:       req,
@@ -47,7 +47,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(mtoShipment.ID.String(), okResponse.Payload.ID.String())
 	})
 
-	suite.T().Run("POST failure - 500", func(t *testing.T) {
+	suite.T().Run("PUT failure - 500", func(t *testing.T) {
 		mockUpdater := mocks.MTOShipmentUpdater{}
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -64,7 +64,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentInternalServerError{}, response)
 	})
 
-	suite.T().Run("POST failure - 404", func(t *testing.T) {
+	suite.T().Run("PUT failure - 404", func(t *testing.T) {
 		mockUpdater := mocks.MTOShipmentUpdater{}
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -80,7 +80,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentNotFound{}, response)
 	})
 
-	suite.T().Run("POST failure - 412", func(t *testing.T) {
+	suite.T().Run("PUT failure - 412", func(t *testing.T) {
 		mockUpdater := mocks.MTOShipmentUpdater{}
 		handler := UpdateMTOShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
