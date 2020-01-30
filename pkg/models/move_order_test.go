@@ -8,13 +8,18 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+func newUUIDPointer() *uuid.UUID {
+	u := uuid.Must(uuid.NewV4())
+	return &u
+}
+
 func (suite *ModelSuite) TestMoveOrderValidation() {
 	suite.T().Run("test valid MoveOrder", func(t *testing.T) {
 		validMoveOrder := models.MoveOrder{
-			CustomerID:               uuid.Must(uuid.NewV4()),
-			EntitlementID:            uuid.Must(uuid.NewV4()),
-			DestinationDutyStationID: uuid.Must(uuid.NewV4()),
-			OriginDutyStationID:      uuid.Must(uuid.NewV4()),
+			CustomerID:               newUUIDPointer(),
+			EntitlementID:            newUUIDPointer(),
+			DestinationDutyStationID: newUUIDPointer(),
+			OriginDutyStationID:      newUUIDPointer(),
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validMoveOrder, expErrors)

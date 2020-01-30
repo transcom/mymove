@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"github.com/gofrs/uuid"
 	"regexp"
 	"strings"
 	"time"
@@ -340,6 +341,34 @@ func (v *Float64IsGreaterThan) IsValid(errors *validate.Errors) {
 
 	errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%f is not greater than %f.", v.Field, v.Compared))
 }
+
+type OptionalUUIDIsPresent struct {
+	Name    string
+	Field   *uuid.UUID
+	Message string
+}
+
+// IsValid adds an error if the field is not a valid uuid or is nil
+func (v *OptionalUUIDIsPresent) IsValid(errors *validate.Errors) {
+	if v.Field == nil {
+		errors.Add(validators.GenerateKey(v.Name), v.Message)
+		return
+	}
+
+	s := v.Field.String()
+	if strings.TrimSpace(s) != "" && *v.Field != uuid.Nil {
+		return
+	}
+
+	if len(v.Message) > 0 {
+		errors.Add(validators.GenerateKey(v.Name), v.Message)
+		return
+	}
+
+	errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
+}
+
+
 
 // ValidateableModel is here simply because `validateable` is private to `pop`
 type ValidateableModel interface {
