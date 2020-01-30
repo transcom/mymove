@@ -35,6 +35,12 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequest *models.Paym
 		paymentRequest.Status = models.PaymentRequestStatusPending
 		paymentRequest.RequestedAt = now
 
+		uniqueIdentifier, err := p.makeUniqueIdentifier(paymentRequest.MoveTaskOrderID)
+		if err != nil {
+			return fmt.Errorf("issue creating payment request unique identifier: %w", err)
+		}
+		paymentRequest.PaymentRequestNumber = uniqueIdentifier
+
 		// Create the payment request first
 		verrs, err := tx.ValidateAndCreate(paymentRequest)
 		if err != nil {
@@ -116,4 +122,28 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequest *models.Paym
 	}
 
 	return paymentRequest, nil
+}
+
+func (p *paymentRequestCreator) makeUniqueIdentifier(mtoID uuid.UUID) (string, error) {
+	paymentRequestNumber, err := p.determinePaymentRequestNumberSuffix(mtoID)
+	if err != nil {
+		return "", fmt.Errorf("error determining Payment RequestNumber: %w", err)
+	}
+
+	mtoIDString := mtoID.String()
+	uniqueIdentifier := fmt.Sprintf("%s-%s", mtoIDString, string(paymentRequestNumber))
+
+	return uniqueIdentifier, err
+}
+
+func (p *paymentRequestCreator) determinePaymentRequestNumberSuffix(mtoID uuid.UUID) (int, error) {
+	query := p.db.Where("move_task_order_id = $1", mtoID)
+	count, err := query.Count(models.PaymentRequest{})
+	if err != nil {
+		return 0, fmt.Errorf("count of payment requests on move task order failed: %w", err)
+	}
+
+	paymentRequestNumber := count + 1
+
+	return paymentRequestNumber, err
 }
