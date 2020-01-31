@@ -653,8 +653,8 @@ func FormatPPMWeight(ppm PersonallyProcuredMove) string {
 
 //FormatPPMPickupDate formats a shipments ActualPickupDate for the Shipment Summary Worksheet
 func FormatPPMPickupDate(ppm PersonallyProcuredMove) string {
-	if ppm.OriginalMoveDate != nil {
-		return FormatDate(*ppm.OriginalMoveDate)
+	if ppm.ActualMoveDate != nil {
+		return FormatDate(*ppm.ActualMoveDate)
 	}
 	return ""
 }
