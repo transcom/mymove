@@ -64,7 +64,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 			paymentRequestUploadCreator,
 		}
 
-		file, err := os.Open("./testdata/test.pdf")
+		file, err := os.Open("../../testdatagen/testdata/test.pdf")
 		defer file.Close()
 		suite.NoError(err)
 
@@ -93,7 +93,7 @@ func (suite *HandlerSuite) TestCreateUploadHandler() {
 			context,
 			paymentRequestUploadCreator,
 		}
-		file, err := os.Open("./testdata/test.pdf")
+		file, err := os.Open("../../testdatagen/testdata/test.pdf")
 		defer file.Close()
 		suite.NoError(err)
 
