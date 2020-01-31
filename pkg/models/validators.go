@@ -2,10 +2,11 @@ package models
 
 import (
 	"fmt"
-	"github.com/gofrs/uuid"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/gofrs/uuid"
 
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
@@ -367,8 +368,6 @@ func (v *OptionalUUIDIsPresent) IsValid(errors *validate.Errors) {
 
 	errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
 }
-
-
 
 // ValidateableModel is here simply because `validateable` is private to `pop`
 type ValidateableModel interface {

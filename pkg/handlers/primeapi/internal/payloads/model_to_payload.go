@@ -52,10 +52,12 @@ func MoveOrder(moveOrders *models.MoveOrder) *primemessages.MoveOrder {
 	if moveOrders == nil {
 		return nil
 	}
-	destinationDutyStation := DutyStation(&moveOrders.DestinationDutyStation)
-	originDutyStation := DutyStation(&moveOrders.OriginDutyStation)
-	moveOrders.Entitlement.SetWeightAllotment(moveOrders.Grade)
-	entitlements := Entitlement(&moveOrders.Entitlement)
+	destinationDutyStation := DutyStation(moveOrders.DestinationDutyStation)
+	originDutyStation := DutyStation(moveOrders.OriginDutyStation)
+	if moveOrders.Grade != nil {
+		moveOrders.Entitlement.SetWeightAllotment(*moveOrders.Grade)
+	}
+	entitlements := Entitlement(moveOrders.Entitlement)
 	payload := primemessages.MoveOrder{
 		CustomerID:             strfmt.UUID(moveOrders.CustomerID.String()),
 		DestinationDutyStation: destinationDutyStation,

@@ -10,9 +10,9 @@ import (
 
 // MoveOrder is an object representing the move and order for a customer
 type MoveOrder struct {
-	ID                       uuid.UUID   `db:"id"`
-	CreatedAt                time.Time   `db:"created_at"`
-	UpdatedAt                time.Time   `db:"updated_at"`
+	ID                       uuid.UUID    `db:"id"`
+	CreatedAt                time.Time    `db:"created_at"`
+	UpdatedAt                time.Time    `db:"updated_at"`
 	ConfirmationNumber       *string      `db:"confirmation_number"`
 	CustomerID               *uuid.UUID   `db:"customer_id"`
 	Customer                 *Customer    `belongs_to:"customers"`

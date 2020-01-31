@@ -2,10 +2,11 @@ package models_test
 
 import (
 	"fmt"
-	"github.com/gofrs/uuid"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/gofrs/uuid"
 
 	"github.com/gobuffalo/validate"
 
@@ -317,7 +318,7 @@ func TestFloat64IsGreaterThan_IsValid(t *testing.T) {
 func Test_OptionalUUIDIsPresent(t *testing.T) {
 	id, err := uuid.NewV4()
 
-	if err!= nil {
+	if err != nil {
 		t.Fatal(err)
 	}
 

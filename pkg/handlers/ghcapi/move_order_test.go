@@ -5,8 +5,6 @@ import (
 
 	moveorder "github.com/transcom/mymove/pkg/services/move_order"
 
-	"github.com/gofrs/uuid"
-
 	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -14,13 +12,6 @@ import (
 	moveorderop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_order"
 	"github.com/transcom/mymove/pkg/handlers"
 )
-
-func uuidTostrfmtUUID(id interface{}) strfmt.UUID {
-	if s, ok := id.(uuid.UUID); ok {
-		return strfmt.UUID(s.String())
-	}
-	return ""
-}
 
 func (suite *HandlerSuite) TestGetMoveOrderHandlerIntegration() {
 	moveOrder := testdatagen.MakeMoveOrder(suite.DB(), testdatagen.Assertions{})
@@ -41,18 +32,18 @@ func (suite *HandlerSuite) TestGetMoveOrderHandlerIntegration() {
 	moveOrdersPayload := moveOrderOK.Payload
 
 	suite.Assertions.IsType(&moveorderop.GetMoveOrderOK{}, response)
-	suite.Equal(uuidTostrfmtUUID(moveOrder.ID), moveOrdersPayload.ID)
-	suite.Equal(uuidTostrfmtUUID(moveOrder.CustomerID), moveOrdersPayload.CustomerID)
-	suite.Equal(uuidTostrfmtUUID(moveOrder.DestinationDutyStationID), moveOrdersPayload.DestinationDutyStation.ID)
-	suite.NotZero(moveOrder.DestinationDutyStation)
+	suite.Equal(moveOrder.ID.String(), moveOrdersPayload.ID.String())
+	suite.Equal((*moveOrder.CustomerID).String(), moveOrdersPayload.CustomerID.String())
+	suite.Equal((*moveOrder.DestinationDutyStationID).String(), moveOrdersPayload.DestinationDutyStation.ID.String())
+	suite.NotNil(moveOrder.DestinationDutyStation)
 	payloadEntitlement := moveOrdersPayload.Entitlement
-	suite.Equal(uuidTostrfmtUUID(moveOrder.EntitlementID), payloadEntitlement.ID)
+	suite.Equal((*moveOrder.EntitlementID).String(), payloadEntitlement.ID.String())
 	moveOrderEntitlement := moveOrder.Entitlement
 	suite.NotNil(moveOrderEntitlement)
 	suite.Equal(int64(moveOrderEntitlement.WeightAllotment().ProGearWeight), payloadEntitlement.ProGearWeight)
 	suite.Equal(int64(moveOrderEntitlement.WeightAllotment().ProGearWeightSpouse), payloadEntitlement.ProGearWeightSpouse)
 	suite.Equal(int64(moveOrderEntitlement.WeightAllotment().TotalWeightSelf), payloadEntitlement.TotalWeight)
 	suite.Equal(int64(*moveOrderEntitlement.AuthorizedWeight()), *payloadEntitlement.AuthorizedWeight)
-	suite.Equal(uuidTostrfmtUUID(moveOrder.OriginDutyStation.ID), moveOrdersPayload.OriginDutyStation.ID)
+	suite.Equal(moveOrder.OriginDutyStation.ID.String(), moveOrdersPayload.OriginDutyStation.ID.String())
 	suite.NotZero(moveOrder.OriginDutyStation)
 }
