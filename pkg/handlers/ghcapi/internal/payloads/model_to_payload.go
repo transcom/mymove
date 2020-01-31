@@ -66,6 +66,9 @@ func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
 		OriginDutyStation:      originDutyStation,
 	}
 
+	if moveOrder.DateIssued != nil {
+		payload.DateIssued = strfmt.Date(*moveOrder.DateIssued)
+	}
 	if moveOrder.Grade != nil {
 		payload.Grade = *moveOrder.Grade
 	}

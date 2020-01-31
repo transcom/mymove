@@ -46,4 +46,5 @@ func (suite *HandlerSuite) TestGetMoveOrderHandlerIntegration() {
 	suite.Equal(int64(*moveOrderEntitlement.AuthorizedWeight()), *payloadEntitlement.AuthorizedWeight)
 	suite.Equal(moveOrder.OriginDutyStation.ID.String(), moveOrdersPayload.OriginDutyStation.ID.String())
 	suite.NotZero(moveOrder.OriginDutyStation)
+	suite.NotZero(moveOrdersPayload.DateIssued)
 }
