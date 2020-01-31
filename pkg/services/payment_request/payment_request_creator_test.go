@@ -1,6 +1,8 @@
 package paymentrequest
 
 import (
+	"fmt"
+
 	"testing"
 
 	"github.com/gofrs/uuid"
@@ -11,7 +13,13 @@ import (
 
 func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	// Create some records we'll need to link to
-	moveTaskOrder := testdatagen.MakeDefaultMoveTaskOrder(suite.DB())
+	referenceID := "5432-1234"
+	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: models.MoveTaskOrder{
+			ID:          uuid.FromStringOrNil("c051d0ac-b244-4dc0-b287-90a306dd6986"),
+			ReferenceID: &referenceID,
+		},
+	})
 	mtoServiceItem1 := testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: moveTaskOrder,
 		ReService: models.ReService{
@@ -76,8 +84,10 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		_, err := creator.CreatePaymentRequest(&paymentRequest)
 		suite.FatalNoError(err)
 
+		expectedPaymentRequestNumber := fmt.Sprintf("%s-%s", referenceID, "1")
 		// Verify some of the data that came back
 		suite.NotEqual(paymentRequest.ID, uuid.Nil)
+		suite.Equal(expectedPaymentRequestNumber, paymentRequest.PaymentRequestNumber)
 		if suite.Len(paymentRequest.PaymentServiceItems, 2) {
 			suite.NotEqual(paymentRequest.PaymentServiceItems[0].ID, uuid.Nil)
 			if suite.Len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams, 2) {
@@ -202,5 +212,11 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		}
 		_, err := creator.CreatePaymentRequest(&invalidPaymentRequest)
 		suite.Error(err)
+	})
+
+	suite.T().Run("Payment request numbers increment by 1", func(t *testing.T) {
+		// count the number of payment requests
+		// create 2 payment requests with the original MTO
+		// check that the new payment requests each have the expected value [MTOReferenceID]-2, [MTOReferenceID]-2
 	})
 }

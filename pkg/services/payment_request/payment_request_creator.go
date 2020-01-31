@@ -2,6 +2,7 @@ package paymentrequest
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -129,9 +130,13 @@ func (p *paymentRequestCreator) makeUniqueIdentifier(mtoID uuid.UUID) (string, e
 	if err != nil {
 		return "", fmt.Errorf("error determining Payment RequestNumber: %w", err)
 	}
+	var moveTaskOrder models.MoveTaskOrder
+	err = p.db.Where("id = $1", mtoID).First(&moveTaskOrder)
+	if err != nil {
+		return "", fmt.Errorf("failed fetch of move task order: %w", err)
+	}
 
-	mtoIDString := mtoID.String()
-	uniqueIdentifier := fmt.Sprintf("%s-%s", mtoIDString, string(paymentRequestNumber))
+	uniqueIdentifier := fmt.Sprintf("%s-%s", *moveTaskOrder.ReferenceID, strconv.Itoa(paymentRequestNumber))
 
 	return uniqueIdentifier, err
 }
