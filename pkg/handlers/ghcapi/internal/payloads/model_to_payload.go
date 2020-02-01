@@ -53,19 +53,23 @@ func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
 	}
 	entitlements := Entitlement(moveOrder.Entitlement)
 	payload := ghcmessages.MoveOrder{
-		Agency:                 moveOrder.Customer.Agency,
-		CustomerID:             strfmt.UUID(moveOrder.CustomerID.String()),
-		FirstName:              moveOrder.Customer.FirstName,
-		LastName:               moveOrder.Customer.LastName,
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            entitlements,
 		OrderNumber:            moveOrder.OrderNumber,
 		OrderTypeDetail:        moveOrder.OrderTypeDetail,
-		ReportByDate:           strfmt.Date(*moveOrder.ReportByDate),
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 	}
 
+	if moveOrder.Customer != nil {
+		payload.Agency = moveOrder.Customer.Agency
+		payload.CustomerID = strfmt.UUID(moveOrder.CustomerID.String())
+		payload.FirstName = moveOrder.Customer.FirstName
+		payload.LastName = moveOrder.Customer.LastName
+	}
+	if moveOrder.ReportByDate != nil {
+		payload.ReportByDate = strfmt.Date(*moveOrder.ReportByDate)
+	}
 	if moveOrder.DateIssued != nil {
 		payload.DateIssued = strfmt.Date(*moveOrder.DateIssued)
 	}
