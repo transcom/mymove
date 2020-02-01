@@ -47,7 +47,7 @@ class TOO extends Component {
                   <td>{`${last_name}, ${first_name}`}</td>
                   <td>{confirmation_number}</td>
                   <td>{agency}</td>
-                  <td>{originDutyStation.name}</td>
+                  <td>{originDutyStation && originDutyStation.name}</td>
                 </tr>
               ),
             )}
