@@ -97,8 +97,8 @@ type MTOServiceItem struct {
 	Total int64 `json:"total,omitempty"`
 
 	// updated at
-	// Format: date
-	UpdatedAt strfmt.Date `json:"updatedAt,omitempty"`
+	// Format: datetime
+	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 }
 
 // Validate validates this m t o service item
@@ -433,7 +433,7 @@ func (m *MTOServiceItem) validateUpdatedAt(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("updatedAt", "body", "date", m.UpdatedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("updatedAt", "body", "datetime", m.UpdatedAt.String(), formats); err != nil {
 		return err
 	}
 

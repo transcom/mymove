@@ -34,6 +34,7 @@ require (
 	github.com/gobuffalo/nulls v0.1.0 // indirect
 	github.com/gobuffalo/packr v1.30.1
 	github.com/gobuffalo/pop v4.13.0+incompatible
+	github.com/gobuffalo/uuid v2.0.5+incompatible
 	github.com/gobuffalo/validate v2.0.3+incompatible
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
 	github.com/gofrs/flock v0.7.1
@@ -57,7 +58,6 @@ require (
 	github.com/pkg/errors v0.9.0
 	github.com/rickar/cal v1.0.1
 	github.com/rogpeppe/go-internal v1.5.1 // indirect
-	github.com/segmentio/chamber/v2 v2.7.5
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/pflag v1.0.5

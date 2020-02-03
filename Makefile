@@ -307,13 +307,6 @@ pkg/gen/: pkg/assets/assets.go bin/swagger $(shell find swagger -type f -name *.
 .PHONY: server_build
 server_build: bin/milmove ## Build the server
 
-.PHONY: server_build_linux
-server_build_linux: ## Build the server (linux)
-	# These don't need to go in bin_linux/ because local devs don't use them
-	# Additionally it would not work with the default Dockerfile
-	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/chamber github.com/segmentio/chamber/v2
-	GOOS=linux GOARCH=amd64 go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
-
 # This command is for running the server by itself, it will serve the compiled frontend on its own
 # Note: Don't double wrap with aws-vault because the pkg/cli/vault.go will handle it
 server_run_standalone: check_log_dir server_build client_build db_dev_run
