@@ -1,6 +1,7 @@
 package mtoshipment
 
 import (
+	"encoding/base64"
 	"fmt"
 	"testing"
 	"time"
@@ -20,10 +21,11 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		MoveTaskOrder: mto,
 	})
 	shipment.Status = models.MTOShipmentStatusSubmitted
+	eTag := base64.StdEncoding.EncodeToString([]byte(shipment.UpdatedAt.Format(time.RFC3339Nano)))
 	params := mtoshipmentops.PatchMTOShipmentStatusParams{
-		ShipmentID:        strfmt.UUID(shipment.ID.String()),
-		IfUnmodifiedSince: strfmt.DateTime(shipment.UpdatedAt),
-		Body:              &ghcmessages.MTOShipment{Status: "APPROVED"},
+		ShipmentID: strfmt.UUID(shipment.ID.String()),
+		IfMatch:    eTag,
+		Body:       &ghcmessages.MTOShipment{Status: "APPROVED"},
 	}
 	builder := query.NewQueryBuilder(suite.DB())
 	updater := NewMTOShipmentStatusUpdater(suite.DB(), builder)
@@ -35,10 +37,11 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.T().Run("Passing in a stale identifier", func(t *testing.T) {
+		staleETag := base64.StdEncoding.EncodeToString([]byte(time.Now().String()))
 		params := mtoshipmentops.PatchMTOShipmentStatusParams{
-			ShipmentID:        strfmt.UUID(shipment.ID.String()),
-			IfUnmodifiedSince: strfmt.DateTime(time.Now()), // Stale identifier
-			Body:              &ghcmessages.MTOShipment{Status: "APPROVED"},
+			ShipmentID: strfmt.UUID(shipment.ID.String()),
+			IfMatch:    staleETag,
+			Body:       &ghcmessages.MTOShipment{Status: "APPROVED"},
 		}
 
 		_, err := updater.UpdateMTOShipmentStatus(params)
@@ -48,9 +51,9 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 	suite.T().Run("Passing in an invalid status", func(t *testing.T) {
 		params := mtoshipmentops.PatchMTOShipmentStatusParams{
-			ShipmentID:        strfmt.UUID(shipment.ID.String()),
-			IfUnmodifiedSince: strfmt.DateTime(time.Now()), // Stale identifier
-			Body:              &ghcmessages.MTOShipment{Status: "invalid"},
+			ShipmentID: strfmt.UUID(shipment.ID.String()),
+			IfMatch:    eTag,
+			Body:       &ghcmessages.MTOShipment{Status: "invalid"},
 		}
 
 		_, err := updater.UpdateMTOShipmentStatus(params)
@@ -61,9 +64,9 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 	suite.T().Run("Passing in a bad shipment id", func(t *testing.T) {
 		params := mtoshipmentops.PatchMTOShipmentStatusParams{
-			ShipmentID:        strfmt.UUID("424d930b-cf8d-4c10-8059-be8a25ba952a"),
-			IfUnmodifiedSince: strfmt.DateTime(time.Now()), // Stale identifier
-			Body:              &ghcmessages.MTOShipment{Status: "invalid"},
+			ShipmentID: strfmt.UUID("424d930b-cf8d-4c10-8059-be8a25ba952a"),
+			IfMatch:    eTag,
+			Body:       &ghcmessages.MTOShipment{Status: "invalid"},
 		}
 
 		_, err := updater.UpdateMTOShipmentStatus(params)

@@ -520,9 +520,8 @@ paths:
           schema:
             $ref: '#/definitions/MTOShipment'
         - in: header
-          name: If-Unmodified-Since
+          name: If-Match
           type: string
-          format: datetime
           required: true
       responses:
         '200':
@@ -1539,9 +1538,16 @@ definitions:
           - APPROVED
           - SUBMITTED
           - REJECTED
+  MTOShipmentWithEtag:
+    allOf:
+      - $ref: '#/definitions/MTOShipment'
+      - type: object
+    properties:
+      eTag:
+        type: string
   MTOShipments:
     items:
-      $ref: '#/definitions/MTOShipment'
+      $ref: '#/definitions/MTOShipmentWithEtag'
     type: array
   MTOServiceItem:
     properties:

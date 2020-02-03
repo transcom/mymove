@@ -1,9 +1,11 @@
 package mtoshipment
 
 import (
+	"encoding/base64"
 	"fmt"
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
@@ -26,14 +28,20 @@ type mtoShipmentStatusUpdater struct {
 func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentops.PatchMTOShipmentStatusParams) (*models.MTOShipment, error) {
 	shipmentID := payload.ShipmentID
 	status := payload.Body.Status
-	unmodifiedSince := time.Time(payload.IfUnmodifiedSince)
+	eTag := payload.IfMatch
+	data, err := base64.StdEncoding.DecodeString(eTag)
+	if err != nil {
+		return nil, err
+	}
+	dateTime, _ := strfmt.ParseDateTime(string(data))
+	unmodifiedSince := time.Time(dateTime)
 
 	var shipment models.MTOShipment
 
 	queryFilters := []services.QueryFilter{
 		query.NewQueryFilter("id", "=", shipmentID),
 	}
-	err := o.builder.FetchOne(&shipment, queryFilters)
+	err = o.builder.FetchOne(&shipment, queryFilters)
 
 	if err != nil {
 		return nil, NotFoundError{id: shipment.ID}

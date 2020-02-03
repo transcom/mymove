@@ -1,11 +1,12 @@
 package ghcapi
 
 import (
+	"encoding/base64"
 	"fmt"
 	"net/http/httptest"
 	"testing"
+	"time"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
@@ -112,16 +113,17 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 	})
 
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	eTag := base64.StdEncoding.EncodeToString([]byte(mtoShipment.UpdatedAt.Format(time.RFC3339Nano)))
 
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/move_task_orders/%s/mto_shipments/%s", mto.ID.String(), mtoShipment.ID.String()), nil)
 	req = suite.AuthenticateUserRequest(req, requestUser)
 
 	params := mtoshipmentops.PatchMTOShipmentStatusParams{
-		HTTPRequest:       req,
-		MoveTaskOrderID:   *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
-		ShipmentID:        *handlers.FmtUUID(mtoShipment.ID),
-		Body:              &ghcmessages.MTOShipment{Status: "APPROVED"},
-		IfUnmodifiedSince: strfmt.DateTime(mtoShipment.UpdatedAt),
+		HTTPRequest:     req,
+		MoveTaskOrderID: *handlers.FmtUUID(mtoShipment.MoveTaskOrderID),
+		ShipmentID:      *handlers.FmtUUID(mtoShipment.ID),
+		Body:            &ghcmessages.MTOShipment{Status: "APPROVED"},
+		IfMatch:         eTag,
 	}
 
 	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
