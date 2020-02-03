@@ -142,6 +142,7 @@ These scripts are primarily used for working with the database
 | `db-restore` |  Restore the contents of the development database from an earlier backup. |
 | `psql-dev` | Convenience script to drop into development postgres DB |
 | `psql-deployed-migrations` | Convenience script to drop into deployed migrations postgres DB |
+| `psql-schema` | Convenience script to dump the schema from the postgres DB |
 | `psql-test` | Convenience script to drop into testing postgres DB |
 | `psql-wrapper` | A wrapper around `psql` that sets correct values |
 | `update-migrations-manifest` | Update manifest for migrations |
