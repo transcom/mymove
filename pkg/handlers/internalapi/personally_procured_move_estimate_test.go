@@ -18,7 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 )
 
-func (suite *HandlerSuite) setupPersonallyProcuredMoveEstimateTest(orderID uuid.UUID) {
+func (suite *HandlerSuite) setupPersonallyProcuredMoveEstimateTest(ordersID uuid.UUID) {
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "503",
 		BasepointCity: "Des Moines",
@@ -115,11 +115,21 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveEstimateTest(orderID uuid.
 	}
 	suite.MustSave(&station)
 
-	_ = testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+
+	orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			ID:               orderID,
+			ID:               ordersID,
 			NewDutyStationID: station.ID,
 		},
+	})
+
+	moveID, _ := uuid.NewV4()
+	_ = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			ID:               moveID,
+			OrdersID:         ordersID,
+		},
+		Order: orders,
 	})
 }
 

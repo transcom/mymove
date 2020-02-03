@@ -371,7 +371,8 @@ func (h SubmitPersonallyProcuredMoveHandler) Handle(params ppmop.SubmitPersonall
 }
 
 func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models.PersonallyProcuredMove, logger Logger) error {
-	re := rateengine.NewRateEngine(h.DB(), logger)
+	var move models.Move
+	re := rateengine.NewRateEngine(h.DB(), logger, move)
 	daysInSIT := 0
 	if ppm.HasSit != nil && *ppm.HasSit && ppm.DaysInStorage != nil {
 		daysInSIT = int(*ppm.DaysInStorage)

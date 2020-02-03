@@ -26,12 +26,17 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 		return ppmop.NewShowPPMIncentiveForbidden()
 	}
 
-	engine := rateengine.NewRateEngine(h.DB(), logger)
-
 	orderID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
+
+	move, err := models.FetchMoveByOrderID(h.DB(), ordersID)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	engine := rateengine.NewRateEngine(h.DB(), logger, move)
 
 	destinationZip, err := GetDestinationDutyStationPostalCode(h.DB(), orderID)
 	if err != nil {

@@ -188,7 +188,7 @@ func (re *RateEngine) SitCharge(cwt unit.CWT, daysInSIT int, zip3 string, date t
 	}
 
 	zapFields = append(zapFields, zap.Object("sit computation", sitComputation))
-	re.logger.Info("sit calculation", zapFields...)
+	re.logger.Info(AppendID("sit calculation", re.move.Locator), zapFields...)
 
 	return sitComputation, err
 }
@@ -214,7 +214,7 @@ func (re *RateEngine) nonLinehaulChargeComputation(weight unit.Pound, originZip5
 		return cost, errors.Wrap(err, "Failed to  determine full unpack cost")
 	}
 
-	re.logger.Info("Non-Linehaul charge total calculated",
+	re.logger.Info(AppendID("Non-Linehaul charge total calculated", re.move.Locator),
 		zap.Int("origin service fee", cost.OriginService.Fee.Int()),
 		zap.Int("destination service fee", cost.DestinationService.Fee.Int()),
 		zap.Int("pack fee", cost.Pack.Fee.Int()),

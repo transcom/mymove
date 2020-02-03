@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/unit"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 // ShowPPMEstimateHandler returns PPM SIT estimate for a weight, move date,
@@ -22,14 +23,20 @@ type ShowPPMEstimateHandler struct {
 // Handle calculates a PPM reimbursement range.
 func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	engine := rateengine.NewRateEngine(h.DB(), logger)
 
-	orderID, err := uuid.FromString(params.OrdersID.String())
+	ordersID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	destinationZip, err := GetDestinationDutyStationPostalCode(h.DB(), orderID)
+	move, err := models.FetchMoveByOrderID(h.DB(), ordersID)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	engine := rateengine.NewRateEngine(h.DB(), logger, move)
+
+	destinationZip, err := GetDestinationDutyStationPostalCode(h.DB(), ordersID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
