@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"os"
+	"path"
 	"regexp"
 
 	"github.com/pkg/errors"
@@ -43,6 +44,11 @@ const (
 	KeyLabelFlag string = "keylabel"
 )
 
+var pkcs11Modules = []string{
+	"opensc-pkcs11.so",
+	"cackey.dylib",
+}
+
 // InitCACFlags initializes the CAC Flags
 func InitCACFlags(flag *pflag.FlagSet) {
 	flag.Bool(CACFlag, false, "Use a CAC for authentication")
@@ -60,6 +66,9 @@ func CheckCAC(v *viper.Viper) error {
 			return fmt.Errorf("%q is invalid: %w", PKCS11ModuleFlag, &ErrInvalidPath{Path: pkcs11ModulePath})
 		} else if _, err := os.Stat(pkcs11ModulePath); err != nil {
 			return fmt.Errorf("%q is invalid: %w", PKCS11ModuleFlag, &ErrInvalidPath{Path: pkcs11ModulePath})
+		}
+		if pkcs11Base := path.Base(pkcs11ModulePath); !stringSliceContains(pkcs11Modules, pkcs11Base) {
+			return fmt.Errorf("invalid PKCS11 module %s, expecting one of %q", pkcs11ModulePath, pkcs11Modules)
 		}
 
 		certLabel := v.GetString(CertLabelFlag)
