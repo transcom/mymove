@@ -44,7 +44,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadSuccess() {
 		},
 	})
 
-	testFile, err := os.Open("./testdata/test.pdf")
+	testFile, err := os.Open("../../testdatagen/testdata/test.pdf")
 	suite.NoError(err)
 
 	suite.T().Run("Upload is created successfully", func(t *testing.T) {
@@ -78,7 +78,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 	testdatagen.MakeDefaultPaymentRequest(suite.DB())
 
 	suite.T().Run("invalid payment request ID", func(t *testing.T) {
-		testFile, err := os.Open("./testdata/test.pdf")
+		testFile, err := os.Open("../../testdatagen/testdata/test.pdf")
 		suite.NoError(err)
 		defer testFile.Close()
 		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, storer)
@@ -87,7 +87,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 	})
 
 	suite.T().Run("invalid user ID", func(t *testing.T) {
-		testFile, err := os.Open("./testdata/test.pdf")
+		testFile, err := os.Open("../../testdatagen/testdata/test.pdf")
 		suite.NoError(err)
 		defer testFile.Close()
 
@@ -100,7 +100,7 @@ func (suite *PaymentRequestServiceSuite) TestCreateUploadFailure() {
 	suite.T().Run("invalid file type", func(t *testing.T) {
 		paymentRequest := testdatagen.MakeDefaultPaymentRequest(suite.DB())
 		uploadCreator := NewPaymentRequestUploadCreator(suite.DB(), suite.logger, storer)
-		wrongTypeFile, err := os.Open("./testdata/test.txt")
+		wrongTypeFile, err := os.Open("../../testdatagen/testdata/test.txt")
 		suite.NoError(err)
 		defer wrongTypeFile.Close()
 

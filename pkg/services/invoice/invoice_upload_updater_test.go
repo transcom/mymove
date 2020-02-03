@@ -68,17 +68,11 @@ func (suite *InvoiceServiceSuite) helperCreateUpload(storer *storage.FileStorer)
 	suite.NoError(err)
 
 	// Create file to use for upload
-	file := suite.fixture("test.pdf")
-	if file == nil {
-		suite.T().Fatal("test.pdf is missing")
-	}
-	_, err = file.Stat()
-	if err != nil {
-		suite.T().Fatalf("file.Stat() err: %s", err.Error())
-	}
+	testFile, err := os.Open("../../testdatagen/testdata/test.pdf")
+	suite.NoError(err)
 
 	// Create Upload and save it
-	upload, verrs, err := up.CreateUpload(userID, uploader.File{File: file}, uploader.AllowedTypesPDF)
+	upload, verrs, err := up.CreateUpload(userID, uploader.File{File: testFile}, uploader.AllowedTypesPDF)
 	suite.Nil(err, "CreateUpload() failed to create upload")
 	suite.Empty(verrs.Error(), "CreateUpload() verrs returned error")
 	suite.NotNil(upload, "CreateUpload() failed to create upload structure")
@@ -86,7 +80,7 @@ func (suite *InvoiceServiceSuite) helperCreateUpload(storer *storage.FileStorer)
 		suite.T().Fatalf("failed to create a upload object: %s", err)
 	}
 	// Call Close on file after CreateUploadForDocument is complete
-	file.Close()
+	testFile.Close()
 	return upload
 }
 
