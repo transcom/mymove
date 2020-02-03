@@ -34,10 +34,10 @@ func closeFile(outfile *os.File) {
 func createMigration(path string, filename string, t *template.Template, templateData interface{}) error {
 	migrationPath := filepath.Join(path, filename)
 	migrationFile, err := os.Create(migrationPath)
-	defer closeFile(migrationFile)
 	if err != nil {
 		return errors.Wrapf(err, "error creating %s", migrationPath)
 	}
+	defer closeFile(migrationFile)
 	err = t.Execute(migrationFile, templateData)
 	if err != nil {
 		log.Println("error executing template: ", err)
