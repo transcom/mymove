@@ -32,6 +32,11 @@ func closeFile(outfile *os.File) {
 }
 
 func createMigration(path string, filename string, t *template.Template, templateData interface{}) error {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		if mkdirErr := os.Mkdir(path, 0755); mkdirErr != nil {
+			return errors.Wrapf(mkdirErr, "error creating path %q", path)
+		}
+	}
 	migrationPath := filepath.Join(path, filename)
 	migrationFile, err := os.Create(migrationPath)
 	if err != nil {
@@ -63,6 +68,11 @@ func addMigrationToManifest(migrationManifest string, filename string) error {
 }
 
 func writeEmptyFile(migrationPath, filename string) error {
+	if _, err := os.Stat(migrationPath); os.IsNotExist(err) {
+		if mkdirErr := os.Mkdir(migrationPath, 0755); mkdirErr != nil {
+			return errors.Wrapf(mkdirErr, "error creating path %q", migrationPath)
+		}
+	}
 	path := filepath.Join(migrationPath, filename)
 
 	err := ioutil.WriteFile(path, []byte{}, 0644)
