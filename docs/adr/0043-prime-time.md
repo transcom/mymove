@@ -40,10 +40,10 @@ implement their own conversions between the two date types.
 
 ### Serialization
 
-Use ISO8601 unless you have a reason not to. It handles both dates and timestamps.
+Use [RFC3339](https://tools.ietf.org/html/rfc3339) unless you have a reason not to. It handles both dates and timestamps. `ISO8601` is roughly equivalent for the purposes of this document; however, it contains many optional features and it is recommended that projects move to `RFC3339` to avoid potential issues resulting from this complexity.
 
-* Date example: `2007-11-13`
-* Timestamp example: `2007-11-13T09:00`
+* Date example: `2007-11-13T00:00:00Z` (Note that this includes zeroed out hours, minutes, etc.)
+* Timestamp example: `2007-11-13T09:13:00Z`
 
 ## Considered Alternatives
 
