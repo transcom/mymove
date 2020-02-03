@@ -21,6 +21,7 @@ set -u
 readonly name=$1
 readonly image=$2
 readonly environment=$3
+readonly ECR_DIGEST=$4
 
 readonly RESERVATION_CPU=512
 readonly RESERVATION_MEM=2048
@@ -85,6 +86,7 @@ green_task_def_arn=$("${DIR}/../bin/ecs-deploy" task-def \
   --entrypoint "/bin/milmove serve" \
   --cpu "${RESERVATION_CPU}" \
   --memory "${RESERVATION_MEM}" \
+  --ecr-digest "${ECR_DIGEST}" \
   --register)
 # shellcheck disable=SC2181
 if [ "$?" != "0" ]; then echo "$green_task_def_arn"; exit 1; fi
