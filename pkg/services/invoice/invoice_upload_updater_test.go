@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
 
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
@@ -40,25 +39,6 @@ func (suite *InvoiceServiceSuite) openLocalFile(path string) (afero.File, error)
 	}
 
 	return outputFile, nil
-}
-
-// fixture creates a File for testing. Caller responsible to close file
-// when done using it.
-func (suite *InvoiceServiceSuite) fixture(name string) afero.File {
-	fixtureDir := "testdata"
-	cwd, err := os.Getwd()
-	if err != nil {
-		suite.T().Fatalf("failed to get current directory: %s", err)
-	}
-
-	fixturePath := path.Join(cwd, fixtureDir, name)
-	file, err := suite.openLocalFile(fixturePath)
-
-	if err != nil {
-		suite.T().Fatalf("failed to create a fixture file: %s", err)
-	}
-	// Caller should call close on file when finished
-	return file
 }
 
 func (suite *InvoiceServiceSuite) helperCreateUpload(storer *storage.FileStorer) *models.Upload {
