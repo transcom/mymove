@@ -74,6 +74,10 @@ else
     exit 1
 fi
 
+# Ensure CAC prereqs are installed
+# This script should have no output
+cac-prereqs
+
 # Now check versions are correct for prereqs
 echo
 check-aws-cli-version
@@ -85,3 +89,4 @@ check-go-version
 check-gopath
 check-hosts-file
 check-node-version
+check-opensc-version

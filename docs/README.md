@@ -65,6 +65,7 @@ If you are looking to understand choices made in this project, see the list of [
 * [Unit Test React Components](how-to/unit-test-react-components.md#how-to-unit-test-react-components)
 * [Upgrade Go Version](how-to/upgrade-go-version.md#how-to-upgrade-go-version)
 * [Upload Electronic Orders Using your CAC](how-to/upload-electronic-orders.md#how-to-upload-electronic-orders-using-your-cac)
+* [Upload Electronic Orders Using your CAC](how-to/use-mtls-with-cac.md#how-to-upload-electronic-orders-using-your-cac)
 * [View ECS Service Logs](how-to/view-ecs-service-logs.md#how-to-view-ecs-service-logs)
 
 ## ADRs
