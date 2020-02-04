@@ -9,14 +9,14 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderFetcher() {
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
 
 	moveOrder, err := moveOrderFetcher.FetchMoveOrder(expectedMoveOrder.ID)
-	suite.NoError(err)
+	suite.FatalNoError(err)
 
 	suite.Equal(expectedMoveOrder.ID, moveOrder.ID)
 	suite.Equal(expectedMoveOrder.CustomerID, moveOrder.CustomerID)
-	suite.Equal(expectedMoveOrder.DestinationDutyStationID, moveOrder.DestinationDutyStation.ID)
-	suite.NotZero(moveOrder.DestinationDutyStation)
-	suite.Equal(expectedMoveOrder.EntitlementID, moveOrder.Entitlement.ID)
-	suite.NotZero(moveOrder.Entitlement)
+	suite.NotNil(moveOrder.DestinationDutyStation)
+	suite.Equal(*expectedMoveOrder.DestinationDutyStationID, moveOrder.DestinationDutyStation.ID)
+	suite.NotNil(moveOrder.Entitlement)
+	suite.Equal(*expectedMoveOrder.EntitlementID, moveOrder.Entitlement.ID)
 	suite.Equal(expectedMoveOrder.OriginDutyStation.ID, moveOrder.OriginDutyStation.ID)
 	suite.NotZero(moveOrder.OriginDutyStation)
 }
@@ -24,20 +24,20 @@ func (suite *MoveOrderServiceSuite) TestMoveOrderFetcher() {
 func (suite *MoveOrderServiceSuite) TestListMoveOrder() {
 	expectedMoveOrder := testdatagen.MakeMoveOrder(suite.DB(), testdatagen.Assertions{})
 	moveOrderFetcher := NewMoveOrderFetcher(suite.DB())
-
 	moveOrders, err := moveOrderFetcher.ListMoveOrders()
-	suite.NoError(err)
+	suite.FatalNoError(err)
 	suite.Len(moveOrders, 1)
 
 	moveOrder := moveOrders[0]
+	suite.NotNil(moveOrder.Customer)
 	suite.Equal(expectedMoveOrder.Customer.FirstName, moveOrder.Customer.FirstName)
 	suite.Equal(expectedMoveOrder.Customer.LastName, moveOrder.Customer.LastName)
 	suite.Equal(expectedMoveOrder.ID, moveOrder.ID)
 	suite.Equal(expectedMoveOrder.CustomerID, moveOrder.CustomerID)
-	suite.Equal(expectedMoveOrder.DestinationDutyStationID, moveOrder.DestinationDutyStation.ID)
-	suite.NotZero(moveOrder.DestinationDutyStation)
-	suite.Equal(expectedMoveOrder.EntitlementID, moveOrder.Entitlement.ID)
-	suite.NotZero(moveOrder.Entitlement)
+	suite.NotNil(moveOrder.DestinationDutyStation)
+	suite.Equal(*expectedMoveOrder.DestinationDutyStationID, moveOrder.DestinationDutyStation.ID)
+	suite.NotNil(moveOrder.Entitlement)
+	suite.Equal(*expectedMoveOrder.EntitlementID, moveOrder.Entitlement.ID)
 	suite.Equal(expectedMoveOrder.OriginDutyStation.ID, moveOrder.OriginDutyStation.ID)
-	suite.NotZero(moveOrder.OriginDutyStation)
+	suite.NotNil(moveOrder.OriginDutyStation)
 }

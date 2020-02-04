@@ -269,6 +269,9 @@ bin/milmove-tasks:
 bin_linux/milmove-tasks:
 	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin_linux/milmove-tasks ./cmd/milmove-tasks
 
+bin/prime-api-client:
+	go build -ldflags "$(LDFLAGS)" -o bin/prime-api-client ./cmd/prime-api-client
+
 bin/query-cloudwatch-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/query-cloudwatch-logs ./cmd/query-cloudwatch-logs
 
@@ -350,6 +353,7 @@ build_tools: bin/gin \
 	bin/health-checker \
 	bin/iws \
 	bin/milmove-tasks \
+	bin/prime-api-client \
 	bin/query-cloudwatch-logs \
 	bin/query-lb-logs \
 	bin/read-alb-logs \

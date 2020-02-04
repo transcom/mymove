@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/gobuffalo/validate"
 
 	"github.com/transcom/mymove/pkg/dates"
@@ -311,4 +313,39 @@ func TestFloat64IsGreaterThan_IsValid(t *testing.T) {
 			t.Fatalf("wrong validation message; expected %s, got %s", customMessage, testErrors[0])
 		}
 	})
+}
+
+func Test_OptionalUUIDIsPresent(t *testing.T) {
+	id, err := uuid.NewV4()
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	v := models.OptionalUUIDIsPresent{Name: "Name", Field: &id}
+
+	errors := validate.NewErrors()
+	v.IsValid(errors)
+	if errors.Count() != 0 {
+		t.Fatalf("got errors when should be valid: %v", errors)
+	}
+
+	emptyUUID := uuid.UUID{}
+	v = models.OptionalUUIDIsPresent{Name: "Name", Field: &emptyUUID}
+	v.IsValid(errors)
+	if errors.Count() != 1 {
+		t.Fatalf("got wrong number of errors: %v", errors)
+	}
+	if errors.Get("name")[0] != "Name can not be blank." {
+		t.Fatalf("wrong error; expected %s, got %s", "Name can not be blank.", errors.Get("name")[0])
+	}
+
+	v = models.OptionalUUIDIsPresent{Name: "Name", Field: nil}
+	v.IsValid(errors)
+	if errors.Count() != 1 {
+		t.Fatalf("got wrong number of errors: %v", errors)
+	}
+	if errors.Get("name")[0] != "Name can not be blank." {
+		t.Fatalf("wrong error; expected %s, got %s", "Name can not be blank.", errors.Get("name")[0])
+	}
 }

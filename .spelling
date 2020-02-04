@@ -557,9 +557,11 @@ Zip5
 Zip5s
 McNally
 mdspell
+mTLS
 awscli
 X.X
 pkcs7
 v5.6
+opensc
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - ./docs/backend/route-planner.md

@@ -60,7 +60,7 @@ The `devlocal` CA is trusted by the system in development and test environments.
 ### Creating new certificates and signing them using the `devlocal` CA
 
 To get a new certificate signed by the `devlocal` CA, the easiest way is to use
-the `scritps/generate-devlocal-cert` script. Here's an example of running that script
+the `scripts/generate-devlocal-cert` script. Here's an example of running that script
 to get a key pair named `partner.cer` and `partner.key` with the subject `/C=US/ST=DC/L=Washington/O=Partner/OU=Application/CN=partner.mil`.
 
 ```text

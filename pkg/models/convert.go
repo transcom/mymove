@@ -43,15 +43,16 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 	var mo MoveOrder
 	mo.CreatedAt = orders.CreatedAt
 	mo.UpdatedAt = orders.UpdatedAt
-	mo.Customer = customer
-	mo.CustomerID = customer.ID
-	mo.DestinationDutyStation = orders.NewDutyStation
-	mo.DestinationDutyStationID = orders.NewDutyStationID
-	mo.OrderType = "GHC"
-	mo.OriginDutyStation = sm.DutyStation
-	mo.OriginDutyStationID = *sm.DutyStationID
-	mo.Entitlement = entitlement
-	mo.EntitlementID = entitlement.ID
+	mo.Customer = &customer
+	mo.CustomerID = &customer.ID
+	mo.DestinationDutyStation = &orders.NewDutyStation
+	mo.DestinationDutyStationID = &orders.NewDutyStationID
+	orderType := "GHC"
+	mo.OrderType = &orderType
+	mo.OriginDutyStation = &sm.DutyStation
+	mo.OriginDutyStationID = sm.DutyStationID
+	mo.Entitlement = &entitlement
+	mo.EntitlementID = &entitlement.ID
 
 	if err := db.Save(&mo); err != nil {
 		return uuid.Nil, fmt.Errorf("Could not save move order, %w", err)

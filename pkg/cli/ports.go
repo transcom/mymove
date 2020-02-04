@@ -15,6 +15,13 @@ const (
 	TLSPortFlag string = "tls-port"
 	// NoTLSPortFlag is the No TLS Port Flag
 	NoTLSPortFlag string = "no-tls-port"
+
+	// MutualTLSPort is the default port for mTLS traffic
+	MutualTLSPort int = 9443
+	// TLSPort is the default port for TLS traffic
+	TLSPort int = 8443
+	// NoTLSPort is the default port in develompent for HTTP traffic
+	NoTLSPort int = 8080
 )
 
 type errInvalidPort struct {
@@ -27,9 +34,9 @@ func (e *errInvalidPort) Error() string {
 
 // InitPortFlags initializes Port command line flags
 func InitPortFlags(flag *pflag.FlagSet) {
-	flag.Int(MutualTLSPortFlag, 9443, "The `port` for the mutual TLS listener.")
-	flag.Int(TLSPortFlag, 8443, "the `port` for the server side TLS listener.")
-	flag.Int(NoTLSPortFlag, 8080, "the `port` for the listener not requiring any TLS.")
+	flag.Int(MutualTLSPortFlag, MutualTLSPort, "The `port` for the mutual TLS listener.")
+	flag.Int(TLSPortFlag, TLSPort, "the `port` for the server side TLS listener.")
+	flag.Int(NoTLSPortFlag, NoTLSPort, "the `port` for the listener not requiring any TLS.")
 }
 
 // CheckPorts validates the Port command line flags

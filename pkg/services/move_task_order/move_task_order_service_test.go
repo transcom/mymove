@@ -16,7 +16,7 @@ func (suite *MoveTaskOrderServiceSuite) SetupTest() {
 	suite.DB().TruncateAll()
 }
 
-func TestAccessCodeServiceSuite(t *testing.T) {
+func TestMoveTaskOrderServiceSuite(t *testing.T) {
 	ts := &MoveTaskOrderServiceSuite{
 		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 	}
