@@ -89,3 +89,4 @@ check-go-version
 check-gopath
 check-hosts-file
 check-node-version
+check-opensc-version

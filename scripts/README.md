@@ -22,6 +22,7 @@ environment.
 | `check-gopath` | checks the go path is correct for the project |
 | `check-hosts-file` | Script helps ensure that /etc/hosts has all the correct entries in it |
 | `check-node-version` | checks the node version required for the project |
+| `check-opensc-version` | checks the opensc version required for the project |
 | `prereqs` | validate if all prerequisite programs have been installed |
 
 ## AWS Scripts
