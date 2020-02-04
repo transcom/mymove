@@ -120,7 +120,7 @@ func (re *RateEngine) computePPM(
 	destinationZip3 := Zip5ToZip3(destinationZip5)
 	sitComputation, err := re.SitCharge(weight.ToCWT(), daysInSIT, destinationZip3, date, true)
 	if err != nil {
-		re.logger.Info(AppendID("Can't calculate sit", re.move.Locator))
+		re.logger.Info("Can't calculate sit", zap.String("moveLocator", re.move.Locator))
 		return
 	}
 	sitFee := sitComputation.ApplyDiscount(lhDiscount, sitDiscount)
@@ -128,7 +128,7 @@ func (re *RateEngine) computePPM(
 	/// Max SIT
 	maxSITComputation, err := re.SitCharge(weight.ToCWT(), MaxSITDays, destinationZip3, date, true)
 	if err != nil {
-		re.logger.Info(AppendID("Can't calculate max sit", re.move.Locator))
+		re.logger.Info("Can't calculate max sit", zap.String("moveLocator", re.move.Locator))
 		return
 	}
 	// Note that SIT has a different discount rate than [non]linehaul charges
@@ -155,7 +155,7 @@ func (re *RateEngine) computePPM(
 	// Finally, scale by prorate factor
 	cost.Scale(prorateFactor)
 
-	re.logger.Info(AppendID("PPM cost computation", re.move.Locator), zap.Object("cost", cost))
+	re.logger.Info("PPM cost computation", zap.String("moveLocator", re.move.Locator), zap.Object("cost", cost))
 
 	return cost, nil
 }
@@ -228,7 +228,7 @@ func (re *RateEngine) ComputeLowestCostPPMMove(weight unit.Pound, originPickupZi
 		originZipLocation = "Current duty station"
 	}
 
-	re.logger.Info(AppendID("Origin zip code information", re.move.Locator), zap.String("originZipLocation", originZipLocation), zap.String("originZipCode", originZipCode))
+	re.logger.Info("Origin zip code information", zap.String("moveLocator", re.move.Locator), zap.String("originZipLocation", originZipLocation), zap.String("originZipCode", originZipCode))
 	return cost, nil
 }
 

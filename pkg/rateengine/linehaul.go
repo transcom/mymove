@@ -105,7 +105,7 @@ func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 st
 		cost.DestinationLinehaulFactor +
 		cost.ShorthaulCharge
 
-	re.logger.Info(AppendID("Linehaul charge total calculated", re.move.Locator),
+	re.logger.Info("Linehaul charge total calculated", zap.String("moveLocator", re.move.Locator),
 		zap.Int("linehaul total", cost.LinehaulChargeTotal.Int()),
 		zap.Int("linehaul", cost.BaseLinehaul.Int()),
 		zap.Int("origin lh factor", cost.OriginLinehaulFactor.Int()),

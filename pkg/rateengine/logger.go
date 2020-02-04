@@ -1,7 +1,6 @@
 package rateengine
 
 import (
-	"fmt"
 	"go.uber.org/zap"
 )
 
@@ -12,11 +11,4 @@ type Logger interface {
 	Warn(msg string, fields ...zap.Field)
 	Error(msg string, fields ...zap.Field)
 	Fatal(msg string, fields ...zap.Field)
-}
-
-func AppendID(msg string, id string) string {
-	if id != "" {
-		return fmt.Sprintf(msg + ": " + id)
-	}
-	return msg
 }
