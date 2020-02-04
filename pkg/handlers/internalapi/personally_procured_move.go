@@ -372,6 +372,9 @@ func (h SubmitPersonallyProcuredMoveHandler) Handle(params ppmop.SubmitPersonall
 
 func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models.PersonallyProcuredMove, logger Logger, moveID uuid.UUID) error {
 	move, err := models.FetchMoveByMoveID(h.DB(), moveID)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 
 	re := rateengine.NewRateEngine(h.DB(), logger, move)
 	daysInSIT := 0
