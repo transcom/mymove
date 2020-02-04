@@ -1481,6 +1481,7 @@ func init() {
         "telephone",
         "transportation_office_id",
         "active",
+        "roles",
         "created_at",
         "updated_at"
       ],
@@ -1510,6 +1511,12 @@ func init() {
         },
         "middle_initials": {
           "type": "string"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Role"
+          }
         },
         "telephone": {
           "type": "string",
@@ -1561,6 +1568,23 @@ func init() {
         }
       }
     },
+    "OfficeUserRole": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name",
+          "x-nullable": true,
+          "example": "Transportation Ordering Officer"
+        },
+        "roleType": {
+          "type": "string",
+          "title": "roleType",
+          "x-nullable": true,
+          "example": "transportation_ordering_officer"
+        }
+      }
+    },
     "OfficeUserUpdatePayload": {
       "type": "object",
       "properties": {
@@ -1583,6 +1607,12 @@ func init() {
           "title": "Middle Initials",
           "x-nullable": true,
           "example": "Q."
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserRole"
+          }
         },
         "telephone": {
           "type": "string",
@@ -1645,6 +1675,43 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/Organization"
+      }
+    },
+    "Role": {
+      "type": "object",
+      "required": [
+        "id",
+        "roleType",
+        "roleName",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "createdAt": {
+          "description": "when the role was created",
+          "type": "string",
+          "format": "datetime",
+          "example": "2018-04-12T23:20:50.52Z"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "roleName": {
+          "type": "string",
+          "example": "Transportation Ordering Officer"
+        },
+        "roleType": {
+          "type": "string",
+          "example": "customer"
+        },
+        "updatedAt": {
+          "description": "when the role was updated",
+          "type": "string",
+          "format": "datetime",
+          "example": "2018-04-12T23:20:50.52Z"
+        }
       }
     },
     "TransportationOffice": {
@@ -3370,6 +3437,7 @@ func init() {
         "telephone",
         "transportation_office_id",
         "active",
+        "roles",
         "created_at",
         "updated_at"
       ],
@@ -3399,6 +3467,12 @@ func init() {
         },
         "middle_initials": {
           "type": "string"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Role"
+          }
         },
         "telephone": {
           "type": "string",
@@ -3450,6 +3524,23 @@ func init() {
         }
       }
     },
+    "OfficeUserRole": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "name",
+          "x-nullable": true,
+          "example": "Transportation Ordering Officer"
+        },
+        "roleType": {
+          "type": "string",
+          "title": "roleType",
+          "x-nullable": true,
+          "example": "transportation_ordering_officer"
+        }
+      }
+    },
     "OfficeUserUpdatePayload": {
       "type": "object",
       "properties": {
@@ -3472,6 +3563,12 @@ func init() {
           "title": "Middle Initials",
           "x-nullable": true,
           "example": "Q."
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserRole"
+          }
         },
         "telephone": {
           "type": "string",
@@ -3534,6 +3631,43 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/Organization"
+      }
+    },
+    "Role": {
+      "type": "object",
+      "required": [
+        "id",
+        "roleType",
+        "roleName",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "createdAt": {
+          "description": "when the role was created",
+          "type": "string",
+          "format": "datetime",
+          "example": "2018-04-12T23:20:50.52Z"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "roleName": {
+          "type": "string",
+          "example": "Transportation Ordering Officer"
+        },
+        "roleType": {
+          "type": "string",
+          "example": "customer"
+        },
+        "updatedAt": {
+          "description": "when the role was updated",
+          "type": "string",
+          "format": "datetime",
+          "example": "2018-04-12T23:20:50.52Z"
+        }
       }
     },
     "TransportationOffice": {

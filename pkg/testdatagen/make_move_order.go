@@ -2,6 +2,7 @@ package testdatagen
 
 import (
 	"math/rand"
+	"time"
 
 	"github.com/gobuffalo/pop"
 
@@ -43,8 +44,8 @@ func MakeGrade() string {
 // MakeMoveOrder creates a single MoveOrder and associated set relationships
 func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.MoveOrder {
 	grade := assertions.MoveOrder.Grade
-	if grade == "" {
-		grade = MakeGrade()
+	if grade == nil || *grade == "" {
+		grade = stringPointer(MakeGrade())
 	}
 	customer := assertions.Customer
 	if isZeroUUID(customer.ID) {
@@ -64,17 +65,44 @@ func MakeMoveOrder(db *pop.Connection, assertions Assertions) models.MoveOrder {
 		destinationDutyStation = MakeDutyStation(db, assertions)
 	}
 
+	orderType := assertions.MoveOrder.OrderType
+	if orderType == nil || *orderType == "" {
+		orderType = stringPointer("GHC")
+	}
+
+	orderTypeDetail := assertions.MoveOrder.OrderTypeDetail
+	if orderTypeDetail == nil || *orderTypeDetail == "" {
+		orderTypeDetail = stringPointer("TBD")
+	}
+
+	reportByDate := assertions.MoveOrder.ReportByDate
+
+	if reportByDate == nil || time.Time.IsZero(*reportByDate) {
+		reportByDate = models.TimePointer(time.Date(2020, time.February, 15, 0, 0, 0, 0, time.UTC))
+	}
+
+	dateIssued := assertions.MoveOrder.DateIssued
+
+	if dateIssued == nil || time.Time.IsZero(*dateIssued) {
+		dateIssued = models.TimePointer(time.Date(2020, time.January, 15, 0, 0, 0, 0, time.UTC))
+	}
+
 	moveOrder := models.MoveOrder{
-		Customer:                 customer,
-		CustomerID:               customer.ID,
-		ConfirmationNumber:       models.GenerateLocator(),
-		Entitlement:              entitlement,
-		EntitlementID:            entitlement.ID,
-		DestinationDutyStation:   destinationDutyStation,
-		DestinationDutyStationID: destinationDutyStation.ID,
+		Customer:                 &customer,
+		CustomerID:               &customer.ID,
+		ConfirmationNumber:       stringPointer(models.GenerateLocator()),
+		DateIssued:               dateIssued,
+		Entitlement:              &entitlement,
+		EntitlementID:            &entitlement.ID,
+		DestinationDutyStation:   &destinationDutyStation,
+		DestinationDutyStationID: &destinationDutyStation.ID,
 		Grade:                    grade,
-		OriginDutyStation:        originDutyStation,
-		OriginDutyStationID:      originDutyStation.ID,
+		OriginDutyStation:        &originDutyStation,
+		OriginDutyStationID:      &originDutyStation.ID,
+		OrderNumber:              assertions.MoveOrder.OrderNumber,
+		OrderType:                orderType,
+		OrderTypeDetail:          orderTypeDetail,
+		ReportByDate:             reportByDate,
 	}
 
 	// Overwrite values with those from assertions

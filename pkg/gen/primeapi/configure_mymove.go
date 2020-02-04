@@ -12,7 +12,9 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_requests"
+	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/uploads"
 )
 
 //go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/prime.yaml --api-package primeoperations --model-package primemessages --server-package primeapi --exclude-main
@@ -33,11 +35,18 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 
 	api.JSONConsumer = runtime.JSONConsumer()
 
+	api.MultipartformConsumer = runtime.DiscardConsumer
+
 	api.JSONProducer = runtime.JSONProducer()
 
 	if api.PaymentRequestsCreatePaymentRequestHandler == nil {
 		api.PaymentRequestsCreatePaymentRequestHandler = payment_requests.CreatePaymentRequestHandlerFunc(func(params payment_requests.CreatePaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.CreatePaymentRequest has not yet been implemented")
+		})
+	}
+	if api.UploadsCreateUploadHandler == nil {
+		api.UploadsCreateUploadHandler = uploads.CreateUploadHandlerFunc(func(params uploads.CreateUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.CreateUpload has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderFetchMTOUpdatesHandler == nil {
@@ -53,6 +62,11 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	if api.MoveTaskOrderGetPrimeEntitlementsHandler == nil {
 		api.MoveTaskOrderGetPrimeEntitlementsHandler = move_task_order.GetPrimeEntitlementsHandlerFunc(func(params move_task_order.GetPrimeEntitlementsParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_task_order.GetPrimeEntitlements has not yet been implemented")
+		})
+	}
+	if api.MtoShipmentUpdateMTOShipmentHandler == nil {
+		api.MtoShipmentUpdateMTOShipmentHandler = mto_shipment.UpdateMTOShipmentHandlerFunc(func(params mto_shipment.UpdateMTOShipmentParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.UpdateMTOShipment has not yet been implemented")
 		})
 	}
 	if api.MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler == nil {

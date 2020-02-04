@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"time"
 
+	"github.com/transcom/mymove/pkg/cli"
+
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/rateengine"
@@ -161,6 +163,17 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	if err != nil {
 		logger.Error("problem sending email to user", zap.Error(err))
 		return handlers.ResponseForError(logger, err)
+	}
+
+	if h.HandlerContext.GetFeatureFlag(cli.FeatureFlagConvertPPMsToGHC) {
+		if moID, convertErr := models.ConvertFromPPMToGHC(h.DB(), move.ID); convertErr != nil {
+			logger.Error("PPM->GHC conversion error", zap.Error(err))
+			// don't return an error here because we don't want this to break the endpoint
+		} else {
+			logger.Info("PPM->GHC conversion successful. New MoveOrder created.", zap.String("move_order_id", moID.String()))
+		}
+	} else {
+		logger.Info("PPM->GHC conversion skipped (env var not set)")
 	}
 
 	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)

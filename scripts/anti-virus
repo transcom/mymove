@@ -3,7 +3,7 @@
 set -eu -o pipefail
 
 #
-# Anti Virus Scanning of Source Code
+# Title: Anti Virus Scanning of Source Code
 #
 # More information about the docker setup is found here: https://github.com/mko-x/docker-clamav
 #
@@ -18,7 +18,7 @@ CONTAINER_NAME=anti_virus
 readonly CONTAINER_NAME
 MOUNT_DIR=/transcom/mymove
 readonly MOUNT_DIR
-IGNORE_FILES=pkg/handlers/fixtures/orders.pdf
+IGNORE_FILES=pkg/testdatagen/testdata/orders.pdf
 readonly IGNORE_FILES
 WHITELIST=whitelist_files.fp
 readonly WHITELIST

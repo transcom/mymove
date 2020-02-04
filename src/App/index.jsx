@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import Loadable from 'react-loadable';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import { isOfficeSite, isTspSite, isAdminSite, isSystemAdminSite } from 'shared/constants.js';
+import { isOfficeSite, isAdminSite, isSystemAdminSite } from 'shared/constants.js';
 import { store } from 'shared/store';
 import { AppContext, defaultOfficeContext, defaultMyMoveContext, defaultAdminContext } from 'shared/AppContext';
 import { detectFlags } from 'shared/featureFlags.js';
@@ -47,7 +47,6 @@ const App = () => {
         </AppContext.Provider>
       </Provider>
     );
-  else if (isTspSite) return <h1 style={{ textAlign: 'center' }}>TSP App</h1>;
   else if (isSystemAdminSite)
     return (
       <AppContext.Provider value={adminContext}>

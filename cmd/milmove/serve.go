@@ -559,9 +559,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 	handlerContext.SetGexSender(gexRequester)
 
-	// Set feature flag
+	// Set feature flags
 	handlerContext.SetFeatureFlag(
 		handlers.FeatureFlag{Name: cli.FeatureFlagAccessCode, Active: v.GetBool(cli.FeatureFlagAccessCode)},
+	)
+	handlerContext.SetFeatureFlag(
+		handlers.FeatureFlag{Name: cli.FeatureFlagConvertPPMsToGHC, Active: v.GetBool(cli.FeatureFlagConvertPPMsToGHC)},
 	)
 
 	// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
@@ -887,7 +890,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		logger.Info("Enabling devlocal auth")
 		localAuthMux := goji.SubMux()
 		root.Handle(pat.New("/devlocal-auth/*"), localAuthMux)
-		localAuthMux.Handle(pat.Get("/login"), authentication.NewUserListHandler(authContext, dbConnection))
+		localAuthMux.Handle(pat.Get("/login"), authentication.NewUserListHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 		localAuthMux.Handle(pat.Post("/login"), authentication.NewAssignUserHandler(authContext, dbConnection, appnames, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, appnames, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, appnames, clientAuthSecretKey, noSessionTimeout, useSecureCookie))

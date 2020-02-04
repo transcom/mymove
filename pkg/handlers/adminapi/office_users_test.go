@@ -6,8 +6,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate"
+
+	"github.com/transcom/mymove/pkg/models/roles"
+
+	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 
@@ -22,6 +25,7 @@ import (
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
+	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -269,6 +273,77 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 			Telephone:      &officeUser.Telephone,
 		},
 	}
+	suite.T().Run("If the user is updated successfully it should be returned", func(t *testing.T) {
+		//TODO remove this test and replace w/ test for just update logic (i.e. don't include with handler)
+		ou := testdatagen.MakeDefaultOfficeUser(suite.DB())
+		officeUserUpdater := &mocks.OfficeUserUpdater{}
+		updatedParams := officeuserop.UpdateOfficeUserParams{
+			HTTPRequest: req,
+			OfficeUser: &adminmessages.OfficeUserUpdatePayload{
+				FirstName:      &ou.FirstName,
+				MiddleInitials: ou.MiddleInitials,
+				LastName:       &ou.LastName,
+				Telephone:      &ou.Telephone,
+			},
+		}
+		updatedParams.OfficeUserID = strfmt.UUID(ou.ID.String())
+
+		id1, _ := uuid.NewV4()
+		role1 := roles.Role{
+			ID:       id1,
+			RoleType: "role1",
+		}
+		id2, _ := uuid.NewV4()
+		role2 := roles.Role{
+			ID:       id2,
+			RoleType: "role2",
+		}
+		rs := roles.Roles{role1, role2}
+		err := suite.DB().Create(rs)
+		suite.NoError(err)
+		payloadRoleName1 := "name1"
+		payloadRoleType1 := string(role1.RoleType)
+		payloadRole1 := &adminmessages.OfficeUserRole{
+			Name:     &payloadRoleName1,
+			RoleType: &payloadRoleType1,
+		}
+		payloadRoleName2 := "name2"
+		payloadRoleType2 := string(role2.RoleType)
+		payloadRole2 := &adminmessages.OfficeUserRole{
+			Name:     &payloadRoleName2,
+			RoleType: &payloadRoleType2,
+		}
+
+		payloadRoles := []*adminmessages.OfficeUserRole{payloadRole1, payloadRole2}
+		updatedParams.OfficeUser.Roles = payloadRoles
+
+		officeUserUpdater.On("UpdateOfficeUser",
+			mock.Anything,
+			updatedParams.OfficeUser,
+		).Return(&ou, nil, nil).Once()
+
+		handler := UpdateOfficeUserHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			officeUserUpdater,
+			newQueryFilter,
+			usersroles.NewUsersRolesCreator(suite.DB()),
+		}
+
+		response := handler.Handle(updatedParams)
+		suite.IsType(&officeuserop.UpdateOfficeUserOK{}, response)
+
+		ur := models.UsersRoles{}
+		n, err := suite.DB().Count(&ur)
+		suite.NoError(err)
+		suite.Equal(2, n)
+
+		user := models.User{}
+		err = suite.DB().Eager("Roles").Find(&user, ou.UserID)
+		suite.NoError(err)
+		suite.Require().Len(user.Roles, 2)
+		suite.Equal(user.Roles[0].ID, role1.ID)
+		suite.Equal(user.Roles[1].ID, role2.ID)
+	})
 
 	suite.T().Run("Successful update", func(t *testing.T) {
 		officeUserUpdater := &mocks.OfficeUserUpdater{}
@@ -282,6 +357,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			officeUserUpdater,
 			newQueryFilter,
+			usersroles.NewUsersRolesCreator(suite.DB()),
 		}
 
 		response := handler.Handle(params)
@@ -300,6 +376,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			officeUserUpdater,
 			newQueryFilter,
+			usersroles.NewUsersRolesCreator(suite.DB()),
 		}
 
 		response := handler.Handle(params)
@@ -318,6 +395,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 		officeUserUpdater,
 		newQueryFilter,
+		usersroles.NewUsersRolesCreator(suite.DB()),
 	}
 
 	handler.Handle(params)

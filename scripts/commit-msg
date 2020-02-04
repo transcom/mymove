@@ -2,6 +2,10 @@
 
 set -u -o pipefail
 
+#
+# Ensure JIRA issue is tagged to commit message
+#
+
 COMMIT_FILE=$1
 COMMIT_MSG=$(cat "$1")
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)

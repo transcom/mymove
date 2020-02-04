@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
 
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
@@ -42,25 +41,6 @@ func (suite *InvoiceServiceSuite) openLocalFile(path string) (afero.File, error)
 	return outputFile, nil
 }
 
-// fixture creates a File for testing. Caller responsible to close file
-// when done using it.
-func (suite *InvoiceServiceSuite) fixture(name string) afero.File {
-	fixtureDir := "testdata"
-	cwd, err := os.Getwd()
-	if err != nil {
-		suite.T().Fatalf("failed to get current directory: %s", err)
-	}
-
-	fixturePath := path.Join(cwd, fixtureDir, name)
-	file, err := suite.openLocalFile(fixturePath)
-
-	if err != nil {
-		suite.T().Fatalf("failed to create a fixture file: %s", err)
-	}
-	// Caller should call close on file when finished
-	return file
-}
-
 func (suite *InvoiceServiceSuite) helperCreateUpload(storer *storage.FileStorer) *models.Upload {
 	document := testdatagen.MakeDefaultDocument(suite.DB())
 	userID := document.ServiceMember.UserID
@@ -68,17 +48,11 @@ func (suite *InvoiceServiceSuite) helperCreateUpload(storer *storage.FileStorer)
 	suite.NoError(err)
 
 	// Create file to use for upload
-	file := suite.fixture("test.pdf")
-	if file == nil {
-		suite.T().Fatal("test.pdf is missing")
-	}
-	_, err = file.Stat()
-	if err != nil {
-		suite.T().Fatalf("file.Stat() err: %s", err.Error())
-	}
+	testFile, err := os.Open("../../testdatagen/testdata/test.pdf")
+	suite.NoError(err)
 
 	// Create Upload and save it
-	upload, verrs, err := up.CreateUpload(userID, uploader.File{File: file}, uploader.AllowedTypesPDF)
+	upload, verrs, err := up.CreateUpload(userID, uploader.File{File: testFile}, uploader.AllowedTypesPDF)
 	suite.Nil(err, "CreateUpload() failed to create upload")
 	suite.Empty(verrs.Error(), "CreateUpload() verrs returned error")
 	suite.NotNil(upload, "CreateUpload() failed to create upload structure")
@@ -86,7 +60,7 @@ func (suite *InvoiceServiceSuite) helperCreateUpload(storer *storage.FileStorer)
 		suite.T().Fatalf("failed to create a upload object: %s", err)
 	}
 	// Call Close on file after CreateUploadForDocument is complete
-	file.Close()
+	testFile.Close()
 	return upload
 }
 

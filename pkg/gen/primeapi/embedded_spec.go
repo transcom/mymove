@@ -231,6 +231,87 @@ func init() {
         }
       ]
     },
+    "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}": {
+      "put": {
+        "tags": [
+          "mtoShipment",
+          "prime"
+        ],
+        "summary": "Updates mto shipment",
+        "operationId": "updateMTOShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          {
+            "type": "string",
+            "format": "datetime",
+            "name": "If-Unmodified-Since",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of mto shipment",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "412": {
+            "description": "precondition failed",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
         "description": "Updates move task order's post counseling information",
@@ -599,6 +680,73 @@ func init() {
           }
         }
       }
+    },
+    "/payment-requests/{paymentRequestID}/uploads": {
+      "post": {
+        "description": "Uploads represent a single digital file, such as a JPEG, PNG, or PDF.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Create a new upload for a payment request",
+        "operationId": "createUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of payment request to use",
+            "name": "paymentRequestID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -909,6 +1057,137 @@ func init() {
         }
       }
     },
+    "MTOServiceItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "reServiceCode": {
+          "type": "string"
+        },
+        "reServiceID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "reServiceName": {
+          "type": "string"
+        }
+      }
+    },
+    "MTOServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOServiceItem"
+      }
+    },
+    "MTOServiceItemstatus": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "SUBMITTED",
+            "REJECTED"
+          ]
+        }
+      }
+    },
+    "MTOShipment": {
+      "required": [
+        "pickupAddress",
+        "destinationAddress",
+        "scheduledPickupDate",
+        "requestedPickupDate",
+        "shipmentType"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "customerRemarks": {
+          "type": "string",
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "scheduledPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "SUBMITTED",
+            "REJECTED"
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "datetime"
+        }
+      }
+    },
+    "MTOShipmentType": {
+      "type": "string",
+      "title": "Shipment Type",
+      "enum": [
+        "HHG",
+        "INTERNATIONAL_HHG",
+        "INTERNATIONAL_UB"
+      ],
+      "x-display-value": {
+        "HHG": "HHG",
+        "INTERNATIONAL_HHG": "International HHG",
+        "INTERNATIONAL_UB": "International UB"
+      },
+      "example": "HHG"
+    },
+    "MTOShipments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOShipment"
+      }
+    },
     "MoveOrder": {
       "type": "object",
       "properties": {
@@ -958,6 +1237,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "mto_service_items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
+        },
         "payment_requests": {
           "type": "array",
           "items": {
@@ -999,8 +1284,8 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "proofOfServicePackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
+        "proofOfServiceDocs": {
+          "$ref": "#/definitions/ProofOfServiceDocs"
         },
         "rejectionReason": {
           "type": "string",
@@ -1029,7 +1314,7 @@ func init() {
         "$ref": "#/definitions/PaymentRequest"
       }
     },
-    "ProofOfServicePackage": {
+    "ProofOfServiceDocs": {
       "type": "object",
       "properties": {
         "uploads": {
@@ -1069,7 +1354,6 @@ func init() {
     "Upload": {
       "type": "object",
       "required": [
-        "binaryData",
         "filename",
         "contentType",
         "bytes",
@@ -1077,10 +1361,6 @@ func init() {
         "updatedAt"
       ],
       "properties": {
-        "binaryData": {
-          "type": "string",
-          "format": "binary"
-        },
         "bytes": {
           "type": "integer"
         },
@@ -1140,6 +1420,12 @@ func init() {
     },
     "PermissionDenied": {
       "description": "The request was denied",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "PreconditionFailed": {
+      "description": "Precondition failed",
       "schema": {
         "$ref": "#/definitions/Error"
       }
@@ -1405,6 +1691,102 @@ func init() {
         }
       ]
     },
+    "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}": {
+      "put": {
+        "tags": [
+          "mtoShipment",
+          "prime"
+        ],
+        "summary": "Updates mto shipment",
+        "operationId": "updateMTOShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          {
+            "type": "string",
+            "format": "datetime",
+            "name": "If-Unmodified-Since",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of mto shipment",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "precondition failed",
+            "schema": {
+              "description": "Precondition failed",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
         "description": "Updates move task order's post counseling information",
@@ -1842,6 +2224,88 @@ func init() {
           }
         }
       }
+    },
+    "/payment-requests/{paymentRequestID}/uploads": {
+      "post": {
+        "description": "Uploads represent a single digital file, such as a JPEG, PNG, or PDF.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Create a new upload for a payment request",
+        "operationId": "createUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "ID of payment request to use",
+            "name": "paymentRequestID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -2152,6 +2616,137 @@ func init() {
         }
       }
     },
+    "MTOServiceItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "reServiceCode": {
+          "type": "string"
+        },
+        "reServiceID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "reServiceName": {
+          "type": "string"
+        }
+      }
+    },
+    "MTOServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOServiceItem"
+      }
+    },
+    "MTOServiceItemstatus": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "SUBMITTED",
+            "REJECTED"
+          ]
+        }
+      }
+    },
+    "MTOShipment": {
+      "required": [
+        "pickupAddress",
+        "destinationAddress",
+        "scheduledPickupDate",
+        "requestedPickupDate",
+        "shipmentType"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "datetime"
+        },
+        "customerRemarks": {
+          "type": "string",
+          "example": "handle with care"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "moveTaskOrderID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "scheduledPickupDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "secondaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "shipmentType": {
+          "$ref": "#/definitions/MTOShipmentType"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "APPROVED",
+            "SUBMITTED",
+            "REJECTED"
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "datetime"
+        }
+      }
+    },
+    "MTOShipmentType": {
+      "type": "string",
+      "title": "Shipment Type",
+      "enum": [
+        "HHG",
+        "INTERNATIONAL_HHG",
+        "INTERNATIONAL_UB"
+      ],
+      "x-display-value": {
+        "HHG": "HHG",
+        "INTERNATIONAL_HHG": "International HHG",
+        "INTERNATIONAL_UB": "International UB"
+      },
+      "example": "HHG"
+    },
+    "MTOShipments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/MTOShipment"
+      }
+    },
     "MoveOrder": {
       "type": "object",
       "properties": {
@@ -2201,6 +2796,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "mto_service_items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MTOServiceItem"
+          }
+        },
         "payment_requests": {
           "type": "array",
           "items": {
@@ -2242,8 +2843,8 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
-        "proofOfServicePackage": {
-          "$ref": "#/definitions/ProofOfServicePackage"
+        "proofOfServiceDocs": {
+          "$ref": "#/definitions/ProofOfServiceDocs"
         },
         "rejectionReason": {
           "type": "string",
@@ -2272,7 +2873,7 @@ func init() {
         "$ref": "#/definitions/PaymentRequest"
       }
     },
-    "ProofOfServicePackage": {
+    "ProofOfServiceDocs": {
       "type": "object",
       "properties": {
         "uploads": {
@@ -2312,7 +2913,6 @@ func init() {
     "Upload": {
       "type": "object",
       "required": [
-        "binaryData",
         "filename",
         "contentType",
         "bytes",
@@ -2320,10 +2920,6 @@ func init() {
         "updatedAt"
       ],
       "properties": {
-        "binaryData": {
-          "type": "string",
-          "format": "binary"
-        },
         "bytes": {
           "type": "integer"
         },
@@ -2383,6 +2979,12 @@ func init() {
     },
     "PermissionDenied": {
       "description": "The request was denied",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
+    "PreconditionFailed": {
+      "description": "Precondition failed",
       "schema": {
         "$ref": "#/definitions/Error"
       }
