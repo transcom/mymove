@@ -12462,10 +12462,10 @@ ra-core@^2.9.9:
     redux-saga "~0.16.0"
     reselect "~3.0.0"
 
-ra-core@^3.1.4:
-  version "3.1.4"
-  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.1.4.tgz#1b543adb17e718d0423755721da65756b64c1970"
-  integrity sha512-9uv3FpZOfQMZBvIOAevm9UtploucuwrrK5GrfW+G2oVmeU1qRNWde3dof05YUYZpWwkH1uR9SkROw74LfjLgtg==
+ra-core@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/ra-core/-/ra-core-3.2.0.tgz#8968a7a0680555f922efb8874eeca0bff4a9e99c"
+  integrity sha512-tUagJ+vBG2wpytjQQ7K9FmRNKp58aMKQ14+EkA0kG3MfCy7+t73vXk15fg3fkarNgwUY5V04IqanwMRy3DBOgw==
   dependencies:
     "@testing-library/react" "^8.0.7"
     classnames "~2.2.5"
@@ -12486,28 +12486,28 @@ ra-data-simple-rest@^2.9.9:
     query-string "~5.1.1"
     ra-core "^2.9.9"
 
-ra-i18n-polyglot@^3.1.4:
-  version "3.1.4"
-  resolved "https://registry.yarnpkg.com/ra-i18n-polyglot/-/ra-i18n-polyglot-3.1.4.tgz#508dd9769644d7db60ea5c474bbd865ffa7c15d6"
-  integrity sha512-zj8/70OWViGmwqEySTBndARt8tbdMgHmTrrKmw+z0FtPX0kNJggAP3Kfp3vYE4llzsp1FPjwM/m2sAdhQYEUpA==
+ra-i18n-polyglot@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/ra-i18n-polyglot/-/ra-i18n-polyglot-3.2.0.tgz#cb76f71d42cb68a27d2587f501e45bbb1efb290d"
+  integrity sha512-Z9V4AXEKt4EQsKkiFzyXzpnu13HGxw6O3L/K7N9/C1tfVzLH7ONmfOT+ldHQQWWerjSr6t8zhBI8D5phSU4dzQ==
   dependencies:
     node-polyglot "^2.2.2"
-    ra-core "^3.1.4"
+    ra-core "^3.2.0"
 
 ra-language-english@^2.9.9:
   version "2.9.9"
   resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-2.9.9.tgz#e8d90d40df8e5e66de8a7b3a72f33dd9de638501"
   integrity sha512-tWybE7ZnCRyiVAWcyN02LA4v5oi030A853lLDmTJUJySUMSwqyy3EpAdiLrOXfe3XKEoyIjRLGQK54iX2cQ/Mw==
 
-ra-language-english@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.1.0.tgz#2fa509c5cd1127f9ce58097829b8bc6a3d12f5cc"
-  integrity sha512-5v1mu3ri/u4YEqm5iop/KXJ+mDt9sQ97GjY7wG/SkEyG+LXo+IllpDqkNXhHqSA6HpqAxmcFY/LO9Gh7ApQLRA==
+ra-language-english@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.2.0.tgz#2ca13b767d834b43fefd128f48e452449f812b61"
+  integrity sha512-/XmwYWoQoB4MBkkzBCbg/ykCuRGjHQOHLk2ik6n1aM10AWHxiiJNyRw2aoLzH7Vc5rcp4BBJQCuhT+DgfYIJ2Q==
 
-ra-ui-materialui@^3.1.4:
-  version "3.1.4"
-  resolved "https://registry.yarnpkg.com/ra-ui-materialui/-/ra-ui-materialui-3.1.4.tgz#ee9c3bff59599569e59a0a33012d5c1fde4c1667"
-  integrity sha512-VJt8ikplK/R14/nseCDF2LWantWHp3UweZy7LqpZ34qABIYiJt4+kZHwkgDJ9y5HrCEcg9yO0Q5K81U1fBZMXw==
+ra-ui-materialui@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/ra-ui-materialui/-/ra-ui-materialui-3.2.0.tgz#540f189c82b7d11993cbf3ec6640f95634d55ecd"
+  integrity sha512-IR0kgZF+gf92UJVoTY3C/rNONpz28txyzAKajcnBjDEBqvdNw/T8dLyyfRu6Xl/xbJQg57lWk0sCeFodLVWMBw==
   dependencies:
     autosuggest-highlight "^3.1.1"
     classnames "~2.2.5"
@@ -12601,10 +12601,10 @@ rc@^1.2.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-admin@^3.1.4:
-  version "3.1.4"
-  resolved "https://registry.yarnpkg.com/react-admin/-/react-admin-3.1.4.tgz#fb3779251ff9f7b6b2db32031f5f888d8bd27acd"
-  integrity sha512-F6YnzIlIG/y1EG+K47oPPRZkhiIpXU0FtFss1sKYJ6l01qrPNddMFhEAfOEs09Kl7FiqVPMvRZjMq6VFJbUkdA==
+react-admin@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/react-admin/-/react-admin-3.2.0.tgz#7ea01d79d0d0cdaccc9d1d8f96ab63b57f28a54a"
+  integrity sha512-M3MITQLS/8rmy4xgTNOU/7enUBBXKvJCO00j7khk08rRZ7C1In2bN4Z71PTxyuol+WGtFj60SFO65qVj8N02sA==
   dependencies:
     "@material-ui/core" "^4.3.3"
     "@material-ui/icons" "^4.2.1"
@@ -12612,10 +12612,10 @@ react-admin@^3.1.4:
     connected-react-router "^6.5.2"
     final-form "^4.18.5"
     final-form-arrays "^3.0.1"
-    ra-core "^3.1.4"
-    ra-i18n-polyglot "^3.1.4"
-    ra-language-english "^3.1.0"
-    ra-ui-materialui "^3.1.4"
+    ra-core "^3.2.0"
+    ra-i18n-polyglot "^3.2.0"
+    ra-language-english "^3.2.0"
+    ra-ui-materialui "^3.2.0"
     react-final-form "^6.3.3"
     react-final-form-arrays "^3.1.1"
     react-redux "^7.1.0"
