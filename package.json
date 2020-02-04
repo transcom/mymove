@@ -92,7 +92,7 @@
     "@storybook/addon-knobs": "^5.3.11",
     "@storybook/addon-links": "^5.3.11",
     "@storybook/addons": "^5.3.11",
-    "@storybook/react": "^5.2.8",
+    "@storybook/react": "^5.3.11",
     "mime-types": "^2.1.26",
     "mockdate": "^2.0.2",
     "prettier": "=1.19.1"
