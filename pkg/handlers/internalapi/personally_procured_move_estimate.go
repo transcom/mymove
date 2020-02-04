@@ -10,9 +10,9 @@ import (
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/unit"
-	"github.com/transcom/mymove/pkg/models"
 )
 
 // ShowPPMEstimateHandler returns PPM SIT estimate for a weight, move date,

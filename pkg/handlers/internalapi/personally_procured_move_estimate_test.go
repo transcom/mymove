@@ -115,7 +115,6 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveEstimateTest(ordersID uuid
 	}
 	suite.MustSave(&station)
 
-
 	orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
 			ID:               ordersID,
@@ -126,8 +125,8 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveEstimateTest(ordersID uuid
 	moveID, _ := uuid.NewV4()
 	_ = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
-			ID:               moveID,
-			OrdersID:         ordersID,
+			ID:       moveID,
+			OrdersID: ordersID,
 		},
 		Order: orders,
 	})

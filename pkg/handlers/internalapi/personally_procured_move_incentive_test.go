@@ -125,8 +125,8 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveIncentiveTest(ordersID uui
 	moveID, _ := uuid.NewV4()
 	_ = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
-			ID:               moveID,
-			OrdersID:         ordersID,
+			ID:       moveID,
+			OrdersID: ordersID,
 		},
 		Order: orders,
 	})

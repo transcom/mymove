@@ -119,10 +119,6 @@ func main() {
 	if moveID == "" {
 		log.Fatal("Usage: generate_shipment_summary -move <29cb984e-c70d-46f0-926d-cd89e07a6ec3>")
 	}
-	move, err := models.FetchMoveByMoveID(h.DB(), moveID)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
 
 	// Define the data here that you want to populate the form with. Data will only be populated
 	// in the form if the field name exist BOTH in the fields map and your data below
@@ -135,6 +131,11 @@ func main() {
 	// This is very useful for getting field positioning right initially
 	if debug {
 		formFiller.Debug()
+	}
+
+	move, err := models.FetchMoveByMoveID(dbConnection, parsedID)
+	if err != nil {
+		log.Fatalf("error fetching move: %s", moveIDFlag)
 	}
 
 	geocodeEndpoint := os.Getenv("HERE_MAPS_GEOCODE_ENDPOINT")
