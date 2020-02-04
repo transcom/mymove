@@ -33,7 +33,7 @@ require (
 	github.com/gobuffalo/flect v0.2.0
 	github.com/gobuffalo/nulls v0.1.0 // indirect
 	github.com/gobuffalo/packr v1.30.1
-	github.com/gobuffalo/pop v4.13.0+incompatible
+	github.com/gobuffalo/pop v4.13.1+incompatible
 	github.com/gobuffalo/uuid v2.0.5+incompatible
 	github.com/gobuffalo/validate v2.0.4+incompatible
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
