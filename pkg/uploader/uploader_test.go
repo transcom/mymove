@@ -57,13 +57,13 @@ func (suite *UploaderSuite) openLocalFile(path string) (afero.File, error) {
 }
 
 func (suite *UploaderSuite) fixture(name string) afero.File {
-	fixtureDir := "testdata"
+	fixtureDir := "testdatagen/testdata"
 	cwd, err := os.Getwd()
 	if err != nil {
 		suite.T().Fatalf("failed to get current directory: %s", err)
 	}
 
-	fixturePath := path.Join(cwd, fixtureDir, name)
+	fixturePath := path.Join(cwd, "..", fixtureDir, name)
 	file, err := suite.openLocalFile(fixturePath)
 
 	if err != nil {

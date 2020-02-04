@@ -231,6 +231,87 @@ func init() {
         }
       ]
     },
+    "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}": {
+      "put": {
+        "tags": [
+          "mtoShipment",
+          "prime"
+        ],
+        "summary": "Updates mto shipment",
+        "operationId": "updateMTOShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          {
+            "type": "string",
+            "format": "datetime",
+            "name": "If-Unmodified-Since",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of mto shipment",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/responses/PermissionDenied"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/responses/NotFound"
+            }
+          },
+          "412": {
+            "description": "precondition failed",
+            "schema": {
+              "$ref": "#/responses/PreconditionFailed"
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "schema": {
+              "$ref": "#/responses/ServerError"
+            }
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
         "description": "Updates move task order's post counseling information",
@@ -536,87 +617,6 @@ func init() {
           "required": true
         }
       ]
-    },
-    "/move_task_orders/{moveTaskOrderID}/mto_shipments/{mtoShipmentID}": {
-      "put": {
-        "tags": [
-          "mtoShipment",
-          "prime"
-        ],
-        "summary": "Updates mto shipment",
-        "operationId": "updateMTOShipment",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "name": "moveTaskOrderID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "name": "mtoShipmentID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/MTOShipment"
-            }
-          },
-          {
-            "type": "string",
-            "format": "datetime",
-            "name": "If-Unmodified-Since",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "updated instance of mto shipment",
-            "schema": {
-              "$ref": "#/definitions/MTOShipment"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/responses/PermissionDenied"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/responses/NotFound"
-            }
-          },
-          "412": {
-            "description": "precondition failed",
-            "schema": {
-              "$ref": "#/responses/PreconditionFailed"
-            }
-          },
-          "500": {
-            "description": "internal server error",
-            "schema": {
-              "$ref": "#/responses/ServerError"
-            }
-          }
-        }
-      }
     },
     "/payment-requests": {
       "post": {
@@ -1691,6 +1691,102 @@ func init() {
         }
       ]
     },
+    "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}": {
+      "put": {
+        "tags": [
+          "mtoShipment",
+          "prime"
+        ],
+        "summary": "Updates mto shipment",
+        "operationId": "updateMTOShipment",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "moveTaskOrderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          {
+            "type": "string",
+            "format": "datetime",
+            "name": "If-Unmodified-Since",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated instance of mto shipment",
+            "schema": {
+              "$ref": "#/definitions/MTOShipment"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "description": "The request was denied",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "description": "The requested resource wasn't found",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "412": {
+            "description": "precondition failed",
+            "schema": {
+              "description": "Precondition failed",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "schema": {
+              "description": "A server error occurred",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveTaskOrderID}/post-counseling-info": {
       "patch": {
         "description": "Updates move task order's post counseling information",
@@ -2050,102 +2146,6 @@ func init() {
           "required": true
         }
       ]
-    },
-    "/move_task_orders/{moveTaskOrderID}/mto_shipments/{mtoShipmentID}": {
-      "put": {
-        "tags": [
-          "mtoShipment",
-          "prime"
-        ],
-        "summary": "Updates mto shipment",
-        "operationId": "updateMTOShipment",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "name": "moveTaskOrderID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "name": "mtoShipmentID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/MTOShipment"
-            }
-          },
-          {
-            "type": "string",
-            "format": "datetime",
-            "name": "If-Unmodified-Since",
-            "in": "header",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "updated instance of mto shipment",
-            "schema": {
-              "$ref": "#/definitions/MTOShipment"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "description": "The request was denied",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "description": "The requested resource wasn't found",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "412": {
-            "description": "precondition failed",
-            "schema": {
-              "description": "Precondition failed",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          },
-          "500": {
-            "description": "internal server error",
-            "schema": {
-              "description": "A server error occurred",
-              "schema": {
-                "$ref": "#/definitions/Error"
-              }
-            }
-          }
-        }
-      }
     },
     "/payment-requests": {
       "post": {

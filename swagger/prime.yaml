@@ -347,7 +347,7 @@ paths:
       description: Gets entitlements
       operationId: getPrimeEntitlements
       summary: Gets entitlements for a move order by ID
-  '/move_task_orders/{moveTaskOrderID}/mto_shipments/{mtoShipmentID}':
+  '/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}':
     put:
       summary: Updates mto shipment
       operationId: updateMTOShipment

@@ -46,26 +46,43 @@ func MoveOrder(moveOrder *models.MoveOrder) *ghcmessages.MoveOrder {
 	if moveOrder == nil {
 		return nil
 	}
-	destinationDutyStation := DutyStation(&moveOrder.DestinationDutyStation)
-	originDutyStation := DutyStation(&moveOrder.OriginDutyStation)
-	moveOrder.Entitlement.SetWeightAllotment(moveOrder.Grade)
-	entitlements := Entitlement(&moveOrder.Entitlement)
+	destinationDutyStation := DutyStation(moveOrder.DestinationDutyStation)
+	originDutyStation := DutyStation(moveOrder.OriginDutyStation)
+	if moveOrder.Grade != nil {
+		moveOrder.Entitlement.SetWeightAllotment(*moveOrder.Grade)
+	}
+	entitlements := Entitlement(moveOrder.Entitlement)
 	payload := ghcmessages.MoveOrder{
-		Agency:                 moveOrder.Customer.Agency,
-		CustomerID:             strfmt.UUID(moveOrder.CustomerID.String()),
-		FirstName:              moveOrder.Customer.FirstName,
-		LastName:               moveOrder.Customer.LastName,
-		ConfirmationNumber:     moveOrder.ConfirmationNumber,
 		DestinationDutyStation: destinationDutyStation,
 		Entitlement:            entitlements,
-		Grade:                  moveOrder.Grade,
-		OrderNumber:            &moveOrder.OrderNumber,
-		OrderType:              moveOrder.OrderType,
-		OrderTypeDetail:        &moveOrder.OrderTypeDetail,
-		ReportByDate:           strfmt.Date(moveOrder.ReportByDate),
+		OrderNumber:            moveOrder.OrderNumber,
+		OrderTypeDetail:        moveOrder.OrderTypeDetail,
 		ID:                     strfmt.UUID(moveOrder.ID.String()),
 		OriginDutyStation:      originDutyStation,
 	}
+
+	if moveOrder.Customer != nil {
+		payload.Agency = moveOrder.Customer.Agency
+		payload.CustomerID = strfmt.UUID(moveOrder.CustomerID.String())
+		payload.FirstName = moveOrder.Customer.FirstName
+		payload.LastName = moveOrder.Customer.LastName
+	}
+	if moveOrder.ReportByDate != nil {
+		payload.ReportByDate = strfmt.Date(*moveOrder.ReportByDate)
+	}
+	if moveOrder.DateIssued != nil {
+		payload.DateIssued = strfmt.Date(*moveOrder.DateIssued)
+	}
+	if moveOrder.Grade != nil {
+		payload.Grade = *moveOrder.Grade
+	}
+	if moveOrder.ConfirmationNumber != nil {
+		payload.ConfirmationNumber = *moveOrder.ConfirmationNumber
+	}
+	if moveOrder.OrderType != nil {
+		payload.OrderType = *moveOrder.OrderType
+	}
+
 	return &payload
 }
 

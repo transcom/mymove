@@ -48,7 +48,7 @@ require (
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/leodido/go-urn v1.2.0
 	github.com/lib/pq v1.3.0
-	github.com/markbates/goth v1.61.0
+	github.com/markbates/goth v1.61.1
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.10 // indirect
 	github.com/mattn/go-shellwords v1.0.6 // indirect
@@ -89,3 +89,8 @@ replace github.com/jmoiron/sqlx v1.2.0 => github.com/transcom/sqlx v1.2.1
 // This fixes an issue that was being caused due to urfave/cli v1.21.0
 // being renamed.
 replace gopkg.in/urfave/cli.v1 => github.com/urfave/cli v1.21.0
+
+// Update to ignore compiler warnings on macOS catalina
+// https://github.com/keybase/go-keychain/pull/55
+// https://github.com/99designs/aws-vault/pull/427
+replace github.com/keybase/go-keychain => github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4
