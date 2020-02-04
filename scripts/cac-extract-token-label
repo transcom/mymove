@@ -6,11 +6,18 @@ set -eu -o pipefail
 # Get the Token Label from CAC
 #
 
-readonly MODULE=/usr/local/lib/pkcs11/cackey.dylib
+OS_VERSION=$(/usr/bin/sw_vers -productVersion)
+MAC_OS="10.15"
+if [[ $OS_VERSION == *$MAC_OS* ]]; then
+  MODULE=/usr/local/lib/pkcs11/opensc-pkcs11.so
+elif [[ -f "${MODULE}" ]]; then
+  MODULE=/usr/local/lib/pkcs11/cackey.dylib
+fi
+readonly MODULE
 readonly PKCS11=/usr/local/bin/pkcs11-tool
 
 # Check the CAC Pre-Requirements
 cac-prereqs
 
 # Token Label
-"${PKCS11}" -r --module "${MODULE}" -a "Identity #0" --list-slots 2>/dev/null| grep label | perl -ne 's/^  token label        : //; print' | head -n1
+"${PKCS11}" --module "${MODULE}" -r --id 01 --list-slots 2>/dev/null| grep label | perl -ne 's/^  token label        : //; print' | head -n1

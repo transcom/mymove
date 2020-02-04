@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 )
 
@@ -93,6 +94,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation mto_service_item.ListMTOServiceItems has not yet been implemented")
 		})
 	}
+	if api.MtoShipmentListMTOShipmentsHandler == nil {
+		api.MtoShipmentListMTOShipmentsHandler = mto_shipment.ListMTOShipmentsHandlerFunc(func(params mto_shipment.ListMTOShipmentsParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.ListMTOShipments has not yet been implemented")
+		})
+	}
 	if api.MoveOrderListMoveOrdersHandler == nil {
 		api.MoveOrderListMoveOrdersHandler = move_order.ListMoveOrdersHandlerFunc(func(params move_order.ListMoveOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation move_order.ListMoveOrders has not yet been implemented")
@@ -106,6 +112,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.PaymentRequestsListPaymentRequestsHandler == nil {
 		api.PaymentRequestsListPaymentRequestsHandler = payment_requests.ListPaymentRequestsHandlerFunc(func(params payment_requests.ListPaymentRequestsParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.ListPaymentRequests has not yet been implemented")
+		})
+	}
+	if api.MtoShipmentPatchMTOShipmentStatusHandler == nil {
+		api.MtoShipmentPatchMTOShipmentStatusHandler = mto_shipment.PatchMTOShipmentStatusHandlerFunc(func(params mto_shipment.PatchMTOShipmentStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.PatchMTOShipmentStatus has not yet been implemented")
 		})
 	}
 	if api.MtoServiceItemUpdateMTOServiceItemHandler == nil {

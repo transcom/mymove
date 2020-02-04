@@ -1,0 +1,17 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+VERSION="0.20"
+
+OPENSC_VERSION=$(brew info opensc | head -n1 | cut -d" " -f3)
+
+# Knocks off everything after the last decimal
+SHORT_VERSION=${OPENSC_VERSION%.*}
+if [[ $SHORT_VERSION = *$VERSION* ]]; then
+  echo "opensc $OPENSC_VERSION installed"
+else
+  echo "opensc $VERSION.x is required to run this project! Found $OPENSC_VERSION"
+  echo "Run 'brew install opensc' or 'brew upgrade opensc'"
+  exit 1
+fi

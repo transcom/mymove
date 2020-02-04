@@ -455,6 +455,105 @@ paths:
         - ppm_office_users
       operationId: createMTOServiceItem
       summary: Creates a service item for a move order by id
+  '/move_task_orders/{moveTaskOrderID}/mto_shipments':
+    parameters:
+      - description: ID of move task order for mto shipment to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        format: uuid
+        type: string
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved all line items for a move task order
+          schema:
+            $ref: '#/definitions/MTOShipments'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - mtoShipment
+      description: Gets all shipments for a move task order
+      x-swagger-roles:
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+        - ppm_office_users
+      operationId: listMTOShipments
+      summary: Gets all shipments for a move task order
+  '/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}/status':
+    parameters:
+      - description: ID of move task order for mto shipment to use
+        in: path
+        name: moveTaskOrderID
+        required: true
+        format: uuid
+        type: string
+      - description: ID of the shipment
+        in: path
+        name: shipmentID
+        required: true
+        format: uuid
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        - in: header
+          name: If-Unmodified-Since
+          type: string
+          format: datetime
+          required: true
+      responses:
+        '200':
+          description: Successfully updated shipment
+          schema:
+            $ref: '#/definitions/MTOShipment'
+        '404':
+          description: The requested resource wasn't found
+          schema:
+            $ref: '#/responses/NotFound'
+        '412':
+          description: Precondition failed
+          schema:
+            $ref: '#/responses/PreconditionFailed'
+        '422':
+          description: Validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: A server error occurred
+          schema:
+            $ref: '#/responses/ServerError'
+      tags:
+        - mtoShipment
+      description: Updates a shipment's status
+      x-swagger-roles:
+        - transportation_invoicing_officer
+        - transportation_ordering_officer
+        - contracting_officer
+      operationId: patchMTOShipmentStatus
+      summary: Updates a shipment's status
   '/move-task-orders/{moveTaskOrderID}/service-items/{mtoServiceItemID}':
     parameters:
       - description: ID of move order to use
@@ -1090,7 +1189,6 @@ definitions:
       - city
       - state
       - postal_code
-
   CustomerMoveItem:
     type: object
     properties:
@@ -1273,6 +1371,27 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      order_number:
+        type: string
+        x-nullable: true
+        example: '030-00362'
+      order_type:
+        example: GHC
+        type: string
+      order_type_detail:
+        type: string
+        enum:
+          - GHC
+          - NTS
+        x-nullable: true
+      date_issued:
+        type: string
+        format: date
+        example: '2020-01-01'
+      report_by_date:
+        type: string
+        format: date
+        example: '2020-01-01'
     type: object
   MoveTaskOrder:
     properties:
@@ -1384,6 +1503,46 @@ definitions:
           $ref: '#/definitions/Upload'
         type: array
     type: object
+  MTOShipment:
+    properties:
+      moveTaskOrderID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      createdAt:
+        format: datetime
+        type: string
+      updatedAt:
+        format: datetime
+        type: string
+      scheduledPickupDate:
+        format: date
+        type: string
+      requestedPickupDate:
+        format: date
+        type: string
+      customerRemarks:
+        type: string
+        example: handle with care
+      shipmentType:
+        enum:
+          - HHG
+          - INTERNATIONAL_HHG
+          - INTERNATIONAL_UB
+      status:
+        type: string
+        enum:
+          - APPROVED
+          - SUBMITTED
+          - REJECTED
+  MTOShipments:
+    items:
+      $ref: '#/definitions/MTOShipment'
+    type: array
   MTOServiceItem:
     properties:
       moveTaskOrderID:
@@ -1451,7 +1610,7 @@ definitions:
         format: cents
         type: integer
       updatedAt:
-        format: date
+        format: datetime
         type: string
     required:
       - id
@@ -1546,5 +1705,9 @@ responses:
       $ref: '#/definitions/Error'
   ServerError:
     description: A server error occurred
+    schema:
+      $ref: '#/definitions/Error'
+  PreconditionFailed:
+    description: Precondition failed
     schema:
       $ref: '#/definitions/Error'

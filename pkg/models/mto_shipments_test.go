@@ -18,6 +18,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			MoveTaskOrderID:      uuid.Must(uuid.NewV4()),
 			PickupAddressID:      uuid.Must(uuid.NewV4()),
 			DestinationAddressID: uuid.Must(uuid.NewV4()),
+			Status:               models.MTOShipmentStatusApproved,
 			PrimeEstimatedWeight: &estimatedWeight,
 			PrimeActualWeight:    &actualWeight,
 		}

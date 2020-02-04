@@ -1,7 +1,10 @@
 package services
 
 import (
+	"io"
+
 	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -28,4 +31,10 @@ type PaymentRequestFetcher interface {
 //go:generate mockery -name PaymentRequestStatusUpdater
 type PaymentRequestStatusUpdater interface {
 	UpdatePaymentRequestStatus(*models.PaymentRequest) (*validate.Errors, error)
+}
+
+// PaymentRequestUploadCreator is the exported interface for creating a payment request upload
+//go:generate mockery -name PaymentRequestUploadCreator
+type PaymentRequestUploadCreator interface {
+	CreateUpload(file io.ReadCloser, paymentRequestID uuid.UUID, userID uuid.UUID) (*models.Upload, error)
 }

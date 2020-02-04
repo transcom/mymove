@@ -19,6 +19,7 @@ import (
 	ghcops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
 	"github.com/transcom/mymove/pkg/handlers"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
 
 // NewGhcAPIHandler returns a handler for the GHC API
@@ -75,6 +76,18 @@ func NewGhcAPIHandler(context handlers.HandlerContext) *ghcops.MymoveAPI {
 	ghcAPI.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = UpdateMoveTaskOrderStatusHandlerFunc{
 		context,
 		movetaskorder.NewMoveTaskOrderStatusUpdater(context.DB()),
+	}
+
+	ghcAPI.MtoShipmentListMTOShipmentsHandler = ListMTOShipmentsHandler{
+		context,
+		fetch.NewListFetcher(queryBuilder),
+		fetch.NewFetcher(queryBuilder),
+	}
+
+	ghcAPI.MtoShipmentPatchMTOShipmentStatusHandler = PatchShipmentHandler{
+		context,
+		fetch.NewFetcher(queryBuilder),
+		mtoshipment.NewMTOShipmentStatusUpdater(context.DB(), queryBuilder),
 	}
 
 	return ghcAPI
