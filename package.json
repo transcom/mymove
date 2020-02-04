@@ -88,7 +88,7 @@
     "@babel/core": "^7.8.4",
     "@rescripts/cli": "^0.0.13",
     "@rescripts/rescript-env": "^0.0.11",
-    "@storybook/addon-actions": "^5.3.10",
+    "@storybook/addon-actions": "^5.3.11",
     "@storybook/addon-knobs": "^5.3.10",
     "@storybook/addon-links": "^5.3.9",
     "@storybook/addons": "^5.3.9",
