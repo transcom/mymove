@@ -7,8 +7,12 @@ import (
 )
 
 func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
+	move := models.Move{
+		Locator: "ABC123",
+	}
+
 	t := suite.T()
-	engine := NewRateEngine(suite.DB(), suite.logger)
+	engine := NewRateEngine(suite.DB(), suite.logger, move)
 
 	expected := unit.Cents(128000)
 
@@ -51,8 +55,11 @@ func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 }
 
 func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
+	move := models.Move{
+		Locator: "ABC123",
+	}
 	t := suite.T()
-	engine := NewRateEngine(suite.DB(), suite.logger)
+	engine := NewRateEngine(suite.DB(), suite.logger, move)
 
 	// Load fake data
 	originZip3 := models.Tariff400ngZip3{
@@ -89,8 +96,11 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 }
 
 func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
+	move := models.Move{
+		Locator: "ABC123",
+	}
 	t := suite.T()
-	engine := NewRateEngine(suite.DB(), suite.logger)
+	engine := NewRateEngine(suite.DB(), suite.logger, move)
 	mileage := 799
 	cwt := unit.CWT(40)
 	rate := unit.Cents(5656)
@@ -111,8 +121,11 @@ func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 }
 
 func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
+	move := models.Move{
+		Locator: "ABC123",
+	}
 	t := suite.T()
-	engine := NewRateEngine(suite.DB(), suite.logger)
+	engine := NewRateEngine(suite.DB(), suite.logger, move)
 	weight := unit.Pound(2000)
 	expected := unit.Cents(11462)
 	zip3Austin := "787"
@@ -197,7 +210,10 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 }
 
 func (suite *RateEngineSuite) Test_CheckFuelSurchargeComputation() {
-	engine := NewRateEngine(suite.DB(), suite.logger)
+	move := models.Move{
+		Locator: "ABC123",
+	}
+	engine := NewRateEngine(suite.DB(), suite.logger, move)
 
 	assertions := testdatagen.Assertions{}
 	assertions.FuelEIADieselPrice.BaselineRate = 6

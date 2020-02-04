@@ -179,6 +179,9 @@ func (suite *RateEngineSuite) setupRateEngineTest() {
 }
 
 func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, destinationZip string, weight unit.Pound, logger Logger, planner route.Planner) (CostComputation, error) {
+	move := models.Move{
+		Locator: "ABC123",
+	}
 	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(suite.DB(),
 		logger,
 		originZip,
@@ -186,7 +189,7 @@ func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, desti
 		testdatagen.RateEngineDate,
 	)
 	suite.Require().Nil(err)
-	engine := NewRateEngine(suite.DB(), logger)
+	engine := NewRateEngine(suite.DB(), logger, move)
 	cost, err := engine.computePPM(
 		weight,
 		originZip,
@@ -203,10 +206,13 @@ func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, desti
 }
 
 func (suite *RateEngineSuite) Test_CheckPPMTotal() {
+	move := models.Move{
+		Locator: "ABC123",
+	}
 	suite.setupRateEngineTest()
 	t := suite.T()
 
-	engine := NewRateEngine(suite.DB(), suite.logger)
+	engine := NewRateEngine(suite.DB(), suite.logger, move)
 
 	assertions := testdatagen.Assertions{}
 	assertions.FuelEIADieselPrice.BaselineRate = 6
@@ -227,6 +233,9 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 }
 
 func (suite *RateEngineSuite) TestComputePPMWithLHDiscount() {
+	move := models.Move{
+		Locator: "ABC123",
+	}
 	suite.setupRateEngineTest()
 	logger, _ := zap.NewDevelopment()
 	planner := route.NewTestingPlanner(1234)
@@ -236,7 +245,7 @@ func (suite *RateEngineSuite) TestComputePPMWithLHDiscount() {
 	cost, err := suite.computePPMIncludingLHRates(originZip, destinationZip, weight, logger, planner)
 	suite.Require().Nil(err)
 
-	engine := NewRateEngine(suite.DB(), logger)
+	engine := NewRateEngine(suite.DB(), logger, move)
 	ppmCost, err := engine.computePPMIncludingLHDiscount(
 		weight,
 		originZip,
@@ -252,6 +261,9 @@ func (suite *RateEngineSuite) TestComputePPMWithLHDiscount() {
 }
 
 func (suite *RateEngineSuite) TestComputeLowestCostPPMMove() {
+	move := models.Move{
+		Locator: "ABC123",
+	}
 	suite.setupRateEngineTest()
 	logger, _ := zap.NewDevelopment()
 	planner := route.NewTestingPlanner(1234)
@@ -261,7 +273,7 @@ func (suite *RateEngineSuite) TestComputeLowestCostPPMMove() {
 	distanceMilesFromOriginPickupZip := 1044
 	distanceMilesFromDutyStationZip := 3300
 	weight := unit.Pound(2000)
-	engine := NewRateEngine(suite.DB(), logger)
+	engine := NewRateEngine(suite.DB(), logger, move)
 
 	suite.Run("TestComputeLowestCostPPMMove when pickup zip results in lower GCC", func() {
 		ppmCostWithPickupZip, err := suite.computePPMIncludingLHRates(
