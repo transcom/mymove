@@ -27,7 +27,7 @@ const (
 	// KeyPathFlag is the path to the key to use for TLS
 	KeyPathFlag string = "keypath"
 	// HostnameFlag is the hostname to connect to
-	HostnameFlag string = "host"
+	HostnameFlag string = "hostname"
 	// PortFlag is the port to connect to
 	PortFlag string = "port"
 	// Insecure flag indicates that TLS verification and validation can be skipped
@@ -43,8 +43,8 @@ func initFlags(flag *pflag.FlagSet) {
 
 	flag.String(CertPathFlag, "./config/tls/devlocal-mtls.cer", "Path to the public cert")
 	flag.String(KeyPathFlag, "./config/tls/devlocal-mtls.key", "Path to the private key")
-	flag.String(HostnameFlag, "primelocal", "The hostname to connect to")
-	flag.Int(PortFlag, 9443, "The port to connect to")
+	flag.String(HostnameFlag, cli.HTTPPrimeServerNameLocal, "The hostname to connect to")
+	flag.Int(PortFlag, cli.MutualTLSPort, "The port to connect to")
 	flag.Bool(InsecureFlag, false, "Skip TLS verification and validation")
 	flag.BoolP(VerboseFlag, "v", false, "Show extra output for debugging")
 	flag.SortFlags = false
