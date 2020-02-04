@@ -2290,6 +2290,19 @@
     global "^4.3.2"
     util-deprecate "^1.0.2"
 
+"@storybook/addons@^5.3.11":
+  version "5.3.11"
+  resolved "https://registry.yarnpkg.com/@storybook/addons/-/addons-5.3.11.tgz#3d3537e878167bd0ad0b72b92901e5acf1ced05c"
+  integrity sha512-Xm+POVe5GO8vrdSH0RXL3MHNT5sXTqV+MsJTs2Mdfdg2qHfmmOs4A2AN0O+n2VqTR1mIuqr263LthKCbwMAEKA==
+  dependencies:
+    "@storybook/api" "5.3.11"
+    "@storybook/channels" "5.3.11"
+    "@storybook/client-logger" "5.3.11"
+    "@storybook/core-events" "5.3.11"
+    core-js "^3.0.1"
+    global "^4.3.2"
+    util-deprecate "^1.0.2"
+
 "@storybook/api@5.2.8":
   version "5.2.8"
   resolved "https://registry.yarnpkg.com/@storybook/api/-/api-5.2.8.tgz#21f03df8041114eb929bd10b570a17f266568b7f"
