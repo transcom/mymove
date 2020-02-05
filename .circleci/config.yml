@@ -546,7 +546,10 @@ jobs:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
       - run: make bin/rds-ca-2019-root.pem
-      - run: make tasks_build
+      - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
+      - run: rm -f bin/swagger && make bin/swagger
+      - run: make server_generate
+      - run: rm -f bin/milmove-tasks && make bin/milmove-tasks
       - build_tag_push:
           dockerfile: Dockerfile.tasks
           tag: tasks:dev
