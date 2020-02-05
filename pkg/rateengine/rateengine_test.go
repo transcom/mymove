@@ -184,6 +184,7 @@ func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, desti
 	}
 	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(suite.DB(),
 		logger,
+		move,
 		originZip,
 		destinationZip,
 		testdatagen.RateEngineDate,

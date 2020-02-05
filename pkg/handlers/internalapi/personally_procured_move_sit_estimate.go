@@ -48,6 +48,7 @@ func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams)
 
 	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(h.DB(),
 		logger,
+		move,
 		params.OriginZip,
 		destinationZip,
 		time.Time(params.OriginalMoveDate),

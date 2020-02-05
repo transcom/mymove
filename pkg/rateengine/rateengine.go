@@ -172,6 +172,7 @@ func (re *RateEngine) computePPMIncludingLHDiscount(weight unit.Pound, originZip
 
 	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(re.db,
 		re.logger,
+		re.move,
 		originZip5,
 		destinationZip5,
 		date,
