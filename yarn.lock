@@ -2178,17 +2178,17 @@
   resolved "https://registry.yarnpkg.com/@sheerun/mutationobserver-shim/-/mutationobserver-shim-0.3.2.tgz#8013f2af54a2b7d735f71560ff360d3a8176a87b"
   integrity sha512-vTCdPp/T/Q3oSqwHmZ5Kpa9oI7iLtGl3RQaA/NyLHikvcrPxACkkKVr/XzkSPJWXHRhKGzVvb0urJsbMlRxi1Q==
 
-"@storybook/addon-actions@^5.3.11":
-  version "5.3.11"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-actions/-/addon-actions-5.3.11.tgz#6015bd34da72e36703c4056807f2eaff5c0d0ebd"
-  integrity sha512-zY86a6sJWjCRTCeBE/D6zcI+Yl9ISmKvi1QH4ZJBcoM16F5K/IucjMDXyHiZfEaAL1s2e8v3JYDzCgrZmqzIIA==
+"@storybook/addon-actions@^5.3.12":
+  version "5.3.12"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-actions/-/addon-actions-5.3.12.tgz#024678ddd207f050e42c5f8e20b5064cf9839a38"
+  integrity sha512-3j6ZJROcH4bm8vpaM2RU/sRdoOLF9DpVWiE6uutlrVEV6eWuexrUAYwSzuF4Pjr1LUWDSDIT9pEES+tHdn9Rww==
   dependencies:
-    "@storybook/addons" "5.3.11"
-    "@storybook/api" "5.3.11"
-    "@storybook/client-api" "5.3.11"
-    "@storybook/components" "5.3.11"
-    "@storybook/core-events" "5.3.11"
-    "@storybook/theming" "5.3.11"
+    "@storybook/addons" "5.3.12"
+    "@storybook/api" "5.3.12"
+    "@storybook/client-api" "5.3.12"
+    "@storybook/components" "5.3.12"
+    "@storybook/core-events" "5.3.12"
+    "@storybook/theming" "5.3.12"
     core-js "^3.0.1"
     fast-deep-equal "^2.0.1"
     global "^4.3.2"
@@ -2363,17 +2363,6 @@
     global "^4.3.2"
     telejson "^3.0.2"
 
-"@storybook/channel-postmessage@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.yarnpkg.com/@storybook/channel-postmessage/-/channel-postmessage-5.3.11.tgz#ad5c633e93cfe2997e246b859936af205ed33c0e"
-  integrity sha512-zcKkscqY0+7OK+knyqAjN9bMSrE8nAkOnqlQOoiAFsMwDHPyJUv+EFfIes9qUk06kDsTndWwBxVoZ1TIr8nEnA==
-  dependencies:
-    "@storybook/channels" "5.3.11"
-    "@storybook/client-logger" "5.3.11"
-    core-js "^3.0.1"
-    global "^4.3.2"
-    telejson "^3.2.0"
-
 "@storybook/channel-postmessage@5.3.12":
   version "5.3.12"
   resolved "https://registry.yarnpkg.com/@storybook/channel-postmessage/-/channel-postmessage-5.3.12.tgz#945c9702f335018f6224af3159bf4d33c66a131e"
@@ -2426,29 +2415,6 @@
     memoizerific "^1.11.3"
     qs "^6.6.0"
     stable "^0.1.8"
-    util-deprecate "^1.0.2"
-
-"@storybook/client-api@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.yarnpkg.com/@storybook/client-api/-/client-api-5.3.11.tgz#63743a561d3219f933ba8ca0756e8b43e2c33804"
-  integrity sha512-JZRMDcUq70MbjzJg+B7u93q7cwtN4lodJA+IqaoY3YEHBTmSvmTiBLUMd8L6/TWvZ36WBkjuHd3zt3Bn+/xGtw==
-  dependencies:
-    "@storybook/addons" "5.3.11"
-    "@storybook/channel-postmessage" "5.3.11"
-    "@storybook/channels" "5.3.11"
-    "@storybook/client-logger" "5.3.11"
-    "@storybook/core-events" "5.3.11"
-    "@storybook/csf" "0.0.1"
-    "@types/webpack-env" "^1.15.0"
-    core-js "^3.0.1"
-    eventemitter3 "^4.0.0"
-    global "^4.3.2"
-    is-plain-object "^3.0.0"
-    lodash "^4.17.15"
-    memoizerific "^1.11.3"
-    qs "^6.6.0"
-    stable "^0.1.8"
-    ts-dedent "^1.1.0"
     util-deprecate "^1.0.2"
 
 "@storybook/client-api@5.3.12":
@@ -2519,33 +2485,6 @@
     react-syntax-highlighter "^8.0.1"
     react-textarea-autosize "^7.1.0"
     simplebar-react "^1.0.0-alpha.6"
-
-"@storybook/components@5.3.11":
-  version "5.3.11"
-  resolved "https://registry.yarnpkg.com/@storybook/components/-/components-5.3.11.tgz#86c33f965bb83cdd1186255eb90a3b85feb34c6b"
-  integrity sha512-GgmeITo887JgpuF7zsFO2j1GEC6/Co/1ZD0UiWON3oRtMLthNRmkOCq4oOnKKrwAkDL9sCvT9XGaHu+rKEK0TA==
-  dependencies:
-    "@storybook/client-logger" "5.3.11"
-    "@storybook/theming" "5.3.11"
-    "@types/react-syntax-highlighter" "11.0.2"
-    "@types/react-textarea-autosize" "^4.3.3"
-    core-js "^3.0.1"
-    global "^4.3.2"
-    lodash "^4.17.15"
-    markdown-to-jsx "^6.9.1"
-    memoizerific "^1.11.3"
-    polished "^3.3.1"
-    popper.js "^1.14.7"
-    prop-types "^15.7.2"
-    react "^16.8.3"
-    react-dom "^16.8.3"
-    react-focus-lock "^2.1.0"
-    react-helmet-async "^1.0.2"
-    react-popper-tooltip "^2.8.3"
-    react-syntax-highlighter "^11.0.2"
-    react-textarea-autosize "^7.1.0"
-    simplebar-react "^1.0.0-alpha.6"
-    ts-dedent "^1.1.0"
 
 "@storybook/components@5.3.12":
   version "5.3.12"
