@@ -332,7 +332,18 @@ func (p *Builder) UpdateOne(model interface{}) (*validate.Errors, error) {
 		return nil, errors.New(FetchOneReflectionMessage)
 	}
 
-	verrs, err := p.db.ValidateAndUpdate(model)
+	var verrs *validate.Errors
+	var err error
+	methodVal := reflect.ValueOf(model).MethodByName("Validate")
+	if !methodVal.IsValid() {
+		return nil, errors.New("hi")
+	}
+
+	methodInterface := methodVal.Interface()
+	method := methodInterface.(func(tx *pop.Connection) (*validate.Errors, error))
+
+	verrs, err = method(p.db)
+
 	if err != nil || verrs.HasAny() {
 		return verrs, err
 	}

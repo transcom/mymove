@@ -1,11 +1,8 @@
 package mtoshipment
 
 import (
-	"encoding/base64"
 	"fmt"
-	"time"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
@@ -29,19 +26,12 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 	shipmentID := payload.ShipmentID
 	status := payload.Body.Status
 	eTag := payload.IfMatch
-	data, err := base64.StdEncoding.DecodeString(eTag)
-	if err != nil {
-		return nil, err
-	}
-	dateTime, _ := strfmt.ParseDateTime(string(data))
-	unmodifiedSince := time.Time(dateTime)
-
 	var shipment models.MTOShipment
 
 	queryFilters := []services.QueryFilter{
 		query.NewQueryFilter("id", "=", shipmentID),
 	}
-	err = o.builder.FetchOne(&shipment, queryFilters)
+	err := o.builder.FetchOne(&shipment, queryFilters)
 
 	if err != nil {
 		return nil, NotFoundError{id: shipment.ID}
@@ -62,7 +52,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 		return nil, err
 	}
 
-	affectedRows, err := o.db.RawQuery("UPDATE mto_shipments SET status = ?, updated_at = NOW() WHERE id = ? AND updated_at = ?", status, shipment.ID.String(), unmodifiedSince).ExecWithCount()
+	affectedRows, err := o.db.RawQuery("UPDATE mto_shipments SET status = ?, updated_at = NOW() WHERE id = ? AND encode(to_char(updated_at, 'YYYY-MM-DD\"T\"HH24:MI:SS.US\"Z\"')::bytea, 'base64')  = ?", status, shipment.ID.String(), eTag).ExecWithCount()
 
 	if err != nil {
 		return nil, err

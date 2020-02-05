@@ -428,6 +428,12 @@ func (suite *QueryBuilderSuite) TestUpdateOne() {
 		verrs, err := builder.UpdateOne(&updatedOfficeUserInfo)
 		suite.Nil(verrs)
 		suite.Nil(err)
+
+		var filters []services.QueryFilter
+		queryFilters := append(filters, NewQueryFilter("id", "=", updatedOfficeUserInfo.ID.String()))
+		var record models.OfficeUser
+		builder.FetchOne(&record, queryFilters)
+		suite.Equal("leo@spaceman.org", record.Email)
 	})
 
 	suite.T().Run("Rejects input that isn't a pointer to a struct", func(t *testing.T) {
