@@ -9,8 +9,12 @@ ENV GO111MODULE=auto
 COPY --chown=circleci:circleci . /home/circleci/project
 WORKDIR /home/circleci/project
 
+RUN make clean
 RUN make bin/rds-ca-2019-root.pem
-RUN make tasks_build
+RUN make pkg/assets/assets.go
+RUN make bin/swagger
+RUN make server_generate
+RUN make bin/milmove-tasks
 
 #########
 # FINAL #
