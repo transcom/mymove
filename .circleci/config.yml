@@ -775,7 +775,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: cg_build_tasks_inside_docker_locally
 
       - client_test:
           requires:
@@ -783,7 +783,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: cg_build_tasks_inside_docker_locally
 
       - server_test:
           requires:
@@ -791,7 +791,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: cg_build_tasks_inside_docker_locally
 
       - build_app:
           requires:
@@ -832,28 +832,28 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cg_build_tasks_inside_docker_locally
 
       - deploy_experimental_tasks:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cg_build_tasks_inside_docker_locally
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cg_build_tasks_inside_docker_locally
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cg_build_tasks_inside_docker_locally
 
       - check_circle_against_staging_sha:
           requires:
