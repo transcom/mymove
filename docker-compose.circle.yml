@@ -48,7 +48,6 @@ services:
       - ENV=test
       - ENVIRONMENT=test
       - FEATURE_FLAG_ACCESS_CODE=false
-      - GOPROXY=https://gocenter.io
       - HERE_MAPS_APP_CODE
       - HERE_MAPS_APP_ID
       - HERE_MAPS_GEOCODE_ENDPOINT

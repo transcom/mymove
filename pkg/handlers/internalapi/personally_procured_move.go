@@ -273,7 +273,7 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) Handle(params ppmop.UpdateP
 		return ppmop.NewUpdatePersonallyProcuredMoveEstimateBadRequest()
 	}
 
-	err = h.updateEstimates(ppm, logger)
+	err = h.updateEstimates(ppm, logger, moveID)
 	if err != nil {
 		logger.Error("Unable to set calculated fields on PPM", zap.Error(err))
 		return handlers.ResponseForError(logger, err)
@@ -370,8 +370,13 @@ func (h SubmitPersonallyProcuredMoveHandler) Handle(params ppmop.SubmitPersonall
 	return ppmop.NewSubmitPersonallyProcuredMoveOK().WithPayload(ppmPayload)
 }
 
-func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models.PersonallyProcuredMove, logger Logger) error {
-	re := rateengine.NewRateEngine(h.DB(), logger)
+func (h UpdatePersonallyProcuredMoveEstimateHandler) updateEstimates(ppm *models.PersonallyProcuredMove, logger Logger, moveID uuid.UUID) error {
+	move, err := models.FetchMoveByMoveID(h.DB(), moveID)
+	if err != nil {
+		return err
+	}
+
+	re := rateengine.NewRateEngine(h.DB(), logger, move)
 	daysInSIT := 0
 	if ppm.HasSit != nil && *ppm.HasSit && ppm.DaysInStorage != nil {
 		daysInSIT = int(*ppm.DaysInStorage)

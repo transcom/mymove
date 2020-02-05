@@ -620,10 +620,24 @@ func FetchMoveForMoveDates(db *pop.Connection, moveID uuid.UUID) (Move, error) {
 	return move, err
 }
 
-// FetchDutyStation returns a station for a given id
+// FetchMoveByOrderID returns a station for a given id
 func FetchMoveByOrderID(db *pop.Connection, orderID uuid.UUID) (Move, error) {
 	var move Move
 	err := db.Where("orders_id = ?", orderID).First(&move)
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return Move{}, ErrFetchNotFound
+		}
+		return Move{}, err
+	}
+	return move, nil
+}
+
+// FetchMoveByMoveID returns a station for a given id
+func FetchMoveByMoveID(db *pop.Connection, moveID uuid.UUID) (Move, error) {
+	var move Move
+	err := db.Q().Find(&move, moveID)
+
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Move{}, ErrFetchNotFound

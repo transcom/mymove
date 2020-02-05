@@ -10,6 +10,7 @@ import (
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -26,14 +27,19 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 		return ppmop.NewShowPPMIncentiveForbidden()
 	}
 
-	engine := rateengine.NewRateEngine(h.DB(), logger)
-
-	orderID, err := uuid.FromString(params.OrdersID.String())
+	ordersID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	destinationZip, err := GetDestinationDutyStationPostalCode(h.DB(), orderID)
+	move, err := models.FetchMoveByOrderID(h.DB(), ordersID)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	engine := rateengine.NewRateEngine(h.DB(), logger, move)
+
+	destinationZip, err := GetDestinationDutyStationPostalCode(h.DB(), ordersID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
