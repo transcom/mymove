@@ -1,0 +1,8 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+db_password="mysecretpassword"
+db_port="${DB_PORT:-5432}"
+
+exec /usr/local/bin/pg_dump postgres://postgres:"${db_password}"@localhost:"${db_port}"/"${DB_NAME}" -s | tee -a migrations/schema.sql

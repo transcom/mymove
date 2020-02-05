@@ -19,6 +19,7 @@ const MaxSITDays = 90
 type RateEngine struct {
 	db     *pop.Connection
 	logger Logger
+	move   models.Move
 }
 
 // CostComputation represents the results of a computation.
@@ -119,7 +120,9 @@ func (re *RateEngine) computePPM(
 	destinationZip3 := Zip5ToZip3(destinationZip5)
 	sitComputation, err := re.SitCharge(weight.ToCWT(), daysInSIT, destinationZip3, date, true)
 	if err != nil {
-		re.logger.Info("Can't calculate sit")
+		re.logger.Info("Can't calculate sit",
+			zap.String("moveLocator", re.move.Locator),
+		)
 		return
 	}
 	sitFee := sitComputation.ApplyDiscount(lhDiscount, sitDiscount)
@@ -127,7 +130,9 @@ func (re *RateEngine) computePPM(
 	/// Max SIT
 	maxSITComputation, err := re.SitCharge(weight.ToCWT(), MaxSITDays, destinationZip3, date, true)
 	if err != nil {
-		re.logger.Info("Can't calculate max sit")
+		re.logger.Info("Can't calculate max sit",
+			zap.String("moveLocator", re.move.Locator),
+		)
 		return
 	}
 	// Note that SIT has a different discount rate than [non]linehaul charges
@@ -154,7 +159,10 @@ func (re *RateEngine) computePPM(
 	// Finally, scale by prorate factor
 	cost.Scale(prorateFactor)
 
-	re.logger.Info("PPM cost computation", zap.Object("cost", cost))
+	re.logger.Info("PPM cost computation",
+		zap.String("moveLocator", re.move.Locator),
+		zap.Object("cost", cost),
+	)
 
 	return cost, nil
 }
@@ -164,6 +172,7 @@ func (re *RateEngine) computePPMIncludingLHDiscount(weight unit.Pound, originZip
 
 	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(re.db,
 		re.logger,
+		re.move,
 		originZip5,
 		destinationZip5,
 		date,
@@ -227,11 +236,15 @@ func (re *RateEngine) ComputeLowestCostPPMMove(weight unit.Pound, originPickupZi
 		originZipLocation = "Current duty station"
 	}
 
-	re.logger.Info("Origin zip code information", zap.String("originZipLocation", originZipLocation), zap.String("originZipCode", originZipCode))
+	re.logger.Info("Origin zip code information",
+		zap.String("moveLocator", re.move.Locator),
+		zap.String("originZipLocation", originZipLocation),
+		zap.String("originZipCode", originZipCode),
+	)
 	return cost, nil
 }
 
 // NewRateEngine creates a new RateEngine
-func NewRateEngine(db *pop.Connection, logger Logger) *RateEngine {
-	return &RateEngine{db: db, logger: logger}
+func NewRateEngine(db *pop.Connection, logger Logger, move models.Move) *RateEngine {
+	return &RateEngine{db: db, logger: logger, move: move}
 }
