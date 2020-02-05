@@ -12,10 +12,16 @@ func (suite *ModelSuite) TestConvert() {
 	suite.NotNil(move)
 
 	moID, conversionErr := models.ConvertFromPPMToGHC(suite.DB(), move.ID)
-	suite.NoError(conversionErr)
+	suite.FatalNoError(conversionErr)
 
 	var mo models.MoveOrder
-	suite.NoError(suite.DB().Eager("Customer").Find(&mo, moID))
+	suite.FatalNoError(suite.DB().Eager("Customer", "Entitlement").Find(&mo, moID))
+
+	suite.NotNil(mo.ReportByDate)
+	suite.NotNil(mo.DateIssued)
+	suite.NotNil(mo.OrderType)
+	suite.NotNil(mo.OrderTypeDetail)
+	suite.NotNil(mo.Grade)
 
 	suite.NotEqual(uuid.Nil, mo.DestinationDutyStationID)
 	suite.Equal(&move.Orders.NewDutyStationID, mo.DestinationDutyStationID)
@@ -24,6 +30,8 @@ func (suite *ModelSuite) TestConvert() {
 	suite.Equal(move.Orders.ServiceMember.DutyStationID, mo.OriginDutyStationID)
 
 	suite.NotEqual(uuid.Nil, mo.EntitlementID)
+	suite.Equal(false, *mo.Entitlement.DependentsAuthorized)
+	suite.Equal(7000, *mo.Entitlement.DBAuthorizedWeight)
 
 	customer := mo.Customer
 	suite.Equal(*move.Orders.ServiceMember.Edipi, customer.DODID)
