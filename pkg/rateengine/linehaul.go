@@ -65,8 +65,10 @@ func (re *RateEngine) shorthaulCharge(mileage int, cwt unit.CWT, date time.Time)
 	if mileage >= 800 {
 		return 0, nil
 	}
-	re.logger.Debug("Shipment qualifies for shorthaul fee",
-		zap.Int("miles", mileage))
+	re.logger.Info("Shipment qualifies for shorthaul fee",
+		zap.String("moveLocator", re.move.Locator),
+		zap.Int("miles", mileage),
+	)
 
 	cwtMiles := mileage * cwt.Int()
 	shorthaulChargeCents, err = models.FetchShorthaulRateCents(re.db, cwtMiles, date)
@@ -105,7 +107,8 @@ func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 st
 		cost.DestinationLinehaulFactor +
 		cost.ShorthaulCharge
 
-	re.logger.Info("Linehaul charge total calculated", zap.String("moveLocator", re.move.Locator),
+	re.logger.Info("Linehaul charge total calculated",
+		zap.String("moveLocator", re.move.Locator),
 		zap.Int("linehaul total", cost.LinehaulChargeTotal.Int()),
 		zap.Int("linehaul", cost.BaseLinehaul.Int()),
 		zap.Int("origin lh factor", cost.OriginLinehaulFactor.Int()),
