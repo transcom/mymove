@@ -6,7 +6,7 @@ require (
 	github.com/0xAX/notificator v0.0.0-20191016112426-3962a5ea8da1 // indirect
 	github.com/99designs/aws-vault v4.5.1+incompatible
 	github.com/99designs/keyring v1.1.3
-	github.com/aws/aws-sdk-go v1.28.5
+	github.com/aws/aws-sdk-go v1.28.6
 	github.com/cockroachdb/cockroach-go v0.0.0-20190925194419-606b3d062051 // indirect
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
@@ -20,11 +20,11 @@ require (
 	github.com/go-ini/ini v1.49.0 // indirect
 	github.com/go-openapi/errors v0.19.3
 	github.com/go-openapi/loads v0.19.4
-	github.com/go-openapi/runtime v0.19.9
+	github.com/go-openapi/runtime v0.19.10
 	github.com/go-openapi/spec v0.19.5
 	github.com/go-openapi/strfmt v0.19.4
-	github.com/go-openapi/swag v0.19.6
-	github.com/go-openapi/validate v0.19.5
+	github.com/go-openapi/swag v0.19.7
+	github.com/go-openapi/validate v0.19.6
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/go-swagger/go-swagger v0.21.0
@@ -33,9 +33,9 @@ require (
 	github.com/gobuffalo/flect v0.2.0
 	github.com/gobuffalo/nulls v0.1.0 // indirect
 	github.com/gobuffalo/packr v1.30.1
-	github.com/gobuffalo/pop v4.13.0+incompatible
+	github.com/gobuffalo/pop v4.13.1+incompatible
 	github.com/gobuffalo/uuid v2.0.5+incompatible
-	github.com/gobuffalo/validate v2.0.3+incompatible
+	github.com/gobuffalo/validate v2.0.4+incompatible
 	github.com/gocarina/gocsv v0.0.0-20190927101021-3ecffd272576
 	github.com/gofrs/flock v0.7.1
 	github.com/gofrs/uuid v3.2.0+incompatible
@@ -55,7 +55,7 @@ require (
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/namsral/flag v1.7.4-pre
 	github.com/pdfcpu/pdfcpu v0.2.5
-	github.com/pkg/errors v0.9.0
+	github.com/pkg/errors v0.9.1
 	github.com/rickar/cal v1.0.1
 	github.com/rogpeppe/go-internal v1.5.1 // indirect
 	github.com/spf13/afero v1.2.2
@@ -64,7 +64,9 @@ require (
 	github.com/spf13/viper v1.6.2
 	github.com/stretchr/objx v0.2.0
 	github.com/stretchr/testify v1.4.0
+	github.com/tcnksm/go-input v0.0.0-20180404061846-548a7d7a8ee8
 	github.com/tealeg/xlsx v1.0.5
+	github.com/transcom/nom v0.0.0-20190822223231-fc93620f238d
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
 	go.uber.org/zap v1.13.0

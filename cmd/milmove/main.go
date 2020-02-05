@@ -88,7 +88,7 @@ func main() {
 	genCommand.AddCommand(genOfficeUserMigrationCommand)
 
 	genCertsMigrationCommand := &cobra.Command{
-		Use:                   "certs-migration -f FINGERPRINT -s SUBJECT -n MIGRATION_NAME",
+		Use:                   "certs-migration [ -f FINGERPRINT -s SUBJECT | --cac ] -n MIGRATION_NAME",
 		Short:                 "Generate migrations required for adding client certificates",
 		Long:                  "Generate migrations required for adding client certificates",
 		RunE:                  genCertsMigration,
