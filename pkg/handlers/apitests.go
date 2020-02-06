@@ -181,13 +181,13 @@ func (suite *BaseHandlerTestSuite) AuthenticateAdminRequest(req *http.Request, u
 
 // Fixture allows us to include a fixture like a PDF in the test
 func (suite *BaseHandlerTestSuite) Fixture(name string) *runtime.File {
-	fixtureDir := "fixtures"
+	fixtureDir := "testdatagen/testdata"
 	cwd, err := os.Getwd()
 	if err != nil {
 		suite.T().Error(err)
 	}
 
-	fixturePath := path.Join(cwd, "..", fixtureDir, name)
+	fixturePath := path.Join(cwd, "..", "..", fixtureDir, name)
 
 	// #nosec never comes from user input
 	file, err := os.Open(fixturePath)

@@ -11,7 +11,7 @@ import (
 
 // PPMDiscountFetch attempts to fetch the discount rates first for COS D, then 2
 // Most PPMs use COS D, but when there is no COS D rate, the calculation is based on Code 2
-func PPMDiscountFetch(db *pop.Connection, logger Logger, originZip string, destZip string, moveDate time.Time) (unit.DiscountRate, unit.DiscountRate, error) {
+func PPMDiscountFetch(db *pop.Connection, logger Logger, move Move, originZip string, destZip string, moveDate time.Time) (unit.DiscountRate, unit.DiscountRate, error) {
 	// Try to fetch with COS D.
 	lhDiscount, sitDiscount, err := FetchDiscountRates(db,
 		originZip,
@@ -21,6 +21,7 @@ func PPMDiscountFetch(db *pop.Connection, logger Logger, originZip string, destZ
 
 	if err == nil {
 		logger.Info("Found Discount for TDL with COS D.",
+			zap.String("moveLocator", move.Locator),
 			zap.String("origin_zip", originZip),
 			zap.String("destination_zip", destZip),
 			zap.Time("move_date", moveDate),
@@ -42,6 +43,7 @@ func PPMDiscountFetch(db *pop.Connection, logger Logger, originZip string, destZ
 
 	if err == nil {
 		logger.Info("Found Discount for TDL with COS 2.",
+			zap.String("moveLocator", move.Locator),
 			zap.String("origin_zip", originZip),
 			zap.String("destination_zip", destZip),
 			zap.Time("move_date", moveDate),
@@ -52,6 +54,7 @@ func PPMDiscountFetch(db *pop.Connection, logger Logger, originZip string, destZ
 	}
 
 	logger.Error("Couldn't find Discount for COS D or 2.",
+		zap.String("moveLocator", move.Locator),
 		zap.String("origin_zip", originZip),
 		zap.String("destination_zip", destZip),
 		zap.Time("move_date", moveDate),
