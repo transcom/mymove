@@ -23,7 +23,7 @@ func NewPaymentRequestCreator(db *pop.Connection) services.PaymentRequestCreator
 	return &paymentRequestCreator{db: db}
 }
 
-func (p *paymentRequestCreator) createPaymentRequest(tx *pop.Connection, paymentRequest *models.PaymentRequest, requestedAt time.Time) (*models.PaymentRequest, error) {
+func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection, paymentRequest *models.PaymentRequest, requestedAt time.Time) (*models.PaymentRequest, error) {
 	// Verify that the MTO ID exists
 	var moveTaskOrder models.MoveTaskOrder
 	err := tx.Find(&moveTaskOrder, paymentRequest.MoveTaskOrderID)
@@ -39,10 +39,10 @@ func (p *paymentRequestCreator) createPaymentRequest(tx *pop.Connection, payment
 	// Create the payment request for the database
 	verrs, err := tx.ValidateAndCreate(paymentRequest)
 	if verrs.HasAny() {
-		return paymentRequest, fmt.Errorf("validation error creating payment request: %w for %s", verrs, paymentRequest.ID.String())
+		return nil, fmt.Errorf("validation error creating payment request: %w for %s", verrs, paymentRequest.ID.String())
 	}
 	if err != nil {
-		return paymentRequest, fmt.Errorf("failure creating payment request: %w for %s", err, paymentRequest.ID.String())
+		return nil, fmt.Errorf("failure creating payment request: %w for %s", err, paymentRequest.ID.String())
 	}
 
 	return paymentRequest, nil
@@ -167,9 +167,12 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 		prMessageString := " paymentRequestID <" + paymentRequestArg.ID.String() + ">"
 
 		// Create the payment request
-		paymentRequestArg, err = p.createPaymentRequest(tx, paymentRequestArg, now)
+		paymentRequestArg, err = p.createPaymentRequestSaveToDB(tx, paymentRequestArg, now)
 		if err != nil {
-			return fmt.Errorf("failure creating payment service item: %w for %s", err, mtoMessageString+prMessageString)
+			return fmt.Errorf("failure creating payment request: %w for %s", err, mtoMessageString+prMessageString)
+		}
+		if paymentRequestArg == nil {
+			return fmt.Errorf("failure creating payment request <nil> for %s", mtoMessageString+prMessageString)
 		}
 
 		// Create a payment service item for each incoming payment service item in the payment request
@@ -193,8 +196,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			}
 
 			// store param Key:Value pairs coming from the create payment request payload, sent by the user when requesting payment
-			var incomingMTOServiceItemParams map[string]string
-			incomingMTOServiceItemParams = make(map[string]string)
+			incomingMTOServiceItemParams := make(map[string]string)
 
 			// Create a payment service item parameter for each of the incoming payment service item params
 			var newPaymentServiceItemParams models.PaymentServiceItemParams
