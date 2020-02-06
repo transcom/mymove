@@ -56,7 +56,7 @@ require (
 	github.com/namsral/flag v1.7.4-pre
 	github.com/pdfcpu/pdfcpu v0.2.5
 	github.com/pkg/errors v0.9.1
-	github.com/rickar/cal v1.0.1
+	github.com/rickar/cal v1.0.3
 	github.com/rogpeppe/go-internal v1.5.1 // indirect
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/cobra v0.0.5
