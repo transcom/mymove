@@ -5,6 +5,8 @@ set -eu -o pipefail
 #
 # Check the prereqs for CAC
 #
+# Note: This script has no output other than Exit 0 on success  so it can be used in other scripts.
+#
 
 readonly MODULE=/usr/local/lib/pkcs11/cackey.dylib
 readonly PKCS11=/usr/local/bin/pkcs11-tool

@@ -269,8 +269,8 @@ bin_linux/milmove:
 bin/milmove-tasks:
 	go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove-tasks ./cmd/milmove-tasks
 
-bin_linux/milmove-tasks:
-	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin_linux/milmove-tasks ./cmd/milmove-tasks
+bin/prime-api-client:
+	go build -ldflags "$(LDFLAGS)" -o bin/prime-api-client ./cmd/prime-api-client
 
 bin/query-cloudwatch-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/query-cloudwatch-logs ./cmd/query-cloudwatch-logs
@@ -354,6 +354,7 @@ build_tools: bin/gin \
 	bin/iws \
 	bin/milmove-tasks \
 	bin/model-vet \
+	bin/prime-api-client \
 	bin/query-cloudwatch-logs \
 	bin/query-lb-logs \
 	bin/read-alb-logs \
@@ -708,7 +709,6 @@ db_test_e2e_cleanup: ## Clean up Test DB backup `e2e_test`
 .PHONY: tasks_clean
 tasks_clean: ## Clean Scheduled Task files and docker images
 	rm -f .db_test_migrations_build.stamp
-	rm -rf bin_linux/
 	docker rm -f tasks || true
 
 .PHONY: tasks_build
@@ -720,7 +720,7 @@ tasks_build_docker: server_generate bin/milmove-tasks ## Build Scheduled Task de
 	docker build -f Dockerfile.tasks --tag $(TASKS_DOCKER_CONTAINER):latest .
 
 .PHONY: tasks_build_linux_docker
-tasks_build_linux_docker: bin_linux/milmove-tasks ## Build Scheduled Task binaries (linux) and Docker image (local)
+tasks_build_linux_docker:  ## Build Scheduled Task binaries (linux) and Docker image (local)
 	@echo "Build the docker scheduled tasks container..."
 	docker build -f Dockerfile.tasks_local --tag $(TASKS_DOCKER_CONTAINER):latest .
 

@@ -30,6 +30,8 @@ task_def_arn=$("${DIR}/../bin/ecs-deploy" task-def\
   --service app-tasks \
   --environment "${environment}" \
   --image "${image}" \
+  --cpu 256 \
+  --memory 512 \
   --variables-file "${DIR}/../config/env/${environment}.${name}.env" \
   --entrypoint "/bin/milmove-tasks ${name}" \
   --register)

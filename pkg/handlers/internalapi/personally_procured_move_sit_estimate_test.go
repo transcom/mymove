@@ -125,12 +125,21 @@ func helperShowPPMSitEstimateHandler(suite *HandlerSuite, codeOfService string) 
 	}
 	suite.MustSave(&station)
 
-	orderID := uuid.Must(uuid.NewV4())
-	_ = testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+	ordersID := uuid.Must(uuid.NewV4())
+	orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			ID:               orderID,
+			ID:               ordersID,
 			NewDutyStationID: station.ID,
 		},
+	})
+
+	moveID, _ := uuid.NewV4()
+	_ = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			ID:       moveID,
+			OrdersID: ordersID,
+		},
+		Order: orders,
 	})
 
 	user := testdatagen.MakeDefaultServiceMember(suite.DB())
@@ -144,7 +153,7 @@ func helperShowPPMSitEstimateHandler(suite *HandlerSuite, codeOfService string) 
 		OriginalMoveDate: *handlers.FmtDate(testdatagen.DateInsidePeakRateCycle),
 		DaysInStorage:    4,
 		OriginZip:        "77901",
-		OrdersID:         strfmt.UUID(orderID.String()),
+		OrdersID:         strfmt.UUID(ordersID.String()),
 		WeightEstimate:   3000,
 	}
 	// And: ShowPPMSitEstimateHandler is queried

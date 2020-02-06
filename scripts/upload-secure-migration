@@ -65,13 +65,6 @@ if [[ ${FILESIZE} -gt ${MAX_FILESIZE} ]]; then
   exit 1
 fi
 
-# Ensure our `aws` command is the one infra has wrapped with aws-vault
-command -v "$aws_command" 2> /dev/null | grep "ppp-infra/scripts/aws" &> /dev/null || \
-  ( echo "error: aws command not pointing to 'ppp-infra/scripts/aws"
-    echo "see https://github.com/transcom/ppp-infra/blob/master/transcom-ppp/README.md#using-aws-vault"
-    exit 1
-  )
-
 # Test AWS command and freshen AWS session token
 ${aws_command} s3 ls "${aws_bucket_prefix}${environments[0]}${aws_bucket_suffix}" > /dev/null
 
