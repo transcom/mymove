@@ -1,5 +1,9 @@
 package main
 
+// This script audits the definitions of models in pkg/models
+// and checks for mismatches between struct fields' types
+// and column definitions in the database.
+
 import (
 	"fmt"
 	"go/ast"
@@ -65,42 +69,64 @@ type Model struct {
 	fields []Field
 }
 
+// The fields in this struct have to be public so that they
+// can be set by Pop.
 type Column struct {
 	Name     string `db:"column_name"`
 	DataType string `db:"udt_name"`
 	Nullable bool   `db:"is_nullable"`
 }
 
-// Use the Go parser to load all structs from the provide go file
+// Use the Go parser to load all structs from the provided go file
 func loadModelsFromFile(path string) ([]Model, error) {
 	var models []Model
 
 	fset := token.NewFileSet()
-	node, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
+	parsedFile, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
 	if err != nil {
 		return models, err
 	}
 
-	for _, decl := range node.Decls {
+	// Loop through all declarations in the parsed file
+	for _, decl := range parsedFile.Decls {
 		if g, ok := decl.(*ast.GenDecl); ok {
+
+			// We are only interested in type declarations
 			if g.Tok == token.TYPE {
 				for _, spec := range g.Specs {
 					typeSpec := spec.(*ast.TypeSpec)
+
+					// Check to see if the type declaration is for a struct
 					if structType, ok := typeSpec.Type.(*ast.StructType); ok {
+
+						// Build an internal representation of the model, which will
+						// also house the fields when we get to them.
 						m := Model{
-							name:   typeSpec.Name.Name,
-							dbName: nflect.Tableize(typeSpec.Name.Name),
+							name:   typeSpec.Name.Name,                  // Name of the struct, e.g. MoveOrder
+							dbName: nflect.Tableize(typeSpec.Name.Name), // e.g. move_order
 						}
+
+						// Loop through fields and add them to m
 						for _, structField := range structType.Fields.List {
 							if structField.Tag == nil {
 								// If there's no struct tag, we're not using that column with Pop
 								continue
 							}
-							tags := reflect.StructTag(strings.Trim(structField.Tag.Value, "`"))
+
+							// The struct tag string we get back from the parser includes backticks,
+							// but reflect.StructTag expects only the string inside those backticks.
+							trimmed := strings.Trim(structField.Tag.Value, "`")
+
+							// Parse the field's tags, e.g. `db:"col_name" json:"col_name"`
+							// into a data structure so we can fetch the values for specific tags.
+							tags := reflect.StructTag(trimmed)
+
 							f := Field{
 								name:   structField.Names[0].Name,
 								dbName: tags.Get("db"),
 							}
+
+							// Track if the field's type is a pointer type
 							if _, ok := structField.Type.(*ast.StarExpr); ok {
 								f.pointer = true
 							}
@@ -183,6 +209,7 @@ func main() {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
+	// Track if we have found at least one issue
 	fail := false
 
 	files, dirErr := ioutil.ReadDir("./pkg/models")

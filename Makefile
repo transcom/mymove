@@ -227,6 +227,9 @@ bin/big-cat:
 bin/compare-secure-migrations:
 	go build -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare-secure-migrations
 
+bin/model-vet:
+	go build -ldflags "$(LDFLAGS)" -o bin/model-vet ./cmd/model-vet
+
 bin/ecs-deploy:
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy ./cmd/ecs-deploy
 
@@ -350,6 +353,7 @@ build_tools: bin/gin \
 	bin/health-checker \
 	bin/iws \
 	bin/milmove-tasks \
+	bin/model-vet \
 	bin/query-cloudwatch-logs \
 	bin/query-lb-logs \
 	bin/read-alb-logs \
