@@ -440,7 +440,7 @@ server_test_coverage: db_test_reset db_test_migrate server_test_coverage_generat
 
 .PHONY: server_test_docker
 server_test_docker:
-	docker-compose -f docker-compose.circle.yml --compatibility up --remove-orphans
+	docker-compose -f docker-compose.circle.yml --compatibility up --remove-orphans --abort-on-container-exit
 
 .PHONY: server_test_docker_down
 server_test_docker_down:
