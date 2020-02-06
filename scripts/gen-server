@@ -23,6 +23,8 @@ pids[4]=$!
 pids[5]=$!
 ./bin/swagger generate server -q -f swagger/prime.yaml -t $gendir --model-package primemessages --server-package primeapi --api-package primeoperations --exclude-main -A mymove &
 pids[6]=$!
+./bin/swagger generate client -q -f swagger/prime.yaml -t $gendir --model-package primemessages --client-package primeclient -A mymove &
+pids[7]=$!
 
 # Wait for all processes to finish
 for pid in ${pids[*]}; do

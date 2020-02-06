@@ -187,7 +187,7 @@ func (re *RateEngine) SitCharge(cwt unit.CWT, daysInSIT int, zip3 string, date t
 		NonDiscountedTotal: sitPart.AddCents(linehaulPart),
 	}
 
-	zapFields = append(zapFields, zap.Object("sit computation", sitComputation))
+	zapFields = append(zapFields, zap.Object("sit computation", sitComputation), zap.String("moveLocator", re.move.Locator))
 	re.logger.Info("sit calculation", zapFields...)
 
 	return sitComputation, err
@@ -215,6 +215,7 @@ func (re *RateEngine) nonLinehaulChargeComputation(weight unit.Pound, originZip5
 	}
 
 	re.logger.Info("Non-Linehaul charge total calculated",
+		zap.String("moveLocator", re.move.Locator),
 		zap.Int("origin service fee", cost.OriginService.Fee.Int()),
 		zap.Int("destination service fee", cost.DestinationService.Fee.Int()),
 		zap.Int("pack fee", cost.Pack.Fee.Int()),

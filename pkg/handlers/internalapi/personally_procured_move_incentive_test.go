@@ -18,7 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 )
 
-func (suite *HandlerSuite) setupPersonallyProcuredMoveIncentiveTest(orderID uuid.UUID) {
+func (suite *HandlerSuite) setupPersonallyProcuredMoveIncentiveTest(ordersID uuid.UUID) {
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "503",
 		BasepointCity: "Des Moines",
@@ -115,16 +115,25 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveIncentiveTest(orderID uuid
 	}
 	suite.MustSave(&station)
 
-	_ = testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+	orders := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
-			ID:               orderID,
+			ID:               ordersID,
 			NewDutyStationID: station.ID,
 		},
+	})
+
+	moveID, _ := uuid.NewV4()
+	_ = testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			ID:       moveID,
+			OrdersID: ordersID,
+		},
+		Order: orders,
 	})
 }
 
 func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
-	orderID := uuid.Must(uuid.NewV4())
+	ordersID := uuid.Must(uuid.NewV4())
 	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
@@ -139,7 +148,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 		OriginZip:            "94540",
 		OriginDutyStationZip: "50309",
 		Weight:               7500,
-		OrdersID:             strfmt.UUID(orderID.String()),
+		OrdersID:             strfmt.UUID(ordersID.String()),
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -150,11 +159,11 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 }
 
 func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
-	orderID := uuid.Must(uuid.NewV4())
+	ordersID := uuid.Must(uuid.NewV4())
 	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
-	suite.setupPersonallyProcuredMoveIncentiveTest(orderID)
+	suite.setupPersonallyProcuredMoveIncentiveTest(ordersID)
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
@@ -166,7 +175,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 		OriginZip:            "94540",
 		OriginDutyStationZip: "50309",
 		Weight:               7500,
-		OrdersID:             strfmt.UUID(orderID.String()),
+		OrdersID:             strfmt.UUID(ordersID.String()),
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -181,12 +190,12 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 	suite.Equal(int64(605203), *cost.IncentivePercentage, "IncentivePercentage was not equal")
 }
 func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
-	orderID := uuid.Must(uuid.NewV4())
+	ordersID := uuid.Must(uuid.NewV4())
 	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
-	suite.setupPersonallyProcuredMoveIncentiveTest(orderID)
+	suite.setupPersonallyProcuredMoveIncentiveTest(ordersID)
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
@@ -198,7 +207,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 		OriginZip:            "94540",
 		OriginDutyStationZip: "50309",
 		Weight:               600,
-		OrdersID:             strfmt.UUID(orderID.String()),
+		OrdersID:             strfmt.UUID(ordersID.String()),
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
