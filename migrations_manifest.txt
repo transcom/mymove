@@ -443,3 +443,4 @@
 20200124192943_update_tariff400ng_mistaken_rate_area.up.sql
 20200128024819_fix_rolename_typo.up.sql
 20200131173648_remove-service_id-from-payment_service_item.up.sql
+20200204194821_erin_cac.up.sql
