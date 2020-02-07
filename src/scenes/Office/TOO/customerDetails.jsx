@@ -11,7 +11,8 @@ import {
   selectMoveTaskOrders,
 } from 'shared/Entities/modules/moveTaskOrders';
 import { getMTOServiceItems, selectMTOServiceItems } from 'shared/Entities/modules/mtoServiceItems';
-import { getMTOShipments, selectMTOShipments } from 'shared/Entities/modules/mtoShipments';
+import { getMTOShipments, patchMTOShipmentStatus, selectMTOShipments } from 'shared/Entities/modules/mtoShipments';
+import { ApproveRejectModal } from 'shared/ApproveRejectModal';
 
 class CustomerDetails extends Component {
   componentDidMount() {
@@ -125,6 +126,9 @@ class CustomerDetails extends Component {
                   <th>Shipment Type</th>
                   <th>Requested Pick-up Date</th>
                   <th>Customer Remarks</th>
+                  <th>Status</th>
+                  <th>Rejection Reason</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -135,6 +139,32 @@ class CustomerDetails extends Component {
                       <td>{items.shipmentType}</td>
                       <td>{items.requestedPickupDate}</td>
                       <td>{items.customerRemarks}</td>
+                      <td>{items.status}</td>
+                      <td>{items.rejectionReason}</td>
+                      <td>
+                        {
+                          <ApproveRejectModal
+                            hideModal={items.status !== 'SUBMITTED'}
+                            approveBtnOnClick={() =>
+                              this.props.patchMTOShipmentStatus(
+                                get(moveTaskOrder, 'id'),
+                                items.id,
+                                'APPROVED',
+                                items.updatedAt,
+                              )
+                            }
+                            rejectBtnOnClick={rejectionReason =>
+                              this.props.patchMTOShipmentStatus(
+                                get(moveTaskOrder, 'id'),
+                                items.id,
+                                'REJECTED',
+                                items.updatedAt,
+                                rejectionReason,
+                              )
+                            }
+                          />
+                        }
+                      </td>
                     </tr>
                   </Fragment>
                 ))}
@@ -198,6 +228,7 @@ const mapDispatchToProps = {
   getCustomer,
   getMTOServiceItems,
   getMTOShipments,
+  patchMTOShipmentStatus,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CustomerDetails);
