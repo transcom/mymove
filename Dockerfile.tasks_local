@@ -1,5 +1,26 @@
+###########
+# BUILDER #
+###########
+
+FROM trussworks/circleci-docker-primary:6f138d780444b35181e0048282616f75a451d7b4 as builder
+
+COPY --chown=circleci:circleci . /home/circleci/project
+WORKDIR /home/circleci/project
+
+RUN make clean
+RUN make bin/rds-ca-2019-root.pem
+RUN make pkg/assets/assets.go
+RUN make bin/swagger
+RUN make server_generate
+RUN make bin/milmove-tasks
+
+#########
+# FINAL #
+#########
+
 FROM gcr.io/distroless/base:latest
 
-COPY bin_linux/milmove-tasks /bin/milmove-tasks
+COPY --from=builder /home/circleci/project/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
+COPY --from=builder /home/circleci/project/bin/milmove-tasks /bin/milmove-tasks
 
 WORKDIR /bin

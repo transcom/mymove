@@ -26,18 +26,42 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	})
 	serviceItemParamKey1 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
 		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         "weight",
-			Description: "actual weight",
+			Key:         "WeightEstimated",
+			Description: "estimated weight",
 			Type:        models.ServiceItemParamTypeInteger,
 			Origin:      models.ServiceItemParamOriginPrime,
 		},
 	})
 	serviceItemParamKey2 := testdatagen.MakeServiceItemParamKey(suite.DB(), testdatagen.Assertions{
 		ServiceItemParamKey: models.ServiceItemParamKey{
-			Key:         "pickup",
+			Key:         "RequestedPickupDate",
 			Description: "requested pickup date",
 			Type:        models.ServiceItemParamTypeDate,
 			Origin:      models.ServiceItemParamOriginPrime,
+		},
+	})
+
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey1.ID,
+			ServiceItemParamKey:   serviceItemParamKey1,
+		},
+	})
+
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem1.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey2.ID,
+			ServiceItemParamKey:   serviceItemParamKey2,
+		},
+	})
+
+	_ = testdatagen.MakeServiceParam(suite.DB(), testdatagen.Assertions{
+		ServiceParam: models.ServiceParam{
+			ServiceID:             mtoServiceItem2.ReServiceID,
+			ServiceItemParamKeyID: serviceItemParamKey1.ID,
+			ServiceItemParamKey:   serviceItemParamKey1,
 		},
 	})
 
@@ -49,23 +73,25 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			IsFinal:         false,
 			PaymentServiceItems: models.PaymentServiceItems{
 				{
-					ServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItem:   mtoServiceItem1,
 					PaymentServiceItemParams: models.PaymentServiceItemParams{
 						{
-							IncomingKey: "weight",
+							IncomingKey: "WeightEstimated",
 							Value:       "3254",
 						},
 						{
-							IncomingKey: "pickup",
+							IncomingKey: "RequestedPickupDate",
 							Value:       "2019-12-16",
 						},
 					},
 				},
 				{
-					ServiceItemID: mtoServiceItem2.ID,
+					MTOServiceItemID: mtoServiceItem2.ID,
+					MTOServiceItem:   mtoServiceItem2,
 					PaymentServiceItemParams: models.PaymentServiceItemParams{
 						{
-							IncomingKey: "weight",
+							IncomingKey: "WeightEstimated",
 							Value:       "7722",
 						},
 					},
@@ -73,20 +99,23 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			},
 		}
 
-		_, err := creator.CreatePaymentRequest(&paymentRequest)
+		paymentRequestReturn, err := creator.CreatePaymentRequest(&paymentRequest)
 		suite.FatalNoError(err)
 
 		// Verify some of the data that came back
-		suite.NotEqual(paymentRequest.ID, uuid.Nil)
-		if suite.Len(paymentRequest.PaymentServiceItems, 2) {
-			suite.NotEqual(paymentRequest.PaymentServiceItems[0].ID, uuid.Nil)
-			if suite.Len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams, 2) {
-				suite.NotEqual(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams[0].ID, uuid.Nil)
-				suite.NotEqual(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams[1].ID, uuid.Nil)
+		suite.NotEqual(paymentRequestReturn.ID, uuid.Nil)
+		suite.Equal(2, len(paymentRequestReturn.PaymentServiceItems), "PaymentServiceItems expect 2")
+		if suite.Len(paymentRequestReturn.PaymentServiceItems, 2) {
+			suite.NotEqual(paymentRequestReturn.PaymentServiceItems[0].ID, uuid.Nil)
+			suite.Equal(2, len(paymentRequestReturn.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItemParams expect 2")
+			if suite.Len(paymentRequestReturn.PaymentServiceItems[0].PaymentServiceItemParams, 2) {
+				suite.NotEqual(paymentRequestReturn.PaymentServiceItems[0].PaymentServiceItemParams[0].ID, uuid.Nil)
+				suite.NotEqual(paymentRequestReturn.PaymentServiceItems[0].PaymentServiceItemParams[1].ID, uuid.Nil)
 			}
-			suite.NotEqual(paymentRequest.PaymentServiceItems[1].ID, uuid.Nil)
-			if suite.Len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams, 1) {
-				suite.NotEqual(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams[0].ID, uuid.Nil)
+			suite.NotEqual(paymentRequestReturn.PaymentServiceItems[1].ID, uuid.Nil)
+			suite.Equal(1, len(paymentRequestReturn.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 1")
+			if suite.Len(paymentRequestReturn.PaymentServiceItems[1].PaymentServiceItemParams, 1) {
+				suite.NotEqual(paymentRequestReturn.PaymentServiceItems[1].PaymentServiceItemParams[0].ID, uuid.Nil)
 			}
 		}
 	})
@@ -97,7 +126,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			IsFinal:         false,
 			PaymentServiceItems: models.PaymentServiceItems{
 				{
-					ServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItem:   mtoServiceItem1,
 					PaymentServiceItemParams: models.PaymentServiceItemParams{
 						{
 							ServiceItemParamKeyID: serviceItemParamKey1.ID,
@@ -110,7 +140,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 					},
 				},
 				{
-					ServiceItemID: mtoServiceItem2.ID,
+					MTOServiceItemID: mtoServiceItem2.ID,
+					MTOServiceItem:   mtoServiceItem2,
 					PaymentServiceItemParams: models.PaymentServiceItemParams{
 						{
 							ServiceItemParamKeyID: serviceItemParamKey1.ID,
@@ -126,15 +157,57 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 
 		// Verify some of the data that came back
 		suite.NotEqual(paymentRequest.ID, uuid.Nil)
+		suite.Equal(2, len(paymentRequest.PaymentServiceItems), "PaymentServiceItems expect 2")
 		if suite.Len(paymentRequest.PaymentServiceItems, 2) {
 			suite.NotEqual(paymentRequest.PaymentServiceItems[0].ID, uuid.Nil)
+			suite.Equal(2, len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItemParams expect 2")
 			if suite.Len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams, 2) {
 				suite.NotEqual(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams[0].ID, uuid.Nil)
 				suite.NotEqual(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams[1].ID, uuid.Nil)
 			}
 			suite.NotEqual(paymentRequest.PaymentServiceItems[1].ID, uuid.Nil)
+			suite.Equal(1, len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 1")
 			if suite.Len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams, 1) {
 				suite.NotEqual(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams[0].ID, uuid.Nil)
+			}
+		}
+	})
+
+	suite.T().Run("Payment request is created successfully (using no IncomingKey data or ServiceItemParamKeyID data)", func(t *testing.T) {
+		paymentRequest := models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			IsFinal:         false,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID:         mtoServiceItem1.ID,
+					MTOServiceItem:           mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{},
+				},
+				{
+					MTOServiceItemID:         mtoServiceItem2.ID,
+					MTOServiceItem:           mtoServiceItem2,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{},
+				},
+			},
+		}
+
+		paymentRequestResult, err := creator.CreatePaymentRequest(&paymentRequest)
+		suite.FatalNoError(err)
+
+		// Verify some of the data that came back
+		suite.NotEqual(paymentRequestResult.ID, uuid.Nil)
+		suite.Equal(2, len(paymentRequest.PaymentServiceItems), "PaymentServiceItems expect 2")
+		if suite.Len(paymentRequestResult.PaymentServiceItems, 2) {
+			suite.NotEqual(paymentRequestResult.PaymentServiceItems[0].ID, uuid.Nil)
+			suite.Equal(2, len(paymentRequest.PaymentServiceItems[0].PaymentServiceItemParams), "PaymentServiceItemParams expect 2")
+			if suite.Len(paymentRequestResult.PaymentServiceItems[0].PaymentServiceItemParams, 2) {
+				suite.NotEqual(paymentRequestResult.PaymentServiceItems[0].PaymentServiceItemParams[0].ID, uuid.Nil)
+				suite.NotEqual(paymentRequestResult.PaymentServiceItems[0].PaymentServiceItemParams[1].ID, uuid.Nil)
+			}
+			suite.NotEqual(paymentRequestResult.PaymentServiceItems[1].ID, uuid.Nil)
+			suite.Equal(1, len(paymentRequest.PaymentServiceItems[1].PaymentServiceItemParams), "PaymentServiceItems[1].PaymentServiceItemParams expect 1")
+			if suite.Len(paymentRequestResult.PaymentServiceItems[1].PaymentServiceItemParams, 1) {
+				suite.NotEqual(paymentRequestResult.PaymentServiceItems[1].PaymentServiceItemParams[0].ID, uuid.Nil)
 			}
 		}
 	})
@@ -156,7 +229,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			IsFinal:         false,
 			PaymentServiceItems: models.PaymentServiceItems{
 				{
-					ServiceItemID: badID,
+					MTOServiceItemID: badID,
 				},
 			},
 		}
@@ -170,7 +243,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			IsFinal:         false,
 			PaymentServiceItems: models.PaymentServiceItems{
 				{
-					ServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItem:   mtoServiceItem1,
 					PaymentServiceItemParams: models.PaymentServiceItemParams{
 						{
 							ServiceItemParamKeyID: badID,
@@ -190,7 +264,8 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			IsFinal:         false,
 			PaymentServiceItems: models.PaymentServiceItems{
 				{
-					ServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItem:   mtoServiceItem1,
 					PaymentServiceItemParams: models.PaymentServiceItemParams{
 						{
 							IncomingKey: "bogus",

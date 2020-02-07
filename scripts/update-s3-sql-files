@@ -25,13 +25,6 @@ if [[ -z "${1:-}" ]]; then
 fi
 readonly environment="${1}"
 
-# Ensure our `aws` command is the one infra has wrapped with aws-vault
-command -v "$aws_command" 2> /dev/null | grep "ppp-infra/scripts/aws" &> /dev/null || \
-  ( echo "error: aws command not pointing to 'ppp-infra/scripts/aws"
-    echo "see https://github.com/transcom/ppp-infra/blob/master/transcom-ppp/README.md#using-aws-vault"
-    exit 1
-  )
-
 bucket="${aws_bucket_prefix}${environment}${aws_bucket_suffix}"
 
 # Find only the files that need to be renamed
