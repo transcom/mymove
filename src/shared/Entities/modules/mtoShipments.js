@@ -3,10 +3,34 @@ import { getGHCClient } from 'shared/Swagger/api';
 import { selectMoveTaskOrders } from 'shared/Entities/modules/moveTaskOrders';
 import { filter } from 'lodash';
 
-const getMTOShipmentsOperation = 'mtoShipment.listMTOShipments';
 const mtoShipmentsSchemaKey = 'mtoShipments';
+const getMTOShipmentsOperation = 'mtoShipment.listMTOShipments';
 export function getMTOShipments(moveTaskOrderID, label = getMTOShipmentsOperation, schemaKey = mtoShipmentsSchemaKey) {
   return swaggerRequest(getGHCClient, getMTOShipmentsOperation, { moveTaskOrderID }, { label, schemaKey });
+}
+
+const mtoShipmentSchemaKey = 'mtoShipment';
+const patchMTOShipmentStatusOperation = 'mtoShipment.patchMTOShipmentStatus';
+export function patchMTOShipmentStatus(
+  moveTaskOrderID,
+  shipmentID,
+  shipmentStatus,
+  ifUnmodifiedSince,
+  rejectionReason,
+  label = patchMTOShipmentStatusOperation,
+  schemaKey = mtoShipmentSchemaKey,
+) {
+  return swaggerRequest(
+    getGHCClient,
+    patchMTOShipmentStatusOperation,
+    {
+      moveTaskOrderID,
+      shipmentID,
+      'If-Unmodified-Since': ifUnmodifiedSince,
+      body: { status: shipmentStatus, rejectionReason },
+    },
+    { label, schemaKey },
+  );
 }
 
 export function selectMTOShipments(state, moveOrderId) {
