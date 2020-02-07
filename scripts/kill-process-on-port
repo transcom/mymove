@@ -1,0 +1,37 @@
+#! /usr/bin/env bash
+#
+# A script that asks and then kills a process running on a certain port.
+#
+
+set -eu -o pipefail
+
+readonly usage="usage: $0 <port>"
+
+function proceed() {
+  proceed_message=${1:-"proceed"}
+  echo -en "\e[31m${proceed_message} (y/N) \e[39m"
+  read -r proceed
+  if [[ "$proceed" =~ ^[^yY]*$ ]]; then
+    echo "exiting"
+    exit 0
+  fi
+}
+
+port=${1:-}
+
+if [[ -z "$port" ]]; then
+  echo "$usage"
+  exit 1
+fi
+
+pid=$(lsof -t -sTCP:LISTEN -i :"$port") || true
+
+if [[ -z "$pid" ]]; then
+  exit 0
+else
+  echo "The following process is running on port $port."
+  lsof -i :"$port" | grep LISTEN
+  proceed "Shall I kill it for you?"
+  kill -9 "$pid"
+  echo "It is done."
+fi

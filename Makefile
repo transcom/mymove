@@ -333,13 +333,10 @@ server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.sta
 		serve \
 		2>&1 | tee -a log/dev.log
 
-
-# This target also kills any process that is running on ports 8080 or 9443 as the debug processes
-# tend to not be cleaned up properly.
 .PHONY: server_run_debug
 server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir build/index.html server_generate db_dev_run ## Debug the server
-	lsof -t -i :8080 | xargs kill -9
-	lsof -t -i :9443 | xargs kill -9
+	scripts/kill-process-on-port 8080
+	scripts/kill-process-on-port 9443
 	$(AWS_VAULT) dlv debug cmd/milmove/*.go -- serve 2>&1 | tee -a log/dev.log
 
 .PHONY: build_tools
