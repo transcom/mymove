@@ -1,10 +1,31 @@
+###########
+# BUILDER #
+###########
+
+FROM trussworks/circleci-docker-primary:6f138d780444b35181e0048282616f75a451d7b4 as builder
+
+COPY --chown=circleci:circleci . /home/circleci/project
+WORKDIR /home/circleci/project
+
+ENV CGO_ENABLED=1
+ENV GOOS=linux
+ENV GOARCH=amd64
+
+RUN make clean
+RUN rm -f pkg/assets/assets.go && make pkg/assets/assets.go
+RUN rm -f bin/swagger &&  make bin/swagger
+RUN make server_generate
+RUN rm -f bin/milmove && make bin/milmove
+
+#########
+# FINAL #
+#########
+
 FROM alpine:3.11.3
 
-COPY bin_linux/milmove /bin/milmove
+COPY --from=builder --chown=root:root /home/circleci/project/bin/milmove /bin/milmove
 
-COPY migrations /migrate/migrations
-COPY migrations_manifest.txt /migrate/migrations_manifest.txt
+COPY migrations/app/schema /migrate/schema
+COPY migrations/app/migrations_manifest.txt /migrate/migrations_manifest.txt
 
-WORKDIR /
-
-ENTRYPOINT ["/bin/milmove", "migrate", "-p", "file:///migrate/migrations", "-m", "/migrate/migrations_manifest.txt"]
+ENTRYPOINT ["/bin/milmove", "migrate"]

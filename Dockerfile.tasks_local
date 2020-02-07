@@ -9,10 +9,10 @@ WORKDIR /home/circleci/project
 
 RUN make clean
 RUN make bin/rds-ca-2019-root.pem
-RUN make pkg/assets/assets.go
-RUN make bin/swagger
+RUN rm -f pkg/assets/assets.go && make pkg/assets/assets.go
+RUN rm -f bin/swagger &&  make bin/swagger
 RUN make server_generate
-RUN make bin/milmove-tasks
+RUN rm -f bin/milmove-tasks && make bin/milmove-tasks
 
 #########
 # FINAL #

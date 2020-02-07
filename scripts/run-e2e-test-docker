@@ -51,10 +51,10 @@ if [[ -n "${CIRCLECI+x}" ]]; then
 
   # Can't mount folders in CircleCI so copy this data in
   # https://circleci.com/docs/2.0/building-docker-images/#mounting-folders
-  docker cp ./local_migrations mymove_milmove_migrate_1:/migrate/
+  docker cp ./migrations/app/secure mymove_milmove_migrate_1:/migrate/
 
   # Start everything up
-  docker-compose up -d --no-recreate
+  docker-compose up -d --no-recreate --remove-orphans
 else
   # Locally development requires that we build the container
 
@@ -62,7 +62,7 @@ else
   docker-compose -f docker-compose.local.yml down || true
 
   # Build artifacts
-  make client_build bin_linux/milmove
+  make client_build
 
   # Build images and start everything up
   docker-compose -f docker-compose.local.yml up -d --build
