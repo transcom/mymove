@@ -567,5 +567,8 @@ pkcs7
 v5.6
 opensc
 onboarding
+diem
+UI
+UIs
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - ./docs/backend/route-planner.md
