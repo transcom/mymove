@@ -154,13 +154,15 @@ func Address(address *models.Address) *ghcmessages.Address {
 }
 
 func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
+	strfmt.MarshalFormat = strfmt.RFC3339Micro
 	return &ghcmessages.MTOShipment{
 		ID:                  strfmt.UUID(mtoShipment.ID.String()),
 		MoveTaskOrderID:     strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
 		ShipmentType:        mtoShipment.ShipmentType,
 		Status:              string(mtoShipment.Status),
-		CustomerRemarks:     *mtoShipment.CustomerRemarks,
+		CustomerRemarks:     mtoShipment.CustomerRemarks,
 		RequestedPickupDate: strfmt.Date(*mtoShipment.RequestedPickupDate),
+		RejectionReason:     mtoShipment.RejectionReason,
 		CreatedAt:           strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:           strfmt.DateTime(mtoShipment.UpdatedAt),
 	}
