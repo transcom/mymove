@@ -101,7 +101,7 @@ In addition to the front end interfaces, MilMove comprises a set of APIs that wo
 
 `Contractors`: The API "the Prime" will use to communicate with the system. When the Prime needs information about a move (e.g., when is it scheduled?) or needs to update information about a move (e.g., what was the total weight of items moved?), it will use the `Contractors` API. As of this writing, this API is described in `prime.yaml`, but expect that name to change.
 
-`Orders`: People moving receive orders to move, which include information about the destination as well as authorizations for various kinds of storage, conveyance, per diem allowances, and many more details. Currently that's all transmitted via the Orders API in a PDF and has to be entered manually. Eventually the Orders API will allow all those details to be transmitted electronically.
+`Orders`: People moving receive orders to move, which include information about the destination as well as authorizations for various kinds of storage, conveyance, per diem allowances, and many more details. Currently Orders information is entered into the system manually by office personnel from a PDF. However, the Orders API is receiving that data directly from the services and eventually that data will be used as the source of truth. That process is called "Orders Ingestion". The process of getting that data into the system for use with moves is called "Orders Integration".
 
 `GEX`: Global Exchange. GEX enables the exchange of transaction data between the DoD and private entities. We use it during the invoicing phase of the move.
 
