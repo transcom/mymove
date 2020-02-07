@@ -30,7 +30,7 @@ if [[ -z "$pid" ]]; then
   exit 0
 else
   echo "The following process is running on port $port."
-  lsof -i :"$port" | grep LISTEN
+  lsof -sTCP:LISTEN -i :"$port"
   proceed "Shall I kill it for you?"
   kill -9 "$pid"
   echo "It is done."
