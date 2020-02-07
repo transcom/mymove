@@ -80,8 +80,10 @@ func (f moveOrderFetcher) ListMoveOrders() ([]models.MoveOrder, error) {
 	for i := range moveOrders {
 		f.db.Load(&moveOrders[i], "Customer")
 		f.db.Load(&moveOrders[i], "ConfirmationNumber")
-		f.db.Load(&moveOrders[i], "DestinationDutyStation.Address")
-		f.db.Load(&moveOrders[i], "OriginDutyStation.Address")
+		f.db.Load(&moveOrders[i], "DestinationDutyStation")
+		f.db.Load(moveOrders[i].DestinationDutyStation, "Address")
+		f.db.Load(&moveOrders[i], "OriginDutyStation")
+		f.db.Load(moveOrders[i].OriginDutyStation, "Address")
 		f.db.Load(&moveOrders[i], "Entitlement")
 	}
 
@@ -108,8 +110,10 @@ func (f moveOrderFetcher) FetchMoveOrder(moveOrderID uuid.UUID) (*models.MoveOrd
 
 	f.db.Load(moveOrder, "Customer")
 	f.db.Load(moveOrder, "ConfirmationNumber")
-	f.db.Load(moveOrder, "DestinationDutyStation.Address")
-	f.db.Load(moveOrder, "OriginDutyStation.Address")
+	f.db.Load(moveOrder, "DestinationDutyStation")
+	f.db.Load(moveOrder.DestinationDutyStation, "Address")
+	f.db.Load(moveOrder, "OriginDutyStation")
+	f.db.Load(moveOrder.OriginDutyStation, "Address")
 	f.db.Load(moveOrder, "Entitlement")
 
 	return moveOrder, nil
