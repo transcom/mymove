@@ -15,6 +15,8 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
 <!-- toc -->
 
 * [Overview](#overview)
+  * [The UIs](#the-uis)
+  * [The APIs](#the-apis)
   * [Historical note](#historical-note)
 * [Supported Browsers](#supported-browsers)
 * [Login.gov](#logingov)
@@ -73,28 +75,41 @@ Regenerate with "pre-commit run -a markdown-toc"
 
 MilMove is a system to help service members (and other authorized personnel) move their gear and possessions from one place to another.
 
+### The UIs
+
 There are three React apps that compose the front end of the system:
 
-my.move.mil (my.staging.move.mil): For the people moving
+my.move.mil (my.staging.move.mil): For the people moving.
 
-office.move.mil (office.staging.move.mil): For move managers (see [historical note](#historical-note)) to review/approve/reject moves and payments
+office.move.mil (office.staging.move.mil): For move managers (see [historical note](#historical-note)) to review/approve/reject moves and payments.
 
-admin.move.mil (admin.staging.move.mil): For administrators to create new office.move.mil users and grant permissions for various office roles
+admin.move.mil (admin.staging.move.mil): For administrators to create new office.move.mil users and grant permissions for various office roles.
 
 These React apps are backed by a Postgres database, which we interact with using a back-end written in Go, with an ORM called Pop.
 
 We use Swagger to tie the front and back ends together. The Swagger code is found in `*.yaml` files and describes the endpoints and payloads of the API.
 
-Go boilerplate code is generated from the Swagger files using a library called `go-swagger`. That code is automatically updated when a Swagger file is changed. These generated files are in `/pkg/gen`
+Go boilerplate code is generated from the Swagger files using a library called `go-swagger`. That code is automatically updated when a Swagger file is changed. These generated files are in `/pkg/gen`.
 
-Swagger has interactive documentation for users of the API, which allows us to test endpoints from within [the doc itself](#setup-milmovelocal-client)
+Swagger has interactive documentation for users of the API, which allows us to test endpoints from within [the doc itself](#setup-milmovelocal-client).
 
 Swagger also has a JS client that generates a set of API functions that are hooked into the React apps giving them easier access to the data.
+
+### The APIs
+
+In addition to the front end interfaces, MilMove comprises a set of APIs that work over Mutual TLS:
+
+`Contractors`: The API "the Prime" will use to communicate with the system. When the Prime needs information about a move (e.g., when is it scheduled?) or needs to update information about a move (e.g., what was the total weight of items moved?), it will use the `Contractors` API. As of this writing, this API is described in `prime.yaml`, but expect that name to change.
+
+`Orders`: People moving receive orders to move, which include information about the destination as well as authorizations for various kinds of storage, conveyance, per diem allowances, and many more details. Currently that's all transmitted via the Orders API in a PDF and has to be entered manually. Eventually the Orders API will allow all those details to be transmitted electronically.
+
+`GEX`: Global Exchange. GEX enables the exchange of transaction data between the DoD and private entities. We use it during the invoicing phase of the move.
+
+`DPS`: This is also the name of the system MilMove is replacing, but in terms of APIs, DPS acts as an authenticator that will route a user to DPS or MilMove, as appropriate.
 
 ### Historical note
 
 > The history of the project is detailed in the MilMove onboarding document, but one thing for application engineers to keep in mind is that as of this writing, in early 2020, there are two different supported approaches to moves, with one being phased out, but still present in parts of the code. The old model of moves included PPM (Personally Procured Moves--do it yourself and get reimbursed) and HHG (HouseHold Goods moves--the government hires a moving company for you). In that rubric, there was no explicit role system for office app users. We are now phasing out HHG moves in favor of GHC (Global Household goods Contract) moves, in which a single company ("the Prime") will handle all subcontracting for moves and explicit roles, like Transportation Ordering Officer (TOO) and Transportation Invoicing Officer (TIO), are defined and assigned.
-
 
 ## Supported Browsers
 
