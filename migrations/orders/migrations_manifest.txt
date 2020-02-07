@@ -1,0 +1,2 @@
+# This is the migrations manifest.
+# If a migration is not recorded here, then it will error.
