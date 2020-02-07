@@ -9,6 +9,6 @@ COPY migrations/app/migrations_manifest.txt /migrate/migrations_manifest.txt
 # Install tools needed in container
 RUN apk update && apk add ca-certificates --no-cache
 
-WORKDIR /
+WORKDIR /bin
 
 ENTRYPOINT ["/bin/milmove", "migrate", "-p", "file:///migrate/schema", "-m", "/migrate/migrations_manifest.txt"]
