@@ -9,39 +9,50 @@ export class ApproveRejectModal extends Component {
   };
 
   handleRejectionChange = rejectionReason => {
-    this.setState({ rejectionReason })
+    this.setState({ rejectionReason });
 
     if (!rejectionReason) {
-      this.setState({ rejectBtnIsDisabled: true })
+      this.setState({ rejectBtnIsDisabled: true });
     } else {
-      this.setState({ rejectBtnIsDisabled: false })
+      this.setState({ rejectBtnIsDisabled: false });
     }
-  }
+  };
 
   handleRejectionClick = () => {
     if (!this.state.showRejectionInput) {
-      this.setState({ showRejectionInput: true, rejectBtnIsDisabled: true })
+      this.setState({ showRejectionInput: true, rejectBtnIsDisabled: true });
     } else if (!this.state.rejectionReason) {
-      console.error("Rejection reason empty. Please fill out rejection reason.")
+      console.error('Rejection reason empty. Please fill out rejection reason.');
     } else {
-      this.props.rejectBtnOnClick(this.state.rejectionReason)
+      this.props.rejectBtnOnClick(this.state.rejectionReason);
     }
-  }
+  };
 
   render() {
-    const { approveBtnOnClick, hideModal } = this.props
-    return !hideModal && (<>
-      <div>
-        <button onClick={approveBtnOnClick}>Approve</button>
-        <button onClick={this.handleRejectionClick} disabled={this.state.rejectBtnIsDisabled}>Reject</button>
-      </div>
-      <div>
-        {this.state.showRejectionInput && (<label>
-          Rejection reason
-          <input name="rejectionReason" onChange={(event) => this.handleRejectionChange(event.target.value)}></input>
-        </label>)}
-      </div>
-    </>)
+    const { approveBtnOnClick, hideModal } = this.props;
+    return (
+      !hideModal && (
+        <>
+          <div>
+            <button onClick={approveBtnOnClick}>Approve</button>
+            <button onClick={this.handleRejectionClick} disabled={this.state.rejectBtnIsDisabled}>
+              Reject
+            </button>
+          </div>
+          <div>
+            {this.state.showRejectionInput && (
+              <label>
+                Rejection reason
+                <input
+                  name="rejectionReason"
+                  onChange={event => this.handleRejectionChange(event.target.value)}
+                ></input>
+              </label>
+            )}
+          </div>
+        </>
+      )
+    );
   }
 }
 
@@ -56,4 +67,4 @@ ApproveRejectModal.propTypes = {
 
 ApproveRejectModal.defaultProps = {
   hideModal: false,
-}
+};
