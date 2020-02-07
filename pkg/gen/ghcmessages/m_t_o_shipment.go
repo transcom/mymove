@@ -24,7 +24,7 @@ type MTOShipment struct {
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// customer remarks
-	CustomerRemarks string `json:"customerRemarks,omitempty"`
+	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
 	// id
 	// Format: uuid
@@ -33,6 +33,9 @@ type MTOShipment struct {
 	// move task order ID
 	// Format: uuid
 	MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
+
+	// rejection reason
+	RejectionReason *string `json:"rejectionReason,omitempty"`
 
 	// requested pickup date
 	// Format: date

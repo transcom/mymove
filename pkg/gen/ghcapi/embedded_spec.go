@@ -1181,6 +1181,12 @@ func init() {
               "$ref": "#/responses/NotFound"
             }
           },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/responses/Conflict"
+            }
+          },
           "412": {
             "description": "Precondition failed",
             "schema": {
@@ -1986,6 +1992,7 @@ func init() {
         },
         "customerRemarks": {
           "type": "string",
+          "x-nullable": true,
           "example": "handle with care"
         },
         "id": {
@@ -1997,6 +2004,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "MTO Shipment not good enough"
         },
         "requestedPickupDate": {
           "type": "string",
@@ -2359,6 +2371,12 @@ func init() {
     }
   },
   "responses": {
+    "Conflict": {
+      "description": "Conflict error",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
     "InvalidRequest": {
       "description": "The request payload is invalid",
       "schema": {
@@ -3783,6 +3801,15 @@ func init() {
               }
             }
           },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "description": "Conflict error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
           "412": {
             "description": "Precondition failed",
             "schema": {
@@ -4639,6 +4666,7 @@ func init() {
         },
         "customerRemarks": {
           "type": "string",
+          "x-nullable": true,
           "example": "handle with care"
         },
         "id": {
@@ -4650,6 +4678,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "MTO Shipment not good enough"
         },
         "requestedPickupDate": {
           "type": "string",
@@ -5012,6 +5045,12 @@ func init() {
     }
   },
   "responses": {
+    "Conflict": {
+      "description": "Conflict error",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
     "InvalidRequest": {
       "description": "The request payload is invalid",
       "schema": {
