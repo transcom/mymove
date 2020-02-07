@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/gobuffalo/flect"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 
@@ -326,23 +327,63 @@ func (p *Builder) CreateOne(model interface{}) (*validate.Errors, error) {
 	return nil, nil
 }
 
-func (p *Builder) UpdateOne(model interface{}) (*validate.Errors, error) {
+func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, error) {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return nil, errors.New(FetchOneReflectionMessage)
 	}
 
+	columns := make(map[string]interface{})
+
+	t = t.Elem()
+	v := reflect.ValueOf(model).Elem()
+	for i := 0; i < t.NumField(); i++ {
+		dbTag, ok := t.Field(i).Tag.Lookup("db")
+		if ok && dbTag != "" {
+			field := t.Field(i)
+			value := v.Field(i)
+			fieldName := field.Name
+			if fieldName == "CreatedAt" {
+				continue
+			}
+
+			columnName := flect.Underscore(fieldName)
+			if value.Kind() == reflect.Ptr {
+				value = value.Elem()
+			}
+
+			if value.IsZero() {
+				value = reflect.Value(nil)
+			}
+			columns[columnName] = value.Interface()
+		}
+	}
+	fmt.Println("=======================")
+	fmt.Println("=======================")
+	fmt.Printf("%s", columns)
+	fmt.Println("=======================")
+	fmt.Println("=======================")
+
 	var verrs *validate.Errors
 	var err error
-	methodVal := reflect.ValueOf(model).MethodByName("Validate")
-	if !methodVal.IsValid() {
-		return nil, errors.New("hi")
+	if eTag != nil {
+		methodVal := reflect.ValueOf(model).MethodByName("Validate")
+		if !methodVal.IsValid() {
+			return nil, errors.New("hi")
+		}
+
+		methodInterface := methodVal.Interface()
+		method := methodInterface.(func(tx *pop.Connection) (*validate.Errors, error))
+
+		verrs, err = method(p.db)
+
+		// var affectedRows int
+
+		// affectedRows, err = p.db.RawQuery("UPDATE mto_shipments SET status = ?, updated_at = NOW() WHERE id = ? AND encode(to_char(updated_at, 'YYYY-MM-DD\"T\"HH24:MI:SS.US\"Z\"')::bytea, 'base64')  = ?", status, shipment.ID.String(), eTag).ExecWithCount()
+
+	} else {
+		verrs, err = p.db.ValidateAndUpdate(model)
 	}
-
-	methodInterface := methodVal.Interface()
-	method := methodInterface.(func(tx *pop.Connection) (*validate.Errors, error))
-
-	verrs, err = method(p.db)
 
 	if err != nil || verrs.HasAny() {
 		return verrs, err

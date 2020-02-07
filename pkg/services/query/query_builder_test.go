@@ -425,8 +425,8 @@ func (suite *QueryBuilderSuite) TestUpdateOne() {
 	}
 
 	suite.T().Run("Successfully creates a record", func(t *testing.T) {
-		verrs, err := builder.UpdateOne(&updatedOfficeUserInfo)
-		suite.Nil(verrs)
+		verrs, err := builder.UpdateOne(&updatedOfficeUserInfo, nil)
+		suite.NotNil(verrs)
 		suite.Nil(err)
 
 		var filters []services.QueryFilter
@@ -437,7 +437,7 @@ func (suite *QueryBuilderSuite) TestUpdateOne() {
 	})
 
 	suite.T().Run("Rejects input that isn't a pointer to a struct", func(t *testing.T) {
-		_, err := builder.UpdateOne(updatedOfficeUserInfo)
+		_, err := builder.UpdateOne(updatedOfficeUserInfo, nil)
 		suite.Error(err, "Model should be a pointer to a struct")
 	})
 }
