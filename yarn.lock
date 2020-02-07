@@ -12411,10 +12411,10 @@ ra-language-english@^3.2.0:
   resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-3.2.0.tgz#2ca13b767d834b43fefd128f48e452449f812b61"
   integrity sha512-/XmwYWoQoB4MBkkzBCbg/ykCuRGjHQOHLk2ik6n1aM10AWHxiiJNyRw2aoLzH7Vc5rcp4BBJQCuhT+DgfYIJ2Q==
 
-ra-ui-materialui@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/ra-ui-materialui/-/ra-ui-materialui-3.2.0.tgz#540f189c82b7d11993cbf3ec6640f95634d55ecd"
-  integrity sha512-IR0kgZF+gf92UJVoTY3C/rNONpz28txyzAKajcnBjDEBqvdNw/T8dLyyfRu6Xl/xbJQg57lWk0sCeFodLVWMBw==
+ra-ui-materialui@^3.2.1:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/ra-ui-materialui/-/ra-ui-materialui-3.2.1.tgz#8e0d9b74c36e9f800b8b766d67dfc720b821f561"
+  integrity sha512-eON8HSIRQU6lSOHZdulibnZUw3O2BLg/vGgLH8042X90nSeEhDN3l8ZBWPPe7EykFIqVM1qL4cBgavg+ZOlp/w==
   dependencies:
     autosuggest-highlight "^3.1.1"
     classnames "~2.2.5"
@@ -12508,10 +12508,10 @@ rc@^1.2.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-admin@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/react-admin/-/react-admin-3.2.0.tgz#7ea01d79d0d0cdaccc9d1d8f96ab63b57f28a54a"
-  integrity sha512-M3MITQLS/8rmy4xgTNOU/7enUBBXKvJCO00j7khk08rRZ7C1In2bN4Z71PTxyuol+WGtFj60SFO65qVj8N02sA==
+react-admin@^3.2.1:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/react-admin/-/react-admin-3.2.1.tgz#b8566d4de1d2c049c9d724bebbc2e4886db0433a"
+  integrity sha512-5hk3FEJIx6Lj07tRe+ugJ0QJ2Pvw0j0XqmoXfua1/tjhfNcY+drLNyhwdEyqxsEhfBw0ko8Q/wjwpn2VEzkKTw==
   dependencies:
     "@material-ui/core" "^4.3.3"
     "@material-ui/icons" "^4.2.1"
@@ -12522,7 +12522,7 @@ react-admin@^3.2.0:
     ra-core "^3.2.0"
     ra-i18n-polyglot "^3.2.0"
     ra-language-english "^3.2.0"
-    ra-ui-materialui "^3.2.0"
+    ra-ui-materialui "^3.2.1"
     react-final-form "^6.3.3"
     react-final-form-arrays "^3.1.1"
     react-redux "^7.1.0"
