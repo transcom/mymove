@@ -251,9 +251,6 @@ bin/generate-test-data:
 bin/ghc-pricing-parser:
 	go build -ldflags "$(LDFLAGS)" -o bin/ghc-pricing-parser ./cmd/ghc-pricing-parser
 
-bin_linux/generate-test-data:
-	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate-test-data
-
 bin/health-checker:
 	go build -ldflags "$(LDFLAGS)" -o bin/health-checker ./cmd/health-checker
 
@@ -625,7 +622,7 @@ db_test_migrate: db_test_migrate_standalone ## Migrate Test DB
 
 .PHONY: db_test_migrations_build
 db_test_migrations_build: .db_test_migrations_build.stamp ## Build Test DB Migrations Docker Image
-.db_test_migrations_build.stamp: bin_linux/milmove bin_linux/generate-test-data
+.db_test_migrations_build.stamp:
 	@echo "Build the docker migration container..."
 	docker build -f Dockerfile.migrations_local --tag e2e_migrations:latest .
 
@@ -667,7 +664,6 @@ e2e_clean: ## Clean e2e (end-to-end) files and docker images
 	rm -rf cypress/results
 	rm -rf cypress/screenshots
 	rm -rf cypress/videos
-	rm -rf bin_linux/
 	docker rm -f cypress || true
 
 .PHONY: db_e2e_up
@@ -872,7 +868,6 @@ clean: ## Clean all generated files
 	rm -f .*.stamp
 	rm -f coverage.out
 	rm -rf ./bin
-	rm -rf ./bin_linux
 	rm -rf ./build
 	rm -rf ./node_modules
 	rm -rf ./public/swagger-ui/*.{css,js,png}

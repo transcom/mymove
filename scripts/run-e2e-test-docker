@@ -91,8 +91,6 @@ if [[ "${MIGRATE_EXIT_CODE}" != "0" ]]; then
 fi
 
 # Build a small tools dockerfile
-make bin_linux/generate-test-data
-cp -v bin_linux/generate-test-data ./tools
 cp -v pkg/testdatagen/testdata/test.pdf ./tools
 docker build -f tools/Dockerfile.tools --tag tools:latest ./tools
 
