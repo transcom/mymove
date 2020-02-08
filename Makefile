@@ -227,6 +227,9 @@ bin/big-cat:
 bin/compare-secure-migrations:
 	go build -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare-secure-migrations
 
+bin/model-vet:
+	go build -ldflags "$(LDFLAGS)" -o bin/model-vet ./cmd/model-vet
+
 bin/ecs-deploy:
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy ./cmd/ecs-deploy
 
@@ -328,7 +331,9 @@ server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.sta
 		2>&1 | tee -a log/dev.log
 
 .PHONY: server_run_debug
-server_run_debug: check_log_dir ## Debug the server
+server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir build/index.html server_generate db_dev_run ## Debug the server
+	scripts/kill-process-on-port 8080
+	scripts/kill-process-on-port 9443
 	$(AWS_VAULT) dlv debug cmd/milmove/*.go -- serve 2>&1 | tee -a log/dev.log
 
 .PHONY: build_tools
@@ -347,6 +352,7 @@ build_tools: bin/gin \
 	bin/health-checker \
 	bin/iws \
 	bin/milmove-tasks \
+	bin/model-vet \
 	bin/prime-api-client \
 	bin/query-cloudwatch-logs \
 	bin/query-lb-logs \
@@ -438,6 +444,10 @@ server_test_coverage: db_test_reset db_test_migrate server_test_coverage_generat
 .PHONY: server_test_docker
 server_test_docker:
 	docker-compose -f docker-compose.circle.yml --compatibility up --remove-orphans --abort-on-container-exit
+
+.PHONY: server_test_docker_down
+server_test_docker_down:
+	docker-compose -f docker-compose.circle.yml down
 
 #
 # ----- END SERVER TARGETS -----

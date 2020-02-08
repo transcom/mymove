@@ -33,7 +33,15 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 	}
 
 	// create entitlement (required by move order)
-	var entitlement Entitlement
+	weight, entitlementErr := GetEntitlement(*sm.Rank, move.Orders.HasDependents, move.Orders.SpouseHasProGear)
+	if entitlementErr != nil {
+		return uuid.Nil, entitlementErr
+	}
+	entitlement := Entitlement{
+		DependentsAuthorized: &move.Orders.HasDependents,
+		DBAuthorizedWeight:   IntPointer(weight),
+	}
+
 	if err := db.Save(&entitlement); err != nil {
 		return uuid.Nil, fmt.Errorf("Could not save entitlement, %w", err)
 	}
@@ -47,12 +55,18 @@ func ConvertFromPPMToGHC(db *pop.Connection, moveID uuid.UUID) (uuid.UUID, error
 	mo.CustomerID = &customer.ID
 	mo.DestinationDutyStation = &orders.NewDutyStation
 	mo.DestinationDutyStationID = &orders.NewDutyStationID
+
 	orderType := "GHC"
 	mo.OrderType = &orderType
+	orderTypeDetail := "TBD"
+	mo.OrderTypeDetail = &orderTypeDetail
 	mo.OriginDutyStation = &sm.DutyStation
 	mo.OriginDutyStationID = sm.DutyStationID
 	mo.Entitlement = &entitlement
 	mo.EntitlementID = &entitlement.ID
+	mo.Grade = (*string)(sm.Rank)
+	mo.DateIssued = &orders.IssueDate
+	mo.ReportByDate = &orders.ReportByDate
 
 	if err := db.Save(&mo); err != nil {
 		return uuid.Nil, fmt.Errorf("Could not save move order, %w", err)

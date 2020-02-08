@@ -9,6 +9,22 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+type ReServiceName string
+
+const (
+	DomesticLinehaul           ReServiceName = "Dom. Linehaul"
+	FuelSurcharge              ReServiceName = "Fuel Surcharge"
+	DomesticOriginPrice        ReServiceName = "Dom. Origin Price"
+	DomesticDestinationPrice   ReServiceName = "Dom. Destination Price"
+	DomesticPacking            ReServiceName = "Dom. Packing"
+	DomesticUnpacking          ReServiceName = "Dom. Unpacking"
+	DomesticShorthaul          ReServiceName = "Dom. Shorthaul"
+	DomesticNTSPackingFactor   ReServiceName = "Dom. NTS Packing Factor"
+	DomesticMobileHomeFactor   ReServiceName = "Dom. Mobile Home Factor"
+	DomesticHaulAwayBoatFactor ReServiceName = "Dom. Haul Away Boat Factor"
+	DomesticTowAwayBoatFactor  ReServiceName = "Dom. Tow Away Boat Factor"
+)
+
 // ReService model struct
 type ReService struct {
 	ID        uuid.UUID `json:"id" db:"id"`
