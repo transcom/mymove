@@ -32,6 +32,10 @@ export class ApproveRejectModal extends Component {
     }
   };
 
+  handleRejectionCancelClick = () => {
+    this.setState({ rejectBtnIsDisabled: false, rejectionReason: null, showRejectionInput: false });
+  };
+
   render() {
     const { hideModal } = this.props;
     return (
@@ -47,10 +51,8 @@ export class ApproveRejectModal extends Component {
             {this.state.showRejectionInput && (
               <label>
                 Rejection reason
-                <input
-                  name="rejectionReason"
-                  onChange={event => this.handleRejectionChange(event.target.value)}
-                ></input>
+                <input name="rejectionReason" onChange={event => this.handleRejectionChange(event.target.value)} />
+                <button onClick={this.handleRejectionCancelClick}>Cancel</button>
               </label>
             )}
           </div>
