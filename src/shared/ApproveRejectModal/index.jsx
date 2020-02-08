@@ -8,6 +8,10 @@ export class ApproveRejectModal extends Component {
     rejectionReason: null,
   };
 
+  handleApproveClick = () => {
+    this.props.approveBtnOnClick();
+  };
+
   handleRejectionChange = rejectionReason => {
     this.setState({ rejectionReason });
 
@@ -29,12 +33,12 @@ export class ApproveRejectModal extends Component {
   };
 
   render() {
-    const { approveBtnOnClick, hideModal } = this.props;
+    const { hideModal } = this.props;
     return (
       !hideModal && (
         <>
           <div>
-            <button onClick={approveBtnOnClick}>Approve</button>
+            <button onClick={this.handleApproveClick}>Approve</button>
             <button onClick={this.handleRejectionClick} disabled={this.state.rejectBtnIsDisabled}>
               Reject
             </button>
