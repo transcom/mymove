@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate"
 	"github.com/pkg/errors"
@@ -127,7 +129,8 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 	suite.T().Run("Successful patch - Integration Test", func(t *testing.T) {
 		queryBuilder := query.NewQueryBuilder(suite.DB())
 		fetcher := fetch.NewFetcher(queryBuilder)
-		updater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), queryBuilder)
+		siCreator := mtoserviceitem.NewMTOServiceItemCreator(queryBuilder)
+		updater := mtoshipment.NewMTOShipmentStatusUpdater(suite.DB(), queryBuilder, siCreator)
 		handler := PatchShipmentHandler{
 			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			fetcher,

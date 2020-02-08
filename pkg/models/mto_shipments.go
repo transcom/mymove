@@ -18,6 +18,13 @@ const (
 	MTOShipmentTypeHHG              MTOShipmentType = "HHG"
 	MTOShipmentTypeInternationalHHG MTOShipmentType = "INTERNATIONAL_HHG"
 	MTOShipmentTypeInternationalUB  MTOShipmentType = "INTERNATIONAL_UB"
+	MTOShipmentTypeHHGLongHaulDom   MTOShipmentType = "HHG_LONGHAUL_DOMESTIC"
+	MTOShipmentTypeHHGShortHaulDom  MTOShipmentType = "HHG_SHORTHAUL_DOMESTIC"
+	MTOShipmentTypeHHGIntoNTSDom    MTOShipmentType = "HHG_INTO_NTS_DOMESTIC"
+	MTOShipmentTypeHHGOutOfNTSDom   MTOShipmentType = "HHG_OUTOF_NTS_DOMESTIC"
+	MTOShipmentTypeMotorhome        MTOShipmentType = "MOTORHOME"
+	MTOShipmentTypeBoatHaulAway     MTOShipmentType = "BOAT_HAUL_AWAY"
+	MTOShipmentTypeBoatTowAway      MTOShipmentType = "BOAT_TOW_AWAY"
 )
 
 // MTOShipmentStatus represents the possible statuses for a mto shipment

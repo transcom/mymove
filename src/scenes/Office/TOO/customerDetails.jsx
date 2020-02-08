@@ -78,6 +78,14 @@ class CustomerDetails extends Component {
             <dd>{get(moveOrder, 'originDutyStation.name', '')}</dd>
             <dt>Origin Duty Station Address</dt>
             <dd>{JSON.stringify(get(moveOrder, 'originDutyStation.address', {}))} </dd>
+
+            <dt>Department Indicator</dt>
+            <dd></dd>
+            <dt>TAC / MDC</dt>
+            <dd></dd>
+            <dt>SAC / SDN</dt>
+            <dd></dd>
+
             {entitlements && (
               <>
                 <h2>Customer Entitlements</h2>
