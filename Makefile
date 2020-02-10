@@ -227,6 +227,9 @@ bin/big-cat:
 bin/compare-secure-migrations:
 	go build -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare-secure-migrations
 
+bin/model-vet:
+	go build -ldflags "$(LDFLAGS)" -o bin/model-vet ./cmd/model-vet
+
 bin/ecs-deploy:
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy ./cmd/ecs-deploy
 
@@ -266,8 +269,8 @@ bin_linux/milmove:
 bin/milmove-tasks:
 	go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove-tasks ./cmd/milmove-tasks
 
-bin_linux/milmove-tasks:
-	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin_linux/milmove-tasks ./cmd/milmove-tasks
+bin/prime-api-client:
+	go build -ldflags "$(LDFLAGS)" -o bin/prime-api-client ./cmd/prime-api-client
 
 bin/query-cloudwatch-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/query-cloudwatch-logs ./cmd/query-cloudwatch-logs
@@ -307,13 +310,6 @@ pkg/gen/: pkg/assets/assets.go bin/swagger $(shell find swagger -type f -name *.
 .PHONY: server_build
 server_build: bin/milmove ## Build the server
 
-.PHONY: server_build_linux
-server_build_linux: ## Build the server (linux)
-	# These don't need to go in bin_linux/ because local devs don't use them
-	# Additionally it would not work with the default Dockerfile
-	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/chamber github.com/segmentio/chamber/v2
-	GOOS=linux GOARCH=amd64 go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
-
 # This command is for running the server by itself, it will serve the compiled frontend on its own
 # Note: Don't double wrap with aws-vault because the pkg/cli/vault.go will handle it
 server_run_standalone: check_log_dir server_build client_build db_dev_run
@@ -338,7 +334,9 @@ server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.sta
 		2>&1 | tee -a log/dev.log
 
 .PHONY: server_run_debug
-server_run_debug: check_log_dir ## Debug the server
+server_run_debug: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp .check_node_version.stamp check_log_dir build/index.html server_generate db_dev_run ## Debug the server
+	scripts/kill-process-on-port 8080
+	scripts/kill-process-on-port 9443
 	$(AWS_VAULT) dlv debug cmd/milmove/*.go -- serve 2>&1 | tee -a log/dev.log
 
 .PHONY: build_tools
@@ -357,6 +355,8 @@ build_tools: bin/gin \
 	bin/health-checker \
 	bin/iws \
 	bin/milmove-tasks \
+	bin/model-vet \
+	bin/prime-api-client \
 	bin/query-cloudwatch-logs \
 	bin/query-lb-logs \
 	bin/read-alb-logs \
@@ -446,7 +446,11 @@ server_test_coverage: db_test_reset db_test_migrate server_test_coverage_generat
 
 .PHONY: server_test_docker
 server_test_docker:
-	docker-compose -f docker-compose.circle.yml --compatibility up server_test
+	docker-compose -f docker-compose.circle.yml --compatibility up --remove-orphans --abort-on-container-exit
+
+.PHONY: server_test_docker_down
+server_test_docker_down:
+	docker-compose -f docker-compose.circle.yml down
 
 #
 # ----- END SERVER TARGETS -----
@@ -711,7 +715,6 @@ db_test_e2e_cleanup: ## Clean up Test DB backup `e2e_test`
 .PHONY: tasks_clean
 tasks_clean: ## Clean Scheduled Task files and docker images
 	rm -f .db_test_migrations_build.stamp
-	rm -rf bin_linux/
 	docker rm -f tasks || true
 
 .PHONY: tasks_build
@@ -723,7 +726,7 @@ tasks_build_docker: server_generate bin/milmove-tasks ## Build Scheduled Task de
 	docker build -f Dockerfile.tasks --tag $(TASKS_DOCKER_CONTAINER):latest .
 
 .PHONY: tasks_build_linux_docker
-tasks_build_linux_docker: bin_linux/milmove-tasks ## Build Scheduled Task binaries (linux) and Docker image (local)
+tasks_build_linux_docker:  ## Build Scheduled Task binaries (linux) and Docker image (local)
 	@echo "Build the docker scheduled tasks container..."
 	docker build -f Dockerfile.tasks_local --tag $(TASKS_DOCKER_CONTAINER):latest .
 

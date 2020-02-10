@@ -439,6 +439,7 @@ HackerOne
 addons
 addon
 X509v3
+admin.move.mil
 my.move.mil
 api.move.mil
 dps.move.mil
@@ -447,6 +448,7 @@ office.move.mil
 orders.move.mil
 tsp.move.mil
 CA-54
+admin.staging.move.mil
 my.staging.move.mil
 api.staging.move.mil
 dps.staging.move.mil
@@ -557,6 +559,16 @@ Zip5
 Zip5s
 McNally
 mdspell
+subfields
+mTLS
 awscli
+X.X
+pkcs7
+v5.6
+opensc
+onboarding
+diem
+UI
+UIs
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - ./docs/backend/route-planner.md

@@ -22,6 +22,8 @@ environment.
 | `check-gopath` | checks the go path is correct for the project |
 | `check-hosts-file` | Script helps ensure that /etc/hosts has all the correct entries in it |
 | `check-node-version` | checks the node version required for the project |
+| `check-opensc-version` | checks the opensc version required for the project |
+| `kill-process-on-port` | asks to kill a process running on the specified port |
 | `prereqs` | validate if all prerequisite programs have been installed |
 
 ## AWS Scripts
@@ -142,6 +144,7 @@ These scripts are primarily used for working with the database
 | `db-restore` |  Restore the contents of the development database from an earlier backup. |
 | `psql-dev` | Convenience script to drop into development postgres DB |
 | `psql-deployed-migrations` | Convenience script to drop into deployed migrations postgres DB |
+| `psql-schema` | Convenience script to dump the schema from the postgres DB |
 | `psql-test` | Convenience script to drop into testing postgres DB |
 | `psql-wrapper` | A wrapper around `psql` that sets correct values |
 | `update-migrations-manifest` | Update manifest for migrations |

@@ -133,13 +133,18 @@ func main() {
 		formFiller.Debug()
 	}
 
+	move, err := models.FetchMoveByMoveID(dbConnection, parsedID)
+	if err != nil {
+		log.Fatalf("error fetching move: %s", moveIDFlag)
+	}
+
 	geocodeEndpoint := os.Getenv("HERE_MAPS_GEOCODE_ENDPOINT")
 	routingEndpoint := os.Getenv("HERE_MAPS_ROUTING_ENDPOINT")
 	testAppID := os.Getenv("HERE_MAPS_APP_ID")
 	testAppCode := os.Getenv("HERE_MAPS_APP_CODE")
 	hereClient := &http.Client{Timeout: hereRequestTimeout}
 	planner := route.NewHEREPlanner(logger, hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
-	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(dbConnection, logger))
+	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(dbConnection, logger, move))
 
 	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(dbConnection, &auth.Session{}, parsedID)
 	if err != nil {

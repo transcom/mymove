@@ -9,8 +9,11 @@ import (
 )
 
 func (suite *RateEngineSuite) Test_CheckServiceFee() {
+	move := models.Move{
+		Locator: "ABC123",
+	}
 	t := suite.T()
-	engine := NewRateEngine(suite.DB(), suite.logger)
+	engine := NewRateEngine(suite.DB(), suite.logger, move)
 
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",
@@ -52,9 +55,11 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 }
 
 func (suite *RateEngineSuite) Test_CheckFullPack() {
+	move := models.Move{
+		Locator: "ABC123",
+	}
 	t := suite.T()
-
-	engine := NewRateEngine(suite.DB(), suite.logger)
+	engine := NewRateEngine(suite.DB(), suite.logger, move)
 
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",
@@ -106,8 +111,11 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 }
 
 func (suite *RateEngineSuite) Test_CheckFullUnpack() {
+	move := models.Move{
+		Locator: "ABC123",
+	}
 	t := suite.T()
-	engine := NewRateEngine(suite.DB(), suite.logger)
+	engine := NewRateEngine(suite.DB(), suite.logger, move)
 
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",
@@ -168,7 +176,10 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 }
 
 func (suite *RateEngineSuite) Test_SITCharge() {
-	engine := NewRateEngine(suite.DB(), suite.logger)
+	move := models.Move{
+		Locator: "ABC123",
+	}
+	engine := NewRateEngine(suite.DB(), suite.logger, move)
 
 	zip3 := "395"
 
@@ -306,8 +317,11 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 }
 
 func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
+	move := models.Move{
+		Locator: "ABC123",
+	}
 	t := suite.T()
-	engine := NewRateEngine(suite.DB(), suite.logger)
+	engine := NewRateEngine(suite.DB(), suite.logger, move)
 
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",
