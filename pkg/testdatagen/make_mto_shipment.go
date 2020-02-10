@@ -50,6 +50,8 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		PrimeEstimatedWeightRecordedDate: &primeEstimatedWeightDate,
 		PrimeActualWeight:                &actualWeight,
 		ShipmentType:                     models.MTOShipmentTypeHHG,
+		SecondaryPickupAddress:           &pickupAddress,
+		SecondaryDeliveryAddress:         &destinationAddress,
 		Status:                           "SUBMITTED",
 	}
 	// Overwrite values with those from assertions

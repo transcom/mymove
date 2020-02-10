@@ -1525,6 +1525,18 @@ definitions:
       requestedPickupDate:
         format: date
         type: string
+      pickupAddress:
+        x-nullabe: true
+        $ref: '#/definitions/Address'
+      destinationAddress:
+        x-nullabe: true
+        $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        x-nullabe: true
+        $ref: '#/definitions/Address'
+      secondaryDeliveryAddress:
+        x-nullabe: true
+        $ref: '#/definitions/Address'
       customerRemarks:
         type: string
         example: handle with care
