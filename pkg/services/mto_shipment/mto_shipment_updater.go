@@ -141,6 +141,7 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 			shipment_type = ?,
 			pickup_address_id = ?,
 			destination_address_id = ?,
+			prime_actual_weight = ?,
 			updated_at = NOW()`
 
 	if updatedShipment.SecondaryPickupAddress != nil {
@@ -165,6 +166,7 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 		updatedShipment.ShipmentType,
 		updatedShipment.PickupAddress.ID,
 		updatedShipment.DestinationAddress.ID,
+		updatedShipment.PrimeActualWeight,
 		updatedShipment.ID,
 		unmodifiedSince).ExecWithCount()
 
