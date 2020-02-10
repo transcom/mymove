@@ -829,6 +829,8 @@ definitions:
       requestedPickupDate:
         format: date
         type: string
+      primeActualWeight:
+        type: integer
       customerRemarks:
         type: string
         example: handle with care

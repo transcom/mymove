@@ -98,6 +98,7 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 		if err != nil {
 			return nil, nil, nil, fmt.Errorf("could not find param key [%s]: %w", paymentServiceItemParam.IncomingKey, err)
 		}
+
 		key = paymentServiceItemParam.IncomingKey
 		value = paymentServiceItemParam.Value
 		createParam = true
@@ -117,6 +118,7 @@ func (p *paymentRequestCreator) createPaymentServiceItemParam(tx *pop.Connection
 		}
 		if verrs.HasAny() {
 			return nil, nil, nil, fmt.Errorf("validation error creating payment service item param: %w for Payment Service Item ID <%s> Service Item Param Key <%s>", verrs, paymentServiceItem.ID.String(), serviceItemParamKey.Key)
+
 		}
 
 		return paymentServiceItemParam, &key, &value, nil

@@ -1136,6 +1136,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "primeActualWeight": {
+          "type": "integer"
+        },
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
@@ -2694,6 +2697,9 @@ func init() {
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "primeActualWeight": {
+          "type": "integer"
         },
         "requestedPickupDate": {
           "type": "string",
