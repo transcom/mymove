@@ -17,9 +17,9 @@ import (
 )
 
 var (
-	moveSubmittedRawTextTemplate = string(assets.MustAsset("pkg/notifications/templates/move_approved_template.txt"))
+	moveSubmittedRawTextTemplate = string(assets.MustAsset("pkg/notifications/templates/move_submitted_template.txt"))
 	moveSubmittedTextTemplate    = text.Must(text.New("text_template").Parse(moveSubmittedRawTextTemplate))
-	moveSubmittedRawHTMLTemplate = string(assets.MustAsset("pkg/notifications/templates/move_approved_template.html"))
+	moveSubmittedRawHTMLTemplate = string(assets.MustAsset("pkg/notifications/templates/move_submitted_template.html"))
 	moveSubmittedHTMLTemplate    = html.Must(html.New("text_template").Parse(moveSubmittedRawHTMLTemplate))
 )
 
