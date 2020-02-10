@@ -55,6 +55,9 @@ if [[ -n "${CIRCLECI+x}" ]]; then
 
   # Start everything up
   docker-compose up -d --no-recreate --remove-orphans
+
+  # Build a small tools dockerfile
+  docker build -f Dockerfile.tools --tag tools:latest .
 else
   # Locally development requires that we build the container
 
@@ -66,6 +69,9 @@ else
 
   # Build images and start everything up
   docker-compose -f docker-compose.local.yml up -d --build
+
+  # Build a small tools dockerfile
+  docker build -f Dockerfile.tools_local --tag tools:latest .
 fi
 
 # Following the logs should block any more actions until migrations are completed and the container exits
@@ -89,10 +95,6 @@ if [[ "${MIGRATE_EXIT_CODE}" != "0" ]]; then
   echo "Migration exited with exit code ${MIGRATE_EXIT_CODE}"
   exit 1
 fi
-
-# Build a small tools dockerfile
-cp -v pkg/testdatagen/testdata/test.pdf ./tools
-docker build -f tools/Dockerfile.tools --tag tools:latest ./tools
 
 # Truncate the DB
 $DOCKER_RUN \

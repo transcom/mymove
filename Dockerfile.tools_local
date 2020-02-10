@@ -4,6 +4,8 @@
 
 FROM trussworks/circleci-docker-primary:6f138d780444b35181e0048282616f75a451d7b4 as builder
 
+ENV CIRCLECI=true
+
 COPY --chown=circleci:circleci . /home/circleci/project
 WORKDIR /home/circleci/project
 
@@ -20,7 +22,7 @@ RUN rm -f bin/generate-test-data && make bin/generate-test-data
 FROM alpine:3.11.3
 
 COPY --from=builder --chown=root:root /home/circleci/project/bin/generate-test-data /bin/generate-test-data
-COPY ./test.pdf /bin/pkg/testdatagen/testdata/test.pdf
+COPY pkg/testdatagen/testdata/test.pdf /bin/pkg/testdatagen/testdata/test.pdf
 
 # Install tools needed in container
 RUN apk update

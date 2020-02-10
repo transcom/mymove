@@ -4,6 +4,8 @@
 
 FROM trussworks/circleci-docker-primary:6f138d780444b35181e0048282616f75a451d7b4 as builder
 
+ENV CIRCLECI=true
+
 COPY --chown=circleci:circleci . /home/circleci/project
 WORKDIR /home/circleci/project
 
@@ -18,7 +20,7 @@ RUN rm -f bin/milmove && make bin/milmove
 # FINAL #
 #########
 
-FROM gcr.io/distroless/base:latest
+FROM alpine:3.11.3
 
 COPY --from=builder --chown=root:root /home/circleci/project/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
 COPY --from=builder --chown=root:root /home/circleci/project/bin/milmove /bin/milmove
@@ -26,4 +28,9 @@ COPY --from=builder --chown=root:root /home/circleci/project/bin/milmove /bin/mi
 COPY migrations/app/schema /migrate/schema
 COPY migrations/app/migrations_manifest.txt /migrate/migrations_manifest.txt
 
-WORKDIR /bin
+# Install tools needed in container
+RUN apk update && apk add ca-certificates --no-cache
+
+WORKDIR /
+
+ENTRYPOINT ["/bin/milmove", "migrate", "-p", "file:///migrate/migrations", "-m", "/migrate/migrations_manifest.txt"]
