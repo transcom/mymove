@@ -57,7 +57,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 		destDutyStationZip,
 		distanceMilesFromPickupZip,
 		distanceMilesFromDutyStationZip,
-		*firstPPM.ActualMoveDate,
+		*firstPPM.OriginalMoveDate,
 		0,
 	)
 	if err != nil {
@@ -73,7 +73,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 		destDutyStationZip,
 		distanceMilesFromPickupZip,
 		distanceMilesFromDutyStationZip,
-		*firstPPM.ActualMoveDate,
+		*firstPPM.OriginalMoveDate,
 		0,
 	)
 	if err != nil {
