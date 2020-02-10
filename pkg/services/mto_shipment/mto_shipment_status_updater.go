@@ -26,7 +26,7 @@ type mtoShipmentStatusUpdater struct {
 
 func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentops.PatchMTOShipmentStatusParams) (*models.MTOShipment, error) {
 	shipmentID := payload.ShipmentID
-	status := payload.Body.Status
+	status := models.MTOShipmentStatus(payload.Body.Status)
 	rejectionReason := payload.Body.RejectionReason
 	unmodifiedSince := time.Time(payload.IfUnmodifiedSince)
 
@@ -43,9 +43,11 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 
 	if shipment.Status != models.MTOShipmentStatusSubmitted {
 		return nil, ConflictStatusError{id: shipment.ID, transitionFromStatus: shipment.Status, transitionToStatus: models.MTOShipmentStatus(status)}
+	} else if status != models.MTOShipmentStatusRejected {
+		rejectionReason = nil
 	}
 
-	shipment.Status = models.MTOShipmentStatus(status)
+	shipment.Status = status
 	shipment.RejectionReason = rejectionReason
 
 	verrs, err := shipment.Validate(o.db)
