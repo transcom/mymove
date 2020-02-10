@@ -69,7 +69,7 @@ commands:
     steps:
       - checkout
       - attach_workspace:
-          at: bin
+          at: /home/circleci/transcom/mymove/bin
       - run:
           name: Snapshot database
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/rds-snapshot-app-db $APP_ENVIRONMENT
@@ -87,7 +87,7 @@ commands:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
       - attach_workspace:
-          at: bin
+          at: /home/circleci/transcom/mymove/bin
       - deploy:
           name: Deploy fuel price data task service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}"
@@ -114,7 +114,7 @@ commands:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - attach_workspace:
-          at: bin
+          at: /home/circleci/transcom/mymove/bin
       - deploy:
           name: Deploy app service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}"
@@ -145,7 +145,7 @@ commands:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - attach_workspace:
-          at: bin
+          at: /home/circleci/transcom/mymove/bin
       - deploy:
           name: Deploy app-client-tls service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-client-tls "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}"
@@ -370,7 +370,7 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: false
       - attach_workspace:
-          at: bin
+          at: /home/circleci/transcom/mymove/bin
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
@@ -469,7 +469,7 @@ jobs:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run: make build_tools
       - persist_to_workspace:
-          root: bin
+          root:  /home/circleci/transcom/mymove/bin
           paths:
             - ecs-deploy # for registering task defs and deploying task container
             - ecs-service-logs # for showing logs on failed deploy
