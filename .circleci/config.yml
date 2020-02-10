@@ -369,6 +369,8 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
+      - attach_workspace:
+          at: bin
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
@@ -471,6 +473,7 @@ jobs:
           paths:
             - ecs-deploy # for registering task defs and deploying task container
             - ecs-service-logs # for showing logs on failed deploy
+            - generate-test-data # for integration tests
             - health-checker # for confirming deploy success.
             - mockery # for generating mocks
             - renderer # for rendering ECS task definition
