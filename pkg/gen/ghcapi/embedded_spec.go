@@ -1988,6 +1988,10 @@ func init() {
           "type": "string",
           "example": "handle with care"
         },
+        "destinationAddress": {
+          "x-nullabe": true,
+          "$ref": "#/definitions/Address"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -1998,6 +2002,10 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "pickupAddress": {
+          "x-nullabe": true,
+          "$ref": "#/definitions/Address"
+        },
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
@@ -2005,6 +2013,14 @@ func init() {
         "scheduledPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "secondaryDeliveryAddress": {
+          "x-nullabe": true,
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupAddress": {
+          "x-nullabe": true,
+          "$ref": "#/definitions/Address"
         },
         "shipmentType": {
           "enum": [
@@ -4641,6 +4657,10 @@ func init() {
           "type": "string",
           "example": "handle with care"
         },
+        "destinationAddress": {
+          "x-nullabe": true,
+          "$ref": "#/definitions/Address"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -4651,6 +4671,10 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "pickupAddress": {
+          "x-nullabe": true,
+          "$ref": "#/definitions/Address"
+        },
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
@@ -4658,6 +4682,14 @@ func init() {
         "scheduledPickupDate": {
           "type": "string",
           "format": "date"
+        },
+        "secondaryDeliveryAddress": {
+          "x-nullabe": true,
+          "$ref": "#/definitions/Address"
+        },
+        "secondaryPickupAddress": {
+          "x-nullabe": true,
+          "$ref": "#/definitions/Address"
         },
         "shipmentType": {
           "enum": [

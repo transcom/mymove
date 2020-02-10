@@ -155,14 +155,18 @@ func Address(address *models.Address) *ghcmessages.Address {
 
 func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 	return &ghcmessages.MTOShipment{
-		ID:                  strfmt.UUID(mtoShipment.ID.String()),
-		MoveTaskOrderID:     strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:        mtoShipment.ShipmentType,
-		Status:              string(mtoShipment.Status),
-		CustomerRemarks:     *mtoShipment.CustomerRemarks,
-		RequestedPickupDate: strfmt.Date(*mtoShipment.RequestedPickupDate),
-		CreatedAt:           strfmt.DateTime(mtoShipment.CreatedAt),
-		UpdatedAt:           strfmt.DateTime(mtoShipment.UpdatedAt),
+		ID:                       strfmt.UUID(mtoShipment.ID.String()),
+		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
+		ShipmentType:             mtoShipment.ShipmentType,
+		Status:                   string(mtoShipment.Status),
+		CustomerRemarks:          *mtoShipment.CustomerRemarks,
+		RequestedPickupDate:      strfmt.Date(*mtoShipment.RequestedPickupDate),
+		PickupAddress:            Address(&mtoShipment.PickupAddress),
+		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
+		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
+		DestinationAddress:       Address(&mtoShipment.DestinationAddress),
+		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
+		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
 	}
 }
 
