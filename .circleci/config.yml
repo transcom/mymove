@@ -369,8 +369,6 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
-      - attach_workspace:
-          at: /home/circleci/transcom/mymove/bin
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
@@ -380,6 +378,10 @@ jobs:
       - restore_cache:
           keys:
             - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
+      - run: rm -f bin/swagger && make bin/swagger
+      - run: make server_generate
+      - run: rm -f bin/generate-test-data && make bin/generate-test-data
       - e2e_tests
       - store_artifacts:
           path: cypress/videos
