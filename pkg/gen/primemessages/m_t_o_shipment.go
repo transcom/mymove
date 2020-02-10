@@ -42,6 +42,9 @@ type MTOShipment struct {
 	// Required: true
 	PickupAddress *Address `json:"pickupAddress"`
 
+	// prime actual weight
+	PrimeActualWeight int64 `json:"primeActualWeight,omitempty"`
+
 	// requested pickup date
 	// Required: true
 	// Format: date

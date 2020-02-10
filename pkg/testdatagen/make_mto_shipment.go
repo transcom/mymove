@@ -24,6 +24,11 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		destinationAddress = MakeAddress2(db, assertions)
 	}
 
+	shipmentType := models.MTOShipmentTypeHHG
+	if assertions.MTOShipment.ShipmentType != "" {
+		shipmentType = assertions.MTOShipment.ShipmentType
+	}
+
 	// mock remarks
 	remarks := "please treat gently"
 
@@ -49,9 +54,9 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		PrimeEstimatedWeight:             &estimatedWeight,
 		PrimeEstimatedWeightRecordedDate: &primeEstimatedWeightDate,
 		PrimeActualWeight:                &actualWeight,
-		ShipmentType:                     models.MTOShipmentTypeHHG,
 		SecondaryPickupAddress:           &pickupAddress,
 		SecondaryDeliveryAddress:         &destinationAddress,
+		ShipmentType:                     shipmentType,
 		Status:                           "SUBMITTED",
 	}
 	// Overwrite values with those from assertions
