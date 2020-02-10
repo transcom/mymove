@@ -233,6 +233,12 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}": {
       "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "mtoShipment",
           "prime"
@@ -1243,6 +1249,9 @@ func init() {
             "$ref": "#/definitions/MTOServiceItem"
           }
         },
+        "mto_shipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
         "payment_requests": {
           "type": "array",
           "items": {
@@ -1693,6 +1702,12 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}": {
       "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "mtoShipment",
           "prime"
@@ -2801,6 +2816,9 @@ func init() {
           "items": {
             "$ref": "#/definitions/MTOServiceItem"
           }
+        },
+        "mto_shipments": {
+          "$ref": "#/definitions/MTOShipments"
         },
         "payment_requests": {
           "type": "array",

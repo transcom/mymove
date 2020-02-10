@@ -1,6 +1,7 @@
 package mtoshipment
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -91,6 +92,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 	suite.T().Run("If-Unmodified-Since is equal to the updated_at date", func(t *testing.T) {
 		unmodifiedSince := oldMTOShipment.UpdatedAt
+		fmt.Println(unmodifiedSince)
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			Body:              &payload,
