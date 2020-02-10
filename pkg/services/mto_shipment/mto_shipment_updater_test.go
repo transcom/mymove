@@ -10,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
@@ -75,6 +76,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		ShipmentType:             "INTERNATIONAL_UB",
 		SecondaryPickupAddress:   &secondaryPickupAddress,
 		SecondaryDeliveryAddress: &secondaryDeliveryAddress,
+		PrimeActualWeight:        123,
 	}
 
 	suite.T().Run("If-Unmodified-Since is not equal to the updated_at date", func(t *testing.T) {
@@ -90,6 +92,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	})
 
 	suite.T().Run("If-Unmodified-Since is equal to the updated_at date", func(t *testing.T) {
+		weight := unit.Pound(123)
+		actualWeight := &weight
 		unmodifiedSince := oldMTOShipment.UpdatedAt
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
@@ -112,5 +116,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(updatedMTOShipment.SecondaryPickupAddress.StreetAddress1, *secondaryPickupAddress.StreetAddress1)
 		suite.NotZero(updatedMTOShipment.SecondaryDeliveryAddress.ID, secondaryDeliveryAddress.ID)
 		suite.Equal(updatedMTOShipment.SecondaryDeliveryAddress.StreetAddress1, *secondaryDeliveryAddress.StreetAddress1)
+		suite.Equal(updatedMTOShipment.PrimeActualWeight, *&actualWeight)
 	})
 }
