@@ -64,6 +64,11 @@ const always = () => true;
 const myFirstRodeo = props => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = props => props.lastMoveIsCanceled;
 const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === 'PPM';
+const showProgearChanges = ({ context }) => {
+  let { flags: { progearChanges } = { progearChanges: null } } = context;
+  return progearChanges;
+};
+const preProgearChanges = props => !(hasPPM && showProgearChanges(props));
 const isCurrentMoveSubmitted = ({ move }) => {
   return get(move, 'status', 'DRAFT') === 'SUBMITTED';
 };
@@ -163,7 +168,7 @@ const pages = {
     render: (key, pages) => ({ match }) => <PpmDateAndLocations pages={pages} pageKey={key} match={match} />,
   },
   '/moves/:moveId/ppm-size': {
-    isInFlow: hasPPM,
+    isInFlow: preProgearChanges,
     isComplete: ({ sm, orders, move, ppm }) => get(ppm, 'size', null),
     render: (key, pages) => ({ match }) => <PpmSize pages={pages} pageKey={key} match={match} />,
   },
@@ -187,11 +192,11 @@ const pages = {
   },
 };
 
-export const getPagesInFlow = ({ selectedMoveType, lastMoveIsCanceled }) =>
+export const getPagesInFlow = ({ selectedMoveType, lastMoveIsCanceled, context }) =>
   Object.keys(pages).filter(pageKey => {
     // eslint-disable-next-line security/detect-object-injection
     const page = pages[pageKey];
-    return page.isInFlow({ selectedMoveType, lastMoveIsCanceled });
+    return page.isInFlow({ selectedMoveType, lastMoveIsCanceled, context });
   });
 
 export const getNextIncompletePage = ({
@@ -217,7 +222,7 @@ export const getNextIncompletePage = ({
 };
 
 export const getWorkflowRoutes = props => {
-  const flowProps = pick(props, ['selectedMoveType', 'lastMoveIsCanceled']);
+  const flowProps = pick(props, ['selectedMoveType', 'lastMoveIsCanceled', 'context']);
   const pageList = getPagesInFlow(flowProps);
   return Object.keys(pages).map(key => {
     // eslint-disable-next-line security/detect-object-injection
