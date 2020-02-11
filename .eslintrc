@@ -3,9 +3,9 @@
   "extends": ["react-app", "plugin:security/recommended"],
   "rules": {
     "no-only-tests/no-only-tests": "error",
-    "no-debugger": "warn",
+    "no-debugger": "error",
     "jsx-a11y/anchor-is-valid": "off",
     "react/jsx-no-target-blank": "off",
-    "react/jsx-curly-brace-presence": ["warn", "never"]
+    "react/jsx-curly-brace-presence": "error",
   }
 }
