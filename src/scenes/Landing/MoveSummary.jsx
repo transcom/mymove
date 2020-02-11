@@ -62,7 +62,7 @@ export class MoveSummaryComponent extends React.Component {
           netWeight = this.props.ppm.weight_estimate;
         }
         this.props.getPpmWeightEstimate(
-          this.props.ppm.actual_move_date || this.props.ppm.original_move_date,
+          this.props.ppm.original_move_date,
           this.props.ppm.pickup_postal_code,
           this.props.originDutyStationZip,
           this.props.orders.id,
