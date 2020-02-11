@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 
 export class ApproveRejectModal extends Component {
   state = {
+    showRejectionToggleBtn: true,
     showRejectionInput: false,
-    rejectBtnIsDisabled: false,
+    rejectBtnIsDisabled: true,
     rejectionReason: null,
   };
 
@@ -23,9 +24,7 @@ export class ApproveRejectModal extends Component {
   };
 
   handleRejectionClick = () => {
-    if (!this.state.showRejectionInput) {
-      this.setState({ showRejectionInput: true, rejectBtnIsDisabled: true });
-    } else if (!this.state.rejectionReason) {
+    if (!this.state.rejectionReason) {
       console.error('Rejection reason empty. Please fill out rejection reason.');
     } else {
       this.props.rejectBtnOnClick(this.state.rejectionReason);
@@ -33,25 +32,35 @@ export class ApproveRejectModal extends Component {
   };
 
   handleRejectionCancelClick = () => {
-    this.setState({ rejectBtnIsDisabled: false, rejectionReason: null, showRejectionInput: false });
+    this.setState({
+      showRejectionToggleBtn: true,
+      rejectBtnIsDisabled: true,
+      rejectionReason: null,
+      showRejectionInput: false,
+    });
+  };
+
+  handleRejectionToggleClick = () => {
+    this.setState({ showRejectionInput: true, showRejectionToggleBtn: false });
   };
 
   render() {
-    const { hideModal } = this.props;
+    const { showModal } = this.props;
     return (
-      !hideModal && (
+      showModal && (
         <>
           <div>
             <button onClick={this.handleApproveClick}>Approve</button>
-            <button onClick={this.handleRejectionClick} disabled={this.state.rejectBtnIsDisabled}>
-              Reject
-            </button>
+            {this.state.showRejectionToggleBtn && <button onClick={this.handleRejectionToggleClick}>Reject</button>}
           </div>
           <div>
             {this.state.showRejectionInput && (
               <label>
                 Rejection reason
                 <input name="rejectionReason" onChange={event => this.handleRejectionChange(event.target.value)} />
+                <button onClick={this.handleRejectionClick} disabled={this.state.rejectBtnIsDisabled}>
+                  Reject
+                </button>
                 <button onClick={this.handleRejectionCancelClick}>Cancel</button>
               </label>
             )}
@@ -68,9 +77,9 @@ ApproveRejectModal.propTypes = {
   /** REQUIRED. Function that is passed in to the onClick prop of the reject button */
   rejectBtnOnClick: PropTypes.func.isRequired,
   /** OPTIONAL. Boolean to hide the modal or not */
-  hideModal: PropTypes.bool,
+  showModal: PropTypes.bool,
 };
 
 ApproveRejectModal.defaultProps = {
-  hideModal: false,
+  showModal: true,
 };
