@@ -223,6 +223,8 @@ paths:
     patch:
       consumes:
         - application/json
+      produces:
+        - application/json
       parameters:
         - in: body
           name: body

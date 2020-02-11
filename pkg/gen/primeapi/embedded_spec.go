@@ -414,6 +414,9 @@ func init() {
         "consumes": [
           "application/json"
         ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "moveTaskOrder",
           "prime"
@@ -1911,6 +1914,9 @@ func init() {
       "patch": {
         "description": "Updates a move order's actual weight by ID",
         "consumes": [
+          "application/json"
+        ],
+        "produces": [
           "application/json"
         ],
         "tags": [

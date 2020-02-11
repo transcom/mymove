@@ -149,7 +149,7 @@ func (a *Client) UpdateMoveTaskOrderActualWeight(params *UpdateMoveTaskOrderActu
 		ID:                 "updateMoveTaskOrderActualWeight",
 		Method:             "PATCH",
 		PathPattern:        "/move-task-orders/{moveTaskOrderID}/prime-actual-weight",
-		ProducesMediaTypes: []string{""},
+		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
 		Params:             params,
