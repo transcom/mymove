@@ -6,7 +6,7 @@ import (
 
 func (suite *cliTestSuite) TestConfigMigrationGenPath() {
 	flagSet := []string{
-		fmt.Sprintf("--%s=%s", MigrationGenPathFlag, "../../migrations"),
+		fmt.Sprintf("--%s=%s", MigrationGenPathFlag, "../../migrations/app/schema"),
 	}
 
 	suite.Setup(InitMigrationGenPathFlags, flagSet)
