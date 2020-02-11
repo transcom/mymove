@@ -733,11 +733,17 @@ workflows:
     jobs:
       - pre_deps_golang
 
-      - pre_deps_yarn
+      - pre_deps_yarn:
+          filters:
+            branches:
+              ignore: cg_teardown_tests
 
       - check_generated_code:
           requires:
             - pre_deps_golang
+          filters:
+            branches:
+              ignore: cg_teardown_tests
 
       - anti_virus:
           filters:
@@ -748,21 +754,33 @@ workflows:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+          filters:
+            branches:
+              ignore: cg_teardown_tests
 
       - acceptance_tests_local:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+          filters:
+            branches:
+              ignore: cg_teardown_tests
 
       - acceptance_tests_experimental:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+          filters:
+            branches:
+              ignore: cg_teardown_tests
 
       - acceptance_tests_staging:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+          filters:
+            branches:
+              ignore: cg_teardown_tests
 
       - integration_tests:
           requires:
@@ -799,25 +817,40 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
             - acceptance_tests_local # don't bother building and pushing the application if it won't even start properly
+          filters:
+            branches:
+              ignore: cg_teardown_tests
 
       - build_storybook_app:
           requires:
             - anti_virus
             - pre_deps_yarn
+          filters:
+            branches:
+              ignore: cg_teardown_tests
 
       - build_tools:
           requires:
             - anti_virus
             - pre_deps_golang
+          filters:
+            branches:
+              ignore: cg_teardown_tests
 
       - build_migrations:
           requires:
             - anti_virus
             - pre_deps_golang
+          filters:
+            branches:
+              ignore: cg_teardown_tests
 
       - build_tasks:
           requires:
             - build_tools
+          filters:
+            branches:
+              ignore: cg_teardown_tests
 
       - deploy_experimental_migrations:
           requires:
