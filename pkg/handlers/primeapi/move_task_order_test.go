@@ -31,6 +31,14 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandler() {
 		},
 	})
 
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: moveTaskOrder,
+	})
+
+	testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		MoveTaskOrder: moveTaskOrder,
+	})
+
 	// unavailable MTO
 	testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{})
 
@@ -51,6 +59,7 @@ func (suite *HandlerSuite) TestListMoveTaskOrdersHandler() {
 	suite.Equal(moveTaskOrder.ID.String(), moveTaskOrdersPayload[0].ID.String())
 	suite.Equal(1, len(moveTaskOrdersPayload[0].PaymentRequests))
 	suite.Equal(1, len(moveTaskOrdersPayload[0].MtoServiceItems))
+	suite.Equal(2, len(moveTaskOrdersPayload[0].MtoShipments))
 }
 
 func (suite *HandlerSuite) TestListMoveTaskOrdersHandlerReturnsUpdated() {
