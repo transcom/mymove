@@ -152,7 +152,7 @@ class CustomerDetails extends Component {
                       <td>
                         {
                           <ApproveRejectModal
-                            hideModal={items.status !== 'SUBMITTED'}
+                            showModal={items.status === 'SUBMITTED'}
                             approveBtnOnClick={() =>
                               this.props.patchMTOShipmentStatus(
                                 get(moveTaskOrder, 'id'),
