@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 export class ApproveRejectModal extends Component {
   state = {
+    showApproveBtn: true,
     showRejectionToggleBtn: true,
     showRejectionInput: false,
     rejectBtnIsDisabled: true,
@@ -33,6 +34,7 @@ export class ApproveRejectModal extends Component {
 
   handleRejectionCancelClick = () => {
     this.setState({
+      showApproveBtn: true,
       showRejectionToggleBtn: true,
       rejectBtnIsDisabled: true,
       rejectionReason: null,
@@ -41,7 +43,7 @@ export class ApproveRejectModal extends Component {
   };
 
   handleRejectionToggleClick = () => {
-    this.setState({ showRejectionInput: true, showRejectionToggleBtn: false });
+    this.setState({ showRejectionInput: true, showRejectionToggleBtn: false, showApproveBtn: false });
   };
 
   render() {
@@ -50,7 +52,7 @@ export class ApproveRejectModal extends Component {
       showModal && (
         <>
           <div>
-            <button onClick={this.handleApproveClick}>Approve</button>
+            {this.state.showApproveBtn && <button onClick={this.handleApproveClick}>Approve</button>}
             {this.state.showRejectionToggleBtn && <button onClick={this.handleRejectionToggleClick}>Reject</button>}
           </div>
           <div>
