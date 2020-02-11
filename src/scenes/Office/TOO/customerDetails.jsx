@@ -132,6 +132,11 @@ class CustomerDetails extends Component {
                   <th>ID</th>
                   <th>Shipment Type</th>
                   <th>Requested Pick-up Date</th>
+                  <th>Scheduled Pick-up Date</th>
+                  <th>Pick up Address</th>
+                  <th>Secondary Pickup Address</th>
+                  <th>Delivery Address</th>
+                  <th>Secondary Delivery Address</th>
                   <th>Customer Remarks</th>
                 </tr>
               </thead>
@@ -142,6 +147,28 @@ class CustomerDetails extends Component {
                       <td>{items.id}</td>
                       <td>{items.shipmentType}</td>
                       <td>{items.requestedPickupDate}</td>
+                      <td>{items.scheduledPickupDate}</td>
+                      <td>
+                        {items.pickupAddress.street_address_1} {items.pickupAddress.street_address_2}{' '}
+                        {items.pickupAddress.street_address_2} {items.pickupAddress.city} {items.pickupAddress.state}{' '}
+                        {items.pickupAddress.postal_code}
+                      </td>
+                      <td>
+                        {items.secondaryPickupAddress.street_address_1} {items.secondaryPickupAddress.street_address_2}{' '}
+                        {items.secondaryPickupAddress.street_address_2} {items.secondaryPickupAddress.city}{' '}
+                        {items.secondaryPickupAddress.state} {items.secondaryPickupAddress.postal_code}
+                      </td>
+                      <td>
+                        {items.destinationAddress.street_address_1} {items.destinationAddress.street_address_2}{' '}
+                        {items.destinationAddress.street_address_2} {items.destinationAddress.city}{' '}
+                        {items.destinationAddress.state} {items.destinationAddress.postal_code}
+                      </td>
+                      <td>
+                        {items.secondaryDeliveryAddress.street_address_1}{' '}
+                        {items.secondaryDeliveryAddress.street_address_2}{' '}
+                        {items.secondaryDeliveryAddress.street_address_2} {items.secondaryDeliveryAddress.city}{' '}
+                        {items.secondaryDeliveryAddress.state} {items.secondaryDeliveryAddress.postal_code}
+                      </td>
                       <td>{items.customerRemarks}</td>
                     </tr>
                   </Fragment>

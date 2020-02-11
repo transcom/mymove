@@ -49,13 +49,13 @@ You will see output like:
 
 ```text
 2019/08/22 17:32:38 new migration file created at: "tmp/20190822173238_cgilmer_cac.up.sql"
-2019/08/22 17:32:38 new migration file created at:  "local_migrations/20190822173238_cgilmer_cac.up.sql"
-2019/08/22 17:32:38 new migration appended to manifest at: "/dir/transcom/mymove/migrations_manifest.txt"
+2019/08/22 17:32:38 new migration file created at:  "migrations/app/secure/20190822173238_cgilmer_cac.up.sql"
+2019/08/22 17:32:38 new migration appended to manifest at: "/dir/transcom/mymove/migrations/app/migrations_manifest.txt"
 ```
 
 The generation script will provide three files and update the `migrations_manifest.txt` for you:
 
-* A stub local migration in the `local_migrations/` folder
+* A stub local secure migration in the `migrations/app/secure/` folder
 * A migration to upload to AWS S3 in the `tmp/` folder
 
 It is important only to upload the migration from the `tmp/` directory to the Staging and Experimental environments.
@@ -67,8 +67,7 @@ IN PROD**.
 For testing locally you can **temporarily** do this (your file names will be different):
 
 ```sh
-rm local_migrations/20190822181328_cgilmer_cac.up.sql
-mv tmp/20190822181328_cgilmer_cac.up.sql migrations/
+cp tmp/20190822181328_cgilmer_cac.up.sql migrations/app/secure/
 update-migrations-manifest
 make db_dev_migrate
 ```

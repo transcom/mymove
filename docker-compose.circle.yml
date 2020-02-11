@@ -15,6 +15,8 @@ services:
       - POSTGRES_DB=test_db
 
   server_test:
+    depends_on:
+      - database
     image: trussworks/circleci-docker-primary:6f138d780444b35181e0048282616f75a451d7b4
     deploy:
       resources:
@@ -65,8 +67,8 @@ services:
       - LOGIN_GOV_MY_CLIENT_ID
       - LOGIN_GOV_OFFICE_CLIENT_ID
       - LOGIN_GOV_SECRET_KEY
-      - MIGRATION_PATH=file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations
-      - MIGRATION_MANIFEST=/home/circleci/transcom/mymove/migrations_manifest.txt
+      - MIGRATION_PATH=file:///home/circleci/transcom/mymove/migrations/app/secure;file:///home/circleci/transcom/mymove/migrations/app/schema
+      - MIGRATION_MANIFEST=/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt
       - MOVE_MIL_DOD_CA_CERT
       - MOVE_MIL_DOD_TLS_CERT
       - MOVE_MIL_DOD_TLS_KEY

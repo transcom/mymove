@@ -233,6 +233,12 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}": {
       "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "mtoShipment",
           "prime"
@@ -1136,6 +1142,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "primeActualWeight": {
+          "type": "integer"
+        },
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
@@ -1242,6 +1251,9 @@ func init() {
           "items": {
             "$ref": "#/definitions/MTOServiceItem"
           }
+        },
+        "mto_shipments": {
+          "$ref": "#/definitions/MTOShipments"
         },
         "payment_requests": {
           "type": "array",
@@ -1693,6 +1705,12 @@ func init() {
     },
     "/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}": {
       "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "mtoShipment",
           "prime"
@@ -2695,6 +2713,9 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "primeActualWeight": {
+          "type": "integer"
+        },
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
@@ -2801,6 +2822,9 @@ func init() {
           "items": {
             "$ref": "#/definitions/MTOServiceItem"
           }
+        },
+        "mto_shipments": {
+          "$ref": "#/definitions/MTOShipments"
         },
         "payment_requests": {
           "type": "array",

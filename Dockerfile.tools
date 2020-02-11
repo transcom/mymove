@@ -1,7 +1,7 @@
 FROM alpine:3.11.3
 
-COPY ./generate-test-data /bin/generate-test-data
-COPY ./test.pdf /bin/pkg/testdatagen/testdata/test.pdf
+COPY bin/generate-test-data /bin/generate-test-data
+COPY pkg/testdatagen/testdata/test.pdf /bin/pkg/testdatagen/testdata/test.pdf
 
 # Install tools needed in container
 RUN apk update

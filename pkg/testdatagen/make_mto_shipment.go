@@ -54,6 +54,8 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		PrimeEstimatedWeight:             &estimatedWeight,
 		PrimeEstimatedWeightRecordedDate: &primeEstimatedWeightDate,
 		PrimeActualWeight:                &actualWeight,
+		SecondaryPickupAddress:           &pickupAddress,
+		SecondaryDeliveryAddress:         &destinationAddress,
 		ShipmentType:                     shipmentType,
 		Status:                           "SUBMITTED",
 	}

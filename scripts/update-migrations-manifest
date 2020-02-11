@@ -3,7 +3,7 @@
 # Update manifest for migrations
 #
 
-set -eo pipefail
+set -o pipefail
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 readonly DIR
@@ -11,5 +11,7 @@ readonly DIR
 # If in CI exit immediately, since pre-commit might reorder the manifest on branches not in sync with master.
 [[ "${CI:-}" == "true" ]] && exit 0
 
-echo -e "# This is the migrations manifest.\n# If a migration is not recorded here, then it will error." > "$DIR/../migrations_manifest.txt"
-find "${DIR}/../migrations" "${DIR}/../local_migrations"  -type f \( -name "*.up.sql" -o -name "*.up.fizz" \) -exec basename {} \; | sort | uniq | grep -v "^schema[.]sql$" >> "$DIR/../migrations_manifest.txt"
+for application in app orders; do
+  echo -e "# This is the migrations manifest.\n# If a migration is not recorded here, then it will error." > "$DIR/../migrations/${application}/migrations_manifest.txt"
+  find "${DIR}/../migrations/${application}/schema" "${DIR}/../migrations/${application}/secure"  -type f \( -name "*.up.sql" -o -name "*.up.fizz" \) -exec basename {} \; | sort | uniq | grep -v "^schema[.]sql$" >> "$DIR/../migrations/${application}/migrations_manifest.txt" || true
+done

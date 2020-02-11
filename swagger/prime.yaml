@@ -349,6 +349,10 @@ paths:
       summary: Gets entitlements for a move order by ID
   '/move-task-orders/{moveTaskOrderID}/mto-shipments/{mtoShipmentID}':
     put:
+      consumes:
+        - application/json
+      produces:
+        - application/json
       summary: Updates mto shipment
       operationId: updateMTOShipment
       tags:
@@ -797,6 +801,8 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/MTOServiceItem'
+      mto_shipments:
+        $ref: '#/definitions/MTOShipments'
   MoveTaskOrders:
     items:
       $ref: '#/definitions/MoveTaskOrder'
@@ -829,6 +835,8 @@ definitions:
       requestedPickupDate:
         format: date
         type: string
+      primeActualWeight:
+        type: integer
       customerRemarks:
         type: string
         example: handle with care
