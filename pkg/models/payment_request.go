@@ -39,6 +39,7 @@ type PaymentRequest struct {
 	Status               PaymentRequestStatus `json:"status" db:"status"`
 	RejectionReason      *string              `json:"rejection_reason" db:"rejection_reason"`
 	PaymentRequestNumber string               `json:"payment_request_number" db:"payment_request_number"`
+	SequenceNumber       int                  `json:"sequence_number" db:"sequence_number"`
 	RequestedAt          time.Time            `json:"requested_at" db:"requested_at"`
 	ReviewedAt           *time.Time           `json:"reviewed_at" db:"reviewed_at"`
 	SentToGexAt          *time.Time           `json:"sent_to_gex_at" db:"sent_to_gex_at"`

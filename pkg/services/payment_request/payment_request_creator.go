@@ -2,7 +2,6 @@ package paymentrequest
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -25,7 +24,6 @@ func NewPaymentRequestCreator(db *pop.Connection) services.PaymentRequestCreator
 }
 
 func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection, paymentRequest *models.PaymentRequest, requestedAt time.Time) (*models.PaymentRequest, error) {
-
 	// Verify that the MTO ID exists
 	//
 	// Lock on the parent row to keep multiple transactions from getting this count at the same time
@@ -46,11 +44,12 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	paymentRequest.Status = models.PaymentRequestStatusPending
 	paymentRequest.RequestedAt = requestedAt
 
-	uniqueIdentifier, err := p.makeUniqueIdentifier(tx, moveTaskOrder)
+	uniqueIdentifier, sequenceNumber, err := p.makeUniqueIdentifier(tx, moveTaskOrder)
 	if err != nil {
 		return nil, fmt.Errorf("issue creating payment request unique identifier: %w", err)
 	}
 	paymentRequest.PaymentRequestNumber = uniqueIdentifier
+	paymentRequest.SequenceNumber = sequenceNumber
 
 	// Create the payment request for the database
 	verrs, err := tx.ValidateAndCreate(paymentRequest)
@@ -292,20 +291,21 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 	return paymentRequestArg, nil
 }
 
-func (p *paymentRequestCreator) makeUniqueIdentifier(tx *pop.Connection, mto models.MoveTaskOrder) (string, error) {
-	// Count how many payment requests we have (and since we have a lock to prevent concurrent inserts,
-	// this shouldn't change during this transaction).
-	count, err := tx.Where("move_task_order_id = $1", mto.ID).Count(models.PaymentRequest{})
+func (p *paymentRequestCreator) makeUniqueIdentifier(tx *pop.Connection, mto models.MoveTaskOrder) (string, int, error) {
+	// Get the max sequence number that exists for the payment requests associated with the given MTO.
+	// Since we have a lock to prevent concurrent payment requests for this MTO, this should be safe.
+	var max int
+	err := tx.RawQuery("SELECT COALESCE(MAX(sequence_number),0) FROM payment_requests WHERE move_task_order_id = $1", mto.ID).First(&max)
 	if err != nil {
-		return "", fmt.Errorf("count of payment requests for MoveTaskOrderID [%s] failed: %w", mto.ID, err)
+		return "", 0, fmt.Errorf("max sequence_number for MoveTaskOrderID [%s] failed: %w", mto.ID, err)
 	}
 
-	var prefix string
-	if mto.ReferenceID == nil {
-		prefix = mto.ID.String()
-	} else {
-		prefix = *mto.ReferenceID
+	if mto.ReferenceID == nil || *mto.ReferenceID == "" {
+		return "", 0, fmt.Errorf("could not find reference ID for MoveTaskOrderID [%s]", mto.ID)
 	}
 
-	return fmt.Sprintf("%s-%s", prefix, strconv.Itoa(count+1)), nil
+	nextSequence := max + 1
+	paymentRequestNumber := fmt.Sprintf("%s-%d", *mto.ReferenceID, nextSequence)
+
+	return paymentRequestNumber, nextSequence, nil
 }

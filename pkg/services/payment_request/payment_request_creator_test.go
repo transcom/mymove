@@ -289,8 +289,9 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	})
 
 	suite.T().Run("Payment request numbers increment by 1", func(t *testing.T) {
-		// Determine how many payment requests we alread have for this MTO ID
-		count, err := suite.DB().Where("move_task_order_id = $1", moveTaskOrder.ID).Count(&models.PaymentRequest{})
+		// Determine the max sequence number we already have for this MTO ID
+		var max int
+		err := suite.DB().RawQuery("SELECT COALESCE(MAX(sequence_number),0) FROM payment_requests WHERE move_task_order_id = $1", moveTaskOrder.ID).First(&max)
 		suite.FatalNoError(err)
 
 		// Create two new ones
@@ -333,16 +334,9 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		suite.FatalNoError(err)
 
 		// Verify expected payment request numbers
-		expectedPaymentRequestNumber1 := fmt.Sprintf("%s-%d", referenceID, count+1)
+		expectedPaymentRequestNumber1 := fmt.Sprintf("%s-%d", referenceID, max+1)
 		suite.Equal(expectedPaymentRequestNumber1, paymentRequest1.PaymentRequestNumber)
-		expectedPaymentRequestNumber2 := fmt.Sprintf("%s-%d", referenceID, count+2)
+		expectedPaymentRequestNumber2 := fmt.Sprintf("%s-%d", referenceID, max+2)
 		suite.Equal(expectedPaymentRequestNumber2, paymentRequest2.PaymentRequestNumber)
 	})
-
-	suite.T().Run("Payment request number with null MTO reference ID", func(t *testing.T) {
-		// count the number of payment requests
-		// create 2 payment requests with the original MTO
-		// check that the new payment requests each have the expected value [MTOReferenceID]-2, [MTOReferenceID]-2
-	})
-
 }

@@ -1,6 +1,8 @@
 package testdatagen
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 
@@ -15,12 +17,24 @@ func MakePaymentRequest(db *pop.Connection, assertions Assertions) models.Paymen
 	if isZeroUUID(moveTaskOrder.ID) {
 		moveTaskOrder = MakeMoveTaskOrder(db, assertions)
 	}
+
+	sequenceNumber := 1
+	var referenceID string
+	if moveTaskOrder.ReferenceID == nil {
+		referenceID = "XXXX-XXXX"
+	} else {
+		referenceID = *moveTaskOrder.ReferenceID
+	}
+	paymentRequestNumber := fmt.Sprintf("%s-%d", referenceID, sequenceNumber)
+
 	paymentRequest := models.PaymentRequest{
-		MoveTaskOrder:   moveTaskOrder,
-		MoveTaskOrderID: moveTaskOrder.ID,
-		IsFinal:         false,
-		RejectionReason: swag.String("Not good enough"),
-		Status:          models.PaymentRequestStatusPending,
+		MoveTaskOrder:        moveTaskOrder,
+		MoveTaskOrderID:      moveTaskOrder.ID,
+		IsFinal:              false,
+		RejectionReason:      swag.String("Not good enough"),
+		Status:               models.PaymentRequestStatusPending,
+		PaymentRequestNumber: paymentRequestNumber,
+		SequenceNumber:       sequenceNumber,
 	}
 
 	// Overwrite values with those from assertions
