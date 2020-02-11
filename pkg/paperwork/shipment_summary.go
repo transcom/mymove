@@ -102,8 +102,8 @@ func (sswPpmComputer *SSWPPMComputer) nilCheckPPM(ssfd models.ShipmentSummaryFor
 	if firstPPM.PickupPostalCode == nil || firstPPM.DestinationPostalCode == nil {
 		return models.PersonallyProcuredMove{}, errors.New("missing required address parameter")
 	}
-	if firstPPM.ActualMoveDate == nil {
-		return models.PersonallyProcuredMove{}, errors.New("missing required actual move date parameter")
+	if firstPPM.OriginalMoveDate == nil {
+		return models.PersonallyProcuredMove{}, errors.New("missing required original move date parameter")
 	}
 	return firstPPM, nil
 }
