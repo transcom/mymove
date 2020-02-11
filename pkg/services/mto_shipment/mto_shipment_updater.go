@@ -135,7 +135,7 @@ func validateUpdatedMTOShipment(db *pop.Connection, oldShipment *models.MTOShipm
 
 // updateMTOShipment updates the mto shipment with a raw query
 func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSince time.Time, updatedShipment *primemessages.MTOShipment) error {
-	basicQuery := `UPDATE mto_shipments
+	baseQuery := `UPDATE mto_shipments
 		SET scheduled_pickup_date = ?,
 			requested_pickup_date = ?,
 			shipment_type = ?,
@@ -145,14 +145,14 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 			updated_at = NOW()`
 
 	if updatedShipment.SecondaryPickupAddress != nil {
-		basicQuery = basicQuery + fmt.Sprintf(", \nsecondary_pickup_address_id = '%s'", updatedShipment.SecondaryPickupAddress.ID)
+		baseQuery = baseQuery + fmt.Sprintf(", \nsecondary_pickup_address_id = '%s'", updatedShipment.SecondaryPickupAddress.ID)
 	}
 
 	if updatedShipment.SecondaryDeliveryAddress != nil {
-		basicQuery = basicQuery + fmt.Sprintf(", \nsecondary_delivery_address_id = '%s'", updatedShipment.SecondaryDeliveryAddress.ID)
+		baseQuery = baseQuery + fmt.Sprintf(", \nsecondary_delivery_address_id = '%s'", updatedShipment.SecondaryDeliveryAddress.ID)
 	}
 
-	finishedQuery := basicQuery + `
+	finishedQuery := baseQuery + `
 		WHERE
 			id = ?
 		AND

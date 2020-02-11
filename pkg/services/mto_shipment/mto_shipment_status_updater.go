@@ -55,7 +55,22 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 		return nil, err
 	}
 
-	affectedRows, err := o.db.RawQuery("UPDATE mto_shipments SET status = ?, updated_at = NOW() WHERE id = ? AND updated_at = ?", status, shipment.ID.String(), unmodifiedSince).ExecWithCount()
+	baseQuery := `UPDATE mto_shipments
+		SET status = ?,
+		updated_at = NOW()`
+
+	if shipment.Status == models.MTOShipmentStatusApproved {
+		baseQuery = baseQuery + `,
+			approved_date = NOW()`
+	}
+	finishedQuery := baseQuery + `
+		WHERE
+			id = ?
+		AND
+			updated_at = ?
+		;`
+
+	affectedRows, err := o.db.RawQuery(finishedQuery, status, shipment.ID.String(), unmodifiedSince).ExecWithCount()
 
 	if err != nil {
 		return nil, err

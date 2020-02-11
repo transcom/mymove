@@ -43,6 +43,7 @@ type MTOShipment struct {
 	MoveTaskOrderID                  uuid.UUID         `db:"move_task_order_id"`
 	ScheduledPickupDate              *time.Time        `db:"scheduled_pickup_date"`
 	RequestedPickupDate              *time.Time        `db:"requested_pickup_date"`
+	ApprovedDate                     *time.Time        `db:"approved_date"`
 	CustomerRemarks                  *string           `db:"customer_remarks"`
 	PickupAddress                    Address           `belongs_to:"addresses"`
 	PickupAddressID                  uuid.UUID         `db:"pickup_address_id"`
