@@ -1,7 +1,8 @@
 {
-  "plugins": ["security", "no-only-tests"],
-  "extends": ["react-app", "plugin:security/recommended"],
+  "plugins": ["prettier", "security", "no-only-tests"],
+  "extends": ["react-app", "plugin:prettier/recommended", "plugin:security/recommended"],
   "rules": {
+    "prettier/prettier": "error",
     "no-only-tests/no-only-tests": "error",
     "no-debugger": "error",
     "jsx-a11y/anchor-is-valid": "off",
