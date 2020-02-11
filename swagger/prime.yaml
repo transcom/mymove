@@ -829,6 +829,9 @@ definitions:
       updatedAt:
         format: datetime
         type: string
+      approvedDate:
+        format: date
+        type: string
       scheduledPickupDate:
         format: date
         type: string
@@ -837,6 +840,10 @@ definitions:
         type: string
       primeActualWeight:
         type: integer
+        example: 4500
+      primeEstimatedWeight:
+        type: integer
+        example: 4500
       customerRemarks:
         type: string
         example: handle with care

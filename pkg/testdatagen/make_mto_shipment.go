@@ -39,26 +39,30 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	// mock dates
 	scheduledPickupDate := time.Date(TestYear, time.March, 16, 0, 0, 0, 0, time.UTC)
 	requestedPickupDate := time.Date(TestYear, time.March, 15, 0, 0, 0, 0, time.UTC)
-	primeEstimatedWeightDate := time.Date(TestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
 
 	MTOShipment := models.MTOShipment{
-		MoveTaskOrder:                    moveTaskOrder,
-		MoveTaskOrderID:                  moveTaskOrder.ID,
-		ScheduledPickupDate:              &scheduledPickupDate,
-		RequestedPickupDate:              &requestedPickupDate,
-		CustomerRemarks:                  &remarks,
-		PickupAddress:                    pickupAddress,
-		PickupAddressID:                  pickupAddress.ID,
-		DestinationAddress:               destinationAddress,
-		DestinationAddressID:             destinationAddress.ID,
-		PrimeEstimatedWeight:             &estimatedWeight,
-		PrimeEstimatedWeightRecordedDate: &primeEstimatedWeightDate,
-		PrimeActualWeight:                &actualWeight,
-		SecondaryPickupAddress:           &pickupAddress,
-		SecondaryDeliveryAddress:         &destinationAddress,
-		ShipmentType:                     shipmentType,
-		Status:                           "SUBMITTED",
+		MoveTaskOrder:            moveTaskOrder,
+		MoveTaskOrderID:          moveTaskOrder.ID,
+		ScheduledPickupDate:      &scheduledPickupDate,
+		RequestedPickupDate:      &requestedPickupDate,
+		CustomerRemarks:          &remarks,
+		PickupAddress:            pickupAddress,
+		PickupAddressID:          pickupAddress.ID,
+		DestinationAddress:       destinationAddress,
+		DestinationAddressID:     destinationAddress.ID,
+		PrimeEstimatedWeight:     &estimatedWeight,
+		PrimeActualWeight:        &actualWeight,
+		SecondaryPickupAddress:   &pickupAddress,
+		SecondaryDeliveryAddress: &destinationAddress,
+		ShipmentType:             shipmentType,
+		Status:                   "SUBMITTED",
 	}
+
+	if assertions.MTOShipment.Status == models.MTOShipmentStatusApproved {
+		approvedDate := time.Date(TestYear, time.March, 20, 0, 0, 0, 0, time.UTC)
+		MTOShipment.ApprovedDate = &approvedDate
+	}
+
 	// Overwrite values with those from assertions
 	mergeModels(&MTOShipment, assertions.MTOShipment)
 

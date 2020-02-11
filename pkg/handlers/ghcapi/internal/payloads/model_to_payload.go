@@ -161,6 +161,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *ghcmessages.MTOShipment {
 		Status:                   string(mtoShipment.Status),
 		CustomerRemarks:          *mtoShipment.CustomerRemarks,
 		RequestedPickupDate:      strfmt.Date(*mtoShipment.RequestedPickupDate),
+		ApprovedDate:             strfmt.Date(*mtoShipment.ApprovedDate),
 		PickupAddress:            Address(&mtoShipment.PickupAddress),
 		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
 		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),

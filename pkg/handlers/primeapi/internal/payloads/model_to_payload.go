@@ -167,11 +167,13 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		CustomerRemarks:          *mtoShipment.CustomerRemarks,
 		RequestedPickupDate:      &requestedPickupDate,
 		ScheduledPickupDate:      &scheduledPickupDate,
+		ApprovedDate:             strfmt.Date(*mtoShipment.ApprovedDate),
 		PickupAddress:            Address(&mtoShipment.PickupAddress),
 		Status:                   string(mtoShipment.Status),
 		DestinationAddress:       Address(&mtoShipment.DestinationAddress),
 		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
 		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
+		PrimeEstimatedWeight:     int64(*mtoShipment.PrimeEstimatedWeight),
 		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
 	}

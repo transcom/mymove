@@ -1118,6 +1118,10 @@ func init() {
         "shipmentType"
       ],
       "properties": {
+        "approvedDate": {
+          "type": "string",
+          "format": "date"
+        },
         "createdAt": {
           "type": "string",
           "format": "datetime"
@@ -1143,7 +1147,12 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "primeActualWeight": {
-          "type": "integer"
+          "type": "integer",
+          "example": 4500
+        },
+        "primeEstimatedWeight": {
+          "type": "integer",
+          "example": 4500
         },
         "requestedPickupDate": {
           "type": "string",
@@ -2689,6 +2698,10 @@ func init() {
         "shipmentType"
       ],
       "properties": {
+        "approvedDate": {
+          "type": "string",
+          "format": "date"
+        },
         "createdAt": {
           "type": "string",
           "format": "datetime"
@@ -2714,7 +2727,12 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "primeActualWeight": {
-          "type": "integer"
+          "type": "integer",
+          "example": 4500
+        },
+        "primeEstimatedWeight": {
+          "type": "integer",
+          "example": 4500
         },
         "requestedPickupDate": {
           "type": "string",
