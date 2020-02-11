@@ -153,25 +153,28 @@ class CustomerDetails extends Component {
                       <td>{items.requestedPickupDate}</td>
                       <td>{items.scheduledPickupDate}</td>
                       <td>
-                        {items.pickupAddress.street_address_1} {items.pickupAddress.street_address_2}{' '}
-                        {items.pickupAddress.street_address_2} {items.pickupAddress.city} {items.pickupAddress.state}{' '}
-                        {items.pickupAddress.postal_code}
+                        {get(items.pickupAddress, 'street_address_1')} {get(items.pickupAddress, 'street_address_2')}{' '}
+                        {get(items.pickupAddress, 'street_address_3')} {} {get(items.pickupAddress, 'state')}{' '}
+                        {get(items.pickupAddress, 'postal_code')}
                       </td>
                       <td>
-                        {items.secondaryPickupAddress.street_address_1} {items.secondaryPickupAddress.street_address_2}{' '}
-                        {items.secondaryPickupAddress.street_address_2} {items.secondaryPickupAddress.city}{' '}
-                        {items.secondaryPickupAddress.state} {items.secondaryPickupAddress.postal_code}
+                        {get(items.secondaryPickupAddress, 'street_address_1')}{' '}
+                        {get(items.secondaryPickupAddress, 'street_address_2')}{' '}
+                        {get(items.secondaryPickupAddress, 'street_address_3')} {}{' '}
+                        {get(items.secondaryPickupAddress, 'state')} {get(items.secondaryPickupAddress, 'postal_code')}
                       </td>
                       <td>
-                        {items.destinationAddress.street_address_1} {items.destinationAddress.street_address_2}{' '}
-                        {items.destinationAddress.street_address_2} {items.destinationAddress.city}{' '}
-                        {items.destinationAddress.state} {items.destinationAddress.postal_code}
+                        {get(items.destinationAddress, 'street_address_1')}{' '}
+                        {get(items.destinationAddress, 'street_address_2')}{' '}
+                        {get(items.destinationAddress, 'street_address_3')} {} {get(items.destinationAddress, 'state')}{' '}
+                        {get(items.destinationAddress, 'postal_code')}
                       </td>
                       <td>
-                        {items.secondaryDeliveryAddress.street_address_1}{' '}
-                        {items.secondaryDeliveryAddress.street_address_2}{' '}
-                        {items.secondaryDeliveryAddress.street_address_2} {items.secondaryDeliveryAddress.city}{' '}
-                        {items.secondaryDeliveryAddress.state} {items.secondaryDeliveryAddress.postal_code}
+                        {get(items.secondaryDeliveryAddress, 'street_address_1')}{' '}
+                        {get(items.secondaryDeliveryAddress, 'street_address_2')}{' '}
+                        {get(items.secondaryDeliveryAddress, 'street_address_3')} {}{' '}
+                        {get(items.secondaryDeliveryAddress, 'state')}{' '}
+                        {get(items.secondaryDeliveryAddress, 'postal_code')}
                       </td>
                       <td>{items.customerRemarks}</td>
                       <td>{items.status}</td>
