@@ -73,7 +73,7 @@ func (suite *GHCRateEngineImportSuite) helperSetupStagingTables() {
 
 func (suite *GHCRateEngineImportSuite) helperSetupReServicesTable() {
 	fmt.Print("Importing re_services data...")
-	path := filepath.Join("../../../migrations", "20191101201107_create-re-services-table-with-values.up.sql")
+	path := filepath.Join("../../../migrations/app/schema", "20191101201107_create-re-services-table-with-values.up.sql")
 	c, ioErr := ioutil.ReadFile(path)
 	suite.NoError(ioErr)
 
@@ -81,7 +81,7 @@ func (suite *GHCRateEngineImportSuite) helperSetupReServicesTable() {
 	err := suite.DB().RawQuery(sql).Exec()
 	if suite.NoError(err) {
 		// read second migration
-		path = filepath.Join("../../../migrations", "20191126160639_update-and-add-values-for-reservices-table.up.sql")
+		path = filepath.Join("../../../migrations/app/schema", "20191126160639_update-and-add-values-for-reservices-table.up.sql")
 		c, ioErr = ioutil.ReadFile(path)
 		suite.NoError(ioErr)
 
@@ -105,6 +105,7 @@ func TestGHCRateEngineImportSuite(t *testing.T) {
 	}
 
 	suite.Run(t, hs)
+	hs.PopTestSuite.TearDown()
 }
 
 func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_Import() {

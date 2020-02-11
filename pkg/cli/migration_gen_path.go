@@ -28,7 +28,7 @@ func (e *errInvalidMigrationGenPath) Error() string {
 
 // InitMigrationFlags initializes the Migration command line flags
 func InitMigrationGenPathFlags(flag *pflag.FlagSet) {
-	flag.StringP(MigrationGenPathFlag, "p", "./migrations", "Path to the migrations folder")
+	flag.StringP(MigrationGenPathFlag, "p", "./migrations/app/schema", "Path to the migrations folder")
 }
 
 // CheckMigration validates migration command line flags

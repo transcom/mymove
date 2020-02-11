@@ -14,7 +14,7 @@ const (
 	// tempMigrationPath is the temporary path for generated migrations
 	tempMigrationPath string = "./tmp"
 
-	// localMigrationTemplate is the template for local migration files
+	// localMigrationTemplate is the template for local secure migration files
 	localMigrationTemplate string = `-- Local test migration.
 -- This will be run on development environments.
 -- It should mirror what you intend to apply on prod/staging/experimental

@@ -67,8 +67,8 @@ services:
       - LOGIN_GOV_MY_CLIENT_ID
       - LOGIN_GOV_OFFICE_CLIENT_ID
       - LOGIN_GOV_SECRET_KEY
-      - MIGRATION_PATH=file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations
-      - MIGRATION_MANIFEST=/home/circleci/transcom/mymove/migrations_manifest.txt
+      - MIGRATION_PATH=file:///home/circleci/transcom/mymove/migrations/app/secure;file:///home/circleci/transcom/mymove/migrations/app/schema
+      - MIGRATION_MANIFEST=/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt
       - MOVE_MIL_DOD_CA_CERT
       - MOVE_MIL_DOD_TLS_CERT
       - MOVE_MIL_DOD_TLS_KEY

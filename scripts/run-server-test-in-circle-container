@@ -10,8 +10,8 @@ make clean
 
 go get ./...
 
+# These targets are built with GOARCH=amd64 GOOS=linux and overwrite the local binaries
 make bin/go-junit-report
-
 make bin/milmove
 
 make db_test_migrate
