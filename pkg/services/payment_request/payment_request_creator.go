@@ -25,11 +25,20 @@ func NewPaymentRequestCreator(db *pop.Connection) services.PaymentRequestCreator
 }
 
 func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection, paymentRequest *models.PaymentRequest, requestedAt time.Time) (*models.PaymentRequest, error) {
+
 	// Verify that the MTO ID exists
+	//
+	// Lock on the parent row to keep multiple transactions from getting this count at the same time
+	// for the same move_task_order_id.  This should block if another payment request comes in for the
+	// same move_task_order_id.  Payment requests for other move_task_order_ids should run concurrently.
+	// Also note that we use "FOR NO KEY UPDATE" to allow concurrent mods to other tables that have a
+	// FK to move_task_orders.
 	var moveTaskOrder models.MoveTaskOrder
-	err := tx.Find(&moveTaskOrder, paymentRequest.MoveTaskOrderID)
+	sqlString, sqlArgs := tx.Where("id = $1", paymentRequest.MoveTaskOrderID).ToSQL(&pop.Model{Value: &moveTaskOrder})
+	sqlString += " FOR NO KEY UPDATE"
+	err := tx.RawQuery(sqlString, sqlArgs...).First(&moveTaskOrder)
 	if err != nil {
-		return paymentRequest, fmt.Errorf("could not find MoveTaskOrderID [%s]: %w", moveTaskOrder.MoveOrderID.String(), err)
+		return nil, fmt.Errorf("could not find MoveTaskOrderID [%s]: %w", paymentRequest.MoveTaskOrderID, err)
 	}
 
 	// Update PaymentRequest
@@ -37,7 +46,7 @@ func (p *paymentRequestCreator) createPaymentRequestSaveToDB(tx *pop.Connection,
 	paymentRequest.Status = models.PaymentRequestStatusPending
 	paymentRequest.RequestedAt = requestedAt
 
-	uniqueIdentifier, err := p.makeUniqueIdentifier(paymentRequest.MoveTaskOrderID)
+	uniqueIdentifier, err := p.makeUniqueIdentifier(tx, moveTaskOrder)
 	if err != nil {
 		return nil, fmt.Errorf("issue creating payment request unique identifier: %w", err)
 	}
@@ -228,7 +237,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 			//
 
 			// Retrieve all of the params needed to price this service item
-			paymentHelper := paymentrequesthelper.RequestPaymentHelper{DB: p.db}
+			paymentHelper := paymentrequesthelper.RequestPaymentHelper{DB: tx}
 			reServiceParams, err := paymentHelper.FetchServiceParamList(paymentServiceItem.MTOServiceItemID)
 			if err != nil {
 				errMessage := "Failed to retrieve service item param list for " + errMessageString
@@ -283,30 +292,20 @@ func (p *paymentRequestCreator) CreatePaymentRequest(paymentRequestArg *models.P
 	return paymentRequestArg, nil
 }
 
-func (p *paymentRequestCreator) makeUniqueIdentifier(mtoID uuid.UUID) (string, error) {
-	paymentRequestNumber, err := p.determinePaymentRequestNumberSuffix(mtoID)
+func (p *paymentRequestCreator) makeUniqueIdentifier(tx *pop.Connection, mto models.MoveTaskOrder) (string, error) {
+	// Count how many payment requests we have (and since we have a lock to prevent concurrent inserts,
+	// this shouldn't change during this transaction).
+	count, err := tx.Where("move_task_order_id = $1", mto.ID).Count(models.PaymentRequest{})
 	if err != nil {
-		return "", fmt.Errorf("error determining Payment RequestNumber: %w", err)
-	}
-	var moveTaskOrder models.MoveTaskOrder
-	err = p.db.Where("id = $1", mtoID).First(&moveTaskOrder)
-	if err != nil {
-		return "", fmt.Errorf("failed fetch of move task order: %w", err)
+		return "", fmt.Errorf("count of payment requests for MoveTaskOrderID [%s] failed: %w", mto.ID, err)
 	}
 
-	uniqueIdentifier := fmt.Sprintf("%s-%s", *moveTaskOrder.ReferenceID, strconv.Itoa(paymentRequestNumber))
-
-	return uniqueIdentifier, err
-}
-
-func (p *paymentRequestCreator) determinePaymentRequestNumberSuffix(mtoID uuid.UUID) (int, error) {
-	query := p.db.Where("move_task_order_id = $1", mtoID)
-	count, err := query.Count(models.PaymentRequest{})
-	if err != nil {
-		return 0, fmt.Errorf("count of payment requests on move task order failed: %w", err)
+	var prefix string
+	if mto.ReferenceID == nil {
+		prefix = mto.ID.String()
+	} else {
+		prefix = *mto.ReferenceID
 	}
 
-	paymentRequestNumber := count + 1
-
-	return paymentRequestNumber, err
+	return fmt.Sprintf("%s-%s", prefix, strconv.Itoa(count+1)), nil
 }

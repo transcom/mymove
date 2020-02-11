@@ -38,7 +38,7 @@ type PaymentRequest struct {
 	IsFinal              bool                 `json:"is_final" db:"is_final"`
 	Status               PaymentRequestStatus `json:"status" db:"status"`
 	RejectionReason      *string              `json:"rejection_reason" db:"rejection_reason"`
-	PaymentRequestNumber string               `json:"payment_request_reason_number" db:"payment_request_number"`
+	PaymentRequestNumber string               `json:"payment_request_number" db:"payment_request_number"`
 	RequestedAt          time.Time            `json:"requested_at" db:"requested_at"`
 	ReviewedAt           *time.Time           `json:"reviewed_at" db:"reviewed_at"`
 	SentToGexAt          *time.Time           `json:"sent_to_gex_at" db:"sent_to_gex_at"`

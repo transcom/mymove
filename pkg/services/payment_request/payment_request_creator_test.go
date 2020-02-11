@@ -16,7 +16,6 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	referenceID := "5432-1234"
 	moveTaskOrder := testdatagen.MakeMoveTaskOrder(suite.DB(), testdatagen.Assertions{
 		MoveTaskOrder: models.MoveTaskOrder{
-			ID:          uuid.FromStringOrNil("c051d0ac-b244-4dc0-b287-90a306dd6986"),
 			ReferenceID: &referenceID,
 		},
 	})
@@ -110,7 +109,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 		paymentRequestReturn, err := creator.CreatePaymentRequest(&paymentRequest)
 		suite.FatalNoError(err)
 
-		expectedPaymentRequestNumber := fmt.Sprintf("%s-%s", referenceID, "1")
+		expectedPaymentRequestNumber := fmt.Sprintf("%s-%d", referenceID, 1)
 		// Verify some of the data that came back
 		suite.Equal(expectedPaymentRequestNumber, paymentRequestReturn.PaymentRequestNumber)
 		suite.NotEqual(paymentRequestReturn.ID, uuid.Nil)
@@ -290,8 +289,60 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 	})
 
 	suite.T().Run("Payment request numbers increment by 1", func(t *testing.T) {
+		// Determine how many payment requests we alread have for this MTO ID
+		count, err := suite.DB().Where("move_task_order_id = $1", moveTaskOrder.ID).Count(&models.PaymentRequest{})
+		suite.FatalNoError(err)
+
+		// Create two new ones
+		paymentRequest1 := models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			IsFinal:         false,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItem:   mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							ServiceItemParamKeyID: serviceItemParamKey1.ID,
+							Value:                 "3254",
+						},
+					},
+				},
+			},
+		}
+		_, err = creator.CreatePaymentRequest(&paymentRequest1)
+		suite.FatalNoError(err)
+
+		paymentRequest2 := models.PaymentRequest{
+			MoveTaskOrderID: moveTaskOrder.ID,
+			IsFinal:         false,
+			PaymentServiceItems: models.PaymentServiceItems{
+				{
+					MTOServiceItemID: mtoServiceItem1.ID,
+					MTOServiceItem:   mtoServiceItem1,
+					PaymentServiceItemParams: models.PaymentServiceItemParams{
+						{
+							ServiceItemParamKeyID: serviceItemParamKey1.ID,
+							Value:                 "3254",
+						},
+					},
+				},
+			},
+		}
+		_, err = creator.CreatePaymentRequest(&paymentRequest2)
+		suite.FatalNoError(err)
+
+		// Verify expected payment request numbers
+		expectedPaymentRequestNumber1 := fmt.Sprintf("%s-%d", referenceID, count+1)
+		suite.Equal(expectedPaymentRequestNumber1, paymentRequest1.PaymentRequestNumber)
+		expectedPaymentRequestNumber2 := fmt.Sprintf("%s-%d", referenceID, count+2)
+		suite.Equal(expectedPaymentRequestNumber2, paymentRequest2.PaymentRequestNumber)
+	})
+
+	suite.T().Run("Payment request number with null MTO reference ID", func(t *testing.T) {
 		// count the number of payment requests
 		// create 2 payment requests with the original MTO
 		// check that the new payment requests each have the expected value [MTOReferenceID]-2, [MTOReferenceID]-2
 	})
+
 }
