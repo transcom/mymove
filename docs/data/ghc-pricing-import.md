@@ -20,19 +20,20 @@ Once complete move on to the next section to verify the import
 
 ## Verifying the data
 
-The script will output the summary of the staging tables and the rate engine tables that were used for the import. The summary will include the total number of rows inserted as well as the first and last rows. For verifying a correct import it is recommended to select a random couple of rows from each rate engine table to verify correct parsing as well.
+The script will output the summary of the staging tables and the rate engine tables that were used for the import. The summary will include the total number of rows inserted as well as the first and last rows. The goal here is to spot check the data as an additional verification of the data import.
 
-To do the verification follow the below steps for each of the `re_*` tables. It's not required to do so for the `stage_*` tables but if there is a discrepancy a summary of those is also printed out to help in finding where the issue is. The examples below use the `re_shipment_type_prices` table as an example.
+To do the verification follow the below steps for each of the `re_*` tables. It's not required to do so for the `stage_*` temporary tables but if there is a discrepancy a summary of those is also printed out to help in finding where the issue is. The examples below use the `re_shipment_type_prices` table as an example.
 
 ### Tips
 
-* Search the output for the header just before the summary
-  * The stage table data has the heading `XLSX to Stage Table Parsing Complete`
-  * The rate engine summary header is `Stage Table import into Rate Engine Tables Complete`
+If you are having trouble locating the start of the Rate Engine Table summary you can search for `Stage Table import into Rate Engine Tables Complete` in the output.
+You only need to look into the Stage / Temp table summary if you wish to debug why the data was inaccurately parsed into the rate engine tables. The heading for those is `XLSX to Stage Table Parsing Complete`
 
-### 1. Make sure all table counts match spreadsheet
+### 1. Make sure table total row count matches expectation
 
-The pricing parser will output total rows imported, compare this to the number of rows with data in the spreadsheet. For example for the `re_shipment_type_prices` table the data is found in the pricing template sheet `5a) Access. and Add. Prices`. This is easily determined by checking the matching import file `pkg/services/ghcimport/import_re_shipment_type_prices.go` and seeing which staging data table feeds this rate engine table. Note some rate engine tables require data from more than one sheet.
+The pricing parser will output total rows imported, compare this to the number of rows with data in the spreadsheet. For example for the `re_shipment_type_prices` table the data is found in the pricing template sheet `5a) Access. and Add. Prices`. This can be determined by checking the matching import file `pkg/services/ghcimport/import_re_shipment_type_prices.go` and seeing which staging data table feeds this rate engine table.
+
+A couple of notes, there are many service items that represent one row in the original XLSX. For example `re_domestic_accessorial_prices` comes from a table in sheet *5a* of the spreadsheet and has the service item *Shuttle Service*. The Service item for shuttle service is split into Origin and Destination records. Second note some rate engine tables require data from more than one sheet.
 
 Once you find the main source of the information you can verify that the number of rows reported in the summary is the same as the number of rows in the matching table.
 
