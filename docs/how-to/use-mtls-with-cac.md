@@ -100,7 +100,19 @@ Files have been downloaded to these locations:
 Please remember to 'rm -rf ./tmp/secure_migrations' when you are finished working
 ```
 
-As a final step create a PR with the secure migration sql file and addition to the `migrations_manifest.sql`.
+
+
+### Create PR for Migration
+
+As a final step create a PR with the secure migration sql file and addition to the `migrations_manifest.sql` file. Before adding the migration sql file update the `CN` field with your GitHub username. Your name and EPIDI should not be checked into git.
+
+Example:
+
+```tex
+CN=LAST.FIRST.MI.EDIPI,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US
+# should be
+CN=GITHUB_USERNAME,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US
+```
 
 
 
