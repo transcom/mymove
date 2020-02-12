@@ -1,5 +1,11 @@
 # This is the migrations manifest.
 # If a migration is not recorded here, then it will error.
+20190118210319_add_army_hrc_cert.up.sql
+20190404150123_allow_certain_cac_navy_orders.up.sql
+20190416164922_new_marine_orders_testing_cert.up.sql
+20190617155157_allow_certain_cac_read_all_electronic_orders.up.sql
+20190620184142_update-marine-corps-certs.up.sql
+20191212230438_add_devlocal-mtls_client_cert.up.sql
 20200211000001_create_client_cert_table.up.sql
 20200211000002_create_electronic_orders.up.sql
 20200211000003_create_electronic_orders_revisions.up.sql
