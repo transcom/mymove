@@ -1,0 +1,36 @@
+-- This migration allows a faux devlocal certicate to have access to the Orders API locally.
+-- Snake Oil devlocal certificate config/tls/devlocal-mtls.cer with full access
+INSERT INTO public.client_certs (
+	id,
+	sha256_digest,
+	subject,
+	allow_orders_api,
+	allow_air_force_orders_read,
+	allow_air_force_orders_write,
+	allow_army_orders_read,
+	allow_army_orders_write,
+	allow_coast_guard_orders_read,
+	allow_coast_guard_orders_write,
+	allow_marine_corps_orders_read,
+	allow_marine_corps_orders_write,
+	allow_navy_orders_read,
+	allow_navy_orders_write,
+	created_at,
+	updated_at)
+VALUES (
+	'190b1e07-eef8-445a-9696-5a2b49ee488d',
+	'70a7384b61fa3cb3afc6cc4254b8799c580a2ac3e00eec9c1b6a5d5d8faeeaa5',
+	'CN=localhost,OU=All Orders,O=All,L=Washington,ST=DC,C=US',
+	true,
+	true,
+	true,
+	true,
+	true,
+	true,
+	true,
+	true,
+	true,
+	true,
+	true,
+	now(),
+	now());

@@ -1,0 +1,36 @@
+-- This migration allows a faux devlocal certicate to have access to the Orders API locally.
+-- Marine Corps devlocal certificate config/tls/devlocal-faux-marine-corps-orders.cer
+INSERT INTO public.client_certs (
+	id,
+	sha256_digest,
+	subject,
+	allow_orders_api,
+	allow_air_force_orders_read,
+	allow_air_force_orders_write,
+	allow_army_orders_read,
+	allow_army_orders_write,
+	allow_coast_guard_orders_read,
+	allow_coast_guard_orders_write,
+	allow_marine_corps_orders_read,
+	allow_marine_corps_orders_write,
+	allow_navy_orders_read,
+	allow_navy_orders_write,
+	created_at,
+	updated_at)
+VALUES (
+	'1e32a17e-e23b-4cb7-9d81-9efa028b93cd',
+	'c300c1e2c0dba962427a3a32885b0b0c58597b28c93d3fc3cf07e47cad93f24c',
+	'CN=localhost,OU=Not Marine Corps Orders,O=Not Marine Corps,L=Washington,ST=DC,C=US',
+	true,
+	false,
+	false,
+	false,
+	false,
+	false,
+	false,
+	true,
+	true,
+	false,
+	false,
+	now(),
+	now());

@@ -20,4 +20,4 @@ readonly PKCS11=/usr/local/bin/pkcs11-tool
 cac-prereqs
 
 # Fingerprint
-"${PKCS11}" --module "${MODULE}" -r --id 01 --type cert 2>/dev/null | openssl dgst -sha256| perl -ne 's/^\(stdin\)= //; print'
+"${PKCS11}" --module "${MODULE}" -r --id 01 --type cert 2>/dev/null | openssl dgst -sha256 | perl -ne 's/^\(stdin\)= //; print'
