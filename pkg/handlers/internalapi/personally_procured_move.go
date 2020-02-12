@@ -293,7 +293,7 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) Handle(params ppmop.UpdateP
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
-	logDetails(logger, *move, *ppm, "Patch PPM")
+	logDetails(logger, *move, *ppm, "Update PPM")
 
 	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
 	if err != nil {
@@ -337,6 +337,7 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
+
 	logDetails(logger, *move, *ppm, "Patch PPM")
 
 	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
