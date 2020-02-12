@@ -5,6 +5,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/transcom/mymove/pkg/unit"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
@@ -123,6 +125,21 @@ func validateUpdatedMTOShipment(db *pop.Connection, oldShipment *models.MTOShipm
 		oldShipment.SecondaryPickupAddress = secondaryDeliveryAddress
 	}
 
+	if updatedShipment.PrimeEstimatedWeight != 0 {
+		if oldShipment.PrimeEstimatedWeight != nil {
+			return ErrInvalidInput{}
+		}
+		now := time.Now()
+		err := validatePrimeEstimatedWeightRecordedDate(now, scheduledPickupTime, *oldShipment.ApprovedDate)
+		if err != nil {
+			return err
+		}
+
+		estimatedWeightPounds := unit.Pound(updatedShipment.PrimeEstimatedWeight)
+		oldShipment.PrimeEstimatedWeight = &estimatedWeightPounds
+		oldShipment.PrimeEstimatedWeightRecordedDate = &now
+	}
+
 	vErrors, err := oldShipment.Validate(db)
 	if vErrors.HasAny() {
 		return ErrInvalidInput{}
@@ -131,6 +148,24 @@ func validateUpdatedMTOShipment(db *pop.Connection, oldShipment *models.MTOShipm
 		return err
 	}
 	return nil
+}
+
+func validatePrimeEstimatedWeightRecordedDate(estimatedWeightRecordedDate time.Time, scheduledPickupDate time.Time, approvedDate time.Time) error {
+	approvedDaysFromScheduled := scheduledPickupDate.Sub(approvedDate).Hours() / 24
+	daysFromScheduled := scheduledPickupDate.Sub(estimatedWeightRecordedDate).Hours() / 24
+	if approvedDaysFromScheduled >= 10 && daysFromScheduled >= 10 {
+		return nil
+	}
+
+	if (approvedDaysFromScheduled >= 3 && approvedDaysFromScheduled <= 9) && daysFromScheduled >= 3 {
+		return nil
+	}
+
+	if approvedDaysFromScheduled < 3 && daysFromScheduled >= 1 {
+		return nil
+	}
+
+	return ErrInvalidInput{}
 }
 
 // updateMTOShipment updates the mto shipment with a raw query
@@ -150,6 +185,13 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 
 	if updatedShipment.SecondaryDeliveryAddress != nil {
 		baseQuery = baseQuery + fmt.Sprintf(", \nsecondary_delivery_address_id = '%s'", updatedShipment.SecondaryDeliveryAddress.ID)
+	}
+
+	if updatedShipment.PrimeEstimatedWeight != 0 {
+		estimatedWeightQuery := `,
+			prime_estimated_weight = %d,
+			prime_estimated_weight_recorded_date = NOW()`
+		baseQuery = baseQuery + fmt.Sprintf(estimatedWeightQuery, updatedShipment.PrimeEstimatedWeight)
 	}
 
 	finishedQuery := baseQuery + `
@@ -196,7 +238,6 @@ func (f mtoShipmentFetcher) UpdateMTOShipment(params mtoshipmentops.UpdateMTOShi
 	if err != nil {
 		return &models.MTOShipment{}, err
 	}
-
 	err = updateMTOShipment(f.db, mtoShipmentID, unmodifiedSince, mtoShipmentPayload)
 	if err != nil {
 		return &models.MTOShipment{}, err

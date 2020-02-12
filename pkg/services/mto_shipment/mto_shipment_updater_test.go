@@ -119,9 +119,38 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(updatedMTOShipment.PrimeActualWeight, *&actualWeight)
 	})
 
-	suite.T().Run("If approved date is more than ten days prior to scheduled move date, estimated weight recorded date should be ten days prior", func(t *testing.T) {
-		now := time.Now()
-		tenDaysFromNow := time.Now().AddDate(0, 0, 11)
+	now := time.Now()
+
+	suite.T().Run("Failed case if not both approved date and estimated weight recorded date is more than ten days prior to scheduled move date", func(t *testing.T) {
+		eightDaysFromNow := now.AddDate(0, 0, 8)
+		threeDaysBefore := now.AddDate(0, 0, -3)
+		oldMTOShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status:                           "APPROVED",
+				ScheduledPickupDate:              &eightDaysFromNow,
+				ApprovedDate:                     &threeDaysBefore,
+				PrimeEstimatedWeightRecordedDate: nil,
+			},
+		})
+		payload2 := payload
+		payload2.ID = strfmt.UUID(oldMTOShipment2.ID.String())
+		//remove this when remove required fields
+		scheduledPickupDate = strfmt.Date(eightDaysFromNow)
+		payload2.ScheduledPickupDate = &scheduledPickupDate
+
+		unmodifiedSince := oldMTOShipment2.UpdatedAt
+		payload2.PrimeEstimatedWeight = 4500
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			Body:              &payload2,
+			MoveTaskOrderID:   strfmt.UUID(oldMTOShipment2.MoveTaskOrderID.String()),
+			IfUnmodifiedSince: strfmt.DateTime(unmodifiedSince),
+		}
+		_, err := mtoShipmentUpdater.UpdateMTOShipment(params)
+		suite.Error(err)
+	})
+
+	suite.T().Run("Successful case if both approved date and estimated weight recorded date is more than ten days prior to scheduled move date", func(t *testing.T) {
+		tenDaysFromNow := now.AddDate(0, 0, 11)
 		oldMTOShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				Status:                           "APPROVED",
@@ -133,10 +162,15 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		payload2 := payload
 		payload2.ID = strfmt.UUID(oldMTOShipment2.ID.String())
 		unmodifiedSince := oldMTOShipment2.UpdatedAt
-		payload.PrimeEstimatedWeight = 4500
+		payload2.PrimeEstimatedWeight = 4500
+
+		//remove this when remove required fields
+		scheduledPickupDate = strfmt.Date(tenDaysFromNow)
+		payload2.ScheduledPickupDate = &scheduledPickupDate
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			Body:              &payload2,
+			MoveTaskOrderID:   strfmt.UUID(oldMTOShipment2.MoveTaskOrderID.String()),
 			IfUnmodifiedSince: strfmt.DateTime(unmodifiedSince),
 		}
 		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(params)
@@ -144,27 +178,58 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		suite.NotZero(updatedMTOShipment.ID, oldMTOShipment.ID)
 		suite.NotNil(updatedMTOShipment.PrimeEstimatedWeightRecordedDate)
-
 	})
 
-	suite.T().Run("If approved date is less than ten days prior to scheduled move date, estimated weight recorded date should be three to ten days prior", func(t *testing.T) {
-		now := time.Now()
-		nineDaysFromNow := time.Now().AddDate(0, 0, 9)
-		oldMTOShipment3 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+	suite.T().Run("Failed case if approved date is 3-9 days from scheduled move date but estimated weight recorded date isn't at least 3 days prior to scheduled move date", func(t *testing.T) {
+		twoDaysFromNow := now.AddDate(0, 0, 2)
+		twoDaysBefore := now.AddDate(0, 0, -2)
+		oldMTOShipment4 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				Status:                           "APPROVED",
-				ScheduledPickupDate:              &nineDaysFromNow,
-				ApprovedDate:                     &now,
+				ScheduledPickupDate:              &twoDaysFromNow,
+				ApprovedDate:                     &twoDaysBefore,
 				PrimeEstimatedWeightRecordedDate: nil,
 			},
 		})
-		payload2 := payload
-		payload2.ID = strfmt.UUID(oldMTOShipment3.ID.String())
-		unmodifiedSince := oldMTOShipment3.UpdatedAt
-		payload.PrimeEstimatedWeight = 4500
+		payload4 := payload
+		payload4.ID = strfmt.UUID(oldMTOShipment4.ID.String())
+		unmodifiedSince := oldMTOShipment4.UpdatedAt
+		payload4.PrimeEstimatedWeight = 4500
+
+		//remove this when remove required fields
+		scheduledPickupDate = strfmt.Date(twoDaysFromNow)
+		payload4.ScheduledPickupDate = &scheduledPickupDate
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
-			Body:              &payload2,
+			Body:              &payload4,
+			IfUnmodifiedSince: strfmt.DateTime(unmodifiedSince),
+		}
+		_, err := mtoShipmentUpdater.UpdateMTOShipment(params)
+		suite.Error(err)
+	})
+
+	suite.T().Run("Successful case if approved date is 3-9 days from scheduled move date and estimated weight recorded date is at least 3 days prior to scheduled move date", func(t *testing.T) {
+		sixDaysFromNow := now.AddDate(0, 0, 6)
+		twoDaysBefore := now.AddDate(0, 0, -2)
+		oldMTOShipment3 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status:                           "APPROVED",
+				ScheduledPickupDate:              &sixDaysFromNow,
+				ApprovedDate:                     &twoDaysBefore,
+				PrimeEstimatedWeightRecordedDate: nil,
+			},
+		})
+		payload3 := payload
+		payload3.ID = strfmt.UUID(oldMTOShipment3.ID.String())
+		unmodifiedSince := oldMTOShipment3.UpdatedAt
+		payload3.PrimeEstimatedWeight = 4500
+
+		//remove this when remove required fields
+		scheduledPickupDate = strfmt.Date(sixDaysFromNow)
+		payload3.ScheduledPickupDate = &scheduledPickupDate
+
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			Body:              &payload3,
 			IfUnmodifiedSince: strfmt.DateTime(unmodifiedSince),
 		}
 		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(params)
@@ -174,10 +239,37 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.NotNil(updatedMTOShipment.PrimeEstimatedWeightRecordedDate)
 	})
 
-	suite.T().Run("If approved date is less than three days prior to scheduled move date, estimated weight recorded date should be more than one day prior", func(t *testing.T) {
-		now := time.Now()
-		twoDaysFromNow := time.Now().AddDate(0, 0, 2)
-		oldMTOShipment3 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+	suite.T().Run("Failed case if approved date is less than 3 days from scheduled move date but estimated weight recorded date isn't at least 1 day prior to scheduled move date", func(t *testing.T) {
+		oneDayFromNow := now.AddDate(0, 0, 1)
+		oneDayBefore := now.AddDate(0, 0, -1)
+		oldMTOShipment4 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+			MTOShipment: models.MTOShipment{
+				Status:                           "APPROVED",
+				ScheduledPickupDate:              &oneDayFromNow,
+				ApprovedDate:                     &oneDayBefore,
+				PrimeEstimatedWeightRecordedDate: nil,
+			},
+		})
+		payload4 := payload
+		payload4.ID = strfmt.UUID(oldMTOShipment4.ID.String())
+		unmodifiedSince := oldMTOShipment4.UpdatedAt
+		payload4.PrimeEstimatedWeight = 4500
+
+		//remove this when remove required fields
+		scheduledPickupDate = strfmt.Date(oneDayFromNow)
+		payload4.ScheduledPickupDate = &scheduledPickupDate
+
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			Body:              &payload4,
+			IfUnmodifiedSince: strfmt.DateTime(unmodifiedSince),
+		}
+		_, err := mtoShipmentUpdater.UpdateMTOShipment(params)
+		suite.Error(err)
+	})
+
+	suite.T().Run("Successful case if approved date is less than 3 days from scheduled move date and estimated weight recorded date is at least 1 day prior to scheduled move date", func(t *testing.T) {
+		twoDaysFromNow := now.AddDate(0, 0, 2)
+		oldMTOShipment4 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
 				Status:                           "APPROVED",
 				ScheduledPickupDate:              &twoDaysFromNow,
@@ -185,13 +277,17 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 				PrimeEstimatedWeightRecordedDate: nil,
 			},
 		})
-		payload2 := payload
-		payload2.ID = strfmt.UUID(oldMTOShipment3.ID.String())
-		unmodifiedSince := oldMTOShipment3.UpdatedAt
-		payload.PrimeEstimatedWeight = 4500
+		payload4 := payload
+		payload4.ID = strfmt.UUID(oldMTOShipment4.ID.String())
+		unmodifiedSince := oldMTOShipment4.UpdatedAt
+		payload4.PrimeEstimatedWeight = 4500
+
+		//remove this when remove required fields
+		scheduledPickupDate = strfmt.Date(twoDaysFromNow)
+		payload4.ScheduledPickupDate = &scheduledPickupDate
 
 		params := mtoshipmentops.UpdateMTOShipmentParams{
-			Body:              &payload2,
+			Body:              &payload4,
 			IfUnmodifiedSince: strfmt.DateTime(unmodifiedSince),
 		}
 		updatedMTOShipment, err := mtoShipmentUpdater.UpdateMTOShipment(params)

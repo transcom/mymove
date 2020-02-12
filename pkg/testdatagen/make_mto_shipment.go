@@ -33,7 +33,6 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 	remarks := "please treat gently"
 
 	// mock weights
-	estimatedWeight := unit.Pound(1000)
 	actualWeight := unit.Pound(980)
 
 	// mock dates
@@ -50,7 +49,6 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		PickupAddressID:          pickupAddress.ID,
 		DestinationAddress:       destinationAddress,
 		DestinationAddressID:     destinationAddress.ID,
-		PrimeEstimatedWeight:     &estimatedWeight,
 		PrimeActualWeight:        &actualWeight,
 		SecondaryPickupAddress:   &pickupAddress,
 		SecondaryDeliveryAddress: &destinationAddress,
