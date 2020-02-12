@@ -37,14 +37,24 @@ func main() {
 	})
 
 	serveCommand := &cobra.Command{
-		Use:          "serve",
-		Short:        "Runs MilMove webserver",
-		Long:         "Runs MilMove webserver",
+		Use:          "serve_app",
+		Short:        "Runs MilMove app webserver",
+		Long:         "Runs MilMove app webserver",
 		RunE:         serveFunction,
 		SilenceUsage: true,
 	}
 	initServeFlags(serveCommand.Flags())
 	root.AddCommand(serveCommand)
+
+	ordersCommand := &cobra.Command{
+		Use:          "serve_orders",
+		Short:        "Runs MilMove orders webserver",
+		Long:         "Runs MilMove orders webserver",
+		RunE:         ordersFunction,
+		SilenceUsage: true,
+	}
+	initOrdersFlags(ordersCommand.Flags())
+	root.AddCommand(ordersCommand)
 
 	migrateCommand := &cobra.Command{
 		Use:           "migrate",

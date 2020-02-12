@@ -13,7 +13,7 @@ go run github.com/transcom/mymove/cmd/ecs-deploy task-def \
   --environment experimental \
   --image ${AWS_ACCOUNT_ID}.dkr.ecr.us-west-2.amazonaws.com/app:git-e2b6c625368d05b9bc24a5a58a04350278d31ad9 \
   --variables-file config/env/experimental.app.env \
-  --entrypoint "/bin/milmove serve" \
+  --entrypoint "/bin/milmove serve_app" \
   --dry-run
 ```
 
