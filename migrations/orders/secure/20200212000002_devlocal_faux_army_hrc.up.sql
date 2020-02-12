@@ -19,7 +19,7 @@ INSERT INTO public.client_certs (
 	updated_at)
 VALUES (
 	'd45f2ae5-ca66-4157-b342-82a39bb588f6',
-	'ad6f04a6f6938909d201ebfe9efd1edce6e5c280f6d2f93d93bb5666cc869277',
+	'082f91f927e78847b8f74010427bd00ac9e3313e9f29bff6f637dea91c815f12',
 	'CN=localhost,OU=Not Army HRC Orders,O=Not Army HRC,L=Washington,ST=DC,C=US',
 	true,
 	false,

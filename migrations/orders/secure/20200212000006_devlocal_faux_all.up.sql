@@ -19,7 +19,7 @@ INSERT INTO public.client_certs (
 	updated_at)
 VALUES (
 	'190b1e07-eef8-445a-9696-5a2b49ee488d',
-	'70a7384b61fa3cb3afc6cc4254b8799c580a2ac3e00eec9c1b6a5d5d8faeeaa5',
+	'38438ebf09f8e14ed81b775830699234d911525ab1f37595f0657459960f9f1e',
 	'CN=localhost,OU=All Orders,O=All,L=Washington,ST=DC,C=US',
 	true,
 	true,

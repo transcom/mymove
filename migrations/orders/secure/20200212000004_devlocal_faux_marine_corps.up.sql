@@ -19,7 +19,7 @@ INSERT INTO public.client_certs (
 	updated_at)
 VALUES (
 	'1e32a17e-e23b-4cb7-9d81-9efa028b93cd',
-	'c300c1e2c0dba962427a3a32885b0b0c58597b28c93d3fc3cf07e47cad93f24c',
+	'9d89b450e72c9244d8a7fc748b835228d2df96500cc1f83e960caa48a18b219f',
 	'CN=localhost,OU=Not Marine Corps Orders,O=Not Marine Corps,L=Washington,ST=DC,C=US',
 	true,
 	false,

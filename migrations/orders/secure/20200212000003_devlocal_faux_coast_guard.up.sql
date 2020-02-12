@@ -19,7 +19,7 @@ INSERT INTO public.client_certs (
 	updated_at)
 VALUES (
 	'f0f24189-84bf-4f3f-add6-2fc498eb7d46',
-	'230f2854007389621d8cd4357fbd4d5a70b316fce9e6983e554d5b8af6140e70',
+	'10ac6d7bdb7003093ad82880a2c7ea496e8dc3d50217da6170de83c0be826507',
 	'CN=localhost,OU=Not Coast Guard Orders,O=Not Coast Guard,L=Washington,ST=DC,C=US',
 	true,
 	false,
