@@ -18,6 +18,7 @@ set -u
 readonly name=app-migrations
 readonly image=$1
 readonly environment=$2
+readonly ECR_DIGEST=$3
 
 readonly RESERVATION_CPU=256
 readonly RESERVATION_MEM=512
@@ -40,6 +41,26 @@ show_logs() {
     echo
     aws logs get-log-events --log-group-name "ecs-tasks-$cluster" --log-stream-name "$log_prefix/$container_name/$task_id" --query 'events[].message' || true
     echo
+}
+
+# Compare recorded sha with the ecr digest sha
+check_ecr_digest() {
+  local repo_name=app-migrations
+#  todo: use image tag to get the ecr digest value
+#  local image_tag=$1
+
+  IFS=":"
+  read -ar values <<< "${image-tag}"
+
+
+  image-sha = aws ecr describe-images --repository-name "${repo_name}" --image-ids imageTag="${values[1]}" | jq ".imageDetails[0] .imageDigest"
+
+  if [ "${ECR_DIGEST}" != "${image-sha}" ]
+  then
+    echo "Recorded ECR digest sha did no match the tagged image sha. Expected ${ECR_DIGEST} but got ${image-sha}"
+    exit 1
+  fi
+
 }
 
 # Put a dimensionless metric into cloudwatch
