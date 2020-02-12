@@ -10,7 +10,7 @@
 /docs/adr/* @tinyels @chrisrcoles @Ryan-Koch @chrisgilmerproj @jacquelineIO
 
 # Docs about the database should be reviewed by people working on our database guidelines
-/docs/database/* @chrisgilmerproj @tinyels @garrettqmartin8 @gidjin @lynzt @reggieriser @rdhariwal @Ryan-Koch @jim @chrisrcoles
+/docs/database/* @chrisgilmerproj @tinyels @garrettqmartin8 @gidjin @lynzt @reggieriser @rdhariwal @Ryan-Koch @chrisrcoles
 
 # Migrations are where database schema changes are made and we want them reviewed by people working on our database guidelines
-/migrations/ @chrisgilmerproj @tinyels @garrettqmartin8 @gidjin @lynzt @reggieriser @rdhariwal @Ryan-Koch @jim @chrisrcoles
+/migrations/ @chrisgilmerproj @tinyels @garrettqmartin8 @gidjin @lynzt @reggieriser @rdhariwal @Ryan-Koch @chrisrcoles
