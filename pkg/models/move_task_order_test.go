@@ -16,7 +16,9 @@ func (suite *ModelSuite) TestMoveTaskOrderValidation() {
 		validMoveTaskOrder := models.MoveTaskOrder{
 			MoveOrderID: uuid.Must(uuid.NewV4()),
 		}
-		expErrors := map[string][]string{}
+		expErrors := map[string][]string{
+			"referenceID": {"ReferenceID cannot be blank."},
+		}
 		suite.verifyValidationErrors(&validMoveTaskOrder, expErrors)
 	})
 }
