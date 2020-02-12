@@ -3,12 +3,15 @@ package models_test
 import (
 	"testing"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestReDomesticServiceAreaValidation() {
 	suite.T().Run("test valid ReDomesticServiceArea", func(t *testing.T) {
 		validReDomesticServiceArea := models.ReDomesticServiceArea{
+			ContractID:       uuid.Must(uuid.NewV4()),
 			BasePointCity:    "New York",
 			State:            "NY",
 			ServiceArea:      "009",
@@ -22,6 +25,7 @@ func (suite *ModelSuite) TestReDomesticServiceAreaValidation() {
 	suite.T().Run("test invalid ReDomesticServiceArea", func(t *testing.T) {
 		emptyReDomesticServiceArea := models.ReDomesticServiceArea{}
 		expErrors := map[string][]string{
+			"contract_id":        {"ContractID can not be blank."},
 			"base_point_city":    {"BasePointCity can not be blank."},
 			"state":              {"State can not be blank."},
 			"service_area":       {"ServiceArea can not be blank."},
@@ -33,6 +37,7 @@ func (suite *ModelSuite) TestReDomesticServiceAreaValidation() {
 
 	suite.T().Run("test schedules over 3 for ReDomesticServiceArea", func(t *testing.T) {
 		invalidReDomesticServiceArea := models.ReDomesticServiceArea{
+			ContractID:       uuid.Must(uuid.NewV4()),
 			BasePointCity:    "New York",
 			State:            "NY",
 			ServiceArea:      "009",
@@ -48,6 +53,7 @@ func (suite *ModelSuite) TestReDomesticServiceAreaValidation() {
 
 	suite.T().Run("test schedules less than 1 for ReDomesticServiceArea", func(t *testing.T) {
 		invalidReDomesticServiceArea := models.ReDomesticServiceArea{
+			ContractID:       uuid.Must(uuid.NewV4()),
 			BasePointCity:    "New York",
 			State:            "NY",
 			ServiceArea:      "009",

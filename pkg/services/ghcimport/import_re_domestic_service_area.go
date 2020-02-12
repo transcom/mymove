@@ -97,6 +97,7 @@ func (gre *GHCRateEngineImporter) buildServiceAreasData(dbTx *pop.Connection) (s
 
 			serviceAreasData[serviceAreaNumber] = domesticServiceAreaData{
 				serviceArea: &models.ReDomesticServiceArea{
+					ContractID:    gre.contractID,
 					BasePointCity: stageArea.BasePointCity,
 					State:         stageArea.State,
 					ServiceArea:   serviceAreaNumber,
@@ -196,6 +197,7 @@ func (gre *GHCRateEngineImporter) saveZip3sForServiceArea(dbTx *pop.Connection, 
 	// Save the associated zips.
 	for zip3 := range zip3s {
 		reZip3 := models.ReZip3{
+			ContractID:            gre.contractID,
 			Zip3:                  zip3,
 			DomesticServiceAreaID: serviceAreaID,
 		}

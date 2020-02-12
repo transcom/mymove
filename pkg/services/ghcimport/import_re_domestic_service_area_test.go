@@ -12,6 +12,10 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceArea() {
 		ContractCode: testContractCode,
 	}
 
+	// Prerequisite tables must be loaded.
+	err := gre.importREContract(suite.DB())
+	suite.NoError(err)
+
 	suite.T().Run("import success", func(t *testing.T) {
 		err := gre.importREDomesticServiceArea(suite.DB())
 		suite.NoError(err)
@@ -23,14 +27,26 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceArea() {
 	})
 
 	suite.T().Run("Run a second time with one changed row, should still succeed", func(t *testing.T) {
+		// Get contract UUID.
+		var contract models.ReContract
+		err := suite.DB().Where("code = ?", testContractCode).First(&contract)
+		suite.NoError(err)
+
 		// Change a service area and remove a zip and see if they return as they were before.
 		var serviceArea models.ReDomesticServiceArea
-		err := suite.DB().Where("service_area = '452'").First(&serviceArea)
+		err = suite.DB().
+			Where("contract_id = ?", contract.ID).
+			Where("service_area = '452'").
+			First(&serviceArea)
 		suite.NoError(err)
 		serviceArea.BasePointCity = "New City"
 		suite.MustSave(&serviceArea)
+
 		var zip3 models.ReZip3
-		err = suite.DB().Where("zip3 = '647'").First(&zip3)
+		err = suite.DB().
+			Where("contract_id = ?", contract.ID).
+			Where("zip3 = '647'").
+			First(&zip3)
 		suite.NoError(err)
 		suite.MustDestroy(&zip3)
 
@@ -45,8 +61,13 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceArea() {
 }
 
 func (suite *GHCRateEngineImportSuite) helperVerifyServiceAreaCount() {
+	// Get contract UUID.
+	var contract models.ReContract
+	err := suite.DB().Where("code = ?", testContractCode).First(&contract)
+	suite.NoError(err)
+
 	// Domestic service areas count
-	count, err := suite.DB().Count(&models.ReDomesticServiceArea{})
+	count, err := suite.DB().Where("contract_id = ?", contract.ID).Count(&models.ReDomesticServiceArea{})
 	suite.NoError(err)
 	suite.Equal(4, count)
 
@@ -57,9 +78,18 @@ func (suite *GHCRateEngineImportSuite) helperVerifyServiceAreaCount() {
 }
 
 func (suite *GHCRateEngineImportSuite) helperCheckServiceAreaValue() {
-	var serviceArea models.ReDomesticServiceArea
-	err := suite.DB().Where("service_area = '452'").First(&serviceArea)
+	// Get contract UUID.
+	var contract models.ReContract
+	err := suite.DB().Where("code = ?", testContractCode).First(&contract)
 	suite.NoError(err)
+
+	var serviceArea models.ReDomesticServiceArea
+	err = suite.DB().
+		Where("contract_id = ?", contract.ID).
+		Where("service_area = '452'").
+		First(&serviceArea)
+	suite.NoError(err)
+
 	suite.Equal("Butler", serviceArea.BasePointCity)
 	suite.Equal("MO", serviceArea.State)
 	suite.Equal(1, serviceArea.ServicesSchedule)
