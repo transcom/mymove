@@ -21,7 +21,7 @@ type MoveTaskOrder struct {
 	PaymentRequests    []PaymentRequest `has_many:"payment_requests"`
 	MTOShipments       MTOShipments     `has_many:"mto_shipments"`
 	MoveOrderID        uuid.UUID        `db:"move_order_id"`
-	ReferenceID        *string          `db:"reference_id"`
+	ReferenceID        string           `db:"reference_id"`
 	IsAvailableToPrime bool             `db:"is_available_to_prime"`
 	IsCanceled         bool             `db:"is_canceled"`
 	CreatedAt          time.Time        `db:"created_at"`

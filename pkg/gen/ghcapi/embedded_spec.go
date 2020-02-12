@@ -2191,7 +2191,6 @@ func init() {
         },
         "referenceId": {
           "type": "string",
-          "x-nullable": true,
           "example": "1001-3456"
         },
         "requestedPickupDate": {
@@ -4881,7 +4880,6 @@ func init() {
         },
         "referenceId": {
           "type": "string",
-          "x-nullable": true,
           "example": "1001-3456"
         },
         "requestedPickupDate": {
