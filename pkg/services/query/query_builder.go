@@ -1,14 +1,18 @@
 package query
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gobuffalo/flect"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -333,7 +337,21 @@ func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, 
 		return nil, errors.New(FetchOneReflectionMessage)
 	}
 
-	columns := make(map[string]interface{})
+	// model.ColumnsWithValues()
+
+	// columnNames := columns.ForStruct(model, "office_users")
+	// fmt.Println("=======================")
+	// fmt.Println("=======================")
+	// fmt.Printf("%v\n", cols)
+	// fmt.Printf("%v\n", cols.Cols)
+	// fmt.Printf("%v\n", cols.Writeable())
+	// fmt.Printf("%v\n", cols.Writeable().Cols)
+	// fmt.Printf("%v\n", t.Elem())
+	// fmt.Println("=======================")
+	// fmt.Println("=======================")
+	var columnNames []string
+	var columnValues []interface{}
+	var id uuid.UUID
 
 	t = t.Elem()
 	v := reflect.ValueOf(model).Elem()
@@ -343,26 +361,42 @@ func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, 
 			field := t.Field(i)
 			value := v.Field(i)
 			fieldName := field.Name
-			if fieldName == "CreatedAt" {
+			if fieldName == "CreatedAt" || fieldName == "UpdatedAt" {
+				continue
+			}
+
+			if fieldName == "ID" {
+				id = value.Interface().(uuid.UUID)
 				continue
 			}
 
 			columnName := flect.Underscore(fieldName)
+			columnNames = append(columnNames, columnName)
 			if value.Kind() == reflect.Ptr {
 				value = value.Elem()
 			}
 
-			if value.IsZero() {
-				value = reflect.Value(nil)
+			if !value.IsValid() {
+				columnValues = append(columnValues, sql.NullString{})
+			} else {
+				switch value.Interface().(type) {
+				case bool:
+					columnValues = append(columnValues, value.Interface().(bool))
+				case int:
+					columnValues = append(columnValues, strconv.FormatInt(value.Int(), 10))
+				case string:
+					columnValues = append(columnValues, value.String())
+				case time.Time:
+					columnValues = append(columnValues, value.String())
+				case uuid.UUID:
+					columnValues = append(columnValues, value.Interface().(uuid.UUID).String())
+				}
 			}
-			columns[columnName] = value.Interface()
 		}
 	}
-	fmt.Println("=======================")
-	fmt.Println("=======================")
-	fmt.Printf("%s", columns)
-	fmt.Println("=======================")
-	fmt.Println("=======================")
+
+	setClause := strings.Join(columnNames, " = ?, ")
+	setClause += " = ?"
 
 	var verrs *validate.Errors
 	var err error
@@ -377,9 +411,32 @@ func (p *Builder) UpdateOne(model interface{}, eTag *string) (*validate.Errors, 
 
 		verrs, err = method(p.db)
 
-		// var affectedRows int
+		queryString := fmt.Sprintf("UPDATE office_users SET %s, updated_at = NOW() WHERE id = ? AND encode(to_char(updated_at, 'YYYY-MM-DD\"T\"HH24:MI:SS.US\"Z\"')::bytea, 'base64') = ?", setClause)
 
-		// affectedRows, err = p.db.RawQuery("UPDATE mto_shipments SET status = ?, updated_at = NOW() WHERE id = ? AND encode(to_char(updated_at, 'YYYY-MM-DD\"T\"HH24:MI:SS.US\"Z\"')::bytea, 'base64')  = ?", status, shipment.ID.String(), eTag).ExecWithCount()
+		var args []interface{}
+		for _, val := range columnValues {
+			args = append(args, val)
+		}
+		args = append(args, id.String())
+		args = append(args, *eTag)
+
+		query := p.db.RawQuery(queryString, args...)
+		affectedRows, err := query.ExecWithCount()
+
+		fmt.Println("///////////////////")
+		fmt.Println("///////////////////")
+		fmt.Printf("%#v\n", columnValues)
+		fmt.Printf("%s\n", args)
+		fmt.Printf("%#v\n", query.RawSQL.Arguments)
+		fmt.Println("///////////////////")
+		fmt.Println("///////////////////")
+		if err != nil {
+			return nil, err
+		}
+
+		if affectedRows == 0 {
+			return nil, errors.New("hi")
+		}
 
 	} else {
 		verrs, err = p.db.ValidateAndUpdate(model)

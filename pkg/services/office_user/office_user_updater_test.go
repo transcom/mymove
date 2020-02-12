@@ -20,7 +20,7 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 
 	// Happy path
 	suite.T().Run("If the user is updated successfully it should be returned", func(t *testing.T) {
-		fakeUpdateOne := func(interface{}) (*validate.Errors, error) {
+		fakeUpdateOne := func(interface{}, *string) (*validate.Errors, error) {
 			return nil, nil
 		}
 
@@ -41,7 +41,7 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 
 	// Bad transportation office ID
 	suite.T().Run("If we are provided a transportation office that doesn't exist, the create should fail", func(t *testing.T) {
-		fakeUpdateOne := func(model interface{}) (*validate.Errors, error) {
+		fakeUpdateOne := func(model interface{}, eTag *string) (*validate.Errors, error) {
 			return nil, nil
 		}
 

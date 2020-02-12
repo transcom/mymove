@@ -35,7 +35,7 @@ func (o *adminUserUpdater) UpdateAdminUser(id uuid.UUID, payload *adminmessages.
 		foundUser.Active = *payload.Active
 	}
 
-	verrs, err := o.builder.UpdateOne(&foundUser)
+	verrs, err := o.builder.UpdateOne(&foundUser, nil)
 	if verrs != nil || err != nil {
 		return nil, verrs, err
 	}
