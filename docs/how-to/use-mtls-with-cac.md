@@ -74,7 +74,7 @@ cp tmp/20190822181328_cgilmer_cac.up.sql migrations/app/secure/
 update-migrations-manifest
 ```
 
-Change the migration sql file update the `CN` field with your GitHub username. Your name and EPIDI should not be checked into git.
+Change the migration sql file update the `CN` field with your GitHub username. Your name and EPIDI should not be checked into git (staging and experimental migration files will have your name and EPIDI).
 
 Example:
 
