@@ -93,6 +93,7 @@
     "@storybook/addon-links": "^5.3.12",
     "@storybook/addons": "^5.3.11",
     "@storybook/react": "^5.2.8",
+    "eslint-config-airbnb": "^18.0.1",
     "eslint-config-prettier": "^6.10.0",
     "eslint-plugin-prettier": "^3.1.2",
     "mime-types": "^2.1.26",
