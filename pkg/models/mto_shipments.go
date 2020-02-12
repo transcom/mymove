@@ -58,6 +58,7 @@ type MTOShipment struct {
 	PrimeActualWeight                *unit.Pound       `db:"prime_actual_weight"`
 	ShipmentType                     MTOShipmentType   `db:"shipment_type"`
 	Status                           MTOShipmentStatus `db:"status"`
+	RejectionReason                  *string           `db:"rejection_reason"`
 	CreatedAt                        time.Time         `db:"created_at"`
 	UpdatedAt                        time.Time         `db:"updated_at"`
 }
@@ -81,6 +82,13 @@ func (m *MTOShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	}
 	if m.PrimeActualWeight != nil {
 		vs = append(vs, &validators.IntIsGreaterThan{Field: m.PrimeActualWeight.Int(), Compared: -1, Name: "PrimeActualWeight"})
+	}
+	if m.Status == MTOShipmentStatusRejected {
+		var rejectionReason string
+		if m.RejectionReason != nil {
+			rejectionReason = *m.RejectionReason
+		}
+		vs = append(vs, &validators.StringIsPresent{Field: rejectionReason, Name: "RejectionReason"})
 	}
 	return validate.Validate(vs...), nil
 }

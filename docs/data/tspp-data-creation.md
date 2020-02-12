@@ -426,7 +426,7 @@ DROP TABLE temp_tsp_discount_rates;
 ## Create Secure Migrations
 
 You will have to create a secure migration for this data import. Two files will need to be created,
-the file that contains the real data and a local migration (dummy file for dev). Follow the
+the file that contains the real data and a local secure migration (dummy file for dev). Follow the
 [secure migration steps](../how-to/migrate-the-database.md#secure-migrations).
 
 ### How to create the dummy file

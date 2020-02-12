@@ -26,7 +26,8 @@ type mtoShipmentStatusUpdater struct {
 
 func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentops.PatchMTOShipmentStatusParams) (*models.MTOShipment, error) {
 	shipmentID := payload.ShipmentID
-	status := payload.Body.Status
+	status := models.MTOShipmentStatus(payload.Body.Status)
+	rejectionReason := payload.Body.RejectionReason
 	unmodifiedSince := time.Time(payload.IfUnmodifiedSince)
 
 	var shipment models.MTOShipment
@@ -40,10 +41,16 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 		return nil, NotFoundError{id: shipment.ID}
 	}
 
-	shipment.Status = models.MTOShipmentStatus(status)
+	if shipment.Status != models.MTOShipmentStatusSubmitted {
+		return nil, ConflictStatusError{id: shipment.ID, transitionFromStatus: shipment.Status, transitionToStatus: models.MTOShipmentStatus(status)}
+	} else if status != models.MTOShipmentStatusRejected {
+		rejectionReason = nil
+	}
+
+	shipment.Status = status
+	shipment.RejectionReason = rejectionReason
 
 	verrs, err := shipment.Validate(o.db)
-
 	if verrs.Count() > 0 {
 		return nil, ValidationError{
 			id:    shipment.ID,
@@ -57,7 +64,8 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 
 	baseQuery := `UPDATE mto_shipments
 		SET status = ?,
-		updated_at = NOW()`
+			rejection_reason = ?
+			updated_at = NOW()`
 
 	if shipment.Status == models.MTOShipmentStatusApproved {
 		baseQuery = baseQuery + `,
@@ -70,7 +78,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 			updated_at = ?
 		;`
 
-	affectedRows, err := o.db.RawQuery(finishedQuery, status, shipment.ID.String(), unmodifiedSince).ExecWithCount()
+	affectedRows, err := o.db.RawQuery(finishedQuery, status, shipment.RejectionReason, shipment.ID.String(), unmodifiedSince).ExecWithCount()
 
 	if err != nil {
 		return nil, err
@@ -207,6 +215,17 @@ func constructMTOServiceItemModels(shipmentID uuid.UUID, mtoID uuid.UUID, reServ
 
 func NewMTOShipmentStatusUpdater(db *pop.Connection, builder UpdateMTOShipmentStatusQueryBuilder, siCreator services.MTOServiceItemCreator) services.MTOShipmentStatusUpdater {
 	return &mtoShipmentStatusUpdater{db, builder, siCreator}
+}
+
+type ConflictStatusError struct {
+	id                   uuid.UUID
+	transitionFromStatus models.MTOShipmentStatus
+	transitionToStatus   models.MTOShipmentStatus
+}
+
+func (e ConflictStatusError) Error() string {
+	return fmt.Sprintf("shipment with id '%s' can not transition status from '%s' to '%s'. Must be in status '%s'.",
+		e.id.String(), e.transitionFromStatus, e.transitionToStatus, models.MTOShipmentStatusSubmitted)
 }
 
 type NotFoundError struct {

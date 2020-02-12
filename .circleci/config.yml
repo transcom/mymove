@@ -17,28 +17,28 @@ executors:
     resource_class: small
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:6f138d780444b35181e0048282616f75a451d7b4
+      - image: trussworks/circleci-docker-primary:ba270cf66c7a9ae6dbc8e6190b74163ad71729d0
   mymove_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:6f138d780444b35181e0048282616f75a451d7b4
+      - image: trussworks/circleci-docker-primary:ba270cf66c7a9ae6dbc8e6190b74163ad71729d0
   mymove_medium_plus:
     resource_class: medium+
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:6f138d780444b35181e0048282616f75a451d7b4
+      - image: trussworks/circleci-docker-primary:ba270cf66c7a9ae6dbc8e6190b74163ad71729d0
   mymove_large:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:6f138d780444b35181e0048282616f75a451d7b4
+      - image: trussworks/circleci-docker-primary:ba270cf66c7a9ae6dbc8e6190b74163ad71729d0
   # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
   mymove_and_postgres_medium:
     resource_class: medium
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:6f138d780444b35181e0048282616f75a451d7b4
+      - image: trussworks/circleci-docker-primary:ba270cf66c7a9ae6dbc8e6190b74163ad71729d0
       - image: postgres:10.10
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -48,7 +48,7 @@ executors:
     resource_class: large
     working_directory: ~/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:6f138d780444b35181e0048282616f75a451d7b4
+      - image: trussworks/circleci-docker-primary:ba270cf66c7a9ae6dbc8e6190b74163ad71729d0
       - image: postgres:10.10
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -69,7 +69,7 @@ commands:
     steps:
       - checkout
       - attach_workspace:
-          at: bin
+          at: /home/circleci/transcom/mymove/bin
       - run:
           name: Snapshot database
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/rds-snapshot-app-db $APP_ENVIRONMENT
@@ -87,7 +87,7 @@ commands:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}}
       - attach_workspace:
-          at: bin
+          at: /home/circleci/transcom/mymove/bin
       - deploy:
           name: Deploy fuel price data task service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container save-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}"
@@ -114,7 +114,7 @@ commands:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - attach_workspace:
-          at: bin
+          at: /home/circleci/transcom/mymove/bin
       - deploy:
           name: Deploy app service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}"
@@ -145,7 +145,7 @@ commands:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - attach_workspace:
-          at: bin
+          at: /home/circleci/transcom/mymove/bin
       - deploy:
           name: Deploy app-client-tls service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-client-tls "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1}" "${APP_ENVIRONMENT}"
@@ -355,8 +355,8 @@ jobs:
             DOD_CA_PACKAGE: /home/circleci/transcom/mymove/config/tls/Certificates_PKCS7_v5.6_DoD.der.p7b
             ENV: test
             ENVIRONMENT: test
-            MIGRATION_MANIFEST: /migrate/migrations_manifest.txt
-            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations'
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
             NO_TLS_ENABLED: true
             PWD: /home/circleci/transcom/mymove
       - announce_failure
@@ -378,6 +378,10 @@ jobs:
       - restore_cache:
           keys:
             - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - run: rm -f pkg/assets/assets.go && make pkg/assets/assets.go
+      - run: rm -f bin/swagger && make bin/swagger
+      - run: make server_generate
+      - run: rm -f bin/generate-test-data && make bin/generate-test-data
       - e2e_tests
       - store_artifacts:
           path: cypress/videos
@@ -411,8 +415,8 @@ jobs:
             DB_PORT: 5432
             DB_NAME: test_db
             DB_NAME_TEST: test_db
-            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations'
-            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations_manifest.txt'
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
       - run:
           name: make server_test_standalone
           command: |
@@ -433,8 +437,8 @@ jobs:
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
-            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/local_migrations;file:///home/circleci/transcom/mymove/migrations'
-            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations_manifest.txt'
+            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
+            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
             SERVE_API_INTERNAL: true
       - store_artifacts:
           path: ~/transcom/mymove/tmp/test-results
@@ -467,10 +471,11 @@ jobs:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run: make build_tools
       - persist_to_workspace:
-          root: bin
+          root:  /home/circleci/transcom/mymove/bin
           paths:
             - ecs-deploy # for registering task defs and deploying task container
             - ecs-service-logs # for showing logs on failed deploy
+            - generate-test-data # for integration tests
             - health-checker # for confirming deploy success.
             - mockery # for generating mocks
             - renderer # for rendering ECS task definition

@@ -31,6 +31,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 
 	// mock remarks
 	remarks := "please treat gently"
+	rejectionReason := "shipment not good enough"
 
 	// mock weights
 	actualWeight := unit.Pound(980)
@@ -54,6 +55,7 @@ func MakeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		SecondaryDeliveryAddress: &destinationAddress,
 		ShipmentType:             shipmentType,
 		Status:                   "SUBMITTED",
+		RejectionReason:          &rejectionReason,
 	}
 
 	if assertions.MTOShipment.Status == models.MTOShipmentStatusApproved {

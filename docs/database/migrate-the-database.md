@@ -154,7 +154,7 @@ We are piggy-backing on the migration system for importing static datasets. This
 2. Edit the production migration first, and put whatever sensitive data in it that you need to.
 3. Copy the production migration into the local test migration.
 4. Scrub the test migration of sensitive data, but use it to test the gist of the production migration operation.
-5. Test the local migration by running `make db_dev_migrate`. You should see it run your local migration.
+5. Test the local secure migration by running `make db_dev_migrate`. You should see it run your local secure migration.
 6. Test the secure migration by running `make run_prod_migrations` to setup a local `deployed_migrations` database. Then run `psql-deployed-migrations< tmp/$NAME_OF_YOUR_SECURE_MIGRATION`. Verify that the updated values are in the database.
 7. If you are wanting to run a secure migration for a specific non-production environment, then **skip to the next section**.
 8. Upload the migration to S3 with: `upload-secure-migration <production_migration_file>`. **NOTE:** For a single environment see the next section.
@@ -189,7 +189,7 @@ at the front of a file).
 - If the file is to be found on S3, it is streamed directly into memory instead of downloading.
 - If it is to be found locally, the script looks for it in the listed path.
 
-There is an example of local secure migrations [in the repo](https://github.com/transcom/mymove/blob/master/local_migrations/).
+There is an example of local secure migrations [in the repo](https://github.com/transcom/mymove/blob/master/migrations/app/secure).
 
 ### Downloading Secure Migrations
 

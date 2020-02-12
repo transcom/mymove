@@ -213,8 +213,7 @@ All of our code is intermingled in the top level directory of mymove. Here is an
 * `cypress`: The integration test files for the [Cypress tool](https://www.cypress.io/)
 * `docs`: A location for docs for the project. This is where ADRs are
 * `internal`: Generated code for duty station loader
-* `local_migrations`: Database migrations used locally in place of secure migrations
-* `migrations`: Database migrations
+* `migrations`: Database migrations, see [./migrations/README.md]
 * `node_modules`: Cached javascript dependencies for the client
 * `pkg`: The location of all of our go code for the server and various tools
 * `public`: The client's static resources

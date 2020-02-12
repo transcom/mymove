@@ -217,4 +217,22 @@ func (suite *HandlerSuite) TestPatchMTOShipmentHandler() {
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusPreconditionFailed{}, response)
 	})
+
+	suite.T().Run("Patch failure - 409", func(t *testing.T) {
+		mockFetcher := mocks.Fetcher{}
+		mockUpdater := mocks.MTOShipmentStatusUpdater{}
+		handler := PatchShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockFetcher,
+			&mockUpdater,
+		}
+
+		mockUpdater.On("UpdateMTOShipmentStatus",
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, mtoshipment.ConflictStatusError{})
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.PatchMTOShipmentStatusConflict{}, response)
+	})
 }

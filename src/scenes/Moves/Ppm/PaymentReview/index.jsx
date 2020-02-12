@@ -33,13 +33,13 @@ class PaymentReview extends Component {
 
   componentDidMount() {
     const { originDutyStationZip, currentPpm } = this.props;
-    const { actual_move_date, pickup_postal_code } = currentPpm;
+    const { original_move_date, pickup_postal_code } = currentPpm;
     this.props.getMoveDocumentsForMove(this.props.moveId).then(({ obj: documents }) => {
       const weightTicketNetWeight = calcNetWeight(documents);
       const netWeight =
         weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
       this.props.getPpmWeightEstimate(
-        actual_move_date,
+        original_move_date,
         pickup_postal_code,
         originDutyStationZip,
         this.props.orders.id,
@@ -50,14 +50,14 @@ class PaymentReview extends Component {
 
   componentDidUpdate(prevProps) {
     const { originDutyStationZip, currentPpm, moveDocuments } = this.props;
-    const { actual_move_date, pickup_postal_code } = currentPpm;
+    const { original_move_date, pickup_postal_code } = currentPpm;
     if (moveDocuments.weightTickets.length !== prevProps.moveDocuments.weightTickets.length) {
       this.props.getMoveDocumentsForMove(this.props.moveId).then(({ obj: documents }) => {
         const weightTicketNetWeight = calcNetWeight(documents);
         const netWeight =
           weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
         this.props.getPpmWeightEstimate(
-          actual_move_date,
+          original_move_date,
           pickup_postal_code,
           originDutyStationZip,
           this.props.orders.id,

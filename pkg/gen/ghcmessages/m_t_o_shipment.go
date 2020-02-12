@@ -28,7 +28,7 @@ type MTOShipment struct {
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// customer remarks
-	CustomerRemarks string `json:"customerRemarks,omitempty"`
+	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
 	// destination address
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
@@ -43,6 +43,9 @@ type MTOShipment struct {
 
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
+
+	// rejection reason
+	RejectionReason *string `json:"rejectionReason,omitempty"`
 
 	// requested pickup date
 	// Format: date
