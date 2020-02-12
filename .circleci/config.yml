@@ -408,6 +408,7 @@ jobs:
           name: make db_test_migrate
           command: make db_test_migrate
           environment:
+            APPLICATION: app
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
             DB_HOST: localhost
@@ -415,8 +416,6 @@ jobs:
             DB_PORT: 5432
             DB_NAME: test_db
             DB_NAME_TEST: test_db
-            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
-            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
       - run:
           name: make server_test_standalone
           command: |
@@ -427,6 +426,7 @@ jobs:
             trap "bin/go-junit-report < tmp/test-results/gotest/go-test.out >  tmp/test-results/gotest/go-test-report.xml" EXIT
             make server_test_standalone | tee tmp/test-results/gotest/go-test.out
           environment:
+            APPLICATION: app
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
             DB_HOST: localhost
@@ -437,8 +437,6 @@ jobs:
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
-            MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/app/migrations_manifest.txt'
-            MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/app/schema;file:///home/circleci/transcom/mymove/migrations/app/secure'
             SERVE_API_INTERNAL: true
       - store_artifacts:
           path: ~/transcom/mymove/tmp/test-results
