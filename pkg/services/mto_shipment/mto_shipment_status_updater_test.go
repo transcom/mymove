@@ -170,38 +170,38 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 
 	suite.T().Run("Changing to APPROVED status records approved_date", func(t *testing.T) {
-		shipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		shipment5 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MoveTaskOrder: mto,
 		})
 		params := mtoshipmentops.PatchMTOShipmentStatusParams{
-			ShipmentID:        strfmt.UUID(shipment2.ID.String()),
-			IfUnmodifiedSince: strfmt.DateTime(shipment2.UpdatedAt),
+			ShipmentID:        strfmt.UUID(shipment5.ID.String()),
+			IfUnmodifiedSince: strfmt.DateTime(shipment5.UpdatedAt),
 			Body:              &ghcmessages.MTOShipment{Status: "APPROVED"},
 		}
 
-		suite.Nil(shipment2.ApprovedDate)
+		suite.Nil(shipment5.ApprovedDate)
 		_, err := updater.UpdateMTOShipmentStatus(params)
 		suite.NoError(err)
-		suite.DB().Find(&shipment2, shipment2.ID)
-		suite.Equal(models.MTOShipmentStatusApproved, shipment2.Status)
-		suite.NotNil(shipment2.ApprovedDate)
+		suite.DB().Find(&shipment5, shipment5.ID)
+		suite.Equal(models.MTOShipmentStatusApproved, shipment5.Status)
+		suite.NotNil(shipment5.ApprovedDate)
 	})
 
 	suite.T().Run("Changing to a non-APPROVED status does not record approved_date", func(t *testing.T) {
-		shipment3 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
+		shipment6 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MoveTaskOrder: mto,
 		})
 		params := mtoshipmentops.PatchMTOShipmentStatusParams{
-			ShipmentID:        strfmt.UUID(shipment3.ID.String()),
-			IfUnmodifiedSince: strfmt.DateTime(shipment3.UpdatedAt),
+			ShipmentID:        strfmt.UUID(shipment6.ID.String()),
+			IfUnmodifiedSince: strfmt.DateTime(shipment6.UpdatedAt),
 			Body:              &ghcmessages.MTOShipment{Status: "REJECTED"},
 		}
 
-		suite.Nil(shipment3.ApprovedDate)
+		suite.Nil(shipment6.ApprovedDate)
 		_, err := updater.UpdateMTOShipmentStatus(params)
 		suite.NoError(err)
-		suite.DB().Find(&shipment3, shipment3.ID)
-		suite.Equal(models.MTOShipmentStatusRejected, shipment3.Status)
+		suite.DB().Find(&shipment6, shipment6.ID)
+		suite.Equal(models.MTOShipmentStatusRejected, shipment6.Status)
 		suite.Nil(shipment3.ApprovedDate)
 	})
 }

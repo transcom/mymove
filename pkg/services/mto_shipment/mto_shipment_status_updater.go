@@ -71,6 +71,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 		baseQuery = baseQuery + `,
 			approved_date = NOW()`
 	}
+
 	finishedQuery := baseQuery + `
 		WHERE
 			id = ?
