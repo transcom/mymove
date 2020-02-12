@@ -99,6 +99,48 @@ func (o *PatchMTOShipmentStatusNotFound) WriteResponse(rw http.ResponseWriter, p
 	}
 }
 
+// PatchMTOShipmentStatusConflictCode is the HTTP code returned for type PatchMTOShipmentStatusConflict
+const PatchMTOShipmentStatusConflictCode int = 409
+
+/*PatchMTOShipmentStatusConflict Conflict error
+
+swagger:response patchMTOShipmentStatusConflict
+*/
+type PatchMTOShipmentStatusConflict struct {
+
+	/*
+	  In: Body
+	*/
+	Payload interface{} `json:"body,omitempty"`
+}
+
+// NewPatchMTOShipmentStatusConflict creates PatchMTOShipmentStatusConflict with default headers values
+func NewPatchMTOShipmentStatusConflict() *PatchMTOShipmentStatusConflict {
+
+	return &PatchMTOShipmentStatusConflict{}
+}
+
+// WithPayload adds the payload to the patch m t o shipment status conflict response
+func (o *PatchMTOShipmentStatusConflict) WithPayload(payload interface{}) *PatchMTOShipmentStatusConflict {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the patch m t o shipment status conflict response
+func (o *PatchMTOShipmentStatusConflict) SetPayload(payload interface{}) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *PatchMTOShipmentStatusConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(409)
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
+}
+
 // PatchMTOShipmentStatusPreconditionFailedCode is the HTTP code returned for type PatchMTOShipmentStatusPreconditionFailed
 const PatchMTOShipmentStatusPreconditionFailedCode int = 412
 

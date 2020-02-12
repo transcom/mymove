@@ -8,7 +8,7 @@ set -eu -o pipefail
 
 readonly dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-readonly local_migrations_dir="${dir}/../local_migrations"
+readonly local_secure_migrations_dir="${dir}/../migrations/app/secure"
 readonly prod_migrations_temp_dir="${dir}/../tmp"
 
 #
@@ -37,7 +37,7 @@ readonly migration_name="$1"
 readonly version=$(date +"%Y%m%d%H%M%S")
 readonly secure_migration_name="${version}_${migration_name}.up.sql"
 
-readonly local_test_migration_name="${local_migrations_dir}/${secure_migration_name}"
+readonly local_test_migration_name="${local_secure_migrations_dir}/${secure_migration_name}"
 readonly prod_migration_name="${prod_migrations_temp_dir}/${secure_migration_name}"
 
 #
@@ -70,7 +70,7 @@ Production migration: ${prod_migration_name}
 
 Next:
     1. Edit the production migration to have the actual change you wish to deploy
-    2. Copy the production migration into the local migration, scrubbing sensitive data
+    2. Copy the production migration into the local secure migration, scrubbing sensitive data
     3. If everything looks good, upload the migration to S3 with this utility:
        scripts/upload-secure-migration \\
           ${prod_migration_name}

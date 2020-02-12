@@ -1181,6 +1181,12 @@ func init() {
               "$ref": "#/responses/NotFound"
             }
           },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/responses/Conflict"
+            }
+          },
           "412": {
             "description": "Precondition failed",
             "schema": {
@@ -1986,6 +1992,7 @@ func init() {
         },
         "customerRemarks": {
           "type": "string",
+          "x-nullable": true,
           "example": "handle with care"
         },
         "destinationAddress": {
@@ -2005,6 +2012,11 @@ func init() {
         "pickupAddress": {
           "x-nullabe": true,
           "$ref": "#/definitions/Address"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "MTO Shipment not good enough"
         },
         "requestedPickupDate": {
           "type": "string",
@@ -2375,6 +2387,12 @@ func init() {
     }
   },
   "responses": {
+    "Conflict": {
+      "description": "Conflict error",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
     "InvalidRequest": {
       "description": "The request payload is invalid",
       "schema": {
@@ -3799,6 +3817,15 @@ func init() {
               }
             }
           },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "description": "Conflict error",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
+          },
           "412": {
             "description": "Precondition failed",
             "schema": {
@@ -4655,6 +4682,7 @@ func init() {
         },
         "customerRemarks": {
           "type": "string",
+          "x-nullable": true,
           "example": "handle with care"
         },
         "destinationAddress": {
@@ -4674,6 +4702,11 @@ func init() {
         "pickupAddress": {
           "x-nullabe": true,
           "$ref": "#/definitions/Address"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "MTO Shipment not good enough"
         },
         "requestedPickupDate": {
           "type": "string",
@@ -5044,6 +5077,12 @@ func init() {
     }
   },
   "responses": {
+    "Conflict": {
+      "description": "Conflict error",
+      "schema": {
+        "$ref": "#/definitions/Error"
+      }
+    },
     "InvalidRequest": {
       "description": "The request payload is invalid",
       "schema": {

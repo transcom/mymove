@@ -10,6 +10,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
@@ -87,10 +88,11 @@ func (h PatchShipmentHandler) Handle(params mtoshipmentops.PatchMTOShipmentStatu
 			return mtoshipmentops.NewPatchMTOShipmentStatusNotFound()
 		case mtoshipment.ValidationError:
 			payload := payloadForValidationError("Validation errors", "UpdateShipmentMTOStatus", h.GetTraceID(), e.Verrs)
-
 			return mtoshipmentops.NewPatchMTOShipmentStatusUnprocessableEntity().WithPayload(payload)
 		case mtoshipment.PreconditionFailedError:
 			return mtoshipmentops.NewPatchMTOShipmentStatusPreconditionFailed()
+		case mtoshipment.ConflictStatusError:
+			return mtoshipmentops.NewPatchMTOShipmentStatusConflict().WithPayload(&ghcmessages.Error{Message: handlers.FmtString(err.Error())})
 		default:
 			return mtoshipmentops.NewPatchMTOShipmentStatusInternalServerError()
 		}
