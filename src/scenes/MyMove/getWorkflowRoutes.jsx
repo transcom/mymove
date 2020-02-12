@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
-import { every, some, get, findKey, pick } from 'lodash';
+import { every, some, get, findKey, pick, isNil } from 'lodash';
 import ValidatedPrivateRoute from 'shared/User/ValidatedPrivateRoute';
 import WizardPage from 'shared/WizardPage';
 import generatePath from 'shared/WizardPage/generatePath';
@@ -65,6 +65,9 @@ const myFirstRodeo = props => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = props => props.lastMoveIsCanceled;
 const hasPPM = ({ selectedMoveType }) => selectedMoveType !== null && selectedMoveType === 'PPM';
 const showProgearChanges = ({ context }) => {
+  if (isNil(context)) {
+    return null;
+  }
   let { flags: { progearChanges } = { progearChanges: null } } = context;
   return progearChanges;
 };
