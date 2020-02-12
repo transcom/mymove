@@ -126,10 +126,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		threeDaysBefore := now.AddDate(0, 0, -3)
 		oldMTOShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
-				Status:                           "APPROVED",
-				ScheduledPickupDate:              &eightDaysFromNow,
-				ApprovedDate:                     &threeDaysBefore,
-				PrimeEstimatedWeightRecordedDate: nil,
+				Status:              "APPROVED",
+				ScheduledPickupDate: &eightDaysFromNow,
+				ApprovedDate:        &threeDaysBefore,
 			},
 		})
 		payload2 := payload
@@ -154,10 +153,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		tenDaysFromNow := now.AddDate(0, 0, 11)
 		oldMTOShipment2 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
-				Status:                           "APPROVED",
-				ScheduledPickupDate:              &tenDaysFromNow,
-				ApprovedDate:                     &now,
-				PrimeEstimatedWeightRecordedDate: nil,
+				Status:              "APPROVED",
+				ScheduledPickupDate: &tenDaysFromNow,
+				ApprovedDate:        &now,
 			},
 		})
 		payload2 := payload
@@ -186,10 +184,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		twoDaysBefore := now.AddDate(0, 0, -2)
 		oldMTOShipment4 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
-				Status:                           "APPROVED",
-				ScheduledPickupDate:              &twoDaysFromNow,
-				ApprovedDate:                     &twoDaysBefore,
-				PrimeEstimatedWeightRecordedDate: nil,
+				Status:              "APPROVED",
+				ScheduledPickupDate: &twoDaysFromNow,
+				ApprovedDate:        &twoDaysBefore,
 			},
 		})
 		payload4 := payload
@@ -214,10 +211,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		twoDaysBefore := now.AddDate(0, 0, -2)
 		oldMTOShipment3 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
-				Status:                           "APPROVED",
-				ScheduledPickupDate:              &sixDaysFromNow,
-				ApprovedDate:                     &twoDaysBefore,
-				PrimeEstimatedWeightRecordedDate: nil,
+				Status:              "APPROVED",
+				ScheduledPickupDate: &sixDaysFromNow,
+				ApprovedDate:        &twoDaysBefore,
 			},
 		})
 		payload3 := payload
@@ -245,10 +241,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		oneDayBefore := now.AddDate(0, 0, -1)
 		oldMTOShipment4 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
-				Status:                           "APPROVED",
-				ScheduledPickupDate:              &oneDayFromNow,
-				ApprovedDate:                     &oneDayBefore,
-				PrimeEstimatedWeightRecordedDate: nil,
+				Status:              "APPROVED",
+				ScheduledPickupDate: &oneDayFromNow,
+				ApprovedDate:        &oneDayBefore,
 			},
 		})
 		payload4 := payload
@@ -272,10 +267,9 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		twoDaysFromNow := now.AddDate(0, 0, 2)
 		oldMTOShipment4 := testdatagen.MakeMTOShipment(suite.DB(), testdatagen.Assertions{
 			MTOShipment: models.MTOShipment{
-				Status:                           "APPROVED",
-				ScheduledPickupDate:              &twoDaysFromNow,
-				ApprovedDate:                     &now,
-				PrimeEstimatedWeightRecordedDate: nil,
+				Status:              "APPROVED",
+				ScheduledPickupDate: &twoDaysFromNow,
+				ApprovedDate:        &now,
 			},
 		})
 		payload4 := payload
