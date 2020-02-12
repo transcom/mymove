@@ -64,8 +64,8 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 
 	baseQuery := `UPDATE mto_shipments
 		SET status = ?,
-			rejection_reason = ?
-			updated_at = NOW()`
+		rejection_reason = ?,
+		updated_at = NOW()`
 
 	if shipment.Status == models.MTOShipmentStatusApproved {
 		baseQuery = baseQuery + `,
@@ -80,7 +80,6 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(payload mtoshipmentop
 		;`
 
 	affectedRows, err := o.db.RawQuery(finishedQuery, status, shipment.RejectionReason, shipment.ID.String(), unmodifiedSince).ExecWithCount()
-
 	if err != nil {
 		return nil, err
 	}
