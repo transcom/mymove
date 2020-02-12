@@ -71,7 +71,7 @@ const showProgearChanges = ({ context }) => {
   let { flags: { progearChanges } = { progearChanges: null } } = context;
   return progearChanges;
 };
-const preProgearChanges = props => !(hasPPM && showProgearChanges(props));
+const preProgearChanges = props => hasPPM(props) && !showProgearChanges(props);
 const isCurrentMoveSubmitted = ({ move }) => {
   return get(move, 'status', 'DRAFT') === 'SUBMITTED';
 };
