@@ -2,7 +2,7 @@
 # BUILDER #
 ###########
 
-FROM trussworks/circleci-docker-primary:6f138d780444b35181e0048282616f75a451d7b4 as builder
+FROM trussworks/circleci-docker-primary:ba270cf66c7a9ae6dbc8e6190b74163ad71729d0 as builder
 
 ENV CIRCLECI=true
 

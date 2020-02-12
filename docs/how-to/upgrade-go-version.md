@@ -29,25 +29,18 @@ For more details read the following sections.
 ## Update `transcom/mymove` Repo
 
 - After your Docker image PR lands, grab the git hash from [Docker](https://hub.docker.com/r/trussworks/circleci-docker-primary/tags) that corresponds with your merged code
-- Update `.circleci/config.yml` and `Dockerfile.dep_updater` with the updated Docker image git hash and Go version
-  - See [this PR](https://github.com/transcom/mymove/pull/1383/files) as an example
+- Update the following files with the updated Docker image git hash and Go version:
+  - `.circleci/config.yml`
+  - `Dockerfile.local`
+  - `Dockerfile.tasks_local`
+  - `Dockerfile.tools_local`
+  - `docker-compose.circle.yml`
+  - Update `go-version` in `.github/workflows/go-auto-approve.yml`
+  - See [this PR](https://github.com/transcom/mymove/pull/3524/files) as an example
 - For minor go version changes (but not patch changes) update `scripts/check-go-version`.
 - Rerun the Go formatter on the codebase with `pre-commit run --all-files go-fmt`
+- Run `make e2e_test_docker` to test that the `Dockerfile.*local` files work  with the new image.
 - Commit the above changes and any reformatted code and make sure everything builds correctly on CircleCI
-
-## Update `transcom/ppp-infra` Repo
-
-- After your Docker image PR lands, grab the git hash from [Docker](https://hub.docker.com/r/trussworks/circleci-docker-primary/tags) that corresponds with your merged code
-- Update `.circleci/config.yml` and `Dockerfile` with the updated Docker image git hash and Go version
-  - See [this PR](https://github.com/transcom/ppp-infra/pull/525/files) as an example
-- For minor go version changes (but not patch changes) update `scripts/check-go-version`.
-- Rerun the Go formatter on the codebase with `pre-commit run --all-files go-fmt`
-- Commit the above changes and any reformatted code and make sure everything builds correctly on CircleCI
-
-## Update `github action` yaml
-
-- Update `go-version` in `.github/workflows/go-auto-approve.yml`
-- Commit the above changes and make sure the action builds when pushed to github
 
 ## Notify Folks
 

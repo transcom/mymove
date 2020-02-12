@@ -21,12 +21,11 @@ export class PPMShipmentSummary extends Component {
       !this.props.ppmEstimate.rateEngineError
     ) {
       this.props.getPpmWeightEstimate(
-        this.props.original_move_date,
-        this.props.pickup_postal_code,
-        this.props.originDutyStationZip,
-        this.props.destination_postal_code,
+        this.props.ppm.original_move_date,
+        this.props.ppm.pickup_postal_code,
+        this.props.ppmEstimate.originDutyStationZip,
         this.props.orders.id,
-        this.props.weight_estimate,
+        this.props.ppm.weight_estimate,
       );
     }
   }
