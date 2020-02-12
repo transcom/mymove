@@ -2,9 +2,9 @@ package internalapi
 
 import (
 	"fmt"
+	"reflect"
+	"strings"
 	"time"
-	// "reflect"
-	// "strings"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -572,44 +572,28 @@ func (h RequestPPMExpenseSummaryHandler) Handle(params ppmop.RequestPPMExpenseSu
 	return ppmop.NewRequestPPMExpenseSummaryOK().WithPayload(&expenseSummaryPayload)
 }
 
-func logDetails(logger Logger, move models.Move, ppm models.PersonallyProcuredMove, msg string) {
-	logger.Info(msg,
+func logDetails(logger Logger, move models.Move, model interface{}, msg string) {
+	fields := reflect.TypeOf(model)
+	values := reflect.ValueOf(model)
+	num := fields.NumField()
+
+	zapFields := []zap.Field{
 		zap.String("moveLocator", move.Locator),
-		zap.Any("ppmID", ppm.ID),
-		zap.Any("size", &ppm.Size),
-		zap.Any("weightEstimate", &ppm.WeightEstimate),
+	}
 
-		zap.Any("originalMoveDate", &ppm.OriginalMoveDate),
-		zap.Any("actualMoveDate", &ppm.ActualMoveDate),
-		zap.Any("submitDate", &ppm.SubmitDate),
-		zap.Any("approveDate", &ppm.ApproveDate),
-		zap.Any("reviewDate", &ppm.ReviewedDate),
-		zap.Any("netWeight", &ppm.NetWeight),
+	for i := 0; i < num; i++ {
+		field := fields.Field(i)
+		value := values.Field(i)
+		tag := fmt.Sprintf("%v", field.Tag)
 
-		zap.Any("pickupPostalCode", &ppm.PickupPostalCode),
-		zap.Any("hasAdditionalPostalCode", &ppm.HasAdditionalPostalCode),
-		zap.Any("additionalPostalCode", &ppm.AdditionalPickupPostalCode),
-		zap.Any("destinationPostalCode", &ppm.DestinationPostalCode),
-
-		zap.Any("hasSit", &ppm.HasSit),
-		zap.Any("daysInStorage", &ppm.DaysInStorage),
-		zap.Any("estimatedStorageReimbursement", &ppm.EstimatedStorageReimbursement),
-		zap.Any("mileage", &ppm.Mileage),
-
-		zap.Any("plannedSITMax", &ppm.PlannedSITMax),
-		zap.Any("SITMax", &ppm.SITMax),
-		zap.Any("incentiveEstMin", &ppm.IncentiveEstimateMin),
-		zap.Any("incentiveEstMax", &ppm.IncentiveEstimateMax),
-		zap.Any("status", ppm.Status),
-
-		zap.Any("hasRequestAdvance", ppm.HasRequestedAdvance),
-		zap.Any("advanceID", &ppm.AdvanceID),
-		zap.Any("advance", &ppm.Advance),
-		zap.Any("advanceWorksheetID", &ppm.AdvanceWorksheetID),
-		zap.Any("totalSitCost", &ppm.TotalSITCost),
-
-		zap.Any("hasProGear", &ppm.HasProGear),
-		zap.Any("hasProGearOverThousand", &ppm.HasProGearOverThousand),
-		zap.Any("actualMoveDate", &ppm.ActualMoveDate),
-	)
+		if !strings.HasPrefix(tag, "belongs_to:") {
+			if field.Type.Kind() == reflect.Ptr {
+				if !value.IsNil() {
+					value = value.Elem()
+				}
+			}
+			zapFields = append(zapFields, zap.Any(field.Name, fmt.Sprintf("%v", value)))
+		}
+	}
+	logger.Info(msg, zapFields...)
 }
