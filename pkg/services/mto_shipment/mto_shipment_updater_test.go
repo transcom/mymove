@@ -134,12 +134,13 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		})
 		payload2 := payload
 		payload2.ID = strfmt.UUID(oldMTOShipment2.ID.String())
+		unmodifiedSince := oldMTOShipment2.UpdatedAt
+		payload2.PrimeEstimatedWeight = 4500
+
 		//remove this when remove required fields
 		scheduledPickupDate = strfmt.Date(eightDaysFromNow)
 		payload2.ScheduledPickupDate = &scheduledPickupDate
 
-		unmodifiedSince := oldMTOShipment2.UpdatedAt
-		payload2.PrimeEstimatedWeight = 4500
 		params := mtoshipmentops.UpdateMTOShipmentParams{
 			Body:              &payload2,
 			MoveTaskOrderID:   strfmt.UUID(oldMTOShipment2.MoveTaskOrderID.String()),
