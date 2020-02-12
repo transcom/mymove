@@ -47,17 +47,14 @@ func initOrdersFlags(flag *pflag.FlagSet) {
 	// Environment
 	cli.InitEnvironmentFlags(flag)
 
-	// Build Files
-	cli.InitBuildFlags(flag)
-
 	// Webserver
 	cli.InitWebserverFlags(flag)
 
 	// Hosts
-	cli.InitHostFlags(flag)
+	flag.String(cli.HTTPOrdersServerNameFlag, cli.HTTPOrdersServerNameLocal, "Hostname according to environment.")
 
 	// Initialize Swagger
-	cli.InitSwaggerFlags(flag)
+	flag.String(cli.OrdersSwaggerFlag, "swagger/orders.yaml", "The location of the Orders API swagger definition")
 
 	// Certs
 	cli.InitCertFlags(flag)
@@ -83,11 +80,8 @@ func initOrdersFlags(flag *pflag.FlagSet) {
 	// Verbose
 	cli.InitVerboseFlags(flag)
 
-	// pprof flags
-	cli.InitDebugFlags(flag)
-
 	// Service Flags
-	cli.InitServiceFlags(flag)
+	flag.Bool(cli.ServeOrdersFlag, false, "Enable the Orders Service.")
 
 	// Sort command line flags
 	flag.SortFlags = true
@@ -101,20 +95,17 @@ func checkOrdersConfig(v *viper.Viper, logger logger) error {
 		return err
 	}
 
-	if err := cli.CheckBuild(v); err != nil {
-		return err
-	}
-
 	if err := cli.CheckWebserver(v); err != nil {
 		return err
 	}
 
-	if err := cli.CheckHosts(v); err != nil {
+	err := cli.ValidateHost(v, cli.HTTPOrdersServerNameFlag)
+	if err != nil {
 		return err
 	}
 
-	if err := cli.CheckSwagger(v); err != nil {
-		return err
+	if swaggerFile := v.GetString(cli.OrdersSwaggerFlag); swaggerFile == "" {
+		return errors.Errorf("Swagger file for %s cannot be blank", cli.OrdersSwaggerFlag)
 	}
 
 	if err := cli.CheckCert(v); err != nil {
@@ -149,12 +140,20 @@ func checkOrdersConfig(v *viper.Viper, logger logger) error {
 		return err
 	}
 
-	if err := cli.CheckDebugFlags(v); err != nil {
-		return err
+	ordersEnabled := v.GetBool(cli.ServeOrdersFlag)
+	if !ordersEnabled {
+		return errors.New("no service was enabled")
 	}
 
-	if err := cli.CheckServices(v); err != nil {
-		return err
+	// if Orders is enabled then the mutualTLSListener is needed too
+	mutualTLSEnabled := v.GetBool(cli.MutualTLSListenerFlag)
+	if v.GetString(cli.EnvironmentFlag) != cli.EnvironmentDevelopment {
+		if ordersEnabled && !mutualTLSEnabled {
+			return errors.New(fmt.Sprintf("for orders service to be enabled both %s and the %s flags must be in use", cli.ServeOrdersFlag, cli.MutualTLSListenerFlag))
+		}
+		if mutualTLSEnabled && !ordersEnabled {
+			return errors.New("orders service must be enabled for mutualTSL to be enabled")
+		}
 	}
 
 	return nil
