@@ -194,7 +194,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		params := mtoshipmentops.PatchMTOShipmentStatusParams{
 			ShipmentID:        strfmt.UUID(shipment6.ID.String()),
 			IfUnmodifiedSince: strfmt.DateTime(shipment6.UpdatedAt),
-			Body:              &ghcmessages.MTOShipment{Status: "REJECTED"},
+			Body:              &ghcmessages.MTOShipment{Status: "REJECTED", RejectionReason: handlers.FmtString("stuff happens")},
 		}
 
 		suite.Nil(shipment6.ApprovedDate)
