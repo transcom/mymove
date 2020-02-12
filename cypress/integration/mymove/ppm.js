@@ -35,6 +35,7 @@ describe('completing the ppm flow', function() {
 
     cy.nextPage();
 
+    cy.setFeatureFlag('progearChanges=false', '/');
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-size/);
     });
