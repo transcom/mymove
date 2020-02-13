@@ -64,6 +64,22 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentInternalServerError{}, response)
 	})
 
+	suite.T().Run("PUT failure - 400", func(t *testing.T) {
+		mockUpdater := mocks.MTOShipmentUpdater{}
+		handler := UpdateMTOShipmentHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			&mockUpdater,
+		}
+
+		mockUpdater.On("UpdateMTOShipment",
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, mtoshipment.NewErrInvalidInput(mtoShipment.ID, nil, nil, "invalid input"))
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentBadRequest{}, response)
+	})
+
 	suite.T().Run("PUT failure - 404", func(t *testing.T) {
 		mockUpdater := mocks.MTOShipmentUpdater{}
 		handler := UpdateMTOShipmentHandler{

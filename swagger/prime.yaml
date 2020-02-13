@@ -385,6 +385,8 @@ paths:
             $ref: '#/definitions/MTOShipment'
         '400':
           description: invalid request
+          schema:
+            $ref: '#/responses/InvalidRequest'
         '401':
           description: The request was denied
           schema:

@@ -45,6 +45,7 @@ type errInvalidInput struct {
 	id uuid.UUID
 	error
 	validationErrors map[string][]string
+	message          string
 }
 
 //ErrInvalidInput is returned when an update to a move task order fails a validation rule
@@ -52,17 +53,21 @@ type ErrInvalidInput struct {
 	errInvalidInput
 }
 
-func NewErrInvalidInput(id uuid.UUID, err error, validationErrors map[string][]string) ErrInvalidInput {
+func NewErrInvalidInput(id uuid.UUID, err error, validationErrors map[string][]string, message string) ErrInvalidInput {
 	return ErrInvalidInput{
 		errInvalidInput{
 			id:               id,
 			error:            err,
 			validationErrors: validationErrors,
+			message:          message,
 		},
 	}
 }
 
 func (e ErrInvalidInput) Error() string {
+	if e.message != "" {
+		return fmt.Sprintf(e.message)
+	}
 	return fmt.Sprintf("invalid input for move task order id: %s. %s", e.id.String(), e.InvalidFields())
 }
 
@@ -102,7 +107,7 @@ func validateUpdatedMTOShipment(db *pop.Connection, oldShipment *models.MTOShipm
 	// if requestedPickupDate isn't valid then return ErrInvalidInput
 	requestedPickupDate := time.Time(*updatedShipment.RequestedPickupDate)
 	if !requestedPickupDate.Equal(*oldShipment.RequestedPickupDate) {
-		return ErrInvalidInput{}
+		return NewErrInvalidInput(oldShipment.ID, nil, nil, "Requested pickup date must match what customer has requested.")
 	}
 	oldShipment.RequestedPickupDate = &requestedPickupDate
 
@@ -132,7 +137,8 @@ func validateUpdatedMTOShipment(db *pop.Connection, oldShipment *models.MTOShipm
 		now := time.Now()
 		err := validatePrimeEstimatedWeightRecordedDate(now, scheduledPickupTime, *oldShipment.ApprovedDate)
 		if err != nil {
-			return err
+			errorMessage := "The time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight."
+			return NewErrInvalidInput(oldShipment.ID, err, nil, errorMessage)
 		}
 
 		estimatedWeightPounds := unit.Pound(updatedShipment.PrimeEstimatedWeight)
@@ -142,7 +148,7 @@ func validateUpdatedMTOShipment(db *pop.Connection, oldShipment *models.MTOShipm
 
 	vErrors, err := oldShipment.Validate(db)
 	if vErrors.HasAny() {
-		return ErrInvalidInput{}
+		return NewErrInvalidInput(oldShipment.ID, nil, vErrors.Errors, "There was an issue with validating the updates")
 	}
 	if err != nil {
 		return err

@@ -283,7 +283,10 @@ func init() {
             }
           },
           "400": {
-            "description": "invalid request"
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/responses/InvalidRequest"
+            }
           },
           "401": {
             "description": "The request was denied",
@@ -1768,7 +1771,13 @@ func init() {
             }
           },
           "400": {
-            "description": "invalid request"
+            "description": "invalid request",
+            "schema": {
+              "description": "The request payload is invalid",
+              "schema": {
+                "$ref": "#/definitions/Error"
+              }
+            }
           },
           "401": {
             "description": "The request was denied",
