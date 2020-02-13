@@ -102,6 +102,10 @@ func validateUpdatedMTOShipment(db *pop.Connection, oldShipment *models.MTOShipm
 		oldShipment.FirstAvailableDeliveryDate = updatedShipment.FirstAvailableDeliveryDate
 	}
 
+	if updatedShipment.ActualPickupDate.String() != "" {
+		oldShipment.ActualPickupDate = updatedShipment.ActualPickupDate
+	}
+
 	scheduledPickupTime := *oldShipment.ScheduledPickupDate
 	if updatedShipment.ScheduledPickupDate != nil {
 		scheduledPickupTime = *updatedShipment.ScheduledPickupDate

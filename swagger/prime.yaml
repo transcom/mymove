@@ -654,6 +654,9 @@ definitions:
       primeEstimatedWeightRecordedDate:
         format: date
         type: string
+      actualPickupDate:
+        format: date
+        type: string
       customerRemarks:
         type: string
         example: handle with care

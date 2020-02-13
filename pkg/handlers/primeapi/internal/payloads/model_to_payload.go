@@ -164,6 +164,7 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {
 		CustomerRemarks:          *mtoShipment.CustomerRemarks,
 		RequestedPickupDate:      strfmt.Date(*mtoShipment.RequestedPickupDate),
 		ScheduledPickupDate:      strfmt.Date(*mtoShipment.ScheduledPickupDate),
+		ActualPickupDate:         strfmt.Date(mtoShipment.ActualPickupDate),
 		PickupAddress:            Address(&mtoShipment.PickupAddress),
 		Status:                   string(mtoShipment.Status),
 		DestinationAddress:       Address(&mtoShipment.DestinationAddress),
