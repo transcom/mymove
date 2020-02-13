@@ -13,7 +13,6 @@ CONTAINER_CYPRESS=cypress
 MILMOVEHOST=milmovelocal
 OFFICEHOST=officelocal
 ADMINHOST=adminlocal
-ORDERSHOST=orderslocal
 
 # Set Defaults
 HTTP_PORT=4000
@@ -62,13 +61,13 @@ else
   # Locally development requires that we build the container
 
   # Let's clean things up before starting
-  docker-compose -f docker-compose.local.yml down || true
+  docker-compose -f docker-compose.local.app.yml down || true
 
   # Build artifacts
   make client_build
 
   # Build images and start everything up
-  docker-compose -f docker-compose.local.yml up -d --build
+  docker-compose -f docker-compose.local.app.yml up -d --build
 
   # Build a small tools dockerfile
   docker build -f Dockerfile.tools_local --tag tools:latest .
@@ -145,7 +144,6 @@ $DOCKER_RUN \
   --add-host "${MILMOVEHOST}:${E2E_IP}" \
   --add-host "${OFFICEHOST}:${E2E_IP}" \
   --add-host "${ADMINHOST}:${E2E_IP}" \
-  --add-host "${ORDERSHOST}:${E2E_IP}" \
   --name="${CONTAINER_CYPRESS}" \
   --link="${CONTAINER}" \
   --net "${NETWORK}" \

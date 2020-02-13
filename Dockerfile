@@ -9,8 +9,6 @@ COPY config/tls/dod-sw-ca-54.pem /config/tls/dod-sw-ca-54.pem
 COPY swagger/* /swagger/
 COPY build /build
 
-ENTRYPOINT ["/bin/milmove"]
-
-CMD ["serve", "--debug-logging"]
+ENTRYPOINT ["/bin/milmove", "serve_app"]
 
 EXPOSE 8080

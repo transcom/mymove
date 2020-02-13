@@ -94,5 +94,8 @@ services:
       - SERVE_API_GHC=false
       - SERVE_API_INTERNAL=true
       - STORAGE_BACKEND=local
+    entrypoint:
+      - '/bin/milmove'
+      - 'serve_app'
     volumes:
       - ./tmp:/tmp
