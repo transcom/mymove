@@ -52,6 +52,10 @@ type MTOShipment struct {
 	// prime estimated weight
 	PrimeEstimatedWeight int64 `json:"primeEstimatedWeight,omitempty"`
 
+	// prime estimated weight recorded date
+	// Format: date
+	PrimeEstimatedWeightRecordedDate strfmt.Date `json:"primeEstimatedWeightRecordedDate,omitempty"`
+
 	// requested pickup date
 	// Required: true
 	// Format: date
@@ -106,6 +110,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePickupAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePrimeEstimatedWeightRecordedDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -226,6 +234,19 @@ func (m *MTOShipment) validatePickupAddress(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validatePrimeEstimatedWeightRecordedDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.PrimeEstimatedWeightRecordedDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("primeEstimatedWeightRecordedDate", "body", "date", m.PrimeEstimatedWeightRecordedDate.String(), formats); err != nil {
+		return err
 	}
 
 	return nil

@@ -844,6 +844,9 @@ definitions:
       primeEstimatedWeight:
         type: integer
         example: 4500
+      primeEstimatedWeightRecordedDate:
+        format: date
+        type: string
       customerRemarks:
         type: string
         example: handle with care

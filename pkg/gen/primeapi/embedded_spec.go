@@ -1154,6 +1154,10 @@ func init() {
           "type": "integer",
           "example": 4500
         },
+        "primeEstimatedWeightRecordedDate": {
+          "type": "string",
+          "format": "date"
+        },
         "requestedPickupDate": {
           "type": "string",
           "format": "date"
@@ -2733,6 +2737,10 @@ func init() {
         "primeEstimatedWeight": {
           "type": "integer",
           "example": 4500
+        },
+        "primeEstimatedWeightRecordedDate": {
+          "type": "string",
+          "format": "date"
         },
         "requestedPickupDate": {
           "type": "string",
