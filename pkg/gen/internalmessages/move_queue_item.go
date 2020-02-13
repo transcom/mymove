@@ -19,6 +19,10 @@ import (
 // swagger:model MoveQueueItem
 type MoveQueueItem struct {
 
+	// actual move date
+	// Format: date
+	ActualMoveDate *strfmt.Date `json:"actual_move_date,omitempty"`
+
 	// branch of service
 	// Required: true
 	BranchOfService *string `json:"branch_of_service"`
@@ -88,6 +92,10 @@ type MoveQueueItem struct {
 	// Origin GBLOC
 	OriginGbloc *string `json:"origin_gbloc,omitempty"`
 
+	// original move date
+	// Format: date
+	OriginalMoveDate *strfmt.Date `json:"original_move_date,omitempty"`
+
 	// pm survey conducted date
 	// Format: date-time
 	PmSurveyConductedDate *strfmt.DateTime `json:"pm_survey_conducted_date,omitempty"`
@@ -114,6 +122,10 @@ type MoveQueueItem struct {
 // Validate validates this move queue item
 func (m *MoveQueueItem) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateActualMoveDate(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateBranchOfService(formats); err != nil {
 		res = append(res, err)
@@ -159,6 +171,10 @@ func (m *MoveQueueItem) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateOriginalMoveDate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validatePmSurveyConductedDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -182,6 +198,19 @@ func (m *MoveQueueItem) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MoveQueueItem) validateActualMoveDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ActualMoveDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("actual_move_date", "body", "date", m.ActualMoveDate.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -354,6 +383,19 @@ func (m *MoveQueueItem) validateOrdersType(formats strfmt.Registry) error {
 
 	// value enum
 	if err := m.validateOrdersTypeEnum("orders_type", "body", *m.OrdersType); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MoveQueueItem) validateOriginalMoveDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.OriginalMoveDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("original_move_date", "body", "date", m.OriginalMoveDate.String(), formats); err != nil {
 		return err
 	}
 

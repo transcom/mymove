@@ -158,7 +158,7 @@ These scripts are primarily used for working with a CAC and the Orders API
 | Script Name | Description |
 | --- | --- |
 | `cac-extract-cert` | Get a certificate from CAC |
-| `cac-extract-fingerprint` | Get SHA 256 fingerprint from CAC |
+| `cac-extract-fingerprint` | Get SHA 256 fingerprint of the public certificate from CAC |
 | `cac-extract-pubkey` | Get a public key from CAC |
 | `cac-extract-subject` | Get Subject from CAC |
 | `cac-extract-token-label` | Get the Token Label from CAC |
@@ -171,8 +171,8 @@ These scripts are primarily for working with Mutual TLS certificates
 
 | Script Name | Description |
 | --- | --- |
-| `mutual-tls-extract-fingerprint` | Get a sha256 hash of the certificate from CAC |
-| `mutual-tls-extract-subject` | Get a sha256 hash of the certificate from CAC |
+| `mutual-tls-extract-fingerprint` | Get SHA 256 fingerprint of the public certificate from a cert file |
+| `mutual-tls-extract-subject` | Get a sha256 hash of the certificate from a cert file|
 
 ### Amazon Console Scripts
 
