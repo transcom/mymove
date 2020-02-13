@@ -1,6 +1,7 @@
 # Personal Property Prototype
 
 [![CircleCI](https://circleci.com/gh/transcom/mymove/tree/master.svg?style=shield&circle-token=8782cc55afd824ba48e89fc4e49b466c5e2ce7b1)](https://circleci.com/gh/transcom/mymove/tree/master)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ftranscom%2Fmymove.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Ftranscom%2Fmymove?ref=badge_shield)
 
 [![GoDoc](https://godoc.org/github.com/transcom/mymove?status.svg)](https://godoc.org/github.com/transcom/mymove)
 
@@ -639,3 +640,7 @@ cd ~/.config/yarn/global
 yarn cache clean
 yarn global add markdown-spellcheck
 ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ftranscom%2Fmymove.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Ftranscom%2Fmymove?ref=badge_large)
