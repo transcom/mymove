@@ -137,7 +137,10 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
-	logDetails(logger, *move, *newPPM, "Create PPM")
+	zapFields := []zap.Field{
+		zap.String("moveLocator", move.Locator),
+	}
+	logDetails(logger, *newPPM, "Create PPM", zapFields)
 
 	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *newPPM)
 	if err != nil {
@@ -293,7 +296,10 @@ func (h UpdatePersonallyProcuredMoveEstimateHandler) Handle(params ppmop.UpdateP
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
-	logDetails(logger, *move, *ppm, "Update PPM")
+	zapFields := []zap.Field{
+		zap.String("moveLocator", move.Locator),
+	}
+	logDetails(logger, *ppm, "Update PPM", zapFields)
 
 	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
 	if err != nil {
@@ -338,7 +344,10 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
-	logDetails(logger, *move, *ppm, "Patch PPM")
+	zapFields := []zap.Field{
+		zap.String("moveLocator", move.Locator),
+	}
+	logDetails(logger, *ppm, "Patch PPM", zapFields)
 
 	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
 	if err != nil {
@@ -573,14 +582,10 @@ func (h RequestPPMExpenseSummaryHandler) Handle(params ppmop.RequestPPMExpenseSu
 	return ppmop.NewRequestPPMExpenseSummaryOK().WithPayload(&expenseSummaryPayload)
 }
 
-func logDetails(logger Logger, move models.Move, model interface{}, msg string) {
+func logDetails(logger Logger, model interface{}, msg string, zapFields []zap.Field) {
 	fields := reflect.TypeOf(model)
 	values := reflect.ValueOf(model)
 	num := fields.NumField()
-
-	zapFields := []zap.Field{
-		zap.String("moveLocator", move.Locator),
-	}
 
 	for i := 0; i < num; i++ {
 		field := fields.Field(i)
