@@ -98,7 +98,10 @@ func (suite *GHCRateEngineImportSuite) helperCheckServiceAreaValue() {
 	expectedZip3s := []string{"647", "648", "656", "657", "658"}
 
 	var zip3s models.ReZip3s
-	err = suite.DB().Where("domestic_service_area_id = ?", serviceArea.ID).All(&zip3s)
+	err = suite.DB().
+		Where("contract_id = ?", contract.ID).
+		Where("domestic_service_area_id = ?", serviceArea.ID).
+		All(&zip3s)
 	suite.NoError(err)
 	for _, zip3 := range zip3s {
 		found := false
