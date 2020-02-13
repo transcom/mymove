@@ -439,19 +439,14 @@ func (suite *QueryBuilderSuite) TestUpdateOne() {
 	//
 	suite.T().Run("Successfully updates a record with an eTag for optimistic locking", func(t *testing.T) {
 		eTag := base64.StdEncoding.EncodeToString([]byte(officeUser.UpdatedAt.String()))
-		builder.UpdateOne(&updatedOfficeUserInfo, &eTag)
-		// suite.Nil(verrs)
-		// suite.Nil(err)
+		verrs, err := builder.UpdateOne(&updatedOfficeUserInfo, &eTag)
+		suite.Nil(verrs)
+		suite.Nil(err)
 
 		var filters []services.QueryFilter
 		queryFilters := append(filters, NewQueryFilter("id", "=", updatedOfficeUserInfo.ID.String()))
 		var record models.OfficeUser
 		builder.FetchOne(&record, queryFilters)
-		fmt.Println("0000000000000000000")
-		fmt.Println("0000000000000000000")
-		fmt.Printf("%#v", record)
-		fmt.Println("0000000000000000000")
-		fmt.Println("0000000000000000000")
 		suite.Equal("leo@spaceman.org", record.Email)
 	})
 
