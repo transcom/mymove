@@ -9,11 +9,11 @@ import (
 // MakeMoveTaskOrder creates a single MoveTaskOrder and associated set relationships
 func MakeMoveTaskOrder(db *pop.Connection, assertions Assertions) models.MoveTaskOrder {
 	moveOrder := assertions.MoveOrder
-	var referenceID string
 	if isZeroUUID(moveOrder.ID) {
 		moveOrder = MakeMoveOrder(db, assertions)
 	}
 
+	var referenceID string
 	if assertions.MoveTaskOrder.ReferenceID == "" {
 		referenceID, _ = models.GenerateReferenceID(db)
 	}

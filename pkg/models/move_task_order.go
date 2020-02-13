@@ -31,7 +31,9 @@ type MoveTaskOrder struct {
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (m *MoveTaskOrder) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
-	vs = append(vs, &validators.UUIDIsPresent{Field: m.MoveOrderID, Name: "MoveOrderID"})
+	vs = append(vs,
+		&validators.UUIDIsPresent{Field: m.MoveOrderID, Name: "MoveOrderID"},
+		&validators.StringIsPresent{Field: m.ReferenceID, Name: "ReferenceID"})
 	return validate.Validate(vs...), nil
 }
 
