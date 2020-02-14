@@ -118,7 +118,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.NotZero(updatedMTOShipment.SecondaryDeliveryAddress.ID, secondaryDeliveryAddress.ID)
 		suite.Equal(updatedMTOShipment.SecondaryDeliveryAddress.StreetAddress1, *secondaryDeliveryAddress.StreetAddress1)
 		suite.Equal(updatedMTOShipment.PrimeActualWeight, *&actualWeight)
-		suite.True(time.Date(2019, time.March, 10, 0, 0, 0, 0, time.UTC).Equal(updatedMTOShipment.FirstAvailableDeliveryDate))
+		suite.True(time.Date(2019, time.March, 10, 0, 0, 0, 0, time.UTC).Equal(*updatedMTOShipment.FirstAvailableDeliveryDate))
 	})
 
 }
