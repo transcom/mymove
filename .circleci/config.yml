@@ -775,17 +775,11 @@ workflows:
     jobs:
       - pre_deps_golang
 
-      - pre_deps_yarn:
-          filters:
-            branches:
-              ignore: cg_modify_server_tests_for_orders_application
+      - pre_deps_yarn
 
       - check_generated_code:
           requires:
             - pre_deps_golang
-          filters:
-            branches:
-              ignore: cg_modify_server_tests_for_orders_application
 
       - anti_virus:
           filters:
@@ -796,33 +790,21 @@ workflows:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
-          filters:
-            branches:
-              ignore: cg_modify_server_tests_for_orders_application
 
       - acceptance_tests_local:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
-          filters:
-            branches:
-              ignore: cg_modify_server_tests_for_orders_application
 
       - acceptance_tests_experimental:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
-          filters:
-            branches:
-              ignore: cg_modify_server_tests_for_orders_application
 
       - acceptance_tests_staging:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
-          filters:
-            branches:
-              ignore: cg_modify_server_tests_for_orders_application
 
       - integration_tests:
           requires:
@@ -859,40 +841,25 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
             - acceptance_tests_local # don't bother building and pushing the application if it won't even start properly
-          filters:
-            branches:
-              ignore: cg_modify_server_tests_for_orders_application
 
       - build_storybook_app:
           requires:
             - anti_virus
             - pre_deps_yarn
-          filters:
-            branches:
-              ignore: cg_modify_server_tests_for_orders_application
 
       - build_tools:
           requires:
             - anti_virus
             - pre_deps_golang
-          filters:
-            branches:
-              ignore: cg_modify_server_tests_for_orders_application
 
       - build_migrations:
           requires:
             - anti_virus
             - pre_deps_golang
-          filters:
-            branches:
-              ignore: cg_modify_server_tests_for_orders_application
 
       - build_tasks:
           requires:
             - build_tools
-          filters:
-            branches:
-              ignore: cg_modify_server_tests_for_orders_application
 
       - deploy_experimental_migrations:
           requires:
