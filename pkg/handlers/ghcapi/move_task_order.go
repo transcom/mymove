@@ -46,7 +46,7 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 // UpdateMoveTaskOrderStatusHandlerFunc updates the status of a Move Task Order
 type UpdateMoveTaskOrderStatusHandlerFunc struct {
 	handlers.HandlerContext
-	moveTaskOrderStatusUpdater services.MoveTaskOrderStatusUpdater
+	moveTaskOrderStatusUpdater services.MoveTaskOrderUpdater
 }
 
 // UpdateMoveTaskOrderStatusHandlerFunc updates the status of a MoveTaskOrder

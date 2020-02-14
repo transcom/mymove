@@ -139,7 +139,7 @@ type moveTaskOrderStatusUpdater struct {
 }
 
 // NewMoveTaskOrderFetcher creates a new struct with the service dependencies
-func NewMoveTaskOrderStatusUpdater(db *pop.Connection) services.MoveTaskOrderStatusUpdater {
+func NewMoveTaskOrderStatusUpdater(db *pop.Connection) services.MoveTaskOrderUpdater {
 	return &moveTaskOrderStatusUpdater{db, moveTaskOrderFetcher{db}}
 }
 
