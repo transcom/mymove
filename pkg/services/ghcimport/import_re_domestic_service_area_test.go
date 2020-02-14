@@ -17,19 +17,19 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceArea() {
 	suite.NoError(err)
 
 	suite.T().Run("import success", func(t *testing.T) {
-		err := gre.importREDomesticServiceArea(suite.DB())
+		err = gre.importREDomesticServiceArea(suite.DB())
 		suite.NoError(err)
-		suite.helperVerifyServiceAreaCount()
+		suite.helperVerifyServiceAreaCount(testContractCode)
 		suite.NotNil(gre.serviceAreaToIDMap)
 
 		// Spot check a service area
-		suite.helperCheckServiceAreaValue()
+		suite.helperCheckServiceAreaValue(testContractCode)
 	})
 
 	suite.T().Run("Run a second time with one changed row, should still succeed", func(t *testing.T) {
 		// Get contract UUID.
 		var contract models.ReContract
-		err := suite.DB().Where("code = ?", testContractCode).First(&contract)
+		err = suite.DB().Where("code = ?", testContractCode).First(&contract)
 		suite.NoError(err)
 
 		// Change a service area and remove a zip and see if they return as they were before.
@@ -52,18 +52,40 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceArea() {
 
 		err = gre.importREDomesticServiceArea(suite.DB())
 		suite.NoError(err)
-		suite.helperVerifyServiceAreaCount()
+		suite.helperVerifyServiceAreaCount(testContractCode)
 		suite.NotNil(gre.serviceAreaToIDMap)
 
 		// Check to see if data changed above has been reverted.
-		suite.helperCheckServiceAreaValue()
+		suite.helperCheckServiceAreaValue(testContractCode)
+	})
+
+	gre2 := &GHCRateEngineImporter{
+		Logger:       suite.logger,
+		ContractCode: testContractCode2,
+	}
+
+	// Prerequisite tables must be loaded.
+	err = gre2.importREContract(suite.DB())
+	suite.NoError(err)
+
+	suite.T().Run("Run with a different contract code, should add new records", func(t *testing.T) {
+		err = gre2.importREDomesticServiceArea(suite.DB())
+		suite.NoError(err)
+		suite.helperVerifyServiceAreaCount(testContractCode2)
+		suite.NotNil(gre2.serviceAreaToIDMap)
+
+		// Spot check a service area
+		suite.helperCheckServiceAreaValue(testContractCode2)
+
+		// Make sure the other contract's records are still there too.
+		suite.helperVerifyServiceAreaCount(testContractCode)
 	})
 }
 
-func (suite *GHCRateEngineImportSuite) helperVerifyServiceAreaCount() {
+func (suite *GHCRateEngineImportSuite) helperVerifyServiceAreaCount(contractCode string) {
 	// Get contract UUID.
 	var contract models.ReContract
-	err := suite.DB().Where("code = ?", testContractCode).First(&contract)
+	err := suite.DB().Where("code = ?", contractCode).First(&contract)
 	suite.NoError(err)
 
 	// Domestic service areas count
@@ -72,15 +94,15 @@ func (suite *GHCRateEngineImportSuite) helperVerifyServiceAreaCount() {
 	suite.Equal(4, count)
 
 	// Zip3s count
-	count, err = suite.DB().Count(&models.ReZip3s{})
+	count, err = suite.DB().Where("contract_id = ?", contract.ID).Count(&models.ReZip3{})
 	suite.NoError(err)
 	suite.Equal(18, count)
 }
 
-func (suite *GHCRateEngineImportSuite) helperCheckServiceAreaValue() {
+func (suite *GHCRateEngineImportSuite) helperCheckServiceAreaValue(contractCode string) {
 	// Get contract UUID.
 	var contract models.ReContract
-	err := suite.DB().Where("code = ?", testContractCode).First(&contract)
+	err := suite.DB().Where("code = ?", contractCode).First(&contract)
 	suite.NoError(err)
 
 	var serviceArea models.ReDomesticServiceArea

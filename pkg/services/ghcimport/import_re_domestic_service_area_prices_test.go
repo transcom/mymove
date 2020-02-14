@@ -71,7 +71,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticServiceAreaPricesFai
 }
 
 func (suite *GHCRateEngineImportSuite) helperVerifyDomesticServiceAreaPrices() {
-	count, err := suite.DB().Count(&models.ReDomesticServiceAreaPrices{})
+	count, err := suite.DB().Count(&models.ReDomesticServiceAreaPrice{})
 	suite.NoError(err)
 	suite.Equal(56, count)
 }

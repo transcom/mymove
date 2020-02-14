@@ -9,7 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *GHCRateEngineImportSuite) helperImportRERateAreaTC2(action string) {
+func (suite *GHCRateEngineImportSuite) helperImportRERateArea(action string) {
 	// Get contract UUID.
 	var contract models.ReContract
 	err := suite.DB().Where("code = ?", testContractCode).First(&contract)
@@ -63,10 +63,10 @@ func (suite *GHCRateEngineImportSuite) helperImportRERateAreaTC2(action string) 
 	}
 }
 
-func (suite *GHCRateEngineImportSuite) helperVerifyDomesticRateAreaToIDMap(domesticRateAreaToIDMap map[string]uuid.UUID) {
+func (suite *GHCRateEngineImportSuite) helperVerifyDomesticRateAreaToIDMap(contractCode string, domesticRateAreaToIDMap map[string]uuid.UUID) {
 	// Get contract UUID.
 	var contract models.ReContract
-	err := suite.DB().Where("code = ?", testContractCode).First(&contract)
+	err := suite.DB().Where("code = ?", contractCode).First(&contract)
 	suite.NoError(err)
 
 	suite.NotEqual(map[string]uuid.UUID(nil), domesticRateAreaToIDMap)
@@ -99,10 +99,10 @@ func (suite *GHCRateEngineImportSuite) helperVerifyDomesticRateAreaToIDMap(domes
 	suite.Equal(rateArea.ID, domesticRateAreaToIDMap["US47"])
 }
 
-func (suite *GHCRateEngineImportSuite) helperVerifyInternationalRateAreaToIDMap(internationalRateAreaToIDMap map[string]uuid.UUID) {
+func (suite *GHCRateEngineImportSuite) helperVerifyInternationalRateAreaToIDMap(contractCode string, internationalRateAreaToIDMap map[string]uuid.UUID) {
 	// Get contract UUID.
 	var contract models.ReContract
-	err := suite.DB().Where("code = ?", testContractCode).First(&contract)
+	err := suite.DB().Where("code = ?", contractCode).First(&contract)
 	suite.NoError(err)
 
 	suite.NotEqual(map[string]uuid.UUID(nil), internationalRateAreaToIDMap)
@@ -135,7 +135,7 @@ func (suite *GHCRateEngineImportSuite) helperVerifyInternationalRateAreaToIDMap(
 	suite.Equal(rateArea.ID, internationalRateAreaToIDMap["US8101000"])
 }
 
-func (suite *GHCRateEngineImportSuite) helperImportRERateAreaTC3(action string) {
+func (suite *GHCRateEngineImportSuite) helperImportRERateAreaDropStage(action string) {
 	if action == "setup" {
 		// drop a staging table that we are depending on to do import
 		dropQuery := fmt.Sprintf("DROP TABLE IF EXISTS %s;", "stage_conus_to_oconus_prices")
@@ -144,10 +144,10 @@ func (suite *GHCRateEngineImportSuite) helperImportRERateAreaTC3(action string) 
 	}
 }
 
-func (suite *GHCRateEngineImportSuite) helperImportRERateAreaVerifyImportComplete() {
+func (suite *GHCRateEngineImportSuite) helperImportRERateAreaVerifyImportComplete(contractCode string) {
 	// Get contract UUID.
 	var contract models.ReContract
-	err := suite.DB().Where("code = ?", testContractCode).First(&contract)
+	err := suite.DB().Where("code = ?", contractCode).First(&contract)
 	suite.NoError(err)
 
 	var rateArea models.ReRateArea
@@ -167,42 +167,63 @@ func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_importRERateAre
 	err := gre.importREContract(suite.DB())
 	suite.NoError(err)
 
-	suite.T().Run("TC0: Successfully run import with staged staging data (empty RE tables)", func(t *testing.T) {
-		err := gre.importRERateArea(suite.DB())
+	suite.T().Run("Successfully run import with staged staging data (empty RE tables)", func(t *testing.T) {
+		err = gre.importRERateArea(suite.DB())
 		suite.NoError(err)
-		suite.helperImportRERateAreaVerifyImportComplete()
+		suite.helperImportRERateAreaVerifyImportComplete(testContractCode)
 
-		suite.helperVerifyDomesticRateAreaToIDMap(gre.domesticRateAreaToIDMap)
-		suite.helperVerifyInternationalRateAreaToIDMap(gre.internationalRateAreaToIDMap)
+		suite.helperVerifyDomesticRateAreaToIDMap(testContractCode, gre.domesticRateAreaToIDMap)
+		suite.helperVerifyInternationalRateAreaToIDMap(testContractCode, gre.internationalRateAreaToIDMap)
 	})
 
-	suite.T().Run("TC1: Successfully run import, 2nd time, with staged staging data and filled in RE tables", func(t *testing.T) {
-		err := gre.importRERateArea(suite.DB())
+	suite.T().Run("Successfully run import, 2nd time, with staged staging data and filled in RE tables", func(t *testing.T) {
+		err = gre.importRERateArea(suite.DB())
 		suite.NoError(err)
-		suite.helperImportRERateAreaVerifyImportComplete()
+		suite.helperImportRERateAreaVerifyImportComplete(testContractCode)
 
-		suite.helperVerifyDomesticRateAreaToIDMap(gre.domesticRateAreaToIDMap)
-		suite.helperVerifyInternationalRateAreaToIDMap(gre.internationalRateAreaToIDMap)
+		suite.helperVerifyDomesticRateAreaToIDMap(testContractCode, gre.domesticRateAreaToIDMap)
+		suite.helperVerifyInternationalRateAreaToIDMap(testContractCode, gre.internationalRateAreaToIDMap)
 	})
 
-	suite.T().Run("TC2: Successfully run import, prefilled re_rate_areas, update existing rate area from import", func(t *testing.T) {
-		suite.helperImportRERateAreaTC2("setup")
+	suite.T().Run("Successfully run import, prefilled re_rate_areas, update existing rate area from import", func(t *testing.T) {
+		suite.helperImportRERateArea("setup")
 
-		err := gre.importRERateArea(suite.DB())
+		err = gre.importRERateArea(suite.DB())
 		suite.NoError(err)
-		suite.helperImportRERateAreaVerifyImportComplete()
+		suite.helperImportRERateAreaVerifyImportComplete(testContractCode)
 
-		suite.helperVerifyDomesticRateAreaToIDMap(gre.domesticRateAreaToIDMap)
-		suite.helperVerifyInternationalRateAreaToIDMap(gre.internationalRateAreaToIDMap)
-		suite.helperImportRERateAreaTC2("verify")
+		suite.helperVerifyDomesticRateAreaToIDMap(testContractCode, gre.domesticRateAreaToIDMap)
+		suite.helperVerifyInternationalRateAreaToIDMap(testContractCode, gre.internationalRateAreaToIDMap)
+		suite.helperImportRERateArea("verify")
 	})
 
-	suite.T().Run("TC3: Fail to run import, missing staging table", func(t *testing.T) {
-		suite.helperImportRERateAreaTC3("setup")
+	suite.T().Run("Fail to run import, missing staging table", func(t *testing.T) {
+		suite.helperImportRERateAreaDropStage("setup")
 
-		err := gre.importRERateArea(suite.DB())
+		err = gre.importRERateArea(suite.DB())
 		suite.Error(err)
 
 		suite.helperSetupStagingTables()
+	})
+
+	gre2 := &GHCRateEngineImporter{
+		Logger:       suite.logger,
+		ContractCode: testContractCode2,
+	}
+
+	// Prerequisite tables must be loaded.
+	err = gre2.importREContract(suite.DB())
+	suite.NoError(err)
+
+	suite.T().Run("Run with a different contract code, should add new records", func(t *testing.T) {
+		err = gre2.importRERateArea(suite.DB())
+		suite.NoError(err)
+		suite.helperImportRERateAreaVerifyImportComplete(testContractCode2)
+
+		suite.helperVerifyDomesticRateAreaToIDMap(testContractCode2, gre2.domesticRateAreaToIDMap)
+		suite.helperVerifyInternationalRateAreaToIDMap(testContractCode2, gre2.internationalRateAreaToIDMap)
+
+		// Make sure the other contract's records are still there too.
+		suite.helperImportRERateAreaVerifyImportComplete(testContractCode)
 	})
 }
