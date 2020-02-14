@@ -212,6 +212,7 @@ commands:
           command: make server_test_build
           environment:
             APPLICATION: "<< parameters.application >>"
+            GOFLAGS: "-p=4"
       - run:
           name: make db_test_reset for <<parameters.application>>
           command: make db_test_reset
@@ -258,6 +259,7 @@ commands:
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
+            GOFLAGS: "-p=4"
             JUNIT: 1
             MIGRATION_MANIFEST: '/home/circleci/transcom/mymove/migrations/<< parameters.application >>/migrations_manifest.txt'
             MIGRATION_PATH: 'file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/schema;file:///home/circleci/transcom/mymove/migrations/<< parameters.application >>/secure'
