@@ -1,6 +1,7 @@
 {
   "plugins": ["prettier", "security", "no-only-tests"],
   "extends": ["react-app", "plugin:prettier/recommended", "plugin:security/recommended"],
+  "root": true,
   "rules": {
     "prettier/prettier": "error",
     "no-only-tests/no-only-tests": "error",
