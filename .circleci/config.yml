@@ -772,7 +772,10 @@ workflows:
     jobs:
       - pre_deps_golang
 
-      - pre_deps_yarn
+      - pre_deps_yarn:
+          filters:
+            branches:
+              ignore: cg_modify_server_tests_for_orders_application
 
       - check_generated_code:
           requires:
@@ -787,21 +790,33 @@ workflows:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+          filters:
+            branches:
+              ignore: cg_modify_server_tests_for_orders_application
 
       - acceptance_tests_local:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+          filters:
+            branches:
+              ignore: cg_modify_server_tests_for_orders_application
 
       - acceptance_tests_experimental:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+          filters:
+            branches:
+              ignore: cg_modify_server_tests_for_orders_application
 
       - acceptance_tests_staging:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+          filters:
+            branches:
+              ignore: cg_modify_server_tests_for_orders_application
 
       - integration_tests:
           requires:
@@ -814,7 +829,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: cg_modify_server_tests_for_orders_application
 
       - client_test:
           requires:
@@ -822,7 +837,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: cg_modify_server_tests_for_orders_application
 
       - server_test:
           requires:
@@ -830,7 +845,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: placeholder_branch_name
+              ignore: cg_modify_server_tests_for_orders_application
 
       - build_app:
           requires:
@@ -838,25 +853,40 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
             - acceptance_tests_local # don't bother building and pushing the application if it won't even start properly
+          filters:
+            branches:
+              ignore: cg_modify_server_tests_for_orders_application
 
       - build_storybook_app:
           requires:
             - anti_virus
             - pre_deps_yarn
+          filters:
+            branches:
+              ignore: cg_modify_server_tests_for_orders_application
 
       - build_tools:
           requires:
             - anti_virus
             - pre_deps_golang
+          filters:
+            branches:
+              ignore: cg_modify_server_tests_for_orders_application
 
       - build_migrations:
           requires:
             - anti_virus
             - pre_deps_golang
+          filters:
+            branches:
+              ignore: cg_modify_server_tests_for_orders_application
 
       - build_tasks:
           requires:
             - build_tools
+          filters:
+            branches:
+              ignore: cg_modify_server_tests_for_orders_application
 
       - deploy_experimental_migrations:
           requires:
