@@ -470,6 +470,7 @@ jobs:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}-{{ checksum "scripts/check-go-version" }}
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
+      - run: sudo apt-get update && sudo apt-get install -yy postgresql-client
       - run: make bin/go-junit-report
       - run: make bin/milmove
       - server_tests_step:
