@@ -406,7 +406,7 @@ server_test_standalone: ## Run server unit tests with no deps
 
 .PHONY: server_test_build
 server_test_build:
-	DRY_RUN=1 scripts/run-server-test
+	NO_DB=1 DRY_RUN=1 scripts/run-server-test
 
 .PHONY: server_test_all
 server_test_all: db_dev_reset db_dev_migrate ## Run all server unit tests
@@ -558,6 +558,7 @@ ifndef CIRCLECI
 		echo "No database container"
 else
 	@echo "Relying on CircleCI's database setup to destroy the DB."
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'DROP DATABASE IF EXISTS $(DB_NAME_TEST);'
 endif
 
 .PHONY: db_test_start
@@ -586,6 +587,7 @@ ifndef CIRCLECI
 		createdb -p $(DB_PORT_TEST) -h localhost -U postgres $(DB_NAME_TEST) || true
 else
 	@echo "Relying on CircleCI's database setup to create the DB."
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'CREATE DATABASE $(DB_NAME_TEST);'
 endif
 
 .PHONY: db_test_run
