@@ -26,11 +26,20 @@ else
   exit 1
 fi
 
+verbose_flag=""
+parallel=8
+if [ -n "${CIRCLECI+x}" ]; then
+	# Limit the maximum number of tests to run in parallel for CircleCI due to memory constraints.
+  parallel=4
+	# Add verbose (-v) so go-junit-report can parse it for CircleCI results
+  verbose_flag="-v"
+fi
+
 # Try to compile tests, but don't run them.
 if [[ "${DRY_RUN:-}" == "1" ]]; then
   echo "Compiling tests only, not running"
   # shellcheck disable=SC2086
-	go test -run=nope -count 1 ${package_list}
+	go test -run=nope -parallel ${parallel} -count 1 ${package_list}
   exit 0
 fi
 
@@ -73,12 +82,5 @@ if [[ "${JUNIT:-}" == "1" ]]; then
   trap junit_cleanup EXIT
 fi
 
-if [ -n "${CIRCLECI+x}" ]; then
-	# Limit the maximum number of tests to run in parallel for CircleCI due to memory constraints.
-	# Add verbose (-v) so go-junit-report can parse it for CircleCI results
-  # shellcheck disable=SC2086
-	DB_NAME="${DB_NAME_TEST}" DB_PORT="${DB_PORT_TEST}" go test -v -parallel 4 -count 1 ${coverage_flag} ${short_flag} ${package_list} | tee "${test_output_file}"
-else
-  # shellcheck disable=SC2086
-	DB_NAME="${DB_NAME_TEST}" DB_PORT="${DB_PORT_TEST}" go test -parallel 8 -count 1 ${coverage_flag} ${short_flag} ${package_list} | tee "${test_output_file}"
-fi
+# shellcheck disable=SC2086
+DB_NAME="${DB_NAME_TEST}" DB_PORT="${DB_PORT_TEST}" go test -parallel "${parallel}" -count 1 ${verbose_flag} ${coverage_flag} ${short_flag} ${package_list} | tee "${test_output_file}"
