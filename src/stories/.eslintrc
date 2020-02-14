@@ -10,7 +10,7 @@
     "react/jsx-curly-brace-presence": "error",
   },
   "overrides": [{
-    "files": ["*.stories.js"],
+    "files": ["*.stories.js", "*.stories.jsx"],
     "rules": {
       "import/no-extraneous-dependencies": "off",
     }
