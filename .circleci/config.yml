@@ -202,7 +202,7 @@ commands:
           name: 'Describe image scan findings'
           command: scripts/ecr-describe-image-scan-findings << parameters.repo >> ${CIRCLE_SHA1}
 
-  server_tests:
+  server_tests_step:
     parameters:
       application:
         type: string
@@ -456,9 +456,9 @@ jobs:
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: make bin/go-junit-report
       - run: make bin/milmove
-      - server_tests:
+      - server_tests_step:
           application: app
-      - server_tests:
+      - server_tests_step:
           application: orders
       - store_artifacts:
           path: ~/transcom/mymove/tmp/test-results
