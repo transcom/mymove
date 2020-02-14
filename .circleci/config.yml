@@ -780,6 +780,9 @@ workflows:
       - check_generated_code:
           requires:
             - pre_deps_golang
+          filters:
+            branches:
+              ignore: cg_modify_server_tests_for_orders_application
 
       - anti_virus:
           filters:
@@ -845,7 +848,7 @@ workflows:
           # if testing on experimental, you can disable these tests by using the commented block below.
           filters:
             branches:
-              ignore: cg_modify_server_tests_for_orders_application
+              ignore: placeholder_branch_name
 
       - build_app:
           requires:
