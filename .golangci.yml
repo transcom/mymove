@@ -15,21 +15,23 @@ linters-settings:
 
 linters:
   enable:
-    - gosec
-    - golint
+    - deadcode
     - gofmt
     - goimports
+    - golint
+    - gosec
     - govet
-    - varcheck
-    - typecheck
-    - structcheck
-    - deadcode
     - ineffassign
+    - structcheck
+    - typecheck
+    - varcheck
   disable:
-    - unused #deprecated https://github.com/dominikh/go-tools/tree/master/cmd/unused
-    - gosimple #deprecated https://github.com/golangci/golangci-lint/issues/357
     - errcheck #requires patching code
     - staticcheck # 30+files need to be patched
+    - gosimple #deprecated https://github.com/golangci/golangci-lint/issues/357
+    - unused #deprecated https://github.com/dominikh/go-tools/tree/master/cmd/unused
+  fast: false
+
 issues:
   exclude-rules:
     # skip analyzing dutystationsloader until repeated tags from embedded types are fixed https://github.com/golang/go/issues/30846
@@ -37,13 +39,16 @@ issues:
       linters:
         - govet
   fix: true
+
 run:
   # timeout for analysis, e.g. 30s, 5m, default is 1m
   deadline: 8m
   concurrency: 1
-
-# which dirs to skip: they won't be analyzed;
+  issues-exit-code: 1
+  tests: true
   skip-dirs:
     - pkg/assets
     - pkg/gen
     - mocks
+  skip-dirs-use-default: true
+  modules-download-mode: readonly
