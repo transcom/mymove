@@ -111,6 +111,11 @@ paths:
         name: moveTaskOrderID
         required: true
         type: string
+      - in: header
+        name: If-Unmodified-Since
+        type: string
+        format: datetime
+        required: true
     patch:
       consumes:
         - application/json
@@ -123,16 +128,8 @@ paths:
           schema:
             type: object
             properties:
-              scheduled-move-date:
-                type: string
-                format: date
-                example: '2018-04-26'
-              secondary-pickup-address:
-                $ref: '#/definitions/Address'
-              secondary-delivery-address:
-                $ref: '#/definitions/Address'
-              ppm-is-included:
-                type: boolean
+              personally_procured_move:
+                $ref: '#/definitions/PersonallyProcuredMove'
       responses:
         '200':
           description: Successfully updated move task order post counseling information
@@ -162,7 +159,7 @@ paths:
         - moveTaskOrder
         - prime
       description: Updates move task order's post counseling information
-      operationId: updateMoveTaskOrderPostCounselingInformation
+      operationId: updateMTOPostCounselingInformation
       summary: Updates move task order's post counseling information
   '/move-task-orders/{moveTaskOrderID}/destination-address':
     parameters:
@@ -948,6 +945,20 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/PaymentRequest'
+  PersonallyProcuredMove:
+    type: object
+    properties:
+      id:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        format: uuid
+        type: string
+      type:
+        type: string
+        enum:
+          - FULL
+          - PARTIAL
+      estimated_weight:
+        type: integer
   ServiceItem:
     properties:
       id:

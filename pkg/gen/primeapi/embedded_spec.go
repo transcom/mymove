@@ -332,7 +332,7 @@ func init() {
           "prime"
         ],
         "summary": "Updates move task order's post counseling information",
-        "operationId": "updateMoveTaskOrderPostCounselingInformation",
+        "operationId": "updateMTOPostCounselingInformation",
         "parameters": [
           {
             "name": "body",
@@ -341,19 +341,8 @@ func init() {
             "schema": {
               "type": "object",
               "properties": {
-                "ppm-is-included": {
-                  "type": "boolean"
-                },
-                "scheduled-move-date": {
-                  "type": "string",
-                  "format": "date",
-                  "example": "2018-04-26"
-                },
-                "secondary-delivery-address": {
-                  "$ref": "#/definitions/Address"
-                },
-                "secondary-pickup-address": {
-                  "$ref": "#/definitions/Address"
+                "personally_procured_move": {
+                  "$ref": "#/definitions/PersonallyProcuredMove"
                 }
               }
             }
@@ -404,6 +393,13 @@ func init() {
           "description": "ID of move order to use",
           "name": "moveTaskOrderID",
           "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "datetime",
+          "name": "If-Unmodified-Since",
+          "in": "header",
           "required": true
         }
       ]
@@ -1324,6 +1320,26 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/PaymentRequest"
+      }
+    },
+    "PersonallyProcuredMove": {
+      "type": "object",
+      "properties": {
+        "estimated_weight": {
+          "type": "integer"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
+        }
       }
     },
     "ProofOfServiceDocs": {
@@ -1819,7 +1835,7 @@ func init() {
           "prime"
         ],
         "summary": "Updates move task order's post counseling information",
-        "operationId": "updateMoveTaskOrderPostCounselingInformation",
+        "operationId": "updateMTOPostCounselingInformation",
         "parameters": [
           {
             "name": "body",
@@ -1828,19 +1844,8 @@ func init() {
             "schema": {
               "type": "object",
               "properties": {
-                "ppm-is-included": {
-                  "type": "boolean"
-                },
-                "scheduled-move-date": {
-                  "type": "string",
-                  "format": "date",
-                  "example": "2018-04-26"
-                },
-                "secondary-delivery-address": {
-                  "$ref": "#/definitions/Address"
-                },
-                "secondary-pickup-address": {
-                  "$ref": "#/definitions/Address"
+                "personally_procured_move": {
+                  "$ref": "#/definitions/PersonallyProcuredMove"
                 }
               }
             }
@@ -1903,6 +1908,13 @@ func init() {
           "description": "ID of move order to use",
           "name": "moveTaskOrderID",
           "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "datetime",
+          "name": "If-Unmodified-Since",
+          "in": "header",
           "required": true
         }
       ]
@@ -2895,6 +2907,26 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/PaymentRequest"
+      }
+    },
+    "PersonallyProcuredMove": {
+      "type": "object",
+      "properties": {
+        "estimated_weight": {
+          "type": "integer"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "FULL",
+            "PARTIAL"
+          ]
+        }
       }
     },
     "ProofOfServiceDocs": {

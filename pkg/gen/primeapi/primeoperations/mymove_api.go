@@ -58,6 +58,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MoveTaskOrderGetPrimeEntitlementsHandler: move_task_order.GetPrimeEntitlementsHandlerFunc(func(params move_task_order.GetPrimeEntitlementsParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderGetPrimeEntitlements has not yet been implemented")
 		}),
+		MoveTaskOrderUpdateMTOPostCounselingInformationHandler: move_task_order.UpdateMTOPostCounselingInformationHandlerFunc(func(params move_task_order.UpdateMTOPostCounselingInformationParams) middleware.Responder {
+			return middleware.NotImplemented("operation MoveTaskOrderUpdateMTOPostCounselingInformation has not yet been implemented")
+		}),
 		MtoShipmentUpdateMTOShipmentHandler: mto_shipment.UpdateMTOShipmentHandlerFunc(func(params mto_shipment.UpdateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation MtoShipmentUpdateMTOShipment has not yet been implemented")
 		}),
@@ -69,9 +72,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MoveTaskOrderUpdateMoveTaskOrderEstimatedWeightHandler: move_task_order.UpdateMoveTaskOrderEstimatedWeightHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderEstimatedWeightParams) middleware.Responder {
 			return middleware.NotImplemented("operation MoveTaskOrderUpdateMoveTaskOrderEstimatedWeight has not yet been implemented")
-		}),
-		MoveTaskOrderUpdateMoveTaskOrderPostCounselingInformationHandler: move_task_order.UpdateMoveTaskOrderPostCounselingInformationHandlerFunc(func(params move_task_order.UpdateMoveTaskOrderPostCounselingInformationParams) middleware.Responder {
-			return middleware.NotImplemented("operation MoveTaskOrderUpdateMoveTaskOrderPostCounselingInformation has not yet been implemented")
 		}),
 	}
 }
@@ -116,6 +116,8 @@ type MymoveAPI struct {
 	MoveTaskOrderGetMoveTaskOrderCustomerHandler move_task_order.GetMoveTaskOrderCustomerHandler
 	// MoveTaskOrderGetPrimeEntitlementsHandler sets the operation handler for the get prime entitlements operation
 	MoveTaskOrderGetPrimeEntitlementsHandler move_task_order.GetPrimeEntitlementsHandler
+	// MoveTaskOrderUpdateMTOPostCounselingInformationHandler sets the operation handler for the update m t o post counseling information operation
+	MoveTaskOrderUpdateMTOPostCounselingInformationHandler move_task_order.UpdateMTOPostCounselingInformationHandler
 	// MtoShipmentUpdateMTOShipmentHandler sets the operation handler for the update m t o shipment operation
 	MtoShipmentUpdateMTOShipmentHandler mto_shipment.UpdateMTOShipmentHandler
 	// MoveTaskOrderUpdateMoveTaskOrderActualWeightHandler sets the operation handler for the update move task order actual weight operation
@@ -124,8 +126,6 @@ type MymoveAPI struct {
 	MoveTaskOrderUpdateMoveTaskOrderDestinationAddressHandler move_task_order.UpdateMoveTaskOrderDestinationAddressHandler
 	// MoveTaskOrderUpdateMoveTaskOrderEstimatedWeightHandler sets the operation handler for the update move task order estimated weight operation
 	MoveTaskOrderUpdateMoveTaskOrderEstimatedWeightHandler move_task_order.UpdateMoveTaskOrderEstimatedWeightHandler
-	// MoveTaskOrderUpdateMoveTaskOrderPostCounselingInformationHandler sets the operation handler for the update move task order post counseling information operation
-	MoveTaskOrderUpdateMoveTaskOrderPostCounselingInformationHandler move_task_order.UpdateMoveTaskOrderPostCounselingInformationHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -213,6 +213,10 @@ func (o *MymoveAPI) Validate() error {
 		unregistered = append(unregistered, "move_task_order.GetPrimeEntitlementsHandler")
 	}
 
+	if o.MoveTaskOrderUpdateMTOPostCounselingInformationHandler == nil {
+		unregistered = append(unregistered, "move_task_order.UpdateMTOPostCounselingInformationHandler")
+	}
+
 	if o.MtoShipmentUpdateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.UpdateMTOShipmentHandler")
 	}
@@ -227,10 +231,6 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.MoveTaskOrderUpdateMoveTaskOrderEstimatedWeightHandler == nil {
 		unregistered = append(unregistered, "move_task_order.UpdateMoveTaskOrderEstimatedWeightHandler")
-	}
-
-	if o.MoveTaskOrderUpdateMoveTaskOrderPostCounselingInformationHandler == nil {
-		unregistered = append(unregistered, "move_task_order.UpdateMoveTaskOrderPostCounselingInformationHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -359,6 +359,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	}
 	o.handlers["GET"]["/move-task-orders/{moveTaskOrderID}/prime-entitlements"] = move_task_order.NewGetPrimeEntitlements(o.context, o.MoveTaskOrderGetPrimeEntitlementsHandler)
 
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/post-counseling-info"] = move_task_order.NewUpdateMTOPostCounselingInformation(o.context, o.MoveTaskOrderUpdateMTOPostCounselingInformationHandler)
+
 	if o.handlers["PUT"] == nil {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
@@ -378,11 +383,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/prime-estimated-weight"] = move_task_order.NewUpdateMoveTaskOrderEstimatedWeight(o.context, o.MoveTaskOrderUpdateMoveTaskOrderEstimatedWeightHandler)
-
-	if o.handlers["PATCH"] == nil {
-		o.handlers["PATCH"] = make(map[string]http.Handler)
-	}
-	o.handlers["PATCH"]["/move-task-orders/{moveTaskOrderID}/post-counseling-info"] = move_task_order.NewUpdateMoveTaskOrderPostCounselingInformation(o.context, o.MoveTaskOrderUpdateMoveTaskOrderPostCounselingInformationHandler)
 
 }
 
