@@ -50,6 +50,7 @@ var servicesToEntryPoints = map[string][]string{
 	"app-tasks": {
 		fmt.Sprintf("%s save-fuel-price-data", binMilMoveTasks),
 		fmt.Sprintf("%s send-post-move-survey", binMilMoveTasks),
+		fmt.Sprintf("%s send-payment-reminder", binMilMoveTasks),
 	},
 }
 

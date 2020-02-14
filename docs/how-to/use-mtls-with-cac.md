@@ -74,7 +74,7 @@ cp tmp/20190822181328_cgilmer_cac.up.sql migrations/app/secure/
 update-migrations-manifest
 ```
 
-Change the migration sql file update the `CN` field with your GitHub username. Your name and EPIDI should not be checked into git.
+Change the migration sql file for Devlocal only and update the `CN` field with your GitHub username. Your name and EPIDI should not be checked into git (however, your staging and experimental migration files should continue to have your name and EPIDI in the format `CN=LAST.FIRST.MIDDLE.EDIPI,...`).
 
 Example:
 
@@ -139,7 +139,7 @@ ENVIRONMENTS="experimental staging" ./scripts/upload-secure-migration tmp/202002
 For `prod` **do not** upload the same file. Instead we'll upload a stub file as a place holder since the migration process will be looking for such a file in `prod` environment.
 
 ```bash
-echo "This is a stub file for user X" >> migrations/app/secure/20200211150405_mr337_cac.up.sql
+echo "-- This is a stub file for user X" >> local_migrations/20200211150405_mr337_cac.up.sql
 ENVIRONMENTS=prod ./scripts/upload-secure-migration local_migrations/20200211150405_mr337_cac.up.sql
 ```
 
