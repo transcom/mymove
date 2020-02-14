@@ -161,7 +161,7 @@ client_deps: .check_hosts.stamp .check_node_version.stamp .client_deps.stamp ## 
 .PHONY: client_build
 client_build: .client_deps.stamp .client_build.stamp ## Build the client
 
-build/index.html: ## milmove serve requires this file to boot, but it isn't used during local development
+build/index.html: ## milmove serve_app requires this file to boot, but it isn't used during local development
 	mkdir -p build
 	touch build/index.html
 
@@ -306,7 +306,7 @@ server_build: bin/milmove ## Build the server
 # This command is for running the server by itself, it will serve the compiled frontend on its own
 # Note: Don't double wrap with aws-vault because the pkg/cli/vault.go will handle it
 server_run_standalone: check_log_dir server_build client_build db_dev_run
-	DEBUG_LOGGING=true ./bin/milmove serve 2>&1 | tee -a log/dev.log
+	DEBUG_LOGGING=true ./bin/milmove serve_${APPLICATION} 2>&1 | tee -a log/dev.log
 
 # This command will rebuild the swagger go code and rerun server on any changes
 server_run:
@@ -323,7 +323,7 @@ server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.sta
 		--excludeDir node_modules \
 		--immediate \
 		--buildArgs "-i -ldflags=\"$(WEBSERVER_LDFLAGS)\"" \
-		serve \
+		serve_${APPLICATION} \
 		2>&1 | tee -a log/dev.log
 
 .PHONY: server_run_debug
@@ -402,36 +402,24 @@ server_test: db_test_reset db_test_migrate server_test_standalone ## Run server 
 
 .PHONY: server_test_standalone
 server_test_standalone: ## Run server unit tests with no deps
-	# Don't run tests in /cmd or /pkg/gen/ or mocks
-	# Pass `-short` to exclude long running tests
-	# Disable test caching with `-count 1` - caching was masking local test failures
-ifndef CIRCLECI
-	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) go test -parallel 8 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
-else
-	# Limit the maximum number of tests to run in parallel for CircleCI due to memory constraints.
-	# Add verbose (-v) so go-junit-report can parse it for CircleCI results
-	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) go test -v -parallel 4 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
-endif
+	NO_DB=1 scripts/run-server-test
 
+.PHONY: server_test_build
 server_test_build:
-	# Try to compile tests, but don't run them.
-	go test -run=nope -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
+	DRY_RUN=1 scripts/run-server-test
 
 .PHONY: server_test_all
 server_test_all: db_dev_reset db_dev_migrate ## Run all server unit tests
 	# Like server_test but runs extended tests that may hit external services.
-	DB_PORT=$(DB_PORT_TEST) go test -parallel 4 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
+	LONG_TEST=1 scripts/run-server-test
 
 .PHONY: server_test_coverage_generate
 server_test_coverage_generate: db_test_reset db_test_migrate server_test_coverage_generate_standalone ## Run server unit test coverage
 
 .PHONY: server_test_coverage_generate_standalone
 server_test_coverage_generate_standalone: ## Run server unit tests with coverage and no deps
-	# Don't run tests in /cmd or /pkg/gen
-	# Use -test.parallel 1 to test packages serially and avoid database collisions
-	# Disable test caching with `-count 1` - caching was masking local test failures
 	# Add coverage tracker via go cover
-	DB_PORT=$(DB_PORT_TEST) go test -coverprofile=coverage.out -covermode=count -parallel 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/ | grep -v mocks)
+	NO_DB=1 COVERAGE=1 scripts/run-server-test
 
 .PHONY: server_test_coverage
 server_test_coverage: db_test_reset db_test_migrate server_test_coverage_generate ## Run server unit test coverage with html output
@@ -443,7 +431,7 @@ server_test_docker:
 
 .PHONY: server_test_docker_down
 server_test_docker_down:
-	docker-compose -f docker-compose.circle.yml down
+	docker-compose -f docker-compose.circle.yml --compatibility down
 
 #
 # ----- END SERVER TARGETS -----
