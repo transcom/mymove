@@ -39,7 +39,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREShipmentTypePrices() {
 }
 
 func (suite *GHCRateEngineImportSuite) helperVerifyShipmentTypePrices() {
-	count, err := suite.DB().Count(&models.ReShipmentTypePrices{})
+	count, err := suite.DB().Count(&models.ReShipmentTypePrice{})
 	suite.NoError(err)
 	suite.Equal(7, count)
 }
