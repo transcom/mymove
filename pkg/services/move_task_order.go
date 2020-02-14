@@ -2,7 +2,7 @@ package services
 
 import (
 	"github.com/gofrs/uuid"
-
+	movetaskorderops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -17,5 +17,5 @@ type MoveTaskOrderFetcher interface {
 //go:generate mockery -name MoveTaskOrderUpdater
 type MoveTaskOrderUpdater interface {
 	MakeAvailableToPrime(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error)
-	UpdateMTOPersonallyProcuredMove(moveTaskOrderID uuid.UUID, personallyProcuredMoveID uuid.UUID) (*models.MoveTaskOrder, error)
+	UpdateMTOWithPersonallyProcuredMove(params movetaskorderops.UpdateMTOPostCounselingInformationParams) (*models.MoveTaskOrder, error)
 }

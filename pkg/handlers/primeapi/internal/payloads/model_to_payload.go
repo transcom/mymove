@@ -2,7 +2,6 @@ package payloads
 
 import (
 	"github.com/go-openapi/strfmt"
-
 	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -14,17 +13,19 @@ func MoveTaskOrder(moveTaskOrder *models.MoveTaskOrder) *primemessages.MoveTaskO
 	paymentRequests := PaymentRequests(&moveTaskOrder.PaymentRequests)
 	mtoServiceItems := MTOServiceItems(&moveTaskOrder.MTOServiceItems)
 	mtoShipments := MTOShipments(&moveTaskOrder.MTOShipments)
+	ppm := PPM(moveTaskOrder.PersonallyProcuredMove)
 	payload := &primemessages.MoveTaskOrder{
-		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
-		CreatedAt:          strfmt.Date(moveTaskOrder.CreatedAt),
-		IsAvailableToPrime: &moveTaskOrder.IsAvailableToPrime,
-		IsCanceled:         &moveTaskOrder.IsCanceled,
-		MoveOrderID:        strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
-		ReferenceID:        moveTaskOrder.ReferenceID,
-		PaymentRequests:    paymentRequests,
-		MtoServiceItems:    mtoServiceItems,
-		MtoShipments:       *mtoShipments,
-		UpdatedAt:          strfmt.Date(moveTaskOrder.UpdatedAt),
+		ID:                     strfmt.UUID(moveTaskOrder.ID.String()),
+		CreatedAt:              strfmt.Date(moveTaskOrder.CreatedAt),
+		IsAvailableToPrime:     &moveTaskOrder.IsAvailableToPrime,
+		IsCanceled:             &moveTaskOrder.IsCanceled,
+		MoveOrderID:            strfmt.UUID(moveTaskOrder.MoveOrderID.String()),
+		ReferenceID:            moveTaskOrder.ReferenceID,
+		PaymentRequests:        paymentRequests,
+		PersonallyProcuredMove: ppm,
+		MtoServiceItems:        mtoServiceItems,
+		MtoShipments:           *mtoShipments,
+		UpdatedAt:              strfmt.Date(moveTaskOrder.UpdatedAt),
 	}
 	return payload
 }
@@ -154,6 +155,14 @@ func PaymentRequests(paymentRequests *[]models.PaymentRequest) []*primemessages.
 		payload[i] = PaymentRequest(&p)
 	}
 	return payload
+}
+
+func PPM(personallyProcuredMove *models.PersonallyProcuredMove) *primemessages.PersonallyProcuredMove {
+	return &primemessages.PersonallyProcuredMove{
+		EstimatedWeight: personallyProcuredMove.WeightEstimate.Int64(),
+		ID:              strfmt.UUID(personallyProcuredMove.ID.String()),
+		Type:            *personallyProcuredMove.Type,
+	}
 }
 
 func MTOShipment(mtoShipment *models.MTOShipment) *primemessages.MTOShipment {

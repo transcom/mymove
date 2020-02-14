@@ -1,6 +1,5 @@
 package personally_procured_move
 
-
 import (
 	"database/sql"
 	"fmt"
@@ -62,8 +61,8 @@ type personallyProcuredMoveFetcher struct {
 	db *pop.Connection
 }
 
-// NewMoveTaskOrderFetcher creates a new struct with the service dependencies
-func NewMoveTaskOrderFetcher(db *pop.Connection) services.PersonallyProcuredMoveFetcher {
+// NewPersonallyProcuredMoveFetcher creates a new struct with the service dependencies
+func NewPersonallyProcuredMoveFetcher(db *pop.Connection) services.PersonallyProcuredMoveFetcher {
 	return &personallyProcuredMoveFetcher{db}
 }
 

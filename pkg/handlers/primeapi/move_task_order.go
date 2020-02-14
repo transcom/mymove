@@ -2,6 +2,7 @@ package primeapi
 
 import (
 	"github.com/transcom/mymove/pkg/services"
+	movetaskorderservice "github.com/transcom/mymove/pkg/services/move_task_order"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -49,8 +50,19 @@ type UpdateMTOPostCounselingInfoHandler struct {
 }
 
 func (h UpdateMTOPostCounselingInfoHandler) Handle(params movetaskorderops.UpdateMTOPostCounselingInformationParams) middleware.Responder {
-	//var mtos models.MoveTaskOrders
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	mto, err := h.mtoUpdater.UpdateMTOWithPersonallyProcuredMove(params)
 
-	//payload := payloads.MoveTaskOrders(&mtos)
-	return movetaskorderops.NewUpdateMTOPostCounselingInformationOK()
+	if err != nil {
+		logger.Error("primeAPI.UpdateMTOPostCounselingInfoHandler error", zap.Error(err))
+		switch err.(type) {
+		case movetaskorderservice.ErrNotFound:
+			return movetaskorderops.NewUpdateMTOPostCounselingInformationNotFound()
+		case movetaskorderservice.ErrInvalidInput:
+			return movetaskorderops.NewUpdateMTOPostCounselingInformationUnprocessableEntity()
+		}
+	}
+
+	payload := payloads.MoveTaskOrder(mto)
+	return movetaskorderops.NewUpdateMTOPostCounselingInformationOK().WithPayload(payload)
 }

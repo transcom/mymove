@@ -1,9 +1,9 @@
 package services
 
 import (
-"github.com/gofrs/uuid"
+	"github.com/gofrs/uuid"
 
-"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 // PersonallyProcuredMoveFetcher is the service object interface for FetchPersonallyProcuredMove

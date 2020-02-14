@@ -81,6 +81,7 @@ type PersonallyProcuredMove struct {
 	TotalSITCost                  *unit.Cents                  `json:"total_sit_cost" db:"total_sit_cost"`
 	HasProGear                    *ProGearStatus               `json:"has_pro_gear" db:"has_pro_gear"`
 	HasProGearOverThousand        *ProGearStatus               `json:"has_pro_gear_over_thousand" db:"has_pro_gear_over_thousand"`
+	Type                          *string                      `json:"type" db:"type"`
 }
 
 // PersonallyProcuredMoves is a list of PPMs

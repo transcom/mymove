@@ -3,13 +3,18 @@ package movetaskorder
 import (
 	"database/sql"
 	"fmt"
+	"github.com/go-openapi/strfmt"
+	movetaskorderops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/move_task_order"
+	"github.com/transcom/mymove/pkg/gen/primemessages"
 	"strings"
+	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	ppmService "github.com/transcom/mymove/pkg/services/personally_procured_move"
 )
 
 //ErrNotFound is returned when a given move task order is not found
@@ -40,6 +45,17 @@ func NewErrInvalidInput(id uuid.UUID, err error, validationErrors map[string][]s
 			validationErrors: validationErrors,
 		},
 	}
+}
+
+//ErrPreconditionFailed is returned when a given mto shipment if attempting to update after the if-unmodified-since date
+type ErrPreconditionFailed struct {
+	id              uuid.UUID
+	unmodifiedSince time.Time
+	message         string
+}
+
+func (e ErrPreconditionFailed) Error() string {
+	return fmt.Sprintf("%s %s can not be updated after date %s", e.message, e.id.String(), strfmt.Date(e.unmodifiedSince))
 }
 
 func (e ErrInvalidInput) Error() string {
@@ -136,12 +152,11 @@ func (f moveTaskOrderFetcher) createDefaultServiceItems(mto *models.MoveTaskOrde
 type moveTaskOrderUpdater struct {
 	db *pop.Connection
 	moveTaskOrderFetcher
-	//services.PersonallyProcuredMoveFetcher
 }
 
-// NewMoveTaskOrderFetcher creates a new struct with the service dependencies
+// NewMoveTaskOrderUpdater creates a new struct with the service dependencies
 func NewMoveTaskOrderUpdater(db *pop.Connection) services.MoveTaskOrderUpdater {
-	return &moveTaskOrderUpdater{db, moveTaskOrderFetcher{db},}
+	return &moveTaskOrderUpdater{db, moveTaskOrderFetcher{db}}
 }
 
 //MakeAvailableToPrime updates the status of a MoveTaskOrder for a given UUID to make it available to prime
@@ -161,12 +176,67 @@ func (f moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID) (*
 	return mto, nil
 }
 
-func (f moveTaskOrderUpdater) UpdateMTOPersonallyProcuredMove(moveTaskOrderID uuid.UUID, personallyProcuredMoveID uuid.UUID) (*models.MoveTaskOrder, error) {
-	//ppm, err := f.PersonallyProcuredMoveFetcher.FetchPersonallyProcuredMove(personallyProcuredMoveID)
-	mto, err := f.FetchMoveTaskOrder(moveTaskOrderID)
+// UpdateMTOWithPersonallyProcuredMove updates the PPM's estimated weight and type and associates it to the MTO if it is not already
+func (f moveTaskOrderUpdater) UpdateMTOWithPersonallyProcuredMove(params movetaskorderops.UpdateMTOPostCounselingInformationParams) (*models.MoveTaskOrder, error) {
+	mtoID := uuid.FromStringOrNil(params.MoveTaskOrderID)
+	unmodifiedSince := time.Time(params.IfUnmodifiedSince)
+	newPPMInfo := params.Body.PersonallyProcuredMove
+
+	_, ppmErr := ppmService.NewPersonallyProcuredMoveFetcher(f.db).FetchPersonallyProcuredMove(uuid.FromStringOrNil(newPPMInfo.ID.String()))
+
+	if ppmErr != nil {
+		return &models.MoveTaskOrder{}, ppmErr
+	}
+
+	mto, err := f.FetchMoveTaskOrder(mtoID)
 	if err != nil {
 		return &models.MoveTaskOrder{}, err
 	}
-
+	err = updateMTOWithPersonallyProcuredMove(f.db, mtoID, unmodifiedSince, newPPMInfo)
 	return mto, nil
+}
+
+// updateMTOWithPersonallyProcuredMove updates the PPM with the info in the body and then associates it with the MTO
+func updateMTOWithPersonallyProcuredMove(db *pop.Connection, mtoID uuid.UUID, unmodifiedSince time.Time, newPPMInfo *primemessages.PersonallyProcuredMove) error {
+	ppmQuery := `UPDATE personally_procured_moves,
+		SET type = ?,
+			weight_estimate = ?,
+			updated_at = NOW()
+		WHERE
+			id = ?
+		AND
+			updated_at = ?
+		;`
+
+	affectedRows, err := db.RawQuery(ppmQuery, newPPMInfo.Type, newPPMInfo.EstimatedWeight, newPPMInfo.ID, unmodifiedSince).ExecWithCount()
+
+	if err != nil {
+		return err
+	}
+
+	if affectedRows != 1 {
+		return ErrPreconditionFailed{message: "PPM", id: uuid.FromStringOrNil(newPPMInfo.ID.String()), unmodifiedSince: unmodifiedSince}
+	}
+
+	mtoQuery := `UPDATE move_task_orders,
+		SET personally_procured_move_id = ?,
+			updated_at = NOW()
+		WHERE
+			id = ?
+		AND
+			updated_at = ?
+		;
+	`
+
+	affectedRows2, err2 := db.RawQuery(mtoQuery, newPPMInfo.ID, mtoID, unmodifiedSince).ExecWithCount()
+
+	if err2 != nil {
+		return err
+	}
+
+	if affectedRows2 != 1 {
+		return ErrPreconditionFailed{message: "MTO", id: uuid.FromStringOrNil(mtoID.String()), unmodifiedSince: unmodifiedSince}
+	}
+
+	return nil
 }
