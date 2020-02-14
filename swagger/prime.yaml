@@ -835,6 +835,9 @@ definitions:
       requestedPickupDate:
         format: date
         type: string
+      firstAvailableDeliveryDate:
+        format: date
+        type: string
       primeActualWeight:
         type: integer
       customerRemarks:

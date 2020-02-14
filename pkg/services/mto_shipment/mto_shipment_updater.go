@@ -138,6 +138,7 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 	basicQuery := `UPDATE mto_shipments
 		SET scheduled_pickup_date = ?,
 			requested_pickup_date = ?,
+			first_available_delivery_date = ?,
 			shipment_type = ?,
 			pickup_address_id = ?,
 			destination_address_id = ?,
@@ -163,6 +164,7 @@ func updateMTOShipment(db *pop.Connection, mtoShipmentID uuid.UUID, unmodifiedSi
 	affectedRows, err := db.RawQuery(finishedQuery,
 		updatedShipment.ScheduledPickupDate,
 		updatedShipment.RequestedPickupDate,
+		updatedShipment.FirstAvailableDeliveryDate,
 		updatedShipment.ShipmentType,
 		updatedShipment.PickupAddress.ID,
 		updatedShipment.DestinationAddress.ID,

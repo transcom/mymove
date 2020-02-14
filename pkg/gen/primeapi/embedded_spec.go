@@ -1129,6 +1129,10 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
+        "firstAvailableDeliveryDate": {
+          "type": "string",
+          "format": "date"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -2699,6 +2703,10 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "firstAvailableDeliveryDate": {
+          "type": "string",
+          "format": "date"
         },
         "id": {
           "type": "string",
