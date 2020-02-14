@@ -156,10 +156,18 @@ func summarizeXlsxStageParsing(db *pop.Connection) error {
 
 	// 1b Service Areas
 	stageDomServiceAreas := []models.StageDomesticServiceArea{}
-	if err := db.All(&stageDomServiceAreas); err != nil {
+	// if err := db.All(&stageDomServiceAreas); err != nil {
+	// 	return err
+	// }
+	// length := len(stageDomServiceAreas)
+	length, err := db.Count(models.StageDomesticServiceArea{})
+	if err != nil {
 		return err
 	}
-	length := len(stageDomServiceAreas)
+
+	// How to consistently get two records back first and last
+	// How to count only unique records
+
 	log.Printf("   1b: Service Areas (StageDomesticServiceArea): %d\n", length)
 	log.Printf("     first: %+v\n", stageDomServiceAreas[0])
 	log.Printf("      last: %+v\n", stageDomServiceAreas[length-1])
