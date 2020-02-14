@@ -1,6 +1,7 @@
 package primeapi
 
 import (
+	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"log"
 	"net/http"
 
@@ -26,6 +27,8 @@ func NewPrimeAPIHandler(context handlers.HandlerContext) http.Handler {
 	primeAPI.MoveTaskOrderFetchMTOUpdatesHandler = FetchMTOUpdatesHandler{
 		context,
 	}
+
+	primeAPI.MoveTaskOrderUpdateMTOPostCounselingInformationHandler = UpdateMTOPostCounselingInfoHandler{context, movetaskorder.NewMoveTaskOrderUpdater(context.DB())}
 
 	primeAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
 		context,

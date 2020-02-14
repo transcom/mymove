@@ -133,18 +133,19 @@ func (f moveTaskOrderFetcher) createDefaultServiceItems(mto *models.MoveTaskOrde
 	return nil
 }
 
-type moveTaskOrderStatusUpdater struct {
+type moveTaskOrderUpdater struct {
 	db *pop.Connection
 	moveTaskOrderFetcher
+	//services.PersonallyProcuredMoveFetcher
 }
 
 // NewMoveTaskOrderFetcher creates a new struct with the service dependencies
-func NewMoveTaskOrderStatusUpdater(db *pop.Connection) services.MoveTaskOrderUpdater {
-	return &moveTaskOrderStatusUpdater{db, moveTaskOrderFetcher{db}}
+func NewMoveTaskOrderUpdater(db *pop.Connection) services.MoveTaskOrderUpdater {
+	return &moveTaskOrderUpdater{db, moveTaskOrderFetcher{db},}
 }
 
 //MakeAvailableToPrime updates the status of a MoveTaskOrder for a given UUID to make it available to prime
-func (f moveTaskOrderFetcher) MakeAvailableToPrime(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error) {
+func (f moveTaskOrderUpdater) MakeAvailableToPrime(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error) {
 	mto, err := f.FetchMoveTaskOrder(moveTaskOrderID)
 	if err != nil {
 		return &models.MoveTaskOrder{}, err
@@ -157,5 +158,15 @@ func (f moveTaskOrderFetcher) MakeAvailableToPrime(moveTaskOrderID uuid.UUID) (*
 	if err != nil {
 		return &models.MoveTaskOrder{}, err
 	}
+	return mto, nil
+}
+
+func (f moveTaskOrderUpdater) UpdateMTOPersonallyProcuredMove(moveTaskOrderID uuid.UUID, personallyProcuredMoveID uuid.UUID) (*models.MoveTaskOrder, error) {
+	//ppm, err := f.PersonallyProcuredMoveFetcher.FetchPersonallyProcuredMove(personallyProcuredMoveID)
+	mto, err := f.FetchMoveTaskOrder(moveTaskOrderID)
+	if err != nil {
+		return &models.MoveTaskOrder{}, err
+	}
+
 	return mto, nil
 }

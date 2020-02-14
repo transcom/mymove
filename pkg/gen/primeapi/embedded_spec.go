@@ -1257,6 +1257,9 @@ func init() {
             "$ref": "#/definitions/PaymentRequest"
           }
         },
+        "personally_procured_move": {
+          "$ref": "#/definitions/PersonallyProcuredMove"
+        },
         "referenceId": {
           "type": "string",
           "x-nullable": true,
@@ -2843,6 +2846,9 @@ func init() {
           "items": {
             "$ref": "#/definitions/PaymentRequest"
           }
+        },
+        "personally_procured_move": {
+          "$ref": "#/definitions/PersonallyProcuredMove"
         },
         "referenceId": {
           "type": "string",

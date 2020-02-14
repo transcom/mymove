@@ -46,6 +46,9 @@ type MoveTaskOrder struct {
 	// payment requests
 	PaymentRequests []*PaymentRequest `json:"payment_requests"`
 
+	// personally procured move
+	PersonallyProcuredMove *PersonallyProcuredMove `json:"personally_procured_move,omitempty"`
+
 	// reference Id
 	ReferenceID *string `json:"referenceId,omitempty"`
 
@@ -79,6 +82,10 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validatePaymentRequests(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePersonallyProcuredMove(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -192,6 +199,24 @@ func (m *MoveTaskOrder) validatePaymentRequests(formats strfmt.Registry) error {
 			}
 		}
 
+	}
+
+	return nil
+}
+
+func (m *MoveTaskOrder) validatePersonallyProcuredMove(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.PersonallyProcuredMove) { // not required
+		return nil
+	}
+
+	if m.PersonallyProcuredMove != nil {
+		if err := m.PersonallyProcuredMove.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("personally_procured_move")
+			}
+			return err
+		}
 	}
 
 	return nil

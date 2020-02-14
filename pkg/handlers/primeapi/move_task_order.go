@@ -1,6 +1,7 @@
 package primeapi
 
 import (
+	"github.com/transcom/mymove/pkg/services"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -40,4 +41,16 @@ func (h FetchMTOUpdatesHandler) Handle(params movetaskorderops.FetchMTOUpdatesPa
 	payload := payloads.MoveTaskOrders(&mtos)
 
 	return movetaskorderops.NewFetchMTOUpdatesOK().WithPayload(payload)
+}
+
+type UpdateMTOPostCounselingInfoHandler struct {
+	handlers.HandlerContext
+	mtoUpdater services.MoveTaskOrderUpdater
+}
+
+func (h UpdateMTOPostCounselingInfoHandler) Handle(params movetaskorderops.UpdateMTOPostCounselingInformationParams) middleware.Responder {
+	//var mtos models.MoveTaskOrders
+
+	//payload := payloads.MoveTaskOrders(&mtos)
+	return movetaskorderops.NewUpdateMTOPostCounselingInformationOK()
 }

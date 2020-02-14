@@ -800,6 +800,8 @@ definitions:
           $ref: '#/definitions/MTOServiceItem'
       mto_shipments:
         $ref: '#/definitions/MTOShipments'
+      personally_procured_move:
+        $ref: '#/definitions/PersonallyProcuredMove'
   MoveTaskOrders:
     items:
       $ref: '#/definitions/MoveTaskOrder'

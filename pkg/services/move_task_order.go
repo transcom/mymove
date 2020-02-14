@@ -17,4 +17,5 @@ type MoveTaskOrderFetcher interface {
 //go:generate mockery -name MoveTaskOrderUpdater
 type MoveTaskOrderUpdater interface {
 	MakeAvailableToPrime(moveTaskOrderID uuid.UUID) (*models.MoveTaskOrder, error)
+	UpdateMTOPersonallyProcuredMove(moveTaskOrderID uuid.UUID, personallyProcuredMoveID uuid.UUID) (*models.MoveTaskOrder, error)
 }
