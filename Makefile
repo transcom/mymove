@@ -161,7 +161,7 @@ client_deps: .check_hosts.stamp .check_node_version.stamp .client_deps.stamp ## 
 .PHONY: client_build
 client_build: .client_deps.stamp .client_build.stamp ## Build the client
 
-build/index.html: ## milmove serve_app requires this file to boot, but it isn't used during local development
+build/index.html: ## milmove serve requires this file to boot, but it isn't used during local development
 	mkdir -p build
 	touch build/index.html
 
@@ -306,7 +306,7 @@ server_build: bin/milmove ## Build the server
 # This command is for running the server by itself, it will serve the compiled frontend on its own
 # Note: Don't double wrap with aws-vault because the pkg/cli/vault.go will handle it
 server_run_standalone: check_log_dir server_build client_build db_dev_run
-	DEBUG_LOGGING=true ./bin/milmove serve_${APPLICATION} 2>&1 | tee -a log/dev.log
+	DEBUG_LOGGING=true ./bin/milmove serve 2>&1 | tee -a log/dev.log
 
 # This command will rebuild the swagger go code and rerun server on any changes
 server_run:
@@ -323,7 +323,7 @@ server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.sta
 		--excludeDir node_modules \
 		--immediate \
 		--buildArgs "-i -ldflags=\"$(WEBSERVER_LDFLAGS)\"" \
-		serve_${APPLICATION} \
+		serve \
 		2>&1 | tee -a log/dev.log
 
 .PHONY: server_run_debug
