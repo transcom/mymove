@@ -321,12 +321,16 @@ jobs:
       # this is so we can avoid go mod downloading and resulting in an error on a false positive
       - run: scripts/pre-commit-go-mod || exit 0
       - run:
-          name: Run pre-commit tests
+          name: Run pre-commit tests without golangci-lint
+          command: SKIP=golangci-lint pre-commit run -v --all-files
+      - run:
+          name: Run pre-commit tests with golangci-lint only
           command: |
             echo 'export GOLANGCI_LINT_CONCURRENCY=1' >> $BASH_ENV
             echo 'export GOLANGCI_LINT_VERBOSE=-v' >> $BASH_ENV
             source $BASH_ENV
-            pre-commit run --all-files | tee tmp/test-results/pretest/pretest.out
+            mkdir -p tmp/test-results/pretest
+            pre-commit run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
       # `pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}` is used to cache pre-commit plugins.
       - save_cache:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
