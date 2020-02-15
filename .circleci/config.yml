@@ -322,7 +322,8 @@ jobs:
       - run: scripts/pre-commit-go-mod || exit 0
       - run:
           name: Run pre-commit tests without golangci-lint
-          command: SKIP=golangci-lint pre-commit run -v --all-files
+          command: SKIP=golangci-lint pre-commit run --all-files
+      # The output of golangci-lint is an artifact towards STIG compliance
       - run:
           name: Run pre-commit tests with golangci-lint only
           command: |
