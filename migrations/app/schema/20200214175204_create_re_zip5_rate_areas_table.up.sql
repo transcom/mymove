@@ -11,9 +11,6 @@ create table re_zip5_rate_areas
 );
 
 alter table re_zip3s
-    add rate_area_id uuid
-    constraint re_zip3s_rate_area_id_fkey references re_rate_areas,
+    add rate_area_id uuid null
+     constraint re_zip3s_rate_area_id_fkey references re_rate_areas,
     add has_multiple_rate_areas boolean not null default false
-    constraint re_zip3s_has_zip5 CHECK (
-        (has_multiple_rate_areas = true and rate_area_id is null) or (has_multiple_rate_areas = false and rate_area_id is not null)
-    );
